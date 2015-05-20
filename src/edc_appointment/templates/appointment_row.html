@@ -1,0 +1,77 @@
+{% extends 'base_appointment_row.html' %}
+{% load admin_urls %}
+{% load url from future %}
+{% load appointment_tags %}
+{% load common_tags%}
+
+{% block appointment_columns %}
+<td>
+        {%if appointment.visit_definition.code == visit_code%}
+            <B>
+        {% endif %}
+
+        {{ appointment.visit_definition.code }}.{{ appointment.visit_instance }}
+        
+
+        {%if appointment.visit_definition.code == visit_code %}
+            </B>
+        {% endif %}
+        
+</td>
+<td>    {%if appointment.visit_definition.code == visit_code%}
+            <B>
+        {% endif %}
+    
+        {{ appointment.visit_definition.title }}
+    
+        {%if appointment.visit_definition.code == visit_code %}
+            </B>
+        {% endif %}
+</td>
+<td>{{ appointment.appt_type|appt_type }}</td>
+<td nowrap>{{ appointment.appt_datetime|date:"Y-m-d D" }}{% if appointment.appt_type == 'clinic' and appointment.appt_status == 'new' %}{% if appointment.is_confirmed %}/C{%else%}/NC{%endif%}{%endif%}
+{% if appointment.appt_status == 'incomplete'%}<br>(<A href="{% url 'admin:appointment_appointment_add' %}?next={{ subject_dashboard_url|default:'dashboard_url' }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&registered_subject={{ registered_subject.pk }}&visit_definition={{appointment.visit_definition.pk}}{{ extra_url_context|default:"" }}">add con't?</A>){% endif %}</td>
+{% endblock appointment_columns %}
+
+{% block appointment_status_column %}
+<td>
+<A href="{% url 'admin:appointment_appointment_change' appointment.pk %}?next={{ subject_dashboard_url|default:'dashboard_url' }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&registered_subject={{ registered_subject.pk }}{{ extra_url_context|default:"" }}">
+    {{ appointment.get_appt_status_display }}
+    {% if appointment.appt_status == 'incomplete'%}<font color="red">*</font>{% endif %}
+    {% if appointment.appt_status == 'in_progress'%}<font color="green">*</font>{% endif %}    
+</A>
+</td>
+{% endblock appointment_status_column %}
+
+{% block visit_report_column %}
+    {% if appointment|get_field:appointment_visit_attr %}
+        <td><A href="{% url visit_model_admin_url_change appointment|get_field:appointment_visit_attr|get_field:'pk' %}?next={{ subject_dashboard_url|default:'dashboard_visit_url' }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&appointment={{ appointment.pk }}{{ extra_url_context|default:"" }}">{{appointment|get_field:appointment_visit_attr|get_field:'report_datetime'|date:"Y-m-d D"}}</A></td>
+        <td>{%if appointment.visit_definition.code == visit_code%}
+            <B>
+        {% endif %}
+        {{ appointment|get_field:appointment_visit_attr|get_field:'reason' }}
+        {%if appointment.visit_definition.code == visit_code %}
+            </B>
+        {% endif %}</td>
+        
+    {% else %}    
+        {% if appointment.appt_status == 'cancelled' %}
+            <td>&nbsp;</td>
+        {% else %}
+            <td><span style="background-color:red;">&nbsp;</span>&nbsp;<A href="{% url visit_model_admin_url_add %}?next={{ subject_dashboard_url|default:'dashboard_url' }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&appointment={{ appointment.pk }}{{ extra_url_context|default:"" }}">Add Visit Report</A></td>            
+        {% endif%}            
+        <td></td>                
+    {% endif%}
+{% endblock visit_report_column %}
+
+{% block show_column %}
+    <td>
+    {% if show = 'appointments' %}
+        {% if appointment|get_field:appointment_visit_attr|get_field:'pk'%}
+            <A href="{% url subject_dashboard_url|default:'dashboard_url' dashboard_type=dashboard_type dashboard_model='visit' dashboard_id=appointment|get_field:appointment_visit_attr|get_field:'pk' show='forms' %}">show forms</A>                    
+        {% endif %}
+    {% else %}
+        <A href="{% url subject_dashboard_url|default:'dashboard_url' dashboard_type=dashboard_type dashboard_model='appointment' dashboard_id=appointment.pk show='appointments'%}">show appointments</A>
+    {% endif %}
+    </td>
+{% endblock show_column %}
