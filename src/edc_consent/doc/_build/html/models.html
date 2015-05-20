@@ -1,0 +1,197 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Models &mdash; bhp_consent 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="bhp_consent 1.0 documentation" href="index.html" />
+    <link rel="next" title="Signals" href="signals.html" />
+    <link rel="prev" title="ConsentHelper Class" href="consent_helper.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="signals.html" title="Signals"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="consent_helper.html" title="ConsentHelper Class"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">bhp_consent 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="models">
+<h1>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="base-classes-for-subject-models">
+<h2>Base Classes for Subject Models<a class="headerlink" href="#base-classes-for-subject-models" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="consent-base-classes">
+<h2>Consent Base Classes<a class="headerlink" href="#consent-base-classes" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="consent-catalogue">
+<h2>Consent Catalogue<a class="headerlink" href="#consent-catalogue" title="Permalink to this headline">¶</a></h2>
+<p>Each consent type is cataloged by name, version and time period. For each cataloged
+consent, the models it covers are listed. When a subject_instance is saved, ModelForm <tt class="xref py py-func docutils literal"><span class="pre">clean()</span></tt> and
+Model <tt class="xref py py-func docutils literal"><span class="pre">save()</span></tt> check that the model class of the subject instance is named in the list of
+models covered by the subject&#8217;s consent.</p>
+<dl class="class">
+<dt id="consent_catalogue.ConsentCatalogue">
+<em class="property">class </em><tt class="descclassname">consent_catalogue.</tt><tt class="descname">ConsentCatalogue</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/consent_catalogue.html#ConsentCatalogue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#consent_catalogue.ConsentCatalogue" title="Permalink to this definition">¶</a></dt>
+<dd><p>ConsentCatalogue(created, modified, user_created, user_modified, hostname_created, hostname_modified, id, name, content_type_map_id, consent_type, version, start_datetime, end_datetime, list_for_update, add_for_app)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">consent catalogue</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">bhp_consent_consentcatalogue</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>CharField</em>) &#8211; Name</li>
+<li><strong>content_type_map_id</strong> (<em>ForeignKey</em>) &#8211; Content type map</li>
+<li><strong>consent_type</strong> (<em>CharField</em>) &#8211; Consent type</li>
+<li><strong>version</strong> (<em>IntegerField</em>) &#8211; Version</li>
+<li><strong>start_datetime</strong> (<em>DateTimeField</em>) &#8211; Start datetime</li>
+<li><strong>end_datetime</strong> (<em>DateTimeField</em>) &#8211; End datetime</li>
+<li><strong>list_for_update</strong> (<em>BooleanField</em>) &#8211; Display for update</li>
+<li><strong>add_for_app</strong> (<em>CharField</em>) &#8211; If app_name is provided, all models for given app_name will be added to the Attached Models after save. Will not add a model already listed below (no duplicates).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="attached_model.AttachedModel">
+<em class="property">class </em><tt class="descclassname">attached_model.</tt><tt class="descname">AttachedModel</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/attached_model.html#AttachedModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attached_model.AttachedModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Models that are linked to a catalogue entry.</p>
+<p>Search the attached models by content_type_map to determine the consent_catalogue and from that, the consent model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">attached model</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">bhp_consent_attachedmodel</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>consent_catalogue_id</strong> (<em>ForeignKey</em>) &#8211; Consent catalogue</li>
+<li><strong>content_type_map_id</strong> (<em>ForeignKey</em>) &#8211; Subject model</li>
+<li><strong>is_active</strong> (<em>BooleanField</em>) &#8211; Is active</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Models</a><ul>
+<li><a class="reference internal" href="#base-classes-for-subject-models">Base Classes for Subject Models</a></li>
+<li><a class="reference internal" href="#consent-base-classes">Consent Base Classes</a></li>
+<li><a class="reference internal" href="#consent-catalogue">Consent Catalogue</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="consent_helper.html"
+                        title="previous chapter">ConsentHelper Class</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="signals.html"
+                        title="next chapter">Signals</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/models.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="signals.html" title="Signals"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="consent_helper.html" title="ConsentHelper Class"
+             >previous</a> |</li>
+        <li><a href="index.html">bhp_consent 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, erik van widenfelt.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
