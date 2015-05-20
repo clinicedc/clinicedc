@@ -1,0 +1,4 @@
+
+
+class VisitTrackingError(Exception):
+    pass
