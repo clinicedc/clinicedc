@@ -1,0 +1,4 @@
+
+
+class MembershipFormError(Exception):
+    pass
