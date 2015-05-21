@@ -86,16 +86,16 @@ class InfantIdentifier(BaseIdentifier):
         """ Updates registered subject after a new subject edc_identifier is created."""
         RegisteredSubject = apps.get_model('registration', 'registeredsubject')
         RegisteredSubject.objects.using(self.using).create(
-                subject_identifier=new_identifier,
-                registration_datetime=datetime.now(),
-                subject_type=self.subject_type,
-                user_created=self.user,
-                created=datetime.now(),
-                first_name='',
-                initials='',
-                registration_status='registered',
-                relative_identifier=self.maternal_identifier,
-                study_site=self.study_site)
+            subject_identifier=new_identifier,
+            registration_datetime=datetime.now(),
+            subject_type=self.subject_type,
+            user_created=self.user,
+            created=datetime.now(),
+            first_name='',
+            initials='',
+            registration_status='registered',
+            relative_identifier=self.maternal_identifier,
+            study_site=self.study_site)
         return new_identifier
 
     def _get_suffix(self):
