@@ -18,14 +18,6 @@ class TestDevice(SimpleTestCase):
         """ must be a number without spaces"""
         self.assertRaises(ImproperlyConfigured, Device, device_id='1 ', settings_device=' 1')
 
-#     def test_device4(self):
-#         """ must be a number not \'\' """
-#         self.assertRaises(ImproperlyConfigured, Device, device_id='', settings_device='')
-
-#     def test_device5(self):
-#         """ cannot be None """
-#         self.assertRaises(ImproperlyConfigured, Device, device_id=None, settings_device=None)
-
     def test_device6(self):
         """ does implicit conversion to string """
         self.assertEquals(Device(device_id=55).device_id, '55')
