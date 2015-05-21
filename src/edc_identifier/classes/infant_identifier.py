@@ -10,8 +10,10 @@ from . import BaseIdentifier
 
 class InfantIdentifier(BaseIdentifier):
 
-    """ Creates an infant edc_identifier derived from the maternal edc_identifier, considers the number of infants
-    during this registration session and their birth order and returns a dictionary {infant order: edc_identifier}.
+    """ Creates an infant edc_identifier derived from the maternal edc_identifier.
+
+    - considers the number of infants during this registration session and
+      their birth order and returns a dictionary {infant order: edc_identifier}.
 
     Usage::
         >>> if not change:
@@ -68,10 +70,13 @@ class InfantIdentifier(BaseIdentifier):
         if self.live_infants_to_register == 0:
             raise IdentifierError("Number of live_infants_to_register may not be 0!.")
         if self.live_infants_to_register > self.live_infants:
-            raise IdentifierError('Number of infants to register ({0}) may not exceed '
-                                  'number of live infants ({1}).'.format(self.live_infants_to_register, self.live_infants))
+            raise IdentifierError(
+                'Number of infants to register ({0}) may not exceed '
+                'number of live infants ({1}).'.format(
+                    self.live_infants_to_register, self.live_infants))
         if self.birth_order > self.live_infants:
-            raise IdentifierError("Invalid birth order if number of live infants is {0}.".format(self.live_infants))
+            raise IdentifierError(
+                "Invalid birth order if number of live infants is {0}.".format(self.live_infants))
         options.update(
             maternal_identifier=self.maternal_identifier,
             suffix=self._get_suffix())
@@ -102,7 +107,8 @@ class InfantIdentifier(BaseIdentifier):
     def _get_base_suffix(self):
         """ Return a two digit suffix based on the number of live infants.
 
-        In the case of twins, triplets, ... will be incremented by 10's during registration for each subsequent infant registered.
+        In the case of twins, triplets, ... will be incremented
+        by 10's during registration for each subsequent infant registered.
         """
 
         if self.live_infants == 1:
@@ -114,5 +120,7 @@ class InfantIdentifier(BaseIdentifier):
         elif self.live_infants == 4:
             suffix = 47  # quadruplets 47,48,49,50
         else:
-            raise TypeError('Ensure number of infants is greater than 0 and less than or equal to 4. You wrote %s' % (self.live_infants))
+            raise TypeError(
+                'Ensure number of infants is greater than 0 and less than or '
+                'equal to 4. You wrote %s' % (self.live_infants))
         return suffix

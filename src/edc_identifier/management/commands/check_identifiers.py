@@ -12,13 +12,15 @@ class Command(BaseCommand):
     args = '--check <subject_type> --update <subject_type>'
     help = 'Check / Update SubjectIdentifier model from RegisteredSubject Model'
     option_list = BaseCommand.option_list + (
-        make_option('--update',
+        make_option(
+            '--update',
             action='store_true',
             dest='update',
             default=False,
             help=('Update SubjectIdentifier. (DATA WILL BE CHANGED.).')), )
     option_list += (
-        make_option('--check',
+        make_option(
+            '--check',
             action='store_true',
             dest='check',
             default=False,
@@ -44,8 +46,11 @@ class Command(BaseCommand):
 
     def _process(self, subject_type, action):
         n = 0
-        tot = RegisteredSubject.objects.filter(subject_identifier__isnull=False, subject_type=subject_type).count()
-        for rs in RegisteredSubject.objects.filter(subject_identifier__isnull=False, subject_type=subject_type):
+        tot = RegisteredSubject.objects.filter(
+            subject_identifier__isnull=False,
+            subject_type=subject_type).count()
+        for rs in RegisteredSubject.objects.filter(
+                subject_identifier__isnull=False, subject_type=subject_type):
             if not SubjectIdentifier.objects.filter(identifier=rs.subject_identifier).exists():
                 n += 1
                 print('    {0} / {1} {2}, missing.'.format(n, tot, rs.subject_identifier))
@@ -55,5 +60,7 @@ class Command(BaseCommand):
             else:
                 print('    {0} / {1} {2}, found.'.format(n, tot, rs.subject_identifier))
         if action == 'check':
-            print('{0} / {1} identifiers NOT found in RegisteredSubject but not in SubjectIdentifier'.format(n, tot))
+            print(
+                '{0} / {1} identifiers NOT found in RegisteredSubject but '
+                'not in SubjectIdentifier'.format(n, tot))
         print('Done.')

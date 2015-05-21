@@ -1,1 +1,2 @@
-from .main import *
+from .identifier_tracker_admin import IdentifierTrackerAdmin
+from .subject_identifier_admin import SubjectIdentifierAdmin

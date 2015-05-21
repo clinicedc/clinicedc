@@ -88,7 +88,8 @@ class BaseIdentifier(object):
             raise AttributeError('Attribute identifier_format may not be None.')
         for k, v in custom_options.items():
             if k not in self.identifier_format:
-                raise IndentifierFormatError('Unexpected keyword {0} for edc_identifier format {1}'.format(k, self.identifier_format))
+                raise IndentifierFormatError(
+                    'Unexpected keyword {0} for edc_identifier format {1}'.format(k, self.identifier_format))
             options.update({k: v})
         return options
 
@@ -105,7 +106,8 @@ class BaseIdentifier(object):
             check_digit = CheckDigit()
             return "{base}-{check_digit}".format(
                 base=base_new_identifier,
-                check_digit=check_digit.calculate(int(re.search('\d+', base_new_identifier.replace('-', '')).group(0)), self.modulus))
+                check_digit=check_digit.calculate(
+                    int(re.search('\d+', base_new_identifier.replace('-', '')).group(0)), self.modulus))
 
     def _get_identifier_history_model_options(self):
         """Returns the options to create a new history model instance."""
@@ -149,10 +151,11 @@ class BaseIdentifier(object):
         try:
             new_identifier = self.identifier_format.format(**format_options)
         except KeyError:
-            raise IndentifierFormatError('Missing key/pair for edc_identifier format. '
-                                         'Got format {0} with dictionary {1}. Either correct the edc_identifier '
-                                         'format or provide a value for each place holder in the edc_identifier '
-                                         'format.'.format(self.identifier_format, format_options))
+            raise IndentifierFormatError(
+                'Missing key/pair for edc_identifier format. '
+                'Got format {0} with dictionary {1}. Either correct the edc_identifier '
+                'format or provide a value for each place holder in the edc_identifier '
+                'format.'.format(self.identifier_format, format_options))
         # check if adding a check digit
         if self.add_check_digit:
             new_identifier = self.get_check_digit(new_identifier)
