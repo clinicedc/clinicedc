@@ -15,3 +15,4 @@ class Sequence(BaseModel):
     class Meta:
         app_label = 'edc_identifier'
         ordering = ['id', ]
+        unique_together = ('id', 'device_id')
