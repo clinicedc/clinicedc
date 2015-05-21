@@ -12,13 +12,14 @@ class Device(object):
     SERVER_ID = '99'
     SERVER_DEVICE_ID_LIST = settings.SERVER_DEVICE_ID_LIST
     MIDDLEMAN_DEVICE_ID_LIST = settings.MIDDLEMAN_DEVICE_ID_LIST
+    DEFAULT_DEVICE_ID = '99'
 
     def __init__(self, device_id=None, settings_device=None):
         try:
             self.device_id = str(int(device_id))
         except (ValueError, TypeError):
             try:
-                self.device_id = str(int(settings_device))
+                self.device_id = str(int(settings_device or settings.DEVICE_ID or self.DEFAULT_DEVICE_ID))
             except (ValueError, TypeError):
                 raise ImproperlyConfigured('Invalid DEVICE_ID. Must be a number. Got {}.'.format(device_id))
             except AttributeError:
