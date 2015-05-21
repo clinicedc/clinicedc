@@ -54,8 +54,3 @@ class Device(object):
         hostname = producer_name.split('-')[0]
         return (hostname.startswith(settings.PRODUCER_PREFIX) and
                 int(hostname[4:]) in self.SERVER_DEVICE_ID_LIST)
-
-# try:
-#     device = Device()
-# except (ValueError, TypeError):
-#     raise ImproperlyConfigured('Invalid DEVICE_ID. Check settings attribute DEVICE_ID.')
