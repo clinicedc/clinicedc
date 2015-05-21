@@ -1,10 +1,13 @@
 from django.db import models
 from django.apps import apps
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 
 from edc_base.model.models import BaseUuidModel
-from edc_sync.mixins import SyncMixin
+
+try:
+    from edc_sync.mixins import SyncMixin
+except ImportError:
+    SyncMixin = type('SyncMixin', (object, ), {})
 
 from ..managers import IdentifierManager
 
@@ -31,7 +34,7 @@ class BaseIdentifierModel(BaseUuidModel, SyncMixin):
                     kwargs.get('using', None)).create(device_id=self.device_id)
                 self.sequence_number = sequence.pk
         if not self.identifier:
-            raise AttributeError('IdentifierModel attribute \'edc_identifier\' cannot be None. '
+            raise AttributeError('IdentifierModel attribute \'identifier\' cannot be None. '
                                  'Set as a unique uuid or a unique formatted edc_identifier.')
         super(BaseIdentifierModel, self).save(*args, **kwargs)
 

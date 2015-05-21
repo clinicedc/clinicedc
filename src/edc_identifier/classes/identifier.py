@@ -41,10 +41,11 @@ class Identifier(object):
         self.set_counter_length(kwargs.get('counter_length', 1))
         self.set_identifier_type(kwargs.get('identifier_type', 'unknown'))
 
-    def __unicode__(self):
+    def __str__(self):
         return self.get_identifier()
 
-    def create(self, root_segment=None, counter_length=None, has_check_digit=None, modulus=None, check_digit_length=None, add_check_digit_if_missing=None):
+    def create(self, root_segment=None, counter_length=None, has_check_digit=None,
+               modulus=None, check_digit_length=None, add_check_digit_if_missing=None):
         """Create a new edc_identifier."""
         # either root_segment has a check digit or it will get one BEFORE encoding
         self._has_check_digit = has_check_digit
@@ -57,11 +58,17 @@ class Identifier(object):
                 self._add_check_digit_to_identifier = add_check_digit_if_missing
         if has_check_digit:
             if not check_digit_length:
-                raise TypeError('Argument \'check_digit_length\' cannot be None if the root_segment provided \'has_check_digit\'. Specify the length of the check digit postfix for root_segment {0}'.format(root_segment))
+                raise TypeError(
+                    'Argument \'check_digit_length\' cannot be None if the root_segment '
+                    'provided \'has_check_digit\'. Specify the length of the check digit '
+                    'for root_segment {0}'.format(root_segment))
             else:
                 self.set_check_digit_length(check_digit_length)
             if not modulus:
-                raise TypeError('Argument \'modulus\' cannot be None if the root_segment provided \'has_check_digit\'. Specify the modulus to calculate check digit for root_segment {0}'.format(root_segment))
+                raise TypeError(
+                    'Argument \'modulus\' cannot be None if the root_segment provided '
+                    '\'has_check_digit\'. Specify the modulus to calculate check digit '
+                    'for root_segment {0}'.format(root_segment))
             else:
                 self.set_modulus(modulus)
         if has_check_digit and add_check_digit_if_missing:
@@ -108,7 +115,8 @@ class Identifier(object):
            """
 
         # search for last edc_identifier with this root segment
-        last_identifier = IdentifierTracker.objects.filter(root_number=self.get_root_segment()).order_by('-counter')
+        last_identifier = IdentifierTracker.objects.filter(
+            root_number=self.get_root_segment()).order_by('-counter')
         # increment
         if last_identifier:
             self.set_counter(last_identifier[0].counter + 1)
@@ -117,7 +125,6 @@ class Identifier(object):
             self.set_counter(1)
         try:
             if isinstance(identifier_tracker, IdentifierTracker):
-                #self.self.set_counter(self.get_counter() + 1)
                 identifier_tracker.counter = self.get_counter()
                 self._identifier_tracker = identifier_tracker
             else:
@@ -126,12 +133,14 @@ class Identifier(object):
                     root_number=self.get_root_segment(),
                     counter=self.get_counter(),
                     identifier_type=self.get_identifier_type(),
-                    )
+                )
             self._identifier_tracker.save()
         except IntegrityError as e:
             raise e
         except:
-            raise IdentifierError('Failed to save() to IdentifierTracker table, your edc_identifier was not created. Is it unique?')
+            raise IdentifierError(
+                'Failed to save() to IdentifierTracker table, your edc_identifier was '
+                'not created. Is it unique?')
 
     def update_tracker(self):
         """update our IdentifierTracker record with created edc_identifier"""
@@ -165,17 +174,26 @@ class Identifier(object):
         return self._given_root_segment
 
     def set_root_segment(self, value=None):
-        """Derives the root segment of the edc_identifier from either a given segment or site, protocol, date."""
+        """Derives the root segment of the edc_identifier from either a given segment
+        or site, protocol, date."""
         if value:
             if self._has_check_digit:
                 # confirm the check digit is valid
                 check_digit_length = self.get_check_digit_length()
                 if not int(value[0:-check_digit_length]) % self.get_modulus() == int(value[-check_digit_length]):
-                    raise CheckDigitError('Invalid unencoded_value. Has_check_digit=True so last digit should be %s which is the modulus %s of %s, Got %s' % (int(value[0:-check_digit_length]) % self.get_modulus(), self.get_modulus(), value[0:-check_digit_length], value[-check_digit_length]))
+                    raise CheckDigitError(
+                        'Invalid unencoded_value. Has_check_digit=True so last digit should be %s '
+                        'which is the modulus %s of %s, Got %s' % (
+                            int(value[0:-check_digit_length]) % self.get_modulus(),
+                            self.get_modulus(),
+                            value[0:-check_digit_length],
+                            value[-check_digit_length]))
             self._root_segment = str(value)
         else:
-            """Set root_segment, un-encoded root_segment, as site_code + protocol_code + 2digitmonth + 2digityear"""
-            self._root_segment = "%s%s%s%s" % (self.get_site_code(), self.protocol_code, self._mm, self._yy.rjust(2, '0'))
+            """Set root_segment, un-encoded root_segment, as
+            site_code + protocol_code + 2digitmonth + 2digityear"""
+            self._root_segment = "%s%s%s%s" % (
+                self.get_site_code(), self.protocol_code, self._mm, self._yy.rjust(2, '0'))
         self.set_root_length(len(self._root_segment))
 
     def get_root_segment(self):
@@ -188,7 +206,7 @@ class Identifier(object):
             # in this case, edc_identifier string will have no counter segment
             return ''
         else:
-            return  str(self.get_counter()).rjust(self.get_counter_length(), self.get_pad_char())
+            return str(self.get_counter()).rjust(self.get_counter_length(), self.get_pad_char())
 
     def set_counter_length(self, value):
         if not isinstance(value, int):
@@ -292,7 +310,8 @@ class Identifier(object):
         if not alphabet:
             alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         if not isinstance(unencoded_value, (int)):
-            raise IdentifierEncodingError('unencoded_value passed for encoding must be an integer. Got {0}'.format(unencoded_value))
+            raise IdentifierEncodingError(
+                'unencoded_value passed for encoding must be an integer. Got {0}'.format(unencoded_value))
         if encoding:
             if encoding == 'base36':
                 # Special case for zero
@@ -308,12 +327,14 @@ class Identifier(object):
                     base36 = alphabet[i] + base36
                 encoded_value = sign + base36
             else:
-                raise IdentifierEncodingError('Invalid or unhandled encoding parameter. Got {0}'.format(encoding))
+                raise IdentifierEncodingError(
+                    'Invalid or unhandled encoding parameter. Got {0}'.format(encoding))
         if not encoded_value:
             raise IdentifierEncodingError('Value was not encoded.')
         return encoded_value
 
-    def decode(self, encoded_value, encoding, has_check_digit=None, check_digit_length=None, modulus=None, decoded_value_keeps_check_digit=None):
+    def decode(self, encoded_value, encoding, has_check_digit=None, check_digit_length=None,
+               modulus=None, decoded_value_keeps_check_digit=None):
         """Decodes an encoded value and handles check digit if it has one.
 
         ..warning:: This only works of check digit is a single digit, so must be mod7"""
@@ -328,12 +349,16 @@ class Identifier(object):
         if encoding == 'base36':
             decoded_number = str(int(encoded_value, 36))
         else:
-            raise IdentifierDecodingError('Attribute encoding is invalid or unhandled. Got {0}'.format(encoding))
+            raise IdentifierDecodingError(
+                'Attribute encoding is invalid or unhandled. Got {0}'.format(encoding))
         if has_check_digit:
             # assume last digit is the check digit
             if not int(decoded_number[0:-check_digit_length]) % modulus == int(decoded_number[-check_digit_length]):
                 check_digit = int(decoded_number[0:-1]) % modulus
-                raise CheckDigitError('Invalid edc_identifier after decoding. Last digit should be {0} which is the modulus {1} of {2}, Got {3}'.format(check_digit, modulus, decoded_number[0:-1], decoded_number[-1]))
+                raise CheckDigitError(
+                    'Invalid edc_identifier after decoding. Last digit should be {0} which '
+                    'is the modulus {1} of {2}, Got {3}'.format(
+                        check_digit, modulus, decoded_number[0:-1], decoded_number[-1]))
             else:
                 if not decoded_value_keeps_check_digit:
                     decoded_number = decoded_number[0:-check_digit_length]

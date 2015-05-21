@@ -5,10 +5,10 @@ from django.apps import apps
 from ..exceptions import IdentifierError
 from ..models import SubjectIdentifier
 
-from . import BaseSubjectIdentifier
+from . import BaseIdentifier
 
 
-class InfantIdentifier(BaseSubjectIdentifier):
+class InfantIdentifier(BaseIdentifier):
 
     """ Creates an infant edc_identifier derived from the maternal edc_identifier, considers the number of infants
     during this registration session and their birth order and returns a dictionary {infant order: edc_identifier}.
@@ -33,7 +33,8 @@ class InfantIdentifier(BaseSubjectIdentifier):
         >>>                subject_type='infant')
     """
 
-    def __init__(self, maternal_identifier, study_site, birth_order, live_infants, live_infants_to_register, user=None):
+    def __init__(self, maternal_identifier, study_site, birth_order, live_infants,
+                 live_infants_to_register, user=None):
         self.subject_type = 'infant'
         self.birth_order = birth_order
         self.live_infants = live_infants
@@ -42,7 +43,9 @@ class InfantIdentifier(BaseSubjectIdentifier):
         self.study_site = study_site
         self.user = user
         identifier_format = "{maternal_identifier}-{suffix}"
-        super(InfantIdentifier, self).__init__(identifier_format=identifier_format, site_code=study_site.site_code, is_derived=True, add_check_digit=False)
+        super(InfantIdentifier, self).__init__(
+            identifier_format=identifier_format, site_code=study_site.site_code, is_derived=True,
+            add_check_digit=False)
 
     def consent_required(self):
         return False

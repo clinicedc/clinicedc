@@ -3,7 +3,6 @@ import uuid
 
 from django.apps import apps
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 
 from edc_device.device import Device
 
@@ -21,8 +20,6 @@ class BaseIdentifier(object):
         modulus=None, identifier_prefix=None, is_derived=False, add_check_digit=None, using=None,
         sequence_app_label=None, sequence_model_name=None
     ):
-        self.identifier_format = None
-        self._identifier_history_model = None
         self._sequence_app_label = None
         self._sequence_model_name = None
         self.padding = None
@@ -47,7 +44,7 @@ class BaseIdentifier(object):
             self.modulus = modulus or settings.IDENTIFIER_MODULUS
         except AttributeError:
             modulus = modulus or 7
-        self.set_identifier_history_model(app_name, model_name)
+        self.identifier_history_model = apps.get_model(app_name, model_name)
         self.site_code = site_code or ''
 
     def _set_sequence_app_label(self, value):
@@ -100,16 +97,6 @@ class BaseIdentifier(object):
         identifier = self.get_identifier_post(identifier, **kwargs)
         return identifier
 
-    def set_identifier_history_model(self, app_name, model_name):
-        app_name = app_name or 'edc_identifier'
-        model_name = model_name or 'subjectidentifier'
-        self._identifier_history_model = apps.get_model(app_name, model_name)
-        if not self._identifier_history_model:
-            raise ImproperlyConfigured('Identifier history model with app_name={0} and model_name={1} does not exist.'.format(app_name, model_name))
-
-    def get_identifier_history_model(self):
-        return self._identifier_history_model
-
     def get_check_digit(self, base_new_identifier):
         """Adds a check digit base on the integers in the edc_identifier."""
         if not self.add_check_digit:
@@ -151,7 +138,7 @@ class BaseIdentifier(object):
         format_options = self._get_identifier_prep(**kwargs)
         if self.is_derived is None:
             raise AttributeError('Instance attribute is_derived has not been set. Options are True/False')
-        self.identifier_model = self.get_identifier_history_model().objects.using(
+        self.identifier_model = self.identifier_history_model.objects.using(
             self.using).create(**self._get_identifier_history_model_options())
         format_options.update(sequence=self.identifier_model.formatted_sequence)
         if self.is_derived:

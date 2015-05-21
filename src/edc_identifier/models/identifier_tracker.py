@@ -1,7 +1,10 @@
 from django.db import models
 
 from edc_base.model.models import BaseUuidModel
-from edc_sync.mixins import SyncMixin
+try:
+    from edc_sync.mixins import SyncMixin
+except ImportError:
+    SyncMixin = type('SyncMixin', (object, ), {})
 
 
 class IdentifierTracker(BaseUuidModel, SyncMixin):
