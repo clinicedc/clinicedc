@@ -42,7 +42,8 @@ class BaseLocator(BaseConsentedUuidModel):
     home_visit_permission = models.CharField(
         max_length=25,
         choices=YES_NO,
-        verbose_name="Has the participant given his/her permission for study staff to make home visits for follow-up purposes during the study?",
+        verbose_name=("Has the participant given his/her permission for study staff "
+                      "to make home visits for follow-up purposes during the study?"),
     )
 
     physical_address = EncryptedTextField(
@@ -56,7 +57,8 @@ class BaseLocator(BaseConsentedUuidModel):
     may_follow_up = models.CharField(
         max_length=25,
         choices=YES_NO,
-        verbose_name="Has the participant given his/her permission for study staff to call her for follow-up purposes during the study?",
+        verbose_name=("Has the participant given his/her permission for study staff "
+                      "to call her for follow-up purposes during the study?"),
     )
 
     may_sms_follow_up = models.CharField(
@@ -64,7 +66,8 @@ class BaseLocator(BaseConsentedUuidModel):
         choices=YES_NO,
         null=True,
         blank=False,
-        verbose_name="Has the participant given his/her permission for study staff to SMS her for follow-up purposes during the study?",
+        verbose_name=("Has the participant given his/her permission for study staff "
+                      "to SMS her for follow-up purposes during the study?"),
     )
 
     subject_cell = EncryptedCharField(
@@ -106,7 +109,8 @@ class BaseLocator(BaseConsentedUuidModel):
     may_call_work = models.CharField(
         max_length=25,
         choices=YES_NO_DOESNT_WORK,
-        verbose_name="Has the participant given his/her permission for study staff to contact her at work for follow up purposes during the study?",
+        verbose_name=("Has the participant given his/her permission for study staff "
+                      "to contact her at work for follow up purposes during the study?"),
     )
 
     subject_work_place = EncryptedTextField(
@@ -129,7 +133,8 @@ class BaseLocator(BaseConsentedUuidModel):
     may_contact_someone = models.CharField(
         max_length=25,
         choices=YES_NO,
-        verbose_name="Has the participant given his/her permission for study staff to contact anyone else for follow-up purposes during the study?",
+        verbose_name=("Has the participant given his/her permission for study staff "
+                      "to contact anyone else for follow-up purposes during the study?"),
         help_text="For example a partner, spouse, family member, neighbour ...",
     )
 
