@@ -4,12 +4,11 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from edc.audit.audit_trail import AuditTrail
-from edc.base.model.fields import IdentityTypeField
-from edc.choices.common import YES_NO, POS_NEG_UNKNOWN, ALIVE_DEAD_UNKNOWN
-from edc.core.bhp_variables.models import StudySite
-from edc.core.crypto_fields.fields import EncryptedIdentityField, SaltField
-from edc.core.crypto_fields.utils.mask_encrypted import mask_encrypted
+from edc_audit.audit_trail import AuditTrail
+from edc_base.model.fields import IdentityTypeField
+from edc_constants.choices import YES_NO, POS_NEG_UNKNOWN, ALIVE_DEAD_UNKNOWN
+from django_crypto_fields.fields import IdentityField
+from django_crypto_fields.utils.mask_encrypted import mask_encrypted
 from ..edc_subject.models import BaseSubject
 
 
@@ -42,7 +41,7 @@ class RegisteredSubject(BaseSubject):
         blank=True,
     )
 
-    study_site = models.ForeignKey(StudySite,
+    study_site = models.CharField(
         verbose_name='Site',
         help_text="",
         null=True,
@@ -57,7 +56,7 @@ class RegisteredSubject(BaseSubject):
         help_text="For example, mother's identifier, if available / appropriate"
     )
 
-    identity = EncryptedIdentityField(
+    identity = IdentityField(
         null=True,
         blank=True,
     )
@@ -72,12 +71,6 @@ class RegisteredSubject(BaseSubject):
         help_text=_("Does the subject agree to have samples stored after the study has ended")
     )
 
-    hiv_status = models.CharField(
-        verbose_name='Hiv status',
-        max_length=15,
-        choices=POS_NEG_UNKNOWN,
-        null=True,
-    )
     survival_status = models.CharField(
         verbose_name='Survival status',
         max_length=15,
@@ -105,7 +98,6 @@ class RegisteredSubject(BaseSubject):
     registration_status = models.CharField(
         verbose_name="Registration status",
         max_length=25,
-        # choices=REGISTRATION_STATUS,
         null=True,
         blank=True,
     )
@@ -130,8 +122,6 @@ class RegisteredSubject(BaseSubject):
                    'is not captured in this model'),
     )
 
-    salt = SaltField()
-
     history = AuditTrail()
 
     def save(self, *args, **kwargs):
@@ -140,7 +130,7 @@ class RegisteredSubject(BaseSubject):
             self.additional_key = None
         super(RegisteredSubject, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.sid:
             return "{0} {1} ({2} {3})".format(self.mask_unset_subject_identifier(),
                                               self.subject_type,
@@ -258,8 +248,7 @@ class RegisteredSubject(BaseSubject):
     dashboard.allow_tags = True
 
     class Meta:
-        app_label = 'registration'
-        db_table = 'bhp_registration_registeredsubject'
+        app_label = 'edc_registration'
         verbose_name = 'Registered Subject'
         ordering = ['subject_identifier']
         unique_together = ('first_name', 'dob', 'initials', 'additional_key')
