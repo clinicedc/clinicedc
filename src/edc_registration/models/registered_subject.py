@@ -4,12 +4,12 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from edc_audit.audit_trail import AuditTrail
+# from edc_audit.audit_trail import AuditTrail
 from edc_base.model.fields import IdentityTypeField
-from edc_constants.choices import YES_NO, POS_NEG_UNKNOWN, ALIVE_DEAD_UNKNOWN
+from edc_constants.choices import YES_NO, ALIVE_DEAD_UNKNOWN
 from django_crypto_fields.fields import IdentityField
-from django_crypto_fields.utils.mask_encrypted import mask_encrypted
-from ..edc_subject.models import BaseSubject
+
+from .base_subject import BaseSubject
 
 
 class RegisteredSubject(BaseSubject):
@@ -43,6 +43,7 @@ class RegisteredSubject(BaseSubject):
 
     study_site = models.CharField(
         verbose_name='Site',
+        max_length=25,
         help_text="",
         null=True,
         blank=True,
@@ -122,7 +123,7 @@ class RegisteredSubject(BaseSubject):
                    'is not captured in this model'),
     )
 
-    history = AuditTrail()
+    # history = AuditTrail()
 
     def save(self, *args, **kwargs):
         self.check_max_subjects()
@@ -134,12 +135,12 @@ class RegisteredSubject(BaseSubject):
         if self.sid:
             return "{0} {1} ({2} {3})".format(self.mask_unset_subject_identifier(),
                                               self.subject_type,
-                                              mask_encrypted(self.first_name),
+                                              self.first_name.field_cryptor.mask(self.first_name),
                                               self.sid)
         else:
             return "{0} {1} ({2})".format(self.mask_unset_subject_identifier(),
                                           self.subject_type,
-                                          mask_encrypted(self.first_name))
+                                          self.first_name.field_cryptor.mask(self.first_name),)
 
     def check_max_subjects(self, exception_cls=None, settings_attrs=None, count=None):
         """Checks the number of subjects against the settings attribute MAX_SUBJECTS.

@@ -8,3 +8,4 @@ class RegisteredSubjectForm (ModelForm):
 
     class Meta:
         model = RegisteredSubject
+        fields = "__all__"
