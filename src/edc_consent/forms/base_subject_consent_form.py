@@ -13,26 +13,12 @@ class BaseSubjectConsentForm(BaseModelForm):
     """Form for models that are a subclass of BaseConsent."""
     def clean(self):
 
-        cleaned_data = self.cleaned_data
-
         if not cleaned_data.get("gender", None):
             raise forms.ValidationError('Please specify the gender')
 
-        # check omang if identity_type is omang
-        # encrypted fields may cause problems if existing values
-        # cannot be decrypted, so call a custom field method validate_with_cleaned_data()
-        # to validate.
         for field in self._meta.model._meta.fields:
             if isinstance(field, BaseEncryptedField):
                 field.validate_with_cleaned_data(field.attname, cleaned_data)
-
-        """
-        check 1st and last letters of initials match subjects name
-        """
-        #        my_first_name = cleaned_data.get("first_name")
-        #        my_last_name = cleaned_data.get("last_name")
-        #        my_initials = cleaned_data.get("initials"
-        #        check_initials_field(my_first_name, my_last_name, my_initials)
 
         """
         if minor, force specify guardian's name
@@ -42,37 +28,17 @@ class BaseSubjectConsentForm(BaseModelForm):
         except IndexError:
             raise TypeError("Please add your bhp_variables site specifics")
 
-        # Get date the subject was consented so that when we validate consent age
-        # we get the age of the subject at the time of the consent
-        if cleaned_data.get('consent_datetime', None):
-            consent_datetime = cleaned_data.get('consent_datetime').date()
-        else:
-            consent_datetime = date.today()
 
-        if cleaned_data.get('dob', None):
-            rdelta = relativedelta(consent_datetime, cleaned_data.get('dob'))
-            if rdelta.years < obj.minimum_age_of_consent:
-                raise forms.ValidationError(u'Subject\'s age is %s. Subject is not eligible for edc_consent.' % (formatted_age(cleaned_data.get('dob'), date.today())))
-            # check if guardian name is required
+        validate_age(self):            
+        # check if guardian name is required
             # guardian name is required if subject is a minor but the field may not be on the form
             # if the study does not have minors.
-            if rdelta.years < obj.age_at_adult_lower_bound:
-                if "guardian_name" not in cleaned_data.keys():
-                    raise forms.ValidationError('Subject is a minor. "guardian_name" is required but missing from the form. Please add this field to the form.')
-                elif not cleaned_data.get("guardian_name", None):
-                    raise forms.ValidationError(u'Subject\'s age is %s. Subject is a minor. Guardian\'s name is required here and with signature on the paper document.' % (formatted_age(cleaned_data.get('dob'), date.today())))
-                # elif not re.match(r'\w+\,\ \w+', cleaned_data.get("guardian_name", '')):
-                #    raise forms.ValidationError('Invalid format for guardian name. Expected format \'FIRSTNAME, LASTNAME\'.')
-                else:
-                    pass
-            if rdelta.years >= obj.age_at_adult_lower_bound and "guardian_name" in cleaned_data.keys():
-                if not cleaned_data.get("guardian_name", None) == '':
-                    raise forms.ValidationError(u'Subject\'s age is %s. Subject is an adult. Guardian\'s name is NOT required.' % (formatted_age(cleaned_data.get('dob'), date.today())))
+        self.validate_guardian_name()
         # if edc_consent model has a ConsentAge method that returns an ordered range of ages as list
         if hasattr(self._meta.model, 'ConsentAge'):
             instance = self._meta.model()
             consent_age_range = instance.ConsentAge()
-            rdelta = relativedelta(consent_datetime, cleaned_data.get('dob'))
+            rdelta = relativedelta(self.consent_datetime, cleaned_data.get('dob'))
             if rdelta.years not in consent_age_range:
                 raise forms.ValidationError("Invalid Date of Birth. Age of edc_consent must be between %sy and %sy inclusive. Got %sy" % (consent_age_range[0], consent_age_range[-1], rdelta.years,))
 
@@ -119,3 +85,40 @@ class BaseSubjectConsentForm(BaseModelForm):
             return False
         else:
             return True
+
+    @property
+    def consent_datetime(self):
+        """Returns date the subject was consented.
+
+        We validate consent age against the time of consent and not now()."""
+        try:
+            return self.cleaned_data.get('consent_datetime').date()
+        except AttributeError:
+            return date.today()
+
+    @property
+    def dob(self, dob):
+        return self.cleaned_data.get('dob')
+
+    def validate_age(self):
+        if self.dob:
+            rdelta = relativedelta(self.consent_datetime, self.dob)
+            if rdelta.years < obj.minimum_age_of_consent:
+                raise forms.ValidationError(
+                    'Subject\'s age is {}. Subject is not eligible for informated consent.'.format(
+                        formatted_age(self.dob, date.today())))
+
+    def validate_guardian(self):
+        rdelta = relativedelta(self.consent_datetime, self.dob)
+        if rdelta.years < obj.age_at_adult_lower_bound:
+            if "guardian_name" not in cleaned_data.keys():
+                raise forms.ValidationError('Subject is a minor. "guardian_name" is required but missing from the form. Please add this field to the form.')
+            elif not cleaned_data.get("guardian_name", None):
+                raise forms.ValidationError(u'Subject\'s age is %s. Subject is a minor. Guardian\'s name is required here and with signature on the paper document.' % (formatted_age(cleaned_data.get('dob'), date.today())))
+            # elif not re.match(r'\w+\,\ \w+', cleaned_data.get("guardian_name", '')):
+            #    raise forms.ValidationError('Invalid format for guardian name. Expected format \'FIRSTNAME, LASTNAME\'.')
+            else:
+                pass
+        if rdelta.years >= obj.age_at_adult_lower_bound and "guardian_name" in cleaned_data.keys():
+            if not cleaned_data.get("guardian_name", None) == '':
+                raise forms.ValidationError(u'Subject\'s age is %s. Subject is an adult. Guardian\'s name is NOT required.' % (formatted_age(cleaned_data.get('dob'), date.today())))
