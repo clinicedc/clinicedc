@@ -1,5 +1,4 @@
-from edc.base.modeladmin.admin import BaseModelAdmin
-from edc.subject.consent.models import BaseConsent
+from edc_base.modeladmin.admin import BaseModelAdmin
 
 
 class BaseConsentUpdateModelAdmin(BaseModelAdmin):
@@ -12,4 +11,3 @@ class BaseConsentUpdateModelAdmin(BaseModelAdmin):
         if db_field.name == self.consent_name:
             kwargs["queryset"] = self.consent_model.objects.filter(pk=request.GET.get(db_field.name, None))
         super(BaseConsentUpdateModelAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-        

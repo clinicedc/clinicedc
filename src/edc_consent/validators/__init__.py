@@ -1,7 +1,7 @@
-from .date import *
-from .phone import *
-from edc_consent.validators.consent_age import *
-from edc_consent.validators.gender_of_consent_validator import *
-from .dob import *
-from .eligibility import *
-from .number import *
+from .consent_age_validator import MaxConsentAge, MinConsentAge
+from .eligibility_validators import (
+    eligible_if_yes, eligible_if_no, eligible_if_male,
+    eligible_if_female, eligible_if_positive, eligible_if_negative,
+    eligible_if_yes_or_declined
+)
+from .gender_of_consent_validator import GenderOfConsentValidator

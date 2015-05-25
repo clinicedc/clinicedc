@@ -11,10 +11,14 @@ class BaseConsentModelAdmin(BaseModelAdmin):
     def __init__(self, *args, **kwargs):
 
         super(BaseConsentModelAdmin, self).__init__(*args, **kwargs)
-        self.search_fields = ['id', 'subject_identifier', 'first_name', 'last_name', 'identity', ]
-        self.list_display = ['subject_identifier', 'is_verified', 'is_verified_datetime', 'first_name',
-                             'initials', 'gender', 'dob', 'consent_datetime', 'created', 'modified',
-                             'user_created', 'user_modified', ]
+        self.search_fields = [
+            'id', 'subject_identifier', 'first_name', 'last_name', 'identity'
+        ]
+        self.list_display = [
+            'subject_identifier', 'is_verified', 'is_verified_datetime', 'first_name',
+            'initials', 'gender', 'dob', 'consent_datetime', 'created', 'modified',
+            'user_created', 'user_modified'
+        ]
         self.actions.append(flag_as_verified_against_paper)
         self.actions.append(unflag_as_verified_against_paper)
         self.list_filter = [
@@ -70,7 +74,7 @@ class BaseConsentModelAdmin(BaseModelAdmin):
             "consent_copy": admin.VERTICAL,
             "is_literate": admin.VERTICAL}
 
-    #override to disallow subject to be changed
+    # override to disallow subject to be changed
     def get_readonly_fields(self, request, obj=None):
         super(BaseConsentModelAdmin, self).get_readonly_fields(request, obj)
         if obj:  # In edit mode

@@ -23,9 +23,6 @@ class SiteConsentController(object):
 
         if consent_cls._meta.object_name.lower() in self._registry:
             raise AlreadyRegistered('The class %s is already registered' % consent_cls._meta.object_name)
-        # confirm edc_consent is in Consent Catalogue
-        #if not ConsentCatalogue.objects.filter(content_type_map__model=consent_cls._meta.object_name.lower()):
-        #    raise AttributeError('Unable to register edc_consent model {0}. Consent models must be listed in the Consent Catalogue.'.format(consent_cls._meta.object_name))
         self._registry.update({consent_cls._meta.object_name.lower(): (consent_cls, consent_update_cls)})
 
     def get_consent_update_model(self, consent_cls):
@@ -43,5 +40,5 @@ class SiteConsentController(object):
                 consents._registry = before_import_registry
                 if module_has_submodule(mod, 'consents'):
                     raise
-# A global to contain all consents instances from modules
+
 consents = SiteConsentController()

@@ -34,7 +34,8 @@ class Controller(object):
     def register(self, consent_cls):
         """Registers edc_consent classes to the registry (a list).
 
-        Ensures model classes refered to by the trackers in the LabTracker classes have the following methods:
+        Ensures model classes refered to by the trackers in the LabTracker classes
+        have the following methods:
             * get_subject_identifier
             * get_report_datetime
             * get_result_datetime
@@ -44,9 +45,6 @@ class Controller(object):
             raise AlreadyRegistered('The class %s is already registered' % consent_cls)
         if 'models' in dir(consent_cls):
             raise ImproperlyConfigured('Expected class attribute \'models\' for consent_cls {0}'.format(consent_cls))
-        #for model in consent_cls.models:
-        #    if not issubclass(model, BaseConsent):
-        #        raise ImproperlyConfigured('Expected model to be a subclass of BaseConsent for consent_cls {0}'.format(consent_cls))
         self._registry.append(consent_cls)
 
     def unregister(self, consent_cls):
@@ -59,7 +57,8 @@ class Controller(object):
         return self._registry
 
     def autodiscover(self):
-        """Searches all apps for :file:`lab_tracker.py` and registers all :class:`LabTracker` subclasses found."""
+        """Searches all apps for :file:`lab_tracker.py` and registers
+        all :class:`LabTracker` subclasses found."""
         for app in settings.INSTALLED_APPS:
             mod = import_module(app)
             try:
@@ -70,5 +69,4 @@ class Controller(object):
                 if module_has_submodule(mod, 'edc_consent'):
                     raise
 
-# A global to contain all consent_cls instances from modules
 site_consents = Controller()

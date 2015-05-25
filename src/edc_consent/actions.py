@@ -2,8 +2,6 @@ from datetime import datetime
 
 from django.contrib import messages
 
-from edc.apps import Conf
-
 
 def flag_as_verified_against_paper(modeladmin, request, queryset, **kwargs):
     """ Flags instance as verified against the paper document."""
@@ -11,7 +9,10 @@ def flag_as_verified_against_paper(modeladmin, request, queryset, **kwargs):
         qs.is_verified = True
         qs.is_verified_datetime = datetime.today()
         qs.save(update_fields=['is_verified', 'is_verified_datetime'])
-        messages.add_message(request, messages.SUCCESS, 'Consent for {0} has been verified.'.format(qs.subject_identifier))
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Consent for {0} has been verified.'.format(qs.subject_identifier))
 flag_as_verified_against_paper.short_description = "Verified against paper document"
 
 
