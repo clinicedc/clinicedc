@@ -1,15 +1,16 @@
 from django.db import models
 from django.db.models import get_app, get_models
 
-from edc_appointment.models import BaseAppointmentHelperModel
+# from edc_appointment.models import BaseAppointmentHelperModel
 
 from ..managers import RegisteredSubjectManager
 
 from .registered_subject import RegisteredSubject
 
 
-class BaseRegisteredSubjectModel (BaseAppointmentHelperModel):
+# class BaseRegisteredSubjectModel (BaseAppointmentHelperModel):
 
+class BaseRegisteredSubjectModel (models.Model):
     """ Base model for models that need a key to RegisteredSubject.
 
     Such models may be listed by name in the ScheduledGroup model and thus
