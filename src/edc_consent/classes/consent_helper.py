@@ -23,7 +23,8 @@ class ConsentHelper(object):
                             raise self.get_exception_cls()('Mother must be willing to '
                                                            'initiate HAART if feeding choice is BF and '
                                                            'CD4 < 250 for data captured during or after '
-                                                           'version {2}. [{3}]'.format(field.name, start_datetime, consent_version, field.verbose_name[0:50]))
+                                                           'version {2}. [{3}]'.format(field.name, start_datetime,
+                                                           consent_version, field.verbose_name[0:50]))
 
     """
 
@@ -51,7 +52,9 @@ class ConsentHelper(object):
         Args:
             subject_instance: a model instance or tuple of (model_cls, cleaned_data)
 
-        .. seealso:: Results may not be as expected. See comment on :class:`base_consented_model_form.BaseConsentedModelForm` :func:`check_attached`."""
+        .. seealso:: Results may not be as expected.
+        See comment on :class:`base_consented_model_form.BaseConsentedModelForm` :func:`check_attached`.
+        """
         if isinstance(subject_instance, tuple):
             subject_instance = self.unpack_subject_instance_tuple(subject_instance)
         RegisteredSubject = get_model('registration', 'RegisteredSubject')
@@ -195,14 +198,18 @@ class ConsentHelper(object):
                 consent_models.append(consent_model.objects.get(subject_identifier=consent_subject_identifier))
                 # look for an updated edc_consent attached to this model
                 # TODO: look up in consent_update_model_cls ??
-                #retval = True
+                # retval = True
         if not consent_models:
-            raise ConsentDoesNotExist(('Cannot determine the instance of edc_consent {0} to cover data entry for model {1} '
-                               'instance {2} given the consenting identifier={3}, report_datetime={4}').format(self._get_consent_models(),
-                                                                                          self.get_subject_instance()._meta.object_name,
-                                                                                          self.get_subject_instance(),
-                                                                                          consent_subject_identifier,
-                                                                                          self.get_subject_instance().get_report_datetime()))
+            raise ConsentDoesNotExist(
+                ('Cannot determine the instance of edc_consent {0} to cover data entry for model {1} '
+                 'instance {2} given the consenting identifier={3}, report_datetime={4}').format(
+                    self._get_consent_models(),
+                    self.get_subject_instance()._meta.object_name,
+                    self.get_subject_instance(),
+                    consent_subject_identifier,
+                    self.get_subject_instance().get_report_datetime()
+                )
+            )
         return consent_models
 
     def clean_versioned_field(self, field_value, field, start_datetime, consent_version):
@@ -211,7 +218,15 @@ class ConsentHelper(object):
         Users may override."""
         if not field_value:
             # require a user provided value
-            raise self._get_exception_cls()('Field \'{0}\' cannot be blank for data captured during or after version {2}. [{3}]'.format(field.name, start_datetime, consent_version, field.verbose_name[0:50]))
+            raise self._get_exception_cls()('Field \'{0}\' cannot be blank for data captured during'
+                                            'or after version {2}. [{3}]'.
+                                            format(
+                                                field.name,
+                                                start_datetime,
+                                                consent_version,
+                                                field.verbose_name[0:50]
+                                            )
+                                            )
 
     def validate_versioned_fields(self):
         """Validate fields under edc_consent version control to be set to the default value or not (None).
@@ -232,7 +247,9 @@ class ConsentHelper(object):
                         field_value = getattr(self.get_subject_instance(), field.name)
                         if self._get_report_datetime() < start_datetime and field_value:
                             # enforce None / default
-                            raise self._get_exception_cls()('Field \'{0}\' must be left blank for data captured prior to version {2}. [{3}]'.format(field.name, start_datetime, consent_version, field.verbose_name[0:50]))
+                            raise self._get_exception_cls()(
+                                'Field \'{0}\' must be left blank for data captured prior to version {2}. [{3}]'
+                                .format(field.name, start_datetime, consent_version, field.verbose_name[0:50]))
                         if self._get_report_datetime() >= start_datetime:
                             self.clean_versioned_field(field_value, field, start_datetime, consent_version)
         return current_consent_version

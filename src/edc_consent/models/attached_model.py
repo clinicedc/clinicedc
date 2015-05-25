@@ -13,8 +13,10 @@ class AttachedModel(BaseUuidModel):
     consent_catalogue = models.ForeignKey(ConsentCatalogue)
 
     # the content type map of a subject model
-    content_type_map = models.ForeignKey(ContentTypeMap,
-        verbose_name='Subject model')
+    content_type_map = models.ForeignKey(
+        ContentTypeMap,
+        verbose_name='Subject model'
+    )
 
     is_active = models.BooleanField(default=True)
 
