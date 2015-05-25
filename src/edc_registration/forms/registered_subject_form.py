@@ -1,8 +1,9 @@
-from edc.base.form.forms import BaseModelForm
+from django.forms import ModelForm
+
 from ..models import RegisteredSubject
 
 
-class RegisteredSubjectForm (BaseModelForm):
+class RegisteredSubjectForm (ModelForm):
     """Form for the RegisteredSubject model."""
 
     class Meta:

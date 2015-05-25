@@ -13,27 +13,27 @@ from edc_constants.choices import GENDER_UNDETERMINED
 from ..managers import BaseSubjectManager
 
 
-#  
+#
 # from uuid import uuid4
-#  
+#
 # from django.conf import settings
 # from django.db.models import get_model
 # from django.utils.translation import ugettext_lazy as _
-#  
-#  
+#
+#
 # if 'edc.device.dispatch' in settings.INSTALLED_APPS:
 #     from edc.device.dispatch.models import BaseDispatchSyncUuidModel as BaseSyncUuidModel
 # else:
-#      
-# 
+#
+#
 # from edc.choices.common import GENDER_UNDETERMINED
-# 
-# 
+#
+#
 # from edc.core.crypto_fields.fields import (EncryptedFirstnameField, EncryptedLastnameField,
 #                                            EncryptedCharField)
 # from edc_subject.consent.exceptions import ConsentError
 # from edc.core.identifier.exceptions import IdentifierError
-# 
+#
 
 
 class BaseSubject (BaseUuidModel):
@@ -52,7 +52,7 @@ class BaseSubject (BaseUuidModel):
         max_length=50,
         null=True,
         db_index=True,
-        )
+    )
 
     subject_identifier_aka = models.CharField(
         verbose_name="Subject Identifier a.k.a",
@@ -60,7 +60,7 @@ class BaseSubject (BaseUuidModel):
         null=True,
         editable=False,
         help_text='track a previously allocated identifier.'
-        )
+    )
 
     dm_comment = models.CharField(
         verbose_name="Data Management comment",
@@ -68,18 +68,18 @@ class BaseSubject (BaseUuidModel):
         null=True,
         editable=False,
         help_text='see also edc.data manager.'
-        )
+    )
 
     # may not be available when instance created (e.g. infants prior to birth report)
     first_name = FirstnameField(
         null=True,
-        )
+    )
 
     # may not be available when instance created (e.g. infants or household subject before consent)
     last_name = LastnameField(
         verbose_name="Last name",
         null=True,
-        )
+    )
 
     # may not be available when instance created (e.g. infants)
     initials = EncryptedCharField(
@@ -87,25 +87,25 @@ class BaseSubject (BaseUuidModel):
                                    message=('Ensure initials consist of letters '
                                             'only in upper case, no spaces.')), ],
         null=True,
-        )
+    )
 
     dob = models.DateField(
-        verbose_name=_("Date of birth"),
+        verbose_name="Date of birth",
         validators=[
             dob_not_future,
             MinConsentAge,
             MaxConsentAge,
-            ],
+        ],
         null=True,
         blank=False,
-        help_text=_("Format is YYYY-MM-DD"),
-        )
+        help_text="Format is YYYY-MM-DD",
+    )
 
     is_dob_estimated = IsDateEstimatedField(
-        verbose_name=_("Is date of birth estimated?"),
+        verbose_name="Is date of birth estimated?",
         null=True,
         blank=False,
-        )
+    )
 
     gender = models.CharField(
         verbose_name="Gender",
@@ -113,23 +113,23 @@ class BaseSubject (BaseUuidModel):
         max_length=1,
         null=True,
         blank=False,
-        )
+    )
 
     subject_type = models.CharField(
         max_length=25,
         null=True,
-        )
- 
+    )
+
     objects = BaseSubjectManager()
- 
+
 #     def get_subject_identifier(self):
 #         return self.subject_identifier
-# 
+#
 #     def is_registered_subject(self):
 #         if self._meta.object_name == 'RegisteredSubject':
 #             return True
 #         return False
-# 
+#
 # #     def _get_or_created_registered_subject(self, using):
 # #         registered_subject = None
 # #         if 'registered_subject' in dir(self):
@@ -146,13 +146,13 @@ class BaseSubject (BaseUuidModel):
 # #                 registered_subject = RegisteredSubject.objects.using(using).create(
 # #                     subject_identifier=self.subject_identifier, **options)
 # #         return registered_subject
-# 
+#
 #     def post_save_get_or_create_registered_subject(self, **kwargs):
 #         """Creates or \'gets and updates\' the registered
 #         subject instance for this subject.
-# 
+#
 #         Called by a post save signal.
-# 
+#
 #         ..note:: RegisteredSubject also inherits from BaseSubject.
 #                  This method does nothing if \'self\' is an
 #                  instance of RegisteredSubject.
@@ -176,16 +176,16 @@ class BaseSubject (BaseUuidModel):
 #                 # still needs to be created or updated
 #                 registered_subject = self._get_or_created_registered_subject(using)
 #         return registered_subject, updated
-# 
+#
 #     def get_subject_type(self):
 #         """Returns a subject type.
 #         Usually overridden.
-# 
+#
 #         ..note:: this is important for the link between
 #                  dashboard and membership form category."""
-# 
+#
 #         return self.subject_type
-# 
+#
 #     def save(self, *args, **kwargs):
 #         using = kwargs.get('using')
 #         self.subject_type = self.get_subject_type()
@@ -205,36 +205,36 @@ class BaseSubject (BaseUuidModel):
 #                 if not getattr(self, self.get_user_provided_subject_identifier_attrname()):
 #                     setattr(self, self.get_user_provided_subject_identifier_attrname(), self.subject_identifier)
 #         super(BaseSubject, self).save(*args, **kwargs)
-# 
+#
 #     def __unicode__(self):
 #         return "{0} {1}".format(self.mask_unset_subject_identifier(), self.subject_type)
-# 
+#
 #     def natural_key(self):
 #         return (self.subject_identifier_as_pk, )
-# 
+#
 #     def mask_unset_subject_identifier(self):
 #         subject_identifier = self.subject_identifier
 #         re_pk = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}')
 #         if re_pk.match(subject_identifier):
 #             subject_identifier = '<identifier not set>'
 #         return subject_identifier
-# 
+#
 #     def _get_user_provided_subject_identifier(self):
 #         """Return a user provided subject_identifier.
-# 
+#
 #         Do not override."""
 #         if self.get_user_provided_subject_identifier_attrname() in dir(self):
 #             return getattr(self, self.get_user_provided_subject_identifier_attrname())
 #         else:
 #             return None
-# 
+#
 #     def get_user_provided_subject_identifier_attrname(self):
 #         """Override to return the attribute name of the user provided subject_identifier."""
 #         return None
-# 
+#
 #     def include_for_dispatch(self):
 #         return True
-# 
+#
 #     def check_if_may_change_subject_identifier(self, using):
 #         if self.id:
 #             if not self.__class__.objects.get(pk=self.id).subject_identifier == self.subject_identifier:
@@ -242,7 +242,7 @@ class BaseSubject (BaseUuidModel):
 #                                       'Got {0} != {1}'.format(
 #                                           self.__class__.objects.get(pk=self.id).subject_identifier,
 #                                           self.subject_identifier))
-# 
+#
 #     def _check_if_duplicate_subject_identifier(self, using):
 #         """Checks if the subject identifier is in use, for new and existing instances."""
 #         if not self.pk and self.subject_identifier:
@@ -257,17 +257,17 @@ class BaseSubject (BaseUuidModel):
 #                                       'subject_identifier {0} when saving {1} '
 #                                       'on change.'.format(self.subject_identifier, self))
 #         self.check_for_duplicate_subject_identifier()
-# 
+#
 #     def check_for_duplicate_subject_identifier(self):
 #         """Users may override to add an additional strategy to detect duplicate identifiers."""
 #         pass
-# 
+#
 #     def insert_dummy_identifier(self):
 #         """Inserts a random uuid as a dummy identifier for a new instance.
-# 
+#
 #         Model uses subject_identifier_as_pk as a natural key for
 #         serialization/deserialization. Value must not change once set."""
-# 
+#
 #         # set to uuid if new and not specified
 #         if not self.id:
 #             subject_identifier_as_pk = str(uuid4())
@@ -283,7 +283,6 @@ class BaseSubject (BaseUuidModel):
 #             raise ConsentError('Attribute subject_identifier_as_pk on model '
 #                                '{0} may not be left blank. Expected to be set '
 #                                'to a uuid already.'.format(self._meta.object_name))
-
 
     class Meta:
         abstract = True
