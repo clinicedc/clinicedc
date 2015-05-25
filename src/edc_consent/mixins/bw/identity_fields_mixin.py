@@ -12,14 +12,15 @@ class IdentityFieldsMixin(models.Model):
         verbose_name=_("Identity number (OMANG, etc)"),
         unique=True,
         help_text=("Use Omang, Passport number, driver's license number or Omang receipt number")
-        )
+    )
 
     identity_type = IdentityTypeField()
 
     confirm_identity = EncryptedOmangField(
         help_text="Retype the identity number from the identity card",
         null=True,
-        blank=False)
+        blank=False
+    )
 
     class Meta:
         abstract = True

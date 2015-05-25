@@ -50,8 +50,10 @@ def is_consented_instance_on_pre_save(sender, instance, raw, **kwargs):
         if isinstance(instance, BaseConsentedUuidModel):
             if instance.get_requires_consent():
                 if not instance.is_consented_for_instance():
-                    raise TypeError('Data may not be collected. Model {0} is not '
-                                    'covered by a valid edc_consent for this subject.'.format(instance._meta.object_name))
+                    raise TypeError(
+                        'Data may not be collected. Model {0} is not '
+                        'covered by a valid edc_consent for this subject.'
+                        .format(instance._meta.object_name))
                 instance.validate_versioned_fields()
 
 

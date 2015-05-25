@@ -91,7 +91,7 @@ class BaseConsent(BaseSubject):
         help_text="( if 'No' provide witness\'s name here and with signature on the paper document.)",
     )
 
-    witness_name = EncryptedLastnameField(
+    witness_name = LastnameField(
         verbose_name=_("Witness\'s Last and first name (illiterates only)"),
         validators=[
             RegexValidator(
@@ -136,7 +136,11 @@ class BaseConsent(BaseSubject):
     is_verified_datetime = models.DateTimeField(null=True)
 
     def __str__(self):
-        return "{0} {1} {2}".format(self.mask_unset_subject_identifier(), mask_encrypted(self.first_name), self.initials)
+        return "{0} {1} {2}".format(
+            self.mask_unset_subject_identifier(),
+            mask_encrypted(self.first_name),
+            self.initials
+        )
 
     def get_site_code(self):
         return self.site_code
@@ -182,12 +186,16 @@ class BaseConsent(BaseSubject):
         if not self.subject_identifier:
             self.subject_identifier = dummy
         if re_pk.match(self.subject_identifier):
-            raise ConsentError("Subject identifier not set after saving new edc_consent! Got {0}".format(self.subject_identifier))
+            raise ConsentError(
+                "Subject identifier not set after saving new edc_consent! Got {0}".format(self.subject_identifier)
+            )
 
     def save(self, *args, **kwargs):
         if self.confirm_identity:
             if self.identity != self.confirm_identity:
-                raise ValueError('Attribute \'identity\' must match attribute \'confirm_identity\'. Catch this error on the form')
+                raise ValueError(
+                    'Attribute \'identity\' must match attribute \'confirm_identity\'. Catch this error on the form'
+                )
         self.insert_dummy_identifier()
         # if adding, call _save_new_consent()
         if not self.id:
@@ -259,7 +267,9 @@ class BaseConsent(BaseSubject):
         return None
 
     def update_consent_history(self, created, using):
-        """Updates the edc_consent history model for this edc_consent instance if there is a edc_consent history model."""
+        """
+        Updates the edc_consent history model for this edc_consent instance if there is a edc_consent history model.
+        """
         if self.get_consent_history_model():
             if not issubclass(self.get_consent_history_model(), BaseConsentHistory):
                 raise ImproperlyConfigured('Expected a subclass of BaseConsentHistory.')
