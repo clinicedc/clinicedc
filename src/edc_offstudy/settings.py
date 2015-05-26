@@ -106,4 +106,3 @@ STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR.ancestor(1)
 
 MAX_SUBJECTS = 3000
-
