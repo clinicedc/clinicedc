@@ -1,13 +1,13 @@
-from django.db.models import get_app, get_models, get_model
+from django.apps import apps
 from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 
-from edc.core.bhp_content_type_map.models import ContentTypeMap
+from edc_content_type_map.models import ContentTypeMap
 
-from edc_consent import BaseConsent, BaseConsentedUuidModel
-
-from edc_consent import AttachedModel
-from edc_consent_catalogue import ConsentCatalogue
+from .consent_catalogue import ConsentCatalogue
+from .base_consent import BaseConsent
+from .base_consented_uuid_model import BaseConsentedUuidModel
+from .attached_model import AttachedModel
 
 
 @receiver(post_save, weak=False, dispatch_uid='update_or_create_registered_subject_on_post_save')
@@ -29,7 +29,7 @@ def update_or_create_registered_subject_on_post_save(sender, instance, raw, crea
                 # this should not be used
                 # self does not have a foreign key to RegisteredSubject but RegisteredSubject
                 # still needs to be created or updated
-                RegisteredSubject = get_model('registration', 'registeredsubject')
+                RegisteredSubject = apps('registration', 'registeredsubject')
                 try:
                     registered_subject = RegisteredSubject.objects.using(using).get(
                         subject_identifier=instance.subject_identifier)
