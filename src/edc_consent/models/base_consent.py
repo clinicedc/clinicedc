@@ -194,7 +194,8 @@ class BaseConsent(BaseSubject):
         if self.confirm_identity:
             if self.identity != self.confirm_identity:
                 raise ValueError(
-                    'Attribute \'identity\' must match attribute \'confirm_identity\'. Catch this error on the form'
+                    'Attribute \'identity\' must match attribute \'confirm_identity\'. '
+                    'Catch this error on the form'
                 )
         self.insert_dummy_identifier()
         # if adding, call _save_new_consent()

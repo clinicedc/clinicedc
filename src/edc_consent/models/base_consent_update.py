@@ -56,7 +56,9 @@ class BaseConsentUpdate(BaseSyncUuidModel):
         ],
         blank=True,
         null=True,
-        help_text=_('Required only if subject is a minor. Format is \'LASTNAME,FIRSTNAME\'. All uppercase separated by a comma'),
+        help_text=_(
+            'Required only if subject is a minor. Format is \'LASTNAME,FIRSTNAME\'. '
+            'All uppercase separated by a comma'),
     )
 
     may_store_samples = models.CharField(
@@ -86,7 +88,10 @@ class BaseConsentUpdate(BaseSyncUuidModel):
                 if 'to' in dir(field.rel):
                     if issubclass(field.rel.to, BaseConsent):
                         return (field.name, field.rel.to)
-        raise ImproperlyConfigured('Method \'get_consent\' must be return a tuple of (attrname, model_cls) for the model attribute that is a subclass of BaseConsent. Does this model have a foreign key to a edc_consent?')
+        raise ImproperlyConfigured(
+            'Method \'get_consent\' must be return a tuple of (attrname, model_cls) '
+            'for the model attribute that is a subclass of BaseConsent. Does this '
+            'model have a foreign key to a edc_consent?')
 
     def get_report_datetime(self):
         return self.consent_datetime
@@ -95,8 +100,6 @@ class BaseConsentUpdate(BaseSyncUuidModel):
         if not self.consent_catalogue:
             super(BaseConsentUpdate, self).save(*args, **kwargs)
         self.consent_version = ConsentHelper(self).get_current_consent_version()
-        print self.consent_version
-#         self.consent_version = ConsentHelper(self).get_current_consent_version(self.consent_catalogue.name, self.consent_datetime)
         super(BaseConsentUpdate, self).save(*args, **kwargs)
 
     class Meta:
