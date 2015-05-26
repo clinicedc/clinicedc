@@ -1,21 +1,19 @@
 import six
 
-from django.db import models
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
-from django.core.exceptions import ValidationError
+from django.db import models
 
 from edc.audit.audit_trail import AuditTrail
-from edc.core.bhp_variables.models import StudySite
-from edc.subject.registration.models import RegisteredSubject
-from edc.subject.visit_schedule.classes import WindowPeriod
-from edc.subject.visit_schedule.models import VisitDefinition
+from edc_registration.models import RegisteredSubject
+from edc_visit_schedule.classes import WindowPeriod
+from edc_visit_schedule.models import VisitDefinition
 
-from edc_appointment import AppointmentManager
-from edc_appointment import APPT_TYPE, APPT_STATUS
-from edc_appointment import DONE
-
-from edc_appointment import BaseAppointment
+from ..choices import APPT_TYPE, APPT_STATUS
+from ..constants import DONE
+from ..managers import AppointmentManager
+from ..models import BaseAppointment
 
 
 class Appointment(BaseAppointment):
@@ -30,11 +28,13 @@ class Appointment(BaseAppointment):
 
     appt_close_datetime = models.DateTimeField(null=True, editable=False)
 
-    study_site = models.ForeignKey(StudySite,
+    study_site = models.CharField(
+        max_length=25,
         null=True,
         blank=False)
 
-    visit_definition = models.ForeignKey(VisitDefinition,
+    visit_definition = models.ForeignKey(
+        VisitDefinition,
         related_name='+',
         verbose_name=("Visit"),
         help_text=("For tracking within the window period of a visit, use the decimal convention. "
@@ -63,7 +63,9 @@ class Appointment(BaseAppointment):
         choices=APPT_TYPE,
         default='clinic',
         max_length=20,
-        help_text='Default for subject may be edited in admin under section bhp_subject. See Subject Configuration.')
+        help_text=('Default for subject may be edited in admin '
+                   'under section bhp_subject. See Subject Configuration.')
+    )
 
     history = AuditTrail()
 
@@ -75,7 +77,8 @@ class Appointment(BaseAppointment):
     natural_key.dependencies = ['registration.registeredsubject', 'bhp_visit.visitdefinition']
 
     def validate_appt_datetime(self, exception_cls=None):
-        """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime, the calculated ideal timepoint datetime.
+        """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
+        the calculated ideal timepoint datetime.
 
         .. note:: best_appt_datetime is not editable by the user. If 'None', will raise an exception."""
         from edc.subject.appointment_helper.classes import AppointmentDateHelper
@@ -89,13 +92,16 @@ class Appointment(BaseAppointment):
         else:
             if not self.best_appt_datetime:
                 # did you update best_appt_datetime for existing instances since the migration?
-                raise exception_cls('Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
-            appt_datetime = appointment_date_helper.change_datetime(self.best_appt_datetime, self.appt_datetime, self.study_site, self.visit_definition)
+                raise exception_cls(
+                    'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
+            appt_datetime = appointment_date_helper.change_datetime(
+                self.best_appt_datetime, self.appt_datetime, self.study_site, self.visit_definition)
             best_appt_datetime = self.best_appt_datetime
         return appt_datetime, best_appt_datetime
 
     def validate_visit_instance(self, using=None, exception_cls=None):
-        """Confirms a 0 instance edc_appointment exists before allowing a continuation appt and keep a sequence."""
+        """Confirms a 0 instance edc_appointment exists before allowing
+        a continuation appt and keep a sequence."""
         if not exception_cls:
             exception_cls = ValidationError
         if not isinstance(self.visit_instance, six.string_types):
@@ -105,16 +111,21 @@ class Appointment(BaseAppointment):
                     registered_subject=self.registered_subject,
                     visit_definition=self.visit_definition,
                     visit_instance='0').exclude(pk=self.pk).exists():
-                raise exception_cls('Cannot create continuation edc_appointment for visit %s. Cannot find the original edc_appointment (visit instance equal to 0).' % (self.visit_definition,))
+                raise exception_cls(
+                    'Cannot create continuation edc_appointment for visit {}. '
+                    'Cannot find the original edc_appointment (visit instance equal to 0).'.format(
+                        self.visit_definition,))
             if int(self.visit_instance) - 1 != 0:
                 if not Appointment.objects.using(using).filter(
                         registered_subject=self.registered_subject,
                         visit_definition=self.visit_definition,
                         visit_instance=str(int(self.visit_instance) - 1)).exists():
-                    raise exception_cls('Cannot create continuation edc_appointment for visit {0}. '
-                                        'Expected next visit instance to be {1}. Got {2}'.format(self.visit_definition,
-                                                                                                 str(int(self.visit_instance) - 1),
-                                                                                                 self.visit_instance))
+                    raise exception_cls(
+                        'Cannot create continuation edc_appointment for visit {0}. '
+                        'Expected next visit instance to be {1}. Got {2}'.format(
+                            self.visit_definition,
+                            str(int(self.visit_instance) - 1),
+                            self.visit_instance))
 
     def check_window_period(self, exception_cls=None):
         """Is this used?"""
@@ -142,9 +153,13 @@ class Appointment(BaseAppointment):
         """Optional save to bypass stuff going on in the default save method."""
         super(Appointment, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         """Django."""
-        return "{0} {1} for {2}.{3}".format(self.registered_subject.subject_identifier, self.registered_subject.subject_type, self.visit_definition.code, self.visit_instance)
+        return "{0} {1} for {2}.{3}".format(
+            self.registered_subject.subject_identifier,
+            self.registered_subject.subject_type,
+            self.visit_definition.code,
+            self.visit_instance)
 
     def dashboard(self):
         """Returns a hyperink for the Admin page."""
@@ -154,11 +169,13 @@ class Appointment(BaseAppointment):
         else:
             if self.registered_subject:
                 if self.registered_subject.subject_identifier:
-                    url = reverse('subject_dashboard_url',
-                                  kwargs={'dashboard_type': self.registered_subject.subject_type.lower(),
-                                          'dashboard_model': 'edc_appointment',
-                                          'dashboard_id': self.pk,
-                                          'show': 'appointments'})
+                    url = reverse(
+                        'subject_dashboard_url',
+                        kwargs={
+                            'dashboard_type': self.registered_subject.subject_type.lower(),
+                            'dashboard_model': 'edc_appointment',
+                            'dashboard_id': self.pk,
+                            'show': 'appointments'})
                     ret = """<a href="{url}" />dashboard</a>""".format(url=url)
         return ret
     dashboard.allow_tags = True
@@ -188,9 +205,6 @@ class Appointment(BaseAppointment):
         form's id_dispatched response."""
         Visit = self.visit_definition.visit_tracking_content_type_map.model_class()
         return Visit.objects.get(appointment=self).is_dispatched()
-
-#     def is_dispatchable_model(self):
-#         return True
 
     def include_for_dispatch(self):
         return True

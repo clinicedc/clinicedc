@@ -1,13 +1,11 @@
-from django.conf import settings
 from django.db import models
-if 'edc.device.dispatch' in settings.INSTALLED_APPS:
-    from edc.device.dispatch.models import BaseDispatchSyncUuidModel as BaseSyncUuidModel
-else:
-    from edc.device.sync.models import BaseSyncUuidModel
-from edc_appointment import APPT_STATUS
+
+from edc_base.model.models import BaseUuidModel
+
+from ..choices import APPT_STATUS
 
 
-class BaseAppointment (BaseSyncUuidModel):
+class BaseAppointment (BaseUuidModel):
     """Base class for Appointments."""
     appt_datetime = models.DateTimeField(
         verbose_name=("Appointment date and time"),
@@ -47,9 +45,12 @@ class BaseAppointment (BaseSyncUuidModel):
         return self.appt_datetime
 
     def is_new_appointment(self):
-        """Returns True if this is a New edc_appointment and confirms choices tuple has \'new\'; as a option."""
+        """Returns True if this is a New edc_appointment and
+        confirms choices tuple has \'new\'; as a option."""
         if 'new' not in [s[0] for s in APPT_STATUS]:
-            raise TypeError('Expected (\'new\', \'New\') as one tuple in the choices tuple APPT_STATUS. Got {0}'.format(APPT_STATUS))
+            raise TypeError(
+                'Expected (\'new\', \'New\') as one tuple in the choices '
+                'tuple APPT_STATUS. Got {0}'.format(APPT_STATUS))
         retval = False
         if self.appt_status.lower() == 'new':
             retval = True

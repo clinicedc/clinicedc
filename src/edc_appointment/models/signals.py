@@ -1,10 +1,31 @@
-from django.db.models import get_model
+from django.apps import apps
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
+from ..helpers import AppointmentHelper
 
-from edc_appointment import Appointment
-from edc_appointment import PreAppointmentContact
+from .appointment import Appointment
+from .base_appointment_helper_model import BaseAppointmentHelperModel
+from .base_appointment_mixin import BaseAppointmentMixin
+from .base_registered_subject_model import BaseRegisteredSubjectModel
+from .pre_appointment_contact import PreAppointmentContact
+
+
+@receiver(post_save, weak=False, dispatch_uid="prepare_appointments_on_post_save")
+def prepare_appointments_on_post_save(sender, instance, raw, created, using, **kwargs):
+    """"""
+    if not raw:
+        if issubclass(sender, (BaseAppointmentHelperModel, BaseAppointmentMixin)):
+            instance.prepare_appointments(using)
+
+
+@receiver(post_delete, weak=False, dispatch_uid='delete_unused_appointments')
+def delete_unused_appointments(sender, instance, **kwargs):
+    """ Delete unused appointments linked to this instance on delete.
+
+    This is an instance of a "membership" form """
+    if isinstance(instance, BaseRegisteredSubjectModel):
+        AppointmentHelper().delete_for_instance(instance)
 
 
 @receiver(post_save, weak=False, dispatch_uid="pre_appointment_contact_on_post_save")
@@ -57,7 +78,7 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
     """Creates the TimePointStatus instance if it does not already exist."""
     if not raw:
         if isinstance(instance, Appointment):
-            TimePointStatus = get_model('data_manager', 'TimePointStatus')
+            TimePointStatus = apps.get_model('data_manager', 'TimePointStatus')
             try:
                 TimePointStatus.objects.get(appointment=instance)
             except TimePointStatus.DoesNotExist:
