@@ -158,34 +158,22 @@ class BaseConsent(BaseSubject):
         ..note:: registered subject is updated/created on edc.subject signal.
 
         Also, calls user method :func:`save_new_consent`"""
-        try:
-            registered_subject = getattr(self, 'registered_subject')
-        except AttributeError:
-            registered_subject = None
         self.subject_identifier = self.save_new_consent(using=using, subject_identifier=self.subject_identifier)
         re_pk = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}')
-        dummy = self.subject_identifier
         # recall, if subject_identifier is not set, subject_identifier will be a uuid.
         if re_pk.match(self.subject_identifier):
-            # test for user provided subject_identifier field method
-            if self.get_user_provided_subject_identifier_attrname():
+            try:
                 self.subject_identifier = self._get_user_provided_subject_identifier()
-                if not self.subject_identifier:
-                    self.subject_identifier = dummy
-            # try to get from registered_subject (was created  using signal in edc.subject)
-            if re_pk.match(self.subject_identifier):
-                if registered_subject:
-                    if registered_subject.subject_identifier:
-                        # check for  registered subject key and if it already has
-                        # a subject_identifier (e.g for subjects re-consenting)
+            except AttributeError:
+                try:
+                    if self.registered_subject.subject_identifier:
                         self.subject_identifier = self.registered_subject.subject_identifier
-            # create a subject identifier, if not already done
-            if re_pk.match(self.subject_identifier):
-                consented_subject_identifier = ConsentedSubjectIdentifier(site_code=self.get_site_code(), using=using)
-                self.subject_identifier = consented_subject_identifier.get_identifier(using=using)
+                except AttributeError:
+                    self.subject_identifier = None
         if not self.subject_identifier:
-            self.subject_identifier = dummy
-        if re_pk.match(self.subject_identifier):
+            consented_subject_identifier = ConsentedSubjectIdentifier(site_code=self.get_site_code(), using=using)
+            self.subject_identifier = consented_subject_identifier.get_identifier(using=using)
+        if re_pk.match(self.subject_identifier) or not self.subject_identifier:
             raise ConsentError(
                 "Subject identifier not set after saving new edc_consent! Got {0}".format(self.subject_identifier)
             )
