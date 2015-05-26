@@ -64,8 +64,8 @@ def add_models_to_catalogue(sender, instance, raw, **kwargs):
     if not raw:
         if sender == ConsentCatalogue and instance.add_for_app:
             try:
-                app = get_app(instance.add_for_app)
-                models = get_models(app)
+                app = apps.get_app(instance.add_for_app)
+                models = apps.get_models(app)
                 for model in models:
                     if ('edc_consent' not in model._meta.object_name.lower() and
                             'audit' not in model._meta.object_name.lower()):
