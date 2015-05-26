@@ -1,17 +1,18 @@
 from django.db.models import get_model
 from django.conf import settings
 
+from edc_subject.off_study.exceptions import SubjectOffStudyError
+from edc_consent import ConsentHelper
+
 if 'edc.device.dispatch' in settings.INSTALLED_APPS:
     from edc.device.dispatch.models import BaseDispatchSyncUuidModel as BaseSyncUuidModel
 else:
     from edc.device.sync.models import BaseSyncUuidModel
-from edc.subject.off_study.exceptions import SubjectOffStudyError
-from edc_consent import ConsentHelper
 
 
 class BaseConsentedUuidModel(BaseSyncUuidModel):
 
-    """Base model class for all models that collect data requiring edc_consent. 
+    """Base model class for all models that collect data requiring edc_consent.
 
     This is not a edc_consent model base class. It is used by scheduled models
     with a key to a visit tracking model."""
@@ -23,7 +24,8 @@ class BaseConsentedUuidModel(BaseSyncUuidModel):
     def get_versioned_field_names(self, version_number):
         """Returns a list of field names under version control by version number.
 
-        Users should override at the model class to return a list of field names for a given version_number."""
+        Users should override at the model class to return a
+        list of field names for a given version_number."""
         return []
 
     def get_consent_helper_cls(self):
@@ -31,7 +33,8 @@ class BaseConsentedUuidModel(BaseSyncUuidModel):
         return ConsentHelper
 
     def validate_versioned_fields(self, cleaned_data=None, exception_cls=None, **kwargs):
-        """Validate fields under edc_consent version control to be set to the default value or not (None)."""
+        """Validate fields under edc_consent version control to be set
+        to the default value or not (None)."""
         return self.get_consent_helper_cls()(self).validate_versioned_fields()
 
     def get_requires_consent(self):
@@ -48,7 +51,9 @@ class BaseConsentedUuidModel(BaseSyncUuidModel):
                 TimePointStatus.check_time_point_status(self.appointment, using=using)
         if 'is_off_study' in dir(self):
             if self.is_off_study():
-                raise SubjectOffStudyError('Model cannot be saved. Subject is off study. Perhaps catch this exception in forms clean() method.')
+                raise SubjectOffStudyError(
+                    'Model cannot be saved. Subject is off study. Perhaps catch '
+                    'this exception in forms clean() method.')
         super(BaseConsentedUuidModel, self).save(*args, **kwargs)
 
     def raw_save(self, *args, **kwargs):
