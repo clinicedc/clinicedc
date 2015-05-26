@@ -38,7 +38,10 @@ class ConsentCatalogue(BaseUuidModel):
         max_length=25,
         null=True,
         blank=True,
-        help_text='If app_name is provided, all models for given app_name will be added to the Attached Models after save. Will not add a model already listed below (no duplicates).',
+        help_text=(
+            'If app_name is provided, all models for given app_name will be '
+            'added to the Attached Models after save. Will not add a model '
+            'already listed below (no duplicates).'),
     )
 
     history = AuditTrail()

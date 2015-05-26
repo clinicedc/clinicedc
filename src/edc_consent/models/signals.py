@@ -59,30 +59,30 @@ def is_consented_instance_on_pre_save(sender, instance, raw, **kwargs):
 
 @receiver(post_save, weak=False, dispatch_uid='add_models_to_catalogue')
 def add_models_to_catalogue(sender, instance, raw, **kwargs):
-    """Automatically adds all models to the AttachedModel model if ConsentCatalogue.add_for_app is a valid app_label."""
+    """Automatically adds all models to the AttachedModel model if
+    ConsentCatalogue.add_for_app is a valid app_label."""
     if not raw:
-        if sender == ConsentCatalogue:
-            if instance.add_for_app:
-                try:
-                    app = get_app(instance.add_for_app)
-                    models = get_models(app)
-                    for model in models:
-                        if 'edc_consent' not in model._meta.object_name.lower() and 'audit' not in model._meta.object_name.lower():
-                            try:
-                                content_type_map = ContentTypeMap.objects.get(model=model._meta.object_name.lower())
-                                try:
-                                    AttachedModel.objects.get(
-                                        consent_catalogue=instance, content_type_map=content_type_map)
-                                except AttachedModel.DoesNotExist:
-                                    AttachedModel.objects.create(
-                                        consent_catalogue=instance, content_type_map=content_type_map)
-                            except ContentTypeMap.DoesNotExist as err_message:
-                                raise ContentTypeMap.DoesNotExist(
-                                    'ContentTypeMap for model {} not found (table {}). Referenced in the edc_consent '
-                                    'catalogue {} but does not exist. {}'.format(
-                                        model._meta.object_name.lower(), model._meta.db_table, instance, err_message))
-                except AttributeError:
-                    pass
+        if sender == ConsentCatalogue and instance.add_for_app:
+            try:
+                app = get_app(instance.add_for_app)
+                models = get_models(app)
+                for model in models:
+                    if ('edc_consent' not in model._meta.object_name.lower() and
+                            'audit' not in model._meta.object_name.lower()):
+                        try:
+                            content_type_map = ContentTypeMap.objects.get(model=model._meta.object_name.lower())
+                            AttachedModel.objects.get(
+                                consent_catalogue=instance, content_type_map=content_type_map)
+                        except AttachedModel.DoesNotExist:
+                                AttachedModel.objects.create(
+                                    consent_catalogue=instance, content_type_map=content_type_map)
+                        except ContentTypeMap.DoesNotExist as err_message:
+                            raise ContentTypeMap.DoesNotExist(
+                                'ContentTypeMap for model {} not found (table {}). Referenced in the edc_consent '
+                                'catalogue {} but does not exist. {}'.format(
+                                    model._meta.object_name.lower(), model._meta.db_table, instance, err_message))
+            except AttributeError:
+                pass
 
 
 @receiver(post_save, weak=False, dispatch_uid='update_consent_history')
