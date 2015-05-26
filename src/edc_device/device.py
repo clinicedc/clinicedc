@@ -9,12 +9,13 @@ class Device(object):
     Tries settings.py (with DEVICE_ID settings attribute).
     Must be a number."""
 
-    SERVER_ID = '99'
-    SERVER_DEVICE_ID_LIST = settings.SERVER_DEVICE_ID_LIST
-    MIDDLEMAN_DEVICE_ID_LIST = settings.MIDDLEMAN_DEVICE_ID_LIST
-    DEFAULT_DEVICE_ID = '99'
-
     def __init__(self, device_id=None, settings_device=None):
+
+        self.SERVER_ID = '99'
+        self.SERVER_DEVICE_ID_LIST = settings.SERVER_DEVICE_ID_LIST
+        self.MIDDLEMAN_DEVICE_ID_LIST = settings.MIDDLEMAN_DEVICE_ID_LIST
+        self.DEFAULT_DEVICE_ID = '99'
+
         try:
             self.device_id = str(int(device_id))
         except (ValueError, TypeError):
