@@ -9,9 +9,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from django_crypto_fields.fields import LastnameField, EncryptedTextField
-from django_crypto_crypto_fields.utils import mask_encrypted
 
-from edc.core.bhp_common.utils import formatted_age
+from edc_base.utils import formatted_age
 from edc_subject.models import BaseSubject
 from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start, eligible_if_no
 from edc_constants.choices import YES_NO
@@ -138,7 +137,7 @@ class BaseConsent(BaseSubject):
     def __str__(self):
         return "{0} {1} {2}".format(
             self.mask_unset_subject_identifier(),
-            mask_encrypted(self.first_name),
+            self.first_name.field_cryptor.mask(self.first_name),
             self.initials
         )
 

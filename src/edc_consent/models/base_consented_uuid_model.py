@@ -1,16 +1,21 @@
-from django.db.models import get_model
-from django.conf import settings
+from django.apps import apps
 
+from edc_base.model.models import BaseUuidModel
 from edc_subject.off_study.exceptions import SubjectOffStudyError
-from edc_consent import ConsentHelper
+try:
+    from edc_sync.mixins import SyncMixin
+except ImportError:
+    SyncMixin = type('SyncMixin', (object, ), {})
 
-if 'edc.device.dispatch' in settings.INSTALLED_APPS:
-    from edc.device.dispatch.models import BaseDispatchSyncUuidModel as BaseSyncUuidModel
-else:
-    from edc.device.sync.models import BaseSyncUuidModel
+# if 'edc.device.dispatch' in settings.INSTALLED_APPS:
+#     from edc.device.dispatch.models import BaseDispatchSyncUuidModel as BaseSyncUuidModel
+# else:
+#     from edc.device.sync.models import BaseSyncUuidModel
+
+from ..classes import ConsentHelper
 
 
-class BaseConsentedUuidModel(BaseSyncUuidModel):
+class BaseConsentedUuidModel(BaseUuidModel, SyncMixin):
 
     """Base model class for all models that collect data requiring edc_consent.
 

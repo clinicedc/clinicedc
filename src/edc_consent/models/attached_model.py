@@ -1,5 +1,4 @@
 from django.db import models
-# from edc.audit.audit_trail import AuditTrail
 from edc_base.model.models import BaseUuidModel
 from edc_content_type_map.models import ContentTypeMap
 from ..managers import AttachedModelManager
@@ -19,8 +18,6 @@ class AttachedModel(BaseUuidModel):
     )
 
     is_active = models.BooleanField(default=True)
-
-    # history = AuditTrail()
 
     objects = AttachedModelManager()
 

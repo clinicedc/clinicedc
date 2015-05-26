@@ -1,15 +1,17 @@
 from django.db import models
-from edc.base.model.models import BaseUuidModel
-from edc.subject.registration.models import RegisteredSubject
-from edc_consent import BaseConsentHistoryManager
+
+from edc_base.model.models import BaseUuidModel
+from edc_registration.models import RegisteredSubject
+
+from ..managers import BaseConsentHistoryManager
 
 
 class BaseConsentHistory(BaseUuidModel):
 
     """A base class for the edc_consent history.
 
-    Ties in with the edc_consent model method :func:get_consent_history_model`, the manager method above
-    and a signal in :mod:`edc_consent.models.signals`
+    Ties in with the edc_consent model method :func:get_consent_history_model`,
+    the manager method above and a signal in :mod:`edc_consent.models.signals`
 
     .. note:: this is not a sync model so DO NOT turn off the signal when syncing. You want
               the history instances to be created by the incoming edc_consent instances."""

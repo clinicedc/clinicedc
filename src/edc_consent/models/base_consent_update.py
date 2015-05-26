@@ -3,17 +3,16 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from edc.base.model.validators import datetime_not_future, datetime_not_before_study_start
-from edc.choices.common import YES_NO
-from edc.core.bhp_variables.models import StudySite
-from edc.core.crypto_fields.fields import EncryptedLastnameField, EncryptedTextField
-from edc.device.sync.models import BaseSyncUuidModel
+from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start
+from edc_constants.choices import YES_NO
+from django_crypto_fields.fields import LastnameField, EncryptedTextField
+from edc_sync.models import BaseSyncUuidModel
 
-from edc_consent import ConsentHelper
-from edc_consent import BaseConsentUpdateManager
+from ..classes import ConsentHelper
+from ..managers import BaseConsentUpdateManager
 
-from edc_consent import BaseConsent
-from edc_consent_catalogue import ConsentCatalogue
+from .base_consent import BaseConsent
+from .consent_catalogue import ConsentCatalogue
 
 
 class BaseConsentUpdate(BaseSyncUuidModel):
@@ -34,9 +33,9 @@ class BaseConsentUpdate(BaseSyncUuidModel):
 
     consent_catalogue = models.ForeignKey(ConsentCatalogue)
 
-    study_site = models.ForeignKey(
-        StudySite,
+    study_site = models.CharField(
         verbose_name='Site',
+        max_length=10,
         help_text="This refers to the site or 'clinic area' where the subject is being consented."
     )
 
@@ -47,7 +46,7 @@ class BaseConsentUpdate(BaseSyncUuidModel):
             datetime_not_future, ],
     )
 
-    guardian_name = EncryptedLastnameField(
+    guardian_name = LastnameField(
         verbose_name=_("Guardian\'s Last and first name (minors only)"),
         validators=[
             RegexValidator(
