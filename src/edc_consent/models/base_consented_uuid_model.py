@@ -1,7 +1,6 @@
 from django.apps import apps
 
 from edc_base.model.models import BaseUuidModel
-from edc_offstudy.exceptions import SubjectOffStudyError
 try:
     from edc_sync.mixins import SyncMixin
 except ImportError:
@@ -56,7 +55,7 @@ class BaseConsentedUuidModel(BaseUuidModel, SyncMixin):
                 TimePointStatus.check_time_point_status(self.appointment, using=using)
         if 'is_off_study' in dir(self):
             if self.is_off_study():
-                raise SubjectOffStudyError(
+                raise ValueError(
                     'Model cannot be saved. Subject is off study. Perhaps catch '
                     'this exception in forms clean() method.')
         super(BaseConsentedUuidModel, self).save(*args, **kwargs)

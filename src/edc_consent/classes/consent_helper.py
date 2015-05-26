@@ -62,15 +62,13 @@ class ConsentHelper(object):
         try:
             subject_instance = self.unpack_subject_instance_tuple(subject_instance)
         except ValueError:
-            RegisteredSubject = apps.get_model('edc_registration', 'RegisteredSubject')
-            if not isinstance(subject_instance, RegisteredSubject):
-                AttachedModel = apps.get_model('edc_consent', 'AttachedModel')
-                if not AttachedModel.objects.filter(
-                        content_type_map__model=subject_instance._meta.object_name.lower(), is_active=True).exists():
-                    raise self.exception_cls(
-                        'Subject Model must be listed, and active, in AttachedModel of '
-                        'the ConsentCatalogue. Model {0} not found or not active.'.format(
-                            subject_instance._meta.object_name.lower()))
+            AttachedModel = apps.get_model('edc_consent', 'AttachedModel')
+            if not AttachedModel.objects.filter(
+                    content_type_map__model=subject_instance._meta.object_name.lower(), is_active=True).exists():
+                raise self.exception_cls(
+                    'Subject Model must be listed, and active, in AttachedModel of '
+                    'the ConsentCatalogue. Model {0} not found or not active.'.format(
+                        subject_instance._meta.object_name.lower()))
         self._subject_instance = subject_instance
 
     def unpack_subject_instance_tuple(self, tpl):

@@ -2,6 +2,7 @@ from django.apps import apps
 from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 
+from edc_registration.models import RegisteredSubject
 from edc_content_type_map.models import ContentTypeMap
 
 from .consent_catalogue import ConsentCatalogue
@@ -29,7 +30,6 @@ def update_or_create_registered_subject_on_post_save(sender, instance, raw, crea
                 # this should not be used
                 # self does not have a foreign key to RegisteredSubject but RegisteredSubject
                 # still needs to be created or updated
-                RegisteredSubject = apps('registration', 'registeredsubject')
                 try:
                     registered_subject = RegisteredSubject.objects.using(using).get(
                         subject_identifier=instance.subject_identifier)

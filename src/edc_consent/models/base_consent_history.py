@@ -1,7 +1,6 @@
 from django.db import models
 
 from edc_base.model.models import BaseUuidModel
-from edc_registration.models import RegisteredSubject
 
 from ..managers import BaseConsentHistoryManager
 
@@ -12,11 +11,9 @@ class BaseConsentHistory(BaseUuidModel):
 
     Ties in with the edc_consent model method :func:get_consent_history_model`,
     the manager method above and a signal in :mod:`edc_consent.models.signals`
+    """
 
-    .. note:: this is not a sync model so DO NOT turn off the signal when syncing. You want
-              the history instances to be created by the incoming edc_consent instances."""
-
-    registered_subject = models.ForeignKey(RegisteredSubject)
+    subject_identifier = models.CharField(max_length=50)
     consent_datetime = models.DateTimeField()
     consent_pk = models.CharField(max_length=50)
     consent_app_label = models.CharField(max_length=50)
