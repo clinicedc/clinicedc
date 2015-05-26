@@ -1,2 +1,1 @@
-from .base_subject_manager import BaseSubjectManager
 from .registered_subject_manager import RegisteredSubjectManager
