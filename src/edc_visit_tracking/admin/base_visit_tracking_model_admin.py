@@ -1,11 +1,11 @@
-from collections import OrderedDict
+# from collections import OrderedDict
 
 from django.db.models import ForeignKey
 from django.core.exceptions import ImproperlyConfigured
 
-from edc.base.modeladmin.admin import BaseModelAdmin
-from edc.export.actions import export_as_csv_action
-from edc.subject.consent.models import BaseConsentedUuidModel
+from edc_base.modeladmin.admin import BaseModelAdmin
+# from edc.export.actions import export_as_csv_action
+# from edc_consent.models import BaseConsentedUuidModel
 
 from ..classes import VisitModelHelper
 
@@ -26,7 +26,7 @@ class BaseVisitTrackingModelAdmin(BaseModelAdmin):
         if not self.visit_model_foreign_key:
             # TODO: rather remove this, user needs to specify this as a class attribute, no need to help out
             self.visit_model_foreign_key = [
-                fk for fk in [f for f in self.model._meta.fields if isinstance(f, ForeignKey)] \
+                fk for fk in [f for f in self.model._meta.fields if isinstance(f, ForeignKey)]
                 if fk.rel.to._meta.module_name == self.visit_model._meta.module_name]
             if not self.visit_model_foreign_key:
                 raise ValueError('The model for {0} requires a foreign key to visit model {1}. '
@@ -74,26 +74,26 @@ class BaseVisitTrackingModelAdmin(BaseModelAdmin):
                 self.list_filter.append(item)
         self.list_filter = tuple(self.list_filter)
 
-    def get_actions(self, request):
-        actions = super(BaseVisitTrackingModelAdmin, self).get_actions(request)
-        if issubclass(self.model, BaseConsentedUuidModel):
-            actions['export_as_csv_action'] = (  # This is a django SortedDict (function, name, short_description)
-                export_as_csv_action(
-                    exclude=['id', self.visit_model_foreign_key],
-                    extra_fields=OrderedDict(
-                        {'subject_identifier': ('{}__appointment__registered_subject'
-                                                '__subject_identifier').format(self.visit_model_foreign_key),
-                         'visit_report_datetime': '%s__report_datetime' % self.visit_model_foreign_key,
-                         'gender': self.visit_model_foreign_key + '__appointment__registered_subject__gender',
-                         'dob': self.visit_model_foreign_key + '__appointment__registered_subject__dob',
-                         'visit_reason': self.visit_model_foreign_key + '__reason',
-                         'visit_status': self.visit_model_foreign_key + '__appointment__appt_status',
-                         'visit': self.visit_model_foreign_key + '__appointment__visit_definition__code',
-                         'visit_instance': self.visit_model_foreign_key + '__appointment__visit_instance'}),
-                    ),
-                'export_as_csv_action',
-                'Export to CSV with visit and demographics')
-        return actions
+#     def get_actions(self, request):
+#         actions = super(BaseVisitTrackingModelAdmin, self).get_actions(request)
+#         if issubclass(self.model, BaseConsentedUuidModel):
+#             actions['export_as_csv_action'] = (  # This is a django SortedDict (function, name, short_description)
+#                 export_as_csv_action(
+#                     exclude=['id', self.visit_model_foreign_key],
+#                     extra_fields=OrderedDict(
+#                         {'subject_identifier': ('{}__appointment__registered_subject'
+#                                                 '__subject_identifier').format(self.visit_model_foreign_key),
+#                          'visit_report_datetime': '%s__report_datetime' % self.visit_model_foreign_key,
+#                          'gender': self.visit_model_foreign_key + '__appointment__registered_subject__gender',
+#                          'dob': self.visit_model_foreign_key + '__appointment__registered_subject__dob',
+#                          'visit_reason': self.visit_model_foreign_key + '__reason',
+#                          'visit_status': self.visit_model_foreign_key + '__appointment__appt_status',
+#                          'visit': self.visit_model_foreign_key + '__appointment__visit_definition__code',
+#                          'visit_instance': self.visit_model_foreign_key + '__appointment__visit_instance'}),
+#                     ),
+#                 'export_as_csv_action',
+#                 'Export to CSV with visit and demographics')
+#         return actions
 
     def add_view(self, request, form_url='', extra_context=None):
         """Sets the values for the visit model object name and the visit model pk.

@@ -1,5 +1,6 @@
+from django.apps import apps
 from django.db.models import ForeignKey, OneToOneField
-from django.db.models import get_app, get_models
+
 from ..models import BaseVisitTracking
 from ..exceptions import VisitTrackingError
 
@@ -17,7 +18,6 @@ class VisitModelHelper(object):
     @classmethod
     def get_field_name(self, cls):
         """Given a class, returns the field attname that is a subclass of BaseVisitTracking."""
-        #lst = [f.to for f in [field.rel for field in cls._meta.fields if field.rel] if issubclass(f.to, BaseVisitTracking)]
         lst = []
         for f in cls._meta.fields:
             if f.rel:
@@ -32,12 +32,13 @@ class VisitModelHelper(object):
     @classmethod
     def get_field_cls(self, cls):
         """Given a class, returns the model class that is a subclass of BaseVisitTracking."""
-        lst = [f.to for f in [field.rel for field in cls._meta.fields if field.rel] if issubclass(f.to, BaseVisitTracking)]
-        if not lst:
-            raise VisitTrackingError('Unable to determine the visit field in class {0}.'.format(cls))
-        if not len(lst) == 1:
-            raise VisitTrackingError('Found more than one visit field in class {0}.'.format(cls))
-        return lst[0]
+        for field in cls._meta.fields:
+            try:
+                if issubclass(field.rel.to, BaseVisitTracking):
+                    return field.rel.to
+            except AttributeError:
+                pass
+        return None
 
     def set_visit_queryset(self, **kwargs):
         """Returns a queryset of one visit model for the admin change form dropdown."""
@@ -58,10 +59,13 @@ class VisitModelHelper(object):
         model = kwargs.get('model')
         visit_model = kwargs.get('visit_model')
         visit_fk = None
-        try:
-            visit_fk = [fk for fk in [f for f in model._meta.fields if isinstance(f, ForeignKey)] if fk.rel.to._meta.module_name == visit_model._meta.module_name]
-        except:
-            pass
+        for field in model._meta.fields:
+            if isinstance(field, ForeignKey):
+                try:
+                    if field.rel.to._meta.module_name == visit_model._meta.module_name:
+                        visit_fk = field
+                except AttributeError:
+                    pass
         if not visit_fk:
             for f in model._meta.fields:
                 if isinstance(f, ForeignKey, OneToOneField):
@@ -69,14 +73,16 @@ class VisitModelHelper(object):
                     if isinstance(visit_model, cls):
                         visit_fk = f
                         break
-        return visit_fk[0].name
+        return visit_fk.name
 
     def get_visit_model(self, instance):
         """ given the instance (or class) of a model, return the visit model of its app """
-        for model in get_models(get_app(instance._meta.app_label)):
+        for model in apps.get_models(apps.get_app(instance._meta.app_label)):
             if isinstance(model(), BaseVisitTracking):
                 return model
-        raise TypeError('Unable to determine the visit model from instance {0} for app {1}'.format(instance._meta.model_name, instance._meta.app_label))
+        raise TypeError(
+            'Unable to determine the visit model from instance {0} for app {1}'.format(
+                instance._meta.model_name, instance._meta.app_label))
 
     def get_fieldname_from_cls(self, cls):
         return self.get_visit_field(cls, self.get_visit_model(cls))
