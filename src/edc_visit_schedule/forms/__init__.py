@@ -1,1 +1,1 @@
-from .membership_form_form import MembershipFormForm
+from .membership_form import MembershipForm

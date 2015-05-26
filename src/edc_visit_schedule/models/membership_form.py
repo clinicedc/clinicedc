@@ -2,10 +2,11 @@ from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from edc.base.model.models import BaseUuidModel
-from edc.core.bhp_content_type_map.models import ContentTypeMap
+from edc_base.model.models import BaseUuidModel
+from edc_content_type_map.models import ContentTypeMap
+from edc_appointment.models import BaseAppointmentMixin
 
-from edc_visit_schedule import MembershipFormManager
+from ..managers import MembershipFormManager
 
 
 class MembershipForm(BaseUuidModel):
@@ -16,7 +17,7 @@ class MembershipForm(BaseUuidModel):
     content_type_map = models.OneToOneField(
         ContentTypeMap,
         related_name='+'
-        )
+    )
 
     category = models.CharField(
         max_length=35,
@@ -24,12 +25,12 @@ class MembershipForm(BaseUuidModel):
         null=True,
         help_text='In lowercase, this should be a valid subject type (as in registered_subject).',
         unique=True,
-        )
+    )
 
     visible = models.BooleanField(
         default=True,
         help_text='If not visible on the dashboard, you have to write code to populate it yourself.'
-        )
+    )
 
     app_label = models.CharField(max_length=25, null=True)
 
@@ -43,7 +44,6 @@ class MembershipForm(BaseUuidModel):
         if not self.model_name:
             self.model_name = self.content_type_map.model
         # get the model class
-        from edc.subject.appointment_helper.models import BaseAppointmentMixin
         cls = self.content_type_map.model_class()
         # inspect for registered subject attribute
         if 'registered_subject' not in dir(cls):
