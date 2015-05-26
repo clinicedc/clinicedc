@@ -12,7 +12,7 @@ from edc.core.crypto_fields.fields import BaseEncryptedField
 class BaseSubjectConsentForm(BaseModelForm):
     """Form for models that are a subclass of BaseConsent."""
     def clean(self):
-
+        cleaned_data = self.cleaned_data
         if not cleaned_data.get("gender", None):
             raise forms.ValidationError('Please specify the gender')
 
