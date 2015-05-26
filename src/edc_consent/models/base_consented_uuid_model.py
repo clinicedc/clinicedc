@@ -1,7 +1,7 @@
 from django.apps import apps
 
 from edc_base.model.models import BaseUuidModel
-from edc_subject.off_study.exceptions import SubjectOffStudyError
+from edc_offstudy.exceptions import SubjectOffStudyError
 try:
     from edc_sync.mixins import SyncMixin
 except ImportError:
@@ -49,7 +49,7 @@ class BaseConsentedUuidModel(BaseUuidModel, SyncMixin):
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
         if self.id:
-            TimePointStatus = get_model('data_manager', 'TimePointStatus')
+            TimePointStatus = apps.get_model('data_manager', 'TimePointStatus')
             try:
                 TimePointStatus.check_time_point_status(self.get_visit().appointment, using=using)
             except AttributeError:
