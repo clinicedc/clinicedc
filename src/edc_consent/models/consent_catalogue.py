@@ -1,6 +1,8 @@
 from django.db import models
 
-from edc.audit.audit_trail import AuditTrail
+# from edc.audit.audit_trail import AuditTrail
+from simple_history.models import HistoricalRecords
+
 from edc_base.model.models import BaseUuidModel
 from edc_base.model.validators import datetime_not_before_study_start
 from edc_content_type_map.models import ContentTypeMap
@@ -44,7 +46,8 @@ class ConsentCatalogue(BaseUuidModel):
             'already listed below (no duplicates).'),
     )
 
-    history = AuditTrail()
+    # history = AuditTrail()
+    history = HistoricalRecords()
 
     objects = ConsentCatalogueManager()
 

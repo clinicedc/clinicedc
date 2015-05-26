@@ -1,13 +1,12 @@
 from django import forms
 
-from edc.base.form.forms import BaseModelForm
-from edc.core.bhp_common.utils import convert_from_camel
+from edc_base.utils import convert_from_camel
 from edc.data_manager.models import TimePointStatus
 
 from edc_consent import AttachedModel
 
 
-class BaseConsentedModelForm(BaseModelForm):
+class BaseConsentedModelForm(forms.ModelForm):
 
     """Base Form for all models that confirm a valid subject edc_consent to be
     available before allowing data collection.

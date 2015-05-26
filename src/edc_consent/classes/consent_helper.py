@@ -1,8 +1,12 @@
 import copy
+
 from datetime import datetime
-from django.apps import apps
 from dateutil.relativedelta import relativedelta
+
+from django.apps import apps
+
 from edc_base.model.models import BaseModel
+
 from ..exceptions import ConsentError, ConsentDoesNotExist
 
 

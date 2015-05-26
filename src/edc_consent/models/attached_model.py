@@ -1,6 +1,8 @@
 from django.db import models
+
 from edc_base.model.models import BaseUuidModel
 from edc_content_type_map.models import ContentTypeMap
+
 from ..managers import AttachedModelManager
 from ..models import ConsentCatalogue
 

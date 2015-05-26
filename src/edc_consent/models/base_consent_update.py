@@ -2,10 +2,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import ugettext as _
+from django_crypto_fields.fields import LastnameField, EncryptedTextField
 
 from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start
 from edc_constants.choices import YES_NO
-from django_crypto_fields.fields import LastnameField, EncryptedTextField
 from edc_sync.models import BaseSyncUuidModel
 
 from ..classes import ConsentHelper

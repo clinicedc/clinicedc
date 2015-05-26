@@ -1,17 +1,9 @@
-import logging
 import copy
-from django.core.exceptions import ImproperlyConfigured
+
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
-
-logger = logging.getLogger(__name__)
-
-
-class NullHandler(logging.Handler):
-    def emit(self, record):
-        pass
-nullhandler = logger.addHandler(NullHandler())
 
 
 class AlreadyRegistered(Exception):
