@@ -3,15 +3,24 @@ import copy
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
-from edc.base.model.fields import OtherCharField
-from edc.base.model.validators import datetime_not_before_study_start, datetime_not_future, datetime_is_after_consent
-from edc.subject.appointment.constants import IN_PROGRESS, DONE, INCOMPLETE, NEW
-from edc.subject.appointment.models import Appointment
-from edc.subject.consent.models import BaseConsentedUuidModel
+from edc_appointment.models import Appointment
+from edc_base.model.fields import OtherCharField
+from edc_base.model.validators import (
+    datetime_not_before_study_start,
+    datetime_not_future,
+    datetime_is_after_consent
+)
+from edc_constants.constants import IN_PROGRESS, DONE, INCOMPLETE, NEW
+from edc_consent.models import BaseConsentedUuidModel
+from edc_data_manager.models import TimePointStatus
+from edc_entry.models import ScheduledEntryMetaData, RequisitionMetaData
 
-from edc_visit_tracking import VISIT_REASON
-from edc_visit_tracking import BaseVisitTrackingManager
-from visit_tracking.constants import VISIT_REASON_REQUIRED_CHOICES, VISIT_REASON_NO_FOLLOW_UP_CHOICES, VISIT_REASON_FOLLOW_UP_CHOICES
+from ..choices import VISIT_REASON
+from ..managers import BaseVisitTrackingManager
+from ..constants import (
+    VISIT_REASON_REQUIRED_CHOICES,
+    VISIT_REASON_NO_FOLLOW_UP_CHOICES,
+    VISIT_REASON_FOLLOW_UP_CHOICES)
 
 
 class BaseVisitTracking (BaseConsentedUuidModel):
@@ -57,7 +66,8 @@ class BaseVisitTracking (BaseConsentedUuidModel):
         reason = forms.ChoiceField(
             label = 'Reason for visit',
             choices = [ choice for choice in VISIT_REASON ],
-            help_text = "If 'unscheduled', information is usually reported at the next scheduled visit, but exceptions may arise",
+            help_text = "If 'unscheduled', information is usually reported
+                at the next scheduled visit, but exceptions may arise",
             widget=AdminRadioSelect(renderer=AdminRadioFieldRenderer),
             )
 
@@ -121,13 +131,12 @@ class BaseVisitTracking (BaseConsentedUuidModel):
 
     objects = BaseVisitTrackingManager()
 
-    def __unicode__(self):
-        return unicode(self.appointment)
+    def __str__(self):
+        return str(self.appointment)
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
         if self.id and not self.byass_time_point_status():
-            TimePointStatus = models.get_model('data_manager', 'TimePointStatus')
             TimePointStatus.check_time_point_status(self.appointment, using=using)
         self.subject_identifier = self.get_subject_identifier()
         super(BaseVisitTracking, self).save(*args, **kwargs)
@@ -141,7 +150,8 @@ class BaseVisitTracking (BaseConsentedUuidModel):
         return False
 
     def get_visit_reason_no_follow_up_choices(self):
-        """Returns the visit reasons that do not imply any data collection; that is, the subject is not available."""
+        """Returns the visit reasons that do not imply any data
+        collection; that is, the subject is not available."""
         dct = {}
         for item in VISIT_REASON_NO_FOLLOW_UP_CHOICES:
             dct.update({item: item})
@@ -151,7 +161,8 @@ class BaseVisitTracking (BaseConsentedUuidModel):
         return ('lost', 'death')
 
     def get_visit_reason_follow_up_choices(self):
-        """Returns visit reasons that imply data is being collected; that is, subject is present."""
+        """Returns visit reasons that imply data is being collected;
+        that is, subject is present."""
         dct = {}
         for item in VISIT_REASON_FOLLOW_UP_CHOICES:
             dct.update({item: item})
@@ -162,15 +173,17 @@ class BaseVisitTracking (BaseConsentedUuidModel):
         return VISIT_REASON
 
     def _check_visit_reason_keys(self):
-        user_keys = [k for k in self.get_visit_reason_no_follow_up_choices().iterkeys()] + [k for k in self.get_visit_reason_follow_up_choices().iterkeys()]
+        user_keys = ([k for k in self.get_visit_reason_no_follow_up_choices().iterkeys()] +
+                     [k for k in self.get_visit_reason_follow_up_choices().iterkeys()])
         default_keys = copy.deepcopy(VISIT_REASON_REQUIRED_CHOICES)
         if list(set(default_keys) - set(user_keys)):
             missing_keys = list(set(default_keys) - set(user_keys))
             if missing_keys:
                 raise ImproperlyConfigured(
-                    'User\'s visit reasons tuple must contain all keys for no follow-up {1} and all for follow-up {2}. Missing {3}. '
-                    'Override methods \'get_visit_reason_no_follow_up_choices\' and \'get_visit_reason_follow_up_choices\' on the visit model '
-                    'if you are not using the default keys of {4}. '
+                    'User\'s visit reasons tuple must contain all keys for no follow-up {1} '
+                    'and all for follow-up {2}. Missing {3}. Override methods '
+                    '\'get_visit_reason_no_follow_up_choices\' and \'get_visit_reason_follow_up_choices\' '
+                    'on the visit model if you are not using the default keys of {4}. '
                     'Got {0}'.format(
                         user_keys,
                         VISIT_REASON_NO_FOLLOW_UP_CHOICES,
@@ -195,12 +208,16 @@ class BaseVisitTracking (BaseConsentedUuidModel):
         for tpl in visit_reason_tuple:
             visit_reason_choices.update({tpl[0]: tpl[1]})
         if not isinstance(visit_reason_choices, dict):
-            raise TypeError('Method get_visit_reason_choices must return a dictionary or tuple of tuples. Got {0}'.format(visit_reason_choices))
+            raise TypeError(
+                'Method get_visit_reason_choices must return a dictionary or tuple of tuples. '
+                'Got {0}'.format(visit_reason_choices))
         visit_reason_required_choices = copy.deepcopy(VISIT_REASON_REQUIRED_CHOICES)
         if 'get_visit_reason_no_follow_up_choices' in dir(self):
             visit_reason_no_follow_up_choices = self.get_visit_reason_no_follow_up_choices()
             if not isinstance(visit_reason_no_follow_up_choices, dict):
-                raise TypeError('Method get_visit_reason_no_follow_up_choices must return a dictionary. Got {0}'.format(visit_reason_no_follow_up_choices))
+                raise TypeError(
+                    'Method get_visit_reason_no_follow_up_choices must return a dictionary. '
+                    'Got {0}'.format(visit_reason_no_follow_up_choices))
             # ensure required keys are in no follow up
             for key, value in visit_reason_no_follow_up_choices.items():
                 if value not in visit_reason_required_choices:
@@ -209,7 +226,9 @@ class BaseVisitTracking (BaseConsentedUuidModel):
         if 'get_visit_reason_follow_up_choices' in dir(self):
             visit_reason_follow_up_choices = self.get_visit_reason_follow_up_choices()
             if not isinstance(visit_reason_follow_up_choices, dict):
-                raise TypeError('Method visit_reason_follow_up_choices must return a dictionary. Got {0}'.format(visit_reason_follow_up_choices))
+                raise TypeError(
+                    'Method visit_reason_follow_up_choices must return a dictionary. '
+                    'Got {0}'.format(visit_reason_follow_up_choices))
             # ensure required keys are in follow up
             for key, value in visit_reason_follow_up_choices.items():
                 if value not in visit_reason_required_choices:
@@ -219,12 +238,12 @@ class BaseVisitTracking (BaseConsentedUuidModel):
         copy_visit_reason_choices = [x.lower() for x in copy_visit_reason_choices]
         for k in visit_reason_required_choices:
             if k.lower() not in copy_visit_reason_choices:
-                raise ImproperlyConfigured('Dictionary returned by get_visit_reason_choices() must have keys {0}. Got {1} with {2}'.format(visit_reason_required_choices, visit_reason_choices.keys(), k))
+                raise ImproperlyConfigured(
+                    'Dictionary returned by get_visit_reason_choices() must have keys {0}. '
+                    'Got {1} with {2}'.format(visit_reason_required_choices, visit_reason_choices.keys(), k))
         return visit_reason_choices
 
     def post_save_check_in_progress(self):
-        ScheduledEntryMetaData = models.get_model('entry_meta_data', 'ScheduledEntryMetaData')
-        RequisitionMetaData = models.get_model('entry_meta_data', 'RequisitionMetaData')
         dirty = False
         if self.reason in self.get_visit_reason_no_follow_up_choices():
             self.get_appointment().appt_status = DONE
@@ -234,8 +253,12 @@ class BaseVisitTracking (BaseConsentedUuidModel):
                 self.get_appointment().appt_status = IN_PROGRESS
                 dirty = True
             # look for any others in progress
-        for appointment in self.get_appointment().__class__.objects.filter(registered_subject=self.get_registered_subject(), appt_status=IN_PROGRESS).exclude(pk=self.get_appointment().pk):
-            if ScheduledEntryMetaData.objects.filter(appointment=appointment, entry_status__iexact=NEW).exists() or RequisitionMetaData.objects.filter(appointment=appointment, entry_status__iexact=NEW).exists():
+        for appointment in self.get_appointment().__class__.objects.filter(
+                registered_subject=self.get_registered_subject(),
+                appt_status=IN_PROGRESS).exclude(pk=self.get_appointment().pk):
+            if (ScheduledEntryMetaData.objects.filter(
+                    appointment=appointment, entry_status__iexact=NEW).exists() or
+                    RequisitionMetaData.objects.filter(appointment=appointment, entry_status__iexact=NEW).exists()):
                 appointment.appt_status = INCOMPLETE
             else:
                 appointment.appt_status = DONE

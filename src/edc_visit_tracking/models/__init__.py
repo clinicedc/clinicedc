@@ -1,2 +1,2 @@
 from .base_visit_tracking import BaseVisitTracking
-from .signals import *
+from .signals import base_visit_tracking_check_in_progress_on_post_save

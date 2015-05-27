@@ -8,49 +8,34 @@ from edc_base.modeladmin.admin import BaseModelAdmin
 # from edc_consent.models import BaseConsentedUuidModel
 
 from ..classes import VisitModelHelper
+from ..mixins import VisitTrackingAdminMixin
 
 
-class BaseVisitTrackingModelAdmin(BaseModelAdmin):
+class BaseVisitTrackingModelAdmin(VisitTrackingAdminMixin, BaseModelAdmin):
 
     """ModelAdmin subclass for models with a ForeignKey to your visit model(s)"""
 
-    visit_model = None
     date_hierarchy = 'report_datetime'
-    visit_model_foreign_key = None
+    visit_model = None
+    visit_model_field_name = None
 
     def __init__(self, *args, **kwargs):
         super(BaseVisitTrackingModelAdmin, self).__init__(*args, **kwargs)
         if not self.visit_model:
-            raise ImproperlyConfigured('Class attribute \'visit model\' on BaseVisitModelAdmin '
-                                       'for model {0} may not be None. Please correct.'.format(self.model))
-        if not self.visit_model_foreign_key:
-            # TODO: rather remove this, user needs to specify this as a class attribute, no need to help out
-            self.visit_model_foreign_key = [
-                fk for fk in [f for f in self.model._meta.fields if isinstance(f, ForeignKey)]
-                if fk.rel.to._meta.module_name == self.visit_model._meta.module_name]
-            if not self.visit_model_foreign_key:
-                raise ValueError('The model for {0} requires a foreign key to visit model {1}. '
-                                 'None found. Either correct the model or change the ModelAdmin '
-                                 'class.'.format(self, self.visit_model))
-            else:
-                self.visit_model_foreign_key = self.visit_model_foreign_key[0].name
+            raise ImproperlyConfigured(
+                'Class attribute \'visit model\' on BaseVisitModelAdmin '
+                'for model {0} may not be None. Please correct.'.format(self.model))
+        if not self.visit_model_field_name:
+            raise ImproperlyConfigured(
+                'Class attribute \'visit_model_field_name model\' on BaseVisitModelAdmin '
+                'for model {0} may not be None. Please correct.'.format(self.model))
         self.extend_list_display()
         self.extend_list_filter()
-        self.extend_search_fields()
-
-    def extend_search_fields(self):
-        self.search_fields = list(self.search_fields)
-        for item in ['id',
-                     '{}__appointment__registered_subject__subject_identifier'.format(self.visit_model_foreign_key),
-                     '{}__pk'.format(self.visit_model_foreign_key)]:
-            if item not in self.search_fields:
-                self.search_fields.append(item)
-        self.search_fields = tuple(self.search_fields)
 
     def extend_list_display(self):
         """Extends list display with additional values if passed as a list."""
         self.list_display = list(self.list_display)
-        for item in [self.visit_model_foreign_key, 'created', 'modified', 'user_created', 'user_modified', ]:
+        for item in [self.visit_model_field_name, 'created', 'modified', 'user_created', 'user_modified', ]:
             if item not in self.list_display:
                 self.list_display.append(item)
         self.list_display = tuple(self.list_display)
@@ -59,11 +44,11 @@ class BaseVisitTrackingModelAdmin(BaseModelAdmin):
         """Extends list filter with additional values if passed as a list."""
         self.list_filter = list(self.list_filter)
         extended_list_filter = [
-            self.visit_model_foreign_key + '__report_datetime',
-            self.visit_model_foreign_key + '__reason',
-            self.visit_model_foreign_key + '__appointment__appt_status',
-            self.visit_model_foreign_key + '__appointment__visit_definition__code',
-            self.visit_model_foreign_key + '__appointment__registered_subject__study_site__site_code',
+            self.visit_model_field_name + '__report_datetime',
+            self.visit_model_field_name + '__reason',
+            self.visit_model_field_name + '__appointment__appt_status',
+            self.visit_model_field_name + '__appointment__visit_definition__code',
+            self.visit_model_field_name + '__appointment__registered_subject__study_site__site_code',
             'created',
             'modified',
             'user_created',
@@ -79,17 +64,17 @@ class BaseVisitTrackingModelAdmin(BaseModelAdmin):
 #         if issubclass(self.model, BaseConsentedUuidModel):
 #             actions['export_as_csv_action'] = (  # This is a django SortedDict (function, name, short_description)
 #                 export_as_csv_action(
-#                     exclude=['id', self.visit_model_foreign_key],
+#                     exclude=['id', self.visit_model_field_name],
 #                     extra_fields=OrderedDict(
 #                         {'subject_identifier': ('{}__appointment__registered_subject'
-#                                                 '__subject_identifier').format(self.visit_model_foreign_key),
-#                          'visit_report_datetime': '%s__report_datetime' % self.visit_model_foreign_key,
-#                          'gender': self.visit_model_foreign_key + '__appointment__registered_subject__gender',
-#                          'dob': self.visit_model_foreign_key + '__appointment__registered_subject__dob',
-#                          'visit_reason': self.visit_model_foreign_key + '__reason',
-#                          'visit_status': self.visit_model_foreign_key + '__appointment__appt_status',
-#                          'visit': self.visit_model_foreign_key + '__appointment__visit_definition__code',
-#                          'visit_instance': self.visit_model_foreign_key + '__appointment__visit_instance'}),
+#                                                 '__subject_identifier').format(self.visit_model_field_name),
+#                          'visit_report_datetime': '%s__report_datetime' % self.visit_model_field_name,
+#                          'gender': self.visit_model_field_name + '__appointment__registered_subject__gender',
+#                          'dob': self.visit_model_field_name + '__appointment__registered_subject__dob',
+#                          'visit_reason': self.visit_model_field_name + '__reason',
+#                          'visit_status': self.visit_model_field_name + '__appointment__appt_status',
+#                          'visit': self.visit_model_field_name + '__appointment__visit_definition__code',
+#                          'visit_instance': self.visit_model_field_name + '__appointment__visit_instance'}),
 #                     ),
 #                 'export_as_csv_action',
 #                 'Export to CSV with visit and demographics')
@@ -116,8 +101,6 @@ class BaseVisitTrackingModelAdmin(BaseModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         visit_model_helper = VisitModelHelper()
         if db_field.name == visit_model_helper.get_visit_field(model=self.model, visit_model=self.visit_model):
-            # if not request.GET.get('subject_identifier', None):
-            #    raise TypeError('Subject identifier cannot be none when accessing {0}.'.format(db_field.name))
             kwargs["queryset"] = visit_model_helper.set_visit_queryset(
                 visit_model=self.visit_model,
                 pk=request.GET.get(db_field.name, None),
