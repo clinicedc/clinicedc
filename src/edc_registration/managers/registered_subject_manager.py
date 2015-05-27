@@ -1,9 +1,8 @@
 from django.apps import apps
+from django.db import models
 
-from ..managers import BaseSubjectManager
 
-
-class RegisteredSubjectManager(BaseSubjectManager):
+class RegisteredSubjectManager(models.Manager):
 
     def get_by_natural_key(self, subject_identifier_as_pk):
         RegisteredSubject = apps.get_model('registration', 'RegisteredSubject')
