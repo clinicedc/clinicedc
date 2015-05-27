@@ -1,12 +1,12 @@
 from collections import OrderedDict, namedtuple
 
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models import get_model
+from django.apps import apps
+from django.db.utils import IntegrityError
 
 from edc.apps.app_configuration.exceptions import AppConfigurationError
-from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
-from edc.core.bhp_content_type_map.models import ContentTypeMap
-from django.db.utils import IntegrityError
+from edc_content_type_map.classes import ContentTypeMapHelper
+from edc_content_type_map.models import ContentTypeMap
 
 EntryTuple = namedtuple('EntryTuple', 'order app_label model_name default_entry_status additional')
 MembershipFormTuple = namedtuple('MembershipFormTuple', 'name model visible')

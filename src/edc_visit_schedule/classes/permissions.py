@@ -1,6 +1,6 @@
+from django.apps import apps
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import get_model
 
 
 class Permissions(object):
@@ -120,7 +120,7 @@ class Permissions(object):
                 self._content_types.append(content_type)
         else:
             for model in models:
-                if not get_model(app_label, model):
+                if not apps.get_model(app_label, model):
                     raise AttributeError('Invalid model name {0}.{1}'.format(app_label, model))
             models = [model.lower() for model in models]
             for content_type in ContentType.objects.filter(app_label=app_label, model__in=models):
@@ -131,4 +131,4 @@ class Permissions(object):
 
     def message(self, msg):
         if self.show_messages:
-            print unicode(msg)
+            print(str(msg))

@@ -61,12 +61,13 @@ class WindowPeriod(object):
             diff = td_from_boundary.days  # TODO: this cannot be in days if unit is Hours
             retval = False
             self.error = True
-            self.error_message = ('Datetime is out of {window_name} window period. Expected a datetime between {lower} and {upper}.'
-                            'Window allows {window_value} {unit}. Got {diff}.'.format(
-                                lower=lower_window_datetime,
-                                upper=upper_window_datetime,
-                                window_name=window_name,
-                                window_value=window_value,
-                                unit=unit,
-                                diff=diff))
+            self.error_message = (
+                'Datetime is out of {window_name} window period. Expected a datetime between {lower} and {upper}.'
+                'Window allows {window_value} {unit}. Got {diff}.'.format(
+                    lower=lower_window_datetime,
+                    upper=upper_window_datetime,
+                    window_name=window_name,
+                    window_value=window_value,
+                    unit=unit,
+                    diff=diff))
         return retval
