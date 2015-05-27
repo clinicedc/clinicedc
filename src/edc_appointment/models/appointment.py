@@ -5,7 +5,9 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
 
-from edc.audit.audit_trail import AuditTrail
+# from edc.audit.audit_trail import AuditTrail
+from simple_history.models import HistoricalRecords
+
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.classes import WindowPeriod
 from edc_visit_schedule.models import VisitDefinition
@@ -67,7 +69,8 @@ class Appointment(BaseAppointment):
                    'under section bhp_subject. See Subject Configuration.')
     )
 
-    history = AuditTrail()
+    # history = AuditTrail()
+    history = HistoricalRecords()
 
     objects = AppointmentManager()
 
