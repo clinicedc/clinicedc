@@ -47,14 +47,16 @@ def update_or_create_registered_subject_on_post_save(sender, instance, raw, crea
 @receiver(pre_save, weak=False, dispatch_uid='is_consented_instance_on_pre_save')
 def is_consented_instance_on_pre_save(sender, instance, raw, **kwargs):
     if not raw:
-        if isinstance(instance, BaseConsentedUuidModel):
-            if instance.get_requires_consent():
+        try:
+            if instance.requires_consent():
                 if not instance.is_consented_for_instance():
                     raise TypeError(
                         'Data may not be collected. Model {0} is not '
                         'covered by a valid edc_consent for this subject.'
                         .format(instance._meta.object_name))
                 instance.validate_versioned_fields()
+        except AttributeError:
+            pass
 
 
 @receiver(post_save, weak=False, dispatch_uid='add_models_to_catalogue')
