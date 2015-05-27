@@ -7,9 +7,9 @@ from django.utils.translation import ugettext as _
 # from edc_audit.audit_trail import AuditTrail
 from edc_base.model.fields import IdentityTypeField
 from edc_constants.choices import YES_NO, ALIVE_DEAD_UNKNOWN
-from django_crypto_fields.fields import IdentityField
+from edc_subject.models import BaseSubject
 
-from .base_subject import BaseSubject
+from django_crypto_fields.fields import IdentityField
 
 
 class RegisteredSubject(BaseSubject):
