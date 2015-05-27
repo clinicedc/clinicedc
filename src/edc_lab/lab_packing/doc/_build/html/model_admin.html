@@ -1,0 +1,163 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ModelAdmin &mdash; lab_packing 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="lab_packing 1.0 documentation" href="index.html" />
+    <link rel="next" title="ModelForms" href="model_form.html" />
+    <link rel="prev" title="Models" href="models.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="model_form.html" title="ModelForms"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="models.html" title="Models"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">lab_packing 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-lab_packing.admin">
+<span id="modeladmin"></span><h1>ModelAdmin<a class="headerlink" href="#module-lab_packing.admin" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="lab_packing.admin.BasePackingListAdmin">
+<em class="property">class </em><tt class="descclassname">lab_packing.admin.</tt><tt class="descname">BasePackingListAdmin</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lab_packing.admin.BasePackingListAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="lab_packing.admin.BasePackingListAdmin.media">
+<tt class="descname">media</tt><a class="headerlink" href="#lab_packing.admin.BasePackingListAdmin.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lab_packing.admin.BasePackingListAdmin.save_model">
+<tt class="descname">save_model</tt><big>(</big><em>request</em>, <em>obj</em>, <em>form</em>, <em>change</em><big>)</big><a class="headerlink" href="#lab_packing.admin.BasePackingListAdmin.save_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lab_packing.admin.BasePackingListItemAdmin">
+<em class="property">class </em><tt class="descclassname">lab_packing.admin.</tt><tt class="descname">BasePackingListItemAdmin</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lab_packing.admin.BasePackingListItemAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="lab_packing.admin.BasePackingListItemAdmin.delete_model">
+<tt class="descname">delete_model</tt><big>(</big><em>request</em>, <em>obj</em><big>)</big><a class="headerlink" href="#lab_packing.admin.BasePackingListItemAdmin.delete_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lab_packing.admin.BasePackingListItemAdmin.list_display">
+<tt class="descname">list_display</tt><em class="property"> = ('specimen', 'priority', 'panel', 'description', 'created', 'user_created', 'view_packing_list')</em><a class="headerlink" href="#lab_packing.admin.BasePackingListItemAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lab_packing.admin.BasePackingListItemAdmin.list_filter">
+<tt class="descname">list_filter</tt><em class="property"> = ('created',)</em><a class="headerlink" href="#lab_packing.admin.BasePackingListItemAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lab_packing.admin.BasePackingListItemAdmin.media">
+<tt class="descname">media</tt><a class="headerlink" href="#lab_packing.admin.BasePackingListItemAdmin.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lab_packing.admin.BasePackingListItemAdmin.search_fields">
+<tt class="descname">search_fields</tt><em class="property"> = ('packing_list__pk', 'packing_list__timestamp', 'item_description', 'item_reference')</em><a class="headerlink" href="#lab_packing.admin.BasePackingListItemAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="models.html"
+                        title="previous chapter">Models</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="model_form.html"
+                        title="next chapter">ModelForms</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/model_admin.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="model_form.html" title="ModelForms"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="models.html" title="Models"
+             >previous</a> |</li>
+        <li><a href="index.html">lab_packing 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, erik van widenfelt.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

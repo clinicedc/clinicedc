@@ -1,0 +1,3 @@
+from .base_packing_list_model_admin import BasePackingListModelAdmin
+from .base_packing_list_admin import BasePackingListAdmin
+from .base_packing_list_item_admin import BasePackingListItemAdmin
