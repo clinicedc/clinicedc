@@ -11,9 +11,13 @@ from edc_base.model.validators import (
     datetime_is_after_consent
 )
 from edc_constants.constants import IN_PROGRESS, DONE, INCOMPLETE, NEW
-from edc_consent.models import BaseConsentedUuidModel
+from edc_base.model.models import BaseUuidModel
 from edc_data_manager.models import TimePointStatus
 from edc_entry.models import ScheduledEntryMetaData, RequisitionMetaData
+try:
+    from edc_sync.mixins import SyncMixin
+except ImportError:
+    SyncMixin = type('SyncMixin', (object, ), {})
 
 from ..choices import VISIT_REASON
 from ..managers import BaseVisitTrackingManager
@@ -23,7 +27,7 @@ from ..constants import (
     VISIT_REASON_FOLLOW_UP_CHOICES)
 
 
-class BaseVisitTracking (BaseConsentedUuidModel):
+class BaseVisitTracking (SyncMixin, BaseUuidModel):
 
     """Base model for Appt/Visit Tracking (AF002).
 

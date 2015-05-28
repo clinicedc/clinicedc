@@ -29,35 +29,6 @@ class BaseVisitTrackingModelAdmin(VisitTrackingAdminMixin, BaseModelAdmin):
             raise ImproperlyConfigured(
                 'Class attribute \'visit_model_field_name model\' on BaseVisitModelAdmin '
                 'for model {0} may not be None. Please correct.'.format(self.model))
-        self.extend_list_display()
-        self.extend_list_filter()
-
-    def extend_list_display(self):
-        """Extends list display with additional values if passed as a list."""
-        self.list_display = list(self.list_display)
-        for item in [self.visit_model_field_name, 'created', 'modified', 'user_created', 'user_modified', ]:
-            if item not in self.list_display:
-                self.list_display.append(item)
-        self.list_display = tuple(self.list_display)
-
-    def extend_list_filter(self):
-        """Extends list filter with additional values if passed as a list."""
-        self.list_filter = list(self.list_filter)
-        extended_list_filter = [
-            self.visit_model_field_name + '__report_datetime',
-            self.visit_model_field_name + '__reason',
-            self.visit_model_field_name + '__appointment__appt_status',
-            self.visit_model_field_name + '__appointment__visit_definition__code',
-            self.visit_model_field_name + '__appointment__registered_subject__study_site__site_code',
-            'created',
-            'modified',
-            'user_created',
-            'user_modified',
-            'hostname_created']
-        for item in extended_list_filter:
-            if item not in self.list_filter:
-                self.list_filter.append(item)
-        self.list_filter = tuple(self.list_filter)
 
 #     def get_actions(self, request):
 #         actions = super(BaseVisitTrackingModelAdmin, self).get_actions(request)
