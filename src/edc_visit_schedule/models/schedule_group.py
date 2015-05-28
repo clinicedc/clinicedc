@@ -3,8 +3,9 @@ from django.core.urlresolvers import reverse
 
 from edc_base.model.models import BaseUuidModel
 
-from ..forms import MembershipForm
 from ..managers import ScheduleGroupManager
+
+from .member import Member
 
 
 class ScheduleGroup(BaseUuidModel):
@@ -14,14 +15,14 @@ class ScheduleGroup(BaseUuidModel):
         unique=True
     )
 
-    membership_form = models.ForeignKey(MembershipForm)
+    member = models.ForeignKey(Member)
 
     grouping_key = models.CharField(
         max_length=25,
         null=True,
         blank=True,
         help_text=(
-            'may specify a common value to group a number of membership forms so '
+            'may specify a common value to group a number of member models so '
             'that when one of the group is keyed, the others are no longer shown.')
     )
 
@@ -45,4 +46,3 @@ class ScheduleGroup(BaseUuidModel):
     class Meta:
         ordering = ['group_name']
         app_label = "edc_visit_schedule"
-        db_table = 'bhp_visit_schedulegroup'

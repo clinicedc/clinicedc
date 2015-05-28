@@ -1,41 +1,50 @@
 from datetime import timedelta
 
-from django.core.urlresolvers import reverse
 from django.core.validators import MaxLengthValidator
 from django.db import models
 
-from edc.core.bhp_content_type_map.models import ContentTypeMap
+from edc_content_type_map.models import ContentTypeMap
 
-from edc_visit_schedule import VisitDefinitionManager
-from edc_visit_schedule import BaseWindowPeriodItem
-from edc_visit_schedule import ScheduleGroup
-from edc_visit_schedule import get_lower_window_days, get_upper_window_days
-from edc_visit_schedule import is_visit_tracking_model
+from ..managers import VisitDefinitionManager
+from ..utils import get_lower_window_days, get_upper_window_days
+from ..validators import is_visit_tracking_model
+
+from ..mixins import VisitDateMixin
+from .base_window_period_item import BaseWindowPeriodItem
+from .schedule_group import ScheduleGroup
 
 
-class VisitDefinition(BaseWindowPeriodItem):
+class VisitDefinition(VisitDateMixin, BaseWindowPeriodItem):
     """Model to define a visit code, title, windows, schedule_group, etc."""
+
     code = models.CharField(
         max_length=6,
         validators=[MaxLengthValidator(6)],
         db_index=True,
         unique=True)
+
     title = models.CharField(
         verbose_name="Title",
         max_length=35,
         db_index=True)
-    visit_tracking_content_type_map = models.ForeignKey(ContentTypeMap,
+
+    visit_tracking_content_type_map = models.ForeignKey(
+        ContentTypeMap,
         null=True,
         verbose_name='Visit Tracking Model',
         validators=[is_visit_tracking_model, ])
-    schedule_group = models.ManyToManyField(ScheduleGroup,
+
+    schedule_group = models.ManyToManyField(
+        ScheduleGroup,
         null=True,
         blank=True,
         help_text="Visit definition may be used in more than one schedule_group")
+
     instruction = models.TextField(
         verbose_name="Instructions",
         max_length=255,
         blank=True)
+
     objects = VisitDefinitionManager()
 
     def natural_key(self):
@@ -55,13 +64,9 @@ class VisitDefinition(BaseWindowPeriodItem):
         td = timedelta(days=days)
         return appt_datetime + td
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}: {1}'.format(self.code, self.title)
-
-    def get_absolute_url(self):
-        return reverse('admin:bhp_visit_visitdefinition_change', args=(self.id,))
 
     class Meta:
         ordering = ['code', 'time_point']
         app_label = "edc_visit_schedule"
-        db_table = 'bhp_visit_visitdefinition'

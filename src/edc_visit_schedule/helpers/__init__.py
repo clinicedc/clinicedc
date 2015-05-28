@@ -1,2 +1,2 @@
-from .membership_form_helper import MembershipFormHelper
+from .member_helper import MemberHelper
 from .visit_definition_helper import VisitDefinitionHelper

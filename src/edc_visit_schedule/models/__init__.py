@@ -1,4 +1,4 @@
 from .base_window_period_item import BaseWindowPeriodItem
-from .membership_form import MembershipForm
+from .member import Member
 from .schedule_group import ScheduleGroup
 from .visit_definition import VisitDefinition

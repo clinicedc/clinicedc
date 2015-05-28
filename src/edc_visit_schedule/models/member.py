@@ -1,15 +1,14 @@
-from django.core.exceptions import ValidationError, ImproperlyConfigured
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 
 from edc_base.model.models import BaseUuidModel
 from edc_content_type_map.models import ContentTypeMap
-from edc_appointment.models import BaseAppointmentMixin
 
-from ..managers import MembershipFormManager
+from ..managers import MemberManager
 
 
-class MembershipForm(BaseUuidModel):
+class Member(BaseUuidModel):
 
     """Model to list forms to be linked to a ScheduleGroup as
     "registration" forms to that group"""
@@ -36,31 +35,32 @@ class MembershipForm(BaseUuidModel):
 
     model_name = models.CharField(max_length=25, null=True)
 
-    objects = MembershipFormManager()
+    objects = MemberManager()
 
     def save(self, *args, **kwargs):
         if not self.app_label:
             self.app_label = self.content_type_map.app_label
         if not self.model_name:
             self.model_name = self.content_type_map.model
-        # get the model class
-        cls = self.content_type_map.model_class()
-        # inspect for registered subject attribute
-        if 'registered_subject' not in dir(cls):
-            raise ValidationError('Membership forms must have a key to model RegisteredSubject. Got {0}'.format(cls))
-        if not issubclass(cls, BaseAppointmentMixin):
-            raise ImproperlyConfigured('MembershipForm attribute content_type_map must refer to a model class that is a subclass of BaseAppointmentMixin. Got {0}'.format(cls))
-        super(MembershipForm, self).save(*args, **kwargs)
+        if 'registered_subject' not in dir(self.registration_model):
+            raise ValidationError(
+                'Models listed in Member must have a key to model RegisteredSubject. '
+                'Got {0}'.format(self.registration_model))
+        super(Member, self).save(*args, **kwargs)
 
     def natural_key(self):
         return self.content_type_map.natural_key()
 
+    @property
+    def registration_model(self):
+        """Returns a model class."""
+        return self.content_type_map.model_class()
+
     def get_absolute_url(self):
-        return reverse('admin:bhp_visit_membershipform_change', args=(self.id,))
+        return reverse('admin:edc_visit_schedule_member_change', args=(self.id,))
 
     def __unicode__(self):
         return self.content_type_map.name
 
     class Meta:
         app_label = "edc_visit_schedule"
-        db_table = 'bhp_visit_membershipform'

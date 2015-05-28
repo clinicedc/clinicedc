@@ -1,13 +1,4 @@
-import logging
 from django.db import models
-
-logger = logging.getLogger(__name__)
-
-
-class NullHandler(logging.Handler):
-    def emit(self, record):
-        pass
-nullhandler = logger.addHandler(NullHandler())
 
 
 class ScheduleGroupManager(models.Manager):

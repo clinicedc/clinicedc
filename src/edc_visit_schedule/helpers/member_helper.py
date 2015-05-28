@@ -7,7 +7,7 @@ from django.db.models import get_model
 from edc.base.model.models import BaseModel
 
 
-class MembershipFormHelper(object):
+class MemberHelper(object):
 
     def __init__(self, *args, **kwargs):
         self._keyed = None
