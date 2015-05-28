@@ -1,21 +1,16 @@
 import six
 
+from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.core.validators import RegexValidator
-from django.db import models
 
 # from edc.audit.audit_trail import AuditTrail
-from simple_history.models import HistoricalRecords
 
-from edc_registration.models import RegisteredSubject
-from edc_visit_schedule.classes import WindowPeriod
-from edc_visit_schedule.models import VisitDefinition
-
-from ..choices import APPT_TYPE, APPT_STATUS
+from ..helpers import AppointmentHelper
+from ..choices import APPT_STATUS
 from ..constants import DONE
-from ..managers import AppointmentManager
-from ..models import BaseAppointment
+
+from .base_appointment import BaseAppointment
 
 
 class Appointment(BaseAppointment):
@@ -24,80 +19,24 @@ class Appointment(BaseAppointment):
         Only one edc_appointment per subject visit_definition+visit_instance.
         Attribute 'visit_instance' should be populated by the system.
     """
-    registered_subject = models.ForeignKey(RegisteredSubject, related_name='+')
-
-    best_appt_datetime = models.DateTimeField(null=True, editable=False)
-
-    appt_close_datetime = models.DateTimeField(null=True, editable=False)
-
-    study_site = models.CharField(
-        max_length=25,
-        null=True,
-        blank=False)
-
-    visit_definition = models.ForeignKey(
-        VisitDefinition,
-        related_name='+',
-        verbose_name=("Visit"),
-        help_text=("For tracking within the window period of a visit, use the decimal convention. "
-                   "Format is NNNN.N. e.g 1000.0, 1000.1, 1000.2, etc)"))
-
-    visit_instance = models.CharField(
-        max_length=1,
-        verbose_name=("Instance"),
-        validators=[RegexValidator(r'[0-9]', 'Must be a number from 0-9')],
-        default='0',
-        null=True,
-        blank=True,
-        db_index=True,
-        help_text=("A decimal to represent an additional report to be included with the original "
-                   "visit report. (NNNN.0)"))
-    dashboard_type = models.CharField(
-        max_length=25,
-        editable=False,
-        null=True,
-        blank=True,
-        db_index=True,
-        help_text='hold dashboard_type variable, set by dashboard')
-
-    appt_type = models.CharField(
-        verbose_name='Appointment type',
-        choices=APPT_TYPE,
-        default='clinic',
-        max_length=20,
-        help_text=('Default for subject may be edited in admin '
-                   'under section bhp_subject. See Subject Configuration.')
-    )
-
-    # history = AuditTrail()
-    history = HistoricalRecords()
-
-    objects = AppointmentManager()
-
-    def natural_key(self):
-        """Returns a natural key."""
-        return (self.visit_instance, ) + self.visit_definition.natural_key() + self.registered_subject.natural_key()
-    natural_key.dependencies = ['registration.registeredsubject', 'bhp_visit.visitdefinition']
 
     def validate_appt_datetime(self, exception_cls=None):
         """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
         the calculated ideal timepoint datetime.
 
         .. note:: best_appt_datetime is not editable by the user. If 'None', will raise an exception."""
-        from edc.subject.appointment_helper.classes import AppointmentDateHelper
         # for tests
         if not exception_cls:
             exception_cls = ValidationError
-        appointment_date_helper = AppointmentDateHelper()
         if not self.id:
-            appt_datetime = appointment_date_helper.get_best_datetime(self.appt_datetime, self.study_site)
+            appt_datetime = self.get_best_datetime(self.appt_datetime, self.study_site)
             best_appt_datetime = self.appt_datetime
         else:
             if not self.best_appt_datetime:
                 # did you update best_appt_datetime for existing instances since the migration?
                 raise exception_cls(
                     'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
-            appt_datetime = appointment_date_helper.change_datetime(
+            appt_datetime = self.change_datetime(
                 self.best_appt_datetime, self.appt_datetime, self.study_site, self.visit_definition)
             best_appt_datetime = self.best_appt_datetime
         return appt_datetime, best_appt_datetime
@@ -135,16 +74,13 @@ class Appointment(BaseAppointment):
         if not exception_cls:
             exception_cls = ValidationError
         if self.id:
-            window_period = WindowPeriod()
-            if not window_period.check_datetime(self.visit_definition, self.appt_datetime, self.best_appt_datetime):
-                raise exception_cls(window_period.error_message)
+            self.visit_definition.verify_datetime(self.appt_datetime, self.best_appt_datetime)
 
     def save(self, *args, **kwargs):
         """Django save method"""
-        from edc.subject.appointment_helper.classes import AppointmentHelper
         using = kwargs.get('using')
         if self.id:
-            TimePointStatus = models.get_model('data_manager', 'TimePointStatus')
+            TimePointStatus = apps.get_model('data_manager', 'TimePointStatus')
             TimePointStatus.check_time_point_status(self, using=using)
         self.appt_datetime, self.best_appt_datetime = self.validate_appt_datetime()
         self.check_window_period()

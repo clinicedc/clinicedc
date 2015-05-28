@@ -1,6 +1,6 @@
-from edc.base.modeladmin.admin import BaseModelAdmin
+from edc_base.modeladmin.admin import BaseModelAdmin
 
-from edc_appointment import Appointment
+from ..models import Appointment
 
 
 class BaseAppointmentModelAdmin(BaseModelAdmin):
@@ -17,21 +17,7 @@ class BaseAppointmentModelAdmin(BaseModelAdmin):
 
     def __init__(self, *args, **kwargs):
 
-#         # dashboard_type is required to reverse url back to dashboard
-#         if not hasattr(self, 'dashboard_type'):
-#             raise AttributeError('{0} attribute \'dashboard_type\' is required but has not been defined.'.format(self))
-#         elif not self.dashboard_type:
-#             raise ValueError('{0} attribute \'dashboard_type\' cannot be None. '.format(self))
-#         else:
-#             pass
-
         super(BaseAppointmentModelAdmin, self).__init__(*args, **kwargs)
-
-#         # edc_appointment key should exist, if not, maybe sent the wrong model
-#         if not [f.name for f in self.model._meta.fields if f.name == 'edc_appointment']:
-#             raise AttributeError('The model for BaseAppointmentModelAdmin child class {0} '
-#                                  'requires model attribute \'edc_appointment\'. Not found '
-#                                  'in model {1}.'.format(self, self.model._meta.object_name))
 
         self.list_display = ['edc_appointment', 'report_datetime', 'reason', 'created',
                              'modified', 'user_created', 'user_modified', ]
@@ -51,6 +37,6 @@ class BaseAppointmentModelAdmin(BaseModelAdmin):
                             'hostname_created']
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'edc_appointment' and request.GET.get('edc_appointment'):
-            kwargs["queryset"] = Appointment.objects.filter(pk=request.GET.get('edc_appointment', 0))
+        if db_field.name == 'appointment' and request.GET.get('appointment'):
+            kwargs["queryset"] = Appointment.objects.filter(pk=request.GET.get('appointment', 0))
         return super(BaseAppointmentModelAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)

@@ -1,9 +1,9 @@
-from edc.subject.consent.models import BaseConsentedUuidModel
+from edc.subject.consent.models import BaseUuidModel
 
 from .base_appointment_mixin import BaseAppointmentMixin
 
 
-class BaseAppointmentHelperModel (BaseConsentedUuidModel, BaseAppointmentMixin):
+class BaseAppointmentHelperModel (BaseUuidModel, BaseAppointmentMixin):
 
     """ Base for models that may be trigger the creation of appointments such as registration models models that need a key to RegisteredSubject.
 
