@@ -1,10 +1,17 @@
 from django.db import models
-from edc.audit.audit_trail import AuditTrail
-from edc.subject.contact.models import BaseContactLogItem
-from edc_appointment import Appointment
+from django_crypto_fields.fields import EncryptedTextField
+
+from simple_history.models import HistoricalRecords
+
+# from edc.audit.audit_trail import AuditTrail
+
+from edc_base.model.models import BaseUuidModel
+from edc_constants.choices import YES_NO
+
+from .appointment import Appointment
 
 
-class PreAppointmentContact(BaseContactLogItem):
+class PreAppointmentContact(BaseUuidModel):
     """Tracks contact, modifies appt_datetime, changes type and confirms and edc_appointment."""
 
     appointment = models.ForeignKey(Appointment)
@@ -14,7 +21,31 @@ class PreAppointmentContact(BaseContactLogItem):
         default=False,
     )
 
-    history = AuditTrail()
+    contact_datetime = models.DateTimeField(
+        verbose_name='Date of call')
+
+    is_contacted = models.CharField(
+        verbose_name='Did someone answer?',
+        max_length=10,
+        choices=YES_NO,
+    )
+
+    information_provider = models.CharField(
+        verbose_name="Who answered?",
+        max_length=20,
+        help_text="",
+        null=True,
+        blank=True,
+    )
+
+    comment = EncryptedTextField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+
+    # history = AuditTrail()
+    history = HistoricalRecords()
 
     objects = models.Manager()
 

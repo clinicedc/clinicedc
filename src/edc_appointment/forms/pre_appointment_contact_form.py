@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.admin.widgets import AdminRadioSelect, AdminRadioFieldRenderer
 
-from edc_contact.forms import BaseContactLogItemFormCleaner
+from edc_constants.constants import YES, NO
 
 from ..choices import INFO_PROVIDER
 from ..models import PreAppointmentContact
@@ -18,8 +18,18 @@ class PreAppointmentContactForm (forms.ModelForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        BaseContactLogItemFormCleaner().clean(cleaned_data)
+        if not cleaned_data.get('is_contacted', None):
+            raise forms.ValidationError('Please select Yes or No')
+        if cleaned_data.get('is_contacted').lower() == NO and cleaned_data.get('information_provider'):
+            raise forms.ValidationError(
+                'You wrote contact was NOT made yet have recorded the information provider. Please correct.')
+        if cleaned_data.get('is_contacted').lower() == YES and not cleaned_data.get('information_provider'):
+            raise forms.ValidationError(
+                'You wrote contact was made. Please indicate the information provider. Please correct.')
+        return cleaned_data
+
         return super(PreAppointmentContactForm, self).clean()
 
     class Meta:
         model = PreAppointmentContact
+        fields = "__all__"

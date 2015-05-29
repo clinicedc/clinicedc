@@ -14,6 +14,7 @@ class AppointmentForm(forms.ModelForm):
 
     class Meta:
         model = Appointment
+        fields = "__all__"
 
     def clean(self):
 
@@ -42,11 +43,6 @@ class AppointmentForm(forms.ModelForm):
             raise forms.ValidationError(
                 'Cannot create continuation edc_appointment for visit %s. '
                 'Cannot find the original edc_appointment (visit instance equal to 0).' % (visit_definition,))
-#         elif Appointment.objects.filter(
-#                     registered_subject=registered_subject,
-#                     visit_definition=visit_definition,
-#                     visit_instance=visit_instance).exists():
-#             raise TypeError('Cannot create continuation edc_appointment for visit \'{0}\' with instance \'{1}\'. Such an edc_appointment already exists.'.format(visit_definition,visit_instance))
         else:
             pass
         # check edc_appointment date relative to status

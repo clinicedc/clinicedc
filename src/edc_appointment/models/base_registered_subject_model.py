@@ -1,11 +1,11 @@
 from django.db import models
-from django.db.models import get_app, get_models
-
-from appointment_helper.models import BaseAppointmentHelperModel
+from django.apps import apps
 
 from edc_registration.managers import RegisteredSubjectManager
 
 from edc_registration.models import RegisteredSubject
+
+from .base_appointment_helper_model import BaseAppointmentHelperModel
 
 
 class BaseRegisteredSubjectModel (BaseAppointmentHelperModel):
@@ -54,7 +54,7 @@ class BaseRegisteredSubjectModel (BaseAppointmentHelperModel):
             app_label = instance.get_visit_model_app()
         else:
             app_label = instance._meta.app_label
-        for model in get_models(get_app(app_label)):
+        for model in apps.get_models(apps.get_app(app_label)):
             if isinstance(model(), BaseVisitTracking):
                 return model
         raise TypeError(
@@ -66,7 +66,7 @@ class BaseRegisteredSubjectModel (BaseAppointmentHelperModel):
     def get_visit_model(self, instance):
         """Returns the visit model which is a subclass of :class:`BaseVisitTracking`."""
         from edc.subject.visit_tracking.models.base_visit_tracking import BaseVisitTracking
-        for model in get_models(get_app(instance._meta.app_label)):
+        for model in apps.get_models(apps.get_app(instance._meta.app_label)):
             if isinstance(model(), BaseVisitTracking):
                 return model
         raise TypeError(

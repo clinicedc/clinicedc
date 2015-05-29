@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Max
@@ -5,8 +7,9 @@ from django.db.models import Max
 from edc_appointment.exceptions import AppointmentStatusError
 from edc_configuration.models import GlobalConfiguration, SubjectConfiguration
 from edc_visit_schedule.models import VisitDefinition, ScheduleGroup
+from edc_visit_tracking.constants import VISIT_REASON_NO_FOLLOW_UP_CHOICES
 
-from edc_entry.helpers import ScheduledEntryMetaDataHelper
+# from edc_entry.helpers import ScheduledEntryMetaDataHelper
 
 from ..constants import IN_PROGRESS, DONE, INCOMPLETE, NEW, CANCELLED
 from ..exceptions import AppointmentCreateError
@@ -142,6 +145,28 @@ class AppointmentHelper(object):
                     visit_instance=str(next_visit_instance),
                     appt_datetime=appt_datetime)
 
+    def show_scheduled_entries(self, appointment, visit_instance):
+        try:
+            visit_reason_no_follow_up_choices = visit_instance.get_visit_reason_no_follow_up_choices()
+        except AttributeError:
+            visit_reason_no_follow_up_choices = VISIT_REASON_NO_FOLLOW_UP_CHOICES
+        show_scheduled_entries = (
+            visit_instance.reason.lower() not in [
+                x.lower() for x in visit_reason_no_follow_up_choices.values()])
+        # possible conditions that override above
+        # subject is at the off study visit (lost)
+        if visit_instance.reason.lower() in visit_instance.get_off_study_reason():
+            visit_date = date(visit_instance.report_datetime.year,
+                              visit_instance.report_datetime.month,
+                              visit_instance.report_datetime.day)
+            if visit_instance.get_off_study_cls().objects.filter(
+                    registered_subject=appointment.registered_subject, offstudy_date=visit_date):
+                # has an off study form completed on same day as visit
+                off_study_instance = visit_instance.get_off_study_cls().objects.get(
+                    registered_subject=appointment.registered_subject, offstudy_date=visit_date)
+                show_scheduled_entries = off_study_instance.show_scheduled_entries_on_off_study_date()
+        return show_scheduled_entries
+
     def check_appt_status(self, appointment, using):
         """Checks the appt_status relative to the visit tracking form and ScheduledEntryMetaData.
         """
@@ -161,8 +186,8 @@ class AppointmentHelper(object):
             visit_model_instance = \
                 appointment.visit_definition.visit_tracking_content_type_map.model_class().objects.get(
                     appointment=appointment)
-            scheduled_entry_helper = ScheduledEntryMetaDataHelper(appointment, visit_model_instance)
-            if not scheduled_entry_helper.show_scheduled_entries():
+            # scheduled_entry_helper = ScheduledEntryMetaDataHelper(appointment, visit_model_instance)
+            if not self.show_scheduled_entries():
                 # visit reason implies no data will be collected, so set edc_appointment to Done
                 appointment.appt_status = DONE
             else:
