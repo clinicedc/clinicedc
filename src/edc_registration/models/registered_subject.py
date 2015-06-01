@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
 from django_crypto_fields.fields import IdentityField
+from django_crypto_fields.classes import FieldCryptor
 
 # from edc_audit.audit_trail import AuditTrail
 from edc_base.model.fields import IdentityTypeField
@@ -214,15 +215,14 @@ class RegisteredSubject(RegistrationMixin, BaseSubject):
                                            'for each value. Got {0}.'.format(settings_attrs.MAX_SUBJECTS))
 
     def __str__(self):
+        # TODO: Add masked first_name
         if self.sid:
-            return "{0} {1} ({2} {3})".format(self.mask_unset_subject_identifier(),
+            return "{0} {1} ({2})".format(self.mask_unset_subject_identifier(),
                                               self.subject_type,
-                                              self.first_name.field_cryptor.mask(self.first_name),
                                               self.sid)
         else:
-            return "{0} {1} ({2})".format(self.mask_unset_subject_identifier(),
-                                          self.subject_type,
-                                          self.first_name.field_cryptor.mask(self.first_name),)
+            return "{0} {1} ".format(self.mask_unset_subject_identifier(),
+                                          self.subject_type,)
 
     def dashboard(self):
         ret = None
