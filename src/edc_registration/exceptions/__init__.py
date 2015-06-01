@@ -1,0 +1,4 @@
+
+
+class RegistrationError(Exception):
+    pass

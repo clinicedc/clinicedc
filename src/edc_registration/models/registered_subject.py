@@ -3,16 +3,17 @@ from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
+from django_crypto_fields.fields import IdentityField
 
 # from edc_audit.audit_trail import AuditTrail
 from edc_base.model.fields import IdentityTypeField
 from edc_constants.choices import YES_NO, ALIVE_DEAD_UNKNOWN
 from edc_subject.models import BaseSubject
 
-from django_crypto_fields.fields import IdentityField
+from ..mixins import RegistrationMixin
 
 
-class RegisteredSubject(BaseSubject):
+class RegisteredSubject(RegistrationMixin, BaseSubject):
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
@@ -123,24 +124,50 @@ class RegisteredSubject(BaseSubject):
                    'is not captured in this model'),
     )
 
-    # history = AuditTrail()
+    def get_subject_identifier(self):
+        return self.subject_identifier
+
+    def get_registered_subject(self):
+        return self
+
+    def is_registered_subject(self):
+        if self._meta.object_name == 'RegisteredSubject':
+            return True
+        return False
+
+#     # history = AuditTrail()
 
     def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        using = kwargs.get('using')
+        self.dummy_subject_identifier()
+        self._check_if_duplicate_subject_identifier(using)
+        self.change_subject_identifier()
         self.check_max_subjects()
         if self.identity:
             self.additional_key = None
-        super(RegisteredSubject, self).save(*args, **kwargs)
 
-    def __str__(self):
-        if self.sid:
-            return "{0} {1} ({2} {3})".format(self.mask_unset_subject_identifier(),
-                                              self.subject_type,
-                                              self.first_name.field_cryptor.mask(self.first_name),
-                                              self.sid)
-        else:
-            return "{0} {1} ({2})".format(self.mask_unset_subject_identifier(),
-                                          self.subject_type,
-                                          self.first_name.field_cryptor.mask(self.first_name),)
+    def get_subject_types(self, settings_attrs=None):
+        if not settings_attrs:
+            settings_attrs = settings
+        settings_attrs.SUBJECT_TYPES.append('test_subject_type')  # added for tests
+        return map(lambda n: n.lower(), settings_attrs.SUBJECT_TYPES)
+
+    def get_subject_type(self, settings_attrs=None):
+        if not settings_attrs:
+            settings_attrs = settings
+        if not self.subject_type:
+            raise TypeError('subject_type may not be None for model class {0} instance {1}.'.format(
+                self.__class__, self))
+        if self.subject_type.lower() not in self.get_subject_types(settings_attrs):
+            raise TypeError('Expected subject_type to be any of {0}. Got \'{1}\'. Either update the settings '
+                            'attribute in settings.py or change the subject_type of the registered_subject.'.format(
+                                self.get_subject_types(settings_attrs), self.subject_type))
+        return self.subject_type
+
+    def check_if_may_change_subject_identifier(self, using):
+        """Allows a consent to change the subject identifier."""
+        pass
 
     def check_max_subjects(self, exception_cls=None, settings_attrs=None, count=None):
         """Checks the number of subjects against the settings attribute MAX_SUBJECTS.
@@ -186,55 +213,16 @@ class RegisteredSubject(BaseSubject):
                 raise ImproperlyConfigured('Setting attribute dictionary MAX_SUBJECTS must return an integer '
                                            'for each value. Got {0}.'.format(settings_attrs.MAX_SUBJECTS))
 
-    def get_registered_subject(self):
-        return self
-
-    def get_subject_types(self, settings_attrs=None):
-        if not settings_attrs:
-            settings_attrs = settings
-        settings_attrs.SUBJECT_TYPES.append('test_subject_type')  # added for tests
-        return map(lambda n: n.lower(), settings_attrs.SUBJECT_TYPES)
-
-    def get_subject_type(self, settings_attrs=None):
-        if not settings_attrs:
-            settings_attrs = settings
-        if not self.subject_type:
-            raise TypeError('subject_type may not be None for model class {0} instance {1}.'.format(
-                self.__class__, self))
-        if self.subject_type.lower() not in self.get_subject_types(settings_attrs):
-            raise TypeError('Expected subject_type to be any of {0}. Got \'{1}\'. Either update the settings '
-                            'attribute in settings.py or change the subject_type of the registered_subject.'.format(
-                                self.get_subject_types(settings_attrs), self.subject_type))
-        return self.subject_type
-
-    def check_if_may_change_subject_identifier(self, using):
-        """Allows a consent to change the subject identifier."""
-        pass
-
-    def is_serialized(self):
-        return super(RegisteredSubject, self).is_serialized(True)
-
-    def dispatch_container_lookup(self):
-        return (self.__class__, 'id')
-
-    def is_dispatched(self):
-        return False
-
-    def is_dispatchable_model(self):
-        return True
-
-    def bypass_for_edit_dispatched_as_item(self, using=None, update_fields=None):
-        # requery myself
-        obj = self.__class__.objects.using(using).get(pk=self.pk)
-        # dont allow values in these fields to change if dispatched
-        may_not_change_these_fields = [
-            (k, v) for k, v in obj.__dict__.items()
-            if k not in ['study_site_id', 'registration_status', 'modified'] and not k.startswith('_')
-        ]
-        for k, v in may_not_change_these_fields:
-            if getattr(self, k) != v:
-                return False
-        return True
+    def __str__(self):
+        if self.sid:
+            return "{0} {1} ({2} {3})".format(self.mask_unset_subject_identifier(),
+                                              self.subject_type,
+                                              self.first_name.field_cryptor.mask(self.first_name),
+                                              self.sid)
+        else:
+            return "{0} {1} ({2})".format(self.mask_unset_subject_identifier(),
+                                          self.subject_type,
+                                          self.first_name.field_cryptor.mask(self.first_name),)
 
     def dashboard(self):
         ret = None

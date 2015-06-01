@@ -2,9 +2,10 @@ import factory
 
 from datetime import date
 
+from edc_subject.models import BaseSubject
+
 
 class BaseSubjectFactory(factory.DjangoModelFactory):
-    ABSTRACT_FACTORY = True
 
     # if you set subject_identifier here, filling in a consent, for example, will not generate
     # an identifier and not update registered subject -- so don't
@@ -15,4 +16,8 @@ class BaseSubjectFactory(factory.DjangoModelFactory):
     dob = date(date.today().year - 20, 1, 1)
     is_dob_estimated = '-'
     gender = 'M'
-    # subject_type = 'subject'
+    subject_type = 'test_subject_type'
+
+    class Meta:
+        model = BaseSubject
+        abstract = True
