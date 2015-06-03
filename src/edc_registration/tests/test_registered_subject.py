@@ -1,33 +1,49 @@
+from uuid import UUID
+
+from django.db.utils import IntegrityError
 from django.test import TestCase
-from django.conf import settings
 
 from edc_identifier.exceptions import IdentifierError
 
-from ..models import RegisteredSubject
-
-from .factories.registered_subject_factory import RegisteredSubjectFactory
+from edc_sample.sample.models import RegisteredSubject
 
 
-class RegisteredSubjectsTest(TestCase):
+class TestRegisteredSubject(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        pass
+    def test_subject_identifier_not_none(self):
+        """Asserts subject identifier cannot be None after save()."""
+        rs = RegisteredSubject()
+        self.assertTrue(isinstance(rs.subject_identifier_as_pk, UUID))
+        self.assertTrue(not rs.subject_identifier)
+        rs.save()
+        self.assertEquals(rs.subject_identifier, str(rs.subject_identifier_as_pk))
 
-    def tearDown(self):
-        RegisteredSubject.objects.all().delete()
+    def test_subject_identifier_is_pk(self):
+        """Asserts subject identifier is a uuid after save()."""
+        rs = RegisteredSubject()
+        self.assertTrue(isinstance(rs.subject_identifier_as_pk, UUID))
+        rs.save()
+        self.assertEquals(rs.subject_identifier, str(rs.subject_identifier_as_pk))
 
-    def test_set_dummy_identifiers(self):
-        """Test setting dummy identifiers"""
-        reg = RegisteredSubjectFactory.build()
-        reg.insert_dummy_identifier()
-        self.assertEquals(reg.subject_identifier, "")
-        reg.dummy_subject_identifier()
-        self.assertGreater(len(reg.subject_identifier), 0, "Subject identifier not set")
+    def test_subject_identifier_as_pk_not_none(self):
+        """Asserts subject identifier is a uuid after save()."""
+        rs = RegisteredSubject()
+        self.assertTrue(isinstance(rs.subject_identifier_as_pk, UUID))
+        rs.subject_identifier_as_pk = None
+        self.assertRaises(ValueError, rs.save)
 
-    def test_duplicate_identifier(self):
-        """Test that duplicate subject identifiers will not be allowed"""
-        subject1 = RegisteredSubjectFactory()
-        subject2 = RegisteredSubjectFactory.build()
-        subject2.subject_identifier=subject1.subject_identifier
-        self.assertRaises(IdentifierError, subject2.save)
+    def test_subject_identifier_constraint(self):
+        """Asserts cannot accept duplicate on as_pk."""
+        rs = RegisteredSubject()
+        rs.save()
+        dup = rs.subject_identifier_as_pk
+        rs = RegisteredSubject(subject_identifier_as_pk=dup)
+        self.assertRaises(IntegrityError, rs.save)
+
+    def test_duplicate_subject_identifier(self):
+        subject_identifier = '123456789'
+        rs = RegisteredSubject(subject_identifier=subject_identifier)
+        rs.save()
+        self.assertEquals(rs.subject_identifier, subject_identifier)
+        rs = RegisteredSubject(subject_identifier=subject_identifier)
+        self.assertRaises(IdentifierError, rs.save)

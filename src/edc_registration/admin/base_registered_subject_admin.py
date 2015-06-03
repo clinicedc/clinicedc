@@ -1,14 +1,13 @@
 from django.contrib import admin
-
 from edc_base.modeladmin.admin import BaseModelAdmin
 
-from ..forms import RegisteredSubjectForm
+# from ..forms import RegisteredSubjectForm
 from ..models import RegisteredSubject
 
 
 class RegisteredSubjectAdmin (BaseModelAdmin):
 
-    form = RegisteredSubjectForm
+    # form = RegisteredSubjectForm
     date_hierarchy = 'registration_datetime'
 
     list_display = (
@@ -18,9 +17,8 @@ class RegisteredSubjectAdmin (BaseModelAdmin):
         'initials',
         'gender',
         'subject_type',
-        'sid',
         'registration_status',
-        'study_site',
+        'site_code',
         'user_created',
         'created',
     )
@@ -31,9 +29,9 @@ class RegisteredSubjectAdmin (BaseModelAdmin):
     )
 
     search_fields = (
-        'subject_identifier', 'first_name', 'initials', 'sid', 'identity', 'id', 'registration_identifier')
+        'subject_identifier', 'first_name', 'initials', 'identity', 'id', 'registration_identifier')
 
     list_filter = ('subject_type', 'registration_status', 'registration_datetime', 'gender',
-                   'study_site', 'survival_status', 'may_store_samples', 'hostname_created')
+                   'site_code', 'survival_status', 'hostname_created')
 
 admin.site.register(RegisteredSubject, RegisteredSubjectAdmin)

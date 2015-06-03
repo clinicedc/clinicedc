@@ -1,6 +1,6 @@
 from datetime import date
+from uuid import uuid4
 
-from django_extensions.db.fields import UUIDField
 from django.db import models
 
 from edc_base.model.models import BaseModel
@@ -16,7 +16,9 @@ class SubjectIdentifierAuditTrail(BaseModel):
     See also AllocateSubjectIdentifier()
 
     """
-    subject_consent_id = UUIDField(auto=False)
+    subject_consent_id = models.UUIDField(
+        default=uuid4
+    )
 
     subject_identifier = models.CharField(
         max_length=25,
@@ -31,4 +33,3 @@ class SubjectIdentifierAuditTrail(BaseModel):
     class Meta:
         ordering = ['-date_allocated']
         app_label = 'registration'
-        db_table = 'bhp_registration_subjectidentifieraudittrail'
