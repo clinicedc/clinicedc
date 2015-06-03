@@ -4,19 +4,17 @@ from django.dispatch import receiver
 
 from ..helpers import AppointmentHelper
 
-from .appointment import Appointment
-from .base_appointment_helper_model import BaseAppointmentHelperModel
-from .base_appointment_mixin import BaseAppointmentMixin
 from .base_registered_subject_model import BaseRegisteredSubjectModel
 from .pre_appointment_contact import PreAppointmentContact
 
 
 @receiver(post_save, weak=False, dispatch_uid="prepare_appointments_on_post_save")
 def prepare_appointments_on_post_save(sender, instance, raw, created, using, **kwargs):
-    """"""
     if not raw:
-        if issubclass(sender, (BaseAppointmentHelperModel, BaseAppointmentMixin)):
+        try:
             instance.prepare_appointments(using)
+        except AttributeError:
+            pass
 
 
 @receiver(post_delete, weak=False, dispatch_uid='delete_unused_appointments')
@@ -73,13 +71,12 @@ def pre_appointment_contact_on_post_delete(sender, instance, using, **kwargs):
             instance.appointment.save(using=using, update_fields=appointment_update_fields)
 
 
-@receiver(post_save, weak=False, dispatch_uid="appointment_post_save")
-def appointment_post_save(sender, instance, raw, created, using, **kwargs):
-    """Creates the TimePointStatus instance if it does not already exist."""
-    if not raw:
-        if isinstance(instance, Appointment):
-            TimePointStatus = apps.get_model('data_manager', 'TimePointStatus')
-            try:
-                TimePointStatus.objects.get(appointment=instance)
-            except TimePointStatus.DoesNotExist:
-                TimePointStatus.objects.create(appointment=instance)
+# @receiver(post_save, weak=False, dispatch_uid="appointment_post_save")
+# def appointment_post_save(sender, instance, raw, created, using, **kwargs):
+#     """Creates the TimePointStatus instance if it does not already exist."""
+#     if not raw:
+#         TimePointStatus = apps.get_model('data_manager', 'TimePointStatus')
+#         try:
+#             TimePointStatus.objects.get(appointment=instance)
+#         except TimePointStatus.DoesNotExist:
+#             TimePointStatus.objects.create(appointment=instance)

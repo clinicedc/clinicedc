@@ -7,7 +7,8 @@ register = template.Library()
 
 
 class ContinuationAppointmentAnchor(template.Node):
-    """return a reverse url for a continjuation edc_appointment if the edc_appointment does not already exist"""
+    """return a reverse url for a continjuation edc_appointment if
+    the edc_appointment does not already exist"""
     def __init__(self, appointment, dashboard_type, extra_url_context):
         self.unresolved_appointment = template.Variable(appointment)
         self.unresolved_dashboard_type = template.Variable(dashboard_type)

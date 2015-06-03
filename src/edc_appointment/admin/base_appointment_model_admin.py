@@ -19,7 +19,7 @@ class BaseAppointmentModelAdmin(BaseModelAdmin):
 
         super(BaseAppointmentModelAdmin, self).__init__(*args, **kwargs)
 
-        self.list_display = ['edc_appointment', 'report_datetime', 'reason', 'created',
+        self.list_display = ['appointment', 'report_datetime', 'reason', 'created',
                              'modified', 'user_created', 'user_modified', ]
 
         self.search_fields = ['id', 'reason', 'appointment__visit_definition__code',

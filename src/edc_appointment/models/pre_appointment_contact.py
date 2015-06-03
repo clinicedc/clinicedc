@@ -52,11 +52,13 @@ class PreAppointmentContact(BaseUuidModel):
     def get_requires_consent(self):
         return False
 
-    def get_subject_identifier(self):
-        return self.appointment.get_subject_identifier()
+    @property
+    def subject_identifier(self):
+        return self.appointment.subject_identifier
 
-    def get_report_datetime(self):
-        return self.appointment.get_report_datetime()
+    @property
+    def report_datetime(self):
+        return self.appointment.report_datetime
 
     def __unicode__(self):
         return str(self.appointment)
