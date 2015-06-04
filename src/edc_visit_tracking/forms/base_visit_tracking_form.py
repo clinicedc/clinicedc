@@ -1,7 +1,7 @@
 from django import forms
 from django.conf import settings
 
-from edc_data_manager.models import TimePointStatus
+from edc_appointment.models import TimePointStatus
 
 
 class BaseVisitTrackingForm(forms.ModelForm):
