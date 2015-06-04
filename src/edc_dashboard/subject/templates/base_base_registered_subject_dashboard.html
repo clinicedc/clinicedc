@@ -1,0 +1,255 @@
+{% extends "base_dashboard.html" %}
+{% load admin_urls %}
+{% load url from future %}
+{% load i18n %}
+{% load staticfiles %}
+{% load common_tags %}
+
+{% block customjs %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/spin.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.spin.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/lab_results.js" charset="utf-8"></script>
+{% endblock customjs %}
+
+{% block breadcrumbs %}
+
+    <div class="breadcrumbs">
+        <a href="/{{ home }}">Home</a>
+        &rsaquo; {{ dashboard_name|default:'Dashboard' }}  for {{ subject_identifier }}   
+        
+    </div>
+    
+{% endblock %}
+
+
+{% block dashboard_main %}
+
+{% block clinic_dashboard_marquee %}
+  {% block subject_consent %}
+  {% endblock%}
+{% endblock %}
+
+{% block clinic_dashboard %}
+
+<table border=1 width=100%>
+<thead></thead>
+<tbody>
+    <tr>
+      <td id="lab-results-panel" style="display: none;">
+        <div id="dashboard-link">
+          <button type="button" id="board-link">show dashboard</button>
+        </div>
+        <div id="results-space"></div>
+      </td>
+        <td name="left_table" id="left_table">
+            
+            <table name="left" id="left" border=1 width=100%>
+                <tr name="top left">
+                    <td>
+                    {% block membership_forms %}{% endblock %}
+                    {% block dispatch %}{%endblock%}
+                    </td>
+                </tr>
+                <tr name="top left">
+                    <td>
+                        <H5>Appointments</H5>
+                        {% block appointment_continuation %}
+                          <A href="{% url 'admin:appointment_appointment_add' %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&visit_definition={{ appointment.visit_definition.pk }}&registered_subject={{registered_subject.pk}}">add continuation appointment</A>
+                        {% endblock%}
+                     
+                        {% block appointments %}
+
+                        {% endblock appointments %}
+                    </td>
+                </tr>
+
+                {% if show == 'forms' %}                
+                <tr name="bottom left" >
+                    <td>
+                        {% block visit_instructions %}
+                            <PRE>{{ appointment.visit_definition.instruction|wordwrap:80 }}</PRE>
+                        {% endblock visit_instructions %}
+                        {% block visit_messages %}
+                            {% for message in visit_messages %}
+                                <PRE>{{ message|wordwrap:80 }}<BR></PRE>
+                            {% endfor %}
+                            {% if action_item_message %}
+                                <PRE>{{ action_item_message|wordwrap:80 }}<BR></PRE>
+                            {% endif %}    
+                        {% endblock visit_messages %} 
+                   </td>
+                </tr>
+                {% endif %}
+
+                {% if show == 'forms' %}                
+                   <tr name="bottom left" >
+                       <td>
+                           {% block additional_forms %}{% endblock%}
+                       </td>
+                   </tr>
+   
+                   <tr name="bottom left" >
+                       <td>
+                           <H5>Scheduled Forms {% if visit_code %} for Visit '{{ visit_code }}'{% endif %}</H5>
+                           {% if appointment.appt_status != IN_PROGRESS %}
+                               <I> Hint: To edit the forms below, change the selected appointment's status to 'In Progress'</I> 
+                           {% endif %}    
+
+                           {% block scheduled_data_collection %}{% endblock scheduled_data_collection %}
+                       </td>
+                   </tr>
+
+                   <tr name="bottom left" >
+                        <td>
+                           <H5>Scheduled Labs {% if visit_code %} for Visit {{ visit_code }}{% endif %}</H5>
+   
+                           {% if not visit_code %}                
+                              To see scheduled labs for a visit, select the appointment with the correct visit report and click 'show entry forms' in the Action column.
+                           {% else %}
+                                {% if appointment.appt_status != IN_PROGRESS %}
+                                   <I> Hint: To edit the labs below, change the selected appointment's status to 'In Progress'</I> 
+                               {% endif %}    
+                               {% block scheduled_requisitions %}{% endblock scheduled_requisitions %}
+                           {% endif %}
+                      </td>
+                  </tr>
+                  {% if additional_lab_bucket %}
+                   <tr name="bottom left" >
+                       <td>
+                           <H5>Additional Labs {% if visit_code %} for Visit {{ visit_code }}{% endif %}</H5>
+   
+                           {% if not visit_code %}                
+                               To see additional labs for a visit, select the appointment with the correct visit report and click 'show entry forms' in the Action column.
+                           {% else %}
+                               {% if appointment.appt_status != IN_PROGRESS %}
+                                   <I> Hint: To edit the labs below, change the selected appointment's status to 'In Progress'</I> 
+                               {% endif %}    
+                               {% block additional_lab_bucket %}{% endblock additional_lab_bucket %}
+                           {% endif %}
+                      </td>
+                  </tr>
+                  {% endif %}
+            {% endif %}
+            </table>
+
+        </td>
+
+        <td>
+            <table name="right" class="right-table"  border=0 width=100%>
+                <tr><td>
+                {% block top_links %}[{{form_language_code}}]
+                    {% block subject_configuration %}
+                    {% if subject_configuration %}
+                       {% if visit_model_instance %}
+                           <A href="{% url 'admin:subject_config_subjectconfiguration_change' subject_configuration.pk %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
+                       {% else %}
+                           <A href="{% url 'admin:subject_config_subjectconfiguration_change' subject_configuration.pk %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
+                       {% endif %}
+                    {% else %}
+                       {% if visit_model_instance %}
+                           <A href="{% url 'admin:subject_config_subjectconfiguration_add' %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
+                       {% else %}
+                           <A href="{% url 'admin:subject_config_subjectconfiguration_add' %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
+                       {% endif %}
+                    {% endif %}&nbsp;|&nbsp;
+                    {% endblock subject_configuration %}
+                    
+                    <A href="{% url 'admin:appointment_appointment_changelist' %}?q={{ subject_identifier }}&o=3.1">appointments</A>&nbsp;|&nbsp;
+                    
+                    {% block time_point_status %}
+                        {% if appointment %}
+                            {% if time_point_status %}
+                                <A href="{% url 'admin:data_manager_timepointstatus_change' time_point_status.pk %}?appointment={{ appointment.pk }}&next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">time-point</A> {{ time_point_status.status|color_status }}
+                            {% else %}
+                                <A href="{% url 'admin:data_manager_timepointstatus_add' %}?appointment={{ appointment.pk }}&next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">time-point status</A>
+                            {% endif %}
+                        {% endif %}&nbsp;|&nbsp;
+                    {% endblock time_point_status %}
+                    
+                    {% block correct_consent %}{% endblock correct_consent %}
+                    
+                {% endblock top_links %}
+                </td></tr>
+
+                {% block referral %}{% endblock referral %}   
+
+                {% block infants %}{% endblock infants %}   
+
+                {% block partner %}{% endblock partner %}
+
+                {% block maternal_consent %}{% endblock maternal_consent %}  
+
+                {% block locator %}{{ rendered_locator }}{% endblock locator %}
+
+                {% block side_bar_right_1 %}{% endblock side_bar_right_1 %}
+
+                {% block action_items %}
+                    <tr name="bottom right" >
+                        <td>
+                            <B>Action Items:&nbsp;</B>
+                            {{ rendered_action_items }}                                                
+                        </td>
+                    </tr>
+                {% endblock action_items %}
+                {% block clinic_plots %}{% endblock %}
+               
+                {% block summaries %}
+                {% if summary_links %}
+                    <tr name="middle right" ><td>                
+                    <span name="x_summaries" id="x_summaries">{{ summary_links }}</span>
+                    </td></tr>
+                {% endif %}
+                {% endblock summaries %}
+                
+
+               	{% block scheduled_lab_bucket %}
+	            {% if scheduled_lab_bucket %}
+	                <tr name="middle right" >
+	                  <td style="line-height: 10px; padding:0;">
+	                    <table>
+	                      <tr>
+	                        <td style="font-size: 10px;line-height: 10px; padding:0;"><H4>Laboratory</H4></td>
+	                        <td style="font-size: 10px;line-height: 10px; padding:0;">&nbsp;&nbsp;
+	                        
+	                          <button type="button" 
+	                                  data-url="{% url 'update_result_status' subject_identifier=subject_identifier %}"
+	                                  class="update-lab-result" style="margin-top: 8px;">Update</button>
+	                       
+	                        </td>                
+	                        <td>
+	                          <div id="wait" 
+	                            style="display:none;width:69px;height:89px;border:1px solid black;position:absolute;top:50%;left:50%;padding:2px;">
+	                            <img src="{% static "img/ajax-loader.gif" %}" width="64" height="64" />
+	                            <br>Loading..
+	                          </div>
+	                        </td>
+	                      </tr>
+	                    </table>
+	                  </td>
+	                </tr>                
+	            {% endif %}
+	            {% endblock scheduled_lab_bucket %}
+                
+
+                
+                {% block lab_plots %}{% endblock %}
+                {% block lab_results %}
+                <tr name="middle right"><td style="font-size: 10px;line-height: 10px; padding:0;">           
+                    <span name="x_results" id="x_results">
+                      {% include 'result_status_bar.html' with resulted=resulted ordered=ordered last_updated=last_updated %}
+                    </span>
+                </td></tr>
+                {% endblock %}
+                
+
+            </table>
+        </td>    
+
+    </tr>
+</tbody>    
+</table>
+{% endblock %}
+
+{% endblock dashboard_main %}
+
+

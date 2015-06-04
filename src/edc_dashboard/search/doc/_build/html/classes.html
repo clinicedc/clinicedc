@@ -1,0 +1,231 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Classes &mdash; bhp_search 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="bhp_search 1.0 documentation" href="index.html" />
+    <link rel="next" title="Models" href="models.html" />
+    <link rel="prev" title="Preparing your app to use search" href="prepare.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="models.html" title="Models"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="prepare.html" title="Preparing your app to use search"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">bhp_search 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-bhp_search.classes">
+<span id="classes"></span><h1>Classes<a class="headerlink" href="#module-bhp_search.classes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="base-classes">
+<h2>Base Classes<a class="headerlink" href="#base-classes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bhp_search.classes.BaseSearch">
+<em class="property">class </em><tt class="descclassname">bhp_search.classes.</tt><tt class="descname">BaseSearch</tt><big>(</big><em>request</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#bhp_search.classes.BaseSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base search class.</p>
+<dl class="attribute">
+<dt id="bhp_search.classes.BaseSearch.context">
+<tt class="descname">context</tt><a class="headerlink" href="#bhp_search.classes.BaseSearch.context" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bhp_search.classes.BaseSearch.paginate">
+<tt class="descname">paginate</tt><big>(</big><em>page=1</em><big>)</big><a class="headerlink" href="#bhp_search.classes.BaseSearch.paginate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bhp_search.classes.BaseSearch.prepare">
+<tt class="descname">prepare</tt><big>(</big><em>request</em><big>)</big><a class="headerlink" href="#bhp_search.classes.BaseSearch.prepare" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bhp_search.classes.BaseSearch.prepare_form">
+<tt class="descname">prepare_form</tt><big>(</big><em>request</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#bhp_search.classes.BaseSearch.prepare_form" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bhp_search.classes.BaseSearch.search">
+<tt class="descname">search</tt><big>(</big><em>request</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#bhp_search.classes.BaseSearch.search" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bhp_search.classes.BaseSearch.update_context">
+<tt class="descname">update_context</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#bhp_search.classes.BaseSearch.update_context" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="bhp_search.classes.BaseSearch.urlpatterns">
+<em class="property">classmethod </em><tt class="descname">urlpatterns</tt><big>(</big><em>section_names</em>, <em>app_label='bhp_search'</em>, <em>view='search'</em><big>)</big><a class="headerlink" href="#bhp_search.classes.BaseSearch.urlpatterns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="id1">
+<h2>Classes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-bhp_search.classes.base_search_by_week"></span><dl class="class">
+<dt id="bhp_search.classes.base_search_by_week.BaseSearchByWeek">
+<em class="property">class </em><tt class="descclassname">bhp_search.classes.base_search_by_week.</tt><tt class="descname">BaseSearchByWeek</tt><big>(</big><em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/bhp_search/classes/base_search_by_week.html#BaseSearchByWeek"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bhp_search.classes.base_search_by_week.BaseSearchByWeek" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">bhp_search.classes.base_search.BaseSearch</span></tt></p>
+<dl class="method">
+<dt id="bhp_search.classes.base_search_by_week.BaseSearchByWeek.prepare_form">
+<tt class="descname">prepare_form</tt><big>(</big><em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/bhp_search/classes/base_search_by_week.html#BaseSearchByWeek.prepare_form"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bhp_search.classes.base_search_by_week.BaseSearchByWeek.prepare_form" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bhp_search.classes.base_search_by_week.BaseSearchByWeek.search">
+<tt class="descname">search</tt><big>(</big><em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/bhp_search/classes/base_search_by_week.html#BaseSearchByWeek.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bhp_search.classes.base_search_by_week.BaseSearchByWeek.search" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bhp_search.classes.base_search_by_week.BaseSearchByWeek.search_type">
+<tt class="descname">search_type</tt><em class="property"> = 'week'</em><a class="headerlink" href="#bhp_search.classes.base_search_by_week.BaseSearchByWeek.search_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bhp_search.classes.base_search_by_week.BaseSearchByWeek.weekBoundaries">
+<tt class="descname">weekBoundaries</tt><big>(</big><em>year</em>, <em>week</em><big>)</big><a class="reference internal" href="_modules/bhp_search/classes/base_search_by_week.html#BaseSearchByWeek.weekBoundaries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bhp_search.classes.base_search_by_week.BaseSearchByWeek.weekBoundaries" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://bytes.com/topic/python/answers/499819-getting-start-end-dates-given-week-number">http://bytes.com/topic/python/answers/499819-getting-start-end-dates-given-week-number</a></p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-bhp_search.classes.base_search_by_word"></span><dl class="class">
+<dt id="bhp_search.classes.base_search_by_word.BaseSearchByWord">
+<em class="property">class </em><tt class="descclassname">bhp_search.classes.base_search_by_word.</tt><tt class="descname">BaseSearchByWord</tt><big>(</big><em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/bhp_search/classes/base_search_by_word.html#BaseSearchByWord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bhp_search.classes.base_search_by_word.BaseSearchByWord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">bhp_search.classes.base_search.BaseSearch</span></tt></p>
+<dl class="method">
+<dt id="bhp_search.classes.base_search_by_word.BaseSearchByWord.hash_for_encrypted_fields">
+<tt class="descname">hash_for_encrypted_fields</tt><big>(</big><em>search_term</em>, <em>model_instance</em><big>)</big><a class="reference internal" href="_modules/bhp_search/classes/base_search_by_word.html#BaseSearchByWord.hash_for_encrypted_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bhp_search.classes.base_search_by_word.BaseSearchByWord.hash_for_encrypted_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Using the model&#8217;s field objects and the search term, create a dictionary of {field_name, search term}
+where search term is hashed if this is an encrypted field</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bhp_search.classes.base_search_by_word.BaseSearchByWord.prepare_form">
+<tt class="descname">prepare_form</tt><big>(</big><em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/bhp_search/classes/base_search_by_word.html#BaseSearchByWord.prepare_form"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bhp_search.classes.base_search_by_word.BaseSearchByWord.prepare_form" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bhp_search.classes.base_search_by_word.BaseSearchByWord.search">
+<tt class="descname">search</tt><big>(</big><em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/bhp_search/classes/base_search_by_word.html#BaseSearchByWord.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bhp_search.classes.base_search_by_word.BaseSearchByWord.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>get word or search term queryset object based on a name or &#8216;queryset_label&#8217;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bhp_search.classes.base_search_by_word.BaseSearchByWord.search_type">
+<tt class="descname">search_type</tt><em class="property"> = 'word'</em><a class="headerlink" href="#bhp_search.classes.base_search_by_word.BaseSearchByWord.search_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Classes</a><ul>
+<li><a class="reference internal" href="#base-classes">Base Classes</a></li>
+<li><a class="reference internal" href="#id1">Classes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="prepare.html"
+                        title="previous chapter">Preparing your app to use search</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="models.html"
+                        title="next chapter">Models</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/classes.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="models.html" title="Models"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="prepare.html" title="Preparing your app to use search"
+             >previous</a> |</li>
+        <li><a href="index.html">bhp_search 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, erik van widenfelt.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

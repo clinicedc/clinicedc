@@ -1,0 +1,321 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bhp_section.classes.base_section_view &mdash; bhp_section 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="bhp_section 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="bhp_section.classes" href="../classes.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">bhp_section 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../classes.html" accesskey="U">bhp_section.classes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bhp_section.classes.base_section_view</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span>
+<span class="c">#from django.views.base import View  # for 1.5</span>
+<span class="kn">from</span> <span class="nn">django.conf.urls.defaults</span> <span class="kn">import</span> <span class="n">patterns</span> <span class="k">as</span> <span class="n">url_patterns</span><span class="p">,</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render_to_response</span>
+<span class="kn">from</span> <span class="nn">django.template</span> <span class="kn">import</span> <span class="n">RequestContext</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="kn">import</span> <span class="n">login_required</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">bhp_appointment.models</span> <span class="kn">import</span> <span class="n">Appointment</span>
+<span class="c">#from bhp_data_manager.models import ActionItem</span>
+<span class="kn">from</span> <span class="nn">bhp_search.classes</span> <span class="kn">import</span> <span class="n">site_search</span>
+<span class="kn">from</span> <span class="nn">bhp_section.exceptions</span> <span class="kn">import</span> <span class="n">SectionError</span>
+
+
+<span class="c"># class Section(View):  # 1.5</span>
+<div class="viewcode-block" id="BaseSectionView"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView">[docs]</a><span class="k">class</span> <span class="nc">BaseSectionView</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">section_name</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">section_list</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">section_template</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">add_model</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_template</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_section_name</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_model_cls</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_section_list</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_label</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sections_using_search</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_custom_template</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_search_type</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_search_name</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="BaseSectionView.context"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.context">[docs]</a>    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.update_context"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.update_context">[docs]</a>    <span class="k">def</span> <span class="nf">update_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.set_section_list"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.set_section_list">[docs]</a>    <span class="k">def</span> <span class="nf">set_section_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_list</span><span class="p">:</span>
+            <span class="c"># class variable set in urls</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_section_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_list</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&#39;Attribute </span><span class="se">\&#39;</span><span class="s">sections_list</span><span class="se">\&#39;</span><span class="s"> may not be None. Should be set in urls.py&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_section_list</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.get_section_list"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.get_section_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_section_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_section_list</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_list</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.set_section_name"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.set_section_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_section_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_section_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_section_name</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_template</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.get_section_name"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.get_section_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_section_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_section_name</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_name</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView._set_add_model_cls"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView._set_add_model_cls">[docs]</a>    <span class="k">def</span> <span class="nf">_set_add_model_cls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_model_cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_model</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_model_cls</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.get_add_model_cls"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.get_add_model_cls">[docs]</a>    <span class="k">def</span> <span class="nf">get_add_model_cls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_model_cls</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_add_model_cls</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_model_cls</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.get_add_model_name"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.get_add_model_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_add_model_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_add_model_cls</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_add_model_cls</span><span class="p">()</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">verbose_name</span>
+        <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.get_add_model_opts"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.get_add_model_opts">[docs]</a>    <span class="k">def</span> <span class="nf">get_add_model_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_add_model_cls</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_add_model_cls</span><span class="p">()</span><span class="o">.</span><span class="n">_meta</span>
+        <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.set_search_type"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.set_search_type">[docs]</a>    <span class="k">def</span> <span class="nf">set_search_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_name</span><span class="p">,</span> <span class="n">search_type</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">search_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_search_type</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">section_name</span><span class="p">:</span> <span class="n">search_type</span><span class="p">})</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.get_search_type"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.get_search_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_search_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">section_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_search_type</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">section_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_type</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.set_search_name"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.set_search_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_search_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_name</span><span class="p">,</span> <span class="n">search_name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">search_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_search_name</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">section_name</span><span class="p">:</span> <span class="n">search_name</span><span class="p">})</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.get_search_name"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.get_search_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_search_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">section_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_search_name</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">section_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">None</span>
+</div>
+    <span class="k">def</span> <span class="nf">get_sections_using_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">section_name</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">section_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sections_using_search</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">section_name</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sections_using_search</span>
+
+    <span class="k">def</span> <span class="nf">add_to_sections_using_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">section_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sections_using_search</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sections_using_search</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BaseSectionView._set_template"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView._set_template">[docs]</a>    <span class="k">def</span> <span class="nf">_set_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">template</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_template</span> <span class="o">=</span> <span class="n">template</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_template</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_template</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_template</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.get_template"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.get_template">[docs]</a>    <span class="k">def</span> <span class="nf">get_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_template</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_default_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;section_{0}.html&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_section_name</span><span class="p">())</span>
+
+<div class="viewcode-block" id="BaseSectionView.urlpatterns"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.urlpatterns">[docs]</a>    <span class="k">def</span> <span class="nf">urlpatterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generates a urlpattern for the view of this subclass.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">site_search</span><span class="o">.</span><span class="n">is_autodiscovered</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SectionError</span><span class="p">(</span><span class="s">&#39;Search register not ready. Call search.autodiscover() first.&#39;</span><span class="p">)</span>
+        <span class="c">#self.urlpattern_prepared = True</span>
+        <span class="k">if</span> <span class="n">view</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span>
+        <span class="n">urlpattern_first</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">urlpattern_last</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c">#for section_name in section_index_view.get_section_name_list():</span>
+        <span class="c">#    # try to match this section to a search class</span>
+        <span class="n">section_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_section_name</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">search_type</span><span class="p">,</span> <span class="n">search_cls</span> <span class="ow">in</span> <span class="n">site_search</span><span class="o">.</span><span class="n">get_registry</span><span class="p">()</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="c"># for each type of search, look for an association with this section_name</span>
+            <span class="k">if</span> <span class="n">search_cls</span><span class="p">()</span><span class="o">.</span><span class="n">get_section_name</span><span class="p">()</span> <span class="o">==</span> <span class="n">section_name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_search_type</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="n">search_type</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_search_name</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="n">search_cls</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">urlpattern_first</span> <span class="o">+=</span> <span class="n">url_patterns</span><span class="p">(</span>
+                    <span class="s">&#39;&#39;</span><span class="p">,</span>
+                    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^(?P&lt;section_name&gt;{section_name})/(?P&lt;search_type&gt;{search_type})/$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">section_name</span><span class="o">=</span><span class="n">section_name</span><span class="p">,</span> <span class="n">search_type</span><span class="o">=</span><span class="n">search_type</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s">&quot;section_search_url&quot;</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_to_sections_using_search</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+        <span class="c"># create a urlpattern for the section_name</span>
+        <span class="n">urlpattern_last</span> <span class="o">+=</span> <span class="n">url_patterns</span><span class="p">(</span>
+            <span class="s">&#39;&#39;</span><span class="p">,</span>
+            <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^(?P&lt;section_name&gt;{section_name})/$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">section_name</span><span class="o">=</span><span class="n">section_name</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s">&quot;section_url&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">section_name</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">urlpattern_first</span> <span class="o">+</span> <span class="n">urlpattern_last</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.get_appointment_tile"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.get_appointment_tile">[docs]</a>    <span class="k">def</span> <span class="nf">get_appointment_tile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">appointments</span> <span class="o">=</span> <span class="n">Appointment</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">appt_datetime__lt</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">day</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">appointments</span>
+
+<span class="c">#    def get_action_items(self):</span>
+<span class="c">#        actions = ActionItem.objects.filter(action_status=&#39;open&#39;).order_by(action_datetime)[0:10]</span>
+<span class="c"># 1.5    def get(self, request, *args, **kwargs):</span>
+<span class="c">#            self._view(request, *args, **kwargs)</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView._contribute_to_context"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView._contribute_to_context">[docs]</a>    <span class="k">def</span> <span class="nf">_contribute_to_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contribute_to_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">context</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.contribute_to_context"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.contribute_to_context">[docs]</a>    <span class="k">def</span> <span class="nf">contribute_to_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Users may override to add context key, value for the template.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">context</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView.view"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_section_name</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;section_name&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_search_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_section_name</span><span class="p">(),</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;search_type&#39;</span><span class="p">))</span>
+        <span class="n">search_result</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">search_result_include_file</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_search_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_section_name</span><span class="p">()):</span>
+            <span class="n">search_cls</span> <span class="o">=</span> <span class="n">site_search</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_search_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_section_name</span><span class="p">()))</span>
+            <span class="n">search_instance</span> <span class="o">=</span> <span class="n">search_cls</span><span class="p">()</span>
+            <span class="n">search_result_include_file</span> <span class="o">=</span> <span class="n">search_instance</span><span class="o">.</span><span class="n">get_include_template_file</span><span class="p">()</span>
+            <span class="n">search_instance</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">page</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;page&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">search_instance</span><span class="o">.</span><span class="n">form_is_valid</span><span class="p">:</span>
+                <span class="n">search_result</span> <span class="o">=</span> <span class="n">search_instance</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">search_result</span> <span class="o">=</span> <span class="n">search_instance</span><span class="o">.</span><span class="n">get_most_recent</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+        <span class="n">default_context</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;app_name&#39;</span><span class="p">:</span> <span class="n">settings</span><span class="o">.</span><span class="n">APP_NAME</span><span class="p">,</span>
+            <span class="s">&#39;installed_apps&#39;</span><span class="p">:</span> <span class="n">settings</span><span class="o">.</span><span class="n">INSTALLED_APPS</span><span class="p">,</span>
+            <span class="s">&#39;selected_section&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_section_name</span><span class="p">(),</span>
+            <span class="s">&#39;sections&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_section_list</span><span class="p">(),</span>
+            <span class="s">&#39;section_name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_section_name</span><span class="p">(),</span>
+            <span class="s">&#39;search_name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_search_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_section_name</span><span class="p">()),</span>
+            <span class="s">&#39;sections_using_search&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sections_using_search</span><span class="p">(),</span>
+            <span class="s">&#39;search_type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_search_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_section_name</span><span class="p">()),</span>
+            <span class="s">&#39;add_model&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_add_model_cls</span><span class="p">(),</span>
+            <span class="s">&#39;add_model_opts&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_add_model_opts</span><span class="p">(),</span>
+            <span class="s">&#39;add_model_name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_add_model_name</span><span class="p">(),</span>
+            <span class="s">&#39;search_model_admin_url&#39;</span><span class="p">:</span> <span class="s">&#39;url&#39;</span><span class="p">,</span>
+            <span class="s">&#39;search_result&#39;</span><span class="p">:</span> <span class="n">search_result</span><span class="p">,</span>
+            <span class="s">&#39;search_result_include_file&#39;</span><span class="p">:</span> <span class="n">search_result_include_file</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contribute_to_context</span><span class="p">(</span><span class="n">default_context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_template</span><span class="p">(),</span> <span class="n">context</span><span class="p">,</span> <span class="n">context_instance</span><span class="o">=</span><span class="n">RequestContext</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="BaseSectionView._view"><a class="viewcode-back" href="../../../classes.html#bhp_section.classes.base_section_view.BaseSectionView._view">[docs]</a>    <span class="k">def</span> <span class="nf">_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nd">@login_required</span>
+        <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">bhp_section 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../classes.html" >bhp_section.classes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, erik van widenfelt.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

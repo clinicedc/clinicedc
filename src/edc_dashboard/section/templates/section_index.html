@@ -1,0 +1,39 @@
+{% extends "index.html"%}
+{% load url from future %}
+{% load common_tags %}
+
+{% block title %}{{ block.super }}{{ selected_section|capfirst }}{% endblock %}
+
+{% block breadcrumbs %}
+
+    {% load tags %}
+    {% comment %}
+        named urls. see urls.py 
+        use the name and pass the url parameter to 
+        successfully reverse 
+    {%endcomment %}
+    {% url "section_url_name" "selected_section" as section %}
+    {% url "section_search_url_name" "selected_section" "search_label"  as section_search_label %}
+    {% url "section_search_url_name" "selected_section" "search_label" "search_by_name" as section_search_by_name %}    
+
+    <div class="breadcrumbs">
+        <a href="/{% app_name %}">Home</a>
+        {% if selected_section  %}
+            &rsaquo; <a href="{{ section }}">{{ selected_section|capfirst }}</a>
+        {% endif %}        
+        {% if search_label and not calendar_year and not calendar_month  %}
+            &rsaquo; <a  href="{{ section_search_label }}">Search {{ search_label|capfirst }}</a>    
+        {% endif %}    
+        {% if search_label and calendar_year and calendar_month %}
+            &rsaquo; <a  href="{{ section_search_label }}">{{ search_label|capfirst }}</a>    
+        {% endif %}    
+        {% if search_by_name  %}
+            &rsaquo; <a  href="{{ section_search_by_name }}">By {{ search_by_name|capfirst }}</a>    
+        {% endif %}        
+        {% if calendar_year and calendar_month  %}
+            &rsaquo; Calendar {{ calendar_month }}/{{ calendar_year }}
+        {% endif %}        
+        
+    </div>
+    
+{% endblock %}

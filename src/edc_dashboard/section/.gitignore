@@ -1,0 +1,8 @@
+*.py[cod]
+*.sh
+*.sql
+.project
+.pydevproject
+.settings
+.keys
+south.log

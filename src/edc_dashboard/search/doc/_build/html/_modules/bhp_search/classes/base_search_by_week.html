@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bhp_search.classes.base_search_by_week &mdash; bhp_search 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="bhp_search 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="bhp_search.classes" href="../classes.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">bhp_search 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../classes.html" accesskey="U">bhp_search.classes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bhp_search.classes.base_search_by_week</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Q</span>
+<span class="kn">from</span> <span class="nn">bhp_search.forms</span> <span class="kn">import</span> <span class="n">WeekYearSearchForm</span>
+<span class="kn">from</span> <span class="nn">base_search</span> <span class="kn">import</span> <span class="n">BaseSearch</span>
+
+
+<div class="viewcode-block" id="BaseSearchByWeek"><a class="viewcode-back" href="../../../classes.html#bhp_search.classes.base_search_by_week.BaseSearchByWeek">[docs]</a><span class="k">class</span> <span class="nc">BaseSearchByWeek</span><span class="p">(</span><span class="n">BaseSearch</span><span class="p">):</span>
+
+    <span class="n">search_type</span><span class="o">=</span><span class="s">&#39;week&#39;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="nb">super</span><span class="p">(</span><span class="n">BaseSearchByWeek</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;search_helptext&#39;</span><span class="p">:</span><span class="s">&#39;Search by date.&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_form</span> <span class="o">=</span> <span class="n">WeekYearSearchForm</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">defaults</span><span class="p">)</span> 
+
+<div class="viewcode-block" id="BaseSearchByWeek.prepare_form"><a class="viewcode-back" href="../../../classes.html#bhp_search.classes.base_search_by_week.BaseSearchByWeek.prepare_form">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BaseSearchByWeek</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">prepare_form</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
+        <span class="c">#self.update_context(search_result_    title=&#39;Results for \&#39;{0}\&#39;&#39;.format([v for v in self.context.get(&#39;form&#39;).cleaned_data.itervalues()]))  </span>
+        <span class="c">#self[&#39;search_result_title&#39;] = &#39;Results for period from %s to %s.&#39; % (self[&#39;date_start&#39;], self[&#39;date_end&#39;] )                               </span>
+
+    </div>
+<div class="viewcode-block" id="BaseSearchByWeek.search"><a class="viewcode-back" href="../../../classes.html#bhp_search.classes.base_search_by_week.BaseSearchByWeek.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>                       
+
+        <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search_model_name</span><span class="p">)</span>
+        
+        
+        <span class="c">#this form returns week numbers so convert to datetime</span>
+        <span class="n">wb_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weekBoundaries</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;form&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;year_start&#39;</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;form&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;week_start&#39;</span><span class="p">)))</span>
+        <span class="n">wb_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weekBoundaries</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;form&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;year_end&#39;</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;form&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;week_end&#39;</span><span class="p">)))</span>
+                        
+        <span class="n">qset_created</span><span class="o">=</span><span class="n">Q</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">created__gte</span><span class="o">=</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> 00:00&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">wb_start</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span>
+                       <span class="n">Q</span><span class="p">(</span><span class="n">created__lte</span><span class="o">=</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> 23:59&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">wb_end</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+        <span class="n">qset_modified</span><span class="o">=</span><span class="n">Q</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">modified__gte</span><span class="o">=</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> 00:00&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">wb_start</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span>
+                        <span class="n">Q</span><span class="p">(</span><span class="n">modified__lte</span><span class="o">=</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> 23:59&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">wb_end</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>                     
+        <span class="n">search_result</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">qset_created</span> <span class="o">|</span> <span class="n">qset_modified</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s">&#39;-created&#39;</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;search_result&#39;</span><span class="p">:</span><span class="n">search_result</span><span class="p">})</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BaseSearchByWeek</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="BaseSearchByWeek.weekBoundaries"><a class="viewcode-back" href="../../../classes.html#bhp_search.classes.base_search_by_week.BaseSearchByWeek.weekBoundaries">[docs]</a>    <span class="k">def</span> <span class="nf">weekBoundaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">week</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;http://bytes.com/topic/python/answers/499819-getting-start-end-dates-given-week-number&quot;&quot;&quot;</span>
+        <span class="n">startOfYear</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">startOfYear</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="n">week</span><span class="p">)</span>
+        <span class="c"># isoweekday() % 7 returns Sun=0 ... Sat=6</span>
+        <span class="n">sun</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">now</span><span class="o">.</span><span class="n">isoweekday</span><span class="p">()</span> <span class="o">%</span> <span class="mi">7</span><span class="p">)</span>
+        <span class="n">sat</span> <span class="o">=</span> <span class="n">sun</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+        <span class="c">#if DEBUG:</span>
+        <span class="c">#    print &quot;DEBUG: now = %s/%s&quot; % (now, now.strftime(&quot;%a&quot;))</span>
+        <span class="c">#    print &quot;DEBUG: sun = %s/%s&quot; % (sun, sun.strftime(&quot;%a&quot;))</span>
+        <span class="c">#    print &quot;DEBUG: sat = %s/%s&quot; % (sat, sat.strftime(&quot;%a&quot;))</span>
+        <span class="k">return</span> <span class="n">sun</span><span class="p">,</span> <span class="n">sat</span>
+    
+    
+    
+<span class="c">#    def __init__(self, request, **kwargs):</span>
+<span class="c">#</span>
+<span class="c">#        BaseSearch.__init__(self, request, **kwargs )</span>
+<span class="c">#        </span>
+<span class="c">#        self[&#39;report_title&#39;] = &quot;Search %s by week number&quot; % (self[&#39;search_name&#39;])</span>
+<span class="c">#        #may wish to handlethis as kwargs</span>
+<span class="c">#        self[&#39;search_helptext&#39;] = _(u&#39;Search by week number. Week number is based on the date created. &#39;)</span>
+<span class="c">#        self[&#39;extend&#39;] = &quot;base_search_by_date.html&quot;</span>
+<span class="c">#        self[&#39;search_by_name&#39;]=&#39;week&#39;        </span>
+<span class="c">#</span>
+<span class="c">#        # check **kwargs for queryset_label, otherwise default</span>
+<span class="c">#        if not kwargs.get(&#39;queryset_label&#39;) is None:</span>
+<span class="c">#            self[&#39;queryset_label&#39;] = kwargs.get(&#39;queryset_label&#39;)</span>
+<span class="c">#        else:</span>
+<span class="c">#            #self[&#39;queryset_label&#39;] = &#39;%s_by_week&#39; % (self[&#39;search_name&#39;])</span>
+<span class="c">#            self[&#39;queryset_label&#39;] = self[&#39;search_name&#39;]</span>
+<span class="c">#</span>
+<span class="c">#        if ((request.method == &#39;GET&#39; and not request.GET == {}) or ( request.method == &#39;POST&#39; and not request.POST == {})):            </span>
+<span class="c">#            if request.method == &#39;POST&#39;:</span>
+<span class="c">#                self[&#39;form&#39;] = WeekNumberSearchForm(request.POST)</span>
+<span class="c">#            elif request.method == &#39;GET&#39;:    </span>
+<span class="c">#                self[&#39;form&#39;] = WeekNumberSearchForm(request.GET)</span>
+<span class="c">#            else:</span>
+<span class="c">#                raise TypeError(&#39;Request method unknown. Expected POST or GET. See BaseSearchByWeek&#39;)</span>
+<span class="c">#                    </span>
+<span class="c">#            if self[&#39;form&#39;].is_valid() :</span>
+<span class="c">#                </span>
+<span class="c">#                if request.method == &#39;POST&#39;:</span>
+<span class="c">#                    self[&#39;magic_url&#39;] = request.POST.urlencode()                </span>
+<span class="c">#                elif request.method == &#39;GET&#39;:    </span>
+<span class="c">#                    self[&#39;magic_url&#39;] = request.GET.urlencode()                </span>
+<span class="c">#</span>
+<span class="c">#                </span>
+<span class="c">#                week_start=self[&#39;form&#39;].cleaned_data[&#39;date_start&#39;]</span>
+<span class="c">#                week_end=self[&#39;form&#39;].cleaned_data[&#39;date_end&#39;]</span>
+<span class="c">#                year = int(self[&#39;form&#39;].cleaned_data[&#39;year&#39;])</span>
+<span class="c">#                </span>
+<span class="c">#                #this form returns week numbers so convert to datetime</span>
+<span class="c">#                wb_start = weekBoundaries(year, int(week_start))</span>
+<span class="c">#                wb_end = weekBoundaries(year, int(week_end))</span>
+<span class="c">#                </span>
+<span class="c">#                if week_start == week_end:</span>
+<span class="c">#                    self[&#39;week_range&#39;]=&quot;week %s&quot; % (week_start)</span>
+<span class="c">#                else:</span>
+<span class="c">#                    self[&#39;week_range&#39;]=&quot;weeks %s to %s&quot; % (week_start, week_end)   </span>
+<span class="c">#                 </span>
+<span class="c">#                self[&#39;date_start&#39;] = &quot;%s 00:00&quot; % (wb_start[0])</span>
+<span class="c">#                self[&#39;date_end&#39;]= &quot;%s 23:59&quot; % (wb_end[1])          </span>
+<span class="c">#                self[&#39;search_term&#39;] = &#39;from %s to %s&#39; % (self[&#39;date_start&#39;], self[&#39;date_end&#39;] )  </span>
+<span class="c">#                self[&#39;search_result_title&#39;] = &#39;Results for %s : (period from %s to %s).&#39; % (self[&#39;week_range&#39;], self[&#39;date_start&#39;], self[&#39;date_end&#39;] )               </span>
+<span class="c">#                </span>
+<span class="c">#                self.get_labeled_queryset(self[&#39;queryset_label&#39;], date_start=self[&#39;date_start&#39;],date_end=self[&#39;date_end&#39;] )                       </span>
+<span class="c">#        else:     </span>
+<span class="c">#            self[&#39;form&#39;] = WeekNumberSearchForm()</span>
+<span class="c">#                     </span>
+<span class="c">#        return </span>
+<span class="c">#</span>
+<span class="c">#</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">bhp_search 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../classes.html" >bhp_search.classes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, erik van widenfelt.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

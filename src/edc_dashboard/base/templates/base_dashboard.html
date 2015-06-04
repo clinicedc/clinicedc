@@ -1,0 +1,23 @@
+{% extends "section.html"%}
+
+{% block breadcrumbs %}
+
+    <div class="breadcrumbs">
+        <a href="/{{ home }}">Home</a>
+        &rsaquo; {{ dashboard_name|default:'Dashboard' }} for {{ dashboard_identifier }}   
+        
+    </div>
+    
+{% endblock %}
+
+{% block section_title%}{% endblock%}
+
+{% block section_links %}{% endblock %}
+
+{% block content %}
+    {% block dashboard_main %}{% endblock dashboard_main %}
+{% endblock %}
+
+{% block other_section_links %}
+</div>
+{% endblock%}

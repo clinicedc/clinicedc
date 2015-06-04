@@ -1,0 +1,68 @@
+{% extends "section_index.html"%}
+{% load admin_urls %}
+{% load url from future %}
+{% load map_tags %}
+
+{% block section_tiles %}
+
+    <div id="tile_wrapper">
+
+    {% block selection_tile %}{% endblock%}
+
+    {% block add_model_tile %}
+        {% if add_model_opts %}
+          <div id="add_model_tile">
+            <form method="GET" action="{% url add_model_opts|admin_urlname:'add' %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="section_url">
+              <input type="hidden" name="section_name" value="{{ section_name }}">
+              <input type="submit" value="Add {{ add_model_name }}"  />
+            </form>
+          </div>
+        {% endif %}
+    {% endblock add_model_tile %}
+
+    {% block search_tile%}
+        {% if search_form %}
+            <div id="search_tile">
+            <form class="search_form" action="{% url 'section_search_word_url' section_name 'word' %}" method="post">
+                {% csrf_token %}
+                {# Include the hidden fields #}
+                {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+                {% endfor %}
+                {# Include the visible fields #}
+                {% for field in search_form.visible_fields %}
+                    {{ field.label_tag }} {{ field }}
+                {% endfor %}<input type="submit" value="Search">
+            </form>
+            </div>
+        {% endif %}
+    {% endblock search_tile %}
+
+    {% block search_result %}
+        <div id="keyword_row_tile">
+            <ul id="keyword_row">
+            {% for keyword in search_filter_keywords %}
+                <li><A href="{% url 'section_search_word_url' section_name 'word' keyword %}">{{ keyword }}</A>
+            {% endfor%}
+            </ul>
+        </div>
+        {% if search_result %}
+            <div id="search_result_tile">
+            {% include search_result_include_file %}
+            <small><small>{{ search_result_include_file }}</small></small>
+            </div>
+        {% endif %}
+    {% endblock search_result %}
+
+    {% block top_result %}
+        {% if top_result %}
+            <div id="search_result_tile">
+            {% include search_result_include_file %}  
+            </div>
+        {% endif %}
+    {% endblock top_result %}
+        
+    </div>
+{% endblock section_tiles %}

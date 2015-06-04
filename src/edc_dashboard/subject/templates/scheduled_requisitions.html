@@ -1,0 +1,88 @@
+{% load common_tags %}
+{% load admin_urls %}
+{% load url from future %}
+{% load registered_subject_dashboard_tags %}
+
+<table>
+<thead>
+<th></th>
+<th>#</th>
+<th>Title</th>
+<th>Requisition</th>
+<th>Status</th>
+<th>Due</th>
+<th>User</th>                        
+<th>Created/Modified</th>                        
+<th>Comment</th>        
+<th>Browse</th>                        
+<th>Audit</th>                
+</thead>
+<tbody>
+{% if not scheduled_requisitions %}
+    <tr class="{% cycle 'row1' 'row2' %}"><td colspan="12"></td></tr>
+{% else %}
+    {% for scheduled_requisition in scheduled_requisitions %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <td><span {% if scheduled_requisition.status == 'NEW' %}style="background:red;"{% endif %}>&nbsp;</span></td>
+            <td>{{ forloop.counter }}</td>
+            <td>
+            {% if scheduled_requisition.model_url %}
+                <A href="{{ scheduled_requisition.model_url }}?next={{ subject_dashboard_url }}&dashboard_type={{ dashboard_type }}&dashboard_model={{ dashboard_model }}&dashboard_id={{ dashboard_id }}&show=forms&{{visit_attr}}={{ visit_model_instance.pk }}&visit_attr={{visit_attr}}&entry_order={{ scheduled_requisition.entry_order }}&group_title={{ scheduled_requisition.group_title }}&panel={{ scheduled_requisition.panel }}&aliquot_type={{ scheduled_requisition.aliquot_type }}">{{ scheduled_requisition.label|title }}</A>
+            {% else %}                
+                {{ scheduled_requisition.label|title }}
+            {% endif %}
+            </td>       
+            
+            <td><span style="font-size:18px;">{{ scheduled_requisition.requisition_identifier|mask_uuid:'<span style="font-size:11px;">&lt not drawn &gt</span>' }}</span></td>
+                     
+            <td>
+              {% if scheduled_requisition.meta_data_model_change_url %}
+                <A href="{{ scheduled_requisition.meta_data_model_change_url }}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{ dashboard_type }}&dashboard_model={{ dashboard_model }}&dashboard_id={{ dashboard_id }}&show=forms&registered_subject={{ registered_subject }}&entry={{ scheduled_requisition.scheduled_requisition.pk }}&appointment={{ appointment.pk }}">{{ scheduled_requisition.status }}</A></td>
+              {% else %}
+                {{ scheduled_requisition.status }}
+              {% endif %}
+            <td>{{ scheduled_requisition.due_datetime|date:"Y-m-d" }}</td>
+            <td>{{ scheduled_requisition.user_created|default:'' }}{% if scheduled_requisition.user_modified %}/{{ scheduled_requisition.user_modified }}{% endif %}</td>            
+            <td>{{ scheduled_requisition.created|date:"Y-m-d H:i"  }}{% if scheduled_requisition.modified %}/{{ scheduled_requisition.modified|date:"Y-m-d H:i"  }}{% endif %}</td>            
+            <td>{{ scheduled_requisition.entry_comment|default:'' }}</td>        
+            <td>
+            {% if scheduled_requisition.databrowse_url %}
+                <A href="{{ scheduled_requisition.databrowse_url }}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{ dashboard_type }}&dashboard_model={{ dashboard_model }}&dashboard_id={{ dashboard_id }}&show=forms">Browse</A>
+            {% endif %}
+            </td>
+            <td>
+            {% if scheduled_requisition.audit_trail_url %}
+              <A href="{{ scheduled_requisition.audit_trail_url }}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{ dashboard_type }}&dashboard_model={{ dashboard_model }}&dashboard_id={{ dashboard_id }}&show=forms">Audit trail</A>
+            {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+{% endif %}
+</tbody>
+</table>
+
+{% if drop_down_list_requisitions and show_drop_down_requisitions %}
+<table>
+    <tbody>
+        <tr name="bottom left">
+          <td>
+            <H5>Use this link to add more PRN labs for this {{ visit_code }} visit. </H5>
+            <form action="{% url 'add_requisition' %}" method="get">
+                 <input type="hidden" name="appointment_id" value="{{appointment}}" >
+                 <input type="hidden" name="dashboard_type" value="{{dashboard_type}}" >
+                 <input type="hidden" name="dashboard_model" value="{{dashboard_model}}" >
+                 <input type="hidden" name="dashboard_id" value="{{dashboard_id}}" >
+                 <input type="hidden" name="url" value="{{subject_dashboard_url}}" >
+                 <input type="hidden" name="show" value="forms" >
+                 <select name="panel" onChange="this.form.submit()">
+                   <option value="">Select an additional PRN lab</option>
+                      {% for req in drop_down_list_requisitions %}
+                         <option value="{{req.lab_entry_id}}">{{req.label}}</option>
+                      {% endfor %}
+                </select>
+            </form>
+          </td>
+        </tr>
+    </tbody>
+</table>
+{% endif %}

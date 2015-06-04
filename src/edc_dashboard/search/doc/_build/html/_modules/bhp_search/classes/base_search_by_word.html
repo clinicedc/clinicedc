@@ -1,0 +1,227 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bhp_search.classes.base_search_by_word &mdash; bhp_search 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="bhp_search 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="bhp_search.classes" href="../classes.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">bhp_search 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../classes.html" accesskey="U">bhp_search.classes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for bhp_search.classes.base_search_by_word</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">ImproperlyConfigured</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Q</span>
+<span class="kn">from</span> <span class="nn">bhp_registration.models</span> <span class="kn">import</span> <span class="n">RegisteredSubject</span>
+<span class="kn">from</span> <span class="nn">bhp_consent.classes</span> <span class="kn">import</span> <span class="n">BaseConsent</span>
+<span class="kn">from</span> <span class="nn">bhp_crypto.classes</span> <span class="kn">import</span> <span class="n">BaseEncryptedField</span>
+<span class="c">#from edc.core.crypto_fields.classes import CryptoQ as Q</span>
+<span class="kn">from</span> <span class="nn">bhp_search.forms</span> <span class="kn">import</span> <span class="n">SearchForm</span>
+<span class="kn">from</span> <span class="nn">base_search</span> <span class="kn">import</span> <span class="n">BaseSearch</span>
+
+
+
+<div class="viewcode-block" id="BaseSearchByWord"><a class="viewcode-back" href="../../../classes.html#bhp_search.classes.base_search_by_word.BaseSearchByWord">[docs]</a><span class="k">class</span> <span class="nc">BaseSearchByWord</span><span class="p">(</span><span class="n">BaseSearch</span><span class="p">):</span>
+
+    <span class="n">search_type</span><span class="o">=</span><span class="s">&#39;word&#39;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="nb">super</span><span class="p">(</span><span class="n">BaseSearchByWord</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;search_helptext&#39;</span><span class="p">:</span><span class="s">&#39;Search by search term.&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_form</span><span class="o">=</span><span class="n">SearchForm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">defaults</span><span class="p">)</span> 
+    
+<div class="viewcode-block" id="BaseSearchByWord.prepare_form"><a class="viewcode-back" href="../../../classes.html#bhp_search.classes.base_search_by_word.BaseSearchByWord.prepare_form">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BaseSearchByWord</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">prepare_form</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ready</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_context</span><span class="p">(</span><span class="n">search_result_title</span><span class="o">=</span><span class="s">&#39;Results for </span><span class="se">\&#39;</span><span class="s">{0}</span><span class="se">\&#39;</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;form&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()])))</span>          
+    </div>
+<div class="viewcode-block" id="BaseSearchByWord.search"><a class="viewcode-back" href="../../../classes.html#bhp_search.classes.base_search_by_word.BaseSearchByWord.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get word or search term queryset object based on a name or &#39;queryset_label&#39;&quot;&quot;&quot;</span>        
+        <span class="c">#self.update_context(search_term=search_term)                  </span>
+        <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_model</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">(),</span> <span class="n">RegisteredSubject</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="s">&#39;registered_subject&#39;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">model</span><span class="p">())</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">(),</span> <span class="n">BaseConsent</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ImproperlyConfigured</span><span class="p">(</span><span class="s">&#39;Search models must have a foreign key to model RegisteredSubject or be a subclass of BaseConsent. Got model {0}.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span> <span class="p">)</span>
+        <span class="c">#may pass a search term that is k1=v1+k2=v2+k3=v3 ...</span>
+        <span class="c">#        terms = self.context.get(&#39;search_term&#39;).split(&#39;+&#39;)</span>
+        <span class="c">#        search_terms={}</span>
+        <span class="c">#        search_terms[&#39;word&#39;]=[]</span>
+        <span class="c">#        search_terms[&#39;number&#39;]=[]</span>
+        <span class="c">#        search_terms[&#39;gender&#39;]=[]</span>
+        <span class="c">#        search_terms[&#39;date&#39;]=[]</span>
+        <span class="c">#        search_terms[&#39;yyyy_mm&#39;]=[]</span>
+        <span class="c">#        search_terms[&#39;yyyy&#39;]=[]</span>
+        <span class="c">#        search_terms[&#39;uuid&#39;]=[]                                                                            </span>
+        <span class="c">#        for t in terms:</span>
+        <span class="c">#            #if k/v pairs, categorize</span>
+        <span class="c">#            if self.pattern.get(&#39;word&#39;).search(t):</span>
+        <span class="c">#                search_terms[&#39;word&#39;].append(t)</span>
+        <span class="c">#            elif self.pattern.get(&#39;number&#39;).search(t):</span>
+        <span class="c">#                search_terms[&#39;number&#39;].append(t)</span>
+        <span class="c">#            elif self.pattern.get(&#39;gender&#39;).search(t):</span>
+        <span class="c">#                search_terms[&#39;gender&#39;].append(t)</span>
+        <span class="c">#            elif self.pattern.get(&#39;date&#39;).search(t):</span>
+        <span class="c">#                search_terms[&#39;date&#39;].append(t)</span>
+        <span class="c">#            elif self.pattern.get(&#39;yyyy_mm&#39;).search(t):</span>
+        <span class="c">#                search_terms[&#39;yyyy_mm&#39;].append(t)</span>
+        <span class="c">#            elif self.pattern.get(&#39;yyyy&#39;).search(t):</span>
+        <span class="c">#                search_terms[&#39;yyyy&#39;].append(t)</span>
+        <span class="c">#            elif self.pattern.get(&#39;uuid&#39;).search(t):</span>
+        <span class="c">#                search_terms[&#39;uuid&#39;].append(t)            </span>
+        <span class="c">#            else:</span>
+        <span class="c">#                #this is just a search term, not key/value pairs</span>
+        <span class="c">#                search_terms[&#39;word&#39;].append(t)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;dbname&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_context</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="s">&#39;default&#39;</span><span class="p">)</span>            
+        <span class="c"># expect a single k,v pair so that we have just one search term</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;form&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="o">!=</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Search-by-word form {0} should have a single field only. Got {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;form&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;form&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fields</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;form&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">():</span>
+            <span class="n">search_term</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;form&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">search_term</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Search method should only be called if the </span><span class="se">\&#39;</span><span class="s">search_term</span><span class="se">\&#39;</span><span class="s"> is known. Got None&#39;</span><span class="p">)</span>    
+        <span class="c">#evaluate the search term</span>
+        <span class="c">#        if self.pattern.get(&#39;word&#39;).search(search_term):</span>
+        <span class="c">#            field_contains=&#39;%s__icontains&#39; % (search_term.split(&#39;=&#39;)[0])    </span>
+        <span class="c">#            this_value=search_term.split(&#39;=&#39;)[1]</span>
+        <span class="c">#            self.update_context(search_result=self.search_model.get(self.search_model_name).objects.using(self.context.get(&#39;dbname&#39;)).filter( **{ field_contains : this_value } ).order_by(&#39;-created&#39;))                </span>
+        <span class="c">#        elif self.pattern.get(&#39;number&#39;).search(search_term):</span>
+        <span class="c">#            field_contains = &#39;%s&#39; % (search_term.split(&#39;=&#39;)[0])    </span>
+        <span class="c">#            this_value = search_term.split(&#39;=&#39;)[1]</span>
+        <span class="c">#            self.update_context(search_result=self.search_model.get(self.search_model_name).objects.using(self.context.get(&#39;dbname&#39;)).filter( **{ field_contains : this_value } ).order_by(&#39;-created&#39;))                </span>
+        <span class="c">#        else:</span>
+        <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search_model_name</span><span class="p">)</span>
+        <span class="n">search_term_or_hash</span><span class="o">=</span><span class="p">{}</span>
+        <span class="k">if</span> <span class="s">&#39;registered_subject&#39;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">model</span><span class="p">()):</span>
+            <span class="c"># model has a key to registered subject</span>
+            <span class="n">search_term_or_hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash_for_encrypted_fields</span><span class="p">(</span><span class="n">search_term</span><span class="p">,</span> <span class="n">RegisteredSubject</span><span class="p">())</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_context</span><span class="p">(</span><span class="n">order_by</span><span class="o">=</span><span class="s">&#39;registered_subject__subject_identifier&#39;</span><span class="p">)</span>
+            <span class="c"># prepare the qset, note that </span>
+            <span class="n">qset</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">registered_subject__subject_identifier__icontains</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;subject_identifier&#39;</span><span class="p">))</span> <span class="o">|</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">registered_subject__first_name__exact</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;first_name&#39;</span><span class="p">))</span> <span class="o">|</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">registered_subject__initials__icontains</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;initials&#39;</span><span class="p">))</span> <span class="o">|</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">registered_subject__sid__icontains</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;sid&#39;</span><span class="p">))</span><span class="o">|</span>      
+                <span class="n">Q</span><span class="p">(</span><span class="n">registered_subject__last_name__exact</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;last_name&#39;</span><span class="p">))</span> <span class="o">|</span>   
+                <span class="n">Q</span><span class="p">(</span><span class="n">registered_subject__identity__exact</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;identity&#39;</span><span class="p">))</span> <span class="o">|</span>                                              
+                <span class="n">Q</span><span class="p">(</span><span class="n">user_created__icontains</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;user_created&#39;</span><span class="p">))</span> <span class="o">|</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">user_modified__icontains</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;user_modified&#39;</span><span class="p">))</span>
+                <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">(),</span> <span class="n">BaseConsent</span><span class="p">):</span>
+            <span class="c"># model is a subclass of BaseConsent</span>
+            <span class="n">search_term_or_hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash_for_encrypted_fields</span><span class="p">(</span><span class="n">search_term</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_context</span><span class="p">(</span><span class="n">order_by</span><span class="o">=</span><span class="s">&#39;subject_identifier&#39;</span><span class="p">)</span>
+            <span class="n">qset</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">subject_identifier__icontains</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;subject_identifier&#39;</span><span class="p">))</span><span class="o">|</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">first_name__exact</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;first_name&#39;</span><span class="p">))</span> <span class="o">|</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">last_name__exact</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;last_name&#39;</span><span class="p">))</span> <span class="o">|</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">identity__exact</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;identity&#39;</span><span class="p">))</span> <span class="o">|</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">initials__contains</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;initials&#39;</span><span class="p">))</span> <span class="o">|</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">user_created__icontains</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;user_created&#39;</span><span class="p">))</span> <span class="o">|</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">user_modified__icontains</span><span class="o">=</span><span class="n">search_term_or_hash</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;user_modified&#39;</span><span class="p">))</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ImproperlyConfigured</span><span class="p">(</span><span class="s">&#39;Search models must have a foreign key to model RegisteredSubject or be a subclass of BaseConsent. Got model {0}.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">search_result</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">qset</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;order_by&#39;</span><span class="p">))</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;search_result&#39;</span><span class="p">:</span><span class="n">search_result</span><span class="p">})</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BaseSearchByWord</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            </div>
+<div class="viewcode-block" id="BaseSearchByWord.hash_for_encrypted_fields"><a class="viewcode-back" href="../../../classes.html#bhp_search.classes.base_search_by_word.BaseSearchByWord.hash_for_encrypted_fields">[docs]</a>    <span class="k">def</span> <span class="nf">hash_for_encrypted_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_term</span><span class="p">,</span> <span class="n">model_instance</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Using the model&#39;s field objects and the search term, create a dictionary of {field_name, search term}</span>
+<span class="sd">            where search term is hashed if this is an encrypted field &quot;&quot;&quot;</span>
+        <span class="n">terms</span><span class="o">=</span><span class="p">{}</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">model_instance</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">BaseEncryptedField</span><span class="p">):</span>
+                <span class="c"># change the search term to a hash using the hasher on the field</span>
+                <span class="n">terms</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">attname</span><span class="p">]</span><span class="o">=</span><span class="n">field</span><span class="o">.</span><span class="n">crypter</span><span class="o">.</span><span class="n">get_stored_hash</span><span class="p">(</span><span class="n">search_term</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># use the original search term</span>
+                <span class="n">terms</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">attname</span><span class="p">]</span><span class="o">=</span><span class="n">search_term</span>
+        <span class="k">return</span> <span class="n">terms</span>
+        
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">bhp_search 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../classes.html" >bhp_search.classes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, erik van widenfelt.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

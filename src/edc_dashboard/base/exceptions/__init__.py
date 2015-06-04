@@ -1,0 +1,4 @@
+
+
+class DashboardModelError(Exception):
+    pass
