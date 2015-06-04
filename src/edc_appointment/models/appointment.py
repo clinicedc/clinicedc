@@ -3,13 +3,12 @@ from django.db import models
 from simple_history.models import HistoricalRecords
 
 from edc_registration.models import RegisteredSubject
-
-from .base_appointment import BaseAppointment
-
 try:
     from edc_sync.mixins import SyncMixin
 except ImportError:
     SyncMixin = type('SyncMixin', (object, ), {})
+
+from .base_appointment import BaseAppointment
 
 
 class Appointment(SyncMixin, BaseAppointment):

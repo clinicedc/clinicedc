@@ -1,3 +1,4 @@
 from .appointment_method_tests import AppointmentMethodTests
 from .audit_trail_tests import AuditTrailTests
 from .pre_appointment_contact_method_tests import PreAppointmentContactMethodTests
+from .test_timepoint_status import TestTimePointStatus

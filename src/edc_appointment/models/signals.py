@@ -1,4 +1,3 @@
-from django.apps import apps
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
@@ -6,6 +5,7 @@ from ..helpers import AppointmentHelper
 
 from .base_registered_subject_model import BaseRegisteredSubjectModel
 from .pre_appointment_contact import PreAppointmentContact
+from .time_point_status import TimePointStatus
 
 
 @receiver(post_save, weak=False, dispatch_uid="prepare_appointments_on_post_save")
@@ -71,12 +71,11 @@ def pre_appointment_contact_on_post_delete(sender, instance, using, **kwargs):
             instance.appointment.save(using=using, update_fields=appointment_update_fields)
 
 
-# @receiver(post_save, weak=False, dispatch_uid="appointment_post_save")
-# def appointment_post_save(sender, instance, raw, created, using, **kwargs):
-#     """Creates the TimePointStatus instance if it does not already exist."""
-#     if not raw:
-#         TimePointStatus = apps.get_model('data_manager', 'TimePointStatus')
-#         try:
-#             TimePointStatus.objects.get(appointment=instance)
-#         except TimePointStatus.DoesNotExist:
-#             TimePointStatus.objects.create(appointment=instance)
+@receiver(post_save, weak=False, dispatch_uid="create_timepointstatus_post_save")
+def create_timepointstatus_post_save(sender, instance, raw, created, using, **kwargs):
+    """Creates the TimePointStatus with an appointment instance if it does not already exist."""
+    if not raw:
+        try:
+            TimePointStatus.objects.create(appointment=instance)
+        except ValueError:
+            pass

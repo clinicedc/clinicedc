@@ -2,7 +2,7 @@ import copy
 
 from datetime import datetime, timedelta
 
-from django.apps import apps
+from django.apps import apps as django_apps
 
 from edc_configuration.models import GlobalConfiguration
 from edc_visit_schedule.models import VisitDefinition
@@ -70,7 +70,7 @@ class AppointmentDateHelper(object):
 
     def check_if_holiday(self, appt_datetime):
         """ Checks if appt_datetime lands on a holiday, if so, move forward """
-        Holiday = apps.get_model('edc_appointment', 'holiday')
+        Holiday = django_apps.get_model('edc_appointment', 'holiday')
         while appt_datetime.date() in [holiday.holiday_date for holiday in Holiday.objects.all()]:
             appt_datetime = appt_datetime + timedelta(days=+1)
             appt_datetime = self.check_if_allowed_isoweekday(appt_datetime)
@@ -114,7 +114,7 @@ class AppointmentDateHelper(object):
         # get a list of appointments in the date range from 'appt_datetime' to 'appt_datetime'+days_forward
         # use model field edc_appointment.best_appt_datetime not edc_appointment.appt_datetime
         # TODO: change this query to allow the search to go to the beginning of the week
-        Appointment = apps.get_model('edc_appointment', 'edc_appointment')
+        Appointment = django_apps.get_model('edc_appointment', 'edc_appointment')
         appointments = Appointment.objects.filter(
             study_site=site,
             best_appt_datetime__gte=appt_datetime,

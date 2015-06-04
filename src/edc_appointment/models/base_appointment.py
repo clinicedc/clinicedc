@@ -10,7 +10,7 @@ from edc_base.model.models import BaseUuidModel
 from edc_visit_schedule.models import VisitDefinition
 
 from ..choices import APPT_STATUS, APPT_TYPE
-from ..constants import DONE
+from ..constants import COMPLETE
 from ..managers import AppointmentManager
 
 
@@ -175,11 +175,7 @@ class BaseAppointment (BaseUuidModel):
             self.visit_definition.verify_datetime(self.appt_datetime, self.best_appt_datetime)
 
     def save(self, *args, **kwargs):
-        """Django save method"""
         using = kwargs.get('using')
-        if self.id:
-            TimePointStatus = apps.get_model('data_manager', 'TimePointStatus')
-            TimePointStatus.check_time_point_status(self, using=using)
         self.appt_datetime, self.best_appt_datetime = self.validate_appt_datetime()
         self.check_window_period()
         self.validate_visit_instance(using=using)
@@ -223,8 +219,8 @@ class BaseAppointment (BaseUuidModel):
 
     @property
     def complete(self):
-        """Returns True if the edc_appointment status is DONE."""
-        return self.appt_status == DONE
+        """Returns True if the edc_appointment status is COMPLETE."""
+        return self.appt_status == COMPLETE
 
     class Meta:
         abstract = True

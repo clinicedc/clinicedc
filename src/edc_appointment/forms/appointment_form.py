@@ -5,7 +5,7 @@ from django.apps import apps
 from django.core.exceptions import ValidationError
 
 from edc_entry.models import ScheduledEntryMetaData, RequisitionMetaData
-from edc_constants.constants import IN_PROGRESS, DONE, INCOMPLETE, NEW, CANCELLED
+from edc_constants.constants import IN_PROGRESS, COMPLETE, INCOMPLETE, NEW, CANCELLED
 
 from ..models import Appointment
 
@@ -54,11 +54,11 @@ class AppointmentForm(forms.ModelForm):
             pass
         elif appt_status == INCOMPLETE:
             pass
-        elif appt_status == DONE:
+        elif appt_status == COMPLETE:
             # must not be future
             if t1.days > 0:
                 raise forms.ValidationError(
-                    "Status is DONE so the edc_appointment date cannot be a future date. "
+                    "Status is COMPLETE so the edc_appointment date cannot be a future date. "
                     "You wrote '%s'" % appt_datetime)
             # cannot be done if no visit report, but how do i get to the visit report??
             # cannot be done if bucket entries exist that are NEW

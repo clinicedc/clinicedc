@@ -1,10 +1,12 @@
-from .constants import IN_PROGRESS, INCOMPLETE, DONE, CANCELLED, OTHER
+from edc_constants.constants import OTHER
+
+from .constants import IN_PROGRESS, INCOMPLETE, COMPLETE, CANCELLED
 
 APPT_STATUS = (
     ('new', 'New'),
     (IN_PROGRESS, 'In Progress'),
     (INCOMPLETE, 'Incomplete'),
-    (DONE, 'Done'),
+    (COMPLETE, 'Complete'),
     (CANCELLED, 'Cancelled')
 )
 

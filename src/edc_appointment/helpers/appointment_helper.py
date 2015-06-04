@@ -1,18 +1,18 @@
 from datetime import date
 
-from django.apps import apps
+from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Max
 
-from edc_appointment.exceptions import AppointmentStatusError
 from edc_configuration.models import GlobalConfiguration, SubjectConfiguration
+from edc_constants.constants import NEW
 from edc_visit_schedule.models import VisitDefinition, ScheduleGroup
 from edc_visit_tracking.constants import VISIT_REASON_NO_FOLLOW_UP_CHOICES
 
 # from edc_entry.helpers import ScheduledEntryMetaDataHelper
 
-from ..constants import IN_PROGRESS, DONE, INCOMPLETE, NEW, CANCELLED
-from ..exceptions import AppointmentCreateError
+from ..constants import IN_PROGRESS, COMPLETE, INCOMPLETE, CANCELLED
+from ..exceptions import AppointmentCreateError, AppointmentStatusError
 
 from .appointment_date_helper import AppointmentDateHelper
 
@@ -21,9 +21,9 @@ class AppointmentHelper(object):
 
     def __init__(self):
         self.appointment_date_helper = AppointmentDateHelper()
-        self.appointment_cls = apps.get_model('edc_appointment', 'edc_appointment')
-        self.scheduled_entry_meta_data_cls = apps.get_model('entry_meta_data', 'ScheduledEntryMetaData')
-        self.requisition_meta_data_cls = apps.get_model('entry_meta_data', 'RequisitionMetaData')
+        self.appointment_cls = django_apps.get_model('edc_appointment', 'edc_appointment')
+        self.scheduled_entry_meta_data_cls = django_apps.get_model('entry_meta_data', 'ScheduledEntryMetaData')
+        self.requisition_meta_data_cls = django_apps.get_model('entry_meta_data', 'RequisitionMetaData')
 
     def create_all(self, registered_subject, model_name, using=None,
                    base_appt_datetime=None, dashboard_type=None, source=None,
@@ -58,7 +58,7 @@ class AppointmentHelper(object):
 
             visit_definitions = visit_definitions or VisitDefinition.objects.filter(
                 schedule_group=schedule_group).order_by('time_point')
-            Appointment = apps.get_model('edc_appointment', 'edc_appointment')
+            Appointment = django_apps.get_model('edc_appointment', 'edc_appointment')
             if not visit_definitions:
                 raise AppointmentCreateError(
                     'No visit_definitions found for schedule group member {0} '
@@ -189,10 +189,10 @@ class AppointmentHelper(object):
             # scheduled_entry_helper = ScheduledEntryMetaDataHelper(appointment, visit_model_instance)
             if not self.show_scheduled_entries():
                 # visit reason implies no data will be collected, so set edc_appointment to Done
-                appointment.appt_status = DONE
+                appointment.appt_status = COMPLETE
             else:
                 # set to in progress, if not already set
-                if appointment.appt_status in [DONE, INCOMPLETE]:
+                if appointment.appt_status in [COMPLETE, INCOMPLETE]:
                     # test if Done or Incomplete
 
                     if ((self.scheduled_entry_meta_data_cls.objects.filter(
@@ -201,7 +201,7 @@ class AppointmentHelper(object):
                             appointment=appointment, entry_status__iexact=NEW).exists())):
                         appointment.appt_status = INCOMPLETE
                     else:
-                        appointment.appt_status = DONE
+                        appointment.appt_status = COMPLETE
                 elif appointment.appt_status in [NEW, CANCELLED, IN_PROGRESS]:
                     appointment.appt_status = IN_PROGRESS
                     # only one edc_appointment can be "in_progress", so look for any others in progress and change
@@ -220,8 +220,8 @@ class AppointmentHelper(object):
                                 appt.raw_save(using)
                         else:
                             # all forms are KEYED or NOT REQUIRED
-                            if appt.appt_status != DONE:
-                                appt.appt_status = DONE
+                            if appt.appt_status != COMPLETE:
+                                appt.appt_status = COMPLETE
                                 # call raw_save to avoid coming back to this method.
                                 appt.raw_save(using)
                 else:
