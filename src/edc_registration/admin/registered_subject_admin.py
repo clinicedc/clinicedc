@@ -1,13 +1,14 @@
 from django.contrib import admin
 from edc_base.modeladmin.admin import BaseModelAdmin
 
-# from ..forms import RegisteredSubjectForm
+from ..forms import RegisteredSubjectForm
 from ..models import RegisteredSubject
 
 
 class RegisteredSubjectAdmin (BaseModelAdmin):
 
-    # form = RegisteredSubjectForm
+    form = RegisteredSubjectForm
+
     date_hierarchy = 'registration_datetime'
 
     list_display = (

@@ -44,33 +44,40 @@ class BaseRegisteredSubject(SubjectIdentifierMixin, BaseSubject):
         blank=True,
     )
 
-    identity_type = IdentityTypeField()
+    identity_type = IdentityTypeField(
+        blank=True,
+    )
 
     survival_status = models.CharField(
         verbose_name='Survival status',
         max_length=15,
         choices=ALIVE_DEAD_UNKNOWN,
         null=True,
+        blank=True,
     )
 
     screening_datetime = models.DateTimeField(
         null=True,
+        blank=True,
     )
 
     registration_datetime = models.DateTimeField(
         null=True,
+        blank=True,
     )
 
     """ for simplicity, if going straight from screen to rando,
         update both registration date and randomization date """
     randomization_datetime = models.DateTimeField(
         null=True,
+        blank=True,
     )
 
     registration_status = models.CharField(
         verbose_name="Registration status",
         max_length=25,
         null=True,
+        blank=True,
     )
 
     comment = models.TextField(
