@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.apps import apps
+from edc_registration.models import RegisteredSubject
 
 from ..exceptions import IdentifierError
 from ..models import SubjectIdentifier
@@ -84,7 +84,6 @@ class InfantIdentifier(BaseIdentifier):
 
     def get_identifier_post(self, new_identifier, **kwargs):
         """ Updates registered subject after a new subject edc_identifier is created."""
-        RegisteredSubject = apps.get_model('registration', 'registeredsubject')
         RegisteredSubject.objects.using(self.using).create(
             subject_identifier=new_identifier,
             registration_datetime=datetime.now(),
