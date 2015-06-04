@@ -1,1 +1,1 @@
-from identity_fields_mixin import IdentityFieldsMixin
+from .identity_fields_mixin import IdentityFieldsMixin

@@ -1,26 +1,23 @@
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from django.utils import dateparse
+
 from django import forms
 from django.conf import settings
-from edc.core.bhp_variables.models import StudySpecific
-from edc.core.bhp_variables.choices import GENDER_OF_CONSENT
-from edc.core.bhp_common.utils import formatted_age
-from edc.base.form.forms import BaseModelForm
-from edc.core.crypto_fields.fields import BaseEncryptedField
+
+from edc_base.utils import formatted_age
 from edc_constants.constants import YES, NO
 
 
-class BaseSubjectConsentForm(BaseModelForm):
+class BaseSubjectConsentForm(forms.ModelForm):
     """Form for models that are a subclass of BaseConsent."""
     def clean(self):
         cleaned_data = self.cleaned_data
         if not cleaned_data.get("gender", None):
             raise forms.ValidationError('Please specify the gender')
 
-        for field in self._meta.model._meta.fields:
-            if isinstance(field, BaseEncryptedField):
-                field.validate_with_cleaned_data(field.attname, cleaned_data)
+#         for field in self._meta.model._meta.fields:
+#             if isinstance(field, BaseEncryptedField):
+#                 field.validate_with_cleaned_data(field.attname, cleaned_data)
 
         self.validate_age(cleaned_data)
         self.validate_guardian_name()

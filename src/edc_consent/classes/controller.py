@@ -28,8 +28,8 @@ class Controller(object):
 
         Ensures model classes refered to by the trackers in the LabTracker classes
         have the following methods:
-            * get_subject_identifier
-            * get_report_datetime
+            * subject_identifier (property)
+            * report_datetime (property)
             * get_result_datetime
             * get_test_code
         """

@@ -1,8 +1,6 @@
-from edc.base.form.forms import BaseModelForm
+from django import forms
 
 
-class ConsentCatalogueForm (BaseModelForm):
+class ConsentCatalogueForm (forms.ModelForm):
 
-    def clean(self, consent_instance=None):
-        cleaned_data = self.cleaned_data
-        return cleaned_data
+    pass

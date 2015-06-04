@@ -1,7 +1,3 @@
-import re
-
-from dateutil.relativedelta import relativedelta
-
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.validators import RegexValidator
@@ -10,13 +6,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_crypto_fields.fields import LastnameField, EncryptedTextField
 
-from edc_base.utils import formatted_age
+from edc_base.utils import formatted_age, age
 from edc_subject.models import BaseSubject
 from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start, eligible_if_no
 from edc_constants.choices import YES_NO
-
-from ..classes import ConsentedSubjectIdentifier
-from ..exceptions import ConsentError
 
 from .base_consent_history import BaseConsentHistory
 
@@ -31,6 +24,10 @@ except:
 
 class BaseConsent(BaseSubject):
 
+    MAX_SUBJECTS = 0
+    SUBJECT_TYPES = []
+    GENDER_OF_CONSENT = []
+
     """ Consent models should be subclasses of this """
 
     subject_identifier = models.CharField(
@@ -41,8 +38,17 @@ class BaseConsent(BaseSubject):
         unique=subject_identifier_is_unique,
     )
 
+    sid = models.CharField(
+        verbose_name="SID",
+        max_length=15,
+        null=True,
+        blank=True,
+        help_text='Used for randomization against a prepared rando-list.'
+    )
+
     site_code = models.CharField(
         verbose_name='Site',
+        max_length=25,
         help_text="This refers to the site or 'clinic area' where the subject is being consented."
     )
 
@@ -141,111 +147,31 @@ class BaseConsent(BaseSubject):
             self.initials
         )
 
-    def get_site_code(self):
-        return self.site_code
-
-    def save_new_consent(self, using=None, subject_identifier=None):
-        """ Users may override this to compliment the default behavior for new instances.
-
-        Must return a subject_identifier or None."""
-
-        return subject_identifier
-
-    def _save_new_consent(self, using=None, **kwargs):
-        """ Creates or gets a subject identifier.
-
-        ..note:: registered subject is updated/created on edc.subject signal.
-
-        Also, calls user method :func:`save_new_consent`"""
-        self.subject_identifier = self.save_new_consent(using=using, subject_identifier=self.subject_identifier)
-        re_pk = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}')
-        # recall, if subject_identifier is not set, subject_identifier will be a uuid.
-        if re_pk.match(self.subject_identifier):
-            try:
-                self.subject_identifier = self._get_user_provided_subject_identifier()
-            except AttributeError:
-                try:
-                    if self.registered_subject.subject_identifier:
-                        self.subject_identifier = self.registered_subject.subject_identifier
-                except AttributeError:
-                    self.subject_identifier = None
-        if not self.subject_identifier:
-            consented_subject_identifier = ConsentedSubjectIdentifier(site_code=self.get_site_code(), using=using)
-            self.subject_identifier = consented_subject_identifier.get_identifier(using=using)
-        if re_pk.match(self.subject_identifier) or not self.subject_identifier:
-            raise ConsentError(
-                "Subject identifier not set after saving new edc_consent! Got {0}".format(self.subject_identifier)
-            )
-
     def save(self, *args, **kwargs):
+        self.validate_subject_type()
+        self.validate_max_subjects()
         if self.confirm_identity:
             if self.identity != self.confirm_identity:
                 raise ValueError(
                     'Attribute \'identity\' must match attribute \'confirm_identity\'. '
                     'Catch this error on the form'
                 )
-        self.insert_dummy_identifier()
-        # if adding, call _save_new_consent()
         if not self.id:
             self._save_new_consent(kwargs.get('using', None))
         super(BaseConsent, self).save(*args, **kwargs)
 
     @property
-    def registered_subject_options(self):
-        """Returns a dictionary of RegisteredSubject attributes
-        ({field, value}) to be used, for example, as the defaults
-        kwarg RegisteredSubject.objects.get_or_create()."""
-        options = {
-            'study_site': self.study_site,
-            'dob': self.dob,
-            'is_dob_estimated': self.is_dob_estimated,
-            'gender': self.gender,
-            'initials': self.initials,
-            'identity': self.identity,
-            'identity_type': self.identity_type,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'subject_type': self.get_subject_type(),
-        }
-        if self.last_name:
-            options.update({'registration_status': 'consented'})
-        return options
-
-    @property
-    def age(self):
-        return relativedelta(self.consent_datetime, self.dob).years
+    def age_at_consent(self):
+        """Returns a relativedelta."""
+        return age(self.dob, self.consent_datetime)
 
     def formatted_age_at_consent(self):
+        """Returns a string representation."""
         return formatted_age(self.dob, self.consent_datetime)
 
-    @classmethod
-    def get_consent_update_model(self):
-        raise TypeError(
-            'The ConsentUpdateModel is required. Specify a class method '
-            'get_consent_update_model() on the model to return the ConsentUpdateModel class.')
-
-    def get_report_datetime(self):
+    @property
+    def report_datetime(self):
         return self.consent_datetime
-
-    def get_subject_type(self):
-        raise ImproperlyConfigured(
-            'Method must be overridden to return a subject_type. '
-            'e.g. \'subject\', \'maternal\', \'infant\', etc')
-
-    def bypass_for_edit_dispatched_as_item(self, using=None, update_fields=None):
-        """Allow bypass only if doing edc_consent verification."""
-        # requery myself
-        obj = self.__class__.objects.using(using).get(pk=self.pk)
-        # dont allow values in these fields to change if dispatched
-        may_not_change_these_fields = []
-        for k, v in obj.__dict__.items():
-            if k not in ['is_verified_datetime', 'is_verified']:
-                may_not_change_these_fields.append((k, v))
-        for k, v in may_not_change_these_fields:
-            if k[0] != '_':
-                if getattr(self, k) != v:
-                    return False
-        return True
 
     def get_consent_history_model(self):
         """Returns the history model for this app.
@@ -268,6 +194,29 @@ class BaseConsent(BaseSubject):
             if not issubclass(self.get_consent_history_model(), BaseConsentHistory):
                 raise ImproperlyConfigured('Expected a subclass of BaseConsentHistory.')
             self.get_consent_history_model().objects.delete_consent_history(app_label, model_name, pk, using)
+
+    def validate_subject_type(self):
+        """Validates the subject type is not blank and is listed in self.SUBJECT_TYPES."""
+        if not self.subject_type:
+            raise ValueError('Field subject_type may not be blank.')
+        try:
+            if self.subject_type.lower() not in [s.lower() for s in self.SUBJECT_TYPES]:
+                raise ValueError(
+                    'Expected field \'subject_type\' to be any of {0}. Got \'{1}\'.'.format(
+                        self.SUBJECT_TYPES, self.subject_type))
+        except AttributeError:
+            pass
+
+    def validate_max_subjects(self, exception_cls=None):
+        """Validates the number of subjects will not exceed self.MAX_SUBJECTS for new instances."""
+        exception_cls = exception_cls or ValueError
+        if not self.id:
+            count = self.__class__.objects.filter(subject_type=self.subject_type).count()
+            if count + 1 > self.MAX_SUBJECTS:
+                    raise exception_cls(
+                        'Maximum number of subjects has been reached for subject_type {0}. '
+                        'Got {1}/{2}.'.format(self.subject_type, count, self.MAX_SUBJECTS)
+                    )
 
     class Meta:
         abstract = True

@@ -107,35 +107,12 @@ class ConsentHelper(object):
         of consents listed in the edc_consent catalogue.
 
         The report_datetime comes from the subject_instance."""
-
-        if not self._report_datetime:
-            try:
-                self._report_datetime = self.subject_instance.report_datetime
-            except AttributeError:
-                try:
-                    self._report_datetime = self.subject_instance.get_report_datetime()
-                except AttributeError:
-                    raise self.exception_cls(
-                        'Cannot determine datetime to use for model {0} to compare with the '
-                        'edc_consent catalogue. Add get_report_datetime() to the model.'.format(
-                            self.subject_instance._meta.object_name))
-        return self._report_datetime
+        return self.subject_instance.report_datetime
 
     @property
     def subject_identifier(self):
         """Sets and Gets the subject_identifier from the instance."""
-        if not self._subject_identifier:
-            try:
-                self._subject_identifier = self.subject_instance.subject_identifier
-            except AttributeError:
-                try:
-                    self._subject_identifier = self.subject_instance.get_subject_identifier()
-                except AttributeError:
-                    raise self.exception_cls(
-                        'Cannot determine the subject_identifier for model {0} needed to lookup '
-                        'the edc_consent. Perhaps add method get_subject_identifier() to the model.'.format(
-                            self.subject_instance._meta.object_name))
-        return self._subject_identifier
+        return self.subject_instance.subject_identifier
 
     @property
     def consent_models(self):
@@ -146,8 +123,8 @@ class ConsentHelper(object):
             attached_models = AttachedModel.objects.filter(
                 content_type_map__model=self.subject_instance._meta.object_name.lower())
             for attached_model in attached_models:
-                if (self._get_report_datetime() >= attached_model.consent_catalogue.start_datetime and
-                        self._get_report_datetime() < attached_model.consent_catalogue.end_datetime):
+                if (self.report_datetime >= attached_model.consent_catalogue.start_datetime and
+                        self.report_datetime < attached_model.consent_catalogue.end_datetime):
                     self._consent_models.append(
                         attached_model.consent_catalogue.content_type_map.content_type.model_class())
             if not self._consent_models:
@@ -155,7 +132,7 @@ class ConsentHelper(object):
                     raise self.exception_cls(
                         'Data collection not permitted. Subject has no edc_consent '
                         'to cover form \'{0}\' with date {1}.'.format(
-                            self.subject_instance._meta.verbose_name, self._get_report_datetime()))
+                            self.subject_instance._meta.verbose_name, self.report_datetime))
                 else:
                     pass
         return self._consent_models
@@ -170,14 +147,14 @@ class ConsentHelper(object):
             content_type_map__model__in=consent_model_names)
         for consent_catalogue in catalogues:
             end_date = consent_catalogue.end_datetime or datetime.today() + relativedelta(days=1)
-            if (self._get_report_datetime() >= consent_catalogue.start_datetime and
-                    self._get_report_datetime() < end_date):
+            if (self.report_datetime >= consent_catalogue.start_datetime and
+                    self.report_datetime < end_date):
                 current_consent_version = consent_catalogue.version
         if not current_consent_version:
             if not self._suppress_exception:
                 raise self.exception_cls(
                     'Cannot determine the version of edc_consent '
-                    '\'{0}\' using \'{1}\''.format(self.subject_instance, self._get_report_datetime()))
+                    '\'{0}\' using \'{1}\''.format(self.subject_instance, self.report_datetime))
             else:
                 pass
         return current_consent_version
@@ -265,11 +242,11 @@ class ConsentHelper(object):
                 for field in self.subject_instance._meta.fields:
                     if field.name in self.subject_instance.get_versioned_field_names(consent_version):
                         field_value = getattr(self.subject_instance, field.name)
-                        if self._get_report_datetime() < start_datetime and field_value:
+                        if self.report_datetime < start_datetime and field_value:
                             # enforce None / default
                             raise self.exception_cls(
                                 'Field \'{0}\' must be left blank for data captured prior to version {2}. [{3}]'
                                 .format(field.name, start_datetime, consent_version, field.verbose_name[0:50]))
-                        if self._get_report_datetime() >= start_datetime:
+                        if self.report_datetime >= start_datetime:
                             self.clean_versioned_field(field_value, field, start_datetime, consent_version)
         return current_consent_version

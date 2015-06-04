@@ -1,9 +1,8 @@
 from django import forms
 
 from edc_base.utils import convert_from_camel
-from edc.data_manager.models import TimePointStatus
 
-from edc_consent import AttachedModel
+from ..models import AttachedModel
 
 
 class BaseConsentedModelForm(forms.ModelForm):
@@ -40,9 +39,12 @@ class BaseConsentedModelForm(forms.ModelForm):
                 convert_from_camel(self.visit_model()._meta.object_name)).appointment
         except AttributeError:
             appointment = cleaned_data.get('appointment')
-        TimePointStatus.check_time_point_status(
-            appointment,
-            exception_cls=forms.ValidationError)
+        try:
+            self.instance.check_time_point_status(
+                appointment,
+                exception_cls=forms.ValidationError)
+        except AttributeError:
+            pass
         # get the helper class
         consent_helper_cls = self._meta.model().get_consent_helper_cls()
         # check if consented to complete this form

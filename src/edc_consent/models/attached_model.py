@@ -4,7 +4,7 @@ from edc_base.model.models import BaseUuidModel
 from edc_content_type_map.models import ContentTypeMap
 
 from ..managers import AttachedModelManager
-from ..models import ConsentCatalogue
+from .consent_catalogue import ConsentCatalogue
 
 
 class AttachedModel(BaseUuidModel):

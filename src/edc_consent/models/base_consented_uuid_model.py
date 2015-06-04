@@ -1,5 +1,6 @@
 from django.apps import apps
 
+from edc_appointment.models import TimePointStatus
 from edc_base.model.models import BaseUuidModel
 try:
     from edc_sync.mixins import SyncMixin
@@ -48,7 +49,6 @@ class BaseConsentedUuidModel(BaseUuidModel, SyncMixin):
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
         if self.id:
-            TimePointStatus = apps.get_model('data_manager', 'TimePointStatus')
             try:
                 TimePointStatus.check_time_point_status(self.get_visit().appointment, using=using)
             except AttributeError:
