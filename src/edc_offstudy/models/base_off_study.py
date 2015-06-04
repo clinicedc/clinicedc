@@ -4,6 +4,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.apps import apps
 from django.db import models
 from django.db.models import Max
+from django.utils import timezone
 
 from edc_base.model.fields import OtherCharField
 from edc_constants.choices import YES_NO
@@ -17,6 +18,12 @@ from ..managers import OffStudyManager
 
 class BaseOffStudy(BaseRegisteredSubjectModel):
     """Base model for the Off Study model in an app."""
+
+    report_datetime = models.DateTimeField(
+        verbose_name="Report Date and Time",
+        default=timezone.now(),
+        help_text="")
+
     offstudy_date = models.DateField(
         verbose_name="Off-study Date",
         help_text="")
@@ -49,9 +56,6 @@ class BaseOffStudy(BaseRegisteredSubjectModel):
         if self.has_scheduled_data == NO:
             return False
         return True
-
-    def get_report_datetime(self):
-        return datetime(self.offstudy_date.year, self.offstudy_date.month, self.offstudy_date.day)
 
     def check_off_study_date(self, subject_identifier, off_study_date, exception_cls=None):
         """Checks that off study date is on or after the visit model visit_datetime."""

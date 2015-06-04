@@ -39,12 +39,7 @@ class OffStudyMixin(object):
             raise ImproperlyConfigured(
                 'OffStudyMixin expected method \'get_subject_identifier\' to '
                 'exist on the base model class. Model {0}'.format(self._meta.object_name))
-        if 'get_report_datetime' not in dir(self):
-            raise ImproperlyConfigured(
-                'OffStudyMixin expected method \'get_report_datetime\' to '
-                'exist on the base model class. Model {0}'.format(self._meta.object_name))
-        report_datetime = self.get_report_datetime()
-        report_date = datetime(report_datetime.year, report_datetime.month, report_datetime.day)
+        report_date = datetime(self.report_datetime.year, self.report_datetime.month, self.report_datetime.day)
         if self._get_off_study_cls():
             return self._get_off_study_cls().objects.filter(
                 registered_subject__subject_identifier=self.get_subject_identifier(),
