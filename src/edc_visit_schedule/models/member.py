@@ -13,10 +13,7 @@ class Member(BaseUuidModel):
     """Model to list forms to be linked to a ScheduleGroup as
     "registration" forms to that group"""
 
-    content_type_map = models.OneToOneField(
-        ContentTypeMap,
-        related_name='+'
-    )
+    content_type_map = models.OneToOneField(ContentTypeMap)
 
     category = models.CharField(
         max_length=35,
@@ -51,15 +48,7 @@ class Member(BaseUuidModel):
     def natural_key(self):
         return self.content_type_map.natural_key()
 
-    @property
-    def registration_model(self):
-        """Returns a model class."""
-        return self.content_type_map.model_class()
-
-    def get_absolute_url(self):
-        return reverse('admin:edc_visit_schedule_member_change', args=(self.id,))
-
-    def __unicode__(self):
+    def __str__(self):
         return self.content_type_map.name
 
     class Meta:
