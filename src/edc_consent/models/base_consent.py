@@ -27,6 +27,7 @@ class BaseConsent(BaseSubject):
     MAX_SUBJECTS = 0
     SUBJECT_TYPES = []
     GENDER_OF_CONSENT = []
+    AGE_IS_ADULT = 18
 
     """ Consent models should be subclasses of this """
 
