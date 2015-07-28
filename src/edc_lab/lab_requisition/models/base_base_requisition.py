@@ -10,12 +10,13 @@ try:
 except ImportError:
     from edc.base.model.models import BaseUuidModel
 
-from edc.base.model.fields import InitialsField
+from edc_base.model.fields import InitialsField
+from edc_base.utils import get_safe_random_string, safe_allowed_chars
 from edc_constants.choices import YES_NO
-from edc_constants.constants import YES
-from edc.core.bhp_string.classes import StringHelper
+from edc_constants.constants import YES, NO
 from edc_device.device import Device
-from edc.lab.lab_profile.classes import site_lab_profiles
+
+from ...lab_profile.classes import site_lab_profiles
 
 from ..choices import PRIORITY, REASON_NOT_DRAWN, ITEM_TYPE
 from ..classes import RequisitionLabel
@@ -30,11 +31,11 @@ class BaseBaseRequisition (BaseUuidModel):
         verbose_name='Requisition Id',
         max_length=50,
         unique=True,
-        )
+    )
 
     requisition_datetime = models.DateTimeField(
         verbose_name='Requisition Date'
-        )
+    )
 
     specimen_identifier = models.CharField(
         verbose_name='Specimen Id',
@@ -43,7 +44,7 @@ class BaseBaseRequisition (BaseUuidModel):
         blank=True,
         editable=False,
         unique=True,
-        )
+    )
 
     protocol = models.CharField(
         verbose_name="Protocol Number",
@@ -51,7 +52,7 @@ class BaseBaseRequisition (BaseUuidModel):
         null=True,
         blank=True,
         help_text='Use three digit code e.g 041, 056, 062, etc'
-        )
+    )
 
     site = models.ForeignKey(StudySite, null=True)
 
@@ -59,14 +60,14 @@ class BaseBaseRequisition (BaseUuidModel):
         default='--',
         null=True,
         blank=True,
-        )
+    )
 
     priority = models.CharField(
         verbose_name='Priority',
         max_length=25,
         choices=PRIORITY,
         default='normal',
-        )
+    )
 
     is_drawn = models.CharField(
         verbose_name='Was a specimen drawn?',
@@ -74,7 +75,7 @@ class BaseBaseRequisition (BaseUuidModel):
         choices=YES_NO,
         default=YES,
         help_text='If No, provide a reason below'
-        )
+    )
 
     reason_not_drawn = models.CharField(
         verbose_name='If not drawn, please explain',
@@ -82,14 +83,14 @@ class BaseBaseRequisition (BaseUuidModel):
         choices=REASON_NOT_DRAWN,
         null=True,
         blank=True,
-        )
+    )
 
     drawn_datetime = models.DateTimeField(
         verbose_name='Date / Time Specimen Drawn',
         null=True,
         blank=True,
         help_text='If not drawn, leave blank. Same as date and time of finger prick in case on DBS.',
-        )
+    )
 
     item_type = models.CharField(
         verbose_name='Item collection type',
@@ -97,13 +98,13 @@ class BaseBaseRequisition (BaseUuidModel):
         choices=ITEM_TYPE,
         default='tube',
         help_text=''
-        )
+    )
 
     item_count_total = models.IntegerField(
         verbose_name='Total number of items',
         default=1,
         help_text='Number of tubes, samples, cards, etc being sent for this test/order only. Determines number of labels to print',
-        )
+    )
 
     estimated_volume = models.DecimalField(
         verbose_name='Estimated volume in mL',
@@ -111,71 +112,62 @@ class BaseBaseRequisition (BaseUuidModel):
         decimal_places=2,
         default=5.0,
         help_text='If applicable, estimated volume of sample for this test/order. This is the total volume if number of "tubes" above is greater than 1'
-        )
+    )
 
     comments = models.TextField(
         max_length=25,
         null=True,
         blank=True,
-        )
+    )
 
     is_receive = models.BooleanField(
         verbose_name='received',
         default=False,
-        )
+    )
 
     is_receive_datetime = models.DateTimeField(
         verbose_name='rcv-date',
         null=True,
         blank=True,
-        )
+    )
 
     is_packed = models.BooleanField(
         verbose_name='packed',
         default=False,
-        )
+    )
 
     is_labelled = models.BooleanField(
         verbose_name='labelled',
         default=False,
-        )
+    )
 
     is_labelled_datetime = models.DateTimeField(
         verbose_name='label-date',
         null=True,
         blank=True,
-        )
+    )
 
     is_lis = models.BooleanField(
         verbose_name='lis',
         default=False,
-        )
+    )
 
     objects = BaseRequisitionManager()
 
-    def __unicode__(self):
-        return '%s' % (self.requisition_identifier)
+    def __str__(self):
+        return self.requisition_identifier
 
-    def get_visit(self):
-        raise ImproperlyConfigured('Method must be overridden')
-
-    # TODO: remove this, should be get_subject_identifier
-    def get_infant_identifier(self):
-        return self.get_visit().appointment.registered_subject.subject_identifier
-
-    # TODO: remove this, should be get_subject_identifier
-    def subject(self):
-        return self.get_subject_identifier()
+    @property
+    def subject_identifier(self):
+        return self.visit.subject_identifier
 
     @property
     def report_datetime(self):
         return self.requisition_datetime
 
-    def visit(self):
-        return self.get_visit().appointment.visit_definition.code
-
-    def get_subject_identifier(self):
-        return self.get_visit().appointment.registered_subject.subject_identifier
+    @property
+    def visit_code(self):
+        return self.visit.visit_code
 
     def barcode_value(self):
         return self.specimen_identifier
@@ -219,10 +211,9 @@ class BaseBaseRequisition (BaseUuidModel):
         """Generate and returns a locally unique requisition identifier for a device (adds device id)"""
         device = Device()
         device_id = kwargs.get('device_id', device.device_id)
-        string = StringHelper()
         length = 5
         template = '{device_id}{random_string}'
-        opts = {'device_id': device_id, 'random_string': string.get_safe_random_string(length=length)}
+        opts = {'device_id': device_id, 'random_string': get_safe_random_string(length=length)}
         requisition_identifier = template.format(**opts)
         # look for a duplicate
         if self.__class__.objects.filter(requisition_identifier=requisition_identifier):
@@ -230,7 +221,7 @@ class BaseBaseRequisition (BaseUuidModel):
             while self.__class__.objects.filter(requisition_identifier=requisition_identifier):
                 requisition_identifier = template.format(**opts)
                 n += 1
-                if n == len(string.safe_allowed_chars) ** length:
+                if n == len(safe_allowed_chars) ** length:
                     raise TypeError('Unable prepare a unique requisition identifier, '
                                     'all are taken. Increase the length of the random string')
         return requisition_identifier

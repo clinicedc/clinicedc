@@ -14,22 +14,22 @@ class BasePackingListItem(BaseSyncUuidModel):
         blank=False,
         editable=False,
         help_text="pk of requisition instance",
-        )
+    )
 
     item_reference = models.CharField(
         max_length=25,
-        )
+    )
 
     item_datetime = models.DateTimeField(
         null=True,
         blank=True,
-        )
+    )
 
     item_description = models.TextField(
         max_length=100,
         null=True,
         blank=True,
-        )
+    )
 
     item_priority = models.CharField(
         max_length=35,
@@ -37,7 +37,7 @@ class BasePackingListItem(BaseSyncUuidModel):
         null=True,
         blank=False,
         help_text="",
-        )
+    )
 
     old_panel_id = models.CharField(max_length=50, null=True)
 
@@ -113,7 +113,7 @@ class BasePackingListItem(BaseSyncUuidModel):
                 timestamp=packing_list_model.objects.get(
                     pk=getattr(self, packing_list_field_attname)).timestamp,
                 pk=getattr(self, packing_list_field_attname),
-                )
+            )
         else:
             return 'packing list'
     view_packing_list.allow_tags = True
@@ -138,9 +138,6 @@ class BasePackingListItem(BaseSyncUuidModel):
     def description(self):
         return self.item_description.replace(' ', '<BR>')
     description.allow_tags = True
-
-    def get_subject_identifier(self):
-        return ''
 
     class Meta:
         abstract = True

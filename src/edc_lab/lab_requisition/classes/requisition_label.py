@@ -29,7 +29,7 @@ class RequisitionLabel(ModelLabel):
 
     def refresh_label_context(self):
         requisition = self.model_instance
-        subject_identifier = requisition.get_subject_identifier()
+        subject_identifier = requisition.subject_identifier
         registered_subject = RegisteredSubject.objects.get(subject_identifier=subject_identifier)
         if registered_subject.may_store_samples.lower() == 'Yes':
             may_store_samples = 'Y'
