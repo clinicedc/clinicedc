@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from edc_identifier.exceptions import IdentifierError
 
-from edc_sample.sample.models import RegisteredSubject
+from edc_registration.models import RegisteredSubject
 
 
 class TestRegisteredSubject(TestCase):
