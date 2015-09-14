@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'tastypie',
     'simple_history',
     'edc_quota',
-    'edc_registration',
+    # 'edc_registration',
     'edc_consent',
 )
 

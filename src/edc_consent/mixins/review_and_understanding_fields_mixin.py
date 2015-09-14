@@ -8,7 +8,7 @@ from edc_base.model.validators import eligible_if_yes, eligible_if_yes_or_declin
 class ReviewAndUnderstandingFieldsMixin(models.Model):
 
     consent_reviewed = models.CharField(
-        verbose_name="I have reviewed the edc_consent with the client",
+        verbose_name="I have reviewed the consent with the client",
         max_length=3,
         choices=YES_NO,
         validators=[eligible_if_yes, ],
@@ -35,14 +35,13 @@ class ReviewAndUnderstandingFieldsMixin(models.Model):
         help_text="If no, INELIGIBLE",
     )
     consent_copy = models.CharField(
-        verbose_name=("I have provided the client with a copy of their signed informed"
-                      " edc_consent"),
+        verbose_name=("I have provided the client with a copy of their signed informed consent"),
         max_length=20,
         choices=YES_NO_DECLINED,
         validators=[eligible_if_yes_or_declined, ],
         null=True,
         blank=False,
-        help_text="If declined, return copy to the clinic with the edc_consent",
+        help_text="If declined, return copy to the clinic with the consent",
     )
 
     class Meta:

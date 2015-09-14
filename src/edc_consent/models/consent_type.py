@@ -1,12 +1,13 @@
 from django.apps import apps
 from django.db import models
+from django.db.models import Q
 
 from simple_history.models import HistoricalRecords
 
 from edc_base.model.models import BaseUuidModel
 from edc_base.model.validators import datetime_not_before_study_start
 
-from edc_consent.exceptions import ConsentTypeError
+from ..exceptions import ConsentTypeError
 
 
 class ConsentTypeManager(models.Manager):
@@ -56,9 +57,44 @@ class ConsentType(BaseUuidModel):
 
     version = models.CharField(max_length=10)
 
+    updates_version = models.CharField(max_length=10, null=True, blank=True)
+
     history = HistoricalRecords()
 
     objects = ConsentTypeManager()
+
+    def save(self, *args, **kwargs):
+        if self.updates_version:
+            try:
+                self.__class__.objects.get(
+                    app_label=self.app_label,
+                    model_name=self.model_name,
+                    version=self.updates_version)
+            except self.__class__.DoesNotExist:
+                raise ConsentTypeError(
+                    'Consent version {1} cannot be an update to version \'{0}\'. '
+                    'Version \'{0}\' not found.'.format(
+                        self.updates_version, self.version))
+            try:
+                previous = self.__class__.objects.get(
+                    (Q(start_datetime__range=(self.start_datetime, self.end_datetime)) |
+                     Q(end_datetime__range=(self.start_datetime, self.end_datetime))),
+                    app_label=self.app_label,
+                    model_name=self.model_name,
+                )
+                raise ConsentTypeError(
+                    'Consent period for version {0} overlaps with version \'{1}\'. '
+                    'Got {2} to {3} overlaps with {4} to {5}.'.format(
+                        self.updates_version, self.version,
+                        previous.start_datetime.strftime('%Y-%m-%d'),
+                        previous.end_datetime.strftime('%Y-%m-%d'),
+                        self.start_datetime.strftime('%Y-%m-%d'),
+                        self.end_datetime.strftime('%Y-%m-%d'),
+                    ))
+
+            except self.__class__.DoesNotExist:
+                pass
+        super(ConsentType, self).save(*args, **kwargs)
 
     def natural_key(self):
         return (self.app_label, self.model_name, self.version)
@@ -73,4 +109,4 @@ class ConsentType(BaseUuidModel):
     class Meta:
         app_label = 'edc_consent'
         unique_together = (('app_label', 'model_name', 'version'),)
-        ordering = ['app_label', 'model_name', 'version']
+        ordering = ['app_label', 'model_name', 'version', 'updates_version']

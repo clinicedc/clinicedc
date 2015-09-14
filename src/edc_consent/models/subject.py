@@ -1,7 +1,5 @@
 from uuid import uuid4
 
-from edc_base.model.models import BaseUuidModel
-
 from django.core.validators import RegexValidator
 from django.conf import settings
 from django.db import models
@@ -11,14 +9,7 @@ from edc_base.model.fields import IsDateEstimatedField
 from edc_base.model.validators import dob_not_future, MinConsentAgeValidator, MaxConsentAgeValidator
 from edc_constants.choices import GENDER_UNDETERMINED
 
-from .validators import SubjectTypeValidator
-
-# allow a settings attribute to override the unique constraint on the
-# subject identifier
-try:
-    subject_identifier_is_unique = settings.SUBJECT_IDENTIFIER_UNIQUE_ON_CONSENT
-except AttributeError:
-    subject_identifier_is_unique = True
+from ..validators import SubjectTypeValidator
 
 
 class SubjectManager(models.Manager):
@@ -27,7 +18,7 @@ class SubjectManager(models.Manager):
         return self.get(subject_identifier_as_pk=subject_identifier_as_pk)
 
 
-class Subject (BaseUuidModel):
+class Subject(models.Model):
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",

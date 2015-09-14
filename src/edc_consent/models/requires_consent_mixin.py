@@ -43,24 +43,3 @@ class RequiresConsentMixin(models.Model):
 #         Validate fields under consent version control. If a field is not to be included for this
 #         consent version, an exception will be raised."""
 #         ConsentHelper(self).validate_versioned_fields()
-
-#     @property
-#     def consent(self):
-#         """
-#         Returns the consent instance linked to this model instance.
-#
-#         Requires attribute CONSENT_MODEL to be defined in the base class.
-#         """
-#         self.CONSENT_MODEL.objects.get(subject_identifier=self.subject_identifier)
-
-#     def report_prior_to_consent(self, report_datetime=None, field_name=None):
-#         """Raises a ValueError if the report datetime precedes the consent datetime."""
-#         field_name = field_name or 'report_datetime'
-#         report_datetime = report_datetime or self.report_datetime
-#         if report_datetime < self.consent.consent_datetime:
-#             raise ValueError('\'{}\' may not precede consent datetime {}. Got {}'.format(
-#                 field_name,
-#                 self.consent.consent_datetime,
-#                 report_datetime)
-#             )
-#         return False

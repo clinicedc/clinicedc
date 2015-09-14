@@ -1,1 +1,0 @@
-from .base_consent_model_admin import BaseConsentModelAdmin

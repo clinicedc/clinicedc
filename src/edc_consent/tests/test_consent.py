@@ -1,10 +1,9 @@
-from decimal import Decimal
 from datetime import date, timedelta
 from django.db import models
 from django.test import TestCase
 from edc_consent.models.base_consent import BaseConsent
 from edc_consent.models import RequiresConsentMixin
-from edc_consent.exceptions import NotConsentedError, ConsentTypeError
+from edc_consent.exceptions import NotConsentedError, ConsentTypeError, ConsentVersionError
 from django.utils import timezone
 from edc_constants.constants import YES
 from edc_quota.client.models import QuotaMixin, QuotaManager
@@ -47,9 +46,10 @@ class TestConsent(TestCase):
     def setUp(self):
         TestConsentModel.quota.set_quota(2, date.today(), date.today())
 
-    def create_consent_type(self, start_datetime=None, end_datetime=None, version=None):
+    def create_consent_type(self, start_datetime=None, end_datetime=None, version=None, updates_version=None):
         return ConsentType.objects.create(
             version=version or '1.0',
+            updates_version=updates_version,
             app_label=TestConsentModel._meta.app_label,
             model_name=TestConsentModel._meta.model_name,
             start_datetime=start_datetime or timezone.now() - timedelta(days=1),
@@ -125,3 +125,82 @@ class TestConsent(TestCase):
         test_model.report_datetime = timezone.now()
         test_model.save()
         self.assertEqual(test_model.consent_version, '1.1')
+
+    def test_consent_type_update_needs_previous_version(self):
+        """Asserts that a consent type updates a previous consent."""
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=365),
+            end_datetime=timezone.now() - timedelta(days=200),
+            version='1.0')
+        self.assertRaises(
+            ConsentTypeError, self.create_consent_type,
+            start_datetime=timezone.now() - timedelta(days=199),
+            end_datetime=timezone.now() + timedelta(days=100),
+            version='1.1',
+            updates_version='1.2')
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=199),
+            end_datetime=timezone.now() - timedelta(days=100),
+            version='1.1',
+            updates_version='1.0')
+
+    def test_consent_needs_previous_version(self):
+        """Asserts that a consent updates a previous consent but cannot be entered by itself."""
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=365),
+            end_datetime=timezone.now() - timedelta(days=200),
+            version='1.0')
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=199),
+            end_datetime=timezone.now() + timedelta(days=200),
+            version='1.1',
+            updates_version='1.0')
+        self.assertRaises(ConsentVersionError, self.create_consent, '12345', '123456789', timezone.now())
+
+    def test_consent_needs_previous_version2(self):
+        """Asserts that a consent updates a previous consent but cannot be entered by itself."""
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=365),
+            end_datetime=timezone.now() - timedelta(days=200),
+            version='1.0')
+        consent = self.create_consent('12345', '123456789', timezone.now() - timedelta(days=300))
+        self.assertEqual(consent.version, '1.0')
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=199),
+            end_datetime=timezone.now() + timedelta(days=200),
+            version='1.1',
+            updates_version='1.0')
+        consent = self.create_consent('12345', '123456789', timezone.now())
+        self.assertEqual(consent.version, '1.1')
+
+    def test_consent_needs_previous_version3(self):
+        """Asserts that a consent updates a previous consent but cannot be entered by itself."""
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=365),
+            end_datetime=timezone.now() - timedelta(days=200),
+            version='1.0')
+        consent = self.create_consent('12345', '123456789', timezone.now() - timedelta(days=300))
+        self.assertEqual(consent.version, '1.0')
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=199),
+            end_datetime=timezone.now() - timedelta(days=50),
+            version='1.1',
+            updates_version='1.0')
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=49),
+            end_datetime=timezone.now() + timedelta(days=200),
+            version='1.2',
+            updates_version='1.1')
+        self.assertRaises(ConsentVersionError, self.create_consent, '12345', '123456789', timezone.now())
+
+    def test_consent_periods_cannot_overlap(self):
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=365),
+            end_datetime=timezone.now() - timedelta(days=200),
+            version='1.0')
+        self.assertRaises(
+            ConsentTypeError, self.create_consent_type,
+            start_datetime=timezone.now() - timedelta(days=201),
+            end_datetime=timezone.now(),
+            version='1.1',
+            updates_version='1.0')

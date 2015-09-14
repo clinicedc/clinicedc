@@ -13,6 +13,7 @@ from ..mixins.bw.identity_fields_mixin import IdentityFieldsMixin
 
 from .subject import Subject
 from .consent_type import ConsentType
+from edc_consent.exceptions import ConsentVersionError
 
 
 class BaseConsent(IdentityFieldsMixin, Subject):
@@ -129,7 +130,25 @@ class BaseConsent(IdentityFieldsMixin, Subject):
         )
 
     def save(self, *args, **kwargs):
-        self.version = ConsentType.objects.get_by_consent_datetime(self.__class__, self.consent_datetime).version
+        consent_type = ConsentType.objects.get_by_consent_datetime(
+            self.__class__, self.consent_datetime)
+        self.version = consent_type.version
+        if consent_type.updates_version:
+            try:
+                previous_consent = self.__class__.objects.get(
+                    subject_identifier=self.subject_identifier,
+                    identity=self.identity,
+                    dob=self.dob,
+                    first_name=self.first_name,
+                    last_name=self.last_name,
+                    version=consent_type.updates_version)
+                previous_consent.subject_identifier_as_pk = self.subject_identifier_as_pk
+                previous_consent.subject_identifier_aka = self.subject_identifier_aka
+            except self.__class__.DoesNotExist:
+                raise ConsentVersionError(
+                    'Previous consent with version {0} for this subject not found. Version {1} updates {0}.'
+                    'Ensure all details match (identity, dob, first_name, last_name)'.format(
+                        consent_type.updates_version, self.version))
         super(BaseConsent, self).save(*args, **kwargs)
 
     @property
@@ -141,5 +160,5 @@ class BaseConsent(IdentityFieldsMixin, Subject):
         """Returns a string representation."""
         return formatted_age(self.dob, self.consent_datetime)
 
-    class Meta:
+    class Meta(Subject.Meta):
         abstract = True
