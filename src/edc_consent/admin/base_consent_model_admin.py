@@ -3,7 +3,7 @@ from django.contrib import admin
 from edc_base.modeladmin.admin import BaseModelAdmin
 
 from ..actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
-from ..models import ConsentCatalogue
+# from ..models import ConsentCatalogue
 
 
 class BaseConsentModelAdmin(BaseModelAdmin):
@@ -86,11 +86,11 @@ class BaseConsentModelAdmin(BaseModelAdmin):
         else:
             return ('subject_identifier', 'subject_identifier_as_pk',) + self.readonly_fields
 
-    def save_model(self, request, obj, form, change):
-        if not change:
-            consent_catalogue = ConsentCatalogue.objects.all().order_by('start_datetime')
-            for version in consent_catalogue:
-                if obj.consent_datetime >= version.start_datetime:
-                    obj.consent_version_on_entry = version.version
-                    obj.consent_version_recent = version.version
-        super(BaseConsentModelAdmin, self).save_model(request, obj, form, change)
+#     def save_model(self, request, obj, form, change):
+#         if not change:
+#             consent_catalogue = ConsentCatalogue.objects.all().order_by('start_datetime')
+#             for version in consent_catalogue:
+#                 if obj.consent_datetime >= version.start_datetime:
+#                     obj.consent_version_on_entry = version.version
+#                     obj.consent_version_recent = version.version
+#         super(BaseConsentModelAdmin, self).save_model(request, obj, form, change)

@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_crypto_fields.fields import IdentityField
@@ -9,7 +10,6 @@ class IdentityFieldsMixin(models.Model):
 
     identity = IdentityField(
         verbose_name=_("Identity number (OMANG, etc)"),
-        unique=True,
         help_text=("Use Omang, Passport number, driver's license number or Omang receipt number")
     )
 
@@ -20,6 +20,14 @@ class IdentityFieldsMixin(models.Model):
         null=True,
         blank=False
     )
+
+    def save(self, *args, **kwargs):
+        if self.identity != self.confirm_identity:
+            raise ValidationError(
+                '\'Identity\' must match \'confirm_identity\'. '
+                'Catch this error on the form'
+            )
+        super(IdentityFieldsMixin, self).save(*args, **kwargs)
 
     class Meta:
         abstract = True

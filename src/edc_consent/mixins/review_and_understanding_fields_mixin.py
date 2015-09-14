@@ -44,3 +44,6 @@ class ReviewAndUnderstandingFieldsMixin(models.Model):
         blank=False,
         help_text="If declined, return copy to the clinic with the edc_consent",
     )
+
+    class Meta:
+        abstract = True

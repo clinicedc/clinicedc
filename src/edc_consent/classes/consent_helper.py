@@ -168,47 +168,6 @@ class ConsentHelper(object):
                     'off study before this form\'s report datetime \'{0}\'. '
                     '(ConsentHelper)'.format(self.subject_instance.get_report_datetime()))
 
-    def is_consented_for_subject_instance(self):
-        """Searches for a valid edc_consent instance for this subject for the possible edc_consent models.
-
-        If model class of the subject instance is listed in the edc_consent catalogue
-        under the edc_consent of a different subject, such
-        as with mother and their infants, get the other subject's
-        identifier from the :func:`get_consent_subject_identifier`. """
-        from ..models import BaseConsent
-        consent_models = []
-        consent_subject_identifier = None
-        if 'get_consenting_subject_identifier' in dir(self.subject_instance):
-            consent_subject_identifier = self.subject_instance.get_consenting_subject_identifier()
-        else:
-            consent_subject_identifier = self.subject_identifier
-        if not consent_subject_identifier:
-            raise ConsentError(
-                'Cannot determine the subject_identifier of the edc_consent '
-                'covering data entry for model {0}'.format(self.subject_instance._meta.object_name))
-        for consent_model in self.consent_models:
-            if not issubclass(consent_model, BaseConsent):
-                raise TypeError('Consent models must be subclasses of BaseConsent. Got {0}.'.format(consent_model))
-            if consent_model.objects.filter(subject_identifier=consent_subject_identifier):
-                # confirm what version covers either from edc_consent model or consent_update_model_cls
-                # does the catalogue return only the MaternalConsent, ??
-                consent_models.append(consent_model.objects.get(subject_identifier=consent_subject_identifier))
-                # look for an updated edc_consent attached to this model
-                # TODO: look up in consent_update_model_cls ??
-                # retval = True
-        if not consent_models:
-            raise ConsentDoesNotExist(
-                ('Cannot determine the instance of edc_consent {0} to cover data entry for model {1} '
-                 'instance {2} given the consenting identifier={3}, report_datetime={4}').format(
-                    self.consent_models,
-                    self.subject_instance._meta.object_name,
-                    self.subject_instance,
-                    consent_subject_identifier,
-                    self.subject_instance.get_report_datetime()
-                )
-            )
-        return consent_models
-
     def clean_versioned_field(self, field_value, field, start_datetime, consent_version):
         """Runs checks on a versioned field.
 

@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from datetime import datetime
 from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,8 +37,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crypto_fields',
+    'tastypie',
     'simple_history',
+    'edc_quota',
     'edc_registration',
+    'edc_consent',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -106,3 +109,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 GIT_DIR = BASE_DIR.ancestor(1)
+
+MINIMUM_AGE_OF_CONSENT = 18
+MAXIMUM_AGE_OF_CONSENT = 64
+SUBJECT_TYPES = ['SUBJECT']

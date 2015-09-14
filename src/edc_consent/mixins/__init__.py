@@ -1,3 +1,2 @@
 from .review_and_scored_understanding_fields_mixin import ReviewAndScoredUnderstandingFieldsMixin
 from .review_and_understanding_fields_mixin import ReviewAndUnderstandingFieldsMixin
-from .requires_consent_mixin import RequiresConsentMixin
