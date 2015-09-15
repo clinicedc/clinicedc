@@ -22,6 +22,8 @@ class TestConsentModel(ConsentQuotaMixin, BaseConsent):
 
     quota = QuotaManager()
 
+    objects = models.Manager()
+
     class Meta:
         app_label = 'edc_consent'
 

@@ -2,21 +2,19 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-
 from django_crypto_fields.fields import LastnameField, EncryptedTextField
-
-from edc_base.utils import formatted_age, age
 from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start, eligible_if_no
+from edc_base.utils import formatted_age, age
 from edc_constants.choices import YES_NO
 
-from ..mixins.bw.identity_fields_mixin import IdentityFieldsMixin
+from ..exceptions import ConsentVersionError
 
-from .subject import Subject
+from .bw.identity_fields_mixin import IdentityFieldsMixin
+from .subject_mixin import SubjectMixin
 from .consent_type import ConsentType
-from edc_consent.exceptions import ConsentVersionError
 
 
-class BaseConsent(IdentityFieldsMixin, Subject):
+class BaseConsent(IdentityFieldsMixin, SubjectMixin, models.Model):
 
     MAX_SUBJECTS = 0
     SUBJECT_TYPES = []
@@ -160,5 +158,5 @@ class BaseConsent(IdentityFieldsMixin, Subject):
         """Returns a string representation."""
         return formatted_age(self.dob, self.consent_datetime)
 
-    class Meta(Subject.Meta):
+    class Meta(SubjectMixin.Meta):
         abstract = True

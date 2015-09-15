@@ -1,11 +1,12 @@
-from django.apps import apps
+try:
+    from django.apps import apps
+except ImportError:
+    from django.db.models import get_model  # Django 1.6
 from django.db import models
 from django.db.models import Q
-
-from simple_history.models import HistoricalRecords
-
 from edc_base.model.models import BaseUuidModel
 from edc_base.model.validators import datetime_not_before_study_start
+from simple_history.models import HistoricalRecords
 
 from ..exceptions import ConsentTypeError
 
@@ -104,7 +105,10 @@ class ConsentType(BaseUuidModel):
 
     def model_class(self):
         """Returns the consent model class."""
-        return apps.get_model(self.app_label, self.model_name)
+        try:
+            return apps.get_model(self.app_label, self.model_name)
+        except (AttributeError, TypeError):
+            return get_model(self.app_label, self.model_name)  # Django 1.6
 
     class Meta:
         app_label = 'edc_consent'

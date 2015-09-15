@@ -12,13 +12,7 @@ from edc_constants.choices import GENDER_UNDETERMINED
 from ..validators import SubjectTypeValidator
 
 
-class SubjectManager(models.Manager):
-
-    def get_by_natural_key(self, subject_identifier_as_pk):
-        return self.get(subject_identifier_as_pk=subject_identifier_as_pk)
-
-
-class Subject(models.Model):
+class SubjectMixin(models.Model):
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
@@ -96,8 +90,6 @@ class Subject(models.Model):
         editable=False,
         help_text='see also edc.data manager.'
     )
-
-    objects = SubjectManager()
 
     def natural_key(self):
         return (self.subject_identifier_as_pk, )
