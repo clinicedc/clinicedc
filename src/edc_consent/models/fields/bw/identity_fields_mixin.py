@@ -1,9 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django_crypto_fields.fields import IdentityField
-
-from edc_base.model.fields import IdentityTypeField
+from edc_consent.encrypted_fields import IdentityField
+from edc_consent.plain_fields import IdentityTypeField
 
 
 class IdentityFieldsMixin(models.Model):
