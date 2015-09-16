@@ -4,9 +4,8 @@ except ImportError:
     from django.db.models import get_model  # Django 1.6
 from django.db import models
 from django.db.models import Q
-from edc_base.model.models import BaseUuidModel
-from edc_base.model.validators import datetime_not_before_study_start
-from simple_history.models import HistoricalRecords
+from edc_consent.validators import datetime_not_before_study_start
+from edc_consent.audit_trail import AuditTrail
 
 from ..exceptions import ConsentTypeError
 
@@ -38,7 +37,7 @@ class ConsentTypeManager(models.Manager):
         return consent_type
 
 
-class ConsentType(BaseUuidModel):
+class ConsentType(models.Model):
 
     get_latest_by = 'start_datetime'
 
@@ -60,7 +59,7 @@ class ConsentType(BaseUuidModel):
 
     updates_version = models.CharField(max_length=10, null=True, blank=True)
 
-    history = HistoricalRecords()
+    history = AuditTrail()
 
     objects = ConsentTypeManager()
 

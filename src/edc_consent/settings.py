@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import six
+from django import get_version
 from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -30,20 +32,39 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = (
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_crypto_fields',
-    'tastypie',
-    'simple_history',
-    'edc_quota',
-    # 'edc_registration',
-    'edc_consent',
-)
+if get_version().startswith('1.6') and six.PY2:
+
+    INSTALLED_APPS = (
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        'edc.audit',
+        'edc.device.sync',
+        'edc.core.crypto_fields',
+        'tastypie',
+        'edc.base',
+        'edc_quota',
+        'edc_consent',
+    )
+else:
+    INSTALLED_APPS = (
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        'django_revision',
+        'simple_history',
+        'django_crypto_fields',
+        'tastypie',
+        'edc_base',
+        'edc_quota',
+        'edc_consent',
+    )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -77,7 +98,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
@@ -110,6 +130,14 @@ STATIC_URL = '/static/'
 
 GIT_DIR = BASE_DIR.ancestor(1)
 
-MINIMUM_AGE_OF_CONSENT = 18
-MAXIMUM_AGE_OF_CONSENT = 64
-SUBJECT_TYPES = ['SUBJECT']
+KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'keys')
+KEY_PREFIX = 'test'
+
+if six.PY2:
+    SERVER_DEVICE_ID_LIST = []
+    MIDDLEMAN_DEVICE_ID_LIST = []
+    PROJECT_ROOT = GIT_DIR
+    FIELD_MAX_LENGTH = 'default'
+    IS_SECURE_DEVICE = True
+    KEY_PREFIX = 'user'
+    ALLOW_MODEL_SERIALIZATION = True

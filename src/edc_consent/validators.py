@@ -1,8 +1,26 @@
+import six
+from django import get_version
+
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
+
+
+if get_version().startswith('1.6') and six.PY2:
+    try:
+        from edc.base.model.validators import (
+            MinConsentAge as MinConsentAgeValidator,
+            MaxConsentAge as MinConsentAgeValidator,
+            datetime_not_future, datetime_not_before_study_start, eligible_if_no)
+    except ImportError:
+        from edc_base.model.validators import (
+            MinConsentAgeValidator, MaxConsentAgeValidator, eligible_if_no,
+            datetime_not_future, datetime_not_before_study_start)
+else:
+        from edc_base.model.validators import (
+            MinConsentAgeValidator, MaxConsentAgeValidator, eligible_if_no,
+            datetime_not_future, datetime_not_before_study_start)
 
 
 class SubjectTypeValidator:
@@ -17,25 +35,37 @@ class SubjectTypeValidator:
                     self.subject_types, self.model_cls._meta.verbose_name, value))
 
 
-def MinConsentAge(dob):
-    rdelta = relativedelta(date.today(), dob)
-    if rdelta.years < settings.MIN_AGE_OF_CONSENT:
-        raise ValidationError(
-            'Participant must be {0}yrs or older. Got {1} using DOB=\'{}\'.'.format(
-                settings.MIN_AGE_OF_CONSENT, rdelta.years, dob))
+class ConsentAgeValidator(object):
+
+    def __init__(self, min_age_in_years, max_age_in_years):
+        self.min_age = int(min_age_in_years)
+        self.max_age = int(max_age_in_years)
+
+    def __call__(self, dob):
+        rdelta = relativedelta(date.today(), dob)
+        if rdelta.years < self.age_in_years or rdelta.years > self.age_in_years:
+            raise ValidationError(
+                'Age of participant must be between {0}yrs and {1]yrs. '
+                'Got {2}yrs using DoB of \'{}\' relative to today.'.format(
+                    self.min_age, self.max_age, rdelta.years, dob))
+
+# def MaxConsentAgeValidator(age_in_years):
+#     rdelta = relativedelta(date.today(), dob)
+#     if rdelta.years > settings.MAX_AGE_OF_CONSENT:
+#         raise ValidationError(
+#             'Participant must be younger than {0}yrs. Got {1} using DOB=\'{}\'.'.format(
+#                 settings.MAX_AGE_OF_CONSENT, rdelta.years, dob))
 
 
-def MaxConsentAge(dob):
-    rdelta = relativedelta(date.today(), dob)
-    if rdelta.years > settings.MAX_AGE_OF_CONSENT:
-        raise ValidationError(
-            'Participant must be younger than {0}yrs. Got {1} using DOB=\'{}\'.'.format(
-                settings.MAX_AGE_OF_CONSENT, rdelta.years, dob))
+# def ConsentAgeValidator(dob):
+#     MinConsentAgeValidator(dob)
+#     MaxConsentAgeValidator(dob)
 
 
-def ConsentAgeValidator(dob):
-    MinConsentAge(dob)
-    MaxConsentAge(dob)
+def dob_not_future(value):
+    now = date.today()
+    if now < value:
+        raise ValidationError(u'Date of birth cannot be a future date. You entered {}.'.format(value))
 
 
 def eligible_if_yes(value):

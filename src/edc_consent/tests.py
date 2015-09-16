@@ -8,6 +8,8 @@ from django.utils import timezone
 from edc_constants.constants import YES
 from edc_quota.client.models import QuotaMixin, QuotaManager
 from edc_consent.models.consent_type import ConsentType
+from edc_consent.models.fields import (
+    IdentityFieldsMixin, SampleCollectionFieldsMixin, PersonalFieldsMixin, SiteFieldsMixin)
 
 
 class ConsentQuotaMixin(QuotaMixin):
@@ -18,7 +20,9 @@ class ConsentQuotaMixin(QuotaMixin):
             abstract = True
 
 
-class TestConsentModel(ConsentQuotaMixin, BaseConsent):
+class TestConsentModel(
+        ConsentQuotaMixin, IdentityFieldsMixin, SampleCollectionFieldsMixin,
+        SiteFieldsMixin, PersonalFieldsMixin, BaseConsent):
 
     quota = QuotaManager()
 
@@ -62,6 +66,8 @@ class TestConsent(TestCase):
         consent_datetime = consent_datetime or timezone.now()
         return TestConsentModel.objects.create(
             subject_identifier=subject_identifier,
+            first_name='ERIK',
+            last_name='ERIKS',
             identity=identity,
             confirm_identity=identity,
             subject_type='study',
@@ -206,3 +212,11 @@ class TestConsent(TestCase):
             end_datetime=timezone.now(),
             version='1.1',
             updates_version='1.0')
+
+    def test_encryption(self):
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=365),
+            end_datetime=timezone.now() + timedelta(days=200),
+            version='1.0')
+        consent = self.create_consent('12345', '123456789', timezone.now() - timedelta(days=300))
+        self.assertEqual(consent.first_name, 'ERIK')

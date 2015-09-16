@@ -1,44 +1,40 @@
-from django.conf import settings
-from django.core.validators import RegexValidator
+from uuid import uuid4
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from django_crypto_fields.fields import LastnameField, EncryptedTextField
-from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start, eligible_if_no
-from edc_base.utils import formatted_age, age
-from edc_constants.choices import YES_NO
+
+from edc_consent.utils import formatted_age, age
+from edc_consent.validators import datetime_not_future, datetime_not_before_study_start
+from edc_consent.encrypted_fields import EncryptedTextField
+from edc_consent.audit_trail import AuditTrail
 
 from ..exceptions import ConsentVersionError
 
-from .bw.identity_fields_mixin import IdentityFieldsMixin
-from .subject_mixin import SubjectMixin
 from .consent_type import ConsentType
 
 
-class BaseConsent(IdentityFieldsMixin, SubjectMixin, models.Model):
+class BaseConsent(models.Model):
 
     MAX_SUBJECTS = 0
-    SUBJECT_TYPES = []
-    GENDER_OF_CONSENT = []
-    AGE_IS_ADULT = 18
-    MINIMUM_AGE_OF_CONSENT = 16
-    MAXIMUM_AGE_OF_CONSENT = 64
-
-    """ Consent models should be subclasses of this """
 
     get_latest_by = 'consent_datetime'
 
-    sid = models.CharField(
-        verbose_name="SID",
-        max_length=15,
-        null=True,
+    subject_identifier = models.CharField(
+        verbose_name="Subject Identifier",
+        max_length=50,
         blank=True,
-        help_text='Used for randomization against a prepared rando-list.'
     )
 
-    site_code = models.CharField(
-        verbose_name='Site',
-        max_length=25,
-        help_text="This refers to the site or 'clinic area' where the subject is being consented."
+    subject_identifier_as_pk = models.CharField(
+        verbose_name="Subject Identifier as pk",
+        max_length=50,
+        default=uuid4
+    )
+
+    subject_identifier_aka = models.CharField(
+        verbose_name="Subject Identifier a.k.a",
+        max_length=50,
+        null=True,
+        editable=False,
+        help_text='track a previously allocated identifier.'
     )
 
     consent_datetime = models.DateTimeField(
@@ -48,54 +44,18 @@ class BaseConsent(IdentityFieldsMixin, SubjectMixin, models.Model):
             datetime_not_future, ],
     )
 
-    guardian_name = LastnameField(
-        verbose_name=("Guardian\'s Last and first name (minors only)"),
-        validators=[
-            RegexValidator(
-                '^[A-Z]{1,50}\, [A-Z]{1,50}$',
-                'Invalid format. Format is \'LASTNAME, FIRSTNAME\'. All uppercase separated by a comma')],
-        blank=True,
+    is_verified = models.BooleanField(default=False, editable=False)
+
+    is_verified_datetime = models.DateTimeField(null=True)
+
+    version = models.CharField(max_length=10)
+
+    sid = models.CharField(
+        verbose_name="SID",
+        max_length=15,
         null=True,
-        help_text=(
-            'Required only if subject is a minor. Format is \'LASTNAME, FIRSTNAME\'. '
-            'All uppercase separated by a comma then followe by a space.'),
-    )
-
-    may_store_samples = models.CharField(
-        verbose_name=_("Sample storage"),
-        max_length=3,
-        choices=YES_NO,
-        help_text=("Does the subject agree to have samples stored after the study has ended")
-    )
-
-    is_incarcerated = models.CharField(
-        verbose_name="Is the participant under involuntary incarceration?",
-        max_length=3,
-        choices=YES_NO,
-        validators=[eligible_if_no, ],
-        default='-',
-        help_text="( if 'YES' STOP patient cannot be consented )",
-    )
-
-    is_literate = models.CharField(
-        verbose_name="Is the participant LITERATE?",
-        max_length=3,
-        choices=YES_NO,
-        default='-',
-        help_text="( if 'No' provide witness\'s name here and with signature on the paper document.)",
-    )
-
-    witness_name = LastnameField(
-        verbose_name=_("Witness\'s Last and first name (illiterates only)"),
-        validators=[
-            RegexValidator(
-                '^[A-Z]{1,50}\, [A-Z]{1,50}$',
-                'Invalid format. Format is \'LASTNAME, FIRSTNAME\'. All uppercase separated by a comma')],
         blank=True,
-        null=True,
-        help_text=_(
-            'Required only if subject is illiterate. Format is \'LASTNAME, FIRSTNAME\'. '
-            'All uppercase separated by a comma'),
+        help_text='Used for randomization against a prepared rando-list.'
     )
 
     comment = EncryptedTextField(
@@ -105,27 +65,20 @@ class BaseConsent(IdentityFieldsMixin, SubjectMixin, models.Model):
         null=True
     )
 
-    language = models.CharField(
-        verbose_name='Language of edc_consent',
-        max_length=25,
-        choices=settings.LANGUAGES,
-        default='not specified',
-        help_text='The language used for the edc_consent process will also be used during data collection.'
+    dm_comment = models.CharField(
+        verbose_name="Data Management comment",
+        max_length=150,
+        null=True,
+        editable=False,
+        help_text='see also edc.data manager.'
     )
 
-    is_verified = models.BooleanField(default=False, editable=False)
+    history = AuditTrail()
 
-    is_verified_datetime = models.DateTimeField(null=True)
+    objects = models.Manager()
 
-    version = models.CharField(max_length=10)
-
-    def __str__(self):
-        return "{0} {1} {2} v{3}".format(
-            self.mask_unset_subject_identifier(),
-            self.first_name.field_cryptor.mask(self.first_name),
-            self.initials,
-            self.version
-        )
+    def natural_key(self):
+        return (self.subject_identifier_as_pk, )
 
     def save(self, *args, **kwargs):
         consent_type = ConsentType.objects.get_by_consent_datetime(
@@ -136,10 +89,8 @@ class BaseConsent(IdentityFieldsMixin, SubjectMixin, models.Model):
                 previous_consent = self.__class__.objects.get(
                     subject_identifier=self.subject_identifier,
                     identity=self.identity,
-                    dob=self.dob,
-                    first_name=self.first_name,
-                    last_name=self.last_name,
-                    version=consent_type.updates_version)
+                    version=consent_type.updates_version,
+                    **self.additional_filter_options())
                 previous_consent.subject_identifier_as_pk = self.subject_identifier_as_pk
                 previous_consent.subject_identifier_aka = self.subject_identifier_aka
             except self.__class__.DoesNotExist:
@@ -148,6 +99,10 @@ class BaseConsent(IdentityFieldsMixin, SubjectMixin, models.Model):
                     'Ensure all details match (identity, dob, first_name, last_name)'.format(
                         consent_type.updates_version, self.version))
         super(BaseConsent, self).save(*args, **kwargs)
+
+    def additional_filter_options(self):
+        """Additional kwargs to filter the consent when looking for the previous consent."""
+        return {}
 
     @property
     def age_at_consent(self):
@@ -158,5 +113,5 @@ class BaseConsent(IdentityFieldsMixin, SubjectMixin, models.Model):
         """Returns a string representation."""
         return formatted_age(self.dob, self.consent_datetime)
 
-    class Meta(SubjectMixin.Meta):
+    class Meta:
         abstract = True

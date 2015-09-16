@@ -1,10 +1,10 @@
 from django.db import models
 
-from edc_base.model.validators import eligible_if_yes, eligible_if_yes_or_declined
+from edc_consent.validators import eligible_if_yes, eligible_if_yes_or_declined
 from edc_constants.choices import YES_NO, YES_NO_DECLINED
 
 
-class ReviewAndUnderstandingFieldsMixin(models.Model):
+class ReviewFieldsMixin(models.Model):
 
     consent_reviewed = models.CharField(
         verbose_name="I have reviewed the consent with the client",

@@ -31,6 +31,9 @@ class RequiresConsentMixin(models.Model):
         """Returns the consent type that matches the report datetime and consent model."""
         return ConsentType.objects.get_by_report_datetime(self.CONSENT_MODEL, report_datetime)
 
+    class Meta:
+        abstract = True
+
 #     def get_versioned_field_names(self, consent_version_number):
 #         """Returns a list of field names under version control by version number.
 #
