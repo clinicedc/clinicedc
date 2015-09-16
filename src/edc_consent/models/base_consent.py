@@ -48,7 +48,7 @@ class BaseConsent(models.Model):
 
     is_verified_datetime = models.DateTimeField(null=True)
 
-    version = models.CharField(max_length=10)
+    version = models.CharField(max_length=10, default='?')
 
     sid = models.CharField(
         verbose_name="SID",
