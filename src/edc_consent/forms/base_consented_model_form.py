@@ -2,8 +2,6 @@ from django import forms
 
 from edc_base.utils import convert_from_camel
 
-from ..models import AttachedModel
-
 
 class BaseConsentedModelForm(forms.ModelForm):
 
@@ -11,24 +9,6 @@ class BaseConsentedModelForm(forms.ModelForm):
     available before allowing data collection.
 
     That is the "model" must be backed by a edc_consent."""
-
-    def __init__(self, *args, **kwargs):
-        self.check_attached()
-        super(BaseConsentedModelForm, self).__init__(*args, **kwargs)
-
-    def check_attached(self):
-        """Confirms only that model exists in AttachedModel of the Consent Catalogue.
-
-        This does not filter by consent_version, because we don't know it here, which
-        means you may not get the result you expect. For example, if a model is to be
-        added/changed under version 1 but is listed for both version 1 and version 2
-        where v1 is inactive and v2 is active, an error will NOT be raised here since
-        the query will True for the version 2 model."""
-        if (not AttachedModel.objects.filter(
-                content_type_map__model=self._meta.model._meta.object_name.lower(), is_active=True).exists()):
-            raise AttributeError('Models registered to BaseConsentModelForm must be listed, and active, '
-                                 'in AttachedModel of the ConsentCatalogue. Model {0} not found or '
-                                 'not active.'.format(self._meta.model._meta.object_name.lower()))
 
     def clean(self):
         """Checks if subject has a valid edc_consent for this subject model
