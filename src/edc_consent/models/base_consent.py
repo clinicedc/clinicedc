@@ -81,6 +81,8 @@ class BaseConsent(models.Model):
         return (self.subject_identifier_as_pk, )
 
     def save(self, *args, **kwargs):
+        if not self.id and not self.subject_identifier:
+            self.subject_identifier = self.subject_identifier_as_pk
         consent_type = ConsentType.objects.get_by_consent_datetime(
             self.__class__, self.consent_datetime)
         self.version = consent_type.version

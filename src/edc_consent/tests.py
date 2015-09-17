@@ -220,3 +220,15 @@ class TestConsent(TestCase):
             version='1.0')
         consent = self.create_consent('12345', '123456789', timezone.now() - timedelta(days=300))
         self.assertEqual(consent.first_name, 'ERIK')
+
+    def test_no_subject_identifier(self):
+        """Asserts a blank subject identifier is set to the subject_identifier_as_pk."""
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=365),
+            end_datetime=timezone.now() + timedelta(days=200),
+            version='1.0')
+        consent = self.create_consent(None, '123456789', timezone.now() - timedelta(days=300))
+        self.assertEqual(consent.subject_identifier, consent.subject_identifier_as_pk)
+        consent.subject_identifier = '123456789'
+        consent.save()
+        self.assertEqual(consent.subject_identifier, '123456789')
