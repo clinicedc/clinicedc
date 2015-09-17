@@ -1,17 +1,19 @@
 from uuid import uuid4
+
 from django.db import models
 
+from edc_base.model.models import BaseUuidModel
+from edc_consent.audit_trail import AuditTrail
+from edc_consent.encrypted_fields import EncryptedTextField
 from edc_consent.utils import formatted_age, age
 from edc_consent.validators import datetime_not_future, datetime_not_before_study_start
-from edc_consent.encrypted_fields import EncryptedTextField
-from edc_consent.audit_trail import AuditTrail
 
 from ..exceptions import ConsentVersionError
 
 from .consent_type import ConsentType
 
 
-class BaseConsent(models.Model):
+class BaseConsent(BaseUuidModel):
 
     MAX_SUBJECTS = 0
 

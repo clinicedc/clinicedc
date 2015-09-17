@@ -41,7 +41,7 @@ if get_version().startswith('1.6') and six.PY2:
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
-        'edc.audit',
+        'edc_audit',
         'edc.device.sync',
         'edc.core.crypto_fields',
         'tastypie',
