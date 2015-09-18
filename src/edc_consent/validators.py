@@ -12,14 +12,14 @@ if get_version().startswith('1.6') and six.PY2:
         from edc.base.model.validators import (
             MinConsentAge as MinConsentAgeValidator,
             MaxConsentAge as MinConsentAgeValidator,
-            datetime_not_future, datetime_not_before_study_start, eligible_if_no)
+            datetime_not_future, datetime_not_before_study_start)
     except ImportError:
         from edc_base.model.validators import (
-            MinConsentAgeValidator, MaxConsentAgeValidator, eligible_if_no,
+            MinConsentAgeValidator, MaxConsentAgeValidator,
             datetime_not_future, datetime_not_before_study_start)
 else:
         from edc_base.model.validators import (
-            MinConsentAgeValidator, MaxConsentAgeValidator, eligible_if_no,
+            MinConsentAgeValidator, MaxConsentAgeValidator,
             datetime_not_future, datetime_not_before_study_start)
 
 
@@ -43,23 +43,11 @@ class ConsentAgeValidator(object):
 
     def __call__(self, dob):
         rdelta = relativedelta(date.today(), dob)
-        if rdelta.years < rdelta.years > self.age_in_years:
+        if rdelta.years < self.min_age or rdelta.years > self.max_age:
             raise ValidationError(
-                'Age of participant must be between {0}yrs and {1]yrs. '
-                'Got {2}yrs using DoB of \'{}\' relative to today.'.format(
+                'Age of participant must be between {0} yrs and {1} yrs. '
+                'Got {2} yrs using DoB of \'{3}\' relative to today.'.format(
                     self.min_age, self.max_age, rdelta.years, dob))
-
-# def MaxConsentAgeValidator(age_in_years):
-#     rdelta = relativedelta(date.today(), dob)
-#     if rdelta.years > settings.MAX_AGE_OF_CONSENT:
-#         raise ValidationError(
-#             'Participant must be younger than {0}yrs. Got {1} using DOB=\'{}\'.'.format(
-#                 settings.MAX_AGE_OF_CONSENT, rdelta.years, dob))
-
-
-# def ConsentAgeValidator(dob):
-#     MinConsentAgeValidator(dob)
-#     MaxConsentAgeValidator(dob)
 
 
 def dob_not_future(value):

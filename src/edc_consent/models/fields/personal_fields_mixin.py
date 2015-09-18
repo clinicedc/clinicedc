@@ -1,9 +1,8 @@
 from django.core.validators import RegexValidator
-from django.conf import settings
 from django.db import models
 
 from edc_consent.plain_fields import IsDateEstimatedField
-from edc_consent.validators import dob_not_future, ConsentAgeValidator
+from edc_consent.validators import ConsentAgeValidator
 from edc_constants.choices import GENDER_UNDETERMINED
 from edc_consent.encrypted_fields import FirstnameField, LastnameField, EncryptedCharField
 
@@ -41,9 +40,7 @@ class PersonalFieldsMixin(models.Model):
     dob = models.DateField(
         verbose_name="Date of birth",
         validators=[
-            dob_not_future,
-            ConsentAgeValidator(Constants.MIN_AGE_OF_CONSENT, Constants.MAX_AGE_OF_CONSENT),
-        ],
+            ConsentAgeValidator(Constants.MIN_AGE_OF_CONSENT, Constants.MAX_AGE_OF_CONSENT)],
         null=True,
         blank=False,
         help_text="Format is YYYY-MM-DD",

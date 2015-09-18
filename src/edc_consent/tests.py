@@ -1,4 +1,7 @@
 from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta
+
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.test import TestCase
 from edc_consent.models.base_consent import BaseConsent
@@ -10,6 +13,7 @@ from edc_quota.client.models import QuotaMixin, QuotaManager
 from edc_consent.models.consent_type import ConsentType
 from edc_consent.models.fields import (
     IdentityFieldsMixin, SampleCollectionFieldsMixin, PersonalFieldsMixin, SiteFieldsMixin)
+from edc_consent.validators import ConsentAgeValidator
 
 
 class ConsentQuotaMixin(QuotaMixin):
@@ -30,6 +34,15 @@ class TestConsentModel(
 
     class Meta:
         app_label = 'edc_consent'
+
+
+class TestConsentModel2(TestConsentModel):
+
+    class Constants(PersonalFieldsMixin.Constants):
+        MAX_AGE_OF_CONSENT = 120
+
+    class Meta:
+        proxy = True
 
 
 class TestModel(RequiresConsentMixin, models.Model):
@@ -62,12 +75,13 @@ class TestConsent(TestCase):
             end_datetime=end_datetime or timezone.now() + timedelta(days=365)
         )
 
-    def create_consent(self, subject_identifier, identity, consent_datetime=None):
+    def create_consent(self, subject_identifier, identity, consent_datetime=None, dob=None):
         consent_datetime = consent_datetime or timezone.now()
         return TestConsentModel.objects.create(
             subject_identifier=subject_identifier,
             first_name='ERIK',
             last_name='ERIKS',
+            dob=dob or (date.today() - relativedelta(years=25)),
             identity=identity,
             confirm_identity=identity,
             subject_type='study',
@@ -232,3 +246,13 @@ class TestConsent(TestCase):
         consent.subject_identifier = '123456789'
         consent.save()
         self.assertEqual(consent.subject_identifier, '123456789')
+
+    def test_consent_age_validator(self):
+        validator = ConsentAgeValidator(16, 64)
+        self.assertIsNone(validator(date.today() - relativedelta(years=25)))
+        self.assertRaises(ValidationError, validator, date.today() - relativedelta(years=15))
+        self.assertRaises(ValidationError, validator, date.today() - relativedelta(years=65))
+
+    def test_constants(self):
+        self.assertEqual(TestConsentModel.Constants.MAX_AGE_OF_CONSENT, 64)
+        self.assertEqual(TestConsentModel2.Constants.MAX_AGE_OF_CONSENT, 120)
