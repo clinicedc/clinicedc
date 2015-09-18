@@ -12,6 +12,19 @@ from ..exceptions import ConsentVersionError
 from .consent_type import ConsentType
 
 
+class ConsentManager(models.Manager):
+
+    def valid_consent_for_period(self, subject_identifier, report_datetime):
+        consent = None
+        try:
+            consent_type = ConsentType.objects.get_by_consent_datetime(
+                self.model, report_datetime)
+            consent = self.get(subject_identifier=subject_identifier, version=consent_type.version)
+        except (ConsentType.DoesNotExist, self.model.DoesNotExist):
+            pass
+        return consent
+
+
 class BaseConsent(models.Model):
 
     MAX_SUBJECTS = 0
@@ -75,6 +88,8 @@ class BaseConsent(models.Model):
     )
 
     history = AuditTrail()
+
+    consent = ConsentManager()
 
     objects = models.Manager()
 
