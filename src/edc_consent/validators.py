@@ -43,7 +43,7 @@ class ConsentAgeValidator(object):
 
     def __call__(self, dob):
         rdelta = relativedelta(date.today(), dob)
-        if rdelta.years < self.age_in_years or rdelta.years > self.age_in_years:
+        if rdelta.years < rdelta.years > self.age_in_years:
             raise ValidationError(
                 'Age of participant must be between {0}yrs and {1]yrs. '
                 'Got {2}yrs using DoB of \'{}\' relative to today.'.format(
