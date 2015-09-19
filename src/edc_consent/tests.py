@@ -136,7 +136,7 @@ class TestConsent(TestCase):
             end_datetime=timezone.now() - timedelta(days=200),
             version='1.0')
         self.create_consent_type(
-            start_datetime=timezone.now() - timedelta(days=201),
+            start_datetime=timezone.now() - timedelta(days=199),
             end_datetime=timezone.now() + timedelta(days=100),
             version='1.1')
         self.create_consent('12345', '123456789', timezone.now() - timedelta(days=300))
@@ -227,6 +227,17 @@ class TestConsent(TestCase):
             version='1.1',
             updates_version='1.0')
 
+    def test_consent_periods_cannot_overlap2(self):
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=365),
+            end_datetime=timezone.now() + timedelta(days=200),
+            version='1.0')
+        self.assertRaises(
+            ConsentTypeError, self.create_consent_type,
+            start_datetime=timezone.now() - timedelta(days=201),
+            end_datetime=timezone.now() + timedelta(days=201),
+            version='1.1')
+
     def test_encryption(self):
         self.create_consent_type(
             start_datetime=timezone.now() - timedelta(days=365),
@@ -256,3 +267,22 @@ class TestConsent(TestCase):
     def test_constants(self):
         self.assertEqual(TestConsentModel.Constants.MAX_AGE_OF_CONSENT, 64)
         self.assertEqual(TestConsentModel2.Constants.MAX_AGE_OF_CONSENT, 120)
+
+    def test_subject_has_current_consent(self):
+        subject_identifier = '123456789'
+        identity = '987654321'
+        report_datetime = timezone.now() - timedelta(days=1)
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=365),
+            end_datetime=timezone.now() - timedelta(days=200),
+            version='1.0')
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=199),
+            end_datetime=timezone.now() + timedelta(days=200),
+            version='2.0')
+        self.create_consent(subject_identifier, identity, timezone.now() - timedelta(days=300))
+        self.assertIsNone(TestConsentModel.consent.valid_consent_for_period(
+            '123456789', report_datetime))
+        self.create_consent(subject_identifier, identity, report_datetime)
+        self.assertIsNotNone(TestConsentModel.consent.valid_consent_for_period(
+            '123456789', report_datetime))

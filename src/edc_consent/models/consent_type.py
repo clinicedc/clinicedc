@@ -91,7 +91,6 @@ class ConsentType(models.Model):
                         self.start_datetime.strftime('%Y-%m-%d'),
                         self.end_datetime.strftime('%Y-%m-%d'),
                     ))
-
             except self.__class__.DoesNotExist:
                 pass
         super(ConsentType, self).save(*args, **kwargs)
