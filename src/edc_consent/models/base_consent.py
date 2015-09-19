@@ -24,12 +24,6 @@ class ConsentManager(models.Manager):
             pass
         return consent
 
-#     def get_queryset(self):
-#         try:
-#             return super(ConsentManager, self).get_queryset().filter(version=self.model.VERSION)
-#         except AttributeError:
-#             return super(ConsentManager, self).get_queryset()
-
 
 class BaseConsent(models.Model):
 
@@ -93,7 +87,9 @@ class BaseConsent(models.Model):
         help_text='see also edc.data manager.'
     )
 
-    objects = ConsentManager()
+    objects = models.Manager
+
+    consent = ConsentManager()
 
     history = AuditTrail()
 

@@ -279,8 +279,8 @@ class TestConsent(TestCase):
             end_datetime=timezone.now() + timedelta(days=200),
             version='2.0')
         self.create_consent(subject_identifier, identity, timezone.now() - timedelta(days=300))
-        self.assertIsNone(TestConsentModel.objects.valid_consent_for_period(
+        self.assertIsNone(TestConsentModel.consent.valid_consent_for_period(
             '123456789', report_datetime))
         self.create_consent(subject_identifier, identity, report_datetime)
-        self.assertIsNotNone(TestConsentModel.objects.valid_consent_for_period(
+        self.assertIsNotNone(TestConsentModel.consent.valid_consent_for_period(
             '123456789', report_datetime))
