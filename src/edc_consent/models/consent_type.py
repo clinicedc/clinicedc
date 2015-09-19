@@ -1,3 +1,4 @@
+from django.core.exceptions import MultipleObjectsReturned
 try:
     from django.apps import apps
 except ImportError:
@@ -71,11 +72,13 @@ class ConsentType(models.Model):
                     app_label=self.app_label,
                     model_name=self.model_name,
                     version__in=self.updates_version.split(','))
+            except MultipleObjectsReturned:
+                pass
             except self.__class__.DoesNotExist:
                 raise ConsentTypeError(
                     'Consent version {1} cannot be an update to version(s) \'{0}\'. '
-                    'Version(s) \'{0}\' not found.'.format(
-                        self.updates_version.split(','), self.version))
+                    'Version(s) \'{0}\' not found in \'{2}\''.format(
+                        self.updates_version.split(','), self.version, self.__class__._meta.verbose_name))
             try:
                 previous = self.__class__.objects.get(
                     (Q(start_datetime__range=(self.start_datetime, self.end_datetime)) |

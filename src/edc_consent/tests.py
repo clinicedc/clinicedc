@@ -285,7 +285,7 @@ class TestConsent(TestCase):
         self.assertIsNotNone(TestConsentModel.consent.valid_consent_for_period(
             '123456789', report_datetime))
 
-    def test_updates_more_than_one_version(self):
+    def test_consent_may_updates_more_than_one_version(self):
         subject_identifier = '123456789'
         identity = '987654321'
         report_datetime = timezone.now() - timedelta(days=1)
@@ -303,5 +303,5 @@ class TestConsent(TestCase):
             start_datetime=timezone.now() - timedelta(days=49),
             end_datetime=timezone.now() + timedelta(days=200),
             version='3.0',
-            updates_version='    1.0,    2.0')
+            updates_version='1.0,2.0')
         self.create_consent(subject_identifier, identity, report_datetime)
