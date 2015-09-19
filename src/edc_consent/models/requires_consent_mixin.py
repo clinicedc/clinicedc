@@ -11,6 +11,11 @@ class RequiresConsentMixin(models.Model):
     consent_version = models.CharField(max_length=10, default='?', editable=False)
 
     def save(self, *args, **kwargs):
+        self.consented_for_period_or_raise()
+        super(RequiresConsentMixin, self).save(*args, **kwargs)
+
+    def consented_for_period_or_raise(self, exception_cls=None):
+        exception_cls = exception_cls or NotConsentedError
         try:
             consent_type = self.consent_type(self.report_datetime)
             self.consent_version = consent_type.version
@@ -18,14 +23,13 @@ class RequiresConsentMixin(models.Model):
                 subject_identifier=self.get_subject_identifier(),
                 version=self.consent_version)
         except self.CONSENT_MODEL.DoesNotExist:
-            raise NotConsentedError(
-                'Cannot find an entered consent \'{}\' for model \'{}\' using '
+            raise exception_cls(
+                'Cannot find a consent \'{}\' for model \'{}\' using '
                 'consent version \'{}\' and report date \'{}\'. '.format(
                     self.CONSENT_MODEL._meta.verbose_name,
                     self._meta.verbose_name,
                     self.consent_version,
                     self.report_datetime.isoformat()))
-        super(RequiresConsentMixin, self).save(*args, **kwargs)
 
     def consent_type(self, report_datetime):
         """Returns the consent type that matches the report datetime and consent model."""

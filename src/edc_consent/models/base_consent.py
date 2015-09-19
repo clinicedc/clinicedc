@@ -107,7 +107,7 @@ class BaseConsent(models.Model):
                 previous_consent = self.__class__.objects.get(
                     subject_identifier=self.subject_identifier,
                     identity=self.identity,
-                    version=consent_type.updates_version,
+                    version__in=consent_type.updates_version.split(','),
                     **self.additional_filter_options())
                 previous_consent.subject_identifier_as_pk = self.subject_identifier_as_pk
                 previous_consent.subject_identifier_aka = self.subject_identifier_aka
@@ -115,7 +115,7 @@ class BaseConsent(models.Model):
                 raise ConsentVersionError(
                     'Previous consent with version {0} for this subject not found. Version {1} updates {0}.'
                     'Ensure all details match (identity, dob, first_name, last_name)'.format(
-                        consent_type.updates_version, self.version))
+                        consent_type.updates_version.split(','), self.version))
         super(BaseConsent, self).save(*args, **kwargs)
 
     def additional_filter_options(self):

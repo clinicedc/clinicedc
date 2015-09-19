@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.test import TestCase
-from edc_consent.models.base_consent import BaseConsent, ConsentManager
+from edc_consent.models.base_consent import BaseConsent
 from edc_consent.models import RequiresConsentMixin
 from edc_consent.exceptions import NotConsentedError, ConsentTypeError, ConsentVersionError
 from django.utils import timezone
@@ -284,3 +284,24 @@ class TestConsent(TestCase):
         self.create_consent(subject_identifier, identity, report_datetime)
         self.assertIsNotNone(TestConsentModel.consent.valid_consent_for_period(
             '123456789', report_datetime))
+
+    def test_consent_may_updates_more_than_one_version(self):
+        subject_identifier = '123456789'
+        identity = '987654321'
+        report_datetime = timezone.now() - timedelta(days=1)
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=365),
+            end_datetime=timezone.now() - timedelta(days=200),
+            version='1.0')
+        self.create_consent(subject_identifier, identity, timezone.now() - timedelta(days=300))
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=199),
+            end_datetime=timezone.now() - timedelta(days=50),
+            version='2.0',
+            updates_version='1.0')
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=49),
+            end_datetime=timezone.now() + timedelta(days=200),
+            version='3.0',
+            updates_version='1.0,2.0')
+        self.create_consent(subject_identifier, identity, report_datetime)
