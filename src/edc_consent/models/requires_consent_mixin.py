@@ -15,7 +15,7 @@ class RequiresConsentMixin(models.Model):
             consent_type = self.consent_type(self.report_datetime)
             self.consent_version = consent_type.version
             self.CONSENT_MODEL.objects.get(
-                subject_identifier=self.subject_identifier,
+                subject_identifier=self.get_subject_identifier(),
                 version=self.consent_version)
         except self.CONSENT_MODEL.DoesNotExist:
             raise NotConsentedError(
