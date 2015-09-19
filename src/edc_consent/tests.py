@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.test import TestCase
-from edc_consent.models.base_consent import BaseConsent
+from edc_consent.models.base_consent import BaseConsent, ConsentManager
 from edc_consent.models import RequiresConsentMixin
 from edc_consent.exceptions import NotConsentedError, ConsentTypeError, ConsentVersionError
 from django.utils import timezone
@@ -29,8 +29,6 @@ class TestConsentModel(
         SiteFieldsMixin, PersonalFieldsMixin, BaseConsent):
 
     quota = QuotaManager()
-
-    objects = models.Manager()
 
     class Meta:
         app_label = 'edc_consent'

@@ -87,11 +87,11 @@ class BaseConsent(models.Model):
         help_text='see also edc.data manager.'
     )
 
-    history = AuditTrail()
+    objects = models.Manager
 
     consent = ConsentManager()
 
-    objects = models.Manager()
+    history = AuditTrail()
 
     def natural_key(self):
         return (self.subject_identifier_as_pk, )
