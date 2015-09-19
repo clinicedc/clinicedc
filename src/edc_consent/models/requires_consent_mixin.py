@@ -8,7 +8,7 @@ class RequiresConsentMixin(models.Model):
 
     CONSENT_MODEL = None
 
-    consent_version = models.CharField(max_length=10)
+    consent_version = models.CharField(max_length=10, default='?', editable=False)
 
     def save(self, *args, **kwargs):
         try:
