@@ -57,7 +57,7 @@ class ConsentType(models.Model):
 
     version = models.CharField(max_length=10)
 
-    updates_version = models.CharField(max_length=10, null=True, blank=True)
+    updates_version = models.CharField(max_length=50, null=True, blank=True)
 
     history = AuditTrail()
 
@@ -65,16 +65,17 @@ class ConsentType(models.Model):
 
     def save(self, *args, **kwargs):
         if self.updates_version:
+            self.updates_version = ''.join([s for s in self.updates_version if s != ' '])
             try:
                 self.__class__.objects.get(
                     app_label=self.app_label,
                     model_name=self.model_name,
-                    version=self.updates_version)
+                    version__in=self.updates_version.split(','))
             except self.__class__.DoesNotExist:
                 raise ConsentTypeError(
-                    'Consent version {1} cannot be an update to version \'{0}\'. '
-                    'Version \'{0}\' not found.'.format(
-                        self.updates_version, self.version))
+                    'Consent version {1} cannot be an update to version(s) \'{0}\'. '
+                    'Version(s) \'{0}\' not found.'.format(
+                        self.updates_version.split(','), self.version))
             try:
                 previous = self.__class__.objects.get(
                     (Q(start_datetime__range=(self.start_datetime, self.end_datetime)) |
