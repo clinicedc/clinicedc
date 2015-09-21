@@ -11,11 +11,20 @@ ACU_EST = (
     ('Acute', 'Acute'),
     ('Established', 'Established'),
 )
+
 PIMA = (
     ('Participant Declined', 'Participant Declined'),
     ('Multiple PIMA malfunction', 'Multiple PIMA malfunction'),
     ('Failed Blood Collection', 'Failed Blood Collection'),
     ('OTHER', _('Other, specify:')),
+)
+
+HIV_RESULT = (
+    ('POS', 'HIV Positive (Reactive)'),
+    ('NEG', 'HIV Negative (Non-reactive)'),
+    ('IND', 'Indeterminate'),
+    ('Declined', 'Participant declined testing'),
+    ('Not performed', 'Test could not be performed (e.g. supply outage, technical problem)'),
 )
 
 ACU_EST_NEG = (
