@@ -14,13 +14,18 @@ class RequiresConsentMixin(models.Model):
         self.consented_for_period_or_raise()
         super(RequiresConsentMixin, self).save(*args, **kwargs)
 
-    def consented_for_period_or_raise(self, exception_cls=None):
+    def consented_for_period_or_raise(self, subject_identifier=None, exception_cls=None):
         exception_cls = exception_cls or NotConsentedError
         try:
             consent_type = self.consent_type(self.report_datetime)
             self.consent_version = consent_type.version
+            if not subject_identifier:
+                try:
+                    subject_identifier = self.subject_identifier
+                except AttributeError:
+                    subject_identifier = self.get_subject_identifier()
             self.CONSENT_MODEL.objects.get(
-                subject_identifier=self.get_subject_identifier(),
+                subject_identifier=subject_identifier,
                 version=self.consent_version)
         except self.CONSENT_MODEL.DoesNotExist:
             raise exception_cls(

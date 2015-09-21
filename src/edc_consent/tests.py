@@ -58,6 +58,32 @@ class TestModel(RequiresConsentMixin, models.Model):
         verbose_name = 'Test Model'
 
 
+class Visit(models.Model):
+
+    subject_identifier = models.CharField(max_length=10)
+
+    report_datetime = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        app_label = 'edc_consent'
+        verbose_name = 'Visit'
+
+
+class TestScheduledModel(RequiresConsentMixin, models.Model):
+
+    CONSENT_MODEL = TestConsentModel
+
+    visit = models.ForeignKey(Visit)
+
+    report_datetime = models.DateTimeField(default=timezone.now)
+
+    def get_subject_identifier(self):
+        return self.visit.subject_identifier
+
+    class Meta:
+        app_label = 'edc_consent'
+
+
 class TestConsent(TestCase):
 
     def setUp(self):
@@ -305,3 +331,14 @@ class TestConsent(TestCase):
             version='3.0',
             updates_version='1.0,2.0')
         self.create_consent(subject_identifier, identity, report_datetime)
+
+    def test_scheduled_model_with_fk(self):
+        subject_identifier = '123456789'
+        identity = '987654321'
+        self.create_consent_type(
+            start_datetime=timezone.now() - timedelta(days=365),
+            end_datetime=timezone.now() + timedelta(days=200),
+            version='1.0')
+        self.create_consent(subject_identifier, identity, timezone.now())
+        visit = Visit.objects.create(subject_identifier=subject_identifier)
+        TestScheduledModel.objects.create(visit=visit)
