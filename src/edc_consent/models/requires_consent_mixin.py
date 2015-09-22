@@ -14,10 +14,16 @@ class RequiresConsentMixin(models.Model):
         self.consented_for_period_or_raise()
         super(RequiresConsentMixin, self).save(*args, **kwargs)
 
-    def consented_for_period_or_raise(self, subject_identifier=None, exception_cls=None):
+    def consented_for_period_or_raise(self, report_datetime=None, subject_identifier=None, exception_cls=None):
         exception_cls = exception_cls or NotConsentedError
+        report_datetime = report_datetime or self.report_datetime
         try:
-            consent_type = self.consent_type(self.report_datetime)
+            if not report_datetime:
+                try:
+                    report_datetime = self.report_datetime
+                except AttributeError:
+                    report_datetime = self.get_report_datetime()
+            consent_type = self.consent_type(report_datetime)
             self.consent_version = consent_type.version
             if not subject_identifier:
                 try:
@@ -34,7 +40,7 @@ class RequiresConsentMixin(models.Model):
                     self.CONSENT_MODEL._meta.verbose_name,
                     self._meta.verbose_name,
                     self.consent_version,
-                    self.report_datetime.isoformat()))
+                    report_datetime.isoformat()))
 
     def consent_type(self, report_datetime):
         """Returns the consent type that matches the report datetime and consent model."""
