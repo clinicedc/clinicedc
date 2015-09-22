@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from edc_base.modeladmin.admin import BaseModelAdmin
 from .actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
 from .models import ConsentType
 
@@ -12,7 +13,7 @@ class ConsentTypeAdmin(admin.ModelAdmin):
 admin.site.register(ConsentType, ConsentTypeAdmin)
 
 
-class BaseConsentModelAdmin(admin.ModelAdmin):
+class BaseConsentModelAdmin(BaseModelAdmin):
     list_display = [
         'subject_identifier', 'is_verified', 'is_verified_datetime', 'first_name',
         'initials', 'gender', 'dob', 'consent_datetime', 'created', 'modified',
