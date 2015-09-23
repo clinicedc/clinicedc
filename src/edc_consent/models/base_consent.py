@@ -93,7 +93,7 @@ class BaseConsent(models.Model):
         help_text='see also edc.data manager.'
     )
 
-    objects = models.Manager()
+    objects = ObjectConsentManager()
 
     consent = ConsentManager()
 
