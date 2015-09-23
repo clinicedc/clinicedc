@@ -12,6 +12,12 @@ from ..exceptions import ConsentVersionError
 from .consent_type import ConsentType
 
 
+class ObjectConsentManager(models.Manager):
+
+    def get_by_natural_key(self, subject_identifier_as_pk):
+        return self.get(subject_identifier_as_pk=subject_identifier_as_pk)
+
+
 class ConsentManager(models.Manager):
 
     def valid_consent_for_period(self, subject_identifier, report_datetime):
