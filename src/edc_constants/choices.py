@@ -1,8 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 
-from .constants import NOT_APPLICABLE, YES, NO, ALIVE, DEAD, UNKNOWN
+from edc_constants.constants import POS, NEG, IND, NOT_APPLICABLE, YES, NO, ALIVE, DEAD, UNKNOWN, OTHER
 
-# choices
 BLANK_CHOICE_DASH = [('', '---------')]
 
 """ Try to keep this in alphabetical order """
@@ -16,13 +15,13 @@ PIMA = (
     ('Participant Declined', 'Participant Declined'),
     ('Multiple PIMA malfunction', 'Multiple PIMA malfunction'),
     ('Failed Blood Collection', 'Failed Blood Collection'),
-    ('OTHER', _('Other, specify:')),
+    (OTHER, _('Other, specify:')),
 )
 
 HIV_RESULT = (
-    ('POS', 'HIV Positive (Reactive)'),
-    ('NEG', 'HIV Negative (Non-reactive)'),
-    ('IND', 'Indeterminate'),
+    (POS, 'HIV Positive (Reactive)'),
+    (NEG, 'HIV Negative (Non-reactive)'),
+    (IND, 'Indeterminate'),
     ('Declined', 'Participant declined testing'),
     ('Not performed', 'Test could not be performed (e.g. supply outage, technical problem)'),
 )
@@ -54,7 +53,7 @@ ART_STATUS_UNKNOWN = (
     ('ON', 'ON ART'),
     ('STOPPED', 'Stopped'),
     ('NAIVE', 'Naive'),
-    ('UNKNOWN', 'Unknown'),
+    (UNKNOWN, 'Unknown'),
 
 )
 
@@ -162,7 +161,7 @@ IDENTITY_TYPE = (
     ('DRIVERS', 'Driver\'s License'),
     ('PASSPORT', 'Passport'),
     ('OMANG_RCPT', 'Omang Receipt'),
-    ('OTHER', 'Other'),
+    (OTHER, 'Other'),
 )
 
 
@@ -184,33 +183,33 @@ NORMAL_ABNORMAL_NOTEVALUATED = (
 )
 
 POS_NEG = (
-    ('POS', 'Positive'),
-    ('NEG', 'Negative'),
-    ('IND', 'Indeterminate'),
+    (POS, 'Positive'),
+    (NEG, 'Negative'),
+    (IND, 'Indeterminate'),
 )
 
 POS_NEG_REFUSED = (
-    ('POS', 'Positive'),
-    ('NEG', 'Negative'),
-    ('IND', 'Indeterminate'),
+    (POS, 'Positive'),
+    (NEG, 'Negative'),
+    (IND, 'Indeterminate'),
     ('REF', 'Refused to disclose'),
 )
 
 POS_NEG_ANY = (
-    ('POS', 'Positive'),
-    ('NEG', 'Negative'),
+    (POS, 'Positive'),
+    (NEG, 'Negative'),
     ('ANY', 'Any'),
 )
 
 POS_NEG_ONLY = (
-    ('POS', _('Positive')),
-    ('NEG', _('Negative')),
+    (POS, _('Positive')),
+    (NEG, _('Negative')),
 )
 
 POS_NEG_UNKNOWN = (
-    ('POS', _('Positive')),
-    ('NEG', _('Negative')),
-    ('UNKNOWN', _('Unknown')),
+    (POS, _('Positive')),
+    (NEG, _('Negative')),
+    (UNKNOWN, _('Unknown')),
 )
 
 POS_NEG_ACU = (
@@ -221,15 +220,15 @@ POS_NEG_ACU = (
 )
 
 POS_NEG_NOTESTED = (
-    ('POS', 'Positive'),
-    ('NEG', 'Negative'),
+    (POS, 'Positive'),
+    (NEG, 'Negative'),
     ('NEVER', 'Never tested for HIV'),
 )
 
 
 POS_NEG_UNTESTED_REFUSAL = (
-    ('POS', 'Positive'),
-    ('NEG', 'Negative'),
+    (POS, 'Positive'),
+    (NEG, 'Negative'),
     ('NEVER', 'Never tested for HIV'),
     ('UNK', 'Unknown'),
     ('REFUSED', 'Refused to answer'),
