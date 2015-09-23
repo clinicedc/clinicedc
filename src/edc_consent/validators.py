@@ -41,6 +41,9 @@ class ConsentAgeValidator(object):
         self.min_age = int(min_age_in_years)
         self.max_age = int(max_age_in_years)
 
+    def __repr__(self):
+        return '{}({}, {})'.format(self.__class__.__name__, self.min_age, self.max_age)
+
     def __call__(self, dob):
         rdelta = relativedelta(date.today(), dob)
         if rdelta.years < self.min_age or rdelta.years > self.max_age:

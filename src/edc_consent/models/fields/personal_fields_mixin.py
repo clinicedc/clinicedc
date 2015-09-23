@@ -39,8 +39,8 @@ class PersonalFieldsMixin(models.Model):
 
     dob = models.DateField(
         verbose_name="Date of birth",
-        validators=[
-            ConsentAgeValidator(Constants.MIN_AGE_OF_CONSENT, Constants.MAX_AGE_OF_CONSENT)],
+#         validators=[
+#             ConsentAgeValidator(Constants.MIN_AGE_OF_CONSENT, Constants.MAX_AGE_OF_CONSENT)],
         null=True,
         blank=False,
         help_text="Format is YYYY-MM-DD",
