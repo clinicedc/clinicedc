@@ -11,9 +11,15 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+
 import os
 import six
+
+from datetime import datetime
+
 from django import get_version
+from django.utils import timezone
+
 from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -141,3 +147,4 @@ if six.PY2:
     IS_SECURE_DEVICE = True
     KEY_PREFIX = 'user'
     ALLOW_MODEL_SERIALIZATION = True
+STUDY_OPEN_DATETIME = timezone.datetime(2013, 10, 18)

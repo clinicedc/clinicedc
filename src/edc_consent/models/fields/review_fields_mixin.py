@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_consent.validators import eligible_if_yes, eligible_if_yes_or_declined
+from edc_consent.models.validators import eligible_if_yes, eligible_if_yes_or_declined
 from edc_constants.choices import YES_NO, YES_NO_DECLINED
 
 
@@ -33,6 +33,18 @@ class ReviewFieldsMixin(models.Model):
         blank=False,
         help_text="If no, INELIGIBLE",
     )
+
+    consent_signature = models.CharField(
+        verbose_name=("The client has signed the consent form?"),
+        max_length=3,
+        choices=YES_NO,
+        validators=[eligible_if_yes, ],
+        null=True,
+        blank=False,
+        # default='Yes',
+        help_text="If no, INELIGIBLE",
+    )
+
     consent_copy = models.CharField(
         verbose_name=("I have provided the client with a copy of their signed informed consent"),
         max_length=20,

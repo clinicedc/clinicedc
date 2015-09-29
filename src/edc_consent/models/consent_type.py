@@ -5,8 +5,8 @@ except ImportError:
     from django.db.models import get_model  # Django 1.6
 from django.db import models
 from django.db.models import Q
-from edc_consent.validators import datetime_not_before_study_start
 from edc_consent.audit_trail import AuditTrail
+from edc_base.model.validators import datetime_not_before_study_start
 
 from ..exceptions import ConsentTypeError
 
@@ -16,11 +16,13 @@ class ConsentTypeManager(models.Manager):
     def get_by_natural_key(self, app_label, model_name, version):
         return self.get(app_label=app_label, model_name=model_name, version=version)
 
-    def get_by_report_datetime(self, consent_model, report_datetime):
-        return self.get_by_consent_datetime(consent_model, report_datetime, field_label='report_datetime')
+    def get_by_report_datetime(self, consent_model, report_datetime, exception_cls=None):
+        return self.get_by_consent_datetime(
+            consent_model, report_datetime, field_label='report_datetime', exception_cls=exception_cls)
 
-    def get_by_consent_datetime(self, consent_model, consent_datetime, field_label=None):
+    def get_by_consent_datetime(self, consent_model, consent_datetime, field_label=None, exception_cls=None):
         field_label = field_label or 'consent_datetime'
+        exception_cls = exception_cls or ConsentTypeError
         try:
             consent_type = ConsentType.objects.get(
                 app_label=consent_model._meta.app_label,
@@ -29,7 +31,7 @@ class ConsentTypeManager(models.Manager):
                 end_datetime__gte=consent_datetime
             )
         except ConsentType.DoesNotExist:
-            raise ConsentTypeError(
+            raise exception_cls(
                 'Cannot find a version of consent \'{}\' using {} \'{}\'. '
                 'See ConsentType.'.format(
                     consent_model._meta.verbose_name,
@@ -109,7 +111,7 @@ class ConsentType(models.Model):
         """Returns the consent model class."""
         try:
             return apps.get_model(self.app_label, self.model_name)
-        except (AttributeError, TypeError):
+        except (NameError, ):
             return get_model(self.app_label, self.model_name)  # Django 1.6
 
     class Meta:
