@@ -35,8 +35,6 @@ class BaseConsent(models.Model):
 
     MAX_SUBJECTS = 0
 
-    get_latest_by = 'consent_datetime'
-
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
         max_length=50,
