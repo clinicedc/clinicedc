@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+
 from edc_constants.choices import YES_NO
 
 

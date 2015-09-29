@@ -18,12 +18,7 @@ class RequiresConsentMixin(models.Model):
         exception_cls = exception_cls or NotConsentedError
         report_datetime = report_datetime or self.report_datetime
         try:
-            if not report_datetime:
-                try:
-                    report_datetime = self.report_datetime
-                except AttributeError:
-                    report_datetime = self.get_report_datetime()
-            consent_type = self.consent_type(report_datetime)
+            consent_type = self.consent_type(report_datetime, exception_cls=exception_cls)
             self.consent_version = consent_type.version
             if not subject_identifier:
                 try:
@@ -42,9 +37,10 @@ class RequiresConsentMixin(models.Model):
                     self.consent_version,
                     report_datetime.isoformat()))
 
-    def consent_type(self, report_datetime):
+    def consent_type(self, report_datetime, exception_cls=None):
         """Returns the consent type that matches the report datetime and consent model."""
-        return ConsentType.objects.get_by_report_datetime(self.CONSENT_MODEL, report_datetime)
+        return ConsentType.objects.get_by_report_datetime(
+            self.CONSENT_MODEL, report_datetime, exception_cls=exception_cls)
 
     class Meta:
         abstract = True

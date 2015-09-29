@@ -5,7 +5,7 @@ from django.db import models
 from edc_consent.audit_trail import AuditTrail
 from edc_consent.encrypted_fields import EncryptedTextField
 from edc_consent.utils import formatted_age, age
-from edc_consent.validators import datetime_not_future, datetime_not_before_study_start
+from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start
 
 from ..exceptions import ConsentVersionError
 
@@ -66,9 +66,15 @@ class BaseConsent(models.Model):
 
     is_verified = models.BooleanField(default=False, editable=False)
 
-    is_verified_datetime = models.DateTimeField(null=True)
+    is_verified_datetime = models.DateTimeField(null=True, editable=False)
 
-    version = models.CharField(max_length=10, default='?')
+    version = models.CharField(
+        verbose_name='Consent version',
+        max_length=10,
+        default='?',
+        help_text='See \'Consent Type\' for consent versions by period.',
+        editable=False,
+    )
 
     sid = models.CharField(
         verbose_name="SID",
@@ -123,6 +129,10 @@ class BaseConsent(models.Model):
                     'Ensure all details match (identity, dob, first_name, last_name)'.format(
                         consent_type.updates_version.split(','), self.version))
         super(BaseConsent, self).save(*args, **kwargs)
+
+    @property
+    def report_datetime(self):
+        return self.consent_datetime
 
     def additional_filter_options(self):
         """Additional kwargs to filter the consent when looking for the previous consent."""
