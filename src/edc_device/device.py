@@ -1,58 +1,82 @@
+import re
+import socket
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 
-class Device(object):
+class DeviceClass(object):
 
-    """ Determines the edc_device name, useful to know when identifiers are created by the edc_device.
+    """ Determines the device name, useful to know when identifiers are created by the device.
 
     Tries settings.py (with DEVICE_ID settings attribute).
     Must be a number."""
 
-    def __init__(self, device_id=None, settings_device=None):
+    def __init__(self, device_id=None, central_server=None,
+                 server_ids=None, middleman_ids=None):
+        self.device_id = device_id or str(settings.DEVICE_ID)
+        if not self.device_id:
+            raise ImproperlyConfigured('Device id may not be None. See settings.DEVICE_ID')
+        else:
+            self.device_id = str(self.device_id)
+        if not re.match(r'^\d+$', self.device_id):
+            raise ImproperlyConfigured('Incorrect format for device_id. Must be a '
+                                       'number. Got {1}. See settings.DEVICE_ID'.format(self.device_id))
+        self.device = self.device_id
+        self.central_server_id = central_server or '99'
+        self.server_ids = server_ids or settings.SERVER_DEVICE_ID_LIST
+        self.server_ids = [str(device_id) for device_id in self.server_ids]
+        self.middleman_ids = middleman_ids or settings.MIDDLEMAN_DEVICE_ID_LIST
+        self.middleman_ids = [str(device_id) for device_id in self.middleman_ids]
+        self.is_server = self.device_is_server(self.device_id)
+        self.is_community_server = self.device_is_community_server(self.device_id)
+        self.is_central_server = self.device_is_central_server(self.device_id)
+        self.is_middleman = self.device_is_middleman(self.device)
+        self.role = self.device_role(self.device_id)
 
-        self.SERVER_ID = '99'
-        self.SERVER_DEVICE_ID_LIST = settings.SERVER_DEVICE_ID_LIST
-        self.MIDDLEMAN_DEVICE_ID_LIST = settings.MIDDLEMAN_DEVICE_ID_LIST
-        self.DEFAULT_DEVICE_ID = '99'
-
-        try:
-            self.device_id = str(int(device_id))
-        except (ValueError, TypeError):
-            try:
-                self.device_id = str(int(settings_device or settings.DEVICE_ID or self.DEFAULT_DEVICE_ID))
-            except (ValueError, TypeError):
-                raise ImproperlyConfigured('Invalid DEVICE_ID. Must be a number. Got {}.'.format(device_id))
-            except AttributeError:
-                raise ImproperlyConfigured('Missing settings attribute DEVICE_ID.')
-        if len(self.device_id) != 2:
-            raise ImproperlyConfigured('Invalid DEVICE_ID. Must be a two digit number. Got {}.'.format(device_id))
+    def __repr__(self):
+        return '<{}: {}@{}>'.format(self.role, self.device, socket.gethostname())
 
     def __str__(self):
-        return self.device_id
+        return '{}'.format(self.device)
 
-    @property
-    def is_server(self):
-        """Returns True if the device_id is is in settings.SERVER_DEVICE_ID_LIST."""
-        return self.device_id in map(str, map(int, self.SERVER_DEVICE_ID_LIST))
+    def device_role(self, device_id):
+        if self.device_is_central_server(device_id):
+            return 'CentralServer'
+        elif self.device_is_community_server(device_id):
+            return 'CommunityServer'
+        elif self.device_is_middleman(device_id):
+            return 'Middleman'
+        elif self.device_is_server(device_id):
+            return 'Server'
+        elif self.device_is_client(device_id):
+            return 'Client'
+        else:
+            raise ImproperlyConfigured('Unable to configure Device. See DeviceClass.')
 
-    @property
-    def is_central_server(self):
-        return self.device_id == self.SERVER_ID
+    def device_is_client(self, device_id):
+        if (not self.device_is_central_server(device_id) and
+                not self.device_is_community_server(device_id) and
+                not self.device_is_middleman(device_id) and
+                not self.device_is_server(device_id)):
+            return True
+        else:
+            return False
 
-    @property
-    def is_community_server(self):
-        return (self.device_id in map(str, map(int, self.SERVER_DEVICE_ID_LIST)) and
-                not self.device_id == self.SERVER_ID)
+    def device_is_server(self, device_id):
+        """Returns True if the device_id matches a server id"""
+        return device_id in self.server_ids
 
-    @property
-    def is_middleman(self):
-        """Returns True if the device_id is is in settings.MIDDLEMAN_DEVICE_ID_LIST."""
-        if self.MIDDLEMAN_DEVICE_ID_LIST:
-            return self.device_id in map(str, map(int, self.MIDDLEMAN_DEVICE_ID_LIST))
+    def device_is_central_server(self, device_id):
+        """Returns True if the device_id matches the central server id"""
+        return device_id == self.central_server_id
 
-    def is_producer_name_server(self, producer_name):
-        """??"""
-        hostname = producer_name.split('-')[0]
-        return (hostname.startswith(settings.PRODUCER_PREFIX) and
-                int(hostname[4:]) in self.SERVER_DEVICE_ID_LIST)
+    def device_is_community_server(self, device_id):
+        """Returns True if the device_id matches a community server id"""
+        return device_id in self.server_ids and not device_id == self.central_server_id
+
+    def device_is_middleman(self, device_id):
+        """Returns True if the device_id matches a middelman id"""
+        return device_id in self.middleman_ids
+
+device = DeviceClass()
