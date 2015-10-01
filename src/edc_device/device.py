@@ -12,8 +12,9 @@ class DeviceClass(object):
     Tries settings.py (with DEVICE_ID settings attribute).
     Must be a number."""
 
-    def __init__(self, device_id=None, central_server=None,
-                 server_ids=None, middleman_ids=None):
+    DEFAULT_CENTRAL_SERVER_ID = '99'
+
+    def __init__(self, device_id=None, central_server=None, server_ids=None, middleman_ids=None):
         self.device_id = device_id or str(settings.DEVICE_ID)
         if not self.device_id:
             raise ImproperlyConfigured('Device id may not be None. See settings.DEVICE_ID')
@@ -23,15 +24,19 @@ class DeviceClass(object):
             raise ImproperlyConfigured('Incorrect format for device_id. Must be a '
                                        'number. Got {1}. See settings.DEVICE_ID'.format(self.device_id))
         self.device = self.device_id
-        self.central_server_id = central_server or '99'
-        self.server_ids = server_ids or settings.SERVER_DEVICE_ID_LIST
-        self.server_ids = [str(device_id) for device_id in self.server_ids]
-        self.middleman_ids = middleman_ids or settings.MIDDLEMAN_DEVICE_ID_LIST
-        self.middleman_ids = [str(device_id) for device_id in self.middleman_ids]
+        try:
+            default_central_server_id = settings.CENTRAL_SERVER_ID
+        except AttributeError:
+            default_central_server_id = self.DEFAULT_CENTRAL_SERVER_ID
+            self.central_server_id = central_server or default_central_server_id
+        self.server_ids = [str(x) for x in (server_ids or settings.SERVER_DEVICE_ID_LIST)]
+        self.middleman_ids = [str(x) for x in (middleman_ids or settings.MIDDLEMAN_DEVICE_ID_LIST)]
+        self.community_server_ids = [x for x in self.server_ids if x != self.central_server_id]
         self.is_server = self.device_is_server(self.device_id)
         self.is_community_server = self.device_is_community_server(self.device_id)
         self.is_central_server = self.device_is_central_server(self.device_id)
         self.is_middleman = self.device_is_middleman(self.device)
+        self.is_client = self.device_is_client(self.device_id)
         self.role = self.device_role(self.device_id)
 
     def __repr__(self):
@@ -69,14 +74,21 @@ class DeviceClass(object):
 
     def device_is_central_server(self, device_id):
         """Returns True if the device_id matches the central server id"""
+        if self.central_server_id not in self.server_ids:
+            raise ValueError('Central server must be included in the list of servers. '
+                             'Got {} not in {}'.format(self.central_server_id, self.server_ids))
         return device_id == self.central_server_id
 
     def device_is_community_server(self, device_id):
         """Returns True if the device_id matches a community server id"""
-        return device_id in self.server_ids and not device_id == self.central_server_id
+        return device_id in self.community_server_ids
 
     def device_is_middleman(self, device_id):
         """Returns True if the device_id matches a middelman id"""
+        if [x for x in self.middleman_ids if x in self.server_ids]:
+            raise ValueError('A Middleman cannot be listed as a server. {} are middlemen of '
+                             'which at least one is also listed as a server.'.format(
+                                 ', '.join(self.middleman_ids)))
         return device_id in self.middleman_ids
 
 device = DeviceClass()
