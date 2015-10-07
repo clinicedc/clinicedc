@@ -6,14 +6,14 @@ from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 
 from edc_base.model.validators import CellNumber, TelephoneNumber
 from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
-from edc_consent.models import BaseConsentedUuidModel
+# from edc_consent.models import BaseConsentedUuidModel
 from edc_constants.choices import YES_NO, YES_NO_DOESNT_WORK
 from edc_registration.models import RegisteredSubject
 
 from ..managers import BaseLocatorManager
 
 
-class BaseLocator(BaseConsentedUuidModel):
+class BaseLocator(models.Model):
 
     registered_subject = models.OneToOneField(RegisteredSubject, null=True)
 
