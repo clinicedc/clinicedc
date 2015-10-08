@@ -10,7 +10,7 @@ from edc_base.model.validators import datetime_not_future, datetime_not_before_s
 from ..exceptions import ConsentVersionError
 
 from .consent_type import ConsentType
-from .fields.verification_fields import VerificationFieldsMixin
+from .fields.verification_fields_mixin import VerificationFieldsMixin
 
 
 class ObjectConsentManager(models.Manager):

@@ -285,7 +285,10 @@ class TestConsent(TestCase):
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.1',
             updates_version='1.0')
-        consent = TestConsentModelFactory()
+        consent = TestConsentModelFactory(
+            first_name=consent.first_name,
+            last_name=consent.last_name,
+            initials=consent.initials)
         self.assertEqual(consent.version, '1.1')
 
     def test_consent_needs_previous_version3(self):
@@ -395,8 +398,10 @@ class TestConsent(TestCase):
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=200),
             version='1.0')
-        TestConsentModelFactory(
-            subject_identifier=subject_identifier, identity=identity, confirm_identity=identity,
+        consent = TestConsentModelFactory(
+            subject_identifier=subject_identifier,
+            identity=identity,
+            confirm_identity=identity,
             consent_datetime=timezone.now() - timedelta(days=300))
         ConsentTypeFactory(
             start_datetime=timezone.now() - timedelta(days=199),
@@ -409,7 +414,12 @@ class TestConsent(TestCase):
             version='3.0',
             updates_version='1.0,2.0')
         TestConsentModelFactory(
-            subject_identifier=subject_identifier, identity=identity, confirm_identity=identity,
+            first_name=consent.first_name,
+            last_name=consent.last_name,
+            initials=consent.initials,
+            subject_identifier=subject_identifier,
+            identity=identity,
+            confirm_identity=identity,
             consent_datetime=report_datetime)
 
     def test_scheduled_model_with_fk(self):
