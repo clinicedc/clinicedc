@@ -9,6 +9,8 @@ from edc_constants.constants import YES, NO
 from edc_base.utils import formatted_age
 from django.utils.timezone import is_naive
 
+from ..registered_subject import RegisteredSubject
+
 tz = pytz.timezone(settings.TIME_ZONE)
 
 
@@ -26,7 +28,7 @@ class BaseConsentForm(ModelForm):
     def clean(self):
         cleaned_data = super(BaseConsentForm, self).clean()
         self.clean_identity_and_confirm_identity()
-        self.clean_identity_with_registered_subject()
+        self.clean_identity_with_subject_identifier()
         self.clean_initials_with_full_name()
         self.clean_dob_relative_to_consent_datetime()
         self.clean_guardian_and_dob()
@@ -43,20 +45,31 @@ class BaseConsentForm(ModelForm):
                 params={'identity': identity, 'confirm_identity': confirm_identity},
                 code='invalid')
 
-    def clean_identity_with_registered_subject(self):
-        household_member = self.cleaned_data.get("household_member")
+    def clean_identity_with_subject_identifier(self):
         identity = self.cleaned_data.get('identity')
+        subject_identifier = self.cleaned_data.get('subject_identifier')
         try:
-            saved_identity = household_member.registered_subject.identity
-            if saved_identity:
-                if identity != saved_identity:
-                    raise ValidationError(
-                        'Subject\'s identity was previously reported as \'%(saved_identity)s\'. '
-                        'You wrote \'%(identity)s\'. Please resolve.',
-                        params={'saved_identity': saved_identity, 'identity': identity},
-                        code='invalid')
-        except AttributeError:
-            raise ValidationError()
+            registered_subject = RegisteredSubject.objects.get(
+                identity=identity)
+            if registered_subject.subject_identifier != subject_identifier:
+                raise ValidationError(
+                    'Identity \'%(identity)s\' is already in used by subject %(subject_identifier)s. '
+                    'Please resolve.',
+                    params={'subject_identifier': subject_identifier, 'identity': identity},
+                    code='invalid')
+        except RegisteredSubject.DoesNotExist:
+            pass
+        try:
+            registered_subject = RegisteredSubject.objects.get(
+                subject_identifier=subject_identifier)
+            if registered_subject.identity != identity:
+                raise ValidationError(
+                    'Subject\'s identity was previously reported as \'%(saved_identity)s\'. '
+                    'You wrote \'%(identity)s\'. Please resolve.',
+                    params={'saved_identity': identity, 'identity': identity},
+                    code='invalid')
+        except RegisteredSubject.DoesNotExist:
+            pass
 
     def clean_initials_with_full_name(self):
         first_name = self.cleaned_data.get("first_name")
@@ -72,7 +85,7 @@ class BaseConsentForm(ModelForm):
             pass
 
     def clean_guardian_and_dob(self):
-        """Validates if guardian if required based in AGE_IS_ADULT set on the model."""
+        """Validates if guardian is required based in AGE_IS_ADULT set on the model."""
         guardian = self.cleaned_data.get("guardian_name")
         dob = self.cleaned_data.get('dob')
         consent_datetime = self.cleaned_data.get('consent_datetime', self.instance.consent_datetime)

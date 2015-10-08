@@ -172,7 +172,7 @@ class TestConsent(TestCase):
         TestConsentModelProxy.quota.set_quota(2, date.today(), date.today())
 
     def test_raises_error_if_no_consent_type(self):
-        self.assertRaises(ConsentTypeError, TestModel.objects.create, subject_identifier='12345')
+        self.assertRaises(NotConsentedError, TestModel.objects.create, subject_identifier='12345')
 
     def test_raises_error_if_no_consent(self):
         ConsentTypeFactory()
@@ -512,6 +512,7 @@ class TestConsent(TestCase):
             ','.join(consent_form.errors.get('gender')))
         consent = TestConsentModelProxyFactory(gender='M')
         consent_form = ConsentModelProxyForm(data=consent.__dict__)
+        print(consent_form.errors)
         self.assertTrue(consent_form.is_valid())
 
     def test_base_form_catches_is_literate_and_witness(self):
