@@ -26,7 +26,7 @@ class BaseConsentForm(ModelForm):
     def clean(self):
         cleaned_data = super(BaseConsentForm, self).clean()
         self.clean_identity_and_confirm_identity()
-        self.clean_identity_with_registered_subject()
+        self.clean_identity_with_unique_fields()
         self.clean_initials_with_full_name()
         self.clean_dob_relative_to_consent_datetime()
         self.clean_guardian_and_dob()
@@ -43,20 +43,27 @@ class BaseConsentForm(ModelForm):
                 params={'identity': identity, 'confirm_identity': confirm_identity},
                 code='invalid')
 
-    def clean_identity_with_registered_subject(self):
-        household_member = self.cleaned_data.get("household_member")
+    def clean_identity_with_unique_fields(self):
         identity = self.cleaned_data.get('identity')
-        try:
-            saved_identity = household_member.registered_subject.identity
-            if saved_identity:
-                if identity != saved_identity:
-                    raise ValidationError(
-                        'Subject\'s identity was previously reported as \'%(saved_identity)s\'. '
-                        'You wrote \'%(identity)s\'. Please resolve.',
-                        params={'saved_identity': saved_identity, 'identity': identity},
-                        code='invalid')
-        except AttributeError:
-            raise ValidationError()
+        first_name = self.cleaned_data.get('first_name')
+        initials = self.cleaned_data.get('initials')
+        dob = self.cleaned_data.get('dob')
+        unique_together_form = self.unique_together_string(first_name, initials, dob)
+        for consent in self._meta.model.objects.filter(identity=identity):
+            unique_together_model = self.unique_together_string(consent.first_name, consent.initials, consent.dob)
+            if unique_together_form != unique_together_model:
+                raise ValidationError(
+                    'Identity \'%(identity)s\' is already in use by subject %(subject_identifier)s. '
+                    'Please resolve.',
+                    params={'subject_identifier': consent.subject_identifier, 'identity': identity},
+                    code='invalid')
+        for consent in self._meta.model.objects.filter(first_name=first_name, initials=initials, dob=dob):
+            if consent.identity != identity:
+                raise ValidationError(
+                    'Subject\'s identity was previously reported as \'%(existing_identity)s\'. '
+                    'You wrote \'%(identity)s\'. Please resolve.',
+                    params={'existing_identity': consent.identity, 'identity': identity},
+                    code='invalid')
 
     def clean_initials_with_full_name(self):
         first_name = self.cleaned_data.get("first_name")
@@ -72,7 +79,7 @@ class BaseConsentForm(ModelForm):
             pass
 
     def clean_guardian_and_dob(self):
-        """Validates if guardian if required based in AGE_IS_ADULT set on the model."""
+        """Validates if guardian is required based in AGE_IS_ADULT set on the model."""
         guardian = self.cleaned_data.get("guardian_name")
         dob = self.cleaned_data.get('dob')
         consent_datetime = self.cleaned_data.get('consent_datetime', self.instance.consent_datetime)
@@ -179,3 +186,6 @@ class BaseConsentForm(ModelForm):
                 params={'gender_of_consent': '\' or \''.join(GENDER_OF_CONSENT), 'gender': gender},
                 code='invalid')
         return gender
+
+    def unique_together_string(self, first_name, initials, dob):
+        return '{}{}{}'.format(first_name, dob.isoformat(), initials)

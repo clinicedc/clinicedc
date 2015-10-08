@@ -10,6 +10,7 @@ from edc_base.model.validators import datetime_not_future, datetime_not_before_s
 from ..exceptions import ConsentVersionError
 
 from .consent_type import ConsentType
+from .fields.verification_fields_mixin import VerificationFieldsMixin
 
 
 class ObjectConsentManager(models.Manager):
@@ -31,7 +32,7 @@ class ConsentManager(models.Manager):
         return consent
 
 
-class BaseConsent(models.Model):
+class BaseConsent(VerificationFieldsMixin, models.Model):
 
     MAX_SUBJECTS = 0
 
@@ -61,10 +62,6 @@ class BaseConsent(models.Model):
             datetime_not_before_study_start,
             datetime_not_future, ],
     )
-
-    is_verified = models.BooleanField(default=False, editable=False)
-
-    is_verified_datetime = models.DateTimeField(null=True, editable=False)
 
     version = models.CharField(
         verbose_name='Consent version',

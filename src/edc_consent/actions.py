@@ -1,25 +1,27 @@
-from datetime import datetime
-
 from django.contrib import messages
+from django.utils import timezone
 
 
 def flag_as_verified_against_paper(modeladmin, request, queryset, **kwargs):
     """ Flags instance as verified against the paper document."""
-    for qs in queryset:
-        qs.is_verified = True
-        qs.is_verified_datetime = datetime.today()
-        qs.save(update_fields=['is_verified', 'is_verified_datetime'])
+    for obj in queryset:
+        obj.is_verified = True
+        obj.is_verified_datetime = timezone.now()
+        obj.verified_by = request.user.username
+        obj.save(update_fields=['is_verified', 'is_verified_datetime', 'verified_by'])
         messages.add_message(
             request,
             messages.SUCCESS,
-            'Consent for {0} has been verified.'.format(qs.subject_identifier))
-flag_as_verified_against_paper.short_description = "Verified against paper document"
+            '\'{}\' for \'{}\' has been verified against the paper document.'.format(
+                obj._meta.verbose_name, obj.subject_identifier))
+flag_as_verified_against_paper.short_description = "Verify against paper document"
 
 
 def unflag_as_verified_against_paper(modeladmin, request, queryset, **kwargs):
     """ UnFlags instance as verified."""
-    for qs in queryset:
-        qs.is_verified = False
-        qs.is_verified_datetime = datetime.today()
-        qs.save(update_fields=['is_verified', 'is_verified_datetime'])
+    for obj in queryset:
+        obj.is_verified = False
+        obj.is_verified_datetime = None
+        obj.verified_by = None
+        obj.save(update_fields=['is_verified', 'is_verified_datetime', 'verified_by'])
 unflag_as_verified_against_paper.short_description = "Un-verify"

@@ -49,6 +49,8 @@ if get_version().startswith('1.6') and six.PY2:
         'django.contrib.staticfiles',
         'edc_audit',
         'edc.device.sync',
+        'edc.core.bhp_variables',
+        'edc.subject.registration',
         'edc.core.crypto_fields',
         'tastypie',
         'edc.base',
@@ -67,6 +69,7 @@ else:
         'simple_history',
         'django_crypto_fields',
         'tastypie',
+        'edc_registration',
         'edc_base',
         'edc_quota',
         'edc_consent',
@@ -147,4 +150,9 @@ if six.PY2:
     IS_SECURE_DEVICE = True
     KEY_PREFIX = 'user'
     ALLOW_MODEL_SERIALIZATION = True
+
+if six.PY2:
+    MIN_AGE_OF_CONSENT = None
 STUDY_OPEN_DATETIME = timezone.datetime(2013, 10, 18)
+DEVICE_ID = '99'
+SERVER_DEVICE_ID_LIST = ['99']
