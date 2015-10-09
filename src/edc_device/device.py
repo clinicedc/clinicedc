@@ -76,7 +76,8 @@ class DeviceClass(object):
         """Returns True if the device_id matches the central server id"""
         if self.central_server_id not in self.server_ids:
             raise ValueError('Central server must be included in the list of servers. '
-                             'Got {} not in {}'.format(self.central_server_id, self.server_ids))
+                             'Got {} not in {}. See also settings.SERVER_DEVICE_ID_LIST.'.format(
+                                self.central_server_id, self.server_ids))
         return device_id == self.central_server_id
 
     def device_is_community_server(self, device_id):
