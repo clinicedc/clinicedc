@@ -104,12 +104,14 @@ class ConsentForm(BaseConsentForm):
 
     class Meta:
         model = TestConsentModel
+        fields = '__all__'
 
 
 class ConsentModelProxyForm(BaseConsentForm):
 
     class Meta:
         model = TestConsentModelProxy
+        fields = '__all__'
 
 
 class TestConsentModelFactory(factory.DjangoModelFactory):
@@ -573,9 +575,11 @@ class TestConsent(TestCase):
         consent.witness_name = 'X'
         consent_form = ConsentModelProxyForm(data=consent.__dict__)
         self.assertFalse(consent_form.is_valid())
+        # consent_form.full_clean()
+        print(consent_form.cleaned_data)
         self.assertIn(
             'Format is \'LASTNAME, FIRSTNAME\'',
-            ','.join(consent_form.errors.get('witness_name')))
+            ','.join(consent_form.errors.get('witness_name', [])))
         consent.witness_name = 'SPOCK, YOUCOULDNTPRONOUNCEIT'
         consent_form = ConsentModelProxyForm(data=consent.__dict__)
         self.assertTrue(consent_form.is_valid())
