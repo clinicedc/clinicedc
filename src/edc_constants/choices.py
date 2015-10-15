@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 
-from edc_constants.constants import POS, NEG, IND, NOT_APPLICABLE, YES, NO, ALIVE, DEAD, UNKNOWN, OTHER
+from .constants import POS, NEG, IND, NOT_APPLICABLE, YES, NO, ALIVE, DEAD, UNKNOWN, OTHER
 
 BLANK_CHOICE_DASH = [('', '---------')]
 
