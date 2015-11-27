@@ -4,10 +4,11 @@ from dateutil.relativedelta import relativedelta
 
 from django.forms import ModelForm, ValidationError
 from django.conf import settings
+from django.utils.timezone import is_naive
+from django.forms.util import ErrorList
 
 from edc_constants.constants import YES, NO
 from edc_base.utils import formatted_age
-from django.utils.timezone import is_naive
 
 tz = pytz.timezone(settings.TIME_ZONE)
 
@@ -105,6 +106,10 @@ class BaseConsentForm(ModelForm):
         """Validates that the dob is within the bounds of MIN and MAX set on the model."""
         dob = self.cleaned_data.get('dob')
         consent_datetime = self.cleaned_data.get('consent_datetime', self.instance.consent_datetime)
+        if not consent_datetime:
+            self._errors["consent_datetime"] = ErrorList([u"This field is required. Please fill consent date and time."])
+            raise ValidationError('Please correct the errors below.')
+
         if is_naive(consent_datetime):
             consent_datetime = tz.localize(consent_datetime)
         MIN_AGE_OF_CONSENT = self.get_model_attr('MIN_AGE_OF_CONSENT')
