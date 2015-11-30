@@ -21,6 +21,7 @@ NEG = 'NEG'
 NEW = 'NEW'
 NEW_APPT = 'new'
 NO = 'No'
+NOT_EVALUATED = 'Not evaluated'
 NOT_ADDITIONAL = False
 NOT_APPLICABLE = 'N/A'
 NOT_REQUIRED = 'NOT_REQUIRED'
