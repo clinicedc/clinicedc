@@ -2,32 +2,31 @@ from django.utils import timezone
 
 from django.db import models
 from django.utils.translation import ugettext as _
-from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 
 from edc_base.model.validators import CellNumber, TelephoneNumber
+from edc_base.encrypted_fields import EncryptedCharField, EncryptedTextField
 from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
-from edc_consent.models import BaseConsentedUuidModel
 from edc_constants.choices import YES_NO, YES_NO_DOESNT_WORK
-from edc_registration.models import RegisteredSubject
+from edc_constants.constants import YES
 
-from ..managers import BaseLocatorManager
+from edc_base.audit_trail import AuditTrail
 
 
-class BaseLocator(BaseConsentedUuidModel):
+class LocatorMixin(models.Model):
 
-    registered_subject = models.OneToOneField(RegisteredSubject, null=True)
+    #     registered_subject = models.OneToOneField(RegisteredSubject, null=True)
 
     report_datetime = models.DateTimeField(
         verbose_name="Today's date",
         validators=[
             datetime_not_before_study_start,
             datetime_not_future, ],
-        default=timezone.now(),
+        default=timezone.now,
     )
 
     date_signed = models.DateField(
         verbose_name="Date Locator Form signed ",
-        default=timezone.now(),
+        default=timezone.now,
         help_text="",
     )
 
@@ -180,10 +179,53 @@ class BaseLocator(BaseConsentedUuidModel):
         null=True,
     )
 
-    objects = BaseLocatorManager()
+    history = AuditTrail()
 
-    def natural_key(self):
-        return (self.report_datetime,) + self.registered_subject.natural_key()
+#     objects = BaseLocatorManager()
+
+#     def natural_key(self):
+#         return (self.report_datetime,) + self.registered_subject.natural_key()
+
+    def to_string(self):
+        """Returns a formatted string that summarizes contact and locator info."""
+        info = 'May not follow-up.'
+        if self.may_follow_up == YES:
+            info = (
+                '{may_sms_follow_up}\n'
+                'Cell: {subject_cell} {alt_subject_cell}\n'
+                'Phone: {subject_phone} {alt_subject_phone}\n'
+                '').format(
+                    may_sms_follow_up='SMS permitted' if self.may_sms_follow_up == 'Yes' else 'NO SMS!',
+                    subject_cell='{} (primary)'.format(self.subject_cell) if self.subject_cell else '(none)',
+                    alt_subject_cell=self.subject_cell_alt,
+                    subject_phone=self.subject_phone or '(none)', alt_subject_phone=self.subject_phone_alt
+            )
+            if self.may_call_work == YES:
+                info = (
+                    '{info}\n Work Contacts:\n'
+                    '{subject_work_place}\n'
+                    'Work Phone: {subject_work_phone}\n'
+                    '').format(
+                        info=info,
+                        subject_work_place=self.subject_work_place or '(work place not known)',
+                        subject_work_phone=self.subject_work_phone)
+            if self.may_contact_someone == YES:
+                info = (
+                    '{info}\n Contacts of someone else:\n'
+                    '{contact_name} - {contact_rel}\n'
+                    '{contact_cell} (cell), {contact_phone} (phone)\n'
+                    '').format(
+                        info=info,
+                        contact_name=self.contact_name or '(name?)',
+                        contact_rel=self.contact_rel or '(relation?)',
+                        contact_cell=self.contact_cell or '(----)',
+                        contact_phone=self.contact_phone or '(----)'
+                )
+            if info:
+                info = ('{info}'
+                        'Physical Address:\n{physical_address}').format(
+                            info=info, physical_address=self.physical_address)
+        return info
 
     class Meta:
         abstract = True
