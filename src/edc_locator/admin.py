@@ -6,10 +6,8 @@ from edc_base.modeladmin.admin import BaseModelAdmin
 class BaseLocatorModelAdmin(BaseModelAdmin):
 
     fields = (
-        'subject_consent',
         'date_signed',
         'mail_address',
-        # 'care_clinic',
         'home_visit_permission',
         'physical_address',
         'may_follow_up',
@@ -26,10 +24,6 @@ class BaseLocatorModelAdmin(BaseModelAdmin):
         'contact_physical_address',
         'contact_cell',
         'contact_phone',
-        'has_caretaker_alt',
-        'caretaker_name',
-        'caretaker_cell',
-        'caretaker_tel',
     )
 
     radio_fields = {
@@ -37,6 +31,4 @@ class BaseLocatorModelAdmin(BaseModelAdmin):
         "may_follow_up": admin.VERTICAL,
         "may_call_work": admin.VERTICAL,
         "may_contact_someone": admin.VERTICAL,
-        "has_caretaker_alt": admin.VERTICAL,
-
     }

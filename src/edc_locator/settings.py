@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from datetime import datetime
+
 from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +39,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'edc.core.crypto_fields',
     'edc_locator',
+    'edc_locator.example',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -47,13 +49,13 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+    # 'django.middleware.security.SecurityMiddleware',
 )
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'edc_locator.urls'
 
 TEMPLATES = [
     {
@@ -71,7 +73,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'edc_locator.wsgi.application'
 
 
 # Database
@@ -105,3 +107,14 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 GIT_DIR = BASE_DIR.ancestor(1)
+
+CELLPHONE_REGEX = '^[7]{1}[12345678]{1}[0-9]{6}$'
+TELEPHONE_REGEX = '^[2-8]{1}[0-9]{6}$'
+
+FIELD_MAX_LENGTH = 'default'
+DEVICE_ID = '99'
+SERVER_DEVICE_ID_LIST = ['99']
+MIDDLEMAN_DEVICE_ID_LIST = ['91']
+IS_SECURE_DEVICE = True
+KEY_PATH = '/Volumes/bhp066/live_keys'
+ALLOW_MODEL_SERIALIZATION = False
