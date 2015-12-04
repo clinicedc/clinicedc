@@ -118,6 +118,3 @@ class LocatorFormMixin(forms.ModelForm):
                     'Participant does not allow the study to contact someone else on their behalf, '
                     'DO NOT provide this person\'s physical address.')
         return cleaned_data
-
-    class Meta:
-        abstract = True
