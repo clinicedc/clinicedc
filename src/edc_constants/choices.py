@@ -1,6 +1,8 @@
 from django.utils.translation import ugettext_lazy as _
 
-from .constants import POS, NEG, IND, NOT_APPLICABLE, YES, NO, ALIVE, DEAD, UNKNOWN, OTHER
+from .constants import (
+    POS, NEG, IND, NOT_APPLICABLE, YES, NO, ALIVE, DEAD, UNKNOWN, OTHER, NEVER, REFUSED, NAIVE, OMANG, DWTA)
+from edc_constants.constants import MALE, FEMALE
 
 BLANK_CHOICE_DASH = [('', '---------')]
 
@@ -46,13 +48,13 @@ ALIVE_DEAD_UNKNOWN = (
 ART_STATUS = (
     ('ON', 'Yes, ON ART'),
     ('STOPPED', 'No, stopped ART'),
-    ('NAIVE', 'No, have never taken ART'),
+    (NAIVE, 'No, have never taken ART'),
 )
 
 ART_STATUS_UNKNOWN = (
     ('ON', 'ON ART'),
     ('STOPPED', 'Stopped'),
-    ('NAIVE', 'Naive'),
+    (NAIVE, 'Naive'),
     (UNKNOWN, 'Unknown'),
 
 )
@@ -145,19 +147,19 @@ FEEDING = (
 )
 
 GENDER = (
-    ('M', _('Male')),
-    ('F', _('Female')),
+    (MALE, _('Male')),
+    (FEMALE, _('Female')),
 )
 
 GENDER_UNDETERMINED = (
-    ('M', _('Male')),
-    ('F', _('Female')),
+    (MALE, _('Male')),
+    (FEMALE, _('Female')),
     ('U', _('Undetermined')),
 )
 
 """do not change without inspecting implication to check_omang_field() in utils.py"""
 IDENTITY_TYPE = (
-    ('OMANG', 'Omang'),
+    (OMANG, 'Omang'),
     ('DRIVERS', 'Driver\'s License'),
     ('PASSPORT', 'Passport'),
     ('OMANG_RCPT', 'Omang Receipt'),
@@ -222,20 +224,20 @@ POS_NEG_ACU = (
 POS_NEG_NOTESTED = (
     (POS, 'Positive'),
     (NEG, 'Negative'),
-    ('NEVER', 'Never tested for HIV'),
+    (NEVER, 'Never tested for HIV'),
 )
 
 
 POS_NEG_UNTESTED_REFUSAL = (
     (POS, 'Positive'),
     (NEG, 'Negative'),
-    ('NEVER', 'Never tested for HIV'),
-    ('UNK', 'Unknown'),
-    ('REFUSED', 'Refused to answer'),
+    (NEVER, 'Never tested for HIV'),
+    (UNKNOWN, 'Unknown'),
+    (DWTA, 'Don\'t want to answer'),
 )
 
 REFUSAL_STATUS = (
-    ('REFUSED', 'Refused'),
+    (REFUSED, 'Refused'),
     ('NOT_REFUSED', 'No longer refusing'),
 )
 
