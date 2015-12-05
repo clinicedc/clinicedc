@@ -19,8 +19,8 @@ class BaseSubjectConsentForm(forms.ModelForm):
 #             if isinstance(field, BaseEncryptedField):
 #                 field.validate_with_cleaned_data(field.attname, cleaned_data)
 
-        self.validate_age(cleaned_data)
-        self.validate_guardian_name()
+        self.validate_age()
+        self.validate_guardian(cleaned_data)
         # if edc_consent model has a ConsentAge method that returns an ordered range of ages as list
         if hasattr(self._meta.model, 'ConsentAge'):
             instance = self._meta.model()
@@ -56,14 +56,14 @@ class BaseSubjectConsentForm(forms.ModelForm):
             return date.today()
 
     @property
-    def dob(self, dob):
+    def dob(self):
         return self.cleaned_data.get('dob')
 
     def validate_age(self):
         """Validates age in consent range."""
         if self.dob:
             rdelta = relativedelta(self.consent_datetime, self.dob)
-            if rdelta.years < settings.MIN_AGE_OF_CONSENT:
+            if rdelta.years < settings.MINIMUM_AGE_OF_CONSENT:
                 raise forms.ValidationError(
                     'Subject\'s age is {}. Subject is not eligible for informated consent.'.format(
                         formatted_age(self.dob, date.today())))
