@@ -1,8 +1,9 @@
 from django.utils.translation import ugettext_lazy as _
 
 from .constants import (
-    POS, NEG, IND, NOT_APPLICABLE, YES, NO, ALIVE, DEAD, UNKNOWN, OTHER, NEVER, REFUSED, NAIVE, OMANG, DWTA)
-from edc_constants.constants import MALE, FEMALE
+    ALIVE, DEAD, DECLINED, DWTA, FEMALE, IND, MALE, NAIVE,
+    NEG, NEVER, NO, NOT_APPLICABLE, OMANG, OTHER, POS, REFUSED, UNKNOWN, YES)
+
 
 BLANK_CHOICE_DASH = [('', '---------')]
 
@@ -24,7 +25,7 @@ HIV_RESULT = (
     (POS, 'HIV Positive (Reactive)'),
     (NEG, 'HIV Negative (Non-reactive)'),
     (IND, 'Indeterminate'),
-    ('Declined', 'Participant declined testing'),
+    (DECLINED, 'Participant declined testing'),
     ('Not performed', 'Test could not be performed (e.g. supply outage, technical problem)'),
 )
 
@@ -283,11 +284,6 @@ URINALYSIS = (
     ('Cells', 'Cells'),
 )
 
-WILL_DECL = (
-    ('WILLING', 'Willing'),
-    ('DELINED', 'Declined'),
-)
-
 YES_NO = (
     (YES, _(YES)),
     (NO, _(NO)),
@@ -296,7 +292,7 @@ YES_NO = (
 YES_NO_DECLINED = (
     (YES, YES),
     (NO, NO),
-    ('Declined', 'Yes, but subject declined copy'),
+    (DECLINED, 'Yes, but subject declined copy'),
 )
 
 YES_NO_OPTIONAL = (
