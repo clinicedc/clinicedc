@@ -640,3 +640,54 @@ class TestConsent(TestCase):
         consent2 = TestConsentModel.objects.get(pk=consent2.pk)
         self.assertEqual(consent1.version, '1.0')
         self.assertEqual(consent2.version, '2.0')
+
+
+class TestSpecimenConsent(TestCase):
+
+    def setUp(self):
+        TestConsentModel.quota.set_quota(2, date.today(), date.today())
+        TestConsentModelProxy.quota.set_quota(2, date.today(), date.today())
+        self.subject_identifier = '123456789'
+        self.identity = '987654321'
+        ConsentTypeFactory(
+            start_datetime=timezone.now() - relativedelta(years=5),
+            end_datetime=timezone.now() + timedelta(days=200),
+            version='1.0')
+        self.study_consent = TestConsentModelFactory(
+            subject_identifier=self.subject_identifier, identity=self.identity, confirm_identity=self.identity,
+            consent_datetime=timezone.now(),
+            dob=date.today() - relativedelta(years=25))
+
+    @override_settings(STUDY_OPEN_DATETIME=timezone.datetime.today() - relativedelta(years=3))
+    def test_one_consent_one_sample(self):
+        specimen_consent = TestSpecimenConsentModelFactory.build(
+            subject_identifier=self.subject_identifier,
+            consent_datetime=timezone.now(),
+            dob=date.today() - relativedelta(years=25))
+        specimen_consent_form = ConsentForm(data=specimen_consent.__dict__)
+
+
+    def test_consents_subject_identifier(self):
+        self.assertEqual(
+            maternal_consent.registered_subject.subject_identifier,
+            specimen_consent.registered_subject.subject_identifier)
+
+    def test_consents_is_literate(self):
+        self.assertEqual(maternal_consent.is_literate, specimen_consent.is_literate)
+
+    def test_consents_witness_name(self):
+        eligibility1 = MaternalEligibilityFactory()
+        consent1 = MaternalConsentFactory(registered_subject=eligibility1.registered_subject,
+                                          study_site=self.study_site, is_literate=NO,
+                                          witness_name='DIDI, JAYDEN')
+        consent2 = SpecimenConsentFactory(
+            registered_subject=consent1.registered_subject,
+            is_literate=NO, witness_name='DIDI, JAYDEN')
+        self.assertEqual(consent1.witness_name, consent2.witness_name)
+
+    def test_purpose_unexplained(self):
+        specimen_consent.purpose_explained = NO
+        specimen_consent.save()
+        form = SpecimenConsentForm
+        self.assertIn(u'If may_store_samples is YES, ensure that purpose of sample storage is explained.', form.errors.get('__all__'))
+        self.assertRaises(forms.ValidationError)
