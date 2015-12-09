@@ -232,6 +232,7 @@ POS_NEG_NOTESTED = (
 POS_NEG_UNTESTED_REFUSAL = (
     (POS, 'Positive'),
     (NEG, 'Negative'),
+    (IND, 'Indeterminate'),
     (NEVER, 'Never tested for HIV'),
     (UNKNOWN, 'Unknown'),
     (DWTA, 'Don\'t want to answer'),
