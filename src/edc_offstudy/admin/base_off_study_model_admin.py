@@ -1,5 +1,5 @@
-from edc_appointment.models import Appointment
-from edc_registration.admin import BaseRegisteredSubjectModelAdmin
+from edc.subject.appointment.models import Appointment
+from edc.subject.registration.admin import BaseRegisteredSubjectModelAdmin
 
 
 class BaseOffStudyModelAdmin(BaseRegisteredSubjectModelAdmin):

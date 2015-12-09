@@ -7,8 +7,6 @@ from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
 from edc.core.bhp_content_type_map.models import ContentTypeMap
 from edc.core.bhp_variables.tests.factories import StudySiteFactory
 from edc.subject.appointment.models import Appointment
-from edc.subject.consent.models import AttachedModel
-from edc.subject.consent.tests.factories import ConsentCatalogueFactory
 from edc.subject.registration.tests.factories import RegisteredSubjectFactory
 from edc.subject.visit_schedule.models import VisitDefinition
 from edc.subject.visit_schedule.tests.factories import VisitDefinitionFactory
@@ -29,19 +27,6 @@ class OffStudyMethodsTests(TestCase):
         content_type_map_helper.populate()
         content_type_map_helper.sync()
         content_type_map = ContentTypeMap.objects.get(model__iexact='TestConsent')
-        consent_catalogue = ConsentCatalogueFactory(
-            name='test',
-            content_type_map=content_type_map,
-            consent_type='study',
-            version=1,
-            start_datetime=datetime.today() - relativedelta(months=7),
-            end_datetime=datetime(datetime.today().year + 5, 1, 1),
-            add_for_app='visit_tracking')
-        consent_catalogue.add_for_app = 'consent'
-        consent_catalogue.add_for_app = 'off_study'
-        consent_catalogue.save()
-        # assert OffStudy model is in AttachedModel
-        self.assertTrue(AttachedModel.objects.get(content_type_map=ContentTypeMap.objects.get(model__iexact=TestSubjectVisit._meta.object_name)))
         # create a subject
         self.registered_subject = RegisteredSubjectFactory()
         # consent the subject
