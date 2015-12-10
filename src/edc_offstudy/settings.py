@@ -38,6 +38,21 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'edc_base',
+    'edc.subject.registration',
+    'edc.apps.app_configuration',
+    'edc_consent',
+    'edc.data_manager',
+    'edc.lab.lab_clinic_api',
+    'edc.subject.entry',
+    'edc.testing',
+    'edc.core.bhp_variables',
+    'edc.core.crypto_fields',
+    'edc.core.bhp_content_type_map',
+    'edc.subject.visit_schedule',
+    'edc.subject.appointment',
+    'edc.entry_meta_data',
+    'edc.subject.entry',
     'edc_offstudy',
 )
 
@@ -95,7 +110,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -104,3 +119,17 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 GIT_DIR = BASE_DIR.ancestor(1)
+
+SITE_CODE = '10'
+SUBJECT_TYPES = ['test_subject_type']
+DEVICE_ID = '10'
+SERVER_DEVICE_ID_LIST = [99]
+MIDDLEMAN_DEVICE_ID_LIST = []
+PROJECT_ROOT = BASE_DIR.ancestor(1)
+FIELD_MAX_LENGTH = 'default'
+IS_SECURE_DEVICE = True
+KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
+KEY_PREFIX = 'user'
+ALLOW_MODEL_SERIALIZATION = False
+MAX_SUBJECTS = 0
+DISPATCH_APP_LABELS = []
