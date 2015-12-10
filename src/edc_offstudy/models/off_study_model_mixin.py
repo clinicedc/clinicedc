@@ -7,7 +7,8 @@ from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NO, OFF_STUDY
 from edc_base.encrypted_fields import mask_encrypted
 from edc_base.model.fields import OtherCharField
-from edc.base.model.validators.date import datetime_not_before_study_start, datetime_not_future
+from edc.base.model.validators.date import datetime_not_before_study_start, datetime_not_future,\
+    date_not_before_study_start, date_not_future
 
 
 class OffStudyError(Exception):
@@ -18,7 +19,6 @@ class OffStudyModelMixin(models.Model):
     """Mixin for the Off Study model."""
 
     VISIT_MODEL = None
-    # registered_subject = models.OneToOneField(RegisteredSubject)
 
     report_datetime = models.DateTimeField(
         verbose_name="Visit Date and Time",
@@ -31,8 +31,8 @@ class OffStudyModelMixin(models.Model):
     offstudy_date = models.DateField(
         verbose_name="Off-study Date",
         validators=[
-            datetime_not_before_study_start,
-            datetime_not_future])
+            date_not_before_study_start,
+            date_not_future])
 
     reason = models.CharField(
         verbose_name="Please code the primary reason participant taken off-study",
@@ -94,9 +94,11 @@ class OffStudyModelMixin(models.Model):
 #                         self.offstudy_date, self.VISIT_MODEL._meta.object_name, max_report_datetime))
 
     def off_study_visit_exists_or_raise(self):
+        """Confirms the off study report datetime matches a off study visit report datetime
+        or raise an OffStudyError."""
         subject_identifier = self.get_subject_identifier()
-        report_datetime_min = datetime.combine(self.report_datetime, time.min)
-        report_datetime_max = datetime.combine(self.report_datetime, time.max)
+        report_datetime_min = datetime.combine(self.report_datetime.date(), time.min)
+        report_datetime_max = datetime.combine(self.report_datetime.date(), time.max)
         try:
             self.VISIT_MODEL.objects.get(
                 appointment__registered_subject__subject_identifier=subject_identifier,
@@ -104,7 +106,8 @@ class OffStudyModelMixin(models.Model):
                 report_datetime__lt=report_datetime_max,
                 reason=OFF_STUDY)
         except self.VISIT_MODEL.DoesNotExist:
-            raise OffStudyError('Off study report must be submitted on an off study visit.')
+            raise OffStudyError(
+                'Off study report must be submitted with an off study visit on the same day.')
 
     def delete_future_appointments_on_offstudy(self):
         """Deletes appointments created after the off-study datetime
