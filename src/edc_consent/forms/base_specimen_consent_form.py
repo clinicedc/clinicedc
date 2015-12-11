@@ -36,7 +36,7 @@ class BaseSpecimenConsentForm(forms.ModelForm):
         value = cleaned_data.get(attrname)
         study_consent_value = getattr(study_consent, attrname)
         if value != study_consent_value:
-            fld = [fld for fld in study_consent._meta.fields if fld.attrnam == attrname]
+            fld = [fld for fld in study_consent._meta.fields if fld.name == attrname]
             raise forms.ValidationError(
                 'Specimen consent and maternal consent do not match for question '
                 '\'{}\'. Got {} != {}. Please correct.'.format(
