@@ -12,7 +12,7 @@ class BaseSpecimenConsentForm(forms.ModelForm):
         study_consent = self.study_consent_or_raise()
         self.compare_attr_to_study_consent('is_literate', study_consent)
         self.compare_attr_to_study_consent('witness_name', study_consent)
-        self.purpose_explained_and_understood()
+        self.purpose_explained_and_understood(study_consent)
         self.copy_of_consent_provided()
         return cleaned_data
 
@@ -21,9 +21,9 @@ class BaseSpecimenConsentForm(forms.ModelForm):
         raises an exception if not found."""
         cleaned_data = self.cleaned_data
         subject_identifier = cleaned_data.get('registered_subject').subject_identifier
-        report_datetime = cleaned_data.get('report_datetime')
+        consent_datetime = cleaned_data.get('consent_datetime')
         maternal_consent = self.STUDY_CONSENT.consent.valid_consent_for_period(
-            subject_identifier, report_datetime)
+            subject_identifier, consent_datetime)
         if not maternal_consent:
             raise forms.ValidationError(
                 'Maternal consent must be completed before the specimen consent.')
@@ -59,8 +59,8 @@ class BaseSpecimenConsentForm(forms.ModelForm):
 
     def copy_of_consent_provided(self):
         cleaned_data = self.cleaned_data
-        if cleaned_data.get("may_store_samples") == YES:
-            if cleaned_data.get('specimen_consent_copy') != NO:
+        if cleaned_data.get("may_store_samples") == NO:
+            if cleaned_data.get('offered_copy') != NO:
                 raise forms.ValidationError(
-                    'Participant did not agrees for specimens to be stored. '
+                    'Participant did not agree for specimens to be stored. '
                     'Do not provide the participant with a copy of the specimen consent.')
