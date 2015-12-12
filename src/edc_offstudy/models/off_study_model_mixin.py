@@ -75,24 +75,6 @@ class OffStudyModelMixin(models.Model):
     def get_subject_identifier(self):
         return self.registered_subject.subject_identifier
 
-#     def offstudy_date_or_raise(self, exception_cls=None):
-#         """Checks that off study date is on or after the visit model visit_datetime."""
-#         exception_cls = exception_cls or OffStudyError
-#         aggregate = self.VISIT_MODEL.objects.filter(
-#             appointment__registered_subject=self.registered_subject).aggregate(
-#                 Max('report_datetime'))
-#         max_report_datetime = aggregate.get('report_datetime__max')
-#         if max_report_datetime:
-#             report_date = date(max_report_datetime.year,
-#                                max_report_datetime.month,
-#                                max_report_datetime.day)
-#             if self.offstudy_date < report_date:
-#                 raise exception_cls(
-#                     'Data exists for this subject with a report datetime '
-#                     'AFTER the off study date of {0}. See {1} with '
-#                     'report_datetime {2}.'.format(
-#                         self.offstudy_date, self.VISIT_MODEL._meta.object_name, max_report_datetime))
-
     def off_study_visit_exists_or_raise(self):
         """Confirms the off study report datetime matches a off study visit report datetime
         or raise an OffStudyError."""

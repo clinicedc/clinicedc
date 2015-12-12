@@ -123,7 +123,8 @@ class TestOffStudy(BaseTest):
                 registered_subject=self.registered_subject,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 offstudy_date=date.today() - relativedelta(weeks=4))
-        self.assertIn('Off study report must be submitted on an off study visit', str(cm.exception))
+        self.assertIn('Off study report must be submitted with an '
+                      'off study visit on the same day.', str(cm.exception))
 
     def test_off_study_deletes_future_appointments(self):
         visit_definition = VisitDefinition.objects.get(code='2000')
