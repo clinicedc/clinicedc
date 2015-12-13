@@ -1,17 +1,20 @@
 import copy
 
 from django.db import models
+from django.db.models import get_model 
 from django.core.exceptions import ImproperlyConfigured
 
 from edc.subject.appointment.models import Appointment
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
-from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, INCOMPLETE, UNKEYED
+from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, INCOMPLETE, UNKEYED, LOST_VISIT, DEATH_VISIT
 
 from ..choices import VISIT_REASON
 from ..managers import BaseVisitTrackingManager
 from ..constants import (
-    VISIT_REASON_REQUIRED_CHOICES, VISIT_REASON_NO_FOLLOW_UP_CHOICES, VISIT_REASON_FOLLOW_UP_CHOICES)
+    VISIT_REASON_REQUIRED_CHOICES,
+    VISIT_REASON_NO_FOLLOW_UP_CHOICES,
+    VISIT_REASON_FOLLOW_UP_CHOICES)
 
 
 class BaseVisitTracking (models.Model):
@@ -29,23 +32,19 @@ class BaseVisitTracking (models.Model):
     Admin should change the status after ADD.
 
     """
-    appointment = models.OneToOneField(
-        Appointment,
-    )
+    appointment = models.OneToOneField(Appointment)
 
     report_datetime = models.DateTimeField(
         verbose_name="Visit Date and Time",
         validators=[
             datetime_not_before_study_start,
             datetime_not_future],
-        help_text='Date and time of this report'
-    )
+        help_text='Date and time of this report')
 
     reason = models.CharField(
         verbose_name="What is the reason for this visit?",
         max_length=25,
-        help_text="<Override the field class for this model field attribute in ModelForm>",
-    )
+        help_text="<Override the field class for this model field attribute in ModelForm>")
 
     """
         as each study will have variations on the 'reason' choices, allow this
@@ -66,8 +65,7 @@ class BaseVisitTracking (models.Model):
         verbose_name="If 'missed' above, Reason scheduled visit was missed",
         max_length=35,
         blank=True,
-        null=True,
-    )
+        null=True)
 
     """
         ...same as above...Something like this:
@@ -82,8 +80,7 @@ class BaseVisitTracking (models.Model):
     info_source = models.CharField(
         verbose_name="What is the main source of this information?",
         max_length=25,
-        help_text="",
-    )
+        help_text="")
 
     info_source_other = OtherCharField()
 
@@ -125,7 +122,7 @@ class BaseVisitTracking (models.Model):
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
         if self.id and not self.byass_time_point_status():
-            TimePointStatus = models.get_model('data_manager', 'TimePointStatus')
+            TimePointStatus = get_model('data_manager', 'TimePointStatus')
             TimePointStatus.check_time_point_status(self.appointment, using=using)
         self.subject_identifier = self.get_subject_identifier()
         super(BaseVisitTracking, self).save(*args, **kwargs)
@@ -139,14 +136,15 @@ class BaseVisitTracking (models.Model):
         return False
 
     def get_visit_reason_no_follow_up_choices(self):
-        """Returns the visit reasons that do not imply any data collection; that is, the subject is not available."""
+        """Returns the visit reasons that do not imply any
+        data collection; that is, the subject is not available."""
         dct = {}
         for item in VISIT_REASON_NO_FOLLOW_UP_CHOICES:
             dct.update({item: item})
         return dct
 
     def get_off_study_reason(self):
-        return ('lost', 'death')
+        return (LOST_VISIT, DEATH_VISIT)
 
     def get_visit_reason_follow_up_choices(self):
         """Returns visit reasons that imply data is being collected; that is, subject is present."""
@@ -160,14 +158,17 @@ class BaseVisitTracking (models.Model):
         return VISIT_REASON
 
     def _check_visit_reason_keys(self):
-        user_keys = [k for k in self.get_visit_reason_no_follow_up_choices().iterkeys()] + [k for k in self.get_visit_reason_follow_up_choices().iterkeys()]
+        user_keys = ([k for k in self.get_visit_reason_no_follow_up_choices().iterkeys()] +
+                     [k for k in self.get_visit_reason_follow_up_choices().iterkeys()])
         default_keys = copy.deepcopy(VISIT_REASON_REQUIRED_CHOICES)
         if list(set(default_keys) - set(user_keys)):
             missing_keys = list(set(default_keys) - set(user_keys))
             if missing_keys:
                 raise ImproperlyConfigured(
-                    'User\'s visit reasons tuple must contain all keys for no follow-up {1} and all for follow-up {2}. Missing {3}. '
-                    'Override methods \'get_visit_reason_no_follow_up_choices\' and \'get_visit_reason_follow_up_choices\' on the visit model '
+                    'User\'s visit reasons tuple must contain all keys for no follow-up '
+                    '{1} and all for follow-up {2}. Missing {3}. '
+                    'Override methods \'get_visit_reason_no_follow_up_choices\' and '
+                    '\'get_visit_reason_follow_up_choices\' on the visit model '
                     'if you are not using the default keys of {4}. '
                     'Got {0}'.format(
                         user_keys,
@@ -176,53 +177,9 @@ class BaseVisitTracking (models.Model):
                         missing_keys,
                         VISIT_REASON_REQUIRED_CHOICES))
 
-    def _get_visit_reason_choices(self):
-        """Returns a dictionary representing the visit model reason choices tuple.
-
-        Depending on how well the local VISIT_REASON choices tuple conforms to the default,
-        methods :func:`get_visit_reason_no_follow_up_choices` and :func:`get_visit_reason_follow_up_choices`
-        are used to manipulate it so that it works with ScheduledEntryMetaDataHelper like the default.
-
-        This is called by the ScheduledEntryMetaDataHelper class when deciding to delete or create
-        NEW forms for entry on the dashboard."""
-
-        self._check_visit_reason_keys()
-        visit_reason_tuple = self.get_visit_reason_choices()
-        # convert to dictionary
-        visit_reason_choices = {}
-        for tpl in visit_reason_tuple:
-            visit_reason_choices.update({tpl[0]: tpl[1]})
-        if not isinstance(visit_reason_choices, dict):
-            raise TypeError('Method get_visit_reason_choices must return a dictionary or tuple of tuples. Got {0}'.format(visit_reason_choices))
-        visit_reason_required_choices = copy.deepcopy(VISIT_REASON_REQUIRED_CHOICES)
-        if 'get_visit_reason_no_follow_up_choices' in dir(self):
-            visit_reason_no_follow_up_choices = self.get_visit_reason_no_follow_up_choices()
-            if not isinstance(visit_reason_no_follow_up_choices, dict):
-                raise TypeError('Method get_visit_reason_no_follow_up_choices must return a dictionary. Got {0}'.format(visit_reason_no_follow_up_choices))
-            # ensure required keys are in no follow up
-            for key, value in visit_reason_no_follow_up_choices.iteritems():
-                if value not in visit_reason_required_choices:
-                    visit_reason_required_choices.remove(key)
-                    visit_reason_required_choices.append(value)
-        if 'get_visit_reason_follow_up_choices' in dir(self):
-            visit_reason_follow_up_choices = self.get_visit_reason_follow_up_choices()
-            if not isinstance(visit_reason_follow_up_choices, dict):
-                raise TypeError('Method visit_reason_follow_up_choices must return a dictionary. Got {0}'.format(visit_reason_follow_up_choices))
-            # ensure required keys are in follow up
-            for key, value in visit_reason_follow_up_choices.iteritems():
-                if value not in visit_reason_required_choices:
-                    visit_reason_required_choices.remove(key)
-                    visit_reason_required_choices.append(value)
-        copy_visit_reason_choices = copy.deepcopy(visit_reason_choices)
-        copy_visit_reason_choices = [x.lower() for x in copy_visit_reason_choices]
-        for k in visit_reason_required_choices:
-            if k.lower() not in copy_visit_reason_choices:
-                raise ImproperlyConfigured('Dictionary returned by get_visit_reason_choices() must have keys {0}. Got {1} with {2}'.format(visit_reason_required_choices, visit_reason_choices.keys(), k))
-        return visit_reason_choices
-
     def post_save_check_in_progress(self):
-        ScheduledEntryMetaData = models.get_model('entry_meta_data', 'ScheduledEntryMetaData')
-        RequisitionMetaData = models.get_model('entry_meta_data', 'RequisitionMetaData')
+        ScheduledEntryMetaData = get_model('entry_meta_data', 'ScheduledEntryMetaData')
+        RequisitionMetaData = get_model('entry_meta_data', 'RequisitionMetaData')
         dirty = False
         if self.reason in self.get_visit_reason_no_follow_up_choices():
             self.get_appointment().appt_status = COMPLETE_APPT
@@ -232,8 +189,14 @@ class BaseVisitTracking (models.Model):
                 self.get_appointment().appt_status = IN_PROGRESS
                 dirty = True
             # look for any others in progress
-        for appointment in self.get_appointment().__class__.objects.filter(registered_subject=self.get_registered_subject(), appt_status=IN_PROGRESS).exclude(pk=self.get_appointment().pk):
-            if ScheduledEntryMetaData.objects.filter(appointment=appointment, entry_status__iexact=UNKEYED).exists() or RequisitionMetaData.objects.filter(appointment=appointment, entry_status__iexact=UNKEYED).exists():
+        appointments = self.get_appointment().__class__.objects.filter(
+            registered_subject=self.get_registered_subject(),
+            appt_status=IN_PROGRESS).exclude(pk=self.get_appointment().pk)
+        for appointment in appointments:
+            if (ScheduledEntryMetaData.objects.filter(
+                    appointment=appointment, entry_status__iexact=UNKEYED).exists() or
+                RequisitionMetaData.objects.filter(
+                    appointment=appointment, entry_status__iexact=UNKEYED).exists()):
                 appointment.appt_status = INCOMPLETE
             else:
                 appointment.appt_status = COMPLETE_APPT
