@@ -1,14 +1,14 @@
-from datetime import datetime, date, time
+from datetime import datetime, time
 
 from django.db import models
-from django.db.models import Max
 
-from edc_constants.choices import YES_NO
-from edc_constants.constants import YES, NO, OFF_STUDY
 from edc_base.encrypted_fields import mask_encrypted
 from edc_base.model.fields import OtherCharField
-from edc.base.model.validators.date import datetime_not_before_study_start, datetime_not_future,\
-    date_not_before_study_start, date_not_future
+from edc.base.model.validators.date import (
+    datetime_not_before_study_start, datetime_not_future,
+    date_not_before_study_start, date_not_future)
+from edc_constants.choices import YES_NO
+from edc_constants.constants import YES, NO, OFF_STUDY
 
 
 class OffStudyError(Exception):
