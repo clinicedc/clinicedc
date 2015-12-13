@@ -46,7 +46,3 @@ class BaseTest(TestCase):
         self.registered_subject = RegisteredSubjectFactory(
             subject_identifier=self.test_consent.subject_identifier)
         self.appointment_count = VisitDefinition.objects.all().count()
-        self.appointment = Appointment.objects.create(
-            registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
-            visit_definition=self.visit_definition)
