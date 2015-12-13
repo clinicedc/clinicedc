@@ -72,18 +72,14 @@ class OffStudyModelMixin(models.Model):
             return False
         return True
 
-    def get_subject_identifier(self):
-        return self.registered_subject.subject_identifier
-
     def off_study_visit_exists_or_raise(self):
         """Confirms the off study report datetime matches a off study visit report datetime
         or raise an OffStudyError."""
-        subject_identifier = self.get_subject_identifier()
         report_datetime_min = datetime.combine(self.report_datetime.date(), time.min)
         report_datetime_max = datetime.combine(self.report_datetime.date(), time.max)
         try:
             self.VISIT_MODEL.objects.get(
-                appointment__registered_subject__subject_identifier=subject_identifier,
+                appointment__registered_subject=self.registered_subject,
                 report_datetime__gt=report_datetime_min,
                 report_datetime__lt=report_datetime_max,
                 reason=OFF_STUDY)
@@ -104,10 +100,11 @@ class OffStudyModelMixin(models.Model):
             except self.VISIT_MODEL.DoesNotExist:
                 appointment.delete()
 
+    def get_subject_identifier(self):
+        return self.registered_subject.subject_identifier
+
     def get_report_datetime(self):
-        return datetime(self.offstudy_date.year,
-                        self.offstudy_date.month,
-                        self.offstudy_date.day)
+        return self.report_datetime
 
     class Meta:
         abstract = True
