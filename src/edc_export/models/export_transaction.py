@@ -3,10 +3,6 @@ from django.db import models
 
 from edc_constants.constants import CLOSED
 from edc_base.model.models import BaseUuidModel
-try:
-    from edc_sync.mixins import SyncMixin
-except ImportError:
-    SyncMixin = type('SyncMixin', (object, ), {})
 
 from .export_tracking_fields_mixin import ExportTrackingFieldsMixin
 
@@ -17,7 +13,7 @@ class ExportTransactionManager(models.Manager):
         return self.get(export_uuid=export_uuid)
 
 
-class ExportTransaction(SyncMixin, ExportTrackingFieldsMixin, BaseUuidModel):
+class ExportTransaction(ExportTrackingFieldsMixin, BaseUuidModel):
 
     tx = models.TextField()
 
@@ -46,7 +42,8 @@ class ExportTransaction(SyncMixin, ExportTrackingFieldsMixin, BaseUuidModel):
             ('new', 'New'),
             ('exported', 'Exported'),
             (CLOSED, 'Closed'),
-            ('cancelled', 'Cancelled')),
+            ('cancelled', 'Cancelled'),
+        ),
         help_text='exported by export_transactions, closed by import_receipts'
     )
 
@@ -93,5 +90,5 @@ class ExportTransaction(SyncMixin, ExportTrackingFieldsMixin, BaseUuidModel):
     render.allow_tags = True
 
     class Meta:
-        app_label = 'edc_export'
+        app_label = 'export'
         ordering = ('-timestamp', )

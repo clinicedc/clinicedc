@@ -6,8 +6,8 @@ from django.db.models import get_model
 
 from edc.notification.helpers import NotificationHelper
 
-from edc_export import ExportJsonAsCsv
-from edc_export import ExportPlan
+from ..classes import ExportJsonAsCsv
+from ..models import ExportPlan
 
 
 class ExportHelper(object):
@@ -53,7 +53,7 @@ class ExportHelper(object):
 
     @property
     def writer(self):
-        """Returns an instance of ExportJsonAsCsv for the list of transactions to edc_export."""
+        """Returns an instance of ExportJsonAsCsv for the list of transactions to export."""
         json_decoder = json.decoder.JSONDecoder()
         return ExportJsonAsCsv(
             self.transactions,
@@ -72,7 +72,7 @@ class ExportHelper(object):
             export_datetime=self.export_datetime)
 
     def update_history(self):
-        """Updates the edc_export history model for this edc_export."""
+        """Updates the export history model for this export."""
         if self.writer:
             try:
                 self.writer.export_history.exit_status = self.exit_status[0]
@@ -93,7 +93,7 @@ class ExportHelper(object):
 
     @classmethod
     def update_plan(self, export_plan_setup):
-        """Creates or updates the edc_export plan model instance using a given export_plan_setup dictionary."""
+        """Creates or updates the export plan model instance using a given export_plan_setup dictionary."""
         for model_config, export_plan in export_plan_setup.iteritems():
             app_label, model_name = model_config.split('.')
             model = get_model(app_label, model_name)

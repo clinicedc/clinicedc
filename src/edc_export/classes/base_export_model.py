@@ -8,16 +8,17 @@ from datetime import datetime
 
 from django.db.models.constants import LOOKUP_SEP
 
-# from django_crypto_fields.fields import BaseEncryptedField
+from edc_base.encrypted_fields import BaseEncryptedField
 
 from ..models import ExportHistory
 
-HEAD_FIELDS = ['export_uuid', 'export_datetime', 'export_change_type',
-               'subject_identifier', 'report_datetime']
+HEAD_FIELDS = [
+    'export_uuid', 'export_datetime', 'export_change_type',
+    'subject_identifier', 'report_datetime']
 
-TAIL_FIELDS = ['hostname_created', 'hostname_modified',
-               'created', 'modified', 'user_created',
-               'user_modified', 'revision']
+TAIL_FIELDS = [
+    'hostname_created', 'hostname_modified', 'created', 'modified',
+    'user_created', 'user_modified', 'revision']
 
 
 class BaseExportModel(object):
@@ -44,27 +45,30 @@ class BaseExportModel(object):
         self.strip = strip
         self.track_history = track_history
         self.notification_plan_name = notification_plan_name
-
         self.extra_fields = extra_fields or OrderedDict({})
         self.field_names = [field.name for field in self.model._meta.fields] if self.show_all_fields else []
+
         # a list of names from admin usually, may create duplicates that will be removed
         self.field_names.extend(fields or [])
+
+        # remove items if already listed in field_names
         for field_name in self.field_names:
-            # remove items if already listed in field_names
             self.extra_fields.pop(field_name, None)
         self.field_names.extend(self.extra_fields.keys() or [])
+
         # remove duplicates, maintain order
         self.field_names = list(OrderedDict.fromkeys(self.field_names))
+
         self.insert_defaults_and_reorder_field_names()
         self.exclude_field_names(exclude)  # a list of names
         self.header_row = self.field_names
         self.export_filename = '{0}_{1}.csv'.format(
-            str(self.model._meta).replace('.', '_'),
+            self.model._meta.replace('.', '_'),
             export_datetime.strftime('%Y%m%d%H%M%S') or datetime.now().strftime('%Y%m%d%H%M%S'))
         self.export_history = None
 
     def write_to_file(self):
-        """Writes the edc_export file and returns the file name."""
+        """Writes the export file and returns the file name."""
         exported_pk_list = []
         export_uuid_list = []
         export_file_contents = []
@@ -118,13 +122,13 @@ class BaseExportModel(object):
             if field_name in self.extra_fields:
                 value = self.get_row_value_from_query_string(obj, field_name)
         value = value if value is not None else ''
-        return str(value).encode("utf-8", "replace")
+        return unicode(value).encode("utf-8", "replace")
 
     def get_row_value_from_callable(self, obj, field_name):
         func = self.extra_fields.get(field_name)
         value = func(obj)
         value = value if value is not None else ''
-        return str(value).encode("utf-8", "replace")
+        return unicode(value).encode("utf-8", "replace")
 
     def get_row_value_from_query_string(self, obj, field_name):
         """Gets the row value by following the query string to related instances."""
@@ -134,7 +138,7 @@ class BaseExportModel(object):
             query_list = query_string.split(LOOKUP_SEP)
             value, _ = self.recurse_on_getattr(obj, query_list)  # recurse to last relation to get value
         value = value if value is not None else ''
-        return str(value).encode("utf-8", "replace")
+        return unicode(value).encode("utf-8", "replace")
 
     def recurse_on_getattr(self, obj, query_list):
         """ Recurse on result of getattr() with a given query string as a list.
@@ -176,8 +180,9 @@ class BaseExportModel(object):
         values_row = []
         for m2m in self.model._meta.many_to_many:
             header_row.append(m2m.name)
-            values_row.append(self._m2m_value_delimiter.join(
-                [item.name.encode("utf-8", "replace") for item in getattr(obj, m2m.name).all()]))
+            values_row.append(
+                self._m2m_value_delimiter.join(
+                    [item.name.encode("utf-8", "replace") for item in getattr(obj, m2m.name).all()]))
         return header_row, values_row
 
     def strip_value(self, string_value):
@@ -236,5 +241,4 @@ class BaseExportModel(object):
             exported_datetime=datetime.now(),
             export_filename=self.export_filename,
             export_file_contents=export_file_contents,
-            notification_plan_name=self.notification_plan_name,
-        )
+            notification_plan_name=self.notification_plan_name)

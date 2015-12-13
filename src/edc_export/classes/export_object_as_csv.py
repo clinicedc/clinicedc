@@ -12,10 +12,8 @@ from django.db.models.constants import LOOKUP_SEP
 
 from ..models import ExportHistory
 
-HEAD_FIELDS = ['export_uuid', 'export_datetime', 'export_change_type',
-               'unique_key', 'subject_identifier', 'report_datetime']
-TAIL_FIELDS = ['hostname_created', 'hostname_modified', 'created',
-               'modified', 'user_created', 'user_modified', 'revision']
+HEAD_FIELDS = ['export_uuid', 'export_datetime', 'export_change_type', 'unique_key', 'subject_identifier', 'report_datetime']
+TAIL_FIELDS = ['hostname_created', 'hostname_modified', 'created', 'modified', 'user_created', 'user_modified', 'revision']
 
 
 class ExportObjectAsCsv(object):
@@ -39,7 +37,7 @@ class ExportObjectAsCsv(object):
         self.extra_fields = extra_fields or OrderedDict({})
         for field_name in self.field_names:
             self.extra_fields.pop(field_name, None)  # remove items if already listed in field_names
-        self.field_names.extend(list(self.extra_fields.keys()) or [])
+        self.field_names.extend(self.extra_fields.keys() or [])
         self.field_names = list(OrderedDict.fromkeys(self.field_names))  # remove duplicates, maintain order
         self.insert_defaults_and_reorder_field_names()
         self.exclude_field_names(exclude)  # a list of names
@@ -50,7 +48,7 @@ class ExportObjectAsCsv(object):
         self.target_path = target_path
 
     def write_to_file(self, instances, write_header=True):
-        """Writes the edc_export file and returns the file name."""
+        """Writes the export file and returns the file name."""
         # search for unique key in file
         try:
             column = np.loadtxt(
@@ -59,7 +57,7 @@ class ExportObjectAsCsv(object):
             dups = [instance for instance in instances if instance.unique_key in column]
             for dup in dups:
                 instances.remove(dup)
-                print('Warning! Not writing record to csv. Duplicate record. Unique Key: {}'.format(dup.unique_key))
+                print 'Warning! Not writing record to csv. Duplicate record. Unique Key: {}'.format(dup.unique_key)
         except IOError:
             pass
         with open(os.path.join(os.path.expanduser(self.target_path) or '', self.export_filename), 'a') as f:
@@ -146,7 +144,7 @@ class ExportObjectAsCsv(object):
             export_filename=self.export_filename,
             export_file_contents=export_file_contents,
             notification_plan_name=self.notification_plan_name,
-        )
+            )
 
     def update_export_transaction(self, instance):
         pass

@@ -1,13 +1,9 @@
 from django.db import models
 
 from edc_base.model.models import BaseUuidModel
-try:
-    from edc_sync.mixins import SyncMixin
-except ImportError:
-    SyncMixin = type('SyncMixin', (object, ), {})
 
 
-class ExportPlan(SyncMixin, BaseUuidModel):
+class ExportPlan(BaseUuidModel):
 
     app_label = models.CharField(max_length=50)
 
@@ -31,15 +27,16 @@ class ExportPlan(SyncMixin, BaseUuidModel):
 
     strip = models.BooleanField(default=True)
 
-    target_path = models.CharField(max_length=250, default='~/edc_export')
+    target_path = models.CharField(max_length=250, default='~/export')
 
     notification_plan_name = models.CharField(max_length=50, null=True)
 
-    objects = models.Manager()
-
-    def __str__(self):
+    def __unicode__(self):
         return '{}.{}'.format(self.app_label, self.object_name)
 
+    def is_serialized(self, serialize=True):
+        return False
+
     class Meta:
-        app_label = 'edc_export'
+        app_label = 'export'
         unique_together = (('app_label', 'object_name'), )

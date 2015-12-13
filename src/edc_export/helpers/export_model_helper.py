@@ -1,12 +1,12 @@
 from django.db.models import get_model
 from django.core import serializers
 
-from edc.constants import CLOSED
-from edc.core.crypto_fields.classes import FieldCryptor
+from edc_constants.constants import CLOSED
+from edc_base.encrypted_fields import FieldCryptor
 
-from edc_export import ExportTransaction
+from ..models import ExportTransaction
 
-from edc_export_helper import ExportHelper
+from .export_helper import ExportHelper
 
 
 class ExportModelHelper(ExportHelper):
@@ -26,7 +26,7 @@ class ExportModelHelper(ExportHelper):
 
     @property
     def transactions(self):
-        """Prepares a list of transactions to edc_export."""
+        """Prepares a list of transactions to export."""
         if not self._transactions:
             self.app_label = self.export_plan.app_label
             self.model_name = self.export_plan.object_name
@@ -40,9 +40,9 @@ class ExportModelHelper(ExportHelper):
             # get the queued export transactions
             self.export_transactions = ExportTransaction.objects.filter(
                 app_label=self.model._meta.app_label,
-                object_name=self.model._meta.object_name,
-                ).exclude(status__in=[CLOSED, 'cancelled'], )  # if already exported but not closed, will send again
-            # decrypt edc_export transactions and add to a list
+                object_name=self.model._meta.object_name).exclude(
+                    status__in=[CLOSED, 'cancelled'], )  # if already exported but not closed, will send again
+            # decrypt export transactions and add to a list
             for export_transaction in self.export_transactions:
                 for obj in serializers.deserialize(
                         "json", FieldCryptor('aes', 'local').decrypt(export_transaction.tx)):

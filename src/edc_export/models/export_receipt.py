@@ -1,43 +1,31 @@
-# from django.core.urlresolvers import reverse
 from django.db import models
 from django_extensions.db.fields import UUIDField
 
-from edc_base.model.models import BaseUuidModel
-try:
-    from edc_sync.mixins import SyncMixin
-except ImportError:
-    SyncMixin = type('SyncMixin', (object, ), {})
+from edc.device.sync.models import BaseSyncUuidModel
 
 
-class ExportReceipt(SyncMixin, BaseUuidModel):
+class ExportReceipt(BaseSyncUuidModel):
 
     export_uuid = UUIDField(
         editable=False,
-        help_text="system field for edc_export tracking.")
+        help_text="system field for export tracking.")
 
     app_label = models.CharField(
-        max_length=64,
-    )
+        max_length=64)
 
     object_name = models.CharField(
-        max_length=64,
-    )
+        max_length=64)
 
     tx_pk = models.CharField(
-        max_length=36,
-    )
+        max_length=36)
 
     timestamp = models.CharField(
         max_length=50,
-        null=True,
-    )
+        null=True)
 
     received_datetime = models.DateTimeField(
         null=True,
-        help_text='date ACK received'
-    )
-
-    objects = models.Manager()
+        help_text='date ACK received')
 
     def __unicode__(self):
         return '{} {}'.format(self.object_name, self.export_uuid)
@@ -47,5 +35,5 @@ class ExportReceipt(SyncMixin, BaseUuidModel):
         return 'dashboard?'
 
     class Meta:
-        app_label = 'edc_export'
+        app_label = 'export'
         ordering = ('-timestamp', )

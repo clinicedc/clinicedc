@@ -1,21 +1,27 @@
 import json
+
 from datetime import datetime
+
 from django.core import serializers
-from django.apps import apps
+from django.db.models import get_model
 
-from django_crypto_fields.classes import FieldCryptor
-from edc_export.classes import ExportAsCsv, ExportJsonAsCsv
+from edc_base.encrypted_fields import FieldCryptor
+
+from .classes import ExportAsCsv, ExportJsonAsCsv
 
 
-def export_as_csv_action(description="Export selected objects to CSV",
-                         fields=None, exclude=None, extra_fields=None, header=True, track_history=True, show_all_fields=True, delimiter=None, encrypt=True, strip=True):
+def export_as_csv_action(
+        description="Export selected objects to CSV",
+        fields=None, exclude=None, extra_fields=None,
+        header=True, track_history=True, show_all_fields=True,
+        delimiter=None, encrypt=True, strip=True):
     """
-    Return an edc_export csv action
+    Return an export csv action
     'fields' and 'exclude' work like in django ModelForm
     'header' is whether or not to output the column names as the first row
 
     in my_app/admin.py add this import::
-        from edc.edc_export.actions import export_as_csv_action
+        from edc.export.actions import export_as_csv_action
 
     add this to your modeladmin class::
         actions = [export_as_csv_action("CSV Export",
@@ -49,9 +55,10 @@ def export_as_csv_action(description="Export selected objects to CSV",
     return export
 
 
-def export_tx_to_csv_action(description="Export transaction in each selected object to CSV",
-                            fields=None, exclude=None, extra_fields=None, header=True, track_history=True,
-                            show_all_fields=True, delimiter=None, encrypt=True, strip=True):
+def export_tx_to_csv_action(
+        description="Export transaction in each selected object to CSV",
+        fields=None, exclude=None, extra_fields=None, header=True, track_history=True,
+        show_all_fields=True, delimiter=None, encrypt=True, strip=True):
 
     def export(modeladmin, request, queryset):
         transactions = []
@@ -60,7 +67,7 @@ def export_tx_to_csv_action(description="Export transaction in each selected obj
             if not model:
                 app_label = qs.app_label
                 model_name = qs.object_name
-                model = apps.get_model(app_label, model_name)
+                model = get_model(app_label, model_name)
             else:
                 if not app_label == qs.app_label or not model_name == qs.object_name:
                     raise ValueError(

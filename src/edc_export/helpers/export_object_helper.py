@@ -1,14 +1,14 @@
-from edc_export_helper import ExportHelper
+from .export_helper import ExportHelper
 
-from edc_export import ExportObjectAsCsv
+from ..classes import ExportObjectAsCsv
 
 
 class ExportObjectHelper(ExportHelper):
 
     """
     For example:
-        from edc.edc_export.helpers import ExportObjectHelper
-        from edc.edc_export.classes import ExportPlan
+        from edc.export.helpers import ExportObjectHelper
+        from edc.export.classes import ExportPlan
         from apps.bcpp_export.helpers import Member
 
         dct = {
@@ -28,7 +28,8 @@ class ExportObjectHelper(ExportHelper):
 
         export_plan = ExportPlan(**dct)
         members = []
-        for household_member in HouseholdMember.objects.filter(household_structure__household__plot__community='sefophe')[0:150]:
+        for household_member in HouseholdMember.objects.filter(
+                household_structure__household__plot__community='sefophe')[0:150]:
             member = Member(household_member)
             member.customize_for_csv()
             members.append(member)
@@ -55,7 +56,7 @@ class ExportObjectHelper(ExportHelper):
 
     @property
     def writer(self):
-        """Returns an instance of ExportJsonAsCsv for the list of transactions to edc_export."""
+        """Returns an instance of ExportJsonAsCsv for the list of transactions to export."""
         return self.writer_cls(
             self.export_filename,
             fields=self.export_plan.fields,
