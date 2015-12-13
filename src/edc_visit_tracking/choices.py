@@ -1,10 +1,12 @@
-# you'll probably use a local tuple for the VISIT_REASON. See visit model method get_visit_reason_choices()
+from edc_constants.constants import (
+    MISSED_VISIT, SCHEDULED, UNSCHEDULED, LOST_VISIT, DEFERRED_VISIT, DEATH_VISIT, OFF_STUDY)
+
 VISIT_REASON = (
-    ('scheduled', 'Scheduled visit/contact'),
-    ('unscheduled', 'Unscheduled visit/contact'),
-    ('missed', 'Missed visit'),
-    ('lost', 'Lost to follow-up (use only when taking subject off study)'),
-    ('deferred', 'Deferred'),
-    ('death', 'Death'),
-    ('off study', 'Off Study')
+    (SCHEDULED, 'Scheduled visit/contact'),
+    (UNSCHEDULED, 'Unscheduled visit/contact'),
+    (MISSED_VISIT, 'Missed visit'),
+    (LOST_VISIT, 'Lost to follow-up (use only when taking subject off study)'),
+    (DEFERRED_VISIT, 'Deferred'),
+    (DEATH_VISIT, 'Death'),
+    (OFF_STUDY, 'Off Study')
 )
