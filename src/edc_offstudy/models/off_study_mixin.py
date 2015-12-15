@@ -1,7 +1,8 @@
 from django.db import models
 
 from edc_constants.constants import OFF_STUDY
-from edc_offstudy.models.off_study_model_mixin import OffStudyError
+
+from .off_study_model_mixin import OffStudyError
 
 
 class OffStudyMixin(models.Model):
