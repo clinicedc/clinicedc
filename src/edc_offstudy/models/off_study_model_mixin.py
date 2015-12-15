@@ -10,6 +10,8 @@ from edc.base.model.validators.date import (
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NO, OFF_STUDY
 
+from ..managers import OffStudyManager
+
 
 class OffStudyError(Exception):
     pass
@@ -19,6 +21,7 @@ class OffStudyModelMixin(models.Model):
     """Mixin for the Off Study model."""
 
     VISIT_MODEL = None
+    REGISTERED_SUBJECT_MODEL = None
 
     report_datetime = models.DateTimeField(
         verbose_name="Visit Date and Time",
@@ -53,10 +56,10 @@ class OffStudyModelMixin(models.Model):
         blank=True,
         null=True)
 
-#     objects = OffStudyManager()
-#
-#     def natural_key(self):
-#         return (self.offstudy_date, ) + self.registered_subject.natural_key()
+    objects = OffStudyManager(REGISTERED_SUBJECT_MODEL)
+
+    def natural_key(self):
+        return (self.offstudy_date, ) + self.registered_subject.natural_key()
 
     def __unicode__(self):
         return "{0} {1} ({2})".format(self.registered_subject.subject_identifier,
