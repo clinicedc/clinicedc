@@ -1,4 +1,5 @@
 from django.utils import timezone
+from datetime import date
 
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -24,7 +25,7 @@ class LocatorMixin(models.Model):
 
     date_signed = models.DateField(
         verbose_name="Date Locator Form signed ",
-        default=timezone.now,
+        default=date.today(),
         help_text="",
     )
 
