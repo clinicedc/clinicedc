@@ -1,7 +1,6 @@
-from datetime import datetime, date, time
+from datetime import datetime, time
 
 from django.db import models
-from django.db.models import Max
 
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NO, OFF_STUDY
@@ -9,6 +8,8 @@ from edc_base.encrypted_fields import mask_encrypted
 from edc_base.model.fields import OtherCharField
 from edc.base.model.validators.date import datetime_not_before_study_start, datetime_not_future,\
     date_not_before_study_start, date_not_future
+
+from ..managers import OffStudyManager
 
 
 class OffStudyError(Exception):
@@ -19,6 +20,7 @@ class OffStudyModelMixin(models.Model):
     """Mixin for the Off Study model."""
 
     VISIT_MODEL = None
+    REGISTERED_SUBJECT_MODEL = None
 
     report_datetime = models.DateTimeField(
         verbose_name="Visit Date and Time",
@@ -53,10 +55,10 @@ class OffStudyModelMixin(models.Model):
         blank=True,
         null=True)
 
-#     objects = OffStudyManager()
-#
-#     def natural_key(self):
-#         return (self.offstudy_date, ) + self.registered_subject.natural_key()
+    objects = OffStudyManager(REGISTERED_SUBJECT_MODEL)
+
+    def natural_key(self):
+        return (self.offstudy_date, ) + self.registered_subject.natural_key()
 
     def __unicode__(self):
         return "{0} {1} ({2})".format(self.registered_subject.subject_identifier,
