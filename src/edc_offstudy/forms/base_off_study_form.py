@@ -3,7 +3,8 @@ from django import forms
 
 class BaseOffStudyForm(forms.ModelForm):
 
-    """Used to edit the off study form and throws an exception if the off study date is invalid."""
+    """Used to edit the off study form and throws an exception
+    if the off study date is invalid."""
 
     def clean(self):
         cleaned_data = super(BaseOffStudyForm, self).clean()

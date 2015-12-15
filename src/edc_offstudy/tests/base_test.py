@@ -4,17 +4,15 @@ from django.test import TestCase
 from django.utils import timezone
 
 from edc.core.bhp_variables.models import StudySite
+from edc.lab.lab_profile.classes import site_lab_profiles
+from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.appointment.models import Appointment
 from edc.subject.lab_tracker.classes import site_lab_tracker
-from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
+from edc.subject.registration.tests.factories import RegisteredSubjectFactory
 from edc.subject.visit_schedule.models import VisitDefinition
-from edc.testing.classes import TestVisitSchedule, TestAppConfiguration
-from edc.testing.classes import TestLabProfile
-from edc.testing.tests.factories import TestConsentWithMixinFactory
-from edc.lab.lab_profile.classes import site_lab_profiles
-from edc.testing.tests.factories import TestVisitFactory
+from edc.testing.classes import TestLabProfile, TestVisitSchedule, TestAppConfiguration
+from edc.testing.tests.factories import TestConsentWithMixinFactory, TestVisitFactory
 from edc_constants.constants import MALE
-from edc.subject.registration.tests.factories.registered_subject_factory import RegisteredSubjectFactory
 
 
 class BaseTest(TestCase):

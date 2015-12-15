@@ -1,11 +1,13 @@
 from django.db import models
-from edc_offstudy.models.off_study_model_mixin import OffStudyError
+
 from edc_constants.constants import OFF_STUDY
+from edc_offstudy.models.off_study_model_mixin import OffStudyError
 
 
 class OffStudyMixin(models.Model):
 
-    """A mixin for scheduled models to add the ability to determine if the subject is off study."""
+    """A mixin for scheduled models to add the ability to determine
+    if the subject is off study."""
 
     OFF_STUDY_MODEL = None
 
@@ -23,7 +25,8 @@ class OffStudyMixin(models.Model):
         subject_identifier = self.get_subject_identifier()
         if not subject_identifier:
             raise ValueError(
-                '{} cannot determine the subject identifier. Got None'.format(self.__class__.__name__))
+                '{} cannot determine the subject identifier. '
+                'Got None'.format(self.__class__.__name__))
         try:
             report_datetime = self.report_datetime
         except AttributeError:

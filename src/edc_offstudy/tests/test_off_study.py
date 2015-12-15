@@ -1,19 +1,17 @@
 from datetime import date
-from django.db import models
-
-from edc_offstudy.models import OffStudyModelMixin, OffStudyMixin
-from edc_base.model.models.base_uuid_model import BaseUuidModel
-from edc.subject.registration.models import RegisteredSubject
-from edc.subject.visit_tracking.models.base_visit_tracking import BaseVisitTracking
-from edc.entry_meta_data.models.meta_data_mixin import MetaDataMixin
-from edc.subject.visit_tracking.models.previous_visit_mixin import PreviousVisitMixin
-from edc_offstudy.tests.base_test import BaseTest
-from django.utils import timezone
-from edc_offstudy.models.off_study_model_mixin import OffStudyError
 from dateutil.relativedelta import relativedelta
-from edc.subject.appointment.models.appointment import Appointment
-from edc.subject.visit_schedule.models.visit_definition import VisitDefinition
+from django.db import models
+from django.utils import timezone
+
+from edc.entry_meta_data.models import MetaDataMixin
+from edc.subject.appointment.models import Appointment
+from edc.subject.registration.models import RegisteredSubject
+from edc.subject.visit_schedule.models import VisitDefinition
+from edc.subject.visit_tracking.models import BaseVisitTracking, PreviousVisitMixin
+from edc_base.model.models import BaseUuidModel
 from edc_constants.constants import SCHEDULED, OFF_STUDY
+from edc_offstudy.models import OffStudyModelMixin, OffStudyMixin, OffStudyError
+from edc_offstudy.tests.base_test import BaseTest
 
 
 class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, BaseVisitTracking):
@@ -123,7 +121,8 @@ class TestOffStudy(BaseTest):
                 registered_subject=self.registered_subject,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 offstudy_date=date.today() - relativedelta(weeks=4))
-        self.assertIn('Off study report must be submitted on an off study visit', str(cm.exception))
+        self.assertIn('Off study report must be submitted with an '
+                      'off study visit on the same day.', str(cm.exception))
 
     def test_off_study_deletes_future_appointments(self):
         visit_definition = VisitDefinition.objects.get(code='2000')
