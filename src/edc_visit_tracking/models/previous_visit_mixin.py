@@ -83,7 +83,8 @@ class PreviousVisitMixin(models.Model):
                 previous_visit_definition = previous_visit_definition or self.previous_visit_definition(
                     self.appointment.visit_definition)
                 previous_visit = self.__class__.objects.get(
-                    appointment__visit_definition=previous_visit_definition)
+                    appointment__visit_definition=previous_visit_definition,
+                    appointment__registered_subject=self.appointment.registered_subject)
             except self.__class__.DoesNotExist:
                 previous_visit = None
         return previous_visit
