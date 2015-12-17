@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from edc.testing.models import TestModel
 from edc.dashboard.search.classes import BaseSearchByWord
 
-from edc_dashboard import site_sections, BaseSectionView
+from ..classes import site_sections, BaseSectionView
 
 
 class TestModelSearchByWord(BaseSearchByWord):

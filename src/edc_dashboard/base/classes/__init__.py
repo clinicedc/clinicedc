@@ -1,1 +1,1 @@
-from edc_dashboard import Dashboard
+from .dashboard import Dashboard

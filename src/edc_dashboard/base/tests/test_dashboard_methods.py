@@ -5,8 +5,8 @@ from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
 from edc.subject.registration.models import RegisteredSubject
 from edc.testing.models import TestConsent, TestVisit
 
-from edc_dashboard import Dashboard
-from edc_dashboard import DashboardModelError
+from ..classes import Dashboard
+from ..exceptions import DashboardModelError
 
 
 class TestDashboardMethods(TestCase):
@@ -32,7 +32,7 @@ class TestDashboardMethods(TestCase):
         self.assertRaises(TypeError, Dashboard, 'subject', registered_subject.pk, RegisteredSubject)
 
     def test_with_registered_subject(self):
-        """assert OK if registered_subject is the edc_dashboard model and is specified as model class"""
+        """assert OK if registered_subject is the dashboard model and is specified as model class"""
         test_consent = self.test_consent_factory()
         registered_subject = test_consent.registered_subject
         dashboard = Dashboard('subject', registered_subject.pk, RegisteredSubject, dashboard_type_list=['subject'])
@@ -50,7 +50,7 @@ class TestDashboardMethods(TestCase):
         self.assertEquals(dashboard.dashboard_model_name, 'registered_subject')
 
     def test_with_registered_subject2(self):
-        """"assert OK if registered_subject is the edc_dashboard model and is specified as a model_name instead of class"""
+        """"assert OK if registered_subject is the dashboard model and is specified as a model_name instead of class"""
         test_consent = self.test_consent_factory()
         registered_subject = test_consent.registered_subject
         dashboard = Dashboard('subject', registered_subject.pk, 'registered_subject', dashboard_type_list=['subject'])
@@ -72,12 +72,12 @@ class TestDashboardMethods(TestCase):
         self.assertRaises(TypeError, Dashboard, 'subject', test_consent.pk, TestConsent)
 
     def test_dashboard_model(self):
-        """assert raises exception if edc_dashboard model is not in dictionary"""
+        """assert raises exception if dashboard model is not in dictionary"""
         test_consent = self.test_consent_factory()
         self.assertRaises(DashboardModelError, Dashboard, 'subject', test_consent.pk, TestConsent, dashboard_type_list=['subject'])
 
     def test_dashboard_model2(self):
-        """assert OK if edc_dashboard model is added to dictionary using the edc_dashboard instance"""
+        """assert OK if dashboard model is added to dictionary using the dashboard instance"""
         test_consent = self.test_consent_factory()
         registered_subject = test_consent.registered_subject
         dashboard = Dashboard('subject', registered_subject.pk, 'registered_subject', dashboard_type_list=['subject'])
@@ -85,7 +85,7 @@ class TestDashboardMethods(TestCase):
         self.assertIn('test_consent', dashboard.dashboard_models)
 
     def test_dashboard_1(self):
-        """assert OK if edc_dashboard model is specified (and added) at init instead of on the edc_dashboard instance"""
+        """assert OK if dashboard model is specified (and added) at init instead of on the dashboard instance"""
         test_consent = self.test_consent_factory()
 
         class D1(Dashboard):
@@ -104,7 +104,7 @@ class TestDashboardMethods(TestCase):
         self.assertEquals(dashboard.dashboard_model_name, 'test_consent')
 
     def test_dashboard_2(self):
-        """assert can add a model to the edc_dashboard model list"""
+        """assert can add a model to the dashboard model list"""
         test_consent = self.test_consent_factory()
         dashboard = Dashboard(
             'subject',

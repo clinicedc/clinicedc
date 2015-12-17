@@ -18,9 +18,9 @@
     </thead>
     {% for f in additional_entry_bucket %}
         <tr class="{% cycle 'row1' 'row2' %}">
-        {% if f.entry_status == NEW %}
+        {% if f.entry_status == UNKEYED %}
         	<td><A href="{% url f.content_type_map|admin_urlname:'add'%}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{ dashboard_type }}&dashboard_model={{ dashboard_model }}&dashboard_id={{ dashboard_id }}&show=forms&{{visit_attr}}={{ visit_model_instance.pk }}&visit_attr={{visit_attr}}&registered_subject={{visit_model_instance.appointment.registered_subject.pk}}">{{ f.content_type_map.content_type|model_verbose_name|title }}</A></td>
-        {% elif f.entry_status == 'KEYED' %}
+        {% elif f.entry_status == KEYED %}
         	<td><A href="{% model_admin_url_from_registered_subject f.content_type_map.content_type visit_model_instance.appointment.registered_subject dashboard_type app_label %}">{{ f.content_type_map.content_type|model_verbose_name|title }}</A></td>
         {% else %}                
             {{ f.content_type_map.content_type|model_verbose_name|title }}
@@ -30,7 +30,7 @@
         <td>{{ f.report_datetime|date:"Y-m-d" }}</td>               
         <td>{{ f.entry_comment }}</td>        
         <td>{{ f.close_datetime|date:"Y-m-d" }}</td>  
-        <td>{% if not f.entry_status == NEW and not f.entry_status == NOT_REQUIRED %}<A href="/databrowse/{{ f.content_type_map.app_label }}/{{f.content_type_map.model }}/objects/{% model_pk_from_registered_subject f.content_type_map.content_type registered_subject dashboard_type app_label %}">Browse</A>{% endif %}</td>
+        <td>{% if not f.entry_status == UNKEYED and not f.entry_status == NOT_REQUIRED %}<A href="/databrowse/{{ f.content_type_map.app_label }}/{{f.content_type_map.model }}/objects/{% model_pk_from_registered_subject f.content_type_map.content_type registered_subject dashboard_type app_label %}">Browse</A>{% endif %}</td>
         <td><A href="/audit_trail/{{ f.content_type_map.app_label }}/{{ f.content_type_map.model }}/{{ subject_identifier }}/?visit_code={{ visit_code }}&visit_instance={{ visit_instance}}&&back_url_name={{ subject_dashboard_visit_url|default:"dashboard_visit_url" }}&dashboard_type={{ dashboard_type }}">audit trail</a></td>                                                                                 
         </tr>
     {% endfor %}

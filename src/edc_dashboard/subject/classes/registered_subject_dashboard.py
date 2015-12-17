@@ -7,16 +7,15 @@ from django.db.models import TextField, Count
 from django.template.loader import render_to_string
 
 from edc.apps.app_configuration.models.global_configuration import GlobalConfiguration
-from edc.constants import NEW, NOT_REQUIRED
 from edc.core.bhp_common.utils import convert_from_camel
-from edc.data_manager.models import ActionItem
 from edc.core.crypto_fields.fields import EncryptedTextField
 from edc.dashboard.base.classes import Dashboard
+from edc.data_manager.models import ActionItem
+from edc.data_manager.models import TimePointStatus
 from edc.entry_meta_data.helpers import ScheduledEntryMetaDataHelper, RequisitionMetaDataHelper
 from edc.lab.lab_clinic_api.classes import EdcLabResults
 from edc.lab.lab_packing.models import BasePackingList
 from edc.lab.lab_requisition.models import BaseBaseRequisition
-from edc.subject.appointment.constants import IN_PROGRESS
 from edc.subject.appointment.models import Appointment
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc.subject.locator.models import BaseLocator
@@ -25,11 +24,11 @@ from edc.subject.subject_config.models import SubjectConfiguration
 from edc.subject.subject_summary.models import Link
 from edc.subject.visit_schedule.classes import MembershipFormHelper
 from edc.subject.visit_schedule.models import MembershipForm
-from edc.subject.visit_tracking.models import BaseVisitTracking
-from edc.data_manager.models import TimePointStatus
+from edc_constants.constants import NEW, NOT_REQUIRED, UNKEYED, KEYED, NEW_APPT, COMPLETE_APPT, IN_PROGRESS
+from edc_visit_tracking.models import BaseVisitTracking
 
-from edc_dashboard import ScheduledEntryContext
-from edc_dashboard import RequisitionContext
+from .scheduled_entry_context import ScheduledEntryContext
+from .requisition_context import RequisitionContext
 
 
 class RegisteredSubjectDashboard(Dashboard):
@@ -59,10 +58,8 @@ class RegisteredSubjectDashboard(Dashboard):
 
     def get_context_data(self, **kwargs):
         self.context = super(RegisteredSubjectDashboard, self).get_context_data(**kwargs)
+        self.context.update(self.base_rendered_context)
         self.context.update(
-            IN_PROGRESS=IN_PROGRESS,
-            NEW=NEW,
-            NOT_REQUIRED=NOT_REQUIRED,
             appointment=self.appointment,
             appointment_row_template=self.appointment_row_template,
             appointment_visit_attr=self.visit_model._meta.object_name.lower(),
@@ -91,12 +88,12 @@ class RegisteredSubjectDashboard(Dashboard):
                 self.visit_model._meta.app_label, self.visit_model._meta.object_name.lower()),
             visit_model_instance=self.visit_model_instance,
             time_point_status=self.time_point_status,
-            )
+        )
         if self.show == 'forms':
             self.context.update(
                 requisition_model=self.requisition_model,
                 rendered_scheduled_forms=self.rendered_scheduled_forms,
-                )
+            )
             if self.requisition_model:
                 self.context.update(requisition_model_meta=self.requisition_model._meta)
                 self.context.update(rendered_scheduled_requisitions=self.rendered_requisitions)
@@ -121,7 +118,7 @@ class RegisteredSubjectDashboard(Dashboard):
                     'show': 'forms'})
 
     def verify_dashboard_model(self, value):
-        """Verify the edc_dashboard model has a way to get to registered_subject."""
+        """Verify the dashboard model has a way to get to registered_subject."""
         for model in value.itervalues():
             if model:
                 if 'get_registered_subject' not in dir(model):
@@ -157,7 +154,7 @@ class RegisteredSubjectDashboard(Dashboard):
         """Returns to the value returned by the site_lab_tracker for this registered subject."""
         self._subject_hiv_history = None
         if self.registered_subject:
-            # TODO: this gets hit on every edc_dashboard refresh and is very SLOW
+            # TODO: this gets hit on every dashboard refresh and is very SLOW
             self._subject_hiv_history = site_lab_tracker.get_history_as_string(
                 'HIV', self.registered_subject.subject_identifier, self.registered_subject.subject_type)
         return self._subject_hiv_history
@@ -350,8 +347,8 @@ class RegisteredSubjectDashboard(Dashboard):
                     self.registered_subject,
                     category,
                     extra_grouping_key=self.exclude_others_if_keyed_model_name
-                    )
                 )
+            )
         return self._subject_membership_models
 
     @property
@@ -485,16 +482,16 @@ class RegisteredSubjectDashboard(Dashboard):
 
         .. note:: getting access to the correct visit model instance for the locator
                   is a bit tricky. locator model is usually scheduled once for the
-                  subject type and otherwise edited from the edc_dashboard sidebar. It may
-                  also be 'added' from the edc_dashboard sidebar. Either way, the visit model
+                  subject type and otherwise edited from the dashboard sidebar. It may
+                  also be 'added' from the dashboard sidebar. Either way, the visit model
                   instance is required -- that being the instance that was (or would
-                  have been) used if updated as a scheduled form. If the edc_dashboard is
+                  have been) used if updated as a scheduled form. If the dashboard is
                   in appointments mode, there is no selected visit model instance.
-                  Similarly, if the locator is edited from another edc_dashboard, such as
-                  the infant edc_dashboard with maternal/infant pairs, the maternal visit
+                  Similarly, if the locator is edited from another dashboard, such as
+                  the infant dashboard with maternal/infant pairs, the maternal visit
                   instance is not known. Some methods may be overriden to solve this.
                   They all have 'locator' in the name."""
-        context = {}
+        context = self.base_rendered_context
         if self.locator_model:
             locator_add_url = None
             locator_change_url = None
@@ -514,24 +511,25 @@ class RegisteredSubjectDashboard(Dashboard):
                         value = getattr(self.locator_inst, field.name)
                         if value:
                             setattr(self.locator_inst, field.name, '<BR>'.join(wrap(value, 25)))
-            context.update({
-                'subject_dashboard_url': self.dashboard_url_name,
-                'dashboard_type': self.dashboard_type,
-                'dashboard_model': self.dashboard_model_name,
-                'dashboard_id': self.dashboard_id,
-                'show': self.show,
-                'registered_subject': self.registered_subject,
-                'visit_attr': self.visit_model_attrname,
-                'visit_model_instance': self.visit_model_instance,
-                'appointment': self.appointment,
-                'locator_add_url': locator_add_url,
-                'locator_change_url': locator_change_url})
+        context.update({
+            'subject_dashboard_url': self.dashboard_url_name,
+            'dashboard_type': self.dashboard_type,
+            'dashboard_model': self.dashboard_model_name,
+            'dashboard_id': self.dashboard_id,
+            'show': self.show,
+            'registered_subject': self.registered_subject,
+            'visit_attr': self.visit_model_attrname,
+            'visit_model_instance': self.visit_model_instance,
+            'appointment': self.appointment,
+            'locator_add_url': locator_add_url,
+            'locator_change_url': locator_change_url})
         # subclass may insert / update context values (e.g. visit stuff)
-            context = self.update_locator_context(context)
+        context = self.update_locator_context(context)
         return render_to_string(self.locator_template, context)
 
     def update_locator_context(self, context):
         """Update context to set visit information if needing something other than the default."""
+        context.update(self.base_rendered_context)
         if context.get('visit_model_instance'):
             if not isinstance(context.get('visit_model_instance'), self.locator_visit_model):
                 context['visit_model_instance'] = None
@@ -564,7 +562,7 @@ class RegisteredSubjectDashboard(Dashboard):
         if isinstance(action_item_cls, models.Model):
             raise TypeError(
                 'Expected first parameter to be a Action Item model class. '
-                'Got an instance. Please correct in local edc_dashboard view.')
+                'Got an instance. Please correct in local dashboard view.')
         if not template:
             template = 'action_item_include.html'
         action_items = action_item_cls.objects.filter(
@@ -584,7 +582,8 @@ class RegisteredSubjectDashboard(Dashboard):
                                      'Please review and resolve if possible.'))
         else:
             self.context.update(action_item_message=None)
-        rendered_action_items = render_to_string(template, {
+        self.context.update(self.base_rendered_context)
+        self.context.update({
             'action_items': action_item_instances,
             'registered_subject': self.registered_subject,
             'dashboard_type': self.dashboard_type,
@@ -592,11 +591,12 @@ class RegisteredSubjectDashboard(Dashboard):
             'dashboard_id': self.dashboard_id,
             'show': self.show,
             'action_item_meta': action_item_cls._meta})
+        rendered_action_items = render_to_string(template, self.context)
         return rendered_action_items
 
     @property
     def rendered_scheduled_forms(self):
-        """Renders the Scheduled Entry Forms section of the edc_dashboard
+        """Renders the Scheduled Entry Forms section of the dashboard
         using the context class ScheduledEntryContext."""
         template = 'scheduled_entries.html'
         scheduled_entries = []
@@ -606,7 +606,8 @@ class RegisteredSubjectDashboard(Dashboard):
             scheduled_entry_context = ScheduledEntryContext(
                 meta_data_instance, self.appointment, self.visit_model)
             scheduled_entries.append(scheduled_entry_context.context)
-        rendered_scheduled_forms = render_to_string(template, {
+        context = self.base_rendered_context
+        context.update({
             'scheduled_entries': scheduled_entries,
             'visit_attr': self.visit_model_attrname,
             'visit_model_instance': self.visit_model_instance,
@@ -618,11 +619,12 @@ class RegisteredSubjectDashboard(Dashboard):
             'dashboard_id': self.dashboard_id,
             'subject_dashboard_url': self.dashboard_url_name,
             'show': self.show})
+        rendered_scheduled_forms = render_to_string(template, context)
         return rendered_scheduled_forms
 
     @property
     def rendered_requisitions(self):
-        """Renders the Scheduled Requisitions section of the edc_dashboard
+        """Renders the Scheduled Requisitions section of the dashboard
         using the context class RequisitionContext."""
         template = 'scheduled_requisitions.html'
         scheduled_requisitions = []
@@ -644,7 +646,8 @@ class RegisteredSubjectDashboard(Dashboard):
                 additional_requisitions.append(requisition_context.context)
             else:
                 scheduled_requisitions.append(requisition_context.context)
-        rendered_requisitions = render_to_string(template, {
+        context = self.base_rendered_context
+        context.update({
             'scheduled_requisitions': scheduled_requisitions,
             'additional_requisitions': additional_requisitions,
             'drop_down_list_requisitions': self.drop_down_list_requisitions(scheduled_requisitions),
@@ -658,6 +661,7 @@ class RegisteredSubjectDashboard(Dashboard):
             'dashboard_id': self.dashboard_id,
             'subject_dashboard_url': self.dashboard_url_name,
             'show': self.show})
+        rendered_requisitions = render_to_string(template, context)
         return rendered_requisitions
 
     def drop_down_list_requisitions(self, scheduled_requisitions):
@@ -676,10 +680,22 @@ class RegisteredSubjectDashboard(Dashboard):
         """Renders to string a to a url to the historymodel for the subject_hiv_status."""
         if self.subject_hiv_status:
             change_list_url = reverse('admin:lab_tracker_historymodel_changelist')
-            return render_to_string(self.subject_hiv_template, {
+            context = self.base_rendered_context
+            context.update({
                 'subject_hiv_status': self.subject_hiv_status,
                 'subject_identifier': self.subject_identifier,
                 'subject_type': self.subject_type,
                 'change_list_url': change_list_url})
-
+            return render_to_string(self.subject_hiv_template, context)
         return ''
+
+    @property
+    def base_rendered_context(self):
+        return dict(
+            IN_PROGRESS=IN_PROGRESS,
+            NEW=NEW,
+            KEYED=KEYED,
+            UNKEYED=UNKEYED,
+            NOT_REQUIRED=NOT_REQUIRED,
+            NEW_APPT=NEW_APPT,
+            COMPLETE_APPT=COMPLETE_APPT)

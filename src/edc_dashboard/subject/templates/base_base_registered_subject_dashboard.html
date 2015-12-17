@@ -19,15 +19,15 @@
         
     </div>
     
-{% endblock %}
+{% endblock breadcrumbs %}
 
 
 {% block dashboard_main %}
 
 {% block clinic_dashboard_marquee %}
   {% block subject_consent %}
-  {% endblock%}
-{% endblock %}
+  {% endblock subject_consent%}
+{% endblock clinic_dashboard_marquee%}
 
 {% block clinic_dashboard %}
 
@@ -46,8 +46,8 @@
             <table name="left" id="left" border=1 width=100%>
                 <tr name="top left">
                     <td>
-                    {% block membership_forms %}{% endblock %}
-                    {% block dispatch %}{%endblock%}
+                    {% block membership_forms %}{% endblock membership_forms %}
+                    {% block dispatch %}{%endblock dispatch%}
                     </td>
                 </tr>
                 <tr name="top left">
@@ -55,7 +55,7 @@
                         <H5>Appointments</H5>
                         {% block appointment_continuation %}
                           <A href="{% url 'admin:appointment_appointment_add' %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&visit_definition={{ appointment.visit_definition.pk }}&registered_subject={{registered_subject.pk}}">add continuation appointment</A>
-                        {% endblock%}
+                        {% endblock appointment_continuation%}
                      
                         {% block appointments %}
 
@@ -84,7 +84,7 @@
                 {% if show == 'forms' %}                
                    <tr name="bottom left" >
                        <td>
-                           {% block additional_forms %}{% endblock%}
+                           {% block additional_forms %}{% endblock additional_forms%}
                        </td>
                    </tr>
    
@@ -163,14 +163,12 @@
                             {% else %}
                                 <A href="{% url 'admin:data_manager_timepointstatus_add' %}?appointment={{ appointment.pk }}&next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">time-point status</A>
                             {% endif %}
-                        {% endif %}&nbsp;|&nbsp;
+                        {% endif %}&nbsp;|&nbsp;{% block correct_consent %}{% endblock correct_consent %}
                     {% endblock time_point_status %}
-                    
-                    {% block correct_consent %}{% endblock correct_consent %}
                     
                 {% endblock top_links %}
                 </td></tr>
-
+				
                 {% block referral %}{% endblock referral %}   
 
                 {% block infants %}{% endblock infants %}   
@@ -191,7 +189,7 @@
                         </td>
                     </tr>
                 {% endblock action_items %}
-                {% block clinic_plots %}{% endblock %}
+                {% block clinic_plots %}{% endblock clinic_plots %}
                
                 {% block summaries %}
                 {% if summary_links %}
@@ -232,14 +230,14 @@
                 
 
                 
-                {% block lab_plots %}{% endblock %}
+                {% block lab_plots %}{% endblock lab_plots %}
                 {% block lab_results %}
                 <tr name="middle right"><td style="font-size: 10px;line-height: 10px; padding:0;">           
                     <span name="x_results" id="x_results">
                       {% include 'result_status_bar.html' with resulted=resulted ordered=ordered last_updated=last_updated %}
                     </span>
                 </td></tr>
-                {% endblock %}
+                {% endblock lab_results %}
                 
 
             </table>
@@ -248,7 +246,7 @@
     </tr>
 </tbody>    
 </table>
-{% endblock %}
+{% endblock clinic_dashboard %}
 
 {% endblock dashboard_main %}
 

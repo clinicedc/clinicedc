@@ -1,13 +1,14 @@
 from django import template
 from django.core.urlresolvers import reverse
-from edc.subject.visit_tracking.classes import VisitModelHelper
+
+from edc_visit_tracking.classes import VisitModelHelper
 
 register = template.Library()
 
 
 def render_appointment_row(context, appointment):
 
-    """Given an apointment instance, render to template an appointment/visit report row for the clinic edc_dashboard."""
+    """Given an apointment instance, render to template an appointment/visit report row for the clinic dashboard."""
 
     my_context = {}
     my_context['appointment'] = appointment
@@ -67,7 +68,7 @@ class ModelPk(template.Node):
             #if model_cls.objects.extra(where=[visit_attr + '=%s'], params=[self.visit_model_instance.pk]):
             if model_cls.objects.filter(**{visit_attr: self.visit_model_instance}).exists():
                 # the link is for a change
-                # these next two lines would change if for another edc_dashboard and another visit model
+                # these next two lines would change if for another dashboard and another visit model
                 #next = 'dashboard_visit_url'
                 model_instance = model_cls.objects.get(**{visit_attr: self.visit_model_instance})
                 #model_instance = model_cls.objects.extra(where=[visit_attr + '=%s'], params=[self.visit_model_instance.pk])[0]
@@ -87,7 +88,7 @@ def model_pk(parser, token):
 
 class ModelAdminUrl(template.Node):
 
-    """return a reverse url to admin + '?edc_dashboard-specific querystring' for 'change' or 'add' for a given contenttype model name"""
+    """return a reverse url to admin + '?dashboard-specific querystring' for 'change' or 'add' for a given contenttype model name"""
 
     def __init__(self, contenttype, visit_attr, next_url, dashboard_type, dashboard_model, dashboard_id, show, extra_url_context):
         self.unresolved_contenttype = template.Variable(contenttype)
@@ -174,7 +175,7 @@ def model_admin_url(parser, token):
 
 class ModelAdminUrlFromRegisteredSubject(template.Node):
 
-    """return a reverse url to admin + '?edc_dashboard-specific querystring' for 'change' or 'add' for a given contenttype model name"""
+    """return a reverse url to admin + '?dashboard-specific querystring' for 'change' or 'add' for a given contenttype model name"""
 
     def __init__(self, contenttype, registered_subject, dashboard_type, app_label):
         self.unresolved_contenttype = template.Variable(contenttype)
@@ -192,14 +193,14 @@ class ModelAdminUrlFromRegisteredSubject(template.Node):
 
         if model_cls.objects.filter(registered_subject=self.registered_subject).exists():
             #the link is for a change
-            # these next two lines would change if for another edc_dashboard and another visit model
+            # these next two lines would change if for another dashboard and another visit model
             next_url_name = 'dashboard_url'
             model_instance = model_cls.objects.get(registered_subject=self.registered_subject)
             # do reverse url
             view = 'admin:%s_%s_change' % (model_cls._meta.app_label, model_cls._meta.module_name)
             view = str(view)
             rev_url = reverse(view, args=(model_instance.pk,))
-            # add GET string to rev_url so that you will return to the edc_dashboard ...whence you came... assuming you catch "next" in change_view
+            # add GET string to rev_url so that you will return to the dashboard ...whence you came... assuming you catch "next" in change_view
             rev_url = '%s?next=%s&dashboard_type=%s&registered_subject=%s' % (
                                                                        rev_url, next_url_name, self.dashboard_type,
                                                                        self.registered_subject.pk,

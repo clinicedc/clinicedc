@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.utils import translation
 from django.views.generic import TemplateView
 
-from edc_dashboard.section.classes import site_sections
+from edc.dashboard.section.classes import site_sections
 
 
 class Dashboard(TemplateView):
@@ -18,7 +18,7 @@ class Dashboard(TemplateView):
     urlpattern_view = None
     urlpatterns = [
         '^(?P<dashboard_type>{dashboard_type})/(?P<dashboard_model>{dashboard_model})/(?P<dashboard_id>{pk})/$',
-    ]
+        ]
     urlpattern_options = {
         'pk': '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}',
         'dashboard_model': '*',
@@ -58,7 +58,7 @@ class Dashboard(TemplateView):
     @property
     def dashboard_type(self):
         if self.context.get('dashboard_type') not in self.dashboard_type_list:
-            raise TypeError('Invalid edc_dashboard type. Expected one of {0}. Got \'{1}\''.format(
+            raise TypeError('Invalid dashboard type. Expected one of {0}. Got \'{1}\''.format(
                 self.dashboard_type_list, self.context.get('dashboard_type')))
         return self.context.get('dashboard_type')
 
@@ -89,7 +89,7 @@ class Dashboard(TemplateView):
                     'dashboard_type': self.dashboard_type,
                     'dashboard_model': self.dashboard_model_name,
                     'dashboard_id': self.dashboard_id}
-            )
+                )
         except NoReverseMatch:
             pass
 
@@ -103,16 +103,14 @@ class Dashboard(TemplateView):
 
     @section.setter
     def section(self, section_name):
-        """Sets the instance of the section class for the edc_dashboard."""
+        """Sets the instance of the section class for the dashboard."""
         section = site_sections.get(section_name)
         if not section:
             if site_sections.get_section_names() == []:
                 raise TypeError('class site_sections is not set up. Call autodoscover first.')
             section = site_sections.get(section_name)
         if not section:
-            raise TypeError(
-                'Could not find section \'{0}\' in site_sections. You need to '
-                'define a section class for this name in section.py.'.format(section_name))
+            raise TypeError('Could not find section \'{0}\' in site_sections. You need to define a section class for this name in section.py.'.format(section_name))
         self._section = section()
 
     @property
@@ -128,14 +126,13 @@ class Dashboard(TemplateView):
         self._extra_url_context = value
         default_value = '&form_language_code={0}'.format(self.language)
         if default_value not in self._extra_url_context:
-            self._extra_url_context = '{0}{1}'.format(
-                self._extra_url_context, '&form_language_code={0}'.format(self.language))
+            self._extra_url_context = '{0}{1}'.format(self._extra_url_context, '&form_language_code={0}'.format(self.language))
 
     @property
     def language(self):
         """Returns the language of consent.
 
-        If the consent has not been defined for this edc_dashboard, just take the settings LANGUAGE attribute."""
+        If the consent has not been defined for this dashboard, just take the settings LANGUAGE attribute."""
         if self.consent:
             self.consent.language
             translation.activate(self.consent.language)

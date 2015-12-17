@@ -1,17 +1,16 @@
 from django.core.urlresolvers import reverse
 
 from edc.core.bhp_common.utils import convert_from_camel
-from edc.constants import NOT_REQUIRED, ADDITIONAL
+from edc_constants.constants import NOT_REQUIRED, ADDITIONAL, IN_PROGRESS
 from edc.entry_meta_data.models import RequisitionMetaData
 from edc.lab.lab_profile.classes import site_lab_profiles
-from edc.subject.appointment.constants import IN_PROGRESS
 
-from edc_dashboard import BaseScheduledEntryContext
+from .base_scheduled_entry_context import BaseScheduledEntryContext
 
 
 class RequisitionContext(BaseScheduledEntryContext):
 
-    """A Class used by the edc_dashboard when rendering the list of scheduled entries to display under "Scheduled Forms"."""
+    """A Class used by the dashboard when rendering the list of scheduled entries to display under "Scheduled Forms"."""
 
     meta_data_model = RequisitionMetaData
 

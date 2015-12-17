@@ -123,7 +123,7 @@ class BaseSearchByWord(BaseSearcher):
             Q(initials__icontains=self.search_value) |
             Q(user_created__icontains=self.search_value) |
             Q(user_modified__icontains=self.search_value)
-            )
+        )
         return qset
 
     @property

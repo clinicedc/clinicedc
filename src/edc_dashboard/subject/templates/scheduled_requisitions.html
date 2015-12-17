@@ -23,7 +23,7 @@
 {% else %}
     {% for scheduled_requisition in scheduled_requisitions %}
         <tr class="{% cycle 'row1' 'row2' %}">
-            <td><span {% if scheduled_requisition.status == 'NEW' %}style="background:red;"{% endif %}>&nbsp;</span></td>
+            <td><span {% if scheduled_requisition.status == UNKEYED %}style="background:red;"{% endif %}>&nbsp;</span></td>
             <td>{{ forloop.counter }}</td>
             <td>
             {% if scheduled_requisition.model_url %}

@@ -5,8 +5,8 @@ from django.test import TestCase
 from edc.dashboard.section.classes import BaseSectionView, site_sections
 from edc.testing.models import TestConsent
 
-from edc_dashboard import BaseSearchByWord
-from edc_dashboard import SearchModelError, SearchAttributeError
+from ..classes import BaseSearchByWord
+from ..exceptions import SearchModelError, SearchAttributeError
 
 
 class SearchMethodsTests(TestCase):

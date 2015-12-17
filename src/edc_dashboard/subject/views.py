@@ -3,6 +3,7 @@ from edc.subject.appointment.models import Appointment
 from edc.subject.entry.models.lab_entry import LabEntry
 from edc.subject.entry.models.entry import Entry
 from edc.entry_meta_data.models import RequisitionMetaData
+from edc_constants.constants import UNKEYED
 
 
 def additional_requisition(request):
@@ -12,7 +13,7 @@ def additional_requisition(request):
     appointment = Appointment.objects.get(pk=appointment_id)
     lab_entry = LabEntry.objects.get(pk=lab_entry_id)
     requisition_meta_data = RequisitionMetaData.objects.get(appointment=appointment, lab_entry=lab_entry)
-    requisition_meta_data.entry_status = 'NEW'
+    requisition_meta_data.entry_status = UNKEYED
     requisition_meta_data.save()
 
     dashboard_type = _get_param(request, 'dashboard_type')

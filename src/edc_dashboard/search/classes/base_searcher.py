@@ -59,9 +59,8 @@ class BaseSearcher(object):
             [field.name for field in SearchForm().visible_fields()].index(field_name)
             self._search_form_field_name = field_name
         except ValueError:
-            raise ImproperlyConfigured(
-                'Search form field \'{}\' is not a visible field of search_form \'{}\''.format(
-                    field_name, self.search_form))
+            raise ImproperlyConfigured('Search form field \'{}\' is not a visible field of search_form \'{}\''.format(
+                field_name, self.search_form))
 
     @property
     def search_result(self):

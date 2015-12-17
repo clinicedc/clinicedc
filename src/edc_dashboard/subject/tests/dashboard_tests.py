@@ -28,8 +28,8 @@ class DashboardTests(TestCase):
 #         schedule_group = ScheduleGroupFactory(membership_form=membership_form)
 #         visit_definition = VisitDefinitionFactory()
 #         visit_definition.schedule_group.add(schedule_group)
-#         edc_dashboard = RegisteredSubjectDashboard()
-#         edc_dashboard.create(dashboard_type='subject',
+#         dashboard = RegisteredSubjectDashboard()
+#         dashboard.create(dashboard_type='subject',
 #                          dashboard_identifier='11111111',
 #                          registered_subject=registered_subject,
 #                          requisition_model=requisition_model,
@@ -74,7 +74,7 @@ class DashboardTests(TestCase):
             dashboard_models=None,
             visit_model=TestVisit
             )
-        print 'if null edc_dashboard category raises ImproperlyConfigured exception'
+        print 'if null dashboard category raises ImproperlyConfigured exception'
         self.assertRaises(ImproperlyConfigured, RegisteredSubjectDashboard,
             dashboard_type='subject',
             dashboard_id=test_consent_with_mixin.pk,
@@ -84,7 +84,7 @@ class DashboardTests(TestCase):
             visit_model=TestVisit,
             registered_subject=registered_subject
             )
-        print 'if invalid edc_dashboard category raises ImproperlyConfigured exception'
+        print 'if invalid dashboard category raises ImproperlyConfigured exception'
         self.assertRaises(ImproperlyConfigured, RegisteredSubjectDashboard,
             dashboard_type='subject',
             dashboard_id=test_consent_with_mixin.pk,

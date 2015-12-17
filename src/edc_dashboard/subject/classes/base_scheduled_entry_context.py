@@ -3,14 +3,13 @@ import copy
 from django.db.models import get_model
 from django.core.urlresolvers import reverse, NoReverseMatch
 
-from edcconstants import NOT_REQUIRED, ADDITIONAL
+from edc_constants.constants import NOT_REQUIRED, ADDITIONAL, IN_PROGRESS, NEW, KEYED, UNKEYED, NEW_APPT, COMPLETE_APPT
 from edc.core.bhp_common.utils import convert_from_camel
-from edc.subject.appointment.constants import IN_PROGRESS
 
 
 class BaseScheduledEntryContext(object):
 
-    """A Class used by the edc_dashboard when rendering the list of scheduled entries to display under "Scheduled Forms".
+    """A Class used by the dashboard when rendering the list of scheduled entries to display under "Scheduled Forms".
 
     .. note:: "model" is the data form or requisition to be keyed and "scheduled entry" is the meta data instance."""
 
@@ -30,6 +29,15 @@ class BaseScheduledEntryContext(object):
         context = copy.deepcopy(self.meta_data_instance.__dict__)
         for key in [key for key in context.keys() if key.startswith('_')]:
             del context[key]
+        context.update(
+            IN_PROGRESS=IN_PROGRESS,
+            NEW=NEW,
+            KEYED=KEYED,
+            UNKEYED=UNKEYED,
+            NOT_REQUIRED=NOT_REQUIRED,
+            NEW_APPT=NEW_APPT,
+            COMPLETE_APPT=COMPLETE_APPT,
+        )
         context.update({
             'user_created': None,
             'user_modified': None,

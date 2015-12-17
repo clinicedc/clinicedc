@@ -8,4 +8,4 @@ regex_patterns = {
     'yyyy_mm': re.compile('^[0-9]{4}\-[01]{1}[0-9]{1}$'),
     'yyyy': re.compile('^[0-9]{4}$'),
     'uuid': re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}'),
-}
+    }

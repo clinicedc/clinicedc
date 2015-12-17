@@ -5,7 +5,7 @@
 #     section_name = 'appointments'
 #     section_display_name = 'Appointments'
 #     section_display_index = 110
-#
+# 
 # site_sections.register(SectionAppointmentView)
 
 
@@ -13,5 +13,5 @@
 #     section_name = 'administration'
 #     section_display_name = 'Administration'
 #     section_display_index = 140
-#
+# 
 # site_sections.register(SectionAdministrationView)

@@ -8,4 +8,4 @@ class SearchForm(forms.Form):
         help_text="enter all or part of a word, name, identifier, etc",
         error_messages={'required': 'Please enter a search term.'},
         widget=forms.TextInput(attrs={'size': '10'})
-    )
+        )
