@@ -1,4 +1,0 @@
-
-
-class SectionError(Exception):
-    pass
