@@ -1,5 +1,6 @@
 ADDITIONAL = True
 ALIVE = 'alive'
+BY_BIRTH = 'BY_BIRTH'
 CANCELLED = 'cancelled'
 CLOSED = 'closed'
 COMPLETE = 'COMPLETE'
