@@ -8,15 +8,14 @@ class DateRangeSearchForm(forms.Form):
         label="Start Date",
         help_text="Format is YYYY-MM-DD",
         error_messages={'required': 'Please enter a valid date.'},
-        initial=date.today()
-        )
+        initial=date.today())
+
     date_end = forms.DateField(
         # max_length=10,
         label="End Date",
         help_text="Format is YYYY-MM-DD",
         error_messages={'required': 'Please enter a valid date.'},
-        initial=date.today()
-        )
+        initial=date.today())
 
     def help_text(self):
         return "Enter the start date and the end date for the period to be listed. Format is YYYY-MM-DD."

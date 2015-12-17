@@ -1,4 +1,5 @@
-from .classes import site_sections, SectionIndexView
+from .controller import site_sections
+from .section_index_view import SectionIndexView
 
 section_index_view = SectionIndexView()
 section_index_view.prepare()

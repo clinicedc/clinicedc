@@ -3,15 +3,18 @@ import copy
 from django.db.models import get_model
 from django.core.urlresolvers import reverse, NoReverseMatch
 
-from edc_constants.constants import NOT_REQUIRED, ADDITIONAL, IN_PROGRESS, NEW, KEYED, UNKEYED, NEW_APPT, COMPLETE_APPT
-from edc.core.bhp_common.utils import convert_from_camel
+from edc_base.utils import convert_from_camel
+from edc_constants.constants import (
+    NOT_REQUIRED, ADDITIONAL, IN_PROGRESS, NEW, KEYED, UNKEYED, NEW_APPT, COMPLETE_APPT)
 
 
 class BaseScheduledEntryContext(object):
 
-    """A Class used by the dashboard when rendering the list of scheduled entries to display under "Scheduled Forms".
+    """A Class used by the dashboard when rendering the list of
+    scheduled entries to display under "Scheduled Forms".
 
-    .. note:: "model" is the data form or requisition to be keyed and "scheduled entry" is the meta data instance."""
+    .. note:: "model" is the data form or requisition to be keyed
+    and "scheduled entry" is the meta data instance."""
 
     meta_data_model = None
 
@@ -23,7 +26,8 @@ class BaseScheduledEntryContext(object):
 
     @property
     def context(self):
-        """Returns a dictionary for the template context including all fields from ScheduledEntryMetaData, URLs, etc.
+        """Returns a dictionary for the template context including all
+        fields from ScheduledEntryMetaData, URLs, etc.
 
         .. note:: The main purpose of this class is to return the template context."""
         context = copy.deepcopy(self.meta_data_instance.__dict__)
@@ -70,26 +74,8 @@ class BaseScheduledEntryContext(object):
         """Sets to the model instance referred to by the scheduled entry."""
         if not self._instance:
             options = {convert_from_camel(self.visit_instance._meta.object_name): self.visit_instance}
-#             print self.visit_instance.__dict__
-
-#             try:
-#                 print self.model
-#                 self._instance = self.model.objects.get(maternal_visit=self.visit_instance)
-#                 print self._instance
-# #                 print self.visit_instance
-# #                 self._instance = self.model.objects.get(infant_visit = self.visit_instance)
-# #                 print self._instance
-#             except self.model.DoesNotExist:
-#                 print self.visit_instance.appointment
-#                 print "OK"
-#                 pass
-#             print options
-#             print self.model
             if self.model.objects.filter(**options):
                 self._instance = self.model.objects.get(**options)
-#         print "Model:"
-#         print self.model
-#         print self._instance
         return self._instance
 
     @property
@@ -118,27 +104,32 @@ class BaseScheduledEntryContext(object):
 
     @property
     def model_url(self):
-        """Returns the URL to the model referred to by the scheduled entry meta data if the current appointment is 'in progress'."""
+        """Returns the URL to the model referred to by the scheduled
+        entry meta data if the current appointment is 'in progress'."""
         model_url = None
         if self.appointment.appt_status == IN_PROGRESS:
             if self.meta_data_instance.entry_status == NOT_REQUIRED:
                 model_url = None
             elif not self.instance:
-                model_url = reverse('admin:{app_label}_{model_name}_add'.format(app_label=self.model._meta.app_label,
-                                                                                model_name=self.model._meta.object_name.lower()))
+                model_url = reverse(
+                    'admin:{app_label}_{model_name}_add'.format(
+                        app_label=self.model._meta.app_label,
+                        model_name=self.model._meta.object_name.lower()))
             elif self.instance:
-                model_url = reverse('admin:{app_label}_{model_name}_change'.format(app_label=self.model._meta.app_label,
-                                                                                       model_name=self.model._meta.object_name.lower()
-                                                                                       ), args=(self.instance.pk, ))
+                model_url = reverse(
+                    'admin:{app_label}_{model_name}_change'.format(
+                        app_label=self.model._meta.app_label,
+                        model_name=self.model._meta.object_name.lower()), args=(self.instance.pk, ))
         return model_url
 
     @property
     def meta_data_model_change_url(self):
-        """Returns the admin change URL for the scheduled entry meta data instance if the current appointment is 'in progress'."""
+        """Returns the admin change URL for the scheduled entry meta data
+        instance if the current appointment is 'in progress'."""
         if self.appointment.appt_status == IN_PROGRESS:
-            return reverse('admin:{app_label}_{model_name}_change'.format(app_label=self.meta_data_model._meta.app_label,
-                                                                          model_name=self.meta_data_model._meta.object_name.lower()
-                                                                          ), args=(self.meta_data_instance.pk, ))
+            return reverse('admin:{app_label}_{model_name}_change'.format(
+                app_label=self.meta_data_model._meta.app_label,
+                model_name=self.meta_data_model._meta.object_name.lower()), args=(self.meta_data_instance.pk, ))
         return ''
 
     @property
@@ -148,9 +139,9 @@ class BaseScheduledEntryContext(object):
         if self.instance:
             try:
                 url = '/databrowse/{app_label}/{model_name}/objects/{pk}/'.format(
-                 app_label=self.model._meta.app_label,
-                 model_name=self.model._meta.object_name.lower(),
-                 pk=self.instance.pk)
+                    app_label=self.model._meta.app_label,
+                    model_name=self.model._meta.object_name.lower(),
+                    pk=self.instance.pk)
             except NoReverseMatch:
                 pass
         return url

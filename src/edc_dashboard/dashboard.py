@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.utils import translation
 from django.views.generic import TemplateView
 
-from edc.dashboard.section.classes import site_sections
+from .section import site_sections
 
 
 class Dashboard(TemplateView):
@@ -17,8 +17,7 @@ class Dashboard(TemplateView):
     dashboard_url_name = None
     urlpattern_view = None
     urlpatterns = [
-        '^(?P<dashboard_type>{dashboard_type})/(?P<dashboard_model>{dashboard_model})/(?P<dashboard_id>{pk})/$',
-        ]
+        '^(?P<dashboard_type>{dashboard_type})/(?P<dashboard_model>{dashboard_model})/(?P<dashboard_id>{pk})/$']
     urlpattern_options = {
         'pk': '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}',
         'dashboard_model': '*',
@@ -66,7 +65,8 @@ class Dashboard(TemplateView):
     def dashboard_id(self):
         re_pk = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}')
         if not re_pk.match(self.context.get('dashboard_id') or ''):
-            raise TypeError('Dashboard id must be a uuid (pk). Got {0}'.format(self.context.get('dashboard_id')))
+            raise TypeError('Dashboard id must be a uuid (pk). '
+                            'Got {0}'.format(self.context.get('dashboard_id')))
         return self.context.get('dashboard_id')
 
     @property
@@ -89,7 +89,7 @@ class Dashboard(TemplateView):
                     'dashboard_type': self.dashboard_type,
                     'dashboard_model': self.dashboard_model_name,
                     'dashboard_id': self.dashboard_id}
-                )
+            )
         except NoReverseMatch:
             pass
 
@@ -110,7 +110,9 @@ class Dashboard(TemplateView):
                 raise TypeError('class site_sections is not set up. Call autodoscover first.')
             section = site_sections.get(section_name)
         if not section:
-            raise TypeError('Could not find section \'{0}\' in site_sections. You need to define a section class for this name in section.py.'.format(section_name))
+            raise TypeError(
+                'Could not find section \'{0}\' in site_sections. You need to '
+                'define a section class for this name in section.py.'.format(section_name))
         self._section = section()
 
     @property
@@ -126,13 +128,15 @@ class Dashboard(TemplateView):
         self._extra_url_context = value
         default_value = '&form_language_code={0}'.format(self.language)
         if default_value not in self._extra_url_context:
-            self._extra_url_context = '{0}{1}'.format(self._extra_url_context, '&form_language_code={0}'.format(self.language))
+            self._extra_url_context = '{0}{1}'.format(
+                self._extra_url_context, '&form_language_code={0}'.format(self.language))
 
     @property
     def language(self):
         """Returns the language of consent.
 
-        If the consent has not been defined for this dashboard, just take the settings LANGUAGE attribute."""
+        If the consent has not been defined for this dashboard,
+        just take the settings LANGUAGE attribute."""
         if self.consent:
             self.consent.language
             translation.activate(self.consent.language)
@@ -151,8 +155,12 @@ class Dashboard(TemplateView):
             not_found = copy.copy(matches)
             for match in matches:
                 if not cls.urlpattern_options.get(match.strip('{}')):
-                    raise ImproperlyConfigured('Keyword not found for placeholder in urlpattern. Got \'{}\'.'.format(match.strip('{}')))
+                    raise ImproperlyConfigured(
+                        'Keyword not found for placeholder in urlpattern. '
+                        'Got \'{}\'.'.format(match.strip('{}')))
                 not_found.remove(match)
             if not_found:
-                raise ImproperlyConfigured('Unexpected placeholder(s) in urlpattern. No matching key in urlpattern_options. Got placeholders {}.'.format(not_found))
+                raise ImproperlyConfigured(
+                    'Unexpected placeholder(s) in urlpattern. No matching key in '
+                    'urlpattern_options. Got placeholders {}.'.format(not_found))
         return True

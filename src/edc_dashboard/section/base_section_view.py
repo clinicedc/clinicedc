@@ -39,7 +39,8 @@ class BaseSectionView(object):
             return ''
 
     def section_url_patterns(self, view):
-        return patterns('',
+        return patterns(
+            '',
             url(r'^(?P<section_name>{section_name})/$'.format(section_name=self.section_name),
                 view,
                 name="section_url"))
@@ -105,14 +106,13 @@ class BaseSectionView(object):
                 if self.searcher.search_form(self.searcher.search_form_data).is_valid():
                     self.context.update({
                         'search_result': self._paginate(self.searcher.search_result, page),
-                        'search_result_include_file': self.searcher.search_result_include_template,
-                        })
+                        'search_result_include_file': self.searcher.search_result_include_template})
                 else:
                     if self.show_most_recent:
                         self.context.update({
-                            'search_result': self._paginate(MostRecentQuery(self.searcher.search_model).query(), page),
-                            'search_result_include_file': self.searcher.search_result_include_template,
-                            })
+                            'search_result': self._paginate(MostRecentQuery(
+                                self.searcher.search_model).query(), page),
+                            'search_result_include_file': self.searcher.search_result_include_template})
             self.context.update({
                 'app_name': settings.APP_NAME,
                 'installed_apps': settings.INSTALLED_APPS,
@@ -120,14 +120,12 @@ class BaseSectionView(object):
                 'sections': self.section_list,
                 'sections_names': [sec[0] for sec in self.section_list],
                 'section_name': self.section_name,
-                'protocol_lab_section': self.protocol_lab_section,
-                })
+                'protocol_lab_section': self.protocol_lab_section})
             try:
                 self.context.update({
                     'add_model': self.add_model,
                     'add_model_opts': self.add_model._meta,
-                    'add_model_name': self.add_model._meta.verbose_name,
-                    })
+                    'add_model_name': self.add_model._meta.verbose_name})
             except AttributeError:
                 pass
             self._contribute_to_context_wrapper(self.context, request, **kwargs)

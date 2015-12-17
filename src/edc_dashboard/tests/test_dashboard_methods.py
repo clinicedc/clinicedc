@@ -5,7 +5,7 @@ from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
 from edc.subject.registration.models import RegisteredSubject
 from edc.testing.models import TestConsent, TestVisit
 
-from .dashboard import Dashboard
+from edc_dashboard.dashboard import Dashboard
 from ..exceptions import DashboardModelError
 
 
@@ -23,7 +23,7 @@ class TestDashboardMethods(TestCase):
         """test init"""
         test_consent = self.test_consent_factory()
         registered_subject = test_consent.registered_subject
-        print registered_subject.first_name
+        print(registered_subject.first_name)
         self.assertRaises(TypeError, Dashboard)
         self.assertRaises(TypeError, Dashboard, None, None, None)
         self.assertRaises(TypeError, Dashboard, 'subject', None, None)

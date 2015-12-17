@@ -1,4 +1,4 @@
-#from django.views.base import View  # for 1.5
+# from django.views.base import View  # for 1.5
 from .base_section_view import BaseSectionView
 
 

@@ -5,15 +5,15 @@ from django.test import TestCase
 from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
 from edc.core.bhp_content_type_map.models import ContentTypeMap
 from edc.core.bhp_variables.tests.factories import StudySpecificFactory, StudySiteFactory
-from edc.dashboard.subject.classes import ScheduledEntryContext
 from edc.subject.appointment.models import Appointment
-from edc.subject.consent.tests.factories import ConsentCatalogueFactory
 from edc.entry_meta_data.models import ScheduledEntryMetaData
 from edc.subject.entry.tests.factories import EntryFactory, LabEntryFactory
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc.subject.registration.models import RegisteredSubject
 from edc.subject.visit_schedule.tests.factories import MembershipFormFactory, ScheduleGroupFactory, VisitDefinitionFactory
 from edc.testing.tests.factories import TestConsentWithMixinFactory, TestScheduledModel1Factory
+
+from edc_dashboard.subject import ScheduledEntryContext
 
 
 class ScheduledEntryContextTests(TestCase):
@@ -31,14 +31,6 @@ class ScheduledEntryContextTests(TestCase):
         content_type_map_helper.populate()
         content_type_map_helper.sync()
         content_type_map = ContentTypeMap.objects.get(content_type__model='TestConsentWithMixin'.lower())
-        ConsentCatalogueFactory(
-            name=self.app_label,
-            consent_type='study',
-            content_type_map=content_type_map,
-            version=1,
-            start_datetime=study_specific.study_start_datetime,
-            end_datetime=datetime(datetime.today().year + 5, 1, 1),
-            add_for_app=self.app_label)
         membership_form = MembershipFormFactory(content_type_map=content_type_map, category='subject')
         schedule_group = ScheduleGroupFactory(membership_form=membership_form, group_name='GROUP_NAME', grouping_key='GROUPING_KEY')
         visit_tracking_content_type_map = ContentTypeMap.objects.get(content_type__model='testvisit')

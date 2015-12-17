@@ -59,8 +59,9 @@ class BaseSearcher(object):
             [field.name for field in SearchForm().visible_fields()].index(field_name)
             self._search_form_field_name = field_name
         except ValueError:
-            raise ImproperlyConfigured('Search form field \'{}\' is not a visible field of search_form \'{}\''.format(
-                field_name, self.search_form))
+            raise ImproperlyConfigured(
+                'Search form field \'{}\' is not a visible field of search_form \'{}\''.format(
+                    field_name, self.search_form))
 
     @property
     def search_result(self):
@@ -155,7 +156,8 @@ class BaseSearcher(object):
             limit = self.search_value.lower().split('?first')[1] or 15
             queryset = self.search_model.objects.all().order_by('modified')[0:limit]
         elif self.search_value.lower() == '?today':
-            queryset = self.search_model.objects.filter(modified__gte=datetime.combine(date.today(), time.min)).order_by('modified')
+            queryset = self.search_model.objects.filter(
+                modified__gte=datetime.combine(date.today(), time.min)).order_by('modified')
         elif self.search_value.lower() == '?yesterday':
             queryset = self.search_model.objects.filter(
                 modified__gte=datetime.combine(date.today() - timedelta(days=1), time.min)).order_by('modified')

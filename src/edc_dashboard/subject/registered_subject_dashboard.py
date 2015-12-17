@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from textwrap import wrap
 
 from django.core.exceptions import ImproperlyConfigured
@@ -7,9 +9,6 @@ from django.db.models import TextField, Count
 from django.template.loader import render_to_string
 
 from edc.apps.app_configuration.models.global_configuration import GlobalConfiguration
-from edc.core.bhp_common.utils import convert_from_camel
-from edc.core.crypto_fields.fields import EncryptedTextField
-from edc.dashboard.base.classes import Dashboard
 from edc.data_manager.models import ActionItem
 from edc.data_manager.models import TimePointStatus
 from edc.entry_meta_data.helpers import ScheduledEntryMetaDataHelper, RequisitionMetaDataHelper
@@ -24,8 +23,12 @@ from edc.subject.subject_config.models import SubjectConfiguration
 from edc.subject.subject_summary.models import Link
 from edc.subject.visit_schedule.classes import MembershipFormHelper
 from edc.subject.visit_schedule.models import MembershipForm
+from edc_base.encrypted_fields import EncryptedTextField
+from edc_base.utils import convert_from_camel
 from edc_constants.constants import NEW, NOT_REQUIRED, UNKEYED, KEYED, NEW_APPT, COMPLETE_APPT, IN_PROGRESS
 from edc_visit_tracking.models import BaseVisitTracking
+
+from ..dashboard import Dashboard
 
 from .scheduled_entry_context import ScheduledEntryContext
 from .requisition_context import RequisitionContext
@@ -226,7 +229,7 @@ class RegisteredSubjectDashboard(Dashboard):
             for dup_appt in Appointment.objects.filter(**dup):
                 if not visit_model.objects.filter(appointment=dup_appt):
                     try:
-                        print 'delete {0}'.format(dup_appt)
+                        print('delete {0}'.format(dup_appt))
                         dup_appt.delete()
                         num -= 1
                     except:
