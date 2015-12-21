@@ -1,12 +1,9 @@
 from django.db import models
 
-from simple_history.models import HistoricalRecords
-
+from edc_base.audit_trail import AuditTrail
 from edc_registration.models import RegisteredSubject
-try:
-    from edc_sync.mixins import SyncMixin
-except ImportError:
-    SyncMixin = type('SyncMixin', (object, ), {})
+
+from ..mixins import SyncMixin
 
 from .base_appointment import BaseAppointment
 
@@ -15,7 +12,7 @@ class Appointment(SyncMixin, BaseAppointment):
 
     registered_subject = models.ForeignKey(RegisteredSubject)
 
-    history = HistoricalRecords()
+    history = AuditTrail()
 
     class Meta:
         app_label = 'edc_appointment'

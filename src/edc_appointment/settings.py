@@ -38,8 +38,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crypto_fields',
     'simple_history',
-    'edc_content_type_map',
     'edc_registration',
     'edc_visit_schedule',
     'edc_entry',
@@ -94,7 +94,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Gaborone'
 
 USE_I18N = True
 
@@ -108,3 +108,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 GIT_DIR = BASE_DIR.ancestor(1)
+
+MINIMUM_AGE_OF_CONSENT = 18
+MAXIMUM_AGE_OF_CONSENT = 64

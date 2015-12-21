@@ -10,12 +10,10 @@ from simple_history.models import HistoricalRecords
 from edc_base.model.models import BaseUuidModel
 from edc_constants.constants import CLOSED, OPEN, NEW
 from edc_constants.choices import YES_NO_NA
-try:
-    from edc_sync.mixins import SyncMixin
-except ImportError:
-    SyncMixin = type('SyncMixin', (object, ), {})
 
-from ..constants import IN_PROGRESS
+from edc_constants.constants import IN_PROGRESS
+
+from ..mixins import SyncMixin
 
 from .appointment import Appointment
 
@@ -80,7 +78,7 @@ class TimePointStatus(SyncMixin, BaseUuidModel):
 
     objects = TimePointStatusManager()
 
-    history = HistoricalRecords()
+    # history = HistoricalRecords()
 
     def __unicode__(self):
         return "{}: {}".format(self.appointment, self.status.upper())

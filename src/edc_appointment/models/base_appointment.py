@@ -1,16 +1,17 @@
-from django.db import models
-from django.core.validators import RegexValidator
-from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-
+from django.core.validators import RegexValidator
+from django.db import models
 from simple_history.models import HistoricalRecords
 
+from edc_appointment.constants import CLINIC_APPT
 from edc_base.model.models import BaseUuidModel
+from edc_calendar.calendar import Calendar
+from edc_constants.constants import COMPLETE, IN_PROGRESS
+from edc_constants.constants import NEW
 from edc_visit_schedule.models import VisitDefinition
 
 from ..choices import APPT_STATUS, APPT_TYPE
-from ..constants import COMPLETE
 from ..managers import AppointmentManager
 
 
@@ -21,35 +22,77 @@ class BaseAppointment (BaseUuidModel):
         verbose_name=("Appointment date and time"),
         help_text="")
 
-    # this is the original calculated edc_appointment datetime
-    # which the user cannot change
     timepoint_datetime = models.DateTimeField(
-        verbose_name=("Timepoint date and time"),
-        help_text="calculated edc_appointment datetime. Do not change",
+        verbose_name="Timepoint date and time",
         null=True,
-        editable=False)
+        editable=False,
+        help_text="Calculated edc_appointment datetime. Do not change",
+    )
 
     appt_status = models.CharField(
-        verbose_name=("Status"),
+        verbose_name="Status",
         choices=APPT_STATUS,
         max_length=25,
-        default='new')
+        default=NEW
+    )
+
+    appt_type = models.CharField(
+        verbose_name='Appointment type',
+        choices=APPT_TYPE,
+        default=CLINIC_APPT,
+        max_length=20,
+        help_text=(
+            'Default for subject may be edited in admin '
+            'under section bhp_subject. See Subject Configuration.')
+    )
+
+    visit_definition = models.ForeignKey(
+        VisitDefinition,
+        related_name='+',
+        verbose_name="Visit",
+        help_text=(
+            "For tracking within the window period of a visit, use the decimal convention. "
+            "Format is NNNN.N. e.g 1000.0, 1000.1, 1000.2, etc)")
+    )
+
+    visit_instance = models.IntegerField(
+        verbose_name="Instance",
+        validators=[RegexValidator(r'[0-9]', 'Must be a number from 0-9')],
+        default=0,
+        help_text=(
+            "A number to represent an additional report to be included with the original "
+            "visit report. (NNNN.0)")
+    )
 
     appt_reason = models.CharField(
-        verbose_name=("Reason for edc_appointment"),
+        verbose_name="Reason for edc_appointment",
         max_length=25,
-        help_text=("Reason for edc_appointment"),
-        blank=True)
+        blank=True
+    )
 
     contact_tel = models.CharField(
-        verbose_name=("Contact Tel"),
+        verbose_name="Contact Telephone",
         max_length=250,
-        blank=True)
+        null=True,
+        blank=True
+    )
 
     comment = models.CharField(
-        "Comment",
         max_length=250,
-        blank=True)
+        null=True,
+        blank=True
+    )
+
+    site_code = models.CharField(
+        max_length=25,
+        null=True,
+        blank=False)
+
+    dashboard_type = models.CharField(
+        max_length=25,
+        null=True,
+        editable=False,
+        help_text='hold dashboard_type variable, set by dashboard')
 
     is_confirmed = models.BooleanField(default=False, editable=False)
 
@@ -59,82 +102,30 @@ class BaseAppointment (BaseUuidModel):
 
     appt_close_datetime = models.DateTimeField(null=True, editable=False)
 
-    site_code = models.CharField(
-        max_length=25,
-        null=True,
-        blank=False)
-
-    visit_definition = models.ForeignKey(
-        VisitDefinition,
-        related_name='+',
-        verbose_name=("Visit"),
-        help_text=("For tracking within the window period of a visit, use the decimal convention. "
-                   "Format is NNNN.N. e.g 1000.0, 1000.1, 1000.2, etc)"))
-
-    visit_instance = models.IntegerField(
-        verbose_name=("Instance"),
-        validators=[RegexValidator(r'[0-9]', 'Must be a number from 0-9')],
-        default=0,
-        null=True,
-        blank=True,
-        help_text=("A number to represent an additional report to be included with the original "
-                   "visit report. (NNNN.0)"))
-
-    dashboard_type = models.CharField(
-        max_length=25,
-        editable=False,
-        null=True,
-        blank=True,
-        help_text='hold dashboard_type variable, set by dashboard')
-
-    appt_type = models.CharField(
-        verbose_name='Appointment type',
-        choices=APPT_TYPE,
-        default='clinic',
-        max_length=20,
-        help_text=('Default for subject may be edited in admin '
-                   'under section bhp_subject. See Subject Configuration.')
-    )
-
     history = HistoricalRecords()
 
     objects = AppointmentManager()
 
     def natural_key(self):
-        return (self.visit_instance, ) + self.visit_definition.natural_key() + self.registered_subject.natural_key()
+        return (
+            (self.visit_instance, ) +
+            self.visit_definition.natural_key() + self.registered_subject.natural_key()
+        )
     natural_key.dependencies = ['edc_registration.registeredsubject', 'edc_visit_schedule.visitdefinition']
 
     @property
     def report_datetime(self):
         return self.appt_datetime
 
-    def is_new_appointment(self):
-        """Returns True if this is a New appointment and
-        confirms choices tuple has \'new\'; as a option."""
-        if 'new' not in [s[0] for s in APPT_STATUS]:
-            raise TypeError(
-                'Expected (\'new\', \'New\') as one tuple in the choices '
-                'tuple APPT_STATUS. Got {0}'.format(APPT_STATUS))
-        retval = False
-        if self.appt_status.lower() == 'new':
-            retval = True
-        return retval
-
-    def validate_appt_datetime(self, exception_cls=None):
+    def validate_appt_datetime(self):
         """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
         the calculated ideal timepoint datetime.
 
         .. note:: best_appt_datetime is not editable by the user. If 'None', will raise an exception."""
-        # for tests
-        exception_cls = exception_cls or ValidationError
         if not self.id:
             appt_datetime = self.get_best_datetime(self.appt_datetime, self.study_site)
             best_appt_datetime = self.appt_datetime
         else:
-            if not self.best_appt_datetime:
-                # did you update best_appt_datetime for existing instances since the migration?
-                raise exception_cls(
-                    'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
             appt_datetime = self.change_datetime(
                 self.best_appt_datetime, self.appt_datetime, self.study_site, self.visit_definition)
             best_appt_datetime = self.best_appt_datetime
@@ -167,24 +158,19 @@ class BaseAppointment (BaseUuidModel):
                             str(int(self.visit_instance) - 1),
                             self.visit_instance))
 
-    def check_window_period(self, exception_cls=None):
-        """Is this used?"""
-        if not exception_cls:
-            exception_cls = ValidationError
-        if self.id:
-            self.visit_definition.verify_datetime(self.appt_datetime, self.best_appt_datetime)
-
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
-        self.appt_datetime, self.best_appt_datetime = self.validate_appt_datetime()
+        calendar = Calendar(forward_only=False)
+        if not self.id:
+            self.best_appt_datetime = calendar.best_datetime(self.appt_datetime)
         self.check_window_period()
         self.validate_visit_instance(using=using)
-        AppointmentHelper().check_appt_status(self, using)
-        super(BaseAppointment, self).save(*args, **kwargs)
+        # AppointmentHelper().check_appt_status(self, using)
+        super().save(*args, **kwargs)
 
     def raw_save(self, *args, **kwargs):
         """Optional save to bypass stuff going on in the default save method."""
-        super(BaseAppointment, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return "{0} {1} for {2}.{3}".format(
@@ -196,8 +182,8 @@ class BaseAppointment (BaseUuidModel):
     def dashboard(self):
         """Returns a hyperink for the Admin page."""
         ret = None
-        if self.appt_status == APPT_STATUS[0][0]:
-            return 'NEW'
+        if self.appt_status == NEW:
+            return NEW
         else:
             if self.registered_subject:
                 if self.registered_subject.subject_identifier:
@@ -218,9 +204,16 @@ class BaseAppointment (BaseUuidModel):
         return self.registered_subject.subject_identifier
 
     @property
-    def complete(self):
-        """Returns True if the edc_appointment status is COMPLETE."""
+    def is_complete(self):
         return self.appt_status == COMPLETE
+
+    @property
+    def is_new(self):
+        return self.appt_status == NEW
+
+    @property
+    def is_in_progress(self):
+        return self.appt_status == IN_PROGRESS
 
     class Meta:
         abstract = True

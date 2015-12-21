@@ -1,4 +1,3 @@
-CANCELLED = 'cancelled'
-COMPLETE = 'complete'
-INCOMPLETE = 'incomplete'
-IN_PROGRESS = 'in_progress'
+CLINIC_APPT = 'Clinic'
+TELEPHONIC_APPT = 'Telephonic'
+HOME_APPT = 'Home'

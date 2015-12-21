@@ -11,7 +11,7 @@ from edc_visit_tracking.constants import VISIT_REASON_NO_FOLLOW_UP_CHOICES
 
 # from edc_entry.helpers import ScheduledEntryMetaDataHelper
 
-from ..constants import IN_PROGRESS, COMPLETE, INCOMPLETE, CANCELLED
+from edc_constants.constants import IN_PROGRESS, COMPLETE, INCOMPLETE, CANCELLED
 from ..exceptions import AppointmentCreateError, AppointmentStatusError
 
 from .appointment_date_helper import AppointmentDateHelper

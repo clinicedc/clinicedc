@@ -8,10 +8,12 @@ from simple_history.models import HistoricalRecords
 from edc_base.model.models import BaseUuidModel
 from edc_constants.choices import YES_NO
 
+from ..mixins import SyncMixin
+
 from .appointment import Appointment
 
 
-class PreAppointmentContact(BaseUuidModel):
+class PreAppointmentContact(SyncMixin, BaseUuidModel):
     """Tracks contact, modifies appt_datetime, changes type and confirms and edc_appointment."""
 
     appointment = models.ForeignKey(Appointment)
@@ -45,7 +47,7 @@ class PreAppointmentContact(BaseUuidModel):
     )
 
     # history = AuditTrail()
-    history = HistoricalRecords()
+    # history = HistoricalRecords()
 
     objects = models.Manager()
 

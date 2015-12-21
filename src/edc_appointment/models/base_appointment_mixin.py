@@ -1,9 +1,10 @@
 # from django.db.models.signals import Signal, post_save
 
+from django.db import models
 from edc_registration.models import RegisteredSubject
 
 
-class BaseAppointmentMixin(object):
+class BaseAppointmentMixin(models.Model):
 
     """ Mixin to add methods to a model that trigger the creation of appointments.
 
@@ -46,3 +47,6 @@ class BaseAppointmentMixin(object):
             source='BaseAppointmentMixin',
             visit_definitions=visit_definitions)
         self.post_prepare_appointments(using)
+        
+    class Meta:
+        abstract = True

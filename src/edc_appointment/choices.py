@@ -1,9 +1,11 @@
-from edc_constants.constants import OTHER
+from edc_constants.constants import OTHER, NEW, IN_PROGRESS, INCOMPLETE, COMPLETE, CANCELLED
 
-from .constants import IN_PROGRESS, INCOMPLETE, COMPLETE, CANCELLED
+from .constants import CLINIC_APPT, TELEPHONIC_APPT, HOME_APPT
+
+__all__ = ['APPT_STATUS', 'APPT_TYPE', 'INFO_PROVIDER']
 
 APPT_STATUS = (
-    ('new', 'New'),
+    (NEW, 'New'),
     (IN_PROGRESS, 'In Progress'),
     (INCOMPLETE, 'Incomplete'),
     (COMPLETE, 'Complete'),
@@ -11,9 +13,9 @@ APPT_STATUS = (
 )
 
 APPT_TYPE = (
-    ('clinic', 'In clinic'),
-    ('telephone', 'By telephone'),
-    ('home', 'At home'),
+    (CLINIC_APPT, 'In clinic'),
+    (TELEPHONIC_APPT, 'By telephone'),
+    (HOME_APPT, 'At home'),
 )
 
 INFO_PROVIDER = (
