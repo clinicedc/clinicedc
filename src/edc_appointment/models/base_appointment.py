@@ -59,9 +59,12 @@ class BaseAppointment (BaseBaseAppointment, BaseSyncUuidModel):
         return self.appt_datetime
 
     def is_new_appointment(self):
-        """Returns True if this is a New appointment and confirms choices tuple has \'new\'; as a option."""
+        """Returns True if this is a New appointment and confirms choices
+        tuple has \'new\'; as a option."""
         if NEW_APPT not in [s[0] for s in APPT_STATUS]:
-            raise TypeError('Expected (\'new\', \'New\') as one tuple in the choices tuple APPT_STATUS. Got {0}'.format(APPT_STATUS))
+            raise TypeError(
+                'Expected (\'new\', \'New\') as one tuple in the choices tuple '
+                'APPT_STATUS. Got {0}'.format(APPT_STATUS))
         retval = False
         if self.appt_status == NEW_APPT:
             retval = True

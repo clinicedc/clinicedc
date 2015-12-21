@@ -1,4 +1,5 @@
 from edc_constants.constants import IN_PROGRESS, INCOMPLETE, COMPLETE_APPT, CANCELLED, NEW_APPT
+
 APPT_STATUS = (
     (NEW_APPT, 'New'),
     (IN_PROGRESS, 'In Progress'),

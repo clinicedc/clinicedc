@@ -12,8 +12,8 @@ from edc.subject.visit_schedule.models import VisitDefinition
 from edc_base.audit_trail import AuditTrail
 from edc_constants.constants import COMPLETE_APPT, NEW_APPT
 
-from ..managers import AppointmentManager
 from ..choices import APPT_TYPE, APPT_STATUS
+from ..managers import AppointmentManager
 
 from .base_appointment import BaseAppointment
 
@@ -66,7 +66,9 @@ class Appointment(BaseAppointment):
         choices=APPT_TYPE,
         default='clinic',
         max_length=20,
-        help_text='Default for subject may be edited in admin under section bhp_subject. See Subject Configuration.')
+        help_text=(
+            'Default for subject may be edited in admin under section bhp_subject. '
+            'See Subject Configuration.'))
 
     objects = AppointmentManager()
 
@@ -101,9 +103,11 @@ class Appointment(BaseAppointment):
     natural_key.dependencies = ['registration.registeredsubject', 'bhp_visit.visitdefinition']
 
     def validate_appt_datetime(self, exception_cls=None):
-        """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime, the calculated ideal timepoint datetime.
+        """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
+        the calculated ideal timepoint datetime.
 
-        .. note:: best_appt_datetime is not editable by the user. If 'None', will raise an exception."""
+        .. note:: best_appt_datetime is not editable by the user. If 'None'
+         will raise an exception."""
         from edc.subject.appointment_helper.classes import AppointmentDateHelper
         # for tests
         if not exception_cls:
@@ -115,13 +119,16 @@ class Appointment(BaseAppointment):
         else:
             if not self.best_appt_datetime:
                 # did you update best_appt_datetime for existing instances since the migration?
-                raise exception_cls('Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
-            appt_datetime = appointment_date_helper.change_datetime(self.best_appt_datetime, self.appt_datetime, self.study_site, self.visit_definition)
+                raise exception_cls(
+                    'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
+            appt_datetime = appointment_date_helper.change_datetime(
+                self.best_appt_datetime, self.appt_datetime, self.study_site, self.visit_definition)
             best_appt_datetime = self.best_appt_datetime
         return appt_datetime, best_appt_datetime
 
     def validate_visit_instance(self, using=None, exception_cls=None):
-        """Confirms a 0 instance appointment exists before allowing a continuation appt and keep a sequence."""
+        """Confirms a 0 instance appointment exists before allowing a continuation
+        appt and keep a sequence."""
         if not exception_cls:
             exception_cls = ValidationError
         if not isinstance(self.visit_instance, basestring):
@@ -131,16 +138,18 @@ class Appointment(BaseAppointment):
                     registered_subject=self.registered_subject,
                     visit_definition=self.visit_definition,
                     visit_instance='0').exclude(pk=self.pk).exists():
-                raise exception_cls('Cannot create continuation appointment for visit %s. Cannot find the original appointment (visit instance equal to 0).' % (self.visit_definition,))
+                raise exception_cls(
+                    'Cannot create continuation appointment for visit {}. Cannot find the original '
+                    'appointment (visit instance equal to 0).'.format(self.visit_definition,))
             if int(self.visit_instance) - 1 != 0:
                 if not Appointment.objects.using(using).filter(
                         registered_subject=self.registered_subject,
                         visit_definition=self.visit_definition,
                         visit_instance=str(int(self.visit_instance) - 1)).exists():
-                    raise exception_cls('Cannot create continuation appointment for visit {0}. '
-                                        'Expected next visit instance to be {1}. Got {2}'.format(self.visit_definition,
-                                                                                                 str(int(self.visit_instance) - 1),
-                                                                                                 self.visit_instance))
+                    raise exception_cls(
+                        'Cannot create continuation appointment for visit {0}. '
+                        'Expected next visit instance to be {1}. Got {2}'.format(
+                            self.visit_definition, str(int(self.visit_instance) - 1), self.visit_instance))
 
     def check_window_period(self, exception_cls=None):
         """Is this used?"""
@@ -203,9 +212,6 @@ class Appointment(BaseAppointment):
         form's id_dispatched response."""
         Visit = self.visit_definition.visit_tracking_content_type_map.model_class()
         return Visit.objects.get(appointment=self).is_dispatched()
-
-#     def is_dispatchable_model(self):
-#         return True
 
     def include_for_dispatch(self):
         return True

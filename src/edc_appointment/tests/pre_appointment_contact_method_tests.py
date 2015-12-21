@@ -14,12 +14,14 @@ class PreAppointmentContactMethodTests(BaseAppointmentTests):
         self.assertEqual(self.appointment.is_confirmed, False)
         # make an attempt to contact, but not confirmed
         # make an instance but do not "create", will update appointment
-        pre_appointment_contact = PreAppointmentContact(appointment=self.appointment, contact_datetime=datetime.today(), is_contacted='No', is_confirmed=False)
+        pre_appointment_contact = PreAppointmentContact(
+            appointment=self.appointment, contact_datetime=datetime.today(), is_contacted='No', is_confirmed=False)
         self.assertEqual(pre_appointment_contact.post_save(), (0, False, False))
         self.assertEqual(self.appointment.contact_count, 0)
         self.assertEqual(self.appointment.is_confirmed, False)
         # make an instance but do not "create", will update appointment
-        pre_appointment_contact = PreAppointmentContact(appointment=self.appointment, contact_datetime=datetime.today(), is_contacted='Yes', is_confirmed=True)
+        pre_appointment_contact = PreAppointmentContact(
+            appointment=self.appointment, contact_datetime=datetime.today(), is_contacted='Yes', is_confirmed=True)
         self.assertEqual(pre_appointment_contact.post_save(), (0, True, True))
         self.assertEqual(self.appointment.contact_count, 0)
         self.assertEqual(self.appointment.is_confirmed, True)
@@ -33,11 +35,11 @@ class PreAppointmentContactMethodTests(BaseAppointmentTests):
         self.assertEqual(appointment.contact_count, 1)
         # is _confirmed false because not instances of pre_appt exist except the current one
         self.assertEqual(appointment.is_confirmed, False)
- 
         # make another attempt to contact,  but not confirmed
         pre_appointment_contact = PreAppointmentContactFactory(appointment=appointment, is_confirmed=False)
         self.assertEqual(pre_appointment_contact.post_save(), (2, False, False))
-        # is _confirmed false because not instances of pre_appt exist except the current one and the one before, both have is_confirmed=False
+        # is _confirmed false because not instances of pre_appt exist except
+        # the current one and the one before, both have is_confirmed=False
         self.assertEqual(appointment.is_confirmed, False)
         # make another attempt to contact,  confirmed
         pre_appointment_contact = PreAppointmentContactFactory(
@@ -51,7 +53,7 @@ class PreAppointmentContactMethodTests(BaseAppointmentTests):
         appointment = Appointment.objects.get(pk=appt_pk)
         self.assertEqual(appointment.is_confirmed, True)
         self.assertEqual(appointment.contact_count, 3)
- 
+
     def test_post_delete(self):
         """ post_delete() has to update appointment contact_count and is_confirmed."""
         self.setup()

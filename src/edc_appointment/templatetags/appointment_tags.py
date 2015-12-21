@@ -1,7 +1,7 @@
 from django import template
 from django.core.urlresolvers import reverse
-from ..models import Appointment
 
+from ..models import Appointment
 
 register = template.Library()
 
@@ -23,18 +23,25 @@ class ContinuationAppointmentAnchor(template.Node):
             self.extra_url_context = ''
 
         # does a continuation appointment exist? instance will be instance+1
-        if (int(self.appointment.visit_instance) + 1) in [int(appointment.visit_instance) for appointment in Appointment.objects.filter(registered_subject=self.appointment.registered_subject)]:
+        visit_instances = []
+        for appointment in Appointment.objects.filter(registered_subject=self.appointment.registered_subject):
+            visit_instances.append(int(appointment.visit_instance))
+        if (int(self.appointment.visit_instance) + 1) in visit_instances:
             anchor = ''
         else:
-            view = 'admin:%s_%s_add' % (self.appointment._meta.app_label, self.appointment._meta.module_name)
+            view = 'admin:{}_{}_add'.format(self.appointment._meta.app_label, self.appointment._meta.module_name)
             try:
                 # TODO: resolve error when using extra_url_context...give back variable name ???
-                # rev_url = '%s?next=dashboard_url&dashboard_type=%s&registered_subject=%s&visit_definition=%s&visit_instance=%s%s' % (reverse(view), self.dashboard_type, self.appointment.registered_subject.pk,self.appointment.visit_definition.pk, str(int(self.appointment.visit_instance) + 1), self.extra_url_context)
-                rev_url = '%s?next=dashboard_url&dashboard_type=%s&registered_subject=%s&visit_definition=%s&visit_instance=%s' % (reverse(view), self.dashboard_type, self.appointment.registered_subject.pk, self.appointment.visit_definition.pk, str(int(self.appointment.visit_instance) + 1))
-                anchor = '<A href="%s">continuation</A>' % (rev_url)
+                rev_url = (
+                    '{}?next=dashboard_url&dashboard_type={}&registered_subject={}&visit_definition={}'
+                    '&visit_instance={}').format(
+                        reverse(view), self.dashboard_type, self.appointment.registered_subject.pk,
+                        self.appointment.visit_definition.pk, str(int(self.appointment.visit_instance) + 1))
+                anchor = '<A href="{}">continuation</A>'.format(rev_url)
             except:
-                raise TypeError('ContinuationAppointmentUrl Tag: NoReverseMatch while rendering reverse for %s. Is model registered in admin?' % (self.appointment._meta.module_name))
-
+                raise TypeError(
+                    'ContinuationAppointmentUrl Tag: NoReverseMatch while rendering reverse '
+                    'for {}. Is model registered in admin?'.format(self.appointment._meta.module_name))
         return anchor
 
 
@@ -42,7 +49,7 @@ class ContinuationAppointmentAnchor(template.Node):
 def continuation_appointment_anchor(parser, token):
     """Compilation function for renderer ContinuationAppointmentUrl"""
     try:
-        tag_name, appointment, dashboard_type, extra_url_context = token.split_contents()
+        _, appointment, dashboard_type, extra_url_context = token.split_contents()
     except ValueError:
         raise template.TemplateSyntaxError("%r tag requires exactly 3 arguments" % token.contents.split()[0])
     return ContinuationAppointmentAnchor(appointment, dashboard_type, extra_url_context)

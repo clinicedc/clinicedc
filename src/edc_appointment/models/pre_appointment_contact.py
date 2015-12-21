@@ -1,6 +1,8 @@
 from django.db import models
+
 from edc_base.audit_trail import AuditTrail
 from edc.subject.contact.models import BaseContactLogItem
+
 from ..models import Appointment
 
 

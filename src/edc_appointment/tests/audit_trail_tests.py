@@ -20,7 +20,8 @@ class AuditTrailTests(TestCase):
         content_type_map_helper.sync()
         visit_tracking_content_type_map = ContentTypeMap.objects.get(content_type__model='testvisit')
 
-        visit_definition = VisitDefinitionFactory(code='1000', title='Test', visit_tracking_content_type_map=visit_tracking_content_type_map)
+        visit_definition = VisitDefinitionFactory(
+            code='1000', title='Test', visit_tracking_content_type_map=visit_tracking_content_type_map)
         registered_subject = RegisteredSubjectFactory(subject_identifier='12345')
         appointment = Appointment.objects.create(
             appt_datetime=datetime.today(),
@@ -28,9 +29,6 @@ class AuditTrailTests(TestCase):
             appt_status='new',
             study_site=None,
             visit_definition=visit_definition,
-            registered_subject=registered_subject
-            )
-        # check for the audit trail
-        #self.assertTrue(Appointment.history.filter(id=appointment.pk))
-        pre_appointment_contact = PreAppointmentContact.objects.create(appointment=appointment, contact_datetime=datetime.today(), is_contacted='Yes', is_confirmed=False)
-        #self.assertTrue(PreAppointmentContact.history.filter(id=pre_appointment_contact.pk))
+            registered_subject=registered_subject)
+        PreAppointmentContact.objects.create(
+            appointment=appointment, contact_datetime=datetime.today(), is_contacted='Yes', is_confirmed=False)

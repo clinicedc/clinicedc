@@ -5,9 +5,7 @@ from django.db.models import get_model
 from django.core.exceptions import ValidationError
 
 from edc.entry_meta_data.models import ScheduledEntryMetaData, RequisitionMetaData
-
 from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, INCOMPLETE, CANCELLED, NEW_APPT, UNKEYED
-
 
 from ..models import Appointment
 
@@ -18,7 +16,6 @@ class AppointmentForm(forms.ModelForm):
         model = Appointment
 
     def clean(self):
-
         cleaned_data = self.cleaned_data
         if self.instance:
             TimePointStatus = get_model('data_manager', 'TimePointStatus')
@@ -56,12 +53,14 @@ class AppointmentForm(forms.ModelForm):
             # must not be future
             if t1.days > 0:
                 raise forms.ValidationError(
-                    "Status is COMPLETE_APPT so the appointment date cannot be a future date. You wrote '%s'" % appt_datetime)
+                    'Status is COMPLETE_APPT so the appointment date cannot be a future date. '
+                    'You wrote \'{}\''.format(appt_datetime))
             # cannot be done if no visit report, but how do i get to the visit report??
             # cannot be done if bucket entries exist that are UNKEYED
-            if Appointment.objects.filter(registered_subject=registered_subject,
-                                          visit_definition=visit_definition,
-                                          visit_instance=visit_instance).exists():
+            if Appointment.objects.filter(
+                    registered_subject=registered_subject,
+                    visit_definition=visit_definition,
+                    visit_instance=visit_instance).exists():
                 appointment = Appointment.objects.get(
                     registered_subject=registered_subject,
                     visit_definition=visit_definition,
