@@ -1,0 +1,157 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Classes &mdash; bhp_appointment 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="bhp_appointment 1.0 documentation" href="index.html" />
+    <link rel="next" title="Models" href="models.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="models.html" title="Models"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">bhp_appointment 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-bhp_appointment.classes">
+<span id="classes"></span><h1>Classes<a class="headerlink" href="#module-bhp_appointment.classes" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="bhp_appointment.classes.BaseAppointmentModelAdmin">
+<em class="property">class </em><tt class="descclassname">bhp_appointment.classes.</tt><tt class="descname">BaseAppointmentModelAdmin</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#bhp_appointment.classes.BaseAppointmentModelAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">bhp_base_model.classes.base_model_admin.BaseModelAdmin</span></tt></p>
+<p>ModelAdmin subclass for models with a ForeignKey to &#8216;appointment&#8217;, such as your visit model(s).</p>
+<p>In the child ModelAdmin class set the following attributes, for example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">visit_model_foreign_key</span> <span class="o">=</span> <span class="s">&#39;maternal_visit&#39;</span>
+<span class="n">dashboard_type</span> <span class="o">=</span> <span class="s">&#39;maternal&#39;</span>
+</pre></div>
+</div>
+<p>if you are tracking labs, also include a model that inherets from lab_requisition.models.BaseRequisition, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">requisition_model</span> <span class="o">=</span> <span class="n">MaternalRequisition</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="bhp_appointment.admin.AppointmentAdmin">
+<em class="property">class </em><tt class="descclassname">bhp_appointment.admin.</tt><tt class="descname">AppointmentAdmin</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/bhp_appointment/admin.html#AppointmentAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bhp_appointment.admin.AppointmentAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">bhp_base_model.classes.base_model_admin.BaseModelAdmin</span></tt></p>
+<p>ModelAdmin class to handle appointments.</p>
+<dl class="method">
+<dt id="bhp_appointment.admin.AppointmentAdmin.formfield_for_foreignkey">
+<tt class="descname">formfield_for_foreignkey</tt><big>(</big><em>db_field</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/bhp_appointment/admin.html#AppointmentAdmin.formfield_for_foreignkey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bhp_appointment.admin.AppointmentAdmin.formfield_for_foreignkey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Limits the dropdown for &#8216;registered_subject&#8217;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bhp_appointment.admin.AppointmentAdmin.save_model">
+<tt class="descname">save_model</tt><big>(</big><em>request</em>, <em>obj</em>, <em>form</em>, <em>change</em><big>)</big><a class="reference internal" href="_modules/bhp_appointment/admin.html#AppointmentAdmin.save_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bhp_appointment.admin.AppointmentAdmin.save_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves an appointment if handled through admin.</p>
+<ol class="arabic simple">
+<li>On change, checks the window period using <tt class="xref py py-class docutils literal"><span class="pre">bhp_visit.classes.WindowPeriod</span></tt> and warns if out.</li>
+<li>If new, sets the visit &#8216;instance&#8217; to &#8216;0&#8217; or one plus the max.</li>
+</ol>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="models.html"
+                        title="next chapter">Models</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/classes.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="models.html" title="Models"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li><a href="index.html">bhp_appointment 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, erik van widenfelt.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

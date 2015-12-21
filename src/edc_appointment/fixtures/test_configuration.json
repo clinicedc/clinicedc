@@ -1,0 +1,1 @@
+[{"pk": "686106d4-3cf5-11e1-9368-842b2b9d8d57", "model": "bhp_appointment.configuration", "fields": {"hostname_created": "dmc3", "created": "2012-01-12T10:14:11", "user_modified": "django", "modified": "2012-01-24T15:28:16", "hostname_modified": "dmc3", "default_appt_type": "clinic", "allowed_iso_weekdays": 12345, "user_created": "django", "use_same_weekday": false}}]
