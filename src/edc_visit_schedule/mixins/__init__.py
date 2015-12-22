@@ -1,2 +1,0 @@
-from .scheduled_model_mixin import ScheduledModelMixin
-from .visit_date_mixin import VisitDateMixin
