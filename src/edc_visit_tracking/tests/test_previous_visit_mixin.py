@@ -1,24 +1,25 @@
-from .base_test import BaseTest
-from edc.testing.models import TestVisit, TestVisit2
-from edc_constants.constants import SCHEDULED
 from django.utils import timezone
-from edc.subject.appointment.models.appointment import Appointment
+
 from edc.subject.visit_schedule.models.visit_definition import VisitDefinition
+from edc.testing.models import TestVisit2
+from edc_appointment.models.appointment import Appointment
+from edc_constants.constants import SCHEDULED
 from edc_visit_tracking.models.previous_visit_mixin import PreviousVisitError
+
+from .base_test import TestVisitModel, BaseTest
 
 
 class TestPreviousVisitMixin(BaseTest):
 
     def test_previous_visit_definition(self):
         """Asserts visit definitions exist in sequence."""
-        TestVisit.REQUIRES_PREVIOUS_VISIT = False
+        TestVisitModel.REQUIRES_PREVIOUS_VISIT = False
         visit_definition = VisitDefinition.objects.get(code='2000')
-        next_appointment = Appointment.objects.create(
+        next_appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
-        TestVisit.REQUIRES_PREVIOUS_VISIT = False
-        test_visit = TestVisit.objects.create(
+        TestVisitModel.REQUIRES_PREVIOUS_VISIT = False
+        test_visit = TestVisitModel.objects.create(
             appointment=next_appointment,
             report_datetime=timezone.now(),
             reason=SCHEDULED)
@@ -26,13 +27,12 @@ class TestPreviousVisitMixin(BaseTest):
 
     def test_previous_visit_doesnotexist(self):
         """Asserts the first scheduled visit has no previous visit."""
-        TestVisit.REQUIRES_PREVIOUS_VISIT = False
+        TestVisitModel.REQUIRES_PREVIOUS_VISIT = False
         self.visit_definition = VisitDefinition.objects.get(code='2000')
-        next_appointment = Appointment.objects.create(
+        next_appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=self.visit_definition)
-        test_visit = TestVisit.objects.create(
+        test_visit = TestVisitModel.objects.create(
             appointment=next_appointment,
             report_datetime=timezone.now(),
             reason=SCHEDULED)
@@ -41,22 +41,20 @@ class TestPreviousVisitMixin(BaseTest):
     def test_previous_visit_exists(self):
         """Asserts that if two visits created in sequence, 1000 and 2000,
         an error is not raised when REQUIRES_PREVIOUS_VISIT is False."""
-        TestVisit.REQUIRES_PREVIOUS_VISIT = False
+        TestVisitModel.REQUIRES_PREVIOUS_VISIT = False
         visit_definition = VisitDefinition.objects.get(code='1000')
-        appointment = Appointment.objects.create(
+        appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
-        test_visit = TestVisit.objects.create(
+        test_visit = TestVisitModel.objects.create(
             appointment=appointment,
             report_datetime=timezone.now(),
             reason=SCHEDULED)
         visit_definition = VisitDefinition.objects.get(code='2000')
-        next_appointment = Appointment.objects.create(
+        next_appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
-        next_test_visit = TestVisit.objects.create(
+        next_test_visit = TestVisitModel.objects.create(
             appointment=next_appointment,
             report_datetime=timezone.now(),
             reason=SCHEDULED)
@@ -65,22 +63,20 @@ class TestPreviousVisitMixin(BaseTest):
     def test_previous_visit(self):
         """Asserts that if two visits created in sequence, 1000 and 2000,
         an error is not raised when REQUIRES_PREVIOUS_VISIT is True."""
-        TestVisit.REQUIRES_PREVIOUS_VISIT = True
+        TestVisitModel.REQUIRES_PREVIOUS_VISIT = True
         visit_definition = VisitDefinition.objects.get(code='1000')
-        appointment = Appointment.objects.create(
+        appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
-        test_visit = TestVisit.objects.create(
+        test_visit = TestVisitModel.objects.create(
             appointment=appointment,
             report_datetime=timezone.now(),
             reason=SCHEDULED)
         visit_definition = VisitDefinition.objects.get(code='2000')
-        next_appointment = Appointment.objects.create(
+        next_appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
-        next_test_visit = TestVisit.objects.create(
+        next_test_visit = TestVisitModel.objects.create(
             appointment=next_appointment,
             report_datetime=timezone.now(),
             reason=SCHEDULED)
@@ -89,15 +85,14 @@ class TestPreviousVisitMixin(BaseTest):
     def test_visit_raises_if_no_previous(self):
         """Asserts that the second of two visits is created first,
         an error is raised."""
-        TestVisit.REQUIRES_PREVIOUS_VISIT = True
+        TestVisitModel.REQUIRES_PREVIOUS_VISIT = True
         visit_definition = VisitDefinition.objects.get(code='2000')
-        next_appointment = Appointment.objects.create(
+        next_appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
         self.assertRaises(
             PreviousVisitError,
-            TestVisit.objects.create,
+            TestVisitModel.objects.create,
             appointment=next_appointment,
             report_datetime=timezone.now(),
             reason=SCHEDULED)
@@ -105,15 +100,14 @@ class TestPreviousVisitMixin(BaseTest):
     def test_visit_not_raised_for_first_visit(self):
         """Asserts that if the first of two visits is created first,
         an error is not raised (this a repeat of a previous test)."""
-        TestVisit.REQUIRES_PREVIOUS_VISIT = True
+        TestVisitModel.REQUIRES_PREVIOUS_VISIT = True
         visit_definition = VisitDefinition.objects.get(code='1000')
-        appointment = Appointment.objects.create(
+        appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
         with self.assertRaises(PreviousVisitError):
             try:
-                TestVisit.objects.create(
+                TestVisitModel.objects.create(
                     appointment=appointment,
                     report_datetime=timezone.now(),
                     reason=SCHEDULED)
@@ -125,9 +119,8 @@ class TestPreviousVisitMixin(BaseTest):
     def test_visit_not_raised_for_first_visit2(self):
         TestVisit2.REQUIRES_PREVIOUS_VISIT = True
         visit_definition = VisitDefinition.objects.get(code='2000A')
-        appointment = Appointment.objects.create(
+        appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
         with self.assertRaises(PreviousVisitError):
             try:
@@ -144,9 +137,8 @@ class TestPreviousVisitMixin(BaseTest):
     def test_visit_raises_if_no_previous2(self):
         TestVisit2.REQUIRES_PREVIOUS_VISIT = True
         visit_definition = VisitDefinition.objects.get(code='2010A')
-        next_appointment = Appointment.objects.create(
+        next_appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
         self.assertRaises(
             PreviousVisitError,
@@ -158,9 +150,8 @@ class TestPreviousVisitMixin(BaseTest):
     def test_previous_visit_definition2(self):
         TestVisit2.REQUIRES_PREVIOUS_VISIT = False
         visit_definition = VisitDefinition.objects.get(code='2010A')
-        next_appointment = Appointment.objects.create(
+        next_appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
         TestVisit2.REQUIRES_PREVIOUS_VISIT = False
         test_visit = TestVisit2.objects.create(
@@ -172,9 +163,8 @@ class TestPreviousVisitMixin(BaseTest):
     def test_previous_visit_definition2A(self):
         TestVisit2.REQUIRES_PREVIOUS_VISIT = False
         visit_definition = VisitDefinition.objects.get(code='2020A')
-        next_appointment = Appointment.objects.create(
+        next_appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
         TestVisit2.REQUIRES_PREVIOUS_VISIT = False
         test_visit = TestVisit2.objects.create(
@@ -184,11 +174,10 @@ class TestPreviousVisitMixin(BaseTest):
         self.assertEqual(test_visit.previous_visit_definition(visit_definition).code, '2010A')
 
     def test_previous_visit_definition2B(self):
-        TestVisit.REQUIRES_PREVIOUS_VISIT = False
+        TestVisitModel.REQUIRES_PREVIOUS_VISIT = False
         visit_definition = VisitDefinition.objects.get(code='2030A')
-        next_appointment = Appointment.objects.create(
+        next_appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
             visit_definition=visit_definition)
         TestVisit2.REQUIRES_PREVIOUS_VISIT = False
         test_visit = TestVisit2.objects.create(

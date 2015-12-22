@@ -1,7 +1,9 @@
 import factory
+
 from datetime import datetime
+
 from edc.base.model.tests.factories import BaseUuidModelFactory
-from edc.subject.appointment.tests.factories import AppointmentFactory
+from edc_appointment.tests.factories import AppointmentFactory
 from edc_constants.constants import SCHEDULED
 
 

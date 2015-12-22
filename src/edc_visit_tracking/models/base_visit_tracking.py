@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import get_model 
 from django.core.exceptions import ImproperlyConfigured
 
-from edc.subject.appointment.models import Appointment
+from edc_appointment.models import Appointment
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
 from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, INCOMPLETE, UNKEYED, LOST_VISIT, DEATH_VISIT
