@@ -25,7 +25,7 @@ class LocatorMixin(models.Model):
 
     date_signed = models.DateField(
         verbose_name="Date Locator Form signed ",
-        default=date.today(),
+        default=date.today,
         help_text="",
     )
 
