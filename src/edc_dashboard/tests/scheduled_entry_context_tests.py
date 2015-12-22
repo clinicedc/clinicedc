@@ -1,11 +1,9 @@
-from datetime import datetime
-
 from django.test import TestCase
 
 from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
 from edc.core.bhp_content_type_map.models import ContentTypeMap
 from edc.core.bhp_variables.tests.factories import StudySpecificFactory, StudySiteFactory
-from edc.subject.appointment.models import Appointment
+from edc_appointment.models import Appointment
 from edc.entry_meta_data.models import ScheduledEntryMetaData
 from edc.subject.entry.tests.factories import EntryFactory, LabEntryFactory
 from edc.subject.lab_tracker.classes import site_lab_tracker
@@ -25,7 +23,7 @@ class ScheduledEntryContextTests(TestCase):
         from edc.testing.tests.factories import TestVisitFactory
         self.test_visit_factory = TestVisitFactory
         site_lab_tracker.autodiscover()
-        study_specific = StudySpecificFactory()
+        StudySpecificFactory()
         StudySiteFactory()
         content_type_map_helper = ContentTypeMapHelper()
         content_type_map_helper.populate()
@@ -54,7 +52,6 @@ class ScheduledEntryContextTests(TestCase):
 
         self.registered_subject = RegisteredSubject.objects.get(subject_identifier=self.test_consent.subject_identifier)
         self.appointment = Appointment.objects.get(registered_subject=self.registered_subject)
-        #self.test_visit = self.test_visit_factory(appointment=self.appointment)
 
     def test_url1(self):
         """Instance exists, model_url should be a change url, not add."""

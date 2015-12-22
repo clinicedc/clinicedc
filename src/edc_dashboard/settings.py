@@ -45,6 +45,8 @@ INSTALLED_APPS = (
     'edc.core.bhp_content_type_map',
     'edc_consent',
     'edc_base',
+    'edc.subject.subject_config',
+    'edc_appointment',
     'edc_dashbaord')
 
 MIDDLEWARE_CLASSES = (

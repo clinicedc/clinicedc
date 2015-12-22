@@ -15,7 +15,6 @@ from edc.entry_meta_data.helpers import ScheduledEntryMetaDataHelper, Requisitio
 from edc.lab.lab_clinic_api.classes import EdcLabResults
 from edc.lab.lab_packing.models import BasePackingList
 from edc.lab.lab_requisition.models import BaseBaseRequisition
-from edc.subject.appointment.models import Appointment
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc.subject.locator.models import BaseLocator
 from edc.subject.registration.models import RegisteredSubject
@@ -23,6 +22,7 @@ from edc.subject.subject_config.models import SubjectConfiguration
 from edc.subject.subject_summary.models import Link
 from edc.subject.visit_schedule.classes import MembershipFormHelper
 from edc.subject.visit_schedule.models import MembershipForm
+from edc_appointment.models import Appointment
 from edc_base.encrypted_fields import EncryptedTextField
 from edc_base.utils import convert_from_camel
 from edc_constants.constants import NEW, NOT_REQUIRED, UNKEYED, KEYED, NEW_APPT, COMPLETE_APPT, IN_PROGRESS

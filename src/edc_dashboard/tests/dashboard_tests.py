@@ -11,7 +11,7 @@ from edc.testing.models import TestVisit, TestConsentWithMixin, TestRequisition,
 from edc.testing.tests.factories import TestConsentWithMixinFactory
 from edc.dashboard.base.exceptions import DashboardModelError
 from edc.subject.lab_tracker.models import TestResultModel
-from edc.subject.appointment.models import Configuration
+from edc_appointment.models import Configuration
 
 
 class DashboardTests(TestCase):
