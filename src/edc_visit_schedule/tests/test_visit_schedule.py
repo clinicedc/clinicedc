@@ -1,16 +1,16 @@
 from django.test import TestCase
 
-from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
-from edc.lab.lab_profile.classes import site_lab_profiles
-from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
-from edc.subject.appointment_helper.models import BaseAppointmentMixin
-from edc.subject.entry.models import Entry, LabEntry
-from edc.testing.classes import TestLabProfile
-from edc.testing.classes import TestVisitSchedule, TestAppConfiguration
+from edc_content_type_map.classes import ContentTypeMapHelper
+# from edc.lab.lab_profile.classes import site_lab_profiles
+# from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
+# from edc_appointment.models import BaseAppointmentMixin
+from edc_entry.models import Entry, LabEntry
+# from edc.testing.classes import TestLabProfile
+# from edc.testing.classes import TestVisitSchedule, TestAppConfiguration
 
-from ..models import MembershipForm, ScheduleGroup, VisitDefinition
+from edc_visit_schedule.models import Member, ScheduleGroup, VisitDefinition
 
-from ..classes import MembershipFormTuple, ScheduleGroupTuple
+from edc_visit_schedule.classes import MemberTuple, ScheduleGroupTuple
 
 
 class TestVisitSchedule(TestCase):
@@ -20,11 +20,11 @@ class TestVisitSchedule(TestCase):
 #         content_type_map_helper.populate()
 #         content_type_map_helper.sync()
 
-        try:
-            site_lab_profiles.register(TestLabProfile())
-        except AlreadyRegisteredLabProfile:
-            pass
-        TestAppConfiguration()
+#         try:
+#             site_lab_profiles.register(TestLabProfile())
+#         except AlreadyRegisteredLabProfile:
+#             pass
+#         TestAppConfiguration()
 
         self.test_visit_schedule = TestVisitSchedule()
         self.test_visit_schedule.build()

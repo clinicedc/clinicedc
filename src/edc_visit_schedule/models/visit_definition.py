@@ -1,9 +1,8 @@
 from datetime import timedelta
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxLengthValidator
 from django.db import models
-
-from edc_content_type_map.models import ContentTypeMap
 
 from ..managers import VisitDefinitionManager
 from ..utils import get_lower_window_days, get_upper_window_days
@@ -29,7 +28,7 @@ class VisitDefinition(VisitDateMixin, BaseWindowPeriodItem):
         db_index=True)
 
     visit_tracking_content_type_map = models.ForeignKey(
-        ContentTypeMap,
+        ContentType,
         null=True,
         verbose_name='Visit Tracking Model',
         validators=[is_visit_tracking_model, ])

@@ -4,12 +4,14 @@ from dateutil.relativedelta import relativedelta
 class VisitDateMixin(object):
     """Class to manage an appointment's or visit's window period.
 
-    An appointment datetime must fall within the date range determined by the lower and upper bounds set in the visit definition.
+    An appointment datetime must fall within the date range determined by
+    the lower and upper bounds set in the visit definition.
     """
     def verify_datetime(self, new_datetime, reference_datetime):
         """Same as is_datetime_in_window but raises an exception if false."""
         if not self.is_datetime_in_window(new_datetime, reference_datetime):
-            raise ValueError('Date does not fall within the configured window period for this visit.')
+            raise ValueError(
+                'Date does not fall within the configured window period for this visit.')
 
     def is_datetime_in_window(self, new_datetime, reference_datetime):
         """Checks if new_datetime is within the scheduled visit window period.
@@ -27,7 +29,8 @@ class VisitDateMixin(object):
 
         if not reference_datetime:
             raise TypeError(
-                'Parameter \'reference_datetime\' cannot be None. Is appointment.best_appt_datetime = None?')
+                'Parameter \'reference_datetime\' cannot be None. '
+                'Is appointment.best_appt_datetime = None?')
 
         if self.upper_tdelta.days > 0:
             # past upper window boundary
@@ -53,7 +56,8 @@ class VisitDateMixin(object):
             retval = False
             self.error = True
             self.error_message = (
-                'Datetime is out of {window_name} window period. Expected a datetime between {lower} and {upper}.'
+                'Datetime is out of {window_name} window period. Expected a '
+                'datetime between {lower} and {upper}.'
                 'Window allows {window_value} {unit}. Got {diff}.'.format(
                     lower=self.lower_window_datetime,
                     upper=self.upper_window_datetime,
@@ -72,8 +76,7 @@ class VisitDateMixin(object):
             rdelta,
             self.get_rdelta_attrname(
                 self.upper_window_unit),
-            self.upper_window
-        )
+            self.upper_window)
         return self.reference_datetime + rdelta
 
     @property
@@ -85,8 +88,7 @@ class VisitDateMixin(object):
             rdelta,
             self.get_rdelta_attrname(
                 self.lower_window_unit),
-            self.lower_window
-        )
+            self.lower_window)
         return self.reference_datetime - rdelta
 
     @property

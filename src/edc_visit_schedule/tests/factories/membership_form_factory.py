@@ -1,5 +1,5 @@
-from edc.base.model.tests.factories import BaseUuidModelFactory
-from ...models import MembershipForm
+from edc_base.model.tests.factories import BaseUuidModelFactory
+from edc_visit_schedule.models import MembershipForm
 
 starting_seq_num = 1000
 
