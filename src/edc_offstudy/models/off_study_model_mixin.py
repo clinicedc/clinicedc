@@ -2,6 +2,7 @@ from datetime import datetime, time
 
 from django.db import models
 
+from edc.data_manager.models import TimePointStatus
 from edc_base.encrypted_fields import mask_encrypted
 from edc_base.model.fields import OtherCharField
 from edc.base.model.validators.date import (
@@ -101,6 +102,7 @@ class OffStudyModelMixin(models.Model):
             try:
                 self.VISIT_MODEL.objects.get(appointment=appointment)
             except self.VISIT_MODEL.DoesNotExist:
+                TimePointStatus.objects.get(appointment=appointment).delete()
                 appointment.delete()
 
     def get_subject_identifier(self):
