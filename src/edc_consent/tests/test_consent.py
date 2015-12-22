@@ -1,184 +1,26 @@
-import factory
 from faker import Factory as FakerFactory
 
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
-from django.utils.six import StringIO
-from django.core.management import call_command
-
 from django.core.exceptions import ValidationError
-from django.db import models
-from django.test import TestCase
-from edc_consent.models.base_consent import BaseConsent
-from edc_consent.models import RequiresConsentMixin
-from edc_consent.exceptions import NotConsentedError, ConsentTypeError, ConsentVersionError
+from django.core.management import call_command
 from django.utils import timezone
-from edc_constants.constants import YES, NO
-from edc_quota.client.models import QuotaMixin, QuotaManager
-from edc_consent.models.consent_type import ConsentType
-from edc_consent.models.fields import (
-    IdentityFieldsMixin, SampleCollectionFieldsMixin, PersonalFieldsMixin, SiteFieldsMixin)
-from edc_consent.models.validators import AgeTodayValidator
-from edc_consent.forms.base_consent_form import BaseConsentForm
-from django.test.utils import override_settings
-from edc_consent.models.fields.vulnerability_fields_mixin import VulnerabilityFieldsMixin
+from django.utils.six import StringIO
 
+from edc_consent.exceptions import NotConsentedError, ConsentTypeError, ConsentVersionError
+from edc_consent.models.validators import AgeTodayValidator
+from edc_constants.constants import NO
+from django.test.utils import override_settings
+
+from .base_test_case import (
+    BaseTestCase, TestConsentModel, TestConsentModelFactory, TestConsentModelProxy,
+    TestConsentModelProxyFactory, TestModel, TestScheduledModel, ConsentTypeFactory,
+    ConsentForm, Visit, ConsentModelProxyForm)
 
 faker = FakerFactory.create()
 
 
-class ConsentQuotaMixin(QuotaMixin):
-
-    QUOTA_REACHED_MESSAGE = 'Maximum number of subjects has been reached or exceeded for {}. Got {} >= {}.'
-
-    class Meta:
-        abstract = True
-
-
-class TestConsentModel(
-        ConsentQuotaMixin, IdentityFieldsMixin, SampleCollectionFieldsMixin,
-        SiteFieldsMixin, PersonalFieldsMixin, VulnerabilityFieldsMixin, BaseConsent):
-
-    quota = QuotaManager()
-
-    class Meta:
-        unique_together = (
-            ('subject_identifier', 'version'),
-            ('identity', 'version'),
-            ('first_name', 'dob', 'initials', 'version'))
-        app_label = 'edc_consent'
-
-
-class TestConsentModelProxy(TestConsentModel):
-
-    MAX_AGE_OF_CONSENT = 120
-    GENDER_OF_CONSENT = ['M']
-
-    class Meta:
-        proxy = True
-        app_label = 'edc_consent'
-
-
-class TestModel(RequiresConsentMixin, models.Model):
-
-    CONSENT_MODEL = TestConsentModel
-
-    subject_identifier = models.CharField(max_length=10)
-
-    report_datetime = models.DateTimeField(default=timezone.now)
-
-    field1 = models.CharField(max_length=10)
-
-    class Meta:
-        app_label = 'edc_consent'
-        verbose_name = 'Test Model'
-
-
-class Visit(models.Model):
-
-    subject_identifier = models.CharField(max_length=10)
-
-    report_datetime = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        app_label = 'edc_consent'
-        verbose_name = 'Visit'
-
-
-class TestScheduledModel(RequiresConsentMixin, models.Model):
-
-    CONSENT_MODEL = TestConsentModel
-
-    visit = models.ForeignKey(Visit)
-
-    report_datetime = models.DateTimeField(default=timezone.now)
-
-    def get_subject_identifier(self):
-        return self.visit.subject_identifier
-
-    class Meta:
-        app_label = 'edc_consent'
-
-
-class ConsentForm(BaseConsentForm):
-
-    class Meta:
-        model = TestConsentModel
-        fields = '__all__'
-
-
-class ConsentModelProxyForm(BaseConsentForm):
-
-    class Meta:
-        model = TestConsentModelProxy
-        fields = '__all__'
-
-
-class TestConsentModelFactory(factory.DjangoModelFactory):
-
-    class Meta:
-        model = TestConsentModel
-
-    subject_identifier = '12345'
-    first_name = factory.LazyAttribute(lambda x: 'E{}'.format(faker.first_name().upper()))
-    last_name = factory.LazyAttribute(lambda x: 'E{}'.format(faker.last_name().upper()))
-    initials = 'EE'
-    gender = 'M'
-    consent_datetime = timezone.now()
-    dob = date.today() - relativedelta(years=25)
-    is_dob_estimated = '-'
-    identity = '123156789'
-    confirm_identity = '123156789'
-    identity_type = 'OMANG'
-    is_literate = YES
-    is_incarcerated = NO
-    witness_name = None
-    language = 'en'
-    subject_type = 'subject'
-    site_code = '10'
-    consent_datetime = timezone.now()
-    may_store_samples = YES
-
-
-class TestConsentModelProxyFactory(factory.DjangoModelFactory):
-
-    class Meta:
-        model = TestConsentModelProxy
-
-    subject_identifier = '12345'
-    first_name = 'ERIK'
-    last_name = 'ERIKS'
-    initials = 'EE'
-    gender = 'M'
-    consent_datetime = timezone.now()
-    dob = date.today() - relativedelta(years=25)
-    is_dob_estimated = '-'
-    identity = '123156789'
-    confirm_identity = '123156789'
-    identity_type = 'OMANG'
-    is_literate = YES
-    is_incarcerated = NO
-    language = 'en'
-    subject_type = 'subject'
-    site_code = '10'
-    consent_datetime = timezone.now()
-    may_store_samples = YES
-
-
-class ConsentTypeFactory(factory.DjangoModelFactory):
-
-    class Meta:
-        model = ConsentType
-
-    version = '1.0'
-    updates_version = None
-    app_label = TestConsentModel._meta.app_label
-    model_name = TestConsentModel._meta.model_name
-    start_datetime = timezone.now() - timedelta(days=1)
-    end_datetime = timezone.now() + timedelta(days=365)
-
-
-class TestConsent(TestCase):
+class TestConsent(BaseTestCase):
 
     def setUp(self):
         TestConsentModel.quota.set_quota(2, date.today(), date.today())
@@ -443,7 +285,6 @@ class TestConsent(TestCase):
             version='1.0')
         consent = TestConsentModelFactory.build()
         consent_form = ConsentForm(data=consent.__dict__)
-        print(consent_form.errors)
         self.assertTrue(consent_form.is_valid())
 
     def test_base_form_identity_mismatch(self):
@@ -575,8 +416,6 @@ class TestConsent(TestCase):
         consent.witness_name = 'X'
         consent_form = ConsentModelProxyForm(data=consent.__dict__)
         self.assertFalse(consent_form.is_valid())
-        # consent_form.full_clean()
-        print(consent_form.cleaned_data)
         self.assertIn(
             'Format is \'LASTNAME, FIRSTNAME\'',
             ','.join(consent_form.errors.get('witness_name', [])))
@@ -640,54 +479,3 @@ class TestConsent(TestCase):
         consent2 = TestConsentModel.objects.get(pk=consent2.pk)
         self.assertEqual(consent1.version, '1.0')
         self.assertEqual(consent2.version, '2.0')
-
-
-class TestSpecimenConsent(TestCase):
-
-    def setUp(self):
-        TestConsentModel.quota.set_quota(2, date.today(), date.today())
-        TestConsentModelProxy.quota.set_quota(2, date.today(), date.today())
-        self.subject_identifier = '123456789'
-        self.identity = '987654321'
-        ConsentTypeFactory(
-            start_datetime=timezone.now() - relativedelta(years=5),
-            end_datetime=timezone.now() + timedelta(days=200),
-            version='1.0')
-        self.study_consent = TestConsentModelFactory(
-            subject_identifier=self.subject_identifier, identity=self.identity, confirm_identity=self.identity,
-            consent_datetime=timezone.now(),
-            dob=date.today() - relativedelta(years=25))
-
-    @override_settings(STUDY_OPEN_DATETIME=timezone.datetime.today() - relativedelta(years=3))
-    def test_one_consent_one_sample(self):
-        specimen_consent = TestSpecimenConsentModelFactory.build(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=timezone.now(),
-            dob=date.today() - relativedelta(years=25))
-        specimen_consent_form = ConsentForm(data=specimen_consent.__dict__)
-
-
-    def test_consents_subject_identifier(self):
-        self.assertEqual(
-            maternal_consent.registered_subject.subject_identifier,
-            specimen_consent.registered_subject.subject_identifier)
-
-    def test_consents_is_literate(self):
-        self.assertEqual(maternal_consent.is_literate, specimen_consent.is_literate)
-
-    def test_consents_witness_name(self):
-        eligibility1 = MaternalEligibilityFactory()
-        consent1 = MaternalConsentFactory(registered_subject=eligibility1.registered_subject,
-                                          study_site=self.study_site, is_literate=NO,
-                                          witness_name='DIDI, JAYDEN')
-        consent2 = SpecimenConsentFactory(
-            registered_subject=consent1.registered_subject,
-            is_literate=NO, witness_name='DIDI, JAYDEN')
-        self.assertEqual(consent1.witness_name, consent2.witness_name)
-
-    def test_purpose_unexplained(self):
-        specimen_consent.purpose_explained = NO
-        specimen_consent.save()
-        form = SpecimenConsentForm
-        self.assertIn(u'If may_store_samples is YES, ensure that purpose of sample storage is explained.', form.errors.get('__all__'))
-        self.assertRaises(forms.ValidationError)

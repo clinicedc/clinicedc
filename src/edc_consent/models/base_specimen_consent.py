@@ -14,7 +14,7 @@ class BaseSpecimenConsent(models.Model):
 
     Basic usage:
         class SpecimenConsent(BaseSpecimenConsent, SampleCollectionFieldsMixin, RequiresConsentMixin,
-                              VulnerabilityFieldsMixin, BaseAppointmentMixin, BaseUuidModel):
+                              VulnerabilityFieldsMixin, AppointmentMixin, BaseUuidModel):
 
         CONSENT_MODEL = MyStudyConsent
 
