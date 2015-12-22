@@ -1,14 +1,11 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import get_model, Max
 
-from edc.subject.appointment.exceptions import AppointmentStatusError
 from edc.apps.app_configuration.models import GlobalConfiguration
 from edc.subject.subject_config.models import SubjectConfiguration
-from edc.subject.visit_schedule.models import VisitDefinition, ScheduleGroup
 from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, INCOMPLETE, UNKEYED, NEW_APPT, CANCELLED
-from edc.entry_meta_data.helpers import ScheduledEntryMetaDataHelper
 
-from ..exceptions import AppointmentCreateError
+from ..exceptions import AppointmentCreateError, AppointmentStatusError
 
 from .appointment_date_helper import AppointmentDateHelper
 
@@ -26,7 +23,7 @@ class AppointmentHelper(object):
             visit_definition contains the schedule group which contains the membership form
         """
         appointments = []
-        default_appt_type = self._get_default_appt_type(membership_form.registered_subject)
+        default_appt_type = self.get_default_appt_type(membership_form.registered_subject)
         for visit_definition in self.visit_definitions_for_schedule_group(membership_form._meta.model_name):
             appointment = self.update_or_create_appointment(
                 membership_form.registered_subject,
@@ -41,9 +38,12 @@ class AppointmentHelper(object):
     def update_or_create_appointment(self, registered_subject, registration_datetime, visit_definition,
                                      default_appt_type, dashboard_type, using):
         """Updates or creates an appointment for this registered subject for the visit_definition."""
-        Appointment = get_model('appointment', 'appointment')
+        Appointment = get_model('edc_appointment', 'appointment')
         appt_datetime = self.new_appointment_appt_datetime(
-            registered_subject, registration_datetime, visit_definition)
+            registered_subject=registered_subject,
+            registration_datetime=registration_datetime,
+            visit_definition=visit_definition,
+            appointment_model_cls=Appointment)
         try:
             appointment = Appointment.objects.using(using).get(
                 registered_subject=registered_subject,
@@ -69,9 +69,10 @@ class AppointmentHelper(object):
                 appt_type=default_appt_type)
         return appointment
 
-    def new_appointment_appt_datetime(self, registered_subject, registration_datetime, visit_definition):
+    def new_appointment_appt_datetime(
+            self, registered_subject, registration_datetime, visit_definition, appointment_model_cls=None):
         """Calculates and returns the appointment date for new appointments."""
-        appointment_date_helper = AppointmentDateHelper()
+        appointment_date_helper = AppointmentDateHelper(appointment_model_cls)
         if visit_definition.time_point == 0:
             appt_datetime = appointment_date_helper.get_best_datetime(
                 registration_datetime, registered_subject.study_site)
@@ -82,6 +83,7 @@ class AppointmentHelper(object):
 
     def visit_definitions_for_schedule_group(self, model_name):
         """Returns a visit_definition queryset for this membership form's schedule_group."""
+        VisitDefinition = get_model('visit_schedule', 'VisitDefinition')
         schedule_group = self.schedule_group(model_name)
         visit_definitions = VisitDefinition.objects.filter(
             schedule_group=schedule_group).order_by('time_point')
@@ -95,6 +97,7 @@ class AppointmentHelper(object):
 
     def schedule_group(self, membership_form_model_name):
         """Returns the schedule_group for this membership_form."""
+        ScheduleGroup = get_model('visit_schedule', 'ScheduleGroup')
         try:
             schedule_group = ScheduleGroup.objects.get(
                 membership_form__content_type_map__model=membership_form_model_name)
@@ -105,33 +108,33 @@ class AppointmentHelper(object):
                 'See the visit schedule configuration.'.format(membership_form_model_name))
         return schedule_group
 
-    def delete_for_instance(self, model_instance, using=None):
-        """ Delete appointments for this registered_subject for this
-        model_instance but only if visit report not yet submitted """
-        visit_definitions = VisitDefinition.objects.list_all_for_model(
-            model_instance.registered_subject, model_instance._meta.object_name.lower())
-        Appointment = get_model('appointment', 'appointment')
-        # only delete appointments without a visit model
-        appointments = Appointment.objects.using(using).filter(
-            registered_subject=model_instance.registered_subject, visit_definition__in=visit_definitions)
-        count = 0
-        visit_model = model_instance.get_visit_model_cls(model_instance)
-        # find the most recent visit model instance and delete any appointments after that
-        for appointment in appointments:
-            if not visit_model.objects.using(using).filter(appointment=appointment):
-                appointment.delete()
-                count += 1
-        for appointment in appointments:
-            if not visit_model.objects.using(using).filter(appointment=appointment):
-                appointment.delete()
-                count += 1
-        return count
+#     def delete_for_instance(self, model_instance, using=None):
+#         """ Delete appointments for this registered_subject for this
+#         model_instance but only if visit report not yet submitted """
+#         visit_definitions = VisitDefinition.objects.list_all_for_model(
+#             model_instance.registered_subject, model_instance._meta.object_name.lower())
+#         Appointment = get_model('edc_appointment', 'appointment')
+#         # only delete appointments without a visit model
+#         appointments = Appointment.objects.using(using).filter(
+#             registered_subject=model_instance.registered_subject, visit_definition__in=visit_definitions)
+#         count = 0
+#         visit_model = model_instance.get_visit_model_cls(model_instance)
+#         # find the most recent visit model instance and delete any appointments after that
+#         for appointment in appointments:
+#             if not visit_model.objects.using(using).filter(appointment=appointment):
+#                 appointment.delete()
+#                 count += 1
+#         for appointment in appointments:
+#             if not visit_model.objects.using(using).filter(appointment=appointment):
+#                 appointment.delete()
+#                 count += 1
+#         return count
 
     def create_next_instance(self, base_appointment_instance, next_appt_datetime, using=None):
         """ Creates a continuation appointment given the base appointment
         instance (.0) and the next appt_datetime """
         appointment = base_appointment_instance
-        Appointment = get_model('appointment', 'appointment')
+        Appointment = get_model('edc_appointment', 'appointment')
         if not Appointment.objects.using(using).filter(
                 registered_subject=appointment.registered_subject,
                 visit_definition=appointment.visit_definition,
@@ -154,6 +157,7 @@ class AppointmentHelper(object):
     def check_appt_status(self, appointment, using):
         """Checks the appt_status relative to the visit tracking form and ScheduledEntryMetaData.
         """
+        from edc.entry_meta_data.helpers import ScheduledEntryMetaDataHelper
         # for an existing appointment, check if there is a visit tracking form already on file
         if not appointment.visit_definition.visit_tracking_content_type_map:
             raise ImproperlyConfigured(
@@ -217,10 +221,10 @@ class AppointmentHelper(object):
                         'Did not expect appt_status == \'{0}\''.format(appointment.appt_status))
         return appointment
 
-    def _get_default_appt_type(self, registered_subject):
-        """Returns the default appointment date fetched from either the subject
+    def get_default_appt_type(self, registered_subject):
+        """Returns the default appointment type fetched from either the subject
         specific setting or the global setting."""
-        default_appt_type = None
+        default_appt_type = 'clinic'
         try:
             default_appt_type = SubjectConfiguration.objects.get(
                 subject_identifier=registered_subject.subject_identifier).default_appt_type
@@ -228,5 +232,10 @@ class AppointmentHelper(object):
             try:
                 default_appt_type = GlobalConfiguration.objects.get_attr_value('default_appt_type')
             except GlobalConfiguration.DoesNotExist:
+                pass
+        except AttributeError as e:
+            if '\'NoneType\' object has no attribute \'subject_identifier\'' not in str(e):
+                raise
+            else:
                 pass
         return default_appt_type

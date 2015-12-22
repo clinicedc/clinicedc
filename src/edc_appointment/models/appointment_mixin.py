@@ -1,5 +1,7 @@
 from django.db import models
 
+from .appointment import AppointmentHelper
+
 
 class AppointmentMixin(models.Model):
 
@@ -25,7 +27,6 @@ class AppointmentMixin(models.Model):
 
         .. seealso:: :class:`appointment_helper.AppointmentHelper`. """
         self.pre_prepare_appointments(using)
-        from edc.subject.appointment_helper.classes import AppointmentHelper
         AppointmentHelper().create_all(self, using=using)
         self.post_prepare_appointments(using)
 

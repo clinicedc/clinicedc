@@ -13,8 +13,7 @@ class PreAppointmentContact(BaseContactLogItem):
 
     is_confirmed = models.BooleanField(
         verbose_name='Appointment confirmed',
-        default=False,
-    )
+        default=False)
 
     history = AuditTrail()
 
@@ -33,5 +32,5 @@ class PreAppointmentContact(BaseContactLogItem):
         return unicode(self.appointment)
 
     class Meta:
-        app_label = 'appointment'
+        app_label = 'edc_appointment'
         db_table = 'bhp_appointment_preappointmentcontact'

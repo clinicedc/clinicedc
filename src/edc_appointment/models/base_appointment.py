@@ -21,10 +21,12 @@ except ImportError:
 
 class BaseAppointment (BaseBaseAppointment, BaseSyncUuidModel):
     """Base class for Appointments."""
+
     appt_datetime = models.DateTimeField(
         verbose_name=("Appointment date and time"),
         help_text="",
         db_index=True)
+
     # this is the original calculated appointment datetime
     # which the user cannot change
     timepoint_datetime = models.DateTimeField(
@@ -32,27 +34,32 @@ class BaseAppointment (BaseBaseAppointment, BaseSyncUuidModel):
         help_text="calculated appointment datetime. Do not change",
         null=True,
         editable=False)
+
     appt_status = models.CharField(
         verbose_name=("Status"),
         choices=APPT_STATUS,
         max_length=25,
         default=NEW_APPT,
         db_index=True)
+
     appt_reason = models.CharField(
         verbose_name=("Reason for appointment"),
         max_length=25,
         help_text=("Reason for appointment"),
         blank=True)
+
     contact_tel = models.CharField(
         verbose_name=("Contact Tel"),
         max_length=250,
         blank=True)
+
     comment = models.CharField(
         "Comment",
         max_length=250,
         blank=True)
 
     is_confirmed = models.BooleanField(default=False, editable=False)
+
     contact_count = models.IntegerField(default=0, editable=False)
 
     def get_report_datetime(self):

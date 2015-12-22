@@ -1,7 +1,9 @@
 from .appointment import Appointment
+from .appointment_date_helper import AppointmentDateHelper
+from .appointment_helper import AppointmentHelper
 from .appointment_mixin import AppointmentMixin
-from .base_appointment import BaseAppointment
-from .base_participation_model import BaseParticipationModel
 from .holiday import Holiday
 from .pre_appointment_contact import PreAppointmentContact
-from .signals import *
+from .signals import (
+    pre_appointment_contact_on_post_delete, pre_appointment_contact_on_post_save,
+    prepare_appointments_on_post_save)

@@ -1,8 +1,6 @@
-from django.db.models import get_model
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from .appointment import Appointment
 from .pre_appointment_contact import PreAppointmentContact
 
 
@@ -65,15 +63,3 @@ def pre_appointment_contact_on_post_delete(sender, instance, using, **kwargs):
             appointment_update_fields.append('is_confirmed')
         if appointment_update_fields:
             instance.appointment.save(using=using, update_fields=appointment_update_fields)
-
-
-@receiver(post_save, weak=False, dispatch_uid="appointment_post_save")
-def appointment_post_save(sender, instance, raw, created, using, **kwargs):
-    """Creates the TimePointStatus instance if it does not already exist."""
-    if not raw:
-        if isinstance(instance, Appointment):
-            TimePointStatus = get_model('data_manager', 'TimePointStatus')
-            try:
-                TimePointStatus.objects.get(appointment=instance)
-            except TimePointStatus.DoesNotExist:
-                TimePointStatus.objects.create(appointment=instance)

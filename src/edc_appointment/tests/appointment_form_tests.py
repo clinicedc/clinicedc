@@ -1,8 +1,11 @@
 from edc.subject.visit_schedule.tests.factories import VisitDefinitionFactory
 from edc.core.bhp_content_type_map.models import ContentTypeMap
-from ..forms import AppointmentForm
-from .base_appointment_tests import BaseAppointmentTests
+
 from edc_constants.constants import NEW_APPT
+
+from ..forms import AppointmentForm
+
+from .base_appointment_tests import BaseAppointmentTests
 
 
 class AppointmentFormTests(BaseAppointmentTests):

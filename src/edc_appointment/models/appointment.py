@@ -15,6 +15,8 @@ from edc_constants.constants import COMPLETE_APPT, NEW_APPT
 from ..choices import APPT_TYPE, APPT_STATUS
 from ..managers import AppointmentManager
 
+from .appointment_helper import AppointmentHelper
+from .appointment_date_helper import AppointmentDateHelper
 from .base_appointment import BaseAppointment
 
 
@@ -24,11 +26,9 @@ class Appointment(BaseAppointment):
         Only one appointment per subject visit_definition+visit_instance.
         Attribute 'visit_instance' should be populated by the system.
     """
-    registered_subject = models.ForeignKey(RegisteredSubject, related_name='+')
-
-    best_appt_datetime = models.DateTimeField(null=True, editable=False)
-
-    appt_close_datetime = models.DateTimeField(null=True, editable=False)
+    registered_subject = models.ForeignKey(
+        RegisteredSubject,
+        related_name='+')
 
     study_site = models.ForeignKey(
         StudySite,
@@ -39,9 +39,13 @@ class Appointment(BaseAppointment):
     visit_definition = models.ForeignKey(
         VisitDefinition,
         related_name='+',
-        verbose_name=("Visit"),
+        verbose_name="Visit",
         help_text=("For tracking within the window period of a visit, use the decimal convention. "
                    "Format is NNNN.N. e.g 1000.0, 1000.1, 1000.2, etc)"))
+
+    best_appt_datetime = models.DateTimeField(null=True, editable=False)
+
+    appt_close_datetime = models.DateTimeField(null=True, editable=False)
 
     visit_instance = models.CharField(
         max_length=1,
@@ -75,14 +79,11 @@ class Appointment(BaseAppointment):
     history = AuditTrail()
 
     def __unicode__(self):
-        """Django."""
         return "{0} {1} for {2}.{3}".format(
             self.registered_subject.subject_identifier, self.registered_subject.subject_type,
             self.visit_definition.code, self.visit_instance)
 
     def save(self, *args, **kwargs):
-        """Django save method"""
-        from edc.subject.appointment_helper.classes import AppointmentHelper
         using = kwargs.get('using')
         if self.id:
             TimePointStatus = models.get_model('data_manager', 'TimePointStatus')
@@ -108,11 +109,10 @@ class Appointment(BaseAppointment):
 
         .. note:: best_appt_datetime is not editable by the user. If 'None'
          will raise an exception."""
-        from edc.subject.appointment_helper.classes import AppointmentDateHelper
         # for tests
         if not exception_cls:
             exception_cls = ValidationError
-        appointment_date_helper = AppointmentDateHelper()
+        appointment_date_helper = AppointmentDateHelper(self.__class__)
         if not self.id:
             appt_datetime = appointment_date_helper.get_best_datetime(self.appt_datetime, self.study_site)
             best_appt_datetime = self.appt_datetime
@@ -217,8 +217,7 @@ class Appointment(BaseAppointment):
         return True
 
     class Meta:
-        """Django model Meta."""
-        app_label = 'appointment'
+        app_label = 'edc_appointment'
         db_table = 'bhp_appointment_appointment'
         unique_together = (('registered_subject', 'visit_definition', 'visit_instance'),)
         ordering = ['registered_subject', 'appt_datetime', ]

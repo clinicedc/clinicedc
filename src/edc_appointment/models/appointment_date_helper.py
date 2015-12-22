@@ -6,12 +6,12 @@ from django.db.models import get_model
 
 from edc.apps.app_configuration.models import GlobalConfiguration
 from edc.subject.visit_schedule.classes import WindowPeriod
-from edc.subject.visit_schedule.models import VisitDefinition
 
 
 class AppointmentDateHelper(object):
     """ """
-    def __init__(self):
+    def __init__(self, appointment_model_cls):
+        self.appointment_model_cls = appointment_model_cls
         self.window_delta = None
         # not used
         self.allow_backwards = False
@@ -50,7 +50,9 @@ class AppointmentDateHelper(object):
 
     def get_relative_datetime(self, base_appt_datetime, visit_definition):
         """ Returns appointment datetime relative to the base_appointment_datetime."""
-        appt_datetime = base_appt_datetime + VisitDefinition.objects.relativedelta_from_base(visit_definition=visit_definition)
+        VisitDefinition = get_model('visit_schedule', 'VisitDefinition')
+        appt_datetime = base_appt_datetime + VisitDefinition.objects.relativedelta_from_base(
+            visit_definition=visit_definition)
         return self.get_best_datetime(appt_datetime, base_appt_datetime.isoweekday())
 
     def _check(self, appt_datetime, site):
@@ -83,7 +85,7 @@ class AppointmentDateHelper(object):
 
     def _check_if_holiday(self, appt_datetime):
         """ Checks if appt_datetime lands on a holiday, if so, move forward """
-        Holiday = get_model('appointment', 'holiday')
+        Holiday = get_model('edc_appointment', 'holiday')
         while appt_datetime.date() in [holiday.holiday_date for holiday in Holiday.objects.all()]:
             appt_datetime = appt_datetime + timedelta(days=+2)
             appt_datetime = self._check_if_allowed_isoweekday(appt_datetime)
@@ -115,9 +117,9 @@ class AppointmentDateHelper(object):
                 raise TypeError('Appt_datetime cannot be None')
         return appt_datetime
 
-    def _move_on_appt_max_exceeded(self, original_appt_datetime, site, appointments_per_day_max=None, appointments_days_forward=None):
+    def _move_on_appt_max_exceeded(
+            self, original_appt_datetime, site, appointments_per_day_max=None, appointments_days_forward=None):
         """Moves appointment date to another date if the appointments_per_day_max is exceeded."""
-        from edc.subject.appointment.models import Appointment
         appt_datetime = copy.deepcopy(original_appt_datetime)
         if not appointments_per_day_max:
             appointments_per_day_max = self.appointments_per_day_max
@@ -127,7 +129,7 @@ class AppointmentDateHelper(object):
         # get a list of appointments in the date range from 'appt_datetime' to 'appt_datetime'+days_forward
         # use model field appointment.best_appt_datetime not appointment.appt_datetime
         # TODO: change this query to allow the search to go to the beginning of the week
-        appointments = Appointment.objects.filter(
+        appointments = self.appointment_model_cls.objects.filter(
             study_site=site,
             best_appt_datetime__gte=appt_datetime,
             best_appt_datetime__lte=appt_datetime + timedelta(days=self.appointments_days_forward))
@@ -139,7 +141,6 @@ class AppointmentDateHelper(object):
             # if desired date is not maxed out, use it
             if appt_date_counts.get(my_appt_date) < appointments_per_day_max:
                 appt_date = my_appt_date
-                #self.message = 'Appointment date has been changed to {0}'.format(appt_date)
             else:
                 # look for an alternative date
                 for appt_date, cnt in dict((i, appt_dates.count(i)) for i in appt_dates).iteritems():
@@ -148,9 +149,8 @@ class AppointmentDateHelper(object):
                         self.message = 'Appointment date has been moved to {0}.'.format(appt_date)
                         break
             # return an appointment datetime that uses the time from the originally desrired datetime
-            appt_datetime = datetime(appt_date.year, appt_date.month, appt_date.day, appt_datetime.hour, appt_datetime.minute)
+            appt_datetime = datetime(
+                appt_date.year, appt_date.month, appt_date.day, appt_datetime.hour, appt_datetime.minute)
         if not appt_datetime:
             raise TypeError('Appt_datetime cannot be None')
-        #if abs(appt_datetime - original_appt_datetime) >= timedelta(days=1):
-        #    print 'date changed'
         return appt_datetime
