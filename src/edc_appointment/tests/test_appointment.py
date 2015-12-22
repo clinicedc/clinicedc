@@ -13,7 +13,7 @@ from edc.subject.registration.models import RegisteredSubject
 from edc.testing.tests.factories import TestConsentWithMixinFactory
 from edc_appointment.models.appointment_mixin import AppointmentMixin
 from edc.data_manager.models.time_point_status import TimePointStatus
-from edc.subject.visit_schedule.models.visit_definition import VisitDefinition
+from edc_visit_schedule.models.visit_definition import VisitDefinition
 
 from ..choices import APPT_STATUS
 from ..models import Appointment

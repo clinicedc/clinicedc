@@ -53,7 +53,7 @@ INSTALLED_APPS = (
     'edc.core.bhp_variables',
     'edc.core.crypto_fields',
     'edc.core.bhp_content_type_map',
-    'edc.subject.visit_schedule',
+    'edc_visit_schedule',
     'edc.entry_meta_data',
     'edc.subject.entry',
     'edc_appointment',

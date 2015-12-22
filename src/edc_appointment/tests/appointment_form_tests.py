@@ -1,4 +1,4 @@
-from edc.subject.visit_schedule.tests.factories import VisitDefinitionFactory
+from edc_visit_schedule.tests.factories import VisitDefinitionFactory
 from edc.core.bhp_content_type_map.models import ContentTypeMap
 
 from edc_constants.constants import NEW_APPT

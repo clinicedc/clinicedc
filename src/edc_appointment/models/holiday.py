@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_base.model.models import BaseUuidModel
 
 

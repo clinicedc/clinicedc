@@ -83,7 +83,7 @@ class AppointmentHelper(object):
 
     def visit_definitions_for_schedule_group(self, model_name):
         """Returns a visit_definition queryset for this membership form's schedule_group."""
-        VisitDefinition = get_model('visit_schedule', 'VisitDefinition')
+        VisitDefinition = get_model('edc_visit_schedule', 'VisitDefinition')
         schedule_group = self.schedule_group(model_name)
         visit_definitions = VisitDefinition.objects.filter(
             schedule_group=schedule_group).order_by('time_point')
@@ -97,7 +97,7 @@ class AppointmentHelper(object):
 
     def schedule_group(self, membership_form_model_name):
         """Returns the schedule_group for this membership_form."""
-        ScheduleGroup = get_model('visit_schedule', 'ScheduleGroup')
+        ScheduleGroup = get_model('edc_visit_schedule', 'ScheduleGroup')
         try:
             schedule_group = ScheduleGroup.objects.get(
                 membership_form__content_type_map__model=membership_form_model_name)
