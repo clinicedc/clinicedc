@@ -62,7 +62,7 @@
 {% endblock ph_dispenser %}
 
 {% block visit_schedule %}
-    {% if 'edc.subject.visit_schedule' in installed_apps%}
+    {% if 'edc_visit_schedule' in installed_apps%}
         <h5>Data Collection Schedule</h5>
         <ul>
             <li><A href="{% url 'admin:visit_schedule_membershipform_changelist' %}">Membership forms</A>

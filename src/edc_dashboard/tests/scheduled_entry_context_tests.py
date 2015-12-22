@@ -8,7 +8,7 @@ from edc.entry_meta_data.models import ScheduledEntryMetaData
 from edc.subject.entry.tests.factories import EntryFactory, LabEntryFactory
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc.subject.registration.models import RegisteredSubject
-from edc.subject.visit_schedule.tests.factories import MembershipFormFactory, ScheduleGroupFactory, VisitDefinitionFactory
+from edc_visit_schedule.tests.factories import MembershipFormFactory, ScheduleGroupFactory, VisitDefinitionFactory
 from edc.testing.tests.factories import TestConsentWithMixinFactory, TestScheduledModel1Factory
 
 from edc_dashboard.subject import ScheduledEntryContext

@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 from edc.subject.registration.tests.factories import RegisteredSubjectFactory
 from edc.core.bhp_content_type_map.models import ContentTypeMap
-from edc.subject.visit_schedule.tests.factories import VisitDefinitionFactory, ScheduleGroupFactory, MembershipFormFactory
+from edc_visit_schedule.tests.factories import VisitDefinitionFactory, ScheduleGroupFactory, MembershipFormFactory
 from edc.dashboard.subject.classes import RegisteredSubjectDashboard
 from edc.subject.lab_tracker.classes import LabTracker, site_lab_tracker
 from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
