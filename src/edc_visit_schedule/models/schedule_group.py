@@ -43,5 +43,5 @@ class ScheduleGroup(BaseUuidModel):
 
     class Meta:
         ordering = ['group_name']
-        app_label = "visit_schedule"
+        app_label = "edc_visit_schedule"
         db_table = 'bhp_visit_schedulegroup'

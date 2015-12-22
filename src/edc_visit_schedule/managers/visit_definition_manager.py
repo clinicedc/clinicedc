@@ -38,8 +38,7 @@ class VisitDefinitionManager(models.Manager):
 
     def list_all_for_model(self, registered_subject, model_name):
         """Lists all visit_definitions for which appointments would be created or updated for this model_name."""
-        ScheduleGroup = models.get_model('visit_schedule', 'schedulegroup')
-        #s = super(VisitDefinitionManager, self)._meta
+        ScheduleGroup = models.get_model('edc_visit_schedule', 'schedulegroup')
         if ScheduleGroup.objects.filter(membership_form__content_type_map__model=model_name):
             # get list of visits for scheduled group containing this model
             visit_definitions = super(VisitDefinitionManager, self).filter(

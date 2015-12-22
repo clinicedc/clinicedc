@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from edc_base.model.models import BaseUuidModel
 from edc.core.bhp_content_type_map.models import ContentTypeMap
+from edc_base.model.models import BaseUuidModel
 
 from ..managers import MembershipFormManager
 
@@ -59,5 +59,5 @@ class MembershipForm(BaseUuidModel):
         return self.content_type_map.name
 
     class Meta:
-        app_label = "visit_schedule"
+        app_label = "edc_visit_schedule"
         db_table = 'bhp_visit_membershipform'

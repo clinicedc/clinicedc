@@ -4,7 +4,7 @@ from django.db.models import get_model
 class VisitDefinitionHelper(object):
 
     def copy(self, source_visit_definition, code, title, time_point, base_interval, base_interval_unit, grouping=None):
-        VisitDefinition = get_model('visit_schedule', 'VisitDefinition')
+        VisitDefinition = get_model('edc_visit_schedule', 'VisitDefinition')
         Entry = get_model('entry', 'Entry')
 
         target_visit_definition = VisitDefinition.objects.create(

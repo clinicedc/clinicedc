@@ -1,14 +1,13 @@
 import factory
 
-from edc.base.model.tests.factories import BaseUuidModelFactory
-from edc.core.bhp_content_type_map.tests.factories import ContentTypeMapFactory
+from edc_visit_schedule.models import VisitDefinition
 
-from edc.subject.visit_schedule.models import VisitDefinition
+from edc.core.bhp_content_type_map.tests.factories import ContentTypeMapFactory
 
 starting_seq_num = 1000
 
 
-class VisitDefinitionFactory(BaseUuidModelFactory):
+class VisitDefinitionFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = VisitDefinition

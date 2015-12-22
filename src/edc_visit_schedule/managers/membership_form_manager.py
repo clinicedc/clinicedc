@@ -12,7 +12,7 @@ class MembershipFormManager(models.Manager):
 
     def codes_for_category(self, membership_form_category):
         """ Lists visit codes for this membership form category."""
-        VisitDefinition = models.get_model('visit_schedule', 'visitdefinition')
+        VisitDefinition = models.get_model('edc_visit_schedule', 'visitdefinition')
         membership_forms = super(MembershipFormManager, self).filter(category=membership_form_category)
         visit_definition_codes = set()
         for membership_form in membership_forms:
