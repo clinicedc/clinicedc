@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 
 from edc.subject.registration.models import RegisteredSubject
-from edc.subject.visit_schedule.models import VisitDefinition
+from edc_visit_schedule.models import VisitDefinition
 from edc_appointment.models import Appointment
 from edc_base.model.models import BaseUuidModel
 from edc_constants.constants import SCHEDULED, OFF_STUDY

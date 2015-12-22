@@ -10,9 +10,9 @@ from edc.lab.lab_profile.classes import site_lab_profiles
 from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc.subject.registration.tests.factories import RegisteredSubjectFactory
-from edc.subject.visit_schedule.classes import (
+from edc_visit_schedule.classes import (
     VisitScheduleConfiguration, EntryTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
-from edc.subject.visit_schedule.models import VisitDefinition
+from edc_visit_schedule.models import VisitDefinition
 from edc.testing.classes import TestLabProfile, TestAppConfiguration
 from edc.testing.models import TestVisit, TestConsentWithMixin, TestAliquotType, TestPanel
 from edc.testing.tests.factories import TestConsentWithMixinFactory, TestVisitFactory
