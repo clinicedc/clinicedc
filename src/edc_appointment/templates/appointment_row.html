@@ -30,12 +30,12 @@
 </td>
 <td>{{ appointment.appt_type|appt_type }}</td>
 <td nowrap>{{ appointment.appt_datetime|date:"Y-m-d D" }}{% if appointment.appt_type == 'clinic' and appointment.appt_status == NEW_APPT %}{% if appointment.is_confirmed %}/C{%else%}/NC{%endif%}{%endif%}
-{% if appointment.appt_status == 'incomplete'%}<br>(<A href="{% url 'admin:appointment_appointment_add' %}?next={{ subject_dashboard_url|default:'dashboard_url' }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&registered_subject={{ registered_subject.pk }}&visit_definition={{appointment.visit_definition.pk}}{{ extra_url_context|default:"" }}">add con't?</A>){% endif %}</td>
+{% if appointment.appt_status == 'incomplete'%}<br>(<A href="{% url 'admin:edc_appointment_appointment_add' %}?next={{ subject_dashboard_url|default:'dashboard_url' }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&registered_subject={{ registered_subject.pk }}&visit_definition={{appointment.visit_definition.pk}}{{ extra_url_context|default:"" }}">add con't?</A>){% endif %}</td>
 {% endblock appointment_columns %}
 
 {% block appointment_status_column %}
 <td>
-<A href="{% url 'admin:appointment_appointment_change' appointment.pk %}?next={{ subject_dashboard_url|default:'dashboard_url' }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&registered_subject={{ registered_subject.pk }}{{ extra_url_context|default:"" }}">
+<A href="{% url 'admin:edc_appointment_appointment_change' appointment.pk %}?next={{ subject_dashboard_url|default:'dashboard_url' }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&registered_subject={{ registered_subject.pk }}{{ extra_url_context|default:"" }}">
     {{ appointment.get_appt_status_display }}
     {% if appointment.appt_status == 'incomplete'%}<font color="red">*</font>{% endif %}
     {% if appointment.appt_status == 'in_progress'%}<font color="green">*</font>{% endif %}    
