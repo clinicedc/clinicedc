@@ -1,10 +1,8 @@
 from __future__ import print_function
 
 from datetime import date
-from dateutil.relativedelta import relativedelta
 
 from django.test import TestCase
-from django.utils import timezone
 
 from edc.core.bhp_variables.models import StudySite
 from edc.lab.lab_profile.classes import site_lab_profiles
@@ -14,10 +12,7 @@ from edc.subject.registration.tests.factories import RegisteredSubjectFactory
 from edc_visit_schedule.models import VisitDefinition
 from edc.testing.classes import TestLabProfile
 from edc.testing.classes import TestVisitSchedule, TestAppConfiguration
-from edc.testing.tests.factories import TestConsentWithMixinFactory
-from edc_appointment.models import Appointment
-from edc_constants.constants import MALE
-from edc_consent.tests import TestConsentModel, ConsentTypeFactory
+from edc_consent.tests.base_test_models import TestConsentModel, ConsentTypeFactory
 
 
 class BaseTestCase(TestCase):
@@ -47,4 +42,3 @@ class BaseTestCase(TestCase):
             subject_identifier='999-100000-1')
         ConsentTypeFactory()
         TestConsentModel.quota.set_quota(2, date.today(), date.today())
-
