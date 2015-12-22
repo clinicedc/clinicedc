@@ -12,8 +12,9 @@ from edc_consent.models.validators import AgeTodayValidator
 from edc_constants.constants import NO
 from django.test.utils import override_settings
 
-from .base_test_case import (
-    BaseTestCase, TestConsentModel, TestConsentModelFactory, TestConsentModelProxy,
+from .base_test_case import BaseTestCase
+from .base_test_models import (
+    TestConsentModel, TestConsentModelFactory, TestConsentModelProxy,
     TestConsentModelProxyFactory, TestModel, TestScheduledModel, ConsentTypeFactory,
     ConsentForm, Visit, ConsentModelProxyForm)
 
