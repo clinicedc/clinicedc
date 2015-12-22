@@ -32,7 +32,7 @@ class TestRegistrationModel(AppointmentMixin, models.Model):
         app_label = 'edc_appointment'
 
 
-class TestAppointmentMethod(BaseTestCase):
+class TestAppointment(BaseTestCase):
 
     def test_create_appointment(self):
         appointment = Appointment.objects.create(
