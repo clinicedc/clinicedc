@@ -174,11 +174,8 @@ class BaseTest(TestCase):
         except AlreadyRegisteredLabProfile:
             pass
         site_lab_tracker.autodiscover()
-
         TestAppConfiguration().prepare()
-
         VisitSchedule().build()
-
         self.test_visit_factory = TestVisitFactory
         self.study_site = StudySite.objects.all()[0]
         self.identity = '111111111'
