@@ -1,5 +1,6 @@
 from datetime import datetime, time
 
+from django.conf import settings
 from django.db import models
 
 from edc.data_manager.models import TimePointStatus
