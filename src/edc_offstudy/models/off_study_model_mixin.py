@@ -5,7 +5,7 @@ from django.db import models
 from edc.data_manager.models import TimePointStatus
 from edc_base.encrypted_fields import mask_encrypted
 from edc_base.model.fields import OtherCharField
-from edc.base.model.validators.date import (
+from edc_base.model.validators.date import (
     datetime_not_before_study_start, datetime_not_future,
     date_not_before_study_start, date_not_future)
 from edc_constants.choices import YES_NO

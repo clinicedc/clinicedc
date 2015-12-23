@@ -38,22 +38,21 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'edc_base',
-    'edc.subject.registration',
-    'edc.subject.subject_config',
-    'edc.apps.app_configuration',
-    'edc_consent',
     'edc_appointment',
-    'edc.data_manager',
-    'edc.lab.lab_clinic_api',
-    'edc.subject.entry',
-    'edc.testing',
+    'edc_base',
+    'edc_consent',
+    'edc_visit_schedule',
+    # 'edc.lab.lab_clinic_api',
+    # 'edc.testing',
+    'edc.apps.app_configuration',
+    'edc.core.bhp_content_type_map',
     'edc.core.bhp_variables',
     'edc.core.crypto_fields',
-    'edc.core.bhp_content_type_map',
-    'edc_visit_schedule',
+    'edc.data_manager',
     'edc.entry_meta_data',
     'edc.subject.entry',
+    'edc.subject.registration',
+    'edc.subject.subject_config',
     'edc_offstudy',
 )
 
@@ -62,10 +61,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+    # 'django.middleware.security.SecurityMiddleware',
 )
 
 ROOT_URLCONF = 'edc_offstudy.urls'
@@ -86,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'edc_offstudy.wsgi.application'
 
 
 # Database
