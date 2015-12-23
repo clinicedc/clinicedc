@@ -1,6 +1,7 @@
 from datetime import datetime, time
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
 from edc.data_manager.models import TimePointStatus
@@ -82,11 +83,8 @@ class OffStudyModelMixin(models.Model):
         or raise an OffStudyError."""
         report_datetime_min = datetime.combine(self.report_datetime.date(), time.min)
         report_datetime_max = datetime.combine(self.report_datetime.date(), time.max)
-        if 'OFFSTUDY_REASONS' in dir(settings):
-            OFFSTUDY_REASONS = settings.OFFSTUDY_REASONS
-        else:
-            OFFSTUDY_REASONS = [DEATH_VISIT, COMPLETED_PROTOCOL_VISIT, LOST_VISIT]
         try:
+            OFFSTUDY_REASONS = settings.OFFSTUDY_REASONS
             self.VISIT_MODEL.objects.get(
                 appointment__registered_subject=self.registered_subject,
                 report_datetime__gt=report_datetime_min,
@@ -95,6 +93,8 @@ class OffStudyModelMixin(models.Model):
         except self.VISIT_MODEL.DoesNotExist:
             raise OffStudyError(
                 'Off study report must be submitted with an off study visit on the same day.')
+        except ImproperlyConfigured:
+            OFFSTUDY_REASONS = [DEATH_VISIT, COMPLETED_PROTOCOL_VISIT, LOST_VISIT]
 
     def delete_future_appointments_on_offstudy(self):
         """Deletes appointments created after the off-study datetime
