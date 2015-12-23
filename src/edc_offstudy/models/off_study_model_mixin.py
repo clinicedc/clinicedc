@@ -71,6 +71,12 @@ class OffStudyModelMixin(models.Model):
         self.off_study_visit_exists_or_raise()
         super(OffStudyModelMixin, self).save(*args, **kwargs)
 
+    def get_offstudy_visit_reasons(self):
+        """Ensure that this method is subclassed by off study model to return a list of all valid off-study reasons"""
+        raise OffStudyError(
+            'This method must be subclassed in the offstudy model with a list of all valid '
+            'off study visit reasons')
+
     def show_scheduled_entries_on_offstudy_date(self):
         if self.has_scheduled_data == NO:
             return False
@@ -86,7 +92,7 @@ class OffStudyModelMixin(models.Model):
                 appointment__registered_subject=self.registered_subject,
                 report_datetime__gt=report_datetime_min,
                 report_datetime__lt=report_datetime_max,
-                reason=OFF_STUDY)
+                reason__in=self.get_offstudy_visit_reasons())
         except self.VISIT_MODEL.DoesNotExist:
             raise OffStudyError(
                 'Off study report must be submitted with an off study visit on the same day.')
