@@ -156,3 +156,7 @@ if six.PY2:
 STUDY_OPEN_DATETIME = timezone.datetime(2013, 10, 18)
 DEVICE_ID = '99'
 SERVER_DEVICE_ID_LIST = ['99']
+
+LANGUAGES = (
+    ('tn', 'Setswana'),
+    ('en', 'English'))
