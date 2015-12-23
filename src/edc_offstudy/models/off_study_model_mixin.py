@@ -77,7 +77,7 @@ class OffStudyModelMixin(models.Model):
             'This method must be subclassed in the offstudy model with a list of all valid '
             'off study visit reasons')
 
-    def show_scheduled_entries_on_offstudy_date(self):
+    def show_scheduled_entries_on_off_study_date(self):
         if self.has_scheduled_data == NO:
             return False
         return True
