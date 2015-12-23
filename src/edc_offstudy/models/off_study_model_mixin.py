@@ -12,7 +12,7 @@ from edc_base.model.validators.date import (
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NO
 
-from ..constants import OFFSTUDY_REASONS
+from ..constants import OFF_STUDY_REASONS
 from ..managers import OffStudyManager
 
 
@@ -88,7 +88,7 @@ class OffStudyModelMixin(models.Model):
                 appointment__registered_subject=self.registered_subject,
                 report_datetime__gt=report_datetime_min,
                 report_datetime__lt=report_datetime_max,
-                reason__in=OFFSTUDY_REASONS)
+                reason__in=OFF_STUDY_REASONS)
         except self.VISIT_MODEL.DoesNotExist:
             raise OffStudyError(
                 'Off study report must be submitted with an off study visit on the same day.')

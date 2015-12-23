@@ -1,6 +1,6 @@
 from django.db import models
 
-from ..constants import OFFSTUDY_REASONS
+from ..constants import OFF_STUDY_REASONS
 
 from .off_study_model_mixin import OffStudyError
 
@@ -66,7 +66,7 @@ class OffStudyMixin(models.Model):
         if isinstance(self, self.OFF_STUDY_MODEL.VISIT_MODEL):
             try:
                 previous_off_study_visit = self.__class__.objects.filter(
-                    reason__in=OFFSTUDY_REASONS,
+                    reason__in=OFF_STUDY_REASONS,
                     report_datetime__lt=self.report_datetime,
                     subject_identifier=self.get_subject_identifier()).order_by('report_datetime').last()
                 if previous_off_study_visit:

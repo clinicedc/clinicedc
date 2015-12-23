@@ -7,7 +7,7 @@ from edc_appointment.models import Appointment
 from edc_constants.constants import SCHEDULED
 from edc_offstudy.models import OffStudyError
 from edc_offstudy.tests.base_test import BaseTest, TestVisitModel, AnotherTestVisitModel, TestOffStudyModel
-from edc_offstudy.constants import OFFSTUDY_REASONS
+from edc_offstudy.constants import OFF_STUDY_REASONS
 
 
 class TestOffStudy(BaseTest):
@@ -28,7 +28,7 @@ class TestOffStudy(BaseTest):
         self.assertIs(TestOffStudyModel.VISIT_MODEL, TestVisitModel)
 
     def test_off_study_report_blocks_future_visits_on_reason_only(self):
-        for reason in OFFSTUDY_REASONS:
+        for reason in OFF_STUDY_REASONS:
             visit_definition = VisitDefinition.objects.get(code='1000')
             appointment = Appointment.objects.get(
                 registered_subject=self.registered_subject,
@@ -53,7 +53,7 @@ class TestOffStudy(BaseTest):
 
     def test_off_study_report_blocks_future_visits_by_off_study_report_not_reason(self):
         visit_definition = VisitDefinition.objects.get(code='1000')
-        for reason in OFFSTUDY_REASONS:
+        for reason in OFF_STUDY_REASONS:
             test_visit = TestVisitModel.objects.create(
                 appointment=self.appointment,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
@@ -101,7 +101,7 @@ class TestOffStudy(BaseTest):
             visit_definition=visit_definition)
         appt_datetime = appointment.appt_datetime
         self.assertLess(appt_datetime, timezone.now())
-        for reason in OFFSTUDY_REASONS:
+        for reason in OFF_STUDY_REASONS:
             test_visit = TestVisitModel.objects.create(
                 appointment=appointment,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
@@ -128,7 +128,7 @@ class TestOffStudy(BaseTest):
         next_appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
             visit_definition=visit_definition)
-        for reason in OFFSTUDY_REASONS:
+        for reason in OFF_STUDY_REASONS:
             test_visit = TestVisitModel.objects.create(
                 appointment=next_appointment,
                 report_datetime=timezone.now(),
