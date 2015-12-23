@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_constants.constants import OFF_STUDY
+from ..constants import OFFSTUDY_REASONS
 
 from .off_study_model_mixin import OffStudyError
 
@@ -11,6 +11,16 @@ class OffStudyMixin(models.Model):
     if the subject is off study."""
 
     OFF_STUDY_MODEL = None
+
+    def __init__(self, *args, **kwargs):
+        super(OffStudyMixin, self).__init__(*args, **kwargs)
+        try:
+            self.OFF_STUDY_MODEL = models.get_model(*self.OFF_STUDY_MODEL)
+        except TypeError:
+            if not self.OFF_STUDY_MODEL:
+                raise TypeError(
+                    'OFF_STUDY_MODEL expected to be a model class or (app_label, model_name) '
+                    'tuple. Got None. See {}'.format(self.__class__))
 
     def save(self, *args, **kwargs):
         self.is_off_study_or_raise()
@@ -33,8 +43,6 @@ class OffStudyMixin(models.Model):
         except AttributeError:
             report_datetime = self.get_report_datetime()
         report_date = report_datetime.date()
-        if isinstance(self.OFF_STUDY_MODEL, tuple):
-            self.OFF_STUDY_MODEL = models.get_model(*self.OFF_STUDY_MODEL)
         off_study = self.has_off_study_report_or_raise(subject_identifier, report_date)
         self.has_off_study_visit_report_or_raise()
         return off_study
@@ -58,13 +66,14 @@ class OffStudyMixin(models.Model):
         if isinstance(self, self.OFF_STUDY_MODEL.VISIT_MODEL):
             try:
                 previous_off_study_visit = self.__class__.objects.filter(
-                    reason=OFF_STUDY,
+                    reason__in=OFFSTUDY_REASONS,
                     report_datetime__lt=self.report_datetime,
                     subject_identifier=self.get_subject_identifier()).order_by('report_datetime').last()
                 if previous_off_study_visit:
                     raise OffStudyError(
-                        'On a previous visit participant was meant to go off study. '
+                        'On a previous visit participant was meant to go off study (reason={}). '
                         'See visit \'{}\' on \'{}\''.format(
+                            previous_off_study_visit.reason,
                             previous_off_study_visit.appointment.visit_definition.code,
                             previous_off_study_visit.report_datetime.strftime('%Y-%m-%d')))
 

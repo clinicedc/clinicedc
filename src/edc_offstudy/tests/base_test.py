@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from collections import OrderedDict
 
+from django.db import models
 from django.test import TestCase
 
 from edc.core.bhp_variables.models import StudySite
@@ -20,6 +21,9 @@ from edc_visit_schedule.classes import (
     VisitScheduleConfiguration, EntryTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
 from edc_visit_schedule.models import VisitDefinition
 from edc_visit_tracking.models import BaseVisitTracking, PreviousVisitMixin
+from edc_offstudy.models.off_study_model_mixin import OffStudyModelMixin
+from edc_base.model.models.base_uuid_model import BaseUuidModel
+from edc.subject.registration.models.registered_subject import RegisteredSubject
 
 
 class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, BaseVisitTracking):
@@ -39,6 +43,33 @@ class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, BaseVisit
     class Meta:
         app_label = 'edc_offstudy'
 
+
+class TestOffStudyModel(OffStudyModelMixin, BaseUuidModel):
+
+    VISIT_MODEL = TestVisitModel
+
+    registered_subject = models.OneToOneField(RegisteredSubject)
+
+    class Meta:
+        app_label = 'edc_offstudy'
+
+
+class AnotherTestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, BaseVisitTracking):
+
+    OFF_STUDY_MODEL = TestOffStudyModel
+    REQUIRES_PREVIOUS_VISIT = True
+
+    def get_subject_identifier(self):
+        return self.appointment.registered_subject.subject_identifier
+
+    def custom_post_update_entry_meta_data(self):
+        pass
+
+    def get_requires_consent(self):
+        return False
+
+    class Meta:
+        app_label = 'edc_offstudy'
 
 entries = (
     EntryTuple(10L, u'testing', u'TestScheduledModel1', REQUIRED, NOT_ADDITIONAL),

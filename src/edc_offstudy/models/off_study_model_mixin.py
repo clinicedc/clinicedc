@@ -1,6 +1,5 @@
 from datetime import datetime, time
 
-from django.conf import settings
 from django.db import models
 
 from edc.data_manager.models import TimePointStatus
@@ -10,8 +9,9 @@ from edc_base.model.validators.date import (
     datetime_not_before_study_start, datetime_not_future,
     date_not_before_study_start, date_not_future)
 from edc_constants.choices import YES_NO
-from edc_constants.constants import YES, NO, DEATH_VISIT, COMPLETED_PROTOCOL_VISIT, LOST_VISIT
+from edc_constants.constants import YES, NO
 
+from ..constants import OFFSTUDY_REASONS
 from ..managers import OffStudyManager
 
 
@@ -82,10 +82,6 @@ class OffStudyModelMixin(models.Model):
         or raise an OffStudyError."""
         report_datetime_min = datetime.combine(self.report_datetime.date(), time.min)
         report_datetime_max = datetime.combine(self.report_datetime.date(), time.max)
-        if 'OFFSTUDY_REASONS' in dir(settings):
-            OFFSTUDY_REASONS = settings.OFFSTUDY_REASONS
-        else:
-            OFFSTUDY_REASONS = [DEATH_VISIT, COMPLETED_PROTOCOL_VISIT, LOST_VISIT]
         try:
             self.VISIT_MODEL.objects.get(
                 appointment__registered_subject=self.registered_subject,
