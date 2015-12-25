@@ -32,6 +32,7 @@ class BaseVisitTracking (models.Model):
     Admin should change the status after ADD.
 
     """
+
     appointment = models.OneToOneField(Appointment)
 
     report_datetime = models.DateTimeField(
@@ -60,6 +61,11 @@ class BaseVisitTracking (models.Model):
 
         where the choices tuple is defined in the local app.
     """
+
+    study_status = models.CharField(
+        verbose_name="What is the participant's current study status",
+        max_length=50,
+        help_text="<Override the field class for this model field attribute in ModelForm>")
 
     reason_missed = models.CharField(
         verbose_name="If 'missed' above, Reason scheduled visit was missed",
@@ -182,16 +188,16 @@ class BaseVisitTracking (models.Model):
         RequisitionMetaData = get_model('entry_meta_data', 'RequisitionMetaData')
         dirty = False
         if self.reason in self.get_visit_reason_no_follow_up_choices():
-            self.get_appointment().appt_status = COMPLETE_APPT
+            self.appointment.appt_status = COMPLETE_APPT
             dirty = True
         else:
-            if self.get_appointment().appt_status != IN_PROGRESS:
-                self.get_appointment().appt_status = IN_PROGRESS
+            if self.appointment.appt_status != IN_PROGRESS:
+                self.appointment.appt_status = IN_PROGRESS
                 dirty = True
             # look for any others in progress
-        appointments = self.get_appointment().__class__.objects.filter(
-            registered_subject=self.get_registered_subject(),
-            appt_status=IN_PROGRESS).exclude(pk=self.get_appointment().pk)
+        appointments = self.appointment.__class__.objects.filter(
+            registered_subject=self.appointment.registered_subject,
+            appt_status=IN_PROGRESS).exclude(pk=self.appointment.pk)
         for appointment in appointments:
             if (ScheduledEntryMetaData.objects.filter(
                     appointment=appointment, entry_status__iexact=UNKEYED).exists() or
@@ -203,35 +209,20 @@ class BaseVisitTracking (models.Model):
             appointment.save()
             dirty = True
         if dirty:
-            self.get_appointment().save()
+            self.appointment.save()
 
     def natural_key(self):
-        return (self.report_datetime, ) + self.get_appointment().natural_key()
+        return (self.report_datetime, ) + self.appointment.natural_key()
     natural_key.dependencies = ['appointment.appointment', ]
 
     def get_subject_identifier(self):
-        return self.get_registered_subject().subject_identifier
+        return self.appointment.registered_subject.subject_identifier
 
     def get_report_datetime(self):
         return self.report_datetime
 
-    def get_appoinment(self):
-        return self.appointment
-
-    def get_registered_subject(self):
-        return self.get_appointment().registered_subject
-
     def get_subject_type(self):
-        return self.get_appointment().registered_subject.subject_type
-
-    def get_appointment(self):
-        return self.appointment
-
-    def get_visit_code(self):
-        try:
-            return self.appointment.visit_definition.code
-        except AttributeError:
-            return None
+        return self.appointment.registered_subject.subject_type
 
     class Meta:
         abstract = True

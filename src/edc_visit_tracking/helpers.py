@@ -1,7 +1,8 @@
 from django.db.models import ForeignKey, OneToOneField
 from django.db.models import get_app, get_models
-from ..models import BaseVisitTracking
-from ..exceptions import VisitTrackingError
+
+from .exceptions import VisitTrackingError
+from .models import BaseVisitTracking
 
 
 class VisitModelHelper(object):
@@ -17,7 +18,6 @@ class VisitModelHelper(object):
     @classmethod
     def get_field_name(self, cls):
         """Given a class, returns the field attname that is a subclass of BaseVisitTracking."""
-        #lst = [f.to for f in [field.rel for field in cls._meta.fields if field.rel] if issubclass(f.to, BaseVisitTracking)]
         lst = []
         for f in cls._meta.fields:
             if f.rel:
