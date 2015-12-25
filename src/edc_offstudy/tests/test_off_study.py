@@ -16,16 +16,19 @@ class TestOffStudy(BaseTest):
         test_visit = AnotherTestVisitModel(
             appointment=self.appointment,
             report_datetime=timezone.now())
-        self.assertEqual(test_visit.OFF_STUDY_MODEL, TestOffStudyModel)
+        self.assertEqual(test_visit.off_study_model, TestOffStudyModel)
 
     def test_visit_knows_offstudy_model_from_tuple(self):
         test_visit = TestVisitModel(
             appointment=self.appointment,
             report_datetime=timezone.now())
-        self.assertEqual(test_visit.OFF_STUDY_MODEL, TestOffStudyModel)
+        self.assertEqual(test_visit.off_study_model, TestOffStudyModel)
 
-    def test_offstudy_knows_visit_mode(self):
-        self.assertIs(TestOffStudyModel.VISIT_MODEL, TestVisitModel)
+    def test_offstudy_knows_visit_model(self):
+        self.assertEqual(TestOffStudyModel.visit_model, TestVisitModel)
+
+    def test_offstudy_knows_visit_model_attr(self):
+        self.assertEqual(TestOffStudyModel.visit_model_attr, 'test_visit_model')
 
     def test_off_study_report_blocks_future_visits_on_reason_only(self):
         for reason in OFF_STUDY_REASONS:
@@ -54,11 +57,12 @@ class TestOffStudy(BaseTest):
     def test_off_study_report_blocks_future_visits_by_off_study_report_not_reason(self):
         visit_definition = VisitDefinition.objects.get(code='1000')
         for reason in OFF_STUDY_REASONS:
-            test_visit = TestVisitModel.objects.create(
+            test_visit_model = TestVisitModel.objects.create(
                 appointment=self.appointment,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 reason=reason)
             test_off_study = TestOffStudyModel.objects.create(
+                test_visit_model=test_visit_model,
                 registered_subject=self.registered_subject,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 offstudy_date=date.today() - relativedelta(weeks=3))
@@ -71,15 +75,16 @@ class TestOffStudy(BaseTest):
                     report_datetime=timezone.now())
             self.assertIn('Participant was reported off study on', str(cm.exception))
             test_off_study.delete()
-            test_visit.delete()
+            test_visit_model.delete()
 
     def test_blocks_off_study_report_if_visit_reason_not_off_study(self):
-        TestVisitModel.objects.create(
+        test_visit_model = TestVisitModel.objects.create(
             appointment=self.appointment,
             report_datetime=timezone.now() - relativedelta(weeks=4),
             reason=SCHEDULED)
         with self.assertRaises(OffStudyError) as cm:
             TestOffStudyModel.objects.create(
+                test_visit_model=test_visit_model,
                 registered_subject=self.registered_subject,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 offstudy_date=date.today() - relativedelta(weeks=4))
@@ -102,11 +107,12 @@ class TestOffStudy(BaseTest):
         appt_datetime = appointment.appt_datetime
         self.assertLess(appt_datetime, timezone.now())
         for reason in OFF_STUDY_REASONS:
-            test_visit = TestVisitModel.objects.create(
+            test_visit_model = TestVisitModel.objects.create(
                 appointment=appointment,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 reason=reason)
             test_off_study = TestOffStudyModel.objects.create(
+                test_visit_model=test_visit_model,
                 registered_subject=self.registered_subject,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 offstudy_date=date.today())
@@ -117,7 +123,7 @@ class TestOffStudy(BaseTest):
                     registered_subject=self.registered_subject).order_by('appt_datetime').last().appt_datetime -
                 appt_datetime < timedelta(days=1))
             test_off_study.delete()
-            test_visit.delete()
+            test_visit_model.delete()
 
     def test_can_edit_visit_before_off_study_report(self):
         visit_definition = VisitDefinition.objects.get(code='2000')
@@ -129,12 +135,13 @@ class TestOffStudy(BaseTest):
             registered_subject=self.registered_subject,
             visit_definition=visit_definition)
         for reason in OFF_STUDY_REASONS:
-            test_visit = TestVisitModel.objects.create(
+            test_visit_model = TestVisitModel.objects.create(
                 appointment=next_appointment,
                 report_datetime=timezone.now(),
                 reason=reason)
             test_off_study = TestOffStudyModel.objects.create(
                 registered_subject=self.registered_subject,
+                test_visit_model=test_visit_model,
                 report_datetime=timezone.now(),
                 offstudy_date=date.today())
             with self.assertRaises(OffStudyError):
@@ -146,4 +153,4 @@ class TestOffStudy(BaseTest):
                 else:
                     raise OffStudyError
             test_off_study.delete()
-            test_visit.delete()
+            test_visit_model.delete()

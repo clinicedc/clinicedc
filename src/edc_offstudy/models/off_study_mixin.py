@@ -1,8 +1,10 @@
 from django.db import models
+from django.db.models import get_model
 
 from ..constants import OFF_STUDY_REASONS
 
 from .off_study_model_mixin import OffStudyError
+from django.core.exceptions import ImproperlyConfigured
 
 
 class OffStudyMixin(models.Model):
@@ -10,17 +12,19 @@ class OffStudyMixin(models.Model):
     """A mixin for scheduled models to add the ability to determine
     if the subject is off study."""
 
-    OFF_STUDY_MODEL = None
+    off_study_model = None
 
     def __init__(self, *args, **kwargs):
-        super(OffStudyMixin, self).__init__(*args, **kwargs)
         try:
-            self.OFF_STUDY_MODEL = models.get_model(*self.OFF_STUDY_MODEL)
+            self.off_study_model = get_model(*self.off_study_model)
         except TypeError:
-            if not self.OFF_STUDY_MODEL:
-                raise TypeError(
-                    'OFF_STUDY_MODEL expected to be a model class or (app_label, model_name) '
-                    'tuple. Got None. See {}'.format(self.__class__))
+            pass
+        if not self.off_study_model:
+            raise ImproperlyConfigured(
+                'Off study model attribute not set for model that requires '
+                'access to the off study model. See \'{}\'. Got {}.'.format(
+                    self._meta.model_name, self.off_study_model))
+        super(OffStudyMixin, self).__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         self.is_off_study_or_raise()
@@ -51,19 +55,19 @@ class OffStudyMixin(models.Model):
         """Raises an exception if an off study report exists for this subject with an
         off study date before the report_date."""
         try:
-            off_study = self.OFF_STUDY_MODEL.objects.get(
+            off_study = self.off_study_model.objects.get(
                 registered_subject__subject_identifier=subject_identifier,
                 offstudy_date__lt=report_date)
             raise OffStudyError(
                 'Participant was reported off study on \'{0}\'. Data reported after this date'
                 ' cannot be captured.'.format(off_study.offstudy_date.strftime('%Y-%m-%d')))
-        except self.OFF_STUDY_MODEL.DoesNotExist:
+        except self.off_study_model.DoesNotExist:
             off_study = None
         return off_study
 
     def has_off_study_visit_report_or_raise(self):
         """Raises an exception of a previous visit report has reason off study."""
-        if isinstance(self, self.OFF_STUDY_MODEL.VISIT_MODEL):
+        if isinstance(self, self.off_study_model.visit_model):
             try:
                 previous_off_study_visit = self.__class__.objects.filter(
                     reason__in=OFF_STUDY_REASONS,

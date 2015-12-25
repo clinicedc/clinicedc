@@ -1,19 +1,16 @@
 from datetime import datetime, time
 
-from django.conf import settings
 from django.db import models
 
 from edc.data_manager.models import TimePointStatus
 from edc_base.encrypted_fields import mask_encrypted
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators.date import (
-    datetime_not_before_study_start, datetime_not_future,
     date_not_before_study_start, date_not_future)
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NO
 
 from ..constants import OFF_STUDY_REASONS
-from ..managers import OffStudyManager
 
 
 class OffStudyError(Exception):
@@ -22,17 +19,6 @@ class OffStudyError(Exception):
 
 class OffStudyModelMixin(models.Model):
     """Mixin for the Off Study model."""
-
-    VISIT_MODEL = None
-    REGISTERED_SUBJECT_MODEL = None
-
-    report_datetime = models.DateTimeField(
-        verbose_name="Visit Date and Time",
-        validators=[
-            datetime_not_before_study_start,
-            datetime_not_future],
-        help_text='Date and time of this report'
-    )
 
     offstudy_date = models.DateField(
         verbose_name="Off-study Date",
@@ -59,8 +45,6 @@ class OffStudyModelMixin(models.Model):
         blank=True,
         null=True)
 
-    objects = OffStudyManager(REGISTERED_SUBJECT_MODEL)
-
     def natural_key(self):
         return (self.offstudy_date, ) + self.registered_subject.natural_key()
 
@@ -84,26 +68,26 @@ class OffStudyModelMixin(models.Model):
         report_datetime_min = datetime.combine(self.report_datetime.date(), time.min)
         report_datetime_max = datetime.combine(self.report_datetime.date(), time.max)
         try:
-            self.VISIT_MODEL.objects.get(
+            self.visit_model.objects.get(
                 appointment__registered_subject=self.registered_subject,
                 report_datetime__gt=report_datetime_min,
                 report_datetime__lt=report_datetime_max,
                 reason__in=OFF_STUDY_REASONS)
-        except self.VISIT_MODEL.DoesNotExist:
+        except self.visit_model.DoesNotExist:
             raise OffStudyError(
                 'Off study report must be submitted with an off study visit on the same day.')
 
     def delete_future_appointments_on_offstudy(self):
         """Deletes appointments created after the off-study datetime
         if the appointment has no visit report."""
-        Appointment = self.VISIT_MODEL.appointment.field.rel.to
+        Appointment = self.visit_model.appointment.field.rel.to
         for appointment in Appointment.objects.filter(
                 registered_subject=self.registered_subject,
                 appt_datetime__gt=self.offstudy_date):
             # only delete appointments that have no visit report
             try:
-                self.VISIT_MODEL.objects.get(appointment=appointment)
-            except self.VISIT_MODEL.DoesNotExist:
+                self.visit_model.objects.get(appointment=appointment)
+            except self.visit_model.DoesNotExist:
                 TimePointStatus.objects.get(appointment=appointment).delete()
                 appointment.delete()
 

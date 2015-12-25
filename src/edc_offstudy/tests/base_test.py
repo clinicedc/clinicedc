@@ -20,7 +20,7 @@ from edc_offstudy.models import OffStudyMixin
 from edc_visit_schedule.classes import (
     VisitScheduleConfiguration, EntryTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
 from edc_visit_schedule.models import VisitDefinition
-from edc_visit_tracking.models import BaseVisitTracking, PreviousVisitMixin
+from edc_visit_tracking.models import BaseVisitTracking, PreviousVisitMixin, CrfModelMixin
 from edc_offstudy.models.off_study_model_mixin import OffStudyModelMixin
 from edc_base.model.models.base_uuid_model import BaseUuidModel
 from edc.subject.registration.models.registered_subject import RegisteredSubject
@@ -28,7 +28,7 @@ from edc.subject.registration.models.registered_subject import RegisteredSubject
 
 class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, BaseVisitTracking):
 
-    OFF_STUDY_MODEL = ('edc_offstudy', 'TestOffStudyModel')
+    off_study_model = ('edc_offstudy', 'TestOffStudyModel')
     REQUIRES_PREVIOUS_VISIT = True
 
     def get_subject_identifier(self):
@@ -44,11 +44,11 @@ class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, BaseVisit
         app_label = 'edc_offstudy'
 
 
-class TestOffStudyModel(OffStudyModelMixin, BaseUuidModel):
-
-    VISIT_MODEL = TestVisitModel
+class TestOffStudyModel(CrfModelMixin, OffStudyModelMixin, BaseUuidModel):
 
     registered_subject = models.OneToOneField(RegisteredSubject)
+
+    test_visit_model = models.OneToOneField(TestVisitModel)
 
     class Meta:
         app_label = 'edc_offstudy'
@@ -56,7 +56,7 @@ class TestOffStudyModel(OffStudyModelMixin, BaseUuidModel):
 
 class AnotherTestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, BaseVisitTracking):
 
-    OFF_STUDY_MODEL = TestOffStudyModel
+    off_study_model = TestOffStudyModel
     REQUIRES_PREVIOUS_VISIT = True
 
     def get_subject_identifier(self):
