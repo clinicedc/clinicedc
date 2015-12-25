@@ -1,9 +1,9 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
+from django.db.models import get_model
 
 from ..exceptions import NotConsentedError
 from ..models import ConsentType
-from django.core.exceptions import ImproperlyConfigured
-from django.db.models import get_model
 
 
 class RequiresConsentMixin(models.Model):

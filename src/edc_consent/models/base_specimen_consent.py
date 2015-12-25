@@ -11,26 +11,7 @@ from ..choices import YES_NO_DECLINED_COPY
 class BaseSpecimenConsent(models.Model):
 
     """ A base class for a model completed by the user indicating whether a participant has agreed
-    for specimens to be stored after study closure.
-
-    Basic usage:
-        class SpecimenConsent(BaseSpecimenConsent, SampleCollectionFieldsMixin, RequiresConsentMixin,
-                              VulnerabilityFieldsMixin, AppointmentMixin, BaseUuidModel):
-
-        consent_model = MyStudyConsent
-
-        registered_subject = models.OneToOneField(RegisteredSubject, null=True)
-
-        objects = models.Manager()
-
-        history = AuditTrail()
-
-        class Meta:
-            app_label = 'my_app'
-            verbose_name = 'Specimen Consent'
-            verbose_name_plural = 'Specimen Consent'
-
-    """
+    for specimens to be stored after study closure."""
 
     consent_datetime = models.DateTimeField(
         verbose_name="Consent date and time",
