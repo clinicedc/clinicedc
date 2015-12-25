@@ -16,28 +16,36 @@ from .schedule_group import ScheduleGroup
 
 class VisitDefinition(BaseWindowPeriodItem):
     """Model to define a visit code, title, windows, schedule_group, etc."""
+
     code = models.CharField(
         max_length=6,
         validators=[MaxLengthValidator(6)],
         db_index=True,
         unique=True)
+
     title = models.CharField(
         verbose_name="Title",
         max_length=35,
         db_index=True)
-    visit_tracking_content_type_map = models.ForeignKey(ContentTypeMap,
+
+    visit_tracking_content_type_map = models.ForeignKey(
+        ContentTypeMap,
         related_name='+',
         null=True,
         verbose_name='Visit Tracking Model',
         validators=[is_visit_tracking_model, ])
-    schedule_group = models.ManyToManyField(ScheduleGroup,
+
+    schedule_group = models.ManyToManyField(
+        ScheduleGroup,
         null=True,
         blank=True,
         help_text="Visit definition may be used in more than one schedule_group")
+
     instruction = models.TextField(
         verbose_name="Instructions",
         max_length=255,
         blank=True)
+
     objects = VisitDefinitionManager()
 
     def natural_key(self):
