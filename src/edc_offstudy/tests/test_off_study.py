@@ -63,7 +63,6 @@ class TestOffStudy(BaseTest):
                 reason=reason)
             test_off_study = TestOffStudyModel.objects.create(
                 test_visit_model=test_visit_model,
-                registered_subject=self.registered_subject,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 offstudy_date=date.today() - relativedelta(weeks=3))
             appointment = Appointment.objects.get(
@@ -85,7 +84,6 @@ class TestOffStudy(BaseTest):
         with self.assertRaises(OffStudyError) as cm:
             TestOffStudyModel.objects.create(
                 test_visit_model=test_visit_model,
-                registered_subject=self.registered_subject,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 offstudy_date=date.today() - relativedelta(weeks=4))
         self.assertIn('Off study report must be submitted with an '
@@ -113,7 +111,6 @@ class TestOffStudy(BaseTest):
                 reason=reason)
             test_off_study = TestOffStudyModel.objects.create(
                 test_visit_model=test_visit_model,
-                registered_subject=self.registered_subject,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 offstudy_date=date.today())
             self.assertEqual(
@@ -140,7 +137,6 @@ class TestOffStudy(BaseTest):
                 report_datetime=timezone.now(),
                 reason=reason)
             test_off_study = TestOffStudyModel.objects.create(
-                registered_subject=self.registered_subject,
                 test_visit_model=test_visit_model,
                 report_datetime=timezone.now(),
                 offstudy_date=date.today())

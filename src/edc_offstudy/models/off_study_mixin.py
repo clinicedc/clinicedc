@@ -1,10 +1,10 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models import get_model
 
 from ..constants import OFF_STUDY_REASONS
 
 from .off_study_model_mixin import OffStudyError
-from django.core.exceptions import ImproperlyConfigured
 
 
 class OffStudyMixin(models.Model):
@@ -55,9 +55,18 @@ class OffStudyMixin(models.Model):
         """Raises an exception if an off study report exists for this subject with an
         off study date before the report_date."""
         try:
+            options = {
+                '{}__appointment__registered_subject__subject_identifier'.format(self.off_study_model.visit_model_attr):
+                subject_identifier}
+        except AttributeError as e:
+            print(str(e))
+            options = {
+                'appointment__registered_subject__subject_identifier':
+                subject_identifier}
+        try:
             off_study = self.off_study_model.objects.get(
-                registered_subject__subject_identifier=subject_identifier,
-                offstudy_date__lt=report_date)
+                offstudy_date__lt=report_date,
+                **options)
             raise OffStudyError(
                 'Participant was reported off study on \'{0}\'. Data reported after this date'
                 ' cannot be captured.'.format(off_study.offstudy_date.strftime('%Y-%m-%d')))

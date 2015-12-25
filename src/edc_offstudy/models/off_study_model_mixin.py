@@ -49,18 +49,18 @@ class OffStudyModelMixin(models.Model):
         return (self.offstudy_date, ) + self.registered_subject.natural_key()
 
     def __unicode__(self):
-        return "{0} {1} ({2})".format(self.registered_subject.subject_identifier,
-                                      self.registered_subject.subject_type,
-                                      mask_encrypted(self.registered_subject.first_name))
+        return "{0} {1} ({2})".format(
+            self.registered_subject.subject_identifier,
+            self.registered_subject.subject_type,
+            mask_encrypted(self.registered_subject.first_name))
 
     def save(self, *args, **kwargs):
         self.off_study_visit_exists_or_raise()
         super(OffStudyModelMixin, self).save(*args, **kwargs)
 
-    def show_scheduled_entries_on_off_study_date(self):
-        if self.has_scheduled_data == NO:
-            return False
-        return True
+    @property
+    def registered_subject(self):
+        return getattr(self, self.visit_model_attr).appointment.registered_subject
 
     def off_study_visit_exists_or_raise(self):
         """Confirms the off study report datetime matches a off study visit report datetime

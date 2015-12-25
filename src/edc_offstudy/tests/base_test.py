@@ -23,7 +23,6 @@ from edc_visit_schedule.models import VisitDefinition
 from edc_visit_tracking.models import BaseVisitTracking, PreviousVisitMixin, CrfModelMixin
 from edc_offstudy.models.off_study_model_mixin import OffStudyModelMixin
 from edc_base.model.models.base_uuid_model import BaseUuidModel
-from edc.subject.registration.models.registered_subject import RegisteredSubject
 
 
 class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, BaseVisitTracking):
@@ -45,8 +44,6 @@ class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, BaseVisit
 
 
 class TestOffStudyModel(CrfModelMixin, OffStudyModelMixin, BaseUuidModel):
-
-    registered_subject = models.OneToOneField(RegisteredSubject)
 
     test_visit_model = models.OneToOneField(TestVisitModel)
 
