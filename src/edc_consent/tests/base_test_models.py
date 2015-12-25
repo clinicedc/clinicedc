@@ -54,7 +54,7 @@ class TestConsentModelProxy(TestConsentModel):
 
 class TestModel(RequiresConsentMixin, models.Model):
 
-    CONSENT_MODEL = TestConsentModel
+    consent_model = TestConsentModel
 
     subject_identifier = models.CharField(max_length=10)
 
@@ -80,7 +80,7 @@ class Visit(models.Model):
 
 class TestScheduledModel(RequiresConsentMixin, models.Model):
 
-    CONSENT_MODEL = TestConsentModel
+    consent_model = TestConsentModel
 
     visit = models.ForeignKey(Visit)
 

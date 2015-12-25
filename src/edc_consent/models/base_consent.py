@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from django.db import models
 
-from edc_consent.audit_trail import AuditTrail
+from edc_base.audit_trail import AuditTrail
 from edc_consent.encrypted_fields import EncryptedTextField
 from edc_consent.utils import formatted_age, age
 from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start

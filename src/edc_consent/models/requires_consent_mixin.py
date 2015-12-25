@@ -2,11 +2,24 @@ from django.db import models
 
 from ..exceptions import NotConsentedError
 from ..models import ConsentType
+from django.core.exceptions import ImproperlyConfigured
+from django.db.models import get_model
 
 
 class RequiresConsentMixin(models.Model):
 
-    CONSENT_MODEL = None
+    def __init__(self, *args, **kwargs):
+        try:
+            self.consent_model = get_model(*self.consent_model)
+        except TypeError:
+            pass
+        if not self.consent_model:
+            raise ImproperlyConfigured(
+                'Consent model attribute not set for model that requires '
+                'consent. See \'{}\'. Got {}.'.format(self._meta.model_name, self.consent_model))
+        super(RequiresConsentMixin, self).__init__(*args, **kwargs)
+
+    consent_model = None
 
     consent_version = models.CharField(max_length=10, default='?', editable=False)
 
@@ -17,22 +30,22 @@ class RequiresConsentMixin(models.Model):
     def consented_for_period_or_raise(self, report_datetime=None, subject_identifier=None, exception_cls=None):
         exception_cls = exception_cls or NotConsentedError
         report_datetime = report_datetime or self.report_datetime
+        consent_type = self.consent_type(report_datetime, exception_cls=exception_cls)
+        self.consent_version = consent_type.version
+        if not subject_identifier:
+            try:
+                subject_identifier = self.subject_identifier
+            except AttributeError:
+                subject_identifier = self.get_subject_identifier()
         try:
-            consent_type = self.consent_type(report_datetime, exception_cls=exception_cls)
-            self.consent_version = consent_type.version
-            if not subject_identifier:
-                try:
-                    subject_identifier = self.subject_identifier
-                except AttributeError:
-                    subject_identifier = self.get_subject_identifier()
-            self.CONSENT_MODEL.objects.get(
+            self.consent_model.objects.get(
                 subject_identifier=subject_identifier,
                 version=self.consent_version)
-        except self.CONSENT_MODEL.DoesNotExist:
+        except self.consent_model.DoesNotExist:
             raise exception_cls(
                 'Cannot find a consent \'{}\' for model \'{}\' using '
                 'consent version \'{}\' and report date \'{}\'. '.format(
-                    self.CONSENT_MODEL._meta.verbose_name,
+                    self.consent_model._meta.verbose_name,
                     self._meta.verbose_name,
                     self.consent_version,
                     report_datetime.isoformat()))
@@ -40,7 +53,7 @@ class RequiresConsentMixin(models.Model):
     def consent_type(self, report_datetime, exception_cls=None):
         """Returns the consent type that matches the report datetime and consent model."""
         return ConsentType.objects.get_by_report_datetime(
-            self.CONSENT_MODEL, report_datetime, exception_cls=exception_cls)
+            self.consent_model, report_datetime, exception_cls=exception_cls)
 
     class Meta:
         abstract = True
