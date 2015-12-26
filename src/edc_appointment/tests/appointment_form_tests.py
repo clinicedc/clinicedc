@@ -5,10 +5,10 @@ from edc_constants.constants import NEW_APPT
 
 from ..forms import AppointmentForm
 
-from .base_appointment_tests import BaseAppointmentTests
+from .base_test_case import BaseTestCase
 
 
-class AppointmentFormTests(BaseAppointmentTests):
+class AppointmentFormTests(BaseTestCase):
 
     def test_appointment_form(self):
         # create an appointment
