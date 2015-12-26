@@ -2,21 +2,22 @@ from faker import Factory as FakerFactory
 
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
+
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
+from django.test.utils import override_settings
 from django.utils import timezone
 from django.utils.six import StringIO
 
 from edc_consent.exceptions import NotConsentedError, ConsentTypeError, ConsentVersionError
 from edc_consent.models.validators import AgeTodayValidator
 from edc_constants.constants import NO
-from django.test.utils import override_settings
 
 from .base_test_case import BaseTestCase
 from .base_test_models import (
-    TestConsentModel, TestConsentModelFactory, TestConsentModelProxy,
-    TestConsentModelProxyFactory, TestModel, TestScheduledModel, ConsentTypeFactory,
-    ConsentForm, Visit, ConsentModelProxyForm)
+    TestConsentModel, TestModel, TestScheduledModel, ConsentForm, Visit, ConsentModelProxyForm)
+from .factories import (
+    TestConsentModelFactory, TestConsentModelProxy, TestConsentModelProxyFactory, ConsentTypeFactory)
 
 faker = FakerFactory.create()
 
@@ -170,11 +171,15 @@ class TestConsent(BaseTestCase):
 
     def test_consent_periods_cannot_overlap2(self):
         ConsentTypeFactory(
+            app_label='edc_consent',
+            model_name='testconsentmodel',
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
         self.assertRaises(
             ConsentTypeError, ConsentTypeFactory,
+            app_label='edc_consent',
+            model_name='testconsentmodel',
             start_datetime=timezone.now() - timedelta(days=201),
             end_datetime=timezone.now() + timedelta(days=201),
             version='1.1')
@@ -305,7 +310,7 @@ class TestConsent(BaseTestCase):
             end_datetime=timezone.now() - timedelta(days=100),
             version='1.0')
         ConsentTypeFactory(
-            start_datetime=timezone.now() - timedelta(days=365),
+            start_datetime=timezone.now() - timedelta(days=99),
             end_datetime=timezone.now() + timedelta(days=200),
             version='2.0')
         consent1 = TestConsentModelFactory()

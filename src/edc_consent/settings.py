@@ -53,7 +53,7 @@ if get_version().startswith('1.6') and six.PY2:
         'edc.subject.registration',
         'edc.core.crypto_fields',
         'tastypie',
-        'edc.base',
+        'edc_base',
         'edc_quota',
         'edc_consent',
     )

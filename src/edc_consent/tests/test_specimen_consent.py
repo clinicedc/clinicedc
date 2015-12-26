@@ -4,8 +4,9 @@ from dateutil.relativedelta import relativedelta
 
 from django.utils import timezone
 
-from .base_test_case import (
-    BaseTestCase, TestConsentModel, TestConsentModelFactory, TestConsentModelProxy, ConsentTypeFactory)
+from .base_test_case import BaseTestCase
+from .base_test_models import TestConsentModel
+from .factories import TestConsentModelFactory, TestConsentModelProxy, ConsentTypeFactory
 
 
 class TestSpecimenConsent(BaseTestCase):

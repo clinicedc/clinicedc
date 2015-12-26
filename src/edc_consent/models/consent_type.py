@@ -61,11 +61,14 @@ class ConsentType(models.Model):
 
     version = models.CharField(max_length=10)
 
-    updates_version = models.CharField(max_length=50, null=True, blank=True)
-
-    history = AuditTrail()
+    updates_version = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True)
 
     objects = ConsentTypeManager()
+
+    history = AuditTrail()
 
     def save(self, *args, **kwargs):
         if self.updates_version:
@@ -82,24 +85,24 @@ class ConsentType(models.Model):
                     'Consent version {1} cannot be an update to version(s) \'{0}\'. '
                     'Version(s) \'{0}\' not found in \'{2}\''.format(
                         self.updates_version.split(','), self.version, self.__class__._meta.verbose_name))
-            try:
-                previous = self.__class__.objects.get(
-                    (Q(start_datetime__range=(self.start_datetime, self.end_datetime)) |
-                     Q(end_datetime__range=(self.start_datetime, self.end_datetime))),
-                    app_label=self.app_label,
-                    model_name=self.model_name,
-                )
-                raise ConsentTypeError(
-                    'Consent period for version {0} overlaps with version \'{1}\'. '
-                    'Got {2} to {3} overlaps with {4} to {5}.'.format(
-                        self.updates_version, self.version,
-                        previous.start_datetime.strftime('%Y-%m-%d'),
-                        previous.end_datetime.strftime('%Y-%m-%d'),
-                        self.start_datetime.strftime('%Y-%m-%d'),
-                        self.end_datetime.strftime('%Y-%m-%d'),
-                    ))
-            except self.__class__.DoesNotExist:
-                pass
+        try:
+            previous = self.__class__.objects.get(
+                (Q(start_datetime__range=(self.start_datetime, self.end_datetime)) |
+                 Q(end_datetime__range=(self.start_datetime, self.end_datetime))),
+                app_label=self.app_label,
+                model_name=self.model_name,
+            )
+            raise ConsentTypeError(
+                'Consent period for version {0} overlaps with version \'{1}\'. '
+                'Got {2} to {3} overlaps with {4} to {5}.'.format(
+                    self.updates_version, self.version,
+                    previous.start_datetime.strftime('%Y-%m-%d'),
+                    previous.end_datetime.strftime('%Y-%m-%d'),
+                    self.start_datetime.strftime('%Y-%m-%d'),
+                    self.end_datetime.strftime('%Y-%m-%d'),
+                ))
+        except self.__class__.DoesNotExist:
+            pass
         super(ConsentType, self).save(*args, **kwargs)
 
     def natural_key(self):

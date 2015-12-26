@@ -107,7 +107,8 @@ class BaseConsentForm(ModelForm):
         dob = self.cleaned_data.get('dob')
         consent_datetime = self.cleaned_data.get('consent_datetime', self.instance.consent_datetime)
         if not consent_datetime:
-            self._errors["consent_datetime"] = ErrorList([u"This field is required. Please fill consent date and time."])
+            self._errors["consent_datetime"] = ErrorList(
+                [u"This field is required. Please fill consent date and time."])
             raise ValidationError('Please correct the errors below.')
 
         if is_naive(consent_datetime):
