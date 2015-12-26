@@ -1,7 +1,7 @@
 from django.core.validators import RegexValidator
 from django.db import models
 
-from edc_consent.encrypted_fields import FirstnameField, LastnameField, EncryptedCharField
+from edc_base.encrypted_fields import FirstnameField, LastnameField, EncryptedCharField
 from edc_consent.models.validators import FullNameValidator
 from edc_consent.plain_fields import IsDateEstimatedField
 from edc_constants.choices import GENDER_UNDETERMINED
