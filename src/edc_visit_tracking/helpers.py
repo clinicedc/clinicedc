@@ -2,7 +2,7 @@ from django.db.models import ForeignKey, OneToOneField
 from django.db.models import get_app, get_models
 
 from .exceptions import VisitTrackingError
-from .models import BaseVisitTracking
+from .models import VisitTrackingModelMixin
 
 
 class VisitModelHelper(object):
@@ -17,11 +17,11 @@ class VisitModelHelper(object):
     """
     @classmethod
     def get_field_name(self, cls):
-        """Given a class, returns the field attname that is a subclass of BaseVisitTracking."""
+        """Given a class, returns the field attname that is a subclass of VisitTrackingModelMixin."""
         lst = []
         for f in cls._meta.fields:
             if f.rel:
-                if issubclass(f.rel.to, BaseVisitTracking):
+                if issubclass(f.rel.to, VisitTrackingModelMixin):
                     lst.append(f)
         if not lst:
             raise VisitTrackingError('Unable to determine the visit field in class {0}.'.format(cls))
@@ -31,8 +31,8 @@ class VisitModelHelper(object):
 
     @classmethod
     def get_field_cls(self, cls):
-        """Given a class, returns the model class that is a subclass of BaseVisitTracking."""
-        lst = [f.to for f in [field.rel for field in cls._meta.fields if field.rel] if issubclass(f.to, BaseVisitTracking)]
+        """Given a class, returns the model class that is a subclass of VisitTrackingModelMixin."""
+        lst = [f.to for f in [field.rel for field in cls._meta.fields if field.rel] if issubclass(f.to, VisitTrackingModelMixin)]
         if not lst:
             raise VisitTrackingError('Unable to determine the visit field in class {0}.'.format(cls))
         if not len(lst) == 1:
@@ -74,7 +74,7 @@ class VisitModelHelper(object):
     def get_visit_model(self, instance):
         """ given the instance (or class) of a model, return the visit model of its app """
         for model in get_models(get_app(instance._meta.app_label)):
-            if isinstance(model(), BaseVisitTracking):
+            if isinstance(model(), VisitTrackingModelMixin):
                 return model
         raise TypeError('Unable to determine the visit model from instance {0} for app {1}'.format(instance._meta.model_name, instance._meta.app_label))
 

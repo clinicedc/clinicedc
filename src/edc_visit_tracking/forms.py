@@ -4,12 +4,12 @@ from edc_constants.constants import (
     YES, DEAD, DEATH_VISIT, OFF_STUDY, LOST_VISIT, COMPLETED_PROTOCOL_VISIT, MISSED_VISIT, UNKNOWN, ALIVE)
 
 
-class VisitFormMixin(object):
+class VisitTrackingFormMixin(object):
 
     participant_label = 'participant'
 
     def clean(self):
-        cleaned_data = super(VisitFormMixin, self).clean()
+        cleaned_data = super(VisitTrackingFormMixin, self).clean()
         self.validate_presence()
         self.validate_reason_and_info_source()
         self.validate_survival_status_if_alive()

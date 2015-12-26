@@ -6,7 +6,6 @@ from django.test import TestCase
 from django.utils import timezone
 
 from edc.core.bhp_variables.models import StudySite
-from edc.entry_meta_data.models import MetaDataMixin
 from edc.lab.lab_profile.classes import site_lab_profiles
 from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.lab_tracker.classes import site_lab_tracker
@@ -19,24 +18,8 @@ from edc.testing.models import TestVisit2, TestConsentWithMixin, TestAliquotType
 from edc.testing.tests.factories import TestConsentWithMixinFactory
 from edc_appointment.models import Appointment
 from edc_constants.constants import MALE, REQUIRED, NOT_ADDITIONAL, SCHEDULED
-from edc_visit_tracking.models import BaseVisitTracking, PreviousVisitMixin
 
-
-class TestVisitModel(MetaDataMixin, PreviousVisitMixin, BaseVisitTracking):
-
-    REQUIRES_PREVIOUS_VISIT = True
-
-    def get_subject_identifier(self):
-        return self.appointment.registered_subject.subject_identifier
-
-    def custom_post_update_entry_meta_data(self):
-        pass
-
-    def get_requires_consent(self):
-        return False
-
-    class Meta:
-        app_label = 'edc_offstudy'
+from .test_models import TestVisitModel
 
 
 entries = (

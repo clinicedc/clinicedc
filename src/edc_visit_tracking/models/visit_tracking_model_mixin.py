@@ -1,7 +1,7 @@
 import copy
 
 from django.db import models
-from django.db.models import get_model 
+from django.db.models import get_model
 from django.core.exceptions import ImproperlyConfigured
 
 from edc_appointment.models import Appointment
@@ -17,7 +17,7 @@ from ..constants import (
     VISIT_REASON_FOLLOW_UP_CHOICES)
 
 
-class BaseVisitTracking (models.Model):
+class VisitTrackingModelMixin (models.Model):
 
     """Base model for Appt/Visit Tracking (AF002).
 
@@ -131,7 +131,7 @@ class BaseVisitTracking (models.Model):
             TimePointStatus = get_model('data_manager', 'TimePointStatus')
             TimePointStatus.check_time_point_status(self.appointment, using=using)
         self.subject_identifier = self.get_subject_identifier()
-        super(BaseVisitTracking, self).save(*args, **kwargs)
+        super(VisitTrackingModelMixin, self).save(*args, **kwargs)
 
     def byass_time_point_status(self):
         """Returns False by default but if overridden and set to return
