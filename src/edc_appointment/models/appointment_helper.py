@@ -162,7 +162,7 @@ class AppointmentHelper(object):
         if not appointment.visit_definition.visit_tracking_content_type_map:
             raise ImproperlyConfigured(
                 'Unable to determine the visit tracking model. '
-                'Update bhp_visit.visit_definition {0} and select '
+                'Update visit_definition {0} and select '
                 'the correct visit model.'.format(appointment.visit_definition))
         if not appointment.visit_definition.visit_tracking_content_type_map.model_class().objects.filter(
                 appointment=appointment):

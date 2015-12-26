@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 
 from edc.core.bhp_variables.models import StudySite
 from edc.core.bhp_variables.utils import default_study_site
+from edc.device.sync.models.base_sync_uuid_model import BaseSyncUuidModel
 from edc.subject.registration.models import RegisteredSubject
 from edc_visit_schedule.classes import WindowPeriod
 from edc_visit_schedule.models import VisitDefinition
@@ -17,10 +18,20 @@ from ..managers import AppointmentManager
 
 from .appointment_helper import AppointmentHelper
 from .appointment_date_helper import AppointmentDateHelper
-from .base_appointment import BaseAppointment
+
+try:
+    from edc.device.dispatch.models import BaseDispatchSyncUuidModel
+
+    class BaseAppointment(BaseDispatchSyncUuidModel):
+        class Meta:
+            abstract = True
+except ImportError:
+    class BaseAppointment(models.Model):
+        class Meta:
+            abstract = True
 
 
-class Appointment(BaseAppointment):
+class Appointment(BaseAppointment, BaseSyncUuidModel):
     """Tracks appointments for a registered subject's visit.
 
         Only one appointment per subject visit_definition+visit_instance.
@@ -57,6 +68,46 @@ class Appointment(BaseAppointment):
         db_index=True,
         help_text=("A decimal to represent an additional report to be included with the original "
                    "visit report. (NNNN.0)"))
+    appt_datetime = models.DateTimeField(
+        verbose_name=("Appointment date and time"),
+        help_text="",
+        db_index=True)
+
+    # this is the original calculated appointment datetime
+    # which the user cannot change
+    timepoint_datetime = models.DateTimeField(
+        verbose_name=("Timepoint date and time"),
+        help_text="calculated appointment datetime. Do not change",
+        null=True,
+        editable=False)
+
+    appt_status = models.CharField(
+        verbose_name=("Status"),
+        choices=APPT_STATUS,
+        max_length=25,
+        default=NEW_APPT,
+        db_index=True)
+
+    appt_reason = models.CharField(
+        verbose_name=("Reason for appointment"),
+        max_length=25,
+        help_text=("Reason for appointment"),
+        blank=True)
+
+    contact_tel = models.CharField(
+        verbose_name=("Contact Tel"),
+        max_length=250,
+        blank=True)
+
+    comment = models.CharField(
+        "Comment",
+        max_length=250,
+        blank=True)
+
+    is_confirmed = models.BooleanField(default=False, editable=False)
+
+    contact_count = models.IntegerField(default=0, editable=False)
+
     dashboard_type = models.CharField(
         max_length=25,
         editable=False,
@@ -198,6 +249,18 @@ class Appointment(BaseAppointment):
     def get_report_datetime(self):
         """Returns the appointment datetime as the report_datetime."""
         return self.appt_datetime
+
+    def is_new_appointment(self):
+        """Returns True if this is a New appointment and confirms choices
+        tuple has \'new\'; as a option."""
+        if NEW_APPT not in [s[0] for s in APPT_STATUS]:
+            raise TypeError(
+                'Expected (\'new\', \'New\') as one tuple in the choices tuple '
+                'APPT_STATUS. Got {0}'.format(APPT_STATUS))
+        retval = False
+        if self.appt_status == NEW_APPT:
+            retval = True
+        return retval
 
     @property
     def complete(self):
