@@ -1,1 +1,0 @@
-from edc_registration.mixins.RegistrationMixin import RegistrationMixin

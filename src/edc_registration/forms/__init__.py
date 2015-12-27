@@ -1,1 +1,0 @@
-from .registered_subject_form import RegisteredSubjectForm

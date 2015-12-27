@@ -1,4 +1,0 @@
-
-
-class RegistrationError(Exception):
-    pass
