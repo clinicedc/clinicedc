@@ -1,6 +1,6 @@
 import factory
 
-from edc.subject.registration.models import RegisteredSubject
+from edc_registration.models import RegisteredSubject
 
 
 class RegisteredSubjectFactory(factory.django.DjangoModelFactory):
