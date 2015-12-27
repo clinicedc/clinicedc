@@ -345,7 +345,7 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
         return True
 
     def is_serialized(self):
-        return super(RegisteredSubject, self).is_serialized(True)
+        return True
 
     def dispatch_container_lookup(self):
         return (self.__class__, 'id')
