@@ -1,6 +1,6 @@
 from django import forms
 
-from ..models import RegisteredSubject
+from .models import RegisteredSubject
 
 
 class RegisteredSubjectForm (forms.ModelForm):

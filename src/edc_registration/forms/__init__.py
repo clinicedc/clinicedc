@@ -1,2 +1,0 @@
-from .registered_subject_form import RegisteredSubjectForm
-from .base_registered_subject_model_form import BaseRegisteredSubjectModelForm
