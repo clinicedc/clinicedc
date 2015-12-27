@@ -15,8 +15,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import six
 
-from datetime import datetime
-
 from django import get_version
 from django.utils import timezone
 
@@ -47,14 +45,14 @@ if get_version().startswith('1.6') and six.PY2:
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
-        'edc_audit',
-        'edc.device.sync',
-        'edc.core.bhp_variables',
-        'edc.subject.registration',
-        'edc.core.crypto_fields',
         'tastypie',
+        'edc_audit',
         'edc_base',
+        'edc_crypto_fields',
         'edc_quota',
+        'edc_registration',
+        'edc_sync',
+        'edc.core.bhp_variables',
         'edc_consent',
     )
 else:
