@@ -14,21 +14,6 @@ ACU_EST = (
     ('Established', 'Established'),
 )
 
-PIMA = (
-    ('Participant Declined', 'Participant Declined'),
-    ('Multiple PIMA malfunction', 'Multiple PIMA malfunction'),
-    ('Failed Blood Collection', 'Failed Blood Collection'),
-    (OTHER, _('Other, specify:')),
-)
-
-HIV_RESULT = (
-    (POS, 'HIV Positive (Reactive)'),
-    (NEG, 'HIV Negative (Non-reactive)'),
-    (IND, 'Indeterminate'),
-    (DECLINED, 'Participant declined testing'),
-    ('Not performed', 'Test could not be performed (e.g. supply outage, technical problem)'),
-)
-
 ACU_EST_NEG = (
     ('Acute', 'Acute'),
     ('Established', 'Established'),
@@ -158,6 +143,33 @@ GENDER_UNDETERMINED = (
     ('U', _('Undetermined')),
 )
 
+GRADING_SCALE = (
+    (1, 'Grade 1'),
+    (2, 'Grade 2'),
+    (3, 'Grade 3'),
+    (4, 'Grade 4'),
+    (5, 'Grade 5'),
+)
+
+GRADING_SCALE_234 = (
+    (2, 'Grade 2'),
+    (3, 'Grade 3'),
+    (4, 'Grade 4'),
+)
+
+GRADING_SCALE_34 = (
+    (3, 'Grade 3'),
+    (4, 'Grade 4'),
+)
+
+HIV_RESULT = (
+    (POS, 'HIV Positive (Reactive)'),
+    (NEG, 'HIV Negative (Non-reactive)'),
+    (IND, 'Indeterminate'),
+    (DECLINED, 'Participant declined testing'),
+    ('Not performed', 'Test could not be performed (e.g. supply outage, technical problem)'),
+)
+
 """do not change without inspecting implication to check_omang_field() in utils.py"""
 IDENTITY_TYPE = (
     (OMANG, 'Omang'),
@@ -184,6 +196,14 @@ NORMAL_ABNORMAL_NOTEVALUATED = (
     ('ABNORMAL', 'Abnormal'),
     ('NOT_EVAL', 'Not Evaluated'),
 )
+
+PIMA = (
+    ('Participant Declined', 'Participant Declined'),
+    ('Multiple PIMA malfunction', 'Multiple PIMA malfunction'),
+    ('Failed Blood Collection', 'Failed Blood Collection'),
+    (OTHER, _('Other, specify:')),
+)
+
 
 POS_NEG = (
     (POS, 'Positive'),
