@@ -33,4 +33,3 @@ class PreAppointmentContact(BaseContactLogItem):
 
     class Meta:
         app_label = 'edc_appointment'
-        db_table = 'bhp_appointment_preappointmentcontact'

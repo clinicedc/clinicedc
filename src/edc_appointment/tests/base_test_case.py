@@ -8,11 +8,11 @@ from edc.core.bhp_variables.models import StudySite
 from edc.lab.lab_profile.classes import site_lab_profiles
 from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.lab_tracker.classes import site_lab_tracker
-from edc.subject.registration.tests.factories import RegisteredSubjectFactory
+from edc_registration.tests.factories import RegisteredSubjectFactory
 from edc_visit_schedule.models import VisitDefinition
 from edc.testing.classes import TestLabProfile
 from edc.testing.classes import TestVisitSchedule, TestAppConfiguration
-from edc_consent.tests.base_test_models import TestConsentModel, ConsentTypeFactory
+from edc_consent.tests.base_test_models import TestConsentModel
 
 
 class BaseTestCase(TestCase):
@@ -40,5 +40,4 @@ class BaseTestCase(TestCase):
 #             subject_identifier='999-100000-1')
         self.registered_subject = RegisteredSubjectFactory(
             subject_identifier='999-100000-1')
-        ConsentTypeFactory()
         TestConsentModel.quota.set_quota(2, date.today(), date.today())

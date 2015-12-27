@@ -19,4 +19,3 @@ class Holiday(BaseUuidModel):
     class Meta:
         ordering = ['holiday_date', ]
         app_label = 'edc_appointment'
-        db_table = 'bhp_appointment_holiday'

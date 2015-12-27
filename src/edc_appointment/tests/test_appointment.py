@@ -7,19 +7,19 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
-from edc_constants.constants import NEW_APPT, COMPLETE_APPT, INCOMPLETE, CANCELLED, MALE, YES, SCHEDULED, IN_PROGRESS,\
-    DONE
-from edc.subject.registration.models import RegisteredSubject
-from edc.testing.tests.factories import TestConsentWithMixinFactory
-from edc_appointment.models.appointment_mixin import AppointmentMixin
 from edc.data_manager.models.time_point_status import TimePointStatus
+from edc.testing.tests.factories import TestConsentWithMixinFactory
+from edc.testing.models.test_visit import TestVisit2, TestVisit
+from edc_appointment.models.appointment_mixin import AppointmentMixin
+from edc_constants.constants import (
+    NEW_APPT, COMPLETE_APPT, INCOMPLETE, CANCELLED, MALE, YES, SCHEDULED, IN_PROGRESS, DONE)
+from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.models.visit_definition import VisitDefinition
 
 from ..choices import APPT_STATUS
 from ..models import Appointment
 
 from .base_test_case import BaseTestCase
-from edc.testing.models.test_visit import TestVisit2, TestVisit
 
 
 class TestRegistrationModel(AppointmentMixin, models.Model):

@@ -6,12 +6,13 @@ from django.core.exceptions import ValidationError
 
 from edc.core.bhp_variables.models import StudySite
 from edc.core.bhp_variables.utils import default_study_site
-from edc.device.sync.models.base_sync_uuid_model import BaseSyncUuidModel
-from edc.subject.registration.models import RegisteredSubject
+from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.classes import WindowPeriod
 from edc_visit_schedule.models import VisitDefinition
+from edc_base.model.models import BaseUuidModel
 from edc_base.audit_trail import AuditTrail
 from edc_constants.constants import COMPLETE_APPT, NEW_APPT
+from edc_sync.models import SyncModelMixin
 
 from ..choices import APPT_TYPE, APPT_STATUS
 from ..managers import AppointmentManager
@@ -19,19 +20,19 @@ from ..managers import AppointmentManager
 from .appointment_helper import AppointmentHelper
 from .appointment_date_helper import AppointmentDateHelper
 
-try:
-    from edc.device.dispatch.models import BaseDispatchSyncUuidModel
+# try:
+#     from edc.device.dispatch.models import BaseDispatchSyncUuidModel
+#
+#     class BaseAppointment(BaseDispatchSyncUuidModel):
+#         class Meta:
+#             abstract = True
+# except ImportError:
+#     class BaseAppointment(models.Model):
+#         class Meta:
+#             abstract = True
 
-    class BaseAppointment(BaseDispatchSyncUuidModel):
-        class Meta:
-            abstract = True
-except ImportError:
-    class BaseAppointment(models.Model):
-        class Meta:
-            abstract = True
 
-
-class Appointment(BaseAppointment, BaseSyncUuidModel):
+class Appointment(SyncModelMixin, BaseUuidModel):
     """Tracks appointments for a registered subject's visit.
 
         Only one appointment per subject visit_definition+visit_instance.
@@ -281,6 +282,5 @@ class Appointment(BaseAppointment, BaseSyncUuidModel):
 
     class Meta:
         app_label = 'edc_appointment'
-        db_table = 'bhp_appointment_appointment'
         unique_together = (('registered_subject', 'visit_definition', 'visit_instance'),)
         ordering = ['registered_subject', 'appt_datetime', ]

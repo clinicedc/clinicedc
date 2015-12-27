@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 
 from django.test import TestCase
 
-from ..classes import AppointmentDateHelper
+from ..models import AppointmentDateHelper
 
 
 class AppointmentHelperTests(TestCase):

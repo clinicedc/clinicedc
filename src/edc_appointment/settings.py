@@ -39,23 +39,23 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tastypie',
-    'edc_base',
-    'edc_quota',
-    'edc_consent',
     'edc_appointment',
+    'edc_base',
+    'edc_consent',
+    'edc_crypto_fields',
+    'edc_quota',
+    'edc_registration',
+    'edc_sync',
     'edc_visit_schedule',
-    'edc.data_manager',
-    'edc.subject.registration',
-    'edc.subject.subject_config',
     'edc.apps.app_configuration',
+    'edc.core.bhp_content_type_map',
+    'edc.core.bhp_variables',
+    'edc.data_manager',
+    'edc.entry_meta_data',
     'edc.lab.lab_clinic_api',
     'edc.subject.entry',
+    'edc.subject.subject_config',
     'edc.testing',
-    'edc.core.bhp_variables',
-    'edc.core.crypto_fields',
-    'edc.core.bhp_content_type_map',
-    'edc.entry_meta_data',
-    'edc.subject.entry',
     'edc_appointment',
 )
 
@@ -124,7 +124,6 @@ STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR.ancestor(1)
 
 SITE_CODE = '10'
-SUBJECT_TYPES = ['test_subject_type']
 DEVICE_ID = '10'
 SERVER_DEVICE_ID_LIST = [99]
 MIDDLEMAN_DEVICE_ID_LIST = []
@@ -134,5 +133,4 @@ IS_SECURE_DEVICE = True
 KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
 KEY_PREFIX = 'user'
 ALLOW_MODEL_SERIALIZATION = False
-MAX_SUBJECTS = 0
 DISPATCH_APP_LABELS = []
