@@ -2,12 +2,13 @@ from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
-from edc_visit_schedule.models import VisitDefinition
 from edc_appointment.models import Appointment
 from edc_constants.constants import SCHEDULED
-from edc_offstudy.models import OffStudyError
-from edc_offstudy.tests.base_test import BaseTest, TestVisitModel, AnotherTestVisitModel, TestOffStudyModel
 from edc_offstudy.constants import OFF_STUDY_REASONS
+from edc_offstudy.models import OffStudyError
+from edc_offstudy.tests.base_test import BaseTest
+from edc_offstudy.tests.test_models import TestVisitModel, TestOffStudyModel, AnotherTestVisitModel
+from edc_visit_schedule.models import VisitDefinition
 
 
 class TestOffStudy(BaseTest):
@@ -19,7 +20,7 @@ class TestOffStudy(BaseTest):
         self.assertEqual(test_visit.off_study_model, TestOffStudyModel)
 
     def test_visit_knows_offstudy_model_from_tuple(self):
-        test_visit = TestVisitModel(
+        test_visit = TestVisitModel.objects.create(
             appointment=self.appointment,
             report_datetime=timezone.now())
         self.assertEqual(test_visit.off_study_model, TestOffStudyModel)

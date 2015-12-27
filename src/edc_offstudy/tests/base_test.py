@@ -2,71 +2,24 @@ from __future__ import print_function
 
 from collections import OrderedDict
 
-from django.db import models
 from django.test import TestCase
 
 from edc.core.bhp_variables.models import StudySite
-from edc.entry_meta_data.models import MetaDataMixin
 from edc.lab.lab_profile.classes import site_lab_profiles
 from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.lab_tracker.classes import site_lab_tracker
-from edc.subject.registration.tests.factories import RegisteredSubjectFactory
 from edc.testing.classes import TestLabProfile, TestAppConfiguration
 from edc.testing.models import TestVisit, TestConsentWithMixin, TestAliquotType, TestPanel
-from edc.testing.tests.factories import TestConsentWithMixinFactory, TestVisitFactory
+from edc.testing.tests.factories import TestConsentWithMixinFactory
 from edc_appointment.models import Appointment
 from edc_constants.constants import MALE, REQUIRED, NOT_ADDITIONAL
-from edc_offstudy.models import OffStudyMixin
+from edc_registration.tests.factories import RegisteredSubjectFactory
+from edc_visit_schedule.models import VisitDefinition
 from edc_visit_schedule.classes import (
     VisitScheduleConfiguration, EntryTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
-from edc_visit_schedule.models import VisitDefinition
-from edc_visit_tracking.models import BaseVisitTracking, PreviousVisitMixin, CrfModelMixin
-from edc_offstudy.models.off_study_model_mixin import OffStudyModelMixin
-from edc_base.model.models.base_uuid_model import BaseUuidModel
 
 
-class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, BaseVisitTracking):
-
-    off_study_model = ('edc_offstudy', 'TestOffStudyModel')
-    REQUIRES_PREVIOUS_VISIT = True
-
-    def get_subject_identifier(self):
-        return self.appointment.registered_subject.subject_identifier
-
-    def custom_post_update_entry_meta_data(self):
-        pass
-
-    def get_requires_consent(self):
-        return False
-
-    class Meta:
-        app_label = 'edc_offstudy'
-
-
-class TestOffStudyModel(CrfModelMixin, OffStudyModelMixin, BaseUuidModel):
-
-    test_visit_model = models.OneToOneField(TestVisitModel)
-
-    class Meta:
-        app_label = 'edc_offstudy'
-
-
-class AnotherTestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, BaseVisitTracking):
-
-    off_study_model = TestOffStudyModel
-    REQUIRES_PREVIOUS_VISIT = True
-
-    def get_subject_identifier(self):
-        return self.appointment.registered_subject.subject_identifier
-
-    def custom_post_update_entry_meta_data(self):
-        pass
-
-    def get_requires_consent(self):
-        return False
-
-    class Meta:
-        app_label = 'edc_offstudy'
+from .test_models import TestVisitModel
 
 entries = (
     EntryTuple(10L, u'testing', u'TestScheduledModel1', REQUIRED, NOT_ADDITIONAL),
@@ -207,7 +160,6 @@ class BaseTest(TestCase):
         site_lab_tracker.autodiscover()
         TestAppConfiguration().prepare()
         VisitSchedule().build()
-        self.test_visit_factory = TestVisitFactory
         self.study_site = StudySite.objects.all()[0]
         self.identity = '111111111'
         self.subject_identifier = '999-100000-1'

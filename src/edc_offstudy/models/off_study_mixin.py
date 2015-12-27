@@ -54,15 +54,9 @@ class OffStudyMixin(models.Model):
     def has_off_study_report_or_raise(self, subject_identifier, report_date):
         """Raises an exception if an off study report exists for this subject with an
         off study date before the report_date."""
-        try:
-            options = {
-                '{}__appointment__registered_subject__subject_identifier'.format(self.off_study_model.visit_model_attr):
-                subject_identifier}
-        except AttributeError as e:
-            print(str(e))
-            options = {
-                'appointment__registered_subject__subject_identifier':
-                subject_identifier}
+        options = {
+            '{}__appointment__registered_subject__subject_identifier'.format(self.off_study_model.visit_model_attr):
+            subject_identifier}
         try:
             off_study = self.off_study_model.objects.get(
                 offstudy_date__lt=report_date,
