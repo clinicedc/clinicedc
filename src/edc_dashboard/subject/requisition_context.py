@@ -1,9 +1,9 @@
 from django.core.urlresolvers import reverse
 
-from edc.core.bhp_common.utils import convert_from_camel
-from edc_constants.constants import NOT_REQUIRED, ADDITIONAL, IN_PROGRESS
 from edc.entry_meta_data.models import RequisitionMetaData
 from edc.lab.lab_profile.classes import site_lab_profiles
+from edc_base.utils import convert_from_camel
+from edc_constants.constants import NOT_REQUIRED, ADDITIONAL, IN_PROGRESS
 
 from .base_scheduled_entry_context import BaseScheduledEntryContext
 

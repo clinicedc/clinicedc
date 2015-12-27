@@ -17,16 +17,16 @@ from edc.lab.lab_packing.models import BasePackingList
 from edc.lab.lab_requisition.models import BaseBaseRequisition
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc.subject.locator.models import BaseLocator
-from edc.subject.registration.models import RegisteredSubject
 from edc.subject.subject_config.models import SubjectConfiguration
 from edc.subject.subject_summary.models import Link
-from edc_visit_schedule.classes import MembershipFormHelper
-from edc_visit_schedule.models import MembershipForm
 from edc_appointment.models import Appointment
 from edc_base.encrypted_fields import EncryptedTextField
 from edc_base.utils import convert_from_camel
 from edc_constants.constants import NEW, NOT_REQUIRED, UNKEYED, KEYED, NEW_APPT, COMPLETE_APPT, IN_PROGRESS
-from edc_visit_tracking.models import BaseVisitTracking
+from edc_registration.models import RegisteredSubject
+from edc_visit_schedule.classes import MembershipFormHelper
+from edc_visit_schedule.models import MembershipForm
+from edc_visit_tracking.models import VisitTrackingModelMixin
 
 from ..dashboard import Dashboard
 
@@ -274,9 +274,9 @@ class RegisteredSubjectDashboard(Dashboard):
         if not self._visit_model:
             raise TypeError('Attribute _visit_model may not be None. Override the method '
                             'to return a visit mode class or specify at init.')
-        if not issubclass(self._visit_model, BaseVisitTracking):
+        if not issubclass(self._visit_model, VisitTrackingModelMixin):
             raise TypeError('Expected visit model class to be a subclass of '
-                            'BaseVisitTracking. Got {0}. See {1}.'.format(self._visit_model, self))
+                            'VisitTrackingModelMixin. Got {0}. See {1}.'.format(self._visit_model, self))
 
     @property
     def visit_model_attrname(self):

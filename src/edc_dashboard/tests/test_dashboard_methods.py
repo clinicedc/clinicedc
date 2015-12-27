@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.core.exceptions import ImproperlyConfigured
 
 from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
-from edc.subject.registration.models import RegisteredSubject
+from edc_registration.models import RegisteredSubject
 from edc.testing.models import TestConsent, TestVisit
 
 from edc_dashboard.dashboard import Dashboard
