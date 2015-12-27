@@ -42,8 +42,6 @@ INSTALLED_APPS = (
     'django_crypto_fields',
     'edc_subject',
     'edc_registration',
-    'edc_sample.sample',
-    # 'edc-audit',
 )
 
 MIDDLEWARE_CLASSES = (
