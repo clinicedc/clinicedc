@@ -3,14 +3,11 @@ import re
 from uuid import uuid4
 
 from django.conf import settings
-from django.core.exceptions import MultipleObjectsReturned
-from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.utils.translation import ugettext as _
 
-from edc.core.bhp_variables.models import StudySite
 from edc_base.audit_trail import AuditTrail
 from edc_base.encrypted_fields import (
     IdentityField, EncryptedCharField, FirstnameField, LastnameField, mask_encrypted)
@@ -147,10 +144,8 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
         null=True,
         blank=True)
 
-    study_site = models.ForeignKey(
-        StudySite,
-        verbose_name='Site',
-        help_text="",
+    study_site = models.CharField(
+        max_length=50,
         null=True,
         blank=True)
 
