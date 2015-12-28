@@ -264,21 +264,27 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
             sid=' sid={}'.format(self.sid) if self.sid else '')
 
     def mask_subject_identifier(self):
-        subject_identifier = self.subject_identifier
+        if not self.subject_identifier_is_set():
+            return '<identifier not set>'
+        return self.subject_identifier
+
+    def subject_identifier_is_set(self):
         re_pk = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}')
-        if re_pk.match(subject_identifier):
-            subject_identifier = '<identifier not set>'
-        return subject_identifier
+        if re_pk.match(self.subject_identifier):
+            return False
+        return True
 
     def raise_on_changed_subject_identifier(self, using):
-        if self.id:
+        """Raises an exception if there is an attempt to change the subject identifier
+        for an existing instance if the subject identifier is already set."""
+        if self.id and self.subject_identifier_is_set():
             with transaction.atomic():
                 obj = self.__class__.objects.get(pk=self.id)
                 if obj.subject_identifier != self.subject_identifier_as_pk:
                     if self.subject_identifier != obj.subject_identifier:
                         raise RegisteredSubjectError(
                             'Subject identifier cannot be changed for existing registered subject. '
-                            'Got {}.'.format(self.subject_identifier))
+                            'Got {} <> {}.'.format(self.subject_identifier, obj.subject_identifier))
 
     def raise_on_duplicate_subject_identifier(self, using):
         """Checks if the subject identifier is in use, for new and existing instances."""
@@ -291,7 +297,7 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
                     subject_identifier=self.subject_identifier)
                 if not self.id:
                     raise RegisteredSubjectError(error_msg.format(action='insert'))
-                elif obj.id != self.id:
+                elif self.subject_identifier_is_set() and obj.id != self.id:
                     raise RegisteredSubjectError(error_msg.format(action='update'))
             except self.__class__.DoesNotExist:
                 pass
