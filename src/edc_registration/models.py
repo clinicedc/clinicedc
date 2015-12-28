@@ -93,14 +93,6 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
         help_text='track a previously allocated identifier.'
     )
 
-    dm_comment = models.CharField(
-        verbose_name="Data Management comment",
-        max_length=150,
-        null=True,
-        editable=False,
-        help_text='see also edc.data manager.'
-    )
-
     # may not be available when instance created (e.g. infants prior to birth report)
     first_name = FirstnameField(
         null=True,
@@ -109,8 +101,7 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
     # may not be available when instance created (e.g. infants or household subject before consent)
     last_name = LastnameField(
         verbose_name="Last name",
-        null=True,
-    )
+        null=True)
 
     # may not be available when instance created (e.g. infants)
     initials = EncryptedCharField(
@@ -118,28 +109,24 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
             regex=r'^[A-Z]{2,3}$',
             message=('Ensure initials consist of letters '
                      'only in upper case, no spaces.'))],
-        null=True,
-    )
+        null=True)
 
     dob = models.DateField(
         verbose_name=_("Date of birth"),
         null=True,
         blank=False,
-        help_text=_("Format is YYYY-MM-DD"),
-    )
+        help_text=_("Format is YYYY-MM-DD"))
 
     is_dob_estimated = IsDateEstimatedField(
         verbose_name=_("Is date of birth estimated?"),
         null=True,
-        blank=False,
-    )
+        blank=False)
 
     gender = models.CharField(
         verbose_name="Gender",
         max_length=1,
         null=True,
-        blank=False,
-    )
+        blank=False)
 
     subject_type = models.CharField(
         max_length=25)
@@ -248,8 +235,12 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
                    'attribute in additional to first_name, initials and dob which '
                    'is not captured in this model'))
 
-    # not used: this field should be removed
-    salt = models.CharField(max_length=25, null=True, editable=False, default='salt')
+    dm_comment = models.CharField(
+        verbose_name="Data Management comment",
+        max_length=150,
+        null=True,
+        editable=False,
+        help_text='see also edc.data manager.')
 
     objects = RegisteredSubjectManager()
 
@@ -257,6 +248,7 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
+        self.raise_on_unknown_subject_type()
         self.raise_on_max_subjects()
         if self.identity:
             self.additional_key = None
@@ -297,17 +289,22 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
         """Checks if the subject identifier is in use, for new and existing instances."""
         with transaction.atomic():
             error_msg = (
-                'Attempt to insert or update duplicate value for subject_identifier {0} '
-                'when saving {1} '.format(self.subject_identifier, self))
+                'Cannot {{action}} registered subject with a duplicate '
+                'subject_identifier. Got {0}.'.format(self.subject_identifier))
             try:
                 obj = self.__class__.objects.using(using).get(
                     subject_identifier=self.subject_identifier)
-                if obj.id != self.id:
-                    raise RegisteredSubjectError(error_msg)
+                if not self.id:
+                    raise RegisteredSubjectError(error_msg.format(action='insert'))
+                elif obj.id != self.id:
+                    raise RegisteredSubjectError(error_msg.format(action='update'))
             except self.__class__.DoesNotExist:
                 pass
-            except MultipleObjectsReturned:
-                raise RegisteredSubjectError(error_msg)
+
+    def raise_on_unknown_subject_type(self):
+        if self.subject_type not in self.subject_types:
+            raise RegisteredSubjectError(
+                'Subject type must be one of {}. Got {}.'.format(self.subject_types, self.subject_type))
 
     def raise_on_max_subjects(self, exception_cls=None):
         """Raises an exception if the maximum number enrollees of
@@ -315,15 +312,15 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
 
         Note: a value of -1 means registration is unlimited for the subject_type"""
 
-        exception_cls = exception_cls or ValidationError
+        exception_cls = exception_cls or RegisteredSubjectError
         if not self.id:
-            max_subjects = self.max_subjects.get(self.subject_type)
-            if max_subjects >= 0:
+            max_subject = self.max_subjects.get(self.subject_type)
+            if max_subject >= 0:
                 count = self.__class__.objects.filter(subject_type=self.subject_type).count()
-                if count + 1 > max_subjects:
+                if count >= max_subject:
                     raise exception_cls(
-                        'Maximum number of subjects has been reached for subject_type \'{0}\'. '
-                        'Got {1} registered of {2}.'.format(self.subject_type, count, max_subjects))
+                        'Maximum number of subjects has been reached for subject_type \'{}\'. '
+                        'Maximum allowed is {}.'.format(self.subject_type, count, max_subject))
 
     def set_uuid_as_subject_identifier_if_none(self):
         """Inserts a random uuid as a dummy identifier for a new instance.

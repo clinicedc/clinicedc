@@ -11,4 +11,4 @@ class RegisteredSubjectFactory(factory.django.DjangoModelFactory):
     identity = factory.Sequence(lambda n: '11111111{0}'.format(n))
     identity_type = 'OMANG'
     may_store_samples = 'Yes'
-    subject_type = 'test_subject_type'
+    subject_type = 'subject'
