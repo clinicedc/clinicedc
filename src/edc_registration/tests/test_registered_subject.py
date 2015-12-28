@@ -1,13 +1,11 @@
 import re
 
 from django.test import TestCase
-from django.conf import settings
+from django.test.utils import override_settings
 
-from ..models import RegisteredSubject
+from edc_registration.models import RegisteredSubjectError
 
 from .factories import RegisteredSubjectFactory
-from edc_registration.models import RegisteredSubjectError
-from django.test.utils import override_settings
 
 
 class TestRegisterSubject(TestCase):

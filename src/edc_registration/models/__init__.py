@@ -1,2 +1,2 @@
-from .registered_subject import RegisteredSubject
+from .registered_subject import RegisteredSubject, RegisteredSubjectError
 from .signals import update_registered_subject_from_consent_on_post_save
