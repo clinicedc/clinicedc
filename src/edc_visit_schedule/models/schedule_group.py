@@ -11,8 +11,7 @@ class ScheduleGroup(BaseUuidModel):
     """Model that groups membership forms"""
     group_name = models.CharField(
         max_length=25,
-        unique=True
-        )
+        unique=True)
 
     membership_form = models.ForeignKey(MembershipForm)
 
@@ -20,15 +19,14 @@ class ScheduleGroup(BaseUuidModel):
         max_length=25,
         null=True,
         blank=True,
-        help_text=('may specify a common value to group a number of membership forms so '
-                  'that when one of the group is keyed, the others are no longer shown.')
-        )
+        help_text=(
+            'may specify a common value to group a number of membership forms so '
+            'that when one of the group is keyed, the others are no longer shown.'))
 
     comment = models.CharField(
         max_length=25,
         null=True,
-        blank=True
-        )
+        blank=True)
 
     objects = ScheduleGroupManager()
 
@@ -44,4 +42,3 @@ class ScheduleGroup(BaseUuidModel):
     class Meta:
         ordering = ['group_name']
         app_label = "edc_visit_schedule"
-        db_table = 'bhp_visit_schedulegroup'

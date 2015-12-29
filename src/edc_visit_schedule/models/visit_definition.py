@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-from django.core.urlresolvers import reverse
 from django.core.validators import MaxLengthValidator
 from django.db import models
 
@@ -71,4 +70,3 @@ class VisitDefinition(BaseWindowPeriodItem):
     class Meta:
         ordering = ['code', 'time_point']
         app_label = "edc_visit_schedule"
-        db_table = 'bhp_visit_visitdefinition'

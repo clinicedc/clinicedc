@@ -1,20 +1,15 @@
-from django.test import TestCase, SimpleTestCase
-from django.db import IntegrityError
+from django.test import SimpleTestCase
 from django.db.models import get_app, get_models
-from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import Group
 
 from edc.lab.lab_profile.classes import site_lab_profiles
 from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
-from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
 from edc.subject.entry.models import Entry
-from edc.core.bhp_content_type_map.models import ContentTypeMap
-from edc.testing.classes import TestAppConfiguration, TestVisitSchedule, TestLabProfile
 from edc.subject.lab_tracker.classes import site_lab_tracker
+from edc.testing.classes import TestAppConfiguration, TestVisitSchedule, TestLabProfile
 
-from ..models import VisitDefinition
 from ..classes import Permissions
-from .factories import VisitDefinitionFactory
+from ..models import VisitDefinition
 
 
 class TestPermissions(SimpleTestCase):
@@ -28,32 +23,6 @@ class TestPermissions(SimpleTestCase):
         TestAppConfiguration().prepare()
         site_lab_tracker.autodiscover()
         TestVisitSchedule().build()
-
-#         content_type_map_helper = ContentTypeMapHelper()
-#         content_type_map_helper.populate()
-#         content_type_map_helper.sync()
-#         visit_tracking_content_type_map = ContentTypeMap.objects.get(content_type__model='testvisit')
-#         try:
-#             visit_definition = VisitDefinitionFactory(code='1000', visit_tracking_content_type_map=visit_tracking_content_type_map)
-#             for index, content_type in enumerate(ContentType.objects.filter(app_label='testing')):
-#                 model = content_type.model_class()
-#                 if 'entry_meta_data_manager' in dir(model):
-#                     content_type_map = ContentTypeMap.objects.get(content_type=content_type)
-#                     Entry.objects.create(visit_definition=visit_definition, content_type_map=content_type_map, entry_order=index)
-#         except IntegrityError:
-#             pass
-# 
-#         try:
-#             visit_definition = VisitDefinitionFactory(code='2000', visit_tracking_content_type_map=visit_tracking_content_type_map)
-#             for index, content_type in enumerate(ContentType.objects.filter(app_label='testing')[2:]):
-#                 model = content_type.model_class()
-#                 if 'entry_meta_data_manager' in dir(model):
-#                     content_type_map = ContentTypeMap.objects.get(content_type=content_type)
-#                     Entry.objects.create(visit_definition=visit_definition, content_type_map=content_type_map, entry_order=index)
-#         except IntegrityError:
-#             pass
-
-#        self.group = Group.objects.create(name='field_staff')
 
     def test_adds_permissions1(self):
         self.startup()

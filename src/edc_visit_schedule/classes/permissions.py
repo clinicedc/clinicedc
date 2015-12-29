@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import get_model

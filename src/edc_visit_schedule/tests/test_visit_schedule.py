@@ -6,10 +6,10 @@ from edc.subject.entry.models import Entry, LabEntry
 from edc.testing.classes import TestLabProfile
 from edc.testing.classes import TestVisitSchedule, TestAppConfiguration
 from edc_appointment.models import AppointmentMixin
-
-from ..models import MembershipForm, ScheduleGroup, VisitDefinition
+from edc.testing.tests.factories import TestConsentWithMixinFactory
 
 from ..classes import MembershipFormTuple, ScheduleGroupTuple
+from ..models import MembershipForm, ScheduleGroup, VisitDefinition
 
 
 class TestVisitSchedule(TestCase):
@@ -77,6 +77,5 @@ class TestVisitSchedule(TestCase):
             schedule_group = self.test_visit_schedule.schedule_groups.get(schedule_group_name)
             membership_form_model = self.test_visit_schedule.membership_forms[schedule_group.membership_form_name].model
             # i know this is a consent model in the test case
-            from edc.testing.tests.factories import TestConsentWithMixinFactory
 #             self.assertEqual(membership_form_model, TestConsentWithMixinFactory.FACTORY_FOR)
             self.assertIsNotNone(TestConsentWithMixinFactory(gender='M'))

@@ -44,9 +44,12 @@ class MembershipForm(BaseUuidModel):
         cls = self.content_type_map.model_class()
         # inspect for registered subject attribute
         if 'registered_subject' not in dir(cls):
-            raise ValidationError('Membership forms must have a key to model RegisteredSubject. Got {0}'.format(cls))
+            raise ValidationError(
+                'Membership forms must have a key to model RegisteredSubject. Got {0}'.format(cls))
         if not issubclass(cls, AppointmentMixin):
-            raise ImproperlyConfigured('MembershipForm attribute content_type_map must refer to a model class that is a subclass of AppointmentMixin. Got {0}'.format(cls))
+            raise ImproperlyConfigured(
+                'MembershipForm attribute content_type_map must refer '
+                'to a model class that is a subclass of AppointmentMixin. Got {0}'.format(cls))
         super(MembershipForm, self).save(*args, **kwargs)
 
     def natural_key(self):
@@ -60,4 +63,3 @@ class MembershipForm(BaseUuidModel):
 
     class Meta:
         app_label = "edc_visit_schedule"
-        db_table = 'bhp_visit_membershipform'
