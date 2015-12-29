@@ -1,13 +1,13 @@
 from django.db import models
 from django.utils import timezone
 
+from edc_base.model.models import BaseUuidModel
 from edc_consent.forms.base_consent_form import BaseConsentForm
-from edc_consent.models import BaseConsent, RequiresConsentMixin
+from edc_consent.models import BaseConsent, RequiresConsentMixin, BaseSpecimenConsent
 from edc_consent.models.fields import (
     IdentityFieldsMixin, SampleCollectionFieldsMixin, PersonalFieldsMixin,
     VulnerabilityFieldsMixin, SiteFieldsMixin)
 from edc_quota.client.models import QuotaMixin, QuotaManager
-from edc_consent.models.base_specimen_consent import BaseSpecimenConsent
 
 
 class ConsentQuotaMixin(QuotaMixin):
@@ -19,8 +19,8 @@ class ConsentQuotaMixin(QuotaMixin):
 
 
 class TestConsentModel(
-        ConsentQuotaMixin, IdentityFieldsMixin, SampleCollectionFieldsMixin,
-        SiteFieldsMixin, PersonalFieldsMixin, VulnerabilityFieldsMixin, BaseConsent):
+        BaseConsent, ConsentQuotaMixin, IdentityFieldsMixin, SampleCollectionFieldsMixin,
+        SiteFieldsMixin, PersonalFieldsMixin, VulnerabilityFieldsMixin, BaseUuidModel):
 
     objects = models.Manager()
 
@@ -39,10 +39,8 @@ class TestConsentModelProxy(TestConsentModel):
     MAX_AGE_OF_CONSENT = 120
     GENDER_OF_CONSENT = ['M']
 
-    objects = models.Manager()
-
     class Meta:
-        app_label = 'edc_consent'
+        app_label = 'edc_consent'  # required!
         proxy = True
 
 
