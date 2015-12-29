@@ -34,16 +34,16 @@ class ResultAdmin(BaseModelAdmin):
     list_per_page = 15
 
     actions = [
-        export_as_csv_action("CSV Export: adds subject_identifier, gender, dob",
+        export_as_csv_action(
+            "CSV Export: adds subject_identifier, gender, dob",
             fields=[],
             delimiter=',',
-            exclude=['id', 'revision',],
+            exclude=['id', 'revision'],
             extra_fields=OrderedDict(
                 {'gender': 'order__aliquot__receive__registered_subject__gender',
-                'dob': 'order__aliquot__receive__registered_subject__dob'}),
-                ),
+                 'dob': 'order__aliquot__receive__registered_subject__dob'})),
         flag_as_reviewed,
-        unflag_as_reviewed,]
+        unflag_as_reviewed]
 
     def get_readonly_fields(self, request, obj):
         return [field.name for field in obj._meta.fields if field.editable]

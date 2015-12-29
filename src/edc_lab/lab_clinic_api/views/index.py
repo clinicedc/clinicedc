@@ -17,4 +17,4 @@ def index(request, **kwargs):
         'section_name': section_name,
         'report_title': report_title,
         'report_name': kwargs.get('report_name'),
-        }, context_instance=RequestContext(request))
+    }, context_instance=RequestContext(request))

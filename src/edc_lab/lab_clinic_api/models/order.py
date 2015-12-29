@@ -11,6 +11,7 @@ from ..managers import OrderManager
 from .aliquot import Aliquot
 from .aliquot_condition import AliquotCondition
 from .panel import Panel
+from .result_item import ResultItem
 
 
 logger = logging.getLogger(__name__)
@@ -69,12 +70,11 @@ class Order(BaseOrder):
         # TODO: this needs to consider "partial" status based on the testcodes that are defined
         # in the panel.
         # get the condition OK aliquot condition instance
-        result_item_cls = models.get_model(self._meta.app_label, 'resultitem')
         aliquot_condition_ok = AliquotCondition.objects.get_ok()
         if not self.aliquot.aliquot_condition:
             # how can this be ??
             status = 'ERROR'
-        elif result_item_cls.objects.filter(result__order=self) or self.panel.panel_type == 'STORAGE':
+        elif ResultItem.objects.filter(result__order=self) or self.panel.panel_type == 'STORAGE':
             # test aliquot condition and set the order status
             if self.aliquot.aliquot_condition == aliquot_condition_ok:
                 status = 'COMPLETE'
@@ -103,12 +103,15 @@ class Order(BaseOrder):
         return msg
 
     def to_receive(self):
-        return '<a href="/admin/lab_clinic_api/receive/?q={receive_identifier}">receive</a>'.format(receive_identifier=self.aliquot.receive.receive_identifier)
+        return ('<a href="/admin/lab_clinic_api/receive'
+                '/?q={receive_identifier}">receive</a>').format(
+                    receive_identifier=self.aliquot.receive.receive_identifier)
     to_receive.allow_tags = True
 
     def to_result(self):
         if self.status.lower() in ('complete', 'error', 'duplicate'):
-            return '<a href="/admin/lab_clinic_api/result/?q={order_identifier}">result</a>'.format(order_identifier=self.order_identifier)
+            return ('<a href="/admin/lab_clinic_api/result/?'
+                    'q={order_identifier}">result</a>').format(order_identifier=self.order_identifier)
         else:
             return ''
     to_result.allow_tags = True

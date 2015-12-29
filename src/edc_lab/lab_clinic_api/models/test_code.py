@@ -1,6 +1,9 @@
 from django.db import models
+
 from lis.specimen.lab_test_code.models import BaseTestCode
+
 from ..managers import TestCodeManager
+
 from .test_code_group import TestCodeGroup
 
 
@@ -28,4 +31,3 @@ class TestCode(BaseTestCode):
     class Meta:
         ordering = ["edc_name"]
         app_label = 'lab_clinic_api'
-        #unique_together = (('code', ))

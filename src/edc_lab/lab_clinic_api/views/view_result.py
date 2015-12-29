@@ -14,4 +14,4 @@ def view_result(request, **kwargs):
         'clinic_result_report.html',
         result_context.context,
         context_instance=RequestContext(request)
-        )
+    )

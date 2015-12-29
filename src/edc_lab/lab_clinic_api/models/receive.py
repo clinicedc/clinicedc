@@ -17,7 +17,8 @@ class Receive(BaseReceive, BaseUuidModel):
 
     def to_order(self):
         url = reverse('admin:lab_clinic_api_order_changelist')
-        return '<a href="{url}?q={receive_identifier}">order</a>'.format(url=url, receive_identifier=self.receive_identifier)
+        return '<a href="{url}?q={receive_identifier}">order</a>'.format(
+            url=url, receive_identifier=self.receive_identifier)
     to_order.allow_tags = True
 
     def get_absolute_url(self):

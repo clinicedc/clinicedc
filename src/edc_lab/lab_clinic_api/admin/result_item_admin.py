@@ -30,7 +30,8 @@ class ResultItemAdmin(BaseModelAdmin):
         "reference_flag",
         'validation_status',
         'import_datetime')
-    list_filter = ('grade_flag', 'reference_flag', "validation_status", 'subject_type', "result_item_datetime", 'import_datetime', "test_code")
+    list_filter = ('grade_flag', 'reference_flag', "validation_status",
+                   'subject_type', "result_item_datetime", 'import_datetime', "test_code")
     search_fields = ('id', 'test_code__code',
                      'result__result_identifier',
                      "subject_identifier",
@@ -40,15 +41,15 @@ class ResultItemAdmin(BaseModelAdmin):
         "result_item_quantifier": admin.VERTICAL,
         "validation_status": admin.VERTICAL}
     actions = [
-        export_as_csv_action("CSV Export: adds subject_identifier, gender, dob",
+        export_as_csv_action(
+            "CSV Export: adds subject_identifier, gender, dob",
             fields=[],
             delimiter=',',
-            exclude=['id', 'revision', 'hostname_created', 'hostname_modified', 'user_created','user_modified'],
+            exclude=['id', 'revision', 'hostname_created', 'hostname_modified', 'user_created', 'user_modified'],
             extra_fields=OrderedDict(
                 {'gender': 'result__order__aliquot__receive__registered_subject__gender',
-                'dob': 'result__order__aliquot__receive__registered_subject__dob'}),
-                ),
-        recalculate_grading,]
+                 'dob': 'result__order__aliquot__receive__registered_subject__dob'})),
+        recalculate_grading]
     list_per_page = 35
 
     def get_readonly_fields(self, request, obj):

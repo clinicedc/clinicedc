@@ -1,15 +1,15 @@
 import logging
 
 from django.db import models
-
+from django.db.models import get_model
 from lis.specimen.lab_result_item.models import BaseResultItem
 
 from edc.lab.lab_clinic_reference.classes import ClinicReferenceFlag, ClinicGradeFlag
 from edc_base.model.models import BaseUuidModel
 
 
-from .test_code import TestCode
 from .result import Result
+from .test_code import TestCode
 
 
 logger = logging.getLogger(__name__)
@@ -45,9 +45,10 @@ class ResultItem(BaseResultItem, BaseUuidModel):
 
     def to_result(self):
         reviewed = ''
-        result = '<a href="/admin/lab_clinic_api/result/?q={result_identifier}">result</a>'.format(result_identifier=self.result.result_identifier)
+        result = '<a href="/admin/lab_clinic_api/result/?q={result_identifier}">result</a>'.format(
+            result_identifier=self.result.result_identifier)
         if self.result.reviewed:
-            reviewed = """&nbsp;<img src="/static/admin/img/icon_success.gif" width="10" height="10" alt="Reviewed"/>"""
+            reviewed = '&nbsp;<img src="/static/admin/img/icon_success.gif" width="10" height="10" alt="Reviewed"/>'
         return '{result}{reviewed}'.format(result=result, reviewed=reviewed)
     to_result.allow_tags = True
 
@@ -65,7 +66,7 @@ class ResultItem(BaseResultItem, BaseUuidModel):
             return self.subject_type
 
     def get_grading_list(self):
-        return ('grading_list', models.get_model('lab_clinic_reference', 'gradinglistitem'))
+        return ('grading_list', get_model('lab_clinic_reference', 'gradinglistitem'))
 
     def get_cls_reference_flag(self):
         return ClinicReferenceFlag
@@ -74,8 +75,7 @@ class ResultItem(BaseResultItem, BaseUuidModel):
         return ClinicGradeFlag
 
     def get_reference_list(self):
-        #pdb.set_trace()
-        return ('reference_range_list', models.get_model('lab_clinic_reference', 'referencerangelistitem'))
+        return ('reference_range_list', get_model('lab_clinic_reference', 'referencerangelistitem'))
 
     def get_test_code(self):
         return self.test_code.code

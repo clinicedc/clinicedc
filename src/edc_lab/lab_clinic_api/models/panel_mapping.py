@@ -2,7 +2,7 @@ from django.db import models
 
 from edc_base.model.models import BaseUuidModel
 
-from ..models import Panel
+from .panel import Panel
 
 
 class PanelMapping(BaseUuidModel):

@@ -17,7 +17,8 @@ class Aliquot(BaseAliquot, BaseUuidModel):
 
     aliquot_type = models.ForeignKey(AliquotType, verbose_name="Aliquot Type", null=True)
 
-    aliquot_condition = models.ForeignKey(AliquotCondition, verbose_name="Aliquot Condition", null=True, blank=True)
+    aliquot_condition = models.ForeignKey(
+        AliquotCondition, verbose_name="Aliquot Condition", null=True, blank=True)
 
     import_datetime = models.DateTimeField(null=True, editable=False)
 

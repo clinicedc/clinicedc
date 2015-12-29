@@ -35,9 +35,10 @@ class EdcLabResults(object):
                     if result_item.result_item_value_as_float:
                         result_item.reference_range, result_item.reference_flag, result_item.grade_range, result_item.grade_flag = ResultItemFlag().calculate(result_item)
                         result_item.save()
-        ordered = (Order.objects.filter(aliquot__receive__registered_subject__subject_identifier=subject_identifier)
-                                .exclude(order_identifier__in=[result.order.order_identifier for result in resulted])
-                                .order_by('-aliquot__receive__drawn_datetime'))
+        ordered = Order.objects.filter(
+            aliquot__receive__registered_subject__subject_identifier=subject_identifier).exclude(
+                order_identifier__in=[result.order.order_identifier for result in resulted]).order_by(
+                    '-aliquot__receive__drawn_datetime')
         return render_to_string(template, {'resulted': resulted, 'ordered': ordered, 'last_updated': last_updated})
 
     def results_template(self, subject_identifier, update=False):
@@ -58,9 +59,10 @@ class EdcLabResults(object):
         return Result.objects.filter(**criteria).order_by('-order__aliquot__receive__drawn_datetime')
 
     def _query_ordered(self, subject_identifier, resulted):
-        return (Order.objects.filter(aliquot__receive__registered_subject__subject_identifier=subject_identifier)
-                .exclude(order_identifier__in=[result.order.order_identifier for result in resulted])
-                .order_by('-aliquot__receive__drawn_datetime'))
+        return Order.objects.filter(
+            aliquot__receive__registered_subject__subject_identifier=subject_identifier).exclude(
+                order_identifier__in=[result.order.order_identifier for result in resulted]).order_by(
+                    '-aliquot__receive__drawn_datetime')
 
     def _last_updated(self, subject_identifier, update=False):
         return self.update(subject_identifier) if update else None
