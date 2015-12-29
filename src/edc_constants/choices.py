@@ -483,7 +483,10 @@ ARV_STATUS = (
     ('no_mod', '1. No modifications made to existing HAART treatment',),
     ('start', '2. Started antriretroviral treatment since last attended scheduled visit(including today)',),
     ('discontinued', '3. Permanently discontinued antiretroviral treatment at or before last study visit',),
-    ('modified', '4. Change in at least one antiretroviral medication since last attended scheduled visit (including today)(dose modification, permanent discontinuation, temporary hold, resumption / initiation after temporary hold)',),
+    ('modified', ('4. Change in at least one antiretroviral medication since last '
+                  'attended scheduled visit (including today)(dose modification, '
+                  'permanent discontinuation, temporary hold, resumption / initiation '
+                  'after temporary hold)'),),
 )
 
 ARV_STATUS_WITH_NEVER = (
@@ -504,4 +507,3 @@ DOSE_STATUS = (
     ('Resumed', 'Resumed'),
     ('Not initiated', 'Not initiated'),
 )
-
