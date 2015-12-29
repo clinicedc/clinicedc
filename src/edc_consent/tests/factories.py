@@ -7,11 +7,20 @@ from datetime import date, timedelta
 from django.utils import timezone
 
 from edc_constants.constants import YES, NO
-from edc_consent.models.consent_type import ConsentType
+from edc_consent.models import ConsentType, StudySite
 
 from .base_test_models import TestConsentModel, TestConsentModelProxy
 
 faker = FakerFactory.create()
+
+
+class StudySiteFactory(factory.DjangoModelFactory):
+
+    class Meta:
+        model = StudySite
+
+    site_code = factory.Sequence(lambda n: '1{0}'.format(n))
+    site_name = factory.LazyAttribute(lambda o: 'Site_{0}'.format(o))
 
 
 class TestConsentModelFactory(factory.DjangoModelFactory):
