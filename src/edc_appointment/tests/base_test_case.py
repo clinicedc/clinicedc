@@ -4,7 +4,7 @@ from datetime import date
 
 from django.test import TestCase
 
-from edc.core.bhp_variables.models import StudySite
+from edc_consent.models import StudySite
 from edc.lab.lab_profile.classes import site_lab_profiles
 from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.lab_tracker.classes import site_lab_tracker

@@ -49,7 +49,6 @@ INSTALLED_APPS = (
     'edc_visit_schedule',
     'edc.apps.app_configuration',
     'edc.core.bhp_content_type_map',
-    'edc.core.bhp_variables',
     'edc.data_manager',
     'edc.entry_meta_data',
     'edc.lab.lab_clinic_api',

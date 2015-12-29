@@ -2,7 +2,7 @@ import factory
 
 from django.utils import timezone
 
-from edc.core.bhp_variables.tests.factories import StudySiteFactory
+from edc_consent.tests.factories import StudySiteFactory
 from edc_appointment.models import Appointment
 from edc_registration.tests.factories import RegisteredSubjectFactory
 from edc_visit_schedule.tests.factories import VisitDefinitionFactory

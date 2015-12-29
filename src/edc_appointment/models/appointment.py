@@ -4,8 +4,8 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 
-from edc.core.bhp_variables.models import StudySite
-from edc.core.bhp_variables.utils import default_study_site
+from edc_consent.models import StudySite
+# from edc.core.bhp_variables.utils import default_study_site
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.classes import WindowPeriod
 from edc_visit_schedule.models import VisitDefinition
@@ -46,7 +46,7 @@ class Appointment(SyncModelMixin, BaseUuidModel):
         StudySite,
         null=True,
         blank=False,
-        default=lambda: default_study_site('site_code', settings.SITE_CODE))
+        default=settings.SITE_CODE)
 
     visit_definition = models.ForeignKey(
         VisitDefinition,
