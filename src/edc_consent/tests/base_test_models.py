@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from edc_base.model.models import BaseUuidModel
+from edc_base.audit_trail import AuditTrail
 from edc_consent.forms.base_consent_form import BaseConsentForm
 from edc_consent.models import BaseConsent, RequiresConsentMixin, BaseSpecimenConsent
 from edc_consent.models.fields import (
@@ -24,6 +25,8 @@ class TestConsentModel(
 
     objects = models.Manager()
 
+    history = AuditTrail()
+
     quota = QuotaManager()
 
     class Meta:
@@ -44,7 +47,7 @@ class TestConsentModelProxy(TestConsentModel):
         proxy = True
 
 
-class TestModel(RequiresConsentMixin, models.Model):
+class TestModel(RequiresConsentMixin, BaseUuidModel):
 
     consent_model = TestConsentModel
 
@@ -55,6 +58,8 @@ class TestModel(RequiresConsentMixin, models.Model):
     field1 = models.CharField(max_length=10)
 
     objects = models.Manager()
+
+    history = AuditTrail()
 
     class Meta:
         app_label = 'edc_consent'
