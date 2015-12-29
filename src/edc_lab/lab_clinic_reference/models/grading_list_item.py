@@ -2,7 +2,7 @@ from django.db import models
 from lis.core.lab_reference.models import BaseReferenceListItem
 from edc_base.audit_trail import AuditTrail
 from edc_constants.choices import YES_NO_NA
-from edc.lab.lab_clinic_api.models import TestCode
+from edc_lab.lab_clinic_api.models import TestCode
 from .grading_list import GradingList
 
 

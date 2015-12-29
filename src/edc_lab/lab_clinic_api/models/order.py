@@ -2,6 +2,7 @@ import logging
 
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models import get_model
 
 from lis.exim.lab_import_dmis.classes.dmis_tools import DmisTools
 from lis.specimen.lab_order.models import BaseOrder
@@ -11,7 +12,6 @@ from ..managers import OrderManager
 from .aliquot import Aliquot
 from .aliquot_condition import AliquotCondition
 from .panel import Panel
-from .result_item import ResultItem
 
 
 logger = logging.getLogger(__name__)
@@ -71,6 +71,7 @@ class Order(BaseOrder):
         # in the panel.
         # get the condition OK aliquot condition instance
         aliquot_condition_ok = AliquotCondition.objects.get_ok()
+        ResultItem = get_model('edc_lab', 'ResultItem')
         if not self.aliquot.aliquot_condition:
             # how can this be ??
             status = 'ERROR'

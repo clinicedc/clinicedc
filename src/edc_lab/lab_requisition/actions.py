@@ -3,8 +3,8 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.messages.api import MessageFailure
 
-from edc.lab.lab_profile.exceptions import SpecimenError
-from edc.lab.lab_profile.classes import site_lab_profiles
+from edc_lab.lab_profile.exceptions import SpecimenError
+from edc_lab.lab_profile.classes import site_lab_profiles
 
 from lis.exim.lab_export.classes import ExportDmis
 from lis.labeling.exceptions import LabelPrinterError

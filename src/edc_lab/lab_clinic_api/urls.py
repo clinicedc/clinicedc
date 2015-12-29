@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+
 from .views import view_lab_result, update_result_status
 
 urlpatterns = patterns(

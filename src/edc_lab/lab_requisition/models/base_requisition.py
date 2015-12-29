@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 
 from edc_base.model.constants import BASE_MODEL_UPDATE_FIELDS, BASE_UUID_MODEL_UPDATE_FIELDS
-from edc.lab.lab_clinic_api.models import TestCode
+from edc_lab.lab_clinic_api.models import TestCode
 
 from .base_base_requisition import BaseBaseRequisition
 

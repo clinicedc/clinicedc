@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import FieldError
 
-from edc.lab.lab_requisition.forms import BaseRequisitionForm
+from edc_lab.lab_requisition.forms import BaseRequisitionForm
 
 """
 The "requisition" model is required for the code

@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from edc.lab.lab_packing.helpers import PackingListHelper
+from edc_lab.lab_packing.helpers import PackingListHelper
 
 from ..models import BasePackingList
 

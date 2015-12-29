@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from edc.lab.lab_clinic_api.models import TestCode
+from edc_lab.lab_clinic_api.models import TestCode
 
 logger = logging.getLogger(__name__)
 
