@@ -2,7 +2,9 @@ from django.contrib import admin
 
 from edc_base.modeladmin.admin import BaseModelAdmin
 from .actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
-from .models import ConsentType
+from .models import ConsentType, StudySite
+
+admin.site.register(StudySite)
 
 
 class ConsentTypeAdmin(admin.ModelAdmin):
