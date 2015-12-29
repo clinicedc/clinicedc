@@ -1,11 +1,12 @@
 from datetime import datetime
 from django.test import TestCase
-from edc.core.bhp_content_type_map.models import ContentTypeMap
+
 from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
-from edc_consent.tests.factories import StudySiteFactory
-from edc_visit_schedule.tests.factories import VisitDefinitionFactory
-from edc_registration.tests.factories import RegisteredSubjectFactory
+from edc.core.bhp_content_type_map.models import ContentTypeMap
 from edc.subject.lab_tracker.classes import site_lab_tracker
+from edc_consent.tests.factories import StudySiteFactory
+from edc_registration.tests.factories import RegisteredSubjectFactory
+from edc_visit_schedule.tests.factories import VisitDefinitionFactory
 
 from ..models import Appointment, PreAppointmentContact
 
@@ -27,7 +28,6 @@ class AuditTrailTests(TestCase):
             appt_datetime=datetime.today(),
             best_appt_datetime=datetime.today(),
             appt_status='new',
-            study_site=None,
             visit_definition=visit_definition,
             registered_subject=registered_subject)
         PreAppointmentContact.objects.create(

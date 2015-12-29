@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from django.db.models import get_model
 
-from edc.apps.app_configuration.models import GlobalConfiguration
+from edc_configuration.models import GlobalConfiguration
 from edc_visit_schedule.classes import WindowPeriod
 
 
@@ -130,7 +130,7 @@ class AppointmentDateHelper(object):
         # use model field appointment.best_appt_datetime not appointment.appt_datetime
         # TODO: change this query to allow the search to go to the beginning of the week
         appointments = self.appointment_model_cls.objects.filter(
-            study_site=site,
+            registered_subject__study_site=site,
             best_appt_datetime__gte=appt_datetime,
             best_appt_datetime__lte=appt_datetime + timedelta(days=self.appointments_days_forward))
         if appointments:

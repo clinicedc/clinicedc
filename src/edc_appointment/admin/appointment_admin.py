@@ -34,7 +34,6 @@ class AppointmentAdmin(BaseModelAdmin):
         'registered_subject',
         'appt_datetime',
         'appt_status',
-        'study_site',
         'visit_definition',
         'visit_instance',
         'appt_type',
@@ -57,7 +56,6 @@ class AppointmentAdmin(BaseModelAdmin):
         'hostname_created')
 
     list_filter = (
-        'study_site',
         'registered_subject__subject_type',
         'appt_type',
         'is_confirmed',
@@ -72,7 +70,6 @@ class AppointmentAdmin(BaseModelAdmin):
 
     radio_fields = {
         "appt_status": admin.VERTICAL,
-        'study_site': admin.VERTICAL,
         'appt_type': admin.VERTICAL}
 
 admin.site.register(Appointment, AppointmentAdmin)

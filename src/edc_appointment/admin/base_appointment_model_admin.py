@@ -26,7 +26,7 @@ class BaseAppointmentModelAdmin(BaseModelAdmin):
         self.list_filter = ['appointment__visit_instance',
                             'reason',
                             'appointment__visit_definition__code',
-                            'appointment__registered_subject__study_site__site_code',
+                            'appointment__registered_subject__study_site',
                             'report_datetime',
                             'created',
                             'modified',

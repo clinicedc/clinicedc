@@ -54,7 +54,6 @@ class TestAppointment(BaseTestCase):
         appointment = Appointment.objects.create(
             registered_subject=self.registered_subject,
             appt_datetime=timezone.now(),
-            study_site=self.study_site,
             visit_definition=self.visit_definition)
         TimePointStatus.objects.get(appointment=appointment).delete()
         appointment.delete()
@@ -88,7 +87,6 @@ class TestAppointment(BaseTestCase):
             appt_datetime=datetime.today(),
             best_appt_datetime=datetime.today(),
             appt_status=NEW_APPT,
-            study_site=None,
             visit_definition=self.visit_definition,
             registered_subject=self.registered_subject,
             visit_instance='2')

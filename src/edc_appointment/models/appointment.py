@@ -4,8 +4,6 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 
-from edc_consent.models import StudySite
-# from edc.core.bhp_variables.utils import default_study_site
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.classes import WindowPeriod
 from edc_visit_schedule.models import VisitDefinition
@@ -41,12 +39,6 @@ class Appointment(SyncModelMixin, BaseUuidModel):
     registered_subject = models.ForeignKey(
         RegisteredSubject,
         related_name='+')
-
-    study_site = models.ForeignKey(
-        StudySite,
-        null=True,
-        blank=False,
-        default=settings.SITE_CODE)
 
     visit_definition = models.ForeignKey(
         VisitDefinition,
@@ -166,7 +158,8 @@ class Appointment(SyncModelMixin, BaseUuidModel):
             exception_cls = ValidationError
         appointment_date_helper = AppointmentDateHelper(self.__class__)
         if not self.id:
-            appt_datetime = appointment_date_helper.get_best_datetime(self.appt_datetime, self.study_site)
+            appt_datetime = appointment_date_helper.get_best_datetime(
+                self.appt_datetime, self.registered_subject.study_site)
             best_appt_datetime = self.appt_datetime
         else:
             if not self.best_appt_datetime:
@@ -174,7 +167,8 @@ class Appointment(SyncModelMixin, BaseUuidModel):
                 raise exception_cls(
                     'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
             appt_datetime = appointment_date_helper.change_datetime(
-                self.best_appt_datetime, self.appt_datetime, self.study_site, self.visit_definition)
+                self.best_appt_datetime, self.appt_datetime,
+                self.registered_subject.study_site, self.visit_definition)
             best_appt_datetime = self.best_appt_datetime
         return appt_datetime, best_appt_datetime
 

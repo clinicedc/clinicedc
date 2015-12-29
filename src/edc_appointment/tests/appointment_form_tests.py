@@ -22,7 +22,6 @@ class AppointmentFormTests(BaseTestCase):
         appointment_form = AppointmentForm(
             data={'registered_subject': self.appointment.registered_subject,
                   'visit_definition': visit_definition,
-                  'study_site': self.appointment.study_site,
                   'appt_status': NEW_APPT,
                   'appt_datetime': self.appointment.appt_datetime,
                   'appt_type': self.appointment.appt_type,
@@ -31,7 +30,6 @@ class AppointmentFormTests(BaseTestCase):
         response = self.client.post('/admin/bhp_appointment/appointment/', {
             'registered_subject': self.appointment.registered_subject,
             'visit_definition': visit_definition,
-            'study_site': self.appointment.study_site,
             'appt_status': NEW_APPT,
             'appt_type': self.appointment.appt_type,
             'visit_instance': '1'})
