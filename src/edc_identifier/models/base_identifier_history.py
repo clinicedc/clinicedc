@@ -23,9 +23,3 @@ class BaseIdentifierHistory(models.Model):
 
     class Meta:
         abstract = True
-
-
-class IdentifierHistory(BaseIdentifierHistory):
-
-    class Meta:
-        app_label = 'edc_identifier'

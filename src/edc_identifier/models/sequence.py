@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_base.model.models import BaseModel
+from edc_base.model.models.base_model import BaseModel
 
 
 class Sequence(BaseModel):
@@ -9,10 +9,10 @@ class Sequence(BaseModel):
 
     objects = models.Manager()
 
-    def __str__(self):
+    def __unicode(self):
         return self.pk
 
     class Meta:
         app_label = 'edc_identifier'
+        db_table = 'bhp_identifier_sequence'
         ordering = ['id', ]
-        unique_together = ('id', 'device_id')

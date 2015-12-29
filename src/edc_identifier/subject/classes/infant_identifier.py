@@ -1,24 +1,15 @@
-from datetime import datetime
+from ...exceptions import IdentifierError
+from ...models import SubjectIdentifier
 
-from edc_registration.models import RegisteredSubject
-
-from ..exceptions import IdentifierError
-from ..models import SubjectIdentifier
-
-from . import BaseIdentifier
+from .base_subject_identifier import BaseSubjectIdentifier
 
 
-class InfantIdentifier(BaseIdentifier):
+class InfantIdentifier(BaseSubjectIdentifier):
 
-    """ Creates an infant edc_identifier derived from the maternal edc_identifier.
-
-    - considers the number of infants during this registration session and
-      their birth order and returns a dictionary {infant order: edc_identifier}.
+    """ Creates an infant identifier derived from the maternal identifier, considers the number of infants
+    during this registration session and their birth order and returns a dictionary {infant order: identifier}.
 
     Usage::
-        >>> if not change:
-        >>>    obj.user_created = request.user
-        >>>    obj.save()
         >>>    if obj.live_infants_to_register > 0:
         >>>        #Allocate Infant Identifier
         >>>        infant_identifier = InfantIdentifier()
@@ -31,83 +22,49 @@ class InfantIdentifier(BaseIdentifier):
         >>>                user=request.user,
         >>>                birth_order=self.infant_order,
         >>>                live_infants=obj.live_infants,
-        >>>                live_infants_to_register=obj.live_infants_to_register,
-        >>>                subject_type='infant')
+        >>>                live_infants_to_register=obj.live_infants_to_register)
     """
 
-    def __init__(self, maternal_identifier, study_site, birth_order, live_infants,
-                 live_infants_to_register, user=None):
-        self.subject_type = 'infant'
+    def __init__(self, maternal_identifier, study_site, birth_order,
+                 live_infants, live_infants_to_register, user=None):
         self.birth_order = birth_order
         self.live_infants = live_infants
         self.live_infants_to_register = live_infants_to_register
-        self.maternal_identifier = maternal_identifier
         self.study_site = study_site
+        self.subject_type = 'infant'
         self.user = user
-        identifier_format = "{maternal_identifier}-{suffix}"
-        super(InfantIdentifier, self).__init__(
-            identifier_format=identifier_format, site_code=study_site.site_code, is_derived=True,
-            add_check_digit=False)
-
-    def consent_required(self):
-        return False
-
-    def get_identifier_prep(self, **kwargs):
-        """Prepares to create an edc_identifier consisting of the the maternal edc_identifier and a
-        suffix determined by the number of live infants from this delivery.
-
-        For example:
-          maternal_identifier=056-19800001-3 -> 2 live infants -> 056-19800001-3-
-          """
-        options = {}
-#         birth_order = kwargs.get('birth_order')
-#         live_infants = kwargs.get('live_infants')
-#         live_infants_to_register = kwargs.get('live_infants_to_register')
-        # maternal edc_identifier should exist in SubjectIdentifier
-        if not SubjectIdentifier.objects.filter(identifier=self.maternal_identifier):
-            raise IdentifierError('Unknown maternal_identifier {0}.'.format(self.maternal_identifier))
-        # some checks on logic of live and live to register
+        template = "{maternal_identifier}-{suffix}"
+        self.maternal_identifier = maternal_identifier
+        try:
+            SubjectIdentifier.objects.get(identifier=self.maternal_identifier)
+        except SubjectIdentifier.DoesNotExist:
+            raise IdentifierError(
+                'Maternal_identifier {0} does not exist. See model SubjectIdentifier'.format(
+                    self.maternal_identifier))
         if self.live_infants_to_register == 0:
             raise IdentifierError("Number of live_infants_to_register may not be 0!.")
         if self.live_infants_to_register > self.live_infants:
             raise IdentifierError(
                 'Number of infants to register ({0}) may not exceed '
-                'number of live infants ({1}).'.format(
-                    self.live_infants_to_register, self.live_infants))
+                'number of live infants ({1}).'.format(self.live_infants_to_register, self.live_infants))
         if self.birth_order > self.live_infants:
-            raise IdentifierError(
-                "Invalid birth order if number of live infants is {0}.".format(self.live_infants))
-        options.update(
+            raise IdentifierError("Invalid birth order if number of live infants is {0}.".format(self.live_infants))
+        super(InfantIdentifier, self).__init__(
+            template=template, site_code=study_site,
+            is_derived=True, add_check_digit=False)
+
+    def format_options(self, **kwargs):
+        format_options = super(InfantIdentifier, self).format_options(**kwargs)
+        format_options.update(
             maternal_identifier=self.maternal_identifier,
-            suffix=self._get_suffix())
-        return options
+            suffix=self.suffix())
+        return format_options
 
-    def get_identifier_post(self, new_identifier, **kwargs):
-        """ Updates registered subject after a new subject edc_identifier is created."""
-        RegisteredSubject.objects.using(self.using).create(
-            subject_identifier=new_identifier,
-            registration_datetime=datetime.now(),
-            subject_type=self.subject_type,
-            user_created=self.user,
-            created=datetime.now(),
-            first_name='',
-            initials='',
-            registration_status='registered',
-            relative_identifier=self.maternal_identifier,
-            study_site=self.study_site)
-        return new_identifier
-
-    def _get_suffix(self):
-        """ Returns a suffix for the edc_identifier."""
-        suffix = self._get_base_suffix()
-        suffix += (self.birth_order) * 10
-        return suffix
-
-    def _get_base_suffix(self):
+    def suffix(self):
         """ Return a two digit suffix based on the number of live infants.
 
-        In the case of twins, triplets, ... will be incremented
-        by 10's during registration for each subsequent infant registered.
+        In the case of twins, triplets, ... will be incremented by 10's
+        during registration for each subsequent infant registered.
         """
 
         if self.live_infants == 1:
@@ -120,6 +77,7 @@ class InfantIdentifier(BaseIdentifier):
             suffix = 47  # quadruplets 47,48,49,50
         else:
             raise TypeError(
-                'Ensure number of infants is greater than 0 and less than or '
-                'equal to 4. You wrote %s' % (self.live_infants))
+                'Ensure number of infants is greater than 0 and less than '
+                'or equal to 4. You wrote %s' % (self.live_infants))
+        suffix += (self.birth_order) * 10
         return suffix

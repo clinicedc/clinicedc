@@ -1,6 +1,5 @@
 from .base_identifier_model import BaseIdentifierModel
-from .derived_subject_identifier import DerivedSubjectIdentifier
 from .identifier_tracker import IdentifierTracker
 from .sequence import Sequence
 from .subject_identifier import SubjectIdentifier
-from .subject_identifier_mixin import SubjectIdentifierMixin
+from .identifier_history import IdentifierHistory

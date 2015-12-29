@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-
 from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +38,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'edc_identifier',
+    'django_revision',
+    'edc_base',
+    'edc_crypto_fields',
+    'edc_device',
+    'edc_sync',
+    'edc_identifier'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -53,7 +57,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
 )
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'edc_identifier.urls'
 
 TEMPLATES = [
     {
@@ -71,7 +75,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'edc_identifier.wsgi.application'
 
 
 # Database
@@ -103,14 +107,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-
 GIT_DIR = BASE_DIR.ancestor(1)
-
-# device identifer of this machine
-DEVICE_ID = 99
-# hostname prefix used by all producers
-PRODUCER_PREFIX = 'bcpp'
-# list of IDs reserved for server nodes
-SERVER_DEVICE_ID_LIST = [97, 98, 99]
-# list of IDs reserved for middleman nodes
-MIDDLEMAN_DEVICE_ID_LIST = [94, 95, 96]
+SITE_CODE = '10'
+DEVICE_ID = '10'
+SERVER_DEVICE_ID_LIST = [99]
+MIDDLEMAN_DEVICE_ID_LIST = []
+PROJECT_ROOT = BASE_DIR.ancestor(1)
+FIELD_MAX_LENGTH = 'default'
+IS_SECURE_DEVICE = True
+KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
+KEY_PREFIX = 'user'
+ALLOW_MODEL_SERIALIZATION = False
+DISPATCH_APP_LABELS = []
