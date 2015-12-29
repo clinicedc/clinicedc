@@ -5,19 +5,19 @@ from collections import OrderedDict
 from django.test import TestCase
 from django.utils import timezone
 
-from edc.core.bhp_variables.models import StudySite
-from edc.lab.lab_profile.classes import site_lab_profiles
-from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
+from edc_lab.lab_profile.classes import site_lab_profiles
+from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.lab_tracker.classes import site_lab_tracker
-from edc.subject.registration.tests.factories import RegisteredSubjectFactory
-from edc_visit_schedule.classes import (
-    VisitScheduleConfiguration, EntryTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
-from edc_visit_schedule.models import VisitDefinition
 from edc.testing.classes import TestLabProfile, TestAppConfiguration
 from edc.testing.models import TestVisit2, TestConsentWithMixin, TestAliquotType, TestPanel
 from edc.testing.tests.factories import TestConsentWithMixinFactory
 from edc_appointment.models import Appointment
+from edc_consent.models import StudySite
 from edc_constants.constants import MALE, REQUIRED, NOT_ADDITIONAL, SCHEDULED
+from edc_registration.tests.factories import RegisteredSubjectFactory
+from edc_visit_schedule.classes import (
+    VisitScheduleConfiguration, EntryTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
+from edc_visit_schedule.models import VisitDefinition
 
 from .test_models import TestVisitModel
 
