@@ -1,9 +1,34 @@
 from django.db import models
 
+from edc.entry_meta_data.models import MetaDataMixin
+from edc_base.audit_trail import AuditTrail
 from edc_visit_tracking.models import VisitTrackingModelMixin, PreviousVisitMixin, CrfModelMixin
 from edc_offstudy.models import OffStudyMixin, OffStudyModelMixin
 from edc_base.model.models import BaseUuidModel
-from edc.entry_meta_data.models import MetaDataMixin
+from edc_consent.models.base_consent import BaseConsent
+from edc_consent.models.fields.bw.identity_fields_mixin import IdentityFieldsMixin
+from edc_consent.models.fields import (
+    SampleCollectionFieldsMixin, SiteFieldsMixin, PersonalFieldsMixin, VulnerabilityFieldsMixin)
+from edc_registration.models.registered_subject import RegisteredSubject
+from edc_appointment.models import AppointmentMixin
+
+
+class TestConsentModel(
+        BaseConsent, AppointmentMixin, IdentityFieldsMixin, SampleCollectionFieldsMixin,
+        SiteFieldsMixin, PersonalFieldsMixin, VulnerabilityFieldsMixin, BaseUuidModel):
+
+    registered_subject = models.ForeignKey(RegisteredSubject)
+
+    objects = models.Manager()
+
+    history = AuditTrail()
+
+    class Meta:
+        app_label = 'edc_offstudy'
+        unique_together = (
+            ('subject_identifier', 'version'),
+            ('identity', 'version'),
+            ('first_name', 'dob', 'initials', 'version'))
 
 
 class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, VisitTrackingModelMixin):

@@ -4,22 +4,22 @@ from collections import OrderedDict
 
 from django.test import TestCase
 
-from edc.core.bhp_variables.models import StudySite
 from edc.lab.lab_profile.classes import site_lab_profiles
 from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc.testing.classes import TestLabProfile, TestAppConfiguration
-from edc.testing.models import TestVisit, TestConsentWithMixin, TestAliquotType, TestPanel
-from edc.testing.tests.factories import TestConsentWithMixinFactory
+from edc.testing.models import TestVisit, TestAliquotType, TestPanel
+
 from edc_appointment.models import Appointment
+from edc_consent.models import StudySite
 from edc_constants.constants import MALE, REQUIRED, NOT_ADDITIONAL
 from edc_registration.tests.factories import RegisteredSubjectFactory
-from edc_visit_schedule.models import VisitDefinition
 from edc_visit_schedule.classes import (
     VisitScheduleConfiguration, EntryTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
+from edc_visit_schedule.models import VisitDefinition
 
 
-from .test_models import TestVisitModel
+from .test_models import TestVisitModel, TestConsentModel
 
 entries = (
     EntryTuple(10L, u'testing', u'TestScheduledModel1', REQUIRED, NOT_ADDITIONAL),
@@ -45,7 +45,7 @@ class VisitSchedule(VisitScheduleConfiguration):
     aliquot_type_model = TestAliquotType
 
     membership_forms = OrderedDict({
-        'schedule-1': MembershipFormTuple('schedule-1', TestConsentWithMixin, True),
+        'schedule-1': MembershipFormTuple('schedule-1', TestConsentModel, True),
     })
 
     schedule_groups = OrderedDict({
@@ -166,10 +166,9 @@ class BaseTest(TestCase):
         self.visit_definition = VisitDefinition.objects.get(code='1000')
         self.registered_subject = RegisteredSubjectFactory(
             subject_identifier=self.subject_identifier)
-        self.test_consent = TestConsentWithMixinFactory(
+        self.test_consent = TestConsentModel.objects.create(
             registered_subject=self.registered_subject,
             gender=MALE,
-            study_site=self.study_site,
             identity=self.identity,
             confirm_identity=self.identity,
             subject_identifier=self.subject_identifier)
