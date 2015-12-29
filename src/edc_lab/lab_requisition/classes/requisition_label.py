@@ -1,5 +1,6 @@
-from edc.core.bhp_variables.models import StudySpecific
-from edc.subject.registration.models import RegisteredSubject
+from django.conf import settings
+
+from edc_registration.models import RegisteredSubject
 
 from lis.labeling.classes import ModelLabel
 from lis.labeling.models import ZplTemplate
@@ -11,7 +12,8 @@ class RequisitionLabel(ModelLabel):
         super(RequisitionLabel, self).__init__()
         template_name = 'requisition_label'
         if not ZplTemplate.objects.filter(name=template_name):
-            template_string = ('^XA\n'
+            template_string = (
+                '^XA\n'
                 '^FO325,5^A0N,15,20^FD%(protocol)s Site %(site)s %(label_count)s/%(label_count_total)s^FS\n'
                 '^FO320,20^BY1,3.0^BCN,50,N,N,N\n'
                 '^BY^FD%(specimen_identifier)s^FS\n'
@@ -29,19 +31,9 @@ class RequisitionLabel(ModelLabel):
 
     def refresh_label_context(self):
         requisition = self.model_instance
-        subject_identifier = requisition.subject_identifier
+        subject_identifier = requisition.get_subject_identifier()
         registered_subject = RegisteredSubject.objects.get(subject_identifier=subject_identifier)
-        if registered_subject.may_store_samples.lower() == 'Yes':
-            may_store_samples = 'Y'
-        elif registered_subject.may_store_samples.lower() == 'No':
-            may_store_samples = 'N'
-        else:
-            may_store_samples = '?'
-        try:
-            study_specific = StudySpecific.objects.all()[0]
-        except:
-            raise AttributeError('Cannot determine protocol_number. '
-                                 'Please populate bhp_variables.study_specific.')
+        may_store_samples = registered_subject.may_store_samples
         custom = {}
         custom.update({
             'requisition_identifier': requisition.requisition_identifier,
@@ -52,8 +44,8 @@ class RequisitionLabel(ModelLabel):
         if 'art_status_code' in dir(requisition):
             custom.update({'art_status_code': str(requisition.art_status_code()), })
         custom.update({
-            'protocol': study_specific.protocol_number,
-            'site': requisition.site.site_code,
+            'protocol': settings.PROTOCOL_NUMBER,
+            'site': requisition.study_site,
             'panel': requisition.panel.name[0:21],
             'drawn_datetime': requisition.drawn_datetime,
             'subject_identifier': subject_identifier,

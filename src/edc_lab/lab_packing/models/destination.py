@@ -2,38 +2,39 @@ from collections import namedtuple
 
 from django.db import models
 
-from edc.audit.audit_trail import AuditTrail
-from edc.device.sync.models import BaseSyncUuidModel
+from edc_base.audit_trail import AuditTrail
+from edc_base.model.models import BaseUuidModel
+from edc_sync.models import SyncModelMixin
+# from edc.device.sync.models import BaseSyncUuidModel
 
 from ..managers import DestinationManager
 
 DestinationTuple = namedtuple('DestinationTuple', 'code name address tel email')
 
 
-class Destination(BaseSyncUuidModel):
+class Destination(SyncModelMixin, BaseUuidModel):
 
     code = models.CharField(
         verbose_name='Code',
         max_length=25,
-        unique=True,
-        )
+        unique=True)
+
     name = models.CharField(
         verbose_name='Name',
         max_length=50,
-        unique=True,
-        )
+        unique=True)
+
     address = models.TextField(
         verbose_name='Address',
-        max_length=250,
-        )
+        max_length=250)
+
     tel = models.CharField(
         verbose_name='Telephone',
-        max_length=50,
-        )
+        max_length=50)
+
     email = models.CharField(
         verbose_name='Email',
-        max_length=25,
-        )
+        max_length=25)
 
     objects = DestinationManager()
 

@@ -1,0 +1,3182 @@
+[
+  {
+    "pk": 2, 
+    "model": "lab_clinic_api.aliquottype", 
+    "fields": {
+      "hostname_created": "s006", 
+      "name": "Plasma", 
+      "created": "2012-08-14T17:44:24", 
+      "user_modified": "", 
+      "modified": "2012-08-14T17:44:24", 
+      "hostname_modified": "s006", 
+      "numeric_code": "32", 
+      "alpha_code": "PL", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "lab_clinic_api.aliquottype", 
+    "fields": {
+      "hostname_created": "s006", 
+      "name": "SERUM", 
+      "created": "2012-08-14T17:44:27", 
+      "user_modified": "", 
+      "modified": "2012-08-14T17:44:27", 
+      "hostname_modified": "s006", 
+      "numeric_code": "06", 
+      "alpha_code": "SERUM", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "lab_clinic_api.aliquottype", 
+    "fields": {
+      "hostname_created": "s006", 
+      "name": "Whole Blood", 
+      "created": "2012-08-14T17:44:24", 
+      "user_modified": "", 
+      "modified": "2012-08-14T17:44:24", 
+      "hostname_modified": "s006", 
+      "numeric_code": "02", 
+      "alpha_code": "WB", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "lab_clinic_api.aliquotcondition", 
+    "fields": {
+      "hostname_created": "s006", 
+      "name": "Sample condition OK", 
+      "short_name": "10", 
+      "created": "2012-08-14T17:44:24", 
+      "user_modified": "erikvw", 
+      "modified": "2012-08-15T23:15:07", 
+      "hostname_modified": "s006", 
+      "version": "1.0", 
+      "display_index": 10, 
+      "user_created": "", 
+      "field_name": null
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "lab_clinic_api.aliquotcondition", 
+    "fields": {
+      "hostname_created": "s006", 
+      "name": "4294967287", 
+      "short_name": "4294967287", 
+      "created": "2012-08-16T10:09:58", 
+      "user_modified": "", 
+      "modified": "2012-08-16T10:09:58", 
+      "hostname_modified": "s006", 
+      "version": "1.0", 
+      "display_index": 0, 
+      "user_created": "", 
+      "field_name": null
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "lab_clinic_api.aliquotcondition", 
+    "fields": {
+      "hostname_created": "s006", 
+      "name": "Inadequate volume for testing.", 
+      "short_name": "20", 
+      "created": "2012-08-16T10:38:41", 
+      "user_modified": "", 
+      "modified": "2012-08-16T10:38:41", 
+      "hostname_modified": "s006", 
+      "version": "1.0", 
+      "display_index": 0, 
+      "user_created": "", 
+      "field_name": null
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "lab_clinic_api.aliquotcondition", 
+    "fields": {
+      "hostname_created": "s006", 
+      "name": "Clotted or haemolised, please ensure tube is well mixed before delivery to lab.", 
+      "short_name": "30", 
+      "created": "2012-08-16T10:38:42", 
+      "user_modified": "", 
+      "modified": "2012-08-16T10:38:42", 
+      "hostname_modified": "s006", 
+      "version": "1.0", 
+      "display_index": 0, 
+      "user_created": "", 
+      "field_name": null
+    }
+  }, 
+  {
+    "pk": 7, 
+    "model": "lab_clinic_api.aliquotcondition", 
+    "fields": {
+      "hostname_created": "s006", 
+      "name": "Technical problem at lab, unable to test.", 
+      "short_name": "70", 
+      "created": "2012-08-16T10:39:48", 
+      "user_modified": "", 
+      "modified": "2012-08-16T10:39:48", 
+      "hostname_modified": "s006", 
+      "version": "1.0", 
+      "display_index": 0, 
+      "user_created": "", 
+      "field_name": null
+    }
+  }, 
+  {
+    "pk": 8, 
+    "model": "lab_clinic_api.aliquotcondition", 
+    "fields": {
+      "hostname_created": "s006", 
+      "name": "Clotted", 
+      "short_name": "31", 
+      "created": "2012-08-16T10:39:56", 
+      "user_modified": "", 
+      "modified": "2012-08-16T10:39:56", 
+      "hostname_modified": "s006", 
+      "version": "1.0", 
+      "display_index": 0, 
+      "user_created": "", 
+      "field_name": null
+    }
+  }, 
+  {
+    "pk": 9, 
+    "model": "lab_clinic_api.aliquotcondition", 
+    "fields": {
+      "hostname_created": "s006", 
+      "name": "Expired tube.", 
+      "short_name": "60", 
+      "created": "2012-08-31T23:12:27", 
+      "user_modified": "", 
+      "modified": "2012-08-31T23:12:27", 
+      "hostname_modified": "s006", 
+      "version": "1.0", 
+      "display_index": 0, 
+      "user_created": "", 
+      "field_name": null
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "lab_clinic_api.testcodegroup", 
+    "fields": {
+      "hostname_created": "s006", 
+      "code": "101", 
+      "name": null, 
+      "created": "2012-08-20T09:47:53", 
+      "user_modified": "", 
+      "modified": "2012-08-20T09:47:53", 
+      "hostname_modified": "s006", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 8, 
+    "model": "lab_clinic_api.testcodegroup", 
+    "fields": {
+      "hostname_created": "s006", 
+      "code": "201", 
+      "name": null, 
+      "created": "2012-10-23T19:09:02", 
+      "user_modified": "", 
+      "modified": "2012-10-23T19:09:02", 
+      "hostname_modified": "s006", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "lab_clinic_api.testcodegroup", 
+    "fields": {
+      "hostname_created": "s006", 
+      "code": "202", 
+      "name": null, 
+      "created": "2012-08-19T18:14:03", 
+      "user_modified": "", 
+      "modified": "2012-08-19T18:14:03", 
+      "hostname_modified": "s006", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "lab_clinic_api.testcodegroup", 
+    "fields": {
+      "hostname_created": "s006", 
+      "code": "301", 
+      "name": null, 
+      "created": "2012-08-19T00:38:30", 
+      "user_modified": "", 
+      "modified": "2012-08-19T00:38:30", 
+      "hostname_modified": "s006", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "lab_clinic_api.testcodegroup", 
+    "fields": {
+      "hostname_created": "s006", 
+      "code": "302", 
+      "name": null, 
+      "created": "2012-08-22T09:15:47", 
+      "user_modified": "", 
+      "modified": "2012-08-22T09:15:47", 
+      "hostname_modified": "s006", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "lab_clinic_api.testcodegroup", 
+    "fields": {
+      "hostname_created": "s006", 
+      "code": "401", 
+      "name": null, 
+      "created": "2012-09-08T13:36:47", 
+      "user_modified": "", 
+      "modified": "2012-09-08T13:36:47", 
+      "hostname_modified": "s006", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "lab_clinic_api.testcodegroup", 
+    "fields": {
+      "hostname_created": "s006", 
+      "code": "411", 
+      "name": null, 
+      "created": "2012-08-20T09:47:55", 
+      "user_modified": "", 
+      "modified": "2012-08-20T09:47:55", 
+      "hostname_modified": "s006", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 7, 
+    "model": "lab_clinic_api.testcodegroup", 
+    "fields": {
+      "hostname_created": "s006", 
+      "code": "802", 
+      "name": null, 
+      "created": "2012-10-17T08:08:27", 
+      "user_modified": "", 
+      "modified": "2012-10-17T08:08:27", 
+      "hostname_modified": "s006", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 35, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Abbott ultrasensitive viral load", 
+      "hostname_created": "s007", 
+      "code": "AUVL", 
+      "name": "Abbott ultrasensitive viral load", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-16T16:20:33", 
+      "hostname_modified": "s007", 
+      "units": "copies/ml", 
+      "edc_code": "AUVL", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 4, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 31, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Alanine Aminotransferase", 
+      "hostname_created": "s007", 
+      "code": "ALTL", 
+      "name": "Alanine Aminotransferase", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "smoyo", 
+      "modified": "2012-11-20T16:10:18", 
+      "hostname_modified": "s007", 
+      "units": "U/L", 
+      "edc_code": "ALTL", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 28, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Albumin", 
+      "hostname_created": "s007", 
+      "code": "ALB", 
+      "name": "Albumin", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:50:49", 
+      "hostname_modified": "s006", 
+      "units": "g/L", 
+      "edc_code": "ALB", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 29, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Albumin 2nd Generation", 
+      "hostname_created": "s007", 
+      "code": "ALB2", 
+      "name": "Albumin 2nd Generation", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:53", 
+      "hostname_modified": "s006", 
+      "units": "g/L", 
+      "edc_code": "ALB2", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 30, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Alkaline Phosphatase", 
+      "hostname_created": "s007", 
+      "code": "ALPL", 
+      "name": "Alkaline Phosphatase", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "smoyo", 
+      "modified": "2012-10-29T10:15:56", 
+      "hostname_modified": "s007", 
+      "units": "U/L", 
+      "edc_code": "ALPL", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 33, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "AMYL2", 
+      "hostname_created": "s007", 
+      "code": "AMYL2", 
+      "name": "AMYL2", 
+      "created": "2011-10-07T17:34:10", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:53", 
+      "hostname_modified": "s006", 
+      "units": "%", 
+      "edc_code": "AMYL2", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 32, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Amylase", 
+      "hostname_created": "s007", 
+      "code": "AMY-L", 
+      "name": "Amylase", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "erikvw", 
+      "modified": "2012-11-21T08:53:43", 
+      "hostname_modified": "s007", 
+      "units": "U/L", 
+      "edc_code": "AMY-L", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 34, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Aspartate Aminotransferase", 
+      "hostname_created": "s007", 
+      "code": "ASTL", 
+      "name": "Aspartate Aminotransferase", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "smoyo", 
+      "modified": "2012-11-20T16:10:19", 
+      "hostname_modified": "s007", 
+      "units": "U/L", 
+      "edc_code": "ASTL", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 19, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Basophils", 
+      "hostname_created": "s007", 
+      "code": "BASO", 
+      "name": "Basophils", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:36", 
+      "hostname_modified": "s007", 
+      "units": "10^3uL", 
+      "edc_code": "BASO", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 24, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Basophils (%)", 
+      "hostname_created": "s007", 
+      "code": "BASO1", 
+      "name": "Basophils (%)", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:37", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "BASO1", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 36, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Bilirubin Direct", 
+      "hostname_created": "s007", 
+      "code": "BIL-D", 
+      "name": "Bilirubin Direct", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "smoyo", 
+      "modified": "2012-11-20T16:10:19", 
+      "hostname_modified": "s007", 
+      "units": "umol/L", 
+      "edc_code": "BIL-D", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 37, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Bilirubin Total", 
+      "hostname_created": "s007", 
+      "code": "BIL-T", 
+      "name": "Bilirubin Total", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "smoyo", 
+      "modified": "2012-11-20T16:10:19", 
+      "hostname_modified": "s007", 
+      "units": "umol/L", 
+      "edc_code": "BIL-T", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 38, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Bilirubin Total (TS)", 
+      "hostname_created": "s007", 
+      "code": "BILTS", 
+      "name": "Bilirubin Total (TS)", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:54", 
+      "hostname_modified": "s006", 
+      "units": "umol/L", 
+      "edc_code": "BILTS", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 58, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "C-reactive protein", 
+      "hostname_created": "s007", 
+      "code": "CRPL", 
+      "name": "C-reactive protein", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "mg/L", 
+      "edc_code": "CRPL", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 40, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Calcium", 
+      "hostname_created": "s007", 
+      "code": "CA", 
+      "name": "Calcium", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "smoyo", 
+      "modified": "2012-08-13T01:50:59", 
+      "hostname_modified": "s006", 
+      "units": "mmol/L", 
+      "edc_code": "CA", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 54, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Carbon Dioxide", 
+      "hostname_created": "s007", 
+      "code": "CO2-S", 
+      "name": "Carbon Dioxide", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-20T16:10:18", 
+      "hostname_modified": "s007", 
+      "units": "mmol/L", 
+      "edc_code": "CO2-S", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 39, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Carbon Dioxide", 
+      "hostname_created": "s007", 
+      "code": "C02-L", 
+      "name": "Carbon Dioxide", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 1, 
+      "user_modified": "erikvw", 
+      "modified": "2012-11-05T22:35:23", 
+      "hostname_modified": "mac.local", 
+      "units": "mmol/L", 
+      "edc_code": "C02-L", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 41, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "CD4 Absolute Count", 
+      "hostname_created": "s007", 
+      "code": "CD4", 
+      "name": "CD4 Absolute Count", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-23T15:10:15", 
+      "hostname_modified": "s007", 
+      "units": "cells/ul", 
+      "edc_code": "CD4", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 3, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 42, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "CD4 Percentage (%)", 
+      "hostname_created": "s007", 
+      "code": "CD4%", 
+      "name": "CD4 Percentage (%)", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T15:10:15", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "CD4%", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 3, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 43, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "CD8 Absolute Count", 
+      "hostname_created": "s007", 
+      "code": "CD8", 
+      "name": "CD8 Absolute Count", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-23T15:10:15", 
+      "hostname_modified": "s007", 
+      "units": "cells/ul", 
+      "edc_code": "CD8", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 3, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 44, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "CD8 Percentage (%)", 
+      "hostname_created": "s007", 
+      "code": "CD8%", 
+      "name": "CD8 Percentage (%)", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T15:10:15", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "CD8%", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 3, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 59, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Chlamydia Trachomatis", 
+      "hostname_created": "s007", 
+      "code": "CT", 
+      "name": "Chlamydia Trachomatis", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "CT", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 52, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Chloride Indirect", 
+      "hostname_created": "s007", 
+      "code": "CL-I", 
+      "name": "Chloride Indirect", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-20T16:10:18", 
+      "hostname_modified": "s007", 
+      "units": "mmol/L", 
+      "edc_code": "CL-I", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 45, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "CHOL", 
+      "hostname_created": "s007", 
+      "code": "CHOL", 
+      "name": "CHOL", 
+      "created": "2011-10-13T22:09:38", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:54", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "CHOL", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 46, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "CHOL/H", 
+      "hostname_created": "s007", 
+      "code": "CHOL/H", 
+      "name": "CHOL/H", 
+      "created": "2011-10-13T21:53:06", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:54", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "CHOL/H", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 47, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "CHOL/HDL", 
+      "hostname_created": "s007", 
+      "code": "CHOL/HDL", 
+      "name": "CHOL/HDL", 
+      "created": "2011-06-01T10:47:48", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:54", 
+      "hostname_modified": "s006", 
+      "units": "%", 
+      "edc_code": "CHOL/HDL", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 48, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Cholesterol", 
+      "hostname_created": "s007", 
+      "code": "CHOLL", 
+      "name": "Cholesterol", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "erikvw", 
+      "modified": "2012-11-06T12:53:06", 
+      "hostname_modified": "mac.local", 
+      "units": "mmol/L", 
+      "edc_code": "CHOLL", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 51, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "CK-MB", 
+      "hostname_created": "s007", 
+      "code": "CKMBL", 
+      "name": "CK-MB", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "U/L", 
+      "edc_code": "CKMBL", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 53, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "CO2-L", 
+      "hostname_created": "s007", 
+      "code": "CO2-L", 
+      "name": "CO2-L", 
+      "created": "2011-09-08T18:31:05", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "%", 
+      "edc_code": "CO2-L", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 56, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Comment", 
+      "hostname_created": "s007", 
+      "code": "COMMENT", 
+      "name": "Comment", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "COMMENT", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 55, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Comment f. Sysmex", 
+      "hostname_created": "s007", 
+      "code": "COMM", 
+      "name": "Comment f. Sysmex", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "-9", 
+      "edc_code": "COMM", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 50, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Creatine Kinase", 
+      "hostname_created": "s007", 
+      "code": "CKL", 
+      "name": "Creatine Kinase", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "erikvw", 
+      "modified": "2012-11-06T11:46:15", 
+      "hostname_modified": "mac.local", 
+      "units": "U/L", 
+      "edc_code": "CKL", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 57, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Creatinine Jaffe", 
+      "hostname_created": "s007", 
+      "code": "CREJ", 
+      "name": "Creatinine Jaffe", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "smoyo", 
+      "modified": "2012-11-20T16:10:19", 
+      "hostname_modified": "s007", 
+      "units": "umol/L", 
+      "edc_code": "CREJ", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 62, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Detuned ELISA", 
+      "hostname_created": "s007", 
+      "code": "DELISA", 
+      "name": "Detuned ELISA", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "DELISA", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 27, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "DNA PCR", 
+      "hostname_created": "s007", 
+      "code": "DNAPCR", 
+      "name": "DNA PCR", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-22T16:41:09", 
+      "hostname_modified": "s007", 
+      "units": "-", 
+      "edc_code": "DNAPCR", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 2, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 63, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "EasyQ HIV-1 1.1", 
+      "hostname_created": "s007", 
+      "code": "EASYQ", 
+      "name": "EasyQ HIV-1 1.1", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "copies/ml", 
+      "edc_code": "EASYQ", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 64, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Endo-cervical swab CT/NG", 
+      "hostname_created": "s007", 
+      "code": "ECSCTNG", 
+      "name": "Endo-cervical swab CT/NG", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "ECSCTNG", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 65, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Endo-cervical swab gene probe CT/NG/TV", 
+      "hostname_created": "s007", 
+      "code": "ECSCTNGTV", 
+      "name": "Endo-cervical swab gene probe CT/NG/TV", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "ECSCTNGTV", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 18, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Eosinophils", 
+      "hostname_created": "s007", 
+      "code": "EO", 
+      "name": "Eosinophils", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:36", 
+      "hostname_modified": "s007", 
+      "units": "10^3/uL", 
+      "edc_code": "EO", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 23, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Eosinophils (%)", 
+      "hostname_created": "s007", 
+      "code": "EO1", 
+      "name": "Eosinophils (%)", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:37", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "EO1", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 67, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Erythrocyte Sedimentation Rate", 
+      "hostname_created": "s007", 
+      "code": "ESR", 
+      "name": "Erythrocyte Sedimentation Rate", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:56", 
+      "hostname_modified": "s006", 
+      "units": "mm/H", 
+      "edc_code": "ESR", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 68, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Ferritin", 
+      "hostname_created": "s007", 
+      "code": "FERR", 
+      "name": "Ferritin", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:56", 
+      "hostname_modified": "s006", 
+      "units": "ng/ml", 
+      "edc_code": "FERR", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 70, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "GGT", 
+      "hostname_created": "s007", 
+      "code": "GGT", 
+      "name": "GGT", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "smoyo", 
+      "modified": "2012-10-29T10:15:57", 
+      "hostname_modified": "s007", 
+      "units": "U/L", 
+      "edc_code": "GGT", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 71, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "GGTL", 
+      "hostname_created": "s007", 
+      "code": "GGTL", 
+      "name": "GGTL", 
+      "created": "2011-09-08T18:33:57", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:56", 
+      "hostname_modified": "s006", 
+      "units": "%", 
+      "edc_code": "GGTL", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 72, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Glucose", 
+      "hostname_created": "s007", 
+      "code": "GLUL", 
+      "name": "Glucose", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-20T16:10:18", 
+      "hostname_modified": "s007", 
+      "units": "mmol/L", 
+      "edc_code": "GLUL", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 73, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "HBa1C Profile", 
+      "hostname_created": "s007", 
+      "code": "HBa1C", 
+      "name": "HBa1C Profile", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:56", 
+      "hostname_modified": "s006", 
+      "units": "-9", 
+      "edc_code": "HBa1C", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 75, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "HDL C", 
+      "hostname_created": "s007", 
+      "code": "HDL C", 
+      "name": "HDL C", 
+      "created": "2011-10-13T21:52:19", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:56", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "HDL C", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 49, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "HDL-C Ratio/Total Chol.", 
+      "hostname_created": "s007", 
+      "code": "CHOLL_HDL", 
+      "name": "HDL-C Ratio/Total Chol.", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 1, 
+      "user_modified": "smoyo", 
+      "modified": "2012-08-13T01:48:54", 
+      "hostname_modified": "s006", 
+      "units": "ratio", 
+      "edc_code": "CHOLL_HDL", 
+      "user_created": "", 
+      "formula": "HDL_C/CHOLL", 
+      "test_code_group": null, 
+      "is_absolute": "calculated"
+    }
+  }, 
+  {
+    "pk": 76, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "HDL-Chol. plus 2nd Gen.", 
+      "hostname_created": "s007", 
+      "code": "HDL_C", 
+      "name": "HDL-Chol. plus 2nd Gen.", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "smoyo", 
+      "modified": "2012-08-13T01:51:11", 
+      "hostname_modified": "s006", 
+      "units": "mmol/L", 
+      "edc_code": "HDL_C", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Hemaglobin", 
+      "hostname_created": "s007", 
+      "code": "HGB", 
+      "name": "Hemaglobin", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:35", 
+      "hostname_modified": "s007", 
+      "units": "g/dL", 
+      "edc_code": "HGB", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Hematocrit", 
+      "hostname_created": "s007", 
+      "code": "HCT", 
+      "name": "Hematocrit", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:35", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "HCT", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 77, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Hemoglobin A1C / Whole Blood", 
+      "hostname_created": "s007", 
+      "code": "HEM1W", 
+      "name": "Hemoglobin A1C / Whole Blood", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:57", 
+      "hostname_modified": "s006", 
+      "units": "-9", 
+      "edc_code": "HEM1W", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 78, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Hemoglobin A1C / Whole Blood", 
+      "hostname_created": "s007", 
+      "code": "HEM2W", 
+      "name": "Hemoglobin A1C / Whole Blood", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:57", 
+      "hostname_modified": "s006", 
+      "units": "-9", 
+      "edc_code": "HEM2W", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 79, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Hepatitis B", 
+      "hostname_created": "s007", 
+      "code": "HEPB", 
+      "name": "Hepatitis B", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-10-17T08:08:27", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "HEPB", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 7, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 74, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "hepatitis C", 
+      "hostname_created": "s007", 
+      "code": "HCV", 
+      "name": "hepatitis C", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:56", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "HCV", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 80, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "High Florescence ratio", 
+      "hostname_created": "s007", 
+      "code": "HFR", 
+      "name": "High Florescence ratio", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-08T20:33:34", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "HFR", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 81, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "HIM", 
+      "hostname_created": "s007", 
+      "code": "HIM", 
+      "name": "HIM", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:57", 
+      "hostname_modified": "s006", 
+      "units": "-9", 
+      "edc_code": "HIM", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 66, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "HIV  ELISA", 
+      "hostname_created": "s007", 
+      "code": "ELISA", 
+      "name": "HIV  ELISA", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-22T10:00:20", 
+      "hostname_modified": "s007", 
+      "units": "-9", 
+      "edc_code": "ELISA", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 8, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 126, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "HIV by Western Blot", 
+      "hostname_created": "s007", 
+      "code": "WBHIV", 
+      "name": "HIV by Western Blot", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:49:01", 
+      "hostname_modified": "s006", 
+      "units": "-9", 
+      "edc_code": "WBHIV", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 83, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "HSV-2", 
+      "hostname_created": "s007", 
+      "code": "HSV2", 
+      "name": "HSV-2", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:57", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "HSV2", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 84, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Immature Reticulocytes Fraction", 
+      "hostname_created": "s007", 
+      "code": "IRF", 
+      "name": "Immature Reticulocytes Fraction", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-08T20:33:34", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "IRF", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 85, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Iron", 
+      "hostname_created": "s007", 
+      "code": "IRON", 
+      "name": "Iron", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 1, 
+      "user_modified": "smoyo", 
+      "modified": "2012-08-13T01:51:15", 
+      "hostname_modified": "s006", 
+      "units": "umol/L", 
+      "edc_code": "IRON", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 88, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Lac. dehydrogenase IFCCv2", 
+      "hostname_created": "s007", 
+      "code": "LDHL", 
+      "name": "Lac. dehydrogenase IFCCv2", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:51:16", 
+      "hostname_modified": "s006", 
+      "units": "U/L", 
+      "edc_code": "LDHL", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 87, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Lactate ", 
+      "hostname_created": "s007", 
+      "code": "LACT", 
+      "name": "Lactate ", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:51:17", 
+      "hostname_modified": "s006", 
+      "units": "mmol/L", 
+      "edc_code": "LACT", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 90, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "LDL Chol calculated", 
+      "hostname_created": "s007", 
+      "code": "LDLC-C", 
+      "name": "LDL Chol calculated", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 1, 
+      "user_modified": "smoyo", 
+      "modified": "2012-08-13T01:51:17", 
+      "hostname_modified": "s006", 
+      "units": "mmol/L", 
+      "edc_code": "LDLC-C", 
+      "user_created": "", 
+      "formula": "CHOLL-HDL_C-TRIGL/5", 
+      "test_code_group": null, 
+      "is_absolute": "calculated"
+    }
+  }, 
+  {
+    "pk": 91, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "LDL Chol. meas.", 
+      "hostname_created": "s007", 
+      "code": "LDL_C", 
+      "name": "LDL Chol. plus 2nd gen.", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "erikvw", 
+      "modified": "2012-11-06T13:01:54", 
+      "hostname_modified": "mac.local", 
+      "units": "mmol/L", 
+      "edc_code": "LDL_C", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 89, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "LDL-C", 
+      "hostname_created": "s007", 
+      "code": "LDL-C", 
+      "name": "LDL-C", 
+      "created": "2011-06-23T14:14:25", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:57", 
+      "hostname_modified": "s006", 
+      "units": "%", 
+      "edc_code": "LDL-C", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 92, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "LFR", 
+      "hostname_created": "s007", 
+      "code": "LFR", 
+      "name": "LFR", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-08T20:33:34", 
+      "hostname_modified": "s007", 
+      "units": "-", 
+      "edc_code": "LFR", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 93, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Lipase", 
+      "hostname_created": "s007", 
+      "code": "LIPC", 
+      "name": "Lipase colorimetric", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-20T16:10:18", 
+      "hostname_modified": "s007", 
+      "units": "U/L", 
+      "edc_code": "LIPC", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 94, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "log Viral Load", 
+      "hostname_created": "s007", 
+      "code": "LOG10", 
+      "name": "log Viral Load", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:58", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "LOG10", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "calculated"
+    }
+  }, 
+  {
+    "pk": 16, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Lymphocytes", 
+      "hostname_created": "s007", 
+      "code": "LYMPH", 
+      "name": "Lymphocytes", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:36", 
+      "hostname_modified": "s007", 
+      "units": "10^3/uL", 
+      "edc_code": "LYMPH", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 21, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Lymphocytes (%)", 
+      "hostname_created": "s007", 
+      "code": "LYMPH1", 
+      "name": "Lymphocytes (%)", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:37", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "LYMPH1", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 96, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Magnesium", 
+      "hostname_created": "s007", 
+      "code": "MG", 
+      "name": "Magnesium", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "smoyo", 
+      "modified": "2012-08-13T01:51:22", 
+      "hostname_modified": "s006", 
+      "units": "mmol/L", 
+      "edc_code": "MG", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 7, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "MCHC", 
+      "hostname_created": "s007", 
+      "code": "MCHC", 
+      "name": "MCHC", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:35", 
+      "hostname_modified": "s007", 
+      "units": "g/dL", 
+      "edc_code": "MCHC", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Mean Cell Hemoglobin", 
+      "hostname_created": "s007", 
+      "code": "MCH", 
+      "name": "Mean Cell Hemoglobin", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:35", 
+      "hostname_modified": "s007", 
+      "units": "pg", 
+      "edc_code": "MCH", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Mean Corpuscular Volume", 
+      "hostname_created": "s007", 
+      "code": "MCV", 
+      "name": "Mean Corpuscular Volume", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:35", 
+      "hostname_modified": "s007", 
+      "units": "fL", 
+      "edc_code": "MCV", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 95, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "MFR", 
+      "hostname_created": "s007", 
+      "code": "MFR", 
+      "name": "MFR", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-08T20:33:34", 
+      "hostname_modified": "s007", 
+      "units": "-", 
+      "edc_code": "MFR", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 17, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Monocytes", 
+      "hostname_created": "s007", 
+      "code": "MONO", 
+      "name": "Monocytes", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:36", 
+      "hostname_modified": "s007", 
+      "units": "10^3/uL", 
+      "edc_code": "MONO", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 22, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Monocytes (%)", 
+      "hostname_created": "s007", 
+      "code": "MONO1", 
+      "name": "Monocytes (%)", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:37", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "MONO1", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 12, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "MPV", 
+      "hostname_created": "s007", 
+      "code": "MPV", 
+      "name": "MPV", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:36", 
+      "hostname_modified": "s007", 
+      "units": "fL", 
+      "edc_code": "MPV", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 98, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Neisseria Gonorrheae", 
+      "hostname_created": "s007", 
+      "code": "NG", 
+      "name": "Neisseria Gonorrheae", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:58", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "NG", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 69, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Neisseria Gonorrhoea", 
+      "hostname_created": "s007", 
+      "code": "GC", 
+      "name": "Neisseria Gonorrhoea", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:56", 
+      "hostname_modified": "s006", 
+      "units": "-9", 
+      "edc_code": "GC", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 15, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Neutrophils", 
+      "hostname_created": "s007", 
+      "code": "NEUT", 
+      "name": "Neutrophils", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:36", 
+      "hostname_modified": "s007", 
+      "units": "10^3/uL", 
+      "edc_code": "NEUT", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 20, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Neutrophils (%)", 
+      "hostname_created": "s007", 
+      "code": "NEUT1", 
+      "name": "Neutrophils (%)", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:36", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "NEUT1", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 26, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "NRBC1", 
+      "hostname_created": "s007", 
+      "code": "NRBC1", 
+      "name": "NRBC1", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:37", 
+      "hostname_modified": "s007", 
+      "units": "-", 
+      "edc_code": "NRBC1", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 25, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Nucleated RBC Count", 
+      "hostname_created": "s007", 
+      "code": "NRBC", 
+      "name": "Nucleated RBC Count", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:37", 
+      "hostname_modified": "s007", 
+      "units": "10^3/uL", 
+      "edc_code": "NRBC", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 99, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Nucleated RBC Percentage", 
+      "hostname_created": "s007", 
+      "code": "NRBC%", 
+      "name": "Nucleated RBC Percentage", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:58", 
+      "hostname_modified": "s006", 
+      "units": "%", 
+      "edc_code": "NRBC%", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 13, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "P-LCR", 
+      "hostname_created": "s007", 
+      "code": "PLCR", 
+      "name": "P-LCR", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:36", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "PLCR", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 14, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "PCT", 
+      "hostname_created": "s007", 
+      "code": "PCT", 
+      "name": "PCT", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:36", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "PCT", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 11, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "PDW", 
+      "hostname_created": "s007", 
+      "code": "PDW", 
+      "name": "PDW", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:36", 
+      "hostname_modified": "s007", 
+      "units": "fL", 
+      "edc_code": "PDW", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 101, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Phosphorus", 
+      "hostname_created": "s007", 
+      "code": "PHOS", 
+      "name": "Phosphorus", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "erikvw", 
+      "modified": "2012-11-05T07:53:47", 
+      "hostname_modified": "mac.local", 
+      "units": "mmol/L", 
+      "edc_code": "PHOS", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 102, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "PHS", 
+      "hostname_created": "s007", 
+      "code": "PHS", 
+      "name": "PHS", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:58", 
+      "hostname_modified": "s006", 
+      "units": "-9", 
+      "edc_code": "PHS", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 103, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Plasma ACD Storage", 
+      "hostname_created": "s007", 
+      "code": "PLACD", 
+      "name": "Plasma ACD Storage", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:59", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "PLACD", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 104, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Plasma EDTA storage", 
+      "hostname_created": "s007", 
+      "code": "PLEDTA", 
+      "name": "Plasma EDTA storage", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:59", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "PLEDTA", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 8, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "PLATELETS", 
+      "hostname_created": "s007", 
+      "code": "PLT", 
+      "name": "PLATELETS", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:35", 
+      "hostname_modified": "s007", 
+      "units": "10^3/uL", 
+      "edc_code": "PLT", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 86, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Potassium Indirect", 
+      "hostname_created": "s007", 
+      "code": "K-I", 
+      "name": "Potassium Indirect", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "smoyo", 
+      "modified": "2012-11-20T16:10:17", 
+      "hostname_modified": "s007", 
+      "units": "mmol/L", 
+      "edc_code": "K-I", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 105, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Pre-albumin", 
+      "hostname_created": "s007", 
+      "code": "PREA", 
+      "name": "Pre-albumin", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "smoyo", 
+      "modified": "2012-08-13T01:48:59", 
+      "hostname_modified": "s006", 
+      "units": "g/L", 
+      "edc_code": "PREA", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 106, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Rapid ELISA", 
+      "hostname_created": "s007", 
+      "code": "RELISA", 
+      "name": "Rapid ELISA", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:59", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "RELISA", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Red blood cell", 
+      "hostname_created": "s007", 
+      "code": "RBC", 
+      "name": "Red blood cell", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:34", 
+      "hostname_modified": "s007", 
+      "units": "10^6/uL", 
+      "edc_code": "RBC", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 10, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Red Cell Distr. Width (%) (CV)", 
+      "hostname_created": "s007", 
+      "code": "RDWCV", 
+      "name": "Red Cell Distr. Width (%) (CV)", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:35", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "RDWCV", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 9, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Red Cell Distr. Width (SD)", 
+      "hostname_created": "s007", 
+      "code": "RDWSD", 
+      "name": "Red Cell Distr. Width (SD)", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:35", 
+      "hostname_modified": "s007", 
+      "units": "fL", 
+      "edc_code": "RDWSD", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 109, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "RET1", 
+      "hostname_created": "s007", 
+      "code": "RET1", 
+      "name": "RET1", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-08T20:33:34", 
+      "hostname_modified": "s007", 
+      "units": "-", 
+      "edc_code": "RET1", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 107, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Reticulocytes", 
+      "hostname_created": "s007", 
+      "code": "RET", 
+      "name": "Reticulocytes", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-08T20:33:34", 
+      "hostname_modified": "s007", 
+      "units": "%", 
+      "edc_code": "RET", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 108, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Reticulocytes", 
+      "hostname_created": "s007", 
+      "code": "RET%", 
+      "name": "Reticulocytes", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:51:40", 
+      "hostname_modified": "s006", 
+      "units": "%", 
+      "edc_code": "RET%", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 112, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "RT-PCR", 
+      "hostname_created": "s007", 
+      "code": "RTPCR", 
+      "name": "RT-PCR", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:59", 
+      "hostname_modified": "s006", 
+      "units": "0", 
+      "edc_code": "RTPCR", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 97, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Sodium Indirect", 
+      "hostname_created": "s007", 
+      "code": "NA-I", 
+      "name": "Sodium Indirect", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-11-20T16:10:18", 
+      "hostname_modified": "s007", 
+      "units": "mmol/L", 
+      "edc_code": "NA-I", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 60, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Stavudine / Zerit", 
+      "hostname_created": "s007", 
+      "code": "D4T", 
+      "name": "Stavudine / Zerit", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "D4T", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 113, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Stored", 
+      "hostname_created": "s007", 
+      "code": "STORED", 
+      "name": "Stored", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:59", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "STORED", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 110, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Syphillis / RPR", 
+      "hostname_created": "s007", 
+      "code": "RPR", 
+      "name": "Syphillis / RPR", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:59", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "RPR", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 111, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Syphillis / RPR Titre", 
+      "hostname_created": "s007", 
+      "code": "RPRT", 
+      "name": "Syphillis / RPR Titre", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:59", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "RPRT", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 114, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Total Iron Binding Cap.", 
+      "hostname_created": "s007", 
+      "code": "TIBC", 
+      "name": "Total Iron Binding Cap.", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:59", 
+      "hostname_modified": "s006", 
+      "units": "um/L", 
+      "edc_code": "TIBC", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 115, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Total Protein", 
+      "hostname_created": "s007", 
+      "code": "TP", 
+      "name": "Total Protein", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:51:42", 
+      "hostname_modified": "s006", 
+      "units": "g/L", 
+      "edc_code": "TP", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 117, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Transferrin", 
+      "hostname_created": "s007", 
+      "code": "TRSF", 
+      "name": "Transferrin", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 1, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:49:00", 
+      "hostname_modified": "s006", 
+      "units": "g/L", 
+      "edc_code": "TRSF", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 116, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Triglycerides", 
+      "hostname_created": "s007", 
+      "code": "TRIGL", 
+      "name": "Triglycerides", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:51:43", 
+      "hostname_modified": "s006", 
+      "units": "mmol/L", 
+      "edc_code": "TRIGL", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 119, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Ulcer swab HSV PCR", 
+      "hostname_created": "s007", 
+      "code": "UHSVPCR", 
+      "name": "Ulcer swab HSV PCR", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:49:00", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "UHSVPCR", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 123, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Ulcer swab Pathogens", 
+      "hostname_created": "s007", 
+      "code": "USP", 
+      "name": "Ulcer swab Pathogens", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:49:00", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "USP", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 120, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Urea/BUN liquid", 
+      "hostname_created": "s007", 
+      "code": "UREL", 
+      "name": "Urea/BUN liquid", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 1, 
+      "user_modified": "smoyo", 
+      "modified": "2012-11-20T16:10:18", 
+      "hostname_modified": "s007", 
+      "units": "mmol/L", 
+      "edc_code": "UREL", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 5, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 118, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Uric Acid", 
+      "hostname_created": "s007", 
+      "code": "UA", 
+      "name": "Uric Acid", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "erikvw", 
+      "modified": "2012-11-06T13:32:50", 
+      "hostname_modified": "mac.local", 
+      "units": "umol/L", 
+      "edc_code": "UA", 
+      "user_created": "", 
+      "formula": "", 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 121, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Urine Gene Probe ET/NG/TV", 
+      "hostname_created": "s007", 
+      "code": "URGP", 
+      "name": "Urine Gene Probe ET/NG/TV", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:49:00", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "URGP", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 122, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Urine Storage", 
+      "hostname_created": "s007", 
+      "code": "URINSTOR", 
+      "name": "Urine Storage", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:49:00", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "URINSTOR", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 124, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Vaginal slide gram stain.", 
+      "hostname_created": "s007", 
+      "code": "VSGS", 
+      "name": "Vaginal slide gram stain.", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:49:00", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "VSGS", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 125, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Vaginal slide methanol", 
+      "hostname_created": "s007", 
+      "code": "VSM", 
+      "name": "Vaginal slide methanol", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:49:00", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "VSM", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 100, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Viral Load", 
+      "hostname_created": "s007", 
+      "code": "PHM", 
+      "name": "Viral Load", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-10-20T09:22:33", 
+      "hostname_modified": "s006", 
+      "units": "copies/ml", 
+      "edc_code": "PHM", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 6, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 82, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Viral load (HIM-CAP)", 
+      "hostname_created": "s007", 
+      "code": "HIM-CAP", 
+      "name": "Viral load (HIM-CAP)", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:57", 
+      "hostname_modified": "s006", 
+      "units": "copies/ml", 
+      "edc_code": "HIM-CAP", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "White blood cell", 
+      "hostname_created": "s007", 
+      "code": "WBC", 
+      "name": "White blood cell", 
+      "created": "2011-05-06T15:58:16", 
+      "display_decimal_places": 2, 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:35", 
+      "hostname_modified": "s007", 
+      "units": "10^3/uL", 
+      "edc_code": "WBC", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": 1, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 61, 
+    "model": "lab_clinic_api.testcode", 
+    "fields": {
+      "edc_name": "Zalcitabine / Hivid", 
+      "hostname_created": "s007", 
+      "code": "ddC", 
+      "name": "Zalcitabine / Hivid", 
+      "created": "2011-05-06T15:58:17", 
+      "display_decimal_places": 0, 
+      "user_modified": "", 
+      "modified": "2012-08-13T01:48:55", 
+      "hostname_modified": "s006", 
+      "units": "-", 
+      "edc_code": "ddC", 
+      "user_created": "", 
+      "formula": null, 
+      "test_code_group": null, 
+      "is_absolute": "absolute"
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s007", 
+      "name": "BHP023  HEMATOLOGY", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "", 
+      "modified": "2012-11-23T17:31:34", 
+      "hostname_modified": "s007", 
+      "edc_name": "Hematology", 
+      "panel_type": "TEST", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s007", 
+      "name": "Chromosonal Analysis", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "", 
+      "modified": "2012-10-29T10:15:52", 
+      "hostname_modified": "s007", 
+      "edc_name": "Infant PCR", 
+      "panel_type": "TEST", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s007", 
+      "name": "PBMC Plasma (STORE ONLY)", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "", 
+      "modified": "2012-11-23T15:40:14", 
+      "hostname_modified": "s007", 
+      "edc_name": "PBMC Plasma Storage", 
+      "panel_type": "STORAGE", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s007", 
+      "name": "PHM Viral load (amplicore >400)", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "", 
+      "modified": "2012-11-23T15:10:14", 
+      "hostname_modified": "s007", 
+      "edc_name": "Viral Load", 
+      "panel_type": "TEST", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [
+        41, 
+        42, 
+        43, 
+        44
+      ], 
+      "hostname_created": "s007", 
+      "name": "CD4 (ARV)", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "erikvw", 
+      "modified": "2012-11-23T15:10:15", 
+      "hostname_modified": "s007", 
+      "edc_name": "CD4", 
+      "panel_type": "TEST", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s007", 
+      "name": "Breast Milk (Storage)", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "", 
+      "modified": "2012-11-14T19:27:21", 
+      "hostname_modified": "s007", 
+      "edc_name": "Breast Milk (Storage)", 
+      "panel_type": "STORAGE", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 7, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [
+        31, 
+        30, 
+        32, 
+        34, 
+        36, 
+        37, 
+        54, 
+        52, 
+        70, 
+        72, 
+        93, 
+        86, 
+        97, 
+        120
+      ], 
+      "hostname_created": "s007", 
+      "name": "Basic Chemistry + Glucose", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "smoyo", 
+      "modified": "2012-10-29T10:15:56", 
+      "hostname_modified": "s007", 
+      "edc_name": "Chemistry", 
+      "panel_type": "TEST", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 8, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s007", 
+      "name": "PHS Ultrasensetive Viral Load", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "", 
+      "modified": "2012-11-22T15:30:17", 
+      "hostname_modified": "s007", 
+      "edc_name": "Viral Load", 
+      "panel_type": "TEST", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 9, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s007", 
+      "name": "DNA PCR", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "", 
+      "modified": "2012-11-23T15:40:14", 
+      "hostname_modified": "s007", 
+      "edc_name": "Infant PCR", 
+      "panel_type": "TEST", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 10, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s007", 
+      "name": "Confirmatory Viral Load", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "", 
+      "modified": "2012-09-08T13:36:46", 
+      "hostname_modified": "s006", 
+      "edc_name": "Viral Load", 
+      "panel_type": "TEST", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 11, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s007", 
+      "name": "Bana 01 Chemistry", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "", 
+      "modified": "2012-11-20T16:10:17", 
+      "hostname_modified": "s007", 
+      "edc_name": "Chemistry", 
+      "panel_type": "TEST", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 12, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s006", 
+      "name": "Viral load (storage only)", 
+      "created": "2012-08-14T03:09:36", 
+      "user_modified": "erikvw", 
+      "modified": "2012-10-20T16:28:42", 
+      "hostname_modified": "s006", 
+      "edc_name": "Viral load (storage)", 
+      "panel_type": "STORAGE", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 13, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s007", 
+      "name": "Hepatitis B only", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "", 
+      "modified": "2012-10-17T08:08:27", 
+      "hostname_modified": "s006", 
+      "edc_name": "Hepatitis B only", 
+      "panel_type": "TEST", 
+      "user_created": ""
+    }
+  }, 
+  {
+    "pk": 14, 
+    "model": "lab_clinic_api.panel", 
+    "fields": {
+      "comment": "", 
+      "test_code": [], 
+      "hostname_created": "s007", 
+      "name": "ELISA", 
+      "created": "2011-05-06T15:58:19", 
+      "user_modified": "", 
+      "modified": "2012-11-22T15:30:15", 
+      "hostname_modified": "s007", 
+      "edc_name": "ELISA", 
+      "panel_type": "TEST", 
+      "user_created": ""
+    }
+  }
+]

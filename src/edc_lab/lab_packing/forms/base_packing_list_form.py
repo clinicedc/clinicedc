@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import FieldError
-from edc_base.form.forms import BaseModelForm
+
 from edc.lab.lab_requisition.forms import BaseRequisitionForm
 
 """
@@ -59,9 +59,7 @@ class BasePackingListForm(BaseRequisitionForm):
         return cleaned_data
 
 
-# PackingList
-class BasePackingListItemForm (BaseModelForm):
+class BasePackingListItemForm (forms.ModelForm):
 
     def clean(self):
-
-        return  super(BasePackingListItemForm, self).clean()
+        return super(BasePackingListItemForm, self).clean()

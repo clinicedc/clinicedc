@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Models &mdash; lab_clinic_api 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="lab_clinic_api 1.0 documentation" href="index.html" />
+    <link rel="prev" title="Classes" href="classes.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="classes.html" title="Classes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">lab_clinic_api 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="models">
+<h1>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="main-models">
+<h2>Main Models<a class="headerlink" href="#main-models" title="Permalink to this headline">¶</a></h2>
+<p>ROARR: relational model made up of Receive, Aliquot, Order, Result and ResultItem.</p>
+<dl class="class">
+<dt id="lab_clinic_api.models.receive.Receive">
+<em class="property">class </em><tt class="descclassname">lab_clinic_api.models.receive.</tt><tt class="descname">Receive</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lab_clinic_api/models/receive.html#Receive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lab_clinic_api.models.receive.Receive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lab_receive.models.base_receive.BaseReceive</span></tt></p>
+<p>Stores receiving information and is linked to <tt class="xref py py-class docutils literal"><span class="pre">bhp_registration.RegisteredSubject</span></tt> for patient
+identification and demographics.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">receive</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">lab_clinic_api_receive</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>receive_identifier</strong> (<em>CharField</em>) &#8211; Receiving identifier</li>
+<li><strong>requisition_identifier</strong> (<em>CharField</em>) &#8211; Requisition identifier</li>
+<li><strong>drawn_datetime</strong> (<em>DateTimeField</em>) &#8211; Date and time drawn</li>
+<li><strong>receive_datetime</strong> (<em>DateTimeField</em>) &#8211; Date and time received</li>
+<li><strong>visit</strong> (<em>CharField</em>) &#8211; Visit code</li>
+<li><strong>clinician_initials</strong> (<em>InitialsField</em>) &#8211; Type 2-3 letters, all in uppercase and no spaces</li>
+<li><strong>receive_condition</strong> (<em>CharField</em>) &#8211; Condition of primary tube</li>
+<li><strong>import_datetime</strong> (<em>DateTimeField</em>) &#8211; Import datetime</li>
+<li><strong>registered_subject_id</strong> (<em>ForeignKey</em>) &#8211; Registered subject</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="lab_clinic_api.models.Aliquot">
+<em class="property">class </em><tt class="descclassname">lab_clinic_api.models.</tt><tt class="descname">Aliquot</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lab_clinic_api.models.Aliquot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lab_aliquot.models.base_aliquot.BaseAliquot</span></tt></p>
+<p>Stores aliquot information and is the central model in the RAORR relational model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">aliquot</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">lab_clinic_api_aliquot</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>aliquot_identifier</strong> (<em>CharField</em>) &#8211; Aliquot identifier</li>
+<li><strong>aliquot_datetime</strong> (<em>DateTimeField</em>) &#8211; Date and time aliquot created</li>
+<li><strong>count</strong> (<em>IntegerField</em>) &#8211; Count</li>
+<li><strong>medium</strong> (<em>CharField</em>) &#8211; Medium</li>
+<li><strong>original_measure</strong> (<em>DecimalField</em>) &#8211; Original measure</li>
+<li><strong>current_measure</strong> (<em>DecimalField</em>) &#8211; Current measure</li>
+<li><strong>measure_units</strong> (<em>CharField</em>) &#8211; Measure units</li>
+<li><strong>status</strong> (<em>CharField</em>) &#8211; Status</li>
+<li><strong>comment</strong> (<em>CharField</em>) &#8211; Comment</li>
+<li><strong>receive_identifier</strong> (<em>CharField</em>) &#8211; non-user helper field to simplify search and filter</li>
+<li><strong>import_datetime</strong> (<em>DateTimeField</em>) &#8211; Import datetime</li>
+<li><strong>aliquot_type_id</strong> (<em>ForeignKey</em>) &#8211; Aliquot type</li>
+<li><strong>aliquot_condition_id</strong> (<em>ForeignKey</em>) &#8211; Aliquot condition</li>
+<li><strong>receive_id</strong> (<em>ForeignKey</em>) &#8211; Receive</li>
+<li><strong>subject_identifier</strong> (<em>CharField</em>) &#8211; non-user helper field to simplify search and filtering</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="lab_clinic_api.models.Order">
+<em class="property">class </em><tt class="descclassname">lab_clinic_api.models.</tt><tt class="descname">Order</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lab_clinic_api.models.Order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lab_order.models.base_order.BaseOrder</span></tt></p>
+<p>Stores orders and is in a one to many relation with <tt class="xref py py-class docutils literal"><span class="pre">Aliquot</span></tt> where one aliquot may
+have multiple orders and in a one-to-many relation with <tt class="xref py py-class docutils literal"><span class="pre">Result</span></tt> where one order
+should only have one final result (but not enforced by the DB).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">order</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">lab_clinic_api_order</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>order_identifier</strong> (<em>CharField</em>) &#8211; Allocated internally</li>
+<li><strong>order_datetime</strong> (<em>DateTimeField</em>) &#8211; Order date</li>
+<li><strong>status</strong> (<em>CharField</em>) &#8211; Status</li>
+<li><strong>comment</strong> (<em>CharField</em>) &#8211; Comment</li>
+<li><strong>receive_identifier</strong> (<em>CharField</em>) &#8211; non-user helper field to simplify search and filter</li>
+<li><strong>import_datetime</strong> (<em>DateTimeField</em>) &#8211; Import datetime</li>
+<li><strong>aliquot_id</strong> (<em>ForeignKey</em>) &#8211; Aliquot</li>
+<li><strong>panel_id</strong> (<em>ForeignKey</em>) &#8211; Panel</li>
+<li><strong>subject_identifier</strong> (<em>CharField</em>) &#8211; non-user helper field to simplify search and filtering</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="lab_clinic_api.models.Result">
+<em class="property">class </em><tt class="descclassname">lab_clinic_api.models.</tt><tt class="descname">Result</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lab_clinic_api.models.Result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lab_result.models.base_result.BaseResult</span></tt></p>
+<p>Stores result information in a one-to-many relation with <tt class="xref py py-class docutils literal"><span class="pre">ResultItem</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">result</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">lab_clinic_api_result</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>result_identifier</strong> (<em>CharField</em>) &#8211; Result identifier</li>
+<li><strong>result_datetime</strong> (<em>DateTimeField</em>) &#8211; Date result added to system.</li>
+<li><strong>release_status</strong> (<em>CharField</em>) &#8211; Release status</li>
+<li><strong>release_datetime</strong> (<em>DateTimeField</em>) &#8211; Date result authorized for release. This field will auto-fill if release status is changed</li>
+<li><strong>release_username</strong> (<em>CharField</em>) &#8211; Username of person authorizing result for release. This field will auto-fill if release status is changed</li>
+<li><strong>comment</strong> (<em>CharField</em>) &#8211; Comment</li>
+<li><strong>dmis_result_guid</strong> (<em>CharField</em>) &#8211; dmis import value. N/A unless data imported from old system</li>
+<li><strong>receive_identifier</strong> (<em>CharField</em>) &#8211; non-user helper field to simplify search and filter</li>
+<li><strong>import_datetime</strong> (<em>DateTimeField</em>) &#8211; Import datetime</li>
+<li><strong>order_id</strong> (<em>ForeignKey</em>) &#8211; Order</li>
+<li><strong>review_id</strong> (<em>OneToOneField</em>) &#8211; Review</li>
+<li><strong>reviewed</strong> (<em>BooleanField</em>) &#8211; Reviewed</li>
+<li><strong>subject_identifier</strong> (<em>CharField</em>) &#8211; non-user helper field to simplify search and filtering</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="lab_clinic_api.models.ResultItem">
+<em class="property">class </em><tt class="descclassname">lab_clinic_api.models.</tt><tt class="descname">ResultItem</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lab_clinic_api.models.ResultItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lab_result_item.models.base_result_item.BaseResultItem</span></tt></p>
+<p>Stores each result item in a result in one-to-many relation with <tt class="xref py py-class docutils literal"><span class="pre">Result</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">result item</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">lab_clinic_api_resultitem</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>result_item_value</strong> (<em>CharField</em>) &#8211; Result</li>
+<li><strong>result_item_value_as_float</strong> (<em>FloatField</em>) &#8211; Result as float</li>
+<li><strong>result_item_quantifier</strong> (<em>CharField</em>) &#8211; Quantifier</li>
+<li><strong>result_item_datetime</strong> (<em>DateTimeField</em>) &#8211; Assay date and time</li>
+<li><strong>result_item_operator</strong> (<em>CharField</em>) &#8211; Operator</li>
+<li><strong>grade_range</strong> (<em>CharField</em>) &#8211; Grade range</li>
+<li><strong>grade_flag</strong> (<em>CharField</em>) &#8211; Grade flag</li>
+<li><strong>reference_flag</strong> (<em>CharField</em>) &#8211; Reference flag</li>
+<li><strong>reference_range</strong> (<em>CharField</em>) &#8211; Reference range</li>
+<li><strong>validation_status</strong> (<em>CharField</em>) &#8211; Default is preliminary</li>
+<li><strong>validation_datetime</strong> (<em>DateTimeField</em>) &#8211; Validation datetime</li>
+<li><strong>validation_username</strong> (<em>CharField</em>) &#8211; Validation username</li>
+<li><strong>validation_reference</strong> (<em>CharField</em>) &#8211; Validation reference</li>
+<li><strong>comment</strong> (<em>CharField</em>) &#8211; Validation comment</li>
+<li><strong>error_code</strong> (<em>CharField</em>) &#8211; Error codes</li>
+<li><strong>receive_identifier</strong> (<em>CharField</em>) &#8211; non-user helper field to simplify search and filter</li>
+<li><strong>import_datetime</strong> (<em>DateTimeField</em>) &#8211; Import datetime</li>
+<li><strong>test_code_id</strong> (<em>ForeignKey</em>) &#8211; Test code</li>
+<li><strong>result_id</strong> (<em>ForeignKey</em>) &#8211; Result</li>
+<li><strong>subject_identifier</strong> (<em>CharField</em>) &#8211; non-user helper field to simplify search and filtering</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="supporting-models">
+<h2>Supporting Models<a class="headerlink" href="#supporting-models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="lab_clinic_api.models.AliquotType">
+<em class="property">class </em><tt class="descclassname">lab_clinic_api.models.</tt><tt class="descname">AliquotType</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lab_clinic_api.models.AliquotType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lab_aliquot_list.models.base_aliquot_type.BaseAliquotType</span></tt></p>
+<p>AliquotType(id, created, modified, user_created, user_modified, hostname_created, hostname_modified, name, alpha_code, numeric_code)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">aliquot type</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">lab_clinic_api_aliquottype</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>CharField</em>) &#8211; Description</li>
+<li><strong>alpha_code</strong> (<em>CharField</em>) &#8211; Aplha code</li>
+<li><strong>numeric_code</strong> (<em>CharField</em>) &#8211; Numeric code (2-digit)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="lab_clinic_api.models.AliquotCondition">
+<em class="property">class </em><tt class="descclassname">lab_clinic_api.models.</tt><tt class="descname">AliquotCondition</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lab_clinic_api.models.AliquotCondition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">bhp_base_model.classes.base_list_model.BaseListModel</span></tt></p>
+<p>AliquotCondition(id, created, modified, user_created, user_modified, hostname_created, hostname_modified, name, short_name, display_index, field_name, version)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">aliquot condition</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">lab_clinic_api_aliquotcondition</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>CharField</em>) &#8211; This is displayed value, shown to the user (40 characters max.)</li>
+<li><strong>short_name</strong> (<em>CharField</em>) &#8211; This is the stored value, required</li>
+<li><strong>display_index</strong> (<em>IntegerField</em>) &#8211; Index to control display order if not alphabetical, not required</li>
+<li><strong>field_name</strong> (<em>CharField</em>) &#8211; Not required</li>
+<li><strong>version</strong> (<em>CharField</em>) &#8211; Version</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="lab_clinic_api.models.Panel">
+<em class="property">class </em><tt class="descclassname">lab_clinic_api.models.</tt><tt class="descname">Panel</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lab_clinic_api.models.Panel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lab_panel.models.base_panel.BasePanel</span></tt></p>
+<p>Panel(id, created, modified, user_created, user_modified, hostname_created, hostname_modified, name, comment, edc_name)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">panel</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">lab_clinic_api_panel</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>CharField</em>) &#8211; Panel name</li>
+<li><strong>comment</strong> (<em>CharField</em>) &#8211; Comment</li>
+<li><strong>edc_name</strong> (<em>CharField</em>) &#8211; Edc name</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="lab_clinic_api.models.TestCode">
+<em class="property">class </em><tt class="descclassname">lab_clinic_api.models.</tt><tt class="descname">TestCode</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lab_clinic_api.models.TestCode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lab_test_code.models.base_test_code.BaseTestCode</span></tt></p>
+<p>TestCode(id, created, modified, user_created, user_modified, hostname_created, hostname_modified, code, name, units, display_decimal_places, is_absolute, formula, edc_code, edc_name, test_code_group_id)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">test code</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">lab_clinic_api_testcode</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>code</strong> (<em>CharField</em>) &#8211; Test code</li>
+<li><strong>name</strong> (<em>CharField</em>) &#8211; Test code description</li>
+<li><strong>units</strong> (<em>CharField</em>) &#8211; Units</li>
+<li><strong>display_decimal_places</strong> (<em>IntegerField</em>) &#8211; Decimal places to display</li>
+<li><strong>is_absolute</strong> (<em>CharField</em>) &#8211; Is the value absolute or calculated?</li>
+<li><strong>formula</strong> (<em>CharField</em>) &#8211; If calculated, formula?</li>
+<li><strong>edc_code</strong> (<em>CharField</em>) &#8211; Edc code</li>
+<li><strong>edc_name</strong> (<em>CharField</em>) &#8211; Edc name</li>
+<li><strong>test_code_group_id</strong> (<em>ForeignKey</em>) &#8211; Test code group</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="lab_clinic_api.models.TestCodeGroup">
+<em class="property">class </em><tt class="descclassname">lab_clinic_api.models.</tt><tt class="descname">TestCodeGroup</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lab_clinic_api.models.TestCodeGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lab_test_code.models.base_test_code_group.BaseTestCodeGroup</span></tt></p>
+<p>TestCodeGroup(id, created, modified, user_created, user_modified, hostname_created, hostname_modified, code, name)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Name :</th><td class="field-body"><p class="first">test code group</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Table :</th><td class="field-body"><p class="first">lab_clinic_api_testcodegroup</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>code</strong> (<em>CharField</em>) &#8211; Code</li>
+<li><strong>name</strong> (<em>CharField</em>) &#8211; Name</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Models</a><ul>
+<li><a class="reference internal" href="#main-models">Main Models</a></li>
+<li><a class="reference internal" href="#supporting-models">Supporting Models</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="classes.html"
+                        title="previous chapter">Classes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/models.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="classes.html" title="Classes"
+             >previous</a> |</li>
+        <li><a href="index.html">lab_clinic_api 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, erik van widenfelt.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

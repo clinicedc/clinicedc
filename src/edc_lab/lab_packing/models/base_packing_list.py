@@ -1,13 +1,12 @@
 from datetime import datetime
 from django.db import models
 
-from edc.audit.audit_trail import AuditTrail
-from edc.device.sync.models import BaseSyncUuidModel
+from edc_base.audit_trail import AuditTrail
 
 from .destination import Destination
 
 
-class BasePackingList(BaseSyncUuidModel):
+class BasePackingList(models.Model):
 
     list_datetime = models.DateTimeField(
         )

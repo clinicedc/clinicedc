@@ -1,0 +1,10 @@
+{% extends "admin/base.html" %}
+{% block userlinks %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+{% block content %}
+<table name="left" id="left" border=1 width="500px">
+<tr><td>{% include 'clinic_result_report_header.html' %}</td></tr>
+<tr><td>{% include 'result_report_single.html' %}</td></tr>
+<tr><td>{% include 'clinic_result_report_footer.html' %}</td></tr>
+</table>
+{% endblock %}
