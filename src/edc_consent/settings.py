@@ -13,9 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 import os
-import six
 
-from django import get_version
 from django.utils import timezone
 
 from unipath import Path
@@ -36,41 +34,23 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-if get_version().startswith('1.6') and six.PY2:
 
-    INSTALLED_APPS = (
-        'django.contrib.admin',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
-        'tastypie',
-        'edc_audit',
-        'edc_base',
-        'edc_crypto_fields',
-        'edc_quota',
-        'edc_registration',
-        'edc_sync',
-        'edc_consent',
-    )
-else:
-    INSTALLED_APPS = (
-        'django.contrib.admin',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
-        'django_revision',
-        'simple_history',
-        'django_crypto_fields',
-        'tastypie',
-        'edc_registration',
-        'edc_base',
-        'edc_quota',
-        'edc_consent',
-    )
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'tastypie',
+    'edc_audit',
+    'edc_base',
+    'edc_crypto_fields',
+    'edc_quota',
+    'edc_registration',
+    'edc_sync',
+    'edc_consent',
+)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -136,24 +116,18 @@ STATIC_URL = '/static/'
 
 GIT_DIR = BASE_DIR.ancestor(1)
 
-KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'keys')
-KEY_PREFIX = 'test'
+KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
 
-if six.PY2:
-    SERVER_DEVICE_ID_LIST = []
-    MIDDLEMAN_DEVICE_ID_LIST = []
-    PROJECT_ROOT = GIT_DIR
-    FIELD_MAX_LENGTH = 'default'
-    IS_SECURE_DEVICE = True
-    KEY_PREFIX = 'user'
-    ALLOW_MODEL_SERIALIZATION = True
-
-if six.PY2:
-    MIN_AGE_OF_CONSENT = None
+PROJECT_ROOT = GIT_DIR
+FIELD_MAX_LENGTH = 'default'
+IS_SECURE_DEVICE = True
+KEY_PREFIX = 'user'
+ALLOW_MODEL_SERIALIZATION = True
+MIN_AGE_OF_CONSENT = None
 STUDY_OPEN_DATETIME = timezone.datetime(2013, 10, 18)
 DEVICE_ID = '99'
 SERVER_DEVICE_ID_LIST = ['99']
-
+MIDDLEMAN_DEVICE_ID_LIST = []
 LANGUAGES = (
     ('tn', 'Setswana'),
     ('en', 'English'))
