@@ -4,14 +4,13 @@ from collections import OrderedDict
 
 from django.test import TestCase
 
-from edc.lab.lab_profile.classes import site_lab_profiles
-from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
+from edc_lab.lab_profile.classes import site_lab_profiles
+from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc.testing.classes import TestLabProfile, TestAppConfiguration
 from edc.testing.models import TestVisit, TestAliquotType, TestPanel
 
 from edc_appointment.models import Appointment
-from edc_consent.models import StudySite
 from edc_constants.constants import MALE, REQUIRED, NOT_ADDITIONAL
 from edc_registration.tests.factories import RegisteredSubjectFactory
 from edc_visit_schedule.classes import (
@@ -160,7 +159,7 @@ class BaseTest(TestCase):
         site_lab_tracker.autodiscover()
         TestAppConfiguration().prepare()
         VisitSchedule().build()
-        self.study_site = StudySite.objects.all()[0]
+        self.study_site = '40'
         self.identity = '111111111'
         self.subject_identifier = '999-100000-1'
         self.visit_definition = VisitDefinition.objects.get(code='1000')
