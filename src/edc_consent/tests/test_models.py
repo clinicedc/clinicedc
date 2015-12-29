@@ -9,6 +9,7 @@ from edc_consent.models.fields import (
     IdentityFieldsMixin, SampleCollectionFieldsMixin, PersonalFieldsMixin,
     VulnerabilityFieldsMixin, SiteFieldsMixin)
 from edc_quota.client.models import QuotaMixin, QuotaManager
+from edc_registration.models import RegisteredSubject
 
 
 class ConsentQuotaMixin(QuotaMixin):
@@ -22,6 +23,8 @@ class ConsentQuotaMixin(QuotaMixin):
 class TestConsentModel(
         BaseConsent, ConsentQuotaMixin, IdentityFieldsMixin, SampleCollectionFieldsMixin,
         SiteFieldsMixin, PersonalFieldsMixin, VulnerabilityFieldsMixin, BaseUuidModel):
+
+    # registered_subject = models.ForeignKey(RegisteredSubject)
 
     objects = models.Manager()
 

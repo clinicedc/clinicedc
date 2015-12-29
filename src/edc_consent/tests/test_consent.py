@@ -14,7 +14,7 @@ from edc_consent.models.validators import AgeTodayValidator
 from edc_constants.constants import NO
 
 from .base_test_case import BaseTestCase
-from .base_test_models import (
+from .test_models import (
     TestConsentModel, TestModel, TestScheduledModel, ConsentForm, Visit, ConsentModelProxyForm)
 from .factories import (
     TestConsentModelFactory, TestConsentModelProxy, TestConsentModelProxyFactory, ConsentTypeFactory)

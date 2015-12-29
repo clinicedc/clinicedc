@@ -9,7 +9,7 @@ from django.utils import timezone
 from edc_constants.constants import YES, NO
 from edc_consent.models import ConsentType, StudySite
 
-from .base_test_models import TestConsentModel, TestConsentModelProxy
+from .test_models import TestConsentModel, TestConsentModelProxy
 
 faker = FakerFactory.create()
 
