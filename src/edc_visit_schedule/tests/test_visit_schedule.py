@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from edc.lab.lab_profile.classes import site_lab_profiles
-from edc.lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
+from edc_lab.lab_profile.classes import site_lab_profiles
+from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.entry.models import Entry, LabEntry
 from edc.testing.classes import TestLabProfile
 from edc.testing.classes import TestVisitSchedule, TestAppConfiguration
