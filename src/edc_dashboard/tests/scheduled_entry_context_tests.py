@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
 from edc.core.bhp_content_type_map.models import ContentTypeMap
-from edc.core.bhp_variables.tests.factories import StudySpecificFactory, StudySiteFactory
+from edc_consent.tests.factories import StudySiteFactory
 from edc.entry_meta_data.models import ScheduledEntryMetaData
 from edc.subject.entry.tests.factories import EntryFactory, LabEntryFactory
 from edc.subject.lab_tracker.classes import site_lab_tracker
@@ -23,7 +23,6 @@ class ScheduledEntryContextTests(TestCase):
     def setUp(self):
         self.test_visit_factory = TestVisitFactory
         site_lab_tracker.autodiscover()
-        StudySpecificFactory()
         StudySiteFactory()
         content_type_map_helper = ContentTypeMapHelper()
         content_type_map_helper.populate()
