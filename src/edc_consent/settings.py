@@ -52,7 +52,6 @@ if get_version().startswith('1.6') and six.PY2:
         'edc_quota',
         'edc_registration',
         'edc_sync',
-        'edc.core.bhp_variables',
         'edc_consent',
     )
 else:
