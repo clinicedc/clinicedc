@@ -1,6 +1,6 @@
 import factory
 
-from edc.core.bhp_variables.models import StudySite
+from edc_consent.models import StudySite
 
 
 class StudySiteFactory(factory.DjangoModelFactory):
