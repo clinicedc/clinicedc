@@ -141,15 +141,15 @@
                     {% block subject_configuration %}
                     {% if subject_configuration %}
                        {% if visit_model_instance %}
-                           <A href="{% url 'admin:subject_config_subjectconfiguration_change' subject_configuration.pk %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
+                           <A href="{% url 'admin:edc_appointment_subjectconfiguration_change' subject_configuration.pk %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
                        {% else %}
-                           <A href="{% url 'admin:subject_config_subjectconfiguration_change' subject_configuration.pk %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
+                           <A href="{% url 'admin:edc_appointment_subjectconfiguration_change' subject_configuration.pk %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
                        {% endif %}
                     {% else %}
                        {% if visit_model_instance %}
-                           <A href="{% url 'admin:subject_config_subjectconfiguration_add' %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
+                           <A href="{% url 'admin:edc_appointment_subjectconfiguration_add' %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
                        {% else %}
-                           <A href="{% url 'admin:subject_config_subjectconfiguration_add' %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
+                           <A href="{% url 'admin:edc_appointment_subjectconfiguration_add' %}?next={{ subject_dashboard_url|default:"dashboard_url" }}&dashboard_type={{dashboard_type}}&dashboard_model={{dashboard_model}}&dashboard_id={{dashboard_id}}&show=appointments&subject_identifier={{ subject_identifier }}&registered_subject={{ registered_subject.pk }}">settings</A>
                        {% endif %}
                     {% endif %}&nbsp;|&nbsp;
                     {% endblock subject_configuration %}
