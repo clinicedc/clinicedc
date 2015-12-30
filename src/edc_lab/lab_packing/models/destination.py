@@ -5,7 +5,6 @@ from django.db import models
 from edc_base.audit_trail import AuditTrail
 from edc_base.model.models import BaseUuidModel
 from edc_sync.models import SyncModelMixin
-# from edc.device.sync.models import BaseSyncUuidModel
 
 from ..managers import DestinationManager
 

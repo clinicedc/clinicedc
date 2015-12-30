@@ -4,6 +4,8 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import get_model
 
+from edc_base.model.models import BaseUuidModel
+
 from lis.exim.lab_import_dmis.classes.dmis_tools import DmisTools
 from lis.specimen.lab_order.models import BaseOrder
 
@@ -23,7 +25,7 @@ class NullHandler(logging.Handler):
 nullhandler = logger.addHandler(NullHandler())
 
 
-class Order(BaseOrder):
+class Order(BaseOrder, BaseUuidModel):
     """Stores orders and is in a one to many relation with :class:`Aliquot` where one aliquot may
     have multiple orders and in a one-to-many relation with :class:`Result` where one order
     should only have one final result (but not enforced by the DB)."""

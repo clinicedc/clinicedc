@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from django.db import models
 
 from edc_base.audit_trail import AuditTrail
@@ -8,27 +9,24 @@ from .destination import Destination
 
 class BasePackingList(models.Model):
 
-    list_datetime = models.DateTimeField(
-        )
+    list_datetime = models.DateTimeField()
 
     list_comment = models.CharField(
         verbose_name='Instructions',
         max_length=100,
         null=True,
-        blank=True,
-        )
+        blank=True)
 
     list_items = models.TextField(
         max_length=1000,
-        help_text='List specimen_identifier\'s. One per line.'
-        )
+        help_text='List specimen_identifier\'s. One per line.')
 
     timestamp = models.CharField(
         max_length=35,
-        null=True,
-        )
+        null=True)
 
-    destination = models.ForeignKey(Destination,
+    destination = models.ForeignKey(
+        Destination,
         verbose_name='Ship Specimens To',
         null=True)
 

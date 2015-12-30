@@ -12,31 +12,26 @@ class BasePackingListItem(models.Model):
         null=True,
         blank=False,
         editable=False,
-        help_text="pk of requisition instance",
-        )
+        help_text="pk of requisition instance")
 
     item_reference = models.CharField(
-        max_length=25,
-        )
+        max_length=25)
 
     item_datetime = models.DateTimeField(
         null=True,
-        blank=True,
-        )
+        blank=True)
 
     item_description = models.TextField(
         max_length=100,
         null=True,
-        blank=True,
-        )
+        blank=True)
 
     item_priority = models.CharField(
         max_length=35,
         choices=(('normal', 'Normal'), ('urgent', 'Urgent')),
         null=True,
         blank=False,
-        help_text="",
-        )
+        help_text="")
 
     old_panel_id = models.CharField(max_length=50, null=True)
 

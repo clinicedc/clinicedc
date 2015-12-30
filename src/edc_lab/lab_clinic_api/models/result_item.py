@@ -2,11 +2,11 @@ import logging
 
 from django.db import models
 from django.db.models import get_model
-from lis.specimen.lab_result_item.models import BaseResultItem
 
 from edc_lab.lab_clinic_reference.classes import ClinicReferenceFlag, ClinicGradeFlag
 from edc_base.model.models import BaseUuidModel
 
+from lis.specimen.lab_result_item.models import BaseResultItem
 
 from .result import Result
 from .test_code import TestCode
@@ -23,9 +23,13 @@ nullhandler = logger.addHandler(NullHandler())
 
 class ResultItem(BaseResultItem, BaseUuidModel):
     """Stores each result item in a result in one-to-many relation with :class:`Result`."""
+
     test_code = models.ForeignKey(TestCode, related_name='+')
+
     result = models.ForeignKey(Result)
+
     subject_type = models.CharField(max_length=25, null=True)
+
     objects = models.Manager()
 
     def save(self, *args, **kwargs):

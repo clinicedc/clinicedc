@@ -26,9 +26,9 @@ class GradingListItem(BaseReferenceListItem):
 
     serum = models.CharField(max_length=10, choices=(('HIGH', 'High'), ('LOW', 'Low'), ('N/A', 'Not applicable')), default='N/A')
 
-    history = AuditTrail()
-
     objects = models.Manager()
+
+    history = AuditTrail()
 
     def describe(self, age_in_days=None):
         if not age_in_days:
