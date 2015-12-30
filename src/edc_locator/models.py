@@ -15,14 +15,6 @@ from edc_base.audit_trail import AuditTrail
 
 class LocatorMixin(models.Model):
 
-    report_datetime = models.DateTimeField(
-        verbose_name="Today's date",
-        validators=[
-            datetime_not_before_study_start,
-            datetime_not_future, ],
-        default=timezone.now,
-    )
-
     date_signed = models.DateField(
         verbose_name="Date Locator Form signed ",
         default=date.today,
