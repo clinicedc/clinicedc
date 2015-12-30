@@ -43,7 +43,6 @@ INSTALLED_APPS = (
     'edc.entry_meta_data',
     'edc_lab.lab_clinic_api',
     'edc.subject.entry',
-    'edc.subject.subject_config',
     'edc.testing',
     'edc_appointment',
     'edc_base',
