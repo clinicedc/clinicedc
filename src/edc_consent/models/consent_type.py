@@ -89,21 +89,22 @@ class ConsentType(models.Model):
                     'Version(s) \'{0}\' not found in \'{2}\''.format(
                         self.updates_version.split(','), self.version, self.__class__._meta.verbose_name))
         try:
-            previous = self.__class__.objects.get(
+            other_consent_type = self.__class__.objects.get(
                 (Q(start_datetime__range=(self.start_datetime, self.end_datetime)) |
                  Q(end_datetime__range=(self.start_datetime, self.end_datetime))),
                 app_label=self.app_label,
                 model_name=self.model_name,
             )
-            raise ConsentTypeError(
-                'Consent period for version {0} overlaps with version \'{1}\'. '
-                'Got {2} to {3} overlaps with {4} to {5}.'.format(
-                    self.updates_version, self.version,
-                    previous.start_datetime.strftime('%Y-%m-%d'),
-                    previous.end_datetime.strftime('%Y-%m-%d'),
-                    self.start_datetime.strftime('%Y-%m-%d'),
-                    self.end_datetime.strftime('%Y-%m-%d'),
-                ))
+            if other_consent_type.pk != self.id:
+                raise ConsentTypeError(
+                    'Consent period for version {0} overlaps with version \'{1}\'. '
+                    'Got {2} to {3} overlaps with {4} to {5}.'.format(
+                        self.updates_version, self.version,
+                        other_consent_type.start_datetime.strftime('%Y-%m-%d'),
+                        other_consent_type.end_datetime.strftime('%Y-%m-%d'),
+                        self.start_datetime.strftime('%Y-%m-%d'),
+                        self.end_datetime.strftime('%Y-%m-%d'),
+                    ))
         except self.__class__.DoesNotExist:
             pass
         super(ConsentType, self).save(*args, **kwargs)
