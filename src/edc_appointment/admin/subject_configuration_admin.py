@@ -1,7 +1,9 @@
 from django.contrib import admin
+
 from edc_base.modeladmin.admin import BaseModelAdmin
-from ..models import SubjectConfiguration
+
 from ..forms import SubjectConfigurationForm
+from ..models import SubjectConfiguration
 
 
 class SubjectConfigurationAdmin(BaseModelAdmin):
