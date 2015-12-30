@@ -40,7 +40,7 @@
 {% endblock edc_birt_reports %}
 
 {% block lab_clinic_api %}
-    {% if 'edc.lab.lab_clinic_api' in installed_apps %}
+    {% if 'edc_lab.lab_clinic_api' in installed_apps %}
         <H5>Lab</H5>
         <ul>
         <li><A href="/admin/{{protocol_lab_section}}/">Requisitions, Aliquots and Packing Lists</A></li>

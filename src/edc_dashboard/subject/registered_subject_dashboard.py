@@ -12,9 +12,9 @@ from edc.apps.app_configuration.models.global_configuration import GlobalConfigu
 from edc.data_manager.models import ActionItem
 from edc.data_manager.models import TimePointStatus
 from edc.entry_meta_data.helpers import ScheduledEntryMetaDataHelper, RequisitionMetaDataHelper
-from edc.lab.lab_clinic_api.classes import EdcLabResults
-from edc.lab.lab_packing.models import BasePackingList
-from edc.lab.lab_requisition.models import BaseBaseRequisition
+from edc_lab.lab_clinic_api.classes import EdcLabResults
+from edc_lab.lab_packing.models import BasePackingList
+from edc_lab.lab_requisition.models import BaseBaseRequisition
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc.subject.locator.models import BaseLocator
 from edc.subject.subject_config.models import SubjectConfiguration
