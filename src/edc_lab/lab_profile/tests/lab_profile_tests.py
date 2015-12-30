@@ -4,11 +4,11 @@ from edc.entry_meta_data.models import RequisitionMetaData
 from edc_lab.lab_profile.classes import site_lab_profiles
 from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.lab_tracker.classes import site_lab_tracker
-from edc.testing.classes import TestAppConfiguration
-from edc.testing.classes import TestLabProfile
-from edc.testing.classes import TestVisitSchedule
-from edc.testing.models import TestPanel, TestAliquotType, TestReceive, TestAliquot
-from edc.testing.tests.factories import TestConsentWithMixinFactory, TestRequisitionFactory
+from edc_testing.classes import TestAppConfiguration
+from edc_testing.classes import TestLabProfile
+from edc_testing.classes import TestVisitSchedule
+from edc_testing.models import TestPanel, TestAliquotType, TestReceive, TestAliquot
+from edc_testing.tests.factories import TestConsentWithMixinFactory, TestRequisitionFactory
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO
 from edc_registration.models import RegisteredSubject

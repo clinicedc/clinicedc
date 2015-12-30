@@ -1,5 +1,5 @@
 import factory
-from edc.testing.models import TestRequisition
+from edc_testing.models import TestRequisition
 from .base_clinic_requisition_factory import BaseClinicRequisitionFactory
 
 

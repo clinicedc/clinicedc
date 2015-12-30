@@ -21,7 +21,6 @@ class BaseRequisitionModelAdmin(BaseVisitTrackingModelAdmin):
             "is_drawn",
             "reason_not_drawn",
             "drawn_datetime",
-            "study_site",
             "panel",
             "test_code",
             "aliquot_type",
@@ -35,7 +34,6 @@ class BaseRequisitionModelAdmin(BaseVisitTrackingModelAdmin):
             "reason_not_drawn": admin.VERTICAL,
             "item_type": admin.VERTICAL,
             "priority": admin.VERTICAL,
-            "study_site": admin.VERTICAL,
         }
         self.list_display = [
             'requisition_identifier',
