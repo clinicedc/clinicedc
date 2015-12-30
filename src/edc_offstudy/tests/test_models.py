@@ -17,7 +17,7 @@ class TestConsentModel(
         BaseConsent, AppointmentMixin, IdentityFieldsMixin, SampleCollectionFieldsMixin,
         SiteFieldsMixin, PersonalFieldsMixin, VulnerabilityFieldsMixin, BaseUuidModel):
 
-    registered_subject = models.ForeignKey(RegisteredSubject)
+    registered_subject = models.ForeignKey(RegisteredSubject, null=True)
 
     objects = models.Manager()
 

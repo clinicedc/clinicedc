@@ -11,7 +11,7 @@ from edc.testing.classes import TestLabProfile, TestAppConfiguration
 from edc.testing.models import TestVisit, TestAliquotType, TestPanel
 
 from edc_appointment.models import Appointment
-from edc_constants.constants import MALE, REQUIRED, NOT_ADDITIONAL
+from edc_constants.constants import MALE, REQUIRED, NOT_ADDITIONAL, YES
 from edc_registration.tests.factories import RegisteredSubjectFactory
 from edc_visit_schedule.classes import (
     VisitScheduleConfiguration, EntryTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
@@ -19,6 +19,8 @@ from edc_visit_schedule.models import VisitDefinition
 
 
 from .test_models import TestVisitModel, TestConsentModel
+from edc_consent.models.consent_type import ConsentType
+from django.utils import timezone
 
 entries = (
     EntryTuple(10L, u'testing', u'TestScheduledModel1', REQUIRED, NOT_ADDITIONAL),
@@ -158,6 +160,11 @@ class BaseTest(TestCase):
             pass
         site_lab_tracker.autodiscover()
         TestAppConfiguration().prepare()
+        # update consent type for our consent model
+        consent_type = ConsentType.objects.first()
+        consent_type.app_label = 'edc_offstudy'
+        consent_type.model_name = 'testconsentmodel'
+        consent_type.save()
         VisitSchedule().build()
         self.study_site = '40'
         self.identity = '111111111'
@@ -167,6 +174,8 @@ class BaseTest(TestCase):
             subject_identifier=self.subject_identifier)
         self.test_consent = TestConsentModel.objects.create(
             registered_subject=self.registered_subject,
+            consent_datetime=timezone.now(),
+            is_literate=YES,
             gender=MALE,
             identity=self.identity,
             confirm_identity=self.identity,
