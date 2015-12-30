@@ -8,7 +8,7 @@ from django.db import models
 from django.db.models import TextField, Count
 from django.template.loader import render_to_string
 
-from edc.apps.app_configuration.models.global_configuration import GlobalConfiguration
+from edc_configuration.models import GlobalConfiguration
 from edc.data_manager.models import ActionItem
 from edc.data_manager.models import TimePointStatus
 from edc.entry_meta_data.helpers import ScheduledEntryMetaDataHelper, RequisitionMetaDataHelper
