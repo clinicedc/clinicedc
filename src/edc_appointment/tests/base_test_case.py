@@ -12,6 +12,7 @@ from edc_visit_schedule.models import VisitDefinition
 from edc.testing.classes import TestLabProfile
 from edc.testing.classes import TestVisitSchedule, TestAppConfiguration
 from edc_consent.tests.test_models import TestConsentModel
+from edc_consent.models.consent_type import ConsentType
 
 
 class BaseTestCase(TestCase):
@@ -24,6 +25,10 @@ class BaseTestCase(TestCase):
         site_lab_tracker.autodiscover()
 
         TestAppConfiguration().prepare()
+        consent_type = ConsentType.objects.first()
+        consent_type.app_label = 'testing'
+        consent_type.model_name = 'testconsentwithmixin'
+        consent_type.save()
 
         TestVisitSchedule().build()
 
