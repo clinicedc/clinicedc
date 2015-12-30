@@ -6,7 +6,6 @@ from django.utils.translation import ugettext as _
 
 from edc_base.model.validators import CellNumber, TelephoneNumber
 from edc_base.encrypted_fields import EncryptedCharField, EncryptedTextField
-from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
 from edc_constants.choices import YES_NO, YES_NO_DOESNT_WORK
 from edc_constants.constants import YES
 
