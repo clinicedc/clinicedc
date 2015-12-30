@@ -15,12 +15,14 @@ class BaseRequisitionModelAdmin(BaseVisitTrackingModelAdmin):
 
     def __init__(self, *args, **kwargs):
         super(BaseRequisitionModelAdmin, self).__init__(*args, **kwargs)
+
         self.fields = [
             self.visit_attr,
             "requisition_datetime",
             "is_drawn",
             "reason_not_drawn",
             "drawn_datetime",
+            'study_site',
             "panel",
             "test_code",
             "aliquot_type",
@@ -29,12 +31,14 @@ class BaseRequisitionModelAdmin(BaseVisitTrackingModelAdmin):
             "estimated_volume",
             "priority",
             "comments", ]
+
         self.radio_fields = {
             "is_drawn": admin.VERTICAL,
             "reason_not_drawn": admin.VERTICAL,
             "item_type": admin.VERTICAL,
             "priority": admin.VERTICAL,
         }
+
         self.list_display = [
             'requisition_identifier',
             # 'specimen_identifier',
@@ -59,6 +63,7 @@ class BaseRequisitionModelAdmin(BaseVisitTrackingModelAdmin):
             # 'is_lis',
             'panel',
             "requisition_datetime",
+            'study_site',
             # 'is_receive_datetime',
             # 'is_labelled_datetime',
             'user_created',
