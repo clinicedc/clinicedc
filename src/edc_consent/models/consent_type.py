@@ -31,6 +31,9 @@ class ConsentTypeManager(models.Manager):
                 start_datetime__lte=consent_datetime,
                 end_datetime__gte=consent_datetime
             )
+        except ValueError as e:
+            if 'Cannot use None as a query value' in str(e):
+                raise ValueError('{} Got consent_datetime=\'{}\''.format(str(e), str(consent_datetime)))
         except ConsentType.DoesNotExist:
             raise exception_cls(
                 'Cannot find a version of consent \'{}\' using {} \'{}\'. '

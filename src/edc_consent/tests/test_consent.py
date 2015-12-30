@@ -399,14 +399,14 @@ class TestConsent(BaseTestCase):
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
         consent = TestConsentModelProxyFactory.build(gender='F')
-        consent_form = ConsentModelProxyForm(data=consent.__dict__)
-        self.assertFalse(consent_form.is_valid())
+        form = ConsentModelProxyForm(data=consent.__dict__)
+        self.assertFalse(form.is_valid())
         self.assertIn(
             'Gender of consent can only be \'M\'. Got \'F\'.',
-            ','.join(consent_form.errors.get('gender')))
+            ','.join(form.errors.get('gender')))
         consent = TestConsentModelProxyFactory.build(gender='M')
-        consent_form = ConsentModelProxyForm(data=consent.__dict__)
-        self.assertTrue(consent_form.is_valid())
+        form = ConsentModelProxyForm(data=consent.__dict__)
+        self.assertTrue(form.is_valid())
 
     def test_base_form_catches_is_literate_and_witness(self):
         ConsentTypeFactory(

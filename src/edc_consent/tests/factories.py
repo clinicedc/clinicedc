@@ -29,6 +29,7 @@ class TestConsentModelFactory(factory.DjangoModelFactory):
         model = TestConsentModel
 
     subject_identifier = '12345'
+    study_site = '40'
     first_name = factory.LazyAttribute(lambda x: 'E{}'.format(faker.first_name().upper()))
     last_name = factory.LazyAttribute(lambda x: 'E{}'.format(faker.last_name().upper()))
     initials = 'EE'
@@ -55,6 +56,7 @@ class TestConsentModelProxyFactory(factory.DjangoModelFactory):
         model = TestConsentModelProxy
 
     subject_identifier = '12345'
+    study_site = '40'
     first_name = 'ERIK'
     last_name = 'ERIKS'
     initials = 'EE'

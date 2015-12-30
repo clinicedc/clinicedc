@@ -11,6 +11,8 @@ from ..exceptions import ConsentVersionError
 
 from .consent_type import ConsentType
 from .fields.verification_fields_mixin import VerificationFieldsMixin
+from edc_consent.exceptions import ConsentTypeError
+from django.core.exceptions import MultipleObjectsReturned
 
 
 class ObjectConsentManager(models.Manager):
@@ -71,6 +73,8 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
         editable=False,
     )
 
+    study_site = models.CharField(max_length=15, null=True)
+
     sid = models.CharField(
         verbose_name="SID",
         max_length=15,
@@ -104,6 +108,7 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
         return (self.subject_identifier_as_pk, )
 
     def save(self, *args, **kwargs):
+        self.is_known_consent_model_or_raise()
         if not self.id and not self.subject_identifier:
             self.subject_identifier = self.subject_identifier_as_pk
         consent_type = ConsentType.objects.get_by_consent_datetime(
@@ -125,6 +130,27 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
                         consent_type.updates_version.split(','), self.version))
         super(BaseConsent, self).save(*args, **kwargs)
 
+    def is_known_consent_model_or_raise(self, consent_model=None, exception_cls=None):
+        """Raises an exception if not listed in ConsentType."""
+        consent_model = consent_model or self
+        exception_cls = exception_cls or ConsentTypeError
+        try:
+            consent_type = ConsentType.objects.get(
+                app_label=consent_model._meta.app_label,
+                model_name=consent_model._meta.model_name)
+        except MultipleObjectsReturned:
+            pass
+        except ConsentType.DoesNotExist:
+            models = []
+            for consent_type in ConsentType.objects.all():
+                models.append('{}.{}'.format(consent_type.app_label, consent_type.model_name))
+            raise exception_cls(
+                '\'{}.{}\' is not a known consent model. '
+                'Valid consent models are [\'{}\']. See ConsentType and/or edc_configuration.'.format(
+                    consent_model._meta.app_label,
+                    consent_model._meta.model_name,
+                    '\', \''.join(models)))
+
     @property
     def report_datetime(self):
         return self.consent_datetime
@@ -141,6 +167,9 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
     def formatted_age_at_consent(self):
         """Returns a string representation."""
         return formatted_age(self.dob, self.consent_datetime)
+
+    def get_registration_datetime(self):
+        return self.consent_datetime
 
     class Meta:
         abstract = True
