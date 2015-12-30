@@ -1,16 +1,16 @@
 from django.conf import settings
-from django.db import models
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
-from django.core.exceptions import ValidationError
+from django.db import models
 
+from edc_base.audit_trail import AuditTrail
+from edc_base.model.models import BaseUuidModel
+from edc_constants.constants import COMPLETE_APPT, NEW_APPT
 from edc_registration.models import RegisteredSubject
+from edc_sync.models import SyncModelMixin
 from edc_visit_schedule.classes import WindowPeriod
 from edc_visit_schedule.models import VisitDefinition
-from edc_base.model.models import BaseUuidModel
-from edc_base.audit_trail import AuditTrail
-from edc_constants.constants import COMPLETE_APPT, NEW_APPT
-from edc_sync.models import SyncModelMixin
 
 from ..choices import APPT_TYPE, APPT_STATUS
 from ..managers import AppointmentManager

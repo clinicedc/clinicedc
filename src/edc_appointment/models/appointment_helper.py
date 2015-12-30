@@ -2,12 +2,12 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db.models import get_model, Max
 
 from edc_configuration.models import GlobalConfiguration
-from edc.subject.subject_config.models import SubjectConfiguration
 from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, INCOMPLETE, UNKEYED, NEW_APPT, CANCELLED
 
 from ..exceptions import AppointmentCreateError, AppointmentStatusError
 
 from .appointment_date_helper import AppointmentDateHelper
+from .subject_configuration import SubjectConfiguration
 
 
 class AppointmentHelper(object):
