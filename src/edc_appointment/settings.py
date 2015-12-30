@@ -51,7 +51,7 @@ INSTALLED_APPS = (
     'edc.core.bhp_content_type_map',
     'edc.data_manager',
     'edc.entry_meta_data',
-    'edc.lab.lab_clinic_api',
+    'edc_lab.lab_clinic_api',
     'edc.subject.entry',
     'edc.subject.subject_config',
     'edc.testing',
