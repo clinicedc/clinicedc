@@ -33,6 +33,7 @@ NEVER = 'NEVER'
 NEW = 'NEW'
 NEW_APPT = 'new'
 NO = 'No'
+NO_FURTHER_DATA_COLLECTION = 'no_further_datacollection'
 NOT_ADDITIONAL = False
 NOT_APPLICABLE = 'N/A'
 NOT_EVALUATED = 'Not evaluated'
