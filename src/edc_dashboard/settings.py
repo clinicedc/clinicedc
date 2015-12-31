@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from distutils.version import StrictVersion
-from django import get_version
 from datetime import datetime
 from unipath import Path
 
@@ -41,13 +39,14 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'edc',
     'edc.core.bhp_content_type_map',
-    'edc_consent',
-    'edc_base',
     'edc.subject.subject_config',
     'edc_appointment',
-    'edc_dashbaord')
+    'edc_base',
+    'edc_consent',
+    'edc_dashbaord'
+    'edc_locator',
+)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -57,8 +56,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'simple_history.middleware.HistoryRequestMiddleware',
+    # 'django.middleware.security.SecurityMiddleware',
+    # 'simple_history.middleware.History RequestMiddleware',
 )
 
 ROOT_URLCONF = 'edc_dashboard.urls'
@@ -117,9 +116,8 @@ GIT_DIR = BASE_DIR.ancestor(1)
 STUDY_OPEN_DATETIME = datetime.today()
 STUDY_CLOSE_DATETIME = datetime.today()
 
-if StrictVersion(get_version()) < StrictVersion('1.8.0'):
-    DEVICE_ID = '99'
-    SERVER_DEVICE_ID_LIST = ['99']
-    MIDDLEMAN_DEVICE_ID_LIST = ['98']
-    FIELD_MAX_LENGTH = 'default'
-    IS_SECURE_DEVICE = True
+DEVICE_ID = '99'
+SERVER_DEVICE_ID_LIST = ['99']
+MIDDLEMAN_DEVICE_ID_LIST = ['98']
+FIELD_MAX_LENGTH = 'default'
+IS_SECURE_DEVICE = True

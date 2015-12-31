@@ -16,7 +16,7 @@ from edc_lab.lab_clinic_api.classes import EdcLabResults
 from edc_lab.lab_packing.models import BasePackingList
 from edc_lab.lab_requisition.models import BaseBaseRequisition
 from edc.subject.lab_tracker.classes import site_lab_tracker
-from edc.subject.locator.models import BaseLocator
+from edc_locator.models import LocatorMixin
 from edc.subject.subject_summary.models import Link
 from edc_appointment.models import Appointment, SubjectConfiguration
 from edc_base.encrypted_fields import EncryptedTextField
@@ -432,7 +432,7 @@ class RegisteredSubjectDashboard(Dashboard):
         subclass of edc.subject.locator.BaseLocator."""
         self._locator_model = model
         if self._locator_model:
-            if not issubclass(self._locator_model, BaseLocator):
+            if not issubclass(self._locator_model, LocatorMixin):
                 raise TypeError('Locator model must be a subclass of BaseLocator. See {0}'.format(self))
 
     @property

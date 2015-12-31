@@ -2,7 +2,7 @@ from django.test.client import Client
 from django.test import SimpleTestCase
 from django.core.urlresolvers import reverse, NoReverseMatch
 
-from edc.testing.models import TestModel
+from edc_testing.models import TestModel
 from edc.dashboard.search.classes import BaseSearchByWord
 
 from ..classes import site_sections, BaseSectionView

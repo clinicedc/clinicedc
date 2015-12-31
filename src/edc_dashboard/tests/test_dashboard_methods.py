@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
 from edc_registration.models import RegisteredSubject
-from edc.testing.models import TestConsent, TestVisit
+from edc_testing.models import TestConsent, TestVisit
 
 from edc_dashboard.dashboard import Dashboard
 from ..exceptions import DashboardModelError
@@ -12,7 +12,7 @@ from ..exceptions import DashboardModelError
 class TestDashboardMethods(TestCase):
 
     def setUp(self):
-        from edc.testing.tests.factories import TestConsentFactory
+        from edc_testing.tests.factories import TestConsentFactory
         content_type_map_helper = ContentTypeMapHelper()
         content_type_map_helper.populate()
         content_type_map_helper.sync()
