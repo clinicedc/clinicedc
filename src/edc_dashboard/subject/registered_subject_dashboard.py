@@ -14,7 +14,7 @@ from edc.data_manager.models import TimePointStatus
 from edc.entry_meta_data.helpers import ScheduledEntryMetaDataHelper, RequisitionMetaDataHelper
 from edc_lab.lab_clinic_api.classes import EdcLabResults
 from edc_lab.lab_packing.models import BasePackingList
-from edc_lab.lab_requisition.models import BaseBaseRequisition
+from edc_lab.lab_requisition.models import RequisitionModelMixin
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc_locator.models import LocatorMixin
 from edc.subject.subject_summary.models import Link
@@ -25,7 +25,7 @@ from edc_constants.constants import NEW, NOT_REQUIRED, UNKEYED, KEYED, NEW_APPT,
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.classes import MembershipFormHelper
 from edc_visit_schedule.models import MembershipForm
-from edc_visit_tracking.models import VisitTrackingModelMixin
+from edc_visit_tracking.models import VisitModelMixin
 
 from ..dashboard import Dashboard
 
@@ -273,7 +273,7 @@ class RegisteredSubjectDashboard(Dashboard):
         if not self._visit_model:
             raise TypeError('Attribute _visit_model may not be None. Override the method '
                             'to return a visit mode class or specify at init.')
-        if not issubclass(self._visit_model, VisitTrackingModelMixin):
+        if not issubclass(self._visit_model, VisitModelMixin):
             raise TypeError('Expected visit model class to be a subclass of '
                             'VisitTrackingModelMixin. Got {0}. See {1}.'.format(self._visit_model, self))
 
@@ -315,8 +315,8 @@ class RegisteredSubjectDashboard(Dashboard):
         if self.has_requisition_model:
             if not self._requisition_model:
                 raise TypeError('Attribute _requisition model cannot be None. See {0}'.format(self))
-            if not issubclass(self._requisition_model, BaseBaseRequisition):
-                raise TypeError('Expected a subclass of BaseBaseRequisition. '
+            if not issubclass(self._requisition_model, RequisitionModelMixin):
+                raise TypeError('Expected a subclass of RequisitionModelMixin. '
                                 'Got {0}. See {1}.'.format(self._requisition_model, self))
 
     @property
