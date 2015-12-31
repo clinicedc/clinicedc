@@ -107,10 +107,10 @@ class TestPermissions(SimpleTestCase):
     def test_adds_permissions8(self):
         """Adds permissions for all models in the app"""
         self.startup()
-        permissions = Permissions('field_staff_team', ['add'], app_label='testing')
+        permissions = Permissions('field_staff_team', ['add'], app_label='edc_testing')
         permissions.replace()
         group = Group.objects.get(name='field_staff_team')
-        app = get_app('testing')
+        app = get_app('edc_testing')
         models = get_models(app)
         self.assertEquals(group.permissions.all().count(), len(models))
 
@@ -118,7 +118,7 @@ class TestPermissions(SimpleTestCase):
         """Adds permissions for specified list of models in the app."""
         self.startup()
         group = Group.objects.get(name='field_staff_team')
-        permissions = Permissions('field_staff', ['add', 'change'], app_label='testing', models=['testvisit', 'TestScheduledModel'])
+        permissions = Permissions('field_staff', ['add', 'change'], app_label='edc_testing', models=['testvisit', 'TestScheduledModel'])
         permissions.replace()
         self.assertEqual(group.permissions.filter(codename='add_testvisit').count(), 1)
         self.assertEqual(group.permissions.filter(codename='add_testscheduledmodel').count(), 1)
@@ -128,4 +128,4 @@ class TestPermissions(SimpleTestCase):
     def test_adds_permissions10(self):
         """Raises error if model not in app"""
         self.startup()
-        self.assertRaises(AttributeError, Permissions, 'field_staff', ['add', 'change'], app_label='testing', models=['testvisit', 'BadDogModel'])
+        self.assertRaises(AttributeError, Permissions, 'field_staff', ['add', 'change'], app_label='edc_testing', models=['testvisit', 'BadDogModel'])
