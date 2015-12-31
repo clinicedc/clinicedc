@@ -6,7 +6,7 @@ from edc_lab.lab_profile.classes import site_lab_profiles
 from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.entry.models import Entry
 from edc.subject.lab_tracker.classes import site_lab_tracker
-from edc.testing.classes import TestAppConfiguration, TestVisitSchedule, TestLabProfile
+from edc_testing.classes import TestAppConfiguration, TestVisitSchedule, TestLabProfile
 
 from ..classes import Permissions
 from ..models import VisitDefinition
