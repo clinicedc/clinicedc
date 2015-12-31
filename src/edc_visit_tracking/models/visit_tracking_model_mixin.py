@@ -213,7 +213,7 @@ class VisitTrackingModelMixin (models.Model):
 
     def natural_key(self):
         return (self.report_datetime, ) + self.appointment.natural_key()
-    natural_key.dependencies = ['appointment.appointment', ]
+    natural_key.dependencies = ['edc_appointment.appointment', ]
 
     def get_subject_identifier(self):
         return self.appointment.registered_subject.subject_identifier

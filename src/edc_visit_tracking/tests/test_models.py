@@ -16,4 +16,4 @@ class TestVisitModel(MetaDataMixin, PreviousVisitMixin, VisitTrackingModelMixin)
         return False
 
     class Meta:
-        app_label = 'edc_offstudy'
+        app_label = 'edc_visit_tracking'

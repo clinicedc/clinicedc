@@ -1,6 +1,6 @@
 from django.utils import timezone
 
-from edc.testing.models import TestVisit2
+from edc_testing.models import TestVisit2
 from edc_appointment.models.appointment import Appointment
 from edc_constants.constants import SCHEDULED
 from edc_visit_schedule.models.visit_definition import VisitDefinition
