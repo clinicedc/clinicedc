@@ -46,12 +46,6 @@ class BaseRequisition (BaseBaseRequisition):
     def natural_key(self):
         return (self.requisition_identifier,)
 
-    def get_subject_identifier(self):
-        return self.get_visit().subject_identifier
-
-    def get_visit(self):
-        raise TypeError('method \'get_visit()\' in BaseRequisition must be overidden')
-
     def dashboard(self):
         url = reverse('subject_dashboard_url',
                       kwargs={'dashboard_type': self.get_visit().appointment.registered_subject.subject_type.lower(),

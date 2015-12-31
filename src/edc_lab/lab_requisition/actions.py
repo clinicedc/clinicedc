@@ -1,17 +1,19 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.contrib.messages.api import MessageFailure
 
 from edc_lab.lab_profile.exceptions import SpecimenError
 from edc_lab.lab_profile.classes import site_lab_profiles
 
 from lis.exim.lab_export.classes import ExportDmis
 from lis.labeling.exceptions import LabelPrinterError
+from edc_lab.lab_requisition.classes.requisition_label import RequisitionLabel
+from django.utils import timezone
 
 
 def flag_as_received(modeladmin, request, queryset, **kwargs):
-    """ Flags specimen(s) as received and generates a globally specimen identifier and updates lab_clinic_api."""
+    """ Flags specimen(s) as received and generates a globally
+    specimen identifier and updates lab_clinic_api."""
     for qs in queryset:
         try:
             receive = None
@@ -19,15 +21,9 @@ def flag_as_received(modeladmin, request, queryset, **kwargs):
             receive = lab_profile().receive(qs)
             msg = 'Received {} as {}'.format(
                 qs.requisition_identifier, receive.receive_identifier)
-            try:
-                messages.add_message(request, messages.SUCCESS, msg)
-            except MessageFailure:  # except to get past testing with request=None
-                print msg
+            messages.add_message(request, messages.SUCCESS, msg)
         except SpecimenError as e:
-            try:
-                messages.add_message(request, messages.ERROR, str(e))
-            except MessageFailure:  # except to get past testing with request=None
-                print msg
+            messages.add_message(request, messages.ERROR, str(e))
             break
 flag_as_received.short_description = "RECEIVE against requisition"
 
@@ -58,20 +54,26 @@ flag_as_not_labelled.short_description = "DMIS-receive: receive sample on the dm
 
 
 def print_requisition_label(modeladmin, request, requisitions):
-    """ Prints a specimen label for a received specimen using the :func:`print_label`
-    method attached to the requisition model.
-
-    Requisitions must be 'received' before a label can be printed."""
+    """ Prints a requisition label."""
+    requisition_label = RequisitionLabel()
     try:
         for requisition in requisitions:
-            if requisition.is_receive:
-                requisition.print_label(request)
-            else:
+            if not requisition.requisition_identifier:
+                messages.add_message(
+                    request, messages.ERROR,
+                    'Requisition identifier not set for {}. Cannot print label.'.format(requisition))
+                break
+            elif not requisition.is_receive:
                 messages.add_message(request, messages.ERROR,
                                      'Requisition {0} has not been received. Labels '
                                      'cannot be printed until the specimen is '
                                      'received.'.format(requisition.requisition_identifier,))
+                break
+            else:
+                requisition_label.print_label(request, requisition, copies=1)
+                requisition.is_labelled = True
+                requisition.is_labelled_datetime = timezone.now()
+                requisition.save()
     except LabelPrinterError as e:
-        messages.add_message(request, messages.ERROR, e.value)
-
+        messages.add_message(request, messages.ERROR, str(e))
 print_requisition_label.short_description = "LABEL: print requisition label"

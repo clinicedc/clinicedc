@@ -1,1 +1,0 @@
-from .base_requisition_model_admin import BaseRequisitionModelAdmin

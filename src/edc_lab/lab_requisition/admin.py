@@ -1,11 +1,12 @@
 from django.contrib import admin
 
-from edc_visit_tracking.admin import BaseVisitTrackingModelAdmin
+from edc.export.actions import export_as_csv_action
+from edc_visit_tracking.admin import VisitAdminMixin
 
-from ..actions import flag_as_received, flag_as_not_received, flag_as_not_labelled, print_requisition_label
+from .actions import flag_as_received, flag_as_not_received, flag_as_not_labelled, print_requisition_label
 
 
-class BaseRequisitionModelAdmin(BaseVisitTrackingModelAdmin):
+class RequisitionAdminMixin(VisitAdminMixin):
 
     date_hierarchy = 'requisition_datetime'
     actions = [flag_as_received,
@@ -14,7 +15,7 @@ class BaseRequisitionModelAdmin(BaseVisitTrackingModelAdmin):
                print_requisition_label, ]
 
     def __init__(self, *args, **kwargs):
-        super(BaseRequisitionModelAdmin, self).__init__(*args, **kwargs)
+        super(RequisitionAdminMixin, self).__init__(*args, **kwargs)
 
         self.fields = [
             self.visit_attr,
@@ -76,3 +77,9 @@ class BaseRequisitionModelAdmin(BaseVisitTrackingModelAdmin):
             'requisition_identifier',
             'panel__name']
         self.filter_horizontal = ["test_code", ]
+
+    actions = [print_requisition_label,
+               export_as_csv_action(
+                   "Export as csv", fields=[], delimiter=',', exclude=[
+                       'id', 'revision', 'hostname_created', 'hostname_modified',
+                       'user_created', 'user_modified'],)]
