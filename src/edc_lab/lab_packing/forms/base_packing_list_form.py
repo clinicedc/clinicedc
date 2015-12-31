@@ -1,8 +1,6 @@
 from django import forms
 from django.core.exceptions import FieldError
 
-from edc_lab.lab_requisition.forms import BaseRequisitionForm
-
 """
 The "requisition" model is required for the code
 in the clean() method below.
@@ -24,20 +22,21 @@ class PackingListForm (BasePackingListForm):
 """
 
 
-class BasePackingListForm(BaseRequisitionForm):
+class BasePackingListForm(forms.ModelForm):
 
     requisition = None
 
     def clean(self):
-
-        cleaned_data = self.cleaned_data
-
+        cleaned_data = super(BasePackingListForm, self).clean()
         if not self.requisition:
-            raise forms.ValidationError('Class attribute requisition cannot be None. Was it not defined in the local \'..._lab\' forms.py app?')
+            raise forms.ValidationError(
+                'Class attribute requisition cannot be None. '
+                'Was it not defined in the local \'..._lab\' forms.py app?')
         if not isinstance(self.requisition, list):
             self.requisition = [self.requisition, ]
         if not cleaned_data.get('list_items'):
-            raise forms.ValidationError('Please indicate at least one specimen identifier to add to the packing list')
+            raise forms.ValidationError(
+                'Please indicate at least one specimen identifier to add to the packing list')
         else:
             for specimen_identifier in cleaned_data.get('list_items').replace('\r', '').split('\n'):
                 if specimen_identifier:
@@ -55,7 +54,9 @@ class BasePackingListForm(BaseRequisitionForm):
                                 found = True
                                 break
                     if not found:
-                        raise forms.ValidationError('%s specimen identifier \'%s\' not found' % (requisition._meta.verbose_name, specimen_identifier,))
+                        raise forms.ValidationError(
+                            '{} specimen identifier \'{}\' not found'.format(
+                                requisition._meta.verbose_name, specimen_identifier,))
         return cleaned_data
 
 

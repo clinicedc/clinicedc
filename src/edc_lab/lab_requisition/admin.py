@@ -4,10 +4,12 @@ from edc.export.actions import export_as_csv_action
 from edc_visit_tracking.admin import VisitAdminMixin
 
 from .actions import flag_as_received, flag_as_not_received, flag_as_not_labelled, print_requisition_label
+from django.core.exceptions import ImproperlyConfigured
 
 
 class RequisitionAdminMixin(VisitAdminMixin):
 
+    panel_model = None
     date_hierarchy = 'requisition_datetime'
     actions = [flag_as_received,
                flag_as_not_received,
@@ -15,6 +17,8 @@ class RequisitionAdminMixin(VisitAdminMixin):
                print_requisition_label, ]
 
     def __init__(self, *args, **kwargs):
+        if not self.panel_model:
+            raise ImproperlyConfigured('{}.panel_model cannot be None.'.format(self.__class__.__name__))
         super(RequisitionAdminMixin, self).__init__(*args, **kwargs)
 
         self.fields = [
@@ -83,3 +87,13 @@ class RequisitionAdminMixin(VisitAdminMixin):
                    "Export as csv", fields=[], delimiter=',', exclude=[
                        'id', 'revision', 'hostname_created', 'hostname_modified',
                        'user_created', 'user_modified'],)]
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        panel_pk = request.GET.get('panel', 0)
+        if db_field.name == 'panel':
+            kwargs["queryset"] = self.panel_model.objects.filter(pk=panel_pk)
+        if db_field.name == 'aliquot_type':
+            if self.panel_model.objects.filter(pk=panel_pk):
+                if self.panel_model.objects.get(pk=panel_pk).aliquot_type.all():
+                    kwargs["queryset"] = self.panel_model.objects.get(pk=panel_pk).aliquot_type.all()
+        return super(RequisitionAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
