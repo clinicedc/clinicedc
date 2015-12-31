@@ -1,1 +1,2 @@
-from .base_visit_tracking_model_admin import BaseVisitTrackingModelAdmin
+from .crf_admin_mixin import CrfAdminMixin
+from .visit_tracking_admin_mixin import VisitTrackingAdminMixin

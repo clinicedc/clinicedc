@@ -6,7 +6,7 @@ from django.db import models
 from edc_appointment.models import Appointment
 
 
-class BaseVisitTrackingManager(models.Manager):
+class VisitManager(models.Manager):
 
     def get_by_natural_key(self, report_datetime, visit_instance, visit_definition_code, subject_identifier_as_pk):
         # deserialized date follows ECMA-262 specification which has less precision than that reported by mysql

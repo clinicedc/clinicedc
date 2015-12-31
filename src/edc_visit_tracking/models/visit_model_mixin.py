@@ -15,10 +15,10 @@ from ..constants import (
     VISIT_REASON_REQUIRED_CHOICES,
     VISIT_REASON_NO_FOLLOW_UP_CHOICES,
     VISIT_REASON_FOLLOW_UP_CHOICES)
-from ..managers import BaseVisitTrackingManager
+from ..managers import VisitManager
 
 
-class VisitTrackingModelMixin (models.Model):
+class VisitModelMixin (models.Model):
 
     """Base model for Appt/Visit Tracking (AF002).
 
@@ -56,7 +56,8 @@ class VisitTrackingModelMixin (models.Model):
         reason = forms.ChoiceField(
             label = 'Reason for visit',
             choices = [ choice for choice in VISIT_REASON ],
-            help_text = "If 'unscheduled', information is usually reported at the next scheduled visit, but exceptions may arise",
+            help_text = ("If 'unscheduled', information is usually reported
+                at the next scheduled visit, but exceptions may arise"),
             widget=AdminRadioSelect(renderer=AdminRadioFieldRenderer),
             )
 
@@ -127,7 +128,7 @@ class VisitTrackingModelMixin (models.Model):
         )
     """
 
-    objects = BaseVisitTrackingManager()
+    objects = VisitManager()
 
     def __unicode__(self):
         return unicode(self.appointment)
@@ -138,7 +139,7 @@ class VisitTrackingModelMixin (models.Model):
             TimePointStatus = get_model('data_manager', 'TimePointStatus')
             TimePointStatus.check_time_point_status(self.appointment, using=using)
         self.subject_identifier = self.get_subject_identifier()
-        super(VisitTrackingModelMixin, self).save(*args, **kwargs)
+        super(VisitModelMixin, self).save(*args, **kwargs)
 
     def byass_time_point_status(self):
         """Returns False by default but if overridden and set to return

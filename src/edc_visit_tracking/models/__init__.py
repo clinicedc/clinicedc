@@ -3,4 +3,4 @@ from .crf_model_manager import CrfModelManager
 from .crf_model_mixin import CrfModelMixin
 from .previous_visit_mixin import PreviousVisitMixin, PreviousVisitError
 from .signals import base_visit_tracking_check_in_progress_on_post_save
-from .visit_tracking_model_mixin import VisitTrackingModelMixin
+from .visit_model_mixin import VisitModelMixin

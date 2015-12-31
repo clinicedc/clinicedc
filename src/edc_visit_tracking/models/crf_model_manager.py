@@ -1,6 +1,6 @@
 from django.db import models
 
-from .visit_tracking_model_mixin import VisitTrackingModelMixin
+from .visit_model_mixin import VisitModelMixin
 
 
 class CrfModelManager(models.Manager):
@@ -22,7 +22,7 @@ class CrfModelManager(models.Manager):
         visit_model, visit_model_attr = None, None
         for field in model._meta.fields:
             try:
-                if issubclass(field.rel.to, VisitTrackingModelMixin):
+                if issubclass(field.rel.to, VisitModelMixin):
                     visit_model = field.rel.to
                     visit_model_attr = field.name
                     break

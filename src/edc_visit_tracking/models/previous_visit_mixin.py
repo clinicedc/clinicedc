@@ -22,7 +22,7 @@ class PreviousVisitMixin(models.Model):
 
     For example:
 
-        class TestVisit(MetaDataMixin, PreviousVisitMixin, VisitTrackingModelMixin):
+        class TestVisit(MetaDataMixin, PreviousVisitMixin, VisitModelMixin):
 
             REQUIRES_PREVIOUS_VISIT = True
 

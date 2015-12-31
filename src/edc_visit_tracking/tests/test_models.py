@@ -1,8 +1,8 @@
 from edc.entry_meta_data.models import MetaDataMixin
-from edc_visit_tracking.models import PreviousVisitMixin, VisitTrackingModelMixin
+from edc_visit_tracking.models import PreviousVisitMixin, VisitModelMixin
 
 
-class TestVisitModel(MetaDataMixin, PreviousVisitMixin, VisitTrackingModelMixin):
+class TestVisitModel(MetaDataMixin, PreviousVisitMixin, VisitModelMixin):
 
     REQUIRES_PREVIOUS_VISIT = True
 

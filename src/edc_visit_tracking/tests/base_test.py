@@ -14,6 +14,7 @@ from edc_visit_schedule.models import VisitDefinition
 from .test_models import TestVisitModel
 
 from .test_visit_schedule import VisitSchedule
+from edc_consent.models.consent_type import ConsentType
 
 
 class BaseTest(TestCase):
@@ -27,7 +28,12 @@ class BaseTest(TestCase):
         except AlreadyRegisteredLabProfile:
             pass
         site_lab_tracker.autodiscover()
-        TestAppConfiguration().prepare()
+        self.configuration = TestAppConfiguration()
+        self.configuration.prepare()
+        consent_type = ConsentType.objects.first()
+        consent_type.app_label = 'edc_testing'
+        consent_type.model_name = 'testconsentwithmixin'
+        consent_type.save()
         VisitSchedule().build()
         self.study_site = '40'
         visit_definition = VisitDefinition.objects.get(code='1000')

@@ -2,7 +2,7 @@ from django.db.models import ForeignKey, OneToOneField
 from django.db.models import get_app, get_models
 
 from .exceptions import VisitTrackingError
-from .models import VisitTrackingModelMixin
+from .models import VisitModelMixin
 
 
 class VisitModelHelper(object):
@@ -17,11 +17,11 @@ class VisitModelHelper(object):
     """
     @classmethod
     def get_field_name(self, cls):
-        """Given a class, returns the field attname that is a subclass of VisitTrackingModelMixin."""
+        """Given a class, returns the field attname that is a subclass of VisitModelMixin."""
         lst = []
         for f in cls._meta.fields:
             if f.rel:
-                if issubclass(f.rel.to, VisitTrackingModelMixin):
+                if issubclass(f.rel.to, VisitModelMixin):
                     lst.append(f)
         if not lst:
             raise VisitTrackingError('Unable to determine the visit field in class {0}.'.format(cls))
@@ -31,8 +31,9 @@ class VisitModelHelper(object):
 
     @classmethod
     def get_field_cls(self, cls):
-        """Given a class, returns the model class that is a subclass of VisitTrackingModelMixin."""
-        lst = [f.to for f in [field.rel for field in cls._meta.fields if field.rel] if issubclass(f.to, VisitTrackingModelMixin)]
+        """Given a class, returns the model class that is a subclass of VisitModelMixin."""
+        lst = [f.to for f in [
+            field.rel for field in cls._meta.fields if field.rel] if issubclass(f.to, VisitModelMixin)]
         if not lst:
             raise VisitTrackingError('Unable to determine the visit field in class {0}.'.format(cls))
         if not len(lst) == 1:
@@ -59,7 +60,9 @@ class VisitModelHelper(object):
         visit_model = kwargs.get('visit_model')
         visit_fk = None
         try:
-            visit_fk = [fk for fk in [f for f in model._meta.fields if isinstance(f, ForeignKey)] if fk.rel.to._meta.module_name == visit_model._meta.module_name]
+            visit_fk = [fk for fk in [
+                f for f in model._meta.fields if isinstance(f, ForeignKey)]
+                if fk.rel.to._meta.module_name == visit_model._meta.module_name]
         except:
             pass
         if not visit_fk:
@@ -74,9 +77,11 @@ class VisitModelHelper(object):
     def get_visit_model(self, instance):
         """ given the instance (or class) of a model, return the visit model of its app """
         for model in get_models(get_app(instance._meta.app_label)):
-            if isinstance(model(), VisitTrackingModelMixin):
+            if isinstance(model(), VisitModelMixin):
                 return model
-        raise TypeError('Unable to determine the visit model from instance {0} for app {1}'.format(instance._meta.model_name, instance._meta.app_label))
+        raise TypeError(
+            'Unable to determine the visit model from instance {0} for app {1}'.format(
+                instance._meta.model_name, instance._meta.app_label))
 
     def get_fieldname_from_cls(self, cls):
         return self.get_visit_field(cls, self.get_visit_model(cls))

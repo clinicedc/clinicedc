@@ -3,10 +3,9 @@ from collections import OrderedDict
 from django.core.exceptions import ImproperlyConfigured
 
 from edc.export.actions import export_as_csv_action
-from edc_base.modeladmin.admin import BaseModelAdmin
 
 
-class BaseVisitTrackingModelAdmin(BaseModelAdmin):
+class CrfAdminMixin(object):
 
     """ModelAdmin subclass for models with a ForeignKey to your visit model(s)"""
 
@@ -15,7 +14,7 @@ class BaseVisitTrackingModelAdmin(BaseModelAdmin):
     date_hierarchy = 'report_datetime'
 
     def __init__(self, *args, **kwargs):
-        super(BaseVisitTrackingModelAdmin, self).__init__(*args, **kwargs)
+        super(CrfAdminMixin, self).__init__(*args, **kwargs)
         if not self.visit_model:
             raise ImproperlyConfigured('Class attribute \'visit model\' on BaseVisitModelAdmin '
                                        'for model {0} may not be None. Please correct.'.format(self.model))
@@ -59,10 +58,10 @@ class BaseVisitTrackingModelAdmin(BaseModelAdmin):
                     self.readonly_fields.index(self.visit_attr)
                 except ValueError:
                     self.readonly_fields.append(self.visit_attr)
-        return super(BaseVisitTrackingModelAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(CrfAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_actions(self, request):
-        actions = super(BaseVisitTrackingModelAdmin, self).get_actions(request)
+        actions = super(CrfAdminMixin, self).get_actions(request)
         actions['export_as_csv_action'] = (
             export_as_csv_action(
                 exclude=['id', self.visit_attr],
