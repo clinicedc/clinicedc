@@ -3,14 +3,16 @@ from __future__ import print_function
 from collections import OrderedDict
 
 from django.test import TestCase
+from django.utils import timezone
 
 from edc_lab.lab_profile.classes import site_lab_profiles
 from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc.subject.lab_tracker.classes import site_lab_tracker
-from edc.testing.classes import TestLabProfile, TestAppConfiguration
-from edc.testing.models import TestVisit, TestAliquotType, TestPanel
+from edc_testing.classes import TestLabProfile, TestAppConfiguration
+from edc_testing.models import TestVisit, TestAliquotType, TestPanel
 
 from edc_appointment.models import Appointment
+from edc_consent.models.consent_type import ConsentType
 from edc_constants.constants import MALE, REQUIRED, NOT_ADDITIONAL, YES
 from edc_registration.tests.factories import RegisteredSubjectFactory
 from edc_visit_schedule.classes import (
@@ -19,29 +21,27 @@ from edc_visit_schedule.models import VisitDefinition
 
 
 from .test_models import TestVisitModel, TestConsentModel
-from edc_consent.models.consent_type import ConsentType
-from django.utils import timezone
 
 entries = (
-    EntryTuple(10L, u'testing', u'TestScheduledModel1', REQUIRED, NOT_ADDITIONAL),
-    EntryTuple(20L, u'testing', u'TestScheduledModel2', REQUIRED, NOT_ADDITIONAL),
-    EntryTuple(30L, u'testing', u'TestScheduledModel3', REQUIRED, NOT_ADDITIONAL),
+    EntryTuple(10L, u'edc_testing', u'TestScheduledModel1', REQUIRED, NOT_ADDITIONAL),
+    EntryTuple(20L, u'edc_testing', u'TestScheduledModel2', REQUIRED, NOT_ADDITIONAL),
+    EntryTuple(30L, u'edc_testing', u'TestScheduledModel3', REQUIRED, NOT_ADDITIONAL),
 )
 
 requisitions = (
     RequisitionPanelTuple(
-        10L, u'testing', u'testrequisition', 'Research Blood Draw', 'TEST', 'WB', REQUIRED, NOT_ADDITIONAL),
+        10L, u'edc_testing', u'testrequisition', 'Research Blood Draw', 'TEST', 'WB', REQUIRED, NOT_ADDITIONAL),
     RequisitionPanelTuple(
-        20L, u'testing', u'testrequisition', 'Viral Load', 'TEST', 'WB', REQUIRED, NOT_ADDITIONAL),
+        20L, u'edc_testing', u'testrequisition', 'Viral Load', 'TEST', 'WB', REQUIRED, NOT_ADDITIONAL),
     RequisitionPanelTuple(
-        30L, u'testing', u'testrequisition', 'Microtube', 'STORAGE', 'WB', REQUIRED, NOT_ADDITIONAL),
+        30L, u'edc_testing', u'testrequisition', 'Microtube', 'STORAGE', 'WB', REQUIRED, NOT_ADDITIONAL),
 )
 
 
 class VisitSchedule(VisitScheduleConfiguration):
     """A visit schedule class for tests."""
     name = 'Test Visit Schedule'
-    app_label = 'testing'
+    app_label = 'edc_testing'
     panel_model = TestPanel
     aliquot_type_model = TestAliquotType
 
@@ -150,7 +150,7 @@ class VisitSchedule(VisitScheduleConfiguration):
 
 class BaseTest(TestCase):
 
-    app_label = 'testing'
+    app_label = 'edc_testing'
     consent_catalogue_name = 'v1'
 
     def setUp(self):

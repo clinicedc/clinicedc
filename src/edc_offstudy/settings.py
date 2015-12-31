@@ -42,7 +42,7 @@ INSTALLED_APPS = (
     'edc.data_manager',
     'edc.entry_meta_data',
     'edc.subject.entry',
-    'edc.testing',
+    'edc_testing',
     'edc_appointment',
     'edc_base',
     'edc_configuration',

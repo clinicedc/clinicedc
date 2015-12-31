@@ -1,16 +1,16 @@
 from django.db import models
 
 from edc.entry_meta_data.models import MetaDataMixin
+from edc_appointment.models import AppointmentMixin
 from edc_base.audit_trail import AuditTrail
-from edc_visit_tracking.models import VisitTrackingModelMixin, PreviousVisitMixin, CrfModelMixin
-from edc_offstudy.models import OffStudyMixin, OffStudyModelMixin
 from edc_base.model.models import BaseUuidModel
 from edc_consent.models.base_consent import BaseConsent
-from edc_consent.models.fields.bw.identity_fields_mixin import IdentityFieldsMixin
 from edc_consent.models.fields import (
     SampleCollectionFieldsMixin, SiteFieldsMixin, PersonalFieldsMixin, VulnerabilityFieldsMixin)
+from edc_consent.models.fields.bw.identity_fields_mixin import IdentityFieldsMixin
+from edc_offstudy.models import OffStudyMixin, OffStudyModelMixin
 from edc_registration.models.registered_subject import RegisteredSubject
-from edc_appointment.models import AppointmentMixin
+from edc_visit_tracking.models import VisitTrackingModelMixin, PreviousVisitMixin, CrfModelMixin
 
 
 class TestConsentModel(
