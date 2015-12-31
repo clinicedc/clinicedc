@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.serializers.base import SerializationError
 
-from edc_visit_tracking.models import VisitTrackingModelMixin
+from edc_visit_tracking.models import VisitModelMixin
 
 from ..models import BaseRequisition
 
@@ -17,7 +17,7 @@ class BaseClinicRequisition (BaseRequisition):
     def get_visit(self):
         for field in self._meta.fields:
             try:
-                if issubclass(field.rel.to, VisitTrackingModelMixin):
+                if issubclass(field.rel.to, VisitModelMixin):
                     return field.rel.to.objects.get(pk=getattr(self, field.attname))
             except:
                 pass
