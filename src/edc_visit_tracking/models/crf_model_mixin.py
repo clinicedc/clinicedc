@@ -4,6 +4,7 @@ from django.utils import timezone
 from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
 
 from .crf_model_manager import CrfModelManager
+from django.core.urlresolvers import reverse
 
 
 class CrfModelMixin(models.Model):
@@ -31,6 +32,16 @@ class CrfModelMixin(models.Model):
 
     def get_visit(self):
         return getattr(self, self.visit_model_attr)
+
+    def dashboard(self):
+        url = reverse(
+            'subject_dashboard_url',
+            kwargs={'dashboard_type': self.get_visit().appointment.registered_subject.subject_type.lower(),
+                    'dashboard_model': 'appointment',
+                    'dashboard_id': self.get_visit().appointment.pk,
+                    'show': 'appointments'})
+        return """<a href="{url}" />dashboard</a>""".format(url=url)
+    dashboard.allow_tags = True
 
     class Meta:
         abstract = True
