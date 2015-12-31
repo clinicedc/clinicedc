@@ -6,8 +6,6 @@ from edc_constants.constants import (
 
 class VisitFormMixin(object):
 
-    participant_label = 'participant'
-
     def clean(self):
         cleaned_data = super(VisitFormMixin, self).clean()
         self.validate_presence()

@@ -1,2 +1,2 @@
 from .crf_admin_mixin import CrfAdminMixin
-from .visit_tracking_admin_mixin import VisitTrackingAdminMixin
+from .visit_admin_mixin import VisitAdminMixin
