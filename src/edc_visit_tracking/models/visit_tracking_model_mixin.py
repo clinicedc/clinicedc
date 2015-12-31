@@ -1,20 +1,21 @@
 import copy
 
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models import get_model
-from django.core.exceptions import ImproperlyConfigured
 
 from edc_appointment.models import Appointment
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
-from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, INCOMPLETE, UNKEYED, LOST_VISIT, DEATH_VISIT
+from edc_constants.choices import YES_NO
+from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, INCOMPLETE, UNKEYED, LOST_VISIT, DEATH_VISIT, YES
 
 from ..choices import VISIT_REASON
-from ..managers import BaseVisitTrackingManager
 from ..constants import (
     VISIT_REASON_REQUIRED_CHOICES,
     VISIT_REASON_NO_FOLLOW_UP_CHOICES,
     VISIT_REASON_FOLLOW_UP_CHOICES)
+from ..managers import BaseVisitTrackingManager
 
 
 class VisitTrackingModelMixin (models.Model):
@@ -66,6 +67,12 @@ class VisitTrackingModelMixin (models.Model):
         verbose_name="What is the participant's current study status",
         max_length=50,
         help_text="<Override the field class for this model field attribute in ModelForm>")
+
+    require_crfs = models.CharField(
+        max_length=10,
+        verbose_name='Are scheduled data being submitted with this visit?',
+        choices=YES_NO,
+        default=YES)
 
     reason_missed = models.CharField(
         verbose_name="If 'missed' above, Reason scheduled visit was missed",
