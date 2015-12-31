@@ -1,6 +1,6 @@
 from django import forms
 
-from edc.constants.constans import YES, NO
+from edc_constants.constants import YES, NO
 
 
 class BaseRequisitionForm (forms.ModelForm):
