@@ -10,7 +10,7 @@ from edc_consent.models.fields import (
 from edc_consent.models.fields.bw.identity_fields_mixin import IdentityFieldsMixin
 from edc_offstudy.models import OffStudyMixin, OffStudyModelMixin
 from edc_registration.models.registered_subject import RegisteredSubject
-from edc_visit_tracking.models import VisitTrackingModelMixin, PreviousVisitMixin, CrfModelMixin
+from edc_visit_tracking.models import VisitModelMixin, PreviousVisitMixin, CrfModelMixin
 
 
 class TestConsentModel(
@@ -31,7 +31,7 @@ class TestConsentModel(
             ('first_name', 'dob', 'initials', 'version'))
 
 
-class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, VisitTrackingModelMixin):
+class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, VisitModelMixin):
 
     off_study_model = ('edc_offstudy', 'TestOffStudyModel')
     REQUIRES_PREVIOUS_VISIT = True
@@ -57,7 +57,7 @@ class TestOffStudyModel(CrfModelMixin, OffStudyModelMixin, BaseUuidModel):
         app_label = 'edc_offstudy'
 
 
-class AnotherTestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, VisitTrackingModelMixin):
+class AnotherTestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, VisitModelMixin):
 
     off_study_model = TestOffStudyModel
     REQUIRES_PREVIOUS_VISIT = True
