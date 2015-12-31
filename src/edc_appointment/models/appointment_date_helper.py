@@ -7,6 +7,8 @@ from django.db.models import get_model
 from edc_configuration.models import GlobalConfiguration
 from edc_visit_schedule.classes import WindowPeriod
 
+from .holiday import Holiday
+
 
 class AppointmentDateHelper(object):
     """ """
@@ -85,7 +87,7 @@ class AppointmentDateHelper(object):
 
     def _check_if_holiday(self, appt_datetime):
         """ Checks if appt_datetime lands on a holiday, if so, move forward """
-        Holiday = get_model('edc_appointment', 'holiday')
+        # Holiday = get_model('edc_appointment', 'holiday')
         while appt_datetime.date() in [holiday.holiday_date for holiday in Holiday.objects.all()]:
             appt_datetime = appt_datetime + timedelta(days=+2)
             appt_datetime = self._check_if_allowed_isoweekday(appt_datetime)

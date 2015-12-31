@@ -1,18 +1,18 @@
-from __future__ import print_function
-
 from datetime import date
 
 from django.test import TestCase
 
+from edc.subject.lab_tracker.classes import site_lab_tracker
+from edc_consent.models.consent_type import ConsentType
+from edc_consent.tests.test_models import TestConsentModel
 from edc_lab.lab_profile.classes import site_lab_profiles
 from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
-from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc_registration.tests.factories import RegisteredSubjectFactory
+from edc_testing.classes import TestAppConfiguration
+from edc_testing.classes import TestLabProfile
 from edc_visit_schedule.models import VisitDefinition
-from edc.testing.classes import TestLabProfile
-from edc.testing.classes import TestVisitSchedule, TestAppConfiguration
-from edc_consent.tests.test_models import TestConsentModel
-from edc_consent.models.consent_type import ConsentType
+
+from .test_visit_schedule import VisitSchedule
 
 
 class BaseTestCase(TestCase):
@@ -24,13 +24,14 @@ class BaseTestCase(TestCase):
             pass
         site_lab_tracker.autodiscover()
 
-        TestAppConfiguration().prepare()
+        self.configuration = TestAppConfiguration()
+        self.configuration.prepare()
         consent_type = ConsentType.objects.first()
-        consent_type.app_label = 'testing'
+        consent_type.app_label = 'edc_testing'
         consent_type.model_name = 'testconsentwithmixin'
         consent_type.save()
 
-        TestVisitSchedule().build()
+        VisitSchedule().build()
 
         self.study_site = '40'
         self.identity = '111111111'

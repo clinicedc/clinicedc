@@ -8,8 +8,8 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 
 from edc.data_manager.models.time_point_status import TimePointStatus
-from edc.testing.tests.factories import TestConsentWithMixinFactory
-from edc.testing.models.test_visit import TestVisit2, TestVisit
+from edc_testing.tests.factories import TestConsentWithMixinFactory
+from edc_testing.models.test_visit import TestVisit2, TestVisit
 from edc_appointment.models.appointment_mixin import AppointmentMixin
 from edc_constants.constants import (
     NEW_APPT, COMPLETE_APPT, INCOMPLETE, CANCELLED, MALE, YES, SCHEDULED, IN_PROGRESS, DONE)
