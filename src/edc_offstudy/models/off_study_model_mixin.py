@@ -32,13 +32,6 @@ class OffStudyModelMixin(models.Model):
 
     reason_other = OtherCharField()
 
-    has_scheduled_data = models.CharField(
-        max_length=10,
-        verbose_name='Are scheduled data being submitted on the off-study date?',
-        choices=YES_NO,
-        default=YES,
-        help_text='')
-
     comment = models.TextField(
         max_length=250,
         verbose_name="Comment",
