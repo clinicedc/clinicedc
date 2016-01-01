@@ -228,7 +228,6 @@ class RegisteredSubjectDashboard(Dashboard):
             for dup_appt in Appointment.objects.filter(**dup):
                 if not visit_model.objects.filter(appointment=dup_appt):
                     try:
-                        print('delete {0}'.format(dup_appt))
                         dup_appt.delete()
                         num -= 1
                     except:

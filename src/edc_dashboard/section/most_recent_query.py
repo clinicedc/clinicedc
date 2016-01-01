@@ -22,6 +22,5 @@ class MostRecentQuery(object):
         return self._order_by
 
     def query(self):
-        print(self.get_model_cls())
         return self.get_model_cls().objects.filter(
             **self.get_query_options()).order_by(*self.get_order_by())[0:self.get_limit()]
