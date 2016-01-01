@@ -112,7 +112,7 @@ class AppointmentMixin(models.Model):
                 # need to correct the best_appt_datetime
                 appointment.appt_datetime = appt_datetime
                 appointment.best_appt_datetime = appt_datetime
-                appointment.save(using)
+                appointment.save(using, update_fields=['appt_datetime', 'best_appt_datetime'])
         except Appointment.DoesNotExist:
             appointment = Appointment.objects.using(using).create(
                 registered_subject=registered_subject,
