@@ -43,7 +43,7 @@ class RequisitionManager(models.Manager):
         return identifier
 
 
-class RequisitionModelMixin (models.Model):
+class RequisitionModelMixin(models.Model):
 
     def __init__(self, *args, **kwargs):
         if not self.aliquot_model:
@@ -173,8 +173,6 @@ class RequisitionModelMixin (models.Model):
     is_lis = models.BooleanField(
         verbose_name='lis',
         default=False,)
-
-    objects = RequisitionManager()
 
     def save(self, *args, **kwargs):
         self.subject_identifier = self.get_visit().get_subject_identifier()
