@@ -2,7 +2,7 @@ import factory
 
 from edc_visit_schedule.models import VisitDefinition
 
-from edc.core.bhp_content_type_map.tests.factories import ContentTypeMapFactory
+from edc_content_type_map.tests.factories import ContentTypeMapFactory
 
 starting_seq_num = 1000
 

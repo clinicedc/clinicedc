@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.core.validators import MaxLengthValidator
 from django.db import models
 
-from edc.core.bhp_content_type_map.models import ContentTypeMap
+from edc_content_type_map.models import ContentTypeMap
 
 from ..managers import VisitDefinitionManager
 from ..utils import get_lower_window_days, get_upper_window_days

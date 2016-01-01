@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from edc.core.bhp_content_type_map.models import ContentTypeMap
 from edc_base.model.models import BaseUuidModel
+from edc_content_type_map.models import ContentTypeMap
 
 from ..managers import MembershipFormManager
 

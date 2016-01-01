@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 
-from edc.core.bhp_content_type_map.models import ContentTypeMap
+from edc_content_type_map.models import ContentTypeMap
 
 
 def is_visit_tracking_model(value):

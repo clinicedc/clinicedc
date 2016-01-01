@@ -4,9 +4,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db.models import get_model
 from django.db.utils import IntegrityError
 
-from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
-from edc.core.bhp_content_type_map.models import ContentTypeMap
 from edc_appointment.models import Appointment
+from edc_content_type_map.models import ContentTypeMapHelper, ContentTypeMap
 from edc_meta_data.models import CrfEntry, LabEntry, RequisitionPanel
 
 from ..models import MembershipForm, ScheduleGroup, VisitDefinition
