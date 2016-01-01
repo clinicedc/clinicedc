@@ -30,8 +30,6 @@ class TestCrfModel1(CrfModelMixin, BaseUuidModel):
     f2 = models.CharField(max_length=10, null=True)
     f3 = models.CharField(max_length=10, null=True)
 
-    objects = models.Manager()
-
     entry_meta_data_manager = CrfMetaDataManager(TestVisit)
 
     def get_subject_identifier(self):
@@ -49,8 +47,6 @@ class TestCrfModel2(CrfModelMixin, BaseUuidModel):
     f2 = models.CharField(max_length=10, null=True)
     f3 = models.CharField(max_length=10, null=True)
 
-    objects = models.Manager()
-
     entry_meta_data_manager = CrfMetaDataManager(TestVisit)
 
     def get_subject_identifier(self):
@@ -67,8 +63,6 @@ class TestCrfModel3(CrfModelMixin, BaseUuidModel):
     f1 = models.CharField(max_length=10, null=True)
     f2 = models.CharField(max_length=10, null=True)
     f3 = models.CharField(max_length=10, null=True)
-
-    objects = models.Manager()
 
     entry_meta_data_manager = CrfMetaDataManager(TestVisit)
 

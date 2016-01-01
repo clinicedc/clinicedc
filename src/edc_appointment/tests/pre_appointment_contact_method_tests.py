@@ -1,10 +1,10 @@
 from datetime import datetime
 from ..models import Appointment, PreAppointmentContact
 from .factories import PreAppointmentContactFactory
-from .base_appointment_tests import BaseAppointmentTests
+from .base_test_case import BaseTestCase
 
 
-class PreAppointmentContactMethodTests(BaseAppointmentTests):
+class PreAppointmentContactMethodTests(BaseTestCase):
 
     def test_post_save(self):
         self.setup()

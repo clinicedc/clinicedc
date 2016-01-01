@@ -213,7 +213,7 @@ class Appointment(SyncModelMixin, BaseUuidModel):
         exception_cls = exception_cls or ValidationError
         try:
             if self.timepoint_status.status == CLOSED:
-                raise ValidationError('Data for this timepoint / appointment is closed. See TimePointStatus.')
+                raise ValidationError('Data entry for this timepoint / appointment is closed.')
         except AttributeError:
             pass
 
