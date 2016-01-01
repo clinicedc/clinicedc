@@ -26,7 +26,7 @@ class PreviousVisitMixin(models.Model):
 
             REQUIRES_PREVIOUS_VISIT = True
 
-            def custom_post_update_entry_meta_data(self):
+            def custom_post_update_crf_meta_data(self):
                 pass
 
             class Meta:

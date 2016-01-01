@@ -136,8 +136,7 @@ class VisitModelMixin (models.Model):
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
         if self.id and not self.byass_time_point_status():
-            TimePointStatus = get_model('data_manager', 'TimePointStatus')
-            TimePointStatus.check_time_point_status(self.appointment, using=using)
+            self.appointment.timepoint_status.check_time_point_status(using=using)
         self.subject_identifier = self.get_subject_identifier()
         super(VisitModelMixin, self).save(*args, **kwargs)
 
@@ -192,32 +191,14 @@ class VisitModelMixin (models.Model):
                         VISIT_REASON_REQUIRED_CHOICES))
 
     def post_save_check_in_progress(self):
-        ScheduledEntryMetaData = get_model('entry_meta_data', 'ScheduledEntryMetaData')
-        RequisitionMetaData = get_model('entry_meta_data', 'RequisitionMetaData')
-        dirty = False
         if self.reason in self.get_visit_reason_no_follow_up_choices():
-            self.appointment.appt_status = COMPLETE_APPT
-            dirty = True
+            if self.appointment.appt_status != COMPLETE_APPT:
+                self.appointment.appt_status = COMPLETE_APPT
+                self.appointment.save()
         else:
             if self.appointment.appt_status != IN_PROGRESS:
                 self.appointment.appt_status = IN_PROGRESS
-                dirty = True
-            # look for any others in progress
-        appointments = self.appointment.__class__.objects.filter(
-            registered_subject=self.appointment.registered_subject,
-            appt_status=IN_PROGRESS).exclude(pk=self.appointment.pk)
-        for appointment in appointments:
-            if (ScheduledEntryMetaData.objects.filter(
-                    appointment=appointment, entry_status__iexact=UNKEYED).exists() or
-                RequisitionMetaData.objects.filter(
-                    appointment=appointment, entry_status__iexact=UNKEYED).exists()):
-                appointment.appt_status = INCOMPLETE
-            else:
-                appointment.appt_status = COMPLETE_APPT
-            appointment.save()
-            dirty = True
-        if dirty:
-            self.appointment.save()
+                self.appointment.save()
 
     def natural_key(self):
         return (self.report_datetime, ) + self.appointment.natural_key()

@@ -1,10 +1,10 @@
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
 from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
 
 from .crf_model_manager import CrfModelManager
-from django.core.urlresolvers import reverse
 
 
 class CrfModelMixin(models.Model):

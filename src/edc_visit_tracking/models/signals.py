@@ -9,6 +9,4 @@ def base_visit_tracking_check_in_progress_on_post_save(sender, instance, raw, cr
     """Calls post_save method on the visit tracking instance."""
     if not raw:
         if isinstance(instance, VisitModelMixin):
-            # TODO: how does this work with the scheduled_entry_meta_data_helper and show_scheduled_entries()
-            #       which also manipulates appointment in_progress?
             instance.post_save_check_in_progress()

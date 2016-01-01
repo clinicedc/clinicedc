@@ -28,12 +28,14 @@ class BaseTest(TestCase):
         except AlreadyRegisteredLabProfile:
             pass
         site_lab_tracker.autodiscover()
+
         self.configuration = TestAppConfiguration()
         self.configuration.prepare()
         consent_type = ConsentType.objects.first()
         consent_type.app_label = 'edc_testing'
         consent_type.model_name = 'testconsentwithmixin'
         consent_type.save()
+
         VisitSchedule().build()
         self.study_site = '40'
         visit_definition = VisitDefinition.objects.get(code='1000')
