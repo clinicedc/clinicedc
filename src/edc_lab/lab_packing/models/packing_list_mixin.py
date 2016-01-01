@@ -7,7 +7,7 @@ from edc_base.audit_trail import AuditTrail
 from .destination import Destination
 
 
-class BasePackingList(models.Model):
+class PackingListMixin(models.Model):
 
     list_datetime = models.DateTimeField()
 
@@ -37,8 +37,18 @@ class BasePackingList(models.Model):
 
     history = AuditTrail()
 
+    def save(self, *args, **kwargs):
+        if not self.list_datetime:
+            self.list_datetime = datetime.now()
+        if not self.timestamp:
+            self.timestamp = datetime.today().strftime('%Y%m%d%H%M%S%f')
+        super(PackingListMixin, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.timestamp
+
     def reference(self):
-        return unicode(self.timestamp)
+        return self.timestamp
 
     def specimen_count(self):
         lst = filter(None, self.list_items.replace('\r', '').split('\n'))
@@ -52,18 +62,8 @@ class BasePackingList(models.Model):
             count=self.specimen_count())
     view_list_items.allow_tags = True
 
-    def __unicode__(self):
-        return self.reference()
-
-    def get_subject_identifier(self):
-        return ''
-
-    def save(self, *args, **kwargs):
-        if not self.list_datetime:
-            self.list_datetime = datetime.now()
-        if not self.timestamp:
-            self.timestamp = datetime.today().strftime('%Y%m%d%H%M%S%f')
-        super(BasePackingList, self).save(*args, **kwargs)
+#     def get_subject_identifier(self):
+#         return ''
 
     class Meta:
         abstract = True

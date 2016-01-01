@@ -1,8 +1,9 @@
 from django.db import models
+from django.db.models import get_model
 
 from edc_registration.models import RegisteredSubject
 
-from .base_packing_list import BasePackingList
+from .packing_list_mixin import PackingListMixin
 
 
 class BasePackingListItem(models.Model):
@@ -50,9 +51,10 @@ class BasePackingListItem(models.Model):
 
     def gender(self):
         """Users may override."""
+        # TODO: doesn't work
         retval = "n/a"
         try:
-            Requisition = models.get_model(self._meta.app_label, self.requisition)
+            Requisition = get_model(self._meta.app_label, self.requisition)
         except:
             Requisition = None
             retval = '?'
@@ -66,9 +68,10 @@ class BasePackingListItem(models.Model):
 
     def clinician(self):
         """Users may override."""
+        # TODO: doesn't work
         retval = "n/a"
         try:
-            Requisition = models.get_model(self._meta.app_label, self.requisition)
+            Requisition = get_model(self._meta.app_label, self.requisition)
         except:
             Requisition = None
             retval = '?'
@@ -78,9 +81,10 @@ class BasePackingListItem(models.Model):
         return retval
 
     def drawn_datetime(self):
+        # TODO: doesn't work
         retval = "n/a"
         try:
-            Requisition = models.get_model(self._meta.app_label, self.requisition)
+            Requisition = get_model(self._meta.app_label, self.requisition)
         except:
             Requisition = None
             retval = '?'
@@ -92,7 +96,7 @@ class BasePackingListItem(models.Model):
     def packing_list_model(self):
         for field in self._meta.fields:
             try:
-                if issubclass(field.rel.to, BasePackingList):
+                if issubclass(field.rel.to, PackingListMixin):
                     return (field.attname, field.rel.to)
             except:
                 pass
@@ -107,7 +111,7 @@ class BasePackingListItem(models.Model):
                 timestamp=packing_list_model.objects.get(
                     pk=getattr(self, packing_list_field_attname)).timestamp,
                 pk=getattr(self, packing_list_field_attname),
-                )
+            )
         else:
             return 'packing list'
     view_packing_list.allow_tags = True

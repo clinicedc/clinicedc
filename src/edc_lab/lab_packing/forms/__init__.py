@@ -1,1 +1,0 @@
-from .base_packing_list_form import BasePackingListForm, BasePackingListItemForm

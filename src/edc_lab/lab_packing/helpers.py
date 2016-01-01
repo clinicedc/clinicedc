@@ -92,10 +92,8 @@ class PackingListHelper(object):
                     initials=item.registered_subject.initials,
                     visit=item.visit_code,
                     dob=item.registered_subject.dob,
-                    optional=optional_description,
-                    ),
-                'user_created': user,
-                }
+                    optional=optional_description),
+                'user_created': user}
             options.update(**optional_attrs)
             packing_list_item = self.packing_list.packing_list_item_model.objects.create(
                 packing_list=self.packing_list,
