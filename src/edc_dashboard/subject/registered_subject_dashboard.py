@@ -11,9 +11,9 @@ from django.template.loader import render_to_string
 from edc_configuration.models import GlobalConfiguration
 from edc.data_manager.models import ActionItem
 from edc.data_manager.models import TimePointStatus
-from edc.entry_meta_data.helpers import ScheduledEntryMetaDataHelper, RequisitionMetaDataHelper
+from edc_meta_data.helpers import CrfMetaDataHelper, RequisitionMetaDataHelper
 from edc_lab.lab_clinic_api.classes import EdcLabResults
-from edc_lab.lab_packing.models import BasePackingList
+from edc_lab.lab_packing.models import PackingListMixin
 from edc_lab.lab_requisition.models import RequisitionModelMixin
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc_locator.models import LocatorMixin
@@ -29,7 +29,7 @@ from edc_visit_tracking.models import VisitModelMixin
 
 from ..dashboard import Dashboard
 
-from .scheduled_entry_context import ScheduledEntryContext
+from .crf_context import CrfContext
 from .requisition_context import RequisitionContext
 
 
@@ -330,7 +330,7 @@ class RegisteredSubjectDashboard(Dashboard):
             raise TypeError(
                 'Attribute \'_packing_list_model\' may not be None. '
                 'Override the getter. See {0}'.format(self))
-        if not issubclass(self._packing_list_model, BasePackingList):
+        if not issubclass(self._packing_list_model, PackingListMixin):
             raise TypeError(
                 'Expected a subclass of BasePackingList. Got {0}. See {1}.'.format(
                     self._packing_list_model, self))
@@ -598,19 +598,19 @@ class RegisteredSubjectDashboard(Dashboard):
 
     @property
     def rendered_scheduled_forms(self):
-        """Renders the Scheduled Entry Forms section of the dashboard
-        using the context class ScheduledEntryContext."""
-        template = 'scheduled_entries.html'
-        scheduled_entries = []
-        scheduled_entry_helper = ScheduledEntryMetaDataHelper(
+        """Renders the Crf Forms section of the dashboard
+        using the context class CrfContext."""
+        template = 'crf_entries.html'
+        crf_entries = []
+        crf_meta_data_helper = CrfMetaDataHelper(
             self.appointment_zero, self.visit_model_instance, self.visit_model_attrname)
-        for meta_data_instance in scheduled_entry_helper.get_entries_for('clinic'):
-            scheduled_entry_context = ScheduledEntryContext(
+        for meta_data_instance in crf_meta_data_helper.get_meta_data():
+            crf_context = CrfContext(
                 meta_data_instance, self.appointment, self.visit_model)
-            scheduled_entries.append(scheduled_entry_context.context)
+            crf_entries.append(crf_context.context)
         context = self.base_rendered_context
         context.update({
-            'scheduled_entries': scheduled_entries,
+            'crf_entries': crf_entries,
             'visit_attr': self.visit_model_attrname,
             'visit_model_instance': self.visit_model_instance,
             'app_label': self.visit_model_instance._meta.app_label,
@@ -637,7 +637,7 @@ class RegisteredSubjectDashboard(Dashboard):
         show_drop_down_requisitions = GlobalConfiguration.objects.get_attr_value('show_drop_down_requisitions')
         requisition_helper = RequisitionMetaDataHelper(
             self.appointment, self.visit_model_instance, self.visit_model_attrname)
-        for scheduled_requisition in requisition_helper.get_entries_for('clinic'):
+        for scheduled_requisition in requisition_helper.get_meta_data():
             requisition_context = RequisitionContext(
                 scheduled_requisition, self.appointment, self.visit_model, self.requisition_model)
             if (not show_not_required_requisitions and

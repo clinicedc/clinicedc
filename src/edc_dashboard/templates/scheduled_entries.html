@@ -17,10 +17,10 @@
 <th>Audit</th>                
 </thead>
 <tbody>
-{% if not scheduled_entries %}
+{% if not crf_entries %}
     <tr class="{% cycle 'row1' 'row2' %}"><td colspan="12"></td></tr>
 {% else %}
-    {% for scheduled_entry in scheduled_entries %}
+    {% for scheduled_entry in crf_entries %}
         {# if scheduled_entry.entry.required #}
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td><span {% if scheduled_entry.status == UNKEYED %}style="background:red;"{% endif %}>&nbsp;</span></td>

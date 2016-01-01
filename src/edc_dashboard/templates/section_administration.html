@@ -68,8 +68,8 @@
             <li><A href="{% url 'admin:visit_schedule_membershipform_changelist' %}">Membership forms</A>
             <li><A href="{% url 'admin:visit_schedule_schedulegroup_changelist' %}">Schedule groups</A>
             <li><A href="{% url 'admin:visit_schedule_visitdefinition_changelist' %}">Visit definitions</A>
-            <li><A href="{% url 'admin:entry_entry_changelist' %}">Entry</A>, <A href="{% url 'admin:entry_labentry_changelist' %}">Lab Entry</A> and <A href="{% url 'admin:entry_requisitionpanel_changelist' %}">Requisition Panels</A>
-            <li><A href="{% url 'admin:entry_meta_data_scheduledentrymetadata_changelist' %}">Scheduled Meta Data</A> and <A href="{% url 'admin:entry_meta_data_requisitionmetadata_changelist' %}">Requisition Meta Data</A>
+            <li><A href="{% url 'admin:edc_meta_data_crfentry_changelist' %}">Crf Entry</A>, <A href="{% url 'admin:edc_meta_data_labentry_changelist' %}">Lab Entry</A> and <A href="{% url 'admin:edc_meta_data_requisitionpanel_changelist' %}">Requisition Panels</A>
+            <li><A href="{% url 'admin:edc_meta_data_crfmetadata_changelist' %}">Crf Meta Data</A> and <A href="{% url 'admin:edc_meta_data_requisitionmetadata_changelist' %}">Requisition Meta Data</A>
         </ul>
     {% endif %}
 {% endblock visit_schedule %}

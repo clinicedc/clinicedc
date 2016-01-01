@@ -1,14 +1,14 @@
 from django.core.urlresolvers import reverse
 
-from edc.entry_meta_data.models import RequisitionMetaData
+from edc_meta_data.models import RequisitionMetaData
 from edc_lab.lab_profile.classes import site_lab_profiles
 from edc_base.utils import convert_from_camel
 from edc_constants.constants import NOT_REQUIRED, ADDITIONAL, IN_PROGRESS
 
-from .base_scheduled_entry_context import BaseScheduledEntryContext
+from .base_context import BaseContext
 
 
-class RequisitionContext(BaseScheduledEntryContext):
+class RequisitionContext(BaseContext):
 
     """A Class used by the dashboard when rendering the
     list of scheduled entries to display under "Scheduled Forms"."""

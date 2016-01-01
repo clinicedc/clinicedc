@@ -1,3 +1,3 @@
 from .registered_subject_dashboard import RegisteredSubjectDashboard
-from .scheduled_entry_context import ScheduledEntryContext
+from .crf_context import CrfContext
 from .requisition_context import RequisitionContext

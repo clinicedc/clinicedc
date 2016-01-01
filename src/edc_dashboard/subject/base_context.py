@@ -8,7 +8,7 @@ from edc_constants.constants import (
     NOT_REQUIRED, ADDITIONAL, IN_PROGRESS, NEW, KEYED, UNKEYED, NEW_APPT, COMPLETE_APPT)
 
 
-class BaseScheduledEntryContext(object):
+class BaseContext(object):
 
     """A Class used by the dashboard when rendering the list of
     scheduled entries to display under "Scheduled Forms".
