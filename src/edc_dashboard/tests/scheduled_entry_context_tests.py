@@ -1,15 +1,14 @@
 from django.test import TestCase
 
-from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
-from edc.core.bhp_content_type_map.models import ContentTypeMap
-from edc_meta_data.models import CrfMetaData
-from edc_meta_data.tests.factories import EntryFactory, LabEntryFactory
 from edc.subject.lab_tracker.classes import site_lab_tracker
-from edc_registration.models import RegisteredSubject
-from edc_testing.tests.factories import TestConsentWithMixinFactory, TestScheduledModel1Factory
 from edc_appointment.models import Appointment
 from edc_constants.constants import KEYED
+from edc_content_type_map.models import ContentTypeMapHelper, ContentTypeMap
 from edc_dashboard.subject import CrfContext
+from edc_meta_data.models import CrfMetaData
+from edc_meta_data.tests.factories import EntryFactory, LabEntryFactory
+from edc_registration.models import RegisteredSubject
+from edc_testing.tests.factories import TestConsentWithMixinFactory, TestScheduledModel1Factory
 from edc_visit_schedule.tests.factories import MembershipFormFactory, ScheduleGroupFactory, VisitDefinitionFactory
 from edc_visit_tracking.tests.factories import TestVisitFactory
 

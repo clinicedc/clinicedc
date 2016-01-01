@@ -1,12 +1,11 @@
 from django.test import TestCase
 from django.core.exceptions import ImproperlyConfigured
 
-from edc.core.bhp_content_type_map.classes import ContentTypeMapHelper
+from edc_content_type_map.models import ContentTypeMapHelper
+from edc_dashboard.dashboard import Dashboard
+from edc_dashboard.exceptions import DashboardModelError
 from edc_registration.models import RegisteredSubject
 from edc_testing.models import TestConsent, TestVisit
-
-from edc_dashboard.dashboard import Dashboard
-from ..exceptions import DashboardModelError
 
 
 class TestDashboardMethods(TestCase):
