@@ -20,9 +20,6 @@ class CrfModelManager(models.Manager):
     def _configure_visit_model_attrs(self, model):
         """Sets visit_model and visit_model_attr on the model class."""
         visit_model, visit_model_attr = None, None
-        if model._meta.model_name == 'maternalrequisition':
-            print(model)
-            print(model._meta.fields)
         for field in model._meta.fields:
             try:
                 if issubclass(field.rel.to, VisitModelMixin):

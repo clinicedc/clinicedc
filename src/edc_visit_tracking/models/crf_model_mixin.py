@@ -5,6 +5,8 @@ from django.utils import timezone
 from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
 
 from .crf_model_manager import CrfModelManager
+from django.core.exceptions import ValidationError
+from edc_constants.constants import CLOSED
 
 
 class CrfModelMixin(models.Model):
@@ -23,6 +25,15 @@ class CrfModelMixin(models.Model):
                    'the date/time this information was reported.'))
 
     objects = CrfModelManager()
+
+    def save(self, *args, **kwargs):
+        self.time_point_status_open_or_raise()
+        super(CrfModelMixin, self).save(*args, **kwargs)
+
+    def time_point_status_open_or_raise(self, exception_cls=None):
+        exception_cls = exception_cls or ValidationError
+        if self.get_visit().appointment.timepoint_status.status == CLOSED:
+            raise ValidationError('Data entry for this timepoint is closed.')
 
     def get_subject_identifier(self):
         return self.get_visit().appointment.registered_subject.subject_identifier
