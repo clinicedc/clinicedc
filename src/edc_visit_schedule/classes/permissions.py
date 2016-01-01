@@ -2,6 +2,8 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import get_model
 
+from edc_meta_data.models import CrfEntry
+
 
 class Permissions(object):
 
@@ -119,13 +121,11 @@ class Permissions(object):
     def set_content_types_by_visit_definition(self, codes):
         """Sets to a complete and unique list of content types
         from each Entry in the visit definition."""
-        from edc.subject.entry.models import Entry
-
         self._content_types = []
         for visit_definition in self.get_visit_definitions():
-            for entry in Entry.objects.filter(visit_definition=visit_definition):
-                if entry.content_type_map.content_type not in self._content_types:
-                    self._content_types.append(entry.content_type_map.content_type)
+            for crf_entry in CrfEntry.objects.filter(visit_definition=visit_definition):
+                if crf_entry.content_type_map.content_type not in self._content_types:
+                    self._content_types.append(crf_entry.content_type_map.content_type)
 
     def set_content_types(self, app_label, models=None):
         """Set the list of content_types using the app_label and a

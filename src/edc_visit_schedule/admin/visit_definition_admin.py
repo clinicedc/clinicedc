@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from edc_base.modeladmin.admin import BaseModelAdmin
-from edc.subject.entry.admin import EntryInline, LabEntryInline
+from edc_meta_data.admin import CrfEntryInline, LabEntryInline
 
 from ..models import VisitDefinition
 
@@ -17,6 +17,6 @@ class VisitDefinitionAdmin(BaseModelAdmin):
 
     search_fields = ('code', 'grouping', 'id',)
 
-    inlines = [EntryInline, LabEntryInline, ]
+    inlines = [CrfEntryInline, LabEntryInline, ]
 
 admin.site.register(VisitDefinition, VisitDefinitionAdmin)

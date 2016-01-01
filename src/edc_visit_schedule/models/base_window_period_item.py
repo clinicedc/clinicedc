@@ -3,7 +3,7 @@ from django.db import models
 from edc_base.model.models import BaseUuidModel
 
 from ..choices import VISIT_INTERVAL_UNITS
-from ..classes import WindowPeriod
+# from ..classes import WindowPeriod
 
 
 class BaseWindowPeriodItem(BaseUuidModel):
@@ -65,10 +65,10 @@ class BaseWindowPeriodItem(BaseUuidModel):
                             'Expected [H, D, M, Y]. Got {0}.'.format(unit))
         return rdelta_attr_name
 
-    def is_in_window_period(self, new_datetime, reference_datetime):
-        """Checks if new_datetime is within the scheduled visit window period."""
-        window_period = WindowPeriod()
-        return window_period.check_datetime(self, new_datetime, reference_datetime)
+#     def is_in_window_period(self, new_datetime, reference_datetime):
+#         """Checks if new_datetime is within the scheduled visit window period."""
+#         window_period = WindowPeriod()
+#         return window_period.check_datetime(self, new_datetime, reference_datetime)
 
     class Meta:
         abstract = True
