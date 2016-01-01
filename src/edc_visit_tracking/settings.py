@@ -38,7 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'edc.core.bhp_content_type_map',
+    'edc_content_type_map',
     'edc.data_manager',
     'edc_appointment',
     'edc_base',
