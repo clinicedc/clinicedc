@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc.entry_meta_data.models import MetaDataMixin
+from edc_meta_data.models import CrfMetaDataMixin
 from edc_appointment.models import AppointmentMixin
 from edc_base.audit_trail import AuditTrail
 from edc_base.model.models import BaseUuidModel
@@ -31,7 +31,7 @@ class TestConsentModel(
             ('first_name', 'dob', 'initials', 'version'))
 
 
-class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, VisitModelMixin):
+class TestVisitModel(OffStudyMixin, CrfMetaDataMixin, PreviousVisitMixin, VisitModelMixin):
 
     off_study_model = ('edc_offstudy', 'TestOffStudyModel')
     REQUIRES_PREVIOUS_VISIT = True
@@ -39,7 +39,7 @@ class TestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, VisitMode
     def get_subject_identifier(self):
         return self.appointment.registered_subject.subject_identifier
 
-    def custom_post_update_entry_meta_data(self):
+    def custom_post_update_crf_meta_data(self):
         pass
 
     def get_requires_consent(self):
@@ -57,7 +57,7 @@ class TestOffStudyModel(CrfModelMixin, OffStudyModelMixin, BaseUuidModel):
         app_label = 'edc_offstudy'
 
 
-class AnotherTestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, VisitModelMixin):
+class AnotherTestVisitModel(OffStudyMixin, CrfMetaDataMixin, PreviousVisitMixin, VisitModelMixin):
 
     off_study_model = TestOffStudyModel
     REQUIRES_PREVIOUS_VISIT = True
@@ -65,7 +65,7 @@ class AnotherTestVisitModel(OffStudyMixin, MetaDataMixin, PreviousVisitMixin, Vi
     def get_subject_identifier(self):
         return self.appointment.registered_subject.subject_identifier
 
-    def custom_post_update_entry_meta_data(self):
+    def custom_post_update_crf_meta_data(self):
         pass
 
     def get_requires_consent(self):

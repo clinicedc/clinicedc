@@ -16,16 +16,16 @@ from edc_consent.models.consent_type import ConsentType
 from edc_constants.constants import MALE, REQUIRED, NOT_ADDITIONAL, YES
 from edc_registration.tests.factories import RegisteredSubjectFactory
 from edc_visit_schedule.classes import (
-    VisitScheduleConfiguration, EntryTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
+    VisitScheduleConfiguration, CrfTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
 from edc_visit_schedule.models import VisitDefinition
 
 
 from .test_models import TestVisitModel, TestConsentModel
 
 entries = (
-    EntryTuple(10L, u'edc_testing', u'TestScheduledModel1', REQUIRED, NOT_ADDITIONAL),
-    EntryTuple(20L, u'edc_testing', u'TestScheduledModel2', REQUIRED, NOT_ADDITIONAL),
-    EntryTuple(30L, u'edc_testing', u'TestScheduledModel3', REQUIRED, NOT_ADDITIONAL),
+    CrfTuple(10L, u'edc_testing', u'TestScheduledModel1', REQUIRED, NOT_ADDITIONAL),
+    CrfTuple(20L, u'edc_testing', u'TestScheduledModel2', REQUIRED, NOT_ADDITIONAL),
+    CrfTuple(30L, u'edc_testing', u'TestScheduledModel3', REQUIRED, NOT_ADDITIONAL),
 )
 
 requisitions = (
