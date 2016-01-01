@@ -1,12 +1,40 @@
-from django.db.models.signals import post_save, post_delete
+from django.core.exceptions import ImproperlyConfigured
+from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
+
+from edc_constants.constants import NEW_APPT, UNKEYED
+
+from ..choices import APPT_STATUS
 
 from .appointment import Appointment
 from .pre_appointment_contact import PreAppointmentContact
-from edc_appointment.models.subject_configuration import SubjectConfiguration
-from edc_appointment.choices import APPT_STATUS
-from edc_constants.constants import NEW_APPT, UNKEYED
-from django.core.exceptions import ImproperlyConfigured
+from .subject_configuration import SubjectConfiguration
+from .time_point_status import TimePointStatus
+
+
+@receiver(post_save, weak=False, dispatch_uid="appointment_post_save")
+def appointment_post_save(sender, instance, raw, created, using, **kwargs):
+    """Creates the TimePointStatus instance if it does not already exist."""
+    if not raw:
+        try:
+            if not instance.timepoint_status:
+                instance.timepoint_status = TimePointStatus.objects.create(
+                    visit_code=instance.visit_definition.code,
+                    subject_identifier=instance.registered_subject.subject_identifier)
+                instance.save(update_fields=['timepoint_status'])
+        except AttributeError as e:
+            if 'timepoint_status' not in str(e):
+                raise AttributeError(str(e))
+
+
+# @receiver(pre_delete, weak=False, dispatch_uid="appointment_pre_delete")
+# def appointment_pre_delete(sender, instance, using, **kwargs):
+#     """Deletes the TimePointStatus instance if it exists."""
+#     if isinstance(instance, Appointment):
+#         try:
+#             TimePointStatus.objects.get(appointment=instance).delete()
+#         except TimePointStatus.DoesNotExist:
+#             pass
 
 
 @receiver(post_save, weak=False, dispatch_uid="prepare_appointments_on_post_save")

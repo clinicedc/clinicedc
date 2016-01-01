@@ -4,7 +4,7 @@ from django import forms
 from django.db.models import get_model
 from django.core.exceptions import ValidationError
 
-from edc.entry_meta_data.models import ScheduledEntryMetaData, RequisitionMetaData
+from edc_meta_data.models import CrfMetaData, RequisitionMetaData
 from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, INCOMPLETE, CANCELLED, NEW_APPT, UNKEYED
 
 from ..models import Appointment
@@ -72,7 +72,7 @@ class AppointmentForm(forms.ModelForm):
                     registered_subject=registered_subject,
                     visit_definition=visit_definition,
                     visit_instance=visit_instance)
-                if (ScheduledEntryMetaData.objects.filter(appointment=appointment, entry_status=UNKEYED).exists() or
+                if (CrfMetaData.objects.filter(appointment=appointment, entry_status=UNKEYED).exists() or
                         RequisitionMetaData.objects.filter(appointment=appointment, entry_status=UNKEYED).exists()):
                     self.cleaned_data['appt_status'] = INCOMPLETE
         elif appt_status == NEW_APPT:

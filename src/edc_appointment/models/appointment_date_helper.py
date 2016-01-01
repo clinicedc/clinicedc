@@ -5,24 +5,22 @@ from datetime import datetime, timedelta
 from django.db.models import get_model
 
 from edc_configuration.models import GlobalConfiguration
-from edc_visit_schedule.classes import WindowPeriod
 
 from .holiday import Holiday
+from .window_period_helper import WindowPeriodHelper
 
 
 class AppointmentDateHelper(object):
     """ """
-    def __init__(self, appointment_model_cls):
-        self.appointment_model_cls = appointment_model_cls
+    def __init__(self, appointment_model):
+        self.appointment_model = appointment_model
         self.window_delta = None
         # not used
         self.allow_backwards = False
         self.appointments_days_forward = GlobalConfiguration.objects.get_attr_value('appointments_days_forward') or 0
         self.appointments_per_day_max = GlobalConfiguration.objects.get_attr_value('appointments_per_day_max')
         self.use_same_weekday = GlobalConfiguration.objects.get_attr_value('use_same_weekday')
-        self.allowed_iso_weekdays = GlobalConfiguration.objects.get_attr_value('allowed_iso_weekdays')
-        if not self.allowed_iso_weekdays:
-            self.allowed_iso_weekdays = '1234567'
+        self.allowed_iso_weekdays = str(GlobalConfiguration.objects.get_attr_value('allowed_iso_weekdays') or '1234567')
 
     def get_best_datetime(self, appt_datetime, site, weekday=None, exception_cls=None):
         """ Gets the appointment datetime on insert.
@@ -41,7 +39,7 @@ class AppointmentDateHelper(object):
 
     def change_datetime(self, best_appt_datetime, new_appt_datetime, site, visit_definition):
         """Checks if an appointment datetime from the user is OK to accept."""
-        window_period = WindowPeriod()
+        window_period = WindowPeriodHelper()
         appt_datetime = self._check(new_appt_datetime, site)
         if not window_period.check_datetime(visit_definition, appt_datetime, best_appt_datetime):
             # return unchanged appt_datetime
@@ -131,7 +129,7 @@ class AppointmentDateHelper(object):
         # get a list of appointments in the date range from 'appt_datetime' to 'appt_datetime'+days_forward
         # use model field appointment.best_appt_datetime not appointment.appt_datetime
         # TODO: change this query to allow the search to go to the beginning of the week
-        appointments = self.appointment_model_cls.objects.filter(
+        appointments = self.appointment_model.objects.filter(
             registered_subject__study_site=site,
             best_appt_datetime__gte=appt_datetime,
             best_appt_datetime__lte=appt_datetime + timedelta(days=self.appointments_days_forward))

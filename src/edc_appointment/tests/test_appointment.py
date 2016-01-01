@@ -7,17 +7,15 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
-from edc.data_manager.models.time_point_status import TimePointStatus
 from edc_testing.tests.factories import TestConsentWithMixinFactory
 from edc_testing.models.test_visit import TestVisit2, TestVisit
-from edc_appointment.models.appointment_mixin import AppointmentMixin
+from edc_appointment.models import AppointmentMixin, Appointment, TimePointStatus
+from edc_appointment.choices import APPT_STATUS
 from edc_constants.constants import (
     NEW_APPT, COMPLETE_APPT, INCOMPLETE, CANCELLED, MALE, YES, SCHEDULED, IN_PROGRESS, DONE)
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.models.visit_definition import VisitDefinition
 
-from ..choices import APPT_STATUS
-from ..models import Appointment
 
 from .base_test_case import BaseTestCase
 
@@ -55,7 +53,6 @@ class TestAppointment(BaseTestCase):
             registered_subject=self.registered_subject,
             appt_datetime=timezone.now(),
             visit_definition=self.visit_definition)
-        TimePointStatus.objects.get(appointment=appointment).delete()
         appointment.delete()
 
     def test_appointment_visit_instance_default(self):
@@ -122,7 +119,7 @@ class TestAppointment(BaseTestCase):
             confirm_identity='111111111',
             subject_identifier='999-100000-1',
             study_site=self.study_site)
-        self.assertEquals(Appointment.objects.all().count(), 6)
+        self.assertEquals(Appointment.objects.all().count(), 2)
 
     def test_appt_status_change_requires_visit_unless_cancelled(self):
         TestConsentWithMixinFactory(
@@ -135,7 +132,7 @@ class TestAppointment(BaseTestCase):
             confirm_identity='111111111',
             subject_identifier='999-100000-1',
             study_site=self.study_site)
-        self.assertEquals(Appointment.objects.all().count(), 6)
+        self.assertEquals(Appointment.objects.all().count(), 2)
         for appointment in Appointment.objects.all():
             for appt_status in [x[0] for x in APPT_STATUS]:
                 appointment.appt_status = appt_status
@@ -156,11 +153,11 @@ class TestAppointment(BaseTestCase):
             confirm_identity='111111111',
             subject_identifier='999-100000-1',
             study_site=self.study_site)
-        visit_definition = VisitDefinition.objects.all().order_by('time_point').first()
+        visit_definition = VisitDefinition.objects.get(code='1000')
         appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
             visit_definition=visit_definition)
-        TestVisit2.objects.create(
+        TestVisit.objects.create(
             appointment=appointment, reason=SCHEDULED, report_datetime=timezone.now())
         self.assertEquals(appointment.appt_status, IN_PROGRESS)
 
@@ -175,11 +172,11 @@ class TestAppointment(BaseTestCase):
             confirm_identity='111111111',
             subject_identifier='999-100000-1',
             study_site=self.study_site)
-        visit_definition = VisitDefinition.objects.all().order_by('time_point').first()
+        visit_definition = VisitDefinition.objects.get(code='1000')
         appointment = Appointment.objects.get(
             registered_subject=self.registered_subject,
             visit_definition=visit_definition)
-        TestVisit2.objects.create(
+        TestVisit.objects.create(
             appointment=appointment, reason=SCHEDULED, report_datetime=timezone.now())
         for appt_status in [x[0] for x in APPT_STATUS]:
             appointment.appt_status = appt_status

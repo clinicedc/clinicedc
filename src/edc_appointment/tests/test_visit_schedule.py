@@ -2,23 +2,25 @@ from collections import OrderedDict
 
 from edc_constants.constants import REQUIRED, NOT_ADDITIONAL
 from edc_visit_schedule.classes import (
-    VisitScheduleConfiguration, EntryTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
+    VisitScheduleConfiguration, CrfTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleGroupTuple)
 from edc_testing.models import TestConsentWithMixin, TestAliquotType, TestPanel, TestVisit, TestVisit2
+from .test_models import TestEnroll
 
 
 entries = (
-    EntryTuple(10L, u'edc_testing', u'TestScheduledModel1', REQUIRED, NOT_ADDITIONAL),
-    EntryTuple(20L, u'edc_testing', u'TestScheduledModel2', REQUIRED, NOT_ADDITIONAL),
-    EntryTuple(30L, u'edc_testing', u'TestScheduledModel3', REQUIRED, NOT_ADDITIONAL),
+    CrfTuple(10L, u'edc_appointment', u'TestCrfModel1', REQUIRED, NOT_ADDITIONAL),
+    CrfTuple(20L, u'edc_appointment', u'TestCrfModel2', REQUIRED, NOT_ADDITIONAL),
+    CrfTuple(30L, u'edc_appointment', u'TestCrfModel3', REQUIRED, NOT_ADDITIONAL),
 )
 
 requisitions = (
     RequisitionPanelTuple(
-        10L, u'edc_testing', u'testrequisition', 'Research Blood Draw', 'TEST', 'WB', REQUIRED, NOT_ADDITIONAL),
+        10L, u'edc_appointment', u'testrequisitionmodel',
+        'Research Blood Draw', 'TEST', 'WB', REQUIRED, NOT_ADDITIONAL),
     RequisitionPanelTuple(
-        20L, u'edc_testing', u'testrequisition', 'Viral Load', 'TEST', 'WB', REQUIRED, NOT_ADDITIONAL),
+        20L, u'edc_appointment', u'testrequisitionmodel', 'Viral Load', 'TEST', 'WB', REQUIRED, NOT_ADDITIONAL),
     RequisitionPanelTuple(
-        30L, u'edc_testing', u'testrequisition', 'Microtube', 'STORAGE', 'WB', REQUIRED, NOT_ADDITIONAL),
+        30L, u'edc_appointment', u'testrequisitionmodel', 'Microtube', 'STORAGE', 'WB', REQUIRED, NOT_ADDITIONAL),
 )
 
 
@@ -31,10 +33,12 @@ class VisitSchedule(VisitScheduleConfiguration):
 
     membership_forms = OrderedDict({
         'schedule-1': MembershipFormTuple('schedule-1', TestConsentWithMixin, True),
+        'schedule-2': MembershipFormTuple('schedule-2', TestEnroll, True),
     })
 
     schedule_groups = OrderedDict({
         'schedule-group-1': ScheduleGroupTuple('schedule-group-1', 'schedule-1', None, None),
+        'schedule-group-2': ScheduleGroupTuple('schedule-group-2', 'schedule-2', None, None),
     })
 
     visit_definitions = OrderedDict(
@@ -79,7 +83,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
              'visit_tracking_model': TestVisit2,
-             'schedule_group': 'schedule-group-1',
+             'schedule_group': 'schedule-group-2',
              'instructions': None,
             'requisitions': requisitions,
             'entries': entries},
@@ -94,7 +98,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
              'visit_tracking_model': TestVisit2,
-             'schedule_group': 'schedule-group-1',
+             'schedule_group': 'schedule-group-2',
              'instructions': None,
             'requisitions': requisitions,
             'entries': entries},
@@ -109,7 +113,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
              'visit_tracking_model': TestVisit2,
-             'schedule_group': 'schedule-group-1',
+             'schedule_group': 'schedule-group-2',
              'instructions': None,
             'requisitions': requisitions,
             'entries': entries},
@@ -124,7 +128,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
              'visit_tracking_model': TestVisit2,
-             'schedule_group': 'schedule-group-1',
+             'schedule_group': 'schedule-group-2',
              'instructions': None,
             'requisitions': requisitions,
             'entries': entries},
