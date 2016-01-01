@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 
 from edc_lab.lab_profile.classes import site_lab_profiles
 from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
-from edc.subject.entry.models import Entry
+from edc_meta_data.models import CrfEntry
 from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc_testing.classes import TestAppConfiguration, TestVisitSchedule, TestLabProfile
 
@@ -47,7 +47,7 @@ class TestPermissions(SimpleTestCase):
         self.startup()
         codes = ['1000']
         visit_definitions = VisitDefinition.objects.filter(code__in=codes)
-        entry_count = Entry.objects.filter(visit_definition__in=visit_definitions).count()
+        entry_count = CrfEntry.objects.filter(visit_definition__in=visit_definitions).count()
         permissions = Permissions('field_staff', ['add', 'change'], visit_definition_codes=codes)
         permissions.replace()
         group = Group.objects.get(name='field_staff')
@@ -60,7 +60,7 @@ class TestPermissions(SimpleTestCase):
         self.startup()
         codes = ['1000']
         visit_definitions = VisitDefinition.objects.filter(code__in=codes)
-        entry_count = Entry.objects.filter(visit_definition__in=visit_definitions).count()
+        entry_count = CrfEntry.objects.filter(visit_definition__in=visit_definitions).count()
         permissions = Permissions('field_staff', ['add', 'change', 'delete'], visit_definition_codes=codes)
         permissions.replace()
         group = Group.objects.get(name='field_staff')
@@ -73,7 +73,7 @@ class TestPermissions(SimpleTestCase):
         self.startup()
         codes = ['2000']
         visit_definitions = VisitDefinition.objects.filter(code__in=codes)
-        entry_count = Entry.objects.filter(visit_definition__in=visit_definitions).count()
+        entry_count = CrfEntry.objects.filter(visit_definition__in=visit_definitions).count()
         permissions = Permissions('field_staff', ['add', 'change', 'delete'], visit_definition_codes=codes)
         permissions.replace()
         group = Group.objects.get(name='field_staff')
@@ -86,7 +86,7 @@ class TestPermissions(SimpleTestCase):
         self.startup()
         codes = ['1000', '2000']
         visit_definitions = VisitDefinition.objects.filter(code__in=codes)
-        entries = Entry.objects.filter(visit_definition__in=visit_definitions)
+        entries = CrfEntry.objects.filter(visit_definition__in=visit_definitions)
         entry_count = len(list(set([entry.content_type_map.content_type_id for entry in entries])))
         permissions = Permissions('field_staff', ['add', 'change', 'delete'], visit_definition_codes=codes)
         permissions.replace()

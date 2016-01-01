@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from edc_lab.lab_profile.classes import site_lab_profiles
 from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
-from edc.subject.entry.models import Entry, LabEntry
+from edc_meta_data.models import CrfEntry, LabEntry
 from edc_testing.classes import TestLabProfile
 from edc_testing.classes import TestVisitSchedule as VisitSchedule, TestAppConfiguration
 from edc_appointment.models import AppointmentMixin
@@ -45,8 +45,8 @@ class TestVisitSchedule(TestCase):
     def test_build_entry(self):
         """Creates as many instances of entry as in the config."""
         for visit_definition_name in self.visit_schedule.visit_definitions:
-            self.assertEqual(Entry.objects.count(), len(self.visit_schedule.visit_definitions[visit_definition_name].get('entries')))
-        self.assertGreater(Entry.objects.count(), 0)
+            self.assertEqual(CrfEntry.objects.count(), len(self.visit_schedule.visit_definitions[visit_definition_name].get('entries')))
+        self.assertGreater(CrfEntry.objects.count(), 0)
 
     def test_build_lab_entry(self):
         """Creates as many instances of lab_entry as in the config."""
