@@ -27,13 +27,13 @@ class CrfModelMixin(models.Model):
     objects = CrfModelManager()
 
     def save(self, *args, **kwargs):
-        self.time_point_status_open_or_raise()
+        self.get_visit().appointment.time_point_status_open_or_raise()
         super(CrfModelMixin, self).save(*args, **kwargs)
 
-    def time_point_status_open_or_raise(self, exception_cls=None):
-        exception_cls = exception_cls or ValidationError
-        if self.get_visit().appointment.timepoint_status.status == CLOSED:
-            raise ValidationError('Data entry for this timepoint is closed.')
+#     def time_point_status_open_or_raise(self, exception_cls=None):
+#         exception_cls = exception_cls or ValidationError
+#         if self.get_visit().appointment.time_point_status.status == CLOSED:
+#             raise ValidationError('Data entry for this timepoint is closed.')
 
     def get_subject_identifier(self):
         return self.get_visit().appointment.registered_subject.subject_identifier

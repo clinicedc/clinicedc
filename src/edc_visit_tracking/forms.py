@@ -10,12 +10,17 @@ class VisitFormMixin(object):
 
     def clean(self):
         cleaned_data = super(VisitFormMixin, self).clean()
+        self.validate_time_point_status()
         self.validate_presence()
         self.validate_reason_and_info_source()
         self.validate_survival_status_if_alive()
         self.validate_visit_reason_and_study_status()
         self._meta.model(**cleaned_data).has_previous_visit_or_raise(forms.ValidationError)
         return cleaned_data
+
+    def validate_time_point_status(self):
+        if self.instance:
+            self.instance.appointment.time_point_status_open_or_raise(exception_cls=forms.ValidationError)
 
     def validate_reason_and_info_source(self):
         cleaned_data = self.cleaned_data

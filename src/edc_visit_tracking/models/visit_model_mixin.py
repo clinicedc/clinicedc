@@ -8,7 +8,7 @@ from edc_appointment.models import Appointment
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
 from edc_constants.choices import YES_NO
-from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, INCOMPLETE, UNKEYED, LOST_VISIT, DEATH_VISIT, YES
+from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, LOST_VISIT, DEATH_VISIT, YES
 
 from ..choices import VISIT_REASON
 from ..constants import (
@@ -134,9 +134,8 @@ class VisitModelMixin (models.Model):
         return unicode(self.appointment)
 
     def save(self, *args, **kwargs):
-        using = kwargs.get('using')
         if self.id and not self.byass_time_point_status():
-            self.appointment.timepoint_status.check_time_point_status(using=using)
+            self.appointment.time_point_status_open_or_raise()
         self.subject_identifier = self.get_subject_identifier()
         super(VisitModelMixin, self).save(*args, **kwargs)
 
