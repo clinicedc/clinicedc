@@ -8,20 +8,19 @@ from django.db import models
 from django.db.models import TextField, Count
 from django.template.loader import render_to_string
 
-from edc_configuration.models import GlobalConfiguration
 from edc.data_manager.models import ActionItem
-from edc.data_manager.models import TimePointStatus
-from edc_meta_data.helpers import CrfMetaDataHelper, RequisitionMetaDataHelper
-from edc_lab.lab_clinic_api.classes import EdcLabResults
-from edc_lab.lab_packing.models import PackingListMixin
-from edc_lab.lab_requisition.models import RequisitionModelMixin
 from edc.subject.lab_tracker.classes import site_lab_tracker
-from edc_locator.models import LocatorMixin
 from edc.subject.subject_summary.models import Link
 from edc_appointment.models import Appointment, SubjectConfiguration
 from edc_base.encrypted_fields import EncryptedTextField
 from edc_base.utils import convert_from_camel
+from edc_configuration.models import GlobalConfiguration
 from edc_constants.constants import NEW, NOT_REQUIRED, UNKEYED, KEYED, NEW_APPT, COMPLETE_APPT, IN_PROGRESS
+from edc_lab.lab_clinic_api.classes import EdcLabResults
+from edc_lab.lab_packing.models import PackingListMixin
+from edc_lab.lab_requisition.models import RequisitionModelMixin
+from edc_locator.models import LocatorMixin
+from edc_meta_data.models import CrfMetaDataHelper, RequisitionMetaDataHelper
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.classes import MembershipFormHelper
 from edc_visit_schedule.models import MembershipForm
@@ -388,12 +387,10 @@ class RegisteredSubjectDashboard(Dashboard):
 
     @property
     def time_point_status(self):
-        self._time_point_status = None
-        if self.appointment:
-            try:
-                self._time_point_status = TimePointStatus.objects.get(appointment=self.appointment)
-            except TimePointStatus.DoesNotExist:
-                pass
+        try:
+            self._time_point_status = self.appointment.time_point_status
+        except AttributeError:
+            self._time_point_status = None
         return self._time_point_status
 
     def render_summary_links(self, template_filename=None):

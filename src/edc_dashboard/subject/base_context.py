@@ -14,7 +14,7 @@ class BaseContext(object):
     scheduled entries to display under "Scheduled Forms".
 
     .. note:: "model" is the data form or requisition to be keyed
-    and "scheduled entry" is the meta data instance."""
+    and "crf entry" is the meta data instance."""
 
     meta_data_model = None
 
@@ -71,7 +71,7 @@ class BaseContext(object):
 
     @property
     def instance(self):
-        """Sets to the model instance referred to by the scheduled entry."""
+        """Sets to the model instance referred to by the crf entry."""
         if not self._instance:
             options = {convert_from_camel(self.visit_instance._meta.object_name): self.visit_instance}
             if self.model.objects.filter(**options):
@@ -85,21 +85,21 @@ class BaseContext(object):
 
     @property
     def required(self):
-        return self.meta_data_instance.entry_status != NOT_REQUIRED
+        return self.meta_data_instance.crf_entry_status != NOT_REQUIRED
 
     @property
     def not_required(self):
-        return self.meta_data_instance.entry_status == NOT_REQUIRED
+        return self.meta_data_instance.crf_entry_status == NOT_REQUIRED
 
     @property
     def additional(self):
-        return self.meta_data_instance.entry.additional == ADDITIONAL
+        return self.meta_data_instance.crf_entry.additional == ADDITIONAL
 
     @property
     def model(self):
-        """Returns the model class of the model referred to by the scheduled entry."""
-        app_label = self.meta_data_instance.entry.app_label
-        model_name = self.meta_data_instance.entry.model_name
+        """Returns the model class of the model referred to by the crf entry."""
+        app_label = self.meta_data_instance.crf_entry.app_label
+        model_name = self.meta_data_instance.crf_entry.model_name
         return get_model(app_label, model_name)
 
     @property
