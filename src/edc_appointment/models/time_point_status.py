@@ -30,7 +30,7 @@ class TimePointStatus(SyncModelMixin, BaseUuidModel):
     subject_identifier = models.CharField(max_length=25)
 
     close_datetime = models.DateTimeField(
-        verbose_name='Date and time appointment "closed" for edit.',
+        verbose_name='Date closed.',
         null=True,
         blank=True)
 
@@ -122,14 +122,17 @@ class TimePointStatus(SyncModelMixin, BaseUuidModel):
             time_point_status__pk=self.pk, visit_instance='0')
 
     def dashboard(self):
-        return reverse('subject_dashboard_url',
-                       kwargs={'dashboard_type': self.base_appointment.registered_subject.subject_type.lower(),
-                               'dashboard_model': 'appointment',
-                               'dashboard_id': self.base_appointment.pk,
-                               'show': 'appointments'})
+        url = reverse('subject_dashboard_url',
+                      kwargs={'dashboard_type': self.base_appointment.registered_subject.subject_type.lower(),
+                              'dashboard_model': 'appointment',
+                              'dashboard_id': self.base_appointment.pk,
+                              'show': 'appointments'})
+        return """<a href="{url}" />dashboard</a>""".format(url=url)
+
     dashboard.allow_tags = True
 
     class Meta:
         app_label = "edc_appointment"
         verbose_name = "Time Point Completion"
         verbose_name_plural = "Time Point Completion"
+        ordering = ['subject_identifier', 'visit_code']

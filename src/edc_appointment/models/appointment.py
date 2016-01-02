@@ -125,10 +125,10 @@ class Appointment(SyncModelMixin, BaseUuidModel):
 
     history = AuditTrail()
 
-#     def __unicode__(self):
-#         return "{0} {1} for {2}.{3}".format(
-#             self.registered_subject.subject_identifier, self.registered_subject.subject_type,
-#             self.visit_definition.code, self.visit_instance)
+    def __unicode__(self):
+        return "{0} {1} for {2}.{3}".format(
+            self.registered_subject.subject_identifier, self.registered_subject.subject_type,
+            self.visit_definition.code, self.visit_instance)
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
@@ -213,9 +213,13 @@ class Appointment(SyncModelMixin, BaseUuidModel):
         exception_cls = exception_cls or ValidationError
         try:
             if self.time_point_status.status == CLOSED:
-                raise ValidationError('Data entry for this timepoint / appointment is closed.')
+                raise ValidationError('Data entry for this time point is closed. See TimePointStatus.')
         except AttributeError:
             pass
+        except TimePointStatus.DoesNotExist:
+            self.time_point_status = TimePointStatus.objects.create(
+                visit_code=self.visit_definition.code,
+                subject_identifier=self.registered_subject.subject_identifier)
 
     def validate_appt_datetime(self, exception_cls=None):
         """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
@@ -307,6 +311,12 @@ class Appointment(SyncModelMixin, BaseUuidModel):
                     ret = """<a href="{url}" />dashboard</a>""".format(url=url)
         return ret
     dashboard.allow_tags = True
+
+    def time_point(self):
+        url = reverse('admin:edc_appointment_timepointstatus_changelist')
+        return """<a href="{url}?subject_identifier={subject_identifier}" />time_point</a>""".format(
+            url=url, subject_identifier=self.registered_subject.subject_identifier)
+    time_point.allow_tags = True
 
     def get_subject_identifier(self):
         """Returns the subject identifier."""

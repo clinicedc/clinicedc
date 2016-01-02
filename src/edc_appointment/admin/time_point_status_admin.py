@@ -21,9 +21,9 @@ class TimePointStatusAdmin(admin.ModelAdmin):
     list_display = (
         'subject_identifier',
         'visit_code',
-        'dashboard',
-        'close_datetime',
         'status',
+        'close_datetime',
+        'dashboard',
         'subject_withdrew')
 
     list_filter = (

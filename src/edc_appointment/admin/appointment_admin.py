@@ -7,6 +7,7 @@ from ..forms import AppointmentForm
 from ..models import Appointment
 
 from .pre_appointment_contact_admin import PreAppointmentContactInlineAdmin
+from edc_visit_schedule.models.visit_definition import VisitDefinition
 
 
 class AppointmentAdmin(BaseModelAdmin):
@@ -28,6 +29,15 @@ class AppointmentAdmin(BaseModelAdmin):
                     self.readonly_fields.index('registered_subject')
                 except ValueError:
                     self.readonly_fields.append('registered_subject')
+        if db_field.name == "visit_definition":
+            if request.GET.get('visit_definition'):
+                kwargs["queryset"] = VisitDefinition.objects.filter(pk=request.GET.get('visit_definition'))
+            else:
+                self.readonly_fields = list(self.readonly_fields)
+                try:
+                    self.readonly_fields.index('visit_definition')
+                except ValueError:
+                    self.readonly_fields.append('visit_definition')
         return super(AppointmentAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     fields = (
@@ -47,6 +57,7 @@ class AppointmentAdmin(BaseModelAdmin):
         'appt_datetime',
         'appt_type',
         'appt_status',
+        'time_point',
         'is_confirmed',
         'contact_count',
         'visit_definition',

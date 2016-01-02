@@ -52,7 +52,7 @@ class AppointmentForm(forms.ModelForm):
             if t1.days > 0:
                 raise forms.ValidationError(
                     'Status is COMPLETE_APPT so the appointment date cannot be a future date. '
-                    'You wrote \'{}\''.format(appt_datetime))
+                    'You wrote \'{}\'. Got {}'.format(appt_datetime, t1))
             # cannot be done if no visit report, but how do i get to the visit report??
             # cannot be done if bucket entries exist that are UNKEYED
             if Appointment.objects.filter(
