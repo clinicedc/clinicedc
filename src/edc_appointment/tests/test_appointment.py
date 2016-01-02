@@ -1,8 +1,7 @@
-from __future__ import print_function
-
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 
+from django import forms
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
@@ -18,6 +17,7 @@ from edc_visit_schedule.models.visit_definition import VisitDefinition
 
 
 from .base_test_case import BaseTestCase
+from edc_appointment.forms.appointment_form import AppointmentForm
 
 
 class TestRegistrationModel(AppointmentMixin, models.Model):
@@ -62,6 +62,14 @@ class TestAppointment(BaseTestCase):
             visit_definition=self.visit_definition)
         self.assertEqual(appointment.visit_instance, '0')
 
+    def test_appointment_visit_instance_unchanged(self):
+        appointment = Appointment.objects.create(
+            registered_subject=self.registered_subject,
+            appt_datetime=timezone.now(),
+            visit_definition=self.visit_definition)
+        appointment.save()
+        self.assertEqual(appointment.visit_instance, '0')
+
     def test_appointment_visit_instance_change(self):
         """Asserts that the visit instance cannot be incremented out of sequence."""
         appointment = Appointment.objects.create(
@@ -74,16 +82,15 @@ class TestAppointment(BaseTestCase):
 
     def test_appointment_visit_instance_change2(self):
         """Asserts that the visit instance cannot be incremented out of sequence."""
-        Appointment.objects.create(
+        appointment = Appointment.objects.create(
             registered_subject=self.registered_subject,
-            appt_datetime=timezone.now(),
+            appt_datetime=timezone.now() - relativedelta(weeks=1),
             visit_definition=self.visit_definition)
+        self.assertEqual(appointment.visit_instance, '0')
         self.assertRaises(
             ValidationError,
             Appointment.objects.create,
-            appt_datetime=datetime.today(),
-            best_appt_datetime=datetime.today(),
-            appt_status=NEW_APPT,
+            appt_datetime=timezone.now(),
             visit_definition=self.visit_definition,
             registered_subject=self.registered_subject,
             visit_instance='2')
@@ -211,3 +218,49 @@ class TestAppointment(BaseTestCase):
 #         appointment.save()
 #         appt_datetime, best_appt_datetime = appointment.validate_appt_datetime()
 #         self.assertNotEqual(appt_datetime, best_appt_datetime)
+
+    def test_form(self):
+        data = dict(
+            registered_subject=self.registered_subject.pk,
+            appt_datetime=timezone.now(),
+            appt_status=IN_PROGRESS,
+            visit_definition=self.visit_definition.pk,
+            visit_instance='0',
+            appt_type='clinic'
+        )
+        form = AppointmentForm(data)
+        self.assertTrue(form.is_valid())
+
+    def test_form_save(self):
+        data = dict(
+            registered_subject=self.registered_subject.pk,
+            appt_datetime=timezone.now(),
+            appt_status=IN_PROGRESS,
+            visit_definition=self.visit_definition.pk,
+            visit_instance='0',
+            appt_type='clinic'
+        )
+        form = AppointmentForm(data)
+        self.assertTrue(form.is_valid())
+        with self.assertRaises(forms.ValidationError):
+            try:
+                form.save()
+            except:
+                pass
+            else:
+                raise forms.ValidationError('ValidationError not raised')
+
+    def test_form_save_bad_visit_instance(self):
+        data = dict(
+            registered_subject=self.registered_subject.pk,
+            appt_datetime=timezone.now(),
+            appt_status=IN_PROGRESS,
+            visit_definition=self.visit_definition.pk,
+            visit_instance='1',
+            appt_type='clinic'
+        )
+        form = AppointmentForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'Cannot create continuation appointment. Cannot find the first appointment \'1000: 1000.0\'.',
+            form.errors.get('__all__'))

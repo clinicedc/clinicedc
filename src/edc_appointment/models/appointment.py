@@ -75,7 +75,7 @@ class Appointment(SyncModelMixin, BaseUuidModel):
         null=True,
         editable=False)
 
-    timepoint_status = models.ForeignKey(TimePointStatus, null=True)
+    time_point_status = models.ForeignKey(TimePointStatus, null=True, blank=True)
 
     appt_status = models.CharField(
         verbose_name=("Status"),
@@ -125,10 +125,10 @@ class Appointment(SyncModelMixin, BaseUuidModel):
 
     history = AuditTrail()
 
-    def __unicode__(self):
-        return "{0} {1} for {2}.{3}".format(
-            self.registered_subject.subject_identifier, self.registered_subject.subject_type,
-            self.visit_definition.code, self.visit_instance)
+#     def __unicode__(self):
+#         return "{0} {1} for {2}.{3}".format(
+#             self.registered_subject.subject_identifier, self.registered_subject.subject_type,
+#             self.visit_definition.code, self.visit_instance)
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
@@ -212,7 +212,7 @@ class Appointment(SyncModelMixin, BaseUuidModel):
         time_point_status_status == closed."""
         exception_cls = exception_cls or ValidationError
         try:
-            if self.timepoint_status.status == CLOSED:
+            if self.time_point_status.status == CLOSED:
                 raise ValidationError('Data entry for this timepoint / appointment is closed.')
         except AttributeError:
             pass
@@ -245,27 +245,32 @@ class Appointment(SyncModelMixin, BaseUuidModel):
     def validate_visit_instance(self, using=None, exception_cls=None):
         """Confirms a 0 instance appointment exists before allowing a continuation
         appt and keep a sequence."""
-        if not exception_cls:
-            exception_cls = ValidationError
-        if not isinstance(self.visit_instance, basestring):
-            raise exception_cls('Expected \'visit_instance\' to be of type basestring')
-        if self.visit_instance != '0':
-            if not Appointment.objects.using(using).filter(
+        exception_cls = exception_cls or ValidationError
+        if str(self.visit_instance) != '0':
+            try:
+                appointment = Appointment.objects.using(using).get(
                     registered_subject=self.registered_subject,
                     visit_definition=self.visit_definition,
-                    visit_instance='0').exclude(pk=self.pk).exists():
+                    visit_instance='0')
+            except Appointment.DoesNotExist:
                 raise exception_cls(
-                    'Cannot create continuation appointment for visit {}. Cannot find the original '
-                    'appointment (visit instance equal to 0).'.format(self.visit_definition,))
-            if int(self.visit_instance) - 1 != 0:
-                if not Appointment.objects.using(using).filter(
-                        registered_subject=self.registered_subject,
-                        visit_definition=self.visit_definition,
-                        visit_instance=str(int(self.visit_instance) - 1)).exists():
+                    'Cannot create continuation appointment. Cannot find the first '
+                    'appointment \'{}.0\'.'.format(self.visit_definition,))
+            appointments = Appointment.objects.using(using).filter(
+                registered_subject=self.registered_subject,
+                visit_definition=self.visit_definition).exclude(
+                    pk=appointment.pk).order_by('-visit_instance')
+            if not appointments and self.visit_instance != 1:
+                raise exception_cls(
+                    'Cannot create continuation appointment for visit. '
+                    'Expected next appoinmtent to be {0}.1. Got {1}'.format(
+                        self.visit_definition, self.visit_instance))
+            elif appointments:
+                if int(self.visit_instance) - 1 != int(appointments[0].visit_instance):
                     raise exception_cls(
                         'Cannot create continuation appointment for visit {0}. '
                         'Expected next visit instance to be {1}. Got {2}'.format(
-                            self.visit_definition, str(int(self.visit_instance) - 1), self.visit_instance))
+                            self.visit_definition.code, (int(self.visit_instance) - 1), self.visit_instance))
 
     def check_window_period(self, exception_cls=None):
         """Is this used?"""

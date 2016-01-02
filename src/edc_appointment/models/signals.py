@@ -17,13 +17,13 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
     """Creates the TimePointStatus instance if it does not already exist."""
     if not raw:
         try:
-            if not instance.timepoint_status:
-                instance.timepoint_status = TimePointStatus.objects.create(
+            if not instance.time_point_status:
+                instance.time_point_status = TimePointStatus.objects.create(
                     visit_code=instance.visit_definition.code,
                     subject_identifier=instance.registered_subject.subject_identifier)
-                instance.save(update_fields=['timepoint_status'])
+                instance.save(update_fields=['time_point_status'])
         except AttributeError as e:
-            if 'timepoint_status' not in str(e):
+            if 'time_point_status' not in str(e):
                 raise AttributeError(str(e))
 
 

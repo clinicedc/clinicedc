@@ -1,7 +1,5 @@
 from django.contrib import admin
 
-from edc_appointment.models import Appointment
-
 from ..forms import TimePointStatusForm
 from ..models import TimePointStatus
 
@@ -10,26 +8,39 @@ class TimePointStatusAdmin(admin.ModelAdmin):
 
     form = TimePointStatusForm
 
-    def __init__(self, *args, **kwargs):
-        super(TimePointStatusAdmin, self).__init__(*args, **kwargs)
-        self.list_display = (
-            'dashboard',
-            'close_datetime',
-            'status',
-            'subject_withdrew')
-        self.search_fields.insert(0, 'appointment__registered_subject__subject_identifier')
-        self.list_filter = (
-            'status',
-            'close_datetime',
-            'appointment__registered_subject__gender',
-            'appointment__visit_definition__code',
-            'subject_withdrew',
-        )
+    fields = (
+        'subject_identifier',
+        'visit_code',
+        'status',
+        'subject_withdrew',
+        'reasons_withdrawn',
+        'withdraw_datetime',
+        'comment'
+    )
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "appointment":
-            if request.GET.get('appointment'):
-                kwargs["queryset"] = Appointment.objects.filter(pk=request.GET.get('appointment'))
-        return super(TimePointStatusAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    list_display = (
+        'subject_identifier',
+        'visit_code',
+        'dashboard',
+        'close_datetime',
+        'status',
+        'subject_withdrew')
+
+    list_filter = (
+        'status',
+        'close_datetime',
+        'visit_code',
+        'subject_withdrew')
+
+    readonly_fields = (
+        'subject_identifier',
+        'visit_code',
+    )
+
+    radio_fields = {
+        'status': admin.VERTICAL,
+        'subject_withdrew': admin.VERTICAL,
+        'reasons_withdrawn': admin.VERTICAL,
+    }
 
 admin.site.register(TimePointStatus, TimePointStatusAdmin)

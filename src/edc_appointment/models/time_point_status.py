@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -11,6 +9,7 @@ from edc_base.model.models import BaseUuidModel
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import CLOSED, OPEN, NEW_APPT, IN_PROGRESS, NOT_APPLICABLE
 from edc_sync.models import SyncModelMixin
+from django.utils import timezone
 
 
 class TimePointStatusManager(models.Manager):
@@ -32,7 +31,8 @@ class TimePointStatus(SyncModelMixin, BaseUuidModel):
 
     close_datetime = models.DateTimeField(
         verbose_name='Date and time appointment "closed" for edit.',
-        default=datetime.today())
+        null=True,
+        blank=True)
 
     status = models.CharField(
         max_length=15,
@@ -84,6 +84,10 @@ class TimePointStatus(SyncModelMixin, BaseUuidModel):
 
     def save(self, *args, **kwargs):
         self.validate_status()
+        if self.status == CLOSED and not self.close_datetime:
+            self.close_datetime = timezone.now()
+        else:
+            self.close_datetime = None
         super(TimePointStatus, self).save(*args, **kwargs)
 
     def status_display(self):
@@ -109,13 +113,13 @@ class TimePointStatus(SyncModelMixin, BaseUuidModel):
 
     def get_appointments(self):
         Appointment = get_model('edc_appointment', 'Appointment')
-        return Appointment.objects.filter(timepoint_status__pk=self.pk)
+        return Appointment.objects.filter(time_point_status__pk=self.pk)
 
     @property
     def base_appointment(self):
         Appointment = get_model('edc_appointment', 'Appointment')
         return Appointment.objects.get(
-            timepoint_status__pk=self.pk, visit_instance='0')
+            time_point_status__pk=self.pk, visit_instance='0')
 
     def dashboard(self):
         return reverse('subject_dashboard_url',
@@ -127,6 +131,5 @@ class TimePointStatus(SyncModelMixin, BaseUuidModel):
 
     class Meta:
         app_label = "edc_appointment"
-        db_table = 'bhp_data_manager_timepointstatus'
         verbose_name = "Time Point Completion"
         verbose_name_plural = "Time Point Completion"

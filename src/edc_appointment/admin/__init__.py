@@ -2,3 +2,4 @@ from .appointment_admin import AppointmentAdmin
 from .holiday_admin import HolidayInlineAdmin, HolidayAdmin
 from .pre_appointment_contact_admin import PreAppointmentContactInlineAdmin, PreAppointmentContactAdmin
 from .subject_configuration_admin import SubjectConfigurationAdmin
+from .time_point_status_admin import TimePointStatusAdmin

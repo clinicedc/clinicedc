@@ -1,8 +1,6 @@
 from datetime import date
 
 from django import forms
-from django.db.models import get_model
-from django.core.exceptions import ValidationError
 
 from edc_meta_data.models import CrfMetaData, RequisitionMetaData
 from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, INCOMPLETE, CANCELLED, NEW_APPT, UNKEYED
@@ -14,12 +12,14 @@ class AppointmentForm(forms.ModelForm):
 
     class Meta:
         model = Appointment
+        fields = '__all__'
 
-    def check_timepoint_status(self):
-        if self.instance:
-            TimePointStatus = get_model('data_manager', 'TimePointStatus')
-            TimePointStatus.check_time_point_status(
-                appointment=self.instance, exception_cls=forms.ValidationError)
+    def clean(self):
+        cleaned_data = super(AppointmentForm, self).clean()
+        self.validate_time_point_status()
+        self.validate_visit_instance()
+        self.validate_appt_date_if_status_complete()
+        return cleaned_data
 
     def clean_appt_datetime(self):
         appt_datetime = self.cleaned_data['appt_datetime']
@@ -27,22 +27,13 @@ class AppointmentForm(forms.ModelForm):
             raise forms.ValidationError('Please provide the appointment date and time.')
         return appt_datetime
 
+    def validate_time_point_status(self):
+        if self.instance:
+            self.instance.time_point_status_open_or_raise(exception_cls=forms.ValidationError)
+
     def validate_visit_instance(self):
-        cleaned_data = self.cleaned_data
-        self._meta.model().validate_visit_instance(exception_cls=forms.ValidationError)
-        visit_instance = cleaned_data.get("visit_instance")
-        if visit_instance == 0:
-            raise ValidationError(
-                'Continuation appointment may not have visit instance equal to 0.')
-        elif not Appointment.objects.filter(
-                registered_subject=cleaned_data.get("registered_subject"),
-                visit_definition=visit_instance,
-                visit_instance=0).exists():
-            raise forms.ValidationError(
-                'Cannot create continuation appointment for visit {}. Cannot find the original '
-                'appointment (visit instance equal to 0).'.format(cleaned_data.get("visit_definition"),))
-        else:
-            pass
+        instance = Appointment(**self.cleaned_data)
+        Appointment.validate_visit_instance(instance, exception_cls=forms.ValidationError)
 
     def validate_appt_date_if_status_complete(self):
         cleaned_data = self.cleaned_data
@@ -92,10 +83,3 @@ class AppointmentForm(forms.ModelForm):
         else:
             raise TypeError(
                 "Unknown appt_status passed to clean method in form AppointmentForm. Got {}".format(appt_status))
-
-    def clean(self):
-        cleaned_data = self.cleaned_data
-        self.check_timepoint_status()
-        self.validate_visit_instance()
-        self.validate_appt_date_if_status_complete()
-        return cleaned_data
