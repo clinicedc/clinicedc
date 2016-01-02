@@ -50,6 +50,9 @@ class PackingListMixin(models.Model):
     def reference(self):
         return self.timestamp
 
+    def natural_key(self):
+        return self.timestamp
+
     def specimen_count(self):
         lst = filter(None, self.list_items.replace('\r', '').split('\n'))
         return len(lst)
