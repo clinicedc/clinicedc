@@ -36,11 +36,12 @@ class BaseSpecimenConsentForm(forms.ModelForm):
         value = cleaned_data.get(attrname)
         study_consent_value = getattr(study_consent, attrname)
         if value != study_consent_value:
-            fld = [fld for fld in study_consent._meta.fields if fld.name == attrname]
+            fields = [field for field in study_consent._meta.fields if field.name == attrname]
             raise forms.ValidationError(
                 'Specimen consent and maternal consent do not match for question '
                 '\'{}\'. Got {} != {}. Please correct.'.format(
-                    fld.verbose_name, value, study_consent_value))
+                    ', '.join([fld.verbose_name for fld in fields]),
+                    value, study_consent_value))
 
     def purpose_explained_and_understood(self, study_consent):
         """Ensures the purpose of specimen storage is indicated as
