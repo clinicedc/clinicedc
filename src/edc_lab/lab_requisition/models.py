@@ -1,6 +1,6 @@
 import re
 
-from random import random
+import random
 from uuid import uuid4
 
 from django.conf import settings
@@ -10,7 +10,6 @@ from django.utils import timezone
 
 from edc.core.identifier.classes import Identifier
 
-# from edc_base.model.constants import BASE_MODEL_UPDATE_FIELDS, BASE_UUID_MODEL_UPDATE_FIELDS
 from edc_base.model.fields.custom_fields import InitialsField
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NO
@@ -28,11 +27,12 @@ class RequisitionManager(models.Manager):
         return self.get(requisition_identifier=requisition_identifier)
 
     def get_global_identifier(self, **kwargs):
-
-        """Generates and returns a globally unique requisition identifier (adds site and protocolnumber)"""
+        """Generates and returns a globally unique requisition identifier
+        (adds site and protocolnumber)"""
         device = Device()
         if not device.is_server:
-            raise ValueError('Only SERVERs may access method \'get_global_identifier\' machine_type.')
+            raise ValueError(
+                'Only SERVERs may access method \'get_global_identifier\' machine_type.')
         identifier = Identifier(
             subject_type='specimen',
             site_code=kwargs.get('site_code', settings.SITE_CODE),
@@ -118,7 +118,8 @@ class RequisitionModelMixin(models.Model):
         verbose_name='Date / Time Specimen Drawn',
         null=True,
         blank=True,
-        help_text='If not drawn, leave blank. Same as date and time of finger prick in case on DBS.')
+        help_text=(
+            'If not drawn, leave blank. Same as date and time of finger prick in case on DBS.'))
 
     item_type = models.CharField(
         verbose_name='Item collection type',
@@ -176,9 +177,9 @@ class RequisitionModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         self.subject_identifier = self.get_visit().get_subject_identifier()
-        if self.is_drawn.lower() == YES and not self.value_is_requisition_identifier():
+        if self.is_drawn == YES and not self.value_is_requisition_identifier():
             self.requisition_identifier = self.prepare_requisition_identifier()
-        if self.is_drawn.lower() == NO and not self.value_is_uuid():
+        if self.is_drawn == NO and not self.value_is_uuid():
             self.requisition_identifier = str(uuid4())
         super(RequisitionModelMixin, self).save(*args, **kwargs)
 
@@ -205,7 +206,8 @@ class RequisitionModelMixin(models.Model):
         return False
 
     def prepare_requisition_identifier(self, **kwargs):
-        """Generate and returns a locally unique requisition identifier for a device (adds device id)"""
+        """Generate and returns a locally unique requisition
+        identifier for a device (adds device id)"""
         device = Device()
         device_id = kwargs.get('device_id', device.device_id)
         template = '{device_id}{random_string}'
@@ -237,6 +239,14 @@ class RequisitionModelMixin(models.Model):
             self.modified = timezone.now()
             self.save(update_fields=['is_labelled', 'modified'])
 
+    def aliquot(self):
+        url = reverse('admin:{}_{}_changelist'.format(
+            self.aliquot_model._meta.app_label,
+            self.aliquot_model._meta.model_name.lower()))
+        return """<a href="{url}?q={requisition_identifier}" />aliquot</a>""".format(
+            url=url, requisition_identifier=self.requisition_identifier)
+    aliquot.allow_tags = True
+
 #     def dispatch_container_lookup(self, using=None):
 #         return None
 #
@@ -254,14 +264,6 @@ class RequisitionModelMixin(models.Model):
 #                 if getattr(self, k) != v:
 #                     return False
 #         return True
-
-    def aliquot(self):
-        url = reverse('admin:{}_{}_changelist'.format(
-            self.aliquot_model._meta.app_label,
-            self.aliquot_model._meta.model_name.lower()))
-        return """<a href="{url}?q={requisition_identifier}" />aliquot</a>""".format(
-            url=url, requisition_identifier=self.requisition_identifier)
-    aliquot.allow_tags = True
 
     class Meta:
         abstract = True
