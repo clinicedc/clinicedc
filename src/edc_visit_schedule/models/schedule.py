@@ -1,14 +1,19 @@
 from django.db import models
-from django.core.urlresolvers import reverse
 
 from edc_base.model.models import BaseUuidModel
 
 from ..models import MembershipForm
-from ..managers import ScheduleGroupManager
 
 
-class ScheduleGroup(BaseUuidModel):
+class ScheduleManager(models.Manager):
+
+    def get_by_natural_key(self, group_name):
+        return self.get(group_name=group_name)
+
+
+class Schedule(BaseUuidModel):
     """Model that groups membership forms"""
+
     group_name = models.CharField(
         max_length=25,
         unique=True)
@@ -28,16 +33,13 @@ class ScheduleGroup(BaseUuidModel):
         null=True,
         blank=True)
 
-    objects = ScheduleGroupManager()
+    objects = ScheduleManager()
 
     def natural_key(self):
         return (self.group_name, )
 
     def __unicode__(self):
         return unicode(self.group_name)
-
-    def get_absolute_url(self):
-        return reverse('admin:bhp_visit_schedulegroup_change', args=(self.id,))
 
     class Meta:
         ordering = ['group_name']

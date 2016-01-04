@@ -8,8 +8,8 @@ from edc_testing.classes import TestVisitSchedule as VisitSchedule, TestAppConfi
 from edc_appointment.models import AppointmentMixin
 from edc_testing.tests.factories import TestConsentWithMixinFactory
 
-from ..classes import MembershipFormTuple, ScheduleGroupTuple
-from ..models import MembershipForm, ScheduleGroup, VisitDefinition
+from ..classes import MembershipFormTuple, ScheduleTuple
+from ..models import MembershipForm, Schedule, VisitDefinition
 from edc_consent.models.consent_type import ConsentType
 
 
@@ -34,9 +34,9 @@ class TestVisitSchedule(TestCase):
         """Creates as many instances of membership_form as in the config."""
         self.assertEqual(MembershipForm.objects.count(), len(self.visit_schedule.membership_forms.values()))
 
-    def test_build_schedule_group(self):
-        """Creates as many instances of schedule_group as in the config."""
-        self.assertEqual(ScheduleGroup.objects.count(), len(self.visit_schedule.schedule_groups.values()))
+    def test_build_schedule(self):
+        """Creates as many instances of schedule as in the config."""
+        self.assertEqual(Schedule.objects.count(), len(self.visit_schedule.schedules.values()))
 
     def test_build_visit_definition(self):
         """Creates as many instances of visit_definition as in the config."""
@@ -57,31 +57,29 @@ class TestVisitSchedule(TestCase):
     def test_visit_definition_knows_membership_form(self):
         """Visit definition knows the MembershipForm and the model is a subclass of AppointmentMixin"""
         for visit_definition_name in self.visit_schedule.visit_definitions:
-            schedule_group_name = self.visit_schedule.visit_definitions.get(
-                visit_definition_name).get('schedule_group')
-            schedule_group = self.visit_schedule.schedule_groups.get(schedule_group_name)
+            schedule_name = self.visit_schedule.visit_definitions.get(
+                visit_definition_name).get('schedule')
+            schedule = self.visit_schedule.schedules.get(schedule_name)
             # the membership_form named tuple in dictionary visit_schedule.membership_forms.
             self.assertTrue(
                 issubclass(self.visit_schedule.membership_forms.get(
-                    schedule_group.membership_form_name).__class__,
+                    schedule.membership_form_name).__class__,
                     MembershipFormTuple))
             # the model in the membership_form named tuple.
             self.assertTrue(
-                issubclass(self.visit_schedule.membership_forms.get(schedule_group.membership_form_name).model,
+                issubclass(self.visit_schedule.membership_forms.get(schedule.membership_form_name).model,
                            AppointmentMixin))
 
-    def test_visit_definition_knows_schedule_group(self):
-        """Visit definition knows ScheduleGroup and it is a subclass of the named tuple."""
+    def test_visit_definition_knows_schedule(self):
+        """Visit definition knows Schedule and it is a subclass of the named tuple."""
         for visit_definition_name in self.visit_schedule.visit_definitions:
-            schedule_group_name = self.visit_schedule.visit_definitions.get(visit_definition_name).get('schedule_group')
-            self.assertTrue(issubclass(self.visit_schedule.schedule_groups.get(schedule_group_name).__class__, ScheduleGroupTuple))
+            schedule_name = self.visit_schedule.visit_definitions.get(visit_definition_name).get('schedule')
+            self.assertTrue(issubclass(self.visit_schedule.schedules.get(schedule_name).__class__, ScheduleTuple))
 
     def test_can_create_membership_form_model_instance(self):
         """Can create and instance of the membership form model."""
         for visit_definition_name in self.visit_schedule.visit_definitions:
-            schedule_group_name = self.visit_schedule.visit_definitions[visit_definition_name].get('schedule_group')
-            schedule_group = self.visit_schedule.schedule_groups.get(schedule_group_name)
-            membership_form_model = self.visit_schedule.membership_forms[schedule_group.membership_form_name].model
-            # i know this is a consent model in the test case
-#             self.assertEqual(membership_form_model, TestConsentWithMixinFactory.FACTORY_FOR)
+            schedule_name = self.visit_schedule.visit_definitions[visit_definition_name].get('schedule')
+            schedule = self.visit_schedule.schedules.get(schedule_name)
+            self.visit_schedule.membership_forms[schedule.membership_form_name].model
             self.assertIsNotNone(TestConsentWithMixinFactory(gender='M'))

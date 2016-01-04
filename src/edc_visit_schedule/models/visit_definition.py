@@ -10,11 +10,11 @@ from ..utils import get_lower_window_days, get_upper_window_days
 from ..validators import is_visit_tracking_model
 
 from .base_window_period_item import BaseWindowPeriodItem
-from .schedule_group import ScheduleGroup
+from .schedule import Schedule
 
 
 class VisitDefinition(BaseWindowPeriodItem):
-    """Model to define a visit code, title, windows, schedule_group, etc."""
+    """Model to define a visit code, title, windows, schedule, etc."""
 
     code = models.CharField(
         max_length=6,
@@ -34,11 +34,11 @@ class VisitDefinition(BaseWindowPeriodItem):
         verbose_name='Visit Tracking Model',
         validators=[is_visit_tracking_model, ])
 
-    schedule_group = models.ManyToManyField(
-        ScheduleGroup,
+    schedule = models.ManyToManyField(
+        Schedule,
         null=True,
         blank=True,
-        help_text="Visit definition may be used in more than one schedule_group")
+        help_text="Visit definition may be used in more than one schedule")
 
     instruction = models.TextField(
         verbose_name="Instructions",

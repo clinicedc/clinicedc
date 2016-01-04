@@ -20,18 +20,18 @@ class MembershipFormHelper(object):
 
         Specify the registered_subject and the membership_form_category.
         """
-        ScheduleGroup = models.get_model('edc_visit_schedule', 'ScheduleGroup')
+        Schedule = models.get_model('edc_visit_schedule', 'Schedule')
         extra_grouping_key = kwargs.get("exclude_others_if_keyed_model_name", None)
         self._set_keyed()
         self._set_unkeyed()
         self._set_category(membership_form_category)
-        for schedule_group in ScheduleGroup.objects.filter(membership_form__category__iexact=self._get_category()):
-            self._set_model(schedule_group=schedule_group)
+        for schedule in Schedule.objects.filter(membership_form__category__iexact=self._get_category()):
+            self._set_model(schedule=schedule)
             if self._get_model().objects.filter(registered_subject_id=registered_subject.pk).exists():
                 for obj in self._get_model().objects.filter(registered_subject_id=registered_subject.pk):
-                    self._add_keyed(schedule_group.grouping_key, obj)
+                    self._add_keyed(schedule.grouping_key, obj)
             else:
-                self._add_unkeyed(schedule_group.grouping_key, self._get_model())
+                self._add_unkeyed(schedule.grouping_key, self._get_model())
         self._remove_unkeyed_by_grouping_key()
         self._remove_unkeyed_by_extra_grouping_key(extra_grouping_key)
         return self._format_for_return()
@@ -93,7 +93,7 @@ class MembershipFormHelper(object):
             self._set_category()
         return self._category
 
-    def _set_model(self, cls=None, schedule_group=None):
+    def _set_model(self, cls=None, schedule=None):
         """Sets the model class of the model that is either keyed or unkeyed.
 
         Either uses the content_type associated with the MembershipForm instance
@@ -101,22 +101,22 @@ class MembershipFormHelper(object):
 
         Model class must have a key to registered_subject and may not be None."""
         self._model = None
-        ScheduleGroup = models.get_model('edc_visit_schedule', 'ScheduleGroup')
-        if isinstance(schedule_group, ScheduleGroup):
-            if not schedule_group.membership_form.content_type_map.model_class():
+        Schedule = models.get_model('edc_visit_schedule', 'Schedule')
+        if isinstance(schedule, Schedule):
+            if not schedule.membership_form.content_type_map.model_class():
                 raise ImproperlyConfigured(
                     'Cannot get model class from content_type_map for schedule group \'{0}\' '
                     'using \'{1}\'. Update content_type_map?'.format(
-                        schedule_group, schedule_group.membership_form))
+                        schedule, schedule.membership_form))
             else:
-                self._model = schedule_group.membership_form.content_type_map.model_class()
+                self._model = schedule.membership_form.content_type_map.model_class()
         if isinstance(cls, BaseModel):
             self._model = cls
         if 'registered_subject' not in dir(self._model):
             raise ImproperlyConfigured(
                 'Model require attribute \'registered_subject\'. Model \'%s\' does not have '
                 'this attribute but is listed as a membership form.'.format(
-                    schedule_group.membership_form.content_type_map.name))
+                    schedule.membership_form.content_type_map.name))
         if not self._model:
             raise TypeError('Attribute _model may not be None.')
 
@@ -132,7 +132,7 @@ class MembershipFormHelper(object):
             'subject, maternal' or just 'subject'. Below
             the string values are converted to listed and concatenated into one unique list."""
         MembershipForm = models.get_model('edc_visit_schedule', 'MembershipForm')
-        ScheduleGroup = models.get_model('edc_visit_schedule', 'ScheduleGroup')
+        Schedule = models.get_model('edc_visit_schedule', 'Schedule')
         # convert MembershipForm category field values into a unique list
         categories = []
         for membership_form in MembershipForm.objects.all():
@@ -144,8 +144,8 @@ class MembershipFormHelper(object):
                 'Can\'t find any membership forms! Have you configured any for category'
                 ' \'{0}\'. Must be one of {1}.'.format(
                     category, categories))
-        # convert ScheduleGroup category field values into a unique list
-        for scheduled_group in ScheduleGroup.objects.all():
+        # convert Schedule category field values into a unique list
+        for scheduled_group in Schedule.objects.all():
             for item in scheduled_group.membership_form.category.split(','):
                 categories.append(item.strip())
         categories = list(set(categories))

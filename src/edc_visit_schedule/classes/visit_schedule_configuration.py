@@ -8,7 +8,7 @@ from edc_appointment.models import Appointment
 from edc_content_type_map.models import ContentTypeMapHelper, ContentTypeMap
 from edc_meta_data.models import CrfEntry, LabEntry, RequisitionPanel
 
-from ..models import MembershipForm, ScheduleGroup, VisitDefinition
+from ..models import MembershipForm, Schedule, VisitDefinition
 
 
 CrfTuple = namedtuple('CrfTuple', 'order app_label model_name default_entry_status additional')
@@ -16,11 +16,11 @@ MembershipFormTuple = namedtuple('MembershipFormTuple', 'name model visible')
 RequisitionPanelTuple = namedtuple('RequisitionPanelTuple', 'entry_order app_label model_name '
                                    'requisition_panel_name panel_type aliquot_type_alpha_code '
                                    'default_entry_status additional')
-ScheduleGroupTuple = namedtuple('ScheduleTuple', 'name membership_form_name grouping_key comment')
+ScheduleTuple = namedtuple('ScheduleTuple', 'name membership_form_name grouping_key comment')
 
 
 class VisitScheduleConfiguration(object):
-    """Creates or updates the membership_form, schedule_group, crf_entry,
+    """Creates or updates the membership_form, schedule, crf_entry,
     lab_entry models and visit_definition.
 
         .. note:: RequisitionPanel is needed for lab_entry but is
@@ -29,7 +29,7 @@ class VisitScheduleConfiguration(object):
     name = 'unnamed visit schedule'
     app_label = None
     membership_forms = OrderedDict()
-    schedule_groups = OrderedDict()
+    schedules = OrderedDict()
     visit_definitions = OrderedDict()
 
     def __init__(self):
@@ -45,11 +45,11 @@ class VisitScheduleConfiguration(object):
                 raise ImproperlyConfigured('Visit Schedule \'membership_forms\' '
                                            'must contain instances of the named tuple MembershipFormTuple. '
                                            'Got {0}'.format(membership_form))
-        for schedule_group in self.schedule_groups.itervalues():
-            if not issubclass(schedule_group.__class__, ScheduleGroupTuple):
-                raise ImproperlyConfigured('Visit Schedule \'schedule_groups\' '
-                                           'must contain instances of the named tuple ScheduleGroupTuple. '
-                                           'Got {0}'.format(schedule_group))
+        for schedule in self.schedules.itervalues():
+            if not issubclass(schedule.__class__, ScheduleTuple):
+                raise ImproperlyConfigured('Visit Schedule \'schedules\' '
+                                           'must contain instances of the named tuple ScheduleTuple. '
+                                           'Got {0}'.format(schedule))
         for name, membership_form in self.membership_forms.iteritems():
             if not name == membership_form.name:
                 raise ImproperlyConfigured('Visit Schedule \'membership_forms\' '
@@ -64,23 +64,23 @@ class VisitScheduleConfiguration(object):
                 'Visit Schedule \'membership_forms\' uses a membership form more than once. '
                 'Got \'{}\'.'.format(
                     ', '.join(['{}.{}'.format(m._meta.app_label, m._meta.model_name) for m in duplicates])))
-        for name, schedule_group in self.schedule_groups.iteritems():
-            if not name == schedule_group.name:
-                raise ImproperlyConfigured('Visit Schedule \'schedule_groups\' '
+        for name, schedule in self.schedules.iteritems():
+            if not name == schedule.name:
+                raise ImproperlyConfigured('Visit Schedule \'schedules\' '
                                            'expects each dictionary key {0} to be in it\'s named tuple. '
-                                           'Got {1}.'.format(name, schedule_group.name))
-        for schedule_group_name in self.schedule_groups:
-            if schedule_group_name in self.membership_forms:
-                raise ImproperlyConfigured('Visit Schedule \'schedule_groups\' '
-                                           'cannot have the same name as a membership_form. '
-                                           'Got {0} in {1}.'.format(schedule_group_name,
-                                                                    self.membership_forms.keys()))
-        for schedule_group in self.schedule_groups.itervalues():
-            if schedule_group.membership_form_name not in self.membership_forms:
+                                           'Got {1}.'.format(name, schedule.name))
+#         for schedule_name in self.schedules:
+#             if schedule_name in self.membership_forms:
+#                 raise ImproperlyConfigured('Visit Schedule \'schedules\' '
+#                                            'cannot have the same name as a membership_form. '
+#                                            'Got {0} in {1}.'.format(schedule_name,
+#                                                                     self.membership_forms.keys()))
+        for schedule in self.schedules.itervalues():
+            if schedule.membership_form_name not in self.membership_forms:
                 raise ImproperlyConfigured(
-                    'Visit Schedule \'schedule_groups\' has a scheduled not linked to '
+                    'Visit Schedule \'schedules\' has a scheduled not linked to '
                     'a membership_form. Got \'{0}\'. Add it to \'membership_forms\' '
-                    'or correct \'scheduled_groups\'.'.format(schedule_group.membership_form_name))
+                    'or correct \'scheduled_groups\'.'.format(schedule.membership_form_name))
         for visit_definition in self.visit_definitions.itervalues():
             for crf in visit_definition.get('entries'):
                 model = get_model(crf.app_label, crf.model_name)
@@ -122,8 +122,8 @@ class VisitScheduleConfiguration(object):
                 CrfEntry.objects.filter(visit_definition=obj).delete()
                 if not Appointment.objects.filter(visit_definition=obj):
                     obj.delete()
-        for schedule_group_name in self.schedule_groups.iterkeys():
-            ScheduleGroup.objects.filter(group_name=schedule_group_name).delete()
+        for schedule_name in self.schedules.iterkeys():
+            Schedule.objects.filter(group_name=schedule_name).delete()
         for membership_form_name in self.membership_forms.iterkeys():
             MembershipForm.objects.filter(category=membership_form_name).delete()
         self.build()
@@ -132,9 +132,6 @@ class VisitScheduleConfiguration(object):
         """Builds and / or updates the visit schedule models.
 
         If it hangs here then you are probably missing an app in INSTALLED_APPS."""
-#         MembershipForm = get_model('edc_visit_schedule', 'membershipform')
-#         VisitDefinition = get_model('edc_visit_schedule', 'visitdefinition')
-#         ScheduleGroup = get_model('edc_visit_schedule', 'schedulegroup')
         self.verify()
         while True:
             try:
@@ -161,39 +158,39 @@ class VisitScheduleConfiguration(object):
                                 app_label=membership_form.model._meta.app_label,
                                 module_name=membership_form.model._meta.object_name.lower()),
                             visible=membership_form.visible)
-                for group_name, schedule_group in self.schedule_groups.iteritems():
+                for group_name, schedule in self.schedules.iteritems():
                     try:
-                        obj = ScheduleGroup.objects.get(group_name=group_name)
+                        obj = Schedule.objects.get(group_name=group_name)
                         obj.group_name = group_name
-                        obj.membership_form = MembershipForm.objects.get(category=schedule_group.membership_form_name)
-                        obj.grouping_key = schedule_group.grouping_key
-                        obj.comment = schedule_group.comment
+                        obj.membership_form = MembershipForm.objects.get(category=schedule.membership_form_name)
+                        obj.grouping_key = schedule.grouping_key
+                        obj.comment = schedule.comment
                         obj.save()
-                    except ScheduleGroup.DoesNotExist:
+                    except Schedule.DoesNotExist:
 
                         try:
                             membership_form = MembershipForm.objects.get(
-                                category=schedule_group.membership_form_name)
+                                category=schedule.membership_form_name)
                         except MembershipForm.DoesNotExist as e:
-                            raise ImproperlyConfigured('{}, {}'.format(schedule_group.membership_form_name, str(e)))
+                            raise ImproperlyConfigured('{}, {}'.format(schedule.membership_form_name, str(e)))
 
-                        ScheduleGroup.objects.create(
+                        Schedule.objects.create(
                             group_name=group_name,
                             membership_form=membership_form,
-                            grouping_key=schedule_group.grouping_key,
-                            comment=schedule_group.comment)
+                            grouping_key=schedule.grouping_key,
+                            comment=schedule.comment)
                 for code, visit_definition in self.visit_definitions.iteritems():
                     visit_tracking_content_type_map = ContentTypeMap.objects.get(
                         app_label=visit_definition.get('visit_tracking_model')._meta.app_label,
                         module_name=visit_definition.get('visit_tracking_model')._meta.object_name.lower())
                     try:
-                        schedule_group = ScheduleGroup.objects.get(
-                            group_name=visit_definition.get('schedule_group'))
-                    except ScheduleGroup.DoesNotExist as e:
+                        schedule = Schedule.objects.get(
+                            group_name=visit_definition.get('schedule'))
+                    except Schedule.DoesNotExist as e:
                         raise ImproperlyConfigured(
                             'Schedule group \'{}\' referred to in \'visit_definitions\' does not exist. '
                             'Add it to \'scheduled_groups\' or correct the visit definition.'.format(
-                                visit_definition.get('schedule_group')))
+                                visit_definition.get('schedule')))
                     try:
                         visit_definition_instance = VisitDefinition.objects.get(code=code)
                         visit_definition_instance.code = code
@@ -224,7 +221,7 @@ class VisitScheduleConfiguration(object):
                             visit_tracking_content_type_map=visit_tracking_content_type_map,
                             instruction=visit_definition.get('instructions') or '-')
                     finally:
-                        visit_definition_instance.schedule_group.add(schedule_group)
+                        visit_definition_instance.schedule.add(schedule)
                     for item in visit_definition.get('entries'):
                         content_type_map = ContentTypeMap.objects.get(
                             app_label=item.app_label, module_name=item.model_name.lower())

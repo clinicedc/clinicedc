@@ -10,7 +10,7 @@ from ..managers import MembershipFormManager
 
 class MembershipForm(BaseUuidModel):
 
-    """Model to list forms to be linked to a ScheduleGroup as
+    """Model to list forms to be linked to a Schedule as
     "registration" forms to that group"""
 
     content_type_map = models.OneToOneField(

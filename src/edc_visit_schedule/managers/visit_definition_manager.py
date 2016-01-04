@@ -15,24 +15,24 @@ class VisitDefinitionManager(models.Manager):
 
         if kwargs.get('visit_definition'):
             visit_definition = kwargs.get('visit_definition')
-            schedule_group = visit_definition
-        elif kwargs.get('schedule_group') and kwargs.get('code'):
-            schedule_group = kwargs.get('schedule_group')
+            schedule = visit_definition
+        elif kwargs.get('schedule') and kwargs.get('code'):
+            schedule = kwargs.get('schedule')
             code = kwargs.get('code')
-            if super(VisitDefinitionManager, self).filter(schedule_group=schedule_group, code=code):
+            if super(VisitDefinitionManager, self).filter(schedule=schedule, code=code):
                 visit_definition = super(VisitDefinitionManager, self).get(
-                    schedule_group=schedule_group, code=code)
+                    schedule=schedule, code=code)
             else:
                 raise ValueError(
                     '%s method %s cannot determine the visit_definition given '
-                    ' schedule_group=\'%s\' and code=\'%s\'' % (
-                        self.__name__, inspect.stack()[0][3], schedule_group, code))
+                    ' schedule=\'%s\' and code=\'%s\'' % (
+                        self.__name__, inspect.stack()[0][3], schedule, code))
         else:
-            raise AttributeError('%s method %s requires a visit_definition instance OR schedule_group '
+            raise AttributeError('%s method %s requires a visit_definition instance OR schedule '
                                  'and code' % (self.__name__, inspect.stack()[0][3], ))
 
         visit_definitions = super(VisitDefinitionManager, self).filter(
-            schedule_group=visit_definition.schedule_group).exclude(
+            schedule=visit_definition.schedule).exclude(
                 id=visit_definition.id).order_by('time_point')
 
         if visit_definitions:
@@ -44,11 +44,11 @@ class VisitDefinitionManager(models.Manager):
     def list_all_for_model(self, registered_subject, model_name):
         """Lists all visit_definitions for which appointments
         would be created or updated for this model_name."""
-        ScheduleGroup = models.get_model('edc_visit_schedule', 'schedulegroup')
-        if ScheduleGroup.objects.filter(membership_form__content_type_map__model=model_name):
+        Schedule = models.get_model('edc_visit_schedule', 'schedulegroup')
+        if Schedule.objects.filter(membership_form__content_type_map__model=model_name):
             # get list of visits for scheduled group containing this model
             visit_definitions = super(VisitDefinitionManager, self).filter(
-                schedule_group=ScheduleGroup.objects.get(membership_form__content_type_map__model=model_name))
+                schedule=Schedule.objects.get(membership_form__content_type_map__model=model_name))
         else:
             visit_definitions = []
         return visit_definitions

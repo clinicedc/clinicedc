@@ -16,6 +16,6 @@ class MembershipFormManager(models.Manager):
         visit_definition_codes = set()
         for membership_form in membership_forms:
             for visit_definition in VisitDefinition.objects.filter(
-                    schedule_group__membership_form=membership_form):
+                    schedule__membership_form=membership_form):
                 visit_definition_codes.add(visit_definition.code)
         return list(visit_definition_codes)

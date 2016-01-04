@@ -1,3 +1,2 @@
-from .schedule_group_manager import ScheduleGroupManager
 from .visit_definition_manager import VisitDefinitionManager
 from .membership_form_manager import MembershipFormManager

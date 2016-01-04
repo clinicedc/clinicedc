@@ -1,3 +1,3 @@
 from .visit_definition_factory import VisitDefinitionFactory
 from .membership_form_factory import MembershipFormFactory
-from .schedule_group_factory import ScheduleGroupFactory
+from .schedule_factory import ScheduleFactory
