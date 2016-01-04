@@ -251,7 +251,7 @@ class RegisteredSubjectDashboard(Dashboard):
             appointments = [self.appointment]
         else:
             # or filter appointments for the current membership categories
-            # schedule_group__membership_form
+            # schedule__membership_form
             codes = []
             for category in self.membership_form_category:
                 codes.extend(MembershipForm.objects.codes_for_category(membership_form_category=category))

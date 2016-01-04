@@ -12,7 +12,7 @@ from edc_dashboard.subject import RegisteredSubjectDashboard
 from edc_registration.tests.factories import RegisteredSubjectFactory
 from edc_testing.models import TestVisit, TestConsentWithMixin, TestRequisition, TestSubjectLocator
 from edc_testing.tests.factories import TestConsentWithMixinFactory
-from edc_visit_schedule.tests.factories import VisitDefinitionFactory, ScheduleGroupFactory, MembershipFormFactory
+from edc_visit_schedule.tests.factories import VisitDefinitionFactory, ScheduleFactory, MembershipFormFactory
 
 
 class DashboardTests(TestCase):
@@ -33,10 +33,10 @@ class DashboardTests(TestCase):
         content_type = ContentType.objects.get(app_label='bhp_base_test', model='testconsentwithmixin')
         content_type_map = ContentTypeMap.objects.get(content_type=content_type)
         membership_form = MembershipFormFactory(content_type_map=content_type_map, category='subject')
-        schedule_group = ScheduleGroupFactory(membership_form=membership_form)
+        schedule = ScheduleFactory(membership_form=membership_form)
         visit_tracking_content_type_map = ContentTypeMap.objects.get(app_label='bhp_base_test', model='testvisit')
         visit_definition = VisitDefinitionFactory(visit_tracking_content_type_map=visit_tracking_content_type_map)
-        visit_definition.schedule_group.add(schedule_group)
+        visit_definition.schedule.add(schedule)
         registered_subject = RegisteredSubjectFactory(subject_type='test_subject_type')
         Configuration.objects.create()
         test_consent_with_mixin = TestConsentWithMixinFactory(registered_subject=registered_subject)

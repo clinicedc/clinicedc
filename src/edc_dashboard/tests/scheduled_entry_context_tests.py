@@ -9,7 +9,7 @@ from edc_meta_data.models import CrfMetaData
 from edc_meta_data.tests.factories import EntryFactory, LabEntryFactory
 from edc_registration.models import RegisteredSubject
 from edc_testing.tests.factories import TestConsentWithMixinFactory, TestScheduledModel1Factory
-from edc_visit_schedule.tests.factories import MembershipFormFactory, ScheduleGroupFactory, VisitDefinitionFactory
+from edc_visit_schedule.tests.factories import MembershipFormFactory, ScheduleFactory, VisitDefinitionFactory
 from edc_visit_tracking.tests.factories import TestVisitFactory
 
 
@@ -28,7 +28,7 @@ class ScheduledEntryContextTests(TestCase):
             content_type__model='TestConsentWithMixin'.lower())
         membership_form = MembershipFormFactory(
             content_type_map=content_type_map, category='subject')
-        schedule_group = ScheduleGroupFactory(
+        schedule = ScheduleFactory(
             membership_form=membership_form, group_name='GROUP_NAME', grouping_key='GROUPING_KEY')
         visit_tracking_content_type_map = ContentTypeMap.objects.get(content_type__model='testvisit')
         self.visit_definition = VisitDefinitionFactory(
@@ -36,7 +36,7 @@ class ScheduledEntryContextTests(TestCase):
             title='T0',
             grouping='subject',
             visit_tracking_content_type_map=visit_tracking_content_type_map)
-        self.visit_definition.schedule_group.add(schedule_group)
+        self.visit_definition.schedule.add(schedule)
 
         # add entries
         content_type_map = ContentTypeMap.objects.get(
