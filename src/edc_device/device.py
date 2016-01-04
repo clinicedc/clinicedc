@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 
-class DeviceClass(object):
+class Device(object):
 
     """ Determines the device name, useful to know when identifiers are created by the device.
 
@@ -92,4 +92,4 @@ class DeviceClass(object):
                                  ', '.join(self.middleman_ids)))
         return device_id in self.middleman_ids
 
-device = DeviceClass()
+# device = Device()
