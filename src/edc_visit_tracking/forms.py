@@ -19,8 +19,9 @@ class VisitFormMixin(object):
         return cleaned_data
 
     def validate_time_point_status(self):
-        if self.instance:
-            self.instance.appointment.time_point_status_open_or_raise(exception_cls=forms.ValidationError)
+        cleaned_data = self.cleaned_data
+        appointment = cleaned_data.get('appointment')
+        appointment.time_point_status_open_or_raise(exception_cls=forms.ValidationError)
 
     def validate_reason_and_info_source(self):
         cleaned_data = self.cleaned_data
