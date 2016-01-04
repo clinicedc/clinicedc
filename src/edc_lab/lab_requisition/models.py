@@ -14,7 +14,7 @@ from edc.core.identifier.classes import Identifier
 from edc_base.model.fields.custom_fields import InitialsField
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NO
-from edc_device.device import device
+from edc_device import Device
 from edc_lab.lab_clinic_api.models import TestCode
 
 from .choices import ITEM_TYPE, REASON_NOT_DRAWN, PRIORITY
@@ -30,7 +30,7 @@ class RequisitionManager(models.Manager):
     def get_global_identifier(self, **kwargs):
 
         """Generates and returns a globally unique requisition identifier (adds site and protocolnumber)"""
-
+        device = Device()
         if not device.is_server:
             raise ValueError('Only SERVERs may access method \'get_global_identifier\' machine_type.')
         identifier = Identifier(
@@ -206,6 +206,7 @@ class RequisitionModelMixin(models.Model):
 
     def prepare_requisition_identifier(self, **kwargs):
         """Generate and returns a locally unique requisition identifier for a device (adds device id)"""
+        device = Device()
         device_id = kwargs.get('device_id', device.device_id)
         template = '{device_id}{random_string}'
         opts = {
