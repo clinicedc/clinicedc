@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_device.device import device
+from edc_device import Device
 
 from .sequence import Sequence
 
@@ -23,6 +23,7 @@ class BaseIdentifierModel(models.Model):
         return (self.identifier, self.device_id, )
 
     def save(self, *args, **kwargs):
+        device = Device()
         self.device_id = device.device_id
         if not self.id:
             if self.is_derived:

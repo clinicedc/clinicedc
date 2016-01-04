@@ -4,7 +4,7 @@ import uuid
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 
-from edc_device import device
+from edc_device import Device
 
 from ...exceptions import IndentifierFormatError
 from ...models import SubjectIdentifier
@@ -15,12 +15,14 @@ from .check_digit import CheckDigit
 class BaseSubjectIdentifier(object):
 
     def __init__(self, template=None, site_code=None, padding=None,
-                 modulus=None, is_derived=None, add_check_digit=None, using=None):
+                 modulus=None, is_derived=None, add_check_digit=None,
+                 using=None):
 
         self.add_check_digit = True if add_check_digit is None else add_check_digit
         self.template = template or "{identifier_prefix}-{site_code}{device_id}{sequence}"
         self.is_derived = False if is_derived is None else is_derived
         self.padding = padding or 4
+        self.device = Device()
         if not site_code:
             raise ImproperlyConfigured(
                 'Attribute site_code cannot be None for a subject identifier. '
@@ -50,7 +52,7 @@ class BaseSubjectIdentifier(object):
             identifier=str(uuid.uuid4()),
             padding=self.padding,
             is_derived=self.is_derived,
-            device_id=device.device_id)
+            device_id=self.device.device_id)
         try:
             new_identifier = self.template.format(**self.format_options())
         except KeyError:
@@ -69,7 +71,7 @@ class BaseSubjectIdentifier(object):
         format_options = {
             'identifier_prefix': self.identifier_prefix,
             'site_code': self.site_code}
-        format_options.update(device_id=device.device_id)
+        format_options.update(device_id=self.device.device_id)
         format_options.update(sequence=self.subject_identifier.formatted_sequence)
         if self.is_derived:
             format_options.update(sequence='')
