@@ -1,7 +1,7 @@
 from django.db import models
 
 from edc_configuration.models import GlobalConfiguration
-from edc_visit_schedule.models import VisitDefinition, ScheduleGroup
+from edc_visit_schedule.models import VisitDefinition, Schedule
 
 from ..exceptions import AppointmentCreateError
 
@@ -48,7 +48,7 @@ class AppointmentMixin(models.Model):
         """
         appointments = []
         default_appt_type = self.get_default_appt_type(self.registered_subject)
-        for visit_definition in self.visit_definitions_for_schedule_group(self._meta.model_name):
+        for visit_definition in self.visit_definitions_for_schedule(self._meta.model_name):
             appointment = self.update_or_create_appointment(
                 self.registered_subject,
                 base_appt_datetime or self.get_registration_datetime(),
@@ -78,18 +78,18 @@ class AppointmentMixin(models.Model):
                 pass
         return default_appt_type
 
-    def visit_definitions_for_schedule_group(self, model_name):
-        """Returns a visit_definition queryset for this membership form's schedule_group."""
+    def visit_definitions_for_schedule(self, model_name):
+        """Returns a visit_definition queryset for this membership form's schedule."""
         # VisitDefinition = get_model('edc_visit_schedule', 'VisitDefinition')
-        schedule_group = self.schedule_group(model_name)
+        schedule = self.schedule(model_name)
         visit_definitions = VisitDefinition.objects.filter(
-            schedule_group=schedule_group).order_by('time_point')
+            schedule=schedule).order_by('time_point')
         if not visit_definitions:
             raise AppointmentCreateError(
                 'No visit_definitions found for membership form class {0} '
                 'in schedule group {1}. Expected at least one visit '
                 'definition to be associated with schedule group {1}.'.format(
-                    model_name, schedule_group))
+                    model_name, schedule))
         return visit_definitions
 
     def update_or_create_appointment(self, registered_subject, registration_datetime, visit_definition,
@@ -124,17 +124,17 @@ class AppointmentMixin(models.Model):
                 appt_type=default_appt_type)
         return appointment
 
-    def schedule_group(self, model_name):
-        """Returns the schedule_group for this membership_form."""
+    def schedule(self, model_name):
+        """Returns the schedule for this membership_form."""
         try:
-            schedule_group = ScheduleGroup.objects.get(
+            schedule = Schedule.objects.get(
                 membership_form__content_type_map__model=model_name)
-        except ScheduleGroup.DoesNotExist:
-            raise ScheduleGroup.DoesNotExist(
+        except Schedule.DoesNotExist:
+            raise Schedule.DoesNotExist(
                 'Cannot prepare appointments for membership form. '
-                'Membership form \'{}\' not found in ScheduleGroup. '
+                'Membership form \'{}\' not found in Schedule. '
                 'See the visit schedule configuration.'.format(model_name))
-        return schedule_group
+        return schedule
 
     def new_appointment_appt_datetime(
             self, registered_subject, registration_datetime, visit_definition):
