@@ -54,13 +54,11 @@ class ConsentType(models.Model):
 
     start_datetime = models.DateTimeField(
         verbose_name='Valid starting',
-        validators=[datetime_not_before_study_start, ],
-    )
+        validators=[datetime_not_before_study_start, ])
 
     end_datetime = models.DateTimeField(
         verbose_name='Valid ending',
-        validators=[datetime_not_before_study_start, ],
-    )
+        validators=[datetime_not_before_study_start, ])
 
     version = models.CharField(max_length=10)
 
@@ -93,8 +91,7 @@ class ConsentType(models.Model):
                 (Q(start_datetime__range=(self.start_datetime, self.end_datetime)) |
                  Q(end_datetime__range=(self.start_datetime, self.end_datetime))),
                 app_label=self.app_label,
-                model_name=self.model_name,
-            )
+                model_name=self.model_name)
             if other_consent_type.pk != self.id:
                 raise ConsentTypeError(
                     'Consent period for version {0} overlaps with version \'{1}\'. '
@@ -103,8 +100,7 @@ class ConsentType(models.Model):
                         other_consent_type.start_datetime.strftime('%Y-%m-%d'),
                         other_consent_type.end_datetime.strftime('%Y-%m-%d'),
                         self.start_datetime.strftime('%Y-%m-%d'),
-                        self.end_datetime.strftime('%Y-%m-%d'),
-                    ))
+                        self.end_datetime.strftime('%Y-%m-%d')))
         except self.__class__.DoesNotExist:
             pass
         super(ConsentType, self).save(*args, **kwargs)
