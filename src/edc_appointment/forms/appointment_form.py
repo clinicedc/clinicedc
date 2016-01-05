@@ -70,12 +70,18 @@ class AppointmentForm(forms.ModelForm):
             pass
         elif appt_status == IN_PROGRESS:
             # check if any other appointments in progress for this registered_subject
+            instance = None
+            if not self.instance.id:
+                instance = Appointment(**cleaned_data)
+            else:
+                instance = self.instance
+
             if Appointment.objects.filter(
                     registered_subject=registered_subject, appt_status=IN_PROGRESS).exclude(
-                        visit_definition__code=visit_definition.code, visit_instance=visit_instance):
+                        visit_definition__code=instance.visit_definition.code, visit_instance=visit_instance):
                 appointments = Appointment.objects.filter(
                     registered_subject=registered_subject, appt_status=IN_PROGRESS).exclude(
-                        visit_definition__code=visit_definition.code, visit_instance=visit_instance)
+                        visit_definition__code=instance.visit_definition.code, visit_instance=visit_instance)
                 raise forms.ValidationError(
                     "Another appointment is 'in progress'. Update appointment {}.{} before changing "
                     "this scheduled appointment to 'in progress'".format(
