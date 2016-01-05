@@ -5,19 +5,19 @@ from django import forms
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-
 from edc_testing.tests.factories import TestConsentWithMixinFactory
 from edc_testing.models.test_visit import TestVisit
 from edc_appointment.models import AppointmentMixin, Appointment, TimePointStatus
 from edc_appointment.choices import APPT_STATUS
 from edc_constants.constants import (
-    NEW_APPT, COMPLETE_APPT, INCOMPLETE, CANCELLED, MALE, YES, SCHEDULED, IN_PROGRESS, DONE)
+    NEW_APPT, COMPLETE_APPT, INCOMPLETE, CANCELLED, MALE, YES, SCHEDULED, IN_PROGRESS, DONE, NEW)
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.models.visit_definition import VisitDefinition
 
 
 from .base_test_case import BaseTestCase
 from edc_appointment.forms.appointment_form import AppointmentForm
+from edc_meta_data.models.crf_meta_data import CrfMetaData
 
 
 class TestRegistrationModel(AppointmentMixin, models.Model):
@@ -257,10 +257,22 @@ class TestAppointment(BaseTestCase):
             appt_status=IN_PROGRESS,
             visit_definition=self.visit_definition.pk,
             visit_instance='1',
-            appt_type='clinic'
-        )
+            appt_type='clinic')
         form = AppointmentForm(data)
         self.assertFalse(form.is_valid())
         self.assertIn(
-            'Cannot create continuation appointment. Cannot find the first appointment \'1000: 1000.0\'.',
+            'Attempt to create appointment out of sequence. Got 1.',
             form.errors.get('__all__'))
+
+    def test_form_appt_status_complete(self):
+        """Asserts can be set to complete if visit form not keyed."""
+        data = dict(
+            appt_datetime=timezone.now(),
+            appt_status=COMPLETE_APPT,
+            appt_type='clinic',
+            registered_subject=self.registered_subject.pk,
+            visit_definition=self.visit_definition.pk,
+            visit_instance='0',
+        )
+        form = AppointmentForm(data=data)
+        self.assertTrue(form.is_valid())
