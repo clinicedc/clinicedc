@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from datetime import datetime
 from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +38,22 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'edc.data_manager',
+    'edc_appointment',
+    'edc_base',
+    'edc_configuration',
+    'edc_consent',
+    'edc_content_type_map',
+    'edc_crypto_fields',
     'edc_export',
+    'edc_lab.lab_clinic_api',
+    'edc_meta_data',
+    'edc_offstudy',
+    'edc_registration',
+    'edc_sync',
+    'edc_testing',
+    'edc_visit_schedule',
+    'edc_visit_tracking',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -47,10 +61,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+    # 'django.middleware.security.SecurityMiddleware',
 )
 
 ROOT_URLCONF = 'edc_export.urls'
@@ -71,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'edc_export.wsgi.application'
 
 
 # Database
@@ -96,7 +110,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -105,3 +119,15 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 GIT_DIR = BASE_DIR.ancestor(1)
+
+SITE_CODE = '10'
+DEVICE_ID = '10'
+SERVER_DEVICE_ID_LIST = [99]
+MIDDLEMAN_DEVICE_ID_LIST = []
+PROJECT_ROOT = BASE_DIR.ancestor(1)
+FIELD_MAX_LENGTH = 'default'
+IS_SECURE_DEVICE = True
+KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
+KEY_PREFIX = 'user'
+ALLOW_MODEL_SERIALIZATION = False
+DISPATCH_APP_LABELS = []

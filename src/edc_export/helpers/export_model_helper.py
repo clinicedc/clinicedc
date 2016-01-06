@@ -1,8 +1,8 @@
 from django.db.models import get_model
 from django.core import serializers
 
-from edc_constants.constants import CLOSED
 from edc_base.encrypted_fields import FieldCryptor
+from edc_constants.constants import CLOSED
 
 from ..models import ExportTransaction
 

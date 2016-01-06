@@ -13,7 +13,7 @@ class ExportDictAsCsv(ExportObjectAsCsv):
             except AttributeError:
                 pass
             except ValueError:
-                pass   # the datetime strftime() methods require year >= 1900
+                pass
             if isinstance(value, (list, tuple)):
                 value = ';'.join([str(v) for v in value])
             row.append(self.strip_value(value))

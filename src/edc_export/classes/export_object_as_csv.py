@@ -12,8 +12,12 @@ from django.db.models.constants import LOOKUP_SEP
 
 from ..models import ExportHistory
 
-HEAD_FIELDS = ['export_uuid', 'export_datetime', 'export_change_type', 'unique_key', 'subject_identifier', 'report_datetime']
-TAIL_FIELDS = ['hostname_created', 'hostname_modified', 'created', 'modified', 'user_created', 'user_modified', 'revision']
+HEAD_FIELDS = [
+    'export_uuid', 'export_datetime', 'export_change_type',
+    'unique_key', 'subject_identifier', 'report_datetime']
+TAIL_FIELDS = [
+    'hostname_created', 'hostname_modified', 'created',
+    'modified', 'user_created', 'user_modified', 'revision']
 
 
 class ExportObjectAsCsv(object):
@@ -57,7 +61,7 @@ class ExportObjectAsCsv(object):
             dups = [instance for instance in instances if instance.unique_key in column]
             for dup in dups:
                 instances.remove(dup)
-                print 'Warning! Not writing record to csv. Duplicate record. Unique Key: {}'.format(dup.unique_key)
+                print('Warning! Not writing record to csv. Duplicate record. Unique Key: {}'.format(dup.unique_key))
         except IOError:
             pass
         with open(os.path.join(os.path.expanduser(self.target_path) or '', self.export_filename), 'a') as f:
@@ -78,8 +82,6 @@ class ExportObjectAsCsv(object):
                 value = value.strftime(self.dateformat)
             except AttributeError:
                 pass
-            # except ValueError:
-            #    pass   # the datetime strftime() methods require year >= 1900
             if isinstance(value, (list, tuple)):
                 value = ';'.join(map(str, value))
             row.append(self.strip_value(value))
@@ -143,8 +145,7 @@ class ExportObjectAsCsv(object):
             exported_datetime=datetime.now(),
             export_filename=self.export_filename,
             export_file_contents=export_file_contents,
-            notification_plan_name=self.notification_plan_name,
-            )
+            notification_plan_name=self.notification_plan_name)
 
     def update_export_transaction(self, instance):
         pass

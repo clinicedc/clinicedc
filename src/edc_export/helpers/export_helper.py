@@ -126,5 +126,4 @@ class ExportHelper(object):
                     encrypt=export_plan.get('encrypt'),
                     strip=export_plan.get('strip'),
                     target_path=export_plan.get('target_path'),
-                    notification_plan_name=export_plan.get('notification_plan_name'),
-                )
+                    notification_plan_name=export_plan.get('notification_plan_name'))

@@ -11,9 +11,7 @@ class ExportTrackingFieldsMixin(models.Model):
     exported = models.BooleanField(
         default=False,
         editable=False,
-        help_text=(
-            'system field for export tracking. considered \'exported\' '
-            'if both sent and received.'))
+        help_text="system field for export tracking. considered 'exported' if both sent and received.")
 
     exported_datetime = models.DateTimeField(
         null=True,

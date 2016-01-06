@@ -38,5 +38,5 @@ class ExportPlan(BaseUuidModel):
         return False
 
     class Meta:
-        app_label = 'export'
+        app_label = 'edc_export'
         unique_together = (('app_label', 'object_name'), )

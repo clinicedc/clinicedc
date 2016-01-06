@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from django.db import models
 from django.core import serializers
+from django.db import models
 
 from edc_base.encrypted_fields import FieldCryptor
 

@@ -23,7 +23,8 @@ class ExportJsonAsCsv(BaseExportModel):
     def row_instance(self, row_instance):
         self._row_instance = row_instance
         if row_instance:
-            self._row_instance.export_change_type, self._row_instance.exported_datetime = (self._row_instance.export_transaction.export_change_type, self.export_datetime)
+            self._row_instance.export_change_type, self._row_instance.exported_datetime = (
+                self._row_instance.export_transaction.export_change_type, self.export_datetime)
 
     def update_export_transaction(self, row_instance=None):
         self.row_instance.export_transaction.exported_datetime = self.export_datetime

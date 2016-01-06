@@ -3,6 +3,7 @@ from django.db import models
 
 from edc_constants.constants import CLOSED
 from edc_base.model.models import BaseUuidModel
+from edc_sync.models import SyncModelMixin
 
 from .export_tracking_fields_mixin import ExportTrackingFieldsMixin
 
@@ -13,27 +14,23 @@ class ExportTransactionManager(models.Manager):
         return self.get(export_uuid=export_uuid)
 
 
-class ExportTransaction(ExportTrackingFieldsMixin, BaseUuidModel):
+class ExportTransaction(ExportTrackingFieldsMixin, SyncModelMixin, BaseUuidModel):
 
     tx = models.TextField()
 
     app_label = models.CharField(
-        max_length=64,
-    )
+        max_length=64)
 
     object_name = models.CharField(
-        max_length=64,
-    )
+        max_length=64)
 
     tx_pk = models.CharField(
-        max_length=36,
-    )
+        max_length=36)
 
     timestamp = models.CharField(
         max_length=50,
         null=True,
-        db_index=True,
-    )
+        db_index=True)
 
     status = models.CharField(
         max_length=15,
@@ -42,29 +39,23 @@ class ExportTransaction(ExportTrackingFieldsMixin, BaseUuidModel):
             ('new', 'New'),
             ('exported', 'Exported'),
             (CLOSED, 'Closed'),
-            ('cancelled', 'Cancelled'),
-        ),
-        help_text='exported by export_transactions, closed by import_receipts'
-    )
+            ('cancelled', 'Cancelled')),
+        help_text='exported by export_transactions, closed by import_receipts')
 
     received = models.BooleanField(
         default=False,
-        help_text='True if ACK received'
-    )
+        help_text='True if ACK received')
 
     received_datetime = models.DateTimeField(
         null=True,
-        help_text='date ACK received'
-    )
+        help_text='date ACK received')
 
     is_ignored = models.BooleanField(
         default=False,
-        help_text='Ignore if update'
-    )
+        help_text='Ignore if update')
 
     is_error = models.BooleanField(
-        default=False,
-    )
+        default=False)
 
     objects = ExportTransactionManager()
 
@@ -72,7 +63,7 @@ class ExportTransaction(ExportTrackingFieldsMixin, BaseUuidModel):
         return '{} {} {}'.format(self.object_name, self.status, self.export_uuid)
 
     def natural_key(self):
-        return (self.export_uuid,)
+        return (self.export_uuid, )
 
     def dashboard(self):
         # TODO: get this dashboard url
@@ -90,5 +81,5 @@ class ExportTransaction(ExportTrackingFieldsMixin, BaseUuidModel):
     render.allow_tags = True
 
     class Meta:
-        app_label = 'export'
+        app_label = 'edc_export'
         ordering = ('-timestamp', )

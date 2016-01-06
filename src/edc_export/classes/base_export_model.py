@@ -1,6 +1,6 @@
-import os
 import csv
 import json
+import os
 import string
 
 from collections import OrderedDict
@@ -11,14 +11,14 @@ from django.db.models.constants import LOOKUP_SEP
 from edc_base.encrypted_fields import BaseEncryptedField
 
 from ..models import ExportHistory
+from django.utils import timezone
 
 HEAD_FIELDS = [
     'export_uuid', 'export_datetime', 'export_change_type',
     'subject_identifier', 'report_datetime']
-
 TAIL_FIELDS = [
-    'hostname_created', 'hostname_modified', 'created', 'modified',
-    'user_created', 'user_modified', 'revision']
+    'hostname_created', 'hostname_modified', 'created',
+    'modified', 'user_created', 'user_modified', 'revision']
 
 
 class BaseExportModel(object):
@@ -31,7 +31,7 @@ class BaseExportModel(object):
         self._m2m_value_delimiter = ';'
 
         self.encrypt = encrypt
-        self.delimiter = str(delimiter) or ','
+        self.delimiter = ',' if delimiter is None else delimiter
         self.header_row = []
         self.include_header_row = header
         try:
@@ -43,28 +43,28 @@ class BaseExportModel(object):
         self.row_instance = None
         self.show_all_fields = show_all_fields
         self.strip = strip
-        self.track_history = track_history
+        self.track_history = True if track_history is None else track_history
         self.notification_plan_name = notification_plan_name
+
         self.extra_fields = extra_fields or OrderedDict({})
         self.field_names = [field.name for field in self.model._meta.fields] if self.show_all_fields else []
-
         # a list of names from admin usually, may create duplicates that will be removed
         self.field_names.extend(fields or [])
-
-        # remove items if already listed in field_names
         for field_name in self.field_names:
+            # remove items if already listed in field_names
             self.extra_fields.pop(field_name, None)
         self.field_names.extend(self.extra_fields.keys() or [])
-
-        # remove duplicates, maintain order
-        self.field_names = list(OrderedDict.fromkeys(self.field_names))
-
+        self.field_names = list(OrderedDict.fromkeys(self.field_names))  # remove duplicates, maintain order
         self.insert_defaults_and_reorder_field_names()
         self.exclude_field_names(exclude)  # a list of names
         self.header_row = self.field_names
+        try:
+            export_datetime = export_datetime.strftime('%Y%m%d%H%M%S')
+        except AttributeError:
+            export_datetime = timezone.now().strftime('%Y%m%d%H%M%S')
         self.export_filename = '{0}_{1}.csv'.format(
-            self.model._meta.replace('.', '_'),
-            export_datetime.strftime('%Y%m%d%H%M%S') or datetime.now().strftime('%Y%m%d%H%M%S'))
+            unicode(self.model._meta).replace('.', '_'),
+            export_datetime)
         self.export_history = None
 
     def write_to_file(self):
@@ -136,7 +136,8 @@ class BaseExportModel(object):
         if self.extra_fields.get(field_name) or field_name:
             query_string = self.extra_fields.get(field_name) or field_name
             query_list = query_string.split(LOOKUP_SEP)
-            value, _ = self.recurse_on_getattr(obj, query_list)  # recurse to last relation to get value
+            # recurse to last relation to get value
+            value, _ = self.recurse_on_getattr(obj, query_list)
         value = value if value is not None else ''
         return unicode(value).encode("utf-8", "replace")
 

@@ -1,20 +1,16 @@
 import json
-
 from datetime import datetime
-
 from django.core import serializers
 from django.db.models import get_model
 
 from edc_base.encrypted_fields import FieldCryptor
+from edc.export.classes import ExportAsCsv, ExportJsonAsCsv
 
-from .classes import ExportAsCsv, ExportJsonAsCsv
 
-
-def export_as_csv_action(
-        description="Export selected objects to CSV",
-        fields=None, exclude=None, extra_fields=None,
-        header=True, track_history=True, show_all_fields=True,
-        delimiter=None, encrypt=True, strip=True):
+def export_as_csv_action(description="Export selected objects to CSV",
+                         fields=None, exclude=None, extra_fields=None,
+                         header=True, track_history=True, show_all_fields=True,
+                         delimiter=None, encrypt=True, strip=True):
     """
     Return an export csv action
     'fields' and 'exclude' work like in django ModelForm
@@ -55,10 +51,9 @@ def export_as_csv_action(
     return export
 
 
-def export_tx_to_csv_action(
-        description="Export transaction in each selected object to CSV",
-        fields=None, exclude=None, extra_fields=None, header=True, track_history=True,
-        show_all_fields=True, delimiter=None, encrypt=True, strip=True):
+def export_tx_to_csv_action(description="Export transaction in each selected object to CSV",
+                            fields=None, exclude=None, extra_fields=None, header=True, track_history=True,
+                            show_all_fields=True, delimiter=None, encrypt=True, strip=True):
 
     def export(modeladmin, request, queryset):
         transactions = []
