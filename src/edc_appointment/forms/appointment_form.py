@@ -1,12 +1,12 @@
 from datetime import date
 
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist
 
-from edc_meta_data.models import CrfMetaData, RequisitionMetaData
 from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, KEYED, UNKEYED, NEW_APPT
+from edc_meta_data.models import CrfMetaData, RequisitionMetaData
 
 from ..models import Appointment
-from django.core.exceptions import ObjectDoesNotExist
 
 
 class AppointmentForm(forms.ModelForm):
@@ -72,7 +72,8 @@ class AppointmentForm(forms.ModelForm):
                 t1 = appt_datetime.date() - date.today()
                 if t1.days > 0:
                     raise forms.ValidationError(
-                        'Appointment status is set to complete. Appointment date cannot be a future date. '
+                        'Appointment status is set to complete. '
+                        'Appointment date cannot be a future date. '
                         'You wrote \'{}\'. Got {}'.format(appt_datetime, t1))
             except AttributeError as e:
                 if 'date' not in str(e):
@@ -89,9 +90,11 @@ class AppointmentForm(forms.ModelForm):
                 appointment__visit_definition=visit_definition,
                 entry_status=UNKEYED)
             if CrfMetaData.objects.filter(**options).exists():
-                raise forms.ValidationError('Appointment is not \'complete\'. Some CRFs are still required.')
+                raise forms.ValidationError(
+                    'Appointment is not \'complete\'. Some CRFs are still required.')
             if RequisitionMetaData.objects.filter(**options).exists():
-                raise forms.ValidationError('Appointment is not \'complete\'. Some Requisitions are still required.')
+                raise forms.ValidationError(
+                    'Appointment is not \'complete\'. Some Requisitions are still required.')
 
     def validate_status_if_data_keyed(self):
         cleaned_data = self.cleaned_data
@@ -104,9 +107,11 @@ class AppointmentForm(forms.ModelForm):
                 appointment__visit_definition=visit_definition,
                 entry_status=KEYED)
             if CrfMetaData.objects.filter(**options).exists():
-                raise forms.ValidationError('Appointment is not \'new\'. Some CRFs have been completed.')
+                raise forms.ValidationError(
+                    'Appointment is not \'new\'. Some CRFs have been completed.')
             if RequisitionMetaData.objects.filter(**options).exists():
-                raise forms.ValidationError('Appointment is not \'new\'. Some Requisitions have been completed.')
+                raise forms.ValidationError(
+                    'Appointment is not \'new\'. Some Requisitions have been completed.')
 
     def validate_appt_status_in_progress(self):
         cleaned_data = self.cleaned_data
