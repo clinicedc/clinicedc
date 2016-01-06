@@ -7,8 +7,8 @@ class ExportObjectHelper(ExportHelper):
 
     """
     For example:
-        from edc.export.helpers import ExportObjectHelper
-        from edc.export.classes import ExportPlan
+        from edc_export.helpers import ExportObjectHelper
+        from edc_export.classes import ExportPlan
         from apps.bcpp_export.helpers import Member
 
         dct = {
