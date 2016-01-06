@@ -2,7 +2,7 @@ from django.contrib import admin
 from collections import OrderedDict
 
 from edc_base.modeladmin.admin import BaseModelAdmin
-from edc.export.actions import export_as_csv_action
+from edc_export.actions import export_as_csv_action
 
 from ..actions import recalculate_grading
 from ..forms import ResultItemForm

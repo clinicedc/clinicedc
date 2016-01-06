@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from edc.export.actions import export_as_csv_action
+from edc_export.actions import export_as_csv_action
 from edc_visit_tracking.admin import VisitAdminMixin
 
 from .actions import flag_as_received, flag_as_not_received, flag_as_not_labelled, print_requisition_label
