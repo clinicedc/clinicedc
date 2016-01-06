@@ -85,7 +85,7 @@
 {% endblock edc_import %}
 
 {% block edc_export %}
-    {% if 'edc.export' in installed_apps%}
+    {% if 'edc_export' in installed_apps%}
         <h5>Export Data</h5>
         <ul>
             <li><A href="{% url 'admin:export_exporthistory_changelist' %}">Export History</A>

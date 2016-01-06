@@ -44,7 +44,8 @@ INSTALLED_APPS = (
     'edc_appointment',
     'edc_base',
     'edc_consent',
-    'edc_dashbaord'
+    'edc_dashbaord',
+    'edc_export',
     'edc_locator',
 )
 
