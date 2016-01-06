@@ -45,13 +45,13 @@ class AppointmentForm(forms.ModelForm):
         visit_instance = cleaned_data.get('visit_instance', '0')
         visit_instance = '0' if visit_instance == '' else visit_instance
         registered_subject = cleaned_data.get('registered_subject')
-        visit_definition = cleaned_data.get('visit_definition')
+        visit_definition = self.get_visit_definition()
         if visit_instance != '0':
             previous = str(int(visit_instance) - 1)
             try:
                 if not Appointment.objects.filter(
                         registered_subject=self.instance.registered_subject,
-                        visit_definition=self.instance.visit_definition,
+                        visit_definition=visit_definition,
                         visit_instance=previous).exists():
                     raise forms.ValidationError(
                         'Attempt to update appointment out of sequence. Got {}.'.format(visit_instance))
