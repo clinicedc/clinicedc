@@ -48,6 +48,8 @@ class Appointment(SyncModelMixin, BaseUuidModel):
         help_text=("For tracking within the window period of a visit, use the decimal convention. "
                    "Format is NNNN.N. e.g 1000.0, 1000.1, 1000.2, etc)"))
 
+    study_site = models.CharField(max_length=15, null=True)
+
     best_appt_datetime = models.DateTimeField(null=True, editable=False)
 
     appt_close_datetime = models.DateTimeField(null=True, editable=False)

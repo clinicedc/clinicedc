@@ -1,15 +1,26 @@
 from datetime import date
 
 from django import forms
+from django.contrib.admin.widgets import AdminRadioSelect, AdminRadioFieldRenderer
+from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
+from django.conf import settings
 
 from edc_meta_data.models import CrfMetaData, RequisitionMetaData
 from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, KEYED, UNKEYED, NEW_APPT
 
 from ..models import Appointment
-from django.core.exceptions import ObjectDoesNotExist
 
 
 class AppointmentForm(forms.ModelForm):
+
+    try:
+        study_site = forms.ChoiceField(
+            label='Study site',
+            choices=settings.STUDY_SITES,
+            help_text="",
+            widget=AdminRadioSelect(renderer=AdminRadioFieldRenderer))
+    except AttributeError:
+        raise ImproperlyConfigured('Missing settings attribute STUDY_SITES.')
 
     class Meta:
         model = Appointment
