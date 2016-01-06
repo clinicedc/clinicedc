@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from django.core.exceptions import ImproperlyConfigured
 
-from edc.export.actions import export_as_csv_action
+from edc_export.actions import export_as_csv_action
 
 
 class CrfAdminMixin(object):
