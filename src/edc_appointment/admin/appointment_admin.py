@@ -37,7 +37,8 @@ class AppointmentAdmin(BaseModelAdmin):
                 try:
                     self.readonly_fields.index('visit_definition')
                 except ValueError:
-                    self.readonly_fields.append('visit_definition')
+                    if self.readonly_fields:
+                        self.readonly_fields.append('visit_definition')
         return super(AppointmentAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     fields = (
