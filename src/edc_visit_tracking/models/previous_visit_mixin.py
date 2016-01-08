@@ -1,6 +1,7 @@
 from django.db import models, transaction
 
 from edc_visit_schedule.models.visit_definition import VisitDefinition
+from edc_appointment.models import Appointment
 
 
 class PreviousVisitError(Exception):
@@ -87,6 +88,13 @@ class PreviousVisitMixin(models.Model):
                     appointment__registered_subject=self.appointment.registered_subject)
             except self.__class__.DoesNotExist:
                 previous_visit = None
+            except self.__class__.MultipleObjectsReturned:
+                previous_appointment = Appointment.objects.filter(
+                    registered_subject=self.appointment.registered_subject,
+                    visit_definition=previous_visit_definition).order_by(
+                        '-visit_instance')[0]
+                previous_visit = self.__class__.objects.filter(
+                    appointment=previous_appointment)
         return previous_visit
 
     class Meta:
