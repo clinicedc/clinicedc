@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models, transaction
+from django.db.models import Q
 
 from edc_base.audit_trail import AuditTrail
 from edc_base.model.models import BaseUuidModel
@@ -47,8 +48,6 @@ class Appointment(SyncModelMixin, BaseUuidModel):
         verbose_name="Visit",
         help_text=("For tracking within the window period of a visit, use the decimal convention. "
                    "Format is NNNN.N. e.g 1000.0, 1000.1, 1000.2, etc)"))
-
-    study_site = models.CharField(max_length=15, null=True)
 
     best_appt_datetime = models.DateTimeField(null=True, editable=False)
 
@@ -266,17 +265,19 @@ class Appointment(SyncModelMixin, BaseUuidModel):
                 registered_subject=self.registered_subject,
                 visit_definition=self.visit_definition).exclude(
                     pk=appointment.pk).order_by('-visit_instance')
-            if not appointments and self.visit_instance != 1:
+            if not appointments and int(self.visit_instance) != 1:
                 raise exception_cls(
                     'Cannot create continuation appointment for visit. '
                     'Expected next appoinmtent to be {0}.1. Got {1}'.format(
                         self.visit_definition, self.visit_instance))
             elif appointments:
-                if int(self.visit_instance) - 1 != int(appointments[0].visit_instance):
-                    raise exception_cls(
-                        'Cannot create continuation appointment for visit {0}. '
-                        'Expected next visit instance to be {1}. Got {2}'.format(
-                            self.visit_definition.code, (int(self.visit_instance) - 1), self.visit_instance))
+                if not int(self.visit_instance) == 1:
+                    appointments = appointments.filter(~Q(visit_instance=self.visit_instance))
+                    if int(self.visit_instance) - 1 != int(appointments[0].visit_instance):
+                        raise exception_cls(
+                            'Cannot create continuation appointment for visit {0}. '
+                            'Expected next visit instance to be {1}. Got {2}'.format(
+                                self.visit_definition.code, (int(self.visit_instance) - 1), self.visit_instance))
 
     def check_window_period(self, exception_cls=None):
         """Is this used?"""

@@ -47,7 +47,6 @@ class AppointmentAdmin(BaseModelAdmin):
         'appt_status',
         'visit_definition',
         'visit_instance',
-        'study_site',
         'appt_type',
     )
 
