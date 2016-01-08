@@ -1,9 +1,8 @@
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models, transaction
-from django.db.models import Q
 
 from edc_base.audit_trail import AuditTrail
 from edc_base.model.models import BaseUuidModel
@@ -19,17 +18,6 @@ from .appointment_date_helper import AppointmentDateHelper
 from .time_point_status import TimePointStatus
 from .window_period_helper import WindowPeriodHelper
 from edc_appointment.exceptions import AppointmentStatusError
-
-# try:
-#     from edc.device.dispatch.models import BaseDispatchSyncUuidModel
-#
-#     class BaseAppointment(BaseDispatchSyncUuidModel):
-#         class Meta:
-#             abstract = True
-# except ImportError:
-#     class BaseAppointment(models.Model):
-#         class Meta:
-#             abstract = True
 
 
 class Appointment(SyncModelMixin, BaseUuidModel):
@@ -133,14 +121,33 @@ class Appointment(SyncModelMixin, BaseUuidModel):
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
+        if self.visit_instance is None or self.visit_instance == '':
+            self.visit_instance = '0'
         if not kwargs.get('update_fields'):
-            self.validate_visit_instance(using=using)
+            self.validate_visit_instance()
             if self.id:
                 self.time_point_status_open_or_raise()
             self.appt_datetime, self.best_appt_datetime = self.validate_appt_datetime()
             self.check_window_period()
             self.appt_status = self.get_appt_status(using)
         super(Appointment, self).save(*args, **kwargs)
+
+    def validate_visit_instance(self, exception_cls=None):
+        exception_cls = exception_cls or ValidationError
+        self.visit_instance = '0' if self.visit_instance == '' else self.visit_instance
+        if self.visit_instance != '0':
+            previous = str(int(self.visit_instance) - 1)
+            try:
+                appointment = Appointment.objects.get(
+                    registered_subject=self.registered_subject,
+                    visit_definition=self.visit_definition,
+                    visit_instance=previous)
+                if appointment.id == self.id:
+                    raise Appointment.DoesNotExist
+            except Appointment.DoesNotExist:
+                raise exception_cls(
+                    'Attempt to create or update appointment instance out of sequence. Got \'{}.{}\'.'.format(
+                        self.visit_definition.code, self.visit_instance))
 
     def raw_save(self, *args, **kwargs):
         """Optional save to bypass stuff going on in the default save method."""
@@ -246,38 +253,6 @@ class Appointment(SyncModelMixin, BaseUuidModel):
                 self.registered_subject.study_site, self.visit_definition)
             best_appt_datetime = self.best_appt_datetime
         return appt_datetime, best_appt_datetime
-
-    def validate_visit_instance(self, using=None, exception_cls=None):
-        """Confirms a 0 instance appointment exists before allowing a continuation
-        appt and keep a sequence."""
-        exception_cls = exception_cls or ValidationError
-        if str(self.visit_instance) != '0':
-            try:
-                appointment = Appointment.objects.using(using).get(
-                    registered_subject=self.registered_subject,
-                    visit_definition=self.visit_definition,
-                    visit_instance='0')
-            except Appointment.DoesNotExist:
-                raise exception_cls(
-                    'Cannot create continuation appointment. Cannot find the first '
-                    'appointment \'{}.0\'.'.format(self.visit_definition,))
-            appointments = Appointment.objects.using(using).filter(
-                registered_subject=self.registered_subject,
-                visit_definition=self.visit_definition).exclude(
-                    pk=appointment.pk).order_by('-visit_instance')
-            if not appointments and int(self.visit_instance) != 1:
-                raise exception_cls(
-                    'Cannot create continuation appointment for visit. '
-                    'Expected next appoinmtent to be {0}.1. Got {1}'.format(
-                        self.visit_definition, self.visit_instance))
-            elif appointments:
-                if not int(self.visit_instance) == 1:
-                    appointments = appointments.filter(~Q(visit_instance=self.visit_instance))
-                    if int(self.visit_instance) - 1 != int(appointments[0].visit_instance):
-                        raise exception_cls(
-                            'Cannot create continuation appointment for visit {0}. '
-                            'Expected next visit instance to be {1}. Got {2}'.format(
-                                self.visit_definition.code, (int(self.visit_instance) - 1), self.visit_instance))
 
     def check_window_period(self, exception_cls=None):
         """Is this used?"""

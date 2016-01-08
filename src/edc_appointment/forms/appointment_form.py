@@ -1,7 +1,7 @@
 from datetime import date
 
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
+from django.forms.models import model_to_dict
 
 from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, KEYED, UNKEYED, NEW_APPT
 from edc_meta_data.models import CrfMetaData, RequisitionMetaData
@@ -41,27 +41,13 @@ class AppointmentForm(forms.ModelForm):
                 raise AttributeError(e)
 
     def validate_visit_instance(self):
+        """Validates the visit instance using the model method."""
         cleaned_data = self.cleaned_data
-        visit_instance = cleaned_data.get('visit_instance', '0')
-        visit_instance = '0' if visit_instance == '' else visit_instance
-        registered_subject = cleaned_data.get('registered_subject')
-        visit_definition = self.get_visit_definition()
-        if visit_instance != '0':
-            previous = str(int(visit_instance) - 1)
-            try:
-                if not Appointment.objects.filter(
-                        registered_subject=self.instance.registered_subject,
-                        visit_definition=visit_definition,
-                        visit_instance=previous).exists():
-                    raise forms.ValidationError(
-                        'Attempt to update appointment out of sequence. Got {}.'.format(visit_instance))
-            except (AttributeError, ObjectDoesNotExist):
-                if not Appointment.objects.filter(
-                        registered_subject=registered_subject,
-                        visit_definition=visit_definition,
-                        visit_instance=previous).exists():
-                    raise forms.ValidationError(
-                        'Attempt to create appointment out of sequence. Got {}.'.format(visit_instance))
+        cleaned_data.update({'visit_definition': self.get_visit_definition()})
+        options = model_to_dict(self.instance)
+        options.update(cleaned_data)
+        Appointment.validate_visit_instance(
+            Appointment(**options), exception_cls=forms.ValidationError)
 
     def validate_complete_appt_date_cannot_be_future(self):
         cleaned_data = self.cleaned_data
@@ -129,10 +115,8 @@ class AppointmentForm(forms.ModelForm):
 
     def get_visit_definition(self):
         cleaned_data = self.cleaned_data
-        visit_definition = cleaned_data.get("visit_definition")
-        if not visit_definition:
-            try:
-                visit_definition = self.instance.visit_definition
-            except AttributeError:
-                raise forms.ValidationError('Visit definition is required.')
+        try:
+            visit_definition = cleaned_data['visit_definition']
+        except KeyError:
+            visit_definition = self.instance.visit_definition
         return visit_definition

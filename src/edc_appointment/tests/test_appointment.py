@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import date
 from dateutil.relativedelta import relativedelta
 
 from django import forms
@@ -7,17 +7,16 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from edc_testing.tests.factories import TestConsentWithMixinFactory
 from edc_testing.models.test_visit import TestVisit
+from edc_appointment.forms.appointment_form import AppointmentForm
 from edc_appointment.models import AppointmentMixin, Appointment, TimePointStatus
 from edc_appointment.choices import APPT_STATUS
 from edc_constants.constants import (
-    NEW_APPT, COMPLETE_APPT, INCOMPLETE, CANCELLED, MALE, YES, SCHEDULED, IN_PROGRESS, DONE, NEW)
+    NEW_APPT, COMPLETE_APPT, INCOMPLETE, CANCELLED, MALE, YES, SCHEDULED, IN_PROGRESS, DONE)
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.models.visit_definition import VisitDefinition
 
 
 from .base_test_case import BaseTestCase
-from edc_appointment.forms.appointment_form import AppointmentForm
-from edc_meta_data.models.crf_meta_data import CrfMetaData
 
 
 class TestRegistrationModel(AppointmentMixin, models.Model):
@@ -261,7 +260,7 @@ class TestAppointment(BaseTestCase):
         form = AppointmentForm(data)
         self.assertFalse(form.is_valid())
         self.assertIn(
-            'Attempt to create appointment out of sequence. Got 1.',
+            'Attempt to create or update appointment instance out of sequence. Got \'1000.1\'.',
             form.errors.get('__all__'))
 
     def test_form_appt_status_complete(self):

@@ -1,26 +1,23 @@
-from datetime import datetime, date
+from datetime import date
 from dateutil.relativedelta import relativedelta
 
-from django import forms
 from django.db import models
 from django.utils import timezone
-from django.core.exceptions import ValidationError
+
+from edc_appointment.forms.appointment_form import AppointmentForm
+from edc_appointment.models import AppointmentMixin, Appointment
+from edc_appointment.tests.test_models import TestCrfModel1, TestCrfModel2, TestCrfModel3, TestRequisitionModel
+from edc_constants.constants import (
+    NEW_APPT, COMPLETE_APPT, MALE, YES, SCHEDULED, IN_PROGRESS)
+from edc_registration.models import RegisteredSubject
+from edc_testing.models.test_panel import TestPanel
+from edc_testing.models.test_aliquot_type import TestAliquotType
 from edc_testing.tests.factories import TestConsentWithMixinFactory
 from edc_testing.models.test_visit import TestVisit
-from edc_appointment.models import AppointmentMixin, Appointment, TimePointStatus
-from edc_appointment.choices import APPT_STATUS
-from edc_constants.constants import (
-    NEW_APPT, COMPLETE_APPT, INCOMPLETE, CANCELLED, MALE, YES, SCHEDULED, IN_PROGRESS, DONE, NEW)
-from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.models.visit_definition import VisitDefinition
 
 
 from .base_test_case import BaseTestCase
-from edc_appointment.forms.appointment_form import AppointmentForm
-from edc_meta_data.models.crf_meta_data import CrfMetaData
-from edc_appointment.tests.test_models import TestCrfModel1, TestCrfModel2, TestCrfModel3, TestRequisitionModel
-from edc_testing.models.test_panel import TestPanel
-from edc_testing.models.test_aliquot_type import TestAliquotType
 
 
 class TestRegistrationModel(AppointmentMixin, models.Model):
@@ -152,17 +149,21 @@ class TestAppointmentForm(BaseTestCase):
 
     def test_form_appt_out_of_sequence(self):
         """Asserts appointment visit instance must increment by 1."""
-        Appointment.objects.all().update(appt_status=NEW_APPT)
-        self.assertEqual(Appointment.objects.filter(appt_status=IN_PROGRESS).count(), 0)
+        visit_instances = []
+        for obj in Appointment.objects.filter(
+                registered_subject=self.registered_subject,
+                visit_definition=self.appointment.visit_definition):
+            visit_instances.append(obj.visit_instance)
+        self.assertEquals(visit_instances, ['0'])
         form = AppointmentForm(
-            {'appt_status': IN_PROGRESS,
-             'registered_subject': self.appointment.registered_subject.id,
-             'appt_datetime': self.appointment.appt_datetime,
+            {'appt_datetime': self.appointment.appt_datetime,
+             'appt_status': IN_PROGRESS,
              'appt_type': 'clinic',
-             'visit_instance': 5,
-             'visit_definition': self.appointment.visit_definition.id},
+             'registered_subject': self.appointment.registered_subject.id,
+             'visit_definition': self.appointment.visit_definition.id,
+             'visit_instance': '5'},
             instance=self.appointment)
         self.assertFalse(form.is_valid())
         self.assertIn(
-            'Attempt to update appointment out of sequence. Got 5.',
+            'Attempt to create or update appointment instance out of sequence. Got \'1000.5\'.',
             form.errors.get('__all__'))
