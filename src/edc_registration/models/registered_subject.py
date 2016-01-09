@@ -17,17 +17,6 @@ from edc_base.model.models.base_uuid_model import BaseUuidModel
 from edc_constants.choices import YES_NO, POS_NEG_UNKNOWN, ALIVE_DEAD_UNKNOWN
 from edc_sync.models import SyncModelMixin
 
-# try:
-#     from edc.device.dispatch.models import BaseDispatchSyncUuidModel
-#
-#     class BaseRegisteredSubject(Subject, BaseDispatchSyncUuidModel):
-#         class Meta:
-#             abstract = True
-# except ImportError:
-#     class BaseRegisteredSubject(Subject):
-#         class Meta:
-#             abstract = True
-
 
 class RegisteredSubjectError(Exception):
     pass
