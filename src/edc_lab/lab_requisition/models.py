@@ -4,6 +4,7 @@ import random
 from uuid import uuid4
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
@@ -18,7 +19,6 @@ from edc_lab.lab_clinic_api.models import TestCode
 
 from .choices import ITEM_TYPE, REASON_NOT_DRAWN, PRIORITY
 from .classes import RequisitionLabel
-from django.core.exceptions import ImproperlyConfigured
 
 
 class RequisitionManager(models.Manager):
@@ -246,24 +246,6 @@ class RequisitionModelMixin(models.Model):
         return """<a href="{url}?q={requisition_identifier}" />aliquot</a>""".format(
             url=url, requisition_identifier=self.requisition_identifier)
     aliquot.allow_tags = True
-
-#     def dispatch_container_lookup(self, using=None):
-#         return None
-#
-#     def bypass_for_edit_dispatched_as_item(self, using=None, update_fields=None):
-#         """Allow bypass only if doing lab actions."""
-#         # requery myself
-#         obj = self.__class__.objects.using(using).get(pk=self.pk)
-#         # dont allow values in these fields to change if dispatched
-#         may_not_change_these_fields = [(k, v) for k, v in obj.__dict__.iteritems() if k not in [
-#             'is_receive', 'is_receive_datetime', 'is_labelled', 'is_labelled_datetime', 'protocol',
-#             'specimen_identifier', 'is_packed', 'packing_list_id', 'is_lis'] +
-#             BASE_MODEL_UPDATE_FIELDS + BASE_UUID_MODEL_UPDATE_FIELDS]
-#         for k, v in may_not_change_these_fields:
-#             if k[0] != '_':
-#                 if getattr(self, k) != v:
-#                     return False
-#         return True
 
     class Meta:
         abstract = True
