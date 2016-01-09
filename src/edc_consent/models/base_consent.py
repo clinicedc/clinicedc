@@ -47,7 +47,7 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
     subject_identifier_as_pk = models.CharField(
         verbose_name="Subject Identifier as pk",
         max_length=50,
-        default=uuid4
+        default=uuid4,
     )
 
     subject_identifier_aka = models.CharField(
