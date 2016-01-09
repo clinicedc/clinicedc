@@ -46,6 +46,5 @@ class IdentifierTracker(SyncModelMixin, BaseUuidModel):
 
     class Meta:
         app_label = 'edc_identifier'
-        db_table = 'bhp_identifier_identifiertracker'
         ordering = ['root_number', 'counter']
         unique_together = ['root_number', 'counter']

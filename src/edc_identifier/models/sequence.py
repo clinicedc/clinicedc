@@ -14,5 +14,4 @@ class Sequence(BaseModel):
 
     class Meta:
         app_label = 'edc_identifier'
-        db_table = 'bhp_identifier_sequence'
         ordering = ['id', ]

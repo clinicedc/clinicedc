@@ -21,5 +21,4 @@ class SubjectIdentifier(BaseIdentifierModel, SyncModelMixin, BaseUuidModel):
 
     class Meta:
         app_label = 'edc_identifier'
-        db_table = 'bhp_identifier_subjectidentifier'
         ordering = ['-created']
