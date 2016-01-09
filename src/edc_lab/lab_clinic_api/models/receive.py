@@ -11,7 +11,7 @@ class Receive(BaseReceive, BaseUuidModel):
     """ Stores receiving information and is linked to :class:`registration.RegisteredSubject` for patient
     identification and demographics."""
 
-    registered_subject = models.ForeignKey(RegisteredSubject, null=True)
+    registered_subject = models.ForeignKey(RegisteredSubject)
 
     objects = models.Manager()
 
