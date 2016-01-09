@@ -1,5 +1,4 @@
 from django.core.exceptions import ValidationError, ImproperlyConfigured
-from django.core.urlresolvers import reverse
 from django.db import models
 
 from edc_base.model.models import BaseUuidModel
@@ -54,9 +53,6 @@ class MembershipForm(BaseUuidModel):
 
     def natural_key(self):
         return self.content_type_map.natural_key()
-
-    def get_absolute_url(self):
-        return reverse('admin:bhp_visit_membershipform_change', args=(self.id,))
 
     def __unicode__(self):
         return self.content_type_map.name
