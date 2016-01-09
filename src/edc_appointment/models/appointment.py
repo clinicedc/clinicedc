@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models, transaction
@@ -12,12 +12,12 @@ from edc_sync.models import SyncModelMixin
 from edc_visit_schedule.models import VisitDefinition
 
 from ..choices import APPT_TYPE, APPT_STATUS
+from ..exceptions import AppointmentStatusError
 from ..managers import AppointmentManager
 
 from .appointment_date_helper import AppointmentDateHelper
 from .time_point_status import TimePointStatus
 from .window_period_helper import WindowPeriodHelper
-from edc_appointment.exceptions import AppointmentStatusError
 
 
 class Appointment(SyncModelMixin, BaseUuidModel):
