@@ -121,20 +121,26 @@ class Appointment(SyncModelMixin, BaseUuidModel):
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
-        if self.visit_instance is None or self.visit_instance == '':
-            self.visit_instance = '0'
         if not kwargs.get('update_fields'):
             self.validate_visit_instance()
             if self.id:
                 self.time_point_status_open_or_raise()
-            self.appt_datetime, self.best_appt_datetime = self.validate_appt_datetime()
+            if self.visit_instance == '0':
+                self.appt_datetime, self.best_appt_datetime = self.validate_appt_datetime()
+            else:
+                self.appt_datetime, self.best_appt_datetime = self.validate_continuation_appt_datetime()
             self.check_window_period()
             self.appt_status = self.get_appt_status(using)
         super(Appointment, self).save(*args, **kwargs)
 
+    def natural_key(self):
+        """Returns a natural key."""
+        return (self.visit_instance, ) + self.visit_definition.natural_key() + self.registered_subject.natural_key()
+    natural_key.dependencies = ['edc_registration.registeredsubject', 'edc_visit_tracking.visitdefinition']
+
     def validate_visit_instance(self, exception_cls=None):
         exception_cls = exception_cls or ValidationError
-        self.visit_instance = '0' if self.visit_instance == '' else self.visit_instance
+        self.visit_instance = self.visit_instance or '0'
         if self.visit_instance != '0':
             previous = str(int(self.visit_instance) - 1)
             try:
@@ -148,15 +154,6 @@ class Appointment(SyncModelMixin, BaseUuidModel):
                 raise exception_cls(
                     'Attempt to create or update appointment instance out of sequence. Got \'{}.{}\'.'.format(
                         self.visit_definition.code, self.visit_instance))
-
-    def raw_save(self, *args, **kwargs):
-        """Optional save to bypass stuff going on in the default save method."""
-        super(Appointment, self).save(*args, **kwargs)
-
-    def natural_key(self):
-        """Returns a natural key."""
-        return (self.visit_instance, ) + self.visit_definition.natural_key() + self.registered_subject.natural_key()
-    natural_key.dependencies = ['edc_registration.registeredsubject', 'edc_visit_tracking.visitdefinition']
 
     def get_appt_status(self, using):
         """Returns the appt_status by checking the meta data entry status for all required CRFs and requisitions.
@@ -235,7 +232,6 @@ class Appointment(SyncModelMixin, BaseUuidModel):
 
         .. note:: best_appt_datetime is not editable by the user. If 'None'
          will raise an exception."""
-        # for tests
         if not exception_cls:
             exception_cls = ValidationError
         appointment_date_helper = AppointmentDateHelper(self.__class__)
@@ -254,13 +250,29 @@ class Appointment(SyncModelMixin, BaseUuidModel):
             best_appt_datetime = self.best_appt_datetime
         return appt_datetime, best_appt_datetime
 
+    def validate_continuation_appt_datetime(self, exception_cls=None):
+        exception_cls = exception_cls or ValidationError
+        base_appointment = self.__class__.objects.get(
+            registered_subject=self.registered_subject,
+            visit_definition=self.visit_definition,
+            visit_instance='0')
+        if self.visit_instance != '0' and (self.appt_datetime - base_appointment.appt_datetime).days < 1:
+            raise exception_cls(
+                'Appointment date must be a future date relative to the '
+                'base appointment. Got {} not greater than {} at {}.0.'.format(
+                    self.appt_datetime.strftime('%Y-%m-%d'),
+                    base_appointment.appt_datetime.strftime('%Y-%m-%d'),
+                    self.visit_definition.code))
+        return self.appt_datetime, base_appointment.best_appt_datetime
+
     def check_window_period(self, exception_cls=None):
-        """Is this used?"""
+        """Confirms appointment date is in the accepted window period."""
         if not exception_cls:
             exception_cls = ValidationError
-        if self.id:
-            window_period = WindowPeriodHelper()
-            if not window_period.check_datetime(self.visit_definition, self.appt_datetime, self.best_appt_datetime):
+        if self.id and self.visit_instance == '0':
+            window_period = WindowPeriodHelper(
+                self.visit_definition, self.appt_datetime, self.best_appt_datetime)
+            if not window_period.check_datetime():
                 raise exception_cls(window_period.error_message)
 
     def dashboard(self):

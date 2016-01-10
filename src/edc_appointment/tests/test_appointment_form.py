@@ -96,7 +96,7 @@ class TestAppointmentForm(BaseTestCase):
             form.errors.get('__all__') or [])
 
     def test_form_appt_status_new_keyed2(self):
-        """Asserts that an appointment cannot new if keyed Requisition meta data exists."""
+        """Asserts that an appointment cannot be new if keyed Requisition meta data exists."""
         TestRequisitionModel.objects.create(
             test_visit=self.test_visit,
             panel=self.panel,
@@ -108,6 +108,7 @@ class TestAppointmentForm(BaseTestCase):
              'appt_type': 'clinic',
              'visit_definition': self.appointment.visit_definition.id},
             instance=self.appointment)
+        self.assertTrue(self.appointment.visit_instance == '0')
         self.assertFalse(form.is_valid())
         self.assertIn(
             'Appointment is not \'new\'. Some Requisitions have been completed.',
@@ -150,7 +151,7 @@ class TestAppointmentForm(BaseTestCase):
         self.assertTrue(form.is_valid())
 
     def test_form_appt_out_of_sequence(self):
-        """Asserts appointment visit instance must increment by 1."""
+        """Asserts appointment visit instance must increment by more than 1."""
         visit_instances = []
         for obj in Appointment.objects.filter(
                 registered_subject=self.registered_subject,
@@ -168,6 +169,27 @@ class TestAppointmentForm(BaseTestCase):
         self.assertFalse(form.is_valid())
         self.assertIn(
             'Attempt to create or update appointment instance out of sequence. Got \'1000.5\'.',
+            form.errors.get('__all__'))
+
+    def test_form_appt_out_of_sequence2(self):
+        """Asserts appointment visit instance must increment by 1."""
+        visit_instances = []
+        for obj in Appointment.objects.filter(
+                registered_subject=self.registered_subject,
+                visit_definition=self.appointment.visit_definition):
+            visit_instances.append(obj.visit_instance)
+        self.assertEquals(visit_instances, ['0'])
+        form = AppointmentForm(
+            {'appt_datetime': self.appointment.appt_datetime,
+             'appt_status': IN_PROGRESS,
+             'appt_type': 'clinic',
+             'registered_subject': self.appointment.registered_subject.id,
+             'visit_definition': self.appointment.visit_definition.id,
+             'visit_instance': '1'},
+            instance=self.appointment)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'Attempt to create or update appointment instance out of sequence. Got \'1000.1\'.',
             form.errors.get('__all__'))
 
     def test_form(self):

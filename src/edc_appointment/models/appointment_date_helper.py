@@ -39,9 +39,9 @@ class AppointmentDateHelper(object):
 
     def change_datetime(self, best_appt_datetime, new_appt_datetime, site, visit_definition):
         """Checks if an appointment datetime from the user is OK to accept."""
-        window_period = WindowPeriodHelper()
         appt_datetime = self._check(new_appt_datetime, site)
-        if not window_period.check_datetime(visit_definition, appt_datetime, best_appt_datetime):
+        window_period = WindowPeriodHelper(visit_definition, appt_datetime, best_appt_datetime)
+        if not window_period.check_datetime():
             # return unchanged appt_datetime
             appt_datetime = best_appt_datetime
         if not appt_datetime:

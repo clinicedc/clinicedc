@@ -1,5 +1,3 @@
-from datetime import date
-
 from django import forms
 from django.forms.models import model_to_dict
 
@@ -20,7 +18,7 @@ class AppointmentForm(forms.ModelForm):
         cleaned_data = super(AppointmentForm, self).clean()
         self.validate_time_point_status()
         self.validate_visit_instance()
-        self.validate_complete_appt_date_cannot_be_future()
+        self.validate_appt_datetime()
         self.validate_status_if_data_unkeyed()
         self.validate_status_if_data_keyed()
         self.validate_appt_status_in_progress()
@@ -49,29 +47,34 @@ class AppointmentForm(forms.ModelForm):
         cleaned_data.update({'time_point_status': self.get_time_point_status()})
         options = model_to_dict(self.instance)
         options.update(cleaned_data)
+        try:
+            options.update({'id': self.instance.id})
+        except AttributeError:
+            pass
         Appointment.validate_visit_instance(
             Appointment(**options), exception_cls=forms.ValidationError)
 
-    def validate_complete_appt_date_cannot_be_future(self):
+    def validate_appt_datetime(self):
         cleaned_data = self.cleaned_data
-        appt_status = cleaned_data.get("appt_status")
-        appt_datetime = cleaned_data.get("appt_datetime")
-        if appt_status == COMPLETE_APPT:
+        visit_instance = cleaned_data.get("visit_instance") or '0'
+        if visit_instance != '0':
+            cleaned_data = self.cleaned_data
+            cleaned_data.update({'registered_subject': self.get_registered_subject()})
+            cleaned_data.update({'visit_definition': self.get_visit_definition()})
+            cleaned_data.update({'time_point_status': self.get_time_point_status()})
+            options = model_to_dict(self.instance)
+            options.update(cleaned_data)
             try:
-                t1 = appt_datetime.date() - date.today()
-                if t1.days > 0:
-                    raise forms.ValidationError(
-                        'Appointment status is set to complete. '
-                        'Appointment date cannot be a future date. '
-                        'You wrote \'{}\'. Got {}'.format(appt_datetime, t1))
-            except AttributeError as e:
-                if 'date' not in str(e):
-                    raise AttributeError(e)
+                options.update({'id': self.instance.id})
+            except AttributeError:
+                pass
+            Appointment.validate_continuation_appt_datetime(
+                Appointment(**options), exception_cls=forms.ValidationError)
 
     def validate_status_if_data_unkeyed(self):
         cleaned_data = self.cleaned_data
         appt_status = cleaned_data.get("appt_status")
-        registered_subject = cleaned_data.get("registered_subject")
+        registered_subject = self.get_registered_subject()
         visit_definition = self.get_visit_definition()
         if appt_status == COMPLETE_APPT:
             options = dict(
@@ -88,7 +91,7 @@ class AppointmentForm(forms.ModelForm):
     def validate_status_if_data_keyed(self):
         cleaned_data = self.cleaned_data
         appt_status = cleaned_data.get("appt_status")
-        registered_subject = cleaned_data.get("registered_subject")
+        registered_subject = self.get_registered_subject()
         visit_definition = self.get_visit_definition()
         if appt_status == NEW_APPT:
             options = dict(
@@ -105,7 +108,7 @@ class AppointmentForm(forms.ModelForm):
     def validate_appt_status_in_progress(self):
         cleaned_data = self.cleaned_data
         appt_status = cleaned_data.get("appt_status")
-        registered_subject = cleaned_data.get("registered_subject")
+        registered_subject = self.get_registered_subject()
         if appt_status == IN_PROGRESS:
             if Appointment.objects.filter(
                     registered_subject=registered_subject,
@@ -136,7 +139,7 @@ class AppointmentForm(forms.ModelForm):
         except (AttributeError, ObjectDoesNotExist):
             pass
         if not value:
-            value = cleaned_data[attrname]
+            value = cleaned_data.get(attrname)
         else:
             if cleaned_data.get(attrname):
                 if value.id != cleaned_data[attrname].id:

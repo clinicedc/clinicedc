@@ -38,6 +38,15 @@ class TestTimePointStatus(BaseTestCase):
         for appointment in Appointment.objects.filter(registered_subject=self.consent.registered_subject):
             self.assertIsInstance(appointment.time_point_status, TimePointStatus)
 
+    def test_created_audit(self):
+        """Assert that time completion model is same for concrete and audit instance."""
+        for appointment in Appointment.objects.filter(registered_subject=self.consent.registered_subject):
+            for audit in Appointment.history.filter(
+                    registered_subject=self.consent.registered_subject,
+                    visit_definition__id=appointment.visit_definition.id,
+                    visit_instance=appointment.visit_instance):
+                self.assertEqual(appointment.time_point_status.id, audit.time_point_status.id)
+
     def test_close1(self):
         """Assert cannot set TimePointStatus to closed if appointment is NEW."""
         for appointment in self.appointments:
