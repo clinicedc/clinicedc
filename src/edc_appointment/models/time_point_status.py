@@ -136,3 +136,4 @@ class TimePointStatus(SyncModelMixin, BaseUuidModel):
         verbose_name = "Time Point Completion"
         verbose_name_plural = "Time Point Completion"
         ordering = ['subject_identifier', 'visit_code']
+        unique_together = ('subject_identifier', 'visit_code')

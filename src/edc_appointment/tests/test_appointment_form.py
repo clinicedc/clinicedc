@@ -1,6 +1,7 @@
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
+from django import forms
 from django.db import models
 from django.utils import timezone
 
@@ -18,6 +19,7 @@ from edc_visit_schedule.models.visit_definition import VisitDefinition
 
 
 from .base_test_case import BaseTestCase
+from edc_appointment.models.time_point_status import TimePointStatus
 
 
 class TestRegistrationModel(AppointmentMixin, models.Model):
@@ -53,7 +55,7 @@ class TestAppointmentForm(BaseTestCase):
         self.panel = TestPanel.objects.first()
         self.aliquot_type = TestAliquotType.objects.first()
 
-    def test_form_appt_status_complete(self):
+    def test_form_appt_status_complete_with_unkeyed(self):
         """Asserts appointment cannot be complete if unkeyed CRFs exists."""
         form = AppointmentForm(
             {'appt_status': COMPLETE_APPT,
@@ -166,4 +168,162 @@ class TestAppointmentForm(BaseTestCase):
         self.assertFalse(form.is_valid())
         self.assertIn(
             'Attempt to create or update appointment instance out of sequence. Got \'1000.5\'.',
+            form.errors.get('__all__'))
+
+    def test_form(self):
+        """Asserts cannot create duplicate appointment"""
+        Appointment.objects.all().update(appt_status=NEW_APPT)
+        data = dict(
+            registered_subject=self.registered_subject.pk,
+            appt_datetime=timezone.now(),
+            appt_status=IN_PROGRESS,
+            visit_definition=self.visit_definition.pk,
+            visit_instance='0',
+            appt_type='clinic'
+        )
+        form = AppointmentForm(data)
+        form.is_valid()
+        self.assertIn(
+            'Appointment with this Registered subject, Visit and Instance already exists.',
+            form.errors.get('__all__'))
+
+    def test_form_save(self):
+        """Asserts can create a new appointment."""
+        Appointment.objects.all().delete()
+        data = dict(
+            registered_subject=self.registered_subject.pk,
+            appt_datetime=timezone.now(),
+            appt_status=IN_PROGRESS,
+            visit_definition=self.visit_definition.pk,
+            visit_instance='0',
+            appt_type='clinic'
+        )
+        form = AppointmentForm(data)
+        self.assertTrue(form.is_valid())
+        with self.assertRaises(forms.ValidationError):
+            try:
+                form.save()
+            except:
+                pass
+            else:
+                raise forms.ValidationError('ValidationError not raised')
+
+    def test_form_save_creates_timepoint_status(self):
+        """Asserts can new appointment creates time_point_status."""
+        Appointment.objects.all().delete()
+        data = dict(
+            registered_subject=self.registered_subject.pk,
+            appt_datetime=timezone.now(),
+            appt_status=IN_PROGRESS,
+            visit_definition=self.visit_definition.pk,
+            visit_instance='0',
+            appt_type='clinic'
+        )
+        form = AppointmentForm(data)
+        self.assertTrue(form.is_valid())
+        form.save()
+        appointment = Appointment.objects.get(
+            registered_subject=self.registered_subject.pk,
+            visit_definition=self.visit_definition.pk,
+            visit_instance='0')
+        self.assertTrue(appointment.time_point_status)
+        with self.assertRaises(TimePointStatus.DoesNotExist):
+            try:
+                TimePointStatus.objects.get(
+                    visit_code=appointment.visit_definition.code,
+                    subject_identifier=appointment.registered_subject.subject_identifier)
+            except:
+                pass
+            else:
+                raise TimePointStatus.DoesNotExist('TimePointStatus.DoesNotExist not raised')
+
+    def test_form_save_does_not_create_timepoint_status(self):
+        """Asserts an existing appointment does not create a new time_point_status."""
+        Appointment.objects.all().update(appt_status=NEW_APPT)
+        self.assertEqual(Appointment.objects.filter(appt_status=IN_PROGRESS).count(), 0)
+        form = AppointmentForm(
+            {'appt_datetime': self.appointment.appt_datetime,
+             'appt_status': IN_PROGRESS,
+             'appt_type': 'clinic',
+             'registered_subject': self.appointment.registered_subject.id,
+             'visit_definition': self.appointment.visit_definition.id},
+            instance=self.appointment)
+        self.assertTrue(form.is_valid())
+        form.save()
+        appointment = Appointment.objects.get(
+            registered_subject=self.registered_subject.pk,
+            visit_definition=self.visit_definition.pk,
+            visit_instance='0')
+        self.assertTrue(appointment.time_point_status)
+        with self.assertRaises(TimePointStatus.DoesNotExist):
+            try:
+                TimePointStatus.objects.get(
+                    visit_code=appointment.visit_definition.code,
+                    subject_identifier=appointment.registered_subject.subject_identifier)
+            except:
+                pass
+            else:
+                raise TimePointStatus.DoesNotExist('TimePointStatus.DoesNotExist not raised')
+
+    def test_form_save_bad_visit_instance(self):
+        """Aseerts cannot create 1000.1 if 1000.0 does not exist."""
+        Appointment.objects.all().delete()
+        data = dict(
+            registered_subject=self.registered_subject.pk,
+            appt_datetime=timezone.now(),
+            appt_status=IN_PROGRESS,
+            visit_definition=self.visit_definition.pk,
+            visit_instance='1',
+            appt_type='clinic')
+        form = AppointmentForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'Attempt to create or update appointment instance out of sequence. Got \'1000.1\'.',
+            form.errors.get('__all__'))
+
+    def test_form_appt_status_complete(self):
+        """Asserts can be set to complete if visit form not keyed."""
+        Appointment.objects.all().delete()
+        data = dict(
+            appt_datetime=timezone.now(),
+            appt_status=COMPLETE_APPT,
+            appt_type='clinic',
+            registered_subject=self.registered_subject.pk,
+            visit_definition=self.visit_definition.pk,
+            visit_instance='0',
+        )
+        form = AppointmentForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_cannot_change_registered_subject_for_existing_appt(self):
+        """Asserts an existing appointment cannot change registered_subject."""
+        Appointment.objects.all().update(appt_status=NEW_APPT)
+        self.assertEqual(Appointment.objects.filter(appt_status=IN_PROGRESS).count(), 0)
+        form = AppointmentForm(
+            {'appt_datetime': self.appointment.appt_datetime,
+             'appt_status': IN_PROGRESS,
+             'appt_type': 'clinic',
+             'registered_subject': self.registered_subject2.id,
+             'visit_definition': self.appointment.visit_definition.id},
+            instance=self.appointment)
+        form.is_valid()
+        self.assertIn(
+            'Registered Subject cannot be changed for an existing appointment.',
+            form.errors.get('__all__'))
+
+    def test_cannot_change_visit_definition_for_existing_appt(self):
+        """Asserts an existing appointment cannot change visit_definition."""
+        Appointment.objects.all().update(appt_status=NEW_APPT)
+        another_visit_definition = VisitDefinition.objects.get(code='2000')
+        self.assertEqual(Appointment.objects.filter(appt_status=IN_PROGRESS).count(), 0)
+        form = AppointmentForm(
+            {'appt_datetime': self.appointment.appt_datetime,
+             'appt_status': IN_PROGRESS,
+             'appt_type': 'clinic',
+             'registered_subject': self.registered_subject.id,
+             'visit_definition': another_visit_definition.id},
+            instance=self.appointment)
+        form.is_valid()
+        self.assertIn(
+            'Visit Definition cannot be changed for an existing appointment.',
             form.errors.get('__all__'))

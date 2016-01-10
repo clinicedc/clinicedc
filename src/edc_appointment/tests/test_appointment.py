@@ -1,20 +1,18 @@
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-from django import forms
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from edc_testing.tests.factories import TestConsentWithMixinFactory
-from edc_testing.models.test_visit import TestVisit
-from edc_appointment.forms.appointment_form import AppointmentForm
+
 from edc_appointment.models import AppointmentMixin, Appointment, TimePointStatus
 from edc_appointment.choices import APPT_STATUS
 from edc_constants.constants import (
     NEW_APPT, COMPLETE_APPT, INCOMPLETE, CANCELLED, MALE, YES, SCHEDULED, IN_PROGRESS, DONE)
 from edc_registration.models import RegisteredSubject
+from edc_testing.tests.factories import TestConsentWithMixinFactory
+from edc_testing.models.test_visit import TestVisit
 from edc_visit_schedule.models.visit_definition import VisitDefinition
-
 
 from .base_test_case import BaseTestCase
 
@@ -206,72 +204,38 @@ class TestAppointment(BaseTestCase):
         appt_datetime, best_appt_datetime = appointment.validate_appt_datetime()
         self.assertEqual(appt_datetime, best_appt_datetime)
 
-#     def test_validate_appt_datetime_changed(self):
-#         """Assert a changed record must return  appt_datetime and best_appt_datetime
-#         but they do not need to be equal."""
-#         appointment = Appointment.objects.create(
-#             registered_subject=self.registered_subject,
-#             appt_datetime=timezone.now(),
-#             visit_definition=self.visit_definition)
-#         appointment.appt_datetime = timezone.now() - relativedelta(days=4)
-#         appointment.save()
-#         appt_datetime, best_appt_datetime = appointment.validate_appt_datetime()
-#         self.assertNotEqual(appt_datetime, best_appt_datetime)
+    def test_timepoint_status(self):
+        """Assert a timepoint status instance is created for every appointment."""
+        for appointment in Appointment.objects.all():
+            self.assertTrue(appointment.time_point_status)
 
-    def test_form(self):
-        data = dict(
-            registered_subject=self.registered_subject.pk,
+    def test_timepoint_status_for_visit(self):
+        """Assert only one timepoint status instance is created for a visit code."""
+        TestConsentWithMixinFactory(
+            registered_subject=self.registered_subject,
+            consent_datetime=timezone.now(),
+            gender=MALE,
+            is_literate=YES,
+            dob=date.today() - relativedelta(years=35),
+            identity='111111111',
+            confirm_identity='111111111',
+            subject_identifier='999-100000-1',
+            study_site=self.study_site)
+        visit_definition = VisitDefinition.objects.get(code='1000')
+        appointment = Appointment.objects.get(
+            registered_subject=self.registered_subject,
+            visit_definition=visit_definition)
+        self.assertTrue(appointment.time_point_status)
+        time_point_status = appointment.time_point_status
+        appointment = Appointment.objects.create(
+            registered_subject=self.registered_subject,
             appt_datetime=timezone.now(),
-            appt_status=IN_PROGRESS,
-            visit_definition=self.visit_definition.pk,
-            visit_instance='0',
-            appt_type='clinic'
-        )
-        form = AppointmentForm(data)
-        self.assertTrue(form.is_valid())
-
-    def test_form_save(self):
-        data = dict(
-            registered_subject=self.registered_subject.pk,
+            visit_definition=self.visit_definition,
+            visit_instance='1')
+        self.assertEqual(appointment.time_point_status, time_point_status)
+        appointment = Appointment.objects.create(
+            registered_subject=self.registered_subject,
             appt_datetime=timezone.now(),
-            appt_status=IN_PROGRESS,
-            visit_definition=self.visit_definition.pk,
-            visit_instance='0',
-            appt_type='clinic'
-        )
-        form = AppointmentForm(data)
-        self.assertTrue(form.is_valid())
-        with self.assertRaises(forms.ValidationError):
-            try:
-                form.save()
-            except:
-                pass
-            else:
-                raise forms.ValidationError('ValidationError not raised')
-
-    def test_form_save_bad_visit_instance(self):
-        data = dict(
-            registered_subject=self.registered_subject.pk,
-            appt_datetime=timezone.now(),
-            appt_status=IN_PROGRESS,
-            visit_definition=self.visit_definition.pk,
-            visit_instance='1',
-            appt_type='clinic')
-        form = AppointmentForm(data)
-        self.assertFalse(form.is_valid())
-        self.assertIn(
-            'Attempt to create or update appointment instance out of sequence. Got \'1000.1\'.',
-            form.errors.get('__all__'))
-
-    def test_form_appt_status_complete(self):
-        """Asserts can be set to complete if visit form not keyed."""
-        data = dict(
-            appt_datetime=timezone.now(),
-            appt_status=COMPLETE_APPT,
-            appt_type='clinic',
-            registered_subject=self.registered_subject.pk,
-            visit_definition=self.visit_definition.pk,
-            visit_instance='0',
-        )
-        form = AppointmentForm(data=data)
-        self.assertTrue(form.is_valid())
+            visit_definition=self.visit_definition,
+            visit_instance='2')
+        self.assertEqual(appointment.time_point_status, time_point_status)

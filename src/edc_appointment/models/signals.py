@@ -1,5 +1,5 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models.signals import post_save, post_delete, pre_delete
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from edc_constants.constants import NEW_APPT, UNKEYED
@@ -18,9 +18,14 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
     if not raw:
         try:
             if not instance.time_point_status:
-                instance.time_point_status = TimePointStatus.objects.create(
-                    visit_code=instance.visit_definition.code,
-                    subject_identifier=instance.registered_subject.subject_identifier)
+                try:
+                    instance.time_point_status = TimePointStatus.objects.get(
+                        visit_code=instance.visit_definition.code,
+                        subject_identifier=instance.registered_subject.subject_identifier)
+                except TimePointStatus.DoesNotExist:
+                    instance.time_point_status = TimePointStatus.objects.create(
+                        visit_code=instance.visit_definition.code,
+                        subject_identifier=instance.registered_subject.subject_identifier)
                 instance.save(update_fields=['time_point_status'])
         except AttributeError as e:
             if 'time_point_status' not in str(e):

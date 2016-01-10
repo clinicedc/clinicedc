@@ -38,4 +38,6 @@ class BaseTestCase(TestCase):
         self.visit_definition = VisitDefinition.objects.get(code='1000')
         self.registered_subject = RegisteredSubjectFactory(
             subject_identifier='999-100000-1')
+        self.registered_subject2 = RegisteredSubjectFactory(
+            subject_identifier='999-100000-2')
         TestConsentModel.quota.set_quota(2, date.today(), date.today())

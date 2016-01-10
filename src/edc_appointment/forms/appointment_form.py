@@ -7,6 +7,7 @@ from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, KEYED, UNKEYED, 
 from edc_meta_data.models import CrfMetaData, RequisitionMetaData
 
 from ..models import Appointment
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class AppointmentForm(forms.ModelForm):
@@ -43,7 +44,9 @@ class AppointmentForm(forms.ModelForm):
     def validate_visit_instance(self):
         """Validates the visit instance using the model method."""
         cleaned_data = self.cleaned_data
+        cleaned_data.update({'registered_subject': self.get_registered_subject()})
         cleaned_data.update({'visit_definition': self.get_visit_definition()})
+        cleaned_data.update({'time_point_status': self.get_time_point_status()})
         options = model_to_dict(self.instance)
         options.update(cleaned_data)
         Appointment.validate_visit_instance(
@@ -113,10 +116,30 @@ class AppointmentForm(forms.ModelForm):
                     'Only one appointment may be in progress at a time. '
                     'Please resolve before continuing.')
 
+    def get_registered_subject(self):
+        return self.get_foreignkey_instance('registered_subject')
+
     def get_visit_definition(self):
+        return self.get_foreignkey_instance('visit_definition')
+
+    def get_time_point_status(self):
+        return self.get_foreignkey_instance('time_point_status')
+
+    def get_foreignkey_instance(self, attrname):
+        """Returns the foreign key instance or None.
+
+        First tries form.instance; if None falls back to cleaned_data."""
+        value = None
         cleaned_data = self.cleaned_data
         try:
-            visit_definition = cleaned_data['visit_definition']
-        except KeyError:
-            visit_definition = self.instance.visit_definition
-        return visit_definition
+            value = getattr(self.instance, attrname)
+        except (AttributeError, ObjectDoesNotExist):
+            pass
+        if not value:
+            value = cleaned_data[attrname]
+        else:
+            if cleaned_data.get(attrname):
+                if value.id != cleaned_data[attrname].id:
+                    raise forms.ValidationError('{} cannot be changed for an existing appointment.'.format(
+                        ' '.join(attrname.split('_')).title()))
+        return value
