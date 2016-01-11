@@ -7,7 +7,6 @@ from django.utils import timezone
 
 from edc_lab.lab_profile.classes import site_lab_profiles
 from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
-from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc_testing.classes import TestLabProfile, TestAppConfiguration
 from edc_testing.models import TestVisit, TestAliquotType, TestPanel
 
@@ -158,7 +157,6 @@ class BaseTest(TestCase):
             site_lab_profiles.register(TestLabProfile())
         except AlreadyRegisteredLabProfile:
             pass
-        site_lab_tracker.autodiscover()
         TestAppConfiguration().prepare()
         # update consent type for our consent model
         consent_type = ConsentType.objects.first()
