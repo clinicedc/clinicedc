@@ -71,7 +71,6 @@ class RegisteredSubjectDashboard(Dashboard):
             registered_subject=self.registered_subject,
             subject_configuration=self.subject_configuration,
             subject_dashboard_url=self.dashboard_url_name,
-            subject_hiv_status=self.render_subject_hiv_status(),
             subject_identifier=self.subject_identifier,
             unkeyed_membership_forms=self.unkeyed_subject_membership_models,
             visit_attr=convert_from_camel(self.visit_model._meta.object_name),
@@ -656,19 +655,6 @@ class RegisteredSubjectDashboard(Dashboard):
             if not meta_data_required:
                 drop_down_list_requisitions.append(requisition)
         return drop_down_list_requisitions
-
-    def render_subject_hiv_status(self):
-        """Renders to string a to a url to the historymodel for the subject_hiv_status."""
-        if self.subject_hiv_status:
-            change_list_url = reverse('admin:lab_tracker_historymodel_changelist')
-            context = self.base_rendered_context
-            context.update({
-                'subject_hiv_status': self.subject_hiv_status,
-                'subject_identifier': self.subject_identifier,
-                'subject_type': self.subject_type,
-                'change_list_url': change_list_url})
-            return render_to_string(self.subject_hiv_template, context)
-        return ''
 
     @property
     def base_rendered_context(self):
