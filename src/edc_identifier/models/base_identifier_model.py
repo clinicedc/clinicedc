@@ -3,7 +3,7 @@ from django.db.models import get_model
 
 from edc_device import Device
 
-from .sequence import Sequence
+# from .sequence import Sequence
 
 
 class BaseIdentifierModel(models.Model):
