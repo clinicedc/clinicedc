@@ -6,7 +6,7 @@ from edc_base.encrypted_fields import mask_encrypted
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators.date import date_not_before_study_start, date_not_future
 
-from ..constants import OFF_STUDY_REASONS
+from edc_constants.constants import OFF_STUDY
 
 
 class OffStudyError(Exception):
@@ -59,12 +59,14 @@ class OffStudyModelMixin(models.Model):
         try:
             self.visit_model.objects.get(
                 appointment__registered_subject=self.registered_subject,
-                report_datetime__gt=report_datetime_min,
-                report_datetime__lt=report_datetime_max,
-                reason__in=OFF_STUDY_REASONS)
+                report_datetime__gte=report_datetime_min,
+                report_datetime__lte=report_datetime_max,
+                study_status=OFF_STUDY)
         except self.visit_model.DoesNotExist:
             raise OffStudyError(
-                'Off study report must be submitted with an off study visit on the same day.')
+                'Off study report must be submitted with a visit report on the '
+                'same day with study_status set to \'off study\'. '
+                'Using off study report date {}.'.format(self.report_datetime.date()))
 
     def delete_future_appointments_on_offstudy(self):
         """Deletes appointments created after the off-study datetime

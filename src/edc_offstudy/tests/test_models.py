@@ -39,9 +39,6 @@ class TestVisitModel(OffStudyMixin, CrfMetaDataMixin, PreviousVisitMixin, VisitM
     def get_subject_identifier(self):
         return self.appointment.registered_subject.subject_identifier
 
-    def custom_post_update_crf_meta_data(self):
-        pass
-
     def get_requires_consent(self):
         return False
 
@@ -64,9 +61,6 @@ class AnotherTestVisitModel(OffStudyMixin, CrfMetaDataMixin, PreviousVisitMixin,
 
     def get_subject_identifier(self):
         return self.appointment.registered_subject.subject_identifier
-
-    def custom_post_update_crf_meta_data(self):
-        pass
 
     def get_requires_consent(self):
         return False
