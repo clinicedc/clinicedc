@@ -7,7 +7,6 @@ from django.conf import settings
 from edc_device import Device
 
 from ...exceptions import IndentifierFormatError
-from ...models import SubjectIdentifier
 
 from .check_digit import CheckDigit
 
@@ -48,6 +47,7 @@ class BaseSubjectIdentifier(object):
           add_check_digit: if true adds a check digit calculated using the numbers in the
             identifier. Letters are stripped out if they exist. (default: True)
           """
+        from ...models import SubjectIdentifier
         self.subject_identifier = SubjectIdentifier.objects.using(self.using).create(
             identifier=str(uuid.uuid4()),
             padding=self.padding,

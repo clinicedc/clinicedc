@@ -1,5 +1,6 @@
+from django.db.models import get_model
+
 from ...exceptions import IdentifierError
-from ...models import SubjectIdentifier
 
 from .base_subject_identifier import BaseSubjectIdentifier
 
@@ -35,6 +36,8 @@ class InfantIdentifier(BaseSubjectIdentifier):
         self.user = user
         template = "{maternal_identifier}-{suffix}"
         self.maternal_identifier = maternal_identifier
+        SubjectIdentifier = get_model('edc_identifier', 'SubjectIdentifier')
+
         try:
             SubjectIdentifier.objects.get(identifier=self.maternal_identifier)
         except SubjectIdentifier.DoesNotExist:

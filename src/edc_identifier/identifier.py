@@ -1,13 +1,14 @@
 import re
 
+from django.db.models import get_model
+
 from .exceptions import IdentifierError
-from .models import IdentifierHistory
 
 
 class Identifier(object):
 
     name = 'identifier'
-    history_model = IdentifierHistory
+    history_model = get_model('edc_identifier', 'IdentifierHistory')
     identifier_pattern = '^\d+$'
     prefix_pattern = None
     prefix = None
