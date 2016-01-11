@@ -1,17 +1,22 @@
 from django.db import models
 
 from edc_base.model.models import BaseUuidModel
+from edc_export.managers import ExportHistoryManager
+from edc_export.models import ExportTrackingFieldsMixin
 from edc_meta_data.managers import CrfMetaDataManager
 from edc_meta_data.models import CrfMetaDataMixin
+from edc_offstudy.models import OffStudyMixin
 from edc_visit_tracking.models import CrfModelMixin
 from edc_visit_tracking.models import PreviousVisitMixin, VisitModelMixin
-from edc_export.managers.export_history_manager import ExportHistoryManager
-from edc_export.models.export_tracking_fields_mixin import ExportTrackingFieldsMixin
 
 
-class TestVisitModel1(CrfMetaDataMixin, PreviousVisitMixin, VisitModelMixin):
+class TestVisitModel1(OffStudyMixin, CrfMetaDataMixin, PreviousVisitMixin, VisitModelMixin, BaseUuidModel):
 
     REQUIRES_PREVIOUS_VISIT = True
+
+    off_study_model = ('edc_testing', 'TestOffStudy')
+
+    death_report_model = ('edc_testing', 'TestDeathReport')
 
     def get_subject_identifier(self):
         return self.appointment.registered_subject.subject_identifier
