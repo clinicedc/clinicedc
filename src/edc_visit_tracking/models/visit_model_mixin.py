@@ -7,8 +7,9 @@ from django.db.models import get_model
 from edc_appointment.models import Appointment
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
-from edc_constants.choices import YES_NO
-from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, LOST_VISIT, DEATH_VISIT, YES
+from edc_base.model.validators.date import date_not_before_study_start, date_not_future
+from edc_constants.choices import YES_NO, ALIVE_DEAD_UNKNOWN
+from edc_constants.constants import IN_PROGRESS, COMPLETE_APPT, LOST_VISIT, YES, ALIVE, COMPLETED_PROTOCOL_VISIT
 
 from ..choices import VISIT_REASON
 from ..constants import (
@@ -32,6 +33,28 @@ class VisitModelMixin (models.Model):
     Other ideas: ADD should only allow 'scheduled', and CHANGE only allow 'seen'
     Admin should change the status after ADD.
 
+    As each study will have variations on the 'reason' choices, allow this
+    tuple to be defined at the form level. In the ModelForm add something
+    like this:
+
+        reason = forms.ChoiceField(
+            label = 'Reason for visit',
+            choices = [ choice for choice in VISIT_REASON ],
+            help_text = ("If 'unscheduled', information is usually reported
+                at the next scheduled visit, but exceptions may arise"),
+            widget=AdminRadioSelect(renderer=AdminRadioFieldRenderer),
+            )
+
+        where the choices tuple is defined in the local app.
+
+    Same for info_source. Something like this:
+
+        info_source = forms.ChoiceField(
+            label = 'Source of information',
+            choices = [ choice for choice in VISIT_INFO_SOURCE ],
+            widget=AdminRadioSelect(renderer=AdminRadioFieldRenderer),
+            )
+
     """
 
     appointment = models.OneToOneField(Appointment)
@@ -47,22 +70,6 @@ class VisitModelMixin (models.Model):
         verbose_name="What is the reason for this visit?",
         max_length=25,
         help_text="<Override the field class for this model field attribute in ModelForm>")
-
-    """
-        as each study will have variations on the 'reason' choices, allow this
-        tuple to be defined at the form level. In the ModelForm add something
-        like this:
-
-        reason = forms.ChoiceField(
-            label = 'Reason for visit',
-            choices = [ choice for choice in VISIT_REASON ],
-            help_text = ("If 'unscheduled', information is usually reported
-                at the next scheduled visit, but exceptions may arise"),
-            widget=AdminRadioSelect(renderer=AdminRadioFieldRenderer),
-            )
-
-        where the choices tuple is defined in the local app.
-    """
 
     study_status = models.CharField(
         verbose_name="What is the participant's current study status",
@@ -81,16 +88,6 @@ class VisitModelMixin (models.Model):
         blank=True,
         null=True)
 
-    """
-        ...same as above...Something like this:
-
-        info_source = forms.ChoiceField(
-            label = 'Source of information',
-            choices = [ choice for choice in VISIT_INFO_SOURCE ],
-            widget=AdminRadioSelect(renderer=AdminRadioFieldRenderer),
-            )
-    """
-
     info_source = models.CharField(
         verbose_name="What is the main source of this information?",
         max_length=25,
@@ -98,11 +95,18 @@ class VisitModelMixin (models.Model):
 
     info_source_other = OtherCharField()
 
-    """
-        this value should be suggested by the sytem but may be edited by the user.
-        A further 'save' check should confirm that the date makes sense relative
-        to the visit schedule
-    """
+    survival_status = models.CharField(
+        max_length=10,
+        verbose_name="Participant\'s survival status",
+        choices=ALIVE_DEAD_UNKNOWN,
+        null=True,
+        default=ALIVE)
+
+    last_alive_date = models.DateField(
+        verbose_name="Date participant last known alive",
+        validators=[date_not_before_study_start, date_not_future],
+        null=True,
+        blank=True)
 
     comments = models.TextField(
         verbose_name="Comment if any additional pertinent information about the participant",
@@ -117,17 +121,6 @@ class VisitModelMixin (models.Model):
         editable=False,
         help_text='updated automatically as a convenience to avoid sql joins')
 
-    """
-    #TODO: add next_scheduled_visit_datetime but put in checks for the window period etc.
-    next_scheduled_visit_datetime = models.DateTimeField(
-        verbose_name="Next scheduled visit date and time",
-        validators=[
-            datetime_is_after_consent,
-            datetime_is_future,
-            ],
-        )
-    """
-
     objects = VisitManager()
 
     def __unicode__(self):
@@ -138,6 +131,10 @@ class VisitModelMixin (models.Model):
             self.appointment.time_point_status_open_or_raise()
         self.subject_identifier = self.get_subject_identifier()
         super(VisitModelMixin, self).save(*args, **kwargs)
+
+    def natural_key(self):
+        return (self.report_datetime, ) + self.appointment.natural_key()
+    natural_key.dependencies = ['edc_appointment.appointment', ]
 
     def byass_time_point_status(self):
         """Returns False by default but if overridden and set to return
@@ -156,7 +153,7 @@ class VisitModelMixin (models.Model):
         return dct
 
     def get_off_study_reason(self):
-        return (LOST_VISIT, DEATH_VISIT)
+        return (LOST_VISIT, COMPLETED_PROTOCOL_VISIT)
 
     def get_visit_reason_follow_up_choices(self):
         """Returns visit reasons that imply data is being collected; that is, subject is present."""
@@ -198,10 +195,6 @@ class VisitModelMixin (models.Model):
             if self.appointment.appt_status != IN_PROGRESS:
                 self.appointment.appt_status = IN_PROGRESS
                 self.appointment.save()
-
-    def natural_key(self):
-        return (self.report_datetime, ) + self.appointment.natural_key()
-    natural_key.dependencies = ['edc_appointment.appointment', ]
 
     def get_subject_identifier(self):
         return self.appointment.registered_subject.subject_identifier

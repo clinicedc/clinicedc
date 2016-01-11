@@ -9,7 +9,10 @@ class CrfModelManager(models.Manager):
     def contribute_to_class(self, model, name):
         super(CrfModelManager, self).contribute_to_class(model, name)
         model.visit_model, model.visit_model_attr = self._configure_visit_model_attrs(model)
-        model.get_visit = lambda self: getattr(self, model.visit_model_attr)
+        try:
+            model.get_visit = lambda self: getattr(self, model.visit_model_attr)
+        except TypeError as e:
+            raise TypeError(e, 'Specify the visit_model_attr on {}'.format(model))
 
     """Manager for all scheduled models (those with a maternal_visit fk)."""
     def get_by_natural_key(self, report_datetime, visit_instance_number, code, subject_identifier_as_pk):

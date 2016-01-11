@@ -28,18 +28,5 @@ class CaretakerFieldsMixin(models.Model):
         choices=YES_NO,
         default=YES)
 
-    survival_status = models.CharField(
-        max_length=10,
-        verbose_name="Participant\'s survival status",
-        choices=ALIVE_DEAD_UNKNOWN,
-        null=True,
-        default=ALIVE)
-
-    last_alive_date = models.DateField(
-        verbose_name="Date participant last known alive",
-        validators=[date_not_before_study_start, date_not_future],
-        null=True,
-        blank=True)
-
     class Meta:
         abstract = True
