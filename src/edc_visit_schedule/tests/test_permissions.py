@@ -5,7 +5,6 @@ from django.contrib.auth.models import Group
 from edc_lab.lab_profile.classes import site_lab_profiles
 from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
 from edc_meta_data.models import CrfEntry
-from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc_testing.classes import TestAppConfiguration, TestVisitSchedule, TestLabProfile
 
 from ..classes import Permissions
@@ -21,7 +20,6 @@ class TestPermissions(SimpleTestCase):
             pass
 
         TestAppConfiguration().prepare()
-        site_lab_tracker.autodiscover()
         TestVisitSchedule().build()
 
     def test_adds_permissions1(self):
