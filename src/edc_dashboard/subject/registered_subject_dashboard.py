@@ -71,7 +71,6 @@ class RegisteredSubjectDashboard(Dashboard):
             registered_subject=self.registered_subject,
             subject_configuration=self.subject_configuration,
             subject_dashboard_url=self.dashboard_url_name,
-            subject_hiv_history=self.subject_hiv_history,
             subject_hiv_status=self.render_subject_hiv_status(),
             subject_identifier=self.subject_identifier,
             unkeyed_membership_forms=self.unkeyed_subject_membership_models,
