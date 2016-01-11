@@ -11,6 +11,7 @@ from edc_testing.tests.factories import TestConsentWithMixinFactory
 from ..classes import MembershipFormTuple, ScheduleTuple
 from ..models import MembershipForm, Schedule, VisitDefinition
 from edc_consent.models.consent_type import ConsentType
+from edc_registration.tests.factories.registered_subject_factory import RegisteredSubjectFactory
 
 
 class TestVisitSchedule(TestCase):
@@ -44,14 +45,18 @@ class TestVisitSchedule(TestCase):
 
     def test_build_entry(self):
         """Creates as many instances of entry as in the config."""
-        for visit_definition_name in self.visit_schedule.visit_definitions:
-            self.assertEqual(CrfEntry.objects.count(), len(self.visit_schedule.visit_definitions[visit_definition_name].get('entries')))
+        for code in self.visit_schedule.visit_definitions:
+            self.assertEqual(
+                CrfEntry.objects.filter(visit_definition__code=code).count(),
+                len(self.visit_schedule.visit_definitions[code].get('entries')))
         self.assertGreater(CrfEntry.objects.count(), 0)
 
     def test_build_lab_entry(self):
         """Creates as many instances of lab_entry as in the config."""
-        for visit_definition_name in self.visit_schedule.visit_definitions:
-            self.assertEqual(LabEntry.objects.count(), len(self.visit_schedule.visit_definitions[visit_definition_name].get('requisitions')))
+        for code in self.visit_schedule.visit_definitions:
+            self.assertEqual(
+                LabEntry.objects.filter(visit_definition__code=code).count(),
+                len(self.visit_schedule.visit_definitions[code].get('requisitions')))
         self.assertGreater(LabEntry.objects.count(), 0)
 
     def test_visit_definition_knows_membership_form(self):
@@ -82,4 +87,10 @@ class TestVisitSchedule(TestCase):
             schedule_name = self.visit_schedule.visit_definitions[visit_definition_name].get('schedule')
             schedule = self.visit_schedule.schedules.get(schedule_name)
             self.visit_schedule.membership_forms[schedule.membership_form_name].model
-            self.assertIsNotNone(TestConsentWithMixinFactory(gender='M'))
+            self.assertIsNotNone(
+                TestConsentWithMixinFactory(
+                    registered_subject=RegisteredSubjectFactory(),
+                    gender='M',
+                    identity='123456789',
+                    confirm_identity='123456789',
+                    study_site='10'))
