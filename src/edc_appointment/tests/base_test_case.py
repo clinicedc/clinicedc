@@ -2,7 +2,6 @@ from datetime import date
 
 from django.test import TestCase
 
-from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc_consent.models.consent_type import ConsentType
 from edc_consent.tests.test_models import TestConsentModel
 from edc_lab.lab_profile.classes import site_lab_profiles
@@ -22,7 +21,6 @@ class BaseTestCase(TestCase):
             site_lab_profiles.register(TestLabProfile())
         except AlreadyRegisteredLabProfile:
             pass
-        site_lab_tracker.autodiscover()
 
         self.configuration = TestAppConfiguration()
         self.configuration.prepare()
