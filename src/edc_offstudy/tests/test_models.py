@@ -31,9 +31,12 @@ class TestConsentModel(
             ('first_name', 'dob', 'initials', 'version'))
 
 
-class TestVisitModel(OffStudyMixin, CrfMetaDataMixin, PreviousVisitMixin, VisitModelMixin):
+class TestVisitModel(OffStudyMixin, CrfMetaDataMixin, PreviousVisitMixin, VisitModelMixin, BaseUuidModel):
 
     off_study_model = ('edc_offstudy', 'TestOffStudyModel')
+
+    death_report_model = ('edc_testing', 'TestDeathReport')
+
     REQUIRES_PREVIOUS_VISIT = True
 
     def get_subject_identifier(self):
