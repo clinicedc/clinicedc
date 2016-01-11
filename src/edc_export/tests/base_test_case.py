@@ -3,7 +3,6 @@ from django.utils import timezone
 
 from edc_lab.lab_profile.classes import site_lab_profiles
 from edc_lab.lab_profile.exceptions import AlreadyRegistered as AlreadyRegisteredLabProfile
-from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc_testing.classes import TestLabProfile, TestAppConfiguration
 from edc_testing.tests.factories import TestConsentWithMixinFactory
 from edc_appointment.models import Appointment
@@ -27,7 +26,6 @@ class BaseTestCase(TestCase):
             site_lab_profiles.register(TestLabProfile())
         except AlreadyRegisteredLabProfile:
             pass
-        site_lab_tracker.autodiscover()
 
         self.configuration = TestAppConfiguration()
         self.configuration.prepare()
