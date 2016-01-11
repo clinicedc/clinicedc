@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_base.model.models.base_model import BaseModel
+from edc_base.model.models import BaseModel
 
 
 class Sequence(BaseModel):

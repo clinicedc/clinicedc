@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import get_model
 
 from edc_device import Device
 
@@ -29,6 +30,7 @@ class BaseIdentifierModel(models.Model):
             if self.is_derived:
                 self.sequence_number = 0
             else:
+                Sequence = get_model('edc_identifier', 'sequence')
                 sequence = Sequence.objects.using(
                     kwargs.get('using')).create(device_id=self.device_id)
                 self.sequence_number = sequence.pk

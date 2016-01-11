@@ -119,3 +119,4 @@ KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
 KEY_PREFIX = 'user'
 ALLOW_MODEL_SERIALIZATION = False
 DISPATCH_APP_LABELS = []
+PROJECT_IDENTIFIER_PREFIX = '041'
