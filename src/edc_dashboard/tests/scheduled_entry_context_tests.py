@@ -1,6 +1,5 @@
 from django.test import TestCase
 
-from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc_appointment.models import Appointment
 from edc_constants.constants import KEYED
 from edc_content_type_map.models import ContentTypeMapHelper, ContentTypeMap
@@ -20,7 +19,6 @@ class ScheduledEntryContextTests(TestCase):
 
     def setUp(self):
         self.test_visit_factory = TestVisitFactory
-        site_lab_tracker.autodiscover()
         content_type_map_helper = ContentTypeMapHelper()
         content_type_map_helper.populate()
         content_type_map_helper.sync()

@@ -9,7 +9,6 @@ from django.db.models import TextField, Count
 from django.template.loader import render_to_string
 
 from edc.data_manager.models import ActionItem
-from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc.subject.subject_summary.models import Link
 from edc_appointment.models import Appointment, SubjectConfiguration
 from edc_base.encrypted_fields import EncryptedTextField
@@ -143,22 +142,7 @@ class RegisteredSubjectDashboard(Dashboard):
 
     @property
     def subject_hiv_status(self):
-        """Returns to the value returned by the site_lab_tracker for this registered subject."""
-        self._subject_hiv_status = None
-        if self.registered_subject:
-            self._subject_hiv_status = site_lab_tracker.get_current_value(
-                'HIV', self.registered_subject.subject_identifier, self.registered_subject.subject_type)[0]
-        return self._subject_hiv_status
-
-    @property
-    def subject_hiv_history(self):
-        """Returns to the value returned by the site_lab_tracker for this registered subject."""
-        self._subject_hiv_history = None
-        if self.registered_subject:
-            # TODO: this gets hit on every dashboard refresh and is very SLOW
-            self._subject_hiv_history = site_lab_tracker.get_history_as_string(
-                'HIV', self.registered_subject.subject_identifier, self.registered_subject.subject_type)
-        return self._subject_hiv_history
+        return '??'
 
     @property
     def registered_subject(self):

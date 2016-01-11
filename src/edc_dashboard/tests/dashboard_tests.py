@@ -2,7 +2,6 @@ from django.test import TestCase
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 
-from edc.subject.lab_tracker.classes import LabTracker, site_lab_tracker
 from edc.subject.lab_tracker.models import TestResultModel
 from edc_configuration.models import GlobalConfiguration
 from edc_content_type_map.models import ContentTypeMap
@@ -18,15 +17,7 @@ from edc_visit_schedule.tests.factories import VisitDefinitionFactory, ScheduleF
 class DashboardTests(TestCase):
 
     def test_p2(self):
-        print 'site_lab_tracker.autodiscover()'
 
-        class TestLabTracker(LabTracker):
-            subject_type = 'test_subject_type'
-            trackers = [(TestResultModel, 'result', 'result_datetime', )]
-            group_name = 'HIV'
-            tracked_test_codes = ('HIV', 'ELISA', 'RELISA')
-        site_lab_tracker.register(TestLabTracker)
-        site_lab_tracker.autodiscover()
         content_type_map_helper = ContentTypeMapHelper()
         content_type_map_helper.populate()
         content_type_map_helper.sync()
