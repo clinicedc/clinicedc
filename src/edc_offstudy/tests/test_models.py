@@ -8,6 +8,7 @@ from edc_consent.models.base_consent import BaseConsent
 from edc_consent.models.fields import (
     SampleCollectionFieldsMixin, SiteFieldsMixin, PersonalFieldsMixin, VulnerabilityFieldsMixin)
 from edc_consent.models.fields.bw.identity_fields_mixin import IdentityFieldsMixin
+from edc_meta_data.managers import CrfMetaDataManager
 from edc_offstudy.models import OffStudyMixin, OffStudyModelMixin
 from edc_registration.models.registered_subject import RegisteredSubject
 from edc_visit_tracking.models import VisitModelMixin, PreviousVisitMixin, CrfModelMixin
@@ -52,6 +53,8 @@ class TestVisitModel(OffStudyMixin, CrfMetaDataMixin, PreviousVisitMixin, VisitM
 class TestOffStudyModel(CrfModelMixin, OffStudyModelMixin, BaseUuidModel):
 
     test_visit_model = models.OneToOneField(TestVisitModel)
+
+    entry_meta_data_manager = CrfMetaDataManager(TestVisitModel)
 
     class Meta:
         app_label = 'edc_offstudy'

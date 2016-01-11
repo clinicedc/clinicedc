@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
 from edc_appointment.models import Appointment
-from edc_constants.constants import SCHEDULED
+from edc_constants.constants import SCHEDULED, ON_STUDY, OFF_STUDY
 from edc_offstudy.constants import OFF_STUDY_REASONS
 from edc_offstudy.models import OffStudyError
 from edc_offstudy.tests.base_test import BaseTest
@@ -61,6 +61,7 @@ class TestOffStudy(BaseTest):
         for reason in OFF_STUDY_REASONS:
             test_visit_model = TestVisitModel.objects.create(
                 appointment=self.appointment,
+                study_status=OFF_STUDY,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 reason=reason)
             test_off_study = TestOffStudyModel.objects.create(
@@ -78,18 +79,21 @@ class TestOffStudy(BaseTest):
             test_off_study.delete()
             test_visit_model.delete()
 
-    def test_blocks_off_study_report_if_visit_reason_not_off_study(self):
+    def test_blocks_off_study_report_if_study_status_not_off_study(self):
         test_visit_model = TestVisitModel.objects.create(
             appointment=self.appointment,
             report_datetime=timezone.now() - relativedelta(weeks=4),
+            study_status=ON_STUDY,
             reason=SCHEDULED)
         with self.assertRaises(OffStudyError) as cm:
             TestOffStudyModel.objects.create(
                 test_visit_model=test_visit_model,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
                 offstudy_date=date.today() - relativedelta(weeks=4))
-        self.assertIn('Off study report must be submitted with an '
-                      'off study visit on the same day.', str(cm.exception))
+        self.assertIn(
+            'Off study report must be submitted with a visit report on the same day with study_status '
+            'set to \'off study\'. Using off study report date {}.'.format(
+                (timezone.now() - relativedelta(weeks=4)).strftime('%Y-%m-%d')), str(cm.exception))
 
     def test_off_study_deletes_future_appointments(self):
         visit_definition = VisitDefinition.objects.get(code='1000')
@@ -110,6 +114,7 @@ class TestOffStudy(BaseTest):
             test_visit_model = TestVisitModel.objects.create(
                 appointment=appointment,
                 report_datetime=timezone.now() - relativedelta(weeks=4),
+                study_status=OFF_STUDY,
                 reason=reason)
             test_off_study = TestOffStudyModel.objects.create(
                 test_visit_model=test_visit_model,
@@ -137,6 +142,7 @@ class TestOffStudy(BaseTest):
             test_visit_model = TestVisitModel.objects.create(
                 appointment=next_appointment,
                 report_datetime=timezone.now(),
+                study_status=OFF_STUDY,
                 reason=reason)
             test_off_study = TestOffStudyModel.objects.create(
                 test_visit_model=test_visit_model,
