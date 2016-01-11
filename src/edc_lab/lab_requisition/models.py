@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
-from edc.core.identifier.classes import Identifier
+from edc_identifier.old_identifier import Identifier
 
 from edc_base.model.fields.custom_fields import InitialsField
 from edc_constants.choices import YES_NO

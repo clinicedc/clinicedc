@@ -1,6 +1,5 @@
 from django.test import TestCase
 
-from edc.subject.lab_tracker.classes import site_lab_tracker
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO
 from edc_constants.constants import YES
@@ -21,13 +20,11 @@ from edc_visit_tracking.tests.factories import TestVisitFactory
 class LabProfileTests(TestCase):
 
     def setUp(self):
-        site_lab_tracker.autodiscover()
         try:
             site_lab_profiles.register(TestLabProfile)
         except AlreadyRegisteredLabProfile:
             pass
         TestAppConfiguration().prepare()
-        site_lab_tracker.autodiscover()
         TestVisitSchedule().build()
         self.visit_definition = VisitDefinition.objects.get(code='1000')
         registered_subject = RegisteredSubjectFactory()
