@@ -1,7 +1,7 @@
 from django.db import models
 
-from edc_base.model.models import BaseUuidModel
-from edc_sync.models import SyncModelMixin
+# from edc_base.model.models import BaseUuidModel
+# from edc_sync.models import SyncModelMixin
 
 from .base_identifier_model import BaseIdentifierModel
 
@@ -12,7 +12,7 @@ class SubjectIdentifierManager(models.Manager):
         return self.get(identifier=identifier)
 
 
-class SubjectIdentifier(BaseIdentifierModel, SyncModelMixin, BaseUuidModel):
+class SubjectIdentifier(BaseIdentifierModel):
 
     objects = SubjectIdentifierManager()
 

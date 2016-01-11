@@ -1,10 +1,10 @@
 import random
 import re
 
+from django.db.models import get_model
 from .checkdigit_mixins import LuhnOrdMixin
 from .exceptions import IdentifierError
 from .identifier_with_checkdigit import IdentifierWithCheckdigit
-from .models import IdentifierHistory
 
 
 class ShortIdentifier(LuhnOrdMixin, IdentifierWithCheckdigit):
@@ -12,7 +12,7 @@ class ShortIdentifier(LuhnOrdMixin, IdentifierWithCheckdigit):
     name = 'shortidentifier'
     allowed_chars = 'ABCDEFGHKMNPRTUVWXYZ2346789'
     checkdigit_pattern = None
-    history_model = IdentifierHistory
+    history_model = get_model('edc_identifier', 'IdentifierHistory')
     identifier_pattern = r'^[A-Z0-9]{5}$'
     prefix_pattern = None
     random_string_pattern = r'^[A-Z0-9]{5}$'
