@@ -1,8 +1,9 @@
 from django.test import TestCase
 
-from ..classes import Identifier
 from ...exceptions import CheckDigitError, IdentifierEncodingError, IdentifierDecodingError
 from ...models import IdentifierTracker
+
+from ..classes import Identifier
 
 
 class TestIdentifierMethods(TestCase):

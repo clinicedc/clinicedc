@@ -1,17 +1,20 @@
 import re
+
 from datetime import datetime
+
 from django.db import IntegrityError
 
-from ...models import IdentifierTracker
-
-
-from ...exceptions import IdentifierError
-from ...exceptions import CheckDigitError, IdentifierEncodingError, IdentifierDecodingError, IndentifierFormatError
+from .exceptions import (
+    IdentifierError, CheckDigitError, IdentifierEncodingError, IdentifierDecodingError, IndentifierFormatError)
+from .models import IdentifierTracker
 
 
 class Identifier(object):
 
     """
+    FIXME: THIS is the original Identifier class from edc.core.identifier still used by edc-lab
+    for requisitions
+
     Create or increment identifier base36 encoded based on a given site_code
     and the year.
 
@@ -127,8 +130,10 @@ class Identifier(object):
             self._identifier_tracker.save()
         except IntegrityError as e:
             raise e
-        except:
-            raise IdentifierError('Failed to save() to IdentifierTracker table, your identifier was not created. Is it unique?')
+        except Exception as e:
+            raise IdentifierError(
+                ('Failed to save() to IdentifierTracker table, your identifier was not created. '
+                 'Is it unique?. Got {}').format(str(e)))
 
     def update_tracker(self):
         """update our IdentifierTracker record with created identifier"""
@@ -293,6 +298,12 @@ class Identifier(object):
             alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         if not isinstance(unencoded_value, (int, long)):
             raise IdentifierEncodingError('unencoded_value passed for encoding must be an integer. Got {0}'.format(unencoded_value))
+#         if has_check_digit:
+#             # confirm the check digit is valid
+#             unencoded_string = str(unencoded_value)
+#             print unencoded_string
+#             if not int(unencoded_string[0:-check_digit_length]) % self.get_modulus() == int(unencoded_string[-check_digit_length]):
+#                 raise CheckDigitError('Invalid unencoded_value. Has_check_digit=True so last digit should be %s which is the modulus %s of %s, Got %s' % (int(unencoded_string[0:-check_digit_length]) % self.get_modulus(), self.get_modulus(), unencoded_string[0:-check_digit_length], unencoded_string[-check_digit_length]))
         if encoding:
             if encoding == 'base36':
                 # Special case for zero

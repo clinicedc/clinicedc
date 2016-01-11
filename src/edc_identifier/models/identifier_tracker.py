@@ -1,7 +1,7 @@
 from django.db import models
 
-# from edc_base.model.models import BaseUuidModel
-# from edc_sync.models import SyncModelMixin
+from edc_base.model.models import BaseUuidModel
+from edc_sync.models import SyncModelMixin
 
 
 class IdentifierTrackerManager(models.Manager):
@@ -10,7 +10,7 @@ class IdentifierTrackerManager(models.Manager):
         return self.get(identifier=identifier)
 
 
-class IdentifierTracker(models.Model):
+class IdentifierTracker(SyncModelMixin, BaseUuidModel):
 
     """
     Used with class Identifier for non-subject identifiers

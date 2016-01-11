@@ -12,7 +12,6 @@ class ShortIdentifier(LuhnOrdMixin, IdentifierWithCheckdigit):
     name = 'shortidentifier'
     allowed_chars = 'ABCDEFGHKMNPRTUVWXYZ2346789'
     checkdigit_pattern = None
-    history_model = get_model('edc_identifier', 'IdentifierHistory')
     identifier_pattern = r'^[A-Z0-9]{5}$'
     prefix_pattern = None
     random_string_pattern = r'^[A-Z0-9]{5}$'
@@ -90,9 +89,13 @@ class ShortIdentifier(LuhnOrdMixin, IdentifierWithCheckdigit):
     def is_duplicate(self, identifier):
         """May override with your algorithm for determining duplicates."""
         try:
-            self.history_model.objects.get(identifier=identifier)
+            HistoryModel = self.history_model
+        except AttributeError:
+            HistoryModel = get_model('edc_identifier', 'IdentifierHistory')
+        try:
+            HistoryModel.objects.get(identifier=identifier)
             return True
-        except self.history_model.DoesNotExist:
+        except HistoryModel.DoesNotExist:
             pass
         return False
 

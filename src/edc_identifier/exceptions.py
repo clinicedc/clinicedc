@@ -8,9 +8,6 @@ class CheckDigitError(Exception):
     pass
 
 
-# below from subject / edc.core.identifier
-
-
 class IdentifierEncodingError(Exception):
     pass
 
