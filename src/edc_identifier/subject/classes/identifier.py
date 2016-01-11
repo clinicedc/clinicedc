@@ -1,6 +1,8 @@
 import re
 from datetime import datetime
 from django.db import IntegrityError
+from django.db.models import get_model
+
 from ...exceptions import IdentifierError
 from ...exceptions import CheckDigitError, IdentifierEncodingError, IdentifierDecodingError, IndentifierFormatError
 
@@ -100,7 +102,7 @@ class Identifier(object):
          .. note:: counter is incremented for each root segment. so if the root segment changes
                    the counter is reset.
            """
-        from ...models import IdentifierTracker
+        IdentifierTracker = get_model('edc_identifier', 'IdentifierTracker')
 
         # search for last identifier with this root segment
         last_identifier = IdentifierTracker.objects.filter(root_number=self.get_root_segment()).order_by('-counter')
