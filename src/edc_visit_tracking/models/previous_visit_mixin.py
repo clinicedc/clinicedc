@@ -27,9 +27,6 @@ class PreviousVisitMixin(models.Model):
 
             REQUIRES_PREVIOUS_VISIT = True
 
-            def custom_post_update_crf_meta_data(self):
-                pass
-
             class Meta:
                 app_label = 'my_app'
 
