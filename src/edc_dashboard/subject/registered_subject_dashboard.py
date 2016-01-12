@@ -8,7 +8,6 @@ from django.db import models
 from django.db.models import TextField, Count
 from django.template.loader import render_to_string
 
-from edc.subject.subject_summary.models import Link
 from edc_appointment.models import Appointment, SubjectConfiguration
 from edc_base.encrypted_fields import EncryptedTextField
 from edc_base.utils import convert_from_camel
@@ -95,7 +94,7 @@ class RegisteredSubjectDashboard(Dashboard):
             if self.requisition_model:
                 self.context.update(requisition_model_meta=self.requisition_model._meta)
                 self.context.update(rendered_scheduled_requisitions=self.rendered_requisitions)
-            self.render_summary_links()
+            # self.render_summary_links()
         self.context.update(rendered_action_items=self.render_action_item())
         self.context.update(rendered_locator=self.render_locator())
         self.context.update(self.lab_results_data())
@@ -375,14 +374,14 @@ class RegisteredSubjectDashboard(Dashboard):
             self._time_point_status = None
         return self._time_point_status
 
-    def render_summary_links(self, template_filename=None):
-        """Renders the side bar template for subject summaries."""
-        if not template_filename:
-            template_filename = 'summary_side_bar.html'
-        summary_links = render_to_string(template_filename, {
-            'links': Link.objects.filter(dashboard_type=self.dashboard_type),
-            'subject_identifier': self.subject_identifier})
-        self.context.update(summary_links=summary_links)
+#     def render_summary_links(self, template_filename=None):
+#         """Renders the side bar template for subject summaries."""
+#         if not template_filename:
+#             template_filename = 'summary_side_bar.html'
+#         summary_links = render_to_string(template_filename, {
+#             'links': Link.objects.filter(dashboard_type=self.dashboard_type),
+#             'subject_identifier': self.subject_identifier})
+#         self.context.update(summary_links=summary_links)
 
     def render_labs(self):
         """Renders labs for the template side bar if the

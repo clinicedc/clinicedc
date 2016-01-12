@@ -40,7 +40,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'edc_content_type_map',
-    'edc.subject.subject_config',
     'edc_appointment',
     'edc_base',
     'edc_consent',
