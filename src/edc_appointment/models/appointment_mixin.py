@@ -41,8 +41,10 @@ class AppointmentMixin(models.Model):
         """Creates appointments for a registered subject based on a list
         of visit definitions for the given membership form instance.
 
-            1. Only create for visit_instance = 0
-            2. If appointment exists, just update the appt_datetime
+            1. this is called from a post-save signal
+            2. RegisteredSubject instance is expected to exist at this point
+            3. Only create for visit_instance = '0'
+            4. If appointment exists, just update the appt_datetime
 
             visit_definition contains the schedule group which contains the membership form
         """
