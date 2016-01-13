@@ -1,4 +1,0 @@
-from .base_base_requisition_factory import BaseBaseRequisitionFactory
-from .base_requisition_factory import BaseRequisitionFactory
-from .base_clinic_requisition_factory import BaseClinicRequisitionFactory
-from .test_requisition_factory import TestRequisitionFactory
