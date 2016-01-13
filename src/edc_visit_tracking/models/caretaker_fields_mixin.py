@@ -1,8 +1,7 @@
 from django.db import models
 
-from edc_base.model.validators import date_not_before_study_start, date_not_future
-from edc_constants.choices import YES_NO, ALIVE_DEAD_UNKNOWN
-from edc_constants.constants import YES, ALIVE
+from edc_constants.choices import YES_NO
+from edc_constants.constants import YES
 
 
 class CaretakerFieldsMixin(models.Model):

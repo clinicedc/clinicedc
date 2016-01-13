@@ -1,7 +1,7 @@
 from django.db import models, transaction
 
-from edc_visit_schedule.models.visit_definition import VisitDefinition
 from edc_appointment.models import Appointment
+from edc_visit_schedule.models.visit_definition import VisitDefinition
 
 
 class PreviousVisitError(Exception):
