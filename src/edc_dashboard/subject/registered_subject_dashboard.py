@@ -16,13 +16,13 @@ from edc_constants.constants import NEW, NOT_REQUIRED, UNKEYED, KEYED, NEW_APPT,
 from edc_data_manager.models import ActionItem
 from edc_lab.lab_clinic_api.classes import EdcLabResults
 from edc_lab.lab_packing.models import PackingListMixin
-from edc_lab.lab_requisition.models import RequisitionModelMixin
 from edc_locator.models import LocatorMixin
 from edc_meta_data.models import CrfMetaDataHelper, RequisitionMetaDataHelper
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.classes import MembershipFormHelper
 from edc_visit_schedule.models import MembershipForm
 from edc_visit_tracking.models import VisitModelMixin
+from lab_requisition.models import RequisitionModelMixin
 
 from ..dashboard import Dashboard
 
