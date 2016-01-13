@@ -16,7 +16,7 @@ class CrfInlineModelMixin(models.Model):
 
     @property
     def fk_instance(self):
-        return getattr(self, self.fk_attr)
+        return getattr(self, self.fk_model_attr)
 
     def get_visit(self):
         return getattr(self.fk_instance, self.fk_instance.visit_model_attr)
