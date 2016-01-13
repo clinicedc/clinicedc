@@ -16,7 +16,11 @@ class RequisitionAdminMixin(VisitAdminMixin):
     actions = [flag_as_received,
                flag_as_not_received,
                flag_as_not_labelled,
-               print_requisition_label, ]
+               print_requisition_label, 
+               export_as_csv_action(
+                   "Export as csv", fields=[], delimiter=',', exclude=[
+                       'id', 'revision', 'hostname_created', 'hostname_modified',
+                       'user_created', 'user_modified'],)]
 
     def __init__(self, *args, **kwargs):
         if not self.panel_model:
@@ -83,12 +87,6 @@ class RequisitionAdminMixin(VisitAdminMixin):
             'requisition_identifier',
             'panel__name']
         self.filter_horizontal = ["test_code", ]
-
-    actions = [print_requisition_label,
-               export_as_csv_action(
-                   "Export as csv", fields=[], delimiter=',', exclude=[
-                       'id', 'revision', 'hostname_created', 'hostname_modified',
-                       'user_created', 'user_modified'],)]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         panel_pk = request.GET.get('panel', 0)
