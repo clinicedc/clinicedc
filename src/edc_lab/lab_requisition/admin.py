@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from django.contrib.admin.views import main
+
 from edc_export.actions import export_as_csv_action
 from edc_visit_tracking.admin import VisitAdminMixin
 

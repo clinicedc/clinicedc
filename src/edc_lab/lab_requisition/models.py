@@ -247,5 +247,21 @@ class RequisitionModelMixin(models.Model):
             url=url, requisition_identifier=self.requisition_identifier)
     aliquot.allow_tags = True
 
+    def subject(self):
+        return self.subject_identifier
+    subject.allow_tags = True
+
+    def visit(self):
+        visit = getattr(self, self.visit_model_attr)
+        url = reverse('admin:{}_{}_changelist'.format(
+            self.visit_model._meta.app_label,
+            self.visit_model._meta.model_name.lower()))
+        return """<a href="{url}?q={pk}" />{code}.{instance}</a>""".format(
+            url=url,
+            pk=getattr(self, self.visit_model_attr).pk,
+            code=visit.appointment.visit_definition.code,
+            instance=visit.appointment.visit_instance)
+    visit.allow_tags = True
+
     class Meta:
         abstract = True
