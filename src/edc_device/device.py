@@ -91,5 +91,3 @@ class Device(object):
                              'which at least one is also listed as a server.'.format(
                                  ', '.join(self.middleman_ids)))
         return device_id in self.middleman_ids
-
-# device = Device()
