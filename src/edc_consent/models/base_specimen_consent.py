@@ -7,8 +7,10 @@ from edc_constants.constants import NOT_APPLICABLE
 
 from ..choices import YES_NO_DECLINED_COPY
 
+from .fields.verification_fields_mixin import VerificationFieldsMixin
 
-class BaseSpecimenConsent(models.Model):
+
+class BaseSpecimenConsent(VerificationFieldsMixin, models.Model):
 
     """ A base class for a model completed by the user indicating whether a participant has agreed
     for specimens to be stored after study closure."""
