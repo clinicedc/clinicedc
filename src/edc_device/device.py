@@ -30,7 +30,10 @@ class Device(object):
             default_central_server_id = self.DEFAULT_CENTRAL_SERVER_ID
         self.central_server_id = central_server or default_central_server_id
         self.server_ids = [str(x) for x in (server_ids or settings.SERVER_DEVICE_ID_LIST)]
-        self.middleman_ids = [str(x) for x in (middleman_ids or settings.MIDDLEMAN_DEVICE_ID_LIST)]
+        try:
+            self.middleman_ids = [str(x) for x in (middleman_ids or settings.MIDDLEMAN_DEVICE_ID_LIST)]
+        except AttributeError:
+            self.middleman_ids = []
         self.community_server_ids = [x for x in self.server_ids if x != self.central_server_id]
         self.is_server = self.device_is_server(self.device_id)
         self.is_community_server = self.device_is_community_server(self.device_id)
