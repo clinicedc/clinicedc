@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from unipath import Path
+from dateutil.relativedelta import relativedelta
+from django.utils import timezone
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -131,3 +133,4 @@ KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
 KEY_PREFIX = 'user'
 ALLOW_MODEL_SERIALIZATION = False
 DISPATCH_APP_LABELS = []
+STUDY_OPEN_DATETIME = timezone.now() - relativedelta(days=1)

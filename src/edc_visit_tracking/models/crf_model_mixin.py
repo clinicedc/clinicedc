@@ -9,6 +9,8 @@ from .crf_model_manager import CrfModelManager
 
 class CrfModelMixin(models.Model):
 
+    """Base mixin for all CRF models."""
+
     visit_model = None
 
     visit_model_attr = None

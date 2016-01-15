@@ -1,11 +1,14 @@
 from edc_meta_data.models import CrfMetaDataMixin
 from edc_visit_tracking.models import PreviousVisitMixin, VisitModelMixin
 from edc_offstudy.models import OffStudyMixin
+from edc_testing.models.test_consent import TestConsentWithMixin
 
 
 class TestVisitModel(CrfMetaDataMixin, OffStudyMixin, PreviousVisitMixin, VisitModelMixin):
 
     REQUIRES_PREVIOUS_VISIT = True
+
+    consent_model = TestConsentWithMixin
 
     off_study_model = ('edc_testing', 'TestOffStudy')
 

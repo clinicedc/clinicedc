@@ -6,10 +6,10 @@ from edc_constants.constants import SCHEDULED
 from edc_visit_schedule.models.visit_definition import VisitDefinition
 from edc_visit_tracking.models import PreviousVisitError
 
-from .base_test import TestVisitModel, BaseTest
+from .base_test_case import TestVisitModel, BaseTestCase
 
 
-class TestPreviousVisitMixin(BaseTest):
+class TestPreviousVisitMixin(BaseTestCase):
 
     def test_previous_visit_definition(self):
         """Asserts visit definitions exist in sequence."""

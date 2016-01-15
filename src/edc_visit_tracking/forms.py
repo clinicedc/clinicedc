@@ -2,6 +2,7 @@ from django import forms
 
 from edc_constants.constants import (
     YES, NO, DEAD, OFF_STUDY, LOST_VISIT, COMPLETED_PROTOCOL_VISIT, MISSED_VISIT, UNKNOWN, ALIVE, PARTICIPANT)
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class VisitFormMixin(object):
@@ -10,6 +11,8 @@ class VisitFormMixin(object):
 
     def clean(self):
         cleaned_data = super(VisitFormMixin, self).clean()
+        self.validate_appointment_required()
+        self.validate_against_consent()
         self.validate_time_point_status()
         self.validate_presence()
         self.validate_reason_and_info_source()
@@ -18,6 +21,32 @@ class VisitFormMixin(object):
         self.validate_reason_visit_missed()
         self._meta.model(**cleaned_data).has_previous_visit_or_raise(forms.ValidationError)
         return cleaned_data
+
+    def validate_appointment_required(self):
+        cleaned_data = self.cleaned_data
+        if not cleaned_data.get('appointment'):
+            raise forms.ValidationError('Appointment cannot be blank.')
+
+    def validate_against_consent(self):
+        """Raises an exception if dates dont make sense with the consent.
+
+        Note: subjects like infants don't have a consent model so attribute "consent_model"
+        should be the birth model, just needs to have a dob."""
+        cleaned_data = self.cleaned_data
+        appointment = cleaned_data.get('appointment')
+        try:
+            consent = self._meta.model.consent_model.objects.get(
+                registered_subject=appointment.registered_subject)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError(
+                '\'{}\' does not exist for subject.'.format(self._meta.model.consent_model._meta.verbose_name))
+        try:
+            if cleaned_data.get("report_datetime") < consent.consent_datetime:
+                raise forms.ValidationError("Report datetime cannot be before consent datetime")
+        except AttributeError:
+            pass
+        if cleaned_data.get("report_datetime").date() < consent.dob:
+            raise forms.ValidationError("Report datetime cannot be before DOB")
 
     def validate_time_point_status(self):
         cleaned_data = self.cleaned_data

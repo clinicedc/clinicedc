@@ -2,7 +2,6 @@ import copy
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.db.models import get_model
 
 from edc_appointment.models import Appointment
 from edc_base.model.fields import OtherCharField
@@ -56,6 +55,8 @@ class VisitModelMixin (models.Model):
             )
 
     """
+
+    consent_model = None
 
     appointment = models.OneToOneField(Appointment)
 

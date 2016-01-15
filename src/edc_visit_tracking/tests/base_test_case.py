@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.test import TestCase
 from django.utils import timezone
 
@@ -14,9 +16,10 @@ from .test_models import TestVisitModel
 
 from .test_visit_schedule import VisitSchedule
 from edc_consent.models.consent_type import ConsentType
+from dateutil.relativedelta import relativedelta
 
 
-class BaseTest(TestCase):
+class BaseTestCase(TestCase):
 
     app_label = 'edc_testing'
     consent_catalogue_name = 'v1'
@@ -44,6 +47,7 @@ class BaseTest(TestCase):
         TestConsentWithMixinFactory(
             registered_subject=registered_subject,
             gender=MALE,
+            dob=date.today() - relativedelta(years=23),
             study_site=self.study_site,
             identity='111111111',
             confirm_identity='111111111',
@@ -62,6 +66,7 @@ class BaseTest(TestCase):
         self.test_consent = TestConsentWithMixinFactory(
             registered_subject=self.registered_subject,
             gender=MALE,
+            dob=date.today() - relativedelta(years=23),
             study_site=self.study_site,
             identity='111111112',
             confirm_identity='111111112',
