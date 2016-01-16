@@ -8,16 +8,16 @@ from ..models import ConsentType
 
 class RequiresConsentMixin(models.Model):
 
-    def __init__(self, *args, **kwargs):
-        try:
-            self.consent_model = get_model(*self.consent_model)
-        except TypeError:
-            pass
-        if not self.consent_model:
-            raise ImproperlyConfigured(
-                'Consent model attribute not set for model that requires '
-                'consent. See \'{}\'. Got {}.'.format(self._meta.model_name, self.consent_model))
-        super(RequiresConsentMixin, self).__init__(*args, **kwargs)
+#     def __init__(self, *args, **kwargs):
+#         try:
+#             self.consent_model = get_model(*self.consent_model)
+#         except TypeError:
+#             pass
+#         if not self.consent_model:
+#             raise ImproperlyConfigured(
+#                 'Consent model attribute not set for model that requires '
+#                 'consent. See \'{}\'. Got {}.'.format(self._meta.model_name, self.consent_model))
+#         super(RequiresConsentMixin, self).__init__(*args, **kwargs)
 
     consent_model = None
 
