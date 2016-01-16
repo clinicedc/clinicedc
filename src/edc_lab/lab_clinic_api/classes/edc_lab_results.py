@@ -33,7 +33,8 @@ class EdcLabResults(object):
             for result in resulted:
                 for result_item in ResultItem.objects.filter(result=result):
                     if result_item.result_item_value_as_float:
-                        result_item.reference_range, result_item.reference_flag, result_item.grade_range, result_item.grade_flag = ResultItemFlag().calculate(result_item)
+                        (result_item.reference_range, result_item.reference_flag,
+                         result_item.grade_range, result_item.grade_flag) = ResultItemFlag().calculate(result_item)
                         result_item.save()
         ordered = Order.objects.filter(
             aliquot__receive__registered_subject__subject_identifier=subject_identifier).exclude(
@@ -74,5 +75,6 @@ class EdcLabResults(object):
 
     def _update_result_item(self, result_item):
         if result_item.result_item_value_as_float:
-            result_item.reference_range, result_item.reference_flag, result_item.grade_range, result_item.grade_flag = ResultItemFlag().calculate(result_item)
+            (result_item.reference_range, result_item.reference_flag,
+             result_item.grade_range, result_item.grade_flag) = ResultItemFlag().calculate(result_item)
             result_item.save()

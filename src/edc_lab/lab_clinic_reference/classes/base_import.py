@@ -43,12 +43,14 @@ class BaseImport(object):
                     setattr(local_list, field.name, getattr(lis_list, field.name))
             local_list.save()
             # now loop thru list items
-            for lis_list_item in self.lis_list_item_cls.objects.using(self.db).filter(**{self.lis_list_key_name: lis_list}):
+            for lis_list_item in self.lis_list_item_cls.objects.using(self.db).filter(
+                    **{self.lis_list_key_name: lis_list}):
                 defaults = {}
                 # local test code may not exist or needs to be updated
                 test_code, created = TestCode.objects.get_or_create(code=lis_list_item.test_code.code)
                 for field in test_code._meta.fields:
-                    if field.name in [fld.name for fld in lis_list_item.test_code._meta.fields if fld.name not in ['id', 'code']]:
+                    if field.name in [
+                            fld.name for fld in lis_list_item.test_code._meta.fields if fld.name not in ['id', 'code']]:
                         setattr(test_code, field.name, getattr(lis_list_item.test_code, field.name))
                 test_code.save()
                 # add the updated local test_code instance to defaults
@@ -56,7 +58,9 @@ class BaseImport(object):
                 # loop thru local list item field names to get attr/value from the lis list item fields
                 for field in self.local_list_item_cls._meta.fields:
                     # add any fields not listed in local_list_item_key_field_names to the defaults dictionary
-                    if field.name in [fld.name for fld in lis_list_item._meta.fields if fld.name not in self.local_list_item_key_field_names]:
+                    if field.name in [
+                            fld.name for fld in lis_list_item._meta.fields
+                            if fld.name not in self.local_list_item_key_field_names]:
                         defaults[field.name] = getattr(lis_list_item, field.name)
                 local_list_item, created = self.get_or_create_list_item(test_code, local_list, lis_list_item, defaults)
                 action = 'Adding'
@@ -70,12 +74,11 @@ class BaseImport(object):
                 # ..todo:: TODO: would be nice to know, for instances not created, if the instance was changed.
                 local_list_item.import_datetime = datetime.today()
                 local_list_item.save()
-                logger.info('{action} list item for {test_code} {uln} - {lln}'.format(action=action,
-                                                                                      test_code=local_list_item.test_code,
-                                                                                      uln=local_list_item.uln,
-                                                                                      lln=local_list_item.lln))
-        logger.info('Done importing {new_count} / {count} items from list {name} on Lis connection {db}.'.format(name=self.list_name,
-                                                                                                                 count=count,
-                                                                                                                 new_count=self.local_list_item_cls.objects.all().count(),
-                                                                                                                 db=self.db))
+                logger.info('{action} list item for {test_code} {uln} - {lln}'.format(
+                    action=action,
+                    test_code=local_list_item.test_code,
+                    uln=local_list_item.uln,
+                    lln=local_list_item.lln))
+        logger.info('Done importing {new_count} / {count} items from list {name} on Lis connection {db}.'.format(
+            name=self.list_name, count=count, new_count=self.local_list_item_cls.objects.all().count(), db=self.db))
         return None

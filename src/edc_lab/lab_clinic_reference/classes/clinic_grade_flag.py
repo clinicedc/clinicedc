@@ -4,7 +4,8 @@ from lis.core.lab_grading.classes import GradeFlag
 class ClinicGradeFlag(GradeFlag):
 
     def __init__(self, reference_list, result_item, **kwargs):
-        """Extracts parameters from lab_clinic_api.ResultItem, which has a different structure to that in lab_result_item.ResultItem."""
+        """Extracts parameters from lab_clinic_api.ResultItem, which has a
+        different structure to that in lab_result_item.ResultItem."""
         test_code = result_item.test_code
         gender = result_item.result.order.aliquot.receive.registered_subject.gender
         dob = result_item.result.order.aliquot.receive.registered_subject.dob

@@ -68,10 +68,10 @@ class Lab(BaseUuidModel):
         null=True
     )
 
-    # objects = LabManager()
-
     def __unicode__(self):
-        return '%s order %s for %s drawn %s [%s]' % (self.subject_identifier, self.order_identifier, self.panel, self.drawn_datetime.strftime('%Y-%m-%d'), self.release_status)
+        return '%s order %s for %s drawn %s [%s]' % (
+            self.subject_identifier, self.order_identifier, self.panel,
+            self.drawn_datetime.strftime('%Y-%m-%d'), self.release_status)
 
     class Meta:
         app_label = "lab_clinic_api"

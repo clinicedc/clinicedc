@@ -18,7 +18,7 @@ def toggle_scale(modeladmin, request, queryset):
                 modeladmin.message_user(request, 'Records must be a list item. (BaseReferenceListItem)')
                 break
             else:
-                qs.scale = 'increasing' if  qs.scale == 'decreasing' else 'decreasing'
+                qs.scale = 'increasing' if qs.scale == 'decreasing' else 'decreasing'
                 qs.save()
 toggle_scale.short_description = "toggle scale increasing/decreasing"
 

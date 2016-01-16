@@ -16,10 +16,16 @@ class Command(BaseCommand):
             updated = 0
             print ('{0} / {1} Recalculating for {2}'.format(index, tot, result.result_identifier))
             for result_item in ResultItem.objects.filter(result=result):
-                original_flags = (result_item.reference_range, result_item.reference_flag, result_item.grade_range, result_item.grade_flag)
+                original_flags = (
+                    result_item.reference_range, result_item.reference_flag,
+                    result_item.grade_range, result_item.grade_flag)
                 if result_item.result_item_value_as_float:
-                    result_item.reference_range, result_item.reference_flag, result_item.grade_range, result_item.grade_flag = ResultItemFlag().calculate(result_item)
-                    if original_flags != (result_item.reference_range, result_item.reference_flag, result_item.grade_range, result_item.grade_flag):
+                    (result_item.reference_range, result_item.reference_flag,
+                     result_item.grade_range, result_item.grade_flag) = ResultItemFlag().calculate(result_item)
+                    if original_flags != (result_item.reference_range,
+                                          result_item.reference_flag,
+                                          result_item.grade_range,
+                                          result_item.grade_flag):
                         result_item.save()
                         updated += 1
                         print ('    UPDATED {0} to {1}'.format(result_item.test_code.code, result_item.grade_flag))

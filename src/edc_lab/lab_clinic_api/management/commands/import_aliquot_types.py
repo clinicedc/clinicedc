@@ -1,6 +1,8 @@
 import logging
 from django.core.management.base import BaseCommand
+
 from lis.specimen.lab_aliquot_list.models import AliquotType as LisAliquotType
+
 from ...models import AliquotType
 
 logger = logging.getLogger(__name__)
@@ -29,15 +31,14 @@ class Command(BaseCommand):
             action = 'Adding'
             if not created:
                 action = 'Updating'
-            print '{action} {aliquot_type}'.format(action=action, aliquot_type=aliquot_type)
-        lis = [aliquot_type.name for aliquot_type in LisAliquotType.objects.using(self.db).all().order_by('name')]
+            print('{action} {aliquot_type}'.format(action=action, aliquot_type=aliquot_type))
+        lis = [obj.name for obj in LisAliquotType.objects.using(self.db).all().order_by('name')]
         local = [aliquot_type.name for aliquot_type in AliquotType.objects.all().order_by('name')]
         diff_set = set(local).difference(set(lis))
         if diff_set:
-            print 'Warning: found {0} in local but not lis.'.format(', '.join(diff_set))
+            print('Warning: found {0} in local but not lis.'.format(', '.join(diff_set)))
         diff_set = set(lis).difference(set(local))
         if diff_set:
-            print 'Warning: found {0} in lis but not local.'.format(', '.join(diff_set))
-        print 'Done importing {new_count} / {count} aliquot types on Lis connection {db}.'.format(count=count,
-                                                                                               new_count=AliquotType.objects.all().count(),
-                                                                                               db=self.db)
+            print('Warning: found {0} in lis but not local.'.format(', '.join(diff_set)))
+        print('Done importing {new_count} / {count} aliquot types on Lis connection {db}.'.format(
+            count=count, new_count=AliquotType.objects.all().count(), db=self.db))

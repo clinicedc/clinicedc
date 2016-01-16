@@ -27,15 +27,14 @@ class Command(BaseCommand):
             action = 'Adding'
             if not created:
                 action = 'Updating'
-            print '{action} {test_code}'.format(action=action, test_code=test_code)
+            print('{action} {test_code}'.format(action=action, test_code=test_code))
         lis = [test_code.code for test_code in LisTestCode.objects.using(self.db).all().order_by('code')]
         local = [test_code.code for test_code in TestCode.objects.all().order_by('code')]
         diff_set = set(local).difference(set(lis))
         if diff_set:
-            print 'Warning: found {0} in local but not lis.'.format(', '.join(diff_set))
+            print('Warning: found {0} in local but not lis.'.format(', '.join(diff_set)))
         diff_set = set(lis).difference(set(local))
         if diff_set:
-            print 'Warning: found {0} in lis but not local.'.format(', '.join(diff_set))
-        print 'Done importing {new_count} / {count} test codes on Lis connection {db}.'.format(count=count,
-                                                                                               new_count=TestCode.objects.all().count(),
-                                                                                               db=self.db)
+            print('Warning: found {0} in lis but not local.'.format(', '.join(diff_set)))
+        print('Done importing {new_count} / {count} test codes on Lis connection {db}.'.format(
+            count=count, new_count=TestCode.objects.all().count(), db=self.db))

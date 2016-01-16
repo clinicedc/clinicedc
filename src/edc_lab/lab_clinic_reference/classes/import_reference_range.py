@@ -32,4 +32,5 @@ class ImportReferenceRange(BaseImport):
         self.list_name = settings.REFERENCE_RANGE_LIST
         self.local_list_cls = ReferenceRangeList
         self.local_list_item_cls = ReferenceRangeListItem
-        self.local_list_item_key_field_names = ['id', 'test_code', 'test_code_reference_list', 'uln', 'lln', 'age_low', 'age_low_unit']
+        self.local_list_item_key_field_names = [
+            'id', 'test_code', 'test_code_reference_list', 'uln', 'lln', 'age_low', 'age_low_unit']

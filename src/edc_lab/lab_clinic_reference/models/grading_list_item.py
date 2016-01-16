@@ -14,9 +14,17 @@ class GradingListItem(BaseReferenceListItem):
 
     grade = models.IntegerField()
 
-    value_low_calc = models.CharField(verbose_name='Lower value is', max_length=10, choices=(('ABSOLUTE', 'Absolute'), ('LLN', 'LLN'), ('ULN', 'ULN')), default='ABSOLUTE')
+    value_low_calc = models.CharField(
+        verbose_name='Lower value is',
+        max_length=10,
+        choices=(('ABSOLUTE', 'Absolute'), ('LLN', 'LLN'), ('ULN', 'ULN')),
+        default='ABSOLUTE')
 
-    value_high_calc = models.CharField(verbose_name='Upper value is', max_length=10, choices=(('ABSOLUTE', 'Absolute'), ('LLN', 'LLN'), ('ULN', 'ULN')), default='ABSOLUTE')
+    value_high_calc = models.CharField(
+        verbose_name='Upper value is',
+        max_length=10,
+        choices=(('ABSOLUTE', 'Absolute'), ('LLN', 'LLN'), ('ULN', 'ULN')),
+        default='ABSOLUTE')
 
     use_uln = models.BooleanField(default=False, help_text="lower/upper is X ULN")
 
@@ -24,7 +32,10 @@ class GradingListItem(BaseReferenceListItem):
 
     fasting = models.CharField(max_length=10, choices=YES_NO_NA, default='N/A')
 
-    serum = models.CharField(max_length=10, choices=(('HIGH', 'High'), ('LOW', 'Low'), ('N/A', 'Not applicable')), default='N/A')
+    serum = models.CharField(
+        max_length=10,
+        choices=(('HIGH', 'High'), ('LOW', 'Low'), ('N/A', 'Not applicable')),
+        default='N/A')
 
     objects = models.Manager()
 
@@ -34,13 +45,16 @@ class GradingListItem(BaseReferenceListItem):
         if not age_in_days:
             age_in_days = 'AGE'
         if self.scale == 'decreasing':
-            template = ('G{grade} {gender} HIV-{hiv_status} VAL{value_high_quantifier}{value_high}{lln}{uln} and '
-                        'VAL{value_low_quantifier}{value_low}{lln}{uln} for {age_in_days}{age_low_quantifier}{age_low_days}d '
-                        'and {age_in_days}{age_high_quantifier}{age_high_days}d {fasting} {serum} {comment} {dummy}')
+            template = (
+                'G{grade} {gender} HIV-{hiv_status} VAL{value_high_quantifier}{value_high}{lln}{uln} and '
+                'VAL{value_low_quantifier}{value_low}{lln}{uln} for {age_in_days}{age_low_quantifier}{age_low_days}d '
+                'and {age_in_days}{age_high_quantifier}{age_high_days}d {fasting} {serum} {comment} {dummy}')
         else:
-            template = ('G{grade} {gender} HIV-{hiv_status} VAL{value_low_quantifier}{value_low}{lln}{uln} and '
-                        'VAL{value_high_quantifier}{value_high}{lln}{uln} for {age_in_days}{age_low_quantifier}{age_low_days}d '
-                        'and {age_in_days}{age_high_quantifier}{age_high_days}d {fasting} {serum} {comment} {dummy}')
+            template = (
+                'G{grade} {gender} HIV-{hiv_status} VAL{value_low_quantifier}{value_low}{lln}{uln} and '
+                'VAL{value_high_quantifier}{value_high}{lln}{uln} for {age_in_days}{age_low_quantifier}'
+                '{age_low_days}d '
+                'and {age_in_days}{age_high_quantifier}{age_high_days}d {fasting} {serum} {comment} {dummy}')
         return template.format(
             grade=self.grade,
             gender=self.gender,

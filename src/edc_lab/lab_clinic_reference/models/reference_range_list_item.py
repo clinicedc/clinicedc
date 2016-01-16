@@ -23,11 +23,13 @@ class ReferenceRangeListItem(BaseReferenceListItem):
             age_in_days = 'AGE'
         if self.scale == 'increasing':
             template = ('{gender} HIV-{hiv_status} VAL{value_high_quantifier}{value_high} and '
-                        'VAL{value_low_quantifier}{value_low} for {age_in_days}{age_low_quantifier}{age_low_days}d and '
+                        'VAL{value_low_quantifier}{value_low} for {age_in_days}'
+                        '{age_low_quantifier}{age_low_days}d and '
                         '{age_in_days}{age_high_quantifier}{age_high_days}d')
         else:
             template = ('{gender} HIV-{hiv_status} VAL{value_low_quantifier}{value_low} and '
-                        'VAL{value_high_quantifier}{value_high} for {age_in_days}{age_low_quantifier}{age_low_days}d and '
+                        'VAL{value_high_quantifier}{value_high} for {age_in_days}'
+                        '{age_low_quantifier}{age_low_days}d and '
                         '{age_in_days}{age_high_quantifier}{age_high_days}d')
         return template.format(
             gender=self.gender,

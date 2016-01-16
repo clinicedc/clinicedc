@@ -33,4 +33,5 @@ class ImportGrading(BaseImport):
         self.list_name = settings.GRADING_LIST
         self.local_list_cls = GradingList
         self.local_list_item_cls = GradingListItem
-        self.local_list_item_key_field_names = ['id', 'test_code', 'grading_list', 'grade', 'uln', 'lln', 'age_low', 'age_low_unit']
+        self.local_list_item_key_field_names = [
+            'id', 'test_code', 'grading_list', 'grade', 'uln', 'lln', 'age_low', 'age_low_unit']
