@@ -17,6 +17,7 @@ from .test_models import TestVisitModel
 from .test_visit_schedule import VisitSchedule
 from edc_consent.models.consent_type import ConsentType
 from dateutil.relativedelta import relativedelta
+from edc_base.utils import edc_base_startup
 
 
 class BaseTestCase(TestCase):
@@ -25,6 +26,7 @@ class BaseTestCase(TestCase):
     consent_catalogue_name = 'v1'
 
     def setUp(self):
+        edc_base_startup()
         try:
             site_lab_profiles.register(TestLabProfile())
         except AlreadyRegisteredLabProfile:
