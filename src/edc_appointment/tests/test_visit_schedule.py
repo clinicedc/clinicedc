@@ -60,8 +60,8 @@ class VisitSchedule(VisitScheduleConfiguration):
          '2000': {
              'title': '2000',
              'time_point': 1,
-             'base_interval': 0,
-             'base_interval_unit': 'D',
+             'base_interval': 1,
+             'base_interval_unit': 'M',
              'window_lower_bound': 0,
              'window_lower_bound_unit': 'D',
              'window_upper_bound': 0,
@@ -90,8 +90,8 @@ class VisitSchedule(VisitScheduleConfiguration):
          '2010A': {
              'title': '2010A',
              'time_point': 1,
-             'base_interval': 0,
-             'base_interval_unit': 'D',
+             'base_interval': 2,
+             'base_interval_unit': 'M',
              'window_lower_bound': 0,
              'window_lower_bound_unit': 'D',
              'window_upper_bound': 0,
@@ -105,8 +105,8 @@ class VisitSchedule(VisitScheduleConfiguration):
          '2020A': {
              'title': '2020A',
              'time_point': 2,
-             'base_interval': 0,
-             'base_interval_unit': 'D',
+             'base_interval': 3,
+             'base_interval_unit': 'M',
              'window_lower_bound': 0,
              'window_lower_bound_unit': 'D',
              'window_upper_bound': 0,
@@ -120,8 +120,8 @@ class VisitSchedule(VisitScheduleConfiguration):
          '2030A': {
              'title': '2030A',
              'time_point': 3,
-             'base_interval': 0,
-             'base_interval_unit': 'D',
+             'base_interval': 3,
+             'base_interval_unit': 'M',
              'window_lower_bound': 0,
              'window_lower_bound_unit': 'D',
              'window_upper_bound': 0,

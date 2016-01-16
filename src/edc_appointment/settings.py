@@ -40,7 +40,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'tastypie',
     'edc_appointment',
-    'edc_appointment',
     'edc_base',
     'edc_configuration',
     'edc_consent',

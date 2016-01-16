@@ -2,6 +2,7 @@ from datetime import date
 
 from django.test import TestCase
 
+from edc_base.utils import edc_base_startup
 from edc_consent.models.consent_type import ConsentType
 from edc_consent.tests.test_models import TestConsentModel
 from edc_lab.lab_profile.classes import site_lab_profiles
@@ -17,6 +18,7 @@ from .test_visit_schedule import VisitSchedule
 class BaseTestCase(TestCase):
 
     def setUp(self):
+        edc_base_startup()
         try:
             site_lab_profiles.register(TestLabProfile())
         except AlreadyRegisteredLabProfile:
