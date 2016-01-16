@@ -1,25 +1,42 @@
 from datetime import date
+from dateutil.relativedelta import relativedelta
 
 from django import forms
-
 from django.utils import timezone
 
-from edc_testing.models import TestVisit2
+from django.test.testcases import TestCase
 from edc_appointment.models.appointment import Appointment
 from edc_constants.constants import SCHEDULED, ON_STUDY, ALIVE, YES
-from edc_visit_schedule.models.visit_definition import VisitDefinition
-from edc_visit_tracking.models import PreviousVisitError
+from edc_testing.models import TestDeathReport, TestOffStudy
+from edc_visit_schedule.models import VisitDefinition
 from edc_visit_tracking.forms import VisitFormMixin
 
-from .base_test_case import TestVisitModel, BaseTestCase
-from edc_testing.models.test_consent import TestConsentWithMixin
-from dateutil.relativedelta import relativedelta
+from .test_models import TestVisitModel, TestCrfModel
+from .base_test_case import BaseTestCase
 
 
 class TesVisitForm(VisitFormMixin, forms.ModelForm):
 
     class Meta:
         model = TestVisitModel
+
+
+class TestVisist(TestCase):
+
+    def test_off_study_model_attr(self):
+        self.assertEqual(TestVisitModel.off_study_model, TestOffStudy)
+        self.assertEqual(TestVisitModel().off_study_model, TestOffStudy)
+        self.assertEqual(TestVisitModel.objects.all().count(), 0)
+
+    def test_death_report_model_attr(self):
+        self.assertEqual(TestVisitModel.death_report_model, TestDeathReport)
+        self.assertEqual(TestVisitModel().death_report_model, TestDeathReport)
+        self.assertEqual(TestVisitModel.objects.all().count(), 0)
+
+    def test_crf_model_attrs(self):
+        self.assertEqual(TestCrfModel.visit_model, TestVisitModel)
+        self.assertEqual(TestCrfModel().visit_model, TestVisitModel)
+        self.assertEqual(TestCrfModel.objects.all().count(), 0)
 
 
 class TestVisit(BaseTestCase):
@@ -43,6 +60,9 @@ class TestVisit(BaseTestCase):
             'last_alive_date': date.today(),
             'reason': SCHEDULED,
         }
+
+    def test_model_attr(self):
+        self.assertEqual(TestVisitModel.off_study_model, TestOffStudy)
 
     def test_form(self):
         form = TesVisitForm(data=self.data)

@@ -2,9 +2,9 @@ from collections import OrderedDict
 from edc_constants.constants import REQUIRED, NOT_ADDITIONAL
 from edc_visit_schedule.classes import (
     VisitScheduleConfiguration, CrfTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleTuple)
-from edc_testing.models import TestVisit2, TestConsentWithMixin, TestAliquotType, TestPanel
+from edc_testing.models import TestConsentWithMixin, TestAliquotType, TestPanel
 
-from .test_models import TestVisitModel
+from .test_models import TestVisitModel, TestVisitModel2
 
 
 entries = (
@@ -79,7 +79,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound': 0,
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
-             'visit_tracking_model': TestVisit2,
+             'visit_tracking_model': TestVisitModel2,
              'schedule': 'schedule-1',
              'instructions': None,
             'requisitions': requisitions,
@@ -94,7 +94,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound': 0,
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
-             'visit_tracking_model': TestVisit2,
+             'visit_tracking_model': TestVisitModel2,
              'schedule': 'schedule-1',
              'instructions': None,
             'requisitions': requisitions,
@@ -109,7 +109,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound': 0,
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
-             'visit_tracking_model': TestVisit2,
+             'visit_tracking_model': TestVisitModel2,
              'schedule': 'schedule-1',
              'instructions': None,
             'requisitions': requisitions,
@@ -124,7 +124,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound': 0,
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
-             'visit_tracking_model': TestVisit2,
+             'visit_tracking_model': TestVisitModel2,
              'schedule': 'schedule-1',
              'instructions': None,
             'requisitions': requisitions,
