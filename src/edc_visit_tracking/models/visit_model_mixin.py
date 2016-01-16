@@ -56,6 +56,8 @@ class VisitModelMixin (models.Model):
 
     """
 
+    visit_model_mixin = True
+
     consent_model = None
 
     appointment = models.OneToOneField(Appointment)
@@ -125,7 +127,10 @@ class VisitModelMixin (models.Model):
     objects = VisitManager()
 
     def __unicode__(self):
-        return unicode(self.appointment)
+        return '{} {} {}'.format(
+            self.appointment.registered_subject.subject_identifier,
+            self.appointment.registered_subject.first_name,
+            self.appointment.visit_definition.code)
 
     def save(self, *args, **kwargs):
         if self.id and not self.byass_time_point_status():
@@ -134,8 +139,8 @@ class VisitModelMixin (models.Model):
         super(VisitModelMixin, self).save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.report_datetime, ) + self.appointment.natural_key()
-    natural_key.dependencies = ['edc_appointment.appointment', ]
+        return self.appointment.natural_key()
+    natural_key.dependencies = ['edc_appointment.appointment']
 
     def byass_time_point_status(self):
         """Returns False by default but if overridden and set to return
