@@ -32,16 +32,6 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
                 raise AttributeError(str(e))
 
 
-# @receiver(pre_delete, weak=False, dispatch_uid="appointment_pre_delete")
-# def appointment_pre_delete(sender, instance, using, **kwargs):
-#     """Deletes the TimePointStatus instance if it exists."""
-#     if isinstance(instance, Appointment):
-#         try:
-#             TimePointStatus.objects.get(appointment=instance).delete()
-#         except TimePointStatus.DoesNotExist:
-#             pass
-
-
 @receiver(post_save, weak=False, dispatch_uid="prepare_appointments_on_post_save")
 def prepare_appointments_on_post_save(sender, instance, raw, created, using, **kwargs):
     """"""
