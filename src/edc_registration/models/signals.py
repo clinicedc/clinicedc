@@ -1,10 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from edc_constants.constants import CONSENTED
 from django.db import transaction
-
-from .registered_subject import RegisteredSubject
 
 
 @receiver(post_save, weak=False, dispatch_uid="update_registered_subject_from_consent_on_post_save")
@@ -20,7 +17,7 @@ def update_registered_subject_from_consent_on_post_save(sender, instance, raw, c
                 identity = instance.identity  # only a consent model has this field
                 registered_subject = instance.registered_subject
                 registered_subject.identity = identity
-                instance.registered_subject.last_name = instance.last_name
+                registered_subject.last_name = instance.last_name
                 registered_subject.first_name = instance.first_name
                 registered_subject.identity_type = instance.identity_type
                 registered_subject.subject_identifier = instance.subject_identifier
@@ -36,5 +33,5 @@ def update_registered_subject_from_consent_on_post_save(sender, instance, raw, c
                 pass
             elif ('registered_subject' not in str(e) and
                   'identity' not in str(e) and
-                  'history' not in str(e)):
+                  'history' not in str(e) and 'last_name' not in str(e)):
                 raise AttributeError(str(e))
