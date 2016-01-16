@@ -13,8 +13,25 @@ class OffStudyError(Exception):
     pass
 
 
+class OffStudyModelManager(models.Manager):
+    """A manager class for Crf models, models that have an FK to the visit tracking model."""
+
+    def get_by_natural_key(self, visit_instance_number, code, subject_identifier_as_pk):
+        instance = self.model.visit_model.objects.get_by_natural_key(
+            visit_instance_number, code, subject_identifier_as_pk)
+        return self.get({self.model.visit_model_attr: instance})
+
+
 class OffStudyModelMixin(models.Model):
-    """Mixin for the Off Study model."""
+    """Mixin for the Off Study model.
+
+    OffStudyModel is a CRF model!
+
+    You need to add a foreign key to your visit model
+
+        subject_visit = models.OneToOneField(SubjectVisit)
+
+    """
 
     offstudy_date = models.DateField(
         verbose_name="Off-study Date",
@@ -34,6 +51,8 @@ class OffStudyModelMixin(models.Model):
         blank=True,
         null=True)
 
+    objects = OffStudyModelManager()
+
     def natural_key(self):
         return (self.offstudy_date, ) + self.registered_subject.natural_key()
 
@@ -51,9 +70,10 @@ class OffStudyModelMixin(models.Model):
     def registered_subject(self):
         return getattr(self, self.visit_model_attr).appointment.registered_subject
 
-    def off_study_visit_exists_or_raise(self):
+    def off_study_visit_exists_or_raise(self, exception_cls=None):
         """Confirms the off study report datetime matches a off study visit report datetime
         or raise an OffStudyError."""
+        exception_cls = exception_cls or OffStudyError
         report_datetime_min = datetime.combine(self.report_datetime.date(), time.min)
         report_datetime_max = datetime.combine(self.report_datetime.date(), time.max)
         try:
@@ -63,7 +83,7 @@ class OffStudyModelMixin(models.Model):
                 report_datetime__lte=report_datetime_max,
                 study_status=OFF_STUDY)
         except self.visit_model.DoesNotExist:
-            raise OffStudyError(
+            raise exception_cls(
                 'Off study report must be submitted with a visit report on the '
                 'same day with study_status set to \'off study\'. '
                 'Using off study report date {}.'.format(self.report_datetime.date()))
