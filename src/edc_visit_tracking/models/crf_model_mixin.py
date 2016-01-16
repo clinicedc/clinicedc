@@ -41,7 +41,11 @@ class CrfModelMixin(models.Model):
         return str(self.get_visit())
 
     def save(self, *args, **kwargs):
-        self.get_visit().appointment.time_point_status_open_or_raise()
+        try:
+            self.get_visit().appointment.time_point_status_open_or_raise()
+        except AttributeError as e:
+            if not self.__class__.subject_visit.field.null:
+                raise AttributeError(e)
         super(CrfModelMixin, self).save(*args, **kwargs)
 
     def natural_key(self):
