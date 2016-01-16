@@ -11,6 +11,7 @@ from edc_testing.classes import TestLabProfile, TestAppConfiguration
 from edc_testing.models import TestVisit, TestAliquotType, TestPanel
 
 from edc_appointment.models import Appointment
+from edc_base.utils import edc_base_startup
 from edc_consent.models.consent_type import ConsentType
 from edc_constants.constants import MALE, REQUIRED, NOT_ADDITIONAL, YES
 from edc_registration.tests.factories import RegisteredSubjectFactory
@@ -147,12 +148,13 @@ class VisitSchedule(VisitScheduleConfiguration):
     )
 
 
-class BaseTest(TestCase):
+class BaseTestCase(TestCase):
 
     app_label = 'edc_testing'
     consent_catalogue_name = 'v1'
 
     def setUp(self):
+        edc_base_startup()
         try:
             site_lab_profiles.register(TestLabProfile())
         except AlreadyRegisteredLabProfile:

@@ -7,12 +7,13 @@ from edc_appointment.models import Appointment
 from edc_constants.constants import SCHEDULED, ON_STUDY, OFF_STUDY
 from edc_offstudy.constants import OFF_STUDY_REASONS
 from edc_offstudy.models import OffStudyError
-from edc_offstudy.tests.base_test import BaseTest
 from edc_offstudy.tests.test_models import TestVisitModel, TestOffStudyModel, AnotherTestVisitModel
 from edc_visit_schedule.models import VisitDefinition
 
+from .base_test_case import BaseTestCase
 
-class TestOffStudy(BaseTest):
+
+class TestOffStudy(BaseTestCase):
 
     def test_visit_knows_offstudy_model_as_class(self):
         test_visit = AnotherTestVisitModel(
@@ -32,29 +33,31 @@ class TestOffStudy(BaseTest):
     def test_offstudy_knows_visit_model_attr(self):
         self.assertEqual(TestOffStudyModel.visit_model_attr, 'test_visit_model')
 
-    def test_off_study_report_blocks_future_visits_on_reason_only(self):
-        for reason in OFF_STUDY_REASONS:
-            visit_definition = VisitDefinition.objects.get(code='1000')
-            appointment = Appointment.objects.get(
-                registered_subject=self.registered_subject,
-                visit_definition=visit_definition)
-            test_visit = TestVisitModel.objects.create(
+    def test_off_study_report_blocks_future_visits(self):
+        visit_definition = VisitDefinition.objects.get(code='1000')
+        appointment = Appointment.objects.get(
+            registered_subject=self.registered_subject,
+            visit_definition=visit_definition,
+            visit_instance='0')
+        test_visit = TestVisitModel.objects.create(
+            appointment=appointment,
+            report_datetime=timezone.now() - relativedelta(weeks=4),
+            reason=SCHEDULED,
+            study_status=OFF_STUDY)
+        visit_definition = VisitDefinition.objects.get(code='2000')
+        appointment = Appointment.objects.get(
+            registered_subject=self.registered_subject,
+            visit_definition=visit_definition,
+            visit_instance='0')
+        with self.assertRaises(OffStudyError) as cm:
+            TestVisitModel.objects.create(
                 appointment=appointment,
-                report_datetime=timezone.now() - relativedelta(weeks=4),
-                reason=reason)
-            visit_definition = VisitDefinition.objects.get(code='2000')
-            appointment = Appointment.objects.get(
-                registered_subject=self.registered_subject,
-                visit_definition=visit_definition)
-            with self.assertRaises(OffStudyError) as cm:
-                TestVisitModel.objects.create(
-                    appointment=appointment,
-                    report_datetime=timezone.now(),
-                    reason=SCHEDULED)
-            self.assertIn(
-                'On a previous visit participant was meant to go off study (reason={})'.format(reason),
-                str(cm.exception))
-            test_visit.delete()
+                report_datetime=timezone.now(),
+                reason=SCHEDULED)
+        error_msg = str(cm.exception)
+        self.assertTrue(
+            error_msg.startswith('On a previous visit participant was meant to go off study'))
+        test_visit.delete()
 
     def test_off_study_report_blocks_future_visits_by_off_study_report_not_reason(self):
         visit_definition = VisitDefinition.objects.get(code='1000')
