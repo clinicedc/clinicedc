@@ -9,7 +9,15 @@ from .crf_model_manager import CrfModelManager
 
 class CrfModelMixin(models.Model):
 
-    """Base mixin for all CRF models."""
+    """Base mixin for all CRF models.
+
+    You need to define the visit model foreign_key:
+
+        subject_visit = models.ForeignKey(SubjectVisit)
+
+    Attributes `visit_model` and `visit_model_attr` will be set automatically by
+    edc_base.utils.edc_base_start_up called in urls.
+    """
 
     visit_model = None
 
@@ -26,9 +34,18 @@ class CrfModelMixin(models.Model):
 
     objects = CrfModelManager()
 
+    def __unicode__(self):
+        return unicode(self.get_visit())
+
+    def __str__(self):
+        return str(self.get_visit())
+
     def save(self, *args, **kwargs):
         self.get_visit().appointment.time_point_status_open_or_raise()
         super(CrfModelMixin, self).save(*args, **kwargs)
+
+    def natural_key(self):
+        return (getattr(self, self.visit_model_attr).natural_key(), )
 
     def get_subject_identifier(self):
         return self.get_visit().appointment.registered_subject.subject_identifier
