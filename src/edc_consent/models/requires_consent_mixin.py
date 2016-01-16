@@ -1,23 +1,10 @@
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.db.models import get_model
 
 from ..exceptions import NotConsentedError
 from ..models import ConsentType
 
 
 class RequiresConsentMixin(models.Model):
-
-#     def __init__(self, *args, **kwargs):
-#         try:
-#             self.consent_model = get_model(*self.consent_model)
-#         except TypeError:
-#             pass
-#         if not self.consent_model:
-#             raise ImproperlyConfigured(
-#                 'Consent model attribute not set for model that requires '
-#                 'consent. See \'{}\'. Got {}.'.format(self._meta.model_name, self.consent_model))
-#         super(RequiresConsentMixin, self).__init__(*args, **kwargs)
 
     consent_model = None
 
@@ -57,16 +44,3 @@ class RequiresConsentMixin(models.Model):
 
     class Meta:
         abstract = True
-
-#     def get_versioned_field_names(self, consent_version_number):
-#         """Returns a list of field names under version control by version number.
-#
-#         Users should override at the model class to return a list of field names for a given version_number."""
-#         return []
-#
-#     def validate_versioned_fields(self, cleaned_data=None, exception_cls=None, **kwargs):
-#         """Raises and exception if fields do not validate.
-#
-#         Validate fields under consent version control. If a field is not to be included for this
-#         consent version, an exception will be raised."""
-#         ConsentHelper(self).validate_versioned_fields()
