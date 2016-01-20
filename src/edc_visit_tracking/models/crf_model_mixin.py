@@ -21,7 +21,7 @@ class CrfModelMixin(models.Model):
 
     visit_model = None
 
-    visit_model_attr = None
+    visit_model_attr = ''
 
     report_datetime = models.DateTimeField(
         verbose_name="Report Date",
@@ -44,7 +44,7 @@ class CrfModelMixin(models.Model):
         try:
             self.get_visit().appointment.time_point_status_open_or_raise()
         except AttributeError as e:
-            if not self.__class__.subject_visit.field.null:
+            if not self.__class__.visit_model.field.null:
                 raise AttributeError(e)
         super(CrfModelMixin, self).save(*args, **kwargs)
 
