@@ -56,9 +56,10 @@ class VisitModelMixin (models.Model):
 
     """
 
-    visit_model_mixin = True
-
     consent_model = None
+    death_report_model = None
+    off_study_model = None
+    visit_model_mixin = True
 
     appointment = models.OneToOneField(Appointment)
 
