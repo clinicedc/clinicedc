@@ -6,6 +6,7 @@ from edc_offstudy.models import OffStudyMixin
 from edc_testing.models.test_consent import TestConsentWithMixin
 from edc_base.model.models.base_uuid_model import BaseUuidModel
 from edc_visit_tracking.models.crf_model_mixin import CrfModelMixin
+from edc_visit_tracking.models.crf_inline_model_mixin import CrfInlineModelMixin
 
 
 class TestVisitModel(CrfMetaDataMixin, OffStudyMixin, PreviousVisitMixin, VisitModelMixin, BaseUuidModel):
@@ -40,6 +41,20 @@ class TestVisitModel2(CrfMetaDataMixin, OffStudyMixin, PreviousVisitMixin, Visit
 class TestCrfModel(CrfModelMixin, BaseUuidModel):
 
     test_visit = models.OneToOneField(TestVisitModel)
+
+    f1 = models.CharField(max_length=10)
+
+    f2 = models.CharField(max_length=10)
+
+    class Meta:
+        app_label = 'edc_visit_tracking'
+
+
+class TestCrfInlineModel(CrfInlineModelMixin, BaseUuidModel):
+
+    fk_model_attr = 'test_crf_model'
+
+    test_crf_model = models.OneToOneField(TestCrfModel)
 
     f1 = models.CharField(max_length=10)
 

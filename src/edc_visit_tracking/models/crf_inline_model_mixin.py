@@ -16,10 +16,17 @@ class CrfInlineModelMixin(models.Model):
 
     @property
     def fk_instance(self):
+        """Return the instance of the inline parent model."""
         return getattr(self, self.fk_model_attr)
 
+    @property
+    def fk_model(self):
+        """Return the class of the inline parent model."""
+        return getattr(self.__class__, self.fk_model_attr).field.rel.to
+
     def get_visit(self):
-        return getattr(self.fk_instance, self.fk_instance.visit_model_attr)
+        """Return the instance of the inline parent model's visit model."""
+        return getattr(self.fk_instance, self.fk_model.visit_model_attr)
 
     def get_report_datetime(self):
         return self.get_visit().get_report_datetime()

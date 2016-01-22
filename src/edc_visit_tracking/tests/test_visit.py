@@ -13,6 +13,7 @@ from edc_visit_tracking.forms import VisitFormMixin
 
 from .test_models import TestVisitModel, TestCrfModel
 from .base_test_case import BaseTestCase
+from edc_visit_tracking.tests.test_models import TestCrfInlineModel
 
 
 class TesVisitForm(VisitFormMixin, forms.ModelForm):
@@ -21,7 +22,7 @@ class TesVisitForm(VisitFormMixin, forms.ModelForm):
         model = TestVisitModel
 
 
-class TestVisist(TestCase):
+class TestVisitA(TestCase):
 
     def test_off_study_model_attr(self):
         self.assertEqual(TestVisitModel.off_study_model, TestOffStudy)
@@ -60,6 +61,16 @@ class TestVisit(BaseTestCase):
             'last_alive_date': date.today(),
             'reason': SCHEDULED,
         }
+
+    def test_crf_inline_model_attrs(self):
+        """Assert inline model can find visit instance from parent."""
+        form = TesVisitForm(data=self.data)
+        self.assertTrue(form.is_valid())
+        test_visit = form.save()
+        test_crf_model = TestCrfModel.objects.create(test_visit=test_visit)
+        test_crf_inline_model = TestCrfInlineModel.objects.create(
+            test_crf_model=test_crf_model)
+        self.assertIsInstance(test_crf_inline_model.get_visit(), TestVisitModel)
 
     def test_model_attr(self):
         self.assertEqual(TestVisitModel.off_study_model, TestOffStudy)
