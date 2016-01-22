@@ -21,7 +21,7 @@ class CrfModelMixin(models.Model):
 
     visit_model = None
 
-    visit_model_attr = ''
+    visit_model_attr = None
 
     report_datetime = models.DateTimeField(
         verbose_name="Report Date",
