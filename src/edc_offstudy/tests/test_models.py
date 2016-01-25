@@ -38,8 +38,6 @@ class TestVisitModel(OffStudyMixin, CrfMetaDataMixin, PreviousVisitMixin, VisitM
 
     death_report_model = ('edc_testing', 'TestDeathReport')
 
-    REQUIRES_PREVIOUS_VISIT = True
-
     def get_subject_identifier(self):
         return self.appointment.registered_subject.subject_identifier
 
@@ -63,7 +61,6 @@ class TestOffStudyModel(CrfModelMixin, OffStudyModelMixin, BaseUuidModel):
 class AnotherTestVisitModel(OffStudyMixin, CrfMetaDataMixin, PreviousVisitMixin, VisitModelMixin):
 
     off_study_model = TestOffStudyModel
-    REQUIRES_PREVIOUS_VISIT = True
 
     def get_subject_identifier(self):
         return self.appointment.registered_subject.subject_identifier
