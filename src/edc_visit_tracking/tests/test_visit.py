@@ -13,7 +13,9 @@ from edc_visit_tracking.forms import VisitFormMixin
 
 from .test_models import TestVisitModel, TestCrfModel
 from .base_test_case import BaseTestCase
-from edc_visit_tracking.tests.test_models import TestCrfInlineModel
+from edc_visit_tracking.tests.test_models import TestCrfInlineModel, TestCrfProxyModel, TestCrfInlineModel2,\
+    TestCrfInlineModel3
+from django.core.exceptions import ImproperlyConfigured
 
 
 class TesVisitForm(VisitFormMixin, forms.ModelForm):
@@ -71,6 +73,35 @@ class TestVisit(BaseTestCase):
         test_crf_inline_model = TestCrfInlineModel.objects.create(
             test_crf_model=test_crf_model)
         self.assertIsInstance(test_crf_inline_model.get_visit(), TestVisitModel)
+        self.assertRaises(AttributeError, test_crf_inline_model.visit_model)
+        self.assertRaises(AttributeError, test_crf_inline_model.visit_model_attr)
+
+    def test_crf_proxy_model_attrs(self):
+        """Assert proxy model can find visit attrs from parent."""
+        form = TesVisitForm(data=self.data)
+        self.assertTrue(form.is_valid())
+        test_visit = form.save()
+        test_crf_proxy_model = TestCrfProxyModel.objects.create(test_visit=test_visit)
+        self.assertIsInstance(test_crf_proxy_model.get_visit(), TestVisitModel)
+        self.assertEquals(test_crf_proxy_model.visit_model, TestVisitModel)
+        self.assertEquals(test_crf_proxy_model.visit_model_attr, 'test_visit')
+
+    def test_raise_on_crf_inline_ambiguous_fks(self):
+        """Assert raises exception if _meta.crf_inline_parent_model not set and model
+        has more than one FK."""
+        self.assertRaises(ImproperlyConfigured, TestCrfInlineModel2)
+
+    def test_not_raised_on_crf_inline_explicit_parent_model(self):
+        """Assert does not raise exception if _meta.crf_inline_parent_model is explicitly set on a model
+        that has more than one FK."""
+        with self.assertRaises(ImproperlyConfigured):
+            try:
+                obj = TestCrfInlineModel3()
+            except ImproperlyConfigured:
+                pass
+            else:
+                raise ImproperlyConfigured
+        self.assertEqual(obj._meta.crf_inline_parent_model, 'another_key')
 
     def test_model_attr(self):
         self.assertEqual(TestVisitModel.off_study_model, TestOffStudy)

@@ -14,7 +14,7 @@ class PreviousVisitMixin(models.Model):
 
     * Ensures the previous visit exists before allowing save() by raising PreviousVisitError.
     * If the visit is the first in the sequence, save() is allowed.
-    * If REQUIRES_PREVIOUS_VISIT = False, mixin is disabled.
+    * If 'requires_previous_visit' = False, mixin is disabled.
 
     ...note: Review the value of \'time_point\' and \'base_interval\' from VisitDefintion
         to confirm the visits are in order. This mixin assumes ordering VisitDefinition
@@ -25,14 +25,12 @@ class PreviousVisitMixin(models.Model):
 
         class TestVisit(MetaDataMixin, PreviousVisitMixin, VisitModelMixin):
 
-            REQUIRES_PREVIOUS_VISIT = True
-
             class Meta:
                 app_label = 'my_app'
 
     """
 
-    REQUIRES_PREVIOUS_VISIT = True
+    requires_previous_visit = True
 
     def save(self, *args, **kwargs):
         self.has_previous_visit_or_raise()
@@ -41,11 +39,11 @@ class PreviousVisitMixin(models.Model):
     def has_previous_visit_or_raise(self, exception_cls=None):
         """Returns True if the previous visit in the schedule exists or this is the first visit.
 
-        Is by-passed if REQUIRES_PREVIOUS_VISIT is False.
+        Is by-passed if 'requires_previous_visit' is False.
 
         You can call this from the forms clean() method."""
         exception_cls = exception_cls or PreviousVisitError
-        if self.REQUIRES_PREVIOUS_VISIT:
+        if self.requires_previous_visit:
             previous_visit_definition = self.previous_visit_definition(
                 self.appointment.visit_definition)
             if previous_visit_definition:
