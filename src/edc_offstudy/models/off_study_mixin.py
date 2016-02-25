@@ -64,7 +64,12 @@ class OffStudyMixin(models.Model):
             previous_off_study_visit = self.off_study_model.visit_model.objects.filter(
                 study_status=OFF_STUDY,
                 report_datetime__lt=self.report_datetime,
-                subject_identifier=self.get_subject_identifier()).order_by('report_datetime').last()
+                subject_identifier=self.get_subject_identifier()).order_by('report_datetime')
+            if self.visit_model_attr:
+                previous_off_study_visit = previous_off_study_visit.exclude(
+                    id=(getattr(self, self.visit_model_attr)).id).last()
+            else:
+                previous_off_study_visit = previous_off_study_visit.last()
             if previous_off_study_visit:
                 raise OffStudyError(
                     'On a previous visit participant was meant to go off study (reason={}). '
