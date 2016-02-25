@@ -69,7 +69,7 @@ class OffStudyMixin(models.Model):
                 previous_off_study_visit = previous_off_study_visit.exclude(
                     id=(getattr(self, self.visit_model_attr)).id).last()
             else:
-                previous_off_study_visit = previous_off_study_visit.last()
+                previous_off_study_visit = previous_off_study_visit.exclude(id=self.id).last()
             if previous_off_study_visit:
                 raise OffStudyError(
                     'On a previous visit participant was meant to go off study (reason={}). '
