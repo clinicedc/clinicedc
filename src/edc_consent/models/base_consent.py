@@ -47,7 +47,8 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
     subject_identifier_as_pk = models.CharField(
         verbose_name="Subject Identifier as pk",
         max_length=50,
-        default=uuid4,
+        default=None,
+        editable=False,
     )
 
     subject_identifier_aka = models.CharField(
@@ -109,6 +110,7 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
 
     def save(self, *args, **kwargs):
         self.is_known_consent_model_or_raise()
+        self.set_uuid_as_subject_identifier_if_none()
         if not self.id and not self.subject_identifier:
             self.subject_identifier = self.subject_identifier_as_pk
         consent_type = ConsentType.objects.get_by_consent_datetime(
@@ -129,6 +131,10 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
                     'Ensure all details match (identity, dob, first_name, last_name)'.format(
                         consent_type.updates_version.split(','), self.version))
         super(BaseConsent, self).save(*args, **kwargs)
+
+    def set_uuid_as_subject_identifier_if_none(self):
+        if not self.subject_identifier_as_pk:
+            self.subject_identifier_as_pk = str(uuid4())  # this will never change
 
     def is_known_consent_model_or_raise(self, consent_model=None, exception_cls=None):
         """Raises an exception if not listed in ConsentType."""
