@@ -65,7 +65,7 @@ class OffStudyMixin(models.Model):
                 study_status=OFF_STUDY,
                 report_datetime__lt=self.report_datetime,
                 subject_identifier=self.get_subject_identifier()).order_by('report_datetime')
-            if self.visit_model_attr:
+            if self.visit_model_attr and getattr(self, self.visit_model_attr):
                 previous_off_study_visit = previous_off_study_visit.exclude(
                     id=(getattr(self, self.visit_model_attr)).id).last()
             else:
