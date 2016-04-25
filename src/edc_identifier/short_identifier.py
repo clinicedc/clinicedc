@@ -1,7 +1,10 @@
 import random
 import re
 
-from django.db.models import get_model
+try:
+    from django.db import models as apps
+except:
+    from django.apps import apps
 from .checkdigit_mixins import LuhnOrdMixin
 from .exceptions import IdentifierError
 from .identifier_with_checkdigit import IdentifierWithCheckdigit
@@ -91,7 +94,7 @@ class ShortIdentifier(LuhnOrdMixin, IdentifierWithCheckdigit):
         try:
             HistoryModel = self.history_model
         except AttributeError:
-            HistoryModel = get_model('edc_identifier', 'IdentifierHistory')
+            HistoryModel = apps.get_model('edc_identifier', 'IdentifierHistory')
         try:
             HistoryModel.objects.get(identifier=identifier)
             return True

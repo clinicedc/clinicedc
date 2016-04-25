@@ -7,7 +7,7 @@ class CheckDigit(object):
 
     def calculate(self, number, modulus=7):
 
-        if isinstance(number, basestring):
+        if isinstance(number, str):
             number = re.search(r'\d+', number).group(0)
             try:
                 number = int(number)

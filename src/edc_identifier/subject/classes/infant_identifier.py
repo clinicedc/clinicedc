@@ -1,4 +1,7 @@
-from django.db.models import get_model
+try:
+    from django.db import models as apps
+except:
+    from django.apps import apps
 
 from ...exceptions import IdentifierError
 from ...models import SubjectIdentifier

@@ -1,4 +1,4 @@
-# from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url
 #
 # from edc_audit import audit_trail_view
 # # from edc.edc_audit.views.audit_trail_view import AuditTrailView
@@ -10,3 +10,7 @@
 #     name="audit_trail_url"
 #     ),
 # )
+
+urlpatterns = patterns(
+    '',
+)

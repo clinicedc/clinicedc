@@ -91,7 +91,7 @@ class Identifier(object):
 
     def get_check_digit(self, number):
         """ Adds a check_digit to number. """
-        if not isinstance(number, (int, long)):
+        if not isinstance(number, int):
             raise CheckDigitError('value used to calculate the check digit must be an integer.')
         cd = number % self.get_modulus()
         self.set_check_digit_length(len(str(cd)))
@@ -139,7 +139,7 @@ class Identifier(object):
     def set_site_code(self, value):
         if not value:
             raise IdentifierError('Cannot set site code to None.')
-        if not isinstance(value, basestring):
+        if not isinstance(value, str):
             value = str(value)
         if not re.match('\d+', value):
             raise IndentifierFormatError('Site code must be a string of numbers. Got {0}.'.format(value))
@@ -291,7 +291,7 @@ class Identifier(object):
         """Converts positive integer to a base36 string."""
         if not alphabet:
             alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        if not isinstance(unencoded_value, (int, long)):
+        if not isinstance(unencoded_value, int):
             raise IdentifierEncodingError('unencoded_value passed for encoding must be an integer. Got {0}'.format(unencoded_value))
         if encoding:
             if encoding == 'base36':
