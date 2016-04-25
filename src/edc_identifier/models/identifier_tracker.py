@@ -1,49 +1,48 @@
 from django.db import models
 
 from edc_base.model.models import BaseUuidModel
-try:
-    from edc_sync.mixins import SyncMixin
-except ImportError:
-    SyncMixin = type('SyncMixin', (object, ), {})
+from edc_sync.models import SyncModelMixin
 
 
-class IdentifierTracker(BaseUuidModel, SyncMixin):
+class IdentifierTrackerManager(models.Manager):
+
+    def get_by_natural_key(self, identifier):
+        return self.get(identifier=identifier)
+
+
+class IdentifierTracker(SyncModelMixin, BaseUuidModel):
 
     """
-    A lockable model to create and track unique identifiers for new records such as requsitions, receive, etc.
-
-    See also, classes/edc_identifier.py
-
+    Used with class Identifier for non-subject identifiers
     """
 
     identifier = models.CharField(
         max_length=25,
-        db_index=True,
-    )
+        db_index=True)
 
     identifier_string = models.CharField(
         max_length=50,
-        db_index=True,
-    )
+        db_index=True)
 
     root_number = models.IntegerField(db_index=True)
 
     counter = models.IntegerField(db_index=True)
 
     identifier_type = models.CharField(
-        max_length=35
-    )
+        max_length=35)
 
     device_id = models.CharField(
         max_length=10,
         null=True,
-        blank=True,
-    )
+        blank=True)
 
-    objects = models.Manager()
+    objects = IdentifierTrackerManager()
 
-    def __str__(self):
+    def __unicode__(self):
         return self.identifier
+
+    def natural_key(self):
+        return (self.identifier, )
 
     class Meta:
         app_label = 'edc_identifier'

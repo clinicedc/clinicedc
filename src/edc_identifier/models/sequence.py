@@ -9,10 +9,9 @@ class Sequence(BaseModel):
 
     objects = models.Manager()
 
-    def __str__(self):
+    def __unicode(self):
         return self.pk
 
     class Meta:
         app_label = 'edc_identifier'
         ordering = ['id', ]
-        unique_together = ('id', 'device_id')
