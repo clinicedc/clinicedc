@@ -1,11 +1,13 @@
 from uuid import uuid4
 
+from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 
-from edc_consent.audit_trail import AuditTrail
-from edc_consent.encrypted_fields import EncryptedTextField
-from edc_consent.utils import formatted_age, age
+from edc_base.audit_trail import AuditTrail
+from edc_base.encrypted_fields import EncryptedTextField
 from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start
+from edc_consent.exceptions import ConsentTypeError
+from edc_consent.utils import formatted_age, age
 
 from ..exceptions import ConsentVersionError
 
@@ -45,7 +47,8 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
     subject_identifier_as_pk = models.CharField(
         verbose_name="Subject Identifier as pk",
         max_length=50,
-        default=uuid4
+        default=None,
+        editable=False,
     )
 
     subject_identifier_aka = models.CharField(
@@ -70,6 +73,8 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
         help_text='See \'Consent Type\' for consent versions by period.',
         editable=False,
     )
+
+    study_site = models.CharField(max_length=15, null=True)
 
     sid = models.CharField(
         verbose_name="SID",
@@ -104,6 +109,8 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
         return (self.subject_identifier_as_pk, )
 
     def save(self, *args, **kwargs):
+        self.is_known_consent_model_or_raise()
+        self.set_uuid_as_subject_identifier_if_none()
         if not self.id and not self.subject_identifier:
             self.subject_identifier = self.subject_identifier_as_pk
         consent_type = ConsentType.objects.get_by_consent_datetime(
@@ -125,6 +132,31 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
                         consent_type.updates_version.split(','), self.version))
         super(BaseConsent, self).save(*args, **kwargs)
 
+    def set_uuid_as_subject_identifier_if_none(self):
+        if not self.subject_identifier_as_pk:
+            self.subject_identifier_as_pk = str(uuid4())  # this will never change
+
+    def is_known_consent_model_or_raise(self, consent_model=None, exception_cls=None):
+        """Raises an exception if not listed in ConsentType."""
+        consent_model = consent_model or self
+        exception_cls = exception_cls or ConsentTypeError
+        try:
+            consent_type = ConsentType.objects.get(
+                app_label=consent_model._meta.app_label,
+                model_name=consent_model._meta.model_name)
+        except MultipleObjectsReturned:
+            pass
+        except ConsentType.DoesNotExist:
+            models = []
+            for consent_type in ConsentType.objects.all():
+                models.append('{}.{}'.format(consent_type.app_label, consent_type.model_name))
+            raise exception_cls(
+                '\'{}.{}\' is not a known consent model. '
+                'Valid consent models are [\'{}\']. See ConsentType and/or edc_configuration.'.format(
+                    consent_model._meta.app_label,
+                    consent_model._meta.model_name,
+                    '\', \''.join(models)))
+
     @property
     def report_datetime(self):
         return self.consent_datetime
@@ -141,6 +173,9 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
     def formatted_age_at_consent(self):
         """Returns a string representation."""
         return formatted_age(self.dob, self.consent_datetime)
+
+    def get_registration_datetime(self):
+        return self.consent_datetime
 
     class Meta:
         abstract = True

@@ -1,3 +1,4 @@
 from .base_consent_update_form import BaseConsentUpdateForm
 from .base_consented_model_form import BaseConsentedModelForm
+from .base_specimen_consent_form import BaseSpecimenConsentForm
 from .base_subject_consent_form import BaseSubjectConsentForm

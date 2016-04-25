@@ -35,8 +35,9 @@ class BaseConsentForm(ModelForm):
         return cleaned_data
 
     def clean_identity_and_confirm_identity(self):
-        identity = self.cleaned_data.get('identity')
-        confirm_identity = self.cleaned_data.get('confirm_identity')
+        cleaned_data = self.cleaned_data
+        identity = cleaned_data.get('identity')
+        confirm_identity = cleaned_data.get('confirm_identity')
         if identity != confirm_identity:
             raise ValidationError(
                 'Identity mismatch. Identity must match the confirmation field. '
@@ -45,10 +46,11 @@ class BaseConsentForm(ModelForm):
                 code='invalid')
 
     def clean_identity_with_unique_fields(self):
-        identity = self.cleaned_data.get('identity')
-        first_name = self.cleaned_data.get('first_name')
-        initials = self.cleaned_data.get('initials')
-        dob = self.cleaned_data.get('dob')
+        cleaned_data = self.cleaned_data
+        identity = cleaned_data.get('identity')
+        first_name = cleaned_data.get('first_name')
+        initials = cleaned_data.get('initials')
+        dob = cleaned_data.get('dob')
         unique_together_form = self.unique_together_string(first_name, initials, dob)
         for consent in self._meta.model.objects.filter(identity=identity):
             unique_together_model = self.unique_together_string(consent.first_name, consent.initials, consent.dob)
@@ -67,23 +69,25 @@ class BaseConsentForm(ModelForm):
                     code='invalid')
 
     def clean_initials_with_full_name(self):
-        first_name = self.cleaned_data.get("first_name")
-        last_name = self.cleaned_data.get("last_name")
-        initials = self.cleaned_data.get("initials")
+        cleaned_data = self.cleaned_data
+        first_name = cleaned_data.get("first_name")
+        last_name = cleaned_data.get("last_name")
+        initials = cleaned_data.get("initials")
         try:
-            if initials[0] != first_name[0] or initials[-1] != last_name[0]:
+            if initials[:1] != first_name[:1] or initials[-1:] != last_name[:1]:
                 raise ValidationError(
                     'Initials do not match fullname. Got %(initials)s for %(first_name)s %(last_name)s',
                     params={'initials': initials, 'first_name': first_name, 'last_name': last_name},
                     code='invalid')
-        except IndexError:
-            pass
+        except (IndexError, TypeError):
+            raise ValidationError('Initials do not match fullname.')
 
     def clean_guardian_and_dob(self):
         """Validates if guardian is required based in AGE_IS_ADULT set on the model."""
-        guardian = self.cleaned_data.get("guardian_name")
-        dob = self.cleaned_data.get('dob')
-        consent_datetime = self.cleaned_data.get('consent_datetime', self.instance.consent_datetime)
+        cleaned_data = self.cleaned_data
+        guardian = cleaned_data.get("guardian_name")
+        dob = cleaned_data.get('dob')
+        consent_datetime = cleaned_data.get('consent_datetime', self.instance.consent_datetime)
         if is_naive(consent_datetime):
             consent_datetime = tz.localize(consent_datetime)
         AGE_IS_ADULT = self.get_model_attr('AGE_IS_ADULT')
@@ -104,10 +108,12 @@ class BaseConsentForm(ModelForm):
 
     def clean_dob_relative_to_consent_datetime(self):
         """Validates that the dob is within the bounds of MIN and MAX set on the model."""
-        dob = self.cleaned_data.get('dob')
-        consent_datetime = self.cleaned_data.get('consent_datetime', self.instance.consent_datetime)
+        cleaned_data = self.cleaned_data
+        dob = cleaned_data.get('dob')
+        consent_datetime = cleaned_data.get('consent_datetime', self.instance.consent_datetime)
         if not consent_datetime:
-            self._errors["consent_datetime"] = ErrorList([u"This field is required. Please fill consent date and time."])
+            self._errors["consent_datetime"] = ErrorList(
+                [u"This field is required. Please fill consent date and time."])
             raise ValidationError('Please correct the errors below.')
 
         if is_naive(consent_datetime):
@@ -127,8 +133,9 @@ class BaseConsentForm(ModelForm):
                 code='invalid')
 
     def clean_is_literate_and_witness(self):
-        is_literate = self.cleaned_data.get('is_literate')
-        witness_name = self.cleaned_data.get('witness_name')
+        cleaned_data = self.cleaned_data
+        is_literate = cleaned_data.get('is_literate')
+        witness_name = cleaned_data.get('witness_name')
         if is_literate == NO and not witness_name:
             raise ValidationError(
                 'You wrote subject is illiterate. Please provide the name of a witness '
@@ -192,5 +199,15 @@ class BaseConsentForm(ModelForm):
                 code='invalid')
         return gender
 
+    def clean_dob(self):
+        dob = self.cleaned_data['dob']
+        if not dob:
+            raise ValidationError('Date of birth is required')
+        return dob
+
     def unique_together_string(self, first_name, initials, dob):
-        return '{}{}{}'.format(first_name, dob.isoformat(), initials)
+        try:
+            dob = dob.isoforma()
+        except AttributeError:
+            dob = ''
+        return '{}{}{}'.format(first_name, dob, initials)
