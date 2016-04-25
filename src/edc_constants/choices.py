@@ -1,6 +1,9 @@
 from django.utils.translation import ugettext_lazy as _
 
-from .constants import POS, NEG, IND, NOT_APPLICABLE, YES, NO, ALIVE, DEAD, UNKNOWN, OTHER
+from .constants import (
+    ALIVE, DEAD, DECLINED, DWTA, FEMALE, IND, MALE, NAIVE,
+    NEG, NEVER, NO, NOT_APPLICABLE, OMANG, OTHER, POS, REFUSED, UNKNOWN, YES)
+
 
 BLANK_CHOICE_DASH = [('', '---------')]
 
@@ -9,21 +12,6 @@ BLANK_CHOICE_DASH = [('', '---------')]
 ACU_EST = (
     ('Acute', 'Acute'),
     ('Established', 'Established'),
-)
-
-PIMA = (
-    ('Participant Declined', 'Participant Declined'),
-    ('Multiple PIMA malfunction', 'Multiple PIMA malfunction'),
-    ('Failed Blood Collection', 'Failed Blood Collection'),
-    (OTHER, _('Other, specify:')),
-)
-
-HIV_RESULT = (
-    (POS, 'HIV Positive (Reactive)'),
-    (NEG, 'HIV Negative (Non-reactive)'),
-    (IND, 'Indeterminate'),
-    ('Declined', 'Participant declined testing'),
-    ('Not performed', 'Test could not be performed (e.g. supply outage, technical problem)'),
 )
 
 ACU_EST_NEG = (
@@ -46,13 +34,13 @@ ALIVE_DEAD_UNKNOWN = (
 ART_STATUS = (
     ('ON', 'Yes, ON ART'),
     ('STOPPED', 'No, stopped ART'),
-    ('NAIVE', 'No, have never taken ART'),
+    (NAIVE, 'No, have never taken ART'),
 )
 
 ART_STATUS_UNKNOWN = (
     ('ON', 'ON ART'),
     ('STOPPED', 'Stopped'),
-    ('NAIVE', 'Naive'),
+    (NAIVE, 'Naive'),
     (UNKNOWN, 'Unknown'),
 
 )
@@ -145,19 +133,46 @@ FEEDING = (
 )
 
 GENDER = (
-    ('M', _('Male')),
-    ('F', _('Female')),
+    (MALE, _('Male')),
+    (FEMALE, _('Female')),
 )
 
 GENDER_UNDETERMINED = (
-    ('M', _('Male')),
-    ('F', _('Female')),
+    (MALE, _('Male')),
+    (FEMALE, _('Female')),
     ('U', _('Undetermined')),
+)
+
+GRADING_SCALE = (
+    (1, 'Grade 1'),
+    (2, 'Grade 2'),
+    (3, 'Grade 3'),
+    (4, 'Grade 4'),
+    (5, 'Grade 5'),
+)
+
+GRADING_SCALE_234 = (
+    (2, 'Grade 2'),
+    (3, 'Grade 3'),
+    (4, 'Grade 4'),
+)
+
+GRADING_SCALE_34 = (
+    (3, 'Grade 3'),
+    (4, 'Grade 4'),
+)
+
+HIV_RESULT = (
+    (POS, 'HIV Positive (Reactive)'),
+    (NEG, 'HIV Negative (Non-reactive)'),
+    (IND, 'Indeterminate'),
+    (DECLINED, 'Participant declined testing'),
+    ('Not performed', 'Test could not be performed (e.g. supply outage, technical problem)'),
 )
 
 """do not change without inspecting implication to check_omang_field() in utils.py"""
 IDENTITY_TYPE = (
-    ('OMANG', 'Omang'),
+    (OMANG, 'Omang'),
     ('DRIVERS', 'Driver\'s License'),
     ('PASSPORT', 'Passport'),
     ('OMANG_RCPT', 'Omang Receipt'),
@@ -181,6 +196,14 @@ NORMAL_ABNORMAL_NOTEVALUATED = (
     ('ABNORMAL', 'Abnormal'),
     ('NOT_EVAL', 'Not Evaluated'),
 )
+
+PIMA = (
+    ('Participant Declined', 'Participant Declined'),
+    ('Multiple PIMA malfunction', 'Multiple PIMA malfunction'),
+    ('Failed Blood Collection', 'Failed Blood Collection'),
+    (OTHER, _('Other, specify:')),
+)
+
 
 POS_NEG = (
     (POS, 'Positive'),
@@ -222,20 +245,21 @@ POS_NEG_ACU = (
 POS_NEG_NOTESTED = (
     (POS, 'Positive'),
     (NEG, 'Negative'),
-    ('NEVER', 'Never tested for HIV'),
+    (NEVER, 'Never tested for HIV'),
 )
 
 
 POS_NEG_UNTESTED_REFUSAL = (
     (POS, 'Positive'),
     (NEG, 'Negative'),
-    ('NEVER', 'Never tested for HIV'),
-    ('UNK', 'Unknown'),
-    ('REFUSED', 'Refused to answer'),
+    (IND, 'Indeterminate'),
+    (NEVER, 'Never tested for HIV'),
+    (UNKNOWN, 'Unknown'),
+    (DWTA, 'Don\'t want to answer'),
 )
 
 REFUSAL_STATUS = (
-    ('REFUSED', 'Refused'),
+    (REFUSED, 'Refused'),
     ('NOT_REFUSED', 'No longer refusing'),
 )
 
@@ -281,11 +305,6 @@ URINALYSIS = (
     ('Cells', 'Cells'),
 )
 
-WILL_DECL = (
-    ('WILLING', 'Willing'),
-    ('DELINED', 'Declined'),
-)
-
 YES_NO = (
     (YES, _(YES)),
     (NO, _(NO)),
@@ -294,7 +313,7 @@ YES_NO = (
 YES_NO_DECLINED = (
     (YES, YES),
     (NO, NO),
-    ('Declined', 'Yes, but subject declined copy'),
+    (DECLINED, 'Yes, but subject declined copy'),
 )
 
 YES_NO_OPTIONAL = (
@@ -395,4 +414,112 @@ YES_NO_DOESNT_WORK = (
     (YES, YES),
     (NO, NO),
     ('Doesnt_work', 'Doesnt Work'),
+)
+
+ARV_DRUG_LIST = (
+    ('Nevirapine', 'NVP'),
+    ('Kaletra', 'KAL'),
+    ('Aluvia', 'ALU'),
+    ('Truvada', 'TRV'),
+    ('Tenoforvir', 'TDF',),
+    ('Zidovudine', 'AZT'),
+    ('Lamivudine', '3TC'),
+    ('Efavirenz', 'EFV'),
+    ('Didanosine', 'DDI'),
+    ('Stavudine', 'D4T'),
+    ('Nelfinavir', 'NFV'),
+    ('Abacavir', 'ABC'),
+    ('Combivir', 'CBV'),
+    ('Ritonavir', 'RTV'),
+    ('Trizivir', 'TZV'),
+    ('Raltegravir', 'RAL'),
+    ('Saquinavir,soft gel capsule', 'FOR'),
+    ('Saquinavir,hard capsule', 'INV'),
+    ('Kaletra or Aluvia', 'KAL or ALU'),
+    ('Atripla', 'ATR'),
+    ('HAART,unknown', 'HAART,unknown'),
+)
+
+ARV_MODIFICATION_REASON = (
+    ('Initial dose', 'Initial dose'),
+    ('Never started', 'Never started'),
+    ('Toxicity decreased_resolved', 'Toxicity decreased/resolved'),
+    ('Completed PMTCT intervention', 'Completed PMTCT intervention'),
+    ('Completed postpartum tail', 'Completed postpartum "tail"'),
+    ('Scheduled dose increase', 'Scheduled dose increase'),
+    ('Confirmed infant HIV infection, ending study drug', 'Confirmed infant HIV infection, ending study drug'),
+    ('completed protocol', 'Completion of protocol-required period of study treatment'),
+    ('HAART not available', 'HAART not available'),
+    ('Anemia', 'Anemia'),
+    ('Bleeding', 'Bleeding'),
+    ('CNS symptoms', 'CNS symptoms (sleep, psych, etc)'),
+    ('Diarrhea', 'Diarrhea'),
+    ('Fatigue', 'Fatigue'),
+    ('Headache', 'Headache'),
+    ('Hepatotoxicity', 'Hepatotoxicity'),
+    ('Nausea', 'Nausea'),
+    ('Neutropenia', 'Neutropenia'),
+    ('Thrombocytopenia', 'Thrombocytopenia'),
+    ('Vomiting', 'Vomiting'),
+    ('Rash', 'Rash'),
+    ('Rash resolved', 'Rash resolved'),
+    ('Neuropathy', 'Neuropathy'),
+    ('Hypersensitivity_allergic reaction', 'Hypersensitivity / allergic reaction'),
+    ('Pancreatitis', 'Pancreatitis'),
+    ('Lactic Acidiosis', 'Lactic Acidiosis'),
+    ('Pancytopenia', 'Pancytopenia'),
+    ('Virologic failure', 'Virologic failure'),
+    ('Immunologic failure', 'Immunologic failure(CD4)'),
+    ('Clinical failure', 'Clinical failure'),
+    ('Clinician request', 'Clinician request, other reason (including convenience)'),
+    ('Subject request', 'Subject request, other reason (including convenience)'),
+    ('Non-adherence with clinic visits', 'Non-adherence with clinic visits'),
+    ('Non-adherence with ARVs', 'Non-adherence with ARVs'),
+    ('Death', 'Death'),
+    (OTHER, 'Other'),
+)
+
+ARV_STATUS = (
+    ('no_mod', '1. No modifications made to existing HAART treatment',),
+    ('start', '2. Started antriretroviral treatment since last attended scheduled visit(including today)',),
+    ('discontinued', '3. Permanently discontinued antiretroviral treatment at or before last study visit',),
+    ('modified', ('4. Change in at least one antiretroviral medication since last '
+                  'attended scheduled visit (including today)(dose modification, '
+                  'permanent discontinuation, temporary hold, resumption / initiation '
+                  'after temporary hold)'),),
+)
+
+ARV_STATUS_WITH_NEVER = (
+
+    ('no_mod', '1. No modifications made since the last attended scheduled visit or today'),
+    ('start', '2. Starting today or has started since last attended scheduled visit'),
+    ('discontinued', '3. Permanently discontinued at or before the last attended scheduled visit'),
+    ('never started', '4. Never started'),
+    ('modified', '5. Change in at least one medication since the last attended scheduled visit or today'),
+    (NOT_APPLICABLE, 'Not applicable'),
+)
+
+DOSE_STATUS = (
+    ('New', 'New'),
+    ('Permanently discontinued', 'Permanently discontinued'),
+    ('Temporarily held', 'Temporarily held'),
+    ('Dose modified', 'Dose modified'),
+    ('Resumed', 'Resumed'),
+    ('Not initiated', 'Not initiated'),
+)
+
+WHYNOPARTICIPATE_CHOICE = (
+    ('I don\'t have time', _('I don\'t have time')),
+    ('I don\'t want to answer the questions', _('I don\'t want to answer the questions')),
+    ('I don\'t want to have the blood drawn', _('I don\'t want to have the blood drawn')),
+    ('I am afraid my information will not be private', _('I am afraid my information will not be private')),
+    ('Fear of needles', _('Fear of needles')),
+    ('Illiterate does not want a witness', _('Illiterate does not want a witness')),
+    ('I don\'t want to take part', _('I don\'t want to take part')),
+    ('I haven\'t had a chance to think about it', _('I haven\'t had a chance to think about it')),
+    ('Have a newly born baby, not permitted', _('Have a newly born baby, not permitted')),
+    ('The appointment was not honoured', _('The appointment was not honoured')),
+    ('not_sure', _('I am not sure')),
+    ('OTHER', _('Other, specify:')),
+    ('not_answering', _('Don\'t want to answer')),
 )
