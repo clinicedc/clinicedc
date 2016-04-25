@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from django.forms import ModelForm, ValidationError
 from django.conf import settings
 from django.utils.timezone import is_naive
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 
 from edc_constants.constants import YES, NO
 from edc_base.utils import formatted_age
