@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 
-class DeviceClass(object):
+class Device(object):
 
     """ Determines the device name, useful to know when identifiers are created by the device.
 
@@ -28,9 +28,12 @@ class DeviceClass(object):
             default_central_server_id = settings.CENTRAL_SERVER_ID
         except AttributeError:
             default_central_server_id = self.DEFAULT_CENTRAL_SERVER_ID
-            self.central_server_id = central_server or default_central_server_id
+        self.central_server_id = central_server or default_central_server_id
         self.server_ids = [str(x) for x in (server_ids or settings.SERVER_DEVICE_ID_LIST)]
-        self.middleman_ids = [str(x) for x in (middleman_ids or settings.MIDDLEMAN_DEVICE_ID_LIST)]
+        try:
+            self.middleman_ids = [str(x) for x in (middleman_ids or settings.MIDDLEMAN_DEVICE_ID_LIST)]
+        except AttributeError:
+            self.middleman_ids = []
         self.community_server_ids = [x for x in self.server_ids if x != self.central_server_id]
         self.is_server = self.device_is_server(self.device_id)
         self.is_community_server = self.device_is_community_server(self.device_id)
@@ -77,7 +80,7 @@ class DeviceClass(object):
         if self.central_server_id not in self.server_ids:
             raise ValueError('Central server must be included in the list of servers. '
                              'Got {} not in {}. See also settings.SERVER_DEVICE_ID_LIST.'.format(
-                                self.central_server_id, self.server_ids))
+                                 self.central_server_id, self.server_ids))
         return device_id == self.central_server_id
 
     def device_is_community_server(self, device_id):
@@ -91,5 +94,3 @@ class DeviceClass(object):
                              'which at least one is also listed as a server.'.format(
                                  ', '.join(self.middleman_ids)))
         return device_id in self.middleman_ids
-
-device = DeviceClass()
