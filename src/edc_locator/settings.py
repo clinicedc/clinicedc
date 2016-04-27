@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-
+import django
 from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -32,17 +32,25 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'edc_crypto_fields',
     'edc_locator',
+    'edc_content_type_map',
+    'edc_visit_tracking',
+    'edc_visit_schedule',
+    'edc_registration',
+    'edc_appointment',
     'edc_locator.example',
-)
+]
+
+if float(django.get_version()) > 1.6:
+    INSTALLED_APPS.append('django_crypto_fields')
+    INSTALLED_APPS.append('simple_history')
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -116,5 +124,5 @@ DEVICE_ID = '99'
 SERVER_DEVICE_ID_LIST = ['99']
 MIDDLEMAN_DEVICE_ID_LIST = ['91']
 IS_SECURE_DEVICE = True
-KEY_PATH = '/Volumes/bhp066/live_keys'
+KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
 ALLOW_MODEL_SERIALIZATION = False
