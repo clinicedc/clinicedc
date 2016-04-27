@@ -1,7 +1,12 @@
 import copy
 
 from django.conf import settings
-from django.utils.importlib import import_module
+try:
+    # Django versions < 1.9
+    from django.utils.importlib import import_module
+except:
+    # Django versions >= 1.9
+    from django.utils.module_loading import import_module
 from django.utils.module_loading import module_has_submodule
 
 from ..exceptions import AlreadyRegistered
