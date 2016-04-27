@@ -2,7 +2,7 @@ import json
 
 from datetime import datetime
 
-from django.db.models import get_model
+from django.apps import apps
 
 from edc_notification.models import NotificationHelper
 
@@ -96,7 +96,7 @@ class ExportHelper(object):
         """Creates or updates the export plan model instance using a given export_plan_setup dictionary."""
         for model_config, export_plan in export_plan_setup.iteritems():
             app_label, model_name = model_config.split('.')
-            model = get_model(app_label, model_name)
+            model = apps.get_model(app_label, model_name)
             try:
                 export_plan_instance = ExportPlan.objects.get(
                     app_label=model._meta.app_label, object_name=model._meta.object_name)

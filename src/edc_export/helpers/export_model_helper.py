@@ -1,4 +1,4 @@
-from django.db.models import get_model
+from django.apps import apps
 from django.core import serializers
 
 from edc_base.encrypted_fields import FieldCryptor
@@ -31,7 +31,7 @@ class ExportModelHelper(ExportHelper):
             self.app_label = self.export_plan.app_label
             self.model_name = self.export_plan.object_name
             try:
-                self.model = get_model(self.app_label, self.model_name)
+                self.model = apps.get_model(self.app_label, self.model_name)
                 if not self.model:
                     raise self.exception_cls()
             except self.exception_cls:
