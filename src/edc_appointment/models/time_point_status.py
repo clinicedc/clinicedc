@@ -1,7 +1,10 @@
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
+try:
+    from django.db import models as apps
+except:
+    from django.apps import apps
 from django.db import models
-from django.db.models import get_model
 
 from edc_base.audit_trail import AuditTrail
 from edc_base.encrypted_fields import EncryptedTextField
@@ -112,12 +115,12 @@ class TimePointStatus(SyncModelMixin, BaseUuidModel):
                             appointment.appt_status.upper()))
 
     def get_appointments(self):
-        Appointment = get_model('edc_appointment', 'Appointment')
+        Appointment = apps.get_model('edc_appointment', 'Appointment')
         return Appointment.objects.filter(time_point_status__pk=self.pk)
 
     @property
     def base_appointment(self):
-        Appointment = get_model('edc_appointment', 'Appointment')
+        Appointment = apps.get_model('edc_appointment', 'Appointment')
         return Appointment.objects.get(
             time_point_status__pk=self.pk, visit_instance='0')
 

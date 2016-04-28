@@ -29,3 +29,4 @@ class PreAppointmentContactForm (forms.ModelForm):
 
     class Meta:
         model = PreAppointmentContact
+        fields = '__all__'

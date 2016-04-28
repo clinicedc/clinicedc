@@ -2,7 +2,10 @@ import copy
 
 from datetime import datetime, timedelta
 
-from django.db.models import get_model
+try:
+    from django.db import models as apps #import get_model
+except:
+    from django.apps import apps
 
 from edc_configuration.models import GlobalConfiguration
 
@@ -50,7 +53,7 @@ class AppointmentDateHelper(object):
 
     def get_relative_datetime(self, base_appt_datetime, visit_definition):
         """ Returns appointment datetime relative to the base_appointment_datetime."""
-        VisitDefinition = get_model('edc_visit_schedule', 'VisitDefinition')
+        VisitDefinition = apps.get_model('edc_visit_schedule', 'VisitDefinition')
         appt_datetime = base_appt_datetime + VisitDefinition.objects.relativedelta_from_base(
             visit_definition=visit_definition)
         return self.get_best_datetime(appt_datetime, base_appt_datetime.isoweekday())

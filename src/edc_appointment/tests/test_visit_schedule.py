@@ -8,19 +8,19 @@ from .test_models import TestEnroll
 
 
 entries = (
-    CrfTuple(10L, u'edc_appointment', u'TestCrfModel1', REQUIRED, NOT_ADDITIONAL),
-    CrfTuple(20L, u'edc_appointment', u'TestCrfModel2', REQUIRED, NOT_ADDITIONAL),
-    CrfTuple(30L, u'edc_appointment', u'TestCrfModel3', REQUIRED, NOT_ADDITIONAL),
+    CrfTuple(10, u'edc_appointment', u'TestCrfModel1', REQUIRED, NOT_ADDITIONAL),
+    CrfTuple(20, u'edc_appointment', u'TestCrfModel2', REQUIRED, NOT_ADDITIONAL),
+    CrfTuple(30, u'edc_appointment', u'TestCrfModel3', REQUIRED, NOT_ADDITIONAL),
 )
 
 requisitions = (
     RequisitionPanelTuple(
-        10L, u'edc_appointment', u'testrequisitionmodel',
+        10, u'edc_appointment', u'testrequisitionmodel',
         'Research Blood Draw', 'TEST', 'WB', REQUIRED, NOT_ADDITIONAL),
     RequisitionPanelTuple(
-        20L, u'edc_appointment', u'testrequisitionmodel', 'Viral Load', 'TEST', 'WB', REQUIRED, NOT_ADDITIONAL),
+        20, u'edc_appointment', u'testrequisitionmodel', 'Viral Load', 'TEST', 'WB', REQUIRED, NOT_ADDITIONAL),
     RequisitionPanelTuple(
-        30L, u'edc_appointment', u'testrequisitionmodel', 'Microtube', 'STORAGE', 'WB', REQUIRED, NOT_ADDITIONAL),
+        30, u'edc_appointment', u'testrequisitionmodel', 'Microtube', 'STORAGE', 'WB', REQUIRED, NOT_ADDITIONAL),
 )
 
 

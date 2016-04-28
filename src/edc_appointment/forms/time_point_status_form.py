@@ -24,3 +24,4 @@ class TimePointStatusForm(forms.ModelForm):
 
     class Meta:
         model = TimePointStatus
+        fields = '__all__'

@@ -10,3 +10,4 @@ class SubjectConfigurationForm (forms.ModelForm):
 
     class Meta:
         model = SubjectConfiguration
+        fields = '__all__'
