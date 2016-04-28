@@ -1,7 +1,7 @@
 from collections import OrderedDict, namedtuple, Counter
 
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models import get_model
+from django.apps import apps
 from django.db.utils import IntegrityError
 
 from edc_configuration.models import GlobalConfiguration
@@ -62,18 +62,18 @@ class VisitScheduleConfiguration(object):
         self.verify_visit_definitions_dict()
 
     def verify_membership_forms_dict(self):
-        for membership_form in self.membership_forms.itervalues():
+        for membership_form in self.membership_forms.values():
             if not issubclass(membership_form.__class__, MembershipFormTuple):
                 raise ImproperlyConfigured('Visit Schedule \'membership_forms\' '
                                            'must contain instances of the named tuple MembershipFormTuple. '
                                            'Got {0}'.format(membership_form))
-        for name, membership_form in self.membership_forms.iteritems():
+        for name, membership_form in self.membership_forms.items():
             if not name == membership_form.name:
                 raise ImproperlyConfigured('Visit Schedule \'membership_forms\' '
                                            'expects each dictionary key {0} to be in it\'s named tuple. '
                                            'Got {1}.'.format(name, membership_form.name))
         models = []
-        for name, membership_form in self.membership_forms.iteritems():
+        for name, membership_form in self.membership_forms.items():
             models.append(membership_form.model)
         duplicates = [item for item, count in Counter(models).items() if count > 1]
         if duplicates:
@@ -83,18 +83,18 @@ class VisitScheduleConfiguration(object):
                     ', '.join(['{}.{}'.format(m._meta.app_label, m._meta.model_name) for m in duplicates])))
 
     def verify_schedules_dict(self):
-        for schedule in self.schedules.itervalues():
+        for schedule in self.schedules.values():
             if not issubclass(schedule.__class__, ScheduleTuple):
                 raise ImproperlyConfigured('Visit Schedule \'schedules\' '
                                            'must contain instances of the named tuple ScheduleTuple. '
                                            'Got {0}'.format(schedule))
-        for name, schedule in self.schedules.iteritems():
+        for name, schedule in self.schedules.items():
             if not name == schedule.name:
                 raise ImproperlyConfigured('Visit Schedule \'schedules\' '
                                            'expects each dictionary key {0} to be in it\'s named tuple. '
                                            'Got {1}.'.format(name, schedule.name))
 
-        for schedule in self.schedules.itervalues():
+        for schedule in self.schedules.values():
             if schedule.membership_form_name not in self.membership_forms:
                 raise ImproperlyConfigured(
                     'Visit Schedule \'schedules\' has a scheduled not linked to '
@@ -102,9 +102,9 @@ class VisitScheduleConfiguration(object):
                     'or correct \'scheduled_groups\'.'.format(schedule.membership_form_name))
 
     def verify_visit_definitions_dict(self):
-        for visit_definition in self.visit_definitions.itervalues():
+        for visit_definition in self.visit_definitions.values():
             for crf in visit_definition.get('entries'):
-                model = get_model(crf.app_label, crf.model_name)
+                model = apps.get_model(crf.app_label, crf.model_name)
                 if not model:
                     raise ImproperlyConfigured('Visit Schedule entries refers '
                                                'to a CRF model {0}.{1} which does not exist.'.format(
@@ -116,7 +116,7 @@ class VisitScheduleConfiguration(object):
                         'Visit Schedule entries model {}.{} is missing an '
                         'entry_meta_data_manager.'.format(crf.app_label, crf.model_name))
             for requisition in visit_definition.get('requisitions'):
-                model = get_model(requisition.app_label, requisition.model_name)
+                model = apps.get_model(requisition.app_label, requisition.model_name)
                 if not model:
                     raise ImproperlyConfigured(
                         'Visit Schedule requisitions refers to model {0}.{1} which '
@@ -129,7 +129,7 @@ class VisitScheduleConfiguration(object):
                                                    requisition.app_label, requisition.model_name))
 
     def update_or_create_membership_forms(self):
-        for membership_form in self.membership_forms.itervalues():
+        for membership_form in self.membership_forms.values():
             try:
                 obj = MembershipForm.objects.get(category=membership_form.name)
                 obj.app_label = membership_form.model._meta.app_label
@@ -152,7 +152,7 @@ class VisitScheduleConfiguration(object):
                     visible=membership_form.visible)
 
     def update_or_create_schedules(self):
-        for group_name, schedule in self.schedules.iteritems():
+        for group_name, schedule in self.schedules.items():
             try:
                 obj = Schedule.objects.get(group_name=group_name)
                 obj.group_name = group_name
@@ -175,7 +175,7 @@ class VisitScheduleConfiguration(object):
                     comment=schedule.comment)
 
     def update_or_create_visit_definitions(self):
-        for code, visit_definition in self.visit_definitions.iteritems():
+        for code, visit_definition in self.visit_definitions.items():
             visit_tracking_content_type_map = self.get_content_type_map(
                 visit_definition.get('visit_tracking_model')._meta.app_label,
                 visit_definition.get('visit_tracking_model')._meta.model_name)
@@ -294,6 +294,7 @@ class VisitScheduleConfiguration(object):
 
     def get_content_type_map(self, app_label, model_name):
         try:
+            print('********{}'.format(ContentTypeMap.objects.all()))
             content_type_map = ContentTypeMap.objects.get(
                 app_label=app_label,
                 module_name__iexact=model_name)

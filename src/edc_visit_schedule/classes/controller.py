@@ -1,7 +1,10 @@
 import copy
 
 from django.conf import settings
-from django.utils.importlib import import_module
+try:
+    from django.utils.importlib import import_module
+except:
+    from django.utils.module_loading import import_module
 from django.utils.module_loading import module_has_submodule
 
 from .visit_schedule_configuration import VisitScheduleConfiguration
@@ -51,7 +54,7 @@ class Controller(object):
             visit_schedule.build()
 
     def build_all(self):
-        for visit_schedule in self.get_visit_schedules().itervalues():
+        for visit_schedule in self.get_visit_schedules().values():
             visit_schedule.build()
 
     def register(self, visit_schedule_configuration):

@@ -8,6 +8,7 @@ class MembershipFormForm(BaseModelForm):
 
     class Meta:
         model = Appointment
+        fields = '__all__'
 
     def clean(self):
         cleaned_data = self.cleaned_data
