@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import django
 from unipath import Path
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
@@ -33,7 +34,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,10 +42,13 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'edc_base',
-    'edc_crypto_fields',
     'edc_sync',
     'edc_registration',
-)
+]
+
+if float(django.get_version()) > 1.6:
+    INSTALLED_APPS.append('django_crypto_fields')
+    INSTALLED_APPS.append('simple_history')
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
