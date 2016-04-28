@@ -2,7 +2,7 @@ import copy
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.importlib import import_module
+from django.utils.module_loading import import_module
 from django.utils.module_loading import module_has_submodule
 
 from .base_section_view import BaseSectionView
@@ -127,7 +127,7 @@ class Controller(object):
         of the format (section_name, display_name, display_index)."""
         if not self._section_tuples:
             self._section_tuples = []
-            for inst in self.registry.itervalues():
+            for inst in self.registry.values():
                 tpl = SectionNamedTpl(
                     section_name=inst.section_name,
                     display_name=inst.section_display_name,
@@ -142,7 +142,7 @@ class Controller(object):
         return self.section_tuples
 
     def update_section_lists(self):
-        for section in self.registry.itervalues():
+        for section in self.registry.values():
             section.section_list = self.registry.keys()
 
     def unregister(self, section_name):
