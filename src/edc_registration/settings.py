@@ -12,8 +12,9 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from datetime import datetime
 from unipath import Path
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -39,7 +40,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'edc-audit',
+    'edc_base',
+    'edc_crypto_fields',
+    'edc_sync',
+    'edc_registration',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -47,10 +51,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+    # 'django.middleware.security.SecurityMiddleware',
 )
 
 ROOT_URLCONF = 'edc_registration.urls'
@@ -71,7 +75,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'edc_registration.wsgi.application'
 
 
 # Database
@@ -96,7 +100,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -105,3 +109,18 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 GIT_DIR = BASE_DIR.ancestor(1)
+
+SITE_CODE = '10'
+# SUBJECT_TYPES = ['test_subject_type']
+DEVICE_ID = '10'
+SERVER_DEVICE_ID_LIST = [99]
+MIDDLEMAN_DEVICE_ID_LIST = []
+PROJECT_ROOT = BASE_DIR.ancestor(1)
+FIELD_MAX_LENGTH = 'default'
+IS_SECURE_DEVICE = True
+KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
+KEY_PREFIX = 'user'
+ALLOW_MODEL_SERIALIZATION = False
+# MAX_SUBJECTS = 0
+DISPATCH_APP_LABELS = []
+STUDY_OPEN_DATETIME = timezone.now() - relativedelta(years=1)
