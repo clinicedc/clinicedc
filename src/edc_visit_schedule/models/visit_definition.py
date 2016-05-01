@@ -36,7 +36,6 @@ class VisitDefinition(BaseWindowPeriodItem):
 
     schedule = models.ManyToManyField(
         Schedule,
-        null=True,
         blank=True,
         help_text="Visit definition may be used in more than one schedule")
 
