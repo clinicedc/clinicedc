@@ -1,6 +1,5 @@
 from django.db.models import ForeignKey, OneToOneField
 from django.apps import apps as django_apps
-
 from .exceptions import VisitTrackingError
 from .models import VisitModelMixin
 

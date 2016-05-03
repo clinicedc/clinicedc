@@ -34,7 +34,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,7 +50,7 @@ INSTALLED_APPS = (
     'edc_content_type_map',
     'edc_visit_schedule',
     'edc_visit_tracking',
-)
+]
 
 if 'test' in sys.argv:
     INSTALLED_APPS = INSTALLED_APPS + [

@@ -2,7 +2,8 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 
 from edc_constants.constants import (
-    YES, NO, DEAD, OFF_STUDY, LOST_VISIT, COMPLETED_PROTOCOL_VISIT, MISSED_VISIT, UNKNOWN, ALIVE, PARTICIPANT)
+    YES, NO, DEAD, OFF_STUDY, LOST_VISIT, COMPLETED_PROTOCOL_VISIT,
+    MISSED_VISIT, UNKNOWN, ALIVE, PARTICIPANT)
 
 
 class VisitFormMixin(object):
@@ -47,6 +48,9 @@ class VisitFormMixin(object):
         try:
             consent = self._meta.model.consent_model.objects.get(
                 registered_subject=registered_subject)
+        except self._meta.model.consent_model.MultipleObjectsReturned:
+            consent = self._meta.model.consent_model.objects.filter(
+                registered_subject=registered_subject).order_by('version').first()
         except ObjectDoesNotExist:
             raise forms.ValidationError(
                 '\'{}\' does not exist for subject.'.format(self._meta.model.consent_model._meta.verbose_name))

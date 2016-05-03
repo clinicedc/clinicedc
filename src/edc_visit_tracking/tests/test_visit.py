@@ -22,7 +22,7 @@ class TesVisitForm(VisitFormMixin, forms.ModelForm):
 
     class Meta:
         model = TestVisitModel
-
+        fields = '__all__'
 
 class TestVisitA(TestCase):
 
