@@ -1,13 +1,14 @@
 from django.core.validators import RegexValidator
 from django.db import models
+from django_crypto_fields.mixins import CryptoMixin
 
 from edc_base.encrypted_fields import FirstnameField, LastnameField, EncryptedCharField
 from edc_consent.models.validators import FullNameValidator
-from edc_consent.plain_fields import IsDateEstimatedField
+from edc_base.model.fields import IsDateEstimatedField
 from edc_constants.choices import GENDER_UNDETERMINED
 
 
-class PersonalFieldsMixin(models.Model):
+class PersonalFieldsMixin(CryptoMixin, models.Model):
 
     SUBJECT_TYPES = ['subject']
     GENDER_OF_CONSENT = ['M', 'F']

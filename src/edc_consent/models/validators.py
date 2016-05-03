@@ -4,10 +4,12 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 
 from django.core.exceptions import ValidationError
+from django.utils.deconstruct import deconstructible
 
 from edc_constants.constants import YES, NO, DECLINED, UNKNOWN, MALE, NEG, POS
 
 
+@deconstructible
 class SubjectTypeValidator:
 
     def __init__(self, subject_types):
@@ -19,18 +21,26 @@ class SubjectTypeValidator:
                 'Undefined subject type. Expected one of \'{subject_types}\'. Got \'{value}\'.',
                 params={'subject_types': '\' or \''.join(self.subject_types), 'value': value})
 
+    def __eq__(self, other):
+        return self.subject_types == other.subject_types
 
+
+@deconstructible
 class FullNameValidator:
 
-    def __init__(self):
-        self.regex = re.compile('^[A-Z]{1,50}\, [A-Z]{1,50}$')
+    def __init__(self, regex=None):
+        self.regex = regex or re.compile('^[A-Z]{1,50}\, [A-Z]{1,50}$')
 
     def __call__(self, value):
         if not re.match(self.regex, value):
             raise ValidationError(
                 'Invalid format. Format is \'LASTNAME, FIRSTNAME\'. All uppercase separated by a comma')
 
+    def __eq__(self, other):
+        return self.regex == other.regex
 
+
+@deconstructible
 class AgeTodayValidator(object):
 
     def __init__(self, min_age_in_years, max_age_in_years):
@@ -49,6 +59,9 @@ class AgeTodayValidator(object):
                 code='invalid',
                 params={'min_age': self.min_age, 'max_age': self.max_age, 'age': rdelta.years, 'dob': dob}
             )
+
+    def __eq__(self, other):
+        return self.min_age_in_years == other.min_age_in_years and self.max_age_in_years == other.max_age_in_years
 
 
 def dob_not_future(value):

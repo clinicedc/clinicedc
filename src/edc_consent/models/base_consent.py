@@ -2,14 +2,13 @@ from uuid import uuid4
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
+from django_crypto_fields.fields import EncryptedTextField
+from simple_history.models import HistoricalRecords as AuditTrail
 
-from edc_base.audit_trail import AuditTrail
-from edc_base.encrypted_fields import EncryptedTextField
 from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start
-from edc_consent.exceptions import ConsentTypeError
-from edc_consent.utils import formatted_age, age
+from edc_base.utils import formatted_age, age
 
-from ..exceptions import ConsentVersionError
+from ..exceptions import ConsentVersionError, ConsentTypeError
 
 from .consent_type import ConsentType
 from .fields.verification_fields_mixin import VerificationFieldsMixin

@@ -1,12 +1,9 @@
 from django.core.exceptions import MultipleObjectsReturned
-try:
-    from django.apps import apps
-except ImportError:
-    from django.db.models import get_model  # Django 1.6
+from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import Q
+from simple_history.models import HistoricalRecords as AuditTrail
 
-from edc_base.audit_trail import AuditTrail
 from edc_base.model.validators import datetime_not_before_study_start
 
 from ..exceptions import ConsentTypeError
@@ -113,10 +110,7 @@ class ConsentType(models.Model):
 
     def model_class(self):
         """Returns the consent model class."""
-        try:
-            return apps.get_model(self.app_label, self.model_name)
-        except (NameError, ):
-            return get_model(self.app_label, self.model_name)  # Django 1.6
+        return django_apps.get_model(self.app_label, self.model_name)
 
     class Meta:
         app_label = 'edc_consent'

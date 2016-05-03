@@ -1,8 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django_crypto_fields.fields import IdentityField
 
-from edc_base.encrypted_fields import IdentityField
-from edc_consent.plain_fields import IdentityTypeField
+from edc_base.model.fields import IdentityTypeField
 
 
 class IdentityFieldsMixin(models.Model):
