@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
 from unipath import Path
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
@@ -40,23 +41,28 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'edc_offstudy',
-    'edc_testing',
-    'edc_appointment',
+    'django_crypto_fields',
+    'simple_history',
     'edc_base',
-    'edc_configuration',
-    'edc_consent',
-    'edc_content_type_map',
-    'edc_crypto_fields',
-    'edc_data_manager',
-    'edc_export',
-    'edc_lab.lab_clinic_api',
-    'edc_meta_data',
+    'edc_appointment',
     'edc_registration',
-    'edc_sync',
+    'edc_meta_data',
+    'edc_content_type_map',
     'edc_visit_schedule',
     'edc_visit_tracking',
 )
+
+if 'test' in sys.argv:
+    INSTALLED_APPS = INSTALLED_APPS + [
+        'edc_offstudy',
+        'edc_testing',
+        'edc_configuration',
+        'edc_consent',
+        'edc_data_manager',
+        'edc_export',
+        'edc_lab.lab_clinic_api',
+        'edc_sync',
+    ]
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
