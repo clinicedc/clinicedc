@@ -28,7 +28,7 @@ class BaseSectionView(object):
 
     def update_context(self, **kwargs):
         """Updates the template context."""
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             self.context[k] = v
 
     @property
@@ -136,6 +136,6 @@ class BaseSectionView(object):
 
     def search_url_patterns(self, view):
         url_patterns = []
-        for searcher in self.search.itervalues():
+        for searcher in self.search.values():
             url_patterns += searcher().url_patterns(view, self.section_name)
         return url_patterns
