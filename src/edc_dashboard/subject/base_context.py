@@ -1,6 +1,6 @@
 import copy
 
-from django.db.models import get_model
+from django.apps import apps
 from django.core.urlresolvers import reverse, NoReverseMatch
 
 from edc_base.utils import convert_from_camel
@@ -100,7 +100,7 @@ class BaseContext(object):
         """Returns the model class of the model referred to by the crf entry."""
         app_label = self.meta_data_instance.crf_entry.app_label
         model_name = self.meta_data_instance.crf_entry.model_name
-        return get_model(app_label, model_name)
+        return apps.get_model(app_label, model_name)
 
     @property
     def model_url(self):
