@@ -41,14 +41,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crypto_fields',
+    'simple_history',
     'edc_base',
     'edc_sync',
     'edc_registration',
 ]
-
-if float(django.get_version()) > 1.6:
-    INSTALLED_APPS.append('django_crypto_fields')
-    INSTALLED_APPS.append('simple_history')
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',

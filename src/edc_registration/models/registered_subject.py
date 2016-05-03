@@ -9,11 +9,12 @@ from django.db import models, transaction
 from django.utils.translation import ugettext as _
 
 from edc_base.audit_trail import AuditTrail
-from edc_base.encrypted_fields import (
-    IdentityField, EncryptedCharField, FirstnameField, LastnameField, mask_encrypted)
+from django_crypto_fields.fields import (
+    IdentityField, EncryptedCharField, FirstnameField, LastnameField)
+from django_crypto_fields.utils import mask_encrypted
 from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
-from edc_base.model.models.base_uuid_model import BaseUuidModel
+from edc_base.model.models import BaseUuidModel
 from edc_constants.choices import YES_NO, POS_NEG_UNKNOWN, ALIVE_DEAD_UNKNOWN
 from edc_sync.models import SyncModelMixin
 
