@@ -136,7 +136,7 @@ class Appointment(SyncModelMixin, BaseUuidModel):
     def natural_key(self):
         """Returns a natural key."""
         return (self.visit_instance, ) + self.visit_definition.natural_key() + self.registered_subject.natural_key()
-    natural_key.dependencies = ['edc_registration.registeredsubject', 'edc_visit_tracking.visitdefinition']
+    natural_key.dependencies = ['edc_registration.registeredsubject', 'edc_visit_schedule.visitdefinition']
 
     def validate_visit_instance(self, exception_cls=None):
         exception_cls = exception_cls or ValidationError
