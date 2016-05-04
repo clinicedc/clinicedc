@@ -9,7 +9,7 @@ import edc_base.model.fields.hostname_modification_field
 import edc_base.model.fields.userfield
 import edc_base.model.fields.uuid_auto_field
 import uuid
-
+from unipath import Path
 
 class Migration(migrations.Migration):
 
@@ -142,7 +142,7 @@ class Migration(migrations.Migration):
                 ('hostname_modified', edc_base.model.fields.hostname_modification_field.HostnameModificationField(editable=False, help_text='System field. (modified on every save)', max_length=50)),
                 ('revision', django_revision.revision_field.RevisionField(blank=True, editable=False, help_text='System field. Git repository tag:branch:commit.', max_length=75, null=True, verbose_name='Revision')),
                 ('id', edc_base.model.fields.uuid_auto_field.UUIDAutoField(editable=False, help_text='System field. UUID primary key.', primary_key=True, serialize=False)),
-                ('export_receipt_file', models.FileField(upload_to=Path('/Users/sirone/Documents/workspace/git_projects/tshilo-dikotla-apps/edc-export/edc_export/uploads'))),
+                ('export_receipt_file', models.FileField(upload_to=Path('/home/django/uploads'))),
                 ('file_name', models.CharField(editable=False, max_length=50, null=True, unique=True)),
                 ('app_label', models.CharField(max_length=50)),
                 ('object_name', models.CharField(max_length=50)),
