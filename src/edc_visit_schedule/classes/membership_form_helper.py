@@ -1,4 +1,5 @@
 from django.db import models
+from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
 
 from edc_base.model.models import BaseModel
@@ -20,7 +21,7 @@ class MembershipFormHelper(object):
 
         Specify the registered_subject and the membership_form_category.
         """
-        Schedule = models.get_model('edc_visit_schedule', 'Schedule')
+        Schedule = apps.get_model('edc_visit_schedule', 'Schedule')
         extra_grouping_key = kwargs.get("exclude_others_if_keyed_model_name", None)
         self._set_keyed()
         self._set_unkeyed()
@@ -101,7 +102,7 @@ class MembershipFormHelper(object):
 
         Model class must have a key to registered_subject and may not be None."""
         self._model = None
-        Schedule = models.get_model('edc_visit_schedule', 'Schedule')
+        Schedule = apps.get_model('edc_visit_schedule', 'Schedule')
         if isinstance(schedule, Schedule):
             if not schedule.membership_form.content_type_map.model_class():
                 raise ImproperlyConfigured(
@@ -131,8 +132,8 @@ class MembershipFormHelper(object):
         .. note:: category may be a string delimited by commas like
             'subject, maternal' or just 'subject'. Below
             the string values are converted to listed and concatenated into one unique list."""
-        MembershipForm = models.get_model('edc_visit_schedule', 'MembershipForm')
-        Schedule = models.get_model('edc_visit_schedule', 'Schedule')
+        MembershipForm = apps.get_model('edc_visit_schedule', 'MembershipForm')
+        Schedule = apps.get_model('edc_visit_schedule', 'Schedule')
         # convert MembershipForm category field values into a unique list
         categories = []
         for membership_form in MembershipForm.objects.all():

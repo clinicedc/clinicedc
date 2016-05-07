@@ -1,4 +1,5 @@
 from django.db import models
+from django.apps import apps
 
 from edc_content_type_map.models import ContentTypeMap
 
@@ -11,7 +12,7 @@ class MembershipFormManager(models.Manager):
 
     def codes_for_category(self, membership_form_category):
         """ Lists visit codes for this membership form category."""
-        VisitDefinition = models.get_model('edc_visit_schedule', 'visitdefinition')
+        VisitDefinition = apps.get_model('edc_visit_schedule', 'visitdefinition')
         membership_forms = super(MembershipFormManager, self).filter(category=membership_form_category)
         visit_definition_codes = set()
         for membership_form in membership_forms:
