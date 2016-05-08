@@ -478,13 +478,13 @@ class RegisteredSubjectDashboard(Dashboard):
                 context.update({'locator': None})
                 locator_add_url = reverse(
                     'admin:{}_{}_add'.format(
-                        self.locator_model._meta.app_label, self.locator_model._meta.module_name))
+                        self.locator_model._meta.app_label, self.locator_model._meta.model_name))
             if self.locator_inst:
                 context.update({'locator': self.locator_inst})
                 locator_change_url = reverse(
                     'admin:{}_{}_change'.format(
                         self.locator_model._meta.app_label,
-                        self.locator_model._meta.module_name), args=(self.locator_inst.pk, ))
+                        self.locator_model._meta.model_name), args=(self.locator_inst.pk, ))
                 for field in self.locator_inst._meta.fields:
                     if isinstance(field, (TextField)):
                         value = getattr(self.locator_inst, field.name)
