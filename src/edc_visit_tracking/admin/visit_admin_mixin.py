@@ -61,7 +61,7 @@ class VisitAdminMixin(object):
         self.radio_fields = {'require_crfs': admin.VERTICAL}
         if issubclass(self.model, CaretakerFieldsMixin):
             self.radio_fields.update({
-                'information_provider': admin.VERTICAL,
+                #'information_provider': admin.VERTICAL,
                 'is_present': admin.VERTICAL,
                 'survival_status': admin.VERTICAL,
             })
