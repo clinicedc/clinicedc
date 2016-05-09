@@ -1,8 +1,9 @@
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist
 
 from edc_constants.constants import (
-    YES, NO, DEAD, OFF_STUDY, LOST_VISIT, COMPLETED_PROTOCOL_VISIT, MISSED_VISIT, UNKNOWN, ALIVE, PARTICIPANT)
-from django.core.exceptions import ObjectDoesNotExist
+    YES, NO, DEAD, OFF_STUDY, LOST_VISIT, COMPLETED_PROTOCOL_VISIT,
+    MISSED_VISIT, UNKNOWN, ALIVE, PARTICIPANT)
 
 
 class VisitFormMixin(object):

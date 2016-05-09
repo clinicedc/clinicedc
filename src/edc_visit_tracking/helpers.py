@@ -1,11 +1,5 @@
-import django
 from django.db.models import ForeignKey, OneToOneField
-try:
-    from django.db import models as apps
-    from django.db.models import get_app
-except ImportError:
-    from django.apps import apps
-
+from django.apps import apps as django_apps
 from .exceptions import VisitTrackingError
 from .models import VisitModelMixin
 
@@ -81,11 +75,7 @@ class VisitModelHelper(object):
 
     def get_visit_model(self, instance):
         """ given the instance (or class) of a model, return the visit model of its app """
-        if float(django.get_version()) < 1.9:
-            app_registry = get_app
-        else:
-           app_registry = apps.get_app_config
-        for model in apps.get_models(app_registry(instance._meta.app_label)):
+        for model in django_apps.get_models(django_apps.get_app(instance._meta.app_label)):
             if isinstance(model(), VisitModelMixin):
                 return model
         raise TypeError(
