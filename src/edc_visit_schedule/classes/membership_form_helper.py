@@ -49,7 +49,7 @@ class MembershipFormHelper(object):
         from edc_appointment.models import AppointmentMixin
         if not group:
             group = 'no_group'
-        if not isinstance(group, basestring):
+        if not isinstance(group, str):
             raise TypeError('Expected parameter group to be a string')
         if not isinstance(obj, AppointmentMixin):
             raise TypeError('Expected an instance of AppointmentMixin. Models {0} of group \'{1}\' is being '
@@ -67,7 +67,7 @@ class MembershipFormHelper(object):
         from edc_appointment.models import AppointmentMixin
         if not group:
             group = 'no_group'
-        if not isinstance(group, basestring):
+        if not isinstance(group, str):
             raise TypeError('Expected parameter group to be a string')
         if not issubclass(cls, AppointmentMixin):
             raise TypeError('Expected a model class using mixin AppointmentMixin')
@@ -164,22 +164,22 @@ class MembershipFormHelper(object):
     def _remove_unkeyed_by_extra_grouping_key(self, extra_grouping_key):
         """Removes from unkeyed if the unkeyed object name startswith string extra_grouping_key."""
         if extra_grouping_key:
-            for inst in self._get_keyed().itervalues():
+            for inst in self._get_keyed().values():
                 if inst._meta.object_name.lower() == extra_grouping_key:
-                    for grouping_key, cls in self._get_unkeyed().iteritems():
+                    for grouping_key, cls in self._get_unkeyed().items():
                         if cls._meta.object_name.lower().startswith(extra_grouping_key):
                             del self._get_unkeyed()[grouping_key]
 
     def _format_for_return(self):
         keyed = []
-        for inst in [inst for inst in self._get_keyed().itervalues()]:
+        for inst in [inst for inst in self._get_keyed().values()]:
             if isinstance(inst, list):
                 for i in inst:
                     keyed.append(i)
             else:
                 keyed.append(inst)
         unkeyed = []
-        for cls in [cls for cls in self._get_unkeyed().itervalues()]:
+        for cls in [cls for cls in self._get_unkeyed().values()]:
             if isinstance(cls, list):
                 for c in cls:
                     unkeyed.append(c)

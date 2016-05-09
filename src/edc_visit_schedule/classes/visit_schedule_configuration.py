@@ -294,7 +294,6 @@ class VisitScheduleConfiguration(object):
 
     def get_content_type_map(self, app_label, model_name):
         try:
-            print('********{}'.format(ContentTypeMap.objects.all()))
             content_type_map = ContentTypeMap.objects.get(
                 app_label=app_label,
                 module_name__iexact=model_name)
