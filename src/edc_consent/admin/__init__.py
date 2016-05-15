@@ -1,0 +1,1 @@
+from .consent_type_admin import ConsentTypeAdmin
