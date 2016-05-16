@@ -1,15 +1,14 @@
 from django.db import models
 from django.utils import timezone
+from simple_history.models import HistoricalRecords as AuditTrail
 
 from edc_base.model.models import BaseUuidModel
-from edc_base.audit_trail import AuditTrail
 from edc_consent.forms.base_consent_form import BaseConsentForm
 from edc_consent.models import BaseConsent, RequiresConsentMixin, BaseSpecimenConsent
 from edc_consent.models.fields import (
     IdentityFieldsMixin, SampleCollectionFieldsMixin, PersonalFieldsMixin,
     VulnerabilityFieldsMixin, SiteFieldsMixin)
 from edc_quota.client.models import QuotaMixin, QuotaManager
-from edc_registration.models import RegisteredSubject
 
 
 class ConsentQuotaMixin(QuotaMixin):
