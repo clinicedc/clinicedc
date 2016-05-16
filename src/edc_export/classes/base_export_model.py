@@ -8,7 +8,7 @@ from datetime import datetime
 
 from django.db.models.constants import LOOKUP_SEP
 
-from edc_base.encrypted_fields import BaseEncryptedField
+from django_crypto_fields.fields import BaseField as BaseEncryptedField
 
 from ..models import ExportHistory
 from django.utils import timezone

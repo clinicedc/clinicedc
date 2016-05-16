@@ -39,29 +39,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crypto_fields',
+    'simple_history',
     'edc_appointment',
     'edc_base',
     'edc_configuration',
     'edc_consent',
     'edc_content_type_map',
     'edc_data_manager',
-    'edc_export',
-    'edc_lab.lab_clinic_api',
-    'edc_lab.lab_clinic_reference',
-    'edc_lab.lab_packing',
+    #'edc_lab.lab_clinic_api',
+    #'edc_lab.lab_clinic_reference',
+    #'edc_lab.lab_packing',
     'edc_meta_data',
     'edc_offstudy',
     'edc_registration',
     'edc_sync',
-    'edc_testing',
+    # 'edc_testing',
     'edc_visit_schedule',
     'edc_visit_tracking',
-    'lab_requisition',
+    #'lab_requisition',
+    'edc_export',
 ]
-
-if float(django.get_version()) > 1.6:
-    INSTALLED_APPS.append('django_crypto_fields')
-    INSTALLED_APPS.append('simple_history')
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',

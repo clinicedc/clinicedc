@@ -1,12 +1,10 @@
 import json
+
 from datetime import datetime
 from django.core import serializers
-try:
-    from django.db import models as apps
-except:
-    from django.apps import apps
+from django.apps import apps as django_apps
+from django_crypto_fields.classes import FieldCryptor
 
-from edc_base.encrypted_fields import FieldCryptor
 from edc_export.classes import ExportAsCsv, ExportJsonAsCsv
 
 
@@ -65,7 +63,7 @@ def export_tx_to_csv_action(description="Export transaction in each selected obj
             if not model:
                 app_label = qs.app_label
                 model_name = qs.object_name
-                model = apps.get_model(app_label, model_name)
+                model = django_apps.get_model(app_label, model_name)
             else:
                 if not app_label == qs.app_label or not model_name == qs.object_name:
                     raise ValueError(
