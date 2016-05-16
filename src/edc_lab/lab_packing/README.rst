@@ -1,7 +1,7 @@
 In models define a proxy model packing list for each requisition model, like this
 
     from django.db import models
-    from edc_base.audit_trail import AuditTrail
+    from simple_history.models import HistoricalRecords as AuditTrail
     from lab_packing.models import PackingList
 
 

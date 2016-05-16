@@ -1,6 +1,6 @@
 from django.db import models
+from simple_history.models import HistoricalRecords as AuditTrail
 
-from edc_base.audit_trail import AuditTrail
 from edc_lab.lab_clinic_api.models import TestCode
 
 from lis.core.lab_reference.models import BaseReferenceListItem

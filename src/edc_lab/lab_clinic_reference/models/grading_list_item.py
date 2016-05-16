@@ -1,8 +1,9 @@
 from django.db import models
-from lis.core.lab_reference.models import BaseReferenceListItem
-from edc_base.audit_trail import AuditTrail
 from edc_constants.choices import YES_NO_NA
 from edc_lab.lab_clinic_api.models import TestCode
+from lis.core.lab_reference.models import BaseReferenceListItem
+from simple_history.models import HistoricalRecords as AuditTrail
+
 from .grading_list import GradingList
 
 

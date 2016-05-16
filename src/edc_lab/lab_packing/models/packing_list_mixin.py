@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.db import models
 
-from edc_base.audit_trail import AuditTrail
+from simple_history.models import HistoricalRecords as AuditTrail
 
 from .destination import Destination
 
