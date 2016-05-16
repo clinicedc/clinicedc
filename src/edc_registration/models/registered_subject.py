@@ -3,12 +3,12 @@ import re
 from uuid import uuid4
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.utils.translation import ugettext as _
 
-from edc_base.audit_trail import AuditTrail
+from simple_history.models import HistoricalRecords as AuditTrail
 from django_crypto_fields.fields import (
     IdentityField, EncryptedCharField, FirstnameField, LastnameField)
 from django_crypto_fields.utils import mask_encrypted
@@ -363,12 +363,15 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
     def dashboard(self):
         ret = None
         if self.subject_identifier:
-            url = reverse('subject_dashboard_url', kwargs={
-                'dashboard_type': self.subject_type.lower(),
-                'dashboard_id': self.pk,
-                'dashboard_model': 'registered_subject',
-                'show': 'appointments'})
-            ret = """<a href="{url}" />dashboard</a>""".format(url=url)
+            try:
+                url = reverse('subject_dashboard_url', kwargs={
+                    'dashboard_type': self.subject_type.lower(),
+                    'dashboard_id': self.pk,
+                    'dashboard_model': 'registered_subject',
+                    'show': 'appointments'})
+                ret = """<a href="{url}" />dashboard</a>""".format(url=url)
+            except NoReverseMatch:
+                pass
         return ret
     dashboard.allow_tags = True
 
