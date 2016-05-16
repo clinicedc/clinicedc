@@ -1,15 +1,14 @@
-from django.utils import timezone
 from datetime import date
 
 from django.db import models
 from django.utils.translation import ugettext as _
 
 from edc_base.model.validators import CellNumber, TelephoneNumber
-from edc_base.encrypted_fields import EncryptedCharField, EncryptedTextField
+from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 from edc_constants.choices import YES_NO, YES_NO_DOESNT_WORK
 from edc_constants.constants import YES
 
-from edc_base.audit_trail import AuditTrail
+from simple_history.models import HistoricalRecords as AuditTrail
 
 
 class LocatorMixin(models.Model):
