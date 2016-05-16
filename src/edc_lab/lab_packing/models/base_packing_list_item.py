@@ -1,5 +1,8 @@
 from django.db import models
-from django.db.models import get_model
+try:
+    from django.db import models as apps
+except:
+    from django.apps import apps
 
 from edc_registration.models import RegisteredSubject
 
@@ -54,7 +57,7 @@ class BasePackingListItem(models.Model):
         # TODO: doesn't work
         retval = "n/a"
         try:
-            Requisition = get_model(self._meta.app_label, self.requisition)
+            Requisition = apps.get_model(self._meta.app_label, self.requisition)
         except:
             Requisition = None
             retval = '?'
@@ -71,7 +74,7 @@ class BasePackingListItem(models.Model):
         # TODO: doesn't work
         retval = "n/a"
         try:
-            Requisition = get_model(self._meta.app_label, self.requisition)
+            Requisition = apps.get_model(self._meta.app_label, self.requisition)
         except:
             Requisition = None
             retval = '?'
@@ -84,7 +87,7 @@ class BasePackingListItem(models.Model):
         # TODO: doesn't work
         retval = "n/a"
         try:
-            Requisition = get_model(self._meta.app_label, self.requisition)
+            Requisition = apps.get_model(self._meta.app_label, self.requisition)
         except:
             Requisition = None
             retval = '?'

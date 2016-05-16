@@ -1,7 +1,10 @@
 import logging
 
 from django.db import models
-from django.db.models import get_model
+try:
+   from django.db import models as apps #import get_model
+except:
+   from django.apps import apps
 
 from edc_lab.lab_clinic_reference.classes import ClinicReferenceFlag, ClinicGradeFlag
 from edc_base.model.models import BaseUuidModel
@@ -70,7 +73,7 @@ class ResultItem(BaseResultItem, BaseUuidModel):
             return self.subject_type
 
     def get_grading_list(self):
-        return ('grading_list', get_model('lab_clinic_reference', 'gradinglistitem'))
+        return ('grading_list', apps.get_model('lab_clinic_reference', 'gradinglistitem'))
 
     def get_cls_reference_flag(self):
         return ClinicReferenceFlag
@@ -79,7 +82,7 @@ class ResultItem(BaseResultItem, BaseUuidModel):
         return ClinicGradeFlag
 
     def get_reference_list(self):
-        return ('reference_range_list', get_model('lab_clinic_reference', 'referencerangelistitem'))
+        return ('reference_range_list', apps.get_model('lab_clinic_reference', 'referencerangelistitem'))
 
     def get_test_code(self):
         return self.test_code.code

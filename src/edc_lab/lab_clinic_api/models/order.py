@@ -2,7 +2,10 @@ import logging
 
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import get_model
+try:
+    from django.db import models as apps
+except:
+    from django.apps import apps
 
 from edc_base.model.models import BaseUuidModel
 
@@ -73,7 +76,7 @@ class Order(BaseOrder, BaseUuidModel):
         # in the panel.
         # get the condition OK aliquot condition instance
         aliquot_condition_ok = AliquotCondition.objects.get_ok()
-        ResultItem = get_model('edc_lab', 'ResultItem')
+        ResultItem = apps.get_model('edc_lab', 'ResultItem')
         if not self.aliquot.aliquot_condition:
             # how can this be ??
             status = 'ERROR'
