@@ -2,7 +2,7 @@ from django.db import models
 
 from edc_meta_data.models import CrfMetaDataMixin
 from edc_appointment.models import AppointmentMixin
-from edc_base.audit_trail import AuditTrail
+from simple_history.models import HistoricalRecords as AuditTrail
 from edc_base.model.models import BaseUuidModel
 from edc_consent.models.base_consent import BaseConsent
 from edc_consent.models.fields import (
