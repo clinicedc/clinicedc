@@ -2,10 +2,7 @@ import copy
 
 from datetime import datetime, timedelta
 
-try:
-    from django.db import models as apps #import get_model
-except:
-    from django.apps import apps
+from django.apps import apps
 
 from edc_configuration.models import GlobalConfiguration
 
