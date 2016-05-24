@@ -15,7 +15,7 @@ class BaseSubjectIdentifier(object):
 
     def __init__(self, template=None, site_code=None, padding=None,
                  modulus=None, is_derived=None, add_check_digit=None,
-                 using=None):
+                 using=None, identifier_prefix=None):
 
         self.add_check_digit = True if add_check_digit is None else add_check_digit
         self.template = template or "{identifier_prefix}-{site_code}{device_id}{sequence}"
@@ -29,13 +29,13 @@ class BaseSubjectIdentifier(object):
         self.site_code = site_code
         self.using = using or 'default'
         try:
-            self.identifier_prefix = settings.PROJECT_IDENTIFIER_PREFIX
+            self.identifier_prefix = identifier_prefix or settings.PROJECT_IDENTIFIER_PREFIX
         except AttributeError:
             raise ImproperlyConfigured(
                 'Missing settings attribute PROJECT_IDENTIFIER_PREFIX. '
                 'Please add. For example, PROJECT_IDENTIFIER_PREFIX = \'041\' for project BHP041.')
         try:
-            self.modulus = settings.PROJECT_IDENTIFIER_MODULUS
+            self.modulus = modulus or settings.PROJECT_IDENTIFIER_MODULUS
         except AttributeError:
             self.modulus = 7
 
