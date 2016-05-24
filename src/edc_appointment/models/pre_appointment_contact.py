@@ -1,7 +1,7 @@
 from django.db import models
+from django_crypto_fields.fields import EncryptedTextField
+from simple_history.models import HistoricalRecords as AuditTrail
 
-from edc_base.audit_trail import AuditTrail
-from edc_base.encrypted_fields import EncryptedTextField
 from edc_base.model.models.base_uuid_model import BaseUuidModel
 from edc_constants.choices import YES_NO
 from edc_sync.models.sync_model_mixin import SyncModelMixin
