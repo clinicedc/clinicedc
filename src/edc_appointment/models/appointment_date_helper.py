@@ -139,7 +139,7 @@ class AppointmentDateHelper(object):
             appt_dates = [appointment.appt_datetime.date() for appointment in appointments]
             appt_date_counts = dict((i, appt_dates.count(i)) for i in appt_dates)
             # if desired date is not maxed out, use it
-            if appt_date_counts.get(my_appt_date) < appointments_per_day_max:
+            if not appt_date_counts.get(my_appt_date) or appt_date_counts.get(my_appt_date) < appointments_per_day_max:
                 appt_date = my_appt_date
             else:
                 # look for an alternative date
