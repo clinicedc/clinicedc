@@ -1,7 +1,12 @@
 from django.db import models
-
+from django.apps import apps as django_apps
 from edc_base.model.models import BaseUuidModel
-from edc_sync.models import SyncModelMixin
+
+if django_apps.is_installed('edc_sync'):
+    from edc_sync.models import SyncModelMixin
+    identifier_tracker_parents = (SyncModelMixin, BaseUuidModel)
+else:
+    identifier_tracker_parents = (BaseUuidModel, )
 
 
 class IdentifierTrackerManager(models.Manager):
@@ -10,7 +15,7 @@ class IdentifierTrackerManager(models.Manager):
         return self.get(identifier=identifier)
 
 
-class IdentifierTracker(SyncModelMixin, BaseUuidModel):
+class IdentifierTracker(*identifier_tracker_parents):
 
     """
     Used with class Identifier for non-subject identifiers

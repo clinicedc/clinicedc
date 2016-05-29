@@ -1,9 +1,15 @@
 from django.db import models
+from django.apps import apps as django_apps
 
 from edc_base.model.models import BaseUuidModel
-from edc_sync.models import SyncModelMixin
 
 from .base_identifier_model import BaseIdentifierModel
+
+if django_apps.is_installed('edc_sync'):
+    from edc_sync.models import SyncModelMixin
+    subject_identifier_parents = (BaseIdentifierModel, SyncModelMixin, BaseUuidModel)
+else:
+    subject_identifier_parents = (BaseIdentifierModel, BaseUuidModel, )
 
 
 class SubjectIdentifierManager(models.Manager):
@@ -12,7 +18,7 @@ class SubjectIdentifierManager(models.Manager):
         return self.get(identifier=identifier)
 
 
-class SubjectIdentifier(BaseIdentifierModel, SyncModelMixin, BaseUuidModel):
+class SubjectIdentifier(*subject_identifier_parents):
 
     objects = SubjectIdentifierManager()
 
