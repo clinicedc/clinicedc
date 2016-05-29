@@ -1,16 +1,29 @@
-from django.contrib import admin
+from django.contrib.admin import AdminSite
 
-from .forms import RegisteredSubjectForm
-from .models import RegisteredSubject
+from edc_base.modeladmin.mixins import ModelAdminBasicMixin
 
 
-class RegisteredSubjectAdmin(admin.ModelAdmin):
+class EdcRegistrationAdminSite(AdminSite):
+    """
+    For example:
+        add to urls:
+            url(r'^admin/registration/', registration_admin.urls),
+        then:
+            >>> reverse('registration_admin:registration_registeredsubject_add')
+            '/admin/registration/registeredsubject/add/'
+    """
+    site_header = 'Registration'
+    site_title = 'Registration'
+    index_title = 'Registration Administration'
+    site_url = '/registration/'
+registration_admin = EdcRegistrationAdminSite(name='registration_admin')
 
-    form = RegisteredSubjectForm
+
+class RegisteredSubjectModelAdminMixin(ModelAdminBasicMixin):
 
     date_hierarchy = 'registration_datetime'
 
-    list_display = (
+    mixin_list_display = (
         'subject_identifier',
         'dashboard',
         'first_name',
@@ -25,13 +38,15 @@ class RegisteredSubjectAdmin(admin.ModelAdmin):
         'created',
     )
 
-    readonly_fields = (
+    mixin_readonly_fields = (
         'subject_identifier',
         'subject_identifier_as_pk',
     )
-    search_fields = ('subject_identifier', 'first_name', 'initials',
-                     'sid', 'identity', 'id', 'registration_identifier')
-    list_filter = ('subject_type', 'registration_status', 'screening_datetime', 'registration_datetime', 'gender',
-                   'study_site', 'hiv_status', 'survival_status', 'may_store_samples', 'hostname_created')
 
-admin.site.register(RegisteredSubject, RegisteredSubjectAdmin)
+    mixin_search_fields = ('subject_identifier', 'first_name', 'initials',
+                           'sid', 'identity', 'id', 'registration_identifier')
+
+    mixin_list_filter = ('subject_type', 'registration_status', 'screening_datetime',
+                         'registration_datetime', 'gender',
+                         'study_site', 'hiv_status', 'survival_status',
+                         'may_store_samples', 'hostname_created')

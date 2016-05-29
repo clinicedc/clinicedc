@@ -8,15 +8,14 @@ from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.utils.translation import ugettext as _
 
-from simple_history.models import HistoricalRecords as AuditTrail
 from django_crypto_fields.fields import (
     IdentityField, EncryptedCharField, FirstnameField, LastnameField)
 from django_crypto_fields.utils import mask_encrypted
+from simple_history.models import HistoricalRecords as AuditTrail
+
 from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
-from edc_base.model.models import BaseUuidModel
 from edc_constants.choices import YES_NO, POS_NEG_UNKNOWN, ALIVE_DEAD_UNKNOWN
-from edc_sync.models import SyncModelMixin
 
 
 class RegisteredSubjectError(Exception):
@@ -29,7 +28,7 @@ class RegisteredSubjectManager(models.Manager):
         return self.get(subject_identifier_as_pk=subject_identifier_as_pk)
 
 
-class RegisteredSubject(SyncModelMixin, BaseUuidModel):
+class RegisteredSubjectModelMixin(models.Model):
 
     max_subjects = None
 
@@ -56,7 +55,7 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
             except TypeError as e:
                 raise RegisteredSubjectError(
                     'Expected a dictionary for settings.MAX_SUBJECTS. Got {}'.format(str(e)))
-        super(RegisteredSubject, self).__init__(*args, **kwargs)
+        super(RegisteredSubjectModelMixin, self).__init__(*args, **kwargs)
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
@@ -224,8 +223,7 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
         verbose_name="Data Management comment",
         max_length=150,
         null=True,
-        editable=False,
-        help_text='see also edc.data manager.')
+        editable=False)
 
     objects = RegisteredSubjectManager()
 
@@ -240,12 +238,12 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
         self.set_uuid_as_subject_identifier_if_none()
         self.raise_on_duplicate_subject_identifier(using)
         self.raise_on_changed_subject_identifier(using)
-        super(RegisteredSubject, self).save(*args, **kwargs)
+        super(RegisteredSubjectModelMixin, self).save(*args, **kwargs)
 
     def natural_key(self):
         return (self.subject_identifier_as_pk, )
 
-    def __unicode__(self):
+    def __str__(self):
         return "{subject_identifier} {subject_type} ({first_name} {initials}){sid}".format(
             subject_identifier=self.mask_subject_identifier(),
             subject_type=self.subject_type,
@@ -341,21 +339,6 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
     def is_dispatched(self):
         return False
 
-    def is_dispatchable_model(self):
-        return True
-
-    def bypass_for_edit_dispatched_as_item(self, using=None, update_fields=None):
-        # requery myself
-        obj = self.__class__.objects.using(using).get(pk=self.pk)
-        # dont allow values in these fields to change if dispatched
-        may_not_change_these_fields = [
-            (k, v) for k, v in obj.__dict__.iteritems()
-            if k not in ['study_site_id', 'registration_status', 'modified'] and not k.startswith('_')]
-        for k, v in may_not_change_these_fields:
-            if getattr(self, k) != v:
-                return False
-        return True
-
     def age(self):
         return self.screening_age_in_years
     age.allow_tags = True
@@ -376,7 +359,7 @@ class RegisteredSubject(SyncModelMixin, BaseUuidModel):
     dashboard.allow_tags = True
 
     class Meta:
-        app_label = 'edc_registration'
+        abstract = True
         verbose_name = 'Registered Subject'
         ordering = ['subject_identifier']
         unique_together = ('first_name', 'dob', 'initials', 'additional_key')
