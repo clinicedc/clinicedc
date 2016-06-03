@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from edc_base.modeladmin.admin import BaseModelAdmin
+from edc_base.modeladmin.mixins import ModelAdminBasicMixin
 
 
-class BaseLocatorModelAdmin(BaseModelAdmin):
+class ModelAdminLocatorMixin(ModelAdminBasicMixin):
 
-    fields = (
+    mixin_fields = (
         'date_signed',
         'mail_address',
         'home_visit_permission',
@@ -26,7 +26,7 @@ class BaseLocatorModelAdmin(BaseModelAdmin):
         'contact_phone',
     )
 
-    radio_fields = {
+    mixin_radio_fields = {
         "home_visit_permission": admin.VERTICAL,
         "may_follow_up": admin.VERTICAL,
         "may_call_work": admin.VERTICAL,

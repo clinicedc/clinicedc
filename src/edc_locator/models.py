@@ -1,15 +1,14 @@
-from django.utils import timezone
 from datetime import date
 
 from django.db import models
 from django.utils.translation import ugettext as _
 
 from edc_base.model.validators import CellNumber, TelephoneNumber
-from edc_base.encrypted_fields import EncryptedCharField, EncryptedTextField
+from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 from edc_constants.choices import YES_NO, YES_NO_DOESNT_WORK
 from edc_constants.constants import YES
 
-from edc_base.audit_trail import AuditTrail
+from simple_history.models import HistoricalRecords as AuditTrail
 
 
 class LocatorMixin(models.Model):
@@ -157,6 +156,31 @@ class LocatorMixin(models.Model):
     )
 
     history = AuditTrail()
+
+    def to_dict(self):
+        data = {}
+        if self.may_follow_up == YES:
+            data.update({
+                'may_sms_follow_up': YES,
+                'subject_cell': self.subject_cell or '(none)' + '/' + self.subject_cell_alt if self.subject_cell_alt else '',
+                'subject_phone': self.subject_phone or '(none)' + '/' + self.subject_phone_alt if self.subject_phone_alt else '',
+                'physical_address': self.physical_address,
+            })
+            if self.may_call_work == YES:
+                data.update({
+                    'subject_work_place': self.subject_work_place or '(work place not known)',
+                    'subject_work_phone': self.subject_work_phone,
+                })
+            if self.may_contact_someone == YES:
+                data.update({
+                    'contact_name': self.contact_name or '(name?)',
+                    'contact_rel': self.contact_rel or '(relation?)',
+                    'contact_cell': self.contact_cell or '(----)',
+                    'contact_phone': self.contact_phone or '(----)'
+                })
+        if not data:
+            data = {'IMPORTANT': 'subject may NOT be contacted!'}
+        return data
 
     def to_string(self):
         """Returns a formatted string that summarizes contact and locator info."""
