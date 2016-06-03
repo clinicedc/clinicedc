@@ -21,7 +21,6 @@ class LocatorMixin(models.Model):
     )
 
     mail_address = EncryptedTextField(
-        max_length=500,
         verbose_name=_("Mailing address "),
         help_text="",
         null=True,
@@ -36,7 +35,6 @@ class LocatorMixin(models.Model):
     )
 
     physical_address = EncryptedTextField(
-        max_length=500,
         verbose_name=_("Physical address with detailed description"),
         blank=True,
         null=True,
@@ -60,7 +58,6 @@ class LocatorMixin(models.Model):
     )
 
     subject_cell = EncryptedCharField(
-        max_length=8,
         verbose_name=_("Cell number"),
         validators=[CellNumber, ],
         blank=True,
@@ -69,7 +66,6 @@ class LocatorMixin(models.Model):
     )
 
     subject_cell_alt = EncryptedCharField(
-        max_length=8,
         verbose_name=_("Cell number (alternate)"),
         validators=[CellNumber, ],
         help_text="",
@@ -78,7 +74,6 @@ class LocatorMixin(models.Model):
     )
 
     subject_phone = EncryptedCharField(
-        max_length=8,
         verbose_name=_("Telephone"),
         validators=[TelephoneNumber, ],
         help_text="",
@@ -87,7 +82,6 @@ class LocatorMixin(models.Model):
     )
 
     subject_phone_alt = EncryptedCharField(
-        max_length=8,
         verbose_name=_("Telephone (alternate)"),
         help_text="",
         validators=[TelephoneNumber, ],
@@ -103,7 +97,6 @@ class LocatorMixin(models.Model):
     )
 
     subject_work_place = EncryptedTextField(
-        max_length=500,
         verbose_name=_("Name and location of work place"),
         help_text="",
         blank=True,
@@ -111,7 +104,6 @@ class LocatorMixin(models.Model):
     )
 
     subject_work_phone = EncryptedCharField(
-        max_length=8,
         verbose_name=_("Work contact number "),
         help_text="",
         # validators=[TelephoneNumber, ],
@@ -128,7 +120,6 @@ class LocatorMixin(models.Model):
     )
 
     contact_name = EncryptedCharField(
-        max_length=35,
         verbose_name=_("Full names of the contact person"),
         blank=True,
         null=True,
@@ -136,7 +127,6 @@ class LocatorMixin(models.Model):
     )
 
     contact_rel = EncryptedCharField(
-        max_length=35,
         verbose_name=_("Relationship to participant"),
         blank=True,
         null=True,
@@ -144,7 +134,6 @@ class LocatorMixin(models.Model):
     )
 
     contact_physical_address = EncryptedTextField(
-        max_length=500,
         verbose_name=_("Full physical address "),
         blank=True,
         null=True,
@@ -152,7 +141,6 @@ class LocatorMixin(models.Model):
     )
 
     contact_cell = EncryptedCharField(
-        max_length=8,
         verbose_name=_("Cell number"),
         validators=[CellNumber, ],
         help_text="",
@@ -161,7 +149,6 @@ class LocatorMixin(models.Model):
     )
 
     contact_phone = EncryptedCharField(
-        max_length=8,
         verbose_name=_("Telephone number"),
         validators=[TelephoneNumber, ],
         help_text="",
