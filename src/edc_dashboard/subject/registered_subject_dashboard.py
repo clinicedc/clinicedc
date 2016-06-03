@@ -9,7 +9,7 @@ from django.db.models import TextField, Count
 from django.template.loader import render_to_string
 
 from edc_appointment.models import Appointment, SubjectConfiguration
-from edc_base.encrypted_fields import EncryptedTextField
+from django_crypto_fields.fields import EncryptedTextField
 from edc_base.utils import convert_from_camel
 from edc_configuration.models import GlobalConfiguration
 from edc_constants.constants import NEW, NOT_REQUIRED, UNKEYED, KEYED, NEW_APPT, COMPLETE_APPT, IN_PROGRESS

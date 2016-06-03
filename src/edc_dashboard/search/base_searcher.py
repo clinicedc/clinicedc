@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import Q
 from django.core.exceptions import ImproperlyConfigured
 
-from edc_base.encrypted_fields import BaseEncryptedField
+from django_crypto_fields.fields import BaseField
 
 from ..exceptions import SearchError
 from ..forms import SearchForm
@@ -84,7 +84,7 @@ class BaseSearcher(object):
             search_value = form.data.get(self.search_form_field_name)
             qset = Q()
             for field in self.search_model._meta.fields:
-                if isinstance(field, BaseEncryptedField):
+                if isinstance(field, BaseField):
                     qset.add(Q(**{'{0}__exact'.format(field.name): search_value}), Q.OR)
                 elif isinstance(field, (models.CharField, models.TextField)):
                     qset.add(Q(**{'{0}__icontains'.format(field.name): search_value}), Q.OR)
