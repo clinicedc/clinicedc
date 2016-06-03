@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from edc_base.modeladmin.admin import BaseModelAdmin
 from edc_meta_data.admin import CrfEntryInline, LabEntryInline
 
+from .base_model_admin import BaseModelAdmin
 from ..models import VisitDefinition
 
 
