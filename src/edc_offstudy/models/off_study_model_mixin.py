@@ -2,7 +2,7 @@ from datetime import datetime, time
 
 from django.db import models
 
-from edc_base.encrypted_fields import mask_encrypted
+#from django_crypto_fields.fields import mask_encrypted
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators.date import date_not_before_study_start, date_not_future
 
@@ -56,11 +56,11 @@ class OffStudyModelMixin(models.Model):
     def natural_key(self):
         return (self.offstudy_date, ) + self.registered_subject.natural_key()
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0} {1} ({2})".format(
             self.registered_subject.subject_identifier,
-            self.registered_subject.subject_type,
-            mask_encrypted(self.registered_subject.first_name))
+            self.registered_subject.subject_type)
+            #mask_encrypted(self.registered_subject.first_name))
 
     def save(self, *args, **kwargs):
         self.off_study_visit_exists_or_raise()
