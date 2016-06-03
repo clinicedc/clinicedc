@@ -1,12 +1,12 @@
 from django.contrib import admin
 
-from edc_base.modeladmin.admin import BaseModelAdmin
+from .base_model_admin import BaseModelAdmin
 
 from lis.labeling.actions import print_aliquot_label
 
 from ..models import Aliquot
 
-
+@admin.register(Aliquot)
 class AliquotAdmin(BaseModelAdmin):
 
     actions = [print_aliquot_label]
@@ -21,4 +21,4 @@ class AliquotAdmin(BaseModelAdmin):
 
     list_per_page = 15
 
-admin.site.register(Aliquot, AliquotAdmin)
+#admin.site.register(Aliquot, AliquotAdmin)

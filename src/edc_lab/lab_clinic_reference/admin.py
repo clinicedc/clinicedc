@@ -1,9 +1,20 @@
 from django.contrib import admin
-from edc_base.modeladmin.admin import BaseModelAdmin
-from .actions import toggle_active, toggle_scale, toggle_lln, toggle_uln, toggle_serum
-from .models import GradingList, GradingListItem, ReferenceRangeList, ReferenceRangeListItem
-from .forms import GradingListItemForm
 
+from edc_base.modeladmin.mixins import (
+    ModelAdminRedirectMixin, ModelAdminFormInstructionsMixin, ModelAdminFormAutoNumberMixin,
+    ModelAdminAuditFieldsMixin)
+
+from .forms import GradingListItemForm
+from .models import GradingList, GradingListItem, ReferenceRangeList, ReferenceRangeListItem
+from .actions import toggle_active, toggle_scale, toggle_lln, toggle_uln, toggle_serum
+
+
+class BaseModelAdmin(ModelAdminRedirectMixin, ModelAdminFormInstructionsMixin, ModelAdminFormAutoNumberMixin,
+                     ModelAdminAuditFieldsMixin, admin.ModelAdmin):
+
+    list_per_page = 10
+    date_hierarchy = 'modified'
+    empty_value_display = '-'
 
 class GradingListAdmin(BaseModelAdmin):
     pass
