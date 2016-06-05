@@ -47,6 +47,9 @@ class VisitFormMixin(object):
         try:
             consent = self._meta.model.consent_model.objects.get(
                 registered_subject=registered_subject)
+        except self._meta.model.consent_model.MultipleObjectsReturned:
+            consent = self._meta.model.consent_model.objects.filter(
+                registered_subject=registered_subject).order_by('version').first()
         except ObjectDoesNotExist:
             raise forms.ValidationError(
                 '\'{}\' does not exist for subject.'.format(self._meta.model.consent_model._meta.verbose_name))
