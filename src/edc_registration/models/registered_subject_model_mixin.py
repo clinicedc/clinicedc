@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 
 from django_crypto_fields.fields import (
     IdentityField, EncryptedCharField, FirstnameField, LastnameField)
-from django_crypto_fields.utils import mask_encrypted
+from django_crypto_fields.mask_encrypted import mask_encrypted
 from simple_history.models import HistoricalRecords as AuditTrail
 
 from edc_base.model.fields import IdentityTypeField
