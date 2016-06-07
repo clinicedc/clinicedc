@@ -45,21 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_crypto_fields',
     'simple_history',
-    'edc_base',
-    'edc_appointment',
-    'edc_visit_schedule',
-    'edc_content_type_map',
-    'edc_registration',
-    'edc_consent'
+    'example.apps.ConsentAppConfig'
 ]
-
-if 'test' in sys.argv:
-    INSTALLED_APPS = INSTALLED_APPS + [
-        'tastypie',
-        'edc_sync',
-        'edc_identifier',
-        'edc_quota',
-    ]
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -99,7 +86,7 @@ WSGI_APPLICATION = 'wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR.ancestor(1), 'db.sqlite3'),
     }
 }
 

@@ -4,9 +4,8 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.apps import apps as django_apps
 from django.db.models.signals import post_migrate
-
 from edc_configuration.convert import localize
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError, ProgrammingError
 
 
 def update_or_create_consent_type(sender, **kwargs):
@@ -41,5 +40,5 @@ class EdcConsentAppConfig(AppConfig):
     def ready(self):
         try:
             update_or_create_consent_type(self)
-        except OperationalError:
+        except (OperationalError, ProgrammingError):
             post_migrate.connect(update_or_create_consent_type, sender=self)

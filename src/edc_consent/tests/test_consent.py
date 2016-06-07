@@ -13,9 +13,10 @@ from edc_consent.exceptions import NotConsentedError, ConsentTypeError, ConsentV
 from edc_consent.models.validators import AgeTodayValidator
 from edc_constants.constants import NO
 
-from .base_test_case import BaseTestCase
-from .test_models import (
+from example.models import (
     TestConsentModel, TestModel, TestScheduledModel, ConsentForm, Visit, ConsentModelProxyForm)
+
+from .base_test_case import BaseTestCase
 from .factories import (
     TestConsentModelFactory, TestConsentModelProxy, TestConsentModelProxyFactory, ConsentTypeFactory)
 
@@ -25,8 +26,9 @@ faker = FakerFactory.create()
 class TestConsent(BaseTestCase):
 
     def setUp(self):
-        TestConsentModel.quota.set_quota(2, date.today(), date.today())
-        TestConsentModelProxy.quota.set_quota(2, date.today(), date.today())
+        # TestConsentModel.quota.set_quota(2, date.today(), date.today())
+        # TestConsentModelProxy.quota.set_quota(2, date.today(), date.today())
+        pass
 
     def test_raises_error_if_no_consent_type(self):
         self.assertRaises(NotConsentedError, TestModel.objects.create, subject_identifier='12345')

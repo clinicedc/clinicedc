@@ -5,15 +5,14 @@ from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
 from .base_test_case import BaseTestCase
-from .test_models import TestConsentModel
-from .factories import TestConsentModelFactory, TestConsentModelProxy, ConsentTypeFactory
+from .factories import TestConsentModelFactory, ConsentTypeFactory
 
 
 class TestSpecimenConsent(BaseTestCase):
 
     def setUp(self):
-        TestConsentModel.quota.set_quota(2, date.today(), date.today())
-        TestConsentModelProxy.quota.set_quota(2, date.today(), date.today())
+        # TestConsentModel.quota.set_quota(2, date.today(), date.today())
+        # TestConsentModelProxy.quota.set_quota(2, date.today(), date.today())
         self.subject_identifier = '123456789'
         self.identity = '987654321'
         ConsentTypeFactory(
