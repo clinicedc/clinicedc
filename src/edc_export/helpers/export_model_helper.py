@@ -1,7 +1,7 @@
 from django.apps import apps
 from django.core import serializers
 
-from django_crypto_fields.classes import FieldCryptor
+from django_crypto_fields.field_cryptor import FieldCryptor
 from edc_constants.constants import CLOSED
 
 from ..models import ExportTransaction
