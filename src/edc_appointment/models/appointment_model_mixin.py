@@ -7,7 +7,6 @@ from simple_history.models import HistoricalRecords as AuditTrail
 
 from edc_base.model.models import BaseUuidModel
 from edc_constants.constants import COMPLETE_APPT, NEW_APPT, CLOSED, CANCELLED, INCOMPLETE, UNKEYED, IN_PROGRESS
-from edc_registration.models import RegisteredSubject
 from edc_sync.models import SyncModelMixin
 from edc_visit_schedule.models import VisitDefinition
 
