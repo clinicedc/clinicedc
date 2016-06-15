@@ -5,7 +5,7 @@ from edc_visit_schedule.models import VisitDefinition, Schedule
 
 from ..exceptions import AppointmentCreateError
 
-from .appointment import Appointment
+from edc_appointment.models.appointment_model_mixin import AppointmentModelMixin
 from .appointment_date_helper import AppointmentDateHelper
 from .subject_configuration import SubjectConfiguration
 
@@ -94,37 +94,37 @@ class AppointmentMixin(models.Model):
                     model_name, schedule))
         return visit_definitions
 
-    def update_or_create_appointment(self, registered_subject, registration_datetime, visit_definition,
-                                     default_appt_type, dashboard_type, using):
-        """Updates or creates an appointment for this registered subject for the visit_definition."""
-        appt_datetime = self.new_appointment_appt_datetime(
-            registered_subject=registered_subject,
-            registration_datetime=registration_datetime,
-            visit_definition=visit_definition)
-        try:
-            appointment = Appointment.objects.using(using).get(
-                registered_subject=registered_subject,
-                visit_definition=visit_definition,
-                visit_instance='0')
-            td = appointment.best_appt_datetime - appt_datetime
-            if td.days == 0 and abs(td.seconds) > 59:
-                # the calculated appointment date does not match
-                # the best_appt_datetime (not within 59 seconds)
-                # which means you changed the date on the membership form and now
-                # need to correct the best_appt_datetime
-                appointment.appt_datetime = appt_datetime
-                appointment.best_appt_datetime = appt_datetime
-                appointment.save(using, update_fields=['appt_datetime', 'best_appt_datetime'])
-        except Appointment.DoesNotExist:
-            appointment = Appointment.objects.using(using).create(
-                registered_subject=registered_subject,
-                visit_definition=visit_definition,
-                visit_instance='0',
-                appt_datetime=appt_datetime,
-                timepoint_datetime=appt_datetime,
-                dashboard_type=dashboard_type,
-                appt_type=default_appt_type)
-        return appointment
+#     def update_or_create_appointment(self, registered_subject, registration_datetime, visit_definition,
+#                                      default_appt_type, dashboard_type, using):
+#         """Updates or creates an appointment for this registered subject for the visit_definition."""
+#         appt_datetime = self.new_appointment_appt_datetime(
+#             registered_subject=registered_subject,
+#             registration_datetime=registration_datetime,
+#             visit_definition=visit_definition)
+#         try:
+#             appointment = Appointment.objects.using(using).get(
+#                 registered_subject=registered_subject,
+#                 visit_definition=visit_definition,
+#                 visit_instance='0')
+#             td = appointment.best_appt_datetime - appt_datetime
+#             if td.days == 0 and abs(td.seconds) > 59:
+#                 # the calculated appointment date does not match
+#                 # the best_appt_datetime (not within 59 seconds)
+#                 # which means you changed the date on the membership form and now
+#                 # need to correct the best_appt_datetime
+#                 appointment.appt_datetime = appt_datetime
+#                 appointment.best_appt_datetime = appt_datetime
+#                 appointment.save(using, update_fields=['appt_datetime', 'best_appt_datetime'])
+#         except Appointment.DoesNotExist:
+#             appointment = Appointment.objects.using(using).create(
+#                 registered_subject=registered_subject,
+#                 visit_definition=visit_definition,
+#                 visit_instance='0',
+#                 appt_datetime=appt_datetime,
+#                 timepoint_datetime=appt_datetime,
+#                 dashboard_type=dashboard_type,
+#                 appt_type=default_appt_type)
+#         return appointment
 
     def schedule(self, model_name):
         """Returns the schedule for this membership_form."""
@@ -138,17 +138,17 @@ class AppointmentMixin(models.Model):
                 'See the visit schedule configuration.'.format(model_name))
         return schedule
 
-    def new_appointment_appt_datetime(
-            self, registered_subject, registration_datetime, visit_definition):
-        """Calculates and returns the appointment date for new appointments."""
-        appointment_date_helper = AppointmentDateHelper(Appointment)
-        if visit_definition.time_point == 0:
-            appt_datetime = appointment_date_helper.get_best_datetime(
-                registration_datetime, registered_subject.study_site)
-        else:
-            appt_datetime = appointment_date_helper.get_relative_datetime(
-                registration_datetime, visit_definition)
-        return appt_datetime
+#     def new_appointment_appt_datetime(
+#             self, registered_subject, registration_datetime, visit_definition):
+#         """Calculates and returns the appointment date for new appointments."""
+#         appointment_date_helper = AppointmentDateHelper(Appointment)
+#         if visit_definition.time_point == 0:
+#             appt_datetime = appointment_date_helper.get_best_datetime(
+#                 registration_datetime, registered_subject.study_site)
+#         else:
+#             appt_datetime = appointment_date_helper.get_relative_datetime(
+#                 registration_datetime, visit_definition)
+#         return appt_datetime
 
     class Meta:
         abstract = True

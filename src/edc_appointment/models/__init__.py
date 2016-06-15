@@ -1,4 +1,4 @@
-from .appointment import Appointment
+from edc_appointment.models.appointment_model_mixin import AppointmentModelMixin
 from .appointment_date_helper import AppointmentDateHelper
 from .appointment_mixin import AppointmentMixin
 from .holiday import Holiday

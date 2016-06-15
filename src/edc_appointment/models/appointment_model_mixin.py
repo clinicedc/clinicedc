@@ -20,15 +20,12 @@ from .time_point_status import TimePointStatus
 from .window_period_helper import WindowPeriodHelper
 
 
-class Appointment(SyncModelMixin, BaseUuidModel):
+class AppointmentModelMixin(models.Model):
     """Tracks appointments for a registered subject's visit.
 
         Only one appointment per subject visit_definition+visit_instance.
         Attribute 'visit_instance' should be populated by the system.
     """
-    registered_subject = models.ForeignKey(
-        RegisteredSubject,
-        related_name='+')
 
     visit_definition = models.ForeignKey(
         VisitDefinition,
