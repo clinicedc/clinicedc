@@ -39,13 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_crypto_fields',
     'simple_history',
     'edc_base',
+    'crispy_forms',
     'edc_content_type_map',
     'edc_registration',
     'edc_visit_schedule',
     'edc_appointment',
+    'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
 ]
 
 if 'test' in sys.argv:
