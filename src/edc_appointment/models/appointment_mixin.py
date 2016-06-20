@@ -98,12 +98,12 @@ class AppointmentMixin(models.Model):
                                      default_appt_type, dashboard_type, using):
         """Updates or creates an appointment for this registered subject for the visit_definition."""
         appt_datetime = self.new_appointment_appt_datetime(
-            registered_subject=registered_subject,
+            appointment_identifier=self.appointment_identifier,
             registration_datetime=registration_datetime,
             visit_definition=visit_definition)
         try:
             appointment = self.APPOINTMENT_MODEL.objects.using(using).get(
-                registered_subject=registered_subject,
+                appointment_identifier=self.appointment_identifier,
                 visit_definition=visit_definition,
                 visit_instance='0')
             td = appointment.best_appt_datetime - appt_datetime
