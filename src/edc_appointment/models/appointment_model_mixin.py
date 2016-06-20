@@ -5,9 +5,7 @@ from django.core.validators import RegexValidator
 from django.db import models, transaction
 from simple_history.models import HistoricalRecords as AuditTrail
 
-from edc_base.model.models import BaseUuidModel
 from edc_constants.constants import COMPLETE_APPT, NEW_APPT, CLOSED, CANCELLED, INCOMPLETE, UNKEYED, IN_PROGRESS
-from edc_sync.models import SyncModelMixin
 from edc_visit_schedule.models import VisitDefinition
 
 from ..choices import APPT_TYPE, APPT_STATUS
@@ -26,12 +24,22 @@ class AppointmentModelMixin(models.Model):
         Attribute 'visit_instance' should be populated by the system.
     """
 
+    APPOINTMENT_MODEL = None
+
     visit_definition = models.ForeignKey(
         VisitDefinition,
         related_name='+',
         verbose_name="Visit",
         help_text=("For tracking within the window period of a visit, use the decimal convention. "
                    "Format is NNNN.N. e.g 1000.0, 1000.1, 1000.2, etc)"))
+
+    #  This identifier is common across a subject's appointment
+    appointment_identifier = models.CharField(
+        verbose_name="Identifier",
+        max_length=50,
+        blank=True,
+        db_index=True,
+        unique=True)
 
     best_appt_datetime = models.DateTimeField(null=True, editable=False)
 
@@ -111,12 +119,13 @@ class AppointmentModelMixin(models.Model):
     history = AuditTrail()
 
     def __unicode__(self):
-        return "{0} {1} for {2}.{3}".format(
-            self.registered_subject.subject_identifier, self.registered_subject.subject_type,
+        return "{0} {1}".format(
             self.visit_definition.code, self.visit_instance)
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
+        if not self.subject_registration_instance():
+            raise ValidationError("Subject registration instance can not be null.")
         if not kwargs.get('update_fields'):
             self.validate_visit_instance()
             if self.id:
@@ -127,29 +136,12 @@ class AppointmentModelMixin(models.Model):
                 self.appt_datetime, self.best_appt_datetime = self.validate_continuation_appt_datetime()
             self.check_window_period()
             self.appt_status = self.get_appt_status(using)
-        super(Appointment, self).save(*args, **kwargs)
+        super(AppointmentModelMixin, self).save(*args, **kwargs)
 
-    def natural_key(self):
-        """Returns a natural key."""
-        return (self.visit_instance, ) + self.visit_definition.natural_key() + self.registered_subject.natural_key()
-    natural_key.dependencies = ['edc_registration.registeredsubject', 'edc_visit_schedule.visitdefinition']
-
-    def validate_visit_instance(self, exception_cls=None):
-        exception_cls = exception_cls or ValidationError
-        self.visit_instance = self.visit_instance or '0'
-        if self.visit_instance != '0':
-            previous = str(int(self.visit_instance) - 1)
-            try:
-                appointment = Appointment.objects.get(
-                    registered_subject=self.registered_subject,
-                    visit_definition=self.visit_definition,
-                    visit_instance=previous)
-                if appointment.id == self.id:
-                    raise Appointment.DoesNotExist
-            except Appointment.DoesNotExist:
-                raise exception_cls(
-                    'Attempt to create or update appointment instance out of sequence. Got \'{}.{}\'.'.format(
-                        self.visit_definition.code, self.visit_instance))
+#     def natural_key(self):
+#         """Returns a natural key."""
+#         return (self.visit_instance, ) + self.visit_definition.natural_key() + self.registered_subject.natural_key()
+#     natural_key.dependencies = ['edc_registration.registeredsubject', 'edc_visit_schedule.visitdefinition']
 
     def get_appt_status(self, using):
         """Returns the appt_status by checking the meta data entry status for all required CRFs and requisitions.
@@ -176,14 +168,32 @@ class AppointmentModelMixin(models.Model):
                 appt_status = NEW_APPT
         return appt_status
 
+    def validate_visit_instance(self, exception_cls=None):
+        exception_cls = exception_cls or ValidationError
+        visit_instance = self.visit_instance or '0'
+        if self.visit_instance != '0':
+            previous = str(int(visit_instance) - 1)
+            try:
+                appointment = self.APPOINTMENT_MODEL.objects.get(
+                    appointment_identifier=self.appointment_identifier,
+                    visit_definition=self.visit_definition,
+                    visit_instance=previous)
+                if appointment.id == self.id:
+                    raise self.APPOINTMENT_MODEL.DoesNotExist
+            except self.APPOINTMENT_MODEL.DoesNotExist:
+                raise exception_cls(
+                    'Attempt to create or update appointment instance out of sequence. Got \'{}.{}\'.'.format(
+                        self.visit_definition.code, visit_instance))
+
     def update_others_as_not_in_progress(self, using):
         """Updates other appointments for this registered subject to not be IN_PROGRESS.
 
         Only one appointment can be "in_progress", so look for any others in progress and change
         to Done or Incomplete, depending on ScheduledEntryMetaData (if any NEW => incomplete)"""
 
-        for appointment in self.__class__.objects.filter(
-                registered_subject=self.registered_subject, appt_status=IN_PROGRESS).exclude(
+        for appointment in self.APPOINTMENT_MODEL.objects.filter(
+                identifier=self.identifier,
+                appt_status=IN_PROGRESS).exclude(
                     pk=self.pk):
             with transaction.atomic(using):
                 if self.unkeyed_forms():
@@ -199,6 +209,12 @@ class AppointmentModelMixin(models.Model):
         if self.unkeyed_crfs() or self.unkeyed_requisitions():
             return True
         return False
+
+    def subject_registration_instance(self):
+        """Returns the subject registration instance.
+
+        Overide this method at the APPOINTMENT_MODEL"""
+        return None
 
     def unkeyed_crfs(self):
         from edc_meta_data.models import CrfMetaDataHelper
@@ -220,7 +236,7 @@ class AppointmentModelMixin(models.Model):
         except TimePointStatus.DoesNotExist:
             self.time_point_status = TimePointStatus.objects.create(
                 visit_code=self.visit_definition.code,
-                subject_identifier=self.registered_subject.subject_identifier)
+                appointment_identifier=self.appointment_identifier)  # TODO quesry with someything that uniquely idetifier all other subject's appointments
 
     def validate_appt_datetime(self, exception_cls=None):
         """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
@@ -230,7 +246,7 @@ class AppointmentModelMixin(models.Model):
          will raise an exception."""
         if not exception_cls:
             exception_cls = ValidationError
-        appointment_date_helper = AppointmentDateHelper(self.__class__)
+        appointment_date_helper = AppointmentDateHelper(self.APPOINTMENT_MODEL)
         if not self.id:
             appt_datetime = appointment_date_helper.get_best_datetime(
                 self.appt_datetime, self.registered_subject.study_site)
@@ -248,8 +264,8 @@ class AppointmentModelMixin(models.Model):
 
     def validate_continuation_appt_datetime(self, exception_cls=None):
         exception_cls = exception_cls or ValidationError
-        base_appointment = self.__class__.objects.get(
-            registered_subject=self.registered_subject,
+        base_appointment = self.APPOINTMENT_MODEL.objects.get(
+            appointment_identifier=self.appointment_identifier,
             visit_definition=self.visit_definition,
             visit_instance='0')
         if self.visit_instance != '0' and (self.appt_datetime - base_appointment.appt_datetime).days < 1:
@@ -333,19 +349,5 @@ class AppointmentModelMixin(models.Model):
         """Returns True if the appointment status is COMPLETE_APPT."""
         return self.appt_status == COMPLETE_APPT
 
-    def dispatch_container_lookup(self):
-        return (self.__class__, 'id')
-
-    def is_dispatched(self):
-        """Returns the dispatched status based on the visit tracking
-        form's id_dispatched response."""
-        Visit = self.visit_definition.visit_tracking_content_type_map.model_class()
-        return Visit.objects.get(appointment=self).is_dispatched()
-
-    def include_for_dispatch(self):
-        return True
-
     class Meta:
-        app_label = 'edc_appointment'
-        unique_together = (('registered_subject', 'visit_definition', 'visit_instance'),)
-        ordering = ['registered_subject', 'appt_datetime', ]
+        abstract = True
