@@ -1,125 +1,21 @@
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.core.validators import RegexValidator
 from django.db import models, transaction
 from simple_history.models import HistoricalRecords as AuditTrail
 
 from edc_constants.constants import COMPLETE_APPT, NEW_APPT, CLOSED, CANCELLED, INCOMPLETE, UNKEYED, IN_PROGRESS
-from edc_visit_schedule.models import VisitDefinition
 
-from ..choices import APPT_TYPE, APPT_STATUS
+from ..choices import APPT_STATUS
 from ..exceptions import AppointmentStatusError
-from ..managers import AppointmentManager
 
 from .appointment_date_helper import AppointmentDateHelper
 from .time_point_status import TimePointStatus
 from .window_period_helper import WindowPeriodHelper
 
 
-class AppointmentModelMixin(models.Model):
-    """Tracks appointments for a registered subject's visit.
-
-        Only one appointment per subject visit_definition+visit_instance.
-        Attribute 'visit_instance' should be populated by the system.
-    """
+class RequiresAppointmentMixin(models.Model):
 
     APPOINTMENT_MODEL = None
-
-    visit_definition = models.ForeignKey(
-        VisitDefinition,
-        related_name='+',
-        verbose_name="Visit",
-        help_text=("For tracking within the window period of a visit, use the decimal convention. "
-                   "Format is NNNN.N. e.g 1000.0, 1000.1, 1000.2, etc)"))
-
-    #  This identifier is common across a subject's appointment
-    appointment_identifier = models.CharField(
-        verbose_name="Identifier",
-        max_length=50,
-        blank=True,
-        db_index=True,
-        unique=True)
-
-    best_appt_datetime = models.DateTimeField(null=True, editable=False)
-
-    appt_close_datetime = models.DateTimeField(null=True, editable=False)
-
-    visit_instance = models.CharField(
-        max_length=1,
-        verbose_name=("Instance"),
-        validators=[RegexValidator(r'[0-9]', 'Must be a number from 0-9')],
-        default='0',
-        null=True,
-        blank=True,
-        db_index=True,
-        help_text=("A decimal to represent an additional report to be included with the original "
-                   "visit report. (NNNN.0)"))
-    appt_datetime = models.DateTimeField(
-        verbose_name=("Appointment date and time"),
-        help_text="",
-        db_index=True)
-
-    # this is the original calculated appointment datetime
-    # which the user cannot change
-    timepoint_datetime = models.DateTimeField(
-        verbose_name=("Timepoint date and time"),
-        help_text="calculated appointment datetime. Do not change",
-        null=True,
-        editable=False)
-
-    time_point_status = models.ForeignKey(TimePointStatus, null=True, blank=True)
-
-    appt_status = models.CharField(
-        verbose_name=("Status"),
-        choices=APPT_STATUS,
-        max_length=25,
-        default=NEW_APPT,
-        db_index=True)
-
-    appt_reason = models.CharField(
-        verbose_name=("Reason for appointment"),
-        max_length=25,
-        help_text=("Reason for appointment"),
-        blank=True)
-
-    contact_tel = models.CharField(
-        verbose_name=("Contact Tel"),
-        max_length=250,
-        blank=True)
-
-    comment = models.CharField(
-        "Comment",
-        max_length=250,
-        blank=True)
-
-    is_confirmed = models.BooleanField(default=False, editable=False)
-
-    contact_count = models.IntegerField(default=0, editable=False)
-
-    dashboard_type = models.CharField(
-        max_length=25,
-        editable=False,
-        null=True,
-        blank=True,
-        db_index=True,
-        help_text='hold dashboard_type variable, set by dashboard')
-
-    appt_type = models.CharField(
-        verbose_name='Appointment type',
-        choices=APPT_TYPE,
-        default='clinic',
-        max_length=20,
-        help_text=(
-            'Default for subject may be edited in admin under section bhp_subject. '
-            'See Subject Configuration.'))
-
-    objects = AppointmentManager()
-
-    history = AuditTrail()
-
-    def __unicode__(self):
-        return "{0} {1}".format(
-            self.visit_definition.code, self.visit_instance)
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
@@ -135,7 +31,7 @@ class AppointmentModelMixin(models.Model):
                 self.appt_datetime, self.best_appt_datetime = self.validate_continuation_appt_datetime()
             self.check_window_period()
             self.appt_status = self.get_appt_status(using)
-        super(AppointmentModelMixin, self).save(*args, **kwargs)
+        super(RequiresAppointmentMixin, self).save(*args, **kwargs)
 
 #     def natural_key(self):
 #         """Returns a natural key."""
@@ -285,32 +181,6 @@ class AppointmentModelMixin(models.Model):
                 self.visit_definition, self.appt_datetime, self.best_appt_datetime)
             if not window_period.check_datetime():
                 raise exception_cls(window_period.error_message)
-
-#     def dashboard(self):
-#         """Returns a hyperink for the Admin page."""
-#         ret = None
-#         if settings.APP_NAME == 'cancer':
-#                 if self.appointment_identifier:
-#                     url = reverse('subject_dashboard_url',
-#                                   kwargs={'dashboard_type': self.registered_subject.subject_type.lower(),
-#                                           'dashboard_model': 'appointment',
-#                                           'dashboard_id': self.pk,
-#                                           'show': 'appointments'})
-#                     ret = """<a href="{url}" />dashboard</a>""".format(url=url)
-#         if self.appt_status == APPT_STATUS[0][0]:
-#             if settings.APP_NAME != 'cancer':
-#                 return NEW_APPT
-#         else:
-#             if self.registered_subject:
-#                 if self.registered_subject.subject_identifier:
-#                     url = reverse('subject_dashboard_url',
-#                                   kwargs={'dashboard_type': self.registered_subject.subject_type.lower(),
-#                                           'dashboard_model': 'appointment',
-#                                           'dashboard_id': self.pk,
-#                                           'show': 'appointments'})
-#                     ret = """<a href="{url}" />dashboard</a>""".format(url=url)
-#         return ret
-#     dashboard.allow_tags = True
 
     def time_point(self):
         url = reverse('admin:edc_appointment_timepointstatus_changelist')

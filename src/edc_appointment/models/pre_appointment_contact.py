@@ -25,9 +25,9 @@ from ..models import AppointmentModelMixin
 class PreAppointmentContact(SyncModelMixin, AppointmentModelMixin, BaseUuidModel):
     """Tracks contact, modifies appt_datetime, changes type and confirms and appointment."""
 
-    is_confirmed = models.BooleanField(
-        verbose_name='Appointment confirmed',
-        default=False)
+#     is_confirmed = models.BooleanField(
+#         verbose_name='Appointment confirmed',
+#         default=False)
     contact_datetime = models.DateTimeField(
         verbose_name='Date of call')
 
@@ -45,11 +45,11 @@ class PreAppointmentContact(SyncModelMixin, AppointmentModelMixin, BaseUuidModel
         blank=True,
     )
 
-    comment = EncryptedTextField(
-        max_length=100,
-        blank=True,
-        null=True,
-    )
+#     comment = EncryptedTextField(
+#         max_length=100,
+#         blank=True,
+#         null=True,
+#     )
 
 #     objects = PreAppointmentContactManager()
 

@@ -61,20 +61,20 @@ class AppointmentMixin(models.Model):
             appointments.append(appointment)
         return appointments
 
-    def get_default_appt_type(self, registered_subject):
+    def get_default_appt_type(self, appointment_identifier):
         """Returns the default appointment type fetched from either the subject
         specific setting or the global setting."""
         default_appt_type = 'clinic'
         try:
             default_appt_type = SubjectConfiguration.objects.get(
-                subject_identifier=registered_subject.subject_identifier).default_appt_type
+                appointment_identifier=appointment_identifier).default_appt_type
         except SubjectConfiguration.DoesNotExist:
             try:
                 default_appt_type = GlobalConfiguration.objects.get_attr_value('default_appt_type')
             except GlobalConfiguration.DoesNotExist:
                 pass
         except AttributeError as e:
-            if '\'NoneType\' object has no attribute \'subject_identifier\'' not in str(e):
+            if '\'NoneType\' object has no attribute \'appointment_identifier\'' not in str(e):
                 raise
             else:
                 pass
@@ -117,7 +117,7 @@ class AppointmentMixin(models.Model):
                 appointment.save(using, update_fields=['appt_datetime', 'best_appt_datetime'])
         except self.APPOINTMENT_MODEL.DoesNotExist:
             appointment = self.APPOINTMENT_MODEL.objects.using(using).create(
-                registered_subject=registered_subject,
+                appointment_identifier=self.appointment_identifier,
                 visit_definition=visit_definition,
                 visit_instance='0',
                 appt_datetime=appt_datetime,
@@ -138,17 +138,17 @@ class AppointmentMixin(models.Model):
                 'See the visit schedule configuration.'.format(model_name))
         return schedule
 
-#     def new_appointment_appt_datetime(
-#             self, registered_subject, registration_datetime, visit_definition):
-#         """Calculates and returns the appointment date for new appointments."""
-#         appointment_date_helper = AppointmentDateHelper(Appointment)
-#         if visit_definition.time_point == 0:
-#             appt_datetime = appointment_date_helper.get_best_datetime(
-#                 registration_datetime, registered_subject.study_site)
-#         else:
-#             appt_datetime = appointment_date_helper.get_relative_datetime(
-#                 registration_datetime, visit_definition)
-#         return appt_datetime
+    def new_appointment_appt_datetime(
+            self, registered_subject, registration_datetime, visit_definition):
+        """Calculates and returns the appointment date for new appointments."""
+        appointment_date_helper = AppointmentDateHelper(self.APPOINTMENT_MODEL)
+        if visit_definition.time_point == 0:
+            appt_datetime = appointment_date_helper.get_best_datetime(
+                registration_datetime, registered_subject.study_site)
+        else:
+            appt_datetime = appointment_date_helper.get_relative_datetime(
+                registration_datetime, visit_definition)
+        return appt_datetime
 
     class Meta:
         abstract = True

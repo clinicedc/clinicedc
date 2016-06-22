@@ -43,26 +43,26 @@ INSTALLED_APPS = [
     'edc_base',
     'crispy_forms',
     'edc_content_type_map',
-    'edc_registration',
     'edc_visit_schedule',
-    'edc_appointment',
-    'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
+    'example',
+    'edc_appointment.apps.DjangoCryptoFieldsApp',
+    'edc_appointment.apps.EdcAppointmentAppConfig',
 ]
 
-if 'test' in sys.argv:
-    INSTALLED_APPS = INSTALLED_APPS + [
-        'edc_lab.lab_clinic_api',
-        'edc_lab.lab_clinic_reference',
-        'edc_lab.lab_packing',
-        'edc_testing',
-        'edc_configuration',
-        'edc_consent',
-        'edc_export',
-        'edc_meta_data',
-        'edc_sync',
-        'edc_visit_tracking',
-        'edc_quota',
-    ]
+# if 'test' in sys.argv:
+#     INSTALLED_APPS = INSTALLED_APPS + [
+#         'edc_lab.lab_clinic_api',
+#         'edc_lab.lab_clinic_reference',
+#         'edc_lab.lab_packing',
+#         'edc_testing',
+#         'edc_configuration',
+#         'edc_consent',
+#         'edc_export',
+#         'edc_meta_data',
+#         'edc_sync',
+#         'edc_visit_tracking',
+#         'edc_quota',
+#     ]
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',

@@ -14,7 +14,7 @@ class SubjectConfigurationManager(models.Manager):
 class SubjectConfiguration(SyncModelMixin, BaseUuidModel):
     """Store subject specific defaults."""
 
-    subject_identifier = models.CharField(
+    appointment_identifier = models.CharField(
         max_length=36)
 
     default_appt_type = models.CharField(

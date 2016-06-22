@@ -9,7 +9,6 @@ from simple_history.models import HistoricalRecords as AuditTrail
 from edc_base.model.models import BaseUuidModel
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import CLOSED, OPEN, NEW_APPT, IN_PROGRESS, NOT_APPLICABLE
-from edc_sync.models import SyncModelMixin
 
 
 class TimePointStatusManager(models.Manager):
@@ -18,7 +17,7 @@ class TimePointStatusManager(models.Manager):
         return self.get(subject_identifier=subject_identifier, visit_code=visit_code)
 
 
-class TimePointStatus(SyncModelMixin, BaseUuidModel):
+class TimePointStatus(BaseUuidModel):
     """ All completed appointments are noted in this form.
 
     Only authorized users can access this form. This form allows

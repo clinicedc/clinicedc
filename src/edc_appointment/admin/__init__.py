@@ -1,5 +1,5 @@
 from .base_model_admin import BaseModelAdmin
-from .appointment_admin import AppointmentAdmin
+# from .appointment_admin import AppointmentAdmin
 from .holiday_admin import HolidayInlineAdmin, HolidayAdmin
 from .pre_appointment_contact_admin import PreAppointmentContactInlineAdmin, PreAppointmentContactAdmin
 from .subject_configuration_admin import SubjectConfigurationAdmin
