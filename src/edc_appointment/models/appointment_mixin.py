@@ -1,4 +1,7 @@
+from uuid import uuid4
+
 from django.db import models
+from django.apps import apps as django_apps
 
 from edc_configuration.models import GlobalConfiguration
 from edc_visit_schedule.models import VisitDefinition, Schedule
@@ -50,13 +53,15 @@ class AppointmentMixin(models.Model):
             visit_definition contains the schedule group which contains the membership form
         """
         appointments = []
-        default_appt_type = self.get_default_appt_type(self.registered_subject)
+        appointment_identifier = str(uuid4())
+        default_appt_type = self.get_default_appt_type(appointment_identifier)
         for visit_definition in self.visit_definitions_for_schedule(self._meta.model_name):
             appointment = self.update_or_create_appointment(
                 base_appt_datetime or self.get_registration_datetime(),
                 visit_definition,
                 default_appt_type,
                 dashboard_type,
+                appointment_identifier,
                 using)
             appointments.append(appointment)
         return appointments
@@ -95,15 +100,15 @@ class AppointmentMixin(models.Model):
         return visit_definitions
 
     def update_or_create_appointment(self, registration_datetime, visit_definition,
-                                     default_appt_type, dashboard_type, using):
+                                     default_appt_type, dashboard_type, appointment_identifier, using):
         """Updates or creates an appointment for this registered subject for the visit_definition."""
         appt_datetime = self.new_appointment_appt_datetime(
-            appointment_identifier=self.appointment_identifier,
+            appointment_identifier=appointment_identifier,
             registration_datetime=registration_datetime,
             visit_definition=visit_definition)
         try:
             appointment = self.APPOINTMENT_MODEL.objects.using(using).get(
-                appointment_identifier=self.appointment_identifier,
+                appointment_identifier=appointment_identifier,
                 visit_definition=visit_definition,
                 visit_instance='0')
             td = appointment.best_appt_datetime - appt_datetime
@@ -117,7 +122,7 @@ class AppointmentMixin(models.Model):
                 appointment.save(using, update_fields=['appt_datetime', 'best_appt_datetime'])
         except self.APPOINTMENT_MODEL.DoesNotExist:
             appointment = self.APPOINTMENT_MODEL.objects.using(using).create(
-                appointment_identifier=self.appointment_identifier,
+                appointment_identifier=appointment_identifier,
                 visit_definition=visit_definition,
                 visit_instance='0',
                 appt_datetime=appt_datetime,

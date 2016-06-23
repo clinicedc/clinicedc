@@ -23,8 +23,6 @@ class AppointmentModelMixin(models.Model):
         Attribute 'visit_instance' should be populated by the system.
     """
 
-    APPOINTMENT_MODEL = None
-
     visit_definition = models.ForeignKey(
         VisitDefinition,
         related_name='+',
@@ -173,13 +171,13 @@ class AppointmentModelMixin(models.Model):
         if self.visit_instance != '0':
             previous = str(int(visit_instance) - 1)
             try:
-                appointment = self.APPOINTMENT_MODEL.objects.get(
+                appointment = self.__class__.objects.get(
                     appointment_identifier=self.appointment_identifier,
                     visit_definition=self.visit_definition,
                     visit_instance=previous)
                 if appointment.id == self.id:
-                    raise self.APPOINTMENT_MODEL.DoesNotExist
-            except self.APPOINTMENT_MODEL.DoesNotExist:
+                    raise self.__class__.DoesNotExist
+            except self.__class__.DoesNotExist:
                 raise exception_cls(
                     'Attempt to create or update appointment instance out of sequence. Got \'{}.{}\'.'.format(
                         self.visit_definition.code, visit_instance))
@@ -190,7 +188,7 @@ class AppointmentModelMixin(models.Model):
         Only one appointment can be "in_progress", so look for any others in progress and change
         to Done or Incomplete, depending on ScheduledEntryMetaData (if any NEW => incomplete)"""
 
-        for appointment in self.APPOINTMENT_MODEL.objects.filter(
+        for appointment in self.__class__.objects.filter(
                 appointment_identifier=self.appointment_identifier,
                 appt_status=IN_PROGRESS).exclude(
                     pk=self.pk):
@@ -245,7 +243,7 @@ class AppointmentModelMixin(models.Model):
          will raise an exception."""
         if not exception_cls:
             exception_cls = ValidationError
-        appointment_date_helper = AppointmentDateHelper(self.APPOINTMENT_MODEL)
+        appointment_date_helper = AppointmentDateHelper(self.__class__)
         if not self.id:
             appt_datetime = appointment_date_helper.get_best_datetime(
                 self.appt_datetime, self.subject_registration_instance.study_site)
@@ -263,7 +261,7 @@ class AppointmentModelMixin(models.Model):
 
     def validate_continuation_appt_datetime(self, exception_cls=None):
         exception_cls = exception_cls or ValidationError
-        base_appointment = self.APPOINTMENT_MODEL.objects.get(
+        base_appointment = self.__class__.objects.get(
             appointment_identifier=self.appointment_identifier,
             visit_definition=self.visit_definition,
             visit_instance='0')

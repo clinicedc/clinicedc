@@ -5,14 +5,10 @@ from django_crypto_fields.apps import DjangoCryptoFieldsAppConfig
 class EdcAppointmentAppConfig(AppConfig):
     name = 'edc_appointment'
     verbose_name = "Appointments"
-
-
-class TestEdcAppointmentApp(EdcAppointmentAppConfig):
-    name = 'edc_appointment'
-    model = ('example', 'appointment')
+    model = None
 
 
 class DjangoCryptoFieldsApp(DjangoCryptoFieldsAppConfig):
     name = 'django_crypto_fields'
-    model = ('example', 'crypt')
+    model = ('django_crypto_fields', 'crypt')
     crypt_model_using = 'default'
