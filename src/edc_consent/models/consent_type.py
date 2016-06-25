@@ -2,7 +2,6 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import Q
-from simple_history.models import HistoricalRecords as AuditTrail
 
 from edc_base.model.validators import datetime_not_before_study_start
 
@@ -65,8 +64,6 @@ class ConsentType(models.Model):
         blank=True)
 
     objects = ConsentTypeManager()
-
-    history = AuditTrail()
 
     def save(self, *args, **kwargs):
         if self.updates_version:
