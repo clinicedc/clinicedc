@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_crypto_fields',
+    'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
     'simple_history',
     'example.apps.ConsentAppConfig'
 ]

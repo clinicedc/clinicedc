@@ -1,11 +1,12 @@
 import sys
 
 from django.apps import AppConfig
-from django.conf import settings
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.db.models.signals import post_migrate
-from edc_configuration.convert import localize
 from django.db.utils import OperationalError, ProgrammingError
+
+from edc_base.utils.convert import localize
 
 
 def update_or_create_consent_type(sender, **kwargs):
