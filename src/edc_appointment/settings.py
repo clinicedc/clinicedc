@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'edc_base',
     'crispy_forms',
     'example.apps.ExampleAppConfig',
-    'edc_content_type_map',
+    'edc_content_type_map.apps.EdcContentTypeAppConfig',
     'edc_visit_schedule',
     'django_extensions',
     'edc_appointment.apps.DjangoCryptoFieldsApp',

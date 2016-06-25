@@ -1,18 +1,18 @@
 from collections import OrderedDict
-
+ 
 from edc_constants.constants import REQUIRED, NOT_ADDITIONAL
 from edc_visit_schedule.classes import (
     VisitScheduleConfiguration, CrfTuple, RequisitionPanelTuple, MembershipFormTuple, ScheduleTuple)
 from edc_testing.models import TestConsentWithMixin, TestAliquotType, TestPanel, TestVisit, TestVisit2
 from .test_models import TestEnroll
-
-
+ 
+ 
 entries = (
     CrfTuple(10, u'edc_appointment', u'TestCrfModel1', REQUIRED, NOT_ADDITIONAL),
     CrfTuple(20, u'edc_appointment', u'TestCrfModel2', REQUIRED, NOT_ADDITIONAL),
     CrfTuple(30, u'edc_appointment', u'TestCrfModel3', REQUIRED, NOT_ADDITIONAL),
 )
-
+ 
 requisitions = (
     RequisitionPanelTuple(
         10, u'edc_appointment', u'testrequisitionmodel',
@@ -22,25 +22,25 @@ requisitions = (
     RequisitionPanelTuple(
         30, u'edc_appointment', u'testrequisitionmodel', 'Microtube', 'STORAGE', 'WB', REQUIRED, NOT_ADDITIONAL),
 )
-
-
+ 
+ 
 class VisitSchedule(VisitScheduleConfiguration):
     """A visit schedule class for tests."""
     name = 'Test Visit Schedule'
     app_label = 'edc_testing'
     panel_model = TestPanel
     aliquot_type_model = TestAliquotType
-
+ 
     membership_forms = OrderedDict({
         'schedule-1': MembershipFormTuple('schedule-1', TestConsentWithMixin, True),
         'schedule-2': MembershipFormTuple('schedule-2', TestEnroll, True),
     })
-
+ 
     schedules = OrderedDict({
         'schedule-1': ScheduleTuple('schedule-1', 'schedule-1', None, None),
         'schedule-2': ScheduleTuple('schedule-2', 'schedule-2', None, None),
     })
-
+ 
     visit_definitions = OrderedDict(
         {'1000': {
             'title': '1000',
