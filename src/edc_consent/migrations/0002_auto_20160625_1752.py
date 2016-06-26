@@ -12,10 +12,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='historicalconsenttype',
-            name='history_user',
-        ),
         migrations.DeleteModel(
             name='HistoricalConsentType',
         ),
