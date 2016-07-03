@@ -8,5 +8,5 @@ admin.autodiscover()
 
 urlpatterns = [
     url(r'^admin/', include(edc_consent_admin.urls)),
-    url(r'^', HomeView.as_view(), name='edc_consent_home_url'),
+    url(r'^', HomeView.as_view(), name='edc-consent-home-url'),
 ]
