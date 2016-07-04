@@ -5,7 +5,8 @@ from django.apps import apps
 from django.db.utils import IntegrityError
 
 from edc_configuration.models import GlobalConfiguration
-from edc_content_type_map.models import ContentTypeMapHelper, ContentTypeMap
+from edc_content_type_map.models import ContentTypeMap
+from edc_content_type_map.helpers import ContentTypeMapHelper
 from edc_meta_data.models import CrfEntry, LabEntry, RequisitionPanel
 
 from ..models import MembershipForm, Schedule, VisitDefinition
