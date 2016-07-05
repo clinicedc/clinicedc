@@ -1,11 +1,8 @@
 import copy
+import sys
 
-from django.conf import settings
-try:
-    from django.utils.importlib import import_module
-except:
-    from django.utils.module_loading import import_module
-from django.utils.module_loading import module_has_submodule
+from django.apps import apps as django_apps
+from django.utils.module_loading import import_module, module_has_submodule
 
 from .visit_schedule_configuration import VisitScheduleConfiguration
 
@@ -23,14 +20,14 @@ class Controller(object):
     """ Main controller of :class:`VisitScheduleConfiguration` objects. """
 
     def __init__(self):
-        self._registry = {}
+        self.registry = {}
 
-    def set_registry(self, visit_schedule_configuration):
+    def setregistry(self, visit_schedule_configuration):
         if not issubclass(visit_schedule_configuration, VisitScheduleConfiguration):
             raise AlreadyRegistered('Expected an instance of VisitScheduleConfiguration.')
-        if visit_schedule_configuration.name not in self._registry:
+        if visit_schedule_configuration.name not in self.registry:
             # register the instance
-            self._registry.update({visit_schedule_configuration.name: visit_schedule_configuration()})
+            self.registry.update({visit_schedule_configuration.name: visit_schedule_configuration()})
         else:
             raise AlreadyRegistered('Visit Schedule for name {0}.{1} '
                                     'is already registered.'.format(
@@ -39,13 +36,13 @@ class Controller(object):
 
     def get_visit_schedules(self):
         """Returns the an ordered dictionary of visit_schedule_configurations"""
-        return self._registry
+        return self.registry
 
     def get_visit_schedule(self, app_label):
         """Returns the visit_schedule_configuration for the given app_label."""
         if app_label:
-            if app_label in self._registry:
-                return self._registry.get(app_label)
+            if app_label in self.registry:
+                return self.registry.get(app_label)
         return {}
 
     def build(self, app_label):
@@ -59,18 +56,24 @@ class Controller(object):
 
     def register(self, visit_schedule_configuration):
         """ Register visit_schedule_configurations"""
-        self.set_registry(visit_schedule_configuration)
+        self.setregistry(visit_schedule_configuration)
 
-    def autodiscover(self):
-        """ Autodiscover visit_schedule modules."""
-        for app in settings.INSTALLED_APPS:
-            mod = import_module(app)
+    def autodiscover(self, module_name=None):
+        """Autodiscovers mapper classes in the mapper.py file of any INSTALLED_APP."""
+        module_name = module_name or 'visit_schedule'
+        sys.stdout.write(' * checking for site {}s ...\n'.format(module_name))
+        for app in django_apps.app_configs:
             try:
-                before_import_registry = copy.copy(site_visit_schedules._registry)
-                import_module('%s.visit_schedule' % app)
+                mod = import_module(app)
+                try:
+                    before_import_registry = copy.copy(site_visit_schedules.registry)
+                    import_module('{}.{}'.format(app, module_name))
+                    sys.stdout.write(' * registered visit schedules \'{}\' from \'{}\'\n'.format(module_name, app))
+                except:
+                    site_visit_schedules.registry = before_import_registry
+                    if module_has_submodule(mod, module_name):
+                        raise
             except ImportError:
-                site_visit_schedules._registry = before_import_registry
-                if module_has_submodule(mod, 'visit_schedule'):
-                    raise
+                pass
 
 site_visit_schedules = Controller()

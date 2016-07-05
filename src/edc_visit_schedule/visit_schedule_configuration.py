@@ -4,12 +4,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.apps import apps
 from django.db.utils import IntegrityError
 
-from edc_configuration.models import GlobalConfiguration
 from edc_content_type_map.models import ContentTypeMap
-from edc_content_type_map.helpers import ContentTypeMapHelper
 from edc_meta_data.models import CrfEntry, LabEntry, RequisitionPanel
 
-from ..models import MembershipForm, Schedule, VisitDefinition
+from .models import MembershipForm, Schedule, VisitDefinition
 
 
 CrfTuple = namedtuple('CrfTuple', 'order app_label model_name default_entry_status additional')
@@ -35,8 +33,6 @@ class VisitScheduleConfiguration(object):
 
     def __init__(self):
         self.verify_dictionaries()
-        if not GlobalConfiguration.objects.get_attr_value('sync_content_type_map'):
-            self.sync_content_type_map()
         self.ready = False
 
     def __repr__(self):
@@ -48,13 +44,6 @@ class VisitScheduleConfiguration(object):
         self.update_or_create_schedules()
         self.update_or_create_visit_definitions()
         self.ready = True
-
-    def sync_content_type_map(self):
-        """Repopulates and syncs the ContentTypeMap instances."""
-        content_type_map_helper = ContentTypeMapHelper()
-        content_type_map_helper.populate()
-        content_type_map_helper.sync()
-        GlobalConfiguration.objects.set_attr('sync_content_type_map', True)
 
     def verify_dictionaries(self):
         """Verifies some aspects of the the format of the dictionary attributes."""
