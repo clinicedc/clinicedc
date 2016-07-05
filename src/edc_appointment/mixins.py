@@ -6,8 +6,6 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 
-from simple_history.models import HistoricalRecords as AuditTrail
-
 from edc_constants.constants import COMPLETE_APPT, NEW_APPT, CANCELLED, INCOMPLETE, UNKEYED, IN_PROGRESS
 from edc_visit_schedule.models import VisitDefinition, Schedule
 
@@ -151,10 +149,18 @@ class AppointmentMixin(models.Model):
 
 
 class AppointmentModelMixin(models.Model):
-    """Tracks appointments for a registered subject's visit.
 
-        Only one appointment per subject visit_definition+visit_instance.
-        Attribute 'visit_instance' should be populated by the system.
+    """Mixin for the appointment model.
+
+    You must manually add:
+
+        registered_subject = models.ForeignKey(RegisteredSubject)
+
+    Where RegisteredSubject comes from <some_app>.models.
+
+    Only one appointment per subject visit_definition+visit_instance.
+
+    Attribute 'visit_instance' should be populated by the system.
     """
 
     visit_definition = models.ForeignKey(
@@ -247,20 +253,14 @@ class AppointmentModelMixin(models.Model):
 
     # objects = AppointmentManager()
 
-    history = AuditTrail()
-
     def __unicode__(self):
         return "{0} {1}".format(
             self.visit_definition.code, self.visit_instance)
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
-        if not self.subject_registration_instance():
-            raise ValidationError("Subject registration instance can not be null.")
         if not kwargs.get('update_fields'):
             self.validate_visit_instance()
-            if self.id:
-                self.time_point_status_open_or_raise()
             if self.visit_instance == '0':
                 self.appt_datetime, self.best_appt_datetime = self.validate_appt_datetime()
             else:
@@ -341,12 +341,6 @@ class AppointmentModelMixin(models.Model):
             return True
         return False
 
-    def subject_registration_instance(self):
-        """Returns the subject registration instance.
-
-        Overide this method at the APPOINTMENT_MODEL"""
-        return None
-
     def unkeyed_crfs(self):
         from edc_meta_data.helpers import CrfMetaDataHelper
         return CrfMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
@@ -380,7 +374,7 @@ class AppointmentModelMixin(models.Model):
         appointment_date_helper = AppointmentDateHelper(self.__class__)
         if not self.id:
             appt_datetime = appointment_date_helper.get_best_datetime(
-                self.appt_datetime, self.subject_registration_instance.study_site)
+                self.appt_datetime, self.registered_subject.study_site)
             best_appt_datetime = self.appt_datetime
         else:
             if not self.best_appt_datetime:
@@ -389,7 +383,7 @@ class AppointmentModelMixin(models.Model):
                     'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
             appt_datetime = appointment_date_helper.change_datetime(
                 self.best_appt_datetime, self.appt_datetime,
-                self.subject_registration_instance.study_site, self.visit_definition)
+                self.registered_subject.study_site, self.visit_definition)
             best_appt_datetime = self.best_appt_datetime
         return appt_datetime, best_appt_datetime
 
@@ -481,7 +475,7 @@ class RequiresAppointmentMixin(models.Model):
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
-        if not self.subject_registration_instance():
+        if not self.registered_subject:
             raise ValidationError("Subject registration instance can not be null.")
         if not kwargs.get('update_fields'):
             self.validate_visit_instance()
@@ -567,12 +561,6 @@ class RequiresAppointmentMixin(models.Model):
             return True
         return False
 
-    def subject_registration_instance(self):
-        """Returns the subject registration instance.
-
-        Overide this method at the APPOINTMENT_MODEL"""
-        return None
-
     def unkeyed_crfs(self):
         from edc_meta_data.helpers import CrfMetaDataHelper
         return CrfMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
@@ -606,7 +594,7 @@ class RequiresAppointmentMixin(models.Model):
         appointment_date_helper = AppointmentDateHelper(self.APPOINTMENT_MODEL)
         if not self.id:
             appt_datetime = appointment_date_helper.get_best_datetime(
-                self.appt_datetime, self.subject_registration_instance.study_site)
+                self.appt_datetime, self.registered_subject.study_site)
             best_appt_datetime = self.appt_datetime
         else:
             if not self.best_appt_datetime:
@@ -615,7 +603,7 @@ class RequiresAppointmentMixin(models.Model):
                     'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
             appt_datetime = appointment_date_helper.change_datetime(
                 self.best_appt_datetime, self.appt_datetime,
-                self.subject_registration_instance.study_site, self.visit_definition)
+                self.registered_subject.study_site, self.visit_definition)
             best_appt_datetime = self.best_appt_datetime
         return appt_datetime, best_appt_datetime
 
