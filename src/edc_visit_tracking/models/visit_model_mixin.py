@@ -3,7 +3,6 @@ import copy
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
-from edc_appointment.models import Appointment
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators import datetime_not_before_study_start, datetime_not_future
 from edc_base.model.validators.date import date_not_before_study_start, date_not_future
@@ -15,12 +14,21 @@ from ..constants import (
     VISIT_REASON_REQUIRED_CHOICES,
     VISIT_REASON_NO_FOLLOW_UP_CHOICES,
     VISIT_REASON_FOLLOW_UP_CHOICES)
-from ..managers import VisitManager
+# from ..managers import VisitManager
 
 
-class VisitModelMixin (models.Model):
+class VisitModelMixin(models.Model):
 
     """Base model for Appt/Visit Tracking (AF002).
+
+    For example:
+
+        class SubjectVisit(MetaDataMixin, PreviousVisitMixin, VisitModelMixin, BaseUuidModel):
+
+            appointment = models.OneToOneField(MyAppointmentModel)
+
+        class Meta:
+            app_label = 'my_app'
 
     For entry, requires an appointment be created first, so there
     is no direct reference to 'registered subject' in this model except
@@ -60,8 +68,6 @@ class VisitModelMixin (models.Model):
     death_report_model = None
     off_study_model = None
     visit_model_mixin = True
-
-    appointment = models.OneToOneField(Appointment)
 
     report_datetime = models.DateTimeField(
         verbose_name="Visit Date and Time",
@@ -125,25 +131,41 @@ class VisitModelMixin (models.Model):
         editable=False,
         help_text='updated automatically as a convenience to avoid sql joins')
 
-    objects = VisitManager()
-
-    def __unicode__(self):
+    def __str__(self):
         return '{} {} {}'.format(
             self.appointment.registered_subject.subject_identifier,
             self.appointment.registered_subject.first_name,
             self.appointment.visit_definition.code)
 
     def save(self, *args, **kwargs):
+        try:
+            self.appointment
+        except AttributeError:
+            raise ImproperlyConfigured('Visit Model {} is missing attribute Appointment.'.format(self.__class__))
         if self.id and not self.byass_time_point_status():
             self.appointment.time_point_status_open_or_raise()
         self.subject_identifier = self.get_subject_identifier()
         super(VisitModelMixin, self).save(*args, **kwargs)
 
-    def natural_key(self):
-        return self.appointment.natural_key()
-    natural_key.dependencies = ['edc_appointment.appointment']
+    @property
+    def appointment_zero(self):
+        appointment_zero = None
+        try:
+            if self.appointment.visit_instance == '0':
+                appointment_zero = self.appointment
+        except AttributeError:
+            pass
+        if not appointment_zero:
+            try:
+                appointment_zero = self.appointment.__class__.objects.get(
+                    registered_subject=self.appointment.registered_subject,
+                    visit_definition=self.appointment.visit_definition,
+                    visit_instance='0')
+            except self.appointment.__class__.DoesNotExist:
+                pass
+        return appointment_zero
 
-    def byass_time_point_status(self):
+    def bypass_time_point_status(self):
         """Returns False by default but if overridden and set to return
         True, the TimePointStatus instance will not be checked in the save
         method.

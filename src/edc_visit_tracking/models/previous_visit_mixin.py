@@ -1,6 +1,5 @@
 from django.db import models, transaction
 
-from edc_appointment.models import Appointment
 from edc_visit_schedule.models import VisitDefinition
 
 
@@ -84,7 +83,7 @@ class PreviousVisitMixin(models.Model):
             except self.__class__.DoesNotExist:
                 previous_visit = None
             except self.__class__.MultipleObjectsReturned:
-                previous_appointment = Appointment.objects.filter(
+                previous_appointment = self.appointment.__class__.objects.filter(
                     registered_subject=self.appointment.registered_subject,
                     visit_definition=previous_visit_definition).order_by(
                         '-visit_instance')[0]

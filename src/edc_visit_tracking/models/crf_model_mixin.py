@@ -34,9 +34,6 @@ class CrfModelMixin(models.Model):
 
     objects = CrfModelManager()
 
-    def __unicode__(self):
-        return unicode(self.get_visit())
-
     def __str__(self):
         return str(self.get_visit())
 
