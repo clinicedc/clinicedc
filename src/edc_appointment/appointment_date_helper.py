@@ -2,11 +2,9 @@ import copy
 
 from datetime import datetime, timedelta
 
-from django.apps import apps
+from django.apps import apps as django_apps
 
-from edc_configuration.models import GlobalConfiguration
-
-from .holiday import Holiday
+from .models import Holiday
 from .window_period_helper import WindowPeriodHelper
 
 
@@ -17,10 +15,14 @@ class AppointmentDateHelper(object):
         self.window_delta = None
         # not used
         self.allow_backwards = False
-        self.appointments_days_forward = GlobalConfiguration.objects.get_attr_value('appointments_days_forward') or 0
-        self.appointments_per_day_max = GlobalConfiguration.objects.get_attr_value('appointments_per_day_max')
-        self.use_same_weekday = GlobalConfiguration.objects.get_attr_value('use_same_weekday')
-        self.allowed_iso_weekdays = str(GlobalConfiguration.objects.get_attr_value('allowed_iso_weekdays') or '1234567')
+        self.appointments_days_forward = self.appointment_app_config.appointments_days_forward
+        self.appointments_per_day_max = self.appointment_app_config.appointments_per_day_max
+        self.use_same_weekday = self.appointment_app_config.use_same_weekday
+        self.allowed_iso_weekdays = self.appointment_app_config.allowed_iso_weekdays
+
+    @property
+    def appointment_app_config(self):
+        return django_apps.get_app_config('edc_appointment')
 
     def get_best_datetime(self, appt_datetime, site, weekday=None, exception_cls=None):
         """ Gets the appointment datetime on insert.
@@ -50,7 +52,7 @@ class AppointmentDateHelper(object):
 
     def get_relative_datetime(self, base_appt_datetime, visit_definition):
         """ Returns appointment datetime relative to the base_appointment_datetime."""
-        VisitDefinition = apps.get_model('edc_visit_schedule', 'VisitDefinition')
+        VisitDefinition = django_apps.get_model('edc_visit_schedule', 'VisitDefinition')
         appt_datetime = base_appt_datetime + VisitDefinition.objects.relativedelta_from_base(
             visit_definition=visit_definition)
         return self.get_best_datetime(appt_datetime, base_appt_datetime.isoweekday())

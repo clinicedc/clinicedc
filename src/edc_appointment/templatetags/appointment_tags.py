@@ -1,7 +1,6 @@
 from django import template
 from django.core.urlresolvers import reverse
-
-from ..models import Appointment
+from django.apps import apps as django_apps
 
 register = template.Library()
 
@@ -12,6 +11,10 @@ class ContinuationAppointmentAnchor(template.Node):
         self.unresolved_appointment = template.Variable(appointment)
         self.unresolved_dashboard_type = template.Variable(dashboard_type)
         self.unresolved_extra_url_context = template.Variable(extra_url_context)
+
+    @property
+    def appointment_model(self):
+        return django_apps.get_app_config('edc_appointment').appointment_model
 
     def render(self, context):
         self.appointment = self.unresolved_appointment.resolve(context)
@@ -24,7 +27,7 @@ class ContinuationAppointmentAnchor(template.Node):
 
         # does a continuation appointment exist? instance will be instance+1
         visit_instances = []
-        for appointment in Appointment.objects.filter(registered_subject=self.appointment.registered_subject):
+        for appointment in self.appointment_model.objects.filter(registered_subject=self.appointment.registered_subject):
             visit_instances.append(int(appointment.visit_instance))
         if (int(self.appointment.visit_instance) + 1) in visit_instances:
             anchor = ''

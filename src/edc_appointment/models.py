@@ -1,14 +1,35 @@
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.apps import apps as django_apps
 from django_crypto_fields.fields import EncryptedTextField
 from django.utils import timezone
-from simple_history.models import HistoricalRecords as AuditTrail
 
 from edc_base.model.models import BaseUuidModel
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import CLOSED, OPEN, NEW_APPT, IN_PROGRESS, NOT_APPLICABLE
+from simple_history.models import HistoricalRecords
+
+
+class Holiday(BaseUuidModel):
+
+    holiday_name = models.CharField(
+        max_length=25,
+        default='holiday')
+    holiday_date = models.DateField(
+        unique=True)
+
+    objects = models.Manager()
+
+    def __unicode__(self):
+        return "%s on %s" % (self.holiday_name, self.holiday_date)
+
+    class Meta:
+        ordering = ['holiday_date', ]
+        app_label = 'edc_appointment'
 
 
 class TimePointStatusManager(models.Manager):
@@ -70,7 +91,7 @@ class TimePointStatus(BaseUuidModel):
 
     objects = TimePointStatusManager()
 
-    history = AuditTrail()
+    history = HistoricalRecords()
 
     def __unicode__(self):
         return "{}".format(self.status.upper())
@@ -110,14 +131,20 @@ class TimePointStatus(BaseUuidModel):
                         'Cannot close timepoint. Appointment status is {0}.'.format(
                             appointment.appt_status.upper()))
 
+    @property
+    def appointment_app_config(self):
+        return django_apps.get_app_config('edc_appointment')
+
+    @property
+    def appointment_model(self):
+        return self.appointment_app_config.appointment_model
+
     def get_appointments(self):
-        Appointment = django_apps.get_model('edc_appointment', 'Appointment')
-        return Appointment.objects.filter(time_point_status__pk=self.pk)
+        return self.appointment_model.objects.filter(time_point_status__pk=self.pk)
 
     @property
     def base_appointment(self):
-        Appointment = django_apps.get_model('edc_appointment', 'Appointment')
-        return Appointment.objects.get(
+        return self.appointment_model.objects.get(
             time_point_status__pk=self.pk, visit_instance='0')
 
     def dashboard(self):
@@ -136,3 +163,23 @@ class TimePointStatus(BaseUuidModel):
         verbose_name_plural = "Time Point Completion"
         ordering = ['subject_identifier', 'visit_code']
         unique_together = ('subject_identifier', 'visit_code')
+
+
+@receiver(post_save, weak=False, dispatch_uid="appointment_post_save")
+def appointment_post_save(sender, instance, raw, created, using, **kwargs):
+    """Creates the TimePointStatus instance if it does not already exist."""
+    if not raw:
+        try:
+            if not instance.time_point_status:
+                try:
+                    instance.time_point_status = TimePointStatus.objects.get(
+                        visit_code=instance.visit_definition.code,
+                        subject_identifier=instance.registered_subject.subject_identifier)
+                except TimePointStatus.DoesNotExist:
+                    instance.time_point_status = TimePointStatus.objects.create(
+                        visit_code=instance.visit_definition.code,
+                        subject_identifier=instance.registered_subject.subject_identifier)
+                instance.save(update_fields=['time_point_status'])
+        except AttributeError as e:
+            if 'time_point_status' not in str(e):
+                raise AttributeError(str(e))

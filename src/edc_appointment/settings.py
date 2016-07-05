@@ -39,14 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'simple_history',
-    'edc_base',
-    'crispy_forms',
-    'example.apps.ExampleAppConfig',
-    'edc_content_type_map.apps.EdcContentTypeAppConfig',
-    'edc_visit_schedule',
+    'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
     'django_extensions',
-    'edc_appointment.apps.DjangoCryptoFieldsApp',
+    'simple_history',
+    'crispy_forms',
+    'edc_base',
     'edc_appointment.apps.EdcAppointmentAppConfig',
 ]
 
