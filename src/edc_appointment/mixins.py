@@ -5,8 +5,13 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models, transaction
+from django.utils import timezone
 
-from edc_constants.constants import COMPLETE_APPT, NEW_APPT, CANCELLED, INCOMPLETE, UNKEYED, IN_PROGRESS
+from django_crypto_fields.fields import EncryptedTextField
+
+from edc_constants.constants import (
+    COMPLETE_APPT, NEW_APPT, CANCELLED, INCOMPLETE, UNKEYED, IN_PROGRESS, CLOSED, OPEN, IN_PROGRESS, NOT_APPLICABLE)
+from edc_constants.choices import YES_NO_NA
 from edc_visit_schedule.models import VisitDefinition, Schedule
 
 from .appointment_date_helper import AppointmentDateHelper
@@ -251,227 +256,11 @@ class AppointmentModelMixin(models.Model):
             'Default for subject may be edited in admin under section bhp_subject. '
             'See Subject Configuration.'))
 
-    # objects = AppointmentManager()
-
-    def __unicode__(self):
-        return "{0} {1}".format(
-            self.visit_definition.code, self.visit_instance)
-
-    def save(self, *args, **kwargs):
-        using = kwargs.get('using')
-        if not kwargs.get('update_fields'):
-            self.validate_visit_instance()
-            if self.visit_instance == '0':
-                self.appt_datetime, self.best_appt_datetime = self.validate_appt_datetime()
-            else:
-                self.appt_datetime, self.best_appt_datetime = self.validate_continuation_appt_datetime()
-            self.check_window_period()
-            self.appt_status = self.get_appt_status(using)
-        super(AppointmentModelMixin, self).save(*args, **kwargs)
-
-#     def natural_key(self):
-#         """Returns a natural key."""
-#         return (self.visit_instance, ) + self.visit_definition.natural_key() + self.registered_subject.natural_key()
-#     natural_key.dependencies = ['edc_registration.registeredsubject', 'edc_visit_schedule.visitdefinition']
-
-    def get_appt_status(self, using):
-        """Returns the appt_status by checking the meta data entry status for all required CRFs and requisitions.
-        """
-        from edc_meta_data.helpers import CrfMetaDataHelper
-        appt_status = self.appt_status
-        visit_model = self.visit_definition.visit_tracking_content_type_map.model_class()
-        try:
-            visit_instance = visit_model.objects.get(appointment=self)
-            crf_meta_data_helper = CrfMetaDataHelper(self, visit_instance)
-            if not crf_meta_data_helper.show_entries():
-                appt_status = COMPLETE_APPT
-            else:
-                if appt_status in [COMPLETE_APPT, INCOMPLETE]:
-                    appt_status = INCOMPLETE if self.unkeyed_forms() else COMPLETE_APPT
-                elif appt_status in [NEW_APPT, CANCELLED, IN_PROGRESS]:
-                    appt_status = IN_PROGRESS
-                    self.update_others_as_not_in_progress(using)
-                else:
-                    raise AppointmentStatusError(
-                        'Did not expect appt_status == \'{0}\''.format(self.appt_status))
-        except visit_model.DoesNotExist:
-            if self.appt_status not in [NEW_APPT, CANCELLED]:
-                appt_status = NEW_APPT
-        return appt_status
-
-    def validate_visit_instance(self, exception_cls=None):
-        exception_cls = exception_cls or ValidationError
-        visit_instance = self.visit_instance or '0'
-        if self.visit_instance != '0':
-            previous = str(int(visit_instance) - 1)
-            try:
-                appointment = self.__class__.objects.get(
-                    appointment_identifier=self.appointment_identifier,
-                    visit_definition=self.visit_definition,
-                    visit_instance=previous)
-                if appointment.id == self.id:
-                    raise self.__class__.DoesNotExist
-            except self.__class__.DoesNotExist:
-                raise exception_cls(
-                    'Attempt to create or update appointment instance out of sequence. Got \'{}.{}\'.'.format(
-                        self.visit_definition.code, visit_instance))
-
-    def update_others_as_not_in_progress(self, using):
-        """Updates other appointments for this registered subject to not be IN_PROGRESS.
-
-        Only one appointment can be "in_progress", so look for any others in progress and change
-        to Done or Incomplete, depending on ScheduledEntryMetaData (if any NEW => incomplete)"""
-
-        for appointment in self.__class__.objects.filter(
-                appointment_identifier=self.appointment_identifier,
-                appt_status=IN_PROGRESS).exclude(
-                    pk=self.pk):
-            with transaction.atomic(using):
-                if self.unkeyed_forms():
-                    if appointment.appt_status != INCOMPLETE:
-                        appointment.appt_status = INCOMPLETE
-                        appointment.save(using, update_fields=['appt_status'])
-                else:
-                    if appointment.appt_status != COMPLETE_APPT:
-                        appointment.appt_status = COMPLETE_APPT
-                        appointment.save(using, update_fields=['appt_status'])
-
-    def unkeyed_forms(self):
-        if self.unkeyed_crfs() or self.unkeyed_requisitions():
-            return True
-        return False
-
-    def unkeyed_crfs(self):
-        from edc_meta_data.helpers import CrfMetaDataHelper
-        return CrfMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
-
-    def unkeyed_requisitions(self):
-        from edc_meta_data.helpers import RequisitionMetaDataHelper
-        return RequisitionMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
-
-#     def time_point_status_open_or_raise(self, exception_cls=None):
-#         """Checks the timepoint status and prevents edits to the model if
-#         time_point_status_status == closed."""
-#         exception_cls = exception_cls or ValidationError
-#         try:
-#             if self.time_point_status.status == CLOSED:
-#                 raise ValidationError('Data entry for this time point is closed. See TimePointStatus.')
-#         except AttributeError:
-#             pass
-#         except TimePointStatus.DoesNotExist:
-#             self.time_point_status = TimePointStatus.objects.create(
-#                 visit_code=self.visit_definition.code,
-#                 appointment_identifier=self.appointment_identifier)  # TODO quesry with someything that uniquely idetifier all other subject's appointments
-
-    def validate_appt_datetime(self, exception_cls=None):
-        """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
-        the calculated ideal timepoint datetime.
-
-        .. note:: best_appt_datetime is not editable by the user. If 'None'
-         will raise an exception."""
-        if not exception_cls:
-            exception_cls = ValidationError
-        appointment_date_helper = AppointmentDateHelper(self.__class__)
-        if not self.id:
-            appt_datetime = appointment_date_helper.get_best_datetime(
-                self.appt_datetime, self.registered_subject.study_site)
-            best_appt_datetime = self.appt_datetime
-        else:
-            if not self.best_appt_datetime:
-                # did you update best_appt_datetime for existing instances since the migration?
-                raise exception_cls(
-                    'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
-            appt_datetime = appointment_date_helper.change_datetime(
-                self.best_appt_datetime, self.appt_datetime,
-                self.registered_subject.study_site, self.visit_definition)
-            best_appt_datetime = self.best_appt_datetime
-        return appt_datetime, best_appt_datetime
-
-    def validate_continuation_appt_datetime(self, exception_cls=None):
-        exception_cls = exception_cls or ValidationError
-        base_appointment = self.__class__.objects.get(
-            appointment_identifier=self.appointment_identifier,
-            visit_definition=self.visit_definition,
-            visit_instance='0')
-        if self.visit_instance != '0' and (self.appt_datetime - base_appointment.appt_datetime).days < 1:
-            raise exception_cls(
-                'Appointment date must be a future date relative to the '
-                'base appointment. Got {} not greater than {} at {}.0.'.format(
-                    self.appt_datetime.strftime('%Y-%m-%d'),
-                    base_appointment.appt_datetime.strftime('%Y-%m-%d'),
-                    self.visit_definition.code))
-        return self.appt_datetime, base_appointment.best_appt_datetime
-
-    def check_window_period(self, exception_cls=None):
-        """Confirms appointment date is in the accepted window period."""
-        if not exception_cls:
-            exception_cls = ValidationError
-        if self.id and self.visit_instance == '0':
-            window_period = WindowPeriodHelper(
-                self.visit_definition, self.appt_datetime, self.best_appt_datetime)
-            if not window_period.check_datetime():
-                raise exception_cls(window_period.error_message)
-
-#     def dashboard(self):
-#         """Returns a hyperink for the Admin page."""
-#         ret = None
-#         if settings.APP_NAME == 'cancer':
-#                 if self.appointment_identifier:
-#                     url = reverse('subject_dashboard_url',
-#                                   kwargs={'dashboard_type': self.registered_subject.subject_type.lower(),
-#                                           'dashboard_model': 'appointment',
-#                                           'dashboard_id': self.pk,
-#                                           'show': 'appointments'})
-#                     ret = """<a href="{url}" />dashboard</a>""".format(url=url)
-#         if self.appt_status == APPT_STATUS[0][0]:
-#             if settings.APP_NAME != 'cancer':
-#                 return NEW_APPT
-#         else:
-#             if self.registered_subject:
-#                 if self.registered_subject.subject_identifier:
-#                     url = reverse('subject_dashboard_url',
-#                                   kwargs={'dashboard_type': self.registered_subject.subject_type.lower(),
-#                                           'dashboard_model': 'appointment',
-#                                           'dashboard_id': self.pk,
-#                                           'show': 'appointments'})
-#                     ret = """<a href="{url}" />dashboard</a>""".format(url=url)
-#         return ret
-#     dashboard.allow_tags = True
-
-    def time_point(self):
-        url = reverse('admin:edc_appointment_timepointstatus_changelist')
-        return """<a href="{url}?appointment_identifier={appointment_identifier}" />time_point</a>""".format(
-            url=url, appointment_identifier=self.appointment_identifier)
-    time_point.allow_tags = True
-
-    def get_report_datetime(self):
-        """Returns the appointment datetime as the report_datetime."""
-        return self.appt_datetime
-
-    def is_new_appointment(self):
-        """Returns True if this is a New appointment and confirms choices
-        tuple has \'new\'; as a option."""
-        if NEW_APPT not in [s[0] for s in APPT_STATUS]:
-            raise TypeError(
-                'Expected (\'new\', \'New\') as one tuple in the choices tuple '
-                'APPT_STATUS. Got {0}'.format(APPT_STATUS))
-        retval = False
-        if self.appt_status == NEW_APPT:
-            retval = True
-        return retval
-
-    @property
-    def complete(self):
-        """Returns True if the appointment status is COMPLETE_APPT."""
-        return self.appt_status == COMPLETE_APPT
-
     class Meta:
         abstract = True
 
 
 class RequiresAppointmentMixin(models.Model):
-
-    APPOINTMENT_MODEL = None
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
@@ -489,11 +278,6 @@ class RequiresAppointmentMixin(models.Model):
             self.appt_status = self.get_appt_status(using)
         super(RequiresAppointmentMixin, self).save(*args, **kwargs)
 
-#     def natural_key(self):
-#         """Returns a natural key."""
-#         return (self.visit_instance, ) + self.visit_definition.natural_key() + self.registered_subject.natural_key()
-#     natural_key.dependencies = ['edc_registration.registeredsubject', 'edc_visit_schedule.visitdefinition']
-
     def get_appt_status(self, using):
         """Returns the appt_status by checking the meta data entry status for all required CRFs and requisitions.
         """
@@ -519,19 +303,27 @@ class RequiresAppointmentMixin(models.Model):
                 appt_status = NEW_APPT
         return appt_status
 
+    @property
+    def appointment_app_config(self):
+        return django_apps.get_app_config('edc_appointment')
+
+    @property
+    def appointment_model(self):
+        return django_apps.get_app_config('edc_appointment').appointment_model
+
     def validate_visit_instance(self, exception_cls=None):
         exception_cls = exception_cls or ValidationError
         visit_instance = self.visit_instance or '0'
         if self.visit_instance != '0':
             previous = str(int(visit_instance) - 1)
             try:
-                appointment = self.APPOINTMENT_MODEL.objects.get(
+                appointment = self.appointment_model.objects.get(
                     appointment_identifier=self.appointment_identifier,
                     visit_definition=self.visit_definition,
                     visit_instance=previous)
                 if appointment.id == self.id:
-                    raise self.APPOINTMENT_MODEL.DoesNotExist
-            except self.APPOINTMENT_MODEL.DoesNotExist:
+                    raise self.appointment_model.DoesNotExist
+            except self.appointment_model.DoesNotExist:
                 raise exception_cls(
                     'Attempt to create or update appointment instance out of sequence. Got \'{}.{}\'.'.format(
                         self.visit_definition.code, visit_instance))
@@ -542,7 +334,7 @@ class RequiresAppointmentMixin(models.Model):
         Only one appointment can be "in_progress", so look for any others in progress and change
         to Done or Incomplete, depending on ScheduledEntryMetaData (if any NEW => incomplete)"""
 
-        for appointment in self.APPOINTMENT_MODEL.objects.filter(
+        for appointment in self.appointment_model.objects.filter(
                 appointment_identifier=self.appointment_identifier,
                 appt_status=IN_PROGRESS).exclude(
                     pk=self.pk):
@@ -569,20 +361,6 @@ class RequiresAppointmentMixin(models.Model):
         from edc_meta_data.helpers import RequisitionMetaDataHelper
         return RequisitionMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
 
-#     def time_point_status_open_or_raise(self, exception_cls=None):
-#         """Checks the timepoint status and prevents edits to the model if
-#         time_point_status_status == closed."""
-#         exception_cls = exception_cls or ValidationError
-#         try:
-#             if self.time_point_status.status == CLOSED:
-#                 raise ValidationError('Data entry for this time point is closed. See TimePointStatus.')
-#         except AttributeError:
-#             pass
-#         except TimePointStatus.DoesNotExist:
-#             self.time_point_status = TimePointStatus.objects.create(
-#                 visit_code=self.visit_definition.code,
-#                 appointment_identifier=self.appointment_identifier)  # TODO quesry with someything that uniquely idetifier all other subject's appointments
-
     def validate_appt_datetime(self, exception_cls=None):
         """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
         the calculated ideal timepoint datetime.
@@ -591,7 +369,7 @@ class RequiresAppointmentMixin(models.Model):
          will raise an exception."""
         if not exception_cls:
             exception_cls = ValidationError
-        appointment_date_helper = AppointmentDateHelper(self.APPOINTMENT_MODEL)
+        appointment_date_helper = AppointmentDateHelper(self.appointment_model)
         if not self.id:
             appt_datetime = appointment_date_helper.get_best_datetime(
                 self.appt_datetime, self.registered_subject.study_site)
@@ -609,7 +387,7 @@ class RequiresAppointmentMixin(models.Model):
 
     def validate_continuation_appt_datetime(self, exception_cls=None):
         exception_cls = exception_cls or ValidationError
-        base_appointment = self.APPOINTMENT_MODEL.objects.get(
+        base_appointment = self.appointment_model.objects.get(
             appointment_identifier=self.appointment_identifier,
             visit_definition=self.visit_definition,
             visit_instance='0')
@@ -661,3 +439,126 @@ class RequiresAppointmentMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class TimePointStatusMixin(models.Model):
+    """ All completed appointments are noted in this mixin to be inherited by the appointment mixin.
+
+    Only authorized users can access this form. This form allows
+    the user to definitely confirm that the appointment has
+    been completed"""
+
+    visit_code = models.CharField(max_length=15)
+
+    close_datetime = models.DateTimeField(
+        verbose_name='Date closed.',
+        null=True,
+        blank=True)
+
+    time_point_status = models.CharField(
+        max_length=15,
+        choices=(
+            (OPEN, 'Open'),
+            ('feedback', 'Feedback'),
+            (CLOSED, 'Closed')),
+        default=OPEN)
+
+    subject_withdrew = models.CharField(
+        verbose_name='Did the participant withdraw consent?',
+        max_length=15,
+        choices=YES_NO_NA,
+        default=NOT_APPLICABLE,
+        null=True,
+        help_text='Use ONLY when subject has changed mind and wishes to withdraw consent')
+
+    reasons_withdrawn = models.CharField(
+        verbose_name='Reason participant withdrew consent',
+        max_length=35,
+        choices=(
+            ('changed_mind', 'Subject changed mind'),
+            (NOT_APPLICABLE, 'Not applicable')),
+        null=True,
+        default=NOT_APPLICABLE)
+
+    withdraw_datetime = models.DateTimeField(
+        verbose_name='Date and time participant withdrew consent',
+        null=True,
+        blank=True)
+
+    history = AuditTrail()
+
+    def get_report_datetime(self):
+        return self.close_datetime
+
+    def save(self, *args, **kwargs):
+        self.validate_status()
+        if self.status == CLOSED and not self.close_datetime:
+            self.close_datetime = timezone.now()
+        else:
+            self.close_datetime = None
+        self.time_point_status_open_or_raise()
+        super(TimePointStatus, self).save(*args, **kwargs)
+
+    def status_display(self):
+        """Formats and returns the status for the dashboard."""
+        if self.status == OPEN:
+            return '<span style="color:green;">Open</span>'
+        elif self.status == CLOSED:
+            return '<span style="color:red;">Closed</span>'
+        elif self.status == 'feedback':
+            return '<span style="color:orange;">Feedback</span>'
+    status_display.allow_tags = True
+
+    def validate_status(self, instance=None, exception_cls=None):
+        """Closing off only appt that are either done/incomplete/cancelled ONLY."""
+        exception_cls = exception_cls or ValidationError
+        instance = instance or self
+        if instance.status == CLOSED:
+            for appointment in self.get_appointments():
+                if appointment.appt_status in [NEW_APPT, IN_PROGRESS]:
+                    raise exception_cls(
+                        'Cannot close timepoint. Appointment status is {0}.'.format(
+                            appointment.appt_status.upper()))
+
+    @property
+    def appointment_app_config(self):
+        return django_apps.get_app_config('edc_appointment')
+
+    @property
+    def appointment_model(self):
+        return django_apps.get_app_config('edc_appointment').appointment_model
+
+    def get_appointments(self):
+        return self.appointment_model.objects.filter(pk=self.pk)
+
+    def time_point_status_open_or_raise(self, exception_cls=None):
+        """Checks the time point status and prevents edits to the model if
+        time_point_status_status == closed."""
+        exception_cls = exception_cls or ValidationError
+        if self.time_point_status == CLOSED:
+            raise ValidationError('Data entry for this time point is closed. See TimePointStatus.')
+
+
+    @property
+    def base_appointment(self):
+        return self.appointment_model.objects.get(
+            time_point_status__pk=self.pk, visit_instance='0')
+
+    dashboard.allow_tags = True
+
+    class Meta:
+        abstract = True
+        
+
+
+@receiver(post_save, weak=False, dispatch_uid="appointment_post_save")
+def appointment_post_save(sender, instance, raw, created, using, **kwargs):
+    """Update the TimePointStatus in appointment if the field is empty."""
+    if not raw:
+        try:
+            if not instance.time_point_status:
+                instance.time_point_status
+                instance.save(update_fields=['time_point_status'])
+        except AttributeError as e:
+            if 'time_point_status' not in str(e):
+                raise AttributeError(str(e))
