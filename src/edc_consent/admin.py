@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from edc_base.modeladmin.mixins import ModelAdminBasicMixin
 from edc_consent.actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
-from edc_consent.models import ConsentType
+# from edc_consent.models import ConsentType
 from django.contrib.admin.sites import AdminSite
 
 
@@ -14,12 +14,12 @@ class EdcConsentAdminSite(AdminSite):
 edc_consent_admin = EdcConsentAdminSite(name='edc_consent_admin')
 
 
-@admin.register(ConsentType, site=edc_consent_admin)
-class ConsentTypeAdmin(admin.ModelAdmin):
-    date_hierarchy = 'start_datetime'
-    fields = ('app_label', 'model_name', 'version', 'start_datetime', 'end_datetime')
-    list_display = ('app_label', 'model_name', 'version', 'start_datetime', 'end_datetime')
-    list_filter = ('version', 'start_datetime', 'end_datetime')
+# @admin.register(ConsentType, site=edc_consent_admin)
+# class ConsentTypeAdmin(admin.ModelAdmin):
+#     date_hierarchy = 'start_datetime'
+#     fields = ('app_label', 'model_name', 'version', 'start_datetime', 'end_datetime')
+#     list_display = ('app_label', 'model_name', 'version', 'start_datetime', 'end_datetime')
+#     list_filter = ('version', 'start_datetime', 'end_datetime')
 
 
 class ModelAdminConsentMixin(ModelAdminBasicMixin):

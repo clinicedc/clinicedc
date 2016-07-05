@@ -1,7 +1,8 @@
 from django.db import models
 
+from edc_consent.consent_type import site_consent_types
+
 from ..exceptions import NotConsentedError
-from ..models import ConsentType
 
 
 class RequiresConsentMixin(models.Model):
@@ -39,7 +40,7 @@ class RequiresConsentMixin(models.Model):
 
     def consent_type(self, report_datetime, exception_cls=None):
         """Returns the consent type that matches the report datetime and consent model."""
-        return ConsentType.objects.get_by_report_datetime(
+        return site_consent_types.get_by_datetime(
             self.consent_model, report_datetime, exception_cls=exception_cls)
 
     class Meta:

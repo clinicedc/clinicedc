@@ -1,6 +1,5 @@
 from uuid import uuid4
 
-from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from django_crypto_fields.fields import EncryptedTextField
 from simple_history.models import HistoricalRecords as AuditTrail
@@ -8,9 +7,9 @@ from simple_history.models import HistoricalRecords as AuditTrail
 from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start
 from edc_base.utils import formatted_age, age
 
+from ..consent_type import site_consent_types
 from ..exceptions import ConsentVersionError, ConsentTypeError
 
-from .consent_type import ConsentType
 from .fields.verification_fields_mixin import VerificationFieldsMixin
 
 
@@ -25,10 +24,11 @@ class ConsentManager(models.Manager):
     def valid_consent_for_period(self, subject_identifier, report_datetime):
         consent = None
         try:
-            consent_type = ConsentType.objects.get_by_consent_datetime(
+            consent_type = site_consent_types.get_by_consent_datetime(
                 self.model, report_datetime)
-            consent = self.get(subject_identifier=subject_identifier, version=consent_type.version)
-        except (ConsentType.DoesNotExist, self.model.DoesNotExist):
+            if consent_type:
+                consent = self.get(subject_identifier=subject_identifier, version=consent_type.version)
+        except self.model.DoesNotExist:
             pass
         return consent
 
@@ -112,7 +112,7 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
         self.set_uuid_as_subject_identifier_if_none()
         if not self.id and not self.subject_identifier:
             self.subject_identifier = self.subject_identifier_as_pk
-        consent_type = ConsentType.objects.get_by_consent_datetime(
+        consent_type = site_consent_types.get_by_consent_datetime(
             self.__class__, self.consent_datetime)
         self.version = consent_type.version
         if consent_type.updates_version:
@@ -120,7 +120,7 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
                 previous_consent = self.__class__.objects.get(
                     subject_identifier=self.subject_identifier,
                     identity=self.identity,
-                    version__in=consent_type.updates_version.split(','),
+                    version__in=consent_type.updates_version,
                     **self.additional_filter_options())
                 previous_consent.subject_identifier_as_pk = self.subject_identifier_as_pk
                 previous_consent.subject_identifier_aka = self.subject_identifier_aka
@@ -128,7 +128,7 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
                 raise ConsentVersionError(
                     'Previous consent with version {0} for this subject not found. Version {1} updates {0}.'
                     'Ensure all details match (identity, dob, first_name, last_name)'.format(
-                        consent_type.updates_version.split(','), self.version))
+                        consent_type.updates_version, self.version))
         super(BaseConsent, self).save(*args, **kwargs)
 
     def set_uuid_as_subject_identifier_if_none(self):
@@ -139,16 +139,9 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
         """Raises an exception if not listed in ConsentType."""
         consent_model = consent_model or self
         exception_cls = exception_cls or ConsentTypeError
-        try:
-            consent_type = ConsentType.objects.get(
-                app_label=consent_model._meta.app_label,
-                model_name=consent_model._meta.model_name)
-        except MultipleObjectsReturned:
-            pass
-        except ConsentType.DoesNotExist:
-            models = []
-            for consent_type in ConsentType.objects.all():
-                models.append('{}.{}'.format(consent_type.app_label, consent_type.model_name))
+        consent_types = site_consent_types.get_by_model(model=consent_model)
+        if not consent_types:
+            models = [ct.model_class._meta.verbose_name for ct in consent_types]
             raise exception_cls(
                 '\'{}.{}\' is not a known consent model. '
                 'Valid consent models are [\'{}\']. See ConsentType and/or edc_configuration.'.format(

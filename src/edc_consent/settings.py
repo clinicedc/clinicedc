@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
     'simple_history',
-    'example.apps.ConsentAppConfig'
+    'example.apps.ConsentAppConfig',
+    'example.apps.ExampleAppConfig',
 ]
 
 MIDDLEWARE_CLASSES = (

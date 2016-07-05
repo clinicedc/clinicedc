@@ -1,6 +1,6 @@
 from faker import Factory as FakerFactory
 
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from dateutil.relativedelta import relativedelta
 
 from django.core.exceptions import ValidationError
@@ -13,57 +13,57 @@ from edc_consent.exceptions import NotConsentedError, ConsentTypeError, ConsentV
 from edc_consent.models.validators import AgeTodayValidator
 from edc_constants.constants import NO
 
-from example.models import (
-    TestConsentModel, TestModel, TestScheduledModel, ConsentForm, Visit, ConsentModelProxyForm)
+from example.models import TestConsentModel, TestModel, TestScheduledModel, Visit
+from example.forms import ConsentForm, ConsentModelProxyForm
 
-from .base_test_case import BaseTestCase
 from .factories import (
-    TestConsentModelFactory, TestConsentModelProxy, TestConsentModelProxyFactory, ConsentTypeFactory)
+    TestConsentModelFactory, TestConsentModelProxy, TestConsentModelProxyFactory)
+from django.test.testcases import TestCase
+from .factories import consent_type_factory
+from edc_consent.consent_type import site_consent_types, AlreadyRegistered
 
 faker = FakerFactory.create()
 
 
-class TestConsent(BaseTestCase):
+class TestConsent(TestCase):
 
     def setUp(self):
-        # TestConsentModel.quota.set_quota(2, date.today(), date.today())
-        # TestConsentModelProxy.quota.set_quota(2, date.today(), date.today())
-        pass
+        site_consent_types.reset_registry()
 
     def test_raises_error_if_no_consent_type(self):
         self.assertRaises(NotConsentedError, TestModel.objects.create, subject_identifier='12345')
 
     def test_raises_error_if_no_consent(self):
-        ConsentTypeFactory()
+        consent_type_factory()
         self.assertRaises(NotConsentedError, TestModel.objects.create, subject_identifier='12345')
 
     def test_allows_create_if_consent(self):
-        ConsentTypeFactory()
+        consent_type_factory()
         TestConsentModelFactory(subject_identifier='12345')
         TestModel.objects.create(subject_identifier='12345')
         TestConsentModelFactory(subject_identifier='12344', identity='12319876', confirm_identity='12319876')
         TestModel.objects.create(subject_identifier='12344')
 
     def test_cannot_create_consent_without_consent_type_by_datetime(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=200),
             version='1.0')
         self.assertRaises(ConsentTypeError, TestConsentModelFactory)
 
     def test_consent_gets_version(self):
-        ConsentTypeFactory(version='1.0')
+        consent_type_factory(version='1.0')
         consent = TestConsentModelFactory()
         self.assertEqual(consent.version, '1.0')
 
     def test_model_gets_version(self):
-        ConsentTypeFactory(version='1.0')
+        consent_type = consent_type_factory(version='1.0')
         TestConsentModelFactory()
         test_model = TestModel.objects.create(subject_identifier='12345')
         self.assertEqual(test_model.consent_version, '1.0')
 
     def test_model_consent_version_no_change(self):
-        ConsentTypeFactory(version='1.2')
+        consent_type_factory(version='1.2')
         TestConsentModelFactory()
         test_model = TestModel.objects.create(subject_identifier='12345')
         self.assertEqual(test_model.consent_version, '1.2')
@@ -71,11 +71,11 @@ class TestConsent(BaseTestCase):
         self.assertEqual(test_model.consent_version, '1.2')
 
     def test_model_consent_version_changes_with_report_datetime(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=200),
             version='1.0')
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=199),
             end_datetime=timezone.now() + timedelta(days=100),
             version='1.1')
@@ -91,17 +91,17 @@ class TestConsent(BaseTestCase):
 
     def test_consent_type_update_needs_previous_version(self):
         """Asserts that a consent type updates a previous consent."""
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=200),
             version='1.0')
         self.assertRaises(
-            ConsentTypeError, ConsentTypeFactory,
+            ConsentTypeError, consent_type_factory,
             start_datetime=timezone.now() - timedelta(days=199),
             end_datetime=timezone.now() + timedelta(days=100),
             version='1.1',
             updates_version='1.2')
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=199),
             end_datetime=timezone.now() - timedelta(days=100),
             version='1.1',
@@ -109,11 +109,11 @@ class TestConsent(BaseTestCase):
 
     def test_consent_needs_previous_version(self):
         """Asserts that a consent updates a previous consent but cannot be entered by itself."""
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=200),
             version='1.0')
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=199),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.1',
@@ -122,13 +122,13 @@ class TestConsent(BaseTestCase):
 
     def test_consent_needs_previous_version2(self):
         """Asserts that a consent updates a previous consent but cannot be entered by itself."""
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=200),
             version='1.0')
         consent = TestConsentModelFactory(consent_datetime=timezone.now() - timedelta(days=300))
         self.assertEqual(consent.version, '1.0')
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=199),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.1',
@@ -141,18 +141,18 @@ class TestConsent(BaseTestCase):
 
     def test_consent_needs_previous_version3(self):
         """Asserts that a consent updates a previous consent but cannot be entered by itself."""
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=200),
             version='1.0')
         consent = TestConsentModelFactory(consent_datetime=timezone.now() - timedelta(days=300))
         self.assertEqual(consent.version, '1.0')
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=199),
             end_datetime=timezone.now() - timedelta(days=50),
             version='1.1',
             updates_version='1.0')
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=49),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.2',
@@ -160,34 +160,34 @@ class TestConsent(BaseTestCase):
         self.assertRaises(ConsentVersionError, TestConsentModelFactory)
 
     def test_consent_periods_cannot_overlap(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=200),
             version='1.0')
         self.assertRaises(
-            ConsentTypeError, ConsentTypeFactory,
+            AlreadyRegistered, consent_type_factory,
             start_datetime=timezone.now() - timedelta(days=201),
             end_datetime=timezone.now(),
             version='1.1',
             updates_version='1.0')
 
     def test_consent_periods_cannot_overlap2(self):
-        ConsentTypeFactory(
-            app_label='edc_consent',
+        consent_type_factory(
+            app_label='example',
             model_name='testconsentmodel',
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
         self.assertRaises(
-            ConsentTypeError, ConsentTypeFactory,
-            app_label='edc_consent',
+            AlreadyRegistered, consent_type_factory,
+            app_label='example',
             model_name='testconsentmodel',
             start_datetime=timezone.now() - timedelta(days=201),
             end_datetime=timezone.now() + timedelta(days=201),
             version='1.1')
 
     def test_encryption(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -198,7 +198,7 @@ class TestConsent(BaseTestCase):
 
     def test_no_subject_identifier(self):
         """Asserts a blank subject identifier is set to the subject_identifier_as_pk."""
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -223,11 +223,11 @@ class TestConsent(BaseTestCase):
         subject_identifier = '123456789'
         identity = '987654321'
         report_datetime = timezone.now() - timedelta(days=1)
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=200),
             version='1.0')
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=199),
             end_datetime=timezone.now() + timedelta(days=200),
             version='2.0')
@@ -246,7 +246,7 @@ class TestConsent(BaseTestCase):
         subject_identifier = '123456789'
         identity = '987654321'
         report_datetime = timezone.now() - timedelta(days=1)
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=200),
             version='1.0')
@@ -255,12 +255,12 @@ class TestConsent(BaseTestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=timezone.now() - timedelta(days=300))
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=199),
             end_datetime=timezone.now() - timedelta(days=50),
             version='2.0',
             updates_version='1.0')
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=49),
             end_datetime=timezone.now() + timedelta(days=200),
             version='3.0',
@@ -277,7 +277,7 @@ class TestConsent(BaseTestCase):
     def test_scheduled_model_with_fk(self):
         subject_identifier = '123456789'
         identity = '987654321'
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -287,7 +287,7 @@ class TestConsent(BaseTestCase):
         TestScheduledModel.objects.create(visit=visit)
 
     def test_base_form_is_valid(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -296,7 +296,7 @@ class TestConsent(BaseTestCase):
         self.assertTrue(consent_form.is_valid())
 
     def test_base_form_identity_mismatch(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -307,11 +307,11 @@ class TestConsent(BaseTestCase):
         self.assertIn(u'Identity mismatch', ','.join(consent_form.non_field_errors()))
 
     def test_base_form_identity_dupl(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=100),
             version='1.0')
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=99),
             end_datetime=timezone.now() + timedelta(days=200),
             version='2.0')
@@ -328,7 +328,7 @@ class TestConsent(BaseTestCase):
             consent_form.non_field_errors()))
 
     def test_base_form_guardian_and_dob1(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -340,7 +340,7 @@ class TestConsent(BaseTestCase):
         self.assertIn('Subject is a minor', ','.join(consent_form.non_field_errors()))
 
     def test_base_form_guardian_and_dob2(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -352,7 +352,7 @@ class TestConsent(BaseTestCase):
         self.assertIn('Subject is an adult', ','.join(consent_form.non_field_errors()))
 
     def test_base_form_guardian_and_dob3(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -364,7 +364,7 @@ class TestConsent(BaseTestCase):
     def test_base_form_catches_dob_lower(self):
         subject_identifier = '123456789'
         identity = '987654321'
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -380,7 +380,7 @@ class TestConsent(BaseTestCase):
     def test_base_form_catches_dob_upper(self):
         subject_identifier = '123456789'
         identity = '987654321'
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -394,7 +394,7 @@ class TestConsent(BaseTestCase):
             ','.join(consent_form.non_field_errors()))
 
     def test_base_form_catches_gender_of_consent(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             app_label=TestConsentModelProxy._meta.app_label,
             model_name=TestConsentModelProxy._meta.model_name,
             start_datetime=timezone.now() - timedelta(days=365),
@@ -411,7 +411,7 @@ class TestConsent(BaseTestCase):
         self.assertTrue(form.is_valid())
 
     def test_base_form_catches_is_literate_and_witness(self):
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -436,7 +436,7 @@ class TestConsent(BaseTestCase):
         study_open_date = (timezone.datetime.today() - relativedelta(years=3)).date().isoformat()
         subject_identifier = '123456789'
         identity = '987654321'
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - relativedelta(years=5),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
@@ -458,11 +458,11 @@ class TestConsent(BaseTestCase):
 
     def test_updateconsentversion_management(self):
         out = StringIO()
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=365),
             end_datetime=timezone.now() - timedelta(days=100),
             version='1.0')
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - timedelta(days=99),
             end_datetime=timezone.now() + timedelta(days=200),
             version='2.0')

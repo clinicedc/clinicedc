@@ -2,16 +2,30 @@ import factory
 
 from faker import Factory as FakerFactory
 from dateutil.relativedelta import relativedelta
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from django.utils import timezone
 
 from edc_constants.constants import YES, NO
-from edc_consent.models import ConsentType
+from edc_consent.consent_type import ConsentType, site_consent_types
 
 from example.models import TestConsentModel, TestConsentModelProxy
 
 faker = FakerFactory.create()
+
+
+def consent_type_factory(**kwargs):
+    options = dict(
+        app_label=kwargs.get('app_label', 'example'),
+        model_name=kwargs.get('model_name', 'testconsentmodel'),
+        start_datetime=kwargs.get('start_datetime', timezone.now() - timedelta(days=365)),
+        end_datetime=kwargs.get('end_datetime', timezone.now() + timedelta(days=365)),
+        version=kwargs.get('version', '1'),
+        updates_version=kwargs.get('updates_version', ''),
+    )
+    consent_type = ConsentType(**options)
+    site_consent_types.register(ConsentType(**options))
+    return consent_type
 
 
 class TestConsentModelFactory(factory.DjangoModelFactory):
@@ -65,16 +79,3 @@ class TestConsentModelProxyFactory(factory.DjangoModelFactory):
     site_code = '10'
     consent_datetime = timezone.now()
     may_store_samples = YES
-
-
-class ConsentTypeFactory(factory.DjangoModelFactory):
-
-    class Meta:
-        model = ConsentType
-
-    version = '1.0'
-    updates_version = None
-    app_label = 'edc_consent'
-    model_name = 'testconsentmodel'
-    start_datetime = timezone.now() - timedelta(days=1)
-    end_datetime = timezone.now() + timedelta(days=365)

@@ -1,9 +1,7 @@
+import toolz
 from optparse import make_option
-
-from django.core.exceptions import MultipleObjectsReturned
 from django.core.management.base import BaseCommand, CommandError
-
-from edc_consent.models.consent_type import ConsentType
+from edc_consent.consent_type import site_consent_types
 
 
 class Command(BaseCommand):
@@ -38,42 +36,39 @@ class Command(BaseCommand):
             elif version == '?':
                 pass
             else:
-                try:
-                    ConsentType.objects.get(version=version)
-                except MultipleObjectsReturned:
-                    pass
-                except ConsentType.DoesNotExist:
+                consent_types = site_consent_types.get_all_by_version(version=version)
+                if not consent_types:
                     raise CommandError('Version \'{}\' is not a valid version.'.format(version))
         self.resave_consents(version)
 
     def resave_consents(self, version):
         models = []
-        for consent_type in ConsentType.objects.all().order_by('version'):
+        for consent_type in site_consent_types.all():
             model_class = consent_type.model_class()
             if not model_class._meta.proxy:
                 models.append(consent_type.model_class())
-        models = list(set(models))
+        models = toolz.unique(models, key=lambda x: x._meta.model_name)
         self.stdout.write('Found consents: {}'.format(', '.join([m._meta.verbose_name for m in models])))
         for model_class in models:
             saved = 0
             pks_by_version = {}
-            for consent_type in ConsentType.objects.all().order_by('version'):
+            for consent_type in site_consent_types.all():
                 pks_by_version[consent_type.version] = []
             if version:
                 consents = model_class.objects.filter(version=version)
             else:
-                consents = model_class.objects.all().order_by('version')
+                consents = model_class.objects.all()
             total = consents.count()
             self.stdout.write("Updating {} \'{}\' where version == \'?\' ... ".format(
                 total, model_class._meta.verbose_name))
             for consent in consents:
                 saved += 1
-                consent_type = ConsentType.objects.get_by_consent_datetime(
+                consent_type = site_consent_types.get_by_consent_datetime(
                     model_class, consent.consent_datetime)
                 consent.version = consent_type.version
                 pks_by_version[consent.version].append(consent.pk)
                 self.stdout.write('{} / {} \r'.format(saved, total))
-            for version, pks in pks_by_version.iteritems():
+            for version, pks in pks_by_version.items():
                 self.stdout.write("   {} \'{}\' set to version {} ".format(
                     len(pks), model_class._meta.verbose_name, version))
                 model_class.objects.filter(pk__in=pks).update(version=version)

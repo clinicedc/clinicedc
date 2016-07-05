@@ -4,18 +4,21 @@ from dateutil.relativedelta import relativedelta
 
 from django.utils import timezone
 
-from .base_test_case import BaseTestCase
-from .factories import TestConsentModelFactory, ConsentTypeFactory
+from .factories import TestConsentModelFactory
+from django.test.testcases import TestCase
+from edc_consent.consent_type import site_consent_types
+from edc_consent.tests.factories import consent_type_factory
 
 
-class TestSpecimenConsent(BaseTestCase):
+class TestSpecimenConsent(TestCase):
 
     def setUp(self):
         # TestConsentModel.quota.set_quota(2, date.today(), date.today())
         # TestConsentModelProxy.quota.set_quota(2, date.today(), date.today())
+        site_consent_types.reset_registry()
         self.subject_identifier = '123456789'
         self.identity = '987654321'
-        ConsentTypeFactory(
+        consent_type_factory(
             start_datetime=timezone.now() - relativedelta(years=5),
             end_datetime=timezone.now() + timedelta(days=200),
             version='1.0')
