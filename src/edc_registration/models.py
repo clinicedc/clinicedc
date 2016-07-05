@@ -116,7 +116,8 @@ class RegisteredSubjectModelMixin(models.Model):
         blank=False)
 
     subject_type = models.CharField(
-        max_length=25)
+        max_length=25,
+        default='subject')
 
     subject_consent_id = models.CharField(
         max_length=100,
