@@ -18,6 +18,10 @@ RequisitionPanelTuple = namedtuple('RequisitionPanelTuple', 'entry_order app_lab
 ScheduleTuple = namedtuple('ScheduleTuple', 'name membership_form_name grouping_key comment')
 
 
+class VisitScheduleError(Exception):
+    pass
+
+
 class VisitScheduleConfiguration(object):
     """Creates or updates the membership_form, schedule, crf_entry,
     lab_entry models and visit_definition.
@@ -32,11 +36,12 @@ class VisitScheduleConfiguration(object):
     visit_definitions = OrderedDict()
 
     def __init__(self):
-        self.verify_dictionaries()
         self.ready = False
+        self.verify_dictionaries()
 
-    def __repr__(self):
-        return '{0}.{1} {2}'.format(self.app_label, self.name, 'ready' if self.ready else 'not ready')
+    def __str__(self):
+        return '<{} app_label=\'{}\', name=\'{}\', ready={}>'.format(
+            self.__class__.__name__, self.app_label, self.name, self.ready)
 
     def build(self):
         """Builds and / or updates the visit schedule models."""
@@ -50,6 +55,7 @@ class VisitScheduleConfiguration(object):
         self.verify_membership_forms_dict()
         self.verify_schedules_dict()
         self.verify_visit_definitions_dict()
+        return True
 
     def verify_membership_forms_dict(self):
         for membership_form in self.membership_forms.values():

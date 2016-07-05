@@ -122,7 +122,7 @@ class MembershipForm(BaseUuidModel):
     def natural_key(self):
         return self.content_type_map.natural_key()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.content_type_map.name
 
     class Meta:

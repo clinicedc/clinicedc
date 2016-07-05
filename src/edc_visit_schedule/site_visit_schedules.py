@@ -40,10 +40,13 @@ class Controller(object):
 
     def get_visit_schedule(self, app_label):
         """Returns the visit_schedule_configuration for the given app_label."""
-        if app_label:
-            if app_label in self.registry:
-                return self.registry.get(app_label)
-        return {}
+        schedules = []
+        for _, schedule in self.registry.items():
+            if schedule.app_label == app_label:
+                schedules.append(schedule)
+        if len(schedules) == 1:
+            return schedules[0]
+        return schedules
 
     def build(self, app_label):
         visit_schedule = self.get_visit_schedule(self, app_label)

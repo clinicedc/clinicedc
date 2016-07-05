@@ -44,9 +44,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'simple_history',
+    'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
     'edc_base',
     'edc_content_type_map.apps.EdcContentTypeAppConfig',
+    'edc_meta_data.apps.EdcMetaDataAppConfig',
     'edc_visit_schedule.apps.EdcVisitScheduleAppConfig',
+    'example.apps.EdcConsentAppConfig',
+    'example.apps.ExampleAppConfig'
 ]
 
 MIDDLEWARE_CLASSES = (
