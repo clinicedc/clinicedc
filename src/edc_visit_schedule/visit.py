@@ -8,12 +8,6 @@ from .exceptions import VisitScheduleError
 from edc_visit_schedule.exceptions import VisitError
 
 
-# def is_visit_tracking_model(value):
-#     from edc_visit_tracking.models import VisitModelMixin
-#     content_type_map = ContentTypeMap.objects.get(pk=value)
-#     if not issubclass(content_type_map.model_class(), VisitModelMixin):
-#         raise ValidationError('Select a model that is a subclass of VisitModelMixin')
-
 class Panel:
 
     def __init__(self, panel_name=None, panel_type=None, aliquot_type_alpha_code=None):
