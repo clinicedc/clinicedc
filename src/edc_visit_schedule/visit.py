@@ -2,8 +2,10 @@ from datetime import timedelta
 from django.apps import apps as django_apps
 
 from .utils import get_lower_window_days, get_upper_window_days
+from .constants import HOUR, DAY, MONTH, YEAR
 from .choices import VISIT_INTERVAL_UNITS
 from .exceptions import VisitScheduleError
+from edc_visit_schedule.exceptions import VisitError
 
 
 # def is_visit_tracking_model(value):
@@ -24,7 +26,8 @@ class Panel:
 
 
 class Crf:
-    def __init__(self, show_order, model=None, app_label=None, model_name=None, is_required=None, is_additional=None):
+    def __init__(self, show_order, model=None, app_label=None, model_name=None,
+                 is_required=None, is_additional=None, **kwargs):
         self.show_order = show_order
         if model:
             self.model = model
@@ -40,43 +43,52 @@ class Crf:
 
 class Requisition(Crf):
 
-    def __init__(self, show_order, panel_name=None, panel_type=None, aliquot_type_alpha_code=None, **kwargs):
+    def __init__(self, show_order, panel_name=None, panel_type=None,
+                 aliquot_type_alpha_code=None, **kwargs):
         super(Requisition, self).__init__(show_order, **kwargs)
         self.panel = Panel(panel_name, panel_type, aliquot_type_alpha_code)
 
 
 class Visit:
 
-    def __init__(self, code, title, visit_model, schedule, **kwargs):
+    def __init__(self, code, visit_model, schedule_name, **kwargs):
         self.code = code  # unique
-        self.title = title
+        self.title = kwargs.get('title', '{} Visit {}'.format(schedule_name, code))
         self.visit_model = visit_model
-        self.schedule = schedule  # Visit definition may be used in more than one schedule
+        try:
+            visit_model.appointment
+        except AttributeError:
+            raise VisitError('Expected a visit model. Got {}'.format(visit_model))
+        self.schedule_name = schedule_name  # Visit definition may be used in more than one schedule
         self.insructions = kwargs.get('instructions')
         self.time_point = kwargs.get('time_point', 0)
-        self.base_interval = kwargs.get('base_interval', 0)  # 'Interval from base timepoint 0 as an integer.'
-        self.base_interval_unit = kwargs.get('base_interval', 'D')  # choices = VISIT_INTERVAL_UNITS
+        self.base_interval = kwargs.get('base_interval', self.time_point)
+        self.base_interval_unit = kwargs.get('base_interval_unit', DAY)  # choices = VISIT_INTERVAL_UNITS
         if self.base_interval_unit not in [item[0] for item in VISIT_INTERVAL_UNITS]:
-            raise VisitScheduleError('Invalid interval unit')
+            raise VisitScheduleError('Invalid interval unit. Got \'{}\''.format(self.base_interval_unit))
         self.lower_window = kwargs.get('lower_window', 0)
-        self.lower_window_unit = kwargs.get('lower_window_unit', 'D')
+        self.lower_window_unit = kwargs.get('lower_window_unit', DAY)
         self.upper_window = kwargs.get('upper_window', 0)
-        self.upper_window_unit = kwargs.get('upper_window_unit', 'D')
+        self.upper_window_unit = kwargs.get('upper_window_unit', DAY)
         self.grouping = kwargs.get('grouping')
         self.crfs = kwargs.get('crfs')
         self.requisitions = kwargs.get('requisitions')
+
+    def __repr__(self):
+        return 'Visit({}, {}, {}, {})'.format(
+            self.code, self.visit_model._meta.verbose_name, self.schedule_name, self.time_point)
 
     def visit_tracking_content_type_map(self):
         return self.visit_model
 
     def get_rdelta_attrname(self, unit):
-        if unit == 'H':
+        if unit == HOUR:
             rdelta_attr_name = 'hours'
-        elif unit == 'D':
+        elif unit == DAY:
             rdelta_attr_name = 'days'
-        elif unit == 'M':
+        elif unit == MONTH:
             rdelta_attr_name = 'months'
-        elif unit == 'Y':
+        elif unit == YEAR:
             rdelta_attr_name = 'years'
         else:
             raise TypeError('Unknown value for visit_definition.upper_window_unit. '

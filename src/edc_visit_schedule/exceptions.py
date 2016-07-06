@@ -10,3 +10,15 @@ class VisitScheduleError(Exception):
 
 class AlreadyRegistered(Exception):
     pass
+
+
+class ScheduleError(Exception):
+    pass
+
+
+class VisitError(Exception):
+    pass
+
+
+class CrfError(Exception):
+    pass

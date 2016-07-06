@@ -20,16 +20,22 @@ class Controller(object):
         else:
             raise AlreadyRegistered('Visit Schedule {} is already registered.'.format(visit_schedule))
 
+    @property
     def visit_schedules(self):
-        """Returns the an ordered dictionary of visit_schedule_configurations"""
+        """Returns dictionary of visit_schedules"""
         return self.registry
 
-    def get_visit_schedule(self, app_label, model_name):
-        """Returns the visit_schedule for the given app_label."""
+    def get_visit_schedule(self, app_label=None, model_name=None, schedule_name=None):
+        """Returns the visit_schedule for the given app_label, model_name or schedule_name."""
         visit_schedule = None
-        for visit_schedule in self.registry.values():
-            if visit_schedule.get_membership_forms(app_label, model_name):
-                break
+        if schedule_name:
+            for visit_schedule in self.registry.values():
+                if visit_schedule.schedules(schedule_name):
+                    break
+        else:
+            for visit_schedule in self.registry.values():
+                if visit_schedule.get_membership_form(app_label, model_name):
+                    break
         return visit_schedule
 
     def get_visit_definition(self, schedule_name=None, code=None):
@@ -46,7 +52,7 @@ class Controller(object):
                 try:
                     before_import_registry = copy.copy(site_visit_schedules.registry)
                     import_module('{}.{}'.format(app, module_name))
-                    sys.stdout.write(' * registered visit schedules \'{}\' from \'{}\'\n'.format(module_name, app))
+                    sys.stdout.write(' * registered visit schedules from application \'{}\'\n'.format(app))
                 except:
                     site_visit_schedules.registry = before_import_registry
                     if module_has_submodule(mod, module_name):

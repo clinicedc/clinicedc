@@ -48,10 +48,16 @@ INSTALLED_APPS = [
     'edc_base',
     #'edc_content_type_map.apps.EdcContentTypeAppConfig',
     #'edc_meta_data.apps.EdcMetaDataAppConfig',
-    'edc_visit_schedule.apps.EdcVisitScheduleAppConfig',
+    'example.apps.EdcVisitScheduleAppConfig',
     #'example.apps.EdcConsentAppConfig',
     'example.apps.ExampleAppConfig'
 ]
+
+if 'test' in sys.argv:
+    MIGRATION_MODULES = {
+        'example': None,
+        'edc_visit_schedule': None}
+
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
