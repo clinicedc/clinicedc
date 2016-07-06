@@ -142,8 +142,6 @@ class VisitModelMixin(models.Model):
             self.appointment
         except AttributeError:
             raise ImproperlyConfigured('Visit Model {} is missing attribute Appointment.'.format(self.__class__))
-        if self.id and not self.byass_time_point_status():
-            self.appointment.time_point_status_open_or_raise()
         self.subject_identifier = self.get_subject_identifier()
         super(VisitModelMixin, self).save(*args, **kwargs)
 
@@ -164,14 +162,6 @@ class VisitModelMixin(models.Model):
             except self.appointment.__class__.DoesNotExist:
                 pass
         return appointment_zero
-
-    def bypass_time_point_status(self):
-        """Returns False by default but if overridden and set to return
-        True, the TimePointStatus instance will not be checked in the save
-        method.
-
-        This does not effect the call from the ModelForm."""
-        return False
 
     def get_visit_reason_no_follow_up_choices(self):
         """Returns the visit reasons that do not imply any

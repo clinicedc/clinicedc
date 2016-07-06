@@ -1,6 +1,5 @@
 from django.db import models, transaction
-
-from edc_visit_schedule.models import VisitDefinition
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class PreviousVisitError(Exception):
@@ -44,7 +43,7 @@ class PreviousVisitMixin(models.Model):
         exception_cls = exception_cls or PreviousVisitError
         if self.requires_previous_visit:
             previous_visit_definition = self.previous_visit_definition(
-                self.appointment.visit_definition)
+                self.appointment.schedule_name, self.appointment.visit_code)
             if previous_visit_definition:
                 if self.previous_visit(previous_visit_definition):
                     has_previous_visit = True
@@ -57,19 +56,14 @@ class PreviousVisitMixin(models.Model):
                     raise exception_cls(
                         'Previous visit report for \'{}\' is not complete.'.format(previous_visit_definition.code))
 
-    def previous_visit_definition(self, visit_definition):
+    def previous_visit_definition(self, schedule_name, visit_code):
         """Returns the previous visit definition relative to this instance or None.
 
         Only selects visit definition instances for this visit model."""
-        previous_visit_definition = VisitDefinition.objects.filter(
-            time_point__lt=visit_definition.time_point,
-            visit_tracking_content_type_map__app_label=self._meta.app_label,
-            visit_tracking_content_type_map__module_name=self._meta.model_name,
-            grouping=visit_definition.grouping).order_by(
-                'time_point', 'base_interval').last()
-        if previous_visit_definition:
-            return previous_visit_definition
-        return None
+        site_visit_schedules.get_visit_definition(self.appointment.schedule_name, self.appointment.visit_code)
+        visit_schedule = site_visit_schedules.get_visit_schedule(self.appointment.schedule_name)
+        schedule = visit_schedule.schedules.get(self.appointment.schedule_name)
+        return schedule.get_previous_visit()
 
     def previous_visit(self, previous_visit_definition=None):
         """Returns the previous visit if it exists."""
