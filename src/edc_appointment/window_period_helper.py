@@ -1,4 +1,5 @@
 from dateutil.relativedelta import relativedelta
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class WindowPeriodHelper(object):
@@ -7,12 +8,14 @@ class WindowPeriodHelper(object):
     An appointment datetime must fall within the date range
     determined by the lower and upper bounds set in the visit definition.
     """
-    def __init__(self, visit_definition, appt_datetime, reference_datetime):
+    def __init__(self, schedule, visit_code, appt_datetime, reference_datetime):
         self.error = None
         self.error_message = None
-        self.visit_definition = visit_definition
+        self.visit_code = visit_code
         self.appt_datetime = appt_datetime
         self.reference_datetime = reference_datetime
+        self.visit_definition = schedule
+    
 
     def check_datetime(self):
         """Checks if self.appt_datetime is within the scheduled visit window period.

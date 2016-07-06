@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'edc_base',
     'edc_appointment.apps.EdcAppointmentAppConfig',
+    'example.apps.ExampleAppConfig',
 ]
 
 # if 'test' in sys.argv:

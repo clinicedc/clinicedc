@@ -7,11 +7,11 @@ from django.core.validators import RegexValidator
 from django.db import models, transaction
 
 from edc_constants.constants import COMPLETE_APPT, NEW_APPT, CANCELLED, INCOMPLETE, UNKEYED, IN_PROGRESS
-from edc_visit_schedule.models import VisitDefinition, Schedule
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .appointment_date_helper import AppointmentDateHelper
 from .choices import APPT_TYPE, APPT_STATUS
-from .exceptions import AppointmentStatusError, AppointmentCreateError
+from .exceptions import AppointmentStatusError
 from .window_period_helper import WindowPeriodHelper
 
 
@@ -49,8 +49,11 @@ class AppointmentMixin(models.Model):
         self.post_prepare_appointments(appointments, using)
         return appointments
 
-    def create_all(self, base_appt_datetime=None, using=None,
-                   visit_definitions=None, dashboard_type=None):
+    @property
+    def schedule(self):
+        return site_visit_schedules.get_visit_schedule(self._meta.app_label, self._meta.model_name)
+
+    def create_all(self, base_appt_datetime=None):
         """Creates appointments for a registered subject based on a list
         of visit definitions for the given membership form instance.
 
@@ -63,28 +66,30 @@ class AppointmentMixin(models.Model):
         """
         appointments = []
         appointment_identifier = str(uuid4())
-        for visit_definition in self.visit_definitions_for_schedule(self._meta.model_name):
+        base_appt_datetime or self.get_registration_datetime()
+        default_appt_type = self.appointment_app_config.default_appt_type,
+        for visit_definition in self.schedule.visit_definitions:
             appointment = self.update_or_create_appointment(
-                base_appt_datetime or self.get_registration_datetime(),
-                visit_definition,
-                self.appointment_app_config.default_appt_type,
-                dashboard_type,
-                appointment_identifier,
-                using)
+                appointment_identifier=appointment_identifier,
+                registration_datetime=base_appt_datetime,
+                default_appt_type=default_appt_type,
+                visit_definition=visit_definition,
+            )
             appointments.append(appointment)
         return appointments
 
-    def update_or_create_appointment(self, registration_datetime, visit_definition,
-                                     default_appt_type, dashboard_type, appointment_identifier, using):
+    def update_or_create_appointment(self, registration_datetime=None, visit_definition=None,
+                                     default_appt_type=None, dashboard_type=None, appointment_identifier=None):
         """Updates or creates an appointment for this subject for the visit_definition."""
         appt_datetime = self.new_appointment_appt_datetime(
             appointment_identifier=appointment_identifier,
             registration_datetime=registration_datetime,
             visit_definition=visit_definition)
         try:
-            appointment = self.appointment_model.objects.using(using).get(
+            appointment = self.appointment_model.objects.get(
                 appointment_identifier=appointment_identifier,
-                visit_definition=visit_definition,
+                schedule_name=self.schedule.name,
+                visit_code=visit_definition.code,
                 visit_instance='0')
             td = appointment.best_appt_datetime - appt_datetime
             if td.days == 0 and abs(td.seconds) > 59:
@@ -94,11 +99,12 @@ class AppointmentMixin(models.Model):
                 # need to correct the best_appt_datetime
                 appointment.appt_datetime = appt_datetime
                 appointment.best_appt_datetime = appt_datetime
-                appointment.save(using, update_fields=['appt_datetime', 'best_appt_datetime'])
+                appointment.save(update_fields=['appt_datetime', 'best_appt_datetime'])
         except self.appointment_model.DoesNotExist:
-            appointment = self.appointment_model.objects.using(using).create(
+            appointment = self.appointment_model.objects.create(
                 appointment_identifier=appointment_identifier,
-                visit_definition=visit_definition,
+                schedule_name=self.schedule.name,
+                visit_code=visit_definition.code,
                 visit_instance='0',
                 appt_datetime=appt_datetime,
                 timepoint_datetime=appt_datetime,
@@ -107,42 +113,29 @@ class AppointmentMixin(models.Model):
         return appointment
 
     def visit_definitions_for_schedule(self, model_name):
-        """Returns a visit_definition queryset for this membership form's schedule."""
-        # VisitDefinition = get_model('edc_visit_schedule', 'VisitDefinition')
-        schedule = self.schedule(model_name)
-        visit_definitions = VisitDefinition.objects.filter(
-            schedule=schedule).order_by('time_point')
-        if not visit_definitions:
-            raise AppointmentCreateError(
-                'No visit_definitions found for membership form class {0} '
-                'in schedule group {1}. Expected at least one visit '
-                'definition to be associated with schedule group {1}.'.format(
-                    model_name, schedule))
-        return visit_definitions
+        """Returns a visit_definitions for this membership form's schedule."""
+        schedule = site_visit_schedules.get_visit_schedule(model_name)
+        return schedule.visit_definitions
 
-    def schedule(self, model_name):
-        """Returns the schedule for this membership_form."""
-        try:
-            schedule = Schedule.objects.get(
-                membership_form__content_type_map__model=model_name)
-        except Schedule.DoesNotExist:
-            raise Schedule.DoesNotExist(
-                'Cannot prepare appointments for membership form. '
-                'Membership form \'{}\' not found in Schedule. '
-                'See the visit schedule configuration.'.format(model_name))
-        return schedule
+    @property
+    def date_helper(self):
+        return AppointmentDateHelper(self.appointment_model)
 
     def new_appointment_appt_datetime(
             self, registered_subject, registration_datetime, visit_definition):
         """Calculates and returns the appointment date for new appointments."""
-        appointment_date_helper = AppointmentDateHelper(self.appointment_model)
         if visit_definition.time_point == 0:
-            appt_datetime = appointment_date_helper.get_best_datetime(
+            appt_datetime = self.date_helper.get_best_datetime(
                 registration_datetime, registered_subject.study_site)
         else:
-            appt_datetime = appointment_date_helper.get_relative_datetime(
+            appt_datetime = self.get_relative_datetime(
                 registration_datetime, visit_definition)
         return appt_datetime
+
+    def get_relative_datetime(self, base_appt_datetime, visit_definition):
+        """ Returns appointment datetime relative to the base_appointment_datetime."""
+        appt_datetime = base_appt_datetime + self.schedule.relativedelta_from_base(visit_definition)
+        return self.get_best_datetime(appt_datetime, base_appt_datetime.isoweekday())
 
     class Meta:
         abstract = True
@@ -163,16 +156,19 @@ class AppointmentModelMixin(models.Model):
     Attribute 'visit_instance' should be populated by the system.
     """
 
-    visit_definition = models.ForeignKey(
-        VisitDefinition,
-        related_name='+',
-        verbose_name="Visit",
-        help_text=("For tracking within the window period of a visit, use the decimal convention. "
-                   "Format is NNNN.N. e.g 1000.0, 1000.1, 1000.2, etc)"))
+    schedule_name = models.CharField(max_length=25, null=True)
+
+    visit_code = models.CharField(max_length=25, null=True)
+
+#     visit_definition = models.ForeignKey(
+#         VisitDefinition,
+#         related_name='+',
+#         verbose_name="Visit",
+#         help_text=("For tracking within the window period of a visit, use the decimal convention. "
+#                    "Format is NNNN.N. e.g 1000.0, 1000.1, 1000.2, etc)"))
 
     #  This identifier is common across a subject's appointment
     appointment_identifier = models.CharField(
-        verbose_name="Identifier",
         max_length=50,
         blank=True,
         db_index=True,
@@ -204,8 +200,6 @@ class AppointmentModelMixin(models.Model):
         help_text="calculated appointment datetime. Do not change",
         null=True,
         editable=False)
-
-#     time_point_status = models.ForeignKey(TimePointStatus, null=True, blank=True)
 
     appt_status = models.CharField(
         verbose_name=("Status"),
@@ -251,11 +245,16 @@ class AppointmentModelMixin(models.Model):
             'Default for subject may be edited in admin under section bhp_subject. '
             'See Subject Configuration.'))
 
-    # objects = AppointmentManager()
-
-    def __unicode__(self):
+    def __str__(self):
         return "{0} {1}".format(
-            self.visit_definition.code, self.visit_instance)
+            self.visit_code, self.visit_instance)
+
+    @property
+    def visit_definition(self):
+        for visit_schedule in site_visit_schedules.visit_schedules.values():
+            schedule = visit_schedule.schedules.get(self.schedule_name)
+            break
+        return schedule.visits.get(self.code)
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
@@ -269,10 +268,9 @@ class AppointmentModelMixin(models.Model):
             self.appt_status = self.get_appt_status(using)
         super(AppointmentModelMixin, self).save(*args, **kwargs)
 
-#     def natural_key(self):
-#         """Returns a natural key."""
-#         return (self.visit_instance, ) + self.visit_definition.natural_key() + self.registered_subject.natural_key()
-#     natural_key.dependencies = ['edc_registration.registeredsubject', 'edc_visit_schedule.visitdefinition']
+    @property
+    def date_helper(self):
+        return AppointmentDateHelper(self.__class__)
 
     def get_appt_status(self, using):
         """Returns the appt_status by checking the meta data entry status for all required CRFs and requisitions.
@@ -307,14 +305,14 @@ class AppointmentModelMixin(models.Model):
             try:
                 appointment = self.__class__.objects.get(
                     appointment_identifier=self.appointment_identifier,
-                    visit_definition=self.visit_definition,
+                    visit_code=self.visit_code,
                     visit_instance=previous)
                 if appointment.id == self.id:
                     raise self.__class__.DoesNotExist
             except self.__class__.DoesNotExist:
                 raise exception_cls(
                     'Attempt to create or update appointment instance out of sequence. Got \'{}.{}\'.'.format(
-                        self.visit_definition.code, visit_instance))
+                        self.visit_code, visit_instance))
 
     def update_others_as_not_in_progress(self, using):
         """Updates other appointments for this registered subject to not be IN_PROGRESS.
@@ -349,20 +347,6 @@ class AppointmentModelMixin(models.Model):
         from edc_meta_data.helpers import RequisitionMetaDataHelper
         return RequisitionMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
 
-#     def time_point_status_open_or_raise(self, exception_cls=None):
-#         """Checks the timepoint status and prevents edits to the model if
-#         time_point_status_status == closed."""
-#         exception_cls = exception_cls or ValidationError
-#         try:
-#             if self.time_point_status.status == CLOSED:
-#                 raise ValidationError('Data entry for this time point is closed. See TimePointStatus.')
-#         except AttributeError:
-#             pass
-#         except TimePointStatus.DoesNotExist:
-#             self.time_point_status = TimePointStatus.objects.create(
-#                 visit_code=self.visit_definition.code,
-#                 appointment_identifier=self.appointment_identifier)  # TODO quesry with someything that uniquely idetifier all other subject's appointments
-
     def validate_appt_datetime(self, exception_cls=None):
         """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
         the calculated ideal timepoint datetime.
@@ -371,9 +355,8 @@ class AppointmentModelMixin(models.Model):
          will raise an exception."""
         if not exception_cls:
             exception_cls = ValidationError
-        appointment_date_helper = AppointmentDateHelper(self.__class__)
         if not self.id:
-            appt_datetime = appointment_date_helper.get_best_datetime(
+            appt_datetime = self.date_helper.get_best_datetime(
                 self.appt_datetime, self.registered_subject.study_site)
             best_appt_datetime = self.appt_datetime
         else:
@@ -381,7 +364,7 @@ class AppointmentModelMixin(models.Model):
                 # did you update best_appt_datetime for existing instances since the migration?
                 raise exception_cls(
                     'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
-            appt_datetime = appointment_date_helper.change_datetime(
+            appt_datetime = self.date_helper.change_datetime(
                 self.best_appt_datetime, self.appt_datetime,
                 self.registered_subject.study_site, self.visit_definition)
             best_appt_datetime = self.best_appt_datetime
@@ -391,7 +374,7 @@ class AppointmentModelMixin(models.Model):
         exception_cls = exception_cls or ValidationError
         base_appointment = self.__class__.objects.get(
             appointment_identifier=self.appointment_identifier,
-            visit_definition=self.visit_definition,
+            visit_code=self.visit_code,
             visit_instance='0')
         if self.visit_instance != '0' and (self.appt_datetime - base_appointment.appt_datetime).days < 1:
             raise exception_cls(
@@ -399,7 +382,7 @@ class AppointmentModelMixin(models.Model):
                 'base appointment. Got {} not greater than {} at {}.0.'.format(
                     self.appt_datetime.strftime('%Y-%m-%d'),
                     base_appointment.appt_datetime.strftime('%Y-%m-%d'),
-                    self.visit_definition.code))
+                    self.visit_code))
         return self.appt_datetime, base_appointment.best_appt_datetime
 
     def check_window_period(self, exception_cls=None):
@@ -408,41 +391,9 @@ class AppointmentModelMixin(models.Model):
             exception_cls = ValidationError
         if self.id and self.visit_instance == '0':
             window_period = WindowPeriodHelper(
-                self.visit_definition, self.appt_datetime, self.best_appt_datetime)
+                self.visit_code, self.appt_datetime, self.best_appt_datetime)
             if not window_period.check_datetime():
                 raise exception_cls(window_period.error_message)
-
-#     def dashboard(self):
-#         """Returns a hyperink for the Admin page."""
-#         ret = None
-#         if settings.APP_NAME == 'cancer':
-#                 if self.appointment_identifier:
-#                     url = reverse('subject_dashboard_url',
-#                                   kwargs={'dashboard_type': self.registered_subject.subject_type.lower(),
-#                                           'dashboard_model': 'appointment',
-#                                           'dashboard_id': self.pk,
-#                                           'show': 'appointments'})
-#                     ret = """<a href="{url}" />dashboard</a>""".format(url=url)
-#         if self.appt_status == APPT_STATUS[0][0]:
-#             if settings.APP_NAME != 'cancer':
-#                 return NEW_APPT
-#         else:
-#             if self.registered_subject:
-#                 if self.registered_subject.subject_identifier:
-#                     url = reverse('subject_dashboard_url',
-#                                   kwargs={'dashboard_type': self.registered_subject.subject_type.lower(),
-#                                           'dashboard_model': 'appointment',
-#                                           'dashboard_id': self.pk,
-#                                           'show': 'appointments'})
-#                     ret = """<a href="{url}" />dashboard</a>""".format(url=url)
-#         return ret
-#     dashboard.allow_tags = True
-
-    def time_point(self):
-        url = reverse('admin:edc_appointment_timepointstatus_changelist')
-        return """<a href="{url}?appointment_identifier={appointment_identifier}" />time_point</a>""".format(
-            url=url, appointment_identifier=self.appointment_identifier)
-    time_point.allow_tags = True
 
     def get_report_datetime(self):
         """Returns the appointment datetime as the report_datetime."""
@@ -591,9 +542,8 @@ class RequiresAppointmentMixin(models.Model):
          will raise an exception."""
         if not exception_cls:
             exception_cls = ValidationError
-        appointment_date_helper = AppointmentDateHelper(self.APPOINTMENT_MODEL)
         if not self.id:
-            appt_datetime = appointment_date_helper.get_best_datetime(
+            appt_datetime = self.date_helper.get_best_datetime(
                 self.appt_datetime, self.registered_subject.study_site)
             best_appt_datetime = self.appt_datetime
         else:
@@ -601,7 +551,7 @@ class RequiresAppointmentMixin(models.Model):
                 # did you update best_appt_datetime for existing instances since the migration?
                 raise exception_cls(
                     'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
-            appt_datetime = appointment_date_helper.change_datetime(
+            appt_datetime = self.date_helper.change_datetime(
                 self.best_appt_datetime, self.appt_datetime,
                 self.registered_subject.study_site, self.visit_definition)
             best_appt_datetime = self.best_appt_datetime

@@ -50,13 +50,6 @@ class AppointmentDateHelper(object):
             raise TypeError('Appt_datetime cannot be None')
         return appt_datetime
 
-    def get_relative_datetime(self, base_appt_datetime, visit_definition):
-        """ Returns appointment datetime relative to the base_appointment_datetime."""
-        VisitDefinition = django_apps.get_model('edc_visit_schedule', 'VisitDefinition')
-        appt_datetime = base_appt_datetime + VisitDefinition.objects.relativedelta_from_base(
-            visit_definition=visit_definition)
-        return self.get_best_datetime(appt_datetime, base_appt_datetime.isoweekday())
-
     def _check(self, appt_datetime, site):
         appt_datetime = self._check_if_allowed_isoweekday(appt_datetime)
         appt_datetime = self._check_if_holiday(appt_datetime)
