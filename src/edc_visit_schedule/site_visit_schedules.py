@@ -4,15 +4,7 @@ import sys
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
 
-from .visit_schedule_configuration import VisitScheduleConfiguration
-
-
-class AlreadyRegistered(Exception):
-    pass
-
-
-class NotRegistered(Exception):
-    pass
+from .exceptions import AlreadyRegistered
 
 
 class Controller(object):
@@ -22,48 +14,31 @@ class Controller(object):
     def __init__(self):
         self.registry = {}
 
-    def setregistry(self, visit_schedule_configuration):
-        if not issubclass(visit_schedule_configuration, VisitScheduleConfiguration):
-            raise AlreadyRegistered('Expected an instance of VisitScheduleConfiguration.')
-        if visit_schedule_configuration.name not in self.registry:
-            # register the instance
-            self.registry.update({visit_schedule_configuration.name: visit_schedule_configuration()})
+    def register(self, visit_schedule):
+        if visit_schedule.name not in self.registry:
+            self.registry.update({visit_schedule.name: visit_schedule})
         else:
-            raise AlreadyRegistered('Visit Schedule for name {0}.{1} '
-                                    'is already registered.'.format(
-                                        visit_schedule_configuration.app_label,
-                                        visit_schedule_configuration.name))
+            raise AlreadyRegistered('Visit Schedule {} is already registered.'.format(visit_schedule))
 
-    def get_visit_schedules(self):
+    def visit_schedules(self):
         """Returns the an ordered dictionary of visit_schedule_configurations"""
         return self.registry
 
-    def get_visit_schedule(self, app_label):
-        """Returns the visit_schedule_configuration for the given app_label."""
-        schedules = []
-        for _, schedule in self.registry.items():
-            if schedule.app_label == app_label:
-                schedules.append(schedule)
-        if len(schedules) == 1:
-            return schedules[0]
-        return schedules
+    def get_visit_schedule(self, app_label, model_name):
+        """Returns the visit_schedule for the given app_label."""
+        visit_schedule = None
+        for visit_schedule in self.registry.values():
+            if visit_schedule.get_membership_forms(app_label, model_name):
+                break
+        return visit_schedule
 
-    def build(self, app_label):
-        visit_schedule = self.get_visit_schedule(self, app_label)
-        if visit_schedule:
-            visit_schedule.build()
-
-    def build_all(self):
-        for visit_schedule in self.get_visit_schedules().values():
-            visit_schedule.build()
-
-    def register(self, visit_schedule_configuration):
-        """ Register visit_schedule_configurations"""
-        self.setregistry(visit_schedule_configuration)
+    def get_visit_definition(self, schedule_name=None, code=None):
+        schedule = self.get_schedule(schedule_name)
+        return schedule.visit_definitions.get(code)
 
     def autodiscover(self, module_name=None):
-        """Autodiscovers mapper classes in the mapper.py file of any INSTALLED_APP."""
-        module_name = module_name or 'visit_schedule'
+        """Autodiscovers mapper classes in the visit_schedules.py file of any INSTALLED_APP."""
+        module_name = module_name or 'visit_schedules'
         sys.stdout.write(' * checking for site {}s ...\n'.format(module_name))
         for app in django_apps.app_configs:
             try:

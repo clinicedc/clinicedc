@@ -46,10 +46,10 @@ INSTALLED_APPS = [
     'simple_history',
     'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
     'edc_base',
-    'edc_content_type_map.apps.EdcContentTypeAppConfig',
-    'edc_meta_data.apps.EdcMetaDataAppConfig',
+    #'edc_content_type_map.apps.EdcContentTypeAppConfig',
+    #'edc_meta_data.apps.EdcMetaDataAppConfig',
     'edc_visit_schedule.apps.EdcVisitScheduleAppConfig',
-    'example.apps.EdcConsentAppConfig',
+    #'example.apps.EdcConsentAppConfig',
     'example.apps.ExampleAppConfig'
 ]
 

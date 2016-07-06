@@ -1,8 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 
-from edc_base.model.models import BaseModel
-
 
 class MembershipFormHelper(object):
 
