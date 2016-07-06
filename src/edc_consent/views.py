@@ -21,4 +21,4 @@ class HomeView(EdcBaseViewMixin, TemplateView):
         return context
 
     def consent_versions(self):
-        return NOne
+        return None

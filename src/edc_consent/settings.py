@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'simple_history',
     # 'edc_base.apps.EdcBaseAppConfig',
     'edc_base',
+    'example.apps.ConsentAppConfig',
+    'example.apps.ExampleAppConfig',
 ]
 
 MIDDLEWARE_CLASSES = (
