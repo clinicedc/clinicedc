@@ -9,7 +9,7 @@ from .exceptions import AlreadyRegistered
 
 class Controller(object):
 
-    """ Main controller of :class:`VisitScheduleConfiguration` objects. """
+    """ Main controller of :class:`VisitSchedule` objects. """
 
     def __init__(self):
         self.registry = {}
@@ -37,10 +37,6 @@ class Controller(object):
                 if visit_schedule.get_membership_form(app_label, model_name):
                     break
         return visit_schedule
-
-    def get_visit_definition(self, schedule_name=None, code=None):
-        schedule = self.get_schedule(schedule_name)
-        return schedule.visit_definitions.get(code)
 
     def autodiscover(self, module_name=None):
         """Autodiscovers mapper classes in the visit_schedules.py file of any INSTALLED_APP."""
