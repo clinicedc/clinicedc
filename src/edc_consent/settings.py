@@ -21,7 +21,7 @@ from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
-
+APP_LABEL = 'example'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -45,8 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
     'simple_history',
-    'example.apps.ConsentAppConfig',
-    'example.apps.ExampleAppConfig',
+    # 'edc_base.apps.EdcBaseAppConfig',
+    'edc_base',
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -79,7 +79,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'edc_consent.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
