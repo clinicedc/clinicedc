@@ -50,7 +50,7 @@ class AppointmentMixin(models.Model):
         Calls :func:`pre_prepare_appointments` and :func:`post_prepare_appointments`
         """
         self.pre_prepare_appointments(using)
-        appointments = self.create_all(using=using)
+        appointments = self.create_all()
         self.post_prepare_appointments(appointments, using)
         return appointments
 
@@ -73,28 +73,30 @@ class AppointmentMixin(models.Model):
         appointment_identifier = str(uuid4())
         base_appt_datetime or self.get_registration_datetime()
         default_appt_type = self.appointment_app_config.default_appt_type,
-        for visit_definition in self.schedule.visit_definitions:
+        for code, visit in self.schedule.visits.items():
             appointment = self.update_or_create_appointment(
                 appointment_identifier=appointment_identifier,
                 registration_datetime=base_appt_datetime,
                 default_appt_type=default_appt_type,
-                visit_definition=visit_definition,
+                visit=visit,
+                code=code
             )
             appointments.append(appointment)
         return appointments
 
-    def update_or_create_appointment(self, registration_datetime=None, visit_definition=None,
+    def update_or_create_appointment(self, registration_datetime=None, visit=None, code=None,
                                      default_appt_type=None, dashboard_type=None, appointment_identifier=None):
         """Updates or creates an appointment for this subject for the visit_definition."""
         appt_datetime = self.new_appointment_appt_datetime(
             appointment_identifier=appointment_identifier,
             registration_datetime=registration_datetime,
-            visit_definition=visit_definition)
+            visit=visit,
+            code=code)
         try:
             appointment = self.appointment_model.objects.get(
                 appointment_identifier=appointment_identifier,
                 schedule_name=self.schedule.name,
-                visit_code=visit_definition.code,
+                visit_code=code,
                 visit_instance='0')
             td = appointment.best_appt_datetime - appt_datetime
             if td.days == 0 and abs(td.seconds) > 59:
@@ -109,7 +111,7 @@ class AppointmentMixin(models.Model):
             appointment = self.appointment_model.objects.create(
                 appointment_identifier=appointment_identifier,
                 schedule_name=self.schedule.name,
-                visit_code=visit_definition.code,
+                visit_code=code,
                 visit_instance='0',
                 appt_datetime=appt_datetime,
                 timepoint_datetime=appt_datetime,
