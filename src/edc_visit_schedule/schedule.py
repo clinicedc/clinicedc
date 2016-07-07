@@ -4,8 +4,9 @@ from edc_visit_schedule.exceptions import AlreadyRegistered, ScheduleError, CrfE
 
 
 class Schedule:
-    def __init__(self, name, off_study_model=None, death_report_model=None, grouping_key=None):
+    def __init__(self, name, visit_model=None, off_study_model=None, death_report_model=None, grouping_key=None):
         self.name = name
+        self.visit_model = visit_model
         self.visits = {}
         # may specify a common value to group a number of membership forms so '
         # that when one of the group is keyed, the others are no longer shown.'
@@ -21,7 +22,7 @@ class Schedule:
         return self.name
 
     def add_visit(self, code, visit_model, **kwargs):
-        visit = Visit(code, visit_model, self.name, **kwargs)
+        visit = Visit(code, visit_model or self.visit_model, self.name, **kwargs)
         if visit.code in self.visits:
             raise AlreadyRegistered(
                 'Visit is already registered with schedule \'{}\'. Got {}'.format(self.name, visit))

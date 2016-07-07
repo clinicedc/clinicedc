@@ -21,6 +21,7 @@ class TestVisitSchedule(TestCase):
         self.bad_visit_schedule = VisitSchedule(
             name='Bad Visit Schedule',
             app_label='example',
+            visit_model=SubjectVisit,
         )
 
     @property
@@ -54,7 +55,7 @@ class TestVisitSchedule(TestCase):
 
     def test_cannot_add_visit_if_missing_schedule(self):
         self.bad_visit_schedule.add_schedule('schedule')
-        self.assertRaises(VisitScheduleError, self.bad_visit_schedule.add_visit, 'schedule1000', '10000', SubjectVisit)
+        self.assertRaises(VisitScheduleError, self.bad_visit_schedule.add_visit, 'schedule1000', '10000')
 
     def test_schedule_already_registered(self):
         self.bad_visit_schedule.add_schedule('schedule')
@@ -69,7 +70,7 @@ class TestVisitSchedule(TestCase):
         self.bad_visit_schedule.add_schedule('schedule')
         self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
         self.bad_visit_schedule.add_visit('schedule', '1000', visit_model=SubjectVisit)
-        self.assertRaises(AlreadyRegistered, self.bad_visit_schedule.add_visit, 'schedule', '1000', visit_model=SubjectVisit)
+        self.assertRaises(AlreadyRegistered, self.bad_visit_schedule.add_visit, 'schedule', '1000')
 
     def test_add_visit_detects_not_a_visit_model(self):
         self.bad_visit_schedule.add_schedule('schedule')

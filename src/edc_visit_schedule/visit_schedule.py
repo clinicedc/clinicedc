@@ -6,9 +6,13 @@ from .exceptions import AlreadyRegistered, VisitScheduleError
 
 class VisitSchedule:
 
-    def __init__(self, name, app_label):
+    def __init__(self, name, app_label, visit_model=None, off_study_model=None,
+                 death_report_model=None):
         self.name = name
         self.app_label = app_label
+        self.visit_model = visit_model
+        self.off_study_model = off_study_model
+        self.death_report_model = death_report_model
         self.schedules = {}
         self.membership_forms = {}
 
@@ -35,12 +39,12 @@ class VisitSchedule:
             raise AlreadyRegistered('Membership form already registered. Got {}'.format(membership_form))
         self.membership_forms[schedule_name].update({membership_form.name: membership_form})
 
-    def add_visit(self, schedule_name, code, visit_model, **kwargs):
+    def add_visit(self, schedule_name, code, visit_model=None, **kwargs):
         """Add a visit to an existing schedule."""
         schedule = self.schedules.get(schedule_name)
         if not schedule:
             raise VisitScheduleError('Schedule does not exist. Got {}.'.format(schedule_name))
-        visit = schedule.add_visit(code, visit_model, **kwargs)
+        visit = schedule.add_visit(code, visit_model or self.visit_model, **kwargs)
         self.schedules.update(schedule_name=schedule)
         return visit
 

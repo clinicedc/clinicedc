@@ -20,9 +20,9 @@ class MembershipForm:
             raise ImproperlyConfigured(
                 'MembershipForm refers to a model class that is not a subclass '
                 'of edc_appointment.AppointmentMixin. Got {0}'.format(self.model))
-        if 'registered_subject' not in dir(self.model):
-            raise ImproperlyConfigured(
-                'Membership forms must have a key to model RegisteredSubject. Got {0}'.format(self.model))
+#         if 'registered_subject' not in dir(self.model):
+#             raise ImproperlyConfigured(
+#                 'Membership forms must have a key to model RegisteredSubject. Got {0}'.format(self.model))
 
     def __repr__(self):
         return 'MembershipForm({}, {}, {})'.format(self.app_label, self.model_name, self.visible)
