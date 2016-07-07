@@ -48,20 +48,11 @@ INSTALLED_APPS = [
     'example.apps.ExampleAppConfig',
 ]
 
-# if 'test' in sys.argv:
-#     INSTALLED_APPS = INSTALLED_APPS + [
-#         'edc_lab.lab_clinic_api',
-#         'edc_lab.lab_clinic_reference',
-#         'edc_lab.lab_packing',
-#         'edc_testing',
-#         'edc_configuration',
-#         'edc_consent',
-#         'edc_export',
-#         'edc_meta_data',
-#         'edc_sync',
-#         'edc_visit_tracking',
-#         'edc_quota',
-#     ]
+if 'test' in sys.argv:
+    MIGRATION_MODULES = {
+        'edc_appointment': None,
+        'example': None,
+    }
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
