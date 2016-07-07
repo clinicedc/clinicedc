@@ -6,7 +6,7 @@ from example.models import TestModel, Appointment
 from example.visit_schedule import example_visit_schedule
 
 
-class TestAppointment(TestCase):
+class TestAppointmentMixin(TestCase):
 
     def setUp(self):
         site_visit_schedules.registry = {}

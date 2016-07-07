@@ -3,8 +3,6 @@ from uuid import uuid4
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch.dispatcher import receiver
 from django.utils import timezone
 
 from edc_constants.choices import YES_NO_NA
@@ -12,7 +10,7 @@ from edc_constants.constants import (
     NEW_APPT, CLOSED, OPEN, IN_PROGRESS, NOT_APPLICABLE)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from .choices import APPT_TYPE, APPT_STATUS
+from .choices import APPT_TYPE, APPT_STATUS, COMPLETE_APPT
 
 
 class TimePointStatusMixin(models.Model):
@@ -115,19 +113,6 @@ class TimePointStatusMixin(models.Model):
 
     class Meta:
         abstract = True
-
-
-@receiver(post_save, weak=False, dispatch_uid="appointment_post_save")
-def appointment_post_save(sender, instance, raw, created, using, **kwargs):
-    """Update the TimePointStatus in appointment if the field is empty."""
-    if not raw:
-        try:
-            if not instance.time_point_status:
-                instance.time_point_status
-                instance.save(update_fields=['time_point_status'])
-        except AttributeError as e:
-            if 'time_point_status' not in str(e):
-                raise AttributeError(str(e))
 
 
 class AppointmentModelMixin(TimePointStatusMixin):
