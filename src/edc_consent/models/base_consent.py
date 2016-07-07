@@ -7,7 +7,7 @@ from simple_history.models import HistoricalRecords as AuditTrail
 from edc_base.model.validators import datetime_not_future, datetime_not_before_study_start
 from edc_base.utils import formatted_age, age
 
-from ..consent_type import site_consent_types
+from edc_consent.site_consent_types import site_consent_types
 from ..exceptions import ConsentVersionError, ConsentTypeError
 
 from .fields.verification_fields_mixin import VerificationFieldsMixin
