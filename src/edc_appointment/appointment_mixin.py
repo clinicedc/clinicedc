@@ -78,6 +78,7 @@ class AppointmentMixin(models.Model):
         base_appt_datetime or self.get_registration_datetime()
         default_appt_type = self.appointment_app_config.default_appt_type,
         for visit in self.schedule.visits.values():
+            print(visit, "this is the vist we are dealing with############")
             appointment = self.update_or_create_appointment(
                 appointment_identifier=appointment_identifier,
                 registration_datetime=base_appt_datetime,
@@ -91,7 +92,6 @@ class AppointmentMixin(models.Model):
                                      default_appt_type=None, dashboard_type=None, appointment_identifier=None):
         """Updates or creates an appointment for this subject for the visit_definition."""
         appt_datetime = self.new_appointment_appt_datetime(
-            appointment_identifier=appointment_identifier,
             registration_datetime=registration_datetime,
             visit=visit)
         try:
@@ -132,19 +132,19 @@ class AppointmentMixin(models.Model):
     def date_helper(self):
         return AppointmentDateHelper(self.appointment_model)
 
-    def new_appointment_appt_datetime(self, registered_subject, registration_datetime, visit):
+    def new_appointment_appt_datetime(self, registration_datetime, visit):
         """Calculates and returns the appointment date for new appointments."""
         if visit.time_point == 0:
             appt_datetime = self.date_helper.get_best_datetime(
-                registration_datetime, registered_subject.study_site)
+                registration_datetime)
         else:
             appt_datetime = self.get_relative_datetime(
                 registration_datetime, visit)
         return appt_datetime
 
-    def get_relative_datetime(self, base_appt_datetime, visit_definition):
+    def get_relative_datetime(self, base_appt_datetime, visit):
         """ Returns appointment datetime relative to the base_appointment_datetime."""
-        appt_datetime = base_appt_datetime + self.schedule.relativedelta_from_base(visit_definition)
+        appt_datetime = base_appt_datetime + self.schedule.relativedelta_from_base(visit)
         return self.get_best_datetime(appt_datetime, base_appt_datetime.isoweekday())
 
     class Meta:
