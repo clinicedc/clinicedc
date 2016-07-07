@@ -55,8 +55,12 @@ class AppointmentMixin(models.Model):
         return appointments
 
     @property
-    def schedule(self):
+    def visit_schedule(self):
         return site_visit_schedules.get_visit_schedule(self._meta.app_label, self._meta.model_name)
+
+    @property
+    def schedule(self):
+        return self.visit_schedule.get_schedule(app_label=self._meta.app_label, model_name=self._meta.model_name)
 
     def create_all(self, base_appt_datetime=None):
         """Creates appointments for a registered subject based on a list
@@ -73,30 +77,29 @@ class AppointmentMixin(models.Model):
         appointment_identifier = str(uuid4())
         base_appt_datetime or self.get_registration_datetime()
         default_appt_type = self.appointment_app_config.default_appt_type,
-        for code, visit in self.schedule.visits.items():
+        for visit in self.schedule.visits.values():
             appointment = self.update_or_create_appointment(
                 appointment_identifier=appointment_identifier,
                 registration_datetime=base_appt_datetime,
                 default_appt_type=default_appt_type,
                 visit=visit,
-                code=code
             )
             appointments.append(appointment)
         return appointments
 
-    def update_or_create_appointment(self, registration_datetime=None, visit=None, code=None,
+    def update_or_create_appointment(self, registration_datetime=None, visit=None,
                                      default_appt_type=None, dashboard_type=None, appointment_identifier=None):
         """Updates or creates an appointment for this subject for the visit_definition."""
         appt_datetime = self.new_appointment_appt_datetime(
             appointment_identifier=appointment_identifier,
             registration_datetime=registration_datetime,
-            visit=visit,
-            code=code)
+            visit=visit)
         try:
             appointment = self.appointment_model.objects.get(
                 appointment_identifier=appointment_identifier,
+                visit_schedule_name=self.visit_schedule.name,
                 schedule_name=self.schedule.name,
-                visit_code=code,
+                visit_code=visit.code,
                 visit_instance='0')
             td = appointment.best_appt_datetime - appt_datetime
             if td.days == 0 and abs(td.seconds) > 59:
@@ -110,8 +113,9 @@ class AppointmentMixin(models.Model):
         except self.appointment_model.DoesNotExist:
             appointment = self.appointment_model.objects.create(
                 appointment_identifier=appointment_identifier,
+                visit_schedule_name=self.visit_schedule.name,
                 schedule_name=self.schedule.name,
-                visit_code=code,
+                visit_code=visit.code,
                 visit_instance='0',
                 appt_datetime=appt_datetime,
                 timepoint_datetime=appt_datetime,
@@ -128,15 +132,14 @@ class AppointmentMixin(models.Model):
     def date_helper(self):
         return AppointmentDateHelper(self.appointment_model)
 
-    def new_appointment_appt_datetime(
-            self, registered_subject, registration_datetime, visit_definition):
+    def new_appointment_appt_datetime(self, registered_subject, registration_datetime, visit):
         """Calculates and returns the appointment date for new appointments."""
-        if visit_definition.time_point == 0:
+        if visit.time_point == 0:
             appt_datetime = self.date_helper.get_best_datetime(
                 registration_datetime, registered_subject.study_site)
         else:
             appt_datetime = self.get_relative_datetime(
-                registration_datetime, visit_definition)
+                registration_datetime, visit)
         return appt_datetime
 
     def get_relative_datetime(self, base_appt_datetime, visit_definition):
