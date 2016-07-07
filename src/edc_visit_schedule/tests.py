@@ -72,6 +72,25 @@ class TestVisitSchedule(TestCase):
         self.bad_visit_schedule.add_visit('schedule', '1000', visit_model=SubjectVisit)
         self.assertRaises(AlreadyRegistered, self.bad_visit_schedule.add_visit, 'schedule', '1000')
 
+    def test_get_membership_form(self):
+        self.bad_visit_schedule.add_schedule('schedule')
+        membership_form = self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
+        self.assertEqual(membership_form, self.bad_visit_schedule.get_membership_form(
+            membership_form.app_label, membership_form.model_name))
+        self.assertEqual(membership_form, self.bad_visit_schedule.get_membership_form(
+            membership_form.app_label, membership_form.model_name, schedule='schedule'))
+
+    def test_get_schedule_with_membership_form(self):
+        schedule = self.bad_visit_schedule.add_schedule('schedule')
+        membership_form = self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
+        self.assertEqual(schedule, self.bad_visit_schedule.get_schedule(membership_form))
+
+    def test_get_schedule_with_membership_form2(self):
+        schedule = self.bad_visit_schedule.add_schedule('schedule')
+        membership_form = self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
+        self.assertEqual(schedule, self.bad_visit_schedule.get_schedule(
+            app_label=membership_form.app_label, model_name=membership_form.model_name))
+
     def test_add_visit_detects_not_a_visit_model(self):
         self.bad_visit_schedule.add_schedule('schedule')
         self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)

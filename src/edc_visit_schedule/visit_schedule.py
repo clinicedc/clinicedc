@@ -29,6 +29,7 @@ class VisitSchedule:
             self.membership_forms[schedule_name]
         except KeyError:
             self.membership_forms[schedule_name] = {}
+        return schedule
 
     def add_membership_form(self, schedule_name, **kwargs):
         """Add a membership form if not already added."""
@@ -38,6 +39,7 @@ class VisitSchedule:
         if membership_form.name in self.membership_forms[schedule_name]:
             raise AlreadyRegistered('Membership form already registered. Got {}'.format(membership_form))
         self.membership_forms[schedule_name].update({membership_form.name: membership_form})
+        return membership_form
 
     def add_visit(self, schedule_name, code, visit_model=None, **kwargs):
         """Add a visit to an existing schedule."""
@@ -50,17 +52,30 @@ class VisitSchedule:
 
     def get_membership_form(self, app_label, model_name, schedule_name=None):
         """Return a MembershipForm class from the visit_schedule or None."""
-        membership_form = {}
+        membership_form = None
         membership_forms = []
-        for mf in self.membership_forms.get(schedule_name, self.membership_forms).values():
+        for s, mf in self.membership_forms.items():
             if mf.get('{}.{}'.format(app_label, model_name)):
-                membership_forms.append(mf)
+                if schedule_name:
+                    if schedule_name == s:
+                        membership_forms.append(mf.get('{}.{}'.format(app_label, model_name)))
+                else:
+                    membership_forms.append(mf.get('{}.{}'.format(app_label, model_name)))
         if len(membership_forms) > 1:
             raise VisitScheduleError(
                 'Multiple membership forms returned. Try specifying '
                 'the schedule_name. Got {}, {}, schedule_name={}'.format(app_label, model_name, schedule_name))
         elif len(membership_forms) == 1:
             membership_form = membership_forms[0]
-        else:
-            membership_form = {}
-        return membership_form.get('{}.{}'.format(app_label, model_name))
+        return membership_form
+
+    def get_schedule(self, membership_form=None, app_label=None, model_name=None):
+        """Return a schedule given the membership form."""
+        if not membership_form:
+            membership_form = self.get_membership_form(app_label, model_name)
+            print(membership_form)
+        for schedule in self.schedules.values():
+            for mf in self.membership_forms.get(schedule.name).values():
+                if mf == membership_form:
+                    return schedule
+        return None
