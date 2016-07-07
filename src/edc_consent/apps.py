@@ -2,7 +2,8 @@ import sys
 
 from django.apps import AppConfig
 
-from edc_consent.consent_type import site_consent_types, ConsentType
+from edc_consent.consent_type import ConsentType
+from edc_consent.site_consent_types import site_consent_types
 
 
 class EdcConsentAppConfig(AppConfig):

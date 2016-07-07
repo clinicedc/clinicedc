@@ -20,7 +20,9 @@ from .factories import (
     TestConsentModelFactory, TestConsentModelProxy, TestConsentModelProxyFactory)
 from django.test.testcases import TestCase
 from .factories import consent_type_factory
-from edc_consent.consent_type import site_consent_types, AlreadyRegistered
+from edc_consent.consent_type import AlreadyRegistered
+from edc_consent.site_consent_types import site_consent_types
+
 
 faker = FakerFactory.create()
 

@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from .factories import TestConsentModelFactory
 from django.test.testcases import TestCase
-from edc_consent.consent_type import site_consent_types
+from edc_consent.site_consent_types import site_consent_types
 from edc_consent.tests.factories import consent_type_factory
 
 
