@@ -50,10 +50,13 @@ class VisitSchedule:
         self.schedules.update(schedule_name=schedule)
         return visit
 
-    def get_membership_form(self, app_label, model_name, schedule_name=None):
+    def get_membership_form(self, app_label=None, model_name=None, model=None, schedule_name=None):
         """Return a MembershipForm class from the visit_schedule or None."""
         membership_form = None
         membership_forms = []
+        if model:
+            app_label = model._meta.app_label
+            model_name = model._meta.model_name
         for s, mf in self.membership_forms.items():
             if mf.get('{}.{}'.format(app_label, model_name)):
                 if schedule_name:
@@ -69,11 +72,13 @@ class VisitSchedule:
             membership_form = membership_forms[0]
         return membership_form
 
-    def get_schedule(self, membership_form=None, app_label=None, model_name=None):
+    def get_schedule(self, membership_form=None, app_label=None, model_name=None, model=None):
         """Return a schedule given the membership form."""
+        if model:
+            app_label = model._meta.app_label
+            model_name = model._meta.model_name
         if not membership_form:
             membership_form = self.get_membership_form(app_label, model_name)
-            print(membership_form)
         for schedule in self.schedules.values():
             for mf in self.membership_forms.get(schedule.name).values():
                 if mf == membership_form:

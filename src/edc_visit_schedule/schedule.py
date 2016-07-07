@@ -73,7 +73,7 @@ class Schedule:
         ordered_visits = sorted(self.visits.values(), key=lambda x: x.time_point)
         return [x for x in ordered_visits]
 
-    def relativedelta_from_base(self, visit_code):
+    def relativedelta_from_base(self, visit_code=None):
         """Returns the relativedelta from the zero time_point visit."""
         visit = self.visits.get(visit_code)
         if visit.base_interval == 0:

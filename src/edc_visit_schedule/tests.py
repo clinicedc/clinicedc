@@ -78,12 +78,17 @@ class TestVisitSchedule(TestCase):
         self.assertEqual(membership_form, self.bad_visit_schedule.get_membership_form(
             membership_form.app_label, membership_form.model_name))
         self.assertEqual(membership_form, self.bad_visit_schedule.get_membership_form(
-            membership_form.app_label, membership_form.model_name, schedule='schedule'))
+            membership_form.app_label, membership_form.model_name, schedule_name='schedule'))
 
     def test_get_schedule_with_membership_form(self):
         schedule = self.bad_visit_schedule.add_schedule('schedule')
         membership_form = self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
         self.assertEqual(schedule, self.bad_visit_schedule.get_schedule(membership_form))
+
+    def test_get_schedule_with_model(self):
+        schedule = self.bad_visit_schedule.add_schedule('schedule')
+        membership_form = self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
+        self.assertEqual(schedule, self.bad_visit_schedule.get_schedule(model=SubjectConsent))
 
     def test_get_schedule_with_membership_form2(self):
         schedule = self.bad_visit_schedule.add_schedule('schedule')
