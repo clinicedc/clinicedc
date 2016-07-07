@@ -15,7 +15,6 @@ class WindowPeriodHelper(object):
         self.appt_datetime = appt_datetime
         self.reference_datetime = reference_datetime
         self.visit_definition = schedule
-    
 
     def check_datetime(self):
         """Checks if self.appt_datetime is within the scheduled visit window period.

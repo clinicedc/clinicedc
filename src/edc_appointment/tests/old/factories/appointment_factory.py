@@ -18,4 +18,4 @@
 #     appt_close_datetime = timezone.now()
 #     study_site = '40'
 #     visit_definition = factory.SubFactory(VisitDefinitionFactory)
-#     visit_instance = '0'
+#     visit_code_sequence = 0

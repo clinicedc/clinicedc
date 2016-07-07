@@ -17,13 +17,13 @@
 #     def clean(self):
 #         cleaned_data = super(AppointmentForm, self).clean()
 #         self.validate_time_point_status()
-#         self.validate_visit_instance()
+#         self.validate_visit_code_sequence()
 #         self.validate_appt_datetime()
 #         self.validate_status_if_data_unkeyed()
 #         self.validate_status_if_data_keyed()
 #         self.validate_appt_status_in_progress()
-#         if cleaned_data['visit_instance'] == '':
-#             cleaned_data['visit_instance'] = '0'
+#         if cleaned_data['visit_code_sequence'] == '':
+#             cleaned_data['visit_code_sequence'] = 0
 #         return cleaned_data
 # 
 #     def clean_appt_datetime(self):
@@ -39,7 +39,7 @@
 #             if 'time_point_status_open_or_raise' not in str(e):
 #                 raise AttributeError(e)
 # 
-#     def validate_visit_instance(self):
+#     def validate_visit_code_sequence(self):
 #         """Validates the visit instance using the model method."""
 #         cleaned_data = self.cleaned_data
 #         cleaned_data.update({'registered_subject': self.get_registered_subject()})
@@ -51,13 +51,13 @@
 #             options.update({'id': self.instance.id})
 #         except AttributeError:
 #             pass
-#         Appointment.validate_visit_instance(
+#         Appointment.validate_visit_code_sequence(
 #             Appointment(**options), exception_cls=forms.ValidationError)
 # 
 #     def validate_appt_datetime(self):
 #         cleaned_data = self.cleaned_data
-#         visit_instance = cleaned_data.get("visit_instance") or '0'
-#         if visit_instance != '0':
+#         visit_code_sequence = cleaned_data.get("visit_code_sequence") or 0
+#         if visit_code_sequence != 0:
 #             cleaned_data = self.cleaned_data
 #             cleaned_data.update({'registered_subject': self.get_registered_subject()})
 #             cleaned_data.update({'visit_definition': self.get_visit_definition()})

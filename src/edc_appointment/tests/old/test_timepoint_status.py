@@ -44,7 +44,7 @@
 #             for audit in Appointment.history.filter(
 #                     registered_subject=self.consent.registered_subject,
 #                     visit_definition__id=appointment.visit_definition.id,
-#                     visit_instance=appointment.visit_instance):
+#                     visit_code_sequence=appointment.visit_code_sequence):
 #                 self.assertEqual(appointment.time_point_status.id, audit.time_point_status.id)
 # 
 #     def test_close1(self):

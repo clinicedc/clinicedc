@@ -108,7 +108,7 @@
 #              'appt_type': 'clinic',
 #              'visit_definition': self.appointment.visit_definition.id},
 #             instance=self.appointment)
-#         self.assertTrue(self.appointment.visit_instance == '0')
+#         self.assertTrue(self.appointment.visit_code_sequence == '0')
 #         self.assertFalse(form.is_valid())
 #         self.assertIn(
 #             'Appointment is not \'new\'. Some Requisitions have been completed.',
@@ -152,19 +152,19 @@
 # 
 #     def test_form_appt_out_of_sequence(self):
 #         """Asserts appointment visit instance must increment by more than 1."""
-#         visit_instances = []
+#         visit_code_sequences = []
 #         for obj in Appointment.objects.filter(
 #                 registered_subject=self.registered_subject,
 #                 visit_definition=self.appointment.visit_definition):
-#             visit_instances.append(obj.visit_instance)
-#         self.assertEquals(visit_instances, ['0'])
+#             visit_code_sequences.append(obj.visit_code_sequence)
+#         self.assertEquals(visit_code_sequences, ['0'])
 #         form = AppointmentForm(
 #             {'appt_datetime': self.appointment.appt_datetime,
 #              'appt_status': IN_PROGRESS,
 #              'appt_type': 'clinic',
 #              'registered_subject': self.appointment.registered_subject.id,
 #              'visit_definition': self.appointment.visit_definition.id,
-#              'visit_instance': '5'},
+#              'visit_code_sequence': '5'},
 #             instance=self.appointment)
 #         self.assertFalse(form.is_valid())
 #         self.assertIn(
@@ -173,19 +173,19 @@
 # 
 #     def test_form_appt_out_of_sequence2(self):
 #         """Asserts appointment visit instance must increment by 1."""
-#         visit_instances = []
+#         visit_code_sequences = []
 #         for obj in Appointment.objects.filter(
 #                 registered_subject=self.registered_subject,
 #                 visit_definition=self.appointment.visit_definition):
-#             visit_instances.append(obj.visit_instance)
-#         self.assertEquals(visit_instances, ['0'])
+#             visit_code_sequences.append(obj.visit_code_sequence)
+#         self.assertEquals(visit_code_sequences, ['0'])
 #         form = AppointmentForm(
 #             {'appt_datetime': self.appointment.appt_datetime,
 #              'appt_status': IN_PROGRESS,
 #              'appt_type': 'clinic',
 #              'registered_subject': self.appointment.registered_subject.id,
 #              'visit_definition': self.appointment.visit_definition.id,
-#              'visit_instance': '1'},
+#              'visit_code_sequence': '1'},
 #             instance=self.appointment)
 #         self.assertFalse(form.is_valid())
 #         self.assertIn(
@@ -200,7 +200,7 @@
 #             appt_datetime=timezone.now(),
 #             appt_status=IN_PROGRESS,
 #             visit_definition=self.visit_definition.pk,
-#             visit_instance='0',
+#             visit_code_sequence='0',
 #             appt_type='clinic'
 #         )
 #         form = AppointmentForm(data)
@@ -217,7 +217,7 @@
 #             appt_datetime=timezone.now(),
 #             appt_status=IN_PROGRESS,
 #             visit_definition=self.visit_definition.pk,
-#             visit_instance='0',
+#             visit_code_sequence='0',
 #             appt_type='clinic'
 #         )
 #         form = AppointmentForm(data)
@@ -238,7 +238,7 @@
 #             appt_datetime=timezone.now(),
 #             appt_status=IN_PROGRESS,
 #             visit_definition=self.visit_definition.pk,
-#             visit_instance='0',
+#             visit_code_sequence='0',
 #             appt_type='clinic'
 #         )
 #         form = AppointmentForm(data)
@@ -247,7 +247,7 @@
 #         appointment = Appointment.objects.get(
 #             registered_subject=self.registered_subject.pk,
 #             visit_definition=self.visit_definition.pk,
-#             visit_instance='0')
+#             visit_code_sequence='0')
 #         self.assertTrue(appointment.time_point_status)
 #         with self.assertRaises(TimePointStatus.DoesNotExist):
 #             try:
@@ -275,7 +275,7 @@
 #         appointment = Appointment.objects.get(
 #             registered_subject=self.registered_subject.pk,
 #             visit_definition=self.visit_definition.pk,
-#             visit_instance='0')
+#             visit_code_sequence='0')
 #         self.assertTrue(appointment.time_point_status)
 #         with self.assertRaises(TimePointStatus.DoesNotExist):
 #             try:
@@ -287,7 +287,7 @@
 #             else:
 #                 raise TimePointStatus.DoesNotExist('TimePointStatus.DoesNotExist not raised')
 # 
-#     def test_form_save_bad_visit_instance(self):
+#     def test_form_save_bad_visit_code_sequence(self):
 #         """Aseerts cannot create 1000.1 if 1000.0 does not exist."""
 #         Appointment.objects.all().delete()
 #         data = dict(
@@ -295,7 +295,7 @@
 #             appt_datetime=timezone.now(),
 #             appt_status=IN_PROGRESS,
 #             visit_definition=self.visit_definition.pk,
-#             visit_instance='1',
+#             visit_code_sequence='1',
 #             appt_type='clinic')
 #         form = AppointmentForm(data)
 #         self.assertFalse(form.is_valid())
@@ -312,7 +312,7 @@
 #             appt_type='clinic',
 #             registered_subject=self.registered_subject.pk,
 #             visit_definition=self.visit_definition.pk,
-#             visit_instance='0',
+#             visit_code_sequence='0',
 #         )
 #         form = AppointmentForm(data=data)
 #         self.assertTrue(form.is_valid())

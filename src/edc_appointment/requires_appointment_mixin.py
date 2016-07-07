@@ -21,10 +21,10 @@ class RequiresAppointmentMixin(models.Model):
         if not self.registered_subject:
             raise ValidationError("Subject registration instance can not be null.")
         if not kwargs.get('update_fields'):
-            self.validate_visit_instance()
+            self.validate_visit_code_sequence()
             if self.id:
                 self.time_point_status_open_or_raise()
-            if self.visit_instance == '0':
+            if self.visit_code_sequence == 0:
                 self.appt_datetime, self.best_appt_datetime = self.validate_appt_datetime()
             else:
                 self.appt_datetime, self.best_appt_datetime = self.validate_continuation_appt_datetime()
@@ -43,8 +43,8 @@ class RequiresAppointmentMixin(models.Model):
         appt_status = self.appt_status
         visit_model = self.visit_definition.visit_tracking_content_type_map.model_class()
         try:
-            visit_instance = visit_model.objects.get(appointment=self)
-            crf_meta_data_helper = CrfMetaDataHelper(self, visit_instance)
+            visit_code_sequence = visit_model.objects.get(appointment=self)
+            crf_meta_data_helper = CrfMetaDataHelper(self, visit_code_sequence)
             if not crf_meta_data_helper.show_entries():
                 appt_status = COMPLETE_APPT
             else:
@@ -69,22 +69,22 @@ class RequiresAppointmentMixin(models.Model):
     def appointment_model(self):
         return django_apps.get_app_config('edc_appointment').appointment_model
 
-    def validate_visit_instance(self, exception_cls=None):
+    def validate_visit_code_sequence(self, exception_cls=None):
         exception_cls = exception_cls or ValidationError
-        visit_instance = self.visit_instance or '0'
-        if self.visit_instance != '0':
-            previous = str(int(visit_instance) - 1)
+        visit_code_sequence = self.visit_code_sequence or 0
+        if self.visit_code_sequence != 0:
+            previous = str(int(visit_code_sequence) - 1)
             try:
                 appointment = self.appointment_model.objects.get(
                     appointment_identifier=self.appointment_identifier,
                     visit_code=self.visit_code,
-                    visit_instance=previous)
+                    visit_code_sequence=previous)
                 if appointment.id == self.id:
                     raise self.appointment_model.DoesNotExist
             except self.appointment_model.DoesNotExist:
                 raise exception_cls(
                     'Attempt to create or update appointment instance out of sequence. Got \'{}.{}\'.'.format(
-                        self.visit_code, visit_instance))
+                        self.visit_code, visit_code_sequence))
 
     def update_others_as_not_in_progress(self, using):
         """Updates other appointments for this registered subject to not be IN_PROGRESS.
@@ -147,8 +147,8 @@ class RequiresAppointmentMixin(models.Model):
         base_appointment = self.appointment_model.objects.get(
             appointment_identifier=self.appointment_identifier,
             visit_code=self.visit_code,
-            visit_instance='0')
-        if self.visit_instance != '0' and (self.appt_datetime - base_appointment.appt_datetime).days < 1:
+            visit_code_sequence=0)
+        if self.visit_code_sequence != 0 and (self.appt_datetime - base_appointment.appt_datetime).days < 1:
             raise exception_cls(
                 'Appointment date must be a future date relative to the '
                 'base appointment. Got {} not greater than {} at {}.0.'.format(
@@ -161,7 +161,7 @@ class RequiresAppointmentMixin(models.Model):
         """Confirms appointment date is in the accepted window period."""
         if not exception_cls:
             exception_cls = ValidationError
-        if self.id and self.visit_instance == '0':
+        if self.id and self.visit_code_sequence == 0:
             window_period = WindowPeriodHelper(
                 self.visit_code, self.appt_datetime, self.best_appt_datetime)
             if not window_period.check_datetime():

@@ -22,7 +22,7 @@ class HolidayInlineAdmin(admin.TabularInline):
     extra = 0
 
 # from django.contrib import admin
-# 
+#
 # from .base_model_admin import BaseModelAdmin
 # from edc_registration.models import RegisteredSubject
 # 
@@ -69,7 +69,7 @@ class HolidayInlineAdmin(admin.TabularInline):
 #         'appt_datetime',
 #         'appt_status',
 #         'visit_definition',
-#         'visit_instance',
+#         'visit_code_sequence',
 #         'appt_type',
 #     )
 # 
@@ -85,7 +85,7 @@ class HolidayInlineAdmin(admin.TabularInline):
 #         'is_confirmed',
 #         'contact_count',
 #         'visit_definition',
-#         'visit_instance',
+#         'visit_code_sequence',
 #         'best_appt_datetime',
 #         'created',
 #         'hostname_created')
@@ -97,7 +97,7 @@ class HolidayInlineAdmin(admin.TabularInline):
 #         'contact_count',
 #         'appt_datetime',
 #         'appt_status',
-#         'visit_instance',
+#         'visit_code_sequence',
 #         'visit_definition',
 #         'created',
 #         'user_created',

@@ -26,10 +26,10 @@ class ContinuationAppointmentAnchor(template.Node):
             self.extra_url_context = ''
 
         # does a continuation appointment exist? instance will be instance+1
-        visit_instances = []
+        visit_code_sequences = []
         for appointment in self.appointment_model.objects.filter(registered_subject=self.appointment.registered_subject):
-            visit_instances.append(int(appointment.visit_instance))
-        if (int(self.appointment.visit_instance) + 1) in visit_instances:
+            visit_code_sequences.append(int(appointment.visit_code_sequence))
+        if (int(self.appointment.visit_code_sequence) + 1) in visit_code_sequences:
             anchor = ''
         else:
             view = 'admin:{}_{}_add'.format(self.appointment._meta.app_label, self.appointment._meta.module_name)
@@ -37,9 +37,9 @@ class ContinuationAppointmentAnchor(template.Node):
                 # TODO: resolve error when using extra_url_context...give back variable name ???
                 rev_url = (
                     '{}?next=dashboard_url&dashboard_type={}&registered_subject={}&visit_definition={}'
-                    '&visit_instance={}').format(
+                    '&visit_code_sequence={}').format(
                         reverse(view), self.dashboard_type, self.appointment.registered_subject.pk,
-                        self.appointment.visit_definition.pk, str(int(self.appointment.visit_instance) + 1))
+                        self.appointment.visit_definition.pk, str(int(self.appointment.visit_code_sequence) + 1))
                 anchor = '<A href="{}">continuation</A>'.format(rev_url)
             except:
                 raise TypeError(

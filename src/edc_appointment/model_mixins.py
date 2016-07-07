@@ -2,7 +2,6 @@ from uuid import uuid4
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
@@ -63,7 +62,7 @@ class TimePointStatusMixin(models.Model):
 
     def save(self, *args, **kwargs):
         self.validate_status()
-        if self.status == CLOSED and not self.close_datetime:
+        if self.time_point_status == CLOSED and not self.close_datetime:
             self.close_datetime = timezone.now()
         else:
             self.close_datetime = None
@@ -72,11 +71,11 @@ class TimePointStatusMixin(models.Model):
 
     def status_display(self):
         """Formats and returns the status for the dashboard."""
-        if self.status == OPEN:
+        if self.time_point_status == OPEN:
             return '<span style="color:green;">Open</span>'
-        elif self.status == CLOSED:
+        elif self.time_point_status == CLOSED:
             return '<span style="color:red;">Closed</span>'
-        elif self.status == 'feedback':
+        elif self.time_point_status == 'feedback':
             return '<span style="color:orange;">Feedback</span>'
     status_display.allow_tags = True
 
@@ -84,7 +83,7 @@ class TimePointStatusMixin(models.Model):
         """Closing off only appt that are either done/incomplete/cancelled ONLY."""
         exception_cls = exception_cls or ValidationError
         instance = instance or self
-        if instance.status == CLOSED:
+        if instance.time_point_status == CLOSED:
             for appointment in self.get_appointments():
                 if appointment.appt_status in [NEW_APPT, IN_PROGRESS]:
                     raise exception_cls(
@@ -112,7 +111,7 @@ class TimePointStatusMixin(models.Model):
     @property
     def base_appointment(self):
         return self.appointment_model.objects.get(
-            time_point_status__pk=self.pk, visit_instance='0')
+            time_point_status__pk=self.pk, visit_code_sequence=0)
 
     class Meta:
         abstract = True
@@ -141,9 +140,9 @@ class AppointmentModelMixin(TimePointStatusMixin):
 
     Where RegisteredSubject comes from <some_app>.models.
 
-    Only one appointment per subject visit_definition+visit_instance.
+    Only one appointment per subject visit_definition+visit_code_sequence.
 
-    Attribute 'visit_instance' should be populated by the system.
+    Attribute 'visit_code_sequence' should be populated by the system.
     """
 
     visit_schedule_name = models.CharField(max_length=25, null=True)
@@ -156,23 +155,20 @@ class AppointmentModelMixin(TimePointStatusMixin):
     appointment_identifier = models.CharField(
         max_length=50,
         blank=True,
-        db_index=True,
-        unique=True)
+        editable=False)
 
     best_appt_datetime = models.DateTimeField(null=True, editable=False)
 
     appt_close_datetime = models.DateTimeField(null=True, editable=False)
 
-    visit_instance = models.CharField(
-        max_length=1,
-        verbose_name=("Instance"),
-        validators=[RegexValidator(r'[0-9]', 'Must be a number from 0-9')],
-        default='0',
+    visit_code_sequence = models.IntegerField(
+        verbose_name=("Sequence"),
+        default=0,
         null=True,
         blank=True,
-        db_index=True,
-        help_text=("A decimal to represent an additional report to be included with the original "
-                   "visit report. (NNNN.0)"))
+        help_text=("An integer to represent the sequence of additional appointments "
+                   "relative to the base appointment, 0, needed to complete data "
+                   "collection for the timepoint. (NNNN.0)"))
     appt_datetime = models.DateTimeField(
         verbose_name=("Appointment date and time"),
         help_text="",
@@ -199,11 +195,6 @@ class AppointmentModelMixin(TimePointStatusMixin):
         help_text=("Reason for appointment"),
         blank=True)
 
-    contact_tel = models.CharField(
-        verbose_name=("Contact Tel"),
-        max_length=250,
-        blank=True)
-
     comment = models.CharField(
         "Comment",
         max_length=250,
@@ -211,8 +202,7 @@ class AppointmentModelMixin(TimePointStatusMixin):
 
     is_confirmed = models.BooleanField(default=False, editable=False)
 
-    contact_count = models.IntegerField(default=0, editable=False)
-
+    # TODO: needed????
     dashboard_type = models.CharField(
         max_length=25,
         editable=False,
@@ -227,12 +217,11 @@ class AppointmentModelMixin(TimePointStatusMixin):
         default='clinic',
         max_length=20,
         help_text=(
-            'Default for subject may be edited in admin under section bhp_subject. '
-            'See Subject Configuration.'))
+            'Default for subject may be edited Subject Configuration.'))
 
     def __str__(self):
-        return "{0} {1}".format(
-            self.visit_code, self.visit_instance)
+        return "{0}.{1}".format(
+            self.visit_code, self.visit_code_sequence)
 
     @property
     def visit_definition(self):
