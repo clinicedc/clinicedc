@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from edc_appointment.mixins import AppointmentMixin
+from edc_appointment.appointment_mixin import AppointmentMixin
 from django.core.exceptions import ImproperlyConfigured
 
 
