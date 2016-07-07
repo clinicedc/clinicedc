@@ -1,7 +1,8 @@
 from django.test import TestCase
 
-from example.models import TestModel
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+
+from example.models import TestModel
 from example.visit_schedule import example_visit_schedule
 
 

@@ -163,6 +163,8 @@ class AppointmentModelMixin(models.Model):
     Attribute 'visit_instance' should be populated by the system.
     """
 
+    visit_schedule_name = models.CharField(max_length=25, null=True)
+
     schedule_name = models.CharField(max_length=25, null=True)
 
     visit_code = models.CharField(max_length=25, null=True)
