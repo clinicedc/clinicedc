@@ -1,4 +1,4 @@
-from edc_base.modeladmin.admin import BaseModelAdmin
+from .base_model_admin import BaseModelAdmin
 
 
 class BaseProfileAdmin(BaseModelAdmin):

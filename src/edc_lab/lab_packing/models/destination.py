@@ -4,7 +4,7 @@ from django.db import models
 
 from simple_history.models import HistoricalRecords as AuditTrail
 from edc_base.model.models import BaseUuidModel
-from edc_sync.models import SyncModelMixin
+from edc_sync.models import SyncModelMixin, SyncHistoricalRecords
 
 from ..managers import DestinationManager
 
@@ -37,7 +37,7 @@ class Destination(SyncModelMixin, BaseUuidModel):
 
     objects = DestinationManager()
 
-    history = AuditTrail()
+    history = SyncHistoricalRecords()
 
     def __unicode__(self):
         return self.name

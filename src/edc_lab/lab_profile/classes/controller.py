@@ -1,5 +1,6 @@
 import copy
 
+from django.apps import apps as django_apps
 from django.conf import settings
 try:
     # Django versions < 1.9
@@ -51,14 +52,30 @@ class ProfileController(object):
 
     def autodiscover(self):
         """ Autodiscover rules from a specimen_manager module."""
-        for app in settings.INSTALLED_APPS:
-            mod = import_module(app)
+        module_name = 'lab_profiles'
+        for app in django_apps.app_configs:
             try:
-                before_import_registry = copy.copy(site_lab_profiles.registry)
-                import_module('%s.lab_profiles' % app)
-            except:
-                site_lab_profiles.registry = before_import_registry
-                if module_has_submodule(mod, 'lab_profiles'):
-                    raise
+                mod = import_module(app)
+                try:
+                    before_import_registry = copy.copy(site_lab_profiles.registry)
+                    import_module('{}.{}'.format(app, module_name))
+                    #sys.stdout.write(' * registered visit schedules from application \'{}\'\n'.format(app))
+                except:
+                    site_lab_profiles.registry = before_import_registry
+                    if module_has_submodule(mod, module_name):
+                        raise
+            except ImportError:
+                pass
+        #for app in settings.INSTALLED_APPS:
+        #    try:
+        #        mod = import_module(app)
+        #        before_import_registry = copy.copy(site_lab_profiles.registry)
+        #        import_module('%s.lab_profiles' % app)
+        #    except ImportError:
+        #        pass
+        #    except:
+        #        site_lab_profiles.registry = before_import_registry
+        #        if module_has_submodule(mod, 'lab_profiles'):
+        #            raise
 
 site_lab_profiles = ProfileController()
