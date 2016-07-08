@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_consent.consent_type import site_consent_types
+from edc_consent.site_consent_types import site_consent_types
 
 from ..exceptions import NotConsentedError
 
