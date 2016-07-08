@@ -20,6 +20,7 @@ from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
+PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
 APP_LABEL = 'example'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -44,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
     'simple_history',
-    # 'edc_base.apps.EdcBaseAppConfig',
+    'edc_base.aipps.EdcBaseAppConfig',
     'edc_base',
     'example.apps.ConsentAppConfig',
     'example.apps.ExampleAppConfig',
@@ -106,7 +107,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 

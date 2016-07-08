@@ -6,14 +6,36 @@
 <div class="container">
 
     <div id="div-home-right" class="col-md-8">
-        <div class="panel panel-default">
-        <div class="panel-heading">Consent Verification</div>
+         <div class="panel panel-default">
+    <div class="panel-heading">Consent Versions</div>
+    <table class="table table-hover responsive">
+    	<thead>
+      		<tr>
+       			<th>Model</th>
+        		<th>Version</th>
+        		<th>Start Date</th>
+        		<th>End Date</th>
+        		<th>Updates</th>
+     	 	</tr>
+    	</thead>
+    	<tbody>
+      	{% for consent_type in  consent_types %}
+     	 <tr>
+        	<td>{{consent_type.verbose_name|title}}</td>
+        	<td>{{consent_type.version}}</td>
+          	<td>{{consent_type.start_datetime|date:"Y-M-d"}}</td>
+        	<td>{{consent_type.start_datetime|date:"Y-M-d"}}</td>
+        	<td>{{consent_type.updates_version}}</td>
+      	</tr>
+      	{% endfor %}
+    	</tbody>
+ 	 </table>
         </div>
+     <div class="panel panel-default">
+        <div class="panel-heading">Consent Verification</div>
+    </div>
     </div>
     <div id="div-home-right" class="col-md-4">
-        <div class="panel panel-default">
-        <div class="panel-heading">Consent Versions</div>
-        </div>
         <div class="panel panel-default">
         <div class="panel-heading">Administration</div>
         <ul class="nav nav-pills nav-stacked">

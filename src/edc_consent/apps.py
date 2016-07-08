@@ -9,6 +9,7 @@ from edc_consent.site_consent_types import site_consent_types
 class EdcConsentAppConfig(AppConfig):
     name = 'edc_consent'
     verbose_name = 'Consent'
+    institution = 'Botswana Harvard Partnership'
     consent_type_setup = []
 
     def ready(self):
