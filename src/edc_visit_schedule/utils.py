@@ -1,14 +1,15 @@
+from edc_visit_schedule.constants import DAY, MONTH, YEAR, HOUR
 
 
 def get_lower_window_days(lower_window_value, lower_window_unit):
     """Returns the lower bound in days."""
-    if lower_window_unit.upper() == 'D':
+    if lower_window_unit.upper() == DAY:
         days = lower_window_value * 1
-    elif lower_window_unit.upper() == 'M':
+    elif lower_window_unit.upper() == MONTH:
         days = lower_window_value * 30
-    elif lower_window_unit.upper() == 'Y':
+    elif lower_window_unit.upper() == YEAR:
         days = lower_window_value * 365
-    elif lower_window_unit.upper() == 'H':
+    elif lower_window_unit.upper() == HOUR:
         if lower_window_value <= 24:
             days = 1
         else:
@@ -20,13 +21,13 @@ def get_lower_window_days(lower_window_value, lower_window_unit):
 
 def get_upper_window_days(upper_window_value, upper_window_unit):
     """Returns the upper bound in days."""
-    if upper_window_unit.upper() == 'D':
+    if upper_window_unit.upper() == DAY:
         days = upper_window_value * 1
-    elif upper_window_unit.upper() == 'M':
+    elif upper_window_unit.upper() == MONTH:
         days = upper_window_value * 30
-    elif upper_window_unit.upper() == 'Y':
+    elif upper_window_unit.upper() == YEAR:
         days = upper_window_value * 365
-    elif upper_window_unit.upper() == 'H':
+    elif upper_window_unit.upper() == HOUR:
         if upper_window_value <= 24:
             days = 1
         else:

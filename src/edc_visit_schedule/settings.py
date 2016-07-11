@@ -43,30 +43,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_crypto_fields',
     'simple_history',
+    'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
     'edc_base',
-    'edc_appointment',
-    'edc_content_type_map',
-    'edc_registration',
-    'edc_visit_schedule',
+    #'edc_content_type_map.apps.EdcContentTypeAppConfig',
+    #'edc_meta_data.apps.EdcMetaDataAppConfig',
+    'example.apps.EdcVisitScheduleAppConfig',
+    #'example.apps.EdcConsentAppConfig',
+    'example.apps.ExampleAppConfig'
 ]
 
 if 'test' in sys.argv:
-    INSTALLED_APPS = INSTALLED_APPS + [
-        'tastypie',
-        'edc_configuration',
-        'edc_consent',
-        'edc_data_manager',
-        'edc_lab.lab_clinic_api',
-        'edc_lab.lab_clinic_reference',
-        'edc_lab.lab_packing',
-        'edc_meta_data',
-        'edc_offstudy',
-        'edc_sync',
-        'edc_testing',
-        'edc_visit_tracking',
-    ]
+    MIGRATION_MODULES = {
+        'example': None,
+        'edc_visit_schedule': None}
+
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',

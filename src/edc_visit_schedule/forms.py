@@ -1,18 +1,19 @@
 from django import forms
 
-from edc_base.form.old_forms import BaseModelForm
-from edc_appointment.models import Appointment, AppointmentMixin
+from .models import MembershipForm
 
 
-class MembershipFormForm(BaseModelForm):
+class MembershipFormForm(forms.ModelForm):
 
     class Meta:
-        model = Appointment
+        model = MembershipForm
         fields = '__all__'
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        if not issubclass(cleaned_data.get('content_type_map').model_class(), AppointmentMixin):
+        try:
+            cleaned_data.get('content_type_map').model_class().prepare_appointments
+        except AttributeError:
             raise forms.ValidationError(
-                'Membership forms must be a subclass of AppointmentMixin. See module bhp_appointment_helper.')
+                'Membership forms must be a subclass of AppointmentMixin. See module appointment_helper.')
         return cleaned_data
