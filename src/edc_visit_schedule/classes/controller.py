@@ -1,5 +1,6 @@
 import copy
 
+from django.apps import apps as django_apps
 from django.conf import settings
 try:
     from django.utils.importlib import import_module
@@ -63,14 +64,29 @@ class Controller(object):
 
     def autodiscover(self):
         """ Autodiscover visit_schedule modules."""
-        for app in settings.INSTALLED_APPS:
-            mod = import_module(app)
+        module_name = 'visit_schedule'
+        before_import_registry = None
+        for app in django_apps.app_configs:
             try:
-                before_import_registry = copy.copy(site_visit_schedules._registry)
-                import_module('%s.visit_schedule' % app)
+                mod = import_module(app)
+                try:
+                    before_import_registry = copy.copy(site_visit_schedules.registry)
+                    import_module('{}.{}'.format(app, module_name))
+                    #sys.stdout.write(' * registered visit schedules from application \'{}\'\n'.format(app))
+                except:
+                    site_visit_schedules.registry = before_import_registry
+                    if module_has_submodule(mod, module_name):
+                        raise
             except ImportError:
-                site_visit_schedules._registry = before_import_registry
-                if module_has_submodule(mod, 'visit_schedule'):
-                    raise
+                pass
+        #for app in settings.INSTALLED_APPS:
+        #    mod = import_module(app)
+        #    try:
+        #        before_import_registry = copy.copy(site_visit_schedules._registry)
+        #        import_module('%s.visit_schedule' % app)
+        #    except ImportError:
+        #        site_visit_schedules._registry = before_import_registry
+        #        if module_has_submodule(mod, 'visit_schedule'):
+        #            raise
 
 site_visit_schedules = Controller()
