@@ -1,5 +1,6 @@
 import copy
 
+from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_module
@@ -151,16 +152,33 @@ class Controller(object):
         self.reset_controller()
 
     def autodiscover(self):
+        before_import_registry = None
+        module_name = 'section'
         if not self.is_autodiscovered:
-            for app in settings.INSTALLED_APPS:
-                mod = import_module(app)
+            for app in django_apps.app_configs:
                 try:
-                    before_import_registry = copy.copy(site_sections.registry)
-                    import_module('%s.section' % app)
-                except:
-                    site_sections.registry = before_import_registry
-                    if module_has_submodule(mod, 'section'):
-                        raise
+                    mod = import_module(app)
+                    try:
+                        before_import_registry = copy.copy(site_sections.registry)
+                        import_module('{}.{}'.format(app, module_name))
+                        #sys.stdout.write(' * registered visit schedules from application \'{}\'\n'.format(app))
+                    except:
+                        site_sections.registry = before_import_registry
+                        if module_has_submodule(mod, module_name):
+                            raise
+                except ImportError:
+                    pass
             self.is_autodiscovered = True
+        #if not self.is_autodiscovered:
+        #    for app in settings.INSTALLED_APPS:
+        #        mod = import_module(app)
+        #        try:
+        #            before_import_registry = copy.copy(site_sections.registry)
+        #            import_module('%s.section' % app)
+        #        except:
+        #            site_sections.registry = before_import_registry
+        #            if module_has_submodule(mod, 'section'):
+        #                raise
+        #    self.is_autodiscovered = True
 
 site_sections = Controller()
