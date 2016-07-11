@@ -51,14 +51,21 @@ class AppointmentDateHelper(object):
         return appt_datetime
 
     def _check(self, appt_datetime):
-        appt_datetime = self._check_if_allowed_isoweekday(appt_datetime)
-        appt_datetime = self._check_if_holiday(appt_datetime)
-        appt_datetime = self._move_on_appt_max_exceeded(appt_datetime)
+        appt_datetime_weekday = self.check_if_allowed_isoweekday(appt_datetime)
+        appt_datetime_holiday = self._check_if_holiday(appt_datetime)
+        appt_datetime_max_day = self.move_on_appt_max_exceeded(appt_datetime)
+        if appt_datetime_weekday == appt_datetime_holiday == appt_datetime_max_day:
+            appt_datetime = appt_datetime_weekday
+        else:
+            appt_datetime_weekday = self.check_if_allowed_isoweekday(appt_datetime_max_day)
+            appt_datetime_holiday = self._check_if_holiday(appt_datetime_weekday)
+            appt_datetime_max_day = self.move_on_appt_max_exceeded(appt_datetime_holiday)
+            "recurse"
         if not appt_datetime:
             raise TypeError('Appt_datetime cannot be None')
         return appt_datetime
 
-    def _check_if_allowed_isoweekday(self, appt_datetime):
+    def check_if_allowed_isoweekday(self, appt_datetime):
         """ Checks if weekday is allowed, otherwise adjust forward or backward """
         allowed_iso_weekdays = [int(num) for num in str(self.allowed_iso_weekdays)]
         forward = copy.deepcopy(appt_datetime)
@@ -112,7 +119,7 @@ class AppointmentDateHelper(object):
                 raise TypeError('Appt_datetime cannot be None')
         return appt_datetime
 
-    def _move_on_appt_max_exceeded(
+    def move_on_appt_max_exceeded(
             self, original_appt_datetime, appointments_per_day_max=None, appointments_days_forward=None):
         """Moves appointment date to another date if the appointments_per_day_max is exceeded."""
         appt_datetime = copy.deepcopy(original_appt_datetime)
@@ -124,6 +131,7 @@ class AppointmentDateHelper(object):
         # get a list of appointments in the date range from 'appt_datetime' to 'appt_datetime'+days_forward
         # use model field appointment.best_appt_datetime not appointment.appt_datetime
         # TODO: change this query to allow the search to go to the beginning of the week
+        appt_date = my_appt_date
         appointments = self.appointment_model.objects.filter(
             best_appt_datetime__gte=appt_datetime,
             best_appt_datetime__lte=appt_datetime + timedelta(days=self.appointments_days_forward))
@@ -132,16 +140,18 @@ class AppointmentDateHelper(object):
             # create dictionary of { day: count, ... }
             appt_dates = [appointment.appt_datetime.date() for appointment in appointments]
             appt_date_counts = dict((i, appt_dates.count(i)) for i in appt_dates)
-            # if desired date is not maxed out, use it
             if not appt_date_counts.get(my_appt_date) or appt_date_counts.get(my_appt_date) < appointments_per_day_max:
                 appt_date = my_appt_date
             else:
-                # look for an alternative date
-                for appt_date, cnt in dict((i, appt_dates.count(i)) for i in appt_dates).iteritems():
-                    # only looking forward at the moment unless Appointments query is changed above
-                    if cnt < appointments_per_day_max and appt_date > my_appt_date:
+                count = 0
+                while count < appointments_days_forward:
+                    # look for an alternative date
+                    appt_date += timedelta(days=1)
+                    if not appt_date_counts.get(my_appt_date) or appt_date_counts.get(my_appt_date) < appointments_per_day_max:
+                        appt_date = my_appt_date
                         self.message = 'Appointment date has been moved to {0}.'.format(appt_date)
                         break
+                    count += 1
             # return an appointment datetime that uses the time from the originally desrired datetime
             appt_datetime = datetime(
                 appt_date.year, appt_date.month, appt_date.day, appt_datetime.hour, appt_datetime.minute)

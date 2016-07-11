@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'simple_history',
+    'django_extensions',
     'crispy_forms',
     'edc_base',
     'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',

@@ -9,7 +9,7 @@ class EdcAppointmentAppConfig(AppConfig):
     appointments_days_forward = 0
     appointments_per_day_max = 30
     use_same_weekday = True
-    allowed_iso_weekdays = '1234567'
+    allowed_iso_weekdays = '12345'
     default_appt_type = 'clinic'
 
     @property
