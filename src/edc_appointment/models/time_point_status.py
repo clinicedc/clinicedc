@@ -9,7 +9,7 @@ from simple_history.models import HistoricalRecords as AuditTrail
 from edc_base.model.models import BaseUuidModel
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import CLOSED, OPEN, NEW_APPT, IN_PROGRESS, NOT_APPLICABLE
-from edc_sync.models import SyncModelMixin
+from edc_sync.models import SyncModelMixin, SyncHistoricalRecords
 
 
 class TimePointStatusManager(models.Manager):
@@ -71,7 +71,7 @@ class TimePointStatus(SyncModelMixin, BaseUuidModel):
 
     objects = TimePointStatusManager()
 
-    history = AuditTrail()
+    history = SyncHistoricalRecords()
 
     def __unicode__(self):
         return "{}".format(self.status.upper())

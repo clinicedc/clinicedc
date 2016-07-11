@@ -8,7 +8,7 @@ from simple_history.models import HistoricalRecords as AuditTrail
 from edc_base.model.models import BaseUuidModel
 from edc_constants.constants import COMPLETE_APPT, NEW_APPT, CLOSED, CANCELLED, INCOMPLETE, UNKEYED, IN_PROGRESS
 from edc_registration.models import RegisteredSubject
-from edc_sync.models import SyncModelMixin
+from edc_sync.models import SyncModelMixin, SyncHistoricalRecords
 from edc_visit_schedule.models import VisitDefinition
 
 from ..choices import APPT_TYPE, APPT_STATUS
@@ -112,7 +112,7 @@ class Appointment(SyncModelMixin, BaseUuidModel):
 
     objects = AppointmentManager()
 
-    history = AuditTrail()
+    history = SyncHistoricalRecords()
 
     def __unicode__(self):
         return "{0} {1} for {2}.{3}".format(
