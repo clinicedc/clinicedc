@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.apps import apps as django_apps
 from django.test import TestCase
@@ -45,14 +45,28 @@ class TestAppointmentDateHelper(TestCase):
     def test_move_on_appt_max_exceeded2(self):
         """Test if the maximum number of appointment is reached, the date will be moved to another day."""
         appt_datetime = timezone.now() + timedelta(days=1)
+        expected_appt_datetime = timezone.now() + timedelta(days=2)
+        expected_datetime = datetime(
+            expected_appt_datetime.year,
+            expected_appt_datetime.month,
+            expected_appt_datetime.day,
+            appt_datetime.hour,
+            appt_datetime.minute)
         count = 0
         while count <= 32:
             AppointmentFactory(best_appt_datetime=appt_datetime, appt_datetime=appt_datetime)
             count += 1
         self.assertEqual(Appointment.objects.all().count(), 33)
         original_appt_datetime = appt_datetime
-        appointments_days_forward = 0
+        appointments_days_forward = 30
         appointments_per_day_max = 30
         appt_datetime = self.appointment_date_helper.move_on_appt_max_exceeded(original_appt_datetime, appointments_per_day_max, appointments_days_forward)
-        print(original_appt_datetime, "original date")
-        print(appt_datetime, "#######the date ########")
+        self.assertEqual(appt_datetime, expected_datetime)
+
+    def test_move_to_same_weekday(self):
+        """Test if a datetime given is moved to the same weekday given."""
+        week = 2
+        appt_datetime = datetime(2016, 7, 22, 6, 59, 25)
+        expected_appt_datetime = datetime(2016, 7, 19, 6, 59, 25)
+        appt_datetime = self.appointment_date_helper.move_to_same_weekday(appt_datetime, week)
+        self.assertEqual(appt_datetime, expected_appt_datetime)

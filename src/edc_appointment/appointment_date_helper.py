@@ -36,7 +36,7 @@ class AppointmentDateHelper(object):
             raise AttributeError('Expected parameter \'appt_datetime\' to be an instance of datetime')
         if weekday and self.use_same_weekday:
             # force to use same week day for every appointment
-            appt_datetime = self._move_to_same_weekday(appt_datetime, weekday)
+            appt_datetime = self.move_to_same_weekday(appt_datetime, weekday)
         return self._check(appt_datetime)
 
     def change_datetime(self, best_appt_datetime, new_appt_datetime, site, visit_definition):
@@ -95,7 +95,7 @@ class AppointmentDateHelper(object):
             raise TypeError('Appt_datetime cannot be None')
         return appt_datetime
 
-    def _move_to_same_weekday(self, appt_datetime, weekday=1):
+    def move_to_same_weekday(self, appt_datetime, weekday=1):
         """ Moves appointment to use same weekday for each subject appointment."""
         if self.use_same_weekday:
             if weekday not in range(1, 8):
@@ -147,8 +147,7 @@ class AppointmentDateHelper(object):
                 while count < appointments_days_forward:
                     # look for an alternative date
                     appt_date += timedelta(days=1)
-                    if not appt_date_counts.get(my_appt_date) or appt_date_counts.get(my_appt_date) < appointments_per_day_max:
-                        appt_date = my_appt_date
+                    if not appt_date_counts.get(appt_date) or appt_date_counts.get(appt_date) < appointments_per_day_max:
                         self.message = 'Appointment date has been moved to {0}.'.format(appt_date)
                         break
                     count += 1
