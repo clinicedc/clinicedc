@@ -5,5 +5,7 @@ from edc_visit_schedule.views import HomeView
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'', HomeView.as_view(), name='edc-visit-schedule-home-url'),
+    url(r'', HomeView.as_view(), name='edc-visit-schedule-url'),
+    url(r'^settings/$', HomeView.as_view(), name='home_url'),
+    #url(r'', HomeView.as_view(), name='home_url'),
 ]

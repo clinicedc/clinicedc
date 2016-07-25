@@ -10,6 +10,7 @@ class EdcVisitScheduleAppConfig(AppConfig):
     name = 'edc_visit_schedule'
     verbose_name = "Visit Schedule"
     model = None
+    institution = 'Botswana Harvard Partnership'
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))

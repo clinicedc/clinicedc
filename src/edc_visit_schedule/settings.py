@@ -35,6 +35,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+APP_LABEL = 'example'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -46,11 +47,8 @@ INSTALLED_APPS = [
     'simple_history',
     'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
     'edc_base',
-    #'edc_content_type_map.apps.EdcContentTypeAppConfig',
-    #'edc_meta_data.apps.EdcMetaDataAppConfig',
     'example.apps.EdcVisitScheduleAppConfig',
-    #'example.apps.EdcConsentAppConfig',
-    'example.apps.ExampleAppConfig'
+    'example.apps.ExampleAppConfig',
 ]
 
 if 'test' in sys.argv:
