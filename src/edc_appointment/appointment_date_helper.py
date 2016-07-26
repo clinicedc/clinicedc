@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 from django.apps import apps as django_apps
 
 from .models import Holiday
-from .window_period_helper import WindowPeriodHelper
 
 
 class AppointmentDateHelper(object):
@@ -37,60 +36,52 @@ class AppointmentDateHelper(object):
         if weekday and self.use_same_weekday:
             # force to use same week day for every appointment
             appt_datetime = self.move_to_same_weekday(appt_datetime, weekday)
-        return self._check(appt_datetime)
+        return self._check_app_date(appt_datetime)
 
-    def change_datetime(self, best_appt_datetime, new_appt_datetime, site, visit_definition):
-        """Checks if an appointment datetime from the user is OK to accept."""
-        appt_datetime = self._check(new_appt_datetime, site)
-        window_period = WindowPeriodHelper(visit_definition, appt_datetime, best_appt_datetime)
-        if not window_period.check_datetime():
-            # return unchanged appt_datetime
-            appt_datetime = best_appt_datetime
-        if not appt_datetime:
-            raise TypeError('Appt_datetime cannot be None')
-        return appt_datetime
-
-    def _check(self, appt_datetime):
-        appt_datetime_weekday = self.check_if_allowed_isoweekday(appt_datetime)
-        appt_datetime_holiday = self._check_if_holiday(appt_datetime)
-        appt_datetime_max_day = self.move_on_appt_max_exceeded(appt_datetime)
+    def _check_app_date(self, appt_datetime):
+        """Return appointment date time is not a holiday, isoweekday is allowed and no maximum appointments reached."""
+        new_appt_date = copy.deepcopy(appt_datetime)
+        appt_datetime_weekday = self.check_if_allowed_isoweekday(new_appt_date)
+        appt_datetime_holiday = self.check_if_holiday(appt_datetime_weekday)
+        appt_datetime_max_day = self.move_on_appt_max_exceeded(appt_datetime_holiday)
         if appt_datetime_weekday == appt_datetime_holiday == appt_datetime_max_day:
-            appt_datetime = appt_datetime_weekday
+            new_appt_date = copy.deepcopy(appt_datetime_max_day)
         else:
             appt_datetime_weekday = self.check_if_allowed_isoweekday(appt_datetime_max_day)
-            appt_datetime_holiday = self._check_if_holiday(appt_datetime_weekday)
+            appt_datetime_holiday = self.check_if_holiday(appt_datetime_weekday)
             appt_datetime_max_day = self.move_on_appt_max_exceeded(appt_datetime_holiday)
-            "recurse"
-        if not appt_datetime:
+            # Recurse to get the same date from all 3 methods
+            self._check_app_date(appt_datetime_max_day)
+        if not new_appt_date:
             raise TypeError('Appt_datetime cannot be None')
-        return appt_datetime
+        return appt_datetime_max_day
 
     def check_if_allowed_isoweekday(self, appt_datetime):
         """ Checks if weekday is allowed, otherwise adjust forward or backward """
         allowed_iso_weekdays = [int(num) for num in str(self.allowed_iso_weekdays)]
-        forward = copy.deepcopy(appt_datetime)
-        while forward.isoweekday() not in allowed_iso_weekdays:
-            forward = forward + timedelta(days=+1)
-        backward = copy.deepcopy(appt_datetime)
-        while backward.isoweekday() not in allowed_iso_weekdays:
-            backward = backward + timedelta(days=-1)
-        # which is closer to the original appt_datetime
-        td_forward = abs(appt_datetime - forward)
-        td_backward = abs(appt_datetime - backward)
-        if td_forward <= td_backward:
-            appt_datetime = forward
-        else:
-            appt_datetime = backward
+        if appt_datetime.isoweekday() not in allowed_iso_weekdays:
+            forward = copy.deepcopy(appt_datetime)
+            while forward.isoweekday() not in allowed_iso_weekdays:
+                forward = forward + timedelta(days=+1)
+            backward = copy.deepcopy(appt_datetime)
+            while backward.isoweekday() not in allowed_iso_weekdays:
+                backward = backward + timedelta(days=-1)
+            # which is closer to the original appt_datetime
+            td_forward = abs(appt_datetime - forward)
+            td_backward = abs(appt_datetime - backward)
+            if td_forward <= td_backward:
+                appt_datetime = forward
+            else:
+                appt_datetime = backward
         if not appt_datetime:
             raise TypeError('Appt_datetime cannot be None')
         return appt_datetime
 
-    def _check_if_holiday(self, appt_datetime):
+    def check_if_holiday(self, appt_datetime):
         """ Checks if appt_datetime lands on a holiday, if so, move forward """
         # Holiday = get_model('edc_appointment', 'holiday')
         while appt_datetime.date() in [holiday.holiday_date for holiday in Holiday.objects.all()]:
             appt_datetime = appt_datetime + timedelta(days=+2)
-            appt_datetime = self._check_if_allowed_isoweekday(appt_datetime)
         if not appt_datetime:
             raise TypeError('Appt_datetime cannot be None')
         return appt_datetime

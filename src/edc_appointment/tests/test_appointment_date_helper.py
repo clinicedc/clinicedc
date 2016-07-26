@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from edc_appointment.appointment_date_helper import AppointmentDateHelper
+from edc_appointment.tests import HolidayFactory
 from example.models import Appointment
 from example.appointment_factory import AppointmentFactory
 
@@ -66,7 +67,43 @@ class TestAppointmentDateHelper(TestCase):
     def test_move_to_same_weekday(self):
         """Test if a datetime given is moved to the same weekday given."""
         week = 2
-        appt_datetime = datetime(2016, 7, 22, 6, 59, 25)
-        expected_appt_datetime = datetime(2016, 7, 19, 6, 59, 25)
+        appt_datetime = timezone.datetime(2016, 7, 22, 6, 59, 25)
+        expected_appt_datetime = timezone.datetime(2016, 7, 19, 6, 59, 25)
         appt_datetime = self.appointment_date_helper.move_to_same_weekday(appt_datetime, week)
         self.assertEqual(appt_datetime, expected_appt_datetime)
+
+    def test_check_if_holiday(self):
+        """Test if an appointment is a holyday is moved to the next 2 days."""
+        appt_datetime = timezone.datetime(2016, 7, 30, 12, 47) + timedelta(days=+2)
+        expected_appt_datetime = timezone.datetime(2016, 7, 30, 12, 47) + timedelta(days=+4)
+        HolidayFactory(holiday_date=appt_datetime.date())
+        new_appt_datetime = self.appointment_date_helper.check_if_holiday(appt_datetime)
+        appt_datetime.hour, appt_datetime.minute
+        self.assertEqual(new_appt_datetime, expected_appt_datetime)
+
+    def test_check_app_date(self):
+        """Test if given an appointment date time that is not a holiday, allowed isoweekday and maximum appointments,
+
+         not reached for that date returns the same date time given."""
+        appt_datetime = timezone.datetime(2016, 7, 26, 12, 47)
+        new_appt_datetime = self.appointment_date_helper._check_app_date(appt_datetime)
+        self.assertEqual(new_appt_datetime, appt_datetime)
+
+    def test_check_app_date2(self):
+        """Test if given an appointment date time that is a holiday, allowed isoweekday and maximum appointments,
+
+         not reached for that date returns a different date time given."""
+        appt_datetime = timezone.datetime(2016, 7, 26, 12, 47)
+        HolidayFactory(holiday_date=appt_datetime.date())
+        expected_appt_datetime = timezone.datetime(2016, 7, 26, 12, 47) + timedelta(days=+2)
+        new_appt_datetime = self.appointment_date_helper._check_app_date(appt_datetime)
+        self.assertEqual(new_appt_datetime, expected_appt_datetime)
+
+    def test_check_app_date3(self):
+        """Test if given an appointment date time that not is a holiday, not allowed isoweekday and maximum
+
+         appointments, not reached for that date returns a different date time given."""
+        appt_datetime = timezone.datetime(2016, 7, 30, 12, 47)
+        expected_appt_datetime = timezone.datetime(2016, 7, 30, 12, 47) + timedelta(days=-1)
+        new_appt_datetime = self.appointment_date_helper._check_app_date(appt_datetime)
+        self.assertEqual(new_appt_datetime, expected_appt_datetime)
