@@ -138,7 +138,8 @@ class AppointmentDateHelper(object):
                 while count < appointments_days_forward:
                     # look for an alternative date
                     appt_date += timedelta(days=1)
-                    if not appt_date_counts.get(appt_date) or appt_date_counts.get(appt_date) < appointments_per_day_max:
+                    if (not appt_date_counts.get(appt_date) or
+                            appt_date_counts.get(appt_date) < appointments_per_day_max):
                         self.message = 'Appointment date has been moved to {0}.'.format(appt_date)
                         break
                     count += 1

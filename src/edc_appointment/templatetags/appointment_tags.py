@@ -27,7 +27,8 @@ class ContinuationAppointmentAnchor(template.Node):
 
         # does a continuation appointment exist? instance will be instance+1
         visit_code_sequences = []
-        for appointment in self.appointment_model.objects.filter(registered_subject=self.appointment.registered_subject):
+        for appointment in self.appointment_model.objects.filter(
+                registered_subject=self.appointment.registered_subject):
             visit_code_sequences.append(int(appointment.visit_code_sequence))
         if (int(self.appointment.visit_code_sequence) + 1) in visit_code_sequences:
             anchor = ''

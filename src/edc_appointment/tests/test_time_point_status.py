@@ -42,7 +42,8 @@ class TestAppointmentMixin(TestCase):
         # Update appointment
         appointment = Appointment.objects.get(pk=appointment.pk)
         appointment.appt_status = IN_PROGRESS
-        with self.assertRaisesMessage(ValidationError, 'Data entry for this time point is closed. See TimePointStatus.'):
+        with self.assertRaisesMessage(
+                ValidationError, 'Data entry for this time point is closed. See TimePointStatus.'):
             appointment.save(update_fields=['appt_status'])
 
     def test_appointment_close_time_point_status(self):
