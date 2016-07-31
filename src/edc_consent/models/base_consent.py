@@ -171,3 +171,6 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
 
     class Meta:
         abstract = True
+        get_latest_by = 'consent_datetime'
+        unique_together = (('first_name', 'dob', 'initials', 'version'), )
+        ordering = ('created', )
