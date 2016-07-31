@@ -16,7 +16,14 @@ from simple_history.models import HistoricalRecords as AuditTrail
 
 from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
-from edc_constants.choices import YES_NO, POS_NEG_UNKNOWN, ALIVE_DEAD_UNKNOWN
+from edc_constants.choices import YES, NO, POS_NEG_UNKNOWN, ALIVE_DEAD_UNKNOWN, GENDER
+
+
+YES_NO_UNKNOWN = (
+    (YES, 'Yes'),
+    (NO, 'No'),
+    ('?', 'Unknown'),
+)
 
 
 class RegisteredSubjectError(Exception):
@@ -61,7 +68,6 @@ class RegisteredSubjectModelMixin(models.Model):
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
         max_length=50,
-        blank=True,
         db_index=True,
         unique=True)
 
@@ -69,6 +75,7 @@ class RegisteredSubjectModelMixin(models.Model):
         verbose_name="Subject Identifier as pk",
         max_length=50,
         null=True,
+        blank=True,
         db_index=True,
     )
 
@@ -112,6 +119,7 @@ class RegisteredSubjectModelMixin(models.Model):
     gender = models.CharField(
         verbose_name="Gender",
         max_length=1,
+        choices=GENDER,
         null=True,
         blank=False)
 
@@ -151,12 +159,14 @@ class RegisteredSubjectModelMixin(models.Model):
         null=True,
         blank=True)
 
-    identity_type = IdentityTypeField()
+    identity_type = IdentityTypeField(
+        null=True,
+        blank=True)
 
     may_store_samples = models.CharField(
         verbose_name=_("Sample storage"),
         max_length=3,
-        choices=YES_NO,
+        choices=YES_NO_UNKNOWN,
         default='?',
         help_text=_("Does the subject agree to have samples stored after the study has ended"))
 
