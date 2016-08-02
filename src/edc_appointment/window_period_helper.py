@@ -14,7 +14,7 @@ class WindowPeriodHelper(object):
         self.visit_code = visit_code
         self.appt_datetime = appt_datetime
         self.reference_datetime = reference_datetime
-        self.visit_definition = schedule
+        self.visit_schedule = schedule
 
     def check_datetime(self):
         """Checks if self.appt_datetime is within the scheduled visit window period.
@@ -32,29 +32,29 @@ class WindowPeriodHelper(object):
                 'Parameter \'self.reference_datetime\' cannot be None. Is appointment.best_appt_datetime = None?')
         # calculate the actual datetime for the window's upper and lower boundary relative to new_appt_datetime
         rdelta = relativedelta()
-        setattr(rdelta, self.visit_definition.get_rdelta_attrname(
-            self.visit_definition.upper_window_unit), self.visit_definition.upper_window)
+        setattr(rdelta, self.visit_schedule.get_rdelta_attrname(
+            self.visit_schedule.upper_window_unit), self.visit_schedule.upper_window)
         upper_window_datetime = self.reference_datetime + rdelta
         rdelta = relativedelta()
-        setattr(rdelta, self.visit_definition.get_rdelta_attrname(
-            self.visit_definition.lower_window_unit), self.visit_definition.lower_window)
+        setattr(rdelta, self.visit_schedule.get_rdelta_attrname(
+            self.visit_schedule.lower_window_unit), self.visit_schedule.lower_window)
         lower_window_datetime = self.reference_datetime - rdelta
         # count the timedelta between window's datetime and new appt datetime
         upper_td = self.appt_datetime - upper_window_datetime
         lower_td = self.appt_datetime - lower_window_datetime
         # get the units to display in the message
-        upper_unit = self.visit_definition.get_rdelta_attrname(self.visit_definition.upper_window_unit)
-        lower_unit = self.visit_definition.get_rdelta_attrname(self.visit_definition.lower_window_unit)
+        upper_unit = self.visit_schedule.get_rdelta_attrname(self.visit_schedule.upper_window_unit)
+        lower_unit = self.visit_schedule.get_rdelta_attrname(self.visit_schedule.lower_window_unit)
         if upper_td.days > 0:
             # past upper window boundary
             unit = upper_unit
-            window_value = self.visit_definition.upper_window
+            window_value = self.visit_schedule.upper_window
             td_from_boundary = upper_td
             window_name = 'upper'
         elif lower_td.days < 0:
             # past lower window boundary
             unit = lower_unit
-            window_value = self.visit_definition.lower_window
+            window_value = self.visit_schedule.lower_window
             td_from_boundary = upper_td
             window_name = 'lower'
         elif lower_td.days >= 0 and upper_td.days <= 0:

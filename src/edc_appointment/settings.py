@@ -129,4 +129,4 @@ STATIC_URL = '/static/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 GIT_DIR = BASE_DIR
-APP_LABEL = 'example'
+APP_LABEL = 'edc_appointment'

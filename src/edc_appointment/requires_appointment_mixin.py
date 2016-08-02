@@ -16,12 +16,8 @@ class RequiresAppointmentMixin(models.Model):
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
-        if not self.registered_subject:
-            raise ValidationError("Subject registration instance can not be null.")
         if not kwargs.get('update_fields'):
             self.validate_visit_code_sequence()
-            if self.id:
-                self.time_point_status_open_or_raise()
             if self.visit_code_sequence == 0:
                 self.appt_datetime, self.best_appt_datetime = self.validate_appt_datetime()
             else:
@@ -116,29 +112,6 @@ class RequiresAppointmentMixin(models.Model):
     def unkeyed_requisitions(self):
         from edc_meta_data.helpers import RequisitionMetaDataHelper
         return RequisitionMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
-
-    def validate_appt_datetime(self, exception_cls=None):
-        """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
-        the calculated ideal timepoint datetime.
-
-        .. note:: best_appt_datetime is not editable by the user. If 'None'
-         will raise an exception."""
-        if not exception_cls:
-            exception_cls = ValidationError
-        if not self.id:
-            appt_datetime = self.date_helper.get_best_datetime(
-                self.appt_datetime, self.registered_subject.study_site)
-            best_appt_datetime = self.appt_datetime
-        else:
-            if not self.best_appt_datetime:
-                # did you update best_appt_datetime for existing instances since the migration?
-                raise exception_cls(
-                    'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
-            appt_datetime = self.date_helper.change_datetime(
-                self.best_appt_datetime, self.appt_datetime,
-                self.registered_subject.study_site, self.visit_definition)
-            best_appt_datetime = self.best_appt_datetime
-        return appt_datetime, best_appt_datetime
 
     def validate_continuation_appt_datetime(self, exception_cls=None):
         exception_cls = exception_cls or ValidationError
