@@ -1,9 +1,12 @@
+from django.apps import apps as django_apps
 from django.test import TestCase
 from django.conf import settings
 
 from ..classes import BaseSubjectIdentifier
 from ...exceptions import IndentifierFormatError
 from ...models import Sequence
+
+app_config = django_apps.get_app_config('edc_identifier')
 
 
 class TestBaseSubjectIdentifierMethods(TestCase):
@@ -17,8 +20,8 @@ class TestBaseSubjectIdentifierMethods(TestCase):
             subject_identifier = BaseSubjectIdentifier(site_code=site_code)
             identifier = subject_identifier.get_identifier()
             print(identifier)
-            self.assertTrue(identifier.startswith(settings.PROJECT_IDENTIFIER_PREFIX))
-            self.assertTrue(identifier.startswith('{0}-{1}{2}'.format(settings.PROJECT_IDENTIFIER_PREFIX, site_code, settings.DEVICE_ID)))
+            self.assertTrue(identifier.startswith(app_config.identifier_prefix))
+            self.assertTrue(identifier.startswith('{0}-{1}{2}'.format(app_config.identifier_prefix, site_code, settings.DEVICE_ID)))
             Sequence.objects.all().count()
             x += 1
 

@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'edc_base',
     'edc_device',
-    'edc_identifier.apps.EdcIdentifierAppConfig',
+    'edc_identifier.apps.AppConfig',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -127,3 +127,5 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = BASE_DIR.child('media')
 
 GIT_DIR = BASE_DIR
+DEVICE_ID = '14'
+SERVER_DEVICE_ID_LIST = ['99']

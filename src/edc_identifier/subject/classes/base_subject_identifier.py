@@ -1,14 +1,16 @@
 import re
 import uuid
 
+from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
-from django.conf import settings
 
 from edc_device import Device
 
 from ...exceptions import IndentifierFormatError
 
 from .check_digit import CheckDigit
+
+app_config = django_apps.get_app_config('edc_identifier')
 
 
 class BaseSubjectIdentifier(object):
@@ -28,16 +30,8 @@ class BaseSubjectIdentifier(object):
                 'Specify the site_code when instantiating the identifier class.')
         self.site_code = site_code
         self.using = using or 'default'
-        try:
-            self.identifier_prefix = identifier_prefix or settings.PROJECT_IDENTIFIER_PREFIX
-        except AttributeError:
-            raise ImproperlyConfigured(
-                'Missing settings attribute PROJECT_IDENTIFIER_PREFIX. '
-                'Please add. For example, PROJECT_IDENTIFIER_PREFIX = \'041\' for project BHP041.')
-        try:
-            self.modulus = modulus or settings.PROJECT_IDENTIFIER_MODULUS
-        except AttributeError:
-            self.modulus = 7
+        self.identifier_prefix = identifier_prefix or app_config.identifier_prefix
+        self.modulus = modulus or app_config.identifier_modulus
 
     def get_identifier(self, add_check_digit=None, **kwargs):
         """ Returns a formatted identifier based on the identifier format and the dictionary
