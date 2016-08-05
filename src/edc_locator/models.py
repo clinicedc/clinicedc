@@ -13,11 +13,11 @@ from simple_history.models import HistoricalRecords as AuditTrail
 
 class LocatorMixin(models.Model):
 
-    subject_identifier = models.CharField(
-        verbose_name="Subject Identifier",
-        max_length=50,
-        editable=False,
-        unique=True)
+#     subject_identifier = models.CharField(
+#         verbose_name="Subject Identifier",
+#         max_length=50,
+#         editable=False,
+#         unique=True)
 
     date_signed = models.DateField(
         verbose_name="Date Locator Form signed ",
