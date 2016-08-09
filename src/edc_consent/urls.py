@@ -5,5 +5,5 @@ from edc_consent.admin import edc_consent_admin
 
 urlpatterns = [
     url(r'^admin/', include(edc_consent_admin.urls)),
-    url(r'^', HomeView.as_view(), name='edc-consent-home-url'),
+    url(r'^', HomeView.as_view(), name='home-url'),
 ]
