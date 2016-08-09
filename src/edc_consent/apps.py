@@ -18,4 +18,4 @@ class EdcConsentAppConfig(AppConfig):
             consent_type = ConsentType(**item)
             site_consent_types.register(consent_type)
             sys.stdout.write(' * registered {}.\n'.format(consent_type))
-        sys.stdout.write('{} Done.\n'.format(self.verbose_name))
+        sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
