@@ -216,13 +216,13 @@ class VisitModelMixin(models.Model):
                 self.appointment.save()
 
     def get_subject_identifier(self):
-        return self.appointment.registered_subject.subject_identifier
+        return self.appointment.appointment_identifier
 
     def get_report_datetime(self):
         return self.report_datetime
 
-    def get_subject_type(self):
-        return self.appointment.registered_subject.subject_type
+#     def get_subject_type(self):
+#         return self.appointment.registered_subject.subject_type
 
     class Meta:
         abstract = True

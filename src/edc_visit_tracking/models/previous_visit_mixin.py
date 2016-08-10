@@ -53,6 +53,8 @@ class PreviousVisitMixin(models.Model):
                 else:
                     has_previous_visit = False
                 if not has_previous_visit:
+                    self.appointment.__class__.objects.filter(appointment_identifier=self.appointment.appointment_identifier)
+                    print(self.appointment.visit_definition.time_point, self.appointment.visit_definition.base_interval, "cooooooooool")
                     raise exception_cls(
                         'Previous visit report for \'{}\' is not complete.'.format(previous_visit_definition.code))
 
@@ -60,25 +62,24 @@ class PreviousVisitMixin(models.Model):
         """Returns the previous visit definition relative to this instance or None.
 
         Only selects visit definition instances for this visit model."""
-        site_visit_schedules.get_visit_definition(self.appointment.schedule_name, self.appointment.visit_code)
+        site_visit_schedules.get_visit_schedule(self.appointment.schedule_name, self.appointment.visit_code)
         visit_schedule = site_visit_schedules.get_visit_schedule(self.appointment.schedule_name)
         schedule = visit_schedule.schedules.get(self.appointment.schedule_name)
-        return schedule.get_previous_visit()
+        return schedule.get_previous_visit(visit_code)
 
     def previous_visit(self, previous_visit_definition=None):
         """Returns the previous visit if it exists."""
         with transaction.atomic():
             try:
                 previous_visit_definition = previous_visit_definition or self.previous_visit_definition(
-                    self.appointment.visit_definition)
+                    self.appointment.schedule_name, self.appointment.visit_code)
                 previous_visit = self.__class__.objects.get(
-                    appointment__visit_definition=previous_visit_definition,
-                    appointment__registered_subject=self.appointment.registered_subject)
+                    appointment__appointment_identifier=self.appointment.appointment_identifier)
             except self.__class__.DoesNotExist:
                 previous_visit = None
             except self.__class__.MultipleObjectsReturned:
                 previous_appointment = self.appointment.__class__.objects.filter(
-                    registered_subject=self.appointment.registered_subject,
+                    appointment_identifier=self.appointment.appointment_identifier,
                     visit_definition=previous_visit_definition).order_by(
                         '-visit_instance')[0]
                 previous_visit = self.__class__.objects.filter(
