@@ -24,9 +24,6 @@ class CrfInlineModelMixin(models.Model):
                     'Got more than one foreign key. Try declaring \"crf_inline_parent_model = \'<field name>\'\" '
                     'explicitly in Meta.')
 
-    def __unicode__(self):
-        return str(self.parent_instance.get_visit())
-
     def __str__(self):
         return str(self.parent_instance.get_visit())
 

@@ -1,4 +1,5 @@
 from django.db import models, transaction
+
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
@@ -62,7 +63,6 @@ class PreviousVisitMixin(models.Model):
         """Returns the previous visit definition relative to this instance or None.
 
         Only selects visit definition instances for this visit model."""
-        site_visit_schedules.get_visit_schedule(self.appointment.schedule_name, self.appointment.visit_code)
         visit_schedule = site_visit_schedules.get_visit_schedule(self.appointment.schedule_name)
         schedule = visit_schedule.schedules.get(self.appointment.schedule_name)
         return schedule.get_previous_visit(visit_code)
