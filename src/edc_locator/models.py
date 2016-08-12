@@ -158,12 +158,12 @@ class LocatorMixin(models.Model):
     history = AuditTrail()
 
     def to_dict(self):
-        data = {}
+        data = {'may_follow_up': self.may_follow_up}
         if self.may_follow_up == YES:
             data.update({
                 'may_sms_follow_up': YES,
-                'subject_cell': self.subject_cell or '(none)' + '/' + self.subject_cell_alt if self.subject_cell_alt else '',
-                'subject_phone': self.subject_phone or '(none)' + '/' + self.subject_phone_alt if self.subject_phone_alt else '',
+                'subject_cell': (self.subject_cell or '(none)') + ('/' + self.subject_cell_alt if self.subject_cell_alt else ''),
+                'subject_phone': (self.subject_phone or '(none)') + ('/' + self.subject_phone_alt if self.subject_phone_alt else ''),
                 'physical_address': self.physical_address,
             })
             if self.may_call_work == YES:
