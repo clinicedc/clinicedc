@@ -168,7 +168,7 @@ class LocatorMixin(models.Model):
             })
             if self.may_call_work == YES:
                 data.update({
-                    'subject_work_place': self.subject_work_place or '(work place not known)',
+                    'subject_work_place': (self.subject_work_place or '(work place not known)'),
                     'subject_work_phone': self.subject_work_phone,
                 })
             if self.may_contact_someone == YES:
