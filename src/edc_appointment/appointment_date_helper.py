@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from django.apps import apps as django_apps
 
 from .models import Holiday
+from .window_period_helper import WindowPeriodHelper
 
 
 class AppointmentDateHelper(object):
@@ -17,6 +18,7 @@ class AppointmentDateHelper(object):
         self.appointments_days_forward = self.appointment_app_config.appointments_days_forward
         self.appointments_per_day_max = self.appointment_app_config.appointments_per_day_max
         self.use_same_weekday = self.appointment_app_config.use_same_weekday
+        self.weekday = self.appointment_app_config.weekday
         self.allowed_iso_weekdays = self.appointment_app_config.allowed_iso_weekdays
 
     @property
@@ -33,10 +35,23 @@ class AppointmentDateHelper(object):
             exception_cls = AttributeError
         if not isinstance(appt_datetime, datetime):
             raise AttributeError('Expected parameter \'appt_datetime\' to be an instance of datetime')
+        if not weekday:
+            weekday = self.weekday
         if weekday and self.use_same_weekday:
             # force to use same week day for every appointment
             appt_datetime = self.move_to_same_weekday(appt_datetime, weekday)
         return self._check_app_date(appt_datetime)
+
+    def change_datetime(self, best_appt_datetime, new_appt_datetime, visit_schedule, visit_code):
+        """Checks if an appointment datetime from the user is OK to accept."""
+        window_period = WindowPeriodHelper(visit_schedule, visit_code, best_appt_datetime, new_appt_datetime)
+        appt_datetime = self._check_app_date(new_appt_datetime)
+        if not window_period.check_datetime():
+            # return unchanged appt_datetime
+            appt_datetime = best_appt_datetime
+        if not appt_datetime:
+            raise TypeError('Appt_datetime cannot be None')
+        return appt_datetime
 
     def _check_app_date(self, appt_datetime):
         """Return appointment date time is not a holiday, isoweekday is allowed and no maximum appointments reached."""
@@ -92,7 +107,7 @@ class AppointmentDateHelper(object):
             if weekday not in range(1, 8):
                 raise ValueError('Weekday must be a number between 1-7, Got %s' % (weekday, ))
             # make all appointments land on the same isoweekday,
-            # if possible as date may change becuase of holiday and/or iso_weekday checks below)
+            # if possible as date may change because of holiday and/or iso_weekday checks below)
             forward = appt_datetime
             while not forward.isoweekday() == weekday:
                 forward = forward + timedelta(days=+1)
@@ -125,7 +140,7 @@ class AppointmentDateHelper(object):
         appt_date = my_appt_date
         appointments = self.appointment_model.objects.filter(
             best_appt_datetime__gte=appt_datetime,
-            best_appt_datetime__lte=appt_datetime + timedelta(days=self.appointments_days_forward))
+            best_appt_datetime__lte=appt_datetime + timedelta(days=appointments_days_forward))
         if appointments:
             # looking for appointments per day
             # create dictionary of { day: count, ... }

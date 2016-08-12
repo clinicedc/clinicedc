@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
@@ -148,6 +149,17 @@ class AppointmentModelMixin(TimePointStatusMixin):
 
     appt_close_datetime = models.DateTimeField(null=True, editable=False)
 
+    visit_instance = models.CharField(
+        max_length=1,
+        verbose_name=("Instance"),
+        validators=[RegexValidator(r'[0-9]', 'Must be a number from 0-9')],
+        default='0',
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text=("A decimal to represent an additional report to be included with the original "
+                   "visit report. (NNNN.0)"))
+
     visit_code_sequence = models.IntegerField(
         verbose_name=("Sequence"),
         default=0,
@@ -215,7 +227,7 @@ class AppointmentModelMixin(TimePointStatusMixin):
         for visit_schedule in site_visit_schedules.visit_schedules.values():
             schedule = visit_schedule.schedules.get(self.schedule_name)
             break
-        return schedule.visits.get(self.code)
+        return schedule.visits.get(self.visit_code)
 
     class Meta:
         abstract = True
@@ -231,7 +243,6 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
     """Update the TimePointStatus in appointment if the field is empty."""
     if not raw:
         try:
-            print("It has passed here")
             if not instance.time_point_status:
                 if instance.appt_status == COMPLETE_APPT:
                     instance.time_point_status = CLOSED

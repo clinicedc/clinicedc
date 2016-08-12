@@ -40,9 +40,13 @@ INSTALLED_APPS = [
     'simple_history',
     'django_extensions',
     'crispy_forms',
+    'timezone_field',
     'edc_base',
     'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
     'edc_appointment.apps.EdcAppointmentAppConfig',
+    'edc_meta_data.apps.EdcMetaDataAppConfig',
+    'edc_visit_schedule.apps.EdcVisitScheduleAppConfig',
+    'edc_visit_tracking',
     'example.apps.ExampleAppConfig',
 ]
 

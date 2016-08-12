@@ -30,12 +30,12 @@ class RequiresAppointmentMixin(models.Model):
     def date_helper(self):
         return AppointmentDateHelper(self.__class__)
 
-    def get_appt_status(self, using):
+    def get_appt_status(self, using='default'):
         """Returns the appt_status by checking the meta data entry status for all required CRFs and requisitions.
         """
         from edc_meta_data.helpers import CrfMetaDataHelper
         appt_status = self.appt_status
-        visit_model = self.visit_definition.visit_tracking_content_type_map.model_class()
+        visit_model = self.visit_definition.visit_model
         try:
             visit_code_sequence = visit_model.objects.get(appointment=self)
             crf_meta_data_helper = CrfMetaDataHelper(self, visit_code_sequence)
@@ -113,6 +113,28 @@ class RequiresAppointmentMixin(models.Model):
         from edc_meta_data.helpers import RequisitionMetaDataHelper
         return RequisitionMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
 
+    def validate_appt_datetime(self, exception_cls=None):
+        """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
+        the calculated ideal timepoint datetime.
+        .. note:: best_appt_datetime is not editable by the user. If 'None'
+         will raise an exception."""
+        # for tests
+        if not exception_cls:
+            exception_cls = ValidationError
+        appointment_date_helper = AppointmentDateHelper(self.appointment_model)
+        if not self.id:
+            appt_datetime = appointment_date_helper.get_best_datetime(self.appt_datetime)
+            best_appt_datetime = self.appt_datetime
+        else:
+            if not self.best_appt_datetime:
+                # did you update best_appt_datetime for existing instances since the migration?
+                raise exception_cls(
+                    'Appointment instance attribute \'best_appt_datetime\' cannot be null on change.')
+            appt_datetime = appointment_date_helper.change_datetime(
+                self.best_appt_datetime, self.appt_datetime, self.visit_definition, self.visit_code)
+            best_appt_datetime = self.best_appt_datetime
+        return appt_datetime, best_appt_datetime
+
     def validate_continuation_appt_datetime(self, exception_cls=None):
         exception_cls = exception_cls or ValidationError
         base_appointment = self.appointment_model.objects.get(
@@ -134,6 +156,7 @@ class RequiresAppointmentMixin(models.Model):
             exception_cls = ValidationError
         if self.id and self.visit_code_sequence == 0:
             window_period = WindowPeriodHelper(
+                self.visit_definition,
                 self.visit_code, self.appt_datetime, self.best_appt_datetime)
             if not window_period.check_datetime():
                 raise exception_cls(window_period.error_message)

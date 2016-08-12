@@ -4,10 +4,14 @@ from django.apps import apps as django_apps
 from django.test import TestCase
 from django.utils import timezone
 
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+
 from edc_appointment.appointment_date_helper import AppointmentDateHelper
 from edc_appointment.tests import HolidayFactory
-from example.models import Appointment
+
 from example.appointment_factory import AppointmentFactory
+from example.models import Appointment
+from example.visit_schedule import example_visit_schedule
 
 
 class TestAppointmentDateHelper(TestCase):
@@ -16,6 +20,8 @@ class TestAppointmentDateHelper(TestCase):
         self.weekday = 1
         self.appointment_date_helper = AppointmentDateHelper(Appointment)
         self.allowed_iso_weekdays = self.appointment_app_config.allowed_iso_weekdays
+        site_visit_schedules.registry = {}
+        site_visit_schedules.register(example_visit_schedule)
 
     @property
     def appointment_app_config(self):
@@ -46,7 +52,7 @@ class TestAppointmentDateHelper(TestCase):
 
     def test_move_on_appt_max_exceeded2(self):
         """Test if the maximum number of appointment is reached, the date will be moved to another day."""
-        appt_datetime = timezone.now() + timedelta(days=1)
+        appt_datetime = timezone.now() + timedelta(days=2)
         expected_appt_datetime = timezone.now() + timedelta(days=2)
         expected_datetime = datetime(
             expected_appt_datetime.year,
