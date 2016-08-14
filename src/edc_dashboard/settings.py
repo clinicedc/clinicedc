@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django_js_reverse',
     # 'corsheaders',
     'crispy_forms',
+    'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_dashboard.apps.AppConfig',
