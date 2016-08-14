@@ -1,0 +1,54 @@
+{% extends 'edc_base/base.html' %}
+
+{% load staticfiles %}
+
+{% block extra-scripts %}
+{{ block.super }}
+{% endblock extra-scripts %}
+
+{% block main %}
+
+<div class="container">
+
+    <!-- left section -->
+    <div class="col-md-8">
+        <!-- top marquee -->
+        <div class="panel panel-default">
+        {{ subject_identifier }}
+        </div>
+        
+        <!-- appointment -->
+        <div class="panel panel-default">
+            <div class="panel-heading">Appointments</div>
+        </div>
+    
+        <!-- forms and requisitions -->
+        <div class="panel panel-default">
+            <div class="panel-heading">Scheduled Forms</div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Requisitions</div>
+        </div>
+    
+    </div>
+
+    <!-- right section -->
+    <div class="col-md-4">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-heading">General</div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">Actions</div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">Results</div>
+            </div>
+        </div>
+    </div>
+    
+{% endblock main %}
+
+{% block extra-scripts-bottom %}
+{{ block.super }}
+{% endblock extra-scripts-bottom %}

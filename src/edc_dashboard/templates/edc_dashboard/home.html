@@ -1,0 +1,41 @@
+{% extends 'edc_base/base.html' %}
+
+{% load staticfiles %}
+
+{% block extra-scripts %}
+{{ block.super }}
+{% endblock extra-scripts %}
+
+{% block main %}
+
+<div class="container">
+ 
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">Subjects</div>
+            <table class="table table-responsive">
+            <thead>
+                <tr><th>Subject</th><th>Initials</th><th>Registered</th><th>Consented</th></tr>
+            </thead>
+            <tbody>
+            {% for subject in subjects %}
+                <tr>
+                    <td>{{ subject.subject_identifier }}</td>
+                    <td>{{ subject.initials }}</td>
+                    <td>{{ subject.registered }}</td>
+                    <td>{{ subject.consented }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">Admin</div>
+        </div>
+    </div>
+ 
+</div>
+
+{% endblock main %}
