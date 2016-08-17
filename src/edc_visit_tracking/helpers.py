@@ -50,8 +50,8 @@ class VisitModelHelper(object):
             return visit_model.objects.filter(pk=pk)
         else:
             return visit_model.objects.filter(
-                appointment__registered_subject__subject_identifier=subject_identifier,
-                appointment__visit_definition__code=visit_code,
+                appointment__subject_identifier=subject_identifier,
+                appointment__visit_code=visit_code,
                 appointment__visit_instance=visit_instance)
 
     def get_visit_field(self, **kwargs):

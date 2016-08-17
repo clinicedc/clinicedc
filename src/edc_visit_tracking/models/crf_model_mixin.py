@@ -45,7 +45,7 @@ class CrfModelMixin(models.Model):
         return (getattr(self, self.visit_model_attr).natural_key(), )
 
     def get_subject_identifier(self):
-        return self.get_visit().appointment.registered_subject.subject_identifier
+        return self.get_visit().appointment.subject_identifier
 
     def get_report_datetime(self):
         return self.report_datetime
@@ -56,8 +56,7 @@ class CrfModelMixin(models.Model):
     def dashboard(self):
         url = reverse(
             'subject_dashboard_url',
-            kwargs={'dashboard_type': self.get_visit().appointment.registered_subject.subject_type.lower(),
-                    'dashboard_model': 'appointment',
+            kwargs={'dashboard_model': 'appointment',
                     'dashboard_id': self.get_visit().appointment.pk,
                     'show': 'appointments'})
         return """<a href="{url}" />dashboard</a>""".format(url=url)

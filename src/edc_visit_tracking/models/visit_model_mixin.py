@@ -133,9 +133,8 @@ class VisitModelMixin(models.Model):
 
     def __str__(self):
         return '{} {} {}'.format(
-            self.appointment.registered_subject.subject_identifier,
-            self.appointment.registered_subject.first_name,
-            self.appointment.visit_definition.code)
+            self.appointment.subject_identifier,
+            self.appointment.visit_code)
 
     def save(self, *args, **kwargs):
         try:
@@ -156,8 +155,7 @@ class VisitModelMixin(models.Model):
         if not appointment_zero:
             try:
                 appointment_zero = self.appointment.__class__.objects.get(
-                    registered_subject=self.appointment.registered_subject,
-                    visit_definition=self.appointment.visit_definition,
+                    subject_identifier=self.appointment.subject_identifier,
                     visit_instance='0')
             except self.appointment.__class__.DoesNotExist:
                 pass
@@ -216,7 +214,7 @@ class VisitModelMixin(models.Model):
                 self.appointment.save()
 
     def get_subject_identifier(self):
-        return self.appointment.appointment_identifier
+        return self.appointment.subject_identifier
 
     def get_report_datetime(self):
         return self.report_datetime
