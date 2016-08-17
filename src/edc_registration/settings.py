@@ -41,11 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_crypto_fields',
-    'simple_history',
-    'edc_base',
-    'edc_sync',
-    'edc_registration',
+    'django_crypto_fields.apps.AppConfig',
+    'django_revision.apps.AppConfig',
+    'edc_base.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
 ]
 
 MIDDLEWARE_CLASSES = (

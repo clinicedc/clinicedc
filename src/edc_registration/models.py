@@ -2,7 +2,7 @@ import re
 
 from uuid import uuid4
 
-from django.conf import settings
+from django.apps import apps as django_apps
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.core.validators import RegexValidator
 from django.db import models, transaction
@@ -12,12 +12,12 @@ from django.utils.translation import ugettext as _
 from django_crypto_fields.fields import (
     IdentityField, EncryptedCharField, FirstnameField, LastnameField)
 from django_crypto_fields.mask_encrypted import mask_encrypted
-from simple_history.models import HistoricalRecords as AuditTrail
 
 from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
-from edc_constants.choices import YES, NO, POS_NEG_UNKNOWN, ALIVE_DEAD_UNKNOWN, GENDER
+from edc_constants.choices import YES, NO, GENDER
 
+app_config = django_apps.get_app_config('edc_registration')
 
 YES_NO_UNKNOWN = (
     (YES, 'Yes'),
@@ -43,26 +43,14 @@ class RegisteredSubjectModelMixin(models.Model):
     subject_types = None
 
     def __init__(self, *args, **kwargs):
-        try:
-            self.subject_types = settings.SUBJECT_TYPES
-        except AttributeError:
-            self.subject_types = ['subject']
-        try:
-            self.max_subjects = settings.MAX_SUBJECTS
-        except AttributeError as e:
-            if self.subject_types == ['subject']:
-                self.max_subjects = {'subject': -1}
-            else:
-                raise AttributeError(str(e))
+        self.subject_types = app_config.subject_types
+        self.max_subjects = app_config.max_subjects
         for subject_type in self.subject_types:
             try:
                 self.max_subjects[subject_type]
-            except KeyError as e:
+            except KeyError:
                 raise RegisteredSubjectError(
-                    'Expected enrollment cap for \'{}\'. See settings.MAX_SUBJECTS.'.format(subject_type))
-            except TypeError as e:
-                raise RegisteredSubjectError(
-                    'Expected a dictionary for settings.MAX_SUBJECTS. Got {}'.format(str(e)))
+                    'Expected an enrollment cap for \'{}\'. See AppConfig.'.format(subject_type))
         super(RegisteredSubjectModelMixin, self).__init__(*args, **kwargs)
 
     subject_identifier = models.CharField(
@@ -163,27 +151,6 @@ class RegisteredSubjectModelMixin(models.Model):
         null=True,
         blank=True)
 
-    may_store_samples = models.CharField(
-        verbose_name=_("Sample storage"),
-        max_length=3,
-        choices=YES_NO_UNKNOWN,
-        default='?',
-        help_text=_("Does the subject agree to have samples stored after the study has ended"))
-
-    hiv_status = models.CharField(
-        verbose_name='Hiv status',
-        max_length=15,
-        choices=POS_NEG_UNKNOWN,
-        null=True,
-        blank=True)
-
-    survival_status = models.CharField(
-        verbose_name='Survival status',
-        max_length=15,
-        choices=ALIVE_DEAD_UNKNOWN,
-        null=True,
-        blank=True)
-
     screening_identifier = models.CharField(
         max_length=36,
         null=True,
@@ -238,8 +205,6 @@ class RegisteredSubjectModelMixin(models.Model):
         editable=False)
 
     objects = RegisteredSubjectManager()
-
-    history = AuditTrail()
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
