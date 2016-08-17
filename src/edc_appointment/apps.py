@@ -1,12 +1,8 @@
-from django.apps import AppConfig
+from django.apps import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps
 
-from django_crypto_fields.apps import DjangoCryptoFieldsAppConfig as DjangoCryptoFieldsAppConfigParent
 
-from edc_meta_data.apps import EdcMetaDataAppConfig as EdcMetaDataAppConfigParent
-
-
-class EdcAppointmentAppConfig(AppConfig):
+class AppConfig(DjangoAppConfig):
     name = 'edc_appointment'
     verbose_name = "EDC Appointments"
     model = ('example', 'appointment')
@@ -21,12 +17,3 @@ class EdcAppointmentAppConfig(AppConfig):
     @property
     def appointment_model(self):
         return django_apps.get_model(*self.model)
-
-
-class EdcMetaDataAppConfig(EdcMetaDataAppConfigParent):
-    model_attrs = [('example', 'crfmetadata'), ('example', 'requisitionmetadata')]
-
-
-class DjangoCryptoFieldsAppConfig(DjangoCryptoFieldsAppConfigParent):
-    model = ('example', 'crypt')
-    crypt_model_using = 'default'
