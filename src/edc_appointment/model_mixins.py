@@ -9,6 +9,9 @@ from django.utils import timezone
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import (
     NEW_APPT, CLOSED, OPEN, IN_PROGRESS, NOT_APPLICABLE)
+
+from edc_registration.mixins import RegisteredSubjectMixin
+
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .choices import APPT_TYPE, APPT_STATUS, COMPLETE_APPT
@@ -118,7 +121,7 @@ class TimePointStatusMixin(models.Model):
         abstract = True
 
 
-class AppointmentModelMixin(TimePointStatusMixin):
+class AppointmentModelMixin(TimePointStatusMixin, RegisteredSubjectMixin):
 
     """Mixin for the appointment model.
 
@@ -138,12 +141,6 @@ class AppointmentModelMixin(TimePointStatusMixin):
     schedule_name = models.CharField(max_length=25, null=True)
 
     visit_code = models.CharField(max_length=25, null=True)
-
-    #  This identifier is common across a subject's appointment
-    appointment_identifier = models.CharField(
-        max_length=50,
-        blank=True,
-        editable=False)
 
     best_appt_datetime = models.DateTimeField(null=True, editable=False)
 

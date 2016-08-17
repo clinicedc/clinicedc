@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from django.apps import apps as django_apps
 from django.db import models
 
@@ -56,7 +54,6 @@ class AppointmentMixin(models.Model):
         """Creates appointments. """
         appointments = []
         default_options = dict(
-            appointment_identifier=str(uuid4()),
             registration_datetime=base_appt_datetime or self.get_registration_datetime(),
             default_appt_type=self.appointment_app_config.default_appt_type)
         for visit in self.schedule.visits.values():
@@ -64,13 +61,13 @@ class AppointmentMixin(models.Model):
             appointments.append(appointment)
         return appointments
 
-    def update_or_create_appointment(self, visit=None, appointment_identifier=None, registration_datetime=None,
+    def update_or_create_appointment(self, visit=None, subject_identifier=None, registration_datetime=None,
                                      default_appt_type=None, dashboard_type=None):
         """Updates or creates an appointment for this subject for the visit."""
         appt_datetime = self.new_appointment_appt_datetime(registration_datetime, visit)
         try:
             appointment = self.appointment_model.objects.get(
-                appointment_identifier=appointment_identifier,
+                subject_identifier=subject_identifier,
                 visit_schedule_name=self.visit_schedule.name,
                 schedule_name=self.schedule.name,
                 visit_code=visit.code,
@@ -86,7 +83,7 @@ class AppointmentMixin(models.Model):
                 appointment.save(update_fields=['appt_datetime', 'best_appt_datetime'])
         except self.appointment_model.DoesNotExist:
             appointment = self.appointment_model.objects.create(
-                appointment_identifier=appointment_identifier,
+                subject_identifier=subject_identifier,
                 visit_schedule_name=self.visit_schedule.name,
                 schedule_name=self.schedule.name,
                 visit_code=visit.code,
