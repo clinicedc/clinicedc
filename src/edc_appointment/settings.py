@@ -41,15 +41,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'crispy_forms',
     'edc_base',
-    'django_crypto_fields.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
-    'edc_meta_data.apps.EdcMetaDataAppConfig',
-    'edc_visit_schedule.apps.EdcVisitScheduleAppConfig',
-    'edc_visit_tracking',
-    'example.apps.AppConfig',
-    'django_revision.apps.AppConfig',
-    'edc_content_type_map.apps.AppConfig',
-    'example_registration.apps.AppConfig',
 ]
 
 MIDDLEWARE_CLASSES = [

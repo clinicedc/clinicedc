@@ -5,8 +5,7 @@ from django.apps import apps as django_apps
 class AppConfig(DjangoAppConfig):
     name = 'edc_appointment'
     verbose_name = "EDC Appointments"
-    model = ('example', 'appointment')
-    institution = 'Botswana Harvard Partnership'
+    model = None
     appointments_days_forward = 0
     appointments_per_day_max = 30
     use_same_weekday = True
