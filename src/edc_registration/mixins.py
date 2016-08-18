@@ -10,12 +10,12 @@ class RegisteredSubjectMixin(models.Model):
         editable=False)
 
     def save(self, *args, **kwargs):
-        self.subject_identifier = self.registered_subject.subject_identifier
+        self.subject_identifier = self.registered_subject().subject_identifier
         super(RegisteredSubjectMixin, self).save(*args, **kwargs)
 
     def registered_subject(self):
-        app_config = django_apps.get_app_config('edc_registration')
-        return app_config.models.get('registered_subject').get(subject_identifier=self.subject_identifier)
+        subject_model = django_apps.get_app_config('edc_registration').registered_subject_model
+        return subject_model.objects.get(subject_identifier=self.subject_identifier)
 
     class Meta:
         abstract = True
