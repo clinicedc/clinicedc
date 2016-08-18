@@ -16,3 +16,6 @@ class RegisteredSubjectMixin(models.Model):
     def registered_subject(self):
         app_config = django_apps.get_app_config('edc_registration')
         return app_config.models.get('registered_subject').get(subject_identifier=self.subject_identifier)
+
+    class Meta:
+        abstract = True
