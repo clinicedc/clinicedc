@@ -14,6 +14,8 @@ app_config = django_apps.get_app_config('edc_label')
 
 class Label:
 
+    """A class that prepares and prints copies of a single label."""
+
     def __init__(self, context, label_name, printer_name=None,
                  cups_server_ip=None, label_identifier_name=None,
                  print_server_cls=None):
@@ -46,7 +48,7 @@ class Label:
         except AttributeError:
             return None
 
-    def print_label(self, copies, **context_options):
+    def print_label(self, copies=None, **context_options):
         """ Prints the label or fails silently with a message. """
         copies = copies or 1
         self.context.update(**context_options)

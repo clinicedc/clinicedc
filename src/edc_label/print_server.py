@@ -11,6 +11,12 @@ class PrintServerError(Exception):
 
 class PrintServer:
 
+    """ A simple wrapper for a few common cups methods.
+
+    All cups attributes are still available from the connection
+    object `print_server.conn`.
+    """
+
     def __init__(self, cups_server_ip=None):
         self.error_message = None
         self.conn = None
