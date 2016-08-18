@@ -1,6 +1,8 @@
 from django.apps import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps
 
+from edc_meta_data.apps import EdcMetaDataAppConfig as EdcMetaDataAppConfigParent
+
 
 class AppConfig(DjangoAppConfig):
     name = 'edc_appointment'
@@ -17,3 +19,7 @@ class AppConfig(DjangoAppConfig):
     @property
     def appointment_model(self):
         return django_apps.get_model(*self.model)
+
+
+class EdcMetaDataAppConfig(EdcMetaDataAppConfigParent):
+    model_attrs = [('example', 'crfmetadata'), ('example', 'requisitionmetadata')]
