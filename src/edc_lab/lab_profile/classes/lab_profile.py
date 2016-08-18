@@ -98,6 +98,8 @@ class LabProfile(object):
             source_aliquot = self.aliquot_model.objects.get(pk=source_aliquot_or_pk)
         except self.aliquot_model.DoesNotExist:
             source_aliquot = source_aliquot_or_pk
+        except TypeError:
+            source_aliquot = source_aliquot_or_pk
         aliquot_count = self.aliquot_model.objects.filter(receive=source_aliquot.receive).count()
         for _ in range(count):
             aliquot_count = aliquot_count + 1
