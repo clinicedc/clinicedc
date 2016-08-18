@@ -3,9 +3,9 @@ import cups
 import tempfile
 
 from datetime import datetime
-from string import Template
 
 from django.apps import apps as django_apps
+
 from .print_server import PrintServer, PrintServerError
 
 app_config = django_apps.get_app_config('edc_label')
@@ -13,10 +13,10 @@ app_config = django_apps.get_app_config('edc_label')
 
 class Label:
 
-    def __init__(self, context, label_name=None, printer_name=None,
+    def __init__(self, context, label_name, printer_name=None,
                  cups_server_ip=None, label_identifier_name=None,
                  print_server_cls=None):
-        printer_name = printer_name or app_config.default_printer_name
+        printer_name = printer_name or app_config.default_printer_label
         self.conn = None
         self.context = context
         self.error_message = None
@@ -25,7 +25,7 @@ class Label:
         self.label_identifier_name = label_identifier_name or app_config.default_label_identifier_name
         self.message = None
         self.print_server_cls = print_server_cls or PrintServer
-        self.printer_server = None
+        self.print_server = None
         self.printer = None
 
         try:
@@ -39,7 +39,7 @@ class Label:
             sys.stdout.write(self.error_message + '\n')
 
     def __str__(self):
-        return '{}@{}'.format(self.printer_name, self.printer_server or 'localhost')
+        return '{}@{}'.format(self.printer_name, self.print_server or 'localhost')
 
     @property
     def printer_name(self):
@@ -64,6 +64,8 @@ class Label:
                 self.job_ids.append(
                     self.print_server.print_file(
                         self.printer_name, self.filename, "edc_label", {'raw': self.filename}))  # don't let CUPS render!
+            except AttributeError:
+                break
             except (cups.IPPError, RuntimeError) as e:
                 self.error_message = (
                     'Unable to print to {}@{}. Got \'{}\'').format(
