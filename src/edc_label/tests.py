@@ -40,20 +40,23 @@ class LabelTests(TestCase):
 
     def test_label(self):
         """Assert labels were printed and job ids returned as per number of copies requested."""
-        label = Label({'erik': 'erik'}, print_server_cls=DummyPrintServer, printer_name='dummy_printer')
+        context = {'erik': 'erik'}
+        label = Label(context, print_server_cls=DummyPrintServer, printer_name='dummy_printer')
         label.print_label(1)
         self.assertEqual(len(label.job_ids), 1)
         label.print_label(3)
         self.assertEqual(len(label.job_ids), 3)
 
     def test_printer(self):
-        label = Label({'erik': 'erik'}, print_server_cls=DummyPrintServer, printer_name='dummy_printer')
+        context = {'erik': 'erik'}
+        label = Label(context, print_server_cls=DummyPrintServer, printer_name='dummy_printer')
         self.assertEqual(str(label), 'dummy_printer@localhost')
         self.assertEqual(list(label.printer.keys()), ['dummy_printer'])
 
     def test_label_no_printer(self):
         """Assert handles printer not found."""
         DummyPrintServer.test_no_printer = True
-        label = Label({'erik': 'erik'}, print_server_cls=DummyPrintServer)
+        context = {'erik': 'erik'}
+        label = Label(context, print_server_cls=DummyPrintServer)
         label.print_label(1)
         self.assertTrue(label.error_message)
