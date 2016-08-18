@@ -7,6 +7,7 @@ from datetime import datetime
 from django.apps import apps as django_apps
 
 from .print_server import PrintServer, PrintServerError
+from django.utils import timezone
 
 app_config = django_apps.get_app_config('edc_label')
 
@@ -20,21 +21,18 @@ class Label:
         self.conn = None
         self.context = context
         self.error_message = None
-        self.filename = None
         self.job_ids = []
         self.label_identifier_name = label_identifier_name or app_config.default_label_identifier_name
+        self.label_name = label_name
         self.message = None
-        self.print_server_cls = print_server_cls or PrintServer
         self.print_server = None
+        self.print_server_cls = print_server_cls or PrintServer
         self.printer = None
-
         try:
             self.print_server = self.print_server_cls(cups_server_ip)
             self.printer = self.print_server.get_printer(printer_name)
         except PrintServerError as e:
             self.error_message = str(e)
-        self.label = app_config.label_templates[label_name].render(context)
-        _, self.filename = tempfile.mkstemp()
         if self.error_message:
             sys.stdout.write(self.error_message + '\n')
 
@@ -48,23 +46,33 @@ class Label:
         except AttributeError:
             return None
 
-    def print_label(self, copies):
+    def print_label(self, copies, **context_options):
         """ Prints the label or fails silently with a message. """
         copies = copies or 1
-        # reverse order so labels are in order top to bottom on a strip
+        self.context.update(**context_options)
+        self.label_commands = app_config.label_templates[self.label_name].render(self.context)
         self.job_ids = []
+        timestamp = timezone.now().strftime('%Y-%m-%d %H:%M')
+        # reverse order so labels are in order top to bottom on a strip
         for i in range(copies, 0, -1):
+            # some default context options, if you want them
             self.context.update({
                 'label_count': i,
                 'label_count_total': copies,
-                'timestamp': datetime.today().strftime('%Y-%m-%d %H:%M')})
-            with open(self.filename, 'w') as f:
-                f.write(self.label)
+                'timestamp': timestamp})
+            # create temp file
+            _, filename = tempfile.mkstemp()
+            # write label commands to file
+            with open(filename, 'w') as f:
+                f.write(self.label_commands)
             try:
+                # send to printer on CUPS server
+                # "raw" attr is to prevent CUPS from rendering
                 self.job_ids.append(
                     self.print_server.print_file(
-                        self.printer_name, self.filename, "edc_label", {'raw': self.filename}))  # don't let CUPS render!
+                        self.printer_name, filename, "edc_label", {'raw': filename}))
             except AttributeError:
+                # jump out if print server is None
                 break
             except (cups.IPPError, RuntimeError) as e:
                 self.error_message = (
