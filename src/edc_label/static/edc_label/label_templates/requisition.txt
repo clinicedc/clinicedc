@@ -1,0 +1,9 @@
+^XA
+^FO300,15^A0N,20,20^FD${protocol} Site ${site} ${clinician_initials}   ${aliquot_type} ${aliquot_count}${primary}^FS
+^FO300,34^BY1,3.0^BCN,50,N,N,N
+^BY^FD${requisition_identifier}^FS
+^FO300,92^A0N,20,20^FD${requisition_identifier} ${panel}^FS
+^FO300,112^A0N,20,20^FD${subject_identifier} (${initials})^FS
+^FO300,132^A0N,20,20^FDDOB: ${dob} ${gender}^FS
+^FO300,152^A0N,25,20^FD${drawn_datetime}^FS
+^XZ
