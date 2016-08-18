@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'edc_base',
     'django_crypto_fields.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
-    'edc_appointment.apps.EdcMetaDataAppConfig',
+    'edc_meta_data.apps.EdcMetaDataAppConfig',
     'edc_visit_schedule.apps.EdcVisitScheduleAppConfig',
     'edc_visit_tracking',
     'example.apps.AppConfig',
