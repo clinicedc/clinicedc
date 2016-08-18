@@ -13,7 +13,7 @@ app_config = django_apps.get_app_config('edc_label')
 
 class Label:
 
-    def __init__(self, context, template=None, template_file=None, printer_name=None,
+    def __init__(self, context, label_name=None, printer_name=None,
                  cups_server_ip=None, label_identifier_name=None,
                  print_server_cls=None):
         printer_name = printer_name or app_config.default_printer_name
@@ -33,14 +33,8 @@ class Label:
             self.printer = self.print_server.get_printer(printer_name)
         except PrintServerError as e:
             self.error_message = str(e)
+        self.label = app_config.label_templates[label_name].render(context)
         _, self.filename = tempfile.mkstemp()
-        if template:
-            self.template = template
-        else:
-            self.template_file = template_file or app_config.default_template_file
-            with open(self.template_file, 'r') as f:
-                self.template = f.read()
-        self.label = Template(self.template).safe_substitute(self.context)
         if self.error_message:
             sys.stdout.write(self.error_message + '\n')
 
