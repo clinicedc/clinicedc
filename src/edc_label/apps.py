@@ -11,13 +11,13 @@ class AppConfig(DjangoAppConfig):
     default_cups_server_ip = None
     # CUPS name of the default printer
     default_printer_label = None
-    # sets the default template file to use if not specified when printing a label
+    # the default template file to use if not specifiedwhen printing
     default_template_file = os.path.join(settings.STATIC_ROOT, 'edc_label', 'label_templates', 'default.txt')
-    # full path to edc_label static templates folder
+    # full path to edc_label static templates folder, do not change
     default_template_folder = os.path.join(settings.STATIC_ROOT, 'edc_label', 'label_templates')
-    # path to additional template files
+    # path to additional template files, if any
     extra_templates_folder = None
-    # default extension, probably not a good idea to change
+    # default extension, do not change
     default_ext = 'lbl'
     # a template variable name that has a unique value
     default_label_identifier_name = 'barcode_value'
