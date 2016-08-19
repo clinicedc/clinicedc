@@ -9,7 +9,7 @@ class LabelTemplate:
 
     def __init__(self, label, label_template_file, verbose_name=None, ):
         self.label = label
-        self.verbose_name = verbose_name or ''.join(self.label.split('_')).capitalize() + ' Label'
+        self.verbose_name = verbose_name or ' '.join([x.capitalize() for x in self.label.split('_')]) + ' Label'
         self.file = label_template_file.split('/')[-1:][0]
         self.filename = label_template_file or app_config.default_template_file
         with open(self.filename, 'r') as f:

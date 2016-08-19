@@ -24,6 +24,7 @@ class Label:
         self.context = context
         self.error_message = None
         self.job_ids = []
+        self.label_commands = None
         self.label_identifier_name = label_identifier_name or app_config.default_label_identifier_name
         self.label_name = label_name
         self.message = None
@@ -73,6 +74,11 @@ class Label:
                 self.job_ids.append(
                     self.print_server.print_file(
                         self.printer_name, filename, "edc_label", {'raw': filename}))
+            except TypeError as e:
+                self.error_message = (
+                    'Unable to print. No valid printer selected. Got \'{}\'').format(
+                        self.printer_name, self.print_server, str(e))
+                break
             except AttributeError:
                 # jump out if print server is None
                 break

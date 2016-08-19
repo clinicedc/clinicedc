@@ -9,18 +9,29 @@
                   <div class="alert alert-danger">{{ print_server_error }}</div>
             </div>
         {% endif %}
+        {% if label_error_message %}
+            <div id="div-home-left" class="col-md-12">
+                  <div class="alert alert-danger">{{ label_error_message }}</div>
+            </div>
+        {% endif %}
+        {% if label_message %}
+            <div id="div-home-left" class="col-md-12">
+                  <div class="alert alert-success">{{ label_message }}</div>
+            </div>
+        {% endif %}
     <div id="div-home-left" class="col-md-6">
     
           <div class="panel panel-default">
             <div class="panel-heading">Label Templates</div>
                 <div class="panel-body">
                   <table class="table table-striped table_responsive">
-                  <thead><th>Name</th><th>Label</th><th>File</th></thead>
+                  <thead><th>Name</th><th>Label</th><th>File</th><th></th></thead>
                     {% for name, label_template in label_templates.items %}
                     <tr>
                       <td>{{ label_template.verbose_name }}</td>
                       <td>{{ label_template.label }}</td>
                       <td>{{ label_template.file }}</td>
+                      <td><a class="btn btn-default" href="{% url 'edc-label:print-test-label' label_template.label %}">Test</a></td>
                     </tr>
                     {% endfor %}
                   </table>

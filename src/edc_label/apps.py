@@ -36,7 +36,7 @@ class AppConfig(DjangoAppConfig):
             extra_files = [os.path.join(self.extra_templates_folder, f) for f in os.listdir(self.extra_templates_folder)
                            if os.path.splitext(f)[1] == '.{}'.format(self.default_ext)]
             filenames.extend(extra_files)
-        filenames = {' '.join(os.path.splitext(f)[0].split('/')[-1:][0].split('_')): f
+        filenames = {os.path.splitext(f)[0].split('/')[-1:][0]: f
                      for f in filenames}
         for label, filename in filenames.items():
             label_template = LabelTemplate(label, label_template_file=filename)
