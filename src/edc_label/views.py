@@ -46,8 +46,8 @@ class TestPrint(HomeView):
 
     def get_context_data(self, **kwargs):
         context = super(TestPrint, self).get_context_data(**kwargs)
-        label_context = {}
-        label = Label(label_context, self.kwargs.get('label_name'))
+        label_template = app_config.label_templates.get(self.kwargs.get('label_name'))
+        label = Label(label_template.test_context, self.kwargs.get('label_name'))
         label.print_label(3)
         context.update({
             'label_message': label.message,

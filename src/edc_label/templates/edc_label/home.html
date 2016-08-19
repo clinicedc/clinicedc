@@ -30,7 +30,7 @@
                     <tr>
                       <td>{{ label_template.verbose_name }}</td>
                       <td>{{ label_template.label }}</td>
-                      <td>{{ label_template.file }}</td>
+                      <td>{{ label_template.file }} {% if label_template.test_context %}<br><span title="{{label_template.test_context}}" class="text-success"><small>test data</small></span>{% endif %}</td>
                       <td><a class="btn btn-default" href="{% url 'edc-label:print-test-label' label_template.label %}">Test</a></td>
                     </tr>
                     {% endfor %}

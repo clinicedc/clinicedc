@@ -1,13 +1,11 @@
-import sys
 import cups
+import sys
 import tempfile
 
-from datetime import datetime
-
 from django.apps import apps as django_apps
+from django.utils import timezone
 
 from .print_server import PrintServer, PrintServerError
-from django.utils import timezone
 
 app_config = django_apps.get_app_config('edc_label')
 
@@ -22,6 +20,7 @@ class Label:
         printer_name = printer_name or app_config.default_printer_label
         self.conn = None
         self.context = context
+        self.test_context = {}
         self.error_message = None
         self.job_ids = []
         self.label_commands = None
