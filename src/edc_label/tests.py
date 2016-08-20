@@ -3,7 +3,7 @@ import cups
 from django.test import TestCase
 
 from edc_label.label import Label, app_config
-from edc_label.print_server import PrintServer
+from edc_label.print_server import PrintServer, Printer
 
 
 class DummyPrintServer(PrintServer):
@@ -24,8 +24,8 @@ class DummyPrintServer(PrintServer):
         }
 
     def print_file(self, *args):
-        if self.test_no_printer:
-            raise cups.IPPError('Some printer error, huh?')
+        if not self.selected_printer.label:
+            return None
         return 100
 
 
@@ -33,50 +33,68 @@ class LabelTests(TestCase):
 
     def setUp(self):
         DummyPrintServer.test_no_server = False
+        DummyPrintServer.test_no_printer = False
         app_config.default_printer_label = 'dummy_printer'
 
     def test_print_server(self):
         """Connects to default CUPS server (localhost).
 
         Assumes a CUPS server exists on localhost."""
-        print_server = PrintServer()
+        PrintServer()
+
+    def test_printer_name(self):
+        print_server = DummyPrintServer()
+        print_server.select_printer('dummy_printer')
+        self.assertEqual(print_server.selected_printer.verbose_name, 'Dummy Printer')
 
     def test_label(self):
         """Assert labels were printed and job ids returned as per number of copies requested."""
-        context = {'erik': 'erik'}
-        label = Label(context, 'default', print_server_cls=DummyPrintServer)
+        context = {'name': 'Test Label'}
+        label = Label('default', context=context, print_server=DummyPrintServer(), printer_name='dummy_printer')
         label.print_label(1)
         self.assertEqual(len(label.job_ids), 1)
         label.print_label(3)
         self.assertEqual(len(label.job_ids), 3)
 
+    def test_context(self):
+        """Assert labels were printed and job ids returned as per number of copies requested."""
+        context = {'name': 'Test1 Label'}
+        label = Label('default', context=context, print_server=DummyPrintServer(), printer_name='dummy_printer')
+        label.print_label(1)
+        self.assertIn('Test1', label.label_commands)
+        label.print_label(1, context={'name': 'Test2 Label'})
+        self.assertIn('Test2', label.label_commands)
+
     def test_printer(self):
-        context = {'erik': 'erik'}
-        label = Label(context, 'aliquot', print_server_cls=DummyPrintServer)
+        context = {'name': 'Test Label'}
+        label = Label('aliquot', context=context, print_server=DummyPrintServer())
         self.assertEqual(str(label), 'dummy_printer@localhost')
-        self.assertEqual(list(label.printer.keys()), ['dummy_printer'])
+        self.assertEqual(label.print_server.selected_printer.label, 'dummy_printer')
+        self.assertEqual(label.print_server.selected_printer.verbose_name, 'Dummy Printer')
 
     def test_label_no_server(self):
         """Assert handles printer not found."""
         DummyPrintServer.test_no_server = True
-        context = {'erik': 'erik'}
-        label = Label(context, 'requisition', print_server_cls=DummyPrintServer)
-        self.assertIn('Unable to connect to CUPS', label.error_message or '')
+        context = {'name': 'Test Label'}
+        label = Label('requisition', context=context, print_server=DummyPrintServer())
+        self.assertIn('Unable to connect to CUPS', ':'.join(label.print_server.error_message))
         label.print_label(1)
-        self.assertIn('Unable to connect to CUPS', label.error_message or '')
+        self.assertIn('Unable to connect to CUPS', ':'.join(label.print_server.error_message))
 
     def test_label_no_printer(self):
-        """Assert handles printer not found."""
+        """Assert handles printer not selected."""
         DummyPrintServer.test_no_printer = True
-        context = {'erik': 'erik'}
-        label = Label(context, 'requisition', print_server_cls=DummyPrintServer)
+        context = {'name': 'Test Label'}
+        label = Label('requisition', context=context, print_server=DummyPrintServer())
+        label.print_server.selected_printer = Printer()
         label.print_label(1)
-        self.assertIn('Unable to print', label.error_message or '')
+        self.assertIn('Print job failed. No printer selected.', label.error_message)
+        self.assertEqual(len(label.job_ids), 0)
 
-    def test_label_wrong_printer(self):
+    def test_label_invalid_printer(self):
         """Assert handles printer not found."""
-        context = {'erik': 'erik'}
-        label = Label(context, 'requisition', print_server_cls=DummyPrintServer, printer_name='erik')
-        self.assertIn('not found on CUPS server', label.error_message)
+        context = {'name': 'Test Label'}
+        label = Label('requisition', context=context, print_server=DummyPrintServer(), printer_name='invalid_printer')
+        self.assertIn('Printer \'invalid_printer\' not found on \'localhost\'.', ':'.join(label.print_server.error_message))
         label.print_label(1)
-        self.assertIn('Unable to print', label.error_message)
+        self.assertIn('Printer \'invalid_printer\' not found on \'localhost\'.', ':'.join(label.print_server.error_message))

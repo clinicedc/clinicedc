@@ -15,10 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url
 
-from edc_label.views import HomeView, TestPrint
+from edc_label.views import HomeView
 
 urlpatterns = [
-    url(r'^print/(?P<label_name>\w+)/(?P<copies>\d+)/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})/$', TestPrint.as_view(), name='print-test-label'),
-    url(r'^print/(?P<label_name>\w+)/$', TestPrint.as_view(), name='print-test-label'),
+    url(r'^print/(?P<label_name>\w+)/(?P<copies>\d+)/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})/$', HomeView.as_view(), name='print-test-label'),
+    url(r'^print/(?P<label_name>\w+)/$', HomeView.as_view(), name='print-test-label'),
     url(r'^', HomeView.as_view(), name='home_url'),
 ]

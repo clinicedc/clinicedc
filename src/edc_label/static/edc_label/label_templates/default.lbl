@@ -1,5 +1,5 @@
 ^XA
-^FO300,15^A0N,20,20^FDBHP Default Label ${label_count}/${label_count_total}^FS
+^FO300,15^A0N,20,20^FDBHP ${name} ${label_count}/${label_count_total}^FS
 ^FO300,34^BY1,3.0^BCN,50,N,N,N
 ^BY^FD123456789^FS
 ^FO300,92^A0N,20,20^FD$123456789^FS

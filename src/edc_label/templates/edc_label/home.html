@@ -1,39 +1,39 @@
 {% extends 'edc_base/base.html' %}
+
 {% load staticfiles %}
+
+{% block extra-scripts %}
+    <script type="text/javascript" charset="utf8" src="{% static "edc_label/js/edc_label.js" %}"></script>
+    <script type="text/javascript" charset="utf8" class="init">
+      $(document).ready( function () {
+        edcLabelReady("{{ label_templates|escapejs }}", "{{ print_server_error|escapejs }}");
+      })
+    </script>
+{% endblock extra-scripts %}
 
 {% block main %}
 
  <div class="container">
-        {% if print_server_error %}
-            <div id="div-home-left" class="col-md-12">
-                  <div class="alert alert-danger">{{ print_server_error }}</div>
+
+            <div class="col-md-12">
+                  <div id="alert-print-server-wait" class="alert alert-info">Contacting print server</div>
             </div>
-        {% endif %}
-        {% if label_error_message %}
-            <div id="div-home-left" class="col-md-12">
-                  <div class="alert alert-danger">{{ label_error_message }}</div>
+            <div id="div-print-server-error" class="col-md-12">
+                  <div id="alert-print-server-error" class="alert alert-danger" style="display:none"></div>
             </div>
-        {% endif %}
-        {% if label_message %}
-            <div id="div-home-left" class="col-md-12">
-                  <div class="alert alert-success">{{ label_message }}</div>
+            <div id="div-print-error" class="col-md-12">
+                  <div id="alert-print-error" class="alert alert-danger" style="display:none"></div>
             </div>
-        {% endif %}
+            <div id="div-print-success" class="col-md-12">
+                  <div id="alert-print-success" class="alert alert-success" style="display:none"></div>
+            </div>
     <div id="div-home-left" class="col-md-6">
     
           <div class="panel panel-default">
             <div class="panel-heading">Label Templates</div>
                 <div class="panel-body">
-                  <table class="table table-striped table_responsive">
+                  <table id="tbl-label-templates" class="table table-striped table_responsive">
                   <thead><th>Name</th><th>Label</th><th>File</th><th></th></thead>
-                    {% for name, label_template in label_templates.items %}
-                    <tr>
-                      <td>{{ label_template.verbose_name }}</td>
-                      <td>{{ label_template.label }}</td>
-                      <td>{{ label_template.file }} {% if label_template.test_context %}<br><span title="{{label_template.test_context}}" class="text-success"><small>test data</small></span>{% endif %}</td>
-                      <td><a class="btn btn-default" href="{% url 'edc-label:print-test-label' label_template.label %}">Test</a></td>
-                    </tr>
-                    {% endfor %}
                   </table>
                 </div>
           </div>
