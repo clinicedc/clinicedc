@@ -1,15 +1,64 @@
-function edcLabelReady( label_templates, print_server_error ) {
-	var labelTemplates = JSON.parse( label_templates );
+function edcLabelReady() {
+	
+	// var labelTemplates = JSON.parse( label_templates );
 
-	$("#alert-print-server-wait").hide();
-	if( print_server_error != null ) {
-		$("#alert-print-server-error").text( print_server_error ).append( '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' );
-		$("#alert-print-server-error").show();
+	var post = $.ajax({
+		url: Urls['edc-label:home_url'](),
+		type: 'GET',
+		dataType: 'json',
+		contentType: 'application/json',
+		processData: false,
+	});
+
+	post.done(function ( data ) {
+		updatePage( data );
+	});
+
+	post.fail( function( jqXHR, textStatus, errorThrown ) {});
+}
+
+
+function updatePage( data ) {
+	var print_server = JSON.parse( data.print_server );
+	var printers = JSON.parse( data.printers );
+	var label_templates = JSON.parse( data.label_templates );
+
+	$( "#div-printers-panel" ).text( 'Printers@' + data.default_cups_server_ip );
+
+	updateLabelTemplates( label_templates );
+	updatePrinters( printers, data.default_printer_label );
+
+	$( "#alert-print-server-wait" ).hide();
+	$( "#alert-print-error" ).hide();	
+	$( "#alert-print-server-error" ).hide();
+	if( data.print_server_error != '' &  data.print_server_error != null ) {
+		$( "#alert-print-server-error" ).text( data.print_server_error ).append( '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' );
+		$( "#alert-print-server-error" ).show();
 	} else {
-		$("#alert-print-server-error").hide();
+		$( "#alert-print-server-error" ).hide();
 	};
+}
 
-	$.each( labelTemplates, function( label_name, label_template ) {
+
+function updatePrinters( printers, default_printer_label ){
+	$.each( printers, function( label, printer ) {
+		if( label == default_printer_label ) {
+			row = '<tr id="row-printer-label" class="success"><td colspan="5">Label: ' + label +'<span class="pull-right">default</span></td></tr>';
+		} else {
+			row = '<tr id="row-printer-label"><td colspan="5">Label: ' + label +'</td></tr>';
+		};
+		$( "#tbl-printers" ).append(row);
+		row = '<tr><td>' + printer.printer_info + '</td>' +
+			  '<td>' + printer.printer_make_and_model + '</td>' +
+			  '<td>' + printer.printer_location + '</td>' +
+			  '<td>' + printer.printer_is_shared + '</td>' +
+			  '<td>' + printer.printer_state + '</td></tr>';
+		$( "#tbl-printers" ).append(row);
+	});
+}
+
+function updateLabelTemplates( label_templates ) {
+	$.each( label_templates, function( label_name, label_template ) {
 		test_context = JSON.stringify(label_template.test_context);
 		row = '<tr>' +
 			  '<td>' + label_template.verbose_name + '</td>' +
@@ -25,8 +74,8 @@ function edcLabelReady( label_templates, print_server_error ) {
 		};
 		$("#btn-test-" + label_template.label).click( function (e) {
 			e.preventDefault();
-			$("#alert-print-success").hide();
-			$("#alert-print-error").hide();
+			$( "#alert-print-success" ).hide();
+			$( "#alert-print-error" ).hide();
 			testLabel(label_template);
 		});
 	});
@@ -44,17 +93,15 @@ function testLabel(label_template){
 	post.done(function ( data ) {
 		if ( data != null ) {
 			if( data.label_message != null ) {
-				$("#alert-print-success").text(data.label_message).append('<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>');
-				$("#alert-print-success").show();
+				$( "#alert-print-success" ).text(data.label_message).append('<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>');
+				$( "#alert-print-success" ).show();
 			};
 			if( data.label_error_message != null ) {
-				$("#alert-print-error").text(data.label_error_message).append('<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>');
-				$("#alert-print-error").show();
+				$( "#alert-print-error" ).text(data.label_error_message).append('<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>');
+				$( "#alert-print-error" ).show();
 			};
 		};
 	});
 
-	post.fail( function( jqXHR, textStatus, errorThrown ) {
-		alert(errorThrown);
-	});
+	post.fail( function( jqXHR, textStatus, errorThrown ) {});
 }

@@ -16,7 +16,7 @@
  <div class="container">
 
             <div class="col-md-12">
-                  <div id="alert-print-server-wait" class="alert alert-info">Contacting print server</div>
+                  <div id="alert-print-server-wait" class="alert alert-info">Contacting print server @ {{ default_cups_server_ip }} ... please wait<span class="fa fa-refresh fa-spin pull-right"></span></div>
             </div>
             <div id="div-print-server-error" class="col-md-12">
                   <div id="alert-print-server-error" class="alert alert-danger" style="display:none"></div>
@@ -42,21 +42,11 @@
 
     <div id="div-home-right" class="col-md-6">
 
-          <div class="panel panel-info">
-            <div class="panel-heading">Printers@{{ print_server }}</div>
+          <div class="panel panel-warning">
+            <div id="div-printers-panel" class="panel-heading">Printers@{{ default_cups_server_ip }}</div>
                 <div class="panel-body">
-                <table class="table table-striped table_responsive">
+                <table id="tbl-printers" class="table table-striped table_responsive">
                 <thead><th>Name</th><th>Make</th><th>Location</th><th>Shared</th><th>Status</th></thead>
-                {% for printer, properties in printers.items %}
-                    <tr {% if printer ==  default_printer_label %}class="success"{% endif %}><td colspan="5">Label: {{ printer }} {% if printer ==  default_printer_label %} <span class="pull-right">default</span>{% endif %}</td></tr>
-                    <tr>
-                      <td>{{ properties.printer_info }}</td>
-                      <td>{{ properties.printer_make_and_model }}</td>
-                      <td>{{ properties.printer_location }}</td>
-                      <td>{{ properties.printer_is_shared }}</td>
-                      <td>{{ properties.printer_state }}</td>
-                    </tr>
-                {% endfor %}
                 </table>
                 </div>
           </div>

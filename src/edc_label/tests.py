@@ -77,9 +77,9 @@ class LabelTests(TestCase):
         DummyPrintServer.test_no_server = True
         context = {'name': 'Test Label'}
         label = Label('requisition', context=context, print_server=DummyPrintServer())
-        self.assertIn('Unable to connect to CUPS', ':'.join(label.print_server.error_message))
+        self.assertIn('Unable to connect to CUPS', label.print_server.error_message)
         label.print_label(1)
-        self.assertIn('Unable to connect to CUPS', ':'.join(label.print_server.error_message))
+        self.assertIn('Unable to connect to CUPS', label.print_server.error_message)
 
     def test_label_no_printer(self):
         """Assert handles printer not selected."""
@@ -95,6 +95,6 @@ class LabelTests(TestCase):
         """Assert handles printer not found."""
         context = {'name': 'Test Label'}
         label = Label('requisition', context=context, print_server=DummyPrintServer(), printer_name='invalid_printer')
-        self.assertIn('Printer \'invalid_printer\' not found on \'localhost\'.', ':'.join(label.print_server.error_message))
+        self.assertIn('Printer \'invalid_printer\' not found on \'localhost\'.', label.print_server.error_message)
         label.print_label(1)
-        self.assertIn('Printer \'invalid_printer\' not found on \'localhost\'.', ':'.join(label.print_server.error_message))
+        self.assertIn('Printer \'invalid_printer\' not found on \'localhost\'.', label.print_server.error_message)

@@ -63,5 +63,5 @@ class Label:
                     self.context.get(self.label_identifier_name, ''),
                     len(self.job_ids),
                     copies,
-                    self.print_server.selected_printer,
-                    ','.join([str(i) for i in self.job_ids])))
+                    self.print_server.selected_printer.full_name,
+                    ','.join([str(i) for i in self.job_ids or [0]])))
