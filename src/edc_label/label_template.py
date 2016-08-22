@@ -1,5 +1,3 @@
-import json
-
 from string import Template
 
 from django.apps import apps as django_apps
@@ -22,6 +20,3 @@ class LabelTemplate:
 
     def render(self, context):
         return Template(self.label_template).safe_substitute(context)
-
-    def to_json(self):
-        return json.dumps(self.__dict__)

@@ -1,5 +1,3 @@
-import json
-
 import cups
 
 from django.apps import apps as django_apps
@@ -7,16 +5,12 @@ from django.apps import apps as django_apps
 app_config = django_apps.get_app_config('edc_label')
 
 
-# class PrintServerError(Exception):
-#     pass
-
-
 class Printer:
 
-    label = None
-    full_name = None
-    verbose_name = None
     data = None
+    full_name = None
+    label = None
+    verbose_name = None
 
     def __str__(self):
         return self.verbose_name
@@ -30,6 +24,9 @@ class PrintServer:
     object `print_server.conn`.
     """
 
+    connection_err_msg = 'Unable to connect to CUPS server {}. Got \'{}\''
+    printer_err_msg = 'Printer \'{}\' not found on \'{}\'.'
+
     def __init__(self, cups_server_ip=None):
         self.conn = None
         self.error_message = None
@@ -39,8 +36,7 @@ class PrintServer:
         try:
             self.conn = self.connect()
         except (cups.IPPError, RuntimeError) as e:
-            self.error_message = (
-                'Unable to connect to CUPS server {}. Got \'{}\''.format(self.ip_address, str(e)))
+            self.error_message = self.connection_err_msg.format(self.ip_address, str(e))
 
     def __str__(self):
         return self.name
@@ -64,8 +60,8 @@ class PrintServer:
         try:
             return self.conn.getPrinters()
         except (AttributeError, cups.IPPError) as e:
-            self.error_message = self.error_message or (
-                'Unable to connect to CUPS server {}. Got \'{}\''.format(self.ip_address, str(e)))
+            self.error_message = self.error_message or self.connection_err_msg.format(self.ip_address, str(e))
+
         return {}
 
     def select_printer(self, label):
@@ -80,8 +76,7 @@ class PrintServer:
             self.selected_printer.full_name = '{}@{}'.format(label, str(self))
             self.selected_printer.verbose_name = self.selected_printer.data.get('printer-info')
         except KeyError:
-            self.error_message = self.error_message or (
-                'Printer \'{}\' not found on \'{}\'.'.format(label, str(self)))
+            self.error_message = self.error_message or self.printer_err_msg.format(label, str(self))
 
     def get_printer(self, label):
         """Return a dictionary for one printer by label from CUPS.getPrinter().
@@ -103,13 +98,11 @@ class PrintServer:
         try:
             return self.conn.getJobs()
         except cups.IPPError as e:
-            self.error_message = self.error_message or (
-                'Unable to connect to CUPS server {}. Got \'{}\''.format(self.ip_address, str(e)))
+            self.error_message = self.error_message or self.connection_err_msg.format(self.ip_address, str(e))
 
     def cancelJobs(self, job_ids):
         try:
             for job_id in job_ids:
                 self.conn.cancelJob(job_id)
         except cups.IPPError as e:
-            self.error_message = self.error_message or (
-                'Unable to connect to CUPS server {}. Got \'{}\''.format(self.ip_address, str(e)))
+            self.error_message = self.error_message or self.connection_err_msg.format(self.ip_address, str(e))
