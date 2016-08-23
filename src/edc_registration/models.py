@@ -18,6 +18,7 @@ from edc_base.model.fields.custom_fields import IsDateEstimatedField
 from edc_constants.choices import YES, NO, GENDER
 
 app_config = django_apps.get_app_config('edc_registration')
+edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
 
 YES_NO_UNKNOWN = (
     (YES, 'Yes'),
@@ -37,21 +38,6 @@ class RegisteredSubjectManager(models.Manager):
 
 
 class RegisteredSubjectModelMixin(models.Model):
-
-    max_subjects = None
-
-    subject_types = None
-
-    def __init__(self, *args, **kwargs):
-        self.subject_types = app_config.subject_types
-        self.max_subjects = app_config.max_subjects
-        for subject_type in self.subject_types:
-            try:
-                self.max_subjects[subject_type]
-            except KeyError:
-                raise RegisteredSubjectError(
-                    'Expected an enrollment cap for \'{}\'. See AppConfig.'.format(subject_type))
-        super(RegisteredSubjectModelMixin, self).__init__(*args, **kwargs)
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
@@ -209,7 +195,7 @@ class RegisteredSubjectModelMixin(models.Model):
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
         self.raise_on_unknown_subject_type()
-        self.raise_on_max_subjects()
+        self.raise_on_enrollment_cap()
         if self.identity:
             self.additional_key = None
         self.set_uuid_as_subject_identifier_if_none()
@@ -268,11 +254,12 @@ class RegisteredSubjectModelMixin(models.Model):
                 pass
 
     def raise_on_unknown_subject_type(self):
-        if self.subject_type not in self.subject_types:
+        if self.subject_type not in edc_protocol_app_config.subject_types:
             raise RegisteredSubjectError(
-                'Subject type must be one of {}. Got {}.'.format(self.subject_types, self.subject_type))
+                'Subject type must be one of {}. Got {}.'.format(
+                    edc_protocol_app_config.subject_types, self.subject_type))
 
-    def raise_on_max_subjects(self, exception_cls=None):
+    def raise_on_enrollment_cap(self, exception_cls=None):
         """Raises an exception if the maximum number enrollees of
         'subject_type' has been reached.
 
@@ -280,7 +267,7 @@ class RegisteredSubjectModelMixin(models.Model):
 
         exception_cls = exception_cls or RegisteredSubjectError
         if not self.id:
-            max_subject = self.max_subjects.get(self.subject_type)
+            max_subject = edc_protocol_app_config.enrollment_caps.get(self.subject_type)
             if max_subject >= 0:
                 count = self.__class__.objects.filter(subject_type=self.subject_type).count()
                 if count >= max_subject:

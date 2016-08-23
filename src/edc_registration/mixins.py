@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.db import models
 
 
-class RegisteredSubjectMixin(models.Model):
+class RegisteredSubjectMixin:
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",

@@ -1,13 +1,13 @@
 from django.apps import AppConfig as DjangoAppConfig
+from django.apps import apps as django_apps
 
 
 class AppConfig(DjangoAppConfig):
     name = 'edc_registration'
     verbose_name = 'Registration'
-    model = None
-    subject_types = ['subject']
-    max_subjects = {'subject': -1}
+    model_name = 'registeredsubject'
+    app_label = None
 
     @property
     def model_class(self):
-        return self.get_model(self.model[1])
+        return django_apps.get_model(self.app_label, self.model_name)
