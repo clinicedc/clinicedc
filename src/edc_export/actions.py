@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from django.core import serializers
 from django.apps import apps as django_apps
-from django_crypto_fields.classes import FieldCryptor
+from django_crypto_fields.field_cryptor import FieldCryptor
 
 from edc_export.classes import ExportAsCsv, ExportJsonAsCsv
 
