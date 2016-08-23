@@ -28,11 +28,11 @@ class AppConfig(DjangoAppConfig):
         if self.central_server_id:
             if self.central_server_id not in self.server_id_list:
                 sys.stdout.write(style.NOTICE(
-                    'Warning: Adding Central Server ID to list of Server IDs. See app_config.\n'))
+                    '  Warning: Adding Central Server ID to list of Server IDs. See app_config.\n'))
                 self.server_id_list.append(self.central_server_id)
         self.middleman_id_list = self.middleman_id_list or self.default_middleman_id_list
         if int(self.device_id) == 0:
-            sys.stdout.write(style.NOTICE('Warning: Device not set, using default. See app_config.device_id\n'))
+            sys.stdout.write(style.NOTICE('  Warning: Device not set, using default. See app_config.device_id\n'))
         self.device_id = str(self.device_id)
         if not re.match(r'^\d+$', self.device_id):
             raise ImproperlyConfigured('Incorrect format for device_id. Must be a '
