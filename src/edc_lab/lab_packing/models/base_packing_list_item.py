@@ -1,10 +1,5 @@
+from django.apps import apps as django_apps
 from django.db import models
-try:
-    from django.db import models as apps
-except:
-    from django.apps import apps
-
-from edc_registration.models import RegisteredSubject
 
 from .packing_list_mixin import PackingListMixin
 
@@ -54,27 +49,14 @@ class BasePackingListItem(models.Model):
 
     def gender(self):
         """Users may override."""
-        # TODO: doesn't work
-        retval = "n/a"
-        try:
-            Requisition = apps.get_model(self._meta.app_label, self.requisition)
-        except:
-            Requisition = None
-            retval = '?'
-        if self.item_reference and Requisition:
-            requisition = Requisition.objects.get(specimen_identifier=self.item_reference)
-            subject_identifier = requisition.subject()
-            if subject_identifier:
-                registered_subject = RegisteredSubject.objects.get(subject_identifier=subject_identifier)
-                retval = registered_subject.gender
-        return retval
+        return None
 
     def clinician(self):
         """Users may override."""
         # TODO: doesn't work
         retval = "n/a"
         try:
-            Requisition = apps.get_model(self._meta.app_label, self.requisition)
+            Requisition = django_apps.get_model(self._meta.app_label, self.requisition)
         except:
             Requisition = None
             retval = '?'
@@ -87,7 +69,7 @@ class BasePackingListItem(models.Model):
         # TODO: doesn't work
         retval = "n/a"
         try:
-            Requisition = apps.get_model(self._meta.app_label, self.requisition)
+            Requisition = django_apps.get_model(self._meta.app_label, self.requisition)
         except:
             Requisition = None
             retval = '?'

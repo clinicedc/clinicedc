@@ -1,0 +1,27 @@
+{% extends 'edc_base/base.html' %}
+{% load staticfiles %}
+
+{% block main %}
+
+ <div class="container">
+    <div class="col-md-3"></div>
+
+    <div class="col-md-6">
+        <div class="panel-group">
+          <div class="panel panel-success">
+            <div class="panel-heading">Administration</div>
+                <div class="panel-body">
+                    <ul id="nav-pill-home" class="nav nav-pills nav-stacked">
+                      <li class="active"><a href="{% url 'edc-lab:edc_lab_admin:index' %}" disabled">Admin 
+                            <span class="glyphicon glyphicon-home pull-right" aria-hidden="true"></span>
+                      </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div><!--div-home-left -->
+
+    <div class="col-md-3"></div>
+</div> <!-- container -->
+
+{% endblock main %}

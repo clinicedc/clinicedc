@@ -1,0 +1,46 @@
+  {% load common_tags %}  {% load result_tags %}
+  <div class="results">
+      <table  cellspacing="0" id="result_list" border=1>
+    	<thead>
+			<tr>
+    	<th>ReceiveID</th>
+    	<th>Received</th>
+    	<th>Drawn</th>    	
+    	<th>Aliquot</th>
+    	<th>Protocol</th>
+        <th>Subject</th>    	    	
+    	<th>Account</th>
+    	<th>Site</th>
+    	<th>Visit</th>    	            	    	            	    	            	    	        
+    	<th>Initials</th>    	        
+    	<th>Dob</th>    	
+    	<th>Gender</th>
+    	<th>User Created</th>
+    	<th>Created</th>    	    	
+    	<th>Modified</th>    	    	
+    	</thead>	
+        {% for receive in search_results.object_list %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+            <td><A href="/admin{{ receive.get_absolute_url }}">{{ receive.receive_identifier|escape}}</A></td>
+          	<td>{{ receive.receive_datetime|date:'Y-m-d' }}</td>
+            <td>{{ receive.datetime_drawn|date:'Y-m-d' }}</td>                      	            
+            <td> {% if not receive.aliquot_set.all%}<A href="/admin{{ aliquot.get_absolute_url }}">add aliquot</A>{% endif %}
+            {% if receive.aliquot_set.all.count >= 1 %}            
+                {% for aliquot in receive.aliquot_set.all %}<A href="{{ aliquot.get_search_url }}">{{ aliquot }}</a><BR>{%endfor%}</td>
+            {% endif %}    
+            <td><A href="/admin{{ receive.protocol.get_absolute_url }}">{{ receive.protocol|escape}}</A></td>
+        	  <td><A href="/admin{{ receive.patient.get_absolute_url }}">{{ receive.patient }}</td>
+         	  <td>{% for acc in receive.patient.account.all %}<A href="/admin{{ acc.get_absolute_url }}">{{ acc }}</a>&nbsp;{%endfor%}</td>        	  
+         	  <td>{{ receive.site.site_identifier|result_clinic_name:receive.protocol.protocol_identifier }}</td>
+         	  <td>{{ receive.visit }}</td>         	  
+         	  <td>{{ receive.patient.initials|escape }}</td>
+         	  <td>{{ receive.patient.dob|dob_or_dob_estimated:receive.patient.is_dob_estimated }}</td>         	  
+         	  <td>{{ receive.patient.gender }}</td>         	  
+         	  <td>{{ receive.user_created }}</td>
+          	  <td>{{ receive.created|date:"Y-m-d" }}</td>         	  
+          	  <td>{{ receive.modified|date:"Y-m-d" }}</td>         	  
+            </tr>
+        {% endfor %}
+    </table>    
+    </div>
+

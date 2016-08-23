@@ -1,0 +1,38 @@
+  {% load common_tags %}
+  <div class="results">
+      <table  cellspacing="0" id="result_list" border=1>
+    	<thead>
+			<tr>
+    	<th>Aliquot</th>
+    	<th>Orders</th>    	
+    	<th>Received</th>
+    	<th>Drawn</th>    	
+    	<th>Protocol</th>
+        <th>Subject</th>    	    	
+    	<th>Type</th>    	        
+    	<th>Medium</th>    	        
+    	<th>User Created</th>
+    	<th>Date Modified</th>    	    	
+    	</thead>	
+        {% for aliquot in search_results.object_list %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+            <td><A href="/admin{{ aliquot.get_absolute_url }}">{{ aliquot.aliquot_identifier|escape}}</A></td>
+            <td>{% if aliquot.order_set.all %}
+                    {% for order in aliquot.order_set.all %}<A href="{{ order.get_search_url }}">{{ order.order_identifier|escape}}: {{ order.panel|escape}}</A>&nbsp;{% endfor %}
+                {% else %}      
+                    <A href="/admin/bhp_lab_core/order/add/?aliquot={{ aliquot.pk }}">add order</a>
+                {% endif%}    
+            </td>
+          	<td>{{ aliquot.receive.receive_datetime|date:'Y-m-d' }}</td>
+            <td>{{ aliquot.receive.datetime_drawn|date:'Y-m-d' }}</td>                      	            
+            <td><A href="/admin{{ aliquot.receive.protocol.get_absolute_url }}">{{ aliquot.receive.protocol|escape}}</A></td>
+        	  <td><A href="/admin{{ aliquot.receive.patient.get_absolute_url }}">{{ aliquot.receive.patient }}</td>
+         	  <td>{{ aliquot.aliquot_type }}</td>
+              <td>{{ aliquot.aliquot_condition }}</td>
+         	  <td>{{ aliquot.medium }}</td>
+         	  <td>{{ aliquot.user_created }}</td>
+          	  <td>{{ aliquot.modified|date:"Y-m-d" }}</td>         	  
+            </tr>
+        {% endfor %}
+    </table>    
+    </div>

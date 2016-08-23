@@ -14,8 +14,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import django
 from unipath import Path
-from django.utils import timezone
-from dateutil.relativedelta import relativedelta
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -115,18 +113,3 @@ USE_TZ = False
 STATIC_URL = '/static/'
 
 GIT_DIR = BASE_DIR.ancestor(1)
-
-SITE_CODE = '10'
-# SUBJECT_TYPES = ['test_subject_type']
-DEVICE_ID = '10'
-SERVER_DEVICE_ID_LIST = [99]
-MIDDLEMAN_DEVICE_ID_LIST = []
-PROJECT_ROOT = BASE_DIR.ancestor(1)
-FIELD_MAX_LENGTH = 'default'
-IS_SECURE_DEVICE = True
-KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
-KEY_PREFIX = 'user'
-ALLOW_MODEL_SERIALIZATION = False
-# MAX_SUBJECTS = 0
-DISPATCH_APP_LABELS = []
-STUDY_OPEN_DATETIME = timezone.now() - relativedelta(years=1)
