@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
@@ -36,7 +37,7 @@ class AppConfig(DjangoAppConfig):
 
         test data files contain a json object and use the same name as label file but
         with the .json extension."""
-
+        sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         from .label_template import LabelTemplate
         filenames = {'labels': {}, 'test_data': {}}
         for section, ext in [('labels', self.default_ext), ('test_data', self.default_testdata_ext)]:
@@ -59,3 +60,4 @@ class AppConfig(DjangoAppConfig):
             except TypeError:
                 label_template.test_context = {}
             self.label_templates.update({label_template.label: label_template})
+        sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
