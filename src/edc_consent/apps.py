@@ -1,15 +1,14 @@
 import sys
 
-from django.apps import AppConfig
+from django.apps import AppConfig as DjangoAppConfig
 
 from edc_consent.consent_type import ConsentType
 from edc_consent.site_consent_types import site_consent_types
 
 
-class EdcConsentAppConfig(AppConfig):
+class AppConfig(DjangoAppConfig):
     name = 'edc_consent'
     verbose_name = 'Consent'
-    institution = 'Botswana Harvard Partnership'
     consent_type_setup = []
 
     def ready(self):
