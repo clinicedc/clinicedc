@@ -1,5 +1,6 @@
-from django.apps import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps
+
+from django.apps import AppConfig as DjangoAppConfig
 
 
 class AppConfig(DjangoAppConfig):
