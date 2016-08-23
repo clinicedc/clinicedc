@@ -1,12 +1,9 @@
-#try:
-#    from django.db import models as apps
-#except:
-#from django.apps import apps
+from django.apps import apps as django_apps
 from django.db import models
 
-from edc_device import Device
-
 from .sequence import Sequence
+
+edc_device_app_config = django_apps.get_app_config('edc_device')
 
 
 class BaseIdentifierModel(models.Model):
@@ -27,13 +24,12 @@ class BaseIdentifierModel(models.Model):
         return (self.identifier, self.device_id, )
 
     def save(self, *args, **kwargs):
-        device = Device()
-        self.device_id = device.device_id
+        self.device_id = edc_device_app_config.device_id
         if not self.id:
             if self.is_derived:
                 self.sequence_number = 0
             else:
-                #Sequence = apps.get_model('edc_identifier', 'sequence')
+                # Sequence = apps.get_model('edc_identifier', 'sequence')
                 sequence = Sequence.objects.using(
                     kwargs.get('using')).create(device_id=self.device_id)
                 self.sequence_number = sequence.pk
