@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_base.model.fields import UUIDField
+from edc_base.model.fields import UUIDAutoField
 from edc_base.model.models import BaseUuidModel
 from edc_sync.models import SyncModelMixin
 
@@ -13,7 +13,7 @@ class ExportReceiptManager(models.Manager):
 
 class ExportReceipt(SyncModelMixin, BaseUuidModel):
 
-    export_uuid = UUIDField(
+    export_uuid = UUIDAutoField(
         editable=False,
         help_text="system field for export tracking.")
 
