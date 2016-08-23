@@ -1,3 +1,4 @@
+from .base_model_admin import BaseModelAdmin
 from .aliquot_admin import AliquotAdmin
 from .aliquot_condition_admin import AliquotConditionAdmin
 from .aliquot_type_admin import AliquotTypeAdmin

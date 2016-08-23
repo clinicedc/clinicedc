@@ -52,8 +52,8 @@ class AliquotProfile:
                 requisition.is_receive = True
                 requisition.is_receive_datetime = datetime.today()
                 collection = self.collection_model.objects.create(
-                    registered_subject=requisition.get_visit().appointment.registered_subject,
-                    receive_identifier=self.specimen_identifier(requisition),
+                    subject_identifier=requisition.get_visit().appointment.registered_subject,
+                    specimen_identifier=self.specimen_identifier(requisition),
                     requisition_identifier=requisition.requisition_identifier,
                     requisition_model_name=requisition._meta.label_lower,
                     drawn_datetime=requisition.drawn_datetime,

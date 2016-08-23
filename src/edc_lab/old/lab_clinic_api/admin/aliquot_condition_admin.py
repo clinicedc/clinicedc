@@ -1,11 +1,9 @@
 from django.contrib import admin
 
-from edc_base.modeladmin.admin import BaseModelAdmin
-
 from ..models import AliquotCondition
 
 
-class AliquotConditionAdmin(BaseModelAdmin):
+class AliquotConditionAdmin(admin.ModelAdmin):
 
     list_display = ('display_index', 'name', 'short_name')
 
