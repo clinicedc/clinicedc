@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from edc_appointment.appointment_mixin import AppointmentMixin
+from edc_appointment.model_mixins import CreateAppointmentsMixin
 from django.core.exceptions import ImproperlyConfigured
 
 
@@ -16,13 +16,10 @@ class MembershipForm:
             self.model = django_apps.get_model(self.app_label, self.model_name)
         self.visible = True if visible is None else visible
         self.name = '{}.{}'.format(self.app_label, self.model_name)
-        if not issubclass(self.model, AppointmentMixin):
+        if not issubclass(self.model, CreateAppointmentsMixin):
             raise ImproperlyConfigured(
                 'MembershipForm refers to a model class that is not a subclass '
                 'of edc_appointment.AppointmentMixin. Got {0}'.format(self.model))
-#         if 'registered_subject' not in dir(self.model):
-#             raise ImproperlyConfigured(
-#                 'Membership forms must have a key to model RegisteredSubject. Got {0}'.format(self.model))
 
     def __repr__(self):
         return 'MembershipForm({}, {}, {})'.format(self.app_label, self.model_name, self.visible)

@@ -1,12 +1,12 @@
 import sys
-from django.apps.config import AppConfig
+from django.apps.config import AppConfig as DjangoAppConfig
 from django.core.management.color import color_style
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 style = color_style()
 
 
-class EdcVisitScheduleAppConfig(AppConfig):
+class AppConfig(DjangoAppConfig):
     name = 'edc_visit_schedule'
     verbose_name = "Visit Schedule"
     model = None
