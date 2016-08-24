@@ -1,0 +1,3 @@
+
+class RegisteredSubjectError(Exception):
+    pass

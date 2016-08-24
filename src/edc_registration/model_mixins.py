@@ -17,7 +17,9 @@ from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
 from edc_constants.choices import YES, NO, GENDER
 
-app_config = django_apps.get_app_config('edc_registration')
+from .exceptions import RegisteredSubjectError
+from .managers import RegisteredSubjectManager
+
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
 
 YES_NO_UNKNOWN = (
@@ -27,30 +29,18 @@ YES_NO_UNKNOWN = (
 )
 
 
-class RegisteredSubjectError(Exception):
-    pass
-
-
-class RegisteredSubjectManager(models.Manager):
-
-    def get_by_natural_key(self, subject_identifier_as_pk):
-        return self.get(subject_identifier_as_pk=subject_identifier_as_pk)
-
-
 class RegisteredSubjectModelMixin(models.Model):
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
         max_length=50,
-        db_index=True,
-        unique=True)
+        unique=True,
+        editable=False)
 
     subject_identifier_as_pk = models.CharField(
         verbose_name="Subject Identifier as pk",
         max_length=50,
-        null=True,
-        blank=True,
-        db_index=True,
+        editable=False,
     )
 
     subject_identifier_aka = models.CharField(
@@ -96,10 +86,6 @@ class RegisteredSubjectModelMixin(models.Model):
         choices=GENDER,
         null=True,
         blank=False)
-
-    subject_type = models.CharField(
-        max_length=25,
-        default='subject')
 
     subject_consent_id = models.CharField(
         max_length=100,
@@ -194,8 +180,6 @@ class RegisteredSubjectModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         using = kwargs.get('using')
-        self.raise_on_unknown_subject_type()
-        self.raise_on_enrollment_cap()
         if self.identity:
             self.additional_key = None
         self.set_uuid_as_subject_identifier_if_none()
@@ -209,7 +193,6 @@ class RegisteredSubjectModelMixin(models.Model):
     def __str__(self):
         return "{subject_identifier} {subject_type} ({first_name} {initials}){sid}".format(
             subject_identifier=self.mask_subject_identifier(),
-            subject_type=self.subject_type,
             first_name=mask_encrypted(self.first_name),
             initials=self.initials,
             sid=' sid={}'.format(self.sid) if self.sid else '')
@@ -252,28 +235,6 @@ class RegisteredSubjectModelMixin(models.Model):
                     raise RegisteredSubjectError(error_msg.format(action='update'))
             except self.__class__.DoesNotExist:
                 pass
-
-    def raise_on_unknown_subject_type(self):
-        if self.subject_type not in edc_protocol_app_config.subject_types:
-            raise RegisteredSubjectError(
-                'Subject type must be one of {}. Got {}.'.format(
-                    edc_protocol_app_config.subject_types, self.subject_type))
-
-    def raise_on_enrollment_cap(self, exception_cls=None):
-        """Raises an exception if the maximum number enrollees of
-        'subject_type' has been reached.
-
-        Note: a value of -1 means registration is unlimited for the subject_type"""
-
-        exception_cls = exception_cls or RegisteredSubjectError
-        if not self.id:
-            max_subject = edc_protocol_app_config.enrollment_caps.get(self.subject_type)
-            if max_subject >= 0:
-                count = self.__class__.objects.filter(subject_type=self.subject_type).count()
-                if count >= max_subject:
-                    raise exception_cls(
-                        'Maximum number of subjects has been reached for subject_type \'{}\'. '
-                        'Maximum allowed is {}.'.format(self.subject_type, count, max_subject))
 
     def set_uuid_as_subject_identifier_if_none(self):
         """Inserts a random uuid as a dummy identifier for a new instance.
