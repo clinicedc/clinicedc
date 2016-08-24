@@ -24,10 +24,9 @@ class EnrollmentCapMixin(models.Model):
         super(EnrollmentCapMixin, self).save(*args, **kwargs)
 
     def raise_on_enrollment_cap(self, exception_cls=None, app_config=None):
-        """Raises an exception if the maximum number enrollees of
-        'subject_type' has been reached.
+        """Raises an exception if enrollment cap reached for this model and subject_type.
 
-        Note: a value of -1 means registration is unlimited for the subject_type"""
+        Note: a cap of -1 means enrollment is unlimited."""
 
         exception_cls = exception_cls or EnrollmentCapError
         app_config = app_config or django_apps.get_app_config('edc_protocol')

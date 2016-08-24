@@ -12,11 +12,13 @@ class AppConfig(DjangoAppConfig):
     name = 'edc_protocol'
     verbose_name = 'Edc Protocol'
 
+    # set with example defaults, you will need to change from your project
     protocol = 'BHP000'
     protocol_number = '000'
     protocol_name = 'My Protocol'
     protocol_title = 'My Protocol of Many Things'
 
+    # these attributes are used by the EnrollmentCapMixin
     subject_types = {'subject': 'Subjects'}  # {key: verbose_name}
     enrollment_caps = {'example.enrollmentmodel': ('subject', -1)}  # {label_lower: (key, count)}
 
