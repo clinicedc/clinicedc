@@ -3,9 +3,7 @@ from collections import OrderedDict
 from django.contrib import admin
 from django.core.exceptions import ImproperlyConfigured
 
-# from edc_export.actions import export_as_csv_action
-
-from .models import CaretakerFieldsMixin
+from .model_mixins import CaretakerFieldsMixin
 
 
 class CrfAdminMixin(object):
@@ -45,7 +43,7 @@ class CrfAdminMixin(object):
             self.visit_attr + '__report_datetime',
             self.visit_attr + '__reason',
             self.visit_attr + '__appointment__appt_status',
-            self.visit_attr + '__appointment__visit_code',])
+            self.visit_attr + '__appointment__visit_code'])
         self.list_filter = tuple(self.list_filter)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -60,28 +58,8 @@ class CrfAdminMixin(object):
                     self.readonly_fields.append(self.visit_attr)
         return super(CrfAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-#     def get_actions(self, request):
-#         actions = super(CrfAdminMixin, self).get_actions(request)
-#         actions['export_as_csv_action'] = (
-#             export_as_csv_action(
-#                 exclude=['id', self.visit_attr],
-#                 extra_fields=OrderedDict(
-#                     {'subject_identifier':
-#                      '{}__appointment__registered_subject__subject_identifier'.format(self.visit_attr),
-#                      'visit_report_datetime': '{}__report_datetime'.format(self.visit_attr),
-#                      'gender': '{}__appointment__registered_subject__gender'.format(self.visit_attr),
-#                      'dob': '{}__appointment__registered_subject__dob'.format(self.visit_attr),
-#                      'visit_reason': '{}__reason.format(self.visit_attr)'.format(self.visit_attr),
-#                      'visit_status': '{}__appointment__appt_status'.format(self.visit_attr),
-#                      'visit': '{}__appointment__visit_definition__code'.format(self.visit_attr),
-#                      'visit_instance': '{}__appointment__visit_instance'.format(self.visit_attr)}),
-#             ),
-#             'export_as_csv_action',
-#             'Export to CSV with visit and demographics')
-#         return actions
 
-
-class VisitAdminMixin(object):
+class VisitAdminMixin:
 
     """ModelAdmin subclass for models with a ForeignKey to 'appointment', such as your visit model(s).
 
