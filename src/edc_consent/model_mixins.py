@@ -8,32 +8,13 @@ from edc_base.model.validators import datetime_not_future, datetime_not_before_s
 from edc_base.utils import formatted_age, age
 from edc_consent.site_consent_types import site_consent_types
 
-from ..exceptions import ConsentVersionError, ConsentTypeError
+from .exceptions import ConsentVersionError, ConsentTypeError
 
-from .fields.verification_fields_mixin import VerificationFieldsMixin
-
-
-class ObjectConsentManager(models.Manager):
-
-    def get_by_natural_key(self, subject_identifier_as_pk):
-        return self.get(subject_identifier_as_pk=subject_identifier_as_pk)
+from .models.fields.verification_fields_mixin import VerificationFieldsMixin
+from .managers import ObjectConsentManager, ConsentManager
 
 
-class ConsentManager(models.Manager):
-
-    def valid_consent_for_period(self, subject_identifier, report_datetime):
-        consent = None
-        try:
-            consent_type = site_consent_types.get_by_consent_datetime(
-                self.model, report_datetime)
-            if consent_type:
-                consent = self.get(subject_identifier=subject_identifier, version=consent_type.version)
-        except self.model.DoesNotExist:
-            pass
-        return consent
-
-
-class BaseConsent(VerificationFieldsMixin, models.Model):
+class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
     MAX_SUBJECTS = 0
 
@@ -129,7 +110,7 @@ class BaseConsent(VerificationFieldsMixin, models.Model):
                     'Previous consent with version {0} for this subject not found. Version {1} updates {0}.'
                     'Ensure all details match (identity, dob, first_name, last_name)'.format(
                         consent_type.updates_version, self.version))
-        super(BaseConsent, self).save(*args, **kwargs)
+        super(ConsentModelMixin, self).save(*args, **kwargs)
 
     def set_uuid_as_subject_identifier_if_none(self):
         if not self.subject_identifier_as_pk:
