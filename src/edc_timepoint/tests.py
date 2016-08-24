@@ -35,7 +35,7 @@ class TimepointStatusTests(TestCase):
     def test_timepoint_status_close_attempt(self):
         """Assert timepoint does not closed when tried."""
         example_model = ExampleModel.objects.create()
-        example_model.close_timepoint()
+        example_model.timepoint_close_timepoint()
         self.assertEqual(example_model.timepoint_status, OPEN_TIMEPOINT)
 
     def test_timepoint_status_close_attempt2(self):
@@ -43,7 +43,7 @@ class TimepointStatusTests(TestCase):
         example_model = ExampleModel.objects.create()
         example_model.example_status = 'finish'
         example_model.save()
-        example_model.close_timepoint()
+        example_model.timepoint_close_timepoint()
         self.assertRaises(TimepointStatusError, example_model.save)
 
     def test_timepoint_status_blocks(self):
@@ -51,7 +51,7 @@ class TimepointStatusTests(TestCase):
         example_model = ExampleModel.objects.create()
         example_model.example_status = 'finish'
         example_model.save()
-        example_model.close_timepoint()
+        example_model.timepoint_close_timepoint()
         self.assertRaises(TimepointStatusError, example_model.save)
 
     def test_timepoint_status_attrs(self):
@@ -59,7 +59,7 @@ class TimepointStatusTests(TestCase):
         example_model = ExampleModel.objects.create(report_datetime=timezone.now() - relativedelta(days=10))
         example_model.example_status = 'finish'
         example_model.save()
-        example_model.close_timepoint()
+        example_model.timepoint_close_timepoint()
         self.assertEqual(example_model.example_status, 'finish')
         self.assertEqual(example_model.timepoint_opened_datetime, example_model.report_datetime)
         self.assertGreater(example_model.timepoint_closed_datetime, example_model.timepoint_opened_datetime)

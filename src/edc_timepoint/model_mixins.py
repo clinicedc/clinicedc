@@ -12,23 +12,20 @@ class TimepointStatusError(Exception):
 
 class TimepointStatusMixin(models.Model):
 
-    # this is the original calculated appointment datetime
-    # updated in the signal
-    timepoint_opened_datetime = models.DateTimeField(
-        verbose_name=("Time point"),
-        help_text="calculated timepoint datetime. Do not change",
-        null=True,
-        editable=False)
-
     timepoint_status = models.CharField(
         max_length=15,
         choices=TIMEPOINT_STATUS,
         default=OPEN_TIMEPOINT)
 
-    timepoint_closed_datetime = models.DateTimeField(
-        verbose_name='Date timepoint closed.',
+    # this is the original calculated appointment datetime
+    # updated in the signal
+    timepoint_opened_datetime = models.DateTimeField(
         null=True,
-        blank=True)
+        editable=False)
+
+    timepoint_closed_datetime = models.DateTimeField(
+        null=True,
+        editable=False)
 
     def save(self, *args, **kwargs):
         if (kwargs.get('update_fields') != ['timepoint_status'] and
@@ -60,7 +57,7 @@ class TimepointStatusMixin(models.Model):
             self.save(update_fields=['timepoint_closed_datetime', 'timepoint_status'])
 
     def timepoint(self):
-        """Formats and returns the status for the dashboard."""
+        """Formats and returns the status for the change_list."""
         if self.timepoint_status == OPEN_TIMEPOINT:
             return '<span style="color:green;">Open</span>'
         elif self.timepoint_status == CLOSED_TIMEPOINT:
