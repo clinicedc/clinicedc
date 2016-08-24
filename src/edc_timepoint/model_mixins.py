@@ -32,7 +32,8 @@ class TimepointStatusMixin(models.Model):
 
     def save(self, *args, **kwargs):
         if (kwargs.get('update_fields') != ['timepoint_status'] and
-                kwargs.get('update_fields') != ['timepoint_opened_datetime', 'timepoint_status']):
+                kwargs.get('update_fields') != ['timepoint_opened_datetime', 'timepoint_status'] and
+                kwargs.get('update_fields') != ['timepoint_closed_datetime', 'timepoint_status']):
             app_config = django_apps.get_app_config('edc_timepoint')
             attrs = app_config.timepoint_models[self._meta.label_lower]
             if getattr(self, attrs['status_field']) != attrs['closed_status']:
@@ -42,13 +43,21 @@ class TimepointStatusMixin(models.Model):
                 raise TimepointStatusError('Model is closed for data entry. See TimpointStatus.')
         super(TimepointStatusMixin, self).save(*args, **kwargs)
 
-    def close_timepoint(self):
+    def timepoint_close_timepoint(self):
+        """Closes a timepoint."""
         app_config = django_apps.get_app_config('edc_timepoint')
         attrs = app_config.timepoint_models[self._meta.label_lower]
         if getattr(self, attrs['status_field']) == attrs['closed_status']:
             self.timepoint_status = CLOSED_TIMEPOINT
             self.timepoint_closed_datetime = timezone.now()
             self.save(update_fields=['timepoint_status'])
+
+    def timepoint_open_timepoint(self):
+        """Re-opens a timepoint."""
+        if self.timepoint_status == CLOSED_TIMEPOINT:
+            self.timepoint_status = OPEN_TIMEPOINT
+            self.timepoint_closed_datetime = None
+            self.save(update_fields=['timepoint_closed_datetime', 'timepoint_status'])
 
     def timepoint(self):
         """Formats and returns the status for the dashboard."""

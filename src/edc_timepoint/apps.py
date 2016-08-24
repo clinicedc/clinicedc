@@ -7,7 +7,6 @@ from django.apps import AppConfig as DjangoAppConfig
 class AppConfig(DjangoAppConfig):
     name = 'edc_timepoint'
     verbose_name = 'Edc Timepoint'
-    app_label = None
     timepoint_models = {
         'example.examplemodel': {
             'datetime_field': 'report_datetime',
