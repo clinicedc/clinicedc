@@ -1,8 +1,8 @@
 from django.db import models
-
-from edc_base.model.models import BaseUuidModel
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import post_save
+
+from edc_base.model.models import BaseUuidModel
 
 
 class Holiday(BaseUuidModel):
@@ -15,7 +15,7 @@ class Holiday(BaseUuidModel):
 
     objects = models.Manager()
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s on %s" % (self.holiday_name, self.holiday_date)
 
     class Meta:

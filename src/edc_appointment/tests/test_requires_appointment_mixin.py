@@ -4,10 +4,8 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
 
+from edc_appointment.constants import IN_PROGRESS_APPT, NEW_APPT
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from edc_constants.constants import IN_PROGRESS, NEW_APPT
-
 from example.appointment_factory import AppointmentFactory
 from example.models import TestModel, Appointment, SubjectVisit
 from example.visit_schedule import example_visit_schedule
@@ -22,8 +20,8 @@ class TestRequiresAppointmentMixin(TestCase):
 
     def test_get_appt_status_new(self):
         """Test if the appointment status is returned as new."""
-        appt1 = Appointment.objects.get(visit_code=1000)
-        self.assertEqual(appt1.get_appt_status(), NEW_APPT)
+        appointment = Appointment.objects.get(visit_code=1000)
+        self.assertEqual(appointment.get_appt_status(), NEW_APPT)
 
     def test_get_appt_status_in_progress(self):
         """Test if the appointment with status in progress will be returned."""
@@ -32,10 +30,10 @@ class TestRequiresAppointmentMixin(TestCase):
         appt1.best_appt_datetime = appt1.appt_datetime
         appt1.save(update_fields=['best_appt_datetime', 'appt_datetime'])
         SubjectVisit.objects.create(appointment=appt1, report_datetime=timezone.now())
-        appt1.appt_status = IN_PROGRESS
+        appt1.appt_status = IN_PROGRESS_APPT
         appt1.save(update_fields=['appt_status'])
         appt1 = Appointment.objects.get(visit_code=1000)
-        self.assertEqual(appt1.get_appt_status(), IN_PROGRESS)
+        self.assertEqual(appt1.get_appt_status(), IN_PROGRESS_APPT)
 
     def test_validate_visit_code_sequence(self):
         """Test if a valide visit code sequesnce is done."""
@@ -68,17 +66,17 @@ class TestRequiresAppointmentMixin(TestCase):
 #         appt1.best_appt_datetime = appt1.appt_datetime
 #         appt1.save(update_fields=['best_appt_datetime', 'appt_datetime'])
 #         SubjectVisit.objects.create(appointment=appt1, report_datetime=timezone.now())
-#         appt1.appt_status = IN_PROGRESS
+#         appt1.appt_status = IN_PROGRESS_APPT
 #         appt1.save(update_fields=['appt_status'])
 #         appt1 = Appointment.objects.get(visit_code=1000)
-#         self.assertEqual(appt1.get_appt_status(), IN_PROGRESS)
+#         self.assertEqual(appt1.get_appt_status(), IN_PROGRESS_APPT)
 #         self.assertEqual(appt2.get_appt_status(), NEW_APPT)
 #         appt2.appt_datetime = timezone.now() + timedelta(days=35)
 #         appt2.best_appt_datetime = appt2.appt_datetime
 #         appt2.save(update_fields=['best_appt_datetime', 'appt_datetime'])
 #         appt2 = Appointment.objects.get(visit_code=2000)
 #         SubjectVisit.objects.create(appointment=appt2, report_datetime=timezone.now())
-#         appt2.appt_status = IN_PROGRESS
+#         appt2.appt_status = IN_PROGRESS_APPT
 #         appt2.save(update_fields=['appt_status'])
 #         appt2 = Appointment.objects.get(visit_code=2000)
-#         self.assertEqual(appt2.get_appt_status(), IN_PROGRESS)
+#         self.assertEqual(appt2.get_appt_status(), IN_PROGRESS_APPT)
