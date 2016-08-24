@@ -1,0 +1,23 @@
+from django.apps import apps as django_apps
+from django.db.models.signals import post_save
+from django.dispatch.dispatcher import receiver
+
+from edc_timepoint.constants import OPEN_TIMEPOINT
+
+
+@receiver(post_save, weak=False, dispatch_uid="update_timepoint_on_post_save")
+def update_timepoint_on_post_save(sender, instance, raw, created, using, **kwargs):
+    """Update the TimePointStatus mixin datetime field."""
+    if not raw:
+        try:
+            instance.timepoint_opened_datetime
+            app_config = django_apps.get_app_config('edc_timepoint')
+            attrs = app_config.timepoint_models[sender._meta.label_lower]
+            datetime_value = getattr(instance, attrs['datetime_field'])
+            if instance.timepoint_opened_datetime is None or instance.timepoint_opened_datetime != datetime_value:
+                instance.timepoint_opened_datetime = datetime_value
+                instance.timepoint_status = OPEN_TIMEPOINT
+                instance.save(update_fields=['timepoint_opened_datetime', 'timepoint_status'])
+        except AttributeError as e:
+            if 'timepoint_opened_datetime' not in str(e):
+                raise AttributeError(str(e))
