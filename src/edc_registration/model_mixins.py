@@ -297,12 +297,12 @@ class RegistrationMixin(models.Model):
     def registration_model(self):
         return django_apps.get_app_config('edc_registration').model
 
-    def registration_update_or_create(self, unique_field, unique_value):
+    def registration_update_or_create(self):
         """Creates or Updates the registration model with attributes from this instance."""
         self.registration_raise_on_not_unique()
-        self.registration_options[unique_field] = unique_value
         registered_subject, created = self.registration_model.objects.update_or_create(
-            **{unique_field: unique_value}, defaults=self.registration_options)
+            **{self.registration_unique_field: getattr(self, self.registration_unique_field)},
+            defaults=self.registration_options)
         return registered_subject, created
 
     @property
@@ -311,8 +311,16 @@ class RegistrationMixin(models.Model):
 
     def registration_raise_on_not_unique(self):
         """Asserts the field specified for update_or_create is unique."""
-        if self.registration_unique_field not in [f.name for f in self._meta.get_fields() if f.unique]:
-            raise ImproperlyConfigured('Field is not unique. Got {}'.format(self.registration_unique_field))
+        unique_fields = []
+        for f in self.registration_model._meta.get_fields():
+            try:
+                if f.unique:
+                    unique_fields.append(f.name)
+            except AttributeError:
+                pass
+        if self.registration_unique_field not in unique_fields:
+            raise ImproperlyConfigured('Field is not unique. Got {}.{} -- {}'.format(
+                self._meta.label_lower, self.registration_unique_field))
 
     @property
     def registration_options(self):

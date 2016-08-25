@@ -9,8 +9,7 @@ def update_registered_subject_from_consent_on_post_save(sender, instance, raw, c
     if not raw and not kwargs.get('update_fields'):
         try:
             with transaction.atomic():
-                instance.registration_update_or_create(
-                    instance.registration_unique_field, getattr(instance, instance.registration_unique_field))
+                instance.registration_update_or_create()
         except AttributeError as e:
             if 'registration_update_or_create' not in str(e):
                 raise AttributeError(str(e))
