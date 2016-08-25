@@ -20,7 +20,7 @@ class AppConfig(DjangoAppConfig):
 
     # these attributes are used by the EnrollmentCapMixin
     subject_types = {'subject': 'Subjects'}  # {key: verbose_name}
-    enrollment_caps = {'edc_example.enrollmentmodel': ('subject', -1)}  # {label_lower: (key, count)}
+    enrollment_caps = {'example.enrollmentmodel': ('subject', -1)}  # {label_lower: (key, count)}
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))

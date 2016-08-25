@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django_crypto_fields.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
-    'edc_example.apps.AppConfig',
+    'example.apps.AppConfig',
 ]
 
 MIDDLEWARE = [

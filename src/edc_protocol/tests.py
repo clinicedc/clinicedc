@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 
-from edc_example.models import EnrollmentModel
+from example.models import EnrollmentModel
 
 from .model_mixins import EnrollmentCapError
 
