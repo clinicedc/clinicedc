@@ -13,7 +13,7 @@ class AppConfig(DjangoAppConfig):
             'status_field': 'example_status',
             'closed_status': 'finish'
         }
-    }  # list of _meta.labellower
+    }
 
     def ready(self):
         from .signals import update_timepoint_on_post_save
