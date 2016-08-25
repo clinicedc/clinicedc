@@ -191,11 +191,7 @@ class RegisteredSubjectModelMixin(models.Model):
         return (self.subject_identifier_as_pk, )
 
     def __str__(self):
-        return "{subject_identifier} {subject_type} ({first_name} {initials}){sid}".format(
-            subject_identifier=self.mask_subject_identifier(),
-            first_name=mask_encrypted(self.first_name),
-            initials=self.initials,
-            sid=' sid={}'.format(self.sid) if self.sid else '')
+        return self.subject_identifier
 
     def mask_subject_identifier(self):
         if not self.subject_identifier_is_set():
