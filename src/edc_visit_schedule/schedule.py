@@ -11,9 +11,9 @@ class Schedule:
         self.visit_registry = {}
         self.enrollment_model = enrollment_model
         try:
-            enrollment_model.prepare_appointments
-        except AttributeError:
-            raise ScheduleError('Enrollment model not configured to create appointments.')
+            enrollment_model.create_appointments
+        except AttributeError as e:
+            raise ScheduleError('Enrollment model not configured to create appointments. Got {}'.format(str(e)))
         self.off_study_model = off_study_model
         self.death_report_model = death_report_model
 
