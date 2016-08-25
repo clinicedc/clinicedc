@@ -334,3 +334,25 @@ class RegistrationMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class RegisteredSubjectMixin(models.Model):
+
+    """A mixin to ensure subject_identifier is on the model and always updated by the registration model."""
+
+    subject_identifier = models.CharField(
+        verbose_name="Subject Identifier",
+        max_length=50,
+        editable=False)
+
+    def save(self, *args, **kwargs):
+        self.subject_identifier = self.registration_instance.subject_identifier
+        super(RegisteredSubjectMixin, self).save(*args, **kwargs)
+
+    @property
+    def registration_instance(self):
+        subject_model = django_apps.get_app_config('edc_registration').registered_subject_model
+        return subject_model.objects.get(subject_identifier=self.subject_identifier)
+
+    class Meta:
+        abstract = True
