@@ -1,12 +1,12 @@
 from django.test import TestCase
 
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_schedule.membership_form import MembershipForm
-from edc_visit_schedule.visit import Visit, Crf
+from edc_visit_schedule.visit import Crf
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from edc_visit_schedule.exceptions import VisitScheduleError, AlreadyRegistered, ScheduleError, VisitError, CrfError
+from edc_visit_schedule.exceptions import AlreadyRegistered, ScheduleError, CrfError
 
 from example.models import SubjectConsent, SubjectVisit
+from edc_visit_schedule.schedule import Schedule
 
 
 bad_visit_schedule = VisitSchedule(
@@ -24,132 +24,100 @@ class TestVisitSchedule(TestCase):
             visit_model=SubjectVisit,
         )
 
-    @property
-    def visit_schedule(self):
-        return site_visit_schedules.get_visit_schedule('example')
+    def test_get_visit_schedule_by_name(self):
+        self.assertTrue(site_visit_schedules.get_visit_schedule('subject_visit_schedule'))
 
-    def test_get_schedules(self):
-        pass
+    def test_get_schedule_by_name(self):
+        self.assertTrue(site_visit_schedules.get_schedule('schedule-1'))
+        schedule = site_visit_schedules.get_schedule('schedule-1')
+        self.assertEqual(schedule.name, 'schedule-1')
 
-    def test_get_visit_definitions_for_membership_form(self):
-        pass
+    def test_get_schedule_by_enrollment_model_label(self):
+        self.assertTrue(site_visit_schedules.get_schedule(SubjectConsent._meta.label_lower))
+        schedule = site_visit_schedules.get_schedule(SubjectConsent._meta.label_lower)
+        self.assertEqual(schedule.enrollment_model, SubjectConsent)
 
-    def test_visit_schedule_gets_membership_form(self):
-        self.assertIsInstance(
-            self.visit_schedule.get_membership_form('example', 'subjectconsent'),
-            MembershipForm)
+    def test_get_schedule_by_enrollment_model(self):
+        self.assertTrue(site_visit_schedules.get_schedule(SubjectConsent))
+        schedule = site_visit_schedules.get_schedule(SubjectConsent)
+        self.assertEqual(schedule.enrollment_model, SubjectConsent)
 
-    def test_schedule_get_visits_by_model(self):
-        for schedule in self.visit_schedule.schedules.values():
-            self.assertIsInstance(
-                schedule.get_visits_by_visit_model(SubjectVisit), list)
-
-    def test_schedule_get_visits_by_model2(self):
-        for schedule in self.visit_schedule.schedules.values():
-            for visit in schedule.get_visits_by_visit_model(SubjectVisit):
-                self.assertIsInstance(visit, Visit)
-
-    def test_cannot_add_membership_if_missing_schedule(self):
-        self.bad_visit_schedule.add_schedule('schedule')
-        self.assertRaises(VisitScheduleError, self.bad_visit_schedule.add_membership_form, 'schedule1000')
-
-    def test_cannot_add_visit_if_missing_schedule(self):
-        self.bad_visit_schedule.add_schedule('schedule')
-        self.assertRaises(VisitScheduleError, self.bad_visit_schedule.add_visit, 'schedule1000', '10000')
+    def test_schedule_get_visits(self):
+        visit_schedule = site_visit_schedules.get_visit_schedule('subject_visit_schedule')
+        for schedule in visit_schedule.schedules.values():
+            self.assertIsInstance(schedule.visits, list)
 
     def test_schedule_already_registered(self):
-        self.bad_visit_schedule.add_schedule('schedule')
-        self.assertRaises(AlreadyRegistered, self.bad_visit_schedule.add_schedule, 'schedule')
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        schedule = self.bad_visit_schedule.add_schedule(schedule)
+        self.assertRaises(AlreadyRegistered, self.bad_visit_schedule.add_schedule, schedule)
 
-    def test_membership_form_already_registered(self):
-        self.bad_visit_schedule.add_schedule('schedule')
-        self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.assertRaises(AlreadyRegistered, self.bad_visit_schedule.add_membership_form, 'schedule', model=SubjectConsent)
-
-    def test_visit_already_registered_with_schedule(self):
-        self.bad_visit_schedule.add_schedule('schedule')
-        self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.bad_visit_schedule.add_visit('schedule', '1000', visit_model=SubjectVisit)
-        self.assertRaises(AlreadyRegistered, self.bad_visit_schedule.add_visit, 'schedule', '1000')
-
-    def test_get_membership_form(self):
-        self.bad_visit_schedule.add_schedule('schedule')
-        membership_form = self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.assertEqual(membership_form, self.bad_visit_schedule.get_membership_form(
-            membership_form.app_label, membership_form.model_name))
-        self.assertEqual(membership_form, self.bad_visit_schedule.get_membership_form(
-            membership_form.app_label, membership_form.model_name, schedule_name='schedule'))
-
-    def test_get_schedule_with_membership_form(self):
-        schedule = self.bad_visit_schedule.add_schedule('schedule')
-        membership_form = self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.assertEqual(schedule, self.bad_visit_schedule.get_schedule(membership_form))
-
-    def test_get_schedule_with_model(self):
-        schedule = self.bad_visit_schedule.add_schedule('schedule')
-        membership_form = self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.assertEqual(schedule, self.bad_visit_schedule.get_schedule(model=SubjectConsent))
-
-    def test_get_schedule_with_membership_form2(self):
-        schedule = self.bad_visit_schedule.add_schedule('schedule')
-        membership_form = self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.assertEqual(schedule, self.bad_visit_schedule.get_schedule(
-            app_label=membership_form.app_label, model_name=membership_form.model_name))
-
-    def test_add_visit_detects_not_a_visit_model(self):
-        self.bad_visit_schedule.add_schedule('schedule')
-        self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.assertRaises(VisitError, self.bad_visit_schedule.add_visit, 'schedule', '1000', visit_model=SubjectConsent)
+    def test_visit_already_added_to_schedule(self):
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        schedule = self.bad_visit_schedule.add_schedule(schedule)
+        schedule.add_visit('1000')
+        self.assertRaises(AlreadyRegistered, schedule.add_visit, '1000')
 
     def test_schedule_detects_duplicate_timepoint(self):
-        self.bad_visit_schedule.add_schedule('schedule')
-        self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.bad_visit_schedule.add_visit('schedule', '1000',
-                                          visit_model=SubjectVisit, time_point=0)
-        self.assertRaises(ScheduleError, self.bad_visit_schedule.add_visit, 'schedule', '2000',
-                          visit_model=SubjectVisit, time_point=0, base_interval=1)
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        schedule = self.bad_visit_schedule.add_schedule(schedule)
+        schedule.add_visit('1000', timepoint=1)
+        self.assertRaises(ScheduleError, schedule.add_visit, '2000', timepoint=1)
 
     def test_schedule_detects_duplicate_base_interval(self):
-        self.bad_visit_schedule.add_schedule('schedule')
-        self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.bad_visit_schedule.add_visit('schedule', '1000',
-                                          visit_model=SubjectVisit, time_point=0, base_interval=0)
-        self.assertRaises(ScheduleError, self.bad_visit_schedule.add_visit, 'schedule', '2000',
-                          visit_model=SubjectVisit, time_point=1, base_interval=0)
-
-    def test_gets_previous_visit(self):
-        schedule_name = 'schedule'
-        self.bad_visit_schedule.add_schedule('schedule')
-        self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.bad_visit_schedule.add_visit(schedule_name, '1000',
-                                          visit_model=SubjectVisit, time_point=0)
-        self.bad_visit_schedule.add_visit(schedule_name, '1010',
-                                          visit_model=SubjectVisit, time_point=1, base_interval=1)
-        visit = self.bad_visit_schedule.add_visit(schedule_name, '1020',
-                                                  visit_model=SubjectVisit, time_point=2, base_interval=2)
-        self.bad_visit_schedule.add_visit(schedule_name, '1030',
-                                          visit_model=SubjectVisit, time_point=3, base_interval=3)
-        self.bad_visit_schedule.add_visit(schedule_name, '1040',
-                                          visit_model=SubjectVisit, time_point=4, base_interval=4)
-        schedule = self.bad_visit_schedule.schedules.get(schedule_name)
-        self.assertEquals(schedule.get_previous_visit('1030'), visit)
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        schedule = self.bad_visit_schedule.add_schedule(schedule)
+        schedule.add_visit('1000', timepoint=1, base_interval=1)
+        self.assertRaises(ScheduleError, schedule.add_visit, '2000', timepoint=2, base_interval=1)
 
     def test_gets_ordered_visits(self):
-        schedule_name = 'schedule'
-        self.bad_visit_schedule.add_schedule('schedule')
-        self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.bad_visit_schedule.add_visit(schedule_name, '1000',
-                                          visit_model=SubjectVisit, time_point=0)
-        self.bad_visit_schedule.add_visit(schedule_name, '1010',
-                                          visit_model=SubjectVisit, time_point=1, base_interval=1)
-        self.bad_visit_schedule.add_visit(schedule_name, '1020',
-                                          visit_model=SubjectVisit, time_point=2, base_interval=2)
-        self.bad_visit_schedule.add_visit(schedule_name, '1030',
-                                          visit_model=SubjectVisit, time_point=3, base_interval=3)
-        self.bad_visit_schedule.add_visit(schedule_name, '1040',
-                                          visit_model=SubjectVisit, time_point=4, base_interval=4)
-        schedule = self.bad_visit_schedule.schedules.get(schedule_name)
-        self.assertEquals([x.time_point for x in schedule.ordered_visits], [0, 1, 2, 3, 4])
+        """Assert visits are ordered by timepoint default."""
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        for i in [1, 5, 3, 7, 2]:
+            schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
+        self.assertEquals([x.timepoint for x in schedule.visits], [1, 2, 3, 5, 7])
+
+    def test_gets_previous_visit(self):
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        for i in [1, 5, 3, 7, 2]:
+            schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
+        self.assertEquals(schedule.get_previous_visit('5000'), schedule.get_visit('3000'))
+
+    def test_gets_previous_visit2(self):
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        for i in [1, 5, 3, 7, 2]:
+            schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
+        self.assertEquals(schedule.get_previous_visit('1000'), None)
+
+    def test_gets_next_visit(self):
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        for i in [1, 5, 3, 7, 2]:
+            schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
+        self.assertEquals(schedule.get_visit('5000', 1), schedule.get_visit('7000'))
+
+    def test_gets_visit_forwards(self):
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        for i in [1, 5, 3, 7, 2]:
+            schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
+        self.assertEquals(schedule.get_visit('3000', 1), schedule.get_visit('5000'))
+
+    def test_gets_visit_forwards2(self):
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        for i in [1, 5, 3, 7, 2]:
+            schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
+        self.assertEquals(schedule.get_visit('1000', 3), schedule.get_visit('5000'))
+
+    def test_gets_visit_forwards3(self):
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        for i in [1, 5, 3, 7, 2]:
+            schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
+        self.assertEquals(schedule.get_visit('1000', 10), None)
+
+    def test_gets_visit_backwards(self):
+        schedule = Schedule('schedule-one', enrollment_model=SubjectConsent)
+        for i in [1, 5, 3, 7, 2]:
+            schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
+        self.assertEquals(schedule.get_visit('7000', -3), schedule.get_visit('2000'))
 
     def test_crfs_unique_show_order(self):
         crfs = (
@@ -157,8 +125,5 @@ class TestVisitSchedule(TestCase):
             Crf(show_order=20, app_label='example', model_name='CrfTwo'),
             Crf(show_order=20, app_label='example', model_name='CrfThree'),
         )
-        schedule_name = 'schedule'
-        self.bad_visit_schedule.add_schedule('schedule')
-        self.bad_visit_schedule.add_membership_form('schedule', model=SubjectConsent)
-        self.assertRaises(CrfError, self.bad_visit_schedule.add_visit, schedule_name, '1000',
-                          visit_model=SubjectVisit, time_point=0, crfs=crfs)
+        schedule = Schedule('schedule', enrollment_model=SubjectConsent)
+        self.assertRaises(CrfError, schedule.add_visit, '1000', timepoint=0, crfs=crfs)

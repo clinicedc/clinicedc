@@ -1,6 +1,6 @@
 
 
-class MembershipFormError(Exception):
+class EnrollmentError(Exception):
     pass
 
 

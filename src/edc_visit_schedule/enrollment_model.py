@@ -1,9 +1,8 @@
 from django.apps import apps as django_apps
-from edc_appointment.model_mixins import CreateAppointmentsMixin
 from django.core.exceptions import ImproperlyConfigured
 
 
-class MembershipForm:
+class EnrollmentModel:
 
     def __init__(self, model=None, app_label=None, model_name=None, visible=None):
         if model:
@@ -16,13 +15,15 @@ class MembershipForm:
             self.model = django_apps.get_model(self.app_label, self.model_name)
         self.visible = True if visible is None else visible
         self.name = '{}.{}'.format(self.app_label, self.model_name)
-        if not issubclass(self.model, CreateAppointmentsMixin):
+        try:
+            self.prepare_appointments
+        except AttributeError:
             raise ImproperlyConfigured(
-                'MembershipForm refers to a model class that is not a subclass '
-                'of edc_appointment.AppointmentMixin. Got {0}'.format(self.model))
+                'EnrollmentModel missing required method \'prepare_appointments\'. '
+                'See edc_appointment.CreateAppointmentsMixin. Got {0}'.format(self.model))
 
     def __repr__(self):
-        return 'MembershipForm({}, {}, {})'.format(self.app_label, self.model_name, self.visible)
+        return 'EnrollmentModel({}, {}, {})'.format(self.app_label, self.model_name, self.visible)
 
     def __str__(self):
         return self.model._meta.verbose_name

@@ -45,18 +45,12 @@ class Requisition(Crf):
 
 class Visit:
 
-    def __init__(self, code, visit_model, schedule_name, **kwargs):
+    def __init__(self, code, **kwargs):
         self.code = code  # unique
-        self.title = kwargs.get('title', '{} Visit {}'.format(schedule_name, code))
-        self.visit_model = visit_model
-        try:
-            visit_model.appointment
-        except AttributeError:
-            raise VisitError('Expected a visit model. Got {}'.format(visit_model))
-        self.schedule_name = schedule_name  # Visit definition may be used in more than one schedule
+        self.title = kwargs.get('title', 'Visit {}'.format(code))
         self.insructions = kwargs.get('instructions')
-        self.time_point = kwargs.get('time_point', 0)
-        self.base_interval = kwargs.get('base_interval', self.time_point)
+        self.timepoint = kwargs.get('timepoint', 0)
+        self.base_interval = kwargs.get('base_interval', self.timepoint)
         self.base_interval_unit = kwargs.get('base_interval_unit', DAY)  # choices = VISIT_INTERVAL_UNITS
         if self.base_interval_unit not in [item[0] for item in VISIT_INTERVAL_UNITS]:
             raise VisitScheduleError('Invalid interval unit. Got \'{}\''.format(self.base_interval_unit))
@@ -69,11 +63,7 @@ class Visit:
         self.requisitions = kwargs.get('requisitions')
 
     def __repr__(self):
-        return 'Visit({}, {}, {}, {})'.format(
-            self.code, self.visit_model._meta.verbose_name, self.schedule_name, self.time_point)
-
-    def visit_tracking_content_type_map(self):
-        return self.visit_model
+        return 'Visit({}, {})'.format(self.code, self.timepoint)
 
     def get_rdelta_attrname(self, unit):
         if unit == HOUR:

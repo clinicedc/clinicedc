@@ -4,23 +4,23 @@ from django.apps import apps as django_apps
 from django.db import models
 from dateutil.relativedelta import relativedelta
 
-from edc_content_type_map.models import ContentTypeMap
+# from edc_content_type_map.models import ContentTypeMap
 
 
-class MembershipFormManager(models.Manager):
+class EnrollmentManager(models.Manager):
 
-    def get_by_natural_key(self, app_label, model):
-        content_type_map = ContentTypeMap.objects.get_by_natural_key(app_label, model)
-        return self.get(content_type_map=content_type_map)
+#     def get_by_natural_key(self, app_label, model):
+#         content_type_map = ContentTypeMap.objects.get_by_natural_key(app_label, model)
+#         return self.get(content_type_map=content_type_map)
 
-    def codes_for_category(self, membership_form_category):
+    def codes_for_category(self, enrollment_category):
         """ Lists visit codes for this membership form category."""
         VisitDefinition = django_apps.get_model('edc_visit_schedule', 'visitdefinition')
-        membership_forms = super(MembershipFormManager, self).filter(category=membership_form_category)
+        enrollments = super(EnrollmentManager, self).filter(category=enrollment_category)
         visit_definition_codes = set()
-        for membership_form in membership_forms:
+        for enrollment in enrollments:
             for visit_definition in VisitDefinition.objects.filter(
-                    schedule__membership_form=membership_form):
+                    schedule__enrollment=enrollment):
                 visit_definition_codes.add(visit_definition.code)
         return list(visit_definition_codes)
 

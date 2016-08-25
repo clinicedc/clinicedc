@@ -45,16 +45,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'simple_history',
-    'django_crypto_fields.apps.DjangoCryptoFieldsAppConfig',
-    'edc_base',
+    'django_crypto_fields.apps.AppConfig',
+    'edc_base.apps.AppConfig',
+    'edc_appointment.apps.AppConfig',
+    'edc_protocol.apps.AppConfig',
     'example.apps.EdcVisitScheduleAppConfig',
-    'example.apps.ExampleAppConfig',
+    'example.apps.AppConfig',
 ]
 
 if 'test' in sys.argv:
     MIGRATION_MODULES = {
         'example': None,
-        'edc_visit_schedule': None}
+        'edc_visit_schedule': None,
+        'edc_appointment': None,
+        'django_crypto_fields': None}
 
 
 MIDDLEWARE_CLASSES = (

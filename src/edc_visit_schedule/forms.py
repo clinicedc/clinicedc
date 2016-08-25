@@ -3,7 +3,7 @@
 # # from .models import MembershipForm
 # 
 # 
-# class MembershipFormForm(forms.ModelForm):
+# class EnrollmentForm(forms.ModelForm):
 # 
 #     class Meta:
 #         model = MembershipForm
@@ -15,5 +15,5 @@
 #             cleaned_data.get('content_type_map').model_class().prepare_appointments
 #         except AttributeError:
 #             raise forms.ValidationError(
-#                 'Membership forms must be a subclass of AppointmentMixin. See module appointment_helper.')
+#                 'Enrollment forms must be a subclass of CreateAppointmentsMixin. See module appointment_helper.')
 #         return cleaned_data

@@ -9,7 +9,9 @@ from .exceptions import AlreadyRegistered
 
 class Controller(object):
 
-    """ Main controller of :class:`VisitSchedule` objects. """
+    """ Main controller of :class:`VisitSchedule` objects.
+
+    A visit_schedule contains schedules"""
 
     def __init__(self):
         self.registry = {}
@@ -20,29 +22,25 @@ class Controller(object):
         else:
             raise AlreadyRegistered('Visit Schedule {} is already registered.'.format(visit_schedule))
 
-    @property
-    def visit_schedules(self):
-        """Returns dictionary of visit_schedules"""
-        return self.registry
+#     @property
+#     def visit_schedules(self):
+#         """Returns dictionary of visit_schedules"""
+#         return self.registry
 
-    def get_visit_schedule(self, app_label=None, model_name=None, schedule_name=None, model=None):
-        """Returns the visit_schedule for the given app_label, model_name or schedule_name."""
-        visit_schedule = None
-        if schedule_name:
-            for visit_schedule in self.registry.values():
-                if visit_schedule.schedules(schedule_name):
-                    break
-        else:
-            if model:
-                app_label = model._meta.app_label
-                model_name = model._meta.model_name
-            for visit_schedule in self.registry.values():
-                if visit_schedule.get_membership_form(app_label, model_name):
-                    break
-        return visit_schedule
+    def get_visit_schedule(self, name):
+        return self.registry.get(name)
+
+    def get_schedule(self, value=None):
+        """Returns the a schedule for the given enrollment model."""
+        schedule = None
+        for visit_schedule in self.registry.values():
+            schedule = visit_schedule.get_schedule(value)
+            if schedule:
+                break
+        return schedule
 
     def autodiscover(self, module_name=None):
-        """Autodiscovers mapper classes in the visit_schedules.py file of any INSTALLED_APP."""
+        """Autodiscovers classes in the visit_schedules.py file of any INSTALLED_APP."""
         module_name = module_name or 'visit_schedules'
         sys.stdout.write(' * checking for site {}s ...\n'.format(module_name))
         for app in django_apps.app_configs:
