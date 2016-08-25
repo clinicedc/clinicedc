@@ -4,8 +4,8 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 
-from edc_meta_data.constants import UNKEYED
-from edc_registration.mixins import RegisteredSubjectMixin
+# from edc_meta_data.constants import UNKEYED
+from edc_registration.model_mixins import RegisteredSubjectMixin
 from edc_timepoint.model_mixins import TimepointStatusMixin
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -20,53 +20,36 @@ appointment_app_config = django_apps.get_app_config('edc_appointment')
 
 class CreateAppointmentsMixin(models.Model):
 
-    """ Model Mixin to add methods to create appointments.
+    """ Model Mixin to add methods to an enrollment model to create appointments on post_save."""
 
-    Such models may be listed by name in the ScheduledGroup model and thus
-    trigger the creation of appointments.
-
-    """
-    def pre_prepare_appointments(self, using):
-        """Users may override to add functionality before creating appointments."""
-        return None
-
-    def post_prepare_appointments(self, appointments, using):
-        """Users may override to add functionality after creating appointments."""
-        return None
-
-    def prepare_appointments(self, using):
-        """Creates all appointments linked to this instance.
-
-        Calls :func:`pre_prepare_appointments` and :func:`post_prepare_appointments`
-        """
-        self.pre_prepare_appointments(using)
-        appointments = self.create_all()
-        self.post_prepare_appointments(appointments, using)
-        return appointments
+    visit_schedule_name = None
 
     @property
     def visit_schedule(self):
-        return site_visit_schedules.get_visit_schedule(
-            self._meta.app_label, self._meta.model_name)
+        return site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
 
     @property
     def schedule(self):
-        return self.visit_schedule.get_schedule(
-            app_label=self._meta.app_label, model_name=self._meta.model_name)
+        return self.visit_schedule.get_schedule(self._meta.label_lower)
 
-    def create_all(self, base_appt_datetime=None):
-        """Creates appointments. """
+    def create_appointments(self, base_appt_datetime=None):
+        """Creates appointments when called by post_save signal. """
         appointments = []
-        default_options = dict(
-            registration_datetime=base_appt_datetime or self.get_registration_datetime(),
-            default_appt_type=appointment_app_config.default_appt_type)
-        for visit in self.schedule.visits.values():
-            appointment = self.update_or_create_appointment(visit=visit, **default_options)
+        try:
+            base_appt_datetime = base_appt_datetime or self.registration_datetime
+        except AttributeError:
+            pass
+        for visit in self.schedule.visits:
+            appointment = self.update_or_create_appointment(
+                visit=visit,
+                subject_identifier=self.subject_identifier,
+                registration_datetime=base_appt_datetime,
+                default_appt_type=appointment_app_config.default_appt_type)
             appointments.append(appointment)
         return appointments
 
     def update_or_create_appointment(self, visit=None, subject_identifier=None, registration_datetime=None,
-                                     default_appt_type=None, dashboard_type=None):
+                                     default_appt_type=None):
         """Updates or creates an appointment for this subject for the visit."""
         appt_datetime = self.new_appointment_appt_datetime(registration_datetime, visit)
         appointment_model = django_apps.get_app_config('edc_appointment').model
@@ -74,7 +57,6 @@ class CreateAppointmentsMixin(models.Model):
             appointment = appointment_model.objects.get(
                 subject_identifier=subject_identifier,
                 visit_schedule_name=self.visit_schedule.name,
-                schedule_name=self.schedule.name,
                 visit_code=visit.code,
                 visit_code_sequence=0)
             td = appointment.best_appt_datetime - appt_datetime
@@ -90,11 +72,9 @@ class CreateAppointmentsMixin(models.Model):
             appointment = appointment_model.objects.create(
                 subject_identifier=subject_identifier,
                 visit_schedule_name=self.visit_schedule.name,
-                schedule_name=self.schedule.name,
                 visit_code=visit.code,
                 visit_code_sequence=0,
                 appt_datetime=appt_datetime,
-                dashboard_type=dashboard_type,
                 appt_type=default_appt_type)
         return appointment
 
@@ -110,7 +90,7 @@ class CreateAppointmentsMixin(models.Model):
 
     def new_appointment_appt_datetime(self, registration_datetime, visit):
         """Calculates and returns the appointment date for new appointments."""
-        if visit.time_point == 0:
+        if visit.timepoint == 0:
             appt_datetime = self.date_helper.get_best_datetime(
                 registration_datetime)
         else:
@@ -137,8 +117,6 @@ class AppointmentModelMixin(TimepointStatusMixin, RegisteredSubjectMixin):
     """
 
     visit_schedule_name = models.CharField(max_length=25, null=True)
-
-    schedule_name = models.CharField(max_length=25, null=True)
 
     visit_code = models.CharField(max_length=25, null=True)
 
@@ -198,25 +176,9 @@ class AppointmentModelMixin(TimepointStatusMixin, RegisteredSubjectMixin):
 
     is_confirmed = models.BooleanField(default=False, editable=False)
 
-#     # TODO: needed????
-#     dashboard_type = models.CharField(
-#         max_length=25,
-#         editable=False,
-#         null=True,
-#         blank=True,
-#         db_index=True,
-#         help_text='hold dashboard_type variable, set by dashboard')
-
     def __str__(self):
         return "{0}.{1}".format(
             self.visit_code, self.visit_code_sequence)
-
-    @property
-    def visit_definition(self):
-        for visit_schedule in site_visit_schedules.visit_schedules.values():
-            schedule = visit_schedule.schedules.get(self.schedule_name)
-            break
-        return schedule.visits.get(self.visit_code)
 
     class Meta:
         abstract = True
@@ -283,39 +245,39 @@ class RequiresAppointmentModelMixin(models.Model):
                     'Attempt to create or update appointment instance out of sequence. Got \'{}.{}\'.'.format(
                         self.visit_code, visit_code_sequence))
 
-    def update_others_as_not_in_progress(self, using):
-        """Updates other appointments for this registered subject to not be IN_PROGRESS_APPT.
-
-        Only one appointment can be "in_progress", so look for any others in progress and change
-        to Done or Incomplete, depending on ScheduledEntryMetaData (if any NEW => incomplete)"""
-
-        appointment_model = django_apps.get_app_config('edc_appointment').model
-        for appointment in appointment_model.objects.filter(
-                appointment_identifier=self.appointment_identifier,
-                appt_status=IN_PROGRESS_APPT).exclude(
-                    pk=self.pk):
-            with transaction.atomic(using):
-                if self.unkeyed_forms():
-                    if appointment.appt_status != INCOMPLETE_APPT:
-                        appointment.appt_status = INCOMPLETE_APPT
-                        appointment.save(using, update_fields=['appt_status'])
-                else:
-                    if appointment.appt_status != COMPLETE_APPT:
-                        appointment.appt_status = COMPLETE_APPT
-                        appointment.save(using, update_fields=['appt_status'])
-
-    def unkeyed_forms(self):
-        if self.unkeyed_crfs() or self.unkeyed_requisitions():
-            return True
-        return False
-
-    def unkeyed_crfs(self):
-        from edc_meta_data.helpers import CrfMetaDataHelper
-        return CrfMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
-
-    def unkeyed_requisitions(self):
-        from edc_meta_data.helpers import RequisitionMetaDataHelper
-        return RequisitionMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
+#     def update_others_as_not_in_progress(self, using):
+#         """Updates other appointments for this registered subject to not be IN_PROGRESS_APPT.
+#
+#         Only one appointment can be "in_progress", so look for any others in progress and change
+#         to Done or Incomplete, depending on ScheduledEntryMetaData (if any NEW => incomplete)"""
+#
+#         appointment_model = django_apps.get_app_config('edc_appointment').model
+#         for appointment in appointment_model.objects.filter(
+#                 appointment_identifier=self.appointment_identifier,
+#                 appt_status=IN_PROGRESS_APPT).exclude(
+#                     pk=self.pk):
+#             with transaction.atomic(using):
+#                 if self.unkeyed_forms():
+#                     if appointment.appt_status != INCOMPLETE_APPT:
+#                         appointment.appt_status = INCOMPLETE_APPT
+#                         appointment.save(using, update_fields=['appt_status'])
+#                 else:
+#                     if appointment.appt_status != COMPLETE_APPT:
+#                         appointment.appt_status = COMPLETE_APPT
+#                         appointment.save(using, update_fields=['appt_status'])
+#
+#     def unkeyed_forms(self):
+#         if self.unkeyed_crfs() or self.unkeyed_requisitions():
+#             return True
+#         return False
+#
+#     def unkeyed_crfs(self):
+#         from edc_meta_data.helpers import CrfMetaDataHelper
+#         return CrfMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
+#
+#     def unkeyed_requisitions(self):
+#         from edc_meta_data.helpers import RequisitionMetaDataHelper
+#         return RequisitionMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
 
     def validate_appt_datetime(self, exception_cls=None):
         """Returns the appt_datetime, possibly adjusted, and the best_appt_datetime,
@@ -367,11 +329,11 @@ class RequiresAppointmentModelMixin(models.Model):
             if not window_period.check_datetime():
                 raise exception_cls(window_period.error_message)
 
-    def time_point(self):
+    def timepoint(self):
         url = reverse('admin:edc_appointment_timepointstatus_changelist')
-        return """<a href="{url}?appointment_identifier={appointment_identifier}" />time_point</a>""".format(
+        return """<a href="{url}?appointment_identifier={appointment_identifier}" />timepoint</a>""".format(
             url=url, appointment_identifier=self.appointment_identifier)
-    time_point.allow_tags = True
+    timepoint.allow_tags = True
 
     def get_report_datetime(self):
         """Returns the appointment datetime as the report_datetime."""
