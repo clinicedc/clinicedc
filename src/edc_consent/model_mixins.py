@@ -16,8 +16,6 @@ from .managers import ObjectConsentManager, ConsentManager
 
 class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
-    MAX_SUBJECTS = 0
-
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
         max_length=50,

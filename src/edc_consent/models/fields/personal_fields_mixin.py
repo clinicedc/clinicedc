@@ -10,12 +10,6 @@ from edc_constants.choices import GENDER_UNDETERMINED
 
 class PersonalFieldsMixin(CryptoMixin, models.Model):
 
-    SUBJECT_TYPES = ['subject']
-    GENDER_OF_CONSENT = ['M', 'F']
-    AGE_IS_ADULT = 18
-    MIN_AGE_OF_CONSENT = 16
-    MAX_AGE_OF_CONSENT = 64
-
     first_name = FirstnameField(
         null=True,
     )
