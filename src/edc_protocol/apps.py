@@ -20,7 +20,7 @@ class AppConfig(DjangoAppConfig):
 
     # these attributes are used by the EnrollmentCapMixin
     subject_types = {'subject': 'Subjects'}  # {key: verbose_name}
-    enrollment_caps = {'example.enrollmentmodel': ('subject', -1)}  # {label_lower: (key, count)}
+    enrollment_caps = {'edc_example.enrollmentmodel': ('subject', -1)}  # {label_lower: (key, count)}
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
@@ -33,3 +33,4 @@ class AppConfig(DjangoAppConfig):
                 ' * enrollment cap set to {} for {} in \'{}\'.\n'.format(
                     cap[COUNT], self.subject_types[cap[SUBJECT_TYPE]], label))
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
+        sys.stdout.flush()
