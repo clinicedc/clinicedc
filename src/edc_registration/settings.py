@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'edc_base.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_registration.apps.AppConfig',
-    'example.apps.AppConfig',
+    'edc_example.apps.AppConfig',
 ]
 
 MIDDLEWARE_CLASSES = (

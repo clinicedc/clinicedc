@@ -3,16 +3,16 @@ import re
 from uuid import uuid4
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.core.validators import RegexValidator
-from django.db import models, transaction
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.utils.translation import ugettext as _
 from django_crypto_fields.fields import (
     IdentityField, EncryptedCharField, FirstnameField, LastnameField)
 from django_crypto_fields.mask_encrypted import mask_encrypted
+from django.db import models, transaction
+from django.utils.translation import ugettext as _
 
+from edc_base.model.constants import DEFAULT_BASE_FIELDS
 from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
 from edc_constants.choices import YES, NO, GENDER
@@ -290,34 +290,47 @@ class RegisteredSubjectModelMixin(models.Model):
         unique_together = ('first_name', 'dob', 'initials', 'additional_key')
 
 
-@receiver(post_save, weak=False, dispatch_uid="update_registered_subject_from_consent_on_post_save")
-def update_registered_subject_from_consent_on_post_save(sender, instance, raw, created, using, **kwargs):
-    """Updates RegisteredSubject from the consent.
+class RegistrationMixin(models.Model):
 
-    Consent must have an AuditTrail manager (history), a FK to registered_subject
-    and an 'identity' field."""
-    if not raw and not kwargs.get('update_fields'):
-        try:
-            instance.history  # raise on models without an AuditTrail, e.g audit model classes
-            with transaction.atomic():
-                identity = instance.identity  # only a consent model has this field
-                registered_subject = instance.registered_subject
-                registered_subject.identity = identity
-                registered_subject.last_name = instance.last_name
-                registered_subject.first_name = instance.first_name
-                registered_subject.identity_type = instance.identity_type
-                registered_subject.subject_identifier = instance.subject_identifier
-                registered_subject.registration_identifier = instance.pk
-                registered_subject.dob = instance.dob
-                registered_subject.is_dob_estimated = instance.is_dob_estimated
-                registered_subject.gender = instance.gender
-                registered_subject.initials = instance.initials
-                registered_subject.study_site = instance.study_site
-                registered_subject.save(using=using)
-        except AttributeError as e:
-            if '\'NoneType\' object has no attribute \'pk\'' in str(e):
-                pass
-            elif ('registered_subject' not in str(e) and
-                  'identity' not in str(e) and
-                  'history' not in str(e) and 'last_name' not in str(e)):
-                raise AttributeError(str(e))
+    """A model mixin that creates or updates RegisteredSubject on post_save signal."""
+
+    def allocate_subject_identifier(self):
+        pass
+
+    @property
+    def registration_model(self):
+        return django_apps.get_app_config('edc_registration').model
+
+    def registration_update_or_create(self, unique_field, unique_value):
+        """Creates or Updates the registration model with attributes from this instance."""
+        self.registration_raise_on_not_unique()
+        self.registration_options[unique_field] = unique_value
+        registered_subject, created = self.registration_model.objects.update_or_create(
+            **{unique_field: unique_value}, defaults=self.registration_options)
+        return registered_subject, created
+
+    @property
+    def registration_unique_field(self):
+        return 'subject_identifier'
+
+    def registration_raise_on_not_unique(self):
+        """Asserts the field specified for update_or_create is unique."""
+        if self.registration_unique_field not in [f.name for f in self._meta.get_fields() if f.unique]:
+            raise ImproperlyConfigured('Field is not unique. Got {}'.format(self.registration_unique_field))
+
+    @property
+    def registration_options(self):
+        """Gathers values for common attributes between the registration model and this instance."""
+        registration_options = {}
+        rs = self.registration_model()
+        for k, v in self.__dict__.items():
+            if k not in DEFAULT_BASE_FIELDS + ['_state'] + [self.registration_unique_field]:
+                try:
+                    getattr(rs, k)
+                    registration_options.update({k: v})
+                except AttributeError:
+                    pass
+        return registration_options
+
+    class Meta:
+        abstract = True

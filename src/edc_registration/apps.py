@@ -1,3 +1,5 @@
+import sys
+
 from django.apps import apps as django_apps
 
 from django.apps import AppConfig as DjangoAppConfig
@@ -6,9 +8,14 @@ from django.apps import AppConfig as DjangoAppConfig
 class AppConfig(DjangoAppConfig):
     name = 'edc_registration'
     verbose_name = 'Edc Registration'
-    model_name = 'registeredsubject'
-    app_label = 'example'
+    app_label = 'edc_example'
+
+    def ready(self):
+        from .signals import update_registered_subject_from_consent_on_post_save
+        sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
+        sys.stdout.write('  * using {}.{}.\n'.format(self.app_label, 'registeredsubject'))
+        sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
 
     @property
     def model(self):
-        return django_apps.get_model(self.app_label, self.model_name)
+        return django_apps.get_model(self.app_label, 'registeredsubject')

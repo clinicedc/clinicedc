@@ -1,12 +1,16 @@
 import re
+from uuid import uuid4
 
 from django.apps import apps as django_apps
 from django.test import TestCase
 
 from edc_registration.exceptions import RegisteredSubjectError
+from edc_example.models import Enroll
+from dateutil.relativedelta import relativedelta
+from django.utils import timezone
 
 
-class TestRegisterSubject(TestCase):
+class TestRegistration(TestCase):
 
     def setUp(self):
         app_config = django_apps.get_app_config('edc_registration')
@@ -54,3 +58,34 @@ class TestRegisterSubject(TestCase):
         """Asserts raises on attempt to create duplicate"""
         self.registered_subject.subject_identifier = '9999999-1'
         self.assertRaises(RegisteredSubjectError, self.registered_subject.save)
+
+    def test_registration_creates(self):
+        options = dict(
+            identity='111211111',
+            dob=timezone.now() - relativedelta(years=25),
+            first_name='ERIK',
+            last_name='OBAMA',
+            initials='EO',
+            subject_identifier=str(uuid4()),
+        )
+        enroll = Enroll.objects.create(**options)
+        self.assertEqual(enroll.registration_model.objects.filter(identity='111211111').count(), 1)
+        enroll.save()
+        self.assertEqual(enroll.registration_model.objects.filter(identity='111211111').count(), 1)
+
+    def test_registration_updates(self):
+        options = dict(
+            identity='111211111',
+            dob=timezone.now() - relativedelta(years=25),
+            first_name='ERIK',
+            last_name='OBAMA',
+            initials='EO',
+            subject_identifier=str(uuid4()),
+        )
+        enroll = Enroll.objects.create(**options)
+        self.assertEqual(enroll.registration_model.objects.filter(identity='111211111').count(), 1)
+        enroll.first_name = 'BARACK'
+        enroll.save()
+        self.assertEqual(enroll.registration_model.objects.filter(identity='111211111').count(), 1)
+        registration = enroll.registration_model.objects.get(identity='111211111')
+        self.assertEqual(registration.first_name, 'BARACK')
