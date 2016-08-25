@@ -5,13 +5,13 @@ from edc_visit_schedule.visit import Crf
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_schedule.exceptions import AlreadyRegistered, ScheduleError, CrfError
 
-from example.models import SubjectConsent, SubjectVisit
+from edc_example.models import SubjectConsent, SubjectVisit
 from edc_visit_schedule.schedule import Schedule
 
 
 bad_visit_schedule = VisitSchedule(
     name='Bad Visit Schedule',
-    app_label='example',
+    app_label='edc_example',
 )
 
 
@@ -20,7 +20,7 @@ class TestVisitSchedule(TestCase):
     def setUp(self):
         self.bad_visit_schedule = VisitSchedule(
             name='Bad Visit Schedule',
-            app_label='example',
+            app_label='edc_example',
             visit_model=SubjectVisit,
         )
 
@@ -121,9 +121,9 @@ class TestVisitSchedule(TestCase):
 
     def test_crfs_unique_show_order(self):
         crfs = (
-            Crf(show_order=10, app_label='example', model_name='CrfOne'),
-            Crf(show_order=20, app_label='example', model_name='CrfTwo'),
-            Crf(show_order=20, app_label='example', model_name='CrfThree'),
+            Crf(show_order=10, app_label='edc_example', model_name='CrfOne'),
+            Crf(show_order=20, app_label='edc_example', model_name='CrfTwo'),
+            Crf(show_order=20, app_label='edc_example', model_name='CrfThree'),
         )
         schedule = Schedule('schedule', enrollment_model=SubjectConsent)
         self.assertRaises(CrfError, schedule.add_visit, '1000', timepoint=0, crfs=crfs)

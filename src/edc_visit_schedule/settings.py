@@ -35,8 +35,6 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-APP_LABEL = 'example'
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -49,8 +47,8 @@ INSTALLED_APPS = [
     'edc_base.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
-    'example.apps.EdcVisitScheduleAppConfig',
-    'example.apps.AppConfig',
+    'edc_example.apps.EdcVisitScheduleAppConfig',
+    'edc_example.apps.AppConfig',
 ]
 
 if 'test' in sys.argv:
