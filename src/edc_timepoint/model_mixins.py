@@ -6,7 +6,7 @@ from .constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT, FEEDBACK
 from django.utils import timezone
 
 
-class TimepointStatusError(Exception):
+class TimepointError(Exception):
     pass
 
 
@@ -32,19 +32,25 @@ class TimepointStatusMixin(models.Model):
                 kwargs.get('update_fields') != ['timepoint_opened_datetime', 'timepoint_status'] and
                 kwargs.get('update_fields') != ['timepoint_closed_datetime', 'timepoint_status']):
             app_config = django_apps.get_app_config('edc_timepoint')
-            attrs = app_config.timepoint_models[self._meta.label_lower]
-            if getattr(self, attrs['status_field']) != attrs['closed_status']:
+            try:
+                timepoint = app_config.timepoints[self._meta.label_lower]
+            except KeyError:
+                raise TimepointError(
+                    'Model \'{}\' is not configured as a timepoint. '
+                    'See AppConfig for \'edc_timepoint\'.'.format(self._meta.label_lower))
+            if getattr(self, timepoint.status_field) != timepoint.closed_status:
                 self.timepoint_status = OPEN_TIMEPOINT
                 self.timepoint_closed_datetime = None
             elif self.timepoint_status == CLOSED_TIMEPOINT:
-                raise TimepointStatusError('Model is closed for data entry. See TimpointStatus.')
+                raise TimepointError(
+                    'This \'{}\' instance is closed for data entry. See Timpoint.'.format(self._meta.verbose_name))
         super(TimepointStatusMixin, self).save(*args, **kwargs)
 
     def timepoint_close_timepoint(self):
         """Closes a timepoint."""
         app_config = django_apps.get_app_config('edc_timepoint')
-        attrs = app_config.timepoint_models[self._meta.label_lower]
-        if getattr(self, attrs['status_field']) == attrs['closed_status']:
+        timepoint = app_config.timepoints[self._meta.label_lower]
+        if getattr(self, timepoint.status_field) == timepoint.closed_status:
             self.timepoint_status = CLOSED_TIMEPOINT
             self.timepoint_closed_datetime = timezone.now()
             self.save(update_fields=['timepoint_status'])

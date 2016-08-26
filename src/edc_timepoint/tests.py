@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from edc_timepoint.constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT
-from edc_timepoint.model_mixins import TimepointStatusError
+from edc_timepoint.model_mixins import TimepointError
 
 from example.models import ExampleModel
 
@@ -21,16 +21,14 @@ class TimepointStatusTests(TestCase):
     def test_timepoint_status_open_date(self):
         app_config = django_apps.get_app_config('edc_timepoint')
         example_model = ExampleModel.objects.create()
-        attrs = app_config.timepoint_models[example_model._meta.label_lower]
-        datetime_field = attrs['datetime_field']
-        self.assertEqual(example_model.timepoint_opened_datetime, getattr(example_model, datetime_field))
+        timepoint = app_config.timepoints[example_model._meta.label_lower]
+        self.assertEqual(example_model.timepoint_opened_datetime, getattr(example_model, timepoint.datetime_field))
 
     def test_timepoint_status_close_fail(self):
         app_config = django_apps.get_app_config('edc_timepoint')
         example_model = ExampleModel.objects.create()
-        attrs = app_config.timepoint_models[example_model._meta.label_lower]
-        datetime_field = attrs['datetime_field']
-        self.assertEqual(example_model.timepoint_opened_datetime, getattr(example_model, datetime_field))
+        timepoint = app_config.timepoints[example_model._meta.label_lower]
+        self.assertEqual(example_model.timepoint_opened_datetime, getattr(example_model, timepoint.datetime_field))
 
     def test_timepoint_status_close_attempt(self):
         """Assert timepoint does not closed when tried."""
@@ -44,7 +42,7 @@ class TimepointStatusTests(TestCase):
         example_model.example_status = 'finish'
         example_model.save()
         example_model.timepoint_close_timepoint()
-        self.assertRaises(TimepointStatusError, example_model.save)
+        self.assertRaises(TimepointError, example_model.save)
 
     def test_timepoint_status_blocks(self):
         """Assert timepoint closes because example_model status is "closed" and blocks further changes."""
@@ -52,7 +50,7 @@ class TimepointStatusTests(TestCase):
         example_model.example_status = 'finish'
         example_model.save()
         example_model.timepoint_close_timepoint()
-        self.assertRaises(TimepointStatusError, example_model.save)
+        self.assertRaises(TimepointError, example_model.save)
 
     def test_timepoint_status_attrs(self):
         """Assert timepoint closes because example_model status is "finish" and blocks further changes."""
