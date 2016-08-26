@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'edc_base.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
-    'edc_example.apps.EdcVisitScheduleAppConfig',
+    'edc_visit_schedule.apps.AppConfig',
     'edc_example.apps.AppConfig',
 ]
 
