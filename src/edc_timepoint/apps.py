@@ -20,11 +20,11 @@ class AppConfig(DjangoAppConfig):
     def ready(self):
         from .signals import update_timepoint_on_post_save
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
-        temp = {}
+        timepoints = {}
         for timepoint in self.timepoints:
             sys.stdout.write(' * {} is a timepoint.\n'.format(timepoint))
-            temp[str(timepoint)] = timepoint
-        self.timepoints = temp
+            timepoints[str(timepoint)] = timepoint
+        self.timepoints = timepoints  # converted to dict.
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
 
     @property
