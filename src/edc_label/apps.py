@@ -6,6 +6,9 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 
 from edc_label.constants import LABELS, TESTDATA
+from django.core.management.color import color_style
+
+style = color_style()
 
 
 class AppConfig(DjangoAppConfig):
@@ -41,14 +44,16 @@ class AppConfig(DjangoAppConfig):
         from .label_template import LabelTemplate
         filenames = {'labels': {}, 'test_data': {}}
         for section, ext in [('labels', self.default_ext), ('test_data', self.default_testdata_ext)]:
-            filenames[section] = [os.path.join(self.default_template_folder, f)
-                                  for f in os.listdir(self.default_template_folder)
-                                  if os.path.splitext(f)[1] == '.{}'.format(ext)]
-            if self.extra_templates_folder:
-                extra_files = [os.path.join(self.extra_templates_folder, f)
-                               for f in os.listdir(self.extra_templates_folder)
-                               if os.path.splitext(f)[1] == '.{}'.format(ext)]
-                filenames[section].extend(extra_files)
+            for folder in [self.default_template_folder, self.extra_templates_folder]:
+                if folder:
+                    sys.stdout.write(' * looking for {} in {} ...\r'.format(section, folder))
+                    try:
+                        filenames[section] = [os.path.join(folder, f)
+                                              for f in os.listdir(folder)
+                                              if os.path.splitext(f)[1] == '.{}'.format(ext)]
+                        sys.stdout.write(' * looking for {} in {} ... found.\n'.format(section, folder))
+                    except FileNotFoundError:
+                        sys.stdout.write(' * looking for {} in {} ... '.format(section, folder) + style.ERROR('error') + '.\n')
             filenames[section] = {os.path.splitext(f)[0].split('/')[-1:][0]: f
                                   for f in filenames[section]}
 
