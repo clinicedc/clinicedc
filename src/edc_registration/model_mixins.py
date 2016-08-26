@@ -355,8 +355,13 @@ class RegisteredSubjectMixin(models.Model):
 
     @property
     def registration_instance(self):
-        return django_apps.get_app_config('edc_registration').model.objects.get(
-            subject_identifier=self.subject_identifier)
+        registration_instance = None
+        try:
+            model = django_apps.get_app_config('edc_registration').model
+            registration_instance = model.objects.get(subject_identifier=self.subject_identifier)
+        except model.DoesNotExist as e:
+            raise model.DoesNotExist('{} subject_identifier=\'{}\''.format(str(e), self.subject_identifier))
+        return registration_instance
 
     class Meta:
         abstract = True
