@@ -11,8 +11,8 @@ from django.db.models.fields.related import OneToOneField, ForeignKey
 
 from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
 from edc_base.model.fields.custom_fields import OtherCharField
-from edc_base.model.validators.date import datetime_not_before_study_start, datetime_not_future, date_not_future,\
-    date_not_before_study_start
+from edc_base.model.validators.date import datetime_not_future, date_not_future
+from edc_protocol.validators import datetime_not_before_study_start, date_not_before_study_start
 from edc_constants.choices import YES_NO, ALIVE_DEAD_UNKNOWN
 from edc_constants.constants import YES, ALIVE
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -179,7 +179,7 @@ class PreviousVisitModelMixin(models.Model):
         exception_cls = exception_cls or PreviousVisitError
         if self.requires_previous_visit:
             previous_visit_definition = self.previous_visit_definition(
-                self.appointment.schedule_name, self.appointment.visit_code)
+                self.appointment.visit_schedule_name, self.appointment.visit_code)
             if previous_visit_definition:
                 if self.previous_visit(previous_visit_definition):
                     has_previous_visit = True
@@ -197,7 +197,7 @@ class PreviousVisitModelMixin(models.Model):
         """Returns the previous visit definition relative to this instance or None.
 
         Only selects visit definition instances for this visit model."""
-        visit_schedule = site_visit_schedules.get_visit_schedule(self.appointment.schedule_name)
+        visit_schedule = site_visit_schedules.get_visit_schedule(self.appointment.visit_schedule_name)
         schedule = visit_schedule.schedules.get(self.appointment.schedule_name)
         return schedule.get_previous_visit(visit_code)
 

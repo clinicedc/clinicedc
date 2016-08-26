@@ -10,8 +10,9 @@ from django.test.testcases import TestCase
 from edc_constants.constants import ON_STUDY, ALIVE, YES
 from edc_visit_tracking.form_mixins import VisitFormMixin
 from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from example.models import SubjectVisit, Appointment, CrfOne, OffStudyReport, DeathReport, CrfOneInline
+from edc_example.models import SubjectVisit, Appointment, CrfOne, SubjectConsent, Enrollment  # OffStudyReport, DeathReport, CrfOneInline,\
 from django_extensions.management.commands.update_permissions import django_apps
 
 # from .base_test_case import BaseTestCase
@@ -54,15 +55,28 @@ class TestVisit(TestCase):
     def setUp(self):
         app_config = django_apps.get_app_config('edc_registration')
         RegisteredSubject = app_config.model
+        subject_identifier = '123456789-0'
         # consent
-        # enroll
-        # appointment
-        # visit
-        self.registered_subject = RegisteredSubject.objects.create(
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier=subject_identifier,
+            consent_datetime=timezone.now(),
+            identity='111211111',
+            confirm_identity='111211111',
+            is_literate=YES)
+        # verify registered_subject created
+        self.registered_subject = RegisteredSubject.objects.get(
             subject_identifier='123456789-0')
+        # enroll consented subject
+        enrollment = Enrollment.objects.create(subject_identifier=subject_consent.subject_identifier)
+        visit_schedule = site_visit_schedules.get_visit_schedule(enrollment.visit_schedule_name)
+        schedule = visit_schedule.get_schedule(enrollment.label_lower)
+        # verify appointments created as per edc_example visit_schedule "subject_visit_schedule"
+        self.assertEqual(Appointment.objects.all().count(), 4)
+        # get appointment for first visit
+        visit = schedule.get_first_visit()
         appointment = Appointment.objects.get(
-            registered_subject=self.registered_subject,
-            visit_code='1000',
+            subject_identifier=subject_identifier,
+            visit_code=visit.code,
             visit_instance='0')
         self.data = {
             'appointment': appointment.pk,

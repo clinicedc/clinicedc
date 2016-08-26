@@ -17,7 +17,7 @@ class AppConfig(DjangoAppConfig):
 
     # format {app_label: (model_attr, app_label.model_name)}
     # e.g. {'example': ('subject_visit', 'example.subjectvisit')}
-    visit_models = {'example': ('subject_visit', 'example.subjectvisit')}
+    visit_models = {'edc_example': ('subject_visit', 'edc_example.subjectvisit')}
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
