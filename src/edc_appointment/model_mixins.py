@@ -15,8 +15,6 @@ from .constants import IN_PROGRESS_APPT, NEW_APPT
 from .exceptions import AppointmentStatusError
 from .window_period_helper import WindowPeriodHelper
 
-appointment_app_config = django_apps.get_app_config('edc_appointment')
-
 
 class CreateAppointmentsMixin(models.Model):
 
@@ -24,39 +22,37 @@ class CreateAppointmentsMixin(models.Model):
 
     visit_schedule_name = None
 
-    @property
-    def visit_schedule(self):
-        return site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
-
-    @property
-    def schedule(self):
-        return self.visit_schedule.get_schedule(self._meta.label_lower)
-
     def create_appointments(self, base_appt_datetime=None):
         """Creates appointments when called by post_save signal. """
         appointments = []
+        app_config = django_apps.get_app_config('edc_appointment')
+        visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+        schedule = visit_schedule.get_schedule(self._meta.label_lower)
         try:
             base_appt_datetime = base_appt_datetime or self.registration_datetime
         except AttributeError:
             pass
-        for visit in self.schedule.visits:
-            appointment = self.update_or_create_appointment(
-                visit=visit,
-                subject_identifier=self.subject_identifier,
-                registration_datetime=base_appt_datetime,
-                default_appt_type=appointment_app_config.default_appt_type)
-            appointments.append(appointment)
+        for visit in schedule.visits:
+            with transaction.atomic():
+                appointment = self.update_or_create_appointment(
+                    visit=visit,
+                    subject_identifier=self.subject_identifier,
+                    appt_datetime=base_appt_datetime,
+                    default_appt_type=app_config.default_appt_type)
+                appointments.append(appointment)
         return appointments
 
-    def update_or_create_appointment(self, visit=None, subject_identifier=None, registration_datetime=None,
+    def update_or_create_appointment(self, visit=None, subject_identifier=None, appt_datetime=None,
                                      default_appt_type=None):
         """Updates or creates an appointment for this subject for the visit."""
-        appt_datetime = self.new_appointment_appt_datetime(registration_datetime, visit)
+        visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+        # appt_datetime = self.new_appointment_appt_datetime(appt_datetime, visit)
         appointment_model = django_apps.get_app_config('edc_appointment').model
+        created = False
         try:
             appointment = appointment_model.objects.get(
                 subject_identifier=subject_identifier,
-                visit_schedule_name=self.visit_schedule.name,
+                visit_schedule_name=visit_schedule.name,
                 visit_code=visit.code,
                 visit_code_sequence=0)
             td = appointment.best_appt_datetime - appt_datetime
@@ -71,12 +67,13 @@ class CreateAppointmentsMixin(models.Model):
         except appointment_model.DoesNotExist:
             appointment = appointment_model.objects.create(
                 subject_identifier=subject_identifier,
-                visit_schedule_name=self.visit_schedule.name,
+                visit_schedule_name=visit_schedule.name,
                 visit_code=visit.code,
                 visit_code_sequence=0,
                 appt_datetime=appt_datetime,
                 appt_type=default_appt_type)
-        return appointment
+            created = True
+        return appointment, created
 
     def visit_definitions_for_schedule(self, model_name):
         """Returns a visit_definitions for this membership form's schedule."""
@@ -84,14 +81,14 @@ class CreateAppointmentsMixin(models.Model):
         return schedule.visit_definitions
 
     @property
-    def date_helper(self):
+    def appointment_date_helper(self):
         appointment_model = django_apps.get_app_config('edc_appointment').model
         return AppointmentDateHelper(appointment_model)
 
     def new_appointment_appt_datetime(self, registration_datetime, visit):
         """Calculates and returns the appointment date for new appointments."""
         if visit.timepoint == 0:
-            appt_datetime = self.date_helper.get_best_datetime(
+            appt_datetime = self.appointment_date_helper.get_best_datetime(
                 registration_datetime)
         else:
             appt_datetime = self.get_relative_datetime(
@@ -100,8 +97,10 @@ class CreateAppointmentsMixin(models.Model):
 
     def get_relative_datetime(self, base_appt_datetime, visit):
         """ Returns appointment datetime relative to the base_appointment_datetime."""
-        appt_datetime = base_appt_datetime + self.schedule.relativedelta_from_base(visit)
-        return self.date_helper.get_best_datetime(appt_datetime, base_appt_datetime.isoweekday())
+        visit_schedule = site_visit_schedules.get_visit_schedule(self.create_appointments_visit_schedule)
+        schedule = visit_schedule.get_schedule(self._meta.label_lower)
+        appt_datetime = base_appt_datetime + schedule.relativedelta_from_base(visit)
+        return self.appointment_date_helper.get_best_datetime(appt_datetime, base_appt_datetime.isoweekday())
 
     class Meta:
         abstract = True
@@ -287,8 +286,7 @@ class RequiresAppointmentModelMixin(models.Model):
         # for tests
         if not exception_cls:
             exception_cls = ValidationError
-        appointment_model = django_apps.get_app_config('edc_appointment').model
-        appointment_date_helper = AppointmentDateHelper(appointment_model)
+        appointment_date_helper = AppointmentDateHelper()
         if not self.id:
             appt_datetime = appointment_date_helper.get_best_datetime(self.appt_datetime)
             best_appt_datetime = self.appt_datetime
