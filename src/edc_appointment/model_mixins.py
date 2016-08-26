@@ -35,6 +35,8 @@ class CreateAppointmentsMixin(models.Model):
         for visit in schedule.visits:
             with transaction.atomic():
                 appointment = self.update_or_create_appointment(
+                    visit_schedule=visit_schedule,
+                    schedule=schedule,
                     visit=visit,
                     subject_identifier=self.subject_identifier,
                     appt_datetime=base_appt_datetime,
@@ -42,17 +44,15 @@ class CreateAppointmentsMixin(models.Model):
                 appointments.append(appointment)
         return appointments
 
-    def update_or_create_appointment(self, visit=None, subject_identifier=None, appt_datetime=None,
-                                     default_appt_type=None):
+    def update_or_create_appointment(self, visit_schedule=None, schedule=None, visit=None, subject_identifier=None,
+                                     appt_datetime=None, default_appt_type=None):
         """Updates or creates an appointment for this subject for the visit."""
-        visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
         # appt_datetime = self.new_appointment_appt_datetime(appt_datetime, visit)
         appointment_model = django_apps.get_app_config('edc_appointment').model
         created = False
         try:
             appointment = appointment_model.objects.get(
                 subject_identifier=subject_identifier,
-                visit_schedule_name=visit_schedule.name,
                 visit_code=visit.code,
                 visit_code_sequence=0)
             td = appointment.best_appt_datetime - appt_datetime
@@ -68,17 +68,14 @@ class CreateAppointmentsMixin(models.Model):
             appointment = appointment_model.objects.create(
                 subject_identifier=subject_identifier,
                 visit_schedule_name=visit_schedule.name,
+                schedule_name=schedule.name,
                 visit_code=visit.code,
                 visit_code_sequence=0,
+                best_appt_datetime=appt_datetime,
                 appt_datetime=appt_datetime,
                 appt_type=default_appt_type)
             created = True
         return appointment, created
-
-    def visit_definitions_for_schedule(self, model_name):
-        """Returns a visit_definitions for this membership form's schedule."""
-        schedule = site_visit_schedules.get_visit_schedule(model_name)
-        return schedule.visit_definitions
 
     @property
     def appointment_date_helper(self):
@@ -116,6 +113,8 @@ class AppointmentModelMixin(TimepointStatusMixin, RegisteredSubjectMixin):
     """
 
     visit_schedule_name = models.CharField(max_length=25, null=True)
+
+    schedule_name = models.CharField(max_length=25, null=True)
 
     visit_code = models.CharField(max_length=25, null=True)
 
