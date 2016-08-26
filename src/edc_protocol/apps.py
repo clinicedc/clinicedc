@@ -2,6 +2,7 @@ import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.exceptions import ImproperlyConfigured
+from django.utils import timezone
 
 
 SUBJECT_TYPE = 0
@@ -21,6 +22,7 @@ class AppConfig(DjangoAppConfig):
     # these attributes are used by the EnrollmentCapMixin
     subject_types = {'subject': 'Subjects'}  # {key: verbose_name}
     enrollment_caps = {'example.enrollmentmodel': ('subject', -1)}  # {label_lower: (key, count)}
+    study_open_datetime = timezone.now()
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
