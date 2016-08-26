@@ -5,6 +5,7 @@ from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
 
 from .exceptions import AlreadyRegistered
+from edc_visit_schedule.exceptions import VisitScheduleError, RegistryNotLoaded
 
 
 class Controller(object):
@@ -14,21 +15,30 @@ class Controller(object):
     A visit_schedule contains schedules"""
 
     def __init__(self):
-        self.registry = {}
+        self._registry = {}
+        self.loaded = False
+
+    @property
+    def registry(self):
+        if not self.loaded:
+            raise RegistryNotLoaded(
+                'Registry not loaded. Is AppConfig for \'edc_visit_schedule\' declared in settings?.')
+        return self._registry
 
     def register(self, visit_schedule):
+        self.loaded = True
         if visit_schedule.name not in self.registry:
             self.registry.update({visit_schedule.name: visit_schedule})
         else:
             raise AlreadyRegistered('Visit Schedule {} is already registered.'.format(visit_schedule))
 
-#     @property
-#     def visit_schedules(self):
-#         """Returns dictionary of visit_schedules"""
-#         return self.registry
-
     def get_visit_schedule(self, name):
-        return self.registry.get(name)
+        visit_schedule = self.registry.get(name)
+        if not visit_schedule:
+            raise VisitScheduleError(
+                'Invalid visit schedule name. Got \'{}\'. Possible names are [{}].'.format(
+                    name, ', '.join(self.registry.keys())))
+        return visit_schedule
 
     def get_schedule(self, value=None):
         """Returns the a schedule for the given enrollment model."""
@@ -47,11 +57,11 @@ class Controller(object):
             try:
                 mod = import_module(app)
                 try:
-                    before_import_registry = copy.copy(site_visit_schedules.registry)
+                    before_import_registry = copy.copy(site_visit_schedules._registry)
                     import_module('{}.{}'.format(app, module_name))
                     sys.stdout.write(' * registered visit schedules from application \'{}\'\n'.format(app))
                 except:
-                    site_visit_schedules.registry = before_import_registry
+                    site_visit_schedules._registry = before_import_registry
                     if module_has_submodule(mod, module_name):
                         raise
             except ImportError:

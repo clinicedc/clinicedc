@@ -8,6 +8,10 @@ class VisitScheduleError(Exception):
     pass
 
 
+class RegistryNotLoaded(Exception):
+    pass
+
+
 class AlreadyRegistered(Exception):
     pass
 

@@ -1,11 +1,11 @@
 from datetime import timedelta
+
 from django.apps import apps as django_apps
 
-from .utils import get_lower_window_days, get_upper_window_days
-from .constants import HOUR, DAY, MONTH, YEAR
 from .choices import VISIT_INTERVAL_UNITS
+from .constants import HOUR, DAY, MONTH, YEAR
 from .exceptions import VisitScheduleError
-from edc_visit_schedule.exceptions import VisitError
+from .utils import get_lower_window_days, get_upper_window_days
 
 
 class Panel:
@@ -20,19 +20,15 @@ class Panel:
 
 
 class Crf:
-    def __init__(self, show_order, model=None, app_label=None, model_name=None,
-                 is_required=None, is_additional=None, **kwargs):
+    def __init__(self, show_order, model=None, is_required=None, is_additional=None, **kwargs):
         self.show_order = show_order
-        if model:
-            self.model = model
-            self.app_label = model._meta.app_label
-            self.model_name = model._meta.model_name
-        else:
-            self.app_label = app_label
-            self.model_name = model_name
-            self.model = django_apps.get_model(self.app_label, self.model_name)
+        self.app_label, self.model_name = model.split('.')
         self.is_required = True if is_required is None else is_required
         self.is_additional = is_additional
+
+    @property
+    def model(self):
+        return django_apps.get_model(self.app_label, self.model_name)
 
 
 class Requisition(Crf):

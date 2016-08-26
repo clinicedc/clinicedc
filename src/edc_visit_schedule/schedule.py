@@ -54,6 +54,10 @@ class Schedule:
                 visit = None
         return visit
 
+    def get_first_visit(self):
+        """Returns the previous visit or None."""
+        return self.visits[0]
+
     def get_previous_visit(self, code):
         """Returns the previous visit or None."""
         return self.get_visit(code, -1)

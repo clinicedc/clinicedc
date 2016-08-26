@@ -121,9 +121,9 @@ class TestVisitSchedule(TestCase):
 
     def test_crfs_unique_show_order(self):
         crfs = (
-            Crf(show_order=10, app_label='edc_example', model_name='CrfOne'),
-            Crf(show_order=20, app_label='edc_example', model_name='CrfTwo'),
-            Crf(show_order=20, app_label='edc_example', model_name='CrfThree'),
+            Crf(show_order=10, model='edc_example.CrfOne'),
+            Crf(show_order=20, model='edc_example.CrfTwo'),
+            Crf(show_order=20, model='edc_example.CrfThree'),
         )
         schedule = Schedule('schedule', enrollment_model=Enrollment)
         self.assertRaises(CrfError, schedule.add_visit, '1000', timepoint=0, crfs=crfs)
