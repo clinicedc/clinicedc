@@ -2,7 +2,8 @@ from django.views.generic.base import TemplateView
 
 from edc_base.views import EdcBaseViewMixin
 from edc_consent.admin import edc_consent_admin
-from edc_consent.site_consent_types import site_consent_types
+
+from .site_consents import site_consents
 
 
 class HomeView(EdcBaseViewMixin, TemplateView):
@@ -16,6 +17,6 @@ class HomeView(EdcBaseViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context.update(
             edc_consent_admin=edc_consent_admin,
-            consent_types=site_consent_types.all(),
+            consents=site_consents.all(),
         )
         return context

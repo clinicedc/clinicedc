@@ -122,3 +122,8 @@ def eligible_not_positive(value):
         raise ValidationError('Participant must be HIV Negative / Unknown.'
                               'Participant is NOT ELIGIBLE and registration cannot continue.'
                               )
+
+# def gender_of_consent(value):
+#     gender_list = [s for s in app_config]
+#     if value not in gender_list:
+#         raise ValidationError(u'Gender of consent not in {}. You entered {}.'.format(gender_list, value))

@@ -1,5 +1,5 @@
 from django.db import models
-from .site_consent_types import site_consent_types
+from .site_consents import site_consents
 
 
 class ObjectConsentManager(models.Manager):
@@ -13,7 +13,7 @@ class ConsentManager(models.Manager):
     def valid_consent_for_period(self, subject_identifier, report_datetime):
         consent = None
         try:
-            consent_type = site_consent_types.get_by_consent_datetime(
+            consent_type = site_consents.get_by_consent_datetime(
                 self.model, report_datetime)
             if consent_type:
                 consent = self.get(subject_identifier=subject_identifier, version=consent_type.version)

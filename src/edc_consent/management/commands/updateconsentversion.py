@@ -1,5 +1,7 @@
 import toolz
+
 from optparse import make_option
+
 from django.core.management.base import BaseCommand, CommandError
 from edc_consent.consent_type import site_consent_types
 

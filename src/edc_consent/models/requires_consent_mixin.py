@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_consent.site_consent_types import site_consent_types
+from edc_consent.site_consents import site_consents
 
 from ..exceptions import NotConsentedError
 
@@ -18,29 +18,29 @@ class RequiresConsentMixin(models.Model):
     def consented_for_period_or_raise(self, report_datetime=None, subject_identifier=None, exception_cls=None):
         exception_cls = exception_cls or NotConsentedError
         report_datetime = report_datetime or self.report_datetime
-        consent_type = self.consent_type(report_datetime, exception_cls=exception_cls)
-        self.consent_version = consent_type.version
+        consent = self.get_consent(report_datetime, exception_cls=exception_cls)
         if not subject_identifier:
             try:
                 subject_identifier = self.subject_identifier
             except AttributeError:
                 subject_identifier = self.get_subject_identifier()
         try:
-            self.consent_model.objects.get(
+            self.consent.model.objects.get(
                 subject_identifier=subject_identifier,
-                version=self.consent_version)
-        except self.consent_model.DoesNotExist:
+                version=self.consent.version)
+        except self.consent.model.DoesNotExist:
             raise exception_cls(
                 'Cannot find a consent \'{}\' for model \'{}\' using '
-                'consent version \'{}\' and report date \'{}\'. '.format(
-                    self.consent_model._meta.verbose_name,
+                'version \'{}\' and report date \'{}\'. '.format(
+                    self.consent.label_lower,
                     self._meta.verbose_name,
-                    self.consent_version,
+                    self.consent.version,
                     report_datetime.isoformat()))
+        self.consent_version = consent.version
 
-    def consent_type(self, report_datetime, exception_cls=None):
-        """Returns the consent type that matches the report datetime and consent model."""
-        return site_consent_types.get_by_datetime(
+    def get_consent(self, report_datetime, exception_cls=None):
+        """Returns the consent that matches the report datetime and consent model."""
+        return site_consents.get_by_datetime(
             self.consent_model, report_datetime, exception_cls=exception_cls)
 
     class Meta:

@@ -1,6 +1,8 @@
+class AlreadyRegistered(Exception):
+    pass
 
 
-class ConsentError(Exception):
+class SiteConsentError(Exception):
     pass
 
 
@@ -12,7 +14,7 @@ class ConsentVersionError(Exception):
     pass
 
 
-class ConsentTypeError(Exception):
+class ConsentMixinError(Exception):
     pass
 
 
