@@ -1,6 +1,6 @@
 import sys
 
-from django.apps import apps as django_apps
+# from django.apps import apps as django_apps
 from django.apps import AppConfig as DjangoAppConfig
 
 from edc_timepoint.timepoint import Timepoint
