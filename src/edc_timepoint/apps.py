@@ -27,6 +27,6 @@ class AppConfig(DjangoAppConfig):
         self.timepoints = timepoints  # converted to dict.
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
 
-    @property
-    def model(self):
-        return django_apps.get_model(self.app_label, 'timepointstatus')
+#     @property
+#     def model(self):
+#         return django_apps.get_model(self.app_label, 'timepointstatus')
