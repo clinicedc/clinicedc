@@ -1,6 +1,5 @@
 import sys
 
-# from django.apps import apps as django_apps
 from django.apps import AppConfig as DjangoAppConfig
 
 from edc_timepoint.timepoint import Timepoint
@@ -26,7 +25,3 @@ class AppConfig(DjangoAppConfig):
             timepoints[str(timepoint)] = timepoint
         self.timepoints = timepoints  # converted to dict.
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
-
-#     @property
-#     def model(self):
-#         return django_apps.get_model(self.app_label, 'timepointstatus')

@@ -6,10 +6,10 @@ from django.utils import timezone
 from edc_timepoint.constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT
 from edc_timepoint.model_mixins import TimepointError
 
-from example.models import ExampleModel
+from example.models import ExampleModel, CrfModel, Visit
 
 
-class TimepointStatusTests(TestCase):
+class TimepointTests(TestCase):
 
     def setUp(self):
         ExampleModel.objects.create()
@@ -62,3 +62,20 @@ class TimepointStatusTests(TestCase):
         self.assertEqual(example_model.timepoint_opened_datetime, example_model.report_datetime)
         self.assertGreater(example_model.timepoint_closed_datetime, example_model.timepoint_opened_datetime)
         self.assertEqual(example_model.timepoint_status, CLOSED_TIMEPOINT)
+
+    def test_timepoint_lookup_blocks_create(self):
+        example_model = ExampleModel.objects.create(report_datetime=timezone.now() - relativedelta(days=10))
+        example_model.example_status = 'finish'
+        example_model.save()
+        visit = Visit.objects.create(example_model=example_model)
+        example_model.timepoint_close_timepoint()
+        self.assertRaises(TimepointError, CrfModel.objects.create, visit=visit)
+
+    def test_timepoint_lookup_blocks_update(self):
+        example_model = ExampleModel.objects.create(report_datetime=timezone.now() - relativedelta(days=10))
+        example_model.example_status = 'finish'
+        example_model.save()
+        visit = Visit.objects.create(example_model=example_model)
+        crf_model = CrfModel.objects.create(visit=visit)
+        example_model.timepoint_close_timepoint()
+        self.assertRaises(TimepointError, crf_model.save)
