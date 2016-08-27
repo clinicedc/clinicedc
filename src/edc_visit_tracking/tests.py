@@ -1,6 +1,7 @@
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
+from django.apps import apps as django_apps
 from django import forms
 from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
@@ -12,13 +13,12 @@ from edc_visit_tracking.form_mixins import VisitFormMixin
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from edc_example.models import SubjectVisit, Appointment, CrfOne, SubjectConsent, Enrollment  # OffStudyReport, DeathReport, CrfOneInline,\
-from django_extensions.management.commands.update_permissions import django_apps
+from edc_example.models import SubjectVisit, Appointment, CrfOne, SubjectConsent, Enrollment
 
 # from .base_test_case import BaseTestCase
 
 
-class TestVisitForm(VisitFormMixin, forms.ModelForm):
+class SubjectVisitForm(VisitFormMixin, forms.ModelForm):
 
     class Meta:
         model = SubjectVisit
@@ -69,7 +69,7 @@ class TestVisit(TestCase):
         # enroll consented subject
         enrollment = Enrollment.objects.create(subject_identifier=subject_consent.subject_identifier)
         visit_schedule = site_visit_schedules.get_visit_schedule(enrollment.visit_schedule_name)
-        schedule = visit_schedule.get_schedule(enrollment.label_lower)
+        schedule = visit_schedule.get_schedule(enrollment._meta.label_lower)
         # verify appointments created as per edc_example visit_schedule "subject_visit_schedule"
         self.assertEqual(Appointment.objects.all().count(), 4)
         # get appointment for first visit
@@ -91,7 +91,7 @@ class TestVisit(TestCase):
 
     def test_crf_inline_model_attrs(self):
         """Assert inline model can find visit instance from parent."""
-        form = TestVisitForm(data=self.data)
+        form = SubjectVisitForm(data=self.data)
         self.assertTrue(form.is_valid())
         subject_visit = form.save()
         test_crf_model = CrfOne.objects.create(subject_visit=subject_visit)
@@ -103,7 +103,7 @@ class TestVisit(TestCase):
 
     def test_crf_proxy_model_attrs(self):
         """Assert proxy model can find visit attrs from parent."""
-        form = TestVisitForm(data=self.data)
+        form = SubjectVisitForm(data=self.data)
         self.assertTrue(form.is_valid())
         test_visit = form.save()
         test_crf_proxy_model = TestCrfProxyModel.objects.create(test_visit=test_visit)
@@ -129,17 +129,17 @@ class TestVisit(TestCase):
         self.assertEqual(obj._meta.crf_inline_parent_model, 'another_key')
 
     def test_form(self):
-        form = TestVisitForm(data=self.data)
+        form = SubjectVisitForm(data=self.data)
         self.assertTrue(form.is_valid())
 
     def test_form_before_consent(self):
         self.data.update({'report_datetime': timezone.now() - relativedelta(years=1)})
-        form = TestVisitForm(data=self.data)
+        form = SubjectVisitForm(data=self.data)
         self.assertFalse(form.is_valid())
         self.assertIn('Report datetime cannot be before consent datetime', form.errors.get('__all__') or [])
 
     def test_form_before_dob(self):
         self.data.update({'report_datetime': timezone.now() - relativedelta(years=25)})
-        form = TestVisitForm(data=self.data)
+        form = SubjectVisitForm(data=self.data)
         self.assertFalse(form.is_valid())
         self.assertIn('Report datetime cannot be before consent datetime', form.errors.get('__all__') or [])

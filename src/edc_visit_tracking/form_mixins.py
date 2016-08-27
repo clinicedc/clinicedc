@@ -32,7 +32,7 @@ class VisitFormMixin(object):
         """Raise an exception if the report datetime doesn't make sense relative to the consent."""
         cleaned_data = self.cleaned_data
         appointment = cleaned_data.get('appointment')
-        consent = self.get_consent(appointment.registered_subject)
+        consent = self.get_consent(appointment.subject_identifier, cleaned_data.get("report_datetime"))
         try:
             if cleaned_data.get("report_datetime") < consent.consent_datetime:
                 raise forms.ValidationError("Report datetime cannot be before consent datetime")
@@ -41,21 +41,20 @@ class VisitFormMixin(object):
         if cleaned_data.get("report_datetime").date() < consent.dob:
             raise forms.ValidationError("Report datetime cannot be before DOB")
 
-    def get_consent(self, registered_subject):
+    def get_consent(self, subject_identifier, report_datetime):
         """Return an instance of the consent model.
 
         If no consent model is defined, as with infants, try for the birth_model."""
+        consent_config = self._meta.model.consent(report_datetime, exception_cls=forms.ValidationError)
         try:
-            consent = self._meta.model.consent_model.objects.get(
-                registered_subject=registered_subject)
-        except self._meta.model.consent_model.MultipleObjectsReturned:
-            consent = self._meta.model.consent_model.objects.filter(
-                registered_subject=registered_subject).order_by('version').first()
+            consent = consent_config.model.objects.get(
+                subject_identifier=subject_identifier)
+        except consent_config.model.MultipleObjectsReturned:
+            consent = consent_config.model.objects.filter(
+                subject_identifier=subject_identifier).order_by('version').first()
         except ObjectDoesNotExist:
             raise forms.ValidationError(
-                '\'{}\' does not exist for subject.'.format(self._meta.model.consent_model._meta.verbose_name))
-        except AttributeError:
-            consent = self.get_birth_model_as_consent(registered_subject)
+                '\'{}\' does not exist for subject.'.format(consent_config.model._meta.verbose_name))
         return consent
 
     def get_birth_model_as_consent(self, registered_subject):
