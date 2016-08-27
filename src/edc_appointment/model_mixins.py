@@ -6,7 +6,7 @@ from django.db import models, transaction
 
 # from edc_meta_data.constants import UNKEYED
 from edc_registration.model_mixins import RegisteredSubjectMixin
-from edc_timepoint.model_mixins import TimepointStatusMixin
+from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .appointment_date_helper import AppointmentDateHelper
@@ -103,7 +103,7 @@ class CreateAppointmentsMixin(models.Model):
         abstract = True
 
 
-class AppointmentModelMixin(TimepointStatusMixin, RegisteredSubjectMixin):
+class AppointmentModelMixin(TimepointModelMixin, RegisteredSubjectMixin):
 
     """Mixin for the appointment model.
 
@@ -177,6 +177,10 @@ class AppointmentModelMixin(TimepointStatusMixin, RegisteredSubjectMixin):
     def __str__(self):
         return "{0}.{1}".format(
             self.visit_code, self.visit_code_sequence)
+
+    @property
+    def report_datetime(self):
+        return self.appt_datetime
 
     class Meta:
         abstract = True
