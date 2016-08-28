@@ -5,7 +5,6 @@ from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.db.models import options
 
-# from edc_meta_data.constants import UNKEYED
 from edc_registration.model_mixins import RegisteredSubjectMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -115,9 +114,15 @@ class AppointmentModelMixin(TimepointModelMixin, RegisteredSubjectMixin):
     Attribute 'visit_code_sequence' should be populated by the system.
     """
 
-    visit_schedule_name = models.CharField(max_length=25, null=True)
+    visit_schedule_name = models.CharField(
+        max_length=25,
+        null=True,
+        help_text='the name of the visit schedule used to find the "schedule"')
 
-    schedule_name = models.CharField(max_length=25, null=True)
+    schedule_name = models.CharField(
+        max_length=25,
+        null=True,
+        help_text='the name of the schedule used to find the list of "visits" to create appointments')
 
     visit_code = models.CharField(max_length=25, null=True)
 
