@@ -3,6 +3,7 @@ import sys
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 
 SUBJECT_TYPE = 0
@@ -20,9 +21,9 @@ class AppConfig(DjangoAppConfig):
     protocol_title = 'My Protocol of Many Things'
 
     # these attributes are used by the EnrollmentCapMixin
-    subject_types = {'subject': 'Subjects'}  # {key: verbose_name}
+    subject_types = {'subject': 'Research Subjects'}  # {key: verbose_name}
     enrollment_caps = {'example.enrollmentmodel': ('subject', -1)}  # {label_lower: (key, count)}
-    study_open_datetime = timezone.now()
+    study_open_datetime = timezone.now() - relativedelta(days=25)
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
@@ -30,7 +31,7 @@ class AppConfig(DjangoAppConfig):
         for label, cap in self.enrollment_caps.items():
             if cap[SUBJECT_TYPE] not in list(self.subject_types.keys()):
                 raise ImproperlyConfigured(
-                    'Enrollment cap refers to an undefined subject_type. See edc_protocol.AppConfig')
+                    'Enrollment cap refers to an undefined \'subject_type\'. See edc_protocol.AppConfig')
             sys.stdout.write(
                 ' * enrollment cap set to {} for {} in \'{}\'.\n'.format(
                     cap[COUNT], self.subject_types[cap[SUBJECT_TYPE]], label))

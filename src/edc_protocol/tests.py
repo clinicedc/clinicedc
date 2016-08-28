@@ -35,7 +35,7 @@ class TestProtocol(TestCase):
     def test_raises_on_enrollment_cap_met(self):
         app_config = django_apps.get_app_config('edc_protocol')
         app_config.subject_types = {'maternal': 'Mothers'}
-        app_config.enrollment_caps = {'edc_example.enrollmentmodel': ('maternal', 2)}
+        app_config.enrollment_caps = {'example.enrollmentmodel': ('maternal', 2)}
         EnrollmentModel.objects.create()
         EnrollmentModel.objects.create()
         enrollment_model = EnrollmentModel()

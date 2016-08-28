@@ -35,7 +35,8 @@ class EnrollmentCapMixin(models.Model):
             subject_type, cap = app_config.enrollment_caps[self._meta.label_lower]
         except KeyError:
             raise EnrollmentCapError(
-                'Enrollment cap not defined for \'{}\''.format(self._meta.label_lower))
+                'Enrollment cap not defined for \'{}\'. See {} name=\'edc_protocol\'.'.format(
+                    self._meta.label_lower, app_config.__class__.__name__))
         if cap >= 0:
             count = self.__class__.objects.filter(subject_type=subject_type).count()
             count += 1  # plus one assuming a record will be added
