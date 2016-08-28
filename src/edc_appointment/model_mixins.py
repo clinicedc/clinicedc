@@ -18,7 +18,9 @@ from .window_period_helper import WindowPeriodHelper
 
 class CreateAppointmentsMixin(models.Model):
 
-    """ Model Mixin to add methods to an enrollment model to create appointments on post_save."""
+    """ Model Mixin to add methods to an enrollment model to create appointments on post_save.
+
+    Model must have field `report_datetime`"""
 
     visit_schedule_name = None
 
@@ -28,10 +30,7 @@ class CreateAppointmentsMixin(models.Model):
         app_config = django_apps.get_app_config('edc_appointment')
         visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
         schedule = visit_schedule.get_schedule(self._meta.label_lower)
-        try:
-            base_appt_datetime = base_appt_datetime or self.registration_datetime
-        except AttributeError:
-            pass
+        base_appt_datetime = base_appt_datetime or self.report_datetime
         for visit in schedule.visits:
             with transaction.atomic():
                 appointment = self.update_or_create_appointment(
@@ -47,6 +46,7 @@ class CreateAppointmentsMixin(models.Model):
     def update_or_create_appointment(self, visit_schedule=None, schedule=None, visit=None, subject_identifier=None,
                                      appt_datetime=None, default_appt_type=None):
         """Updates or creates an appointment for this subject for the visit."""
+        # TODO: commented out for now, there is transaction condition if used
         # appt_datetime = self.new_appointment_appt_datetime(appt_datetime, visit)
         appointment_model = django_apps.get_app_config('edc_appointment').model
         created = False
@@ -82,14 +82,14 @@ class CreateAppointmentsMixin(models.Model):
         appointment_model = django_apps.get_app_config('edc_appointment').model
         return AppointmentDateHelper(appointment_model)
 
-    def new_appointment_appt_datetime(self, registration_datetime, visit):
+    def new_appointment_appt_datetime(self, report_datetime, visit):
         """Calculates and returns the appointment date for new appointments."""
         if visit.timepoint == 0:
             appt_datetime = self.appointment_date_helper.get_best_datetime(
-                registration_datetime)
+                report_datetime)
         else:
             appt_datetime = self.get_relative_datetime(
-                registration_datetime, visit.code)
+                report_datetime, visit.code)
         return appt_datetime
 
     def get_relative_datetime(self, base_appt_datetime, visit):

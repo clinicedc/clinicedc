@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
-    'edc_example.apps.EdcProtocolAppConfig',
     'edc_base.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',

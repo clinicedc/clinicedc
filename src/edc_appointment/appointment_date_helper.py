@@ -28,7 +28,7 @@ class AppointmentDateHelper(object):
 
         For example, may be configured to be on the same day as the base, not on holiday, etc.
 
-        Note, appt_datetime comes from the enrollment model's registration_datetime"""
+        Note, appt_datetime comes from the enrollment model's report_datetime"""
         exception_cls = exception_cls or AttributeError
         weekday = weekday or self.weekday
         if weekday and self.use_same_weekday:
