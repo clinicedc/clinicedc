@@ -14,6 +14,10 @@ class Schedule:
             enrollment_model.create_appointments
         except AttributeError as e:
             raise ScheduleError('Enrollment model not configured to create appointments. Got {}'.format(str(e)))
+        try:
+            enrollment_model.report_datetime
+        except AttributeError as e:
+            raise ScheduleError('Enrollment model requires field \'report_datetime\'. Got {}'.format(str(e)))
         self.off_study_model = off_study_model
         self.death_report_model = death_report_model
 
