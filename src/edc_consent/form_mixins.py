@@ -240,11 +240,8 @@ class RequiresConsentFormMixin:
         cleaned_data = self.cleaned_data
         appointment = cleaned_data.get('appointment')
         consent = self.get_consent(appointment.subject_identifier, cleaned_data.get("report_datetime"))
-        try:
-            if cleaned_data.get("report_datetime") < consent.consent_datetime:
-                raise ValidationError("Report datetime cannot be before consent datetime")
-        except AttributeError:
-            pass
+        if cleaned_data.get("report_datetime") < consent.consent_datetime:
+            raise ValidationError("Report datetime cannot be before consent datetime")
         if cleaned_data.get("report_datetime").date() < consent.dob:
             raise ValidationError("Report datetime cannot be before DOB")
 
@@ -263,4 +260,3 @@ class RequiresConsentFormMixin:
             raise ValidationError(
                 '\'{}\' does not exist for subject.'.format(consent_config.model._meta.verbose_name))
         return consent
-
