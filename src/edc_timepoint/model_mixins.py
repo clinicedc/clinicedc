@@ -46,20 +46,25 @@ class TimepointModelMixin(models.Model):
         if (kwargs.get('update_fields') != ['timepoint_status'] and
                 kwargs.get('update_fields') != ['timepoint_opened_datetime', 'timepoint_status'] and
                 kwargs.get('update_fields') != ['timepoint_closed_datetime', 'timepoint_status']):
-            app_config = django_apps.get_app_config('edc_timepoint')
+            self.timepoint_open_or_raise()
+        super(TimepointModelMixin, self).save(*args, **kwargs)
+
+    def timepoint_open_or_raise(self, timepoint=None, exception_cls=None):
+        app_config = django_apps.get_app_config('edc_timepoint')
+        if not timepoint:
             try:
                 timepoint = app_config.timepoints[self._meta.label_lower]
             except KeyError:
                 raise TimepointError(
                     'Model \'{}\' is not registered in AppConfig as a timepoint. '
                     'See AppConfig for \'edc_timepoint\'.'.format(self._meta.label_lower))
-            if getattr(self, timepoint.status_field) != timepoint.closed_status:
-                self.timepoint_status = OPEN_TIMEPOINT
-                self.timepoint_closed_datetime = None
-            elif self.timepoint_status == CLOSED_TIMEPOINT:
-                raise TimepointError(
-                    'This \'{}\' instance is closed for data entry. See Timpoint.'.format(self._meta.verbose_name))
-        super(TimepointModelMixin, self).save(*args, **kwargs)
+        if getattr(self, timepoint.status_field) != timepoint.closed_status:
+            self.timepoint_status = OPEN_TIMEPOINT
+            self.timepoint_closed_datetime = None
+        elif self.timepoint_status == CLOSED_TIMEPOINT:
+            raise TimepointError(
+                'This \'{}\' instance is closed for data entry. See Timpoint.'.format(self._meta.verbose_name))
+        return True
 
     def timepoint_close_timepoint(self):
         """Closes a timepoint."""
