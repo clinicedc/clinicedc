@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models, transaction
+from django.db.models import options
 
 # from edc_meta_data.constants import UNKEYED
 from edc_registration.model_mixins import RegisteredSubjectMixin
@@ -16,19 +17,20 @@ from .exceptions import AppointmentStatusError
 from .window_period_helper import WindowPeriodHelper
 
 
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
+
+
 class CreateAppointmentsMixin(models.Model):
 
     """ Model Mixin to add methods to an enrollment model to create appointments on post_save.
 
     Model must have field `report_datetime`"""
 
-    visit_schedule_name = None
-
     def create_appointments(self, base_appt_datetime=None):
         """Creates appointments when called by post_save signal. """
         appointments = []
         app_config = django_apps.get_app_config('edc_appointment')
-        visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+        visit_schedule = site_visit_schedules.get_visit_schedule(self._meta.visit_schedule_name)
         schedule = visit_schedule.get_schedule(self._meta.label_lower)
         base_appt_datetime = base_appt_datetime or self.report_datetime
         for visit in schedule.visits:
@@ -100,6 +102,7 @@ class CreateAppointmentsMixin(models.Model):
         return self.appointment_date_helper.get_best_datetime(appt_datetime, base_appt_datetime.isoweekday())
 
     class Meta:
+        visit_schedule_name = None
         abstract = True
 
 
