@@ -1,20 +1,17 @@
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
 
 from edc_constants.constants import YES, NO, DEAD, OFF_STUDY, UNKNOWN, ALIVE, PARTICIPANT
 
 from .constants import LOST_VISIT, COMPLETED_PROTOCOL_VISIT, MISSED_VISIT
 
 
-class VisitFormMixin(object):
+class VisitFormMixin:
 
     participant_label = 'participant'
 
     def clean(self):
         cleaned_data = super(VisitFormMixin, self).clean()
         self.validate_appointment_required()
-        self.validate_against_consent()
-        self.validate_time_point_status()
         self.validate_presence()
         self.validate_reason_and_info_source()
         self.validate_survival_status_if_alive()
@@ -27,51 +24,6 @@ class VisitFormMixin(object):
         cleaned_data = self.cleaned_data
         if not cleaned_data.get('appointment'):
             raise forms.ValidationError('Appointment cannot be blank.')
-
-    def validate_against_consent(self):
-        """Raise an exception if the report datetime doesn't make sense relative to the consent."""
-        cleaned_data = self.cleaned_data
-        appointment = cleaned_data.get('appointment')
-        consent = self.get_consent(appointment.subject_identifier, cleaned_data.get("report_datetime"))
-        try:
-            if cleaned_data.get("report_datetime") < consent.consent_datetime:
-                raise forms.ValidationError("Report datetime cannot be before consent datetime")
-        except AttributeError:
-            pass
-        if cleaned_data.get("report_datetime").date() < consent.dob:
-            raise forms.ValidationError("Report datetime cannot be before DOB")
-
-    def get_consent(self, subject_identifier, report_datetime):
-        """Return an instance of the consent model.
-
-        If no consent model is defined, as with infants, try for the birth_model."""
-        consent_config = self._meta.model.consent(report_datetime, exception_cls=forms.ValidationError)
-        try:
-            consent = consent_config.model.objects.get(
-                subject_identifier=subject_identifier)
-        except consent_config.model.MultipleObjectsReturned:
-            consent = consent_config.model.objects.filter(
-                subject_identifier=subject_identifier).order_by('version').first()
-        except ObjectDoesNotExist:
-            raise forms.ValidationError(
-                '\'{}\' does not exist for subject.'.format(consent_config.model._meta.verbose_name))
-        return consent
-
-    def get_birth_model_as_consent(self, registered_subject):
-        """Return the birth model in place of the consent_model."""
-        try:
-            birth_model = self._meta.model.birth_model.objects.get(
-                registered_subject=registered_subject)
-        except ObjectDoesNotExist:
-            raise forms.ValidationError(
-                '\'{}\' does not exist for subject.'.format(self._meta.model.consent_model._meta.verbose_name))
-        return birth_model
-
-    def validate_time_point_status(self):
-        """Raise an exception if the timepioint is 'closed', see model method."""
-        cleaned_data = self.cleaned_data
-        appointment = cleaned_data.get('appointment')
-        appointment.time_point_status_open_or_raise(exception_cls=forms.ValidationError)
 
     def validate_reason_and_info_source(self):
         cleaned_data = self.cleaned_data

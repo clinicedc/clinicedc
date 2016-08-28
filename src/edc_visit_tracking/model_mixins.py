@@ -22,7 +22,7 @@ from .choices import VISIT_REASON
 from .constants import FOLLOW_UP_REASONS, REQUIRED_REASONS, NO_FOLLOW_UP_REASONS
 
 
-options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('crf_inline_parent_model',)
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('crf_inline_parent',)
 
 
 class PreviousVisitError(Exception):
@@ -36,6 +36,8 @@ class CrfModelMixin(models.Model):
     You need to define the visit model foreign_key, e.g:
 
         subject_visit = models.ForeignKey(SubjectVisit)
+
+    Uses edc_visit_tracking.AppConfig attributes.
 
     """
 
@@ -51,31 +53,28 @@ class CrfModelMixin(models.Model):
     objects = CrfModelManager()
 
     def __str__(self):
-        return str(self.get_visit())
+        return str(self.visit)
 
-#     def save(self, *args, **kwargs):
-#         self.get_visit().appointment.time_point_status_open_or_raise()
-#         super(CrfModelMixin, self).save(*args, **kwargs)
+    @classmethod
+    def visit_model(cls):
+        app_config = django_apps.get_app_config('edc_visit_tracking')
+        return app_config.visit_model(cls._meta.app_label)
+
+    @classmethod
+    def visit_model_attr(cls):
+        app_config = django_apps.get_app_config('edc_visit_tracking')
+        return app_config.visit_model_attr(cls._meta.label_lower)
 
     @property
-    def visit_model(self):
-        app_config = django_apps.get_app_config('edc_visit_tracking')
-        return app_config.visit_model(self._meta.app_label)
-
-    @property
-    def visit_model_attr(self):
-        app_config = django_apps.get_app_config('edc_visit_tracking')
-        return app_config.visit_model_attr(self._meta.label_lower)
-
-    def get_visit(self):
-        return getattr(self, self.visit_model_attr)
+    def visit(self):
+        return getattr(self, self.visit_model_attr())
 
     def natural_key(self):
-        return (getattr(self, self.visit_model_attr).natural_key(), )
+        return (getattr(self, self.visit_model_attr()).natural_key(), )
     # TODO: need to add the natural key dependencies !!
 
     def get_subject_identifier(self):
-        return self.get_visit().appointment.subject_identifier
+        return self.visit.appointment.subject_identifier
 
     def get_report_datetime(self):
         return self.report_datetime
@@ -84,7 +83,7 @@ class CrfModelMixin(models.Model):
         url = reverse(
             'subject_dashboard_url',
             kwargs={'dashboard_model': 'appointment',
-                    'dashboard_id': self.get_visit().appointment.pk,
+                    'dashboard_id': self.visit.appointment.pk,
                     'show': 'appointments'})
         return """<a href="{url}" />dashboard</a>""".format(url=url)
     dashboard.allow_tags = True
@@ -100,45 +99,49 @@ class CrfInlineModelMixin(models.Model):
         """Try to detect the inline parent model attribute name or raise,"""
         super(CrfInlineModelMixin, self).__init__(*args, **kwargs)
         try:
-            self._meta.crf_inline_parent_model
+            self._meta.crf_inline_parent
         except AttributeError:
             fks = [field for field in self._meta.fields if isinstance(field, (OneToOneField, ForeignKey))]
             if len(fks) == 1:
-                self.__class__._meta.crf_inline_parent_model = fks[0].name
+                self.__class__._meta.crf_inline_parent = fks[0].name
             else:
                 raise ImproperlyConfigured(
                     'CrfInlineModelMixin cannot determine the inline parent model name. '
-                    'Got more than one foreign key. Try declaring \"crf_inline_parent_model = \'<field name>\'\" '
+                    'Got more than one foreign key. Try declaring \"crf_inline_parent = \'<field name>\'\" '
                     'explicitly in Meta.')
 
     def __str__(self):
-        return str(self.parent_instance.get_visit())
+        return str(self.parent_instance.visit)
 
     def natural_key(self):
-        return self.get_visit().natural_key()
+        return self.visit.natural_key()
 
     @property
     def parent_instance(self):
         """Return the instance of the inline parent model."""
-        return getattr(self, self._meta.crf_inline_parent_model)
+        return getattr(self, self._meta.crf_inline_parent)
 
     @property
     def parent_model(self):
         """Return the class of the inline parent model."""
-        return getattr(self.__class__, self._meta.crf_inline_parent_model).field.rel.to
+        return getattr(self.__class__, self._meta.crf_inline_parent).field.rel.to
 
-    def get_visit(self):
+    @property
+    def visit(self):
         """Return the instance of the inline parent model's visit model."""
-        return getattr(self.parent_instance, self.parent_model.visit_model_attr)
+        return getattr(self.parent_instance, self.parent_model.visit_model_attr())
 
-    def get_report_datetime(self):
-        return self.get_visit().get_report_datetime()
+    @property
+    def report_datetime(self):
+        """Return the instance of the inline parent model's report_datetime."""
+        return self.visit.report_datetime
 
-    def get_subject_identifier(self):
-        return self.get_visit().get_subject_identifier()
+    @property
+    def subject_identifier(self):
+        return self.visit.subject_identifier
 
     class Meta:
-        crf_inline_parent_model = None  # foreign key attribute that relates this model to the parent model
+        crf_inline_parent = None  # foreign key attribute that relates this model to the parent model
         abstract = True
 
 
@@ -296,7 +299,7 @@ class VisitModelMixin(models.Model):
         verbose_name='subject_identifier',
         max_length=50,
         editable=False,
-        help_text='updated automatically as a convenience to avoid sql joins')
+        help_text='updated automatically')
 
     def __str__(self):
         return '{} {}'.format(self.subject_identifier, self.appointment.visit_code)
@@ -373,9 +376,6 @@ class VisitModelMixin(models.Model):
             if self.appointment.appt_status != IN_PROGRESS_APPT:
                 self.appointment.appt_status = IN_PROGRESS_APPT
                 self.appointment.save()
-
-    def get_report_datetime(self):
-        return self.report_datetime
 
     class Meta:
         abstract = True
