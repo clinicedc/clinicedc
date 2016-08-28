@@ -3,9 +3,10 @@ from django.db import models
 from django_crypto_fields.fields import FirstnameField, LastnameField, EncryptedCharField
 from django_crypto_fields.mixins import CryptoMixin
 
-from edc_consent.models.validators import FullNameValidator
 from edc_base.model.fields import IsDateEstimatedField
 from edc_constants.choices import GENDER_UNDETERMINED
+
+from edc_consent.validators import FullNameValidator
 
 
 class PersonalFieldsMixin(CryptoMixin, models.Model):

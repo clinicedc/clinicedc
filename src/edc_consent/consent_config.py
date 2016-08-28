@@ -4,14 +4,14 @@ from django.conf import settings
 from edc_base.utils.convert import localize
 
 
-class Consent:
+class ConsentConfig:
 
     def __init__(self, model, **kwargs):
         self.app_label, self.model_name = model.split('.')  # use model._meta.label_lower format
         self.end = kwargs.get('end')
         self.start = kwargs.get('start')
         self.updates_version = kwargs.get('updates_version', [])
-        self.version = kwargs.get('version')
+        self.version = kwargs.get('version', '0')
         self.gender = kwargs.get('gender', [])
         self.age_min = kwargs.get('age_min', 0)
         self.age_max = kwargs.get('age_max', 0)

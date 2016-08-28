@@ -8,12 +8,12 @@ from django.conf import settings
 from django.utils.timezone import is_naive
 from django.forms.utils import ErrorList
 
-from edc_constants.constants import YES, NO
 from edc_base.utils import formatted_age
+from edc_constants.constants import YES, NO
+
+from .site_consents import site_consents
 
 tz = pytz.timezone(settings.TIME_ZONE)
-
-app_config = django_apps.get_app_config('edc_consent')
 
 
 class ConsentFormMixin:
@@ -21,6 +21,7 @@ class ConsentFormMixin:
 
     def clean(self):
         cleaned_data = super(ConsentFormMixin, self).clean()
+        self.clean_gender_of_consent()
         self.clean_identity_and_confirm_identity()
         self.clean_identity_with_unique_fields()
         self.clean_initials_with_full_name()
@@ -28,6 +29,24 @@ class ConsentFormMixin:
         self.clean_guardian_and_dob()
         self.clean_is_literate_and_witness()
         return cleaned_data
+
+    @property
+    def consent_config(self):
+        cleaned_data = self.cleaned_data
+        return site_consents.get_by_datetime(
+            self._meta.model._meta.label_lower,
+            cleaned_data.get('consent_datetime') or self.data.get('consent_datetime')
+        )
+
+    def clean_consent_datetime(self):
+        consent_datetime = self.cleaned_data['consent_datetime']
+        app_config = django_apps.get_app_config('edc_protocol')
+        if consent_datetime < app_config.study_open_datetime:
+            self.add_error('consent_datetime', ValidationError(
+                'Consent date may not be before study opening date {}. Got {}.'.format(
+                    app_config.study_open_datetime.date().isoformat(),
+                    consent_datetime.date().isoformat()), code='invalid'))
+        return consent_datetime
 
     def clean_identity_and_confirm_identity(self):
         cleaned_data = self.cleaned_data
@@ -85,16 +104,15 @@ class ConsentFormMixin:
         consent_datetime = cleaned_data.get('consent_datetime', self.instance.consent_datetime)
         if is_naive(consent_datetime):
             consent_datetime = tz.localize(consent_datetime)
-        age_is_adult = app_config.get_consent(self._meta.model._meta.label_lower).age_is_adult
         rdelta = relativedelta(consent_datetime.date(), dob)
-        if rdelta.years < age_is_adult:
+        if rdelta.years < self.consent_config.age_is_adult:
             if not guardian:
                 raise ValidationError(
                     'Subject\'s age is %(age)s. Subject is a minor. Guardian\'s '
                     'name is required with signature on the paper document.',
                     params={'age': formatted_age(dob, consent_datetime.date())},
                     code='invalid')
-        if rdelta.years >= age_is_adult and guardian:
+        if rdelta.years >= self.consent_config.age_is_adult and guardian:
             if guardian:
                 raise ValidationError(
                     'Subject\'s age is %(age)s. Subject is an adult. Guardian\'s name is NOT required.',
@@ -113,18 +131,20 @@ class ConsentFormMixin:
 
         if is_naive(consent_datetime):
             consent_datetime = tz.localize(consent_datetime)
-        age_max = app_config.get_consent(self._meta.model._meta.label_lower).age_max
-        age_min = app_config.get_consent(self._meta.model._meta.label_lower).age_min
         rdelta = relativedelta(consent_datetime.date(), dob)
-        if rdelta.years < age_max:
+        if rdelta.years > self.consent_config.age_max:
             raise ValidationError(
-                'Subject\'s age is %(age)s. Subject is not eligible for consent.',
-                params={'age': formatted_age(dob, consent_datetime.date())},
+                'Subject\'s age is %(age)s. Subject is not eligible for consent. Maximum age of consent is %(max)s.',
+                params={
+                    'age': formatted_age(dob, consent_datetime.date()),
+                    'max': self.consent_config.age_max},
                 code='invalid')
-        if rdelta.years > age_max:
+        if rdelta.years < self.consent_config.age_min:
             raise ValidationError(
-                'Subject\'s age is %(age)s. Subject is not eligible for consent.',
-                params={'age': formatted_age(dob, consent_datetime.date())},
+                'Subject\'s age is %(age)s. Subject is not eligible for consent. Minimum age of consent is %(min)s.',
+                params={
+                    'age': formatted_age(dob, consent_datetime.date()),
+                    'min': self.consent_config.age_min},
                 code='invalid')
 
     def clean_is_literate_and_witness(self):
@@ -183,14 +203,13 @@ class ConsentFormMixin:
                 code='invalid')
         return consent_signature
 
-    def clean_gender(self):
+    def clean_gender_of_consent(self):
         """Validates gender is a gender of consent."""
         gender = self.cleaned_data.get("gender")
-        gender_of_consent = app_config.get_consent(self._meta.model._meta.label_lower).gender
-        if gender not in gender_of_consent:
+        if gender not in self.consent_config.gender:
             raise ValidationError(
                 'Gender of consent can only be \'%(gender_of_consent)s\'. Got \'%(gender)s\'.',
-                params={'gender_of_consent': '\' or \''.join(gender_of_consent), 'gender': gender},
+                params={'gender_of_consent': '\' or \''.join(self.consent_config.gender), 'gender': gender},
                 code='invalid')
         return gender
 

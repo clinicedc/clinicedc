@@ -3,7 +3,7 @@ import toolz
 from optparse import make_option
 
 from django.core.management.base import BaseCommand, CommandError
-from edc_consent.consent_type import site_consent_types
+from edc_consent.site_consents import site_consents
 
 
 class Command(BaseCommand):
@@ -38,14 +38,14 @@ class Command(BaseCommand):
             elif version == '?':
                 pass
             else:
-                consent_types = site_consent_types.get_all_by_version(version=version)
+                consent_types = site_consents.get_all_by_version(version=version)
                 if not consent_types:
                     raise CommandError('Version \'{}\' is not a valid version.'.format(version))
         self.resave_consents(version)
 
     def resave_consents(self, version):
         models = []
-        for consent_type in site_consent_types.all():
+        for consent_type in site_consents.all():
             model_class = consent_type.model_class()
             if not model_class._meta.proxy:
                 models.append(consent_type.model_class())
@@ -54,7 +54,7 @@ class Command(BaseCommand):
         for model_class in models:
             saved = 0
             pks_by_version = {}
-            for consent_type in site_consent_types.all():
+            for consent_type in site_consents.all():
                 pks_by_version[consent_type.version] = []
             if version:
                 consents = model_class.objects.filter(version=version)
@@ -65,7 +65,7 @@ class Command(BaseCommand):
                 total, model_class._meta.verbose_name))
             for consent in consents:
                 saved += 1
-                consent_type = site_consent_types.get_by_consent_datetime(
+                consent_type = site_consents.get_by_consent_datetime(
                     model_class, consent.consent_datetime)
                 consent.version = consent_type.version
                 pks_by_version[consent.version].append(consent.pk)
