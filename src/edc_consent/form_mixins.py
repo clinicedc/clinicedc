@@ -251,7 +251,7 @@ class RequiresConsentFormMixin:
     def get_consent(self, subject_identifier, report_datetime):
         """Return an instance of the consent model."""
         consent_config = site_consents.get_by_datetime(
-            self._meta.model.consent_model,
+            self._meta.model._meta.consent_model,
             report_datetime, exception_cls=ValidationError)
         try:
             consent = consent_config.model.objects.get(

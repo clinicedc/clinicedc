@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from django.db.models import options
 from django.db import models
 from django_crypto_fields.fields import EncryptedTextField
 from django.core.exceptions import ImproperlyConfigured
@@ -19,16 +20,19 @@ from .managers import ObjectConsentManager, ConsentManager
 from .site_consents import site_consents
 
 
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model',)
+
+
 class RequiresConsentMixin(models.Model):
 
     """Requires a model to check for a valid consent before allowing to save."""
 
-    consent_model = None  # format app_label.model_name
+    # consent_model = None  # format app_label.model_name
 
     consent_version = models.CharField(max_length=10, default='?', editable=False)
 
     def save(self, *args, **kwargs):
-        if not self.consent_model:
+        if not self._meta.consent_model:
             raise ImproperlyConfigured(
                 'Consent model attribute not set. Got \'{}.consent_model\' = None'.format(self._meta.label_lower))
         self.consented_for_period_or_raise()
@@ -38,7 +42,7 @@ class RequiresConsentMixin(models.Model):
         exception_cls = exception_cls or NotConsentedError
         report_datetime = report_datetime or self.report_datetime
         consent_config = site_consents.get_consent_config(
-            self.consent_model, report_datetime=report_datetime, exception_cls=exception_cls)
+            self._meta.consent_model, report_datetime=report_datetime, exception_cls=exception_cls)
         self.consent_version = consent_config.version
         if not subject_identifier:
             try:
@@ -258,4 +262,5 @@ class SpecimenConsentMixin(VerificationFieldsMixin, models.Model):
     )
 
     class Meta:
+        consent_model = None
         abstract = True
