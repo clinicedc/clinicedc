@@ -13,8 +13,8 @@ class ConsentManager(models.Manager):
     def valid_consent_for_period(self, subject_identifier, report_datetime):
         consent = None
         try:
-            consent_type = site_consents.get_by_consent_datetime(
-                self.model, report_datetime)
+            consent_type = site_consents.get_consent_config(
+                self.model._meta.label_lower, report_datetime=report_datetime)
             if consent_type:
                 consent = self.get(subject_identifier=subject_identifier, version=consent_type.version)
         except self.model.DoesNotExist:

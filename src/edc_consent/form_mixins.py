@@ -12,6 +12,7 @@ from edc_base.utils import formatted_age
 from edc_constants.constants import YES, NO
 
 from .site_consents import site_consents
+from django.core.exceptions import ObjectDoesNotExist
 
 tz = pytz.timezone(settings.TIME_ZONE)
 
@@ -225,3 +226,41 @@ class ConsentFormMixin:
         except AttributeError:
             dob = ''
         return '{}{}{}'.format(first_name, dob, initials)
+
+
+class RequiresConsentFormMixin:
+
+    def clean(self):
+        cleaned_data = super(RequiresConsentFormMixin, self).clean()
+        self.validate_against_consent()
+        return cleaned_data
+
+    def validate_against_consent(self):
+        """Raise an exception if the report datetime doesn't make sense relative to the consent."""
+        cleaned_data = self.cleaned_data
+        appointment = cleaned_data.get('appointment')
+        consent = self.get_consent(appointment.subject_identifier, cleaned_data.get("report_datetime"))
+        try:
+            if cleaned_data.get("report_datetime") < consent.consent_datetime:
+                raise ValidationError("Report datetime cannot be before consent datetime")
+        except AttributeError:
+            pass
+        if cleaned_data.get("report_datetime").date() < consent.dob:
+            raise ValidationError("Report datetime cannot be before DOB")
+
+    def get_consent(self, subject_identifier, report_datetime):
+        """Return an instance of the consent model."""
+        consent_config = site_consents.get_by_datetime(
+            self._meta.model.consent_model,
+            report_datetime, exception_cls=ValidationError)
+        try:
+            consent = consent_config.model.objects.get(
+                subject_identifier=subject_identifier)
+        except consent_config.model.MultipleObjectsReturned:
+            consent = consent_config.model.objects.filter(
+                subject_identifier=subject_identifier).order_by('version').first()
+        except ObjectDoesNotExist:
+            raise ValidationError(
+                '\'{}\' does not exist for subject.'.format(consent_config.model._meta.verbose_name))
+        return consent
+

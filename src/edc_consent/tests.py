@@ -1,5 +1,3 @@
-import factory
-
 from faker import Factory as FakerFactory
 
 from datetime import date, timedelta
@@ -7,18 +5,15 @@ from dateutil.relativedelta import relativedelta
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from django.core.management import call_command
 from django.forms import ModelForm
 from django.test.testcases import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
-from django.utils.six import StringIO
 
 
 from edc_constants.constants import NO
 from edc_example.factories import SubjectConsentFactory
 from edc_example.models import SubjectConsent, SubjectVisit, CrfOne, Enrollment, Appointment
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .consent_config import ConsentConfig
 from .exceptions import AlreadyRegistered, NotConsentedError, SiteConsentError, ConsentVersionError

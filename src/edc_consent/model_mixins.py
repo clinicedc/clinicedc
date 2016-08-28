@@ -37,8 +37,9 @@ class RequiresConsentMixin(models.Model):
     def consented_for_period_or_raise(self, report_datetime=None, subject_identifier=None, exception_cls=None):
         exception_cls = exception_cls or NotConsentedError
         report_datetime = report_datetime or self.report_datetime
-        get_consent_config = self.get_consent_config(report_datetime, exception_cls=exception_cls)
-        self.consent_version = get_consent_config.version
+        consent_config = site_consents.get_consent_config(
+            self.consent_model, report_datetime=report_datetime, exception_cls=exception_cls)
+        self.consent_version = consent_config.version
         if not subject_identifier:
             try:
                 subject_identifier = self.subject_identifier
@@ -50,24 +51,18 @@ class RequiresConsentMixin(models.Model):
                 'order if model is declared with multiple mixins. The mixin that updates subject_identifier '
                 'should be declared before RequiresConsentMixin.')
         try:
-            get_consent_config.model.objects.get(
+            consent_config.model.objects.get(
                 subject_identifier=subject_identifier,
-                version=get_consent_config.version)
-        except get_consent_config.model.DoesNotExist:
+                version=consent_config.version)
+        except consent_config.model.DoesNotExist:
             raise exception_cls(
                 'Cannot find \'{consent_model} version {version}\' when saving model \'{model}\' '
                 'for subject \'{subject_identifier}\' with date \'{report_datetime}\' .'.format(
                     subject_identifier=subject_identifier,
-                    consent_model=get_consent_config.model._meta.label_lower,
+                    consent_model=consent_config.model._meta.label_lower,
                     model=self._meta.label_lower,
-                    version=get_consent_config.version,
+                    version=consent_config.version,
                     report_datetime=report_datetime.date().isoformat()))
-
-    @classmethod
-    def get_consent_config(cls, report_datetime, exception_cls=None):
-        """Returns the consent config class that matches the report datetime and consent model."""
-        return site_consents.get_by_datetime(
-            cls.consent_model, report_datetime, exception_cls=exception_cls)
 
     class Meta:
         abstract = True
@@ -150,15 +145,14 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         self.set_uuid_as_subject_identifier_if_none()
         if not self.id and not self.subject_identifier:
             self.subject_identifier = self.subject_identifier_as_pk
-        consent = site_consents.get_by_consent_datetime(
-            self.__class__, self.consent_datetime)
-        self.version = consent.version
-        if consent.updates_version:
+        consent_config = site_consents.get_consent_config(self._meta.label_lower, report_datetime=self.consent_datetime)
+        self.version = consent_config.version
+        if consent_config.updates_version:
             try:
                 previous_consent = self.__class__.objects.get(
                     subject_identifier=self.subject_identifier,
                     identity=self.identity,
-                    version__in=consent.updates_version,
+                    version__in=consent_config.updates_version,
                     **self.additional_filter_options())
                 previous_consent.subject_identifier_as_pk = self.subject_identifier_as_pk
                 previous_consent.subject_identifier_aka = self.subject_identifier_aka
@@ -166,26 +160,23 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
                 raise ConsentVersionError(
                     'Previous consent with version {0} for this subject not found. Version {1} updates {0}.'
                     'Ensure all details match (identity, dob, first_name, last_name)'.format(
-                        consent.updates_version, self.version))
+                        consent_config.updates_version, self.version))
         super(ConsentModelMixin, self).save(*args, **kwargs)
 
     def set_uuid_as_subject_identifier_if_none(self):
         if not self.subject_identifier_as_pk:
             self.subject_identifier_as_pk = str(uuid4())  # this will never change
 
-    def is_known_consent_model_or_raise(self, consent_model=None, exception_cls=None):
+    def is_known_consent_model_or_raise(self, model=None, exception_cls=None):
         """Raises an exception if not listed in ConsentType."""
-        consent_model = consent_model or self
+        model = model or self._meta.label_lower
         exception_cls = exception_cls or SiteConsentError
-        consents = site_consents.get_by_model(model=consent_model)
+        consents = site_consents.get_by_model(model=model)
         if not consents:
             models = [consent.model_class._meta.verbose_name for consent in consents]
             raise exception_cls(
-                '\'{}.{}\' is not a known consent model. '
-                'Valid consent models are [\'{}\']. See AppConfig.'.format(
-                    consent_model._meta.app_label,
-                    consent_model._meta.model_name,
-                    '\', \''.join(models)))
+                '\'{}\' is not a known consent model. '
+                'Valid consent models are [\'{}\']. See AppConfig.'.format(model, '\', \''.join(models)))
 
     @property
     def report_datetime(self):
