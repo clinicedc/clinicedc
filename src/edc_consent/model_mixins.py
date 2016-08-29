@@ -27,8 +27,6 @@ class RequiresConsentMixin(models.Model):
 
     """Requires a model to check for a valid consent before allowing to save."""
 
-    # consent_model = None  # format app_label.model_name
-
     consent_version = models.CharField(max_length=10, default='?', editable=False)
 
     def save(self, *args, **kwargs):
@@ -70,9 +68,12 @@ class RequiresConsentMixin(models.Model):
 
     class Meta:
         abstract = True
+        consent_model = None
 
 
 class ConsentModelMixin(VerificationFieldsMixin, models.Model):
+
+    """Mixin for a Consent model class such as SubjectConsent."""
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
