@@ -20,23 +20,28 @@ class Panel:
 
 
 class Crf:
-    def __init__(self, show_order, model=None, is_required=None, is_additional=None, **kwargs):
+    def __init__(self, show_order, model=None, required=None, additional=None, **kwargs):
         self.show_order = show_order
-        self.app_label, self.model_name = model.split('.')
-        self.is_required = True if is_required is None else is_required
-        self.is_additional = is_additional
+        self._model = '{}.{}'.format(*model.split('.'))
+        self.required = True if required is None else required
+        self.additional = additional
 
     @property
     def model(self):
-        return django_apps.get_model(self.app_label, self.model_name)
+        return django_apps.get_model(*self._model.split('.'))
+
+    def __str__(self):
+        return '{} {}'.format(self._model, 'Required' if self.required else '')
 
 
 class Requisition(Crf):
 
-    def __init__(self, show_order, panel_name=None, panel_type=None,
-                 aliquot_type_alpha_code=None, **kwargs):
+    def __init__(self, show_order, panel_name=None, panel_type=None, aliquot_type_alpha_code=None, **kwargs):
         super(Requisition, self).__init__(show_order, **kwargs)
         self.panel = Panel(panel_name, panel_type, aliquot_type_alpha_code)
+
+    def __str__(self):
+        return '{} {}'.format(self.panel.name, 'Required' if self.required else '')
 
 
 class Visit:
