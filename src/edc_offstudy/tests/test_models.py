@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_meta_data.models import CrfMetaDataMixin
+from edc_metadata.models import CrfMetaDataMixin
 from edc_appointment.models import AppointmentMixin
 from simple_history.models import HistoricalRecords as AuditTrail
 from edc_base.model.models import BaseUuidModel
@@ -8,7 +8,7 @@ from edc_consent.models.base_consent import BaseConsent
 from edc_consent.models.fields import (
     SampleCollectionFieldsMixin, SiteFieldsMixin, PersonalFieldsMixin, VulnerabilityFieldsMixin)
 from edc_consent.models.fields.bw.identity_fields_mixin import IdentityFieldsMixin
-from edc_meta_data.managers import CrfMetaDataManager
+from edc_metadata.managers import CrfMetaDataManager
 from edc_offstudy.models import OffStudyMixin, OffStudyModelMixin
 from edc_registration.models.registered_subject import RegisteredSubject
 from edc_visit_tracking.models import VisitModelMixin, PreviousVisitMixin, CrfModelMixin

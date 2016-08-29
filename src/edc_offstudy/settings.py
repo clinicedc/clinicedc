@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'edc_lab.lab_clinic_api',
     'edc_lab.lab_clinic_reference',
     'edc_lab.lab_packing',
-    'edc_meta_data',
+    'edc_metadata',
     'edc_offstudy',
     'edc_registration',
     'edc_sync',
