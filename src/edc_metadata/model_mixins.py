@@ -1,4 +1,3 @@
-from django.db.models import options
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
@@ -8,15 +7,10 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from .choices import ENTRY_STATUS
 from .constants import REQUIRED, NOT_REQUIRED, KEYED
 
-options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('metadata_category',)
 
-
-class UpdateMetadataModelMixin(models.Model):
-    """Updates the metadata instance associated with self."""
+class BaseUpdateMetadataModelMixin(models.Model):
 
     def metadata_update(self):
-        app_config = django_apps.get_app_config('edc_meta_data')
-        app_config.get_model(self._meta.metadata_category)
         obj = self.metadata_model.objects.get(**self.metadata_query_options)
         obj.entry_status = KEYED
         obj.report_datetime = self.report_datetime
@@ -33,7 +27,7 @@ class UpdateMetadataModelMixin(models.Model):
     @property
     def metadata_query_options(self):
         options = self.visit.metadata_query_options
-        if self.metadata_model._meta.metadata_category == 'requisition':
+        if self.metadata_category == 'requisition':
             options.update({'panel_name': self.panel.name})
         options.update({
             'subject_identifier': self.visit.subject_identifier,
@@ -42,50 +36,74 @@ class UpdateMetadataModelMixin(models.Model):
 
     @property
     def metadata_model(self):
-        """Returns the metadata model associated with self.
-
-        Note: if self is a requsition, then assumes there is a FK to \'panel\'.
-        """
+        """Returns the metadata model associated with self."""
         app_config = django_apps.get_app_config('edc_metadata')
-        try:
-            panel_name = self.panel.name
-        except AttributeError:
-            panel_name = None
-        return app_config.get_model(panel_name=panel_name)
+        return app_config.get_metadata_model(self.metadata_category)
 
     class Meta:
         abstract = True
-        metadata_category = None
+
+
+class UpdateCrfMetadataModelMixin(BaseUpdateMetadataModelMixin):
+    """A mixin used on Crf models to enable them to update metadata upon update/delete."""
+
+    @property
+    def metadata_category(self):
+        return 'crf'
+
+    class Meta:
+        abstract = True
+
+
+class UpdateRequisitionMetadataModelMixin(BaseUpdateMetadataModelMixin):
+    """A mixin used on Requisition models to enable them to update metadata upon update/delete."""
+
+    @property
+    def metadata_category(self):
+        return 'requisition'
+
+    class Meta:
+        abstract = True
 
 
 class CreatesMetadataModelMixin(models.Model):
+    """A mixin to enable a model to create metadata on save.
+
+    Typically this is a Visit model."""
 
     @property
     def metadata_query_options(self):
-        visit_schedule = site_visit_schedules.get_visit_schedule(self.appointment.visit_schedule_name)
-        schedule = visit_schedule.get_schedule(self.appointment.schedule_name)
-        visit = schedule.get_visit(self.appointment.visit_code)
+        visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+        schedule = visit_schedule.get_schedule(self.schedule_name)
+        visit = schedule.get_visit(self.visit_code)
         options = dict(
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
             visit_code=visit.code)
         return options
 
-    def metadata_create(self):
-        """Creates Crf and Requisition meta data for the subject visit.
+    @property
+    def metadata(self):
+        """Returns a dictionary of metadata querysets for each metadata category."""
+        app_config = django_apps.get_app_config('edc_metadata')
+        return app_config.get_metadata(
+            self.subject_identifier, **self.metadata_query_options)
 
-        Assumes 'appointment' FK exists."""
+    def metadata_create(self):
+        """Creates Crf and Requisition meta data for the subject visit."""
 
         app_config = django_apps.get_app_config('edc_metadata')
         metadata_crf_model = app_config.crf_model
         if not metadata_crf_model._meta.unique_together:
-            raise ImproperlyConfigured('{}.unique_together constraint not set.'.format(metadata_crf_model._meta.label_lower))
+            raise ImproperlyConfigured(
+                '{}.unique_together constraint not set.'.format(metadata_crf_model._meta.label_lower))
         metadata_requisition_model = app_config.requisition_model
         if not metadata_requisition_model._meta.unique_together:
-            raise ImproperlyConfigured('{}.unique_together constraint not set.'.format(metadata_requisition_model._meta.label_lower))
-        visit_schedule = site_visit_schedules.get_visit_schedule(self.appointment.visit_schedule_name)
-        schedule = visit_schedule.get_schedule(self.appointment.schedule_name)
-        visit = schedule.get_visit(self.appointment.visit_code)
+            raise ImproperlyConfigured(
+                '{}.unique_together constraint not set.'.format(metadata_requisition_model._meta.label_lower))
+        visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+        schedule = visit_schedule.get_schedule(self.schedule_name)
+        visit = schedule.get_visit(self.visit_code)
         if getattr(self, app_config.reason_field) in app_config.delete_on_reasons:
             metadata_crf_model.objects.filter(
                 subject_identifier=self.subject_identifier,
@@ -96,9 +114,9 @@ class CreatesMetadataModelMixin(models.Model):
         elif getattr(self, app_config.reason_field) in app_config.create_on_reasons:
             metadata_crf_model = django_apps.get_app_config('edc_metadata').crf_model
             metadata_requisition_model = django_apps.get_app_config('edc_metadata').requisition_model
-            visit_schedule = site_visit_schedules.get_visit_schedule(self.appointment.visit_schedule_name)
-            schedule = visit_schedule.get_schedule(self.appointment.schedule_name)
-            visit = schedule.get_visit(self.appointment.visit_code)
+            visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+            schedule = visit_schedule.get_schedule(self.schedule_name)
+            visit = schedule.get_visit(self.visit_code)
             options = self.metadata_query_options
             options.update({'subject_identifier': self.subject_identifier})
             for crf in visit.crfs:
@@ -119,6 +137,7 @@ class CreatesMetadataModelMixin(models.Model):
                     metadata_requisition_model.objects.create(
                         entry_status=REQUIRED if requisition.required else NOT_REQUIRED,
                         **options)
+        self.metadata_run_rules()
 
     def metadata_run_rules(self):
         pass
@@ -200,7 +219,6 @@ class BaseMetadataModelMixin(models.Model):
 
     class Meta:
         abstract = True
-        unique_together = (('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'model'), )
 
 
 class CrfMetadataModelMixin(BaseMetadataModelMixin):
@@ -212,6 +230,8 @@ class CrfMetadataModelMixin(BaseMetadataModelMixin):
         abstract = True
         verbose_name = "Crf Metadata"
         verbose_name_plural = "Crf Metadata"
+        unique_together = (('subject_identifier', 'visit_schedule_name',
+                            'schedule_name', 'visit_code', 'model'), )
 
 
 class RequisitionMetadataModelMixin(BaseMetadataModelMixin):

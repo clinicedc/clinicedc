@@ -27,7 +27,7 @@ class BaseMetaDataHelper(object):
 
     @property
     def entry_model(self):
-        return django_apps.get_model('edc_meta_data', self.entry_attr.replace('_', ''))
+        return django_apps.get_model('edc_metadata', self.entry_attr.replace('_', ''))
 
     @property
     def visit_model_attrname(self):
@@ -130,7 +130,7 @@ class CrfMetaDataHelper(BaseMetaDataHelper):
 
     @property
     def meta_data_model(self):
-        return django_apps.get_app_config('edc_meta_data').crf_meta_data_model
+        return django_apps.get_app_config('edc_metadata').crf_meta_data_model
 
 
 class RequisitionMetaDataHelper(BaseMetaDataHelper):
@@ -145,7 +145,7 @@ class RequisitionMetaDataHelper(BaseMetaDataHelper):
 
     @property
     def meta_data_model(self):
-        return django_apps.get_app_config('edc_meta_data').requisition_meta_data_model
+        return django_apps.get_app_config('edc_metadata').requisition_meta_data_model
 
     def get_meta_data(self, entry_status=None):
         """Returns a list of meta data instances for the given subject and appointment_zero."""

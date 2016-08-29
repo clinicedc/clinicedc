@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'edc_registration.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
-    'edc_meta_data.apps.AppConfig',
+    'edc_metadata.apps.AppConfig',
     'edc_example.apps.EdcProtocolAppConfig',
     'edc_example.apps.EdcTimepointAppConfig',
     'edc_example.apps.AppConfig',
@@ -54,7 +54,7 @@ INSTALLED_APPS = [
 
 if 'test' in sys.argv:
     MIGRATION_MODULES = {
-        'edc_meta_data': None,
+        'edc_metadata': None,
         'edc_example': None,
         'edc_visit_schedule': None,
         'edc_appointment': None,
@@ -70,7 +70,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'edc_meta_data.urls'
+ROOT_URLCONF = 'edc_metadata.urls'
 
 TEMPLATES = [
     {
@@ -88,7 +88,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'edc_meta_data.wsgi.application'
+WSGI_APPLICATION = 'edc_metadata.wsgi.application'
 
 
 # Database

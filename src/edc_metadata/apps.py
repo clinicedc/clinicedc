@@ -7,7 +7,7 @@ from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
 
 
 class AppConfig(DjangoAppConfig):
-    name = 'edc_meta_data'
+    name = 'edc_metadata'
     verbose_name = 'Edc Metadata'
     app_label = 'edc_example'
     crf_model_name = 'crfmetadata'
@@ -35,7 +35,16 @@ class AppConfig(DjangoAppConfig):
         """Returns the meta data model used by Requisitions."""
         return django_apps.get_model(self.app_label, self.requisition_model_name)
 
-    def get_model(self, panel_name=None):
-        if panel_name:
+    def get_metadata_model(self, category):
+        if category == 'crf':
+            return self.crf_model
+        elif category == 'requisition':
             return self.requisition_model
-        return self.crf_model
+        return None
+
+    def get_metadata(self, subject_identifier, **options):
+        return {
+            'crf': self.crf_model.objects.filter(
+                subject_identifier=subject_identifier, **options),
+            'requisition': self.requisition_model.objects.filter(
+                subject_identifier=subject_identifier, **options)}

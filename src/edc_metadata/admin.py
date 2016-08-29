@@ -6,18 +6,16 @@ from edc_rule_groups.classes import site_rule_groups
 
 from .constants import REQUIRED
 
-# from .models import CrfEntry, LabEntry, RequisitionPanel
-
 
 class EdcMetaDataAdminSite(AdminSite):
     site_header = 'Edc Metadata'
     site_title = 'Edc Metadata'
     index_title = 'Edc Metadata Administration'
     site_url = '/edc-meta-data/'
-edc_meta_data_admin = EdcMetaDataAdminSite(name='edc_meta_data_admin')
+edc_metadata_admin = EdcMetaDataAdminSite(name='edc_metadata_admin')
 
 
-# @admin.register(CrfEntry, site=edc_meta_data_admin)
+# @admin.register(CrfEntry, site=edc_metadata_admin)
 # class CrfEntryAdminMixin(admin.ModelAdmin):
 # 
 #     search_fields = ('visit_definition__code', 'content_type_map__model', 'id')
@@ -42,7 +40,7 @@ edc_meta_data_admin = EdcMetaDataAdminSite(name='edc_meta_data_admin')
 #         'group_title')
 # 
 # 
-# @admin.register(LabEntry, site=edc_meta_data_admin)
+# @admin.register(LabEntry, site=edc_metadata_admin)
 # class LabEntryAdmin(admin.ModelAdmin):
 # 
 #     search_fields = ('visit_definition__code', 'requisition_panel__name')
@@ -67,7 +65,7 @@ edc_meta_data_admin = EdcMetaDataAdminSite(name='edc_meta_data_admin')
 #     )
 # 
 # 
-# @admin.register(RequisitionPanel, site=edc_meta_data_admin)
+# @admin.register(RequisitionPanel, site=edc_metadata_admin)
 # class RequisitionPanelAdmin(admin.ModelAdmin):
 # 
 #     search_fields = ('name', 'aliquot_type_alpha_code')
