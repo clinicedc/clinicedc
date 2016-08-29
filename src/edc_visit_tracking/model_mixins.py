@@ -309,6 +309,18 @@ class VisitModelMixin(models.Model):
         super(VisitModelMixin, self).save(*args, **kwargs)
 
     @property
+    def visit_schedule_name(self):
+        return self.appointment.visit_schedule_name
+
+    @property
+    def schedule_name(self):
+        return self.appointment.schedule_name
+
+    @property
+    def visit_code(self):
+        return self.appointment.visit_code
+
+    @property
     def appointment_zero(self):
         appointment_zero = None
         try:
