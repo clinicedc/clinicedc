@@ -1,0 +1,171 @@
+from django.apps import apps as django_apps
+from django.test import TestCase
+
+from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
+from edc_example.models import (
+    SubjectVisit, Appointment, Enrollment, CrfMetadata, RequisitionMetadata, CrfOne,
+    RequisitionOne, Panel)
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
+
+from .constants import KEYED
+
+
+class TestMetadata(TestCase):
+
+    def setUp(self):
+        self.app_config = django_apps.get_app_config('edc_metadata')
+        edc_registration_app_config = django_apps.get_app_config('edc_registration')
+        RegisteredSubject = edc_registration_app_config.model
+        subject_consent = SubjectConsentFactory()
+        self.registered_subject = RegisteredSubject.objects.get(
+            subject_identifier=subject_consent.subject_identifier)
+        enrollment = Enrollment.objects.create(subject_identifier=subject_consent.subject_identifier)
+        visit_schedule = site_visit_schedules.get_visit_schedule(enrollment._meta.visit_schedule_name)
+        schedule = visit_schedule.get_schedule(enrollment._meta.label_lower)
+        self.first_visit = schedule.get_first_visit()
+        self.first_appointment = Appointment.objects.get(
+            subject_identifier=enrollment.subject_identifier,
+            visit_code=self.first_visit.code)
+        self.panel = Panel.objects.create(name=self.first_visit.requisitions[0].panel.name)
+
+    def test_visit_creates_metadata(self):
+        self.subject_visit = SubjectVisitFactory(
+            appointment=self.first_appointment,
+            reason=SCHEDULED)
+        self.assertEqual(CrfMetadata.objects.all().count(), len(self.first_visit.crfs))
+        self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
+
+    def test_visit_creates_metadata_for_all_reasons(self):
+        for reason in self.app_config.create_on_reasons:
+            try:
+                SubjectVisit.objects.get(appointment=self.first_appointment)
+                self.subject_visit.reason = reason
+                self.subject_visit.save()
+            except SubjectVisit.DoesNotExist:
+                self.subject_visit = SubjectVisitFactory(
+                    appointment=self.first_appointment,
+                    reason=reason)
+            self.assertEqual(CrfMetadata.objects.all().count(), len(self.first_visit.crfs))
+            self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
+
+    def test_visit_deletes_metadata(self):
+        self.subject_visit = SubjectVisitFactory(
+            appointment=self.first_appointment,
+            reason=SCHEDULED)
+        self.assertEqual(CrfMetadata.objects.all().count(), len(self.first_visit.crfs))
+        self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
+        for reason in self.app_config.delete_on_reasons:
+            self.subject_visit.reason = reason
+            self.subject_visit.save()
+            self.assertEqual(CrfMetadata.objects.all().count(), 0)
+            self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
+
+    def test_updates_crf_metadata(self):
+        self.subject_visit = SubjectVisitFactory(
+            appointment=self.first_appointment,
+            reason=SCHEDULED)
+        self.assertEqual(CrfMetadata.objects.all().count(), len(self.first_visit.crfs))
+        CrfOne.objects.create(subject_visit=self.subject_visit)
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=KEYED).count(), 1)
+
+    def test_updates_crf_metadata2(self):
+        self.subject_visit = SubjectVisitFactory(
+            appointment=self.first_appointment,
+            reason=SCHEDULED)
+        self.assertEqual(CrfMetadata.objects.all().count(), len(self.first_visit.crfs))
+        crf_one = CrfOne.objects.create(subject_visit=self.subject_visit)
+        crf_one.save()
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=KEYED).count(), 1)
+
+    def test_updates_requisition_metadata(self):
+        self.subject_visit = SubjectVisitFactory(
+            appointment=self.first_appointment,
+            reason=SCHEDULED)
+        self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
+        RequisitionOne.objects.create(
+            subject_visit=self.subject_visit,
+            panel=self.panel)
+        self.assertEqual(RequisitionMetadata.objects.filter(entry_status=KEYED).count(), 1)
+
+    def test_updates_requisition_metadata2(self):
+        self.subject_visit = SubjectVisitFactory(
+            appointment=self.first_appointment,
+            reason=SCHEDULED)
+        self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
+        requisition_one = RequisitionOne.objects.create(
+            subject_visit=self.subject_visit,
+            panel=self.panel)
+        requisition_one.save()
+        self.assertEqual(RequisitionMetadata.objects.filter(entry_status=KEYED).count(), 1)
+
+    def test_resets_crf_metadata_on_delete(self):
+        self.subject_visit = SubjectVisitFactory(
+            appointment=self.first_appointment,
+            reason=SCHEDULED)
+        self.assertEqual(CrfMetadata.objects.all().count(), len(self.first_visit.crfs))
+        self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
+        crf_one = CrfOne.objects.create(subject_visit=self.subject_visit)
+        crf_metadata = CrfMetadata.objects.get(
+            subject_identifier=self.subject_visit.subject_identifier,
+            model=crf_one._meta.label_lower,
+            entry_status=KEYED)
+        crf_one.delete()
+        crf_metadata = CrfMetadata.objects.get(pk=crf_metadata.pk)
+        self.assertNotEqual(crf_metadata.entry_status, KEYED)
+        self.assertEqual(CrfMetadata.objects.all().count(), len(self.first_visit.crfs))
+
+    def test_resets_requisition_metadata_on_delete(self):
+        self.subject_visit = SubjectVisitFactory(
+            appointment=self.first_appointment,
+            reason=SCHEDULED)
+        self.assertEqual(CrfMetadata.objects.all().count(), len(self.first_visit.crfs))
+        self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
+        requisition_one = RequisitionOne.objects.create(
+            subject_visit=self.subject_visit,
+            panel=self.panel)
+        metadata = RequisitionMetadata.objects.get(
+            subject_identifier=self.subject_visit.subject_identifier,
+            model=requisition_one._meta.label_lower,
+            entry_status=KEYED)
+        requisition_one.delete()
+        metadata = RequisitionMetadata.objects.get(pk=metadata.pk)
+        self.assertNotEqual(metadata.entry_status, KEYED)
+        self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.crfs))
+#
+#     def setUp(self):
+#         self.sync_content_type_map()
+#         self.app_config = django_apps.get_app_config('edc_metadata')
+#         self.app_config.model_attrs = [('example', 'crfmetadata'), ('example', 'requisitionmetadata')]
+#         EdcAppointmentAppConfig.model = ('example', 'appointment')
+# 
+#         ct = ContentTypeMap.objects.get(content_type__app_label='example', content_type__model='subjectvisit')
+#         self.visit_defininition = VisitDefinition.objects.create(
+#             code='1000',
+#             title='Visit 1000',
+#             visit_tracking_content_type_map=ct
+#         )
+# 
+#         registered_subject = RegisteredSubject.objects.create(subject_identifier='123456789')
+#         self.appointment = Appointment.objects.create(
+#             registered_subject=registered_subject,
+#             appt_datetime=timezone.now(),
+#             visit_definition=self.visit_defininition,
+#         )
+# 
+#     def sync_content_type_map(self):
+#         edc_content_type_callback(EdcContentTypeAppConfig, verbose=False)
+# 
+#     def test_finds_crf_metadata_model(self):
+#         mixin = CrfMetadataMixin()
+#         self.assertTrue(mixin.crf_metadata_model == CrfMetadata)
+# 
+#     def test_finds_requisition_metadata_model(self):
+#         mixin = CrfMetadataMixin()
+#         self.assertTrue(mixin.requisition_metadata_model == RequisitionMetadata)
+# 
+#     def test_creates_metadata(self):
+#         mixin = CrfMetadataMixin()
+#         appointment = Appointment(
+#             visit_definition=VisitDefinition())
+#         mixin.create_crf_metadata(appointment, '', '', '')
