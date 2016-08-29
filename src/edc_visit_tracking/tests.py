@@ -13,12 +13,10 @@ from edc_visit_tracking.form_mixins import VisitFormMixin
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from edc_example.models import SubjectVisit, Appointment, CrfOne, SubjectConsent, Enrollment, CrfOneInline, OtherModel,\
-    BadCrfOneInline
+from edc_example.models import (
+    SubjectVisit, Appointment, CrfOne, Enrollment, CrfOneInline, OtherModel, BadCrfOneInline)
 from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
 from edc_consent.form_mixins import RequiresConsentFormMixin
-
-# from .base_test_case import BaseTestCase
 
 
 class SubjectVisitForm(VisitFormMixin, RequiresConsentFormMixin, forms.ModelForm):
