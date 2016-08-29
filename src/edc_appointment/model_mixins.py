@@ -215,7 +215,7 @@ class RequiresAppointmentModelMixin(models.Model):
     def get_appt_status(self, using='default'):
         """Returns the appt_status by checking the meta data entry status for all required CRFs and requisitions.
         """
-        from edc_meta_data.helpers import CrfMetaDataHelper
+        from edc_metadata.helpers import CrfMetaDataHelper
         appt_status = self.appt_status
         visit_model = self.visit_definition.visit_model
         try:
@@ -282,11 +282,11 @@ class RequiresAppointmentModelMixin(models.Model):
 #         return False
 #
 #     def unkeyed_crfs(self):
-#         from edc_meta_data.helpers import CrfMetaDataHelper
+#         from edc_metadata.helpers import CrfMetaDataHelper
 #         return CrfMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
 #
 #     def unkeyed_requisitions(self):
-#         from edc_meta_data.helpers import RequisitionMetaDataHelper
+#         from edc_metadata.helpers import RequisitionMetaDataHelper
 #         return RequisitionMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
 
     def validate_appt_datetime(self, exception_cls=None):
