@@ -28,7 +28,7 @@ class BaseUpdateMetadataModelMixin(models.Model):
     def metadata_query_options(self):
         options = self.visit.metadata_query_options
         if self.metadata_category == 'requisition':
-            options.update({'panel_name': self.panel.name})
+            options.update({'panel_name': self.panel_name})
         options.update({
             'subject_identifier': self.visit.subject_identifier,
             'model': self._meta.label_lower})
@@ -248,7 +248,7 @@ class RequisitionMetadataModelMixin(BaseMetadataModelMixin):
 
     class Meta(BaseMetadataModelMixin.Meta):
         abstract = True
-        verbose_name = "Requisition Meta Data"
-        verbose_name_plural = "Requisition Meta Data"
+        verbose_name = "Requisition Metadata"
+        verbose_name_plural = "Requisition Metadata"
         unique_together = (('subject_identifier', 'visit_schedule_name', 'schedule_name',
                            'visit_code', 'model', 'panel_name'), )

@@ -1,10 +1,9 @@
 from django.apps import apps as django_apps
 from django.test import TestCase
 
-from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
+from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory, RequisitionOneFactory
 from edc_example.models import (
-    SubjectVisit, Appointment, Enrollment, CrfMetadata, RequisitionMetadata, CrfOne,
-    RequisitionOne, Panel)
+    SubjectVisit, Appointment, Enrollment, CrfMetadata, RequisitionMetadata, CrfOne)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
 
@@ -27,7 +26,7 @@ class TestMetadata(TestCase):
         self.first_appointment = Appointment.objects.get(
             subject_identifier=enrollment.subject_identifier,
             visit_code=self.first_visit.code)
-        self.panel = Panel.objects.create(name=self.first_visit.requisitions[0].panel.name)
+        self.panel_name = self.first_visit.requisitions[0].panel.name
 
     def test_visit_creates_metadata(self):
         self.subject_visit = SubjectVisitFactory(
@@ -97,9 +96,9 @@ class TestMetadata(TestCase):
             appointment=self.first_appointment,
             reason=SCHEDULED)
         self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
-        RequisitionOne.objects.create(
+        RequisitionOneFactory(
             subject_visit=self.subject_visit,
-            panel=self.panel)
+            panel_name=self.panel_name)
         self.assertEqual(RequisitionMetadata.objects.filter(entry_status=KEYED).count(), 1)
 
     def test_updates_requisition_metadata2(self):
@@ -107,9 +106,9 @@ class TestMetadata(TestCase):
             appointment=self.first_appointment,
             reason=SCHEDULED)
         self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
-        requisition_one = RequisitionOne.objects.create(
+        requisition_one = RequisitionOneFactory(
             subject_visit=self.subject_visit,
-            panel=self.panel)
+            panel_name=self.panel_name)
         requisition_one.save()
         self.assertEqual(RequisitionMetadata.objects.filter(entry_status=KEYED).count(), 1)
 
@@ -135,9 +134,9 @@ class TestMetadata(TestCase):
             reason=SCHEDULED)
         self.assertEqual(CrfMetadata.objects.all().count(), len(self.first_visit.crfs))
         self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
-        requisition_one = RequisitionOne.objects.create(
+        requisition_one = RequisitionOneFactory(
             subject_visit=self.subject_visit,
-            panel=self.panel)
+            panel_name=self.panel_name)
         metadata = RequisitionMetadata.objects.get(
             subject_identifier=self.subject_visit.subject_identifier,
             model=requisition_one._meta.label_lower,
@@ -152,9 +151,13 @@ class TestMetadata(TestCase):
         self.subject_visit = SubjectVisitFactory(
             appointment=self.first_appointment,
             reason=SCHEDULED)
-        a = [md.model._meta.label_lower for md in [metadata for metadata in self.subject_visit.metadata.values()]]
+        a = []
+        for metadata in self.subject_visit.metadata.values():
+            for md in metadata:
+                a.append(md.model)
         a.sort()
-        schedule = site_visit_schedules.get_schedule(self.subject_visit.metadata_query_options['schedule_name'])
+        schedule = site_visit_schedules.get_schedule(
+            self.subject_visit.metadata_query_options['schedule_name'])
         b = [crf.model._meta.label_lower
              for crf in schedule.get_visit(self.subject_visit.visit_code).crfs]
         b.extend([requisition.model._meta.label_lower
