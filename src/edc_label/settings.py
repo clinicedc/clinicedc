@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
+    'edc_base.apps.AppConfig',
     'edc_label.apps.AppConfig'
 ]
 
