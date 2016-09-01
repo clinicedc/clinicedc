@@ -13,6 +13,8 @@ class AppConfig(DjangoAppConfig):
     verbose_name = 'Edc Lab'
     app_label = 'edc_example'
 
+    requisition = 'edc_example.subjectrequisition'
+
     aliquot_types = [
         AliquotType('Whole Blood', 'WB', '02', allowed_derivatives=['BC', 'PL']),
         AliquotType('Plasma', 'PL', '36', allowed_derivatives=None),
@@ -38,6 +40,18 @@ class AppConfig(DjangoAppConfig):
     @property
     def aliquot_model(self):
         return django_apps.get_model(self.app_label, 'aliquot')
+
+    @property
+    def requisition_model(self):
+        return django_apps.get_model(self.requisition)
+
+    @property
+    def specimen_collection_model(self):
+        return django_apps.get_model(self.app_label, 'specimencollection')
+
+    @property
+    def specimen_collection_item_model(self):
+        return django_apps.get_model(self.app_label, 'specimencollectionitem')
 
     def aliquot_types_to_dict(self):
         aliquot_types = copy.copy(self.aliquot_types)

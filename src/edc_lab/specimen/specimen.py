@@ -5,6 +5,7 @@ from django.apps import apps as django_apps
 from edc_constants.constants import YES, NO
 
 from edc_lab.aliquot.aliquot import Aliquot
+from edc_lab.requisition.requisition import Requisition
 
 app_config = django_apps.get_app_config('edc_lab')
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
@@ -19,10 +20,7 @@ class Specimen:
     def __init__(self, requisition, create_primary=None):
         self._aliquots = None
         self.primary_aliquot = None
-        self.requisition = requisition
-        if not re.match('\d+', self.requisition.specimen_type, re.ASCII):
-            raise SpecimenError(
-                'Invalid specimen type format. Expected a numeric code. Got {}'.format(self.requisition.specimen_type))
+        self.requisition = Requisition(requisition)
         create_primary = True if create_primary is None else create_primary
         self.get_or_create_primary(create_primary)
 
@@ -50,7 +48,7 @@ class Specimen:
                 if create:
                     primary_aliquot = app_config.aliquot_model.objects.create(
                         specimen_identifier=self.specimen_identifier,
-                        aliquot_type=self.requisition.specimen_type,
+                        aliquot_type=self.requisition.specimen_type.numeric_code,
                         aliquot_identifier=self.primary_aliquot_identifier,
                         count=0,
                         medium_count=self.requisition.item_count,
@@ -60,12 +58,13 @@ class Specimen:
 
     @property
     def primary_aliquot_identifier(self):
-        return self.specimen_identifier + '0000' + self.requisition.specimen_type + '01'
+        return self.specimen_identifier + '0000' + self.requisition.specimen_type.numeric_code + '01'
 
     @property
     def specimen_identifier(self):
         """Returns a specimen identifier based on the requisition."""
         specimen_identifier = None
+        print(self.requisition.__dict__)
         if self.requisition.is_drawn == YES:
             specimen_identifier = '{protocol_number}{requisition_identifier}'.format(
                 protocol_number=edc_protocol_app_config.protocol_number,

@@ -9,7 +9,8 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from django.utils import timezone
 from edc_lab.requisition.identifier import Identifier
 from edc_constants.constants import YES, NO
-from edc_lab.collection.specimen import Specimen
+from edc_lab.specimen.specimen import Specimen
+from edc_lab.specimen.specimen_collection import Collection
 
 app_config = django_apps.get_app_config('edc_lab')
 
@@ -247,15 +248,15 @@ class LabTests(TestCase):
             requisition_datetime=timezone.now(),
             is_drawn=YES)
         collection = Collection()
-        collection.add(requisition1.requisition_identifier)
-        collection.add(requisition2.requisition_identifier)
+        collection.add(requisition1)
+        collection.add(requisition2)
         self.assertEqual(len(collection.specimens), 2)
-        self.assertIn(requisition1.requisition_identifier, [s.requisition_identifier for s in collection.specimens])
-        self.assertIn(requisition2.requisition_identifier, [s.requisition_identifier for s in collection.specimens])
+        self.assertIn(requisition1.requisition_identifier, [s.requisition.requisition_identifier for s in collection.specimens.values()])
+        self.assertIn(requisition2.requisition_identifier, [s.requisition.requisition_identifier for s in collection.specimens.values()])
         self.assertEqual(
             app_config.aliquot_model.objects.filter(
-                specimen_identifier__in=[s.specimen_identifier for s in collection.specimens]), 2)
-        
+                specimen_identifier__in=[s.specimen_identifier for s in collection.specimens.values()]).count(), 2)
+
 #         requisition = SubjectRequisition.objects.get(requisition_identifier=requisition.requisition_identifier)
 #         aliquot = Aliquot.objects.get()
 

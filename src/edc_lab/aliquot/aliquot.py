@@ -11,12 +11,15 @@ class AliquotError(Exception):
 
 class Aliquot:
     """A wrapper for the Aliquot model instance."""
+
+    model = app_config.aliquot_model
+
     def __init__(self, obj):
         self.object = obj
         for field in self.object._meta.fields:
             setattr(self, field.name, getattr(self.object, field.name))
         self.is_primary = self.object.is_primary
-        self.children = app_config.aliquot_model.objects.filter(
+        self.children = self.model.objects.filter(
             parent_identifier=self.object.aliquot_identifier).order_by('aliquot_identifier')
         self.count = self.children.count()
 
@@ -28,7 +31,7 @@ class Aliquot:
             raise AliquotError('Invalid aliquot type format. Expected numeric code. Got {}.'.format(numeric_code))
         for i in range(1, aliquot_count + 1):
             self.count += 1
-            app_config.aliquot_model.objects.create(
+            self.model.objects.create(
                 aliquot_identifier=self.get_identifier(numeric_code, i),
                 parent_identifier=self.object.aliquot_identifier,
                 specimen_identifier=self.object.specimen_identifier,

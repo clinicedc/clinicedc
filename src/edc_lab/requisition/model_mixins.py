@@ -10,7 +10,7 @@ from edc_base.model.fields.custom_fields import InitialsField
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NO
 
-from .choices import ITEM_TYPE, REASON_NOT_DRAWN, PRIORITY
+from .choices import ITEM_TYPE, REASON_NOT_DRAWN
 from .identifier import Identifier
 
 app_config = django_apps.get_app_config('edc_lab')
@@ -84,8 +84,8 @@ class RequisitionModelMixin(models.Model):
         default='tube',
         help_text='')
 
-    item_count_total = models.IntegerField(
-        verbose_name='Total number of items',
+    item_count = models.IntegerField(
+        verbose_name='Number of items',
         default=1,
         help_text=(
             'Number of tubes, samples, cards, etc being sent for this test/order only. '
@@ -141,7 +141,7 @@ class RequisitionModelMixin(models.Model):
             'drawn_datetime': self.drawn_datetime,
             'gender': self.registered_subject.gender,
             'initials': self.registered_subject.initials,
-            'item_count_total': self.item_count_total,
+            'item_count': self.item_count,
             'may_store_samples': may_store_samples,
             'panel': self.panel.name[0:21],
             'protocol': '',  # edc_base_app_config.protocol_number
