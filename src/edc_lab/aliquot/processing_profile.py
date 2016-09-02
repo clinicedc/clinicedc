@@ -1,19 +1,42 @@
 
+class ProcessingProfileError(Exception):
+    pass
+
+
 class Process:
 
-    def __init__(self, alpha_code, aliquot_count):
-        self.aliquot_type = alpha_code
+    def __init__(self, aliquot_type, aliquot_count):
+        self.aliquot_type = aliquot_type
         self.aliquot_count = aliquot_count
+        self.name = '{}-{}'.format(str(self.aliquot_type), self.aliquot_count)
+
+    def __repr__(self):
+        return '<Process({}, {})>'.format(str(self.aliquot_type), self.aliquot_count)
+
+    def __str__(self):
+        return self.name
 
 
 class ProcessingProfile:
 
-    def __init__(self, name, alpha_code, processes=None):
-        self.processes = []
-        self.name = name
+    def __init__(self, name, alpha_code):
         self.aliquot_type = alpha_code
-        for process in processes:
-            self.add_process(process)
+        self.name = name
+        self.processes = {}
 
-    def add_process(self, process):
-        self.processes.append(process)
+    def __repr__(self):
+        return '<ProcessingProfile({}, {})>'.format(self.name, str(self.aliquot_type))
+
+    def __str__(self):
+        return self.name
+
+    def add_process(self, aliquot_type, aliquot_count):
+        process = Process(aliquot_type, aliquot_count)
+        if process.aliquot_type.numeric_code not in [a.numeric_code for a in self.aliquot_type.derivatives]:
+            raise ProcessingProfileError(
+                'Invalid process. Got \'{}\'. \'{}\' cannot be derived from \'{}\'.'.format(
+                    process.name, str(process.aliquot_type), str(self.aliquot_type)))
+        if process.name in self.processes:
+            raise ProcessingProfileError(
+                'Process {} has already been added to this procesing profile.'.format(process.name))
+        self.processes.update({process.name: process})

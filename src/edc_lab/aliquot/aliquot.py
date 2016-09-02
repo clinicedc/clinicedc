@@ -1,6 +1,7 @@
 import re
 
 from django.apps import apps as django_apps
+from edc_lab.site_lab_profiles import site_lab_profiles
 
 app_config = django_apps.get_app_config('edc_lab')
 
@@ -41,13 +42,18 @@ class Aliquot:
     def create_aliquot(self, numeric_code):
         self.create_aliquots(self, numeric_code, 1)
 
-    def create_aliquots_by_processing_profile(self, processing_profile):
+    def create_aliquots_by_processing_profile(self, panel_name, lab_profile_name):
+        """Creates aliquots according to the processing profile.
+
+        Typically lab_profile_name is requisition._meta.label_lower."""
+        lab_profile = site_lab_profiles.get(lab_profile_name)
+        processing_profile = lab_profile.panels[panel_name].processing_profile
         try:
-            processes = processing_profile.processes
-        except AttributeError:
-            processes = app_config.processing_profiles[processing_profile].processes
-        for process in processes:
-            self.create_aliquots(process.aliquot_type.numeric_code, process.aliquot_count)
+            for process in processing_profile.processes.values():
+                self.create_aliquots(process.aliquot_type.numeric_code, process.aliquot_count)
+        except AttributeError as e:
+            if 'processes' not in str(e):
+                raise AttributeError(e)
 
     def get_identifier(self, numeric_code, count):
         prefix = self.aliquot_identifier[0:10]

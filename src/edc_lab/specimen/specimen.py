@@ -2,7 +2,7 @@ import re
 
 from django.apps import apps as django_apps
 
-from edc_constants.constants import YES, NO
+from edc_constants.constants import YES
 
 from edc_lab.aliquot.aliquot import Aliquot
 from edc_lab.requisition.requisition import Requisition
@@ -64,7 +64,6 @@ class Specimen:
     def specimen_identifier(self):
         """Returns a specimen identifier based on the requisition."""
         specimen_identifier = None
-        print(self.requisition.__dict__)
         if self.requisition.is_drawn == YES:
             specimen_identifier = '{protocol_number}{requisition_identifier}'.format(
                 protocol_number=edc_protocol_app_config.protocol_number,

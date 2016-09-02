@@ -2,15 +2,19 @@ import re
 
 from django.apps import apps as django_apps
 from django.test import TestCase
+from django.utils import timezone
 
+from edc_constants.constants import YES, NO
 from edc_example.factories import SubjectConsentFactory, EnrollmentFactory, SubjectVisitFactory, SubjectRequisitionFactory
 from edc_example.models import Appointment, SubjectRequisition, Aliquot
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from django.utils import timezone
 from edc_lab.requisition.identifier import Identifier
-from edc_constants.constants import YES, NO
 from edc_lab.specimen.specimen import Specimen
-from edc_lab.specimen.specimen_collection import Collection
+from edc_lab.specimen.specimen_collection import SpecimenCollection
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_lab.site_lab_profiles import site_lab_profiles
+from edc_example.lab_profiles import viral_load_panel
+
+# from .site_lab_profiles import site_lab_profiles
 
 app_config = django_apps.get_app_config('edc_lab')
 
@@ -117,11 +121,12 @@ class LabTests(TestCase):
             panel_name=self.panel_name,
             requisition_datetime=timezone.now(),
             is_drawn=YES)
-        Specimen(requisition)
-        self.assertIsNotNone(requisition.specimen_identifier)
+        specimen = Specimen(requisition)
+        self.assertIsNotNone(specimen.requisition.specimen_identifier)
         self.assertEqual(Aliquot.objects.filter(
-            specimen_identifier=requisition.specimen_identifier,
+            specimen_identifier=specimen.requisition.specimen_identifier,
             is_primary=True).count(), 1)
+        self.assertTrue(SubjectRequisition.objects.get(specimen_identifier=specimen.requisition.specimen_identifier))
 
     def test_requisition_creates_primary_aliquot_only_once(self):
         """Asserts passing the same requisition to specimen class does not recreate a primary aliquot."""
@@ -223,11 +228,12 @@ class LabTests(TestCase):
     def test_create_aliquots_by_profile(self):
         requisition1 = SubjectRequisitionFactory(
             subject_visit=self.subject_visit,
-            panel_name=self.panel_name,
+            panel_name=viral_load_panel.name,
             requisition_datetime=timezone.now(),
             is_drawn=YES)
         specimen1 = Specimen(requisition1)
-        specimen1.primary_aliquot.create_aliquots_by_processing_profile('viral_load')
+        specimen1.primary_aliquot.create_aliquots_by_processing_profile(
+            requisition1.panel_name, requisition1._meta.label_lower)
         alpha_codes = []
         for aliquot in app_config.aliquot_model.objects.filter(
                 parent_identifier=specimen1.primary_aliquot.aliquot_identifier,
@@ -237,6 +243,7 @@ class LabTests(TestCase):
         self.assertEqual(alpha_codes, ['12', '12', '12', '36', '36', '36', '36'])
 
     def test_collection(self):
+        """Asserts specimens can be collected and still function correctly (e.g. create aliquots)."""
         requisition1 = SubjectRequisitionFactory(
             subject_visit=self.subject_visit,
             panel_name=self.first_visit.requisitions[0].panel.name,
@@ -247,18 +254,15 @@ class LabTests(TestCase):
             panel_name=self.first_visit.requisitions[1].panel.name,
             requisition_datetime=timezone.now(),
             is_drawn=YES)
-        collection = Collection()
-        collection.add(requisition1)
-        collection.add(requisition2)
-        self.assertEqual(len(collection.specimens), 2)
-        self.assertIn(requisition1.requisition_identifier, [s.requisition.requisition_identifier for s in collection.specimens.values()])
-        self.assertIn(requisition2.requisition_identifier, [s.requisition.requisition_identifier for s in collection.specimens.values()])
+        specimen_collection = SpecimenCollection()
+        specimen_collection.add(requisition1)
+        specimen_collection.add(requisition2)
+        self.assertEqual(len(specimen_collection.specimens), 2)
+        self.assertIn(requisition1.requisition_identifier,
+                      [s.requisition.requisition_identifier for s in specimen_collection.specimens.values()])
+        self.assertIn(requisition2.requisition_identifier,
+                      [s.requisition.requisition_identifier for s in specimen_collection.specimens.values()])
         self.assertEqual(
             app_config.aliquot_model.objects.filter(
-                specimen_identifier__in=[s.specimen_identifier for s in collection.specimens.values()]).count(), 2)
-
-#         requisition = SubjectRequisition.objects.get(requisition_identifier=requisition.requisition_identifier)
-#         aliquot = Aliquot.objects.get()
-
-    def test_process_aliquot(self):
-        pass
+                specimen_identifier__in=[
+                    s.specimen_identifier for s in specimen_collection.specimens.values()]).count(), 2)

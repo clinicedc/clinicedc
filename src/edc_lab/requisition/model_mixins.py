@@ -12,8 +12,9 @@ from edc_constants.constants import YES, NO
 
 from .choices import ITEM_TYPE, REASON_NOT_DRAWN
 from .identifier import Identifier
+from edc_lab.site_lab_profiles import site_lab_profiles
 
-app_config = django_apps.get_app_config('edc_lab')
+app_confi = django_apps.get_app_config('edc_lab')
 edc_device_app_config = django_apps.get_app_config('edc_device')
 
 
@@ -63,9 +64,8 @@ class RequisitionModelMixin(models.Model):
         verbose_name='Specimen Id',
         max_length=50,
         null=True,
-        blank=True,
         editable=False,
-        unique=True,)
+        unique=True)
 
     study_site = models.CharField(max_length=10, null=True)
 
@@ -109,9 +109,9 @@ class RequisitionModelMixin(models.Model):
         if not self.requisition_identifier:
             self.requisition_identifier = str(uuid4())
         try:
-            app_config.panels[self.panel_name]
-        except KeyError:
-            raise RequisitionError('Undefined panel name. Got {}. See AppConfig.'.format(self.panel_name))
+            site_lab_profiles.get(self._meta.label_lower).panels[self.panel_name]
+        except KeyError as e:
+            raise RequisitionError('Undefined panel name. Got {}. See AppConfig. Got {}'.format(self.panel_name, str(e)))
         super(RequisitionModelMixin, self).save(*args, **kwargs)
 
     def natural_key(self):

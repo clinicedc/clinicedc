@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'edc_example.apps.EdcConsentAppConfig',
     'edc_example.apps.EdcProtocolAppConfig',
     'edc_example.apps.EdcTimepointAppConfig',
+    'edc_identifier.apps.AppConfig',
     'edc_lab.apps.AppConfig',
     'edc_label.apps.AppConfig',
     'edc_metadata.apps.AppConfig',

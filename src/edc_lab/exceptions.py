@@ -4,7 +4,7 @@ class AlreadyRegistered(Exception):
     pass
 
 
-class NotRegistered(Exception):
+class RegistryNotLoaded(Exception):
     pass
 
 
