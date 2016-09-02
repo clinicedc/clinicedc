@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'django_crypto_fields.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
+    'edc_device.apps.AppConfig',
+    'edc_lab.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_example.apps.EdcProtocolAppConfig',
     'edc_example.apps.EdcTimepointAppConfig',

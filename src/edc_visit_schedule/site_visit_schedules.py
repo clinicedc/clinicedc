@@ -4,11 +4,10 @@ import sys
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
 
-from .exceptions import AlreadyRegistered
-from edc_visit_schedule.exceptions import VisitScheduleError, RegistryNotLoaded
+from edc_visit_schedule.exceptions import VisitScheduleError, RegistryNotLoaded, AlreadyRegistered
 
 
-class Controller(object):
+class SiteVisitSchedules:
 
     """ Main controller of :class:`VisitSchedule` objects.
 
@@ -60,11 +59,13 @@ class Controller(object):
                     before_import_registry = copy.copy(site_visit_schedules._registry)
                     import_module('{}.{}'.format(app, module_name))
                     sys.stdout.write(' * registered visit schedules from application \'{}\'\n'.format(app))
-                except:
+                except Exception as e:
+                    if 'No module named \'{}.{}\''.format(app, module_name) not in str(e):
+                        raise Exception(e)
                     site_visit_schedules._registry = before_import_registry
                     if module_has_submodule(mod, module_name):
                         raise
             except ImportError:
                 pass
 
-site_visit_schedules = Controller()
+site_visit_schedules = SiteVisitSchedules()

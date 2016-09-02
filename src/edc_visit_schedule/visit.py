@@ -23,22 +23,29 @@ class Crf:
     def __init__(self, show_order, model=None, required=None, additional=None, **kwargs):
         self.show_order = show_order
         self._model = '{}.{}'.format(*model.split('.'))
+        self._label_lower = model
         self.required = True if required is None else required
         self.additional = additional
+
+    def __repr__(self):
+        return '<Crf({}, {}, {})>'.format(self.show_order, self._label_lower, self.required)
+
+    def __str__(self):
+        return '{} {}'.format(self._model, 'Required' if self.required else '')
 
     @property
     def model(self):
         return django_apps.get_model(*self._model.split('.'))
 
-    def __str__(self):
-        return '{} {}'.format(self._model, 'Required' if self.required else '')
-
 
 class Requisition(Crf):
 
-    def __init__(self, show_order, panel_name=None, panel_type=None, aliquot_type_alpha_code=None, **kwargs):
+    def __init__(self, show_order, panel=None, **kwargs):
         super(Requisition, self).__init__(show_order, **kwargs)
-        self.panel = Panel(panel_name, panel_type, aliquot_type_alpha_code)
+        self.panel = panel
+
+    def __repr__(self):
+        return '<Requisition({}, {})>'.format(self.show_order, self.panel)
 
     def __str__(self):
         return '{} {}'.format(self.panel.name, 'Required' if self.required else '')
