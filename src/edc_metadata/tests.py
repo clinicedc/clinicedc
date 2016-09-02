@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.test import TestCase
 
-from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory, RequisitionOneFactory
+from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory, SubjectRequisitionFactory
 from edc_example.models import (
     SubjectVisit, Appointment, Enrollment, CrfMetadata, RequisitionMetadata, CrfOne)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -96,7 +96,7 @@ class TestMetadata(TestCase):
             appointment=self.first_appointment,
             reason=SCHEDULED)
         self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
-        RequisitionOneFactory(
+        SubjectRequisitionFactory(
             subject_visit=self.subject_visit,
             panel_name=self.panel_name)
         self.assertEqual(RequisitionMetadata.objects.filter(entry_status=KEYED).count(), 1)
@@ -106,10 +106,10 @@ class TestMetadata(TestCase):
             appointment=self.first_appointment,
             reason=SCHEDULED)
         self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
-        requisition_one = RequisitionOneFactory(
+        subject_requisition = SubjectRequisitionFactory(
             subject_visit=self.subject_visit,
             panel_name=self.panel_name)
-        requisition_one.save()
+        subject_requisition.save()
         self.assertEqual(RequisitionMetadata.objects.filter(entry_status=KEYED).count(), 1)
 
     def test_resets_crf_metadata_on_delete(self):
@@ -134,14 +134,14 @@ class TestMetadata(TestCase):
             reason=SCHEDULED)
         self.assertEqual(CrfMetadata.objects.all().count(), len(self.first_visit.crfs))
         self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
-        requisition_one = RequisitionOneFactory(
+        subject_requisition = SubjectRequisitionFactory(
             subject_visit=self.subject_visit,
             panel_name=self.panel_name)
         metadata = RequisitionMetadata.objects.get(
             subject_identifier=self.subject_visit.subject_identifier,
-            model=requisition_one._meta.label_lower,
+            model=subject_requisition._meta.label_lower,
             entry_status=KEYED)
-        requisition_one.delete()
+        subject_requisition.delete()
         metadata = RequisitionMetadata.objects.get(pk=metadata.pk)
         self.assertNotEqual(metadata.entry_status, KEYED)
         self.assertEqual(RequisitionMetadata.objects.all().count(), len(self.first_visit.requisitions))
