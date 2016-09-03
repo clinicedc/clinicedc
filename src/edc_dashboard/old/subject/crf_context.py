@@ -1,4 +1,4 @@
-from edc_meta_data.models import CrfMetaData
+from edc_metadata.models import CrfMetaData
 
 from .base_context import BaseContext
 
