@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.core.urlresolvers import reverse
 
-from edc_rule_groups.classes import site_rule_groups
+from edc_rule_groups.site_rule_groups import site_rule_groups
 
 from .constants import REQUIRED
 

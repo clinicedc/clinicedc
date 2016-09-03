@@ -10,16 +10,16 @@ from .constants import REQUIRED, NOT_REQUIRED, KEYED
 
 class BaseUpdateMetadataModelMixin(models.Model):
 
-    def metadata_update(self):
+    def metadata_update(self, entry_status=None):
         obj = self.metadata_model.objects.get(**self.metadata_query_options)
-        obj.entry_status = KEYED
+        obj.entry_status = entry_status or KEYED
         obj.report_datetime = self.report_datetime
         obj.save()
         self.visit.metadata_run_rules()
 
     def metadata_delete(self):
         obj = self.metadata_model.objects.get(**self.metadata_query_options)
-        obj.entry_status = REQUIRED
+        obj.entry_status = REQUIRED  # TODO: what was the default from the visit_schedule??
         obj.report_datetime = None
         obj.save()
         self.visit.metadata_run_rules()
@@ -27,7 +27,7 @@ class BaseUpdateMetadataModelMixin(models.Model):
     @property
     def metadata_query_options(self):
         options = self.visit.metadata_query_options
-        if self.metadata_category == 'requisition':
+        if self.metadata_category() == 'requisition':
             options.update({'panel_name': self.panel_name})
         options.update({
             'subject_identifier': self.visit.subject_identifier,
@@ -38,7 +38,7 @@ class BaseUpdateMetadataModelMixin(models.Model):
     def metadata_model(self):
         """Returns the metadata model associated with self."""
         app_config = django_apps.get_app_config('edc_metadata')
-        return app_config.get_metadata_model(self.metadata_category)
+        return app_config.get_metadata_model(self.metadata_category())
 
     class Meta:
         abstract = True
@@ -47,8 +47,8 @@ class BaseUpdateMetadataModelMixin(models.Model):
 class UpdateCrfMetadataModelMixin(BaseUpdateMetadataModelMixin):
     """A mixin used on Crf models to enable them to update metadata upon update/delete."""
 
-    @property
-    def metadata_category(self):
+    @classmethod
+    def metadata_category(cls):
         return 'crf'
 
     class Meta:
@@ -58,8 +58,8 @@ class UpdateCrfMetadataModelMixin(BaseUpdateMetadataModelMixin):
 class UpdateRequisitionMetadataModelMixin(BaseUpdateMetadataModelMixin):
     """A mixin used on Requisition models to enable them to update metadata upon update/delete."""
 
-    @property
-    def metadata_category(self):
+    @classmethod
+    def metadata_category(cls):
         return 'requisition'
 
     class Meta:
@@ -138,6 +138,14 @@ class CreatesMetadataModelMixin(models.Model):
                         entry_status=REQUIRED if requisition.required else NOT_REQUIRED,
                         **options)
         self.metadata_run_rules()
+
+    def metadata_update_for_model(self, model, entry_status):
+        """Updates metadata for a given model for this visit and subject_identifier."""
+        model_cls = django_apps.get_model(*model.split('.'))
+        obj = model_cls.metadata_model.objects.get(
+            model=model, subject_identifier=self.subject_identifier, **self.metadata_query_options)
+        obj.entry_status = entry_status
+        obj.save()
 
     def metadata_run_rules(self):
         pass
