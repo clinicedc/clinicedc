@@ -23,12 +23,12 @@ class Crf:
     def __init__(self, show_order, model=None, required=None, additional=None, **kwargs):
         self.show_order = show_order
         self._model = '{}.{}'.format(*model.split('.'))
-        self._label_lower = model
+        self.model_label_lower = model
         self.required = True if required is None else required
         self.additional = additional
 
     def __repr__(self):
-        return '<Crf({}, {}, {})>'.format(self.show_order, self._label_lower, self.required)
+        return '<Crf({}, {}, {})>'.format(self.show_order, self.model_label_lower, self.required)
 
     def __str__(self):
         return '{} {}'.format(self._model, 'Required' if self.required else '')
