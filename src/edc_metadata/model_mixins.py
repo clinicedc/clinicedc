@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
+from edc_rule_groups.site_rule_groups import site_rule_groups
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .choices import ENTRY_STATUS
@@ -15,19 +16,30 @@ class BaseUpdateMetadataModelMixin(models.Model):
         obj.entry_status = entry_status or KEYED
         obj.report_datetime = self.report_datetime
         obj.save()
-        self.visit.metadata_run_rules()
 
     def metadata_delete(self):
         obj = self.metadata_model.objects.get(**self.metadata_query_options)
-        obj.entry_status = REQUIRED  # TODO: what was the default from the visit_schedule??
+        obj.entry_status = self.metadata_default_entry_status or REQUIRED
         obj.report_datetime = None
         obj.save()
-        self.visit.metadata_run_rules()
+
+    @property
+    def metadata_default_entry_status(self):
+        visit_schedule = site_visit_schedules.get_visit_schedule(self.visit.visit_schedule_name)
+        schedule = visit_schedule.get_schedule(self.visit.schedule_name)
+        visit = schedule.get_visit(self.visit.visit_code)
+        if self.metadata_category == 'requisition':
+            requisition = [r for r in visit.requisitions if r.panel_name == self.panel_name][0]
+            default_entry_status = REQUIRED if requisition.required else NOT_REQUIRED
+        elif self.metadata_category == 'crf':
+            crf = [c for c in visit.crfs if c.model_label_lower == self._meta.label_lower][0]
+            default_entry_status = REQUIRED if crf.required else NOT_REQUIRED
+        return default_entry_status
 
     @property
     def metadata_query_options(self):
         options = self.visit.metadata_query_options
-        if self.metadata_category() == 'requisition':
+        if self.metadata_category == 'requisition':
             options.update({'panel_name': self.panel_name})
         options.update({
             'subject_identifier': self.visit.subject_identifier,
@@ -38,7 +50,7 @@ class BaseUpdateMetadataModelMixin(models.Model):
     def metadata_model(self):
         """Returns the metadata model associated with self."""
         app_config = django_apps.get_app_config('edc_metadata')
-        return app_config.get_metadata_model(self.metadata_category())
+        return app_config.get_metadata_model(self.metadata_category)
 
     class Meta:
         abstract = True
@@ -47,8 +59,8 @@ class BaseUpdateMetadataModelMixin(models.Model):
 class UpdateCrfMetadataModelMixin(BaseUpdateMetadataModelMixin):
     """A mixin used on Crf models to enable them to update metadata upon update/delete."""
 
-    @classmethod
-    def metadata_category(cls):
+    @property
+    def metadata_category(self):
         return 'crf'
 
     class Meta:
@@ -58,8 +70,8 @@ class UpdateCrfMetadataModelMixin(BaseUpdateMetadataModelMixin):
 class UpdateRequisitionMetadataModelMixin(BaseUpdateMetadataModelMixin):
     """A mixin used on Requisition models to enable them to update metadata upon update/delete."""
 
-    @classmethod
-    def metadata_category(cls):
+    @property
+    def metadata_category(self):
         return 'requisition'
 
     class Meta:
@@ -137,18 +149,23 @@ class CreatesMetadataModelMixin(models.Model):
                     metadata_requisition_model.objects.create(
                         entry_status=REQUIRED if requisition.required else NOT_REQUIRED,
                         **options)
-        self.metadata_run_rules()
 
     def metadata_update_for_model(self, model, entry_status):
         """Updates metadata for a given model for this visit and subject_identifier."""
         model_cls = django_apps.get_model(*model.split('.'))
-        obj = model_cls.metadata_model.objects.get(
+        obj = model_cls().metadata_model.objects.get(
             model=model, subject_identifier=self.subject_identifier, **self.metadata_query_options)
         obj.entry_status = entry_status
         obj.save()
+        return obj
 
-    def metadata_run_rules(self):
-        pass
+    def metadata_run_rules(self, source_model=None):
+        """Runs all the rule groups for this app label."""
+        for rule_group in site_rule_groups.registry.get(self._meta.app_label):
+            if source_model:
+                rule_group.run_for_source_model(self, source_model)
+            else:
+                rule_group.run_all(self)
 
 # TODO:
 #     def metadata_require(self):

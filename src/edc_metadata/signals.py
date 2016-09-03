@@ -1,34 +1,52 @@
-from django.db.models.signals import post_save, pre_delete
+import sys
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_create_on_post_save")
 def metadata_create_on_post_save(sender, instance, raw, created, using, update_fields, **kwargs):
-    """Create all meta data on post save of model using CreatesMetaDataModelMixin."""
+    """Create all meta data on post save of model using CreatesMetaDataModelMixin.
+
+    For example, when saving the visit model."""
     if not raw:
         try:
             instance.metadata_create()
         except AttributeError as e:
             if 'metadata_create' not in str(e):
-                raise
+                raise AttributeError(e)
+        try:
+            instance.metadata_run_rules()
+        except AttributeError as e:
+            if 'metadata_run_rules' not in str(e):
+                raise AttributeError(e)
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_update_on_post_save")
 def metadata_update_on_post_save(sender, instance, raw, created, using, update_fields, **kwargs):
-    """Update a meta data record on post save of the model using the metadata_manager method."""
+    """Update the meta data record on post save of a model."""
 
     if not raw:
         try:
             instance.metadata_update()
         except AttributeError as e:
             if 'metadata_update' not in str(e):
-                raise
+                raise AttributeError(e)
+        try:
+            instance.visit.metadata_run_rules()
+        except AttributeError as e:
+            if 'metadata_run_rules' not in str(e) and 'visit' not in str(e):
+                raise AttributeError(e)
 
 
-@receiver(pre_delete, weak=False, dispatch_uid="metadata_delete_on_post_save")
+@receiver(post_delete, weak=False, dispatch_uid="metadata_delete_on_post_save")
 def metadata_delete_on_post_save(sender, instance, using, **kwargs):
     try:
         instance.metadata_delete()
     except AttributeError as e:
         if 'metadata_delete' not in str(e):
-            raise
+            raise AttributeError(e)
+    try:
+        instance.visit.metadata_run_rules()
+    except AttributeError as e:
+        if 'metadata_run_rules' not in str(e) and 'visit' not in str(e):
+            raise AttributeError(e)
