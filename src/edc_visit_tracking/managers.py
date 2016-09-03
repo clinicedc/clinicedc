@@ -8,3 +8,13 @@ class CrfModelManager(models.Manager):
         instance = self.model.visit_model.objects.get_by_natural_key(
             visit_instance_number, code, subject_identifier_as_pk)
         return self.get({self.model.visit_model_attr: instance})
+
+    def get_for_visit(self, visit):
+        """Returns an instance for the given visit."""
+        options = {self.model.visit_model_attr(): visit}
+        return self.get(**options)
+
+    def get_for_subject_identifier(self, subject_identifier):
+        """Returns a queryset for the given subject_identifier."""
+        options = {'{}__subject_identifier'.format(self.model.visit_model_attr()): subject_identifier}
+        return self.filter(**options)
