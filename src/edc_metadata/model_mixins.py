@@ -7,9 +7,10 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .choices import ENTRY_STATUS
 from .constants import REQUIRED, NOT_REQUIRED, KEYED
+from .exceptions import CreatesMetadataError
 
 
-class BaseUpdateMetadataModelMixin(models.Model):
+class BaseUpdatesMetadataModelMixin(models.Model):
 
     def metadata_update(self, entry_status=None):
         obj = self.metadata_model.objects.get(**self.metadata_query_options)
@@ -29,7 +30,7 @@ class BaseUpdateMetadataModelMixin(models.Model):
         schedule = visit_schedule.get_schedule(self.visit.schedule_name)
         visit = schedule.get_visit(self.visit.visit_code)
         if self.metadata_category == 'requisition':
-            requisition = [r for r in visit.requisitions if r.panel_name == self.panel_name][0]
+            requisition = [r for r in visit.requisitions if r.panel.name == self.panel_name][0]
             default_entry_status = REQUIRED if requisition.required else NOT_REQUIRED
         elif self.metadata_category == 'crf':
             crf = [c for c in visit.crfs if c.model_label_lower == self._meta.label_lower][0]
@@ -56,7 +57,7 @@ class BaseUpdateMetadataModelMixin(models.Model):
         abstract = True
 
 
-class UpdateCrfMetadataModelMixin(BaseUpdateMetadataModelMixin):
+class UpdatesCrfMetadataModelMixin(BaseUpdatesMetadataModelMixin):
     """A mixin used on Crf models to enable them to update metadata upon update/delete."""
 
     @property
@@ -67,7 +68,7 @@ class UpdateCrfMetadataModelMixin(BaseUpdateMetadataModelMixin):
         abstract = True
 
 
-class UpdateRequisitionMetadataModelMixin(BaseUpdateMetadataModelMixin):
+class UpdatesRequisitionMetadataModelMixin(BaseUpdatesMetadataModelMixin):
     """A mixin used on Requisition models to enable them to update metadata upon update/delete."""
 
     @property
@@ -101,9 +102,9 @@ class CreatesMetadataModelMixin(models.Model):
         return app_config.get_metadata(
             self.subject_identifier, **self.metadata_query_options)
 
-    def metadata_create(self):
+    def metadata_create(self, sender=None, instance=None):
         """Creates Crf and Requisition meta data for the subject visit."""
-
+        metadata_exists = True
         app_config = django_apps.get_app_config('edc_metadata')
         metadata_crf_model = app_config.crf_model
         if not metadata_crf_model._meta.unique_together:
@@ -116,14 +117,15 @@ class CreatesMetadataModelMixin(models.Model):
         visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
         schedule = visit_schedule.get_schedule(self.schedule_name)
         visit = schedule.get_visit(self.visit_code)
-        if getattr(self, app_config.reason_field) in app_config.delete_on_reasons:
+        if getattr(self, app_config.reason_field[self._meta.label_lower]) in app_config.delete_on_reasons:
             metadata_crf_model.objects.filter(
                 subject_identifier=self.subject_identifier,
                 **self.metadata_query_options).delete()
             metadata_requisition_model.objects.filter(
                 subject_identifier=self.subject_identifier,
                 **self.metadata_query_options).delete()
-        elif getattr(self, app_config.reason_field) in app_config.create_on_reasons:
+            metadata_exists = False
+        elif getattr(self, app_config.reason_field[self._meta.label_lower]) in app_config.create_on_reasons:
             metadata_crf_model = django_apps.get_app_config('edc_metadata').crf_model
             metadata_requisition_model = django_apps.get_app_config('edc_metadata').requisition_model
             visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
@@ -131,14 +133,15 @@ class CreatesMetadataModelMixin(models.Model):
             visit = schedule.get_visit(self.visit_code)
             options = self.metadata_query_options
             options.update({'subject_identifier': self.subject_identifier})
+            metadata_crfs = []
             for crf in visit.crfs:
                 options.update({'model': crf.model._meta.label_lower})
                 try:
                     metadata_crf_model.objects.get(**options)
                 except metadata_crf_model.DoesNotExist:
-                    metadata_crf_model.objects.create(
+                    metadata_crfs.append(metadata_crf_model.objects.create(
                         entry_status=REQUIRED if crf.required else NOT_REQUIRED,
-                        **options)
+                        **options))
             for requisition in visit.requisitions:
                 options.update({
                     'model': requisition.model._meta.label_lower,
@@ -149,8 +152,16 @@ class CreatesMetadataModelMixin(models.Model):
                     metadata_requisition_model.objects.create(
                         entry_status=REQUIRED if requisition.required else NOT_REQUIRED,
                         **options)
+        else:
+            raise CreatesMetadataError(
+                'Undefined \'reason\'. Cannot create metadata. Got {}.{} = \'{}\'. '
+                'Check field value and/or edc_metadata.AppConfig.reason_field.'.format(
+                    self._meta.label_lower,
+                    app_config.reason_field[self._meta.label_lower],
+                    getattr(self, app_config.reason_field[self._meta.label_lower])))
+        return metadata_exists
 
-    def metadata_update_for_model(self, model, entry_status):
+    def metadata_update_for_model(self, model, entry_status, rule_name=None):
         """Updates metadata for a given model for this visit and subject_identifier."""
         model_cls = django_apps.get_model(*model.split('.'))
         obj = model_cls().metadata_model.objects.get(

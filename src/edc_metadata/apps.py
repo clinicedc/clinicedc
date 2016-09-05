@@ -12,9 +12,10 @@ class AppConfig(DjangoAppConfig):
     app_label = 'edc_example'
     crf_model_name = 'crfmetadata'
     requisition_model_name = 'requisitionmetadata'
+
+    reason_field = {'edc_example.subjectvisit': 'reason'}
     create_on_reasons = [SCHEDULED, UNSCHEDULED]
     delete_on_reasons = [MISSED_VISIT]
-    reason_field = 'reason'
 
     def ready(self):
         from .signals import metadata_update_on_post_save, metadata_create_on_post_save

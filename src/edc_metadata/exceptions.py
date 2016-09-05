@@ -1,8 +1,8 @@
 
 
-class MetaDataManagerError(Exception):
+class MetadataError(Exception):
     pass
 
 
-class MetaDataError(Exception):
+class CreatesMetadataError(Exception):
     pass

@@ -1,4 +1,3 @@
-import sys
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
@@ -10,14 +9,10 @@ def metadata_create_on_post_save(sender, instance, raw, created, using, update_f
     For example, when saving the visit model."""
     if not raw:
         try:
-            instance.metadata_create()
+            if instance.metadata_create(sender=sender, instance=instance):
+                instance.metadata_run_rules()
         except AttributeError as e:
             if 'metadata_create' not in str(e):
-                raise AttributeError(e)
-        try:
-            instance.metadata_run_rules()
-        except AttributeError as e:
-            if 'metadata_run_rules' not in str(e):
                 raise AttributeError(e)
 
 
@@ -28,13 +23,9 @@ def metadata_update_on_post_save(sender, instance, raw, created, using, update_f
     if not raw:
         try:
             instance.metadata_update()
-        except AttributeError as e:
-            if 'metadata_update' not in str(e):
-                raise AttributeError(e)
-        try:
             instance.visit.metadata_run_rules()
         except AttributeError as e:
-            if 'metadata_run_rules' not in str(e) and 'visit' not in str(e):
+            if 'metadata_update' not in str(e):
                 raise AttributeError(e)
 
 
@@ -42,11 +33,7 @@ def metadata_update_on_post_save(sender, instance, raw, created, using, update_f
 def metadata_delete_on_post_save(sender, instance, using, **kwargs):
     try:
         instance.metadata_delete()
-    except AttributeError as e:
-        if 'metadata_delete' not in str(e):
-            raise AttributeError(e)
-    try:
         instance.visit.metadata_run_rules()
     except AttributeError as e:
-        if 'metadata_run_rules' not in str(e) and 'visit' not in str(e):
+        if 'metadata_delete' not in str(e):
             raise AttributeError(e)
