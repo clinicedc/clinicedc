@@ -33,14 +33,14 @@ class SiteLabProfiles(object):
     def autodiscover(self, module_name=None):
         """Autodiscovers classes in the visit_schedules.py file of any INSTALLED_APP."""
         module_name = module_name or 'lab_profiles'
-        sys.stdout.write(' * checking for {}s ...\n'.format(module_name))
+        sys.stdout.write(' * checking for {} ...\n'.format(module_name))
         for app in django_apps.app_configs:
             try:
                 mod = import_module(app)
                 try:
                     before_import_registry = copy.copy(site_lab_profiles._registry)
                     import_module('{}.{}'.format(app, module_name))
-                    sys.stdout.write(' * registered site lab from application \'{}\'\n'.format(app))
+                    sys.stdout.write(' * registered lab profiles from application \'{}\'\n'.format(app))
                 except Exception as e:
                     if 'No module named \'{}.{}\''.format(app, module_name) not in str(e):
                         site_lab_profiles._registry = before_import_registry
