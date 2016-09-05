@@ -161,7 +161,7 @@ class CreatesMetadataModelMixin(models.Model):
                     getattr(self, app_config.reason_field[self._meta.label_lower])))
         return metadata_exists
 
-    def metadata_update_for_model(self, model, entry_status, rule_name=None):
+    def metadata_update_for_model(self, model, entry_status):
         """Updates metadata for a given model for this visit and subject_identifier."""
         model_cls = django_apps.get_model(*model.split('.'))
         obj = model_cls().metadata_model.objects.get(
