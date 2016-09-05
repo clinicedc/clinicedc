@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'edc_rule_groups.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
+    'edc_example.apps.EdcConsentAppConfig',
     'edc_example.apps.EdcProtocolAppConfig',
     'edc_example.apps.EdcTimepointAppConfig',
     'edc_example.apps.AppConfig',
