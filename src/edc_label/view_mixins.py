@@ -69,8 +69,10 @@ class EdcLabelViewMixin:
                     self._printers.update({printer: printer_properties})
         return self._printers
 
-    def print_label(self, label_name):
+    def print_label(self, label_name, copies=None, context=None):
+        copies = 3 if copies is None else copies
         label_template = app_config.label_templates.get(label_name)
-        label = Label(label_name, print_server=self.print_server, context=label_template.test_context)
-        label.print_label(3)
+        context = label_template.test_context if context is None else context
+        label = Label(label_name, print_server=self.print_server, context=context)
+        label.print_label(copies)
         return label
