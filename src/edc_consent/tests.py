@@ -12,8 +12,8 @@ from django.utils import timezone
 
 
 from edc_constants.constants import NO
-from edc_example.factories import SubjectConsentFactory
-from edc_example.models import SubjectConsent, SubjectVisit, CrfOne, Enrollment, Appointment
+from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
+from edc_example.models import SubjectConsent, CrfOne, Enrollment, Appointment, CrfMetadata
 
 from .consent_config import ConsentConfig
 from .exceptions import AlreadyRegistered, NotConsentedError, SiteConsentError, ConsentVersionError
@@ -324,10 +324,8 @@ class TestConsent(TestCase):
         Enrollment.objects.create(
             subject_identifier=subject_identifier,
             report_datetime=timezone.now())
-        appointment = Appointment.objects.all().order_by('created')[0]
-        subject_visit = SubjectVisit.objects.create(
-            report_datetime=timezone.now(),
-            appointment=appointment)
+        appointment = Appointment.objects.all().order_by('visit_code')[0]
+        subject_visit = SubjectVisitFactory(appointment=appointment)
         CrfOne.objects.create(subject_visit=subject_visit)
 
     def test_base_form_identity_dupl(self):
@@ -505,4 +503,3 @@ class TestConsent(TestCase):
         consent_form = SubjectConsentForm(consent.__dict__)
         self.assertFalse(consent_form.is_valid())
         self.assertIn(u'Identity mismatch', ','.join(consent_form.non_field_errors()))
-
