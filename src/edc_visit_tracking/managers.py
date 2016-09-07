@@ -9,9 +9,10 @@ class CrfModelManager(models.Manager):
             visit_instance_number, code, subject_identifier_as_pk)
         return self.get({self.model.visit_model_attr: instance})
 
-    def get_for_visit(self, visit):
+    def get_for_visit(self, visit, **kwargs):
         """Returns an instance for the given visit."""
         options = {self.model.visit_model_attr(): visit}
+        options.update(**kwargs)
         return self.get(**options)
 
     def get_for_subject_identifier(self, subject_identifier):
