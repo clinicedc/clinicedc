@@ -40,8 +40,6 @@ class BaseUpdatesMetadataModelMixin(models.Model):
     @property
     def metadata_query_options(self):
         options = self.visit.metadata_query_options
-        if self.metadata_category == 'requisition':
-            options.update({'panel_name': self.panel_name})
         options.update({
             'subject_identifier': self.visit.subject_identifier,
             'model': self._meta.label_lower})
@@ -74,6 +72,12 @@ class UpdatesRequisitionMetadataModelMixin(BaseUpdatesMetadataModelMixin):
     @property
     def metadata_category(self):
         return 'requisition'
+
+    @property
+    def metadata_query_options(self):
+        options = super(UpdatesRequisitionMetadataModelMixin, self).metadata_query_options
+        options.update({'panel_name': self.panel_name})
+        return options
 
     class Meta:
         abstract = True
@@ -161,11 +165,16 @@ class CreatesMetadataModelMixin(models.Model):
                     getattr(self, app_config.reason_field[self._meta.label_lower])))
         return metadata_exists
 
-    def metadata_update_for_model(self, model, entry_status):
+    def metadata_update_for_model(self, model, entry_status, panel_name=None):
         """Updates metadata for a given model for this visit and subject_identifier."""
-        model_cls = django_apps.get_model(*model.split('.'))
-        obj = model_cls().metadata_model.objects.get(
-            model=model, subject_identifier=self.subject_identifier, **self.metadata_query_options)
+        model = django_apps.get_model(*model.split('.'))
+        options = self.metadata_query_options
+        options.update({
+            'model': model._meta.label_lower,
+            'subject_identifier': self.subject_identifier})
+        if model().metadata_category == 'requisition':
+            options.update({'panel_name': panel_name})
+        obj = model().metadata_model.objects.get(**options)
         obj.entry_status = entry_status
         obj.save()
         return obj

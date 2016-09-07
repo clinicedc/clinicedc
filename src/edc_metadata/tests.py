@@ -99,7 +99,7 @@ class TestMetadata(TestCase):
         SubjectRequisitionFactory(
             subject_visit=self.subject_visit,
             panel_name=self.panel_name)
-        self.assertEqual(RequisitionMetadata.objects.filter(entry_status=KEYED).count(), 1)
+        self.assertEqual(RequisitionMetadata.objects.filter(entry_status=KEYED, panel_name=self.panel_name).count(), 1)
 
     def test_updates_requisition_metadata2(self):
         self.subject_visit = SubjectVisitFactory(
@@ -110,7 +110,7 @@ class TestMetadata(TestCase):
             subject_visit=self.subject_visit,
             panel_name=self.panel_name)
         subject_requisition.save()
-        self.assertEqual(RequisitionMetadata.objects.filter(entry_status=KEYED).count(), 1)
+        self.assertEqual(RequisitionMetadata.objects.filter(entry_status=KEYED, panel_name=self.panel_name).count(), 1)
 
     def test_resets_crf_metadata_on_delete(self):
         self.subject_visit = SubjectVisitFactory(
