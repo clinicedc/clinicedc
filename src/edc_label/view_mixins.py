@@ -8,6 +8,13 @@ from edc_label.mixins import EdcLabelMixin
 
 class EdcLabelViewMixin(EdcLabelMixin):
 
+    def __init__(self, **kwargs):
+        self._print_server = None
+        self._printers = {}
+        self.cups_server_ip = app_config.default_cups_server_ip
+        self.printer_label = app_config.default_printer_label
+        super(EdcLabelViewMixin, self).__init__(**kwargs)
+
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         if request.is_ajax():

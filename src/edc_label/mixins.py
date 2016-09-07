@@ -6,12 +6,12 @@ class EdcLabelMixin:
 
     print_server_error = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         self._print_server = None
         self._printers = {}
         self.cups_server_ip = app_config.default_cups_server_ip
         self.printer_label = app_config.default_printer_label
-        super(EdcLabelMixin, self).__init__(**kwargs)
+        super(EdcLabelMixin, self).__init__(*args, **kwargs)
 
     @property
     def print_server(self):
