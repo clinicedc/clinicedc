@@ -38,13 +38,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_js_reverse',
-    # 'corsheaders',
     'crispy_forms',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
     'edc_base.apps.AppConfig',
+    'edc_device.apps.AppConfig',
+    'edc_lab.apps.AppConfig',
+    'edc_protocol.apps.AppConfig',
     'edc_dashboard.apps.AppConfig',
-    'edc_dashboard_example.apps.AppConfig',
+    'edc_example.apps.AppConfig',
 ]
 
 MIDDLEWARE = [
