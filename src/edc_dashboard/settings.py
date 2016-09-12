@@ -42,11 +42,11 @@ INSTALLED_APPS = [
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
     'edc_base.apps.AppConfig',
+    'edc_dashboard.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_lab.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
-    'edc_dashboard.apps.AppConfig',
-    'edc_example.apps.AppConfig',
+    'example.apps.AppConfig',
 ]
 
 MIDDLEWARE = [
