@@ -11,24 +11,23 @@
 <div class="container">
  
     <div class="col-md-8">
+        <div class="panel-group" id="accordion">
         <div class="panel panel-default">
             <div class="panel-heading">Subjects</div>
-            <table class="table table-responsive">
-            <thead>
-                <tr><th>Subject</th><th>Initials</th><th>Registered</th><th>Consented</th></tr>
-            </thead>
-            <tbody>
-            {% for subject in subjects %}
-                <tr>
-                    <td>{{ subject.subject_identifier }}</td>
-                    <td>{{ subject.initials }}</td>
-                    <td>{{ subject.registered }}</td>
-                    <td>{{ subject.consented }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-            </table>
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Subjects</a>
+              </h4>
+            </div>
+        <div id="collapse1" class="panel-collapse collapse in">
+        <div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.</div>
         </div>
+
+
+        </div>
+        </div>        
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
