@@ -1,14 +1,38 @@
+import json
+
+from django.core import serializers
 from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
 
 from edc_base.views.edc_base_view_mixin import EdcBaseViewMixin
+from django.http.response import HttpResponse, HttpResponseGone
+
+app_config = django_apps.get_app_config('edc_dashboard')
 
 
 class HomeView(EdcBaseViewMixin, TemplateView):
 
     template_name = 'edc_dashboard/home.html'
+
+
+class MostRecentView(View):
+
+    def head(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            model = django_apps.get_model(*app_config.most_recent_models['subject'].split('.'))
+            json_data = serializers.serialize(
+                'json', model.objects.all().order_by('-created')[0:10],
+                fields=('subject_identifier', 'first_name', 'initials', 'gender', 'dob', 'user_created', 'created'))
+            return HttpResponse(json_data, content_type='application/json')
+        return HttpResponseGone()
 
 
 class SubjectDashboardView(EdcBaseViewMixin, TemplateView):
