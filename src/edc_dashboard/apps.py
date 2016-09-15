@@ -7,3 +7,7 @@ class AppConfig(DjangoAppConfig):
     most_recent_models = {
         'subject': 'edc_example.subjectconsent',
     }
+
+    search_models = {
+        'subject': ('edc_example.subjectconsent', 'subject_identifier'),
+    }
