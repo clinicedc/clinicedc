@@ -3,33 +3,91 @@
 {% load staticfiles %}
 
 {% block extra-scripts %}
-{{ block.super }}
+  {{ block.super }}
+  <script type="text/javascript" charset="utf8" src="{% static "django_paginator/js/django_paginator.js" %}"></script>
+  <script type="text/javascript" charset="utf8" src="{% static "edc_dashboard/js/home.js" %}"></script>
+  <script type="text/javascript" charset="utf8" class="init">
+    $(document).ready( function () {
+      edcDashboardReady();
+    })
+  </script>
 {% endblock extra-scripts %}
 
 {% block main %}
 
 <div class="container">
  
-    <div class="col-md-8">
+    <div class="col-md-12">
+
         <div class="panel-group" id="accordion">
-        <div class="panel panel-default">
-            <div class="panel-heading">Subjects</div>
-              <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Subjects</a>
-              </h4>
+
+          <div class="panel panel-info">
+            <div class="panel-heading clearfix"><span id="spn-current-subject"></span>
+              <span class="pull-right">
+                <a id="btn-most-recent-subjects" href="" class="btn btn-md btn-default" role="button">Show most recent</a> 
+                <a id="btn-new-subject" href="{% url 'edc_example_admin:edc_example_subjectconsent_add' %}" class="btn btn-md btn-default" role="button">New Subject</a> 
+                <a id="btn-toggle-search"  data-toggle="collapse" data-parent="#accordion" href="#collapse-search" class="btn btn-md btn-default" role="button">Search</a>
+              </span>
             </div>
-        <div id="collapse1" class="panel-collapse collapse in">
-        <div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat.</div>
-        </div>
 
+            <div id="collapse-search" class="panel-collapse collapse in">
 
+              <!-- begin subject search form -->
+              <div class="panel-body" id="subject-search"></div>
+              <!-- end subject search form -->
+
+              <!-- begin most recent table -->
+              <div class="panel-body" id="pnl-most-recent-subjects">
+                {% include "edc_dashboard/most_recent_subject.html" %}
+              </div>
+              <!-- end most recent table -->
+            </div>
         </div>
-        </div>        
+      </div>
     </div>
-    <div class="col-md-4">
+
+    <div class="col-md-9">
+
+        <div class="panel-group">
+          <div id="pnl-consent" class="panel panel-default">
+            <div id="pnl-consent-heading" class="panel-heading" data-toggle="collapse" data-parent="#accordion" href="">Consent</div>
+            <div id="collapse-consent" class="panel-collapse collapse">
+              <div id="pnl-consent-body" class="panel-body">
+                <table id="pnl-consent-table" class="table table-striped table-responsive"></table>
+              </div>
+             </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" href="#">Enrollment</div>
+            <div id="collapse2" class="panel-collapse collapse">
+              <div class="panel-body">Search </div>
+             </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" href="#">Follow-up</div>
+            <div id="collapse3" class="panel-collapse collapse">
+              <div class="panel-body">Search </div>
+             </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" href="#">Labs</div>
+            <div id="collapse4" class="panel-collapse collapse">
+              <div class="panel-body">Search </div>
+             </div>
+          </div>
+      </div>
+  </div>        
+
+  <div class="col-md-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">Alerts</div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Locator</div>
+        </div>
         <div class="panel panel-default">
             <div class="panel-heading">Admin</div>
         </div>

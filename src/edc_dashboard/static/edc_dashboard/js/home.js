@@ -11,37 +11,39 @@ function edcDashboardReady() {
 		}
 	});	
 
+	// get the rendered search form and insert
 	getSubjectSearchForm();
 
+	// hide the "most recent" table by default
 	$( '#pnl-most-recent-subjects' ).hide();
-	$( '#btn-hide-most-recent-subjects' ).hide();
-
+	
+	// configure Search button
 	$( '#btn-toggle-search' ).text( 'Close' );
 	$( '#btn-toggle-search' ).click( function() {
 		// toggle search and other buttons in panel header
 		$( this ).text( function( i, text ){
 	          text = ( text === 'Search' ) ? 'Close' : 'Search';
 	          if ( text == 'Search' ) {
-	        	  $( '#btn-hide-most-recent-subjects' ).hide();
-	        	  $( '#btn-show-most-recent-subjects' ).hide();
+	        	  $( '#btn-most-recent-subjects' ).hide();
 	          } else {
-	        	  $( '#btn-hide-most-recent-subjects' ).hide();
-	        	  $( '#btn-show-most-recent-subjects' ).show();
+	        	  $( '#btn-most-recent-subjects' ).show();
 	          };
 	          return text;
 	      });
 	});
 
-	$( '#btn-hide-most-recent-subjects' ).click( function( e ) {
+	// configure Show/Hide most recent button
+	$( '#btn-most-recent-subjects' ).show();
+	$( '#btn-most-recent-subjects' ).click( function( e ) {
 		e.preventDefault();
-		$( '#btn-hide-most-recent-subjects' ).hide();
-		$( '#btn-show-most-recent-subjects' ).show();
-		$( '#pnl-most-recent-subjects' ).hide();
-	});
-
-	$( '#btn-show-most-recent-subjects' ).click( function( e ) {
-		e.preventDefault();
-		getSubjects( 1 );
+		if ( $( this ).text() === 'Hide most recent') {
+			$( this ).text( 'Show most recent' );
+			$( '#pnl-most-recent-subjects' ).hide();
+		} else {
+			e.preventDefault();
+			getSubjects( 1 );
+			$( this ).text( 'Hide most recent' );
+		};
 	});
 
 }
@@ -87,12 +89,16 @@ function searchSubjects( form_data ) {
 		var form_html = data.form_html;
         var object_list = JSON.parse( data.object_list );
         var paginator = JSON.parse( data.paginator );
+        var paginator_row = data.paginator_row;
 
 		// re-insert the updated search form
 		insertSearchForm( form_html );
 
 		// update the Subjects table
-		updateSubjectsTable( object_list, paginator );
+		updateSubjectsTable( object_list );
+		
+		updatePaginatorRow( paginator, paginator_row );
+
 
 	});
 
@@ -104,16 +110,22 @@ function searchSubjects( form_data ) {
 
 
 function gotoSubject( subject_identifier ) {
-	// Submits the search form with the given subject_identifier.
+	// Automatically fills and submits the search form with the given subject_identifier.
 
 	$( '#id_search_term' ).val( subject_identifier );
 	$( '#form-subject-search' ).submit();
 	$( '#btn-toggle-search' ).click();
 
 	$( '#spn-current-subject' ).text( 'Subject: '+ subject_identifier );
-	$( '#pnl-current-subject' ).show();
+	
 
 	return false;
+}
+
+
+function getPaginatorPage( page_number ) {
+	// wrapper for django_paginator row button click events
+	return getSubjects( page_number );
 }
 
 
@@ -129,22 +141,46 @@ function getSubjects( page_number ) {
 		// build rows with returned data and show the table
 		var object_list = JSON.parse( data.object_list );
 		var paginator = JSON.parse( data.paginator );
+		var paginator_row = data.paginator_row;
 
-		updateSubjectsTable( object_list, paginator );
+		updateSubjectsTable( object_list );
+
+		updatePaginatorRow( paginator, paginator_row );
 
 	});
 
 	ajMostRecent.fail( function( jqXHR, textStatus, errorThrown ) {
 		alert( 'error' );
 		console.log( errorThrown );
-		$( '#btn-hide-most-recent-subjects' ).hide();
-		$( '#btn-show-most-recent-subjects' ).show();
 	});
 	
 }
 
 
-function updateSubjectsTable( object_list, paginator ) {
+function getConsents( subject_identifier ) {
+
+	var ajConsents = $.ajax({
+		url: Urls['edc-dashboard:consents']( 'consent', 'subject', subject_identifier ),
+		type: 'GET',
+	});
+
+	ajConsents.done(function ( data ) {
+		// build rows with returned data and show the table
+		var object_list = JSON.parse( data.object_list );
+
+		updateConsentTable( object_list );
+		updatePaginatorRow( paginator, paginator_row );
+
+	});
+
+	ajConsents.fail( function( jqXHR, textStatus, errorThrown ) {
+		console.log( errorThrown );
+	});
+
+}
+
+
+function updateSubjectsTable( object_list ) {
 	//Updates the subjects table.
 	var rows = '';
 	$.each( object_list, function( key, obj ) {
@@ -172,11 +208,6 @@ function updateSubjectsTable( object_list, paginator ) {
 
 	// show table and switch buttons
 	$( '#pnl-most-recent-subjects' ).show();
-	$( '#btn-hide-most-recent-subjects' ).show();
-	$( '#btn-show-most-recent-subjects' ).hide();
-
-	updatePager( paginator );
-
 }
 
 
@@ -188,47 +219,5 @@ function getRow( fields ) {
 	});
 	row += '<tr>' + col + '</tr>';
 	return row; 
-}
-
-
-function updatePager( paginator ) {
-	$( '#spn-pager-pages' ).text( 'Page ' + paginator.number + '/' + paginator.num_pages );
-	if (paginator.num_pages === 1 ) {
-		$( '#btn-pager-next').prop( 'disabled', true); 
-		$( '#btn-pager-last').prop( 'disabled', true );
-		$( '#btn-pager-first').prop( 'disabled', true); 
-		$( '#btn-pager-previous').prop( 'disabled', true ); 
-	} else {
-		if (paginator.num_pages === paginator.number) {
-			$( '#btn-pager-next').prop( 'disabled', true); 
-			$( '#btn-pager-last').prop( 'disabled', true ); 
-		} else {
-			$( '#btn-pager-next').prop( 'disabled', false ); 
-			$( '#btn-pager-last').prop( 'disabled', false );
-			$( '#btn-pager-next').click( function ( e ) {
-				e.preventDefault();
-				getSubjects( paginator.number + 1 );
-			});
-			$( '#btn-pager-last').click( function ( e ) {
-				e.preventDefault();
-				getSubjects( paginator.count );
-			});
-		};
-		if (paginator.number === 1 ) {
-			$( '#btn-pager-first').prop( 'disabled', true); 
-			$( '#btn-pager-previous').prop( 'disabled', true ); 
-		} else {
-			$( '#btn-pager-first').prop( 'disabled', false ); 
-			$( '#btn-pager-previous').prop( 'disabled', false ); 
-			$( '#btn-pager-previous').click( function ( e ) {
-				e.preventDefault();
-				getSubjects( paginator.number - 1 );
-			});
-			$( '#btn-pager-first').click( function ( e ) {
-				e.preventDefault();
-				getSubjects( 1 );
-			});
-		};
-	};
 }
 
