@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.utils import timezone
 
 from edc_lab.exceptions import SpecimenError
-from edc_lab.classes import site_lab_profiles
+from edc_lab.site_lab_profiles import site_lab_profiles
 
 from lab_requisition.requisition_label import RequisitionLabel
 from lis.labeling.exceptions import LabelPrinterError
