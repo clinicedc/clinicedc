@@ -3,8 +3,8 @@ from datetime import datetime
 from django.contrib import messages
 from django.utils import timezone
 
-from edc_lab.lab_profile.exceptions import SpecimenError
-from edc_lab.lab_profile.classes import site_lab_profiles
+from edc_lab.exceptions import SpecimenError
+from edc_lab.classes import site_lab_profiles
 
 from lab_requisition.requisition_label import RequisitionLabel
 from lis.labeling.exceptions import LabelPrinterError
@@ -21,7 +21,7 @@ def flag_as_received(modeladmin, request, queryset, **kwargs):
             msg = 'Received {} as {}'.format(
                 qs.requisition_identifier, receive.receive_identifier)
             messages.add_message(request, messages.SUCCESS, msg)
-        except SpecimenError as e:
+        except TypeError as e:
             messages.add_message(request, messages.ERROR, str(e))
             break
 flag_as_received.short_description = "RECEIVE against requisition"
