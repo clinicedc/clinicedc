@@ -1,0 +1,2 @@
+class LabelPrinterError(Exception):
+    pass
