@@ -174,9 +174,12 @@ class CreatesMetadataModelMixin(models.Model):
             'subject_identifier': self.subject_identifier})
         if model().metadata_category == 'requisition':
             options.update({'panel_name': panel_name})
-        obj = model().metadata_model.objects.get(**options)
-        obj.entry_status = entry_status
-        obj.save()
+        try:
+            obj = model().metadata_model.objects.get(**options)
+            obj.entry_status = entry_status
+            obj.save()
+        except model().metadata_model.DoesNotExist:
+            obj = None
         return obj
 
     def metadata_run_rules(self, source_model=None):
