@@ -19,7 +19,7 @@ def flag_as_received(modeladmin, request, queryset, **kwargs):
             msg = 'Received {} as {}'.format(
                 qs.requisition_identifier, receive.receive_identifier)
             messages.add_message(request, messages.SUCCESS, msg)
-        except SpecimenError as e:
+        except TypeError as e:
             messages.add_message(request, messages.ERROR, str(e))
             break
 flag_as_received.short_description = "RECEIVE against requisition"
