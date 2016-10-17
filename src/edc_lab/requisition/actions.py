@@ -3,11 +3,9 @@ from datetime import datetime
 from django.contrib import messages
 from django.utils import timezone
 
-from edc_lab.lab_profile.exceptions import SpecimenError
-from edc_lab.lab_profile.classes import site_lab_profiles
-
-from lab_requisition.requisition_label import RequisitionLabel
-from lis.labeling.exceptions import LabelPrinterError
+from edc_lab.specimen.specimen import SpecimenError
+from edc_lab.site_lab_profiles import site_lab_profiles
+from edc_label.label import Label
 
 
 def flag_as_received(modeladmin, request, queryset, **kwargs):
@@ -46,7 +44,8 @@ flag_as_not_labelled.short_description = "UN-LABEL: flag as NOT labelled"
 
 def print_requisition_label(modeladmin, request, requisitions):
     """ Prints a requisition label."""
-    requisition_label = RequisitionLabel()
+    from edc_label import LabelPrinterError
+    label = Label()
     try:
         for requisition in requisitions:
             if not requisition.requisition_identifier:
@@ -61,7 +60,7 @@ def print_requisition_label(modeladmin, request, requisitions):
                                      'received.'.format(requisition.requisition_identifier,))
                 break
             else:
-                requisition_label.print_label(request, requisition, copies=1)
+                label.print_label(copies=1, context=requisition.label_context())
                 requisition.is_labelled = True
                 requisition.is_labelled_datetime = timezone.now()
                 requisition.save()

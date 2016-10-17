@@ -33,20 +33,20 @@ class RequisitionAdminMixin:
             "reason_not_drawn",
             "drawn_datetime",
             'study_site',
-            "panel",
-            "test_code",
+            "panel_name",
+            #"test_code",
             "aliquot_type",
             "item_type",
             "item_count_total",
             "estimated_volume",
-            "priority",
+            #"priority",
             "comments", ]
 
         self.radio_fields = {
             "is_drawn": admin.VERTICAL,
             "reason_not_drawn": admin.VERTICAL,
             "item_type": admin.VERTICAL,
-            "priority": admin.VERTICAL,
+            #"priority": admin.VERTICAL,
         }
 
         self.list_display = [
@@ -57,21 +57,18 @@ class RequisitionAdminMixin:
             "requisition_datetime",
             "panel",
             'aliquot',
-            'is_receive',
-            'is_labelled',
-            'is_packed',
             'hostname_created',
             # 'is_lis',
             # 'is_receive_datetime',
             # 'is_labelled_datetime',
         ]
         self.list_filter = [
-            "priority",
+            #"priority",
             # 'is_receive',
             # 'is_labelled',
-            'is_packed',
+#             'is_packed',
             # 'is_lis',
-            'panel',
+            'panel_name',
             "requisition_datetime",
             'study_site',
             # 'is_receive_datetime',
@@ -84,8 +81,8 @@ class RequisitionAdminMixin:
             '{0}__appointment__registered_subject__subject_identifier'.format(self.visit_attr,),
             'specimen_identifier',
             'requisition_identifier',
-            'panel__name']
-        self.filter_horizontal = ["test_code", ]
+            'panel_name']
+        #self.filter_horizontal = ["test_code", ]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         panel_pk = request.GET.get('panel', 0)
