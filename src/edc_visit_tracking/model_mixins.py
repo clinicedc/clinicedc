@@ -67,7 +67,7 @@ class CrfModelMixin(models.Model):
 
     @property
     def visit(self):
-        return getattr(self, self.visit_model_attr())
+        return getattr(self, self.visit_model_attr)
 
     def natural_key(self):
         return (getattr(self, self.visit_model_attr()).natural_key(), )
