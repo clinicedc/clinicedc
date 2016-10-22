@@ -165,6 +165,7 @@ class CreatesMetadataModelMixin(models.Model):
                     getattr(self, app_config.reason_field[self._meta.label_lower])))
         return metadata_exists
 
+
     def metadata_update_for_model(self, model, entry_status, panel_name=None):
         """Updates metadata for a given model for this visit and subject_identifier."""
         model = django_apps.get_model(*model.split('.'))
@@ -174,12 +175,9 @@ class CreatesMetadataModelMixin(models.Model):
             'subject_identifier': self.subject_identifier})
         if model().metadata_category == 'requisition':
             options.update({'panel_name': panel_name})
-        try:
-            obj = model().metadata_model.objects.get(**options)
-            obj.entry_status = entry_status
-            obj.save()
-        except model().metadata_model.DoesNotExist:
-            obj = None
+        obj = model().metadata_model.objects.get(**options)
+        obj.entry_status = entry_status
+        obj.save()
         return obj
 
     def metadata_run_rules(self, source_model=None):
