@@ -8,6 +8,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from .choices import ENTRY_STATUS
 from .constants import REQUIRED, NOT_REQUIRED, KEYED
 from .exceptions import CreatesMetadataError
+from django.urls.base import reverse
 
 
 class BaseUpdatesMetadataModelMixin(models.Model):
@@ -182,7 +183,7 @@ class CreatesMetadataModelMixin(models.Model):
 
     def metadata_run_rules(self, source_model=None):
         """Runs all the rule groups for this app label."""
-        for rule_group in site_rule_groups.registry.get(self._meta.app_label):
+        for rule_group in site_rule_groups.registry.get(self._meta.app_label, []):
             if source_model:
                 rule_group.run_for_source_model(self, source_model)
             else:
@@ -272,6 +273,16 @@ class CrfMetadataModelMixin(BaseMetadataModelMixin):
     def __str__(self):
         return 'CrfMeta {}.{} {} {}'.format(self.model, self.visit_code, self.entry_status, self.subject_identifier)
 
+    @property
+    def verbose_name(self):
+        model = django_apps.get_model(self.model)
+        return model._meta.verbose_name
+
+    @property
+    def url(self):
+        return '#'
+        # return reverse('admin:{}_add'.format('_'.join(self.model.split('.'))))
+
     class Meta(BaseMetadataModelMixin.Meta):
         abstract = True
         verbose_name = "Crf Metadata"
@@ -287,6 +298,10 @@ class RequisitionMetadataModelMixin(BaseMetadataModelMixin):
     def __str__(self):
         return 'RequisitionMeta {}.{}.{} {} {}'.format(
             self.model, self.visit_code, self.panel_name, self.entry_status, self.subject_identifier)
+
+    @property
+    def verbose_name(self):
+        return self.panel_name
 
     def natural_key(self):
         return (self.subject_identifier, self.visit_schedule_name, self.schedule_name,
