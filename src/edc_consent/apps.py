@@ -20,7 +20,8 @@ class AppConfig(DjangoAppConfig):
             age_min=16,
             age_is_adult=18,
             age_max=64,
-            gender=['M', 'F']),
+            gender=['M', 'F'],
+            subject_type='subject'),
     ]
 
     def ready(self):

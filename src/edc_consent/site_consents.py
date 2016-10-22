@@ -24,6 +24,16 @@ class SiteConsents:
     def all_model_labels(self):
         return [consent_config.label_lower for consent_config in self.registry]
 
+    def all_subject_types(self):
+        """Returns a dictionary of consent configs by subject_type."""
+        all_subject_types = {}
+        for consent_config in self.registry:
+            try:
+                all_subject_types[consent_config.subject_type].append(consent_config)
+            except KeyError:
+                all_subject_types[consent_config.subject_type] = [consent_config]
+        return all_subject_types
+
     def get_label_lower(self, model):
         try:
             label_lower = model._meta.label_lower
@@ -71,6 +81,14 @@ class SiteConsents:
         consents = []
         for consent in self.registry:
             if consent.version == version:
+                consents.append(consent)
+        return consents
+
+    def get_by_subject_type(self, subject_type):
+        """Returns a list of all consents using the given subject_type regardless of the consent model."""
+        consents = []
+        for consent in self.registry:
+            if consent.subject_type == subject_type:
                 consents.append(consent)
         return consents
 

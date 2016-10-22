@@ -18,6 +18,7 @@ class ConsentConfig:
         self.age_min = kwargs.get('age_min', 0)
         self.age_max = kwargs.get('age_max', 0)
         self.age_is_adult = kwargs.get('age_is_adult', 0)
+        self.subject_type = kwargs.get('subject_type', 'subject')
         self.localize_dates()
         self.check_version()
         self.check_consent_period()
