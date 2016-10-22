@@ -1,7 +1,5 @@
 import sys
 
-from edc_device.apps import AppConfig as EdcDeviceAppConfigParent
-
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.management.color import color_style
 
