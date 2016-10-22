@@ -8,7 +8,6 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.core.validators import RegexValidator
 from django_crypto_fields.fields import (
     IdentityField, EncryptedCharField, FirstnameField, LastnameField)
-from django_crypto_fields.mask_encrypted import mask_encrypted
 from django.db import models, transaction
 from django.utils.translation import ugettext as _
 
