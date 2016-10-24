@@ -146,6 +146,7 @@ class CreatesMetadataModelMixin(models.Model):
                 except metadata_crf_model.DoesNotExist:
                     metadata_crfs.append(metadata_crf_model.objects.create(
                         entry_status=REQUIRED if crf.required else NOT_REQUIRED,
+                        show_order=crf.show_order,
                         **options))
             for requisition in visit.requisitions:
                 options.update({
@@ -156,6 +157,7 @@ class CreatesMetadataModelMixin(models.Model):
                 except metadata_requisition_model.DoesNotExist:
                     metadata_requisition_model.objects.create(
                         entry_status=REQUIRED if requisition.required else NOT_REQUIRED,
+                        show_order=requisition.show_order,
                         **options)
         else:
             raise CreatesMetadataError(
@@ -228,6 +230,8 @@ class BaseMetadataModelMixin(models.Model):
         max_length=250,
         null=True)
 
+    show_order = models.IntegerField()
+
     entry_status = models.CharField(
         max_length=25,
         choices=ENTRY_STATUS,
@@ -264,6 +268,10 @@ class BaseMetadataModelMixin(models.Model):
     def is_not_required(self):
         return not self.is_required()
 
+    @property
+    def model_class(self):
+        return django_apps.get_model(*self.model.split('.'))
+
     class Meta:
         abstract = True
 
@@ -277,11 +285,6 @@ class CrfMetadataModelMixin(BaseMetadataModelMixin):
     def verbose_name(self):
         model = django_apps.get_model(self.model)
         return model._meta.verbose_name
-
-    @property
-    def url(self):
-        return '#'
-        # return reverse('admin:{}_add'.format('_'.join(self.model.split('.'))))
 
     class Meta(BaseMetadataModelMixin.Meta):
         abstract = True
