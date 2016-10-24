@@ -187,6 +187,11 @@ class AppointmentModelMixin(TimepointModelMixin, RegisteredSubjectMixin):
             self.visit_code, self.visit_code_sequence)
 
     @property
+    def title(self):
+        schedule = site_visit_schedules.get_schedule(self.schedule_name)
+        return schedule.get_visit(self.visit_code).title
+
+    @property
     def report_datetime(self):
         return self.appt_datetime
 
