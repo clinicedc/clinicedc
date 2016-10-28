@@ -1,6 +1,6 @@
 from django.views.generic.base import TemplateView
 
-from edc_base.views import EdcBaseViewMixin
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_consent.admin import edc_consent_admin
 
 from .site_consents import site_consents
