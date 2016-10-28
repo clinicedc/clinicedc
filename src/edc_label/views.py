@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 
-from edc_base.views.edc_base_view_mixin import EdcBaseViewMixin
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_label.label import Label
 from edc_label.view_mixins import EdcLabelViewMixin
 
