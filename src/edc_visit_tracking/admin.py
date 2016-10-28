@@ -74,17 +74,20 @@ class VisitAdminMixin:
     def __init__(self, *args, **kwargs):
         super(VisitAdminMixin, self).__init__(*args, **kwargs)
 
-        self.fields = [
-            'appointment',
-            'report_datetime',
-            'reason',
-            'reason_missed',
-            'study_status',
-            'require_crfs',
-            'info_source',
-            'info_source_other',
-            'comments'
-        ]
+        if self.form._meta.fields != '__all__':
+            self.fields = self.form._meta.fields
+        else:
+            self.fields = [
+                'appointment',
+                'report_datetime',
+                'reason',
+                'reason_missed',
+                'study_status',
+                'require_crfs',
+                'info_source',
+                'info_source_other',
+                'comments'
+            ]
         if issubclass(self.model, CaretakerFieldsMixin):
             self.fields.pop(self.fields.index('comments'))
             self.fields.extend([
@@ -121,5 +124,5 @@ class VisitAdminMixin:
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'appointment' and request.GET.get('appointment'):
-            kwargs["queryset"] = self.appointment.__class__.objects.filter(pk=request.GET.get('appointment', 0))
+            kwargs["queryset"] = db_field.related_model.objects.filter(pk=request.GET.get('appointment', 0))
         return super(VisitAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
