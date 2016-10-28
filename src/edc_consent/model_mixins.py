@@ -49,9 +49,9 @@ class RequiresConsentMixin(models.Model):
                 subject_identifier = self.get_subject_identifier()
         if not subject_identifier:
             raise ImproperlyConfigured(
-                'Attribute subject_identifier cannot be None. Either set it manually, via a property, or check method resolution '
-                'order if model is declared with multiple mixins. The mixin that updates subject_identifier '
-                'should be declared before RequiresConsentMixin.')
+                'Attribute subject_identifier cannot be None. Either set it manually, via a property, '
+                'or check method resolution order if model is declared with multiple mixins. '
+                'The mixin that updates subject_identifier should be declared before RequiresConsentMixin.')
         try:
             consent_config.model.objects.get(
                 subject_identifier=subject_identifier,
