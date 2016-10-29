@@ -67,7 +67,11 @@ class CrfModelMixin(models.Model):
 
     @property
     def visit(self):
-        return getattr(self, self.visit_model_attr)
+        return getattr(self, self.visit_model_attr())
+
+    @property
+    def visit_code(self):
+        return self.visit.visit_code
 
     def natural_key(self):
         return (getattr(self, self.visit_model_attr()).natural_key(), )
@@ -216,9 +220,9 @@ class PreviousVisitModelMixin(models.Model):
                 previous_visit = None
             except self.__class__.MultipleObjectsReturned:
                 previous_appointment = self.appointment.__class__.objects.filter(
-                    subject_identifier=self.appointment.subject_identifier, 
+                    subject_identifier=self.appointment.subject_identifier,
                     visit_code=previous_visit_definition.code).order_by('-visit_instance')[0]
-                previous_visit = self.__class__.objects.filter(
+                previous_visit = self.__class__.objects.get(
                     appointment=previous_appointment)
         return previous_visit
 
