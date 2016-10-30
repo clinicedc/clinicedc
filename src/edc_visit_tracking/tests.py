@@ -17,6 +17,7 @@ from edc_example.models import (
     SubjectVisit, Appointment, CrfOne, Enrollment, CrfOneInline, OtherModel, BadCrfOneInline)
 from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
 from edc_consent.form_mixins import RequiresConsentFormMixin
+from edc_visit_tracking.model_mixins import PreviousVisitError
 
 
 class SubjectVisitForm(VisitFormMixin, RequiresConsentFormMixin, forms.ModelForm):
@@ -131,3 +132,41 @@ class TestVisit(TestCase):
         form = SubjectVisitForm(self.data)
         self.assertFalse(form.is_valid())
         self.assertIn('Report datetime cannot be before DOB', form.errors.get('__all__') or [])
+
+    def test_get_previous_model_instance(self):
+        """Assert model can determine the previous."""
+
+        for index, appointment in enumerate(Appointment.objects.all().order_by('visit_code')):
+            SubjectVisit.objects.create(
+                appointment=appointment,
+                report_datetime=timezone.now() - relativedelta(months=10 - index),
+                reason=SCHEDULED)
+        subject_visit = SubjectVisit.objects.all()[0]
+        self.assertIsNone(subject_visit.previous_visit)
+        subject_visit = SubjectVisit.objects.all()[1]
+        self.assertEqual(subject_visit.previous_visit.pk, SubjectVisit.objects.all()[0].pk)
+        subject_visit = SubjectVisit.objects.all()[2]
+        self.assertEqual(subject_visit.previous_visit.pk, SubjectVisit.objects.all()[1].pk)
+        subject_visit = SubjectVisit.objects.all()[3]
+        self.assertEqual(subject_visit.previous_visit.pk, SubjectVisit.objects.all()[2].pk)
+
+    def test_requires_previous_visit(self):
+        """Asserts requires previous visit to exist on create."""
+        SubjectVisit.objects.create(
+            appointment=Appointment.objects.all()[0],
+            report_datetime=timezone.now() - relativedelta(months=10),
+            reason=SCHEDULED)
+        self.assertRaises(
+            PreviousVisitError, SubjectVisit.objects.create,
+            appointment=Appointment.objects.all()[2],
+            report_datetime=timezone.now() - relativedelta(months=8),
+            reason=SCHEDULED)
+        SubjectVisit.objects.create(
+            appointment=Appointment.objects.all()[1],
+            report_datetime=timezone.now() - relativedelta(months=10),
+            reason=SCHEDULED)
+        self.assertRaises(
+            PreviousVisitError, SubjectVisit.objects.create,
+            appointment=Appointment.objects.all()[3],
+            report_datetime=timezone.now() - relativedelta(months=8),
+            reason=SCHEDULED)

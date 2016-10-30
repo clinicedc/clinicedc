@@ -17,7 +17,11 @@ class VisitFormMixin:
         self.validate_survival_status_if_alive()
         self.validate_visit_reason_and_study_status()
         self.validate_reason_visit_missed()
-        self._meta.model(**cleaned_data).has_previous_visit_or_raise(forms.ValidationError)
+        self._meta.model(
+            visit_schedule_name=cleaned_data.get('appointment').visit_schedule_name,
+            schedule_name=cleaned_data.get('appointment').schedule_name,
+            visit_code=cleaned_data.get('appointment').visit_code,
+            **cleaned_data).has_previous_visit_or_raise(forms.ValidationError)
         return cleaned_data
 
     def validate_appointment_required(self):

@@ -20,6 +20,7 @@ from edc_visit_tracking.managers import CrfModelManager
 
 from .choices import VISIT_REASON
 from .constants import FOLLOW_UP_REASONS, REQUIRED_REASONS, NO_FOLLOW_UP_REASONS
+from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('crf_inline_parent',)
@@ -151,23 +152,13 @@ class CrfInlineModelMixin(models.Model):
 
 class PreviousVisitModelMixin(models.Model):
 
-    """A model mixin to force the user to complete visits in sequence.
+    """A model mixin to force the user to complete visit model instances in sequence.
 
     * Ensures the previous visit exists before allowing save() by raising PreviousVisitError.
     * If the visit is the first in the sequence, save() is allowed.
     * If 'requires_previous_visit' = False, mixin is disabled.
 
-    ...note: Review the value of \'time_point\' and \'base_interval\' from VisitDefintion
-        to confirm the visits are in order. This mixin assumes ordering VisitDefinition
-        by 'time_point' and 'base_interval' gives the correct visit code sequence.
-        Also assumes visits are grouped by the visit tracking form and the \'group\' attr.
-
-    For example:
-
-        class TestVisit(MetaDataMixin, PreviousVisitModelMixin, VisitModelMixin):
-
-            class Meta:
-                app_label = 'my_app'
+    Important: Use together with the VisitModelMixin. Requires methods from the VisitModelMixin
 
     """
 
@@ -184,66 +175,64 @@ class PreviousVisitModelMixin(models.Model):
 
         You can call this from the forms clean() method."""
         exception_cls = exception_cls or PreviousVisitError
-        if self.requires_previous_visit:
-            previous_visit_definition = self.previous_visit_definition(
-                self.appointment.visit_schedule_name, self.appointment.visit_code)
-            if previous_visit_definition:
-                if self.previous_visit(previous_visit_definition):
-                    has_previous_visit = True
-                elif (self.appointment.timepoint == 0 and
-                        self.appointment.base_interval == 0):
-                    has_previous_visit = True
-                else:
-                    has_previous_visit = False
-                if not has_previous_visit:
-                    self.appointment.__class__.objects.filter(subject_identifier=self.appointment.subject_identifier)
-                    raise exception_cls(
-                        'Previous visit report for \'{}\' is not complete.'.format(previous_visit_definition.code))
+        if self.requires_previous_visit and self.previous_visit_code:
+            if self.previous_visit:
+                has_previous_visit = True
+            elif (self.appointment.timepoint == 0 and self.appointment.base_interval == 0):
+                has_previous_visit = True
+            else:
+                has_previous_visit = False
+            if not has_previous_visit:
+                raise exception_cls(
+                    'Previous visit report for \'{}\' is not complete.'.format(self.previous_visit_code))
 
-    def previous_visit_definition(self, schedule_name, visit_code):
-        """Returns the previous visit definition relative to this instance or None.
+    @property
+    def previous_visit_code(self):
+        try:
+            previous_visit_code = self.schedule.get_previous_visit(self.visit_code).code
+        except AttributeError:
+            previous_visit_code = None
+        return previous_visit_code
 
-        Only selects visit definition instances for this visit model."""
-        visit_schedule = site_visit_schedules.get_visit_schedule(self.appointment.visit_schedule_name)
-        schedule = visit_schedule.schedules.get(self.appointment.schedule_name)
-        return schedule.get_previous_visit(visit_code)
-
-    def previous_visit(self, previous_visit_definition=None):
-        """Returns the previous visit if it exists."""
-        with transaction.atomic():
-            try:
-                previous_visit_definition = previous_visit_definition or self.previous_visit_definition(
-                    self.appointment.schedule_name, self.appointment.visit_code)
-                previous_visit = self.__class__.objects.get(
-                    appointment__subject_identifier=self.appointment.subject_identifier)
-            except self.__class__.DoesNotExist:
-                previous_visit = None
-            except self.__class__.MultipleObjectsReturned:
-                previous_appointment = self.appointment.__class__.objects.filter(
-                    subject_identifier=self.appointment.subject_identifier,
-                    visit_code=previous_visit_definition.code).order_by('-visit_instance')[0]
-                previous_visit = self.__class__.objects.get(
-                    appointment=previous_appointment)
+    @property
+    def previous_visit(self):
+        """Returns the previous visit model instance if it exists."""
+        previous_visit = None
+        if self.previous_visit_code:
+            with transaction.atomic():
+                try:
+                    previous_visit = self.__class__.objects.get(
+                        appointment__subject_identifier=self.appointment.subject_identifier,
+                        visit_schedule_name=self.visit_schedule_name,
+                        schedule_name=self.schedule_name,
+                        visit_code=self.previous_visit_code)
+                except self.__class__.DoesNotExist:
+                    previous_visit = None
+                except self.__class__.MultipleObjectsReturned:
+                    previous_appointment = self.appointment.__class__.objects.filter(
+                        subject_identifier=self.appointment.subject_identifier,
+                        visit_code=self.previous_visit_code).order_by('-visit_instance')[0]
+                    previous_visit = self.__class__.objects.get(
+                        appointment=previous_appointment)
         return previous_visit
 
     class Meta:
         abstract = True
 
 
-class VisitModelMixin(models.Model):
+class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.Model):
 
     """
     For example:
 
-        class SubjectVisit(MetaDataMixin, PreviousVisitModelMixin, VisitModelMixin, BaseUuidModel):
+        class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin, RequiresConsentMixin, BaseUuidModel):
 
             appointment = models.OneToOneField(MyAppointmentModel)
 
-        class Meta:
+        class Meta(VisitModelMixin.Meta):
             app_label = 'my_app'
 
     """
-
     report_datetime = models.DateTimeField(
         verbose_name="Visit Date and Time",
         validators=[
@@ -311,19 +300,10 @@ class VisitModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         self.subject_identifier = self.appointment.subject_identifier
+        self.visit_schedule_name = self.appointment.visit_schedule_name
+        self.schedule_name = self.appointment.schedule_name
+        self.visit_code = self.appointment.visit_code
         super(VisitModelMixin, self).save(*args, **kwargs)
-
-    @property
-    def visit_schedule_name(self):
-        return self.appointment.visit_schedule_name
-
-    @property
-    def schedule_name(self):
-        return self.appointment.schedule_name
-
-    @property
-    def visit_code(self):
-        return self.appointment.visit_code
 
     @property
     def appointment_zero(self):
@@ -396,6 +376,7 @@ class VisitModelMixin(models.Model):
 
     class Meta:
         abstract = True
+        ordering = (('visit_schedule_name', 'schedule_name', 'visit_code', 'report_datetime', ))
 
 
 class CaretakerFieldsMixin(models.Model):
