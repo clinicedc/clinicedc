@@ -14,6 +14,7 @@ from .choices import APPT_TYPE, APPT_STATUS, COMPLETE_APPT, INCOMPLETE_APPT, CAN
 from .constants import IN_PROGRESS_APPT, NEW_APPT
 from .exceptions import AppointmentStatusError
 from .window_period_helper import WindowPeriodHelper
+from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
@@ -105,31 +106,20 @@ class CreateAppointmentsMixin(models.Model):
         abstract = True
 
 
-class AppointmentModelMixin(TimepointModelMixin, RegisteredSubjectMixin):
+class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin, RegisteredSubjectMixin):
 
     """Mixin for the appointment model.
 
-    Only one appointment per subject visit_definition+visit_code_sequence.
+    Only one appointment per subject visit+visit_code_sequence.
 
     Attribute 'visit_code_sequence' should be populated by the system.
     """
-
-    visit_schedule_name = models.CharField(
-        max_length=25,
-        null=True,
-        help_text='the name of the visit schedule used to find the "schedule"')
-
-    schedule_name = models.CharField(
-        max_length=25,
-        null=True,
-        help_text='the name of the schedule used to find the list of "visits" to create appointments')
-
-    visit_code = models.CharField(max_length=25, null=True)
 
     best_appt_datetime = models.DateTimeField(null=True, editable=False)
 
     appt_close_datetime = models.DateTimeField(null=True, editable=False)
 
+    # TODO: can this be removed? use visit_code_sequence?
     visit_instance = models.CharField(
         max_length=1,
         verbose_name=("Instance"),
@@ -149,6 +139,7 @@ class AppointmentModelMixin(TimepointModelMixin, RegisteredSubjectMixin):
         help_text=("An integer to represent the sequence of additional appointments "
                    "relative to the base appointment, 0, needed to complete data "
                    "collection for the timepoint. (NNNN.0)"))
+
     appt_datetime = models.DateTimeField(
         verbose_name=("Appointment date and time"),
         help_text="",
@@ -188,8 +179,7 @@ class AppointmentModelMixin(TimepointModelMixin, RegisteredSubjectMixin):
 
     @property
     def title(self):
-        schedule = site_visit_schedules.get_schedule(self.schedule_name)
-        return schedule.get_visit(self.visit_code).title
+        return self.schedule.get_visit(self.visit_code).title
 
     @property
     def report_datetime(self):
@@ -197,6 +187,7 @@ class AppointmentModelMixin(TimepointModelMixin, RegisteredSubjectMixin):
 
     class Meta:
         abstract = True
+        unique_together = (('visit_schedule_name', 'schedule_name', 'visit_code', 'visit_code_sequence'), )
 
 
 class RequiresAppointmentModelMixin(models.Model):
