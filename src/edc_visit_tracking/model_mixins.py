@@ -183,8 +183,10 @@ class PreviousVisitModelMixin(models.Model):
             else:
                 has_previous_visit = False
             if not has_previous_visit:
-                raise exception_cls(
-                    'Previous visit report for \'{}\' is not complete.'.format(self.previous_visit_code))
+                raise exception_cls({
+                    'appointment':
+                    'Previous visit report required. Enter report for \'{}\' before completing this report.'.format(
+                        self.previous_visit_code)})
 
     @property
     def previous_visit_code(self):
@@ -238,7 +240,12 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
         validators=[
             datetime_not_before_study_start,
             datetime_not_future],
+        default=timezone.now,
         help_text='Date and time of this report')
+
+    report_date = models.DateField(
+        verbose_name="Visit Date",
+        editable=False)
 
     reason = models.CharField(
         verbose_name="What is the reason for this visit?",
@@ -286,8 +293,7 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
         verbose_name="Comment if any additional pertinent information about the participant",
         max_length=250,
         blank=True,
-        null=True,
-    )
+        null=True)
 
     subject_identifier = models.CharField(
         verbose_name='subject_identifier',
@@ -296,9 +302,10 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
         help_text='updated automatically')
 
     def __str__(self):
-        return '{} {}'.format(self.subject_identifier, self.appointment.visit_code)
+        return '{} {}'.format(self.subject_identifier, self.visit_code)
 
     def save(self, *args, **kwargs):
+        self.report_date = self.report_datetime.date()
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
@@ -376,7 +383,11 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
 
     class Meta:
         abstract = True
-        ordering = (('visit_schedule_name', 'schedule_name', 'visit_code', 'report_datetime', ))
+        unique_together = (
+            ('visit_schedule_name', 'schedule_name', 'visit_code'),
+            ('visit_schedule_name', 'schedule_name', 'report_date'),
+        )
+        ordering = (('visit_schedule_name', 'schedule_name', 'visit_code', 'report_date', ))
 
 
 class CaretakerFieldsMixin(models.Model):
