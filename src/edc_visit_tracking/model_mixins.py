@@ -3,24 +3,23 @@ import copy
 import django.db.models.options as options
 
 from django.apps import apps as django_apps
-from django.db import models, transaction
-from django.utils import timezone
-from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
+from django.core.urlresolvers import reverse
+from django.db import models, transaction
 from django.db.models.fields.related import OneToOneField, ForeignKey
+from django.utils import timezone
 
 from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
 from edc_base.model.fields.custom_fields import OtherCharField
 from edc_base.model.validators.date import datetime_not_future, date_not_future
-from edc_protocol.validators import datetime_not_before_study_start, date_not_before_study_start
 from edc_constants.choices import YES_NO, ALIVE_DEAD_UNKNOWN
 from edc_constants.constants import YES, ALIVE
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_protocol.validators import datetime_not_before_study_start, date_not_before_study_start
+from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from edc_visit_tracking.managers import CrfModelManager
 
 from .choices import VISIT_REASON
 from .constants import FOLLOW_UP_REASONS, REQUIRED_REASONS, NO_FOLLOW_UP_REASONS
-from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('crf_inline_parent',)
