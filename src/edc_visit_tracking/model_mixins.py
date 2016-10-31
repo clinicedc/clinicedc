@@ -383,10 +383,10 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
     class Meta:
         abstract = True
         unique_together = (
-            ('visit_schedule_name', 'schedule_name', 'visit_code'),
-            ('visit_schedule_name', 'schedule_name', 'report_date'),
+            ('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code'),
+            ('subject_identifier', 'visit_schedule_name', 'schedule_name', 'report_date'),
         )
-        ordering = (('visit_schedule_name', 'schedule_name', 'visit_code', 'report_date', ))
+        ordering = (('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'report_date', ))
 
 
 class CaretakerFieldsMixin(models.Model):
