@@ -187,7 +187,8 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin, Regist
 
     class Meta:
         abstract = True
-        unique_together = (('visit_schedule_name', 'schedule_name', 'visit_code', 'visit_code_sequence'), )
+        unique_together = (('subject_identifier', 'visit_schedule_name', 'schedule_name',
+                            'visit_code', 'visit_code_sequence'), )
 
 
 class RequiresAppointmentModelMixin(models.Model):
