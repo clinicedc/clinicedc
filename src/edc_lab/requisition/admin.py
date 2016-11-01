@@ -34,19 +34,19 @@ class RequisitionAdminMixin:
             "drawn_datetime",
             'study_site',
             "panel_name",
-            #"test_code",
+            # "test_code",
             "aliquot_type",
             "item_type",
-            "item_count_total",
+            "item_count",
             "estimated_volume",
-            #"priority",
+            # "priority",
             "comments", ]
 
         self.radio_fields = {
             "is_drawn": admin.VERTICAL,
             "reason_not_drawn": admin.VERTICAL,
             "item_type": admin.VERTICAL,
-            #"priority": admin.VERTICAL,
+            # "priority": admin.VERTICAL,
         }
 
         self.list_display = [
@@ -66,7 +66,7 @@ class RequisitionAdminMixin:
             #"priority",
             # 'is_receive',
             # 'is_labelled',
-#             'is_packed',
+            # 'is_packed',
             # 'is_lis',
             'panel_name',
             "requisition_datetime",
