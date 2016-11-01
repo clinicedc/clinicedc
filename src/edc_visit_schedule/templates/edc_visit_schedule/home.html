@@ -1,205 +1,52 @@
-{%comment%} {% extends 'edc_base/base.html' %} {%endcomment%}
+{% extends 'edc_base/base.html' %}
 
 {% load staticfiles %}
  
-{% block main %}
-<<script>
-<!--
-
-//-->
+{% block extra-js %}
+{{ block.super }}
+<script>
 $('.collapse').on('shown.bs.collapse', function(){
 	$(this).parent().find(".glyphicon-plus").removeClass("glyphicon-plus").addClass("glyphicon-minus");
 	}).on('hidden.bs.collapse', function(){
 	$(this).parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
 	});
-
 </script>  
+{% endblock  %}
+
+{% block main %}
     <div class="container">
-         <!-- Page Header -->
-        <div class="row">
-            <div class="col-lg-12">
-                <h1 class="page-header">
-                    <small> Site Visit Schedule</small>
-                </h1>
-            </div>
-        </div>
-        <!-- /.row -->
-          <!-- Projects Row -->
-        <div class="row">
-            <div class="col-md-6 portfolio-item">
-		          <!-- Panel Group -->
-                  <div class="panel-group">
-				  <div class="panel panel-info">
-				    <div class="panel-heading">
-				      <h4 class="panel-title">
-				        <a data-toggle="collapse" href="#collapse1">Membership Forms</a>
-				      </h4>
-				    </div>
-				    <div class="panel-body">Panel Body</div>
-  				</div>
-				</div>
-				<!-- /.panel group -->		
-            </div>
-            <div class="col-md-6 portfolio-item">
-            	 <!-- Panel Group -->
-                  <div class="panel-group">
-				  <div class="panel panel-info">
-				    <div class="panel-heading">
-				      <h4 class="panel-title">
-				        <a data-toggle="collapse" href="#collapse2">Visit Definition</a>
-				      </h4>
-				    </div>
-				    <div class="panel-body">
-						<!-- <table class="table table-bordered">
-							<thead>
-							<tr>
-							<th>
-							A
-							</th>
-							<th>
-							A
-							</th>
-							</tr>
-   						 </thead>
-   						 <tbody>
-   						 <tr>
-   						 	<td>B</td>
-   						 	</tr>
-   						 </tbody>
-						</table> -->
-
-				    </div>
-  				</div>
-				</div>
-				<!-- /.panel group -->
-            </div>
-        </div>
-        <!-- /.row -->
-          <hr>   
-       <!-- Projects Row -->
-        <div class="row">
-            <div class="col-md-6 portfolio-item">
-		          <!-- Panel Group -->
-                  <div class="panel-group">
-				  <div class="panel panel-info">
-				    <div class="panel-heading">
-				      <h4 class="panel-title">
-				        <a data-toggle="collapse" href="#collapse1">Maternal</a>
-				      </h4>
-				    </div>
-				    <!-- Accordion Example -->
-<div class="panel-body">
-				</div>
-				<!-- /.panel group -->		
-				    </div>
-  </div>
-            </div>
-            <div class="col-md-6 portfolio-item">
-            	 <!-- Panel Group -->
-                  <div class="panel-group">
-				  <div class="panel panel-info">
-				    <div class="panel-heading">
-				      <h4 class="panel-title">
-				        <a data-toggle="collapse" href="#collapse2">Infant</a>
-				      </h4>
-				    </div>
-				    <div class="panel-body">
-	
-	<div class="panel-group" id="infant_visit_parent">
-          <div class="panel  panel-primary">
-            <div class="panel-heading">
-              <h4 class="panel-title"><a data-toggle="collapse" data-parent="#infant_visit_parent" href="#collapseTwo">
-               <span class="glyphicon glyphicon-plus"></span> 2000</a>
-              </h4>
-            </div>
-            <div id="collapseTwo" class="panel-collapse collapse">
-              <div class="panel-body">
-
-                <!-- Here we insert another nested accordion -->
-
-                <div class="panel-group" id="infant_visit_2000">
-                  <div class="panel panel-success">
-                    <div class="panel-heading">
-                      <h6 class="panel-title"><a data-toggle="collapse" data-parent="#infant_visit_2000" href="#collapse_inner_2000_one">
-                        <small>Window Definition</small>
-                      </a></h6>
+      <div class="{% if selected_visit_schedule %}col-md-9{% endif %}">
+        <div class="panel panel-info">
+          {% if selected_visit_schedule %}<div class="panel-heading">{{ selected_visit_schedule }}</div>{% endif %}
+          {% for schedule in selected_visit_schedule.schedules.values %}
+            <div class="panel panel-danger">
+            <div class="panel-heading">{{ schedule.name }}</div>
+              <div class="panel panel-success">
+                  {% for visit in schedule.visits %}
+                    <div class="panel-heading">{{ visit.code }}</div>
+                    <div class="panel panel-warning">
+                    <div class="panel-heading">Crfs</div>
+                    <table class="table table-striped table-condensed table-responsive">
+                    {% for crf in visit.crfs %}
+                      <tr><td>{{ crf.show_order }}</td><td>{{ crf.model_label_lower }}</td><td>{% if crf.required %}Required{% endif %}</td></tr>
+                    {% endfor %}
+                    </table>
                     </div>
-                    <div id="collapse_inner_2000_one" class="panel-collapse collapse in">
-                      <div class="panel-body">
-						<ul class="list-group">
-						  <li class="list-group-item"><span class="badge">Birth</span> Title</li>
-						  <li class="list-group-item"><span class="badge">0</span> Base Interval</li>
-						  <li class="list-group-item"><span class="badge">0</span> Base Interval Unit</li>
-						  <li class="list-group-item"><span class="badge">0</span> Window Lower Bound</li>
-						  <li class="list-group-item"><span class="badge">D</span> Window Lower Bound Unit</li>
-						  <li class="list-group-item"><span class="badge">INFANT</span> Grouping</li>
-						  <li class="list-group-item"><span class="badge">Infant Visit</span> Visit Tracking Model</li>
-						  <li class="list-group-item"><span class="badge">Infant Enrollment</span> Schedule</li>
-						  <li class="list-group-item"><span class="badge">None</span> Instructions</li>
-						</ul>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="panel panel-success">
-                    <div class="panel-heading">
-                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#infant_visit_2000" href="#collapse_inner_2000_two">
-                        <small>Content Forms Required (CRFs)</small>
-                      </a></h4>
-                    </div>
-                    <div id="collapse_inner_2000_two" class="panel-collapse collapse">
-                      <div class="panel-body">
-                        <table class="table table-striped">
-                        <thead>
-                        <tr>
-                        <th>#</th>
-                        <th>App Label</th>
-                        <th>Model Name</th>
-                        <th>Required</th>
-                        <th>Additional</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                        	<th scope="row">1</th>
-                        	<td>mb_infant</td><td>infantbirthdata</td><td><span class="glyphicon glyphicon-ok"></span></td><td><span class="glyphicon glyphicon-remove"></span></td>
-                        </tr>
-                        <tr>
-                        	<th scope="row">2</th>
-                        	<td>mb_infant</td><td>infantbirthdata</td><td><span class="glyphicon glyphicon-remove"></span></td><td><span class="glyphicon glyphicon-ok"></span></td>
-                        </tr>
-                        </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="panel panel-success">
-                    <div class="panel-heading">
-                      <h4 class="panel-title"><a data-toggle="collapse" data-parent="#infant_visit_2000" href="#collapse_inner_2000_three">
-                        <small>Requistion Forms Required (RFs)</small>
-                      </a></h4>
-                    </div>
-                    <div id="collapse_inner_2000_three" class="panel-collapse collapse">
-                      <div class="panel-body">
-                        Content 3
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Inner accordion ends here -->
-
+                  {% endfor %}  
               </div>
             </div>
-          </div>
+          {% endfor %}
         </div>
-  
-				    </div> <!-- /. end of panel -->
-  				</div>
-				</div>
-				<!-- /.panel group -->
-            </div>
+      </div>
+      <div class="{% if selected_visit_schedule %}col-md-3{% else %}col-md-12{% endif %}">
+        <div class="panel panel-warning">
+          <div class="panel-heading">Visit Schedules</div>
+          {% for visit_schedule in visit_schedules.values %}
+             <a href="{% url 'edc-visit-schedule:home-url' visit_schedule=visit_schedule.name %}" type="button" class="btn {% if visit_schedule == selected_visit_schedule %}btn-muted{% else %}btn-default{% endif %} btn-block">{{ visit_schedule.verbose_name }}</a>
+          {% endfor %}
         </div>
-        <!-- /.row -->
-      
+      </div>
+
     </div>
+
 {% endblock  %}
