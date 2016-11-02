@@ -58,6 +58,7 @@ class PrintServer:
     def printers(self):
         """Return all printers from for CUPS.getPrinter()."""
         try:
+            self.conn = self.connect(())
             return self.conn.getPrinters()
         except (AttributeError, cups.IPPError) as e:
             self.error_message = self.error_message or self.connection_err_msg.format(self.ip_address, str(e))

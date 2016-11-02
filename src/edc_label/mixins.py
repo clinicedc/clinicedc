@@ -40,5 +40,3 @@ class EdcLabelMixin:
         label = Label(label_name, print_server=self.print_server, context=context)
         label.print_label(copies)
         return label
-
-
