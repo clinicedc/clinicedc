@@ -17,10 +17,14 @@ $('.collapse').on('shown.bs.collapse', function(){
     <div class="container">
       <div class="{% if selected_visit_schedule %}col-md-9{% endif %}">
         <div class="panel panel-info">
-          {% if selected_visit_schedule %}<div class="panel-heading">{{ selected_visit_schedule }}</div>{% endif %}
+          {% if selected_visit_schedule %}<div class="panel-heading"><span class="panel-title">{{ selected_visit_schedule|title }}</span></div>{% endif %}
           {% for schedule in selected_visit_schedule.schedules.values %}
-            <div class="panel panel-danger">
-            <div class="panel-heading">{{ schedule.name }}</div>
+            <div class="panel panel-default" id="accordion">
+            <div class="panel-heading">
+              <span class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}">{{ schedule.name|title }}</a></span>
+            </div>
+            <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse">
               <div class="panel panel-success">
                   {% for visit in schedule.visits %}
                     <div class="panel-heading">{{ visit.code }}</div>
@@ -33,6 +37,7 @@ $('.collapse').on('shown.bs.collapse', function(){
                     </table>
                     </div>
                   {% endfor %}  
+              </div>
               </div>
             </div>
           {% endfor %}
