@@ -112,13 +112,13 @@ class RequisitionModelMixin(models.Model):
             site_lab_profiles.get(self._meta.label_lower).panels[self.panel_name]
         except KeyError as e:
             raise RequisitionError('Undefined panel name. Got {}. See AppConfig. Got {}'.format(self.panel_name, str(e)))
-        self.update_requisition_identifier(self.__class__)
+        self.update_requisition_identifier()
         super(RequisitionModelMixin, self).save(*args, **kwargs)
 
     def natural_key(self):
         return (self.requisition_identifier,)
 
-    def update_requisition_identifier(self, sender):
+    def update_requisition_identifier(self):
         """Converts from uuid to a requisition identifier if is_drawn == YES and not already
         a requisition identifier.
 
