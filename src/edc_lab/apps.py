@@ -14,7 +14,6 @@ class AppConfig(DjangoAppConfig):
     requisition = 'edc_example.subjectrequisition'
 
     def ready(self):
-        from .signals import requisition_identifier_on_post_save
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         site_lab_profiles.autodiscover()
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))

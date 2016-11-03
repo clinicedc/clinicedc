@@ -57,8 +57,8 @@ class RequisitionModelMixin(models.Model):
         null=True,
         blank=True,)
 
-    study_site = models.CharField(
-        max_length=10)
+#     study_site = models.CharField(
+#         max_length=10)
 
     specimen_identifier = models.CharField(
         verbose_name='Specimen Id',
@@ -112,6 +112,7 @@ class RequisitionModelMixin(models.Model):
             site_lab_profiles.get(self._meta.label_lower).panels[self.panel_name]
         except KeyError as e:
             raise RequisitionError('Undefined panel name. Got {}. See AppConfig. Got {}'.format(self.panel_name, str(e)))
+        self.update_requisition_identifier(self.__class__)
         super(RequisitionModelMixin, self).save(*args, **kwargs)
 
     def natural_key(self):
@@ -127,7 +128,7 @@ class RequisitionModelMixin(models.Model):
         if self.is_drawn == NO:
             self.requisition_identifier = str(uuid4())
         if self.is_drawn == YES and pattern.match(self.requisition_identifier):
-            self.requisition_identifier = Identifier(sender).identifier
+            self.requisition_identifier = Identifier(self.__class__).identifier
 
     def label_context(self, extra_context=None):
         context = {}
