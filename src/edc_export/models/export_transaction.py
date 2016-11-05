@@ -3,9 +3,9 @@ from django.db import models
 
 from edc_constants.constants import CLOSED
 from edc_base.model.models import BaseUuidModel
-from edc_sync.models import SyncModelMixin
+from edc_sync.model_mixins import SyncModelMixin
 
-from .export_tracking_fields_mixin import ExportTrackingFieldsMixin
+from ..model_mixins import ExportTrackingFieldsMixin
 
 
 class ExportTransactionManager(models.Manager):
@@ -59,7 +59,7 @@ class ExportTransaction(ExportTrackingFieldsMixin, SyncModelMixin, BaseUuidModel
 
     objects = ExportTransactionManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return '{} {} {}'.format(self.object_name, self.status, self.export_uuid)
 
     def natural_key(self):

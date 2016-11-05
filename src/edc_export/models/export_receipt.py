@@ -2,7 +2,7 @@ from django.db import models
 
 from edc_base.model.fields import UUIDAutoField
 from edc_base.model.models import BaseUuidModel
-from edc_sync.models import SyncModelMixin
+from edc_sync.model_mixins import SyncModelMixin
 
 
 class ExportReceiptManager(models.Manager):
@@ -36,7 +36,7 @@ class ExportReceipt(SyncModelMixin, BaseUuidModel):
 
     objects = ExportReceiptManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return '{} {}'.format(self.object_name, self.export_uuid)
 
     def natural_key(self):

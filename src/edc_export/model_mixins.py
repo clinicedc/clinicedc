@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.db import models
-from django_extensions.db.fields import UUIDField
 
 
 class ExportTrackingFieldsMixin(models.Model):
@@ -25,7 +24,7 @@ class ExportTrackingFieldsMixin(models.Model):
         editable=False,
         help_text="system field for export tracking.")
 
-    export_uuid = UUIDField(
+    export_uuid = models.UUIDField(
         editable=False,
         help_text="system field for export tracking.")
 

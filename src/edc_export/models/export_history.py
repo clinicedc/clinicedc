@@ -5,7 +5,7 @@ from django.db import models
 
 from edc_base.model.fields import UUIDAutoField
 from edc_base.model.models import BaseUuidModel
-from edc_sync.models import SyncModelMixin
+from edc_sync.model_mixins import SyncModelMixin
 
 
 class ExportHistoryManager(models.Manager):
