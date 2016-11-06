@@ -8,7 +8,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from .choices import ENTRY_STATUS
 from .constants import REQUIRED, NOT_REQUIRED, KEYED
 from .exceptions import CreatesMetadataError
-from django.urls.base import reverse
 
 
 class BaseUpdatesMetadataModelMixin(models.Model):
@@ -230,7 +229,7 @@ class BaseMetadataModelMixin(models.Model):
         max_length=250,
         null=True)
 
-    show_order = models.IntegerField(default=0)
+    show_order = models.IntegerField()  # must always be provided!
 
     entry_status = models.CharField(
         max_length=25,
