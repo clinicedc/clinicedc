@@ -232,7 +232,7 @@ class BaseMetadataModelMixin(models.Model):
         max_length=250,
         null=True)
 
-    show_order = models.IntegerField()
+    show_order = models.IntegerField(default=0)
 
     entry_status = models.CharField(
         max_length=25,
