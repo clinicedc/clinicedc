@@ -177,13 +177,11 @@ class CreatesMetadataModelMixin(models.Model):
             'subject_identifier': self.subject_identifier})
         if model().metadata_category == 'requisition':
             options.update({'panel_name': panel_name})
-        try:
-            obj = model().metadata_model.objects.get(**options)
-            obj.entry_status = entry_status
-            obj.save()
-            return obj
-        except model().metadata_model.DoesNotExist:
-            return None
+        # NOTE: do not allow a DoesNotExist exception here. Metadata should always exist!
+        obj = model().metadata_model.objects.get(**options)
+        obj.entry_status = entry_status
+        obj.save()
+        return obj
 
     def metadata_run_rules(self, source_model=None):
         """Runs all the rule groups for this app label."""
