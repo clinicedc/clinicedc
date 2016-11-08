@@ -6,7 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 from .model_mixins import CaretakerFieldsMixin
 
 
-class CrfAdminMixin(object):
+class CrfModelAdminMixin:
 
     """ModelAdmin subclass for models with a ForeignKey to your visit model(s)"""
 
@@ -15,11 +15,14 @@ class CrfAdminMixin(object):
     date_hierarchy = 'report_datetime'
 
     def __init__(self, *args, **kwargs):
-        super(CrfAdminMixin, self).__init__(*args, **kwargs)
+        super(CrfModelAdminMixin, self).__init__(*args, **kwargs)
         if not self.visit_model:
-            raise ImproperlyConfigured('Class attribute \'visit model\' on BaseVisitModelAdmin '
-                                       'for model {0} may not be None. Please correct.'.format(self.model))
+            # setting this now conflicts with AppConfig
+            raise ImproperlyConfigured('Class attribute \'visit model\' on CrfModelAdminMixin '
+                                       'for model {0} may not be None. '
+                                       'Please correct.'.format(self.model._meta.label_lower))
         if not self.visit_attr:
+            # setting this now conflicts with AppConfig
             raise ValueError(
                 'The admin class for \'{0}\' needs to know the field attribute that points to \'{1}\'. '
                 'Specify this on the ModelAdmin class as \'visit_attr\'.'.format(
@@ -29,6 +32,14 @@ class CrfAdminMixin(object):
         self.list_display = tuple(self.list_display)
         self.extend_search_fields()
         self.extend_list_filter()
+
+    @property
+    def visit_model(self):
+        return self.model.visit_model()
+
+    @property
+    def visit_model_attr(self):
+        return self.model.visit_model_attr()
 
     def extend_search_fields(self):
         self.search_fields = list(self.search_fields)
@@ -56,10 +67,10 @@ class CrfAdminMixin(object):
                     self.readonly_fields.index(self.visit_attr)
                 except ValueError:
                     self.readonly_fields.append(self.visit_attr)
-        return super(CrfAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(CrfModelAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-class VisitAdminMixin:
+class VisitModelAdminMixin:
 
     """ModelAdmin subclass for models with a ForeignKey to 'appointment', such as your visit model(s).
 
@@ -72,7 +83,7 @@ class VisitAdminMixin:
     date_hierarchy = 'report_datetime'
 
     def __init__(self, *args, **kwargs):
-        super(VisitAdminMixin, self).__init__(*args, **kwargs)
+        super(VisitModelAdminMixin, self).__init__(*args, **kwargs)
 
         if self.form._meta.fields != '__all__':
             self.fields = self.form._meta.fields
@@ -125,4 +136,4 @@ class VisitAdminMixin:
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'appointment' and request.GET.get('appointment'):
             kwargs["queryset"] = db_field.related_model.objects.filter(pk=request.GET.get('appointment', 0))
-        return super(VisitAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(VisitModelAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)

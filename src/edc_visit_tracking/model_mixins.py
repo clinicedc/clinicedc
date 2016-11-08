@@ -21,6 +21,7 @@ from edc_visit_tracking.managers import CrfModelManager
 from .choices import VISIT_REASON
 from .constants import FOLLOW_UP_REASONS, REQUIRED_REASONS, NO_FOLLOW_UP_REASONS
 
+app_config = django_apps.get_app_config('edc_visit_tracking')
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('crf_inline_parent',)
 
@@ -57,12 +58,10 @@ class CrfModelMixin(models.Model):
 
     @classmethod
     def visit_model(cls):
-        app_config = django_apps.get_app_config('edc_visit_tracking')
         return app_config.visit_model(cls._meta.app_label)
 
     @classmethod
     def visit_model_attr(cls):
-        app_config = django_apps.get_app_config('edc_visit_tracking')
         return app_config.visit_model_attr(cls._meta.label_lower)
 
     @property
