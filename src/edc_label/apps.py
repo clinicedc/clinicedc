@@ -5,7 +5,6 @@ import sys
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 
-from edc_base.apps import AppConfig as EdcBaseAppConfigParent
 from edc_label.constants import LABELS, TESTDATA
 from django.core.management.color import color_style
 
@@ -19,7 +18,7 @@ class AppConfig(DjangoAppConfig):
     # IP address of the CUPS server, if localhost leave as None
     default_cups_server_ip = None
     # CUPS name of the default printer
-    default_printer_label = 'keletso_testing'
+    default_printer_label = None
     # the default template file to use if not specifiedwhen printing
     default_template_file = os.path.join(settings.STATIC_ROOT, 'edc_label', 'label_templates', 'default.txt')
     # full path to edc_label static templates folder, do not change
@@ -68,8 +67,3 @@ class AppConfig(DjangoAppConfig):
                 label_template.test_context = {}
             self.label_templates.update({label_template.label: label_template})
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
-
-
-class EdcBaseAppConfig(EdcBaseAppConfigParent):
-    project_name = 'Edc Label'
-    institution = 'Botswana-Harvard AIDS Institute'
