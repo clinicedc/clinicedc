@@ -77,7 +77,7 @@ class TestDevice(SimpleTestCase):
     def test_central_server_is_server(self):
         self.app_config.device_id = '99'
         self.app_config.central_server_id = '99'
-        self.app_config.server_id_list = [97, 96]
+        self.app_config.server_id_list = [99, 97, 96]
         self.app_config.ready()
         self.assertTrue(self.app_config.is_central_server)
         self.assertEqual(self.app_config.role, 'CentralServer')
