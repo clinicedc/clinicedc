@@ -6,7 +6,7 @@ from edc_base.model.models import BaseUuidModel
 from .base_identifier_model import BaseIdentifierModel
 
 if django_apps.is_installed('edc_sync'):
-    from edc_sync.models import SyncModelMixin
+    from edc_sync.model_mixins import SyncModelMixin
     subject_identifier_parents = (BaseIdentifierModel, SyncModelMixin, BaseUuidModel)
 else:
     subject_identifier_parents = (BaseIdentifierModel, BaseUuidModel, )

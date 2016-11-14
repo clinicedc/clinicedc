@@ -3,7 +3,7 @@ from django.apps import apps as django_apps
 from edc_base.model.models import BaseUuidModel
 
 if django_apps.is_installed('edc_sync'):
-    from edc_sync.models import SyncModelMixin
+    from edc_sync.model_mixins import SyncModelMixin
     identifier_tracker_parents = (SyncModelMixin, BaseUuidModel)
 else:
     identifier_tracker_parents = (BaseUuidModel, )
