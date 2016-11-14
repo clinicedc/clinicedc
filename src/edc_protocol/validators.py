@@ -31,7 +31,8 @@ def date_not_before_study_start(value):
     value_datetime = my_make_aware(datetime(value.year, value.month, value.day, 0, 0), tz)
     if value_datetime < app_config.study_open_datetime:
         raise ValidationError(
-            'Invalid date. Study opened on {}. Got {}.'.format(app_config.study_open_datetime, value_datetime))
+            'Invalid date. Study opened on {}. Got {}. See edc_protocol.AppConfig'.format(
+                app_config.study_open_datetime, value_datetime))
 
 
 def datetime_not_before_study_start(value):
