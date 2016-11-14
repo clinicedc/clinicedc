@@ -2,9 +2,8 @@ from django.db import models
 
 from edc_base.model.models.base_uuid_model import BaseUuidModel
 from edc_identifier.models import BaseIdentifierModel
-from edc_lab.packing.model_mixins import DestinationModelMixin, PackingListItemModelMixin
 
-from .packing.model_mixins import PackingListModelMixin
+from .model_mixins import DestinationModelMixin, PackingListItemModelMixin, PackingListModelMixin
 
 
 class ReceiveIdentifier(BaseIdentifierModel):
@@ -35,5 +34,3 @@ class PackingList(PackingListModelMixin, BaseUuidModel):
 
     class Meta:
         app_label = 'edc_lab'
-
-

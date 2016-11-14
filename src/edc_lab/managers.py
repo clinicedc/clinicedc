@@ -1,7 +1,37 @@
-from django.apps import apps as django_apps
 from django.db import models
+from django.apps import apps as django_apps
 
 from edc_identifier.old_identifier import Identifier
+
+
+class AliquotManager(models.Manager):
+
+    def get_by_natural_key(self, aliquot_identifier):
+        return self.get(aliquot_identifier=aliquot_identifier)
+
+
+class DestinationManager(models.Manager):
+
+    def get_by_natural_key(self, code):
+        return self.get(code=code)
+
+
+class PackingListManager(models.Manager):
+
+    def get_by_natural_key(self, timestamp):
+        return self.get(timestamp=timestamp)
+
+
+class PackingListItemManager(models.Manager):
+
+    def get_by_natural_key(self, item_reference):
+        return self.get(item_reference=item_reference)
+
+
+class ReceiveManager(models.Manager):
+
+    def get_by_natural_key(self, receive_identifier):
+        return self.get(receive_identifier=receive_identifier)
 
 
 class RequisitionManager(models.Manager):

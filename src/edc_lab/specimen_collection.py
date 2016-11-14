@@ -2,8 +2,6 @@ from django.apps import apps as django_apps
 
 from edc_identifier.alphanumeric_identifier import AlphanumericIdentifier
 
-from .specimen import Specimen
-
 
 app_config = django_apps.get_app_config('edc_lab')
 
@@ -40,8 +38,7 @@ class SpecimenCollection:
                 self.object = self.model.objects.create(
                     collection_identifier=self.collection_identifier)
 
-    def add(self, requisition):
-        specimen = Specimen(requisition)
+    def add(self, specimen):
         try:
             specimen_collection_item = self.item_model.objects.get(
                 specimen_identifier=specimen.specimen_identifier)

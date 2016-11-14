@@ -5,14 +5,16 @@ from django.test import TestCase
 from django.utils import timezone
 
 from edc_constants.constants import YES, NO
-from edc_example.factories import SubjectConsentFactory, EnrollmentFactory, SubjectVisitFactory, SubjectRequisitionFactory
-from edc_example.models import Appointment, SubjectRequisition, Aliquot
-from edc_lab.requisition.identifier import Identifier
-from edc_lab.specimen.specimen import Specimen
-from edc_lab.specimen.specimen_collection import SpecimenCollection
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_lab.site_lab_profiles import site_lab_profiles
+from edc_example.factories import (
+    SubjectConsentFactory, EnrollmentFactory, SubjectVisitFactory, SubjectRequisitionFactory)
 from edc_example.lab_profiles import viral_load_panel
+from edc_example.models import Appointment, SubjectRequisition, Aliquot
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+
+from .requisition_identifier import RequisitionIdentifier
+from .site_lab_profiles import site_lab_profiles
+from .specimen import Specimen
+from .specimen_collection import SpecimenCollection
 
 # from .site_lab_profiles import site_lab_profiles
 
@@ -43,7 +45,7 @@ class LabTests(TestCase):
 
     def test_requisition_identifier(self):
         """Asserts requisition identifier class creates identifier with correct format."""
-        identifier = Identifier(SubjectRequisition)
+        identifier = RequisitionIdentifier(SubjectRequisition)
         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
         self.assertTrue(pattern.match(str(identifier)))
 
@@ -255,8 +257,8 @@ class LabTests(TestCase):
             requisition_datetime=timezone.now(),
             is_drawn=YES)
         specimen_collection = SpecimenCollection()
-        specimen_collection.add(requisition1)
-        specimen_collection.add(requisition2)
+        specimen_collection.add(Specimen(requisition1))
+        specimen_collection.add(Specimen(requisition2))
         self.assertEqual(len(specimen_collection.specimens), 2)
         self.assertIn(requisition1.requisition_identifier,
                       [s.requisition.requisition_identifier for s in specimen_collection.specimens.values()])

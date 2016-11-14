@@ -1,13 +1,10 @@
-import re
-
 from django.apps import apps as django_apps
 
 from edc_constants.constants import YES
 
-from edc_lab.aliquot.aliquot import Aliquot
-from edc_lab.requisition.requisition import Requisition
+from .aliquot import Aliquot
+from .requisition import Requisition
 
-app_config = django_apps.get_app_config('edc_lab')
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
 
 
@@ -20,6 +17,7 @@ class Specimen:
     def __init__(self, requisition, create_primary=None):
         self._aliquots = None
         self.primary_aliquot = None
+        self.aliquot_model = django_apps.get_app_config('edc_lab').aliquot_model
         self.requisition = Requisition(requisition)
         create_primary = True if create_primary is None else create_primary
         self.get_or_create_primary(create_primary)
@@ -28,7 +26,7 @@ class Specimen:
     def aliquots(self):
         """Returns a queryset of aliquots."""
         if not self._aliquots:
-            self._aliquots = [Aliquot(obj) for obj in app_config.aliquot_model.objects.filter(
+            self._aliquots = [Aliquot(obj) for obj in self.aliquot_model.objects.filter(
                 specimen_identifier=self.specimen_identifier)]
         return self._aliquots
 
@@ -41,12 +39,12 @@ class Specimen:
         if self.specimen_identifier:
             self.requisition.specimen_identifier = self.specimen_identifier
             try:
-                primary_aliquot = app_config.aliquot_model.objects.get(
+                primary_aliquot = self.aliquot_model.objects.get(
                     specimen_identifier=self.specimen_identifier,
                     is_primary=True)
-            except app_config.aliquot_model.DoesNotExist:
+            except self.aliquot_model.DoesNotExist:
                 if create:
-                    primary_aliquot = app_config.aliquot_model.objects.create(
+                    primary_aliquot = self.aliquot_model.objects.create(
                         specimen_identifier=self.specimen_identifier,
                         aliquot_type=self.requisition.specimen_type.numeric_code,
                         aliquot_identifier=self.primary_aliquot_identifier,

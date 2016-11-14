@@ -1,15 +1,12 @@
 from django.apps import apps as django_apps
 from edc_lab.site_lab_profiles import site_lab_profiles
 
-app_config = django_apps.get_app_config('edc_lab')
-
 
 class Requisition:
 
-    model = app_config.requisition_model
-
     def __init__(self, requisition):
         self.object = requisition
+        self.model = django_apps.get_app_config('edc_lab').requisition_model
         for field in self.object._meta.fields:
             if field.name not in ['specimen_identifier']:
                 setattr(self, field.name, getattr(self.object, field.name))

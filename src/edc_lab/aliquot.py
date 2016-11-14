@@ -1,7 +1,8 @@
 import re
 
 from django.apps import apps as django_apps
-from edc_lab.site_lab_profiles import site_lab_profiles
+
+from .site_lab_profiles import site_lab_profiles
 
 app_config = django_apps.get_app_config('edc_lab')
 

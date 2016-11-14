@@ -1,15 +1,13 @@
 import random
 
-from uuid import uuid4
-
 from django.apps import apps as django_apps
 
-from edc_lab.exceptions import RequisitionError
+from .exceptions import RequisitionError
 
 edc_device_app_config = django_apps.get_app_config('edc_device')
 
 
-class Identifier:
+class RequisitionIdentifier:
 
     def __init__(self, model):
         self.model = model
