@@ -1,5 +1,7 @@
 from datetime import datetime, time
+
 from django.db import models
+from django.apps import apps as django_apps
 
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators.date import date_not_future
@@ -63,8 +65,8 @@ class OffStudyModelMixin(models.Model):
         super(OffStudyModelMixin, self).save(*args, **kwargs)
 
     @property
-    def registered_subject(self):
-        return getattr(self, self.visit_model_attr).appointment.registered_subject
+    def appointment_obj(self):
+        return getattr(self, self.visit_model_attr()).appointment
 
     def off_study_visit_exists_or_raise(self, exception_cls=None):
         """Confirms the off study report datetime matches a off study visit report datetime
@@ -74,7 +76,7 @@ class OffStudyModelMixin(models.Model):
         report_datetime_max = datetime.combine(self.report_datetime.date(), time.max)
         try:
             self.visit_model.objects.get(
-                appointment__registered_subject=self.registered_subject,
+                appointment__subject_identifier=self.appointment_obj.subject_identifier,
                 report_datetime__gte=report_datetime_min,
                 report_datetime__lte=report_datetime_max,
                 study_status=OFF_STUDY)
@@ -89,7 +91,7 @@ class OffStudyModelMixin(models.Model):
         if the appointment has no visit report."""
         Appointment = self.visit_model.appointment.field.rel.to
         for appointment in Appointment.objects.filter(
-                registered_subject=self.registered_subject,
+                subject_identifier=self.appointment_obj.subject_identifier,
                 appt_datetime__gt=self.offstudy_date):
             # only delete appointments that have no visit report
             try:
@@ -98,7 +100,7 @@ class OffStudyModelMixin(models.Model):
                 appointment.delete()
 
     def get_subject_identifier(self):
-        return self.registered_subject.subject_identifier
+        return self.appointment_obj.subject_identifier
 
     def get_report_datetime(self):
         return self.report_datetime
@@ -112,11 +114,20 @@ class OffStudyMixin(models.Model):
     """A mixin for scheduled models to add the ability to determine
     if the subject is off study."""
 
-    off_study_model = None
-
     def save(self, *args, **kwargs):
         self.is_off_study_or_raise()
         super(OffStudyMixin, self).save(*args, **kwargs)
+
+    def get_subject_identifier(self):
+        try:
+            subject_identifier = self.appointment.subject_identifier
+        except AttributeError:
+            subject_identifier = self.appointment.subject_identifier
+        return subject_identifier
+
+    @property
+    def offstudy(self):
+        return django_apps.get_app_config('edc_offstudy').offstudy_model(self._meta.app_label)
 
     def is_off_study_or_raise(self):
         """Return True if the off-study report exists or
@@ -144,16 +155,16 @@ class OffStudyMixin(models.Model):
         """Raises an exception if an off study report exists for this subject with an
         off study date before the report_date."""
         options = {
-            '{}__appointment__registered_subject__subject_identifier'.format(self.off_study_model.visit_model_attr):
+            '{}__appointment__subject_identifier'.format(self.offstudy.visit_model_attr()):
             subject_identifier}
         try:
-            off_study = self.off_study_model.objects.get(
+            off_study = self.offstudy.objects.get(
                 offstudy_date__lt=report_date,
                 **options)
             raise OffStudyError(
                 'Participant was reported off study on \'{0}\'. Data reported after this date'
                 ' cannot be captured.'.format(off_study.offstudy_date.strftime('%Y-%m-%d')))
-        except self.off_study_model.DoesNotExist:
+        except self.offstudy.DoesNotExist:
             off_study = None
         return off_study
 
@@ -162,21 +173,23 @@ class OffStudyMixin(models.Model):
 
         The visit report is "previous" relative to this objects report_datetime."""
         try:
-            previous_off_study_visit = self.off_study_model.visit_model.objects.filter(
+            previous_off_study_visit = self.offstudy.visit_model.objects.filter(
                 study_status=OFF_STUDY,
                 report_datetime__lt=self.report_datetime,
-                subject_identifier=self.get_subject_identifier()).order_by('report_datetime')
-            if self.visit_model_attr and getattr(self, self.visit_model_attr):
-                previous_off_study_visit = previous_off_study_visit.exclude(
-                    id=(getattr(self, self.visit_model_attr)).id).last()
-            else:
-                previous_off_study_visit = previous_off_study_visit.exclude(id=self.id).last()
+                subject_identifier=self.get_subject_identifier()).last()  # .order_by('report_datetime')
+
+#             if self.visit_model_attr and getattr(self, self.self.offstudy.visit_model_attr()):
+#                 previous_off_study_visit = previous_off_study_visit.exclude(
+#                     id=(getattr(self, self.visit_model_attr)).id).last()
+#             else:
+#                 previous_off_study_visit = previous_off_study_visit.exclude(id=self.id).last()
+
             if previous_off_study_visit:
                 raise OffStudyError(
                     'On a previous visit participant was meant to go off study (reason={}). '
                     'See visit \'{}\' on \'{}\''.format(
                         previous_off_study_visit.reason,
-                        previous_off_study_visit.appointment.visit_definition.code,
+                        previous_off_study_visit.appointment.visit_code,
                         previous_off_study_visit.report_datetime.strftime('%Y-%m-%d')))
 
         except self.__class__.DoesNotExist:
