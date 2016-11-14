@@ -235,6 +235,13 @@ POS_NEG_UNKNOWN = (
     (UNKNOWN, _('Unknown')),
 )
 
+POS_NEG_IND_UNKNOWN = (
+    (POS, _('Positive')),
+    (NEG, _('Negative')),
+    (IND, 'Indeterminate'),
+    (UNKNOWN, _('Unknown')),
+)
+
 POS_NEG_ACU = (
     ('Positive', 'Positive'),
     ('Negative', 'Negative'),
@@ -388,6 +395,13 @@ YES_NO_UNSURE = (
     (YES, YES),
     (NO, NO),
     ('Not Sure', 'Not Sure'),
+)
+
+YES_NO_UNSURE_DWTA = (
+    (YES, YES),
+    (NO, NO),
+    ('Not Sure', 'Not Sure'),
+    (DWTA, 'Don\'t want to answer')
 )
 
 YES_NO_UNSURE_NA = (
