@@ -15,7 +15,7 @@ class AppConfig(DjangoAppConfig):
     name = 'edc_offstudy'
     app_label = 'edc_example'
     verbose_name = 'Edc Off-study'
-    offstudy_models = {'edc_example': ('crfoffstudy', 'edc_example.crfoffstudy')}
+    offstudy_models = {'edc_example': ('subjectoffstudy', 'edc_example.subjectoffstudy')}
 
     def ready(self):
         from edc_offstudy.signals import off_study_post_save
