@@ -19,3 +19,13 @@ class CrfModelManager(models.Manager):
         """Returns a queryset for the given subject_identifier."""
         options = {'{}__subject_identifier'.format(self.model.visit_model_attr()): subject_identifier}
         return self.filter(**options)
+
+
+class VisitModelManager(models.Manager):
+
+    def get_by_natural_key(self, subject_identifier, visit_schedule_name, schedule_name, visit_code):
+        return self.get(
+            subject_identifier=subject_identifier,
+            visit_schedule_name=visit_schedule_name,
+            schedule_name=schedule_name,
+            visit_code=visit_code)
