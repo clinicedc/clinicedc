@@ -28,7 +28,7 @@ YES_NO_UNKNOWN = (
 )
 
 
-class RegisteredSubjectModelMixin(models.Model):
+class SubjectIdentifierModelMixin(models.Model):
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
@@ -49,6 +49,12 @@ class RegisteredSubjectModelMixin(models.Model):
         editable=False,
         help_text='track a previously allocated identifier.'
     )
+
+    class Meta:
+        abstract = True
+
+
+class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
 
     # may not be available when instance created (e.g. infants prior to birth report)
     first_name = FirstnameField(
@@ -246,18 +252,6 @@ class RegisteredSubjectModelMixin(models.Model):
 
     def get_subject_identifier(self):
         return self.subject_identifier
-
-    def include_for_dispatch(self):
-        return True
-
-    def is_serialized(self):
-        return True
-
-    def dispatch_container_lookup(self):
-        return (self.__class__, 'id')
-
-    def is_dispatched(self):
-        return False
 
     def age(self):
         return self.screening_age_in_years
