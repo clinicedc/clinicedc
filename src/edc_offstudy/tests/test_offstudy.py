@@ -14,13 +14,13 @@ from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
 
 from edc_constants.constants import ON_STUDY, OFF_STUDY
 from edc_offstudy.constants import OFF_STUDY_REASONS
-from edc_example.models import SubjectOffStudy, CrfOne
+from edc_example.models import SubjectOffstudy, CrfOne
 
 from edc_visit_tracking.constants import SCHEDULED
-from edc_offstudy.model_mixins import OffStudyError
+from edc_offstudy.model_mixins import OffstudyError
 
 
-class TestOffStudy(TestCase):
+class TestOffstudy(TestCase):
 
     def setUp(self):
         self.subject_consent = SubjectConsentFactory()
@@ -36,40 +36,40 @@ class TestOffStudy(TestCase):
             study_status=SCHEDULED
         )
 
-    def test_create_off_study(self):
-        SubjectOffStudy.objects.create(
+    def test_create_offstudy(self):
+        SubjectOffstudy.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=timezone.now() - relativedelta(weeks=4),
             offstudy_date=date.today() - relativedelta(weeks=3)
         )
-        self.assertEqual(1, SubjectOffStudy.objects.all().count())
+        self.assertEqual(1, SubjectOffstudy.objects.all().count())
 
-    def test_is_off_study_or_raise(self):
-        SubjectOffStudy.objects.create(
+    def test_is_offstudy_or_raise(self):
+        SubjectOffstudy.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=timezone.now() - relativedelta(weeks=4),
             offstudy_date=date.today() - relativedelta(weeks=3)
         )
-        with self.assertRaises(OffStudyError) as cm:
+        with self.assertRaises(OffstudyError) as cm:
             CrfOne.objects.create(
                 subject_visit=self.subject_visit
             )
         self.assertIn('Participant was reported off study on', str(cm.exception))
 
-    def test_is_off_study_or_raise_new_visits(self):
-        SubjectOffStudy.objects.create(
+    def test_is_offstudy_or_raise_new_visits(self):
+        SubjectOffstudy.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=timezone.now() - relativedelta(weeks=4),
             offstudy_date=date.today() - relativedelta(weeks=3)
         )
-        with self.assertRaises(OffStudyError) as cm:
+        with self.assertRaises(OffstudyError) as cm:
             SubjectVisit.objects.create(
                 appointment=self.appointment,
                 report_datetime=timezone.now())
         self.assertIn('Participant was reported off study on', str(cm.exception))
 
-    def test_off_study_on_delete_future_appts(self):
-        SubjectOffStudy.objects.create(
+    def test_offstudy_on_delete_future_appts(self):
+        SubjectOffstudy.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=timezone.now() - relativedelta(weeks=4),
             offstudy_date=date.today() - relativedelta(weeks=3),
@@ -77,7 +77,7 @@ class TestOffStudy(TestCase):
         )
         self.assertEqual(1, Appointment.objects.all().count())
 
-    def test_off_study_on_delete_future_appts1(self):
+    def test_offstudy_on_delete_future_appts1(self):
         appointment = Appointment.objects.get(
             visit_code='2000'
         )
@@ -88,7 +88,7 @@ class TestOffStudy(TestCase):
             report_datetime=timezone.now() - relativedelta(weeks=3),
             study_status=SCHEDULED
         )
-        SubjectOffStudy.objects.create(
+        SubjectOffstudy.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=timezone.now() - relativedelta(weeks=3),
             offstudy_date=date.today() - relativedelta(weeks=3),
