@@ -5,7 +5,7 @@ from django.core import serializers
 from django.apps import apps as django_apps
 from django_crypto_fields.field_cryptor import FieldCryptor
 
-from edc_export.classes import ExportAsCsv, ExportJsonAsCsv
+from .classes import ExportAsCsv, ExportJsonAsCsv
 
 
 def export_as_csv_action(description="Export selected objects to CSV",

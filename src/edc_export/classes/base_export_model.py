@@ -7,11 +7,11 @@ from collections import OrderedDict
 from datetime import datetime
 
 from django.db.models.constants import LOOKUP_SEP
+from django.utils import timezone
 
 from django_crypto_fields.fields import BaseField as BaseEncryptedField
 
 from ..models import ExportHistory
-from django.utils import timezone
 
 HEAD_FIELDS = [
     'export_uuid', 'export_datetime', 'export_change_type',

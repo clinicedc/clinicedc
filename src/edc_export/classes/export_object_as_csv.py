@@ -1,11 +1,11 @@
 import csv
-from copy import copy
 import json
 import os
 import string
 import numpy as np
 
 from collections import OrderedDict
+from copy import copy
 from datetime import datetime
 
 from django.db.models.constants import LOOKUP_SEP

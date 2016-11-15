@@ -1,6 +1,6 @@
 import csv
-import re
 import os
+import re
 
 from datetime import datetime
 
@@ -9,6 +9,12 @@ from django.conf import settings
 
 from edc_base.model.models import BaseUuidModel
 from edc_export.models import ExportHistory
+
+
+class UploadExportReceiptFileManager(models.Manager):
+
+    def get_by_natural_key(self, file_name):
+        return self.get(file_name=file_name)
 
 
 class UploadExportReceiptFile(BaseUuidModel):
@@ -21,7 +27,7 @@ class UploadExportReceiptFile(BaseUuidModel):
 
     app_label = models.CharField(max_length=50)
 
-    object_name = models.CharField(max_length=50)
+    model_name = models.CharField(max_length=50)
 
     accepted = models.IntegerField(default=0, editable=False)
 
@@ -33,13 +39,16 @@ class UploadExportReceiptFile(BaseUuidModel):
 
     receipt_datetime = models.DateTimeField(editable=False, null=True)
 
-    objects = models.Manager()
+    objects = UploadExportReceiptFileManager()
 
     def save(self, *args, **kwargs):
         if not self.id:
             self.file_name = self.export_receipt_file.name.replace('\\', '/').split('/')[-1]
             self.update_export_history()
         super(UploadExportReceiptFile, self).save(*args, **kwargs)
+
+    def natural_key(self):
+        return (self.file_name, )
 
     def update_export_history(self):
         """Reads the csv file and updates the export history for the given export_uuid."""

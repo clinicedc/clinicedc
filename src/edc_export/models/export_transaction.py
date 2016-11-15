@@ -1,9 +1,8 @@
 from django.core.urlresolvers import reverse
 from django.db import models
 
+from edc_base.model.models import BaseUuidModel, HistoricalRecords
 from edc_constants.constants import CLOSED
-from edc_base.model.models import BaseUuidModel
-from edc_sync.model_mixins import SyncModelMixin
 
 from ..model_mixins import ExportTrackingFieldsMixin
 
@@ -14,14 +13,14 @@ class ExportTransactionManager(models.Manager):
         return self.get(export_uuid=export_uuid)
 
 
-class ExportTransaction(ExportTrackingFieldsMixin, SyncModelMixin, BaseUuidModel):
+class ExportTransaction(ExportTrackingFieldsMixin, BaseUuidModel):
 
     tx = models.TextField()
 
     app_label = models.CharField(
         max_length=64)
 
-    object_name = models.CharField(
+    model_name = models.CharField(
         max_length=64)
 
     tx_pk = models.CharField(
@@ -59,20 +58,18 @@ class ExportTransaction(ExportTrackingFieldsMixin, SyncModelMixin, BaseUuidModel
 
     objects = ExportTransactionManager()
 
+    history = HistoricalRecords()
+
     def __str__(self):
-        return '{} {} {}'.format(self.object_name, self.status, self.export_uuid)
+        return '{} {} {}'.format(self.model_name, self.status, self.export_uuid)
 
     def natural_key(self):
         return (self.export_uuid, )
 
-    def dashboard(self):
-        # TODO: get this dashboard url
-        return 'dashboard?'
-
     def render(self):
         url = reverse('view_transaction_url',
                       kwargs={'app_label': self._meta.app_label,
-                              'model_name': self._meta.object_name.lower(),
+                              'model_name': self._meta.model_name.lower(),
                               'pk': self.pk})
         ret = ('<a href="{url}" class="add-another" id="add_id_report" onclick="return '
                'showAddAnotherPopup(this);"> <img src="/static/admin/img/icon_addlink.gif" '

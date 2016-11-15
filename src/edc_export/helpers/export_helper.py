@@ -4,7 +4,7 @@ from datetime import datetime
 
 from django.apps import apps
 
-from edc_notification.models import NotificationHelper
+from edc_notification.notification_helper import NotificationHelper
 
 from ..classes import ExportJsonAsCsv
 from ..models import ExportPlan

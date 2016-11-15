@@ -1,11 +1,10 @@
-from datetime import datetime
 from uuid import uuid4
 
 from django.db import models
+from django.utils import timezone
 
 from edc_base.model.fields import UUIDAutoField
-from edc_base.model.models import BaseUuidModel
-from edc_sync.model_mixins import SyncModelMixin
+from edc_base.model.models import BaseUuidModel, HistoricalRecords
 
 
 class ExportHistoryManager(models.Manager):
@@ -14,7 +13,7 @@ class ExportHistoryManager(models.Manager):
         return self.get(history_uuid=history_uuid)
 
 
-class ExportHistory(SyncModelMixin, BaseUuidModel):
+class ExportHistory(BaseUuidModel):
 
     history_uuid = UUIDAutoField(
         editable=False,
@@ -25,16 +24,16 @@ class ExportHistory(SyncModelMixin, BaseUuidModel):
     app_label = models.CharField(
         max_length=50)
 
-    object_name = models.CharField(
+    model_name = models.CharField(
         max_length=50)
 
     export_uuid_list = models.TextField(
         null=True,
-        help_text='list of export_uuid\'s of model app_label.object_name')
+        help_text='list of export_uuid\'s of model app_label.model_name')
 
     pk_list = models.TextField(
         null=True,
-        help_text='list of pk\'s of model app_label.object_name')
+        help_text='list of pk\'s of model app_label.model_name')
 
     exit_message = models.CharField(
         max_length=250,
@@ -85,10 +84,12 @@ class ExportHistory(SyncModelMixin, BaseUuidModel):
 
     objects = ExportHistoryManager()
 
+    history = HistoricalRecords()
+
     def save(self, *args, **kwargs):
         if self.sent and self.received and self.exported and not self.closed:
             self.closed = True
-            self.closed_datetime = datetime.now()
+            self.closed_datetime = timezone.now()
         super(ExportHistory, self).save(*args, **kwargs)
 
     def natural_key(self):

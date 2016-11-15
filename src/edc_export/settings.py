@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import django
+
 from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -107,15 +107,3 @@ USE_TZ = False
 STATIC_URL = '/static/'
 
 GIT_DIR = BASE_DIR.ancestor(1)
-
-SITE_CODE = '10'
-DEVICE_ID = '10'
-SERVER_DEVICE_ID_LIST = [99]
-MIDDLEMAN_DEVICE_ID_LIST = []
-PROJECT_ROOT = BASE_DIR.ancestor(1)
-FIELD_MAX_LENGTH = 'default'
-IS_SECURE_DEVICE = True
-KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
-KEY_PREFIX = 'user'
-ALLOW_MODEL_SERIALIZATION = False
-DISPATCH_APP_LABELS = []

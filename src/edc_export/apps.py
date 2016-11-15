@@ -6,4 +6,4 @@ class AppConfig(DjangoApponfig):
     verbose_name = 'Edc Export'
 
     def ready(self):
-        from .signals import *
+        from .signals import export_to_transaction_on_post_save, export_to_transaction_on_pre_delete

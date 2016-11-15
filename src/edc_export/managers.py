@@ -3,9 +3,9 @@ from datetime import datetime
 from django.core import serializers
 from django.db import models
 
-from edc_base.encrypted_fields import FieldCryptor
+from django_crypto_fields.field_cryptor import FieldCryptor
 
-from ..models import ExportTransaction
+from .models import ExportTransaction
 
 
 class ExportHistoryManager(models.Manager):
