@@ -1,23 +1,33 @@
 from django.db import models
 
-from edc_base.model.models.base_uuid_model import BaseUuidModel
-from edc_identifier.models import BaseIdentifierModel
+from edc_base.model.models import BaseUuidModel, HistoricalRecords
+from edc_identifier.model_mixins import IdentifierModelMixin
 
-from .model_mixins import DestinationModelMixin, PackingListItemModelMixin, PackingListModelMixin
+from .model_mixins import (
+    DestinationModelMixin, PackingListItemModelMixin, PackingListModelMixin, SpecimenCollectionModelMixin,
+    SpecimenCollectionItemModelMixin)
+from .managers import SpecimenCollectionItemManager, SpecimenCollectionManager
 
 
-class ReceiveIdentifier(BaseIdentifierModel):
+class ReceiveIdentifier(IdentifierModelMixin):
+
+    history = HistoricalRecords()
 
     class Meta:
         app_label = 'edc_lab'
 
 
 class Destination(DestinationModelMixin, BaseUuidModel):
+
+    history = HistoricalRecords()
+
     class Meta:
         app_label = 'edc_lab'
 
 
 class PackingListItem(PackingListItemModelMixin, BaseUuidModel):
+
+    history = HistoricalRecords()
 
     class Meta:
         app_label = 'edc_lab'
@@ -32,5 +42,29 @@ class PackingList(PackingListModelMixin, BaseUuidModel):
 
     packing_list_item = models.ForeignKey(PackingListItem)
 
+    history = HistoricalRecords()
+
     class Meta:
         app_label = 'edc_lab'
+
+
+class SpecimenCollection(SpecimenCollectionModelMixin, BaseUuidModel):
+
+    objects = SpecimenCollectionManager()
+
+    history = HistoricalRecords()
+
+    class Meta:
+        app_label = 'bcpp_lab'
+
+
+class SpecimenCollectionItem(SpecimenCollectionItemModelMixin, BaseUuidModel):
+
+    specimen_collection = models.ForeignKey(SpecimenCollection)
+
+    objects = SpecimenCollectionItemManager()
+
+    history = HistoricalRecords()
+
+    class Meta:
+        app_label = 'bcpp_lab'

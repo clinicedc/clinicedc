@@ -19,7 +19,6 @@ from .constants import CONDITION_OK
 from .choices import ITEM_TYPE, REASON_NOT_DRAWN, ALIQUOT_STATUS, SPECIMEN_MEASURE_UNITS, SPECIMEN_MEDIUM
 from .requisition_identifier import RequisitionIdentifier
 
-# app_config = django_apps.get_app_config('edc_lab')
 edc_device_app_config = django_apps.get_app_config('edc_device')
 
 

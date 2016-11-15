@@ -28,6 +28,18 @@ class PackingListItemManager(models.Manager):
         return self.get(item_reference=item_reference)
 
 
+class SpecimenCollectionManager(models.Manager):
+
+    def get_by_natural_key(self, collection_identifier):
+        return self.get(collection_identifier=collection_identifier)
+
+
+class SpecimenCollectionItemManager(models.Manager):
+
+    def get_by_natural_key(self, specimen_identifier):
+        return self.get(specimen_identifier=specimen_identifier)
+
+
 class ReceiveManager(models.Manager):
 
     def get_by_natural_key(self, receive_identifier):
