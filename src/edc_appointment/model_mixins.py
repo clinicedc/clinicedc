@@ -106,9 +106,21 @@ class CreateAppointmentsMixin(models.Model):
         abstract = True
 
 
+class AppointmentManager(models.Manager):
+
+    def get_by_natural_key(self, subject_identifier, visit_schedule_name,
+                           schedule_name, visit_code, visit_code_sequence):
+        return self.get(
+            subject_identifier=subject_identifier,
+            visit_schedule_name=visit_schedule_name,
+            schedule_name=schedule_name,
+            visit_code=visit_code,
+            visit_code_sequence=visit_code_sequence)
+
+
 class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin, RegisteredSubjectMixin):
 
-    """Mixin for the appointment model.
+    """Mixin for the appointment model only.
 
     Only one appointment per subject visit+visit_code_sequence.
 
@@ -173,9 +185,15 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin, Regist
 
     is_confirmed = models.BooleanField(default=False, editable=False)
 
+    objects = AppointmentManager()
+
     def __str__(self):
         return "{0}.{1}".format(
             self.visit_code, self.visit_code_sequence)
+
+    def natural_key(self):
+        return (self.subject_identifier, self.visit_schedule_name, self.schedule_name,
+                self.visit_code, self.visit_code_sequence)
 
     @property
     def title(self):

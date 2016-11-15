@@ -10,3 +10,16 @@ def create_appointments_on_post_save(sender, instance, raw, created, using, **kw
         except AttributeError as e:
             if 'create_appointments' not in str(e):
                 raise AttributeError(str(e))
+
+
+@receiver(post_save, weak=False, dispatch_uid="appointment_post_save")
+def appointment_post_save(sender, instance, raw, created, using, **kwargs):
+    """Update the TimePointStatus in appointment if the field is empty."""
+    if not raw:
+        try:
+            if not instance.time_point_status:
+                instance.time_point_status
+                instance.save(update_fields=['time_point_status'])
+        except AttributeError as e:
+            if 'time_point_status' not in str(e):
+                raise AttributeError(str(e))
