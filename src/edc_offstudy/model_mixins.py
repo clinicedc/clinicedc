@@ -2,7 +2,7 @@ from django.db import models
 from django.apps import apps as django_apps
 
 from edc_base.model.fields import OtherCharField
-from edc_base.model.validators.date import date_not_future
+from edc_base.model.validators import date_not_future
 from edc_protocol.validators import date_not_before_study_start
 
 
