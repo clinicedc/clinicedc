@@ -4,9 +4,9 @@ import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
+from django.core.management.color import color_style
 
 from edc_label.constants import LABELS, TESTDATA
-from django.core.management.color import color_style
 
 style = color_style()
 

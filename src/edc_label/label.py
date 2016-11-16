@@ -2,9 +2,8 @@ import tempfile
 
 from django.apps import apps as django_apps
 from django.utils import timezone
-from edc_label.print_server import PrintServer
 
-app_config = django_apps.get_app_config('edc_label')
+from .print_server import PrintServer
 
 
 class Label:
@@ -13,12 +12,14 @@ class Label:
 
     def __init__(self, label_name, print_server=None, printer_name=None, context=None,
                  label_identifier_name=None):
+        app_config = django_apps.get_app_config('edc_label')
         self.conn = None
         self.error_message = []
         self.job_ids = []
         self.label_commands = None
         self.message = None
         self.label_identifier_name = label_identifier_name or app_config.default_label_identifier_name
+        self.label_templates = app_config.label_templates
         self.test_context = {}
         self.context = context
         self.label_name = label_name
@@ -38,7 +39,7 @@ class Label:
         self.error_message, self.message = None, None
         if context:
             self.context.update(context)
-        self.label_commands = app_config.label_templates[self.label_name].render(self.context)
+        self.label_commands = self.label_templates[self.label_name].render(self.context)
         self.job_ids = []
         timestamp = timezone.now().strftime('%Y-%m-%d %H:%M')
         for i in range(copies, 0, -1):

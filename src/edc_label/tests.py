@@ -1,9 +1,10 @@
 import cups
 
+from django.apps import apps as django_apps
 from django.test import TestCase
 
-from edc_label.label import Label, app_config
-from edc_label.print_server import PrintServer, Printer
+from .label import Label
+from .print_server import PrintServer, Printer
 
 
 class DummyPrintServer(PrintServer):
@@ -32,6 +33,7 @@ class DummyPrintServer(PrintServer):
 class LabelTests(TestCase):
 
     def setUp(self):
+        app_config = django_apps.get_app_config('edc_label')
         DummyPrintServer.test_no_server = False
         DummyPrintServer.test_no_printer = False
         app_config.default_printer_label = 'dummy_printer'

@@ -1,17 +1,22 @@
 import json
 
+from django.apps import apps as django_apps
 from django.http.response import HttpResponse
 
-from edc_label.label import app_config
-from edc_label.mixins import EdcLabelMixin
+from .mixins import EdcLabelMixin
 
 
 class EdcLabelViewMixin(EdcLabelMixin):
 
     def __init__(self, **kwargs):
+        app_config = django_apps.get_app_config('edc_label')
         self._print_server = None
         self._printers = {}
         self.cups_server_ip = app_config.default_cups_server_ip
+        self.default_printer_label = app_config.default_printer_label
+        self.default_cups_server_ip = app_config.default_cups_server_ip or 'localhost'
+        self.verbose_name = app_config.verbose_name
+        self.label_templates = app_config.label_templates
         self.printer_label = app_config.default_printer_label
         super(EdcLabelViewMixin, self).__init__(**kwargs)
 
@@ -29,11 +34,11 @@ class EdcLabelViewMixin(EdcLabelMixin):
             else:
                 response_data.update({
                     'label_templates': json.dumps(
-                        {label: label_template.__dict__ for label, label_template in app_config.label_templates.items()}),
+                        {label: label_template.__dict__ for label, label_template in self.label_templates.items()}),
                     'print_server': json.dumps(self.print_server.to_dict()),
                     'print_server_error': self.print_server.error_message,
-                    'default_printer_label': app_config.default_printer_label,
-                    'default_cups_server_ip': app_config.default_cups_server_ip or 'localhost',
+                    'default_printer_label': self.default_printer_label,
+                    'default_cups_server_ip': self.default_cups_server_ip,
                     'printers': json.dumps(self.printers),
                 })
             return HttpResponse(json.dumps(response_data), content_type='application/json')
@@ -42,7 +47,7 @@ class EdcLabelViewMixin(EdcLabelMixin):
     def get_context_data(self, **kwargs):
         context = super(EdcLabelViewMixin, self).get_context_data(**kwargs)
         context.update({
-            'project_name': '{}: {}'.format(context.get('project_name'), app_config.verbose_name),
-            'default_cups_server_ip': app_config.default_cups_server_ip or 'localhost',
+            'project_name': '{}: {}'.format(context.get('project_name'), self.verbose_name),
+            'default_cups_server_ip': self.default_cups_server_ip,
         })
         return context

@@ -2,8 +2,6 @@ import cups
 
 from django.apps import apps as django_apps
 
-app_config = django_apps.get_app_config('edc_label')
-
 
 class Printer:
 
@@ -28,6 +26,7 @@ class PrintServer:
     printer_err_msg = 'Printer \'{}\' not found on \'{}\'.'
 
     def __init__(self, cups_server_ip=None):
+        app_config = django_apps.get_app_config('edc_label')
         self.conn = None
         self.error_message = None
         self.selected_printer = Printer()

@@ -2,12 +2,11 @@ from string import Template
 
 from django.apps import apps as django_apps
 
-app_config = django_apps.get_app_config('edc_label')
-
 
 class LabelTemplate:
 
     def __init__(self, label, label_template_file, verbose_name=None, ):
+        app_config = django_apps.get_app_config('edc_label')
         self.label = label
         self.verbose_name = verbose_name or ' '.join([x.capitalize() for x in self.label.split('_')]) + ' Label'
         self.file = label_template_file.split('/')[-1:][0]
