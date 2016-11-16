@@ -8,16 +8,15 @@ from django.utils import timezone
 from django.test.testcases import TestCase
 
 from edc_example.models import (
-    SubjectVisit, Appointment, Enrollment)
+    SubjectVisit, Appointment, Enrollment, CrfTwo)
 from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
 
+from edc_constants.constants import DEAD, OFF_STUDY
+from edc_example.models import CrfOne, SubjectOffstudy
 
-from edc_constants.constants import ON_STUDY, OFF_STUDY
-from edc_offstudy.constants import OFF_STUDY_REASONS
-from edc_example.models import SubjectOffstudy, CrfOne
-
-from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.constants import SCHEDULED, LOST_VISIT, COMPLETED_PROTOCOL_VISIT
 from edc_offstudy.model_mixins import OffstudyError
+from edc_metadata.constants import KEYED, NOT_REQUIRED
 
 
 class TestOffstudy(TestCase):
@@ -32,23 +31,15 @@ class TestOffstudy(TestCase):
             appointment=self.appointment,
             visit_schedule_name='subject_visit_schedule',
             schedule_name='schedule-1',
-            report_datetime=timezone.now() - relativedelta(weeks=4),
+            report_datetime=timezone.now(),
             study_status=SCHEDULED
         )
-
-    def test_create_offstudy(self):
-        SubjectOffstudy.objects.create(
-            subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=timezone.now() - relativedelta(weeks=4),
-            offstudy_date=date.today() - relativedelta(weeks=3)
-        )
-        self.assertEqual(1, SubjectOffstudy.objects.all().count())
 
     def test_is_offstudy_or_raise(self):
         SubjectOffstudy.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=timezone.now() - relativedelta(weeks=4),
-            offstudy_date=date.today() - relativedelta(weeks=3)
+            offstudy_date=date.today() - relativedelta(weeks=3),
+            reason=DEAD
         )
         with self.assertRaises(OffstudyError) as cm:
             CrfOne.objects.create(
@@ -59,8 +50,7 @@ class TestOffstudy(TestCase):
     def test_is_offstudy_or_raise_new_visits(self):
         SubjectOffstudy.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=timezone.now() - relativedelta(weeks=4),
-            offstudy_date=date.today() - relativedelta(weeks=3)
+            offstudy_date=date.today() - relativedelta(weeks=3),
         )
         with self.assertRaises(OffstudyError) as cm:
             SubjectVisit.objects.create(
@@ -69,11 +59,11 @@ class TestOffstudy(TestCase):
         self.assertIn('Participant was reported off study on', str(cm.exception))
 
     def test_offstudy_on_delete_future_appts(self):
+        self.assertEqual(1, Appointment.objects.all().count())
         SubjectOffstudy.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=timezone.now() - relativedelta(weeks=4),
-            offstudy_date=date.today() - relativedelta(weeks=3),
-            reason=OFF_STUDY,
+            offstudy_date=timezone.now(),
+            reason=DEAD,
         )
         self.assertEqual(1, Appointment.objects.all().count())
 
@@ -90,8 +80,7 @@ class TestOffstudy(TestCase):
         )
         SubjectOffstudy.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=timezone.now() - relativedelta(weeks=3),
             offstudy_date=date.today() - relativedelta(weeks=3),
-            reason=OFF_STUDY,
+            reason=DEAD,
         )
         self.assertEqual(2, Appointment.objects.all().count())

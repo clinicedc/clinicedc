@@ -1,11 +1,11 @@
 from django.apps import apps as django_apps
 from django.db import models
-from django.db.models import options
 
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators import date_not_future
 from edc_protocol.validators import date_not_before_study_start
 from edc_registration.model_mixins import SubjectIdentifierModelMixin
+from django.db.models import options
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('offstudy_model',)
 
@@ -41,13 +41,24 @@ class OffstudyModelMixin(SubjectIdentifierModelMixin, models.Model):
         blank=True,
         null=True)
 
-    objects = OffstudyModelManager()
-
     def natural_key(self):
         return (self.subject_identifier, )
 
     def __str__(self):
         return "{0} {1}".format(self.subject_identifier, self.offstudy_date.strftime('%Y-%m-%d'))
+
+    @classmethod
+    def visit_model(cls):
+        app_config = django_apps.get_app_config('edc_visit_tracking')
+        return app_config.visit_model(cls._meta.app_label)
+
+    def delete_future_appointments_on_offstudy(self):
+        """Deletes appointments created after the off-study datetime."""
+        Appointment = self.visit_model().appointment.field.rel.to
+        for appointment in Appointment.objects.filter(
+                subject_identifier=self.subject_identifier,
+                appt_datetime__gt=self.offstudy_date):
+            appointment.delete()
 
     class Meta:
         abstract = True
@@ -62,45 +73,16 @@ class OffstudyMixin(models.Model):
         self.is_offstudy_or_raise()
         super(OffstudyMixin, self).save(*args, **kwargs)
 
-    def get_subject_identifier(self):
-        try:
-            subject_identifier = self.visit.appointment.subject_identifier
-        except AttributeError:
-            None
-        return subject_identifier
-
     @property
     def offstudy_model(self):
         return django_apps.get_model(*self._meta.offstudy_model.split('.'))
 
     def is_offstudy_or_raise(self):
-        """Return True if the off-study report exists or
-        a previous visit reason is off study, otherwise False.
-
-        Once consented, a subject must be deliberately taken
-        "off study" using a model that uses the
-        :class:`edc_offstudy.models.OffstudyModelMixin`."""
-
-        subject_identifier = self.get_subject_identifier()
-        if not subject_identifier:
-            raise ValueError(
-                '{} cannot determine the subject identifier. '
-                'Got None'.format(self.__class__.__name__))
-        try:
-            report_datetime = self.report_datetime
-        except AttributeError:
-            report_datetime = self.get_report_datetime()
-        report_date = report_datetime.date()
-        offstudy = self.has_offstudy_report_or_raise(subject_identifier, report_date)
-        return offstudy
-
-    def has_offstudy_report_or_raise(self, subject_identifier, report_date):
-        """Raises an exception if an off study report exists for this subject with an
-        off study date before the report_date."""
+        """Return True if the off-study report exists. """
         try:
             offstudy = self.offstudy_model.objects.get(
-                offstudy_date__lt=report_date,
-                subject_identifier=subject_identifier
+                offstudy_date__lte=self.report_datetime.date(),
+                subject_identifier=self.get_subject_identifier()
             )
             raise OffstudyError(
                 'Participant was reported off study on \'{0}\'. Data reported after this date'

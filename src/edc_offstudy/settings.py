@@ -69,7 +69,8 @@ if 'test' in sys.argv:
         'edc_example': None,
         'edc_visit_schedule': None,
         'edc_appointment': None,
-        'django_crypto_fields': None}
+        'django_crypto_fields': None,
+        'edc_identifier': None}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
