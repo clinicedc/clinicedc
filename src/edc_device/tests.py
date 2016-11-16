@@ -3,6 +3,7 @@ import copy
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase
+from edc_device.constants import CLIENT, MIDDLEMAN, NODE_SERVER, CENTRAL_SERVER
 
 
 class TestDevice(SimpleTestCase):
@@ -21,7 +22,7 @@ class TestDevice(SimpleTestCase):
         self.app_config.device_id = '18'
         self.assertFalse(self.app_config.is_central_server)
         self.assertTrue(self.app_config.is_client)
-        self.assertEqual(self.app_config.role, 'Client')
+        self.assertEqual(self.app_config.role, CLIENT)
 
     def test_device_returns_correct_id(self):
         self.app_config.device_id = '09'
@@ -48,7 +49,7 @@ class TestDevice(SimpleTestCase):
         self.assertFalse(self.app_config.is_central_server)
         self.assertFalse(self.app_config.is_client)
         self.assertTrue(self.app_config.is_middleman)
-        self.assertEqual(self.app_config.role, 'Middleman')
+        self.assertEqual(self.app_config.role, MIDDLEMAN)
 
     def test_device_is_node_server(self):
         self.app_config.device_id = '96'
@@ -59,7 +60,7 @@ class TestDevice(SimpleTestCase):
         self.assertFalse(self.app_config.is_middleman)
         self.assertFalse(self.app_config.is_client)
         self.assertTrue(self.app_config.is_node_server)
-        self.assertEqual(self.app_config.role, 'NodeServer')
+        self.assertEqual(self.app_config.role, NODE_SERVER)
 
     def test_device_with_overlapping_lists_raises(self):
         self.app_config.device_id = '96'
@@ -68,19 +69,13 @@ class TestDevice(SimpleTestCase):
         self.app_config.middleman_id_list = [96]
         self.assertRaises(ImproperlyConfigured, self.app_config.ready)
 
-#     def test_device_with_central_not_a_server_raises(self):
-#         self.app_config.device_id = '96'
-#         self.app_config.central_server = ['99']
-#         self.app_config.server_id_list = [80, 81]
-#         self.assertRaises(ImproperlyConfigured, self.app_config.ready)
-
     def test_central_server_is_server(self):
         self.app_config.device_id = '99'
         self.app_config.central_server_id = '99'
         self.app_config.server_id_list = [99, 97, 96]
         self.app_config.ready()
         self.assertTrue(self.app_config.is_central_server)
-        self.assertEqual(self.app_config.role, 'CentralServer')
+        self.assertEqual(self.app_config.role, CENTRAL_SERVER)
 
     def test_server_is_server(self):
         self.app_config.device_id = '96'
@@ -88,7 +83,7 @@ class TestDevice(SimpleTestCase):
         self.app_config.middleman_id_list = [93, 94]
         self.app_config.ready()
         self.assertTrue(self.app_config.is_server)
-        self.assertEqual(self.app_config.role, 'NodeServer')
+        self.assertEqual(self.app_config.role, NODE_SERVER)
 
     def test_middleman_is_not_server(self):
         self.app_config.device_id = '93'
@@ -96,4 +91,13 @@ class TestDevice(SimpleTestCase):
         self.app_config.middleman_id_list = [93, 94]
         self.app_config.ready()
         self.assertFalse(self.app_config.is_server)
-        self.assertEqual(self.app_config.role, 'Middleman')
+        self.assertEqual(self.app_config.role, MIDDLEMAN)
+
+    def test_device_is_client(self):
+        self.app_config.device_id = '00'
+        self.app_config.server_id_list = [95, 96, 99]
+        self.app_config.middleman_id_list = [93, 94]
+        self.app_config.ready()
+        self.assertTrue(self.app_config.device_id == '00')
+        self.assertTrue(self.app_config.is_client)
+        self.assertEqual(self.app_config.role, CLIENT)
