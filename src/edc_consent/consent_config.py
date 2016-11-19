@@ -1,9 +1,7 @@
 from django.apps import apps as django_apps
-from django.conf import settings
-
-from edc_base.utils.convert import localize
 from edc_consent.exceptions import SiteConsentError, AlreadyRegistered
 from edc_consent.site_consents import site_consents
+from django.utils import timezone
 
 
 class ConsentConfig:
@@ -19,7 +17,6 @@ class ConsentConfig:
         self.age_max = kwargs.get('age_max', 0)
         self.age_is_adult = kwargs.get('age_is_adult', 0)
         self.subject_type = kwargs.get('subject_type', 'subject')
-        self.localize_dates()
         self.check_version()
         self.check_consent_period()
         if self.updates_version:
@@ -40,13 +37,6 @@ class ConsentConfig:
     @property
     def model(self):
         return django_apps.get_model(self.app_label, self.model_name)
-
-    def localize_dates(self):
-        if settings.USE_TZ:
-            if self.start:
-                self.start = localize(self.start)
-            if self.end:
-                self.end = localize(self.end)
 
     def valid_for_datetime(self, consent_datetime):
         valid_for_datetime = False
