@@ -20,6 +20,7 @@ from edc_visit_tracking.managers import CrfModelManager
 
 from .choices import VISIT_REASON
 from .constants import FOLLOW_UP_REASONS, REQUIRED_REASONS, NO_FOLLOW_UP_REASONS
+from django.db.models.deletion import PROTECT
 
 app_config = django_apps.get_app_config('edc_visit_tracking')
 
@@ -233,6 +234,8 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
             app_label = 'my_app'
 
     """
+    appointment = models.OneToOneField('Appointment', on_delete=PROTECT)
+
     report_datetime = models.DateTimeField(
         verbose_name="Visit Date and Time",
         validators=[
