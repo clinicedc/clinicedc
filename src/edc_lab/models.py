@@ -55,7 +55,7 @@ class SpecimenCollection(SpecimenCollectionModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     class Meta:
-        app_label = 'bcpp_lab'
+        app_label = 'edc_lab'
 
 
 class SpecimenCollectionItem(SpecimenCollectionItemModelMixin, BaseUuidModel):
@@ -67,4 +67,4 @@ class SpecimenCollectionItem(SpecimenCollectionItemModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     class Meta:
-        app_label = 'bcpp_lab'
+        app_label = 'edc_lab'
