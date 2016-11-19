@@ -47,18 +47,15 @@ class OffstudyModelMixin(SubjectIdentifierModelMixin, models.Model):
     def __str__(self):
         return "{0} {1}".format(self.subject_identifier, self.offstudy_date.strftime('%Y-%m-%d'))
 
-    @classmethod
-    def visit_model(cls):
-        app_config = django_apps.get_app_config('edc_visit_tracking')
-        return app_config.visit_model(cls._meta.app_label)
-
     def delete_future_appointments_on_offstudy(self):
-        """Deletes appointments created after the off-study datetime."""
-        Appointment = self.visit_model().appointment.field.rel.to
-        for appointment in Appointment.objects.filter(
-                subject_identifier=self.subject_identifier,
-                appt_datetime__gt=self.offstudy_date):
-            appointment.delete()
+        """Deletes appointments created after the off-study datetime.
+
+        Called in the post-save signal."""
+        app_config = django_apps.get_app_config('edc_appointment')
+        Appointment = app_config.model
+        Appointment.objects.filter(
+            subject_identifier=self.subject_identifier,
+            appt_datetime__gt=self.offstudy_date).delete()
 
     class Meta:
         abstract = True
