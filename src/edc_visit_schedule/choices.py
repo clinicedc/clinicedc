@@ -1,6 +1,8 @@
+from .constants import HOURS, DAYS, MONTHS, YEARS
+
 VISIT_INTERVAL_UNITS = (
-    ('H', 'Hour'),
-    ('D', 'Day'),
-    ('M', 'Month'),
-    ('Y', 'Year'),
+    (HOURS, 'Hours'),
+    (DAYS, 'Days'),
+    (MONTHS, 'Months'),
+    (YEARS, 'Years'),
 )

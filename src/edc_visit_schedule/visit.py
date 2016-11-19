@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.apps import apps as django_apps
 
 from .choices import VISIT_INTERVAL_UNITS
-from .constants import HOUR, DAY, MONTH, YEAR
+from .constants import DAYS
 from .exceptions import VisitScheduleError
 from .utils import get_lower_window_days, get_upper_window_days
 
@@ -59,33 +59,19 @@ class Visit:
         self.insructions = kwargs.get('instructions')
         self.timepoint = kwargs.get('timepoint', 0)
         self.base_interval = kwargs.get('base_interval', self.timepoint)
-        self.base_interval_unit = kwargs.get('base_interval_unit', DAY)  # choices = VISIT_INTERVAL_UNITS
+        self.base_interval_unit = kwargs.get('base_interval_unit', DAYS)
         if self.base_interval_unit not in [item[0] for item in VISIT_INTERVAL_UNITS]:
             raise VisitScheduleError('Invalid interval unit. Got \'{}\''.format(self.base_interval_unit))
         self.lower_window = kwargs.get('lower_window', 0)
-        self.lower_window_unit = kwargs.get('lower_window_unit', DAY)
+        self.lower_window_unit = kwargs.get('lower_window_unit', DAYS)
         self.upper_window = kwargs.get('upper_window', 0)
-        self.upper_window_unit = kwargs.get('upper_window_unit', DAY)
+        self.upper_window_unit = kwargs.get('upper_window_unit', DAYS)
         self.grouping = kwargs.get('grouping')
         self.crfs = kwargs.get('crfs')
         self.requisitions = kwargs.get('requisitions')
 
     def __repr__(self):
         return 'Visit({}, {})'.format(self.code, self.timepoint)
-
-    def get_rdelta_attrname(self, unit):
-        if unit == HOUR:
-            rdelta_attr_name = 'hours'
-        elif unit == DAY:
-            rdelta_attr_name = 'days'
-        elif unit == MONTH:
-            rdelta_attr_name = 'months'
-        elif unit == YEAR:
-            rdelta_attr_name = 'years'
-        else:
-            raise TypeError('Unknown value for visit_definition.upper_window_unit. '
-                            'Expected [H, D, M, Y]. Got {0}.'.format(unit))
-        return rdelta_attr_name
 
     def get_lower_window_datetime(self, appt_datetime):
         if not appt_datetime:

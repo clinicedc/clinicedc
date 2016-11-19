@@ -1,4 +1,4 @@
-HOUR = 'H'
-DAY = 'D'
-MONTH = 'M'
-YEAR = 'Y'
+HOURS = 'hours'
+DAYS = 'days'
+MONTHS = 'months'
+YEARS = 'years'
