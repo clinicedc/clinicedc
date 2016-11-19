@@ -12,13 +12,10 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import sys
-import django
-
-from unipath import Path
+# import sys
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -59,18 +56,14 @@ INSTALLED_APPS = [
     'edc_example.apps.AppConfig',
 ]
 
-if float(django.get_version()[:1]) > 1.6:
-    INSTALLED_APPS.append('django_crypto_fields')
-    INSTALLED_APPS.append('simple_history')
-
-if 'test' in sys.argv:
-    MIGRATION_MODULES = {
-        'edc_metadata': None,
-        'edc_example': None,
-        'edc_visit_schedule': None,
-        'edc_appointment': None,
-        'django_crypto_fields': None,
-        'edc_identifier': None}
+# if 'test' in sys.argv:
+#     MIGRATION_MODULES = {
+#         'edc_metadata': None,
+#         'edc_example': None,
+#         'edc_visit_schedule': None,
+#         'edc_appointment': None,
+#         'django_crypto_fields': None,
+#         'edc_identifier': None}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -137,7 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Gaborone'
 
 USE_I18N = True
 
@@ -150,4 +143,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-GIT_DIR = BASE_DIR

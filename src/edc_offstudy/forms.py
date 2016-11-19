@@ -10,10 +10,10 @@ class OffStudyFormMixin(forms.ModelForm):
         cleaned_data = super(OffStudyFormMixin, self).clean()
         self._meta.model(**cleaned_data).off_study_visit_exists_or_raise(
             exception_cls=forms.ValidationError)
-        self.validate_offstudy_date()
+        self.validate_offstudy_datetime()
         return cleaned_data
 
-    def validate_offstudy_date(self):
+    def validate_offstudy_datetime(self):
         cleaned_data = self.cleaned_data
         try:
             subject_identifier = cleaned_data.get(
@@ -21,9 +21,9 @@ class OffStudyFormMixin(forms.ModelForm):
             consent = self._meta.model.consent_model.objects.get(
                 registered_subject__subject_identifier=subject_identifier)
             try:
-                if cleaned_data.get('offstudy_date') < consent.consent_datetime.date():
+                if cleaned_data.get('offstudy_datetime') < consent.consent_datetime:
                     raise forms.ValidationError("Off study date cannot be before consent date")
-                if cleaned_data.get('offstudy_date') < consent.dob:
+                if cleaned_data.get('offstudy_datetime') < consent.dob:
                     raise forms.ValidationError("Off study date cannot be before dob")
             except AttributeError:
                 pass
