@@ -20,27 +20,34 @@ tz = pytz.timezone(settings.TIME_ZONE)
 class TestAppointment(TestCase):
 
     def setUp(self):
-        subject_consent = SubjectConsent.objects.create(
-            consent_datetime=timezone.now(),
+        self.subject_consent = SubjectConsent.objects.create(
+            consent_datetime=timezone.now() - relativedelta(weeks=2),
             identity='111211111',
             confirm_identity='111211111',
             is_literate=YES)
-        Enrollment.objects.create(subject_identifier=subject_consent.subject_identifier)
 
     def test_appointments_creation(self):
         """Test if appointment triggering method creates appointments."""
+        Enrollment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            schedule_name='schedule1')
         self.assertEqual(Appointment.objects.all().count(), 4)
 
-    def test_appointments_dates(self):
-        """Test appointment dates are chronological."""
-        appt_datetimes = [obj.appt_datetime for obj in Appointment.objects.all().order_by('appt_datetime')]
-        last = None
-        for appt_datetime in appt_datetimes:
-            if not last:
-                last = appt_datetime
-            else:
-                self.assertGreater(appt_datetime, last)
-                last = appt_datetime
+    def test_appointments_dates_mo(self):
+        """Test appointment datetimes are chronological."""
+        for day in [MO, TU, WE, TH, FR, SA, SU]:
+            Enrollment.objects.create(
+                subject_identifier=self.subject_consent.subject_identifier,
+                report_datetime=timezone.now() - relativedelta(weekday=day(-1)),
+                schedule_name='schedule1')
+            appt_datetimes = [obj.appt_datetime for obj in Appointment.objects.all().order_by('appt_datetime')]
+            last = None
+            for appt_datetime in appt_datetimes:
+                if not last:
+                    last = appt_datetime
+                else:
+                    self.assertGreater(appt_datetime, last)
+                    last = appt_datetime
 
 
 class TestFacility(TestCase):
