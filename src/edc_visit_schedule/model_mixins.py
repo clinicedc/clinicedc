@@ -13,7 +13,9 @@ if 'visit_schedule_name' not in options.DEFAULT_NAMES:
 
 
 class VisitScheduleMethodsModelMixin(models.Model):
-    """A model mixin that adds methods used to work with the visit schedule."""
+    """A model mixin that adds methods used to work with the visit schedule.
+
+    Declare with VisitScheduleFieldsModelMixin or the fields from VisitScheduleFieldsModelMixin"""
 
     @property
     def schedule(self):
@@ -63,7 +65,9 @@ class VisitScheduleMethodsModelMixin(models.Model):
 
 class VisitScheduleFieldsModelMixin(models.Model):
     """A model mixin that adds fields required to work with the visit schedule methods on the
-    VisitScheduleMethodsModelMixin."""
+    VisitScheduleMethodsModelMixin.
+
+    Note: visit_code is not included."""
 
     visit_schedule_name = models.CharField(
         max_length=25,
@@ -80,12 +84,9 @@ class VisitScheduleFieldsModelMixin(models.Model):
 
 class VisitScheduleModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin, models.Model):
 
-    """Adds field attributes that link a model instance to the schedule.
+    """A model mixin that adds adds field attributes and methods that link a model instance to its schedule.
 
-    Fields visit_schedule_name, schedule_name and visit_code must be updated manually.
-    For example, appointment updates these fields when created.
-
-    See also CreateAppointmentsMixin. """
+    This mixin is used with Appointment and Visit models via their respective model mixins."""
 
     visit_code = models.CharField(
         max_length=25,
