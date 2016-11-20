@@ -58,7 +58,7 @@ class SiteVisitSchedules:
                 try:
                     before_import_registry = copy.copy(site_visit_schedules._registry)
                     import_module('{}.{}'.format(app, module_name))
-                    sys.stdout.write(' * registered visit schedules from application \'{}\'\n'.format(app))
+                    sys.stdout.write(' * registered visit schedule from application \'{}\'\n'.format(app))
                 except Exception as e:
                     if 'No module named \'{}.{}\''.format(app, module_name) not in str(e):
                         raise Exception(e)

@@ -10,9 +10,9 @@ style = color_style()
 
 class AppConfig(DjangoAppConfig):
     name = 'edc_visit_schedule'
-    verbose_name = "Visit Schedule"
+    verbose_name = "Visit Schedules"
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         site_visit_schedules.autodiscover()
-        sys.stdout.write(' Done {}.\n'.format(self.verbose_name))
+        sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))

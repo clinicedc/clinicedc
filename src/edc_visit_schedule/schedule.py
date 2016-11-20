@@ -1,31 +1,21 @@
 from dateutil.relativedelta import relativedelta
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ImproperlyConfigured
 
-from edc_visit_schedule.exceptions import AlreadyRegistered, ScheduleError, CrfError
-from edc_visit_schedule.visit import Visit
+from .exceptions import AlreadyRegistered, ScheduleError, CrfError
+from .visit import Visit
 
 
 class Schedule:
-    def __init__(self, name, enrollment_model, off_study_model=None, death_report_model=None,
-                 grouping_key=None):
-        self.visit_model = None
+    def __init__(self, name):
         self.name = name
+        self.death_report_model = None
+        self.disenrollment_model = None
+        self.enrollment_model = None
+        self.offstudy_model = None
+        self.visit_model = None
         self.visit_registry = {}
-        try:
-            self.enrollment_model = django_apps.get_model(*enrollment_model.split('.'))
-        except AttributeError as e:
-            self.enrollment_model = enrollment_model
-        try:
-            self.enrollment_model().create_appointments
-        except AttributeError as e:
-            raise ScheduleError('Enrollment model not configured to create appointments. Got {}'.format(str(e)))
-        try:
-            self.enrollment_model().report_datetime
-        except AttributeError as e:
-            raise ScheduleError('Enrollment model requires field \'report_datetime\'. Got {}'.format(str(e)))
-        self.off_study_model = off_study_model
-        self.death_report_model = death_report_model
 
     def __repr__(self):
         return '<Schedule({}, {})>'.format(self.name, self.enrollment_model._meta.label_lower)
@@ -90,16 +80,44 @@ class Schedule:
         if visit.base_interval == 0:
             rdelta = relativedelta(days=0)
         else:
-            if visit.base_interval_unit == 'Y':
-                rdelta = relativedelta(years=visit.base_interval)
-            elif visit.base_interval_unit == 'M':
-                rdelta = relativedelta(months=visit.base_interval)
-            elif visit.base_interval_unit == 'D':
-                rdelta = relativedelta(days=visit.base_interval)
-            elif visit.base_interval_unit == 'H':
-                rdelta = relativedelta(hours=visit.base_interval)
-            else:
-                raise AttributeError(
-                    "Cannot calculate relativedelta, visit.base_interval_unit "
-                    "must be Y,M,D or H. Got %s" % (visit.base_interval_unit, ))
+            rdelta = relativedelta(**{visit.base_interval_unit: visit.base_interval})
         return rdelta
+
+    def add_enrollment_model(self, model):
+        self.enrollment_model = django_apps.get_model(*model.split('.'))
+        try:
+            self.enrollment_model.create_appointments
+        except AttributeError as e:
+            raise ImproperlyConfigured(
+                'Schedule enrollment model cannot be an \'schedule enrollment model\'. It is not configured '
+                'to create appointments. Got {}'.format(str(e)))
+        self.validate_modelmixin_attrs(self.enrollment_model)
+
+    def add_disenrollment_model(self, model):
+        self.disenrollment_model = django_apps.get_model(*model.split('.'))
+        self.validate_modelmixin_attrs(self.disenrollment_model)
+
+    def add_death_report_model(self, model):
+        self.death_report_model = django_apps.get_model(*model.split('.'))
+
+    def add_offstudy_model(self, model):
+        self.offstudy_model = django_apps.get_model(*model.split('.'))
+
+    def add_visit_model(self, model):
+        self.visit_model = django_apps.get_model(*model.split('.'))
+
+    def validate_modelmixin_attrs(self, model):
+        """Validate that the attrs from the enrollment/disenrollment model_mixins exist."""
+        try:
+            getattr(getattr(model, '_meta'), 'visit_schedule_name')
+        except AttributeError as e:
+                raise ImproperlyConfigured(
+                    'The {} for schedule \'{}\' is missing \'_meta\' attribute \'visit_schedule_name\'. Got {}'.format(
+                        ' '.join(model._meta.label_lower.split('.')), self.name, str(e)))
+        for field in ['report_datetime', 'schedule_name']:
+            try:
+                getattr(model, field)
+            except AttributeError as e:
+                raise ImproperlyConfigured(
+                    'The {} for schedule \'{}\' is missing field \'{}\'. Got {}'.format(
+                        ' '.join(model._meta.label_lower.split('.')), self.name, field, str(e)))
