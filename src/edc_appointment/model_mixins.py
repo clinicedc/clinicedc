@@ -15,6 +15,7 @@ from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from .choices import APPT_TYPE, APPT_STATUS, COMPLETE_APPT, INCOMPLETE_APPT, CANCELLED_APPT
 from .constants import IN_PROGRESS_APPT, NEW_APPT
 from .exceptions import AppointmentStatusError
+from django.db.models.deletion import ProtectedError
 
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
@@ -117,14 +118,21 @@ class AppointmentManager(models.Manager):
             visit_code=visit_code,
             visit_code_sequence=visit_code_sequence)
 
-    def delete_for_subject_after_date(self, subject_identifier, dt, visit_schedule_name):
+    def delete_for_subject_after_date(self, subject_identifier, dt, visit_schedule_name=None):
         """Deletes appointments for a given subject_identifier with appt_datetime greater than `dt`.
 
         Called in pre_save. If a visit form exists for any appointment, a ProtectedError will be raised."""
-        self.filter(
-            subject_identifier=subject_identifier,
-            visit_schedule_name=visit_schedule_name,
-            appt_datetime__gt=dt).delete()
+        options = dict(subject_identifier=subject_identifier)
+        if visit_schedule_name:
+            options.update(dict(visit_schedule_name=visit_schedule_name))
+        deleted = 0
+        for appointment in self.filter(**options).order_by('appt_datetime'):
+            try:
+                appointment.delete()
+                deleted += 1
+            except ProtectedError:
+                pass
+        return deleted
 
 
 class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin, RegisteredSubjectMixin):
