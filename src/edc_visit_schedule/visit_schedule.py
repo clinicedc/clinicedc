@@ -10,17 +10,17 @@ class VisitSchedule:
 
     def __init__(self, name, app_label, enrollment_model=None, disenrollment_model=None, visit_model=None,
                  offstudy_model=None, death_report_model=None, verbose_name=None):
-        self.enrollment_model = None
-        self.disenrollment_model = None
-        self.offstudy_model = None
-        self.visit_model = None
-        self.death_report_model = None
-        self.offstudy_model = None
         self.name = name
         if not re.match(r'[a-z0-9\_\-]+$', name):
             raise ImproperlyConfigured('Visit schedule name may only contains numbers, lower case letters and \'_\'.')
-        self.verbose_name = verbose_name or ' '.join([s.capitalize() for s in name.split('_')])
         self.app_label = app_label
+        self.verbose_name = verbose_name or ' '.join([s.capitalize() for s in name.split('_')])
+        self.death_report_model = None
+        self.disenrollment_model = None
+        self.enrollment_model = None
+        self.offstudy_model = None
+        self.offstudy_model = None
+        self.visit_model = None
         self.add_disenrollment_model(disenrollment_model)
         self.add_enrollment_model(enrollment_model)
         self.add_offstudy_model(offstudy_model)
@@ -49,6 +49,21 @@ class VisitSchedule:
             schedule.death_report_model = self.death_report_model
         self.schedules.update({schedule.name: schedule})
         return schedule
+
+    def get_schedule(self, value=None):
+        """Return a schedule by name, by enrollment model or by the enrollment model label_lower."""
+        try:
+            _, _ = value.split('.')
+            enrollment_model = django_apps.get_model(*value.split('.'))
+        except ValueError:
+            return self.schedules.get(value)
+        except AttributeError:
+            value._meta
+            enrollment_model = value
+        for schedule in self.schedules.values():
+            if schedule.enrollment_model == enrollment_model:
+                return schedule
+        return None
 
     def add_enrollment_model(self, model):
         self.enrollment_model = django_apps.get_model(*model.split('.'))
@@ -104,18 +119,3 @@ class VisitSchedule:
                 raise ImproperlyConfigured(
                     'The {} for schedule \'{}\' is missing field \'{}\'. Got {}'.format(
                         ' '.join(model._meta.label_lower.split('.')), self.name, field, str(e)))
-
-    def get_schedule(self, value=None):
-        """Return a schedule by name, by enrollment model or by the enrollment model label_lower."""
-        try:
-            _, _ = value.split('.')
-            enrollment_model = django_apps.get_model(*value.split('.'))
-        except ValueError:
-            return self.schedules.get(value)
-        except AttributeError:
-            value._meta
-            enrollment_model = value
-        for schedule in self.schedules.values():
-            if schedule.enrollment_model == enrollment_model:
-                return schedule
-        return None
