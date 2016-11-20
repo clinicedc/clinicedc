@@ -22,6 +22,7 @@ class CrfModelManager(models.Manager):
 
 
 class VisitModelManager(models.Manager):
+    """A manager class for visit models."""
 
     def get_by_natural_key(self, subject_identifier, visit_schedule_name, schedule_name, visit_code):
         return self.get(
@@ -29,3 +30,9 @@ class VisitModelManager(models.Manager):
             visit_schedule_name=visit_schedule_name,
             schedule_name=schedule_name,
             visit_code=visit_code)
+
+    def last_visit(self, subject_identifier=None):
+        options = {}
+        if subject_identifier:
+            options.update(dict(subject_identifier=subject_identifier))
+        return self.filter(**options).order_by('report_datetime').last()
