@@ -2,7 +2,6 @@ import re
 
 from dateutil.relativedelta import relativedelta
 
-from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 
 from .exceptions import AlreadyRegistered, ScheduleError, CrfError
@@ -86,42 +85,3 @@ class Schedule:
         else:
             rdelta = relativedelta(**{visit.base_interval_unit: visit.base_interval})
         return rdelta
-
-    def add_enrollment_model(self, model):
-        self.enrollment_model = django_apps.get_model(*model.split('.'))
-        try:
-            self.enrollment_model.create_appointments
-        except AttributeError as e:
-            raise ImproperlyConfigured(
-                'Schedule enrollment model cannot be an \'schedule enrollment model\'. It is not configured '
-                'to create appointments. Got {}'.format(str(e)))
-        self.validate_modelmixin_attrs(self.enrollment_model)
-
-    def add_disenrollment_model(self, model):
-        self.disenrollment_model = django_apps.get_model(*model.split('.'))
-        self.validate_modelmixin_attrs(self.disenrollment_model)
-
-    def add_death_report_model(self, model):
-        self.death_report_model = django_apps.get_model(*model.split('.'))
-
-    def add_offstudy_model(self, model):
-        self.offstudy_model = django_apps.get_model(*model.split('.'))
-
-    def add_visit_model(self, model):
-        self.visit_model = django_apps.get_model(*model.split('.'))
-
-    def validate_modelmixin_attrs(self, model):
-        """Validate that the attrs from the enrollment/disenrollment model_mixins exist."""
-        try:
-            getattr(getattr(model, '_meta'), 'visit_schedule_name')
-        except AttributeError as e:
-                raise ImproperlyConfigured(
-                    'The {} for schedule \'{}\' is missing \'_meta\' attribute \'visit_schedule_name\'. Got {}'.format(
-                        ' '.join(model._meta.label_lower.split('.')), self.name, str(e)))
-        for field in ['report_datetime', 'schedule_name']:
-            try:
-                getattr(model, field)
-            except AttributeError as e:
-                raise ImproperlyConfigured(
-                    'The {} for schedule \'{}\' is missing field \'{}\'. Got {}'.format(
-                        ' '.join(model._meta.label_lower.split('.')), self.name, field, str(e)))
