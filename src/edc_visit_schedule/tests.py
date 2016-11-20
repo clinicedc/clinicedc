@@ -26,9 +26,9 @@ class TestVisitSchedule(TestCase):
         self.assertTrue(site_visit_schedules.get_visit_schedule('subject_visit_schedule'))
 
     def test_get_schedule_by_name(self):
-        self.assertTrue(site_visit_schedules.get_schedule('schedule-1'))
-        schedule = site_visit_schedules.get_schedule('schedule-1')
-        self.assertEqual(schedule.name, 'schedule-1')
+        self.assertTrue(site_visit_schedules.get_schedule('schedule1'))
+        schedule = site_visit_schedules.get_schedule('schedule1')
+        self.assertEqual(schedule.name, 'schedule1')
 
     def test_get_schedule_by_enrollment_model_label(self):
         self.assertTrue(site_visit_schedules.get_schedule(Enrollment._meta.label_lower))

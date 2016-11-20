@@ -1,3 +1,5 @@
+import re
+
 from dateutil.relativedelta import relativedelta
 
 from django.apps import apps as django_apps
@@ -10,6 +12,8 @@ from .visit import Visit
 class Schedule:
     def __init__(self, name):
         self.name = name
+        if not re.match(r'[a-z0-9\_\-]+$', name):
+            raise ImproperlyConfigured('Schedule name may only contains numbers, lower case letters and \'_\'.')
         self.death_report_model = None
         self.disenrollment_model = None
         self.enrollment_model = None

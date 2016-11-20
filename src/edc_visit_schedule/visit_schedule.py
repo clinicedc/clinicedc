@@ -1,7 +1,9 @@
-from django.apps import apps as django_apps
+import re
 
-from .exceptions import AlreadyRegistered
-from edc_visit_schedule.exceptions import VisitScheduleError
+from django.apps import apps as django_apps
+from django.core.exceptions import ImproperlyConfigured
+
+from .exceptions import AlreadyRegistered, VisitScheduleError
 
 
 class VisitSchedule:
@@ -9,6 +11,8 @@ class VisitSchedule:
     def __init__(self, name, app_label, enrollment_model=None, disenrollment_model=None, visit_model=None,
                  offstudy_model=None, death_report_model=None, verbose_name=None):
         self.name = name
+        if not re.match(r'[a-z0-9\_\-]+$', name):
+            raise ImproperlyConfigured('Visit schedule name may only contains numbers, lower case letters and \'_\'.')
         self.verbose_name = verbose_name or ' '.join([s.capitalize() for s in name.split('_')])
         self.app_label = app_label
         self.death_report_model = death_report_model
@@ -29,9 +33,9 @@ class VisitSchedule:
         if schedule.name in self.schedules:
             raise AlreadyRegistered('A schedule with name {} is already registered'.format(schedule.name))
         schedule.add_enrollment_model(self.enrollment_model)
-        self.validate_model_visit_schedule_name(schedule.enrollment_model)
+        self.validate_model(schedule, 'enrollment_model')
         schedule.add_disenrollment_model(self.disenrollment_model)
-        self.validate_model_visit_schedule_name(schedule.disenrollment_model)
+        self.validate_model(schedule, 'disenrollment_model')
         schedule.add_offstudy_model(self.offstudy_model)
         schedule.add_visit_model(self.visit_model)
         if self.death_report_model:
@@ -39,14 +43,24 @@ class VisitSchedule:
         self.schedules.update({schedule.name: schedule})
         return schedule
 
-    def validate_model_visit_schedule_name(self, model):
-        if model._meta.visit_schedule_name != self.name:
+    def validate_model(self, schedule, attrname):
+        model = getattr(schedule, attrname)
+        try:
+            visit_schedule_name, schedule_name = model._meta.visit_schedule_name.split('.')
+        except ValueError:
+            visit_schedule_name = model._meta.visit_schedule_name
+            schedule_name = None
+        if visit_schedule_name != self.name:
             raise VisitScheduleError(
                 'Cannot register schedule. Model \'{}\' does not belong to this visit schedule. '
-                'Got \'{}\' != \'{}\''.format(model._meta.label_lower, self.name, model._meta.visit_schedule_name))
+                'Got \'{}\' != \'{}\''.format(model._meta.label_lower, self.name, visit_schedule_name))
+        if schedule_name and schedule_name != schedule.name:
+            raise VisitScheduleError(
+                'Cannot register schedule. Model \'{}\' does not belong to this schedule. '
+                'Got \'{}\' != \'{}\''.format(model._meta.label_lower, schedule.name, schedule_name))
 
     def get_schedule(self, value=None):
-        """Return a schedule given the enrollment model label_lower."""
+        """Return a schedule by name, by enrollment model or by the enrollment model label_lower."""
         try:
             _, _ = value.split('.')
             enrollment_model = django_apps.get_model(*value.split('.'))
