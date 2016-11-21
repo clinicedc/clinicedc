@@ -35,9 +35,14 @@ class TestAppointment(TestCase):
 
     def test_appointments_dates_mo(self):
         """Test appointment datetimes are chronological."""
-        for day in [MO, TU, WE, TH, FR, SA, SU]:
+        for index, day in enumerate([MO, TU, WE, TH, FR, SA, SU]):
+            subject_consent = SubjectConsent.objects.create(
+                consent_datetime=timezone.now() - relativedelta(weeks=2),
+                identity='11121111' + str(index),
+                confirm_identity='11121111' + str(index),
+                is_literate=YES)
             Enrollment.objects.create(
-                subject_identifier=self.subject_consent.subject_identifier,
+                subject_identifier=subject_consent.subject_identifier,
                 report_datetime=timezone.now() - relativedelta(weekday=day(-1)),
                 schedule_name='schedule1')
             appt_datetimes = [obj.appt_datetime for obj in Appointment.objects.all().order_by('appt_datetime')]
