@@ -84,7 +84,7 @@ class OffstudyModelMixin(SubjectIdentifierModelMixin, models.Model):
         for visit_schedule in site_visit_schedules.registry.values():
             if visit_schedule.visit_model not in visit_models:
                 visit_models.append(visit_schedule.visit_model)
-                last_visit = visit_schedule.visit_model.objects.last_visit()
+                last_visit = visit_schedule.visit_model.objects.last_visit(subject_identifier=self.subject_identifier)
                 if last_visit:
                     max_visit_datetimes.append(last_visit.report_datetime)
         if max_visit_datetimes:
