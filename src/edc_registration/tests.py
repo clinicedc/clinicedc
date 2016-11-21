@@ -22,6 +22,12 @@ class TestRegistration(TestCase):
             'confirm_identity': '111111111',
             'identity_type': 'OMANG',
         }
+        # put in a few records ...
+        options = copy.copy(self.options)
+        del options['confirm_identity']
+        for i in range(3, 8):
+            options.update({'identity': '11111111{}'.format(i)})
+            RegisteredSubject.objects.create(**options)
         subject_consent = SubjectConsentFactory(**self.options)
         self.assertTrue(subject_consent.subject_identifier)
         self.registered_subject = RegisteredSubject.objects.get(
@@ -74,6 +80,15 @@ class TestRegistration(TestCase):
         del options['confirm_identity']
         registered_subject_dupl = self.model(**options)
         self.assertRaises(RegisteredSubjectError, registered_subject_dupl.save)
+
+    def test_create_duplicate3(self):
+        """Asserts raises on attempt to create duplicate"""
+        options = copy.copy(self.options)
+        del options['confirm_identity']
+        app_config = django_apps.get_app_config('edc_registration')
+        RegisteredSubject = app_config.model
+        self.assertEqual(RegisteredSubject.objects.filter(identity='111111111').count(), 1)
+        self.assertRaises(RegisteredSubjectError, RegisteredSubject.objects.create, **options)
 
     def test_cannot_change_subject_identifier(self):
         """Asserts raises on attempt to create duplicate"""
