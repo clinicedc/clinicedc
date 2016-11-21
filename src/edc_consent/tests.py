@@ -6,14 +6,14 @@ from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
-from django.test.testcases import TestCase
+from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
 
 
 from edc_constants.constants import NO
 from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
-from edc_example.models import SubjectConsent, CrfOne, Enrollment, Appointment, CrfMetadata
+from edc_example.models import SubjectConsent, CrfOne, Enrollment, Appointment
 
 from .consent_config import ConsentConfig
 from .exceptions import AlreadyRegistered, NotConsentedError, SiteConsentError, ConsentVersionError
@@ -74,7 +74,9 @@ class TestConsent(TestCase):
         consent_config_factory()
         subject_identifier = '12345'
         SubjectConsentFactory(subject_identifier=subject_identifier)
-        Enrollment.objects.create(subject_identifier=subject_identifier)
+        Enrollment.objects.create(
+            subject_identifier=subject_identifier,
+            schedule_name='schedule1')
         self.assertEqual(Appointment.objects.all().count(), 4)
 
     def test_cannot_create_consent_without_consent_by_datetime(self):
@@ -93,14 +95,18 @@ class TestConsent(TestCase):
         consent_config_factory(version='1.0')
         subject_identifier = '12345'
         SubjectConsentFactory(subject_identifier=subject_identifier)
-        enrollment = Enrollment.objects.create(subject_identifier=subject_identifier)
+        enrollment = Enrollment.objects.create(
+            subject_identifier=subject_identifier,
+            schedule_name='schedule1')
         self.assertEqual(enrollment.consent_version, '1.0')
 
     def test_model_consent_version_no_change(self):
         consent_config_factory(version='1.2')
         subject_identifier = '12345'
         SubjectConsentFactory(subject_identifier=subject_identifier)
-        enrollment = Enrollment.objects.create(subject_identifier=subject_identifier)
+        enrollment = Enrollment.objects.create(
+            subject_identifier=subject_identifier,
+            schedule_name='schedule1')
         self.assertEqual(enrollment.consent_version, '1.2')
         enrollment.save()
         self.assertEqual(enrollment.consent_version, '1.2')
@@ -124,6 +130,7 @@ class TestConsent(TestCase):
         self.assertEqual(subject_consent.consent_datetime, consent_datetime)
         enrollment = Enrollment.objects.create(
             subject_identifier=subject_identifier,
+            schedule_name='schedule1',
             report_datetime=timezone.now() - timedelta(days=300))
         self.assertEqual(enrollment.consent_version, '1.0')
         SubjectConsentFactory(subject_identifier=subject_identifier)
@@ -323,6 +330,7 @@ class TestConsent(TestCase):
             subject_identifier=subject_identifier, identity=identity, confirm_identity=identity)
         Enrollment.objects.create(
             subject_identifier=subject_identifier,
+            schedule_name='schedule1',
             report_datetime=timezone.now())
         appointment = Appointment.objects.all().order_by('visit_code')[0]
         subject_visit = SubjectVisitFactory(appointment=appointment)

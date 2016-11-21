@@ -109,13 +109,13 @@ class ConsentFormMixin:
                 raise ValidationError(
                     'Subject\'s age is %(age)s. Subject is a minor. Guardian\'s '
                     'name is required with signature on the paper document.',
-                    params={'age': formatted_age(dob, consent_datetime.date())},
+                    params={'age': formatted_age(dob, consent_datetime)},
                     code='invalid')
         if rdelta.years >= self.consent_config.age_is_adult and guardian:
             if guardian:
                 raise ValidationError(
                     'Subject\'s age is %(age)s. Subject is an adult. Guardian\'s name is NOT required.',
-                    params={'age': formatted_age(dob, consent_datetime.date())},
+                    params={'age': formatted_age(dob, consent_datetime)},
                     code='invalid')
 
     def clean_dob_relative_to_consent_datetime(self):
@@ -132,14 +132,14 @@ class ConsentFormMixin:
             raise ValidationError(
                 'Subject\'s age is %(age)s. Subject is not eligible for consent. Maximum age of consent is %(max)s.',
                 params={
-                    'age': formatted_age(dob, consent_datetime.date()),
+                    'age': formatted_age(dob, consent_datetime),
                     'max': self.consent_config.age_max},
                 code='invalid')
         if rdelta.years < self.consent_config.age_min:
             raise ValidationError(
                 'Subject\'s age is %(age)s. Subject is not eligible for consent. Minimum age of consent is %(min)s.',
                 params={
-                    'age': formatted_age(dob, consent_datetime.date()),
+                    'age': formatted_age(dob, consent_datetime),
                     'min': self.consent_config.age_min},
                 code='invalid')
 

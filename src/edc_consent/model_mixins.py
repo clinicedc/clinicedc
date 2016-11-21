@@ -64,7 +64,7 @@ class RequiresConsentMixin(models.Model):
                     consent_model=consent_config.model._meta.label_lower,
                     model=self._meta.label_lower,
                     version=consent_config.version,
-                    report_datetime=report_datetime.date().isoformat()))
+                    report_datetime=timezone.localtime(report_datetime).strftime('%Y-%m-%d')))
 
     class Meta:
         abstract = True

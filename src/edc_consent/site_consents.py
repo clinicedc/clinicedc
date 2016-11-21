@@ -1,6 +1,7 @@
 import copy
 
 from edc_consent.exceptions import SiteConsentError, AlreadyRegistered
+from django.utils import timezone
 
 
 class SiteConsents:
@@ -104,11 +105,12 @@ class SiteConsents:
                 'Cannot find a version for consent model \'{}\' using date \'{}\'. '
                 'Check edc_consent.AppConfig.'.format(
                     consent_model,
-                    report_datetime.date().isoformat()))
+                    timezone.localtime(report_datetime).strftime('%Y-%m-%d')))
         if len(consent_configs) > 1:
             raise exception_cls(
                 'Multiple consents found, using consent model {} date {}. '
-                'Check edc_consent.AppConfig.'.format(consent_model, report_datetime.date().isoformat()))
+                'Check edc_consent.AppConfig.'.format(
+                    consent_model, timezone.localtime(report_datetime).strftime('%Y-%m-%d')))
         return consent_configs[0]
 
 site_consents = SiteConsents()

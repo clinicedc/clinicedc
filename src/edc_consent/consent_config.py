@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
-from edc_consent.exceptions import SiteConsentError, AlreadyRegistered
-from edc_consent.site_consents import site_consents
-from django.utils import timezone
+
+from .exceptions import SiteConsentError, AlreadyRegistered
+from .site_consents import site_consents
 
 
 class ConsentConfig:
