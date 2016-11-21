@@ -1,11 +1,11 @@
 import pytz
 
 from dateutil.relativedelta import relativedelta
-
+from datetime import time, datetime
 from django.apps import apps as django_apps
 from django.forms import ValidationError
 from django.conf import settings
-from django.utils.timezone import is_naive
+from django.utils import timezone
 from django.forms.utils import ErrorList
 
 from edc_base.utils import formatted_age
@@ -102,9 +102,7 @@ class ConsentFormMixin:
         cleaned_data = self.cleaned_data
         guardian = cleaned_data.get("guardian_name")
         dob = cleaned_data.get('dob')
-        consent_datetime = cleaned_data.get('consent_datetime', self.instance.consent_datetime)
-        if is_naive(consent_datetime):
-            consent_datetime = tz.localize(consent_datetime)
+        consent_datetime = timezone.localtime(cleaned_data.get('consent_datetime', self.instance.consent_datetime))
         rdelta = relativedelta(consent_datetime.date(), dob)
         if rdelta.years < self.consent_config.age_is_adult:
             if not guardian:
@@ -129,9 +127,6 @@ class ConsentFormMixin:
             self._errors["consent_datetime"] = ErrorList(
                 [u"This field is required. Please fill consent date and time."])
             raise ValidationError('Please correct the errors below.')
-
-        if is_naive(consent_datetime):
-            consent_datetime = tz.localize(consent_datetime)
         rdelta = relativedelta(consent_datetime.date(), dob)
         if rdelta.years > self.consent_config.age_max:
             raise ValidationError(
