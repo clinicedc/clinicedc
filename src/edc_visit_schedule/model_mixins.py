@@ -1,15 +1,18 @@
 from dateutil.relativedelta import relativedelta
+from uuid import uuid4
 
 from django.db import models
 from django.db.models import options
 from django.utils import timezone
 
-from edc_registration.model_mixins import RegisteredSubjectMixin
-
 from .site_visit_schedules import site_visit_schedules
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
+
+
+def get_uuid():
+    return str(uuid4())
 
 
 class VisitScheduleMethodsModelMixin(models.Model):
@@ -97,9 +100,15 @@ class VisitScheduleModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMethod
         abstract = True
 
 
-class DisenrollmentModelMixin(RegisteredSubjectMixin, VisitScheduleFieldsModelMixin,
-                              VisitScheduleMethodsModelMixin, models.Model):
+class DisenrollmentModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin, models.Model):
     """A model mixin for a schedule's disenrollment model."""
+
+    subject_identifier = models.CharField(
+        verbose_name="Subject Identifier",
+        max_length=50,
+        unique=True,
+        default=get_uuid,
+        editable=False)
 
     report_datetime = models.DateTimeField(default=timezone.now)
 
