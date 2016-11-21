@@ -1,6 +1,5 @@
 from django.apps import apps as django_apps
 from django.db import models
-from django.db.models import Max
 from django.utils import timezone
 
 from edc_base.model.fields import OtherCharField
