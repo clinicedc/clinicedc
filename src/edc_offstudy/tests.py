@@ -1,17 +1,12 @@
-from datetime import date, timedelta
-
 from dateutil.relativedelta import relativedelta
 
 from django.utils import timezone
 from django.test import TestCase
 
-from edc_constants.constants import DEAD, OFF_STUDY
+from edc_constants.constants import DEAD
 from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
-from edc_example.models import CrfOne, SubjectOffstudy
-from edc_example.models import SubjectVisit, Appointment, Enrollment, CrfTwo
-from edc_metadata.constants import KEYED, NOT_REQUIRED
-from edc_visit_tracking.constants import SCHEDULED, LOST_VISIT, COMPLETED_PROTOCOL_VISIT
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_example.models import Appointment, Enrollment, SubjectConsent, SubjectOffstudy, SubjectVisit
+from edc_visit_tracking.constants import SCHEDULED
 
 from .model_mixins import OffstudyError
 
@@ -22,14 +17,18 @@ class TestOffstudy(TestCase):
         self.visit_schedule_name = 'subject_visit_schedule'
         self.schedule_name = 'schedule1'
         self.subject_identifier = '111111111'
-        # self.schedule = Enrollment._meta.schedule
-        self.subject_consent = SubjectConsentFactory(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=timezone.now() - relativedelta(weeks=4))
-        enrollment = Enrollment.objects.create(
-            subject_identifier=self.subject_consent.subject_identifier,
-            schedule_name=self.schedule_name,
-            report_datetime=timezone.now() - relativedelta(weeks=4))
+        for subject_identifier in [self.subject_identifier, '222222222', '333333333', '444444444']:
+            subject_consent = SubjectConsentFactory(
+                subject_identifier=subject_identifier,
+                identity=subject_identifier,
+                confirm_identity=subject_identifier,
+                consent_datetime=timezone.now() - relativedelta(weeks=4))
+            Enrollment.objects.create(
+                subject_identifier=subject_consent.subject_identifier,
+                schedule_name=self.schedule_name,
+                report_datetime=timezone.now() - relativedelta(weeks=4))
+        self.subject_consent = SubjectConsent.objects.get(subject_identifier=self.subject_identifier)
+        enrollment = Enrollment.objects.get(subject_identifier=self.subject_identifier)
         self.schedule = enrollment.schedule
 
     def test_off_study_date_after_consent(self):
@@ -57,15 +56,25 @@ class TestOffstudy(TestCase):
 
     def test_off_study_date_before_subject_visit(self):
         """Assert cannot enter off study if visits already exist after offstudy date."""
+        for appointment in Appointment.objects.exclude(
+                subject_identifier=self.subject_identifier).order_by('appt_datetime'):
+            SubjectVisitFactory(
+                appointment=appointment,
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+                visit_code=appointment.visit_code,
+                report_datetime=appointment.appt_datetime,
+                study_status=SCHEDULED)
+        for appointment in Appointment.objects.filter(subject_identifier=self.subject_identifier):
+            SubjectVisitFactory(
+                appointment=appointment,
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+                visit_code=appointment.visit_code,
+                report_datetime=timezone.now(),
+                study_status=SCHEDULED)
         appointment = Appointment.objects.filter(subject_identifier=self.subject_identifier).first()
-        self.subject_visit = SubjectVisitFactory(
-            appointment=appointment,
-            visit_schedule_name=appointment.visit_schedule_name,
-            schedule_name=appointment.schedule_name,
-            visit_code=appointment.visit_code,
-            report_datetime=timezone.now(),
-            study_status=SCHEDULED
-        )
+        self.subject_visit = SubjectVisit.objects.get(appointment=appointment)
         try:
             SubjectOffstudy.objects.create(
                 subject_identifier=self.subject_consent.subject_identifier,
@@ -78,15 +87,24 @@ class TestOffstudy(TestCase):
 
     def test_off_study_date_after_subject_visit(self):
         """Assert can enter off study if visits do not exist after offstudy date."""
-        appointment = Appointment.objects.filter(subject_identifier=self.subject_identifier).first()
-        self.subject_visit = SubjectVisitFactory(
-            appointment=appointment,
-            visit_schedule_name=appointment.visit_schedule_name,
-            schedule_name=appointment.schedule_name,
-            visit_code=appointment.visit_code,
-            report_datetime=timezone.now() - relativedelta(weeks=1),
-            study_status=SCHEDULED
-        )
+        for appointment in Appointment.objects.exclude(
+                subject_identifier=self.subject_identifier).order_by('appt_datetime'):
+            SubjectVisitFactory(
+                appointment=appointment,
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+                visit_code=appointment.visit_code,
+                report_datetime=appointment.appt_datetime,
+                study_status=SCHEDULED)
+        for appointment in Appointment.objects.filter(
+                subject_identifier=self.subject_identifier).order_by('appt_datetime')[0:2]:
+            SubjectVisitFactory(
+                appointment=appointment,
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+                visit_code=appointment.visit_code,
+                report_datetime=appointment.appt_datetime,
+                study_status=SCHEDULED)
         try:
             SubjectOffstudy.objects.create(
                 subject_identifier=self.subject_consent.subject_identifier,
@@ -98,6 +116,18 @@ class TestOffstudy(TestCase):
 
     def test_off_study_date_deletes_unused_appointments(self):
         """Assert deletes any unused appointments after offstudy date."""
+        n = 0
+        for appointment in Appointment.objects.exclude(
+                subject_identifier=self.subject_identifier).order_by('appt_datetime'):
+            SubjectVisitFactory(
+                appointment=appointment,
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+                visit_code=appointment.visit_code,
+                report_datetime=appointment.appt_datetime,
+                study_status=SCHEDULED)
+            n += 1
+        self.assertEquals(Appointment.objects.all().count(), 4 + n)
         self.assertEquals(Appointment.objects.filter(subject_identifier=self.subject_identifier).count(), 4)
         appointment = Appointment.objects.filter(subject_identifier=self.subject_identifier).first()
         self.subject_visit = SubjectVisitFactory(
@@ -111,6 +141,8 @@ class TestOffstudy(TestCase):
             subject_identifier=self.subject_consent.subject_identifier,
             offstudy_datetime=timezone.now(),
             reason=DEAD)
+        self.assertEquals(
+            Appointment.objects.exclude(subject_identifier=self.subject_identifier).count(), n)
         self.assertEquals(
             Appointment.objects.filter(subject_identifier=self.subject_identifier).count(), 1)
 
