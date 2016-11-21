@@ -77,11 +77,9 @@ class CrfModelMixin(models.Model):
         return (getattr(self, self.visit_model_attr()).natural_key(), )
     # TODO: need to add the natural key dependencies !!
 
-    def get_subject_identifier(self):
+    @property
+    def subject_identifier(self):
         return self.visit.appointment.subject_identifier
-
-    def get_report_datetime(self):
-        return self.report_datetime
 
     def dashboard(self):
         url = reverse(
@@ -244,10 +242,6 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
         default=timezone.now,
         help_text='Date and time of this report')
 
-    report_date = models.DateField(
-        verbose_name="Visit Date",
-        editable=False)
-
     reason = models.CharField(
         verbose_name="What is the reason for this visit?",
         max_length=25,
@@ -306,7 +300,6 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
         return '{} {}'.format(self.subject_identifier, self.visit_code)
 
     def save(self, *args, **kwargs):
-        self.report_date = self.report_datetime.date()
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
@@ -386,9 +379,9 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
         abstract = True
         unique_together = (
             ('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code'),
-            ('subject_identifier', 'visit_schedule_name', 'schedule_name', 'report_date'),
+            ('subject_identifier', 'visit_schedule_name', 'schedule_name', 'report_datetime'),
         )
-        ordering = (('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'report_date', ))
+        ordering = (('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'report_datetime', ))
 
 
 class CaretakerFieldsMixin(models.Model):

@@ -44,7 +44,9 @@ class TestVisitMixin(TestCase):
     def test_crf_inline_model_attrs(self):
         """Assert inline model can find visit instance from parent."""
         subject_consent = SubjectConsentFactory()
-        Enrollment.objects.create(subject_identifier=subject_consent.subject_identifier)
+        Enrollment.objects.create(
+            subject_identifier=subject_consent.subject_identifier,
+            schedule_name='schedule1')
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisitFactory(appointment=appointment)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
@@ -55,7 +57,9 @@ class TestVisitMixin(TestCase):
     def test_crf_inline_model_parent_model(self):
         """Assert inline model cannot find parent, raises exception."""
         subject_consent = SubjectConsentFactory()
-        Enrollment.objects.create(subject_identifier=subject_consent.subject_identifier)
+        Enrollment.objects.create(
+            subject_identifier=subject_consent.subject_identifier,
+            schedule_name='schedule1')
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisitFactory(appointment=appointment)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
@@ -80,7 +84,9 @@ class TestVisit(TestCase):
         self.registered_subject = RegisteredSubject.objects.get(
             subject_identifier='123456789-0')
         # enroll consented subject
-        enrollment = Enrollment.objects.create(subject_identifier=self.subject_consent.subject_identifier)
+        enrollment = Enrollment.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            schedule_name='schedule1')
         visit_schedule = site_visit_schedules.get_visit_schedule(enrollment._meta.visit_schedule_name)
         schedule = visit_schedule.get_schedule(enrollment._meta.label_lower)
         # verify appointments created as per edc_example visit_schedule "subject_visit_schedule"
