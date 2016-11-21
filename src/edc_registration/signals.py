@@ -5,7 +5,7 @@ from django.dispatch import receiver
 
 @receiver(post_save, weak=False, dispatch_uid="update_registered_subject_from_consent_on_post_save")
 def update_registered_subject_from_consent_on_post_save(sender, instance, raw, created, using, **kwargs):
-    """Updates RegisteredSubject from the consent or model using RegistrationMixin."""
+    """Updates RegisteredSubject from the consent or model using UpdatesOrCreatesRegistrationModelMixin."""
     if not raw and not kwargs.get('update_fields'):
         try:
             with transaction.atomic():

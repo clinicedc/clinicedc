@@ -19,6 +19,10 @@ from edc_constants.choices import YES, NO, GENDER
 from .exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
 
+
+def get_uuid():
+    return str(uuid4())
+
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
 
 YES_NO_UNKNOWN = (
@@ -124,6 +128,14 @@ class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
         null=True,
         blank=True)
 
+    identity_or_pk = models.CharField(
+        verbose_name="identity or pk",
+        max_length=50,
+        unique=True,
+        default=get_uuid,
+        editable=False,
+    )
+
     identity_type = IdentityTypeField(
         null=True,
         blank=True)
@@ -187,8 +199,10 @@ class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
         using = kwargs.get('using')
         if self.identity:
             self.additional_key = None
+            self.identity_or_pk = self.identity
         self.set_uuid_as_subject_identifier_if_none()
-        self.raise_on_duplicate_subject_identifier(using)
+        self.raise_on_duplicate('subject_identifier')
+        self.raise_on_duplicate('identity')
         self.raise_on_changed_subject_identifier(using)
         super(RegisteredSubjectModelMixin, self).save(*args, **kwargs)
 
@@ -221,21 +235,24 @@ class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
                             'Subject identifier cannot be changed for existing registered subject. '
                             'Got {} <> {}.'.format(self.subject_identifier, obj.subject_identifier))
 
-    def raise_on_duplicate_subject_identifier(self, using):
+    def raise_on_duplicate(self, attrname):
         """Checks if the subject identifier is in use, for new and existing instances."""
-        with transaction.atomic():
-            error_msg = (
-                'Cannot {{action}} registered subject with a duplicate '
-                'subject_identifier. Got {0}.'.format(self.subject_identifier))
-            try:
-                obj = self.__class__.objects.using(using).get(
-                    subject_identifier=self.subject_identifier)
-                if not self.id:
-                    raise RegisteredSubjectError(error_msg.format(action='insert'))
-                elif self.subject_identifier_is_set() and obj.id != self.id:
-                    raise RegisteredSubjectError(error_msg.format(action='update'))
-            except self.__class__.DoesNotExist:
-                pass
+        if getattr(self, attrname):
+            with transaction.atomic():
+                error_msg = (
+                    'Cannot {{action}} registered subject with a duplicate '
+                    '\'{}\'. Got {}.'.format(attrname, getattr(self, attrname)))
+                try:
+                    obj = self.__class__.objects.exclude(
+                        **{'pk': self.pk} if self.id else {}).get(**{attrname: getattr(self, attrname)})
+                    if not self.id:
+                        raise RegisteredSubjectError(error_msg.format(action='insert'))
+                    elif self.subject_identifier_is_set() and obj.id != self.id:
+                        raise RegisteredSubjectError(error_msg.format(action='update'))
+                    else:
+                        raise RegisteredSubjectError(error_msg.format(action='update'))
+                except self.__class__.DoesNotExist:
+                    pass
 
     def set_uuid_as_subject_identifier_if_none(self):
         """Inserts a random uuid as a dummy identifier for a new instance.
@@ -279,7 +296,7 @@ class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
         unique_together = ('first_name', 'dob', 'initials', 'additional_key')
 
 
-class RegistrationMixin(models.Model):
+class UpdatesOrCreatesRegistrationModelMixin(models.Model):
 
     """A model mixin that creates or updates RegisteredSubject on post_save signal."""
 
