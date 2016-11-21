@@ -1,4 +1,7 @@
+import pytz
+
 from datetime import datetime, time
+
 from django.db import models
 from django.utils import timezone
 
@@ -25,8 +28,9 @@ class Holiday(models.Model):
     def __str__(self):
         return '{} on {}'.format(self.name, self.day.strftime('%Y-%m-%d'))
 
-    def day_as_datetime(self, time=None):
-        return timezone.make_aware(datetime.combine(self.day, time or time(0, 0, 0)))
+    def day_as_datetime(self, dtime=None):
+        return timezone.make_aware(
+            datetime.combine(self.day, dtime or time(0, 0, 0)), timezone=pytz.timezone("UTC"))
 
     class Meta:
         ordering = ['day', ]

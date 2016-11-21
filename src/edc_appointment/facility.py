@@ -1,3 +1,5 @@
+import pytz
+
 from django.apps import apps as django_apps
 from datetime import datetime
 from collections import OrderedDict
@@ -56,7 +58,9 @@ class Facility:
             month_datetimes = []
             for dt in calendar.itermonthdates(year, month):
                 if dt.month == month and dt >= suggested_datetime.date() and dt < max_datetime.date():
-                    month_datetimes.append(timezone.make_aware(datetime.combine(dt, suggested_datetime.time())))
+                    month_datetimes.append(
+                        timezone.make_aware(
+                            datetime.combine(dt, suggested_datetime.time()), timezone=pytz.timezone('UTC')))
             for dt in month_datetimes:
                 if dt not in self.holidays(year, month, time=suggested_datetime.time()) and dt not in taken_datetimes:
                     if dt.weekday() in self.weekdays:
