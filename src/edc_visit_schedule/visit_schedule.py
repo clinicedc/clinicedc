@@ -8,7 +8,7 @@ from .exceptions import AlreadyRegistered, VisitScheduleError
 
 class VisitSchedule:
 
-    def __init__(self, name, app_label, enrollment_model=None, disenrollment_model=None, visit_model=None,
+    def __init__(self, name, app_label, default_enrollment_model=None, default_disenrollment_model=None, visit_model=None,
                  offstudy_model=None, death_report_model=None, verbose_name=None):
         self.name = name
         if not re.match(r'[a-z0-9\_\-]+$', name):
@@ -16,13 +16,13 @@ class VisitSchedule:
         self.app_label = app_label
         self.verbose_name = verbose_name or ' '.join([s.capitalize() for s in name.split('_')])
         self.death_report_model = None
-        self.disenrollment_model = None
-        self.enrollment_model = None
+        self.default_disenrollment_model = None
+        self.default_enrollment_model = None
         self.offstudy_model = None
         self.offstudy_model = None
         self.visit_model = None
-        self.add_disenrollment_model(disenrollment_model)
-        self.add_enrollment_model(enrollment_model)
+        self.add_default_disenrollment_model(default_disenrollment_model)
+        self.add_default_enrollment_model(default_enrollment_model)
         self.add_offstudy_model(offstudy_model)
         self.add_visit_model(visit_model)
         if self.death_report_model:
@@ -39,9 +39,9 @@ class VisitSchedule:
         """Add a schedule if not already added."""
         if schedule.name in self.schedules:
             raise AlreadyRegistered('A schedule with name {} is already registered'.format(schedule.name))
-        schedule.enrollment_model = self.enrollment_model
+        schedule.enrollment_model = schedule.enrollment_model or self.default_enrollment_model
         self.validate_model_for_schedule(schedule, 'enrollment_model')
-        schedule.disenrollment_model = self.disenrollment_model
+        schedule.disenrollment_model = schedule.disenrollment_model or self.default_disenrollment_model
         self.validate_model_for_schedule(schedule, 'disenrollment_model')
         schedule.offstudy_model = self.offstudy_model
         schedule.visit_model = self.visit_model
@@ -65,19 +65,19 @@ class VisitSchedule:
                 return schedule
         return None
 
-    def add_enrollment_model(self, model):
-        self.enrollment_model = django_apps.get_model(*model.split('.'))
+    def add_default_enrollment_model(self, model):
+        self.default_enrollment_model = django_apps.get_model(*model.split('.'))
         try:
-            self.enrollment_model.create_appointments
+            self.default_enrollment_model.create_appointments
         except AttributeError as e:
             raise ImproperlyConfigured(
                 '\'{}\' cannot be an enrollment model. It is not configured '
                 'to create appointments. Got {}'.format(model._meta.label_lower, str(e)))
-        self.validate_modelmixin_attrs(self.enrollment_model)
+        self.validate_modelmixin_attrs(self.default_enrollment_model)
 
-    def add_disenrollment_model(self, model):
-        self.disenrollment_model = django_apps.get_model(*model.split('.'))
-        self.validate_modelmixin_attrs(self.disenrollment_model)
+    def add_default_disenrollment_model(self, model):
+        self.default_disenrollment_model = django_apps.get_model(*model.split('.'))
+        self.validate_modelmixin_attrs(self.default_disenrollment_model)
 
     def add_death_report_model(self, model):
         self.death_report_model = django_apps.get_model(*model.split('.'))

@@ -2,6 +2,7 @@ import re
 
 from dateutil.relativedelta import relativedelta
 
+from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 
 from .exceptions import AlreadyRegistered, ScheduleError, CrfError
@@ -9,16 +10,20 @@ from .visit import Visit
 
 
 class Schedule:
-    def __init__(self, name):
-        self.name = name
-        if not re.match(r'[a-z0-9\_\-]+$', name):
-            raise ImproperlyConfigured('Schedule name may only contains numbers, lower case letters and \'_\'.')
+    def __init__(self, name, enrollment_model=None, disenrollment_model=None):
         self.death_report_model = None
         self.disenrollment_model = None
         self.enrollment_model = None
         self.offstudy_model = None
         self.visit_model = None
         self.visit_registry = {}
+        self.name = name
+        if not re.match(r'[a-z0-9\_\-]+$', name):
+            raise ImproperlyConfigured('Schedule name may only contains numbers, lower case letters and \'_\'.')
+        if disenrollment_model:
+            self.disenrollment_model = django_apps.get_model(*disenrollment_model.split('.'))
+        if enrollment_model:
+            self.enrollment_model = django_apps.get_model(*enrollment_model.split('.'))
 
     def __repr__(self):
         return '<Schedule({}, {})>'.format(self.name, self.enrollment_model._meta.label_lower)

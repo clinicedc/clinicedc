@@ -5,7 +5,7 @@ from edc_visit_schedule.visit import Crf
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_schedule.exceptions import AlreadyRegistered, ScheduleError, CrfError
 
-from edc_example.models import Enrollment, Disenrollment, SubjectVisit, SubjectOffstudy
+from edc_example.models import Enrollment, EnrollmentTwo, Disenrollment, SubjectVisit, SubjectOffstudy
 from edc_visit_schedule.schedule import Schedule
 
 
@@ -17,8 +17,8 @@ class TestVisitSchedule(TestCase):
             verbose_name='Bad Visit Schedule',
             app_label='edc_example',
             visit_model=SubjectVisit._meta.label_lower,
-            enrollment_model=Enrollment._meta.label_lower,
-            disenrollment_model=Disenrollment._meta.label_lower,
+            default_enrollment_model=Enrollment._meta.label_lower,
+            default_disenrollment_model=Disenrollment._meta.label_lower,
             offstudy_model=SubjectOffstudy._meta.label_lower,
         )
 
@@ -35,10 +35,20 @@ class TestVisitSchedule(TestCase):
         schedule = site_visit_schedules.get_schedule(Enrollment._meta.label_lower)
         self.assertEqual(schedule.enrollment_model, Enrollment)
 
+    def test_get_schedule_by_enrollmenttwo_model_label(self):
+        self.assertTrue(site_visit_schedules.get_schedule(EnrollmentTwo._meta.label_lower))
+        schedule = site_visit_schedules.get_schedule(EnrollmentTwo._meta.label_lower)
+        self.assertEqual(schedule.enrollment_model, EnrollmentTwo)
+
     def test_get_schedule_by_enrollment_model(self):
         self.assertTrue(site_visit_schedules.get_schedule(Enrollment))
         schedule = site_visit_schedules.get_schedule(Enrollment)
         self.assertEqual(schedule.enrollment_model, Enrollment)
+
+    def test_get_schedule_by_enrollmenttwo_model(self):
+        self.assertTrue(site_visit_schedules.get_schedule(EnrollmentTwo))
+        schedule = site_visit_schedules.get_schedule(EnrollmentTwo)
+        self.assertEqual(schedule.enrollment_model, EnrollmentTwo)
 
     def test_schedule_get_visits(self):
         visit_schedule = site_visit_schedules.get_visit_schedule('subject_visit_schedule')
