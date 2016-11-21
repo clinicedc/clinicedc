@@ -110,12 +110,13 @@ class VisitSchedule:
             getattr(getattr(model, '_meta'), 'visit_schedule_name')
         except AttributeError as e:
                 raise ImproperlyConfigured(
-                    'The {} for schedule \'{}\' is missing \'_meta\' attribute \'visit_schedule_name\'. Got {}'.format(
-                        ' '.join(model._meta.label_lower.split('.')), self.name, str(e)))
-        for field in ['report_datetime', 'schedule_name']:
-            try:
-                getattr(model, field)
-            except AttributeError as e:
-                raise ImproperlyConfigured(
-                    'The {} for schedule \'{}\' is missing field \'{}\'. Got {}'.format(
-                        ' '.join(model._meta.label_lower.split('.')), self.name, field, str(e)))
+                    '\'{}\' for schedule \'{}\' is missing \'_meta\' attribute \''
+                    'visit_schedule_name\'. Got {} [{}].'.format(
+                        model._meta.label_lower, self.name, str(e), model))
+        field_required = ['report_datetime', 'schedule_name']
+        field_found = [f.name for f in model._meta.fields if f.name in ['report_datetime', 'schedule_name']]
+        field_missing = [f for f in field_required if f not in field_found]
+        if field_missing:
+            raise ImproperlyConfigured(
+                '\'{}\' for schedule \'{}\' is missing field \'{}\''.format(
+                    model._meta.label_lower, self.name, field_missing[0]))
