@@ -24,6 +24,7 @@ class ExportTrackingFieldsMixin(models.Model):
         help_text="system field for export tracking.")
 
     export_uuid = models.UUIDField(
+        null=True,
         editable=False,
         help_text="system field for export tracking.")
 
