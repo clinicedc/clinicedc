@@ -5,6 +5,9 @@ from django.db import models
 from django.db.models import options
 from django.utils import timezone
 
+from edc_base.model.validators import datetime_not_future
+from edc_protocol.validators import datetime_not_before_study_start
+
 from .site_visit_schedules import site_visit_schedules
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
@@ -110,7 +113,14 @@ class DisenrollmentModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMethod
         default=get_uuid,
         editable=False)
 
-    report_datetime = models.DateTimeField(default=timezone.now)
+    report_datetime = models.DateTimeField(
+        validators=[
+            datetime_not_before_study_start,
+            datetime_not_future],
+        default=timezone.now)
+
+    def __str__(self):
+        return self.subject_identifier
 
     def save(self, *args, **kwargs):
         try:
@@ -119,6 +129,9 @@ class DisenrollmentModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMethod
             self.visit_schedule_name = self._meta.visit_schedule_name
         super(DisenrollmentModelMixin, self).save(*args, **kwargs)
 
+    def natural_key(self):
+        return (self.subject_identifier, )
+
     class Meta:
         abstract = True
         visit_schedule_name = None
@@ -126,6 +139,9 @@ class DisenrollmentModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMethod
 
 class EnrollmentModelMixin(DisenrollmentModelMixin, models.Model):
     """A model mixin for a schedule's enrollment model."""
+
+    is_eligible = models.BooleanField(
+        editable=False)
 
     class Meta:
         abstract = True
