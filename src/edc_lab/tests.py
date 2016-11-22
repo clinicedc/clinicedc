@@ -25,7 +25,9 @@ class LabTests(TestCase):
 
     def setUp(self):
         subject_consent = SubjectConsentFactory()
-        enrollment = EnrollmentFactory(subject_identifier=subject_consent.subject_identifier)
+        enrollment = EnrollmentFactory(
+            subject_identifier=subject_consent.subject_identifier,
+            schedule_name='schedule1')
         visit_schedule = site_visit_schedules.get_visit_schedule(enrollment._meta.visit_schedule_name)
         self.schedule = visit_schedule.get_schedule(enrollment._meta.label_lower)
         self.first_visit = self.schedule.get_first_visit()
