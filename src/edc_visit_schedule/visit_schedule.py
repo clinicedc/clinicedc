@@ -21,11 +21,13 @@ class VisitSchedule:
         self.offstudy_model = None
         self.offstudy_model = None
         self.visit_model = None
-        self.add_default_disenrollment_model(default_disenrollment_model)
-        self.add_default_enrollment_model(default_enrollment_model)
         self.add_offstudy_model(offstudy_model)
         self.add_visit_model(visit_model)
-        if self.death_report_model:
+        if default_disenrollment_model:
+            self.add_default_disenrollment_model(default_disenrollment_model)
+        if default_enrollment_model:
+            self.add_default_enrollment_model(default_enrollment_model)
+        if death_report_model:
             self.add_death_report_model(death_report_model)
         self.schedules = {}
 
@@ -92,6 +94,15 @@ class VisitSchedule:
         model = getattr(schedule, attrname)
         try:
             visit_schedule_name, schedule_name = model._meta.visit_schedule_name.split('.')
+        except AttributeError as e:
+            if '_meta' in str(e):
+                raise VisitScheduleError(
+                    'Cannot register schedule \'{}\'. Model \'{}\' has not been set. '
+                    'Either set this explicitly on the schedule or set a \'default_{}\' '
+                    'on visit schedule \'{}\'.'.format(
+                        schedule.name, attrname, attrname, self.name))
+            else:
+                raise AttributeError(e)
         except ValueError:
             visit_schedule_name = model._meta.visit_schedule_name
             schedule_name = None

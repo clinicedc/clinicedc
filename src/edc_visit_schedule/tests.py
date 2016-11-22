@@ -1,12 +1,12 @@
 from django.test import TestCase
 
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_schedule.visit import Crf
-from edc_visit_schedule.visit_schedule import VisitSchedule
-from edc_visit_schedule.exceptions import AlreadyRegistered, ScheduleError, CrfError
-
 from edc_example.models import Enrollment, EnrollmentTwo, Disenrollment, SubjectVisit, SubjectOffstudy
-from edc_visit_schedule.schedule import Schedule
+
+from .exceptions import AlreadyRegistered, ScheduleError, CrfError, VisitScheduleError
+from .schedule import Schedule
+from .site_visit_schedules import site_visit_schedules
+from .visit import Crf
+from .visit_schedule import VisitSchedule
 
 
 class TestVisitSchedule(TestCase):
@@ -19,6 +19,14 @@ class TestVisitSchedule(TestCase):
             visit_model=SubjectVisit._meta.label_lower,
             default_enrollment_model=Enrollment._meta.label_lower,
             default_disenrollment_model=Disenrollment._meta.label_lower,
+            offstudy_model=SubjectOffstudy._meta.label_lower,
+        )
+
+        self.visit_schedule = VisitSchedule(
+            name='subject_visit_schedule',
+            verbose_name='Bad Visit Schedule',
+            app_label='edc_example',
+            visit_model=SubjectVisit._meta.label_lower,
             offstudy_model=SubjectOffstudy._meta.label_lower,
         )
 
@@ -77,6 +85,10 @@ class TestVisitSchedule(TestCase):
         schedule = self.bad_visit_schedule.add_schedule(schedule)
         schedule.add_visit('1000', timepoint=1, base_interval=1)
         self.assertRaises(ScheduleError, schedule.add_visit, '2000', timepoint=2, base_interval=1)
+
+    def test_add_schedule_detects_null_enrollment(self):
+        schedule = Schedule('schedule-one')
+        self.assertRaises(VisitScheduleError, self.visit_schedule.add_schedule, schedule)
 
     def test_gets_ordered_visits(self):
         """Assert visits are ordered by timepoint default."""
