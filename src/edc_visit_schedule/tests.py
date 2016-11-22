@@ -30,6 +30,14 @@ class TestVisitSchedule(TestCase):
             offstudy_model=SubjectOffstudy._meta.label_lower,
         )
 
+    def test_load_incomplete_visit_schedule(self):
+        self.assertRaises(
+            VisitScheduleError, VisitSchedule,
+            name='subject_visit_schedule',
+            verbose_name='Bad Visit Schedule',
+            app_label='edc_example',
+        )
+
     def test_get_visit_schedule_by_name(self):
         self.assertTrue(site_visit_schedules.get_visit_schedule('subject_visit_schedule'))
 

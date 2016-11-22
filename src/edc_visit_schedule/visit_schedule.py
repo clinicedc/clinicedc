@@ -19,8 +19,13 @@ class VisitSchedule:
         self.default_disenrollment_model = None
         self.default_enrollment_model = None
         self.offstudy_model = None
-        self.offstudy_model = None
         self.visit_model = None
+        for attrname in ['offstudy_model', 'visit_model']:
+            try:
+                self.add_offstudy_model(offstudy_model)
+            except AttributeError:
+                raise VisitScheduleError(
+                    '\'{}\' is required. See visit schedule \'{}\'.'.format(attrname, self.name))
         self.add_offstudy_model(offstudy_model)
         self.add_visit_model(visit_model)
         if default_disenrollment_model:
@@ -38,7 +43,7 @@ class VisitSchedule:
         return self.verbose_name
 
     def add_schedule(self, schedule):
-        """Add a schedule if not already added."""
+        """Add a schedule, if not already added."""
         if schedule.name in self.schedules:
             raise AlreadyRegistered('A schedule with name {} is already registered'.format(schedule.name))
         schedule.enrollment_model = schedule.enrollment_model or self.default_enrollment_model
