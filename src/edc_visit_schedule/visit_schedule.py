@@ -58,17 +58,19 @@ class VisitSchedule:
         return schedule
 
     def get_schedule(self, value=None):
-        """Return a schedule by name, by enrollment model or by the enrollment model label_lower."""
+        """Return a schedule by name, by enrollment/disenrollment model or model label_lower."""
         try:
             _, _ = value.split('.')
-            enrollment_model = django_apps.get_model(*value.split('.'))
+            model = django_apps.get_model(*value.split('.'))
         except ValueError:
             return self.schedules.get(value)
         except AttributeError:
             value._meta
-            enrollment_model = value
+            model = value
         for schedule in self.schedules.values():
-            if schedule.enrollment_model == enrollment_model:
+            if schedule.enrollment_model == model:
+                return schedule
+            if schedule.disenrollment_model == model:
                 return schedule
         return None
 
