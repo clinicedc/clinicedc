@@ -46,8 +46,8 @@ class OffstudyModelMixin(SubjectIdentifierModelMixin, models.Model):
         if not self.consented_before_offstudy:
             raise OffstudyError('Offstudy date may not be before the date of consent. Got {}.'.format(
                 timezone.localtime(self.offstudy_datetime).strftime(self.dateformat)))
+        self.offstudy_datetime_after_last_visit_or_raise()
         app_config = django_apps.get_app_config('edc_appointment')
-        self.validate_offstudy_datetime()
         Appointment = app_config.model
         Appointment.objects.delete_for_subject_after_date(
             self.subject_identifier, self.offstudy_datetime)
@@ -72,24 +72,11 @@ class OffstudyModelMixin(SubjectIdentifierModelMixin, models.Model):
             consent = None
         return consent
 
-    def validate_offstudy_datetime(self):
-        if relativedelta(self.offstudy_datetime, self.last_visit_datetime).days < 0:
+    def offstudy_datetime_after_last_visit_or_raise(self):
+        last_visit_datetime = site_visit_schedules.last_visit_datetime(self.subject_identifier)
+        if relativedelta(self.offstudy_datetime, last_visit_datetime).days < 0:
             raise OffstudyError('Offstudy datetime cannot precede the last visit datetime {}. Got {}'.format(
-                timezone.localtime(self.last_visit_datetime), timezone.localtime(self.offstudy_datetime)))
-
-    @property
-    def last_visit_datetime(self):
-        visit_models = []
-        max_visit_datetimes = []
-        for visit_schedule in site_visit_schedules.registry.values():
-            if visit_schedule.visit_model not in visit_models:
-                visit_models.append(visit_schedule.visit_model)
-                last_visit = visit_schedule.visit_model.objects.last_visit(subject_identifier=self.subject_identifier)
-                if last_visit:
-                    max_visit_datetimes.append(last_visit.report_datetime)
-        if max_visit_datetimes:
-            return max(max_visit_datetimes)
-        return None
+                timezone.localtime(last_visit_datetime), timezone.localtime(self.offstudy_datetime)))
 
     class Meta:
         abstract = True
