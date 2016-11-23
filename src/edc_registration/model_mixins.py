@@ -210,7 +210,7 @@ class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
         return (self.subject_identifier_as_pk, )
 
     def __str__(self):
-        return self.subject_identifier
+        return self.mask_subject_identifier()
 
     def mask_subject_identifier(self):
         if not self.subject_identifier_is_set():
@@ -366,8 +366,8 @@ class RegisteredSubjectMixin(models.Model):
     @property
     def registration_instance(self):
         registration_instance = None
+        model = django_apps.get_app_config('edc_registration').model
         try:
-            model = django_apps.get_app_config('edc_registration').model
             registration_instance = model.objects.get(subject_identifier=self.subject_identifier)
         except model.DoesNotExist as e:
             raise model.DoesNotExist('{} subject_identifier=\'{}\''.format(str(e), self.subject_identifier))
