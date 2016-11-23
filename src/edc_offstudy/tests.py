@@ -9,6 +9,7 @@ from edc_example.models import Appointment, Enrollment, SubjectConsent, SubjectO
 from edc_visit_tracking.constants import SCHEDULED
 
 from .model_mixins import OffstudyError
+from django.db.utils import IntegrityError
 
 
 class TestOffstudy(TestCase):
@@ -117,6 +118,7 @@ class TestOffstudy(TestCase):
     def test_off_study_date_deletes_unused_appointments(self):
         """Assert deletes any unused appointments after offstudy date."""
         n = 0
+        # create some appointments for other subjects
         for appointment in Appointment.objects.exclude(
                 subject_identifier=self.subject_identifier).order_by('appt_datetime'):
             SubjectVisitFactory(
@@ -129,29 +131,35 @@ class TestOffstudy(TestCase):
             n += 1
         self.assertEquals(Appointment.objects.all().count(), 4 + n)
         self.assertEquals(Appointment.objects.filter(subject_identifier=self.subject_identifier).count(), 4)
-        appointment = Appointment.objects.filter(subject_identifier=self.subject_identifier).first()
+        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
+        # report visit on day of first appointment (1/4) for our subject
         self.subject_visit = SubjectVisitFactory(
-            appointment=appointment,
+            appointment=appointments[0],
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
-            report_datetime=timezone.now() - relativedelta(weeks=3),
+            report_datetime=appointments[0].appt_datetime,
             study_status=SCHEDULED)
+        # report off study day after first visit for our subject
         SubjectOffstudy.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
-            offstudy_datetime=timezone.now(),
+            offstudy_datetime=appointments[0].appt_datetime + relativedelta(days=1),
             reason=DEAD)
+        # assert other appointments for other subjects are not deleted
         self.assertEquals(
             Appointment.objects.exclude(subject_identifier=self.subject_identifier).count(), n)
+        # assert appointments scheduled after the first appointment are deleted
         self.assertEquals(
             Appointment.objects.filter(subject_identifier=self.subject_identifier).count(), 1)
 
     def test_off_study_date_deletes_unused_appointments2(self):
-        """Assert deletes any unused appointments after offstudy date."""
+        """Assert only deletes appointments without subject visit and on/after the offstudy date."""
+        # count appointments for our subject, 1-4
         self.assertEquals(
             Appointment.objects.filter(subject_identifier=self.subject_identifier).count(), 4)
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier).order_by('appt_datetime')
         appointment_datetimes = [appointment.appt_datetime for appointment in appointments]
+        # report visits for first and second appointment, 1, 2
         for index, appointment in enumerate(appointments[0:2]):
             self.subject_visit = SubjectVisitFactory(
                 appointment=appointment,
@@ -160,9 +168,70 @@ class TestOffstudy(TestCase):
                 visit_code=appointment.visit_code,
                 report_datetime=appointment_datetimes[index],
                 study_status=SCHEDULED)
+        # report off study on same date as third visit
         SubjectOffstudy.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
             offstudy_datetime=appointment_datetimes[2],
             reason=DEAD)
+        # assert deletes 3rd and fourth appointment only.
         self.assertEquals(
             Appointment.objects.filter(subject_identifier=self.subject_identifier).count(), 2)
+
+    def test_off_study_date_deletes_unused_appointments3(self):
+        """Assert does not delete unused appointments if offstudy date is greater than
+        all unused appointments."""
+        # count appointments for our subject, 1-4
+        self.assertEquals(
+            Appointment.objects.filter(subject_identifier=self.subject_identifier).count(), 4)
+        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier).order_by('appt_datetime')
+        appointment_datetimes = [appointment.appt_datetime for appointment in appointments]
+        # report visits for first and second appointment, 1, 2
+        for index, appointment in enumerate(appointments[0:2]):
+            SubjectVisitFactory(
+                appointment=appointment,
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+                visit_code=appointment.visit_code,
+                report_datetime=appointment_datetimes[index],
+                study_status=SCHEDULED)
+        # report off study on same date as second visit
+        SubjectOffstudy.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            offstudy_datetime=appointment_datetimes[3] + relativedelta(days=1),
+            reason=DEAD)
+        # assert deletes 3rd and fourth appointment only.
+        self.assertEquals(
+            Appointment.objects.filter(subject_identifier=self.subject_identifier).count(), 4)
+
+    def test_off_study_blocks_subject_visit(self):
+        """Assert cannot enter subject visit after off study date because appointment no longer exists."""
+        # count appointments for our subject, 1-4
+        self.assertEquals(
+            Appointment.objects.filter(subject_identifier=self.subject_identifier).count(), 4)
+        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier).order_by('appt_datetime')
+        appointment_datetimes = [appointment.appt_datetime for appointment in appointments]
+        # report visits for first and second appointment, 1, 2
+        for index, appointment in enumerate(appointments[0:2]):
+            SubjectVisitFactory(
+                appointment=appointment,
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+                visit_code=appointment.visit_code,
+                report_datetime=appointment_datetimes[index],
+                study_status=SCHEDULED)
+        # report off study on same date as second visit
+        SubjectOffstudy.objects.create(
+            subject_identifier=self.subject_consent.subject_identifier,
+            offstudy_datetime=appointment_datetimes[1],
+            reason=DEAD)
+        self.assertEquals(
+            Appointment.objects.filter(subject_identifier=self.subject_identifier).count(), 2)
+        # assert cannot add subject visit with report date before offstudy because appointment no longer exists
+        self.assertRaises(
+            IntegrityError, SubjectVisitFactory,
+            appointment=appointments[2],
+            visit_schedule_name=appointments[2].visit_schedule_name,
+            schedule_name=appointments[2].schedule_name,
+            visit_code=appointments[2].visit_code,
+            report_datetime=appointment_datetimes[1] - relativedelta(hours=2),
+            study_status=SCHEDULED)
