@@ -20,7 +20,6 @@ from edc_visit_tracking.managers import CrfModelManager
 
 from .choices import VISIT_REASON
 from .constants import FOLLOW_UP_REASONS, REQUIRED_REASONS, NO_FOLLOW_UP_REASONS
-from django.db.models.deletion import PROTECT
 
 app_config = django_apps.get_app_config('edc_visit_tracking')
 
@@ -226,14 +225,12 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
 
         class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin, RequiresConsentMixin, BaseUuidModel):
 
-            appointment = models.OneToOneField(MyAppointmentModel)
+            appointment = models.OneToOneField('Appointment', on_delete=PROTECT)
 
         class Meta(VisitModelMixin.Meta):
             app_label = 'my_app'
 
     """
-    appointment = models.OneToOneField('Appointment', on_delete=PROTECT)
-
     report_datetime = models.DateTimeField(
         verbose_name="Visit Date and Time",
         validators=[
@@ -300,11 +297,18 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
         return '{} {}'.format(self.subject_identifier, self.visit_code)
 
     def save(self, *args, **kwargs):
+        if self.__class__.appointment.field.rel.on_delete.__name__ != 'PROTECT':
+            raise ImproperlyConfigured('OneToOne relation to appointment must set on_delete=PROTECT. Got {}'.format(
+                self.__class__.appointment.field.rel.on_delete.__name__))
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
         self.visit_code = self.appointment.visit_code
         super(VisitModelMixin, self).save(*args, **kwargs)
+
+    def natural_key(self):
+        return (self.subject_identifier, self.visit_schedule_name, self.schedule_name, self.visit_code)
+    # natural_key.dependencies = ['app_label.appointment']
 
     @property
     def appointment_zero(self):
