@@ -7,7 +7,6 @@ from calendar import Calendar
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule, MONTHLY
 from django.utils import timezone
-from test.test_itertools import take
 
 
 class Facility:

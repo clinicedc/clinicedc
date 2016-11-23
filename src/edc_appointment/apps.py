@@ -4,9 +4,9 @@ from dateutil.relativedelta import MO, TU, WE, TH, FR
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps
+from django.core.exceptions import ImproperlyConfigured
 
 from .facility import Facility
-from django.core.exceptions import ImproperlyConfigured
 
 
 class AppConfig(DjangoAppConfig):

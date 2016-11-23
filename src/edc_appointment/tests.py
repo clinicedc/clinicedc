@@ -38,8 +38,8 @@ class TestAppointment(TestCase):
         for index, day in enumerate([MO, TU, WE, TH, FR, SA, SU]):
             subject_consent = SubjectConsent.objects.create(
                 consent_datetime=timezone.now() - relativedelta(weeks=2),
-                identity='11121111' + str(index),
-                confirm_identity='11121111' + str(index),
+                identity='91121111' + str(index),
+                confirm_identity='91121111' + str(index),
                 is_literate=YES)
             Enrollment.objects.create(
                 subject_identifier=subject_consent.subject_identifier,
