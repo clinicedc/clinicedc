@@ -1,12 +1,13 @@
 from django.test import TestCase
 
-from edc_example.models import Enrollment, EnrollmentTwo, Disenrollment, SubjectVisit, SubjectOffstudy
+from edc_example.models import Enrollment, EnrollmentTwo, EnrollmentThree, Disenrollment, SubjectVisit, SubjectOffstudy
 
 from .exceptions import AlreadyRegistered, ScheduleError, CrfError, VisitScheduleError
 from .schedule import Schedule
 from .site_visit_schedules import site_visit_schedules
 from .visit import Crf
 from .visit_schedule import VisitSchedule
+from edc_example.factories import SubjectConsentFactory
 
 
 class TestVisitSchedule(TestCase):
@@ -155,3 +156,14 @@ class TestVisitSchedule(TestCase):
         )
         schedule = Schedule('schedule-one')
         self.assertRaises(CrfError, schedule.add_visit, '1000', timepoint=0, crfs=crfs)
+
+    def test_enrollment_model_knows_schedule_name(self):
+        """Assert if schedule name provided on meta, does not need to be provided explicitly."""
+        SubjectConsentFactory(subject_identifier='111111')
+        # schedule name not provided and is not on Meta
+        self.assertRaises(AttributeError, Enrollment.objects.create, subject_identifier='111111', is_eligible=True)
+        # schedule name not provided and is on Meta
+        try:
+            EnrollmentThree.objects.create(subject_identifier='111111', is_eligible=True)
+        except AttributeError:
+            self.fail('AttributeError unexpectedly raised')
