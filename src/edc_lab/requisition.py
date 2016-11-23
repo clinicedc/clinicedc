@@ -1,8 +1,10 @@
 from django.apps import apps as django_apps
+
 from edc_lab.site_lab_profiles import site_lab_profiles
 
 
 class Requisition:
+    """Wrapper class for the requisition model."""
 
     def __init__(self, requisition):
         self.object = requisition

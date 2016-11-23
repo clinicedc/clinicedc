@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.core.exceptions import ImproperlyConfigured
 
-from edc_export.actions import export_as_csv_action
+# from edc_export.actions import export_as_csv_action
 
 from .actions import flag_as_received, flag_as_not_received, flag_as_not_labelled, print_requisition_label
 
@@ -21,6 +21,20 @@ class AliquotModelAdminMixin(admin.ModelAdmin):
 
     list_filter = ('aliquot_type', 'aliquot_condition',
                    'created', 'user_created', 'hostname_created')
+
+    list_per_page = 15
+
+
+class SpecimenCollectionItemModelAdminMixin(admin.ModelAdmin):
+
+    date_hierarchy = 'created'
+
+    list_per_page = 15
+
+
+class SpecimenCollectionModelAdminMixin(admin.ModelAdmin):
+
+    date_hierarchy = 'created'
 
     list_per_page = 15
 
@@ -121,10 +135,10 @@ class RequisitionAdminMixin:
         flag_as_not_received,
         flag_as_not_labelled,
         print_requisition_label,
-        export_as_csv_action(
-            'Export as csv', fields=[], delimiter=',', exclude=[
-                'id', 'revision', 'hostname_created', 'hostname_modified',
-                'user_created', 'user_modified'])
+#         export_as_csv_action(
+#             'Export as csv', fields=[], delimiter=',', exclude=[
+#                 'id', 'revision', 'hostname_created', 'hostname_modified',
+#                 'user_created', 'user_modified'])
     ]
 
     def __init__(self, *args, **kwargs):

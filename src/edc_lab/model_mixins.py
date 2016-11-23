@@ -230,7 +230,7 @@ class RequisitionModelMixin(models.Model):
             'initials': self.registered_subject.initials,
             'item_count': self.item_count,
             'may_store_samples': may_store_samples,
-            'panel': self.panel.name[0:21],
+            'panel': self.panel_name[0:21],
             'protocol': '',  # edc_base_app_config.protocol_number
             'requisition_identifier': self.requisition_identifier,
             'site': self.study_site,
@@ -239,19 +239,6 @@ class RequisitionModelMixin(models.Model):
             'visit': self.get_visit().appointment.visit_code,
         })
         return context
-
-    # begin model methods for admin ---------------------
-    def aliquot(self):
-        url = reverse('admin:{}_{}_changelist'.format(
-            self.aliquot_model._meta.app_label,
-            self.aliquot_model._meta.model_name.lower()))
-        return """<a href="{url}?q={requisition_identifier}" />aliquot</a>""".format(
-            url=url, requisition_identifier=self.requisition_identifier)
-    aliquot.allow_tags = True
-
-    def subject(self):
-        return self.subject_identifier
-    subject.allow_tags = True
 
     class Meta:
         abstract = True

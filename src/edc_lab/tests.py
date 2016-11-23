@@ -8,11 +8,11 @@ from edc_constants.constants import YES, NO
 from edc_example.factories import (
     SubjectConsentFactory, EnrollmentFactory, SubjectVisitFactory, SubjectRequisitionFactory)
 from edc_example.lab_profiles import viral_load_panel
-from edc_example.models import Appointment, SubjectRequisition, Aliquot
+from edc_example.models import Appointment, SubjectRequisition
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
+from .models import Aliquot
 from .requisition_identifier import RequisitionIdentifier
-from .site_lab_profiles import site_lab_profiles
 from .specimen import Specimen
 from .specimen_collection import SpecimenCollection
 
