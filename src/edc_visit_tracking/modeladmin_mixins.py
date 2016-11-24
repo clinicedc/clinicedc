@@ -3,8 +3,6 @@ from collections import OrderedDict
 from django.contrib import admin
 from django.core.exceptions import ImproperlyConfigured
 
-from .model_mixins import CaretakerFieldsMixin
-
 
 class CrfModelAdminMixin:
 
@@ -82,40 +80,24 @@ class VisitModelAdminMixin:
     """
     date_hierarchy = 'report_datetime'
 
-    def __init__(self, *args, **kwargs):
-        super(VisitModelAdminMixin, self).__init__(*args, **kwargs)
-
-        if self.form._meta.fields != '__all__':
-            self.fields = self.form._meta.fields
-        else:
-            self.fields = [
-                'appointment',
-                'report_datetime',
-                'reason',
-                'reason_missed',
-                'study_status',
-                'require_crfs',
-                'info_source',
-                'info_source_other',
-                'comments'
-            ]
-        if issubclass(self.model, CaretakerFieldsMixin):
-            self.fields.pop(self.fields.index('comments'))
-            self.fields.extend([
-                'information_provider',
-                'information_provider_other',
-                'is_present',
-                'survival_status',
-                'last_alive_date',
-                'comments'])
-
-        self.list_display = ['appointment', 'report_datetime', 'reason', 'study_status', 'created',
+    fields = [
+        'appointment',
+        'report_datetime',
+        'reason',
+        'reason_missed',
+        'study_status',
+        'require_crfs',
+        'info_source',
+        'info_source_other',
+        'comments'
+    ]
+    list_display = ['appointment', 'report_datetime', 'reason', 'study_status', 'created',
                              'modified', 'user_created', 'user_modified', ]
 
-        self.search_fields = ['id', 'reason', 'appointment__visit_code',
+    search_fields = ['id', 'reason', 'appointment__visit_code',
                               'appointment__subject_identifier']
 
-        self.list_filter = ['study_status',
+    list_filter = ['study_status',
                             'appointment__visit_instance',
                             'reason',
                             'appointment__visit_code',
@@ -125,15 +107,24 @@ class VisitModelAdminMixin:
                             'user_created',
                             'user_modified',
                             'hostname_created']
-        self.radio_fields = {'require_crfs': admin.VERTICAL}
-        if issubclass(self.model, CaretakerFieldsMixin):
-            self.radio_fields.update({
-                # 'information_provider': admin.VERTICAL,
-                'is_present': admin.VERTICAL,
-                'survival_status': admin.VERTICAL,
-            })
+    radio_fields = {'require_crfs': admin.VERTICAL}
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'appointment' and request.GET.get('appointment'):
             kwargs["queryset"] = db_field.related_model.objects.filter(pk=request.GET.get('appointment', 0))
         return super(VisitModelAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class CareTakerFieldsAdminMixin:
+
+    mixin_fields = [
+        'information_provider',
+        'information_provider_other',
+        'is_present',
+        'survival_status',
+        'last_alive_date',
+        'comments']
+    radio_fields_mixin = {
+        'is_present': admin.VERTICAL,
+        'survival_status': admin.VERTICAL,
+    }
