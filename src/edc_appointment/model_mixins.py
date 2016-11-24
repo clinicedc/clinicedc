@@ -9,7 +9,7 @@ from django.db import models, transaction
 from django.db.models import options
 from django.db.models.deletion import ProtectedError
 
-from edc_registration.model_mixins import RegisteredSubjectMixin
+from edc_registration.model_mixins import SubjectIdentifierFromRegisteredSubjectModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
@@ -138,7 +138,8 @@ class AppointmentManager(models.Manager):
         return deleted
 
 
-class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin, RegisteredSubjectMixin):
+class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
+                            SubjectIdentifierFromRegisteredSubjectModelMixin):
 
     """Mixin for the appointment model only.
 
