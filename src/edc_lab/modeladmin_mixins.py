@@ -10,16 +10,16 @@ class AliquotModelAdminMixin(admin.ModelAdmin):
 
     date_hierarchy = 'created'
 
-    list_display = ("aliquot_identifier", 'subject_identifier',
-                    'processing',  # 'related',
-                    'to_receive', 'drawn', "aliquot_type",
-                    'aliquot_condition', 'is_packed', 'created',
+    list_display = ("aliquot_identifier", #'subject_identifier',
+                    #'processing',  # 'related', 'to_receive', 'drawn', 'aliquot_condition', 'is_packed',
+                    "aliquot_type",
+                    'created',
                     'user_created', 'hostname_created')
 
     search_fields = ('aliquot_identifier', 'receive__receive_identifier',
                      'receive__registered_subject__subject_identifier')
 
-    list_filter = ('aliquot_type', 'aliquot_condition',
+    list_filter = ('aliquot_type', #'aliquot_condition',
                    'created', 'user_created', 'hostname_created')
 
     list_per_page = 15
@@ -172,7 +172,7 @@ class RequisitionAdminMixin:
         self.list_display = [
             'requisition_identifier',
             # 'specimen_identifier',
-            'subject',
+#             'subject',
             'visit',
             "requisition_datetime",
             "panel",
