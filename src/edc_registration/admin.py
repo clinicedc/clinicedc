@@ -1,6 +1,6 @@
 from django.contrib.admin import AdminSite
 
-from edc_base.modeladmin.mixins import ModelAdminBasicMixin
+from edc_base.modeladmin_mixins import ModelAdminBasicMixin
 
 
 class EdcRegistrationAdminSite(AdminSite):

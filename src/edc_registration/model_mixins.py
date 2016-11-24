@@ -351,7 +351,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         abstract = True
 
 
-class RegisteredSubjectMixin(models.Model):
+class SubjectIdentifierFromRegisteredSubjectModelMixin(models.Model):
 
     """A mixin to ensure subject_identifier is on the model and always updated by the registration model."""
 
@@ -362,7 +362,7 @@ class RegisteredSubjectMixin(models.Model):
 
     def save(self, *args, **kwargs):
         self.subject_identifier = self.registration_instance.subject_identifier
-        super(RegisteredSubjectMixin, self).save(*args, **kwargs)
+        super(SubjectIdentifierFromRegisteredSubjectModelMixin, self).save(*args, **kwargs)
 
     @property
     def registration_instance(self):
