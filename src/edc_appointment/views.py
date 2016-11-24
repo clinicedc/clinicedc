@@ -1,4 +1,4 @@
-from edc_base.views.edc_base_view_mixin import EdcBaseViewMixin
+from edc_base.view_mixins import EdcBaseViewMixin
 from django.views.generic.base import TemplateView
 
 
