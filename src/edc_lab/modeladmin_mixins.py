@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.core.exceptions import ImproperlyConfigured
 
 from .actions import flag_as_received, flag_as_not_received, flag_as_not_labelled, print_requisition_label
 
@@ -9,15 +8,13 @@ class AliquotModelAdminMixin(admin.ModelAdmin):
     date_hierarchy = 'created'
 
     list_display = ("aliquot_identifier", 'subject_identifier',
-                    'processing',
-                    'to_receive', 'drawn', "aliquot_type",
-                    'aliquot_condition', 'is_packed', 'created',
+                    'processing', 'drawn', 'created',
                     'user_created', 'hostname_created')
 
     search_fields = ('aliquot_identifier', 'receive__receive_identifier',
                      'receive__registered_subject__subject_identifier')
 
-    list_filter = ('aliquot_type', 'aliquot_condition',
+    list_filter = ('aliquot_type',
                    'created', 'user_created', 'hostname_created')
 
     list_per_page = 15
@@ -127,18 +124,15 @@ class ReceiveModelAdminMixin(admin.ModelAdmin):
 class RequisitionAdminMixin:
 
     panel_model = None
+
     date_hierarchy = 'requisition_datetime'
+
     actions = [
         flag_as_received,
         flag_as_not_received,
         flag_as_not_labelled,
         print_requisition_label,
     ]
-
-    def __init__(self, *args, **kwargs):
-        if not self.panel_model:
-            raise ImproperlyConfigured('{}.panel_model cannot be None.'.format(self.__class__.__name__))
-        super(RequisitionAdminMixin, self).__init__(*args, **kwargs)
 
     fields = [
         "requisition_datetime",
