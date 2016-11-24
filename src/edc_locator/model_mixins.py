@@ -8,9 +8,10 @@ from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 from edc_base.model.validators import CellNumber, TelephoneNumber
 from edc_constants.choices import YES_NO, YES_NO_DOESNT_WORK
 from edc_constants.constants import YES
+from edc_registration.model_mixins import SubjectIdentifierFromRegisteredSubjectModelMixin
 
 
-class LocatorModelMixin(models.Model):
+class LocatorModelMixin(SubjectIdentifierFromRegisteredSubjectModelMixin, models.Model):
 
     date_signed = models.DateField(
         verbose_name="Date Locator Form signed ",

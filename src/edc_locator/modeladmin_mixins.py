@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from edc_base.modeladmin.mixins import ModelAdminBasicMixin
+from edc_base.modeladmin_mixins import ModelAdminBasicMixin
 
 
 class ModelAdminLocatorMixin(ModelAdminBasicMixin):
