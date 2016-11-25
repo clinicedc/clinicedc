@@ -5,7 +5,6 @@ from django.db import models
 from django_crypto_fields.fields import EncryptedTextField
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
-from simple_history.models import HistoricalRecords as AuditTrail
 
 from edc_base.model.validators import datetime_not_future
 from edc_base.utils import formatted_age, age
@@ -139,8 +138,6 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     objects = ObjectConsentManager()
 
     consent = ConsentManager()
-
-    history = AuditTrail()
 
     def natural_key(self):
         return (self.subject_identifier_as_pk, )
