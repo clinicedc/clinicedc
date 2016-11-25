@@ -47,12 +47,15 @@ class AppointmentManager(models.Manager):
     def get_visit_code(self, action, schedule, **kwargs):
         """Updates the options dictionary with the next or previous visit code in the schedule.
 
-        reference can be an appointment instance or visit_code as a string"""
-        try:
-            appointment = kwargs.get('appointment')
-            visit_code = appointment.visit_code
-        except AttributeError:
-            visit_code = kwargs.get('visit_code')
+        if both visit_code and appointment are in kwargs visit_code takes precedence
+        over apppointment.visit_code"""
+        visit_code = kwargs.get('visit_code')
+        if not visit_code:
+            try:
+                appointment = kwargs.get('appointment')
+                visit_code = appointment.visit_code
+            except AttributeError:
+                pass
         attrname = 'get_{}_visit'.format(action)
         visit = getattr(schedule, attrname)(visit_code)
         try:
@@ -91,14 +94,16 @@ class AppointmentManager(models.Manager):
     def next_appointment(self, **kwargs):
         """Returns the next appointment relative to the criteria or None if there is no next.
 
+        Next is the next visit in a schedule, so schedule_name is required.
+
         For example:
-            next_appointment = Appointment.objects.first_appointment(appointment)
+            next_appointment = Appointment.objects.first_appointment(appointment=appointment)
         or:
-            first_appointment = Appointment.objects.first_appointment(
-                visit_code, appointment=appointment)
+            next_appointment = Appointment.objects.first_appointment(
+                visit_code=visit_code, appointment=appointment)
         or:
-            first_appointment = Appointment.objects.first_appointment(
-                visit_code,
+            next_appointment = Appointment.objects.first_appointment(
+                visit_code=visit_code,
                 subject_identifier=subject_identifier,
                 visit_schedule_name=visit_schedule_name,
                 schedule_name=schedule_name)
