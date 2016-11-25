@@ -8,11 +8,12 @@ from django.test import TestCase
 from django.utils import timezone
 from django.conf import settings
 
-from edc_example.models import Appointment, SubjectConsent, Enrollment, RegisteredSubject, EnrollmentTwo
+from edc_example.models import Appointment, SubjectConsent, Enrollment, RegisteredSubject, EnrollmentTwo, SubjectVisit
 
 from .facility import Facility
 from .models import Holiday
 from decimal import Context
+from edc_visit_tracking.constants import SCHEDULED
 # from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
@@ -25,6 +26,26 @@ class TestAppointment(TestCase):
         self.subject_consent = mommy.make_recipe(
             'edc_example.subjectconsent',
             consent_datetime=timezone.now() - relativedelta(weeks=2))
+
+    def test_deletes_appointments(self):
+        """Asserts manager method can delete appointments."""
+        subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent', consent_datetime=timezone.now() - relativedelta(weeks=5))
+        mommy.make(
+            Enrollment,
+            subject_identifier=subject_consent.subject_identifier,
+            report_datetime=subject_consent.consent_datetime,
+            visit_schedule_name=Enrollment._meta.visit_schedule_name.split('.')[0],
+            schedule_name=Enrollment._meta.visit_schedule_name.split('.')[-1])
+        appointments = Appointment.objects.all()
+        mommy.make(
+            SubjectVisit,
+            appointment=appointments[0],
+            reason=SCHEDULED)
+        self.assertEqual(Appointment.objects.all().count(), 4)
+        Appointment.objects.delete_for_subject_after_date(
+            appointments[0].subject_identifier, appointments[0].appt_datetime - relativedelta(days=1))
+        self.assertEqual(Appointment.objects.all().count(), 1)
 
     def test_appointments_creation(self):
         """Test if appointment triggering method creates appointments."""

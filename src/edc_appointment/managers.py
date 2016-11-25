@@ -134,11 +134,19 @@ class AppointmentManager(models.Manager):
         """Deletes appointments for a given subject_identifier with appt_datetime greater than `dt`.
 
         If a visit form exists for any appointment, a ProtectedError will be raised."""
+        if not subject_identifier:
+            raise TypeError('Expected value for subject_identifier. Got None')
         options = dict(subject_identifier=subject_identifier, appt_datetime__gte=dt)
+        if schedule_name and not visit_schedule_name:
+            raise TypeError('Expected visit_schedule_name for schedule_name \'{}\'. Got {}'.format(
+                schedule_name, visit_schedule_name))
         if visit_schedule_name:
+            try:
+                visit_schedule_name, schedule_name = visit_schedule_name.split('.')
+            except ValueError:
+                if schedule_name:
+                    options.update(dict(schedule_name=schedule_name))
             options.update(dict(visit_schedule_name=visit_schedule_name))
-        if schedule_name:
-            options.update(dict(schedule_name=schedule_name))
         deleted = 0
         appointments = self.filter(**options).order_by('-appt_datetime')
         for appointment in appointments:
