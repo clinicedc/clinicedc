@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+import sys
+
+from pathlib import Path
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -43,10 +46,8 @@ INSTALLED_APPS = [
     'edc_base.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
-    # 'edc_lab.apps.AppConfig',
-    # 'edc_metadata.apps.AppConfig',
+    'edc_metadata.apps.AppConfig',
     'edc_registration.apps.AppConfig',
-    # 'edc_rule_groups.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
     'edc_example.apps.EdcProtocolAppConfig',
@@ -90,12 +91,27 @@ WSGI_APPLICATION = 'edc_appointment.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'OPTIONS': {
+            'read_default_file': os.path.join(BASE_DIR, 'etc', 'default.cnf'),
+        },
+        'HOST': '',
+        'PORT': '',
+        'ATOMIC_REQUESTS': True,
     }
 }
+
+if 'test' in sys.argv and DATABASES.get('default').get('ENGINE') != 'django.db.backends.mysql':
+    MIGRATION_MODULES = {'edc_example': None}
 
 
 # Password validation

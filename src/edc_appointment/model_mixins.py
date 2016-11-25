@@ -7,7 +7,6 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.db.models import options
-from django.db.models.deletion import ProtectedError
 
 from edc_registration.model_mixins import SubjectIdentifierFromRegisteredSubjectModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
@@ -16,126 +15,11 @@ from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from .choices import APPT_TYPE, APPT_STATUS, COMPLETE_APPT, INCOMPLETE_APPT, CANCELLED_APPT
 from .constants import IN_PROGRESS_APPT, NEW_APPT
 from .exceptions import AppointmentStatusError
+from .managers import AppointmentManager
 
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
-
-
-class CreateAppointmentsMixin(models.Model):
-
-    """ Model Mixin to add fields and methods to an enrollment model to create appointments on post_save.
-
-    Requires model mixins VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin.
-    """
-
-    facility_name = models.CharField(
-        verbose_name='To which facility is this subject being enrolled?',
-        max_length=25,
-        default='clinic',
-        help_text="The facility name is need when scheduling appointments")
-
-    @property
-    def appointment_model(self):
-        app_config = django_apps.get_app_config('edc_appointment')
-        return app_config.model
-
-    @property
-    def default_appt_type(self):
-        app_config = django_apps.get_app_config('edc_appointment')
-        return app_config.default_appt_type
-
-    def create_appointments(self, base_appt_datetime=None):
-        """Creates appointments when called by post_save signal.
-
-        Timepoint datetimes are adjusted according to the available days
-        in the facility."""
-        app_config = django_apps.get_app_config('edc_appointment')
-        appointments = []
-        base_appt_datetime = base_appt_datetime or self.report_datetime
-        facility = app_config.get_facility(self.facility_name)
-        timepoint_datetimes = self.timepoint_datetimes(
-            base_appt_datetime or self.report_datetime, self.schedule)
-        taken_datetimes = []
-        for visit, timepoint_datetime in timepoint_datetimes:
-            adjusted_timepoint_datetime = self.move_to_facility_day(facility, timepoint_datetime)
-            available_datetime = facility.available_datetime(
-                adjusted_timepoint_datetime, taken_datetimes=taken_datetimes)
-            with transaction.atomic():
-                appointment = self.update_or_create_appointment(
-                    visit, available_datetime, timepoint_datetime)
-                appointments.append(appointment)
-            taken_datetimes.append(available_datetime)
-        return appointments
-
-    def move_to_facility_day(self, facility, dt, forward_only=None):
-        """Move a date forward off of a weekend unless app_config includes weekends."""
-        delta = relativedelta(days=0)
-        sa_delta = relativedelta(days=2)
-        su_delta = relativedelta(days=1)
-        if dt.weekday() == SA.weekday and SA not in facility.days:
-            delta = sa_delta
-        if dt.weekday() == SU.weekday and SU not in facility.days:
-            delta = su_delta
-        return dt + delta
-
-    def update_or_create_appointment(self, visit, available_datetime, timepoint_datetime):
-        """Updates or creates an appointment for this subject for the visit."""
-        options = dict(
-            subject_identifier=self.subject_identifier,
-            visit_schedule_name=self.visit_schedule.name,
-            schedule_name=self.schedule.name,
-            visit_code=visit.code,
-            visit_code_sequence=0,
-            facility_name=self.facility_name)
-        try:
-            appointment = self.appointment_model.objects.get(**options)
-            if appointment.timepoint_datetime - available_datetime != timedelta(0, 0, 0):
-                appointment.appt_datetime = available_datetime
-                appointment.timepoint_datetime = timepoint_datetime
-                appointment.save(update_fields=['appt_datetime', 'timepoint_datetime'])
-        except self.appointment_model.DoesNotExist:
-            appointment = self.appointment_model.objects.create(
-                **options,
-                timepoint_datetime=timepoint_datetime,
-                appt_datetime=available_datetime,
-                appt_type=self.default_appt_type)
-        return appointment
-
-    class Meta:
-        visit_schedule_name = None
-        abstract = True
-
-
-class AppointmentManager(models.Manager):
-
-    def get_by_natural_key(self, subject_identifier, visit_schedule_name,
-                           schedule_name, visit_code, visit_code_sequence):
-        return self.get(
-            subject_identifier=subject_identifier,
-            visit_schedule_name=visit_schedule_name,
-            schedule_name=schedule_name,
-            visit_code=visit_code,
-            visit_code_sequence=visit_code_sequence)
-
-    def delete_for_subject_after_date(self, subject_identifier, dt, visit_schedule_name=None, schedule_name=None):
-        """Deletes appointments for a given subject_identifier with appt_datetime greater than `dt`.
-
-        If a visit form exists for any appointment, a ProtectedError will be raised."""
-        options = dict(subject_identifier=subject_identifier, appt_datetime__gte=dt)
-        if visit_schedule_name:
-            options.update(dict(visit_schedule_name=visit_schedule_name))
-        if schedule_name:
-            options.update(dict(schedule_name=schedule_name))
-        deleted = 0
-        appointments = self.filter(**options).order_by('-appt_datetime')
-        for appointment in appointments:
-            try:
-                appointment.delete()
-                deleted += 1
-            except ProtectedError:
-                break
-        return deleted
 
 
 class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
@@ -147,6 +31,13 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
 
     Attribute 'visit_code_sequence' should be populated by the system.
     """
+
+    timepoint = models.DecimalField(
+        null=True,
+        decimal_places=1,
+        max_digits=6,
+        editable=False,
+        help_text='timepoint from schedule')
 
     timepoint_datetime = models.DateTimeField(
         null=True,
@@ -218,8 +109,7 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
     objects = AppointmentManager()
 
     def __str__(self):
-        return "{0}.{1}".format(
-            self.visit_code, self.visit_code_sequence)
+        return "{0}.{1}".format(self.visit_code, str(self.timepoint).split('.')[-1])
 
     def natural_key(self):
         return (self.subject_identifier, self.visit_schedule_name, self.schedule_name,
@@ -236,8 +126,96 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
     class Meta:
         abstract = True
         unique_together = (('subject_identifier', 'visit_schedule_name', 'schedule_name',
-                            'visit_code', 'visit_code_sequence'), )
+                            'visit_code', 'visit_code_sequence'),
+                           ('subject_identifier', 'visit_schedule_name', 'schedule_name',
+                            'visit_code', 'timepoint'))
         ordering = ('appt_datetime', )
+
+
+class CreateAppointmentsMixin(models.Model):
+
+    """ Model Mixin to add fields and methods to an enrollment model to create appointments on post_save.
+
+    Requires model mixins VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin.
+    """
+
+    facility_name = models.CharField(
+        verbose_name='To which facility is this subject being enrolled?',
+        max_length=25,
+        default='clinic',
+        help_text="The facility name is need when scheduling appointments")
+
+    @property
+    def appointment_model(self):
+        app_config = django_apps.get_app_config('edc_appointment')
+        return app_config.model
+
+    @property
+    def default_appt_type(self):
+        app_config = django_apps.get_app_config('edc_appointment')
+        return app_config.default_appt_type
+
+    def create_appointments(self, base_appt_datetime=None):
+        """Creates appointments when called by post_save signal.
+
+        Timepoint datetimes are adjusted according to the available days
+        in the facility."""
+        app_config = django_apps.get_app_config('edc_appointment')
+        appointments = []
+        base_appt_datetime = base_appt_datetime or self.report_datetime
+        facility = app_config.get_facility(self.facility_name)
+        timepoint_datetimes = self.timepoint_datetimes(
+            base_appt_datetime or self.report_datetime, self.schedule)
+        taken_datetimes = []
+        for visit, timepoint_datetime in timepoint_datetimes:
+            adjusted_timepoint_datetime = self.move_to_facility_day(facility, timepoint_datetime)
+            available_datetime = facility.available_datetime(
+                adjusted_timepoint_datetime, taken_datetimes=taken_datetimes)
+            with transaction.atomic():
+                appointment = self.update_or_create_appointment(
+                    visit, available_datetime, timepoint_datetime)
+                appointments.append(appointment)
+            taken_datetimes.append(available_datetime)
+        return appointments
+
+    def move_to_facility_day(self, facility, dt, forward_only=None):
+        """Move a date forward off of a weekend unless app_config includes weekends."""
+        delta = relativedelta(days=0)
+        sa_delta = relativedelta(days=2)
+        su_delta = relativedelta(days=1)
+        if dt.weekday() == SA.weekday and SA not in facility.days:
+            delta = sa_delta
+        if dt.weekday() == SU.weekday and SU not in facility.days:
+            delta = su_delta
+        return dt + delta
+
+    def update_or_create_appointment(self, visit, available_datetime, timepoint_datetime):
+        """Updates or creates an appointment for this subject for the visit."""
+        options = dict(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
+            visit_code=visit.code,
+            visit_code_sequence=0,
+            timepoint=visit.timepoint,
+            facility_name=self.facility_name)
+        try:
+            appointment = self.appointment_model.objects.get(**options)
+            if appointment.timepoint_datetime - available_datetime != timedelta(0, 0, 0):
+                appointment.appt_datetime = available_datetime
+                appointment.timepoint_datetime = timepoint_datetime
+                appointment.save(update_fields=['appt_datetime', 'timepoint_datetime'])
+        except self.appointment_model.DoesNotExist:
+            appointment = self.appointment_model.objects.create(
+                **options,
+                timepoint_datetime=timepoint_datetime,
+                appt_datetime=available_datetime,
+                appt_type=self.default_appt_type)
+        return appointment
+
+    class Meta:
+        visit_schedule_name = None
+        abstract = True
 
 
 class RequiresAppointmentModelMixin(models.Model):
