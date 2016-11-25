@@ -1,5 +1,3 @@
-from django.apps import apps as django_apps
-
 from edc_lab.site_lab_profiles import site_lab_profiles
 
 
@@ -8,7 +6,6 @@ class Requisition:
 
     def __init__(self, requisition):
         self.object = requisition
-        self.model = django_apps.get_app_config('edc_lab').requisition_model
         for field in self.object._meta.fields:
             if field.name not in ['specimen_identifier']:
                 setattr(self, field.name, getattr(self.object, field.name))
@@ -25,4 +22,4 @@ class Requisition:
     def specimen_identifier(self, value):
         self.object.specimen_identifier = value
         self.object.save()
-        self.object = self.model.objects.get(requisition_identifier=self.requisition_identifier)
+        self.object = self.object.__class__.objects.get(requisition_identifier=self.requisition_identifier)

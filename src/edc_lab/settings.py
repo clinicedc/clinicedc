@@ -44,10 +44,6 @@ INSTALLED_APPS = [
     'edc_appointment.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_device.apps.AppConfig',
-    'edc_example.apps.AppConfig',
-    'edc_example.apps.EdcConsentAppConfig',
-    'edc_example.apps.EdcProtocolAppConfig',
-    'edc_example.apps.EdcTimepointAppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_lab.apps.AppConfig',
     'edc_label.apps.AppConfig',
@@ -56,6 +52,10 @@ INSTALLED_APPS = [
     'edc_registration.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
+    'edc_example.apps.EdcProtocolAppConfig',
+    'edc_example.apps.EdcTimepointAppConfig',
+    'edc_example.apps.EdcConsentAppConfig',
+    'edc_example.apps.AppConfig',
 ]
 
 MIDDLEWARE = [

@@ -3,7 +3,6 @@ import re
 from uuid import uuid4
 
 from django.apps import apps as django_apps
-from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
@@ -197,7 +196,8 @@ class RequisitionModelMixin(models.Model):
         try:
             site_lab_profiles.get(self._meta.label_lower).panels[self.panel_name]
         except KeyError as e:
-            raise RequisitionError('Undefined panel name. Got {}. See AppConfig. Got {}'.format(self.panel_name, str(e)))
+            raise RequisitionError(
+                'Undefined panel name. Got {}. See AppConfig. Got {}'.format(self.panel_name, str(e)))
         self.update_requisition_identifier()
         super(RequisitionModelMixin, self).save(*args, **kwargs)
 

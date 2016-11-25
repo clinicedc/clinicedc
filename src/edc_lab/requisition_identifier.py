@@ -9,14 +9,15 @@ edc_device_app_config = django_apps.get_app_config('edc_device')
 
 class RequisitionIdentifier:
 
-    def __init__(self, model):
+    def __init__(self, model=None):
         self.model = model
         self.device_id = edc_device_app_config.device_id
         self.template = '{device_id}{random_string}'
         self.identifier = self.template.format(device_id=self.device_id, random_string=self.random_string)
-        if self.is_duplicate:
-            raise RequisitionError('Unable prepare a unique requisition identifier, '
-                                   'all are taken. Increase the length of the random string')
+        if model:
+            if self.is_duplicate:
+                raise RequisitionError('Unable prepare a unique requisition identifier, '
+                                       'all are taken. Increase the length of the random string')
 
     def __str__(self):
         return self.identifier

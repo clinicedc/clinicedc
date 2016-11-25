@@ -9,8 +9,11 @@ from edc_lab.site_lab_profiles import site_lab_profiles
 class AppConfig(DjangoAppConfig):
     name = 'edc_lab'
     verbose_name = 'Edc Lab'
-    custom_models = {
-        'requisition': 'edc_example.subjectrequisition'}
+    lab_models = {
+        'aliquot': 'edc_lab.aliquot',
+        'specimencollection': 'edc_lab.specimencollection',
+        'specimencollectionitem': 'edc_lab.specimencollectionitem',
+    }
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
@@ -19,7 +22,7 @@ class AppConfig(DjangoAppConfig):
 
     def model(self, model_name):
         return django_apps.get_model(
-            *self.custom_models.get(model_name, '{}.{}'.format(self.name, model_name)).split('.'))
+            *self.lab_models.get(model_name).split('.'))
 
     @property
     def aliquot_model(self):
