@@ -30,3 +30,6 @@ class AppConfig(DjangoAppConfig):
             site_consents.register(consent_config)
             sys.stdout.write(' * registered {}.\n'.format(consent_config))
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
+
+    def get_consent_config(self, model):
+        return site_consents.get_consent_config(model)
