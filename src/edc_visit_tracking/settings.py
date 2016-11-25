@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 
+from pathlib import Path
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -43,15 +45,13 @@ INSTALLED_APPS = [
     'edc_base.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
-    'edc_lab.apps.AppConfig',
     'edc_metadata.apps.AppConfig',
     'edc_registration.apps.AppConfig',
-    'edc_rule_groups.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
-    'edc_example.apps.EdcConsentAppConfig',
     'edc_example.apps.EdcProtocolAppConfig',
     'edc_example.apps.EdcTimepointAppConfig',
+    'edc_example.apps.EdcConsentAppConfig',
     'edc_example.apps.AppConfig',
 ]
 
@@ -89,13 +89,23 @@ WSGI_APPLICATION = 'edc_visit_tracking.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'edc',
+        'USER': 'root',
+        'PASSWORD': 'cc3721b',
+        'HOST': '',
+        'PORT': '',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -135,3 +145,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
+KEY_PATH = Path(BASE_DIR).joinpath('crypto_fields')

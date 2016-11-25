@@ -1,5 +1,6 @@
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from model_mommy import mommy
 
 from django.apps import apps as django_apps
 from django import forms
@@ -15,7 +16,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_example.models import (
     SubjectVisit, Appointment, CrfOne, Enrollment, CrfOneInline, OtherModel, BadCrfOneInline)
-from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
 from edc_consent.form_mixins import RequiresConsentFormMixin
 from edc_visit_tracking.model_mixins import PreviousVisitError
 
@@ -43,12 +43,14 @@ class TestVisitMixin(TestCase):
 
     def test_crf_inline_model_attrs(self):
         """Assert inline model can find visit instance from parent."""
-        subject_consent = SubjectConsentFactory()
+        subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent')
         Enrollment.objects.create(
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
         appointment = Appointment.objects.all()[0]
-        subject_visit = SubjectVisitFactory(appointment=appointment)
+        subject_visit = mommy.make_recipe(
+            'edc_example.subjectvisit', appointment=appointment)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = OtherModel.objects.create()
         crf_one_inline = CrfOneInline.objects.create(crf_one=crf_one, other_model=other_model)
@@ -56,12 +58,15 @@ class TestVisitMixin(TestCase):
 
     def test_crf_inline_model_parent_model(self):
         """Assert inline model cannot find parent, raises exception."""
-        subject_consent = SubjectConsentFactory()
+        # subject_consent = SubjectConsentFactory()
+        subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent')
         Enrollment.objects.create(
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
         appointment = Appointment.objects.all()[0]
-        subject_visit = SubjectVisitFactory(appointment=appointment)
+        subject_visit = mommy.make_recipe(
+            'edc_example.subjectvisit', appointment=appointment)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = OtherModel.objects.create()
         self.assertRaises(ImproperlyConfigured, BadCrfOneInline.objects.create, crf_one=crf_one, other_model=other_model)
@@ -74,7 +79,8 @@ class TestVisit(TestCase):
         RegisteredSubject = app_config.model
         subject_identifier = '123456789-0'
         # consent
-        self.subject_consent = SubjectConsentFactory(
+        self.subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent',
             subject_identifier=subject_identifier,
             consent_datetime=timezone.now(),
             identity='111211111',
