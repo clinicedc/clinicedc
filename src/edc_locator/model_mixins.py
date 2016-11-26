@@ -8,10 +8,21 @@ from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 from edc_base.model.validators import CellNumber, TelephoneNumber
 from edc_constants.choices import YES_NO, YES_NO_DOESNT_WORK
 from edc_constants.constants import YES
-from edc_registration.model_mixins import SubjectIdentifierFromRegisteredSubjectModelMixin
 
 
-class LocatorModelMixin(SubjectIdentifierFromRegisteredSubjectModelMixin, models.Model):
+class LocatorManager(models.Manager):
+
+    def get_by_natural_key(self, subject_identifier):
+        return self.get(subject_identifier=subject_identifier)
+
+
+class LocatorModelMixin(models.Model):
+
+    subject_identifier = models.CharField(
+        verbose_name="Subject Identifier",
+        max_length=50,
+        unique=True,
+        editable=False)
 
     date_signed = models.DateField(
         verbose_name="Date Locator Form signed ",
@@ -154,6 +165,11 @@ class LocatorModelMixin(SubjectIdentifierFromRegisteredSubjectModelMixin, models
         blank=True,
         null=True,
     )
+
+    objects = LocatorManager()
+
+    def natural_key(self):
+        return (self.subject_identifier, )
 
     def to_dict(self):
         data = {'may_follow_up': self.may_follow_up}
