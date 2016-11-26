@@ -12,7 +12,7 @@ from .facility import Facility
 class AppConfig(DjangoAppConfig):
     name = 'edc_appointment'
     verbose_name = "Edc Appointments"
-    app_label = 'edc_example'
+    app_label = 'edc_appointment'
     default_appt_type = 'clinic'
     facilities = {
         'clinic': Facility(name='clinic', days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])}
