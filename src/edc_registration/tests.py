@@ -1,14 +1,15 @@
 import copy
 import re
+
+from dateutil.relativedelta import relativedelta
 from uuid import uuid4
 
 from django.apps import apps as django_apps
 from django.test import TestCase
-
-from edc_registration.exceptions import RegisteredSubjectError
-from dateutil.relativedelta import relativedelta
 from django.utils import timezone
+
 from edc_example.factories import SubjectConsentFactory
+from edc_registration.exceptions import RegisteredSubjectError
 
 
 class TestRegistration(TestCase):
