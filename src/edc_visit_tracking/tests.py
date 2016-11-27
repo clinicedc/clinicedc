@@ -4,11 +4,11 @@ from model_mommy import mommy
 
 from django.apps import apps as django_apps
 from django import forms
-from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
 
 from django.test.testcases import TestCase
 
+from edc_base.utils import get_utcnow
 from edc_constants.constants import ON_STUDY, ALIVE, YES
 from edc_visit_tracking.form_mixins import VisitFormMixin
 from edc_visit_tracking.constants import SCHEDULED
@@ -82,7 +82,7 @@ class TestVisit(TestCase):
         self.subject_consent = mommy.make_recipe(
             'edc_example.subjectconsent',
             subject_identifier=subject_identifier,
-            consent_datetime=timezone.now(),
+            consent_datetime=get_utcnow(),
             identity='111211111',
             confirm_identity='111211111',
             is_literate=YES)
@@ -105,7 +105,7 @@ class TestVisit(TestCase):
             visit_instance='0')
         self.data = {
             'appointment': appointment.pk,
-            'report_datetime': timezone.now(),
+            'report_datetime': get_utcnow(),
             'study_status': ON_STUDY,
             'survival_status': ALIVE,
             'require_crfs': YES,
@@ -131,16 +131,16 @@ class TestVisit(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_form_before_consent(self):
-        self.data.update({'report_datetime': timezone.now() - relativedelta(years=1)})
+        self.data.update({'report_datetime': get_utcnow() - relativedelta(years=1)})
         form = SubjectVisitForm(self.data)
         self.assertFalse(form.is_valid())
         self.assertIn('Report datetime cannot be before consent datetime', form.errors.get('__all__') or [])
 
     def test_form_before_dob(self):
-        self.subject_consent.consent_datetime = timezone.now() - relativedelta(days=30)
-        self.subject_consent.dob = timezone.now().date() - relativedelta(days=10)
+        self.subject_consent.consent_datetime = get_utcnow() - relativedelta(days=30)
+        self.subject_consent.dob = get_utcnow().date() - relativedelta(days=10)
         self.subject_consent.save()
-        self.data.update({'report_datetime': timezone.now() - relativedelta(days=15)})
+        self.data.update({'report_datetime': get_utcnow() - relativedelta(days=15)})
         form = SubjectVisitForm(self.data)
         self.assertFalse(form.is_valid())
         self.assertIn('Report datetime cannot be before DOB', form.errors.get('__all__') or [])
@@ -151,7 +151,7 @@ class TestVisit(TestCase):
         for index, appointment in enumerate(Appointment.objects.all().order_by('visit_code')):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=timezone.now() - relativedelta(months=10 - index),
+                report_datetime=get_utcnow() - relativedelta(months=10 - index),
                 reason=SCHEDULED)
         subject_visit = SubjectVisit.objects.all()[0]
         self.assertIsNone(subject_visit.previous_visit)
@@ -166,19 +166,19 @@ class TestVisit(TestCase):
         """Asserts requires previous visit to exist on create."""
         SubjectVisit.objects.create(
             appointment=Appointment.objects.all()[0],
-            report_datetime=timezone.now() - relativedelta(months=10),
+            report_datetime=get_utcnow() - relativedelta(months=10),
             reason=SCHEDULED)
         self.assertRaises(
             PreviousVisitError, SubjectVisit.objects.create,
             appointment=Appointment.objects.all()[2],
-            report_datetime=timezone.now() - relativedelta(months=8),
+            report_datetime=get_utcnow() - relativedelta(months=8),
             reason=SCHEDULED)
         SubjectVisit.objects.create(
             appointment=Appointment.objects.all()[1],
-            report_datetime=timezone.now() - relativedelta(months=10),
+            report_datetime=get_utcnow() - relativedelta(months=10),
             reason=SCHEDULED)
         self.assertRaises(
             PreviousVisitError, SubjectVisit.objects.create,
             appointment=Appointment.objects.all()[3],
-            report_datetime=timezone.now() - relativedelta(months=8),
+            report_datetime=get_utcnow() - relativedelta(months=8),
             reason=SCHEDULED)
