@@ -5,9 +5,10 @@ from datetime import datetime, time
 from django.db import models
 from django.utils import timezone
 
-from edc_appointment.model_mixins import AppointmentModelMixin
 from edc_base.model.models import BaseUuidModel, HistoricalRecords
-from edc_consent.model_mixins import RequiresConsentMixin
+
+from .managers import AppointmentManager
+from .model_mixins import AppointmentModelMixin
 
 
 class HolidayManager(models.Manager):
@@ -17,13 +18,7 @@ class HolidayManager(models.Manager):
         return [obj.day_as_datetime(time) for obj in self.filter(day__year=year, day__month=month).order_by('day')]
 
 
-class AppointmentManager(models.Manager):
-
-    def get_by_natural_key(self, subject_identifer, visit_code):
-        return self.get(subject_identifer=subject_identifer, visit_code=visit_code)
-
-
-class Appointment(AppointmentModelMixin, RequiresConsentMixin, BaseUuidModel):
+class Appointment(AppointmentModelMixin, BaseUuidModel):
 
     objects = AppointmentManager()
 
@@ -33,8 +28,8 @@ class Appointment(AppointmentModelMixin, RequiresConsentMixin, BaseUuidModel):
     def str_pk(self):
         return str(self.pk)
 
-    def natural_key(self):
-        return (self.subject_identifier, self.visit_code)
+    class Meta:
+        app_label = 'edc_appointment'
 
 
 class Holiday(models.Model):

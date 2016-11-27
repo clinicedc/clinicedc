@@ -130,13 +130,20 @@ class AppointmentManager(models.Manager):
             previous_appointment = None
         return previous_appointment
 
-    def delete_for_subject_after_date(self, subject_identifier, dt, visit_schedule_name=None, schedule_name=None):
+    def delete_for_subject_after_date(self, subject_identifier, dt, op=None,
+                                      visit_schedule_name=None, schedule_name=None):
         """Deletes appointments for a given subject_identifier with appt_datetime greater than `dt`.
 
         If a visit form exists for any appointment, a ProtectedError will be raised."""
         if not subject_identifier:
             raise TypeError('Expected value for subject_identifier. Got None')
-        options = dict(subject_identifier=subject_identifier, appt_datetime__gte=dt)
+        valid_ops = ['gt', 'gte']
+        op = 'gte' if op is None else op
+        if op not in valid_ops:
+            raise TypeError('Allowed lookup operators are {}. Got {}.'.format(', '.join(valid_ops), op))
+        options = {
+            'subject_identifier': subject_identifier,
+            'appt_datetime__{}'.format(op): dt}
         if schedule_name and not visit_schedule_name:
             raise TypeError('Expected visit_schedule_name for schedule_name \'{}\'. Got {}'.format(
                 schedule_name, visit_schedule_name))

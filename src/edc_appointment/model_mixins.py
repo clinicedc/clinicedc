@@ -214,8 +214,21 @@ class CreateAppointmentsMixin(models.Model):
         return appointment
 
     class Meta:
-        visit_schedule_name = None
         abstract = True
+        visit_schedule_name = None
+
+
+class CreateAppointmentsOnEligibleMixin(models.Model):
+    """Same as CreateAppointmentsMixin except will check for is_eigile=True before creating."""
+    def create_appointments(self, base_appt_datetime=None):
+        appointments = None
+        if self.is_eligible:
+            appointments = super(CreateAppointmentsOnEligibleMixin, self).create_appointments(base_appt_datetime)
+        return appointments
+
+    class Meta:
+        abstract = True
+        visit_schedule_name = None
 
 
 class RequiresAppointmentModelMixin(models.Model):
