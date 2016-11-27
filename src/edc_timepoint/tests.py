@@ -1,8 +1,8 @@
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase
-from django.utils import timezone
 
+from edc_base.utils import get_utcnow
 from edc_timepoint.constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT
 from edc_timepoint.model_mixins import TimepointError
 
@@ -54,7 +54,7 @@ class TimepointTests(TestCase):
 
     def test_timepoint_status_attrs(self):
         """Assert timepoint closes because example_model status is "finish" and blocks further changes."""
-        example_model = ExampleModel.objects.create(report_datetime=timezone.now() - relativedelta(days=10))
+        example_model = ExampleModel.objects.create(report_datetime=get_utcnow() - relativedelta(days=10))
         example_model.example_status = 'finish'
         example_model.save()
         example_model.timepoint_close_timepoint()
@@ -64,7 +64,7 @@ class TimepointTests(TestCase):
         self.assertEqual(example_model.timepoint_status, CLOSED_TIMEPOINT)
 
     def test_timepoint_lookup_blocks_create(self):
-        example_model = ExampleModel.objects.create(report_datetime=timezone.now() - relativedelta(days=10))
+        example_model = ExampleModel.objects.create(report_datetime=get_utcnow() - relativedelta(days=10))
         example_model.example_status = 'finish'
         example_model.save()
         visit = Visit.objects.create(example_model=example_model)
@@ -72,7 +72,7 @@ class TimepointTests(TestCase):
         self.assertRaises(TimepointError, CrfModel.objects.create, visit=visit)
 
     def test_timepoint_lookup_blocks_update(self):
-        example_model = ExampleModel.objects.create(report_datetime=timezone.now() - relativedelta(days=10))
+        example_model = ExampleModel.objects.create(report_datetime=get_utcnow() - relativedelta(days=10))
         example_model.example_status = 'finish'
         example_model.save()
         visit = Visit.objects.create(example_model=example_model)

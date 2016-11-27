@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.db import models
-from django.utils import timezone
+
+from edc_base.utils import get_utcnow
 
 from .choices import TIMEPOINT_STATUS
 from .constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT, FEEDBACK
@@ -72,7 +73,7 @@ class TimepointModelMixin(models.Model):
         timepoint = app_config.timepoints[self._meta.label_lower]
         if getattr(self, timepoint.status_field) == timepoint.closed_status:
             self.timepoint_status = CLOSED_TIMEPOINT
-            self.timepoint_closed_datetime = timezone.now()
+            self.timepoint_closed_datetime = get_utcnow()
             self.save(update_fields=['timepoint_status'])
 
     def timepoint_open_timepoint(self):
