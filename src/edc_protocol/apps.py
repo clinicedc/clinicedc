@@ -2,9 +2,9 @@ import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 
+from edc_base.utils import get_utcnow
 
 SUBJECT_TYPE = 0
 COUNT = 1
@@ -23,7 +23,7 @@ class AppConfig(DjangoAppConfig):
     # these attributes are used by the EnrollmentCapMixin
     subject_types = {'subject': 'Research Subjects'}  # {key: verbose_name}
     enrollment_caps = {'example.enrollmentmodel': ('subject', -1)}  # {label_lower: (key, count)}
-    study_open_datetime = timezone.now() - relativedelta(days=25)
+    study_open_datetime = get_utcnow() - relativedelta(days=25)
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
