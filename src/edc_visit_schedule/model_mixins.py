@@ -1,6 +1,3 @@
-import pytz
-
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.db import models
@@ -120,7 +117,7 @@ class BaseEnrollmentModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMetho
         validators=[
             datetime_not_before_study_start,
             datetime_not_future],
-        default=datetime.now(tz=pytz.utc))
+        default=get_utcnow)
 
     def __str__(self):
         return self.subject_identifier
