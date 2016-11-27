@@ -1,23 +1,17 @@
-import pytz
-
 from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA
 
 from model_mommy import mommy
 
 from django.test import TestCase
-from django.utils import timezone
-from django.conf import settings
 
-from edc_example.models import Appointment, SubjectConsent, Enrollment, RegisteredSubject, EnrollmentTwo, SubjectVisit
+from edc_example.models import Appointment, SubjectConsent, Enrollment, EnrollmentTwo, SubjectVisit
+from edc_registration.models import RegisteredSubject
 
 from .facility import Facility
 from .models import Holiday
 from decimal import Context
 from edc_visit_tracking.constants import SCHEDULED
-# from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-
-tz = pytz.timezone(settings.TIME_ZONE)
+from edc_base.utils import get_utcnow
 
 
 class TestAppointment(TestCase):
@@ -25,12 +19,12 @@ class TestAppointment(TestCase):
     def setUp(self):
         self.subject_consent = mommy.make_recipe(
             'edc_example.subjectconsent',
-            consent_datetime=timezone.now() - relativedelta(weeks=2))
+            consent_datetime=get_utcnow() - relativedelta(weeks=2))
 
     def test_deletes_appointments(self):
         """Asserts manager method can delete appointments."""
         subject_consent = mommy.make_recipe(
-            'edc_example.subjectconsent', consent_datetime=timezone.now() - relativedelta(weeks=5))
+            'edc_example.subjectconsent', consent_datetime=get_utcnow() - relativedelta(weeks=5))
         mommy.make(
             Enrollment,
             subject_identifier=subject_consent.subject_identifier,
@@ -59,7 +53,7 @@ class TestAppointment(TestCase):
         """Test appointment datetimes are chronological."""
         subject_consent = mommy.make_recipe(
             'edc_example.subjectconsent',
-            consent_datetime=timezone.now() - relativedelta(weeks=2),
+            consent_datetime=get_utcnow() - relativedelta(weeks=2),
             _quantity=7)
 
         for day in [MO, TU, WE, TH, FR, SA, SU]:
@@ -67,7 +61,7 @@ class TestAppointment(TestCase):
             mommy.make(
                 Enrollment,
                 subject_identifier=subject_consent.subject_identifier,
-                report_datetime=timezone.now() - relativedelta(weekday=day(-1)),
+                report_datetime=get_utcnow() - relativedelta(weekday=day(-1)),
                 schedule_name='schedule1')
             appt_datetimes = [obj.appt_datetime for obj in Appointment.objects.all().order_by('appt_datetime')]
             last = None
@@ -248,37 +242,37 @@ class TestFacility(TestCase):
             identity=self.subject_identifier,
             confirm_identity=self.subject_identifier,
             subject_identifier=self.subject_identifier,
-            consent_datetime=timezone.now())
+            consent_datetime=get_utcnow())
 
     def test_allowed_weekday(self):
         facility = Facility(name='clinic', days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
         for suggested, available in [(MO, MO), (TU, TU), (WE, WE), (TH, TH), (FR, FR), (SA, MO), (SU, MO)]:
-            dt = timezone.now() + relativedelta(weekday=suggested.weekday)
+            dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(available.weekday, facility.available_datetime(dt, window_days=30).weekday())
 
     def test_allowed_weekday_limited(self):
         facility = Facility(name='clinic', days=[TU, TH], slots=[100, 100])
         for suggested, available in [(MO, TU), (TU, TU), (WE, TH), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
-            dt = timezone.now() + relativedelta(weekday=suggested.weekday)
+            dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(available.weekday, facility.available_datetime(dt, window_days=30).weekday())
 
     def test_allowed_weekday_limited2(self):
         facility = Facility(name='clinic', days=[TU, WE, TH], slots=[100, 100, 100])
         for suggested, available in [(MO, TU), (TU, TU), (WE, WE), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
-            dt = timezone.now() + relativedelta(weekday=suggested.weekday)
+            dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(available.weekday, facility.available_datetime(dt, window_days=30).weekday())
 
     def test_available_datetime(self):
         """Asserts finds available_datetime on first wednesday after suggested_date."""
         facility = Facility(name='clinic', days=[WE], slots=[100])
-        suggested_date = timezone.now() + relativedelta(months=3)
+        suggested_date = get_utcnow() + relativedelta(months=3)
         available_datetime = facility.available_datetime(suggested_date, window_days=30)
         self.assertEqual(available_datetime.weekday(), WE.weekday)
 
     def test_available_datetime_with_holiday(self):
         """Asserts finds available_datetime on first wednesday after holiday."""
         facility = Facility(name='clinic', days=[WE], slots=[100])
-        suggested_date = timezone.now() + relativedelta(months=3)
+        suggested_date = get_utcnow() + relativedelta(months=3)
         available_datetime1 = facility.available_datetime(suggested_date, window_days=30)
         self.assertEqual(available_datetime1.weekday(), WE.weekday)
         Holiday.objects.create(day=available_datetime1)

@@ -59,7 +59,7 @@ class Facility:
                 if dt.month == month and dt >= suggested_datetime.date() and dt < max_datetime.date():
                     month_datetimes.append(
                         timezone.make_aware(
-                            datetime.combine(dt, suggested_datetime.time()), timezone=pytz.timezone('UTC')))
+                            datetime.combine(dt, suggested_datetime.time()), timezone=pytz.utc))
             for dt in month_datetimes:
                 if dt not in self.holidays(year, month, time=suggested_datetime.time()) and dt not in taken_datetimes:
                     if dt.weekday() in self.weekdays:

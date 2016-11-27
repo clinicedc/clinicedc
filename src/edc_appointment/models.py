@@ -49,7 +49,7 @@ class Holiday(models.Model):
 
     def day_as_datetime(self, dtime=None):
         return timezone.make_aware(
-            datetime.combine(self.day, dtime or time(0, 0, 0)), timezone=pytz.timezone("UTC"))
+            datetime.combine(self.day, dtime or time(0, 0, 0)), timezone=pytz.utc)
 
     class Meta:
         ordering = ['day', ]
