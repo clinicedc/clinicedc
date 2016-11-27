@@ -1,19 +1,15 @@
-import pytz
-
 from dateutil.relativedelta import relativedelta
-from django.apps import apps as django_apps
+
 from django import forms
-from django.conf import settings
-from django.utils import timezone
+from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms.utils import ErrorList
+from django.utils import timezone
 
 from edc_base.utils import formatted_age
 from edc_constants.constants import YES, NO
 
 from .site_consents import site_consents
-from django.core.exceptions import ObjectDoesNotExist
-
-tz = pytz.timezone(settings.TIME_ZONE)
 
 
 class ConsentFormMixin:

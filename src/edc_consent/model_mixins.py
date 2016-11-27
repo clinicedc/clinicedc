@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 
 from edc_base.model.validators import datetime_not_future
-from edc_base.utils import formatted_age, age
+from edc_base.utils import formatted_age, age, get_utcnow
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
 from edc_protocol.validators import datetime_not_before_study_start
@@ -217,7 +217,7 @@ class SpecimenConsentMixin(VerificationFieldsMixin, models.Model):
         validators=[
             datetime_not_before_study_start,
             datetime_not_future, ],
-        default=timezone.now,
+        default=get_utcnow,
         help_text=('If reporting today, use today\'s date/time, otherwise use '
                    'the date/time this information was reported.'))
 

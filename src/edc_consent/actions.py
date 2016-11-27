@@ -1,12 +1,13 @@
 from django.contrib import messages
-from django.utils import timezone
+
+from edc_base.utils import get_utcnow
 
 
 def flag_as_verified_against_paper(modeladmin, request, queryset, **kwargs):
     """ Flags instance as verified against the paper document."""
     for obj in queryset:
         obj.is_verified = True
-        obj.is_verified_datetime = timezone.now()
+        obj.is_verified_datetime = get_utcnow()
         obj.verified_by = request.user.username
         obj.save(update_fields=['is_verified', 'is_verified_datetime', 'verified_by'])
         messages.add_message(

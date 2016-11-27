@@ -1,5 +1,3 @@
-import copy
-
 from edc_consent.exceptions import SiteConsentError, AlreadyRegistered
 from django.utils import timezone
 

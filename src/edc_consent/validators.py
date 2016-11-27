@@ -1,11 +1,13 @@
 import re
 
-from datetime import date
 from dateutil.relativedelta import relativedelta
+
 
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
+from django.utils.timezone import localtime
 
+from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, DECLINED, UNKNOWN, MALE, NEG, POS
 
 
@@ -51,7 +53,7 @@ class AgeTodayValidator(object):
         return '{}({}, {})'.format(self.__class__.__name__, self.min_age, self.max_age)
 
     def __call__(self, dob):
-        rdelta = relativedelta(date.today(), dob)
+        rdelta = relativedelta(localtime(get_utcnow().date()), dob)
         if rdelta.years < self.min_age or rdelta.years > self.max_age:
             raise ValidationError(
                 'Subject age is %(age)s yrs. Age of participant must be between '
@@ -65,7 +67,7 @@ class AgeTodayValidator(object):
 
 
 def dob_not_future(value):
-    now = date.today()
+    now = get_utcnow().date()
     if now < value:
         raise ValidationError(
             'Date of birth cannot be a future date. You entered {}.'.format(value))
