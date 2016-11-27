@@ -60,7 +60,7 @@ class SubjectIdentifierModelMixin(models.Model):
 
 class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
 
-    """A model mixin for the RegisteredSubject model."""
+    """A model mixin for the RegisteredSubject model (only)."""
     # may not be available when instance created (e.g. infants prior to birth report)
     first_name = FirstnameField(
         null=True,
