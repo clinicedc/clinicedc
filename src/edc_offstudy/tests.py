@@ -1,8 +1,8 @@
 from dateutil.relativedelta import relativedelta
 
-from django.utils import timezone
 from django.test import TestCase
 
+from edc_base.utils import get_utcnow
 from edc_constants.constants import DEAD
 from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
 from edc_example.models import Appointment, Enrollment, SubjectConsent, SubjectOffstudy, SubjectVisit
@@ -23,11 +23,11 @@ class TestOffstudy(TestCase):
                 subject_identifier=subject_identifier,
                 identity=subject_identifier,
                 confirm_identity=subject_identifier,
-                consent_datetime=timezone.now() - relativedelta(weeks=4))
+                consent_datetime=get_utcnow() - relativedelta(weeks=4))
             Enrollment.objects.create(
                 subject_identifier=subject_consent.subject_identifier,
                 schedule_name=self.schedule_name,
-                report_datetime=timezone.now() - relativedelta(weeks=4))
+                report_datetime=get_utcnow() - relativedelta(weeks=4))
         self.subject_consent = SubjectConsent.objects.get(subject_identifier=self.subject_identifier)
         enrollment = Enrollment.objects.get(subject_identifier=self.subject_identifier)
         self.schedule = enrollment.schedule
@@ -37,7 +37,7 @@ class TestOffstudy(TestCase):
         try:
             SubjectOffstudy.objects.create(
                 subject_identifier=self.subject_consent.subject_identifier,
-                offstudy_datetime=timezone.now() - relativedelta(weeks=3),
+                offstudy_datetime=get_utcnow() - relativedelta(weeks=3),
                 reason=DEAD
             )
         except OffstudyError as e:
@@ -48,7 +48,7 @@ class TestOffstudy(TestCase):
         try:
             SubjectOffstudy.objects.create(
                 subject_identifier=self.subject_consent.subject_identifier,
-                offstudy_datetime=timezone.now() - relativedelta(weeks=5),
+                offstudy_datetime=get_utcnow() - relativedelta(weeks=5),
                 reason=DEAD
             )
             self.fail('OffstudyError not raised')
@@ -72,14 +72,14 @@ class TestOffstudy(TestCase):
                 visit_schedule_name=appointment.visit_schedule_name,
                 schedule_name=appointment.schedule_name,
                 visit_code=appointment.visit_code,
-                report_datetime=timezone.now(),
+                report_datetime=get_utcnow(),
                 study_status=SCHEDULED)
         appointment = Appointment.objects.filter(subject_identifier=self.subject_identifier).first()
         self.subject_visit = SubjectVisit.objects.get(appointment=appointment)
         try:
             SubjectOffstudy.objects.create(
                 subject_identifier=self.subject_consent.subject_identifier,
-                offstudy_datetime=timezone.now() - relativedelta(weeks=3),
+                offstudy_datetime=get_utcnow() - relativedelta(weeks=3),
                 reason=DEAD
             )
             self.fail('OffstudyError not raised')
@@ -109,7 +109,7 @@ class TestOffstudy(TestCase):
         try:
             SubjectOffstudy.objects.create(
                 subject_identifier=self.subject_consent.subject_identifier,
-                offstudy_datetime=timezone.now(),
+                offstudy_datetime=get_utcnow(),
                 reason=DEAD
             )
         except OffstudyError:
