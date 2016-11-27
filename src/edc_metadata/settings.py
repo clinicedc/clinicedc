@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'edc_registration.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
-    'edc_lab.apps.AppConfig',
+    # 'edc_lab.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_rule_groups.apps.AppConfig',
     'edc_metadata.apps.AppConfig',
