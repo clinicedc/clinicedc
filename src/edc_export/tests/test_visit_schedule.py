@@ -29,11 +29,11 @@ class VisitSchedule(VisitScheduleConfiguration):
     aliquot_type_model = TestAliquotType
 
     membership_forms = OrderedDict({
-        'schedule-1': MembershipFormTuple('schedule-1', TestConsentWithMixin, True),
+        'schedule1': MembershipFormTuple('schedule1', TestConsentWithMixin, True),
     })
 
     schedules = OrderedDict({
-        'schedule-1': ScheduleTuple('schedule-1', 'schedule-1', None, None),
+        'schedule1': ScheduleTuple('schedule1', 'schedule1', None, None),
     })
 
     visit_definitions = OrderedDict(
@@ -48,7 +48,7 @@ class VisitSchedule(VisitScheduleConfiguration):
             'window_upper_bound_unit': 'D',
             'grouping': 'group1',
             'visit_tracking_model': TestVisitModel1,
-            'schedule': 'schedule-1',
+            'schedule': 'schedule1',
             'instructions': None,
             'requisitions': requisitions,
             'entries': entries},
@@ -63,7 +63,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound_unit': 'D',
              'grouping': 'group1',
              'visit_tracking_model': TestVisitModel1,
-             'schedule': 'schedule-1',
+             'schedule': 'schedule1',
              'instructions': None,
             'requisitions': requisitions,
             'entries': entries},
@@ -78,7 +78,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
              'visit_tracking_model': TestVisit2,
-             'schedule': 'schedule-1',
+             'schedule': 'schedule1',
              'instructions': None,
             'requisitions': requisitions,
             'entries': entries},
@@ -93,7 +93,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
              'visit_tracking_model': TestVisit2,
-             'schedule': 'schedule-1',
+             'schedule': 'schedule1',
              'instructions': None,
             'requisitions': requisitions,
             'entries': entries},
@@ -108,7 +108,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
              'visit_tracking_model': TestVisit2,
-             'schedule': 'schedule-1',
+             'schedule': 'schedule1',
              'instructions': None,
             'requisitions': requisitions,
             'entries': entries},
@@ -123,7 +123,7 @@ class VisitSchedule(VisitScheduleConfiguration):
              'window_upper_bound_unit': 'D',
              'grouping': 'group2',
              'visit_tracking_model': TestVisit2,
-             'schedule': 'schedule-1',
+             'schedule': 'schedule1',
              'instructions': None,
             'requisitions': requisitions,
             'entries': entries},
