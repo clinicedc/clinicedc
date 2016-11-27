@@ -94,7 +94,7 @@ class IdentifierHistoryManager(models.Manager):
         return self.get(identifier=identifier)
 
 
-class IdentifierHistory(IdentifierHistoryMixin):
+class IdentifierHistory(IdentifierHistoryMixin, BaseUuidModel):
 
     objects = IdentifierHistoryManager()
 
