@@ -42,6 +42,8 @@ class OffstudyModelMixin(SubjectIdentifierModelMixin, models.Model):
         blank=True,
         null=True)
 
+    objects = OffstudyModelManager()
+
     def save(self, *args, **kwargs):
         if not self.consented_before_offstudy:
             raise OffstudyError('Offstudy date may not be before the date of consent. Got {}.'.format(
@@ -70,6 +72,10 @@ class OffstudyModelMixin(SubjectIdentifierModelMixin, models.Model):
                 consent_datetime__lte=self.offstudy_datetime)
         except Consent.DoesNotExist:
             consent = None
+        except AttributeError as e:
+            if 'consent_model' in str(e):
+                raise AttributeError('For model {} got: {}'.format(self._meta.label_lower, str(e)))
+            raise AttributeError(str(e))
         return consent
 
     def offstudy_datetime_after_last_visit_or_raise(self):
