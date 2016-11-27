@@ -1,10 +1,13 @@
+import pytz
+
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from uuid import uuid4
 
 from django.db import models
 from django.db.models import options
 from django.utils import timezone
 
+from edc_base.utils import get_utcnow, get_uuid
 from edc_base.model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 
@@ -13,10 +16,6 @@ from .site_visit_schedules import site_visit_schedules
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
-
-
-def get_uuid():
-    return str(uuid4())
 
 
 class DisenrollmentError(Exception):
@@ -121,7 +120,7 @@ class BaseEnrollmentModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMetho
         validators=[
             datetime_not_before_study_start,
             datetime_not_future],
-        default=timezone.now)
+        default=datetime.now(tz=pytz.utc))
 
     def __str__(self):
         return self.subject_identifier
@@ -160,7 +159,7 @@ class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
         validators=[
             datetime_not_before_study_start,
             datetime_not_future],
-        default=timezone.now)
+        default=get_utcnow)
 
     @property
     def enrollment(self):

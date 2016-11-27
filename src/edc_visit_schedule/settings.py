@@ -15,8 +15,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import sys
 
-from django.utils import timezone
-
 from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -138,7 +136,6 @@ IS_SECURE_DEVICE = True
 KEY_PREFIX = 'user'
 ALLOW_MODEL_SERIALIZATION = True
 MIN_AGE_OF_CONSENT = None
-STUDY_OPEN_DATETIME = timezone.datetime(2013, 10, 18)
 DEVICE_ID = '99'
 SERVER_DEVICE_ID_LIST = ['99']
 MIDDLEMAN_DEVICE_ID_LIST = []

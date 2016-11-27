@@ -1,18 +1,17 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
-from django.utils import timezone
 
+from edc_base.utils import get_utcnow
+from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
 from edc_example.models import (
     Enrollment, EnrollmentTwo, EnrollmentThree, Disenrollment, SubjectVisit, SubjectOffstudy,
     Appointment, DisenrollmentThree)
 
-from .exceptions import AlreadyRegistered, ScheduleError, CrfError, VisitScheduleError
+from .exceptions import EnrollmentError, AlreadyRegistered, ScheduleError, CrfError, VisitScheduleError
 from .schedule import Schedule
 from .site_visit_schedules import site_visit_schedules
 from .visit import Crf
 from .visit_schedule import VisitSchedule
-from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
-from edc_visit_schedule.exceptions import EnrollmentError
 
 
 class TestVisitSchedule(TestCase):
@@ -197,10 +196,10 @@ class TestVisitSchedule(TestCase):
         """Asserts site can return the enrollment instance."""
         SubjectConsentFactory(
             subject_identifier='111111',
-            consent_datetime=timezone.now() - relativedelta(weeks=4),
+            consent_datetime=get_utcnow() - relativedelta(weeks=4),
             identity='111111',
             confirm_identity='111111')
-        enrollment_datetime = timezone.now()
+        enrollment_datetime = get_utcnow()
         Enrollment.objects.create(subject_identifier='111111', report_datetime=enrollment_datetime)
         visit_schedule_name, schedule_name = Enrollment._meta.visit_schedule_name.split('.')
         self.assertEqual(
@@ -223,7 +222,7 @@ class TestVisitSchedule(TestCase):
     def test_no_disenrollment_without_enrollment(self):
         SubjectConsentFactory(
             subject_identifier='111111',
-            consent_datetime=timezone.now() - relativedelta(weeks=4),
+            consent_datetime=get_utcnow() - relativedelta(weeks=4),
             identity='111111',
             confirm_identity='111111')
         self.assertRaises(EnrollmentError, Disenrollment.objects.create, subject_identifier='111111')
@@ -232,10 +231,10 @@ class TestVisitSchedule(TestCase):
         """Asserts site can return the enrollment instance."""
         SubjectConsentFactory(
             subject_identifier='111111',
-            consent_datetime=timezone.now() - relativedelta(weeks=4),
+            consent_datetime=get_utcnow() - relativedelta(weeks=4),
             identity='111111',
             confirm_identity='111111')
-        enrollment_datetime = timezone.now()
+        enrollment_datetime = get_utcnow()
         enrollment = EnrollmentThree.objects.create(subject_identifier='111111', report_datetime=enrollment_datetime)
         disenrollment = DisenrollmentThree.objects.create(subject_identifier='111111', schedule_name='schedule3')
         self.assertEqual(disenrollment.enrollment, enrollment)
@@ -245,7 +244,7 @@ class TestVisitSchedule(TestCase):
         for i in range(1, 4):
             SubjectConsentFactory(
                 subject_identifier='111111' + str(i),
-                consent_datetime=timezone.now() - relativedelta(weeks=4),
+                consent_datetime=get_utcnow() - relativedelta(weeks=4),
                 identity='111111' + str(i),
                 confirm_identity='111111' + str(i),)
         try:
@@ -261,7 +260,7 @@ class TestVisitSchedule(TestCase):
         for i in range(1, 4):
             SubjectConsentFactory(
                 subject_identifier='111111' + str(i),
-                consent_datetime=timezone.now() - relativedelta(weeks=4),
+                consent_datetime=get_utcnow() - relativedelta(weeks=4),
                 identity='111111' + str(i),
                 confirm_identity='111111' + str(i),)
         Enrollment.objects.create(subject_identifier='1111111')
