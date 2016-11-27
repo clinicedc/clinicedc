@@ -8,9 +8,8 @@ from django.utils import timezone
 from edc_base.model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 
+from .exceptions import ScheduleError, EnrollmentError
 from .site_visit_schedules import site_visit_schedules
-from edc_visit_schedule.exceptions import ScheduleError, EnrollmentError
-from django.core.exceptions import MultipleObjectsReturned
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
