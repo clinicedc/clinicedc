@@ -2,12 +2,11 @@ import copy
 import re
 
 from dateutil.relativedelta import relativedelta
-from uuid import uuid4
 
 from django.apps import apps as django_apps
 from django.test import TestCase
-from django.utils import timezone
 
+from edc_base.utils import get_utcnow, get_uuid
 from edc_example.factories import SubjectConsentFactory
 from edc_registration.exceptions import RegisteredSubjectError
 
@@ -101,11 +100,11 @@ class TestRegistration(TestCase):
             dict(
                 identity='111211111',
                 confirm_identity='111211111',
-                dob=timezone.now() - relativedelta(years=25),
+                dob=(get_utcnow() - relativedelta(years=25)).date(),
                 first_name='ERIK',
                 last_name='OBAMA',
                 initials='EO',
-                subject_identifier=str(uuid4())))
+                subject_identifier=str(get_uuid())))
         subject_consent = SubjectConsentFactory(**self.options)
         self.assertEqual(subject_consent.registration_model.objects.filter(identity='111211111').count(), 1)
         subject_consent.save()
@@ -116,11 +115,11 @@ class TestRegistration(TestCase):
             dict(
                 identity='111211111',
                 confirm_identity='111211111',
-                dob=timezone.now() - relativedelta(years=25),
+                dob=(get_utcnow() - relativedelta(years=25)).date(),
                 first_name='ERIK',
                 last_name='OBAMA',
                 initials='EO',
-                subject_identifier=str(uuid4())))
+                subject_identifier=str(get_uuid())))
         subject_consent = SubjectConsentFactory(**self.options)
         self.assertEqual(subject_consent.registration_model.objects.filter(identity='111211111').count(), 1)
         subject_consent.first_name = 'BARACK'

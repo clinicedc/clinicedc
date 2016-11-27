@@ -1,7 +1,5 @@
 import re
 
-from uuid import uuid4
-
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse, NoReverseMatch
@@ -14,14 +12,12 @@ from django.utils.translation import ugettext as _
 from edc_base.model.constants import DEFAULT_BASE_FIELDS
 from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
+from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
 
 from .exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
 
-
-def get_uuid():
-    return str(uuid4())
 
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
 
@@ -261,7 +257,7 @@ class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
         Model uses subject_identifier_as_pk as a natural key for
         serialization/deserialization. Value must not change once set."""
         if not self.subject_identifier_as_pk:
-            self.subject_identifier_as_pk = str(uuid4())  # this will never change
+            self.subject_identifier_as_pk = str(get_uuid())  # this will never change
             if not self.subject_identifier:
                 self.subject_identifier = self.subject_identifier_as_pk
 
