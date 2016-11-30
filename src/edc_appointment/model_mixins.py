@@ -218,7 +218,7 @@ class CreateAppointmentsMixin(models.Model):
         visit_schedule_name = None
 
 
-class CreateAppointmentsOnEligibleMixin(models.Model):
+class CreateAppointmentsOnEligibleMixin(CreateAppointmentsMixin):
     """Same as CreateAppointmentsMixin except will check for is_eigile=True before creating."""
     def create_appointments(self, base_appt_datetime=None):
         appointments = None
