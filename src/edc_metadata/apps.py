@@ -9,7 +9,7 @@ from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
 class AppConfig(DjangoAppConfig):
     name = 'edc_metadata'
     verbose_name = 'Edc Metadata'
-    app_label = 'edc_example'
+    app_label = 'edc_metadata'
     crf_model_name = 'crfmetadata'
     requisition_model_name = 'requisitionmetadata'
 
