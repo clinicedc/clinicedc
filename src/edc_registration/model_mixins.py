@@ -14,6 +14,7 @@ from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
 from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
+from edc_identifier.subject_identifier import SubjectIdentifier
 
 from .exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
@@ -28,7 +29,12 @@ YES_NO_UNKNOWN = (
 )
 
 
+class AllocateSubjectIdentifierError(Exception):
+    pass
+
+
 class SubjectIdentifierModelMixin(models.Model):
+    """Mixin to add a unique subject identifier field."""
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
@@ -52,6 +58,31 @@ class SubjectIdentifierModelMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class AllocateSubjectIdentifierMixin(models.Model):
+
+    def allocate_subject_identifier(self, options=None):
+        """Allocates a subject identifier.
+
+        You can override to use your own method to allocate identifiers or
+        raise AllocateSubjectIdentifierError to bypass."""
+        try:
+            subject_identifier = SubjectIdentifier(site_code=self.study_site).get_identifier()
+        except AttributeError as e:
+            if 'study_site' in str(e):
+                raise AttributeError(str(e))
+            else:
+                subject_identifier = None
+        return subject_identifier
+
+    def save(self, *args, **kwargs):
+        try:
+            if not self.id and not self.subject_identifier:
+                self.subject_identifier = self.allocate_subject_identifier()
+        except (AttributeError, AllocateSubjectIdentifierError):
+            pass
+        super(AllocateSubjectIdentifierMixin, self).save(*args, **kwargs)
 
 
 class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
@@ -111,6 +142,11 @@ class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
 
     study_site = models.CharField(
         max_length=50,
+        null=True,
+        blank=True)
+
+    subject_type = models.CharField(
+        max_length=25,
         null=True,
         blank=True)
 
@@ -297,15 +333,15 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
 
     """A model mixin that creates or updates RegisteredSubject on post_save signal."""
 
-    def allocate_subject_identifier(self):
-        pass
-
     @property
     def registration_model(self):
+        """Returns the RegisteredSubject model, Do not override."""
         return django_apps.get_app_config('edc_registration').model
 
     def registration_update_or_create(self):
-        """Creates or Updates the registration model with attributes from this instance."""
+        """Creates or Updates the registration model with attributes from this instance.
+
+        Called from the signal"""
         self.registration_raise_on_not_unique()
         registered_subject, created = self.registration_model.objects.update_or_create(
             **{self.registration_unique_field: getattr(self, self.registration_unique_field)},
