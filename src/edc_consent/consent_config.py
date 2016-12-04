@@ -40,7 +40,7 @@ class ConsentConfig:
 
     def valid_for_datetime(self, consent_datetime):
         valid_for_datetime = False
-        if self.start <= consent_datetime <= self.end:
+        if (self.start - consent_datetime).days <= 0 <= (self.end - consent_datetime).days:
             valid_for_datetime = True
         return valid_for_datetime
 
