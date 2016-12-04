@@ -22,3 +22,7 @@ class IndentifierFormatError(Exception):
 
 class IndentifierFormatKeyError(Exception):
     pass
+
+
+class SubjectIdentifierError(Exception):
+    pass

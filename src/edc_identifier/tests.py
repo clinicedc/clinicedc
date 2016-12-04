@@ -1,17 +1,225 @@
+import re
+
+from django.apps import apps as django_apps
 from django.test.testcases import TestCase
 
+from edc_protocol.exceptions import SubjectTypeCapError
 from .alphanumeric_identifier import AlphanumericIdentifier
 from .checkdigit_mixins import LuhnMixin, LuhnOrdMixin
-from .exceptions import IdentifierError, CheckDigitError
+from .exceptions import IdentifierError, CheckDigitError, SubjectIdentifierError
 from .identifier import Identifier
 from .identifier_with_checkdigit import IdentifierWithCheckdigit
-from .models import IdentifierHistory
+from .models import IdentifierHistory, IdentifierModel
 from .numeric_identifier import NumericIdentifier, NumericIdentifierWithModulus
 from .short_identifier import ShortIdentifier
+from .subject_identifier import SubjectIdentifier
+from .maternal_identifier import MaternalIdentifier
 
 
 class TestIdentifierError(Exception):
     pass
+
+
+class TestInfantIdentifier(TestCase):
+
+    def test_create_singleton(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier.deliver(1, model='edc_example.maternallabdel')
+        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-10')
+
+    def test_create_twins(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier.deliver(2, model='edc_example.maternallabdel')
+        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-25')
+        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-26')
+
+    def test_create_triplets(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier.deliver(3, model='edc_example.maternallabdel')
+        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
+        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-37')
+        self.assertEqual(maternal_identifier.infants[2].identifier, '000-40990001-6-38')
+
+    def test_update_identifiermodel(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            study_site='40')
+        maternal_identifier.deliver(3, model='edc_example.maternallabdel')
+        self.assertEqual(len(maternal_identifier.infants), 3)
+        self.assertEqual(IdentifierModel.objects.filter(name='infantidentifier').count(), 3)
+        self.assertEqual(
+            IdentifierModel.objects.filter(
+                subject_type='infant',
+                model='edc_example.maternallabdel',
+                protocol_number='000',
+                study_site='40').count(), 3)
+
+
+class TestSubjectIdentifier(TestCase):
+
+    def test_raises_on_unknown_cap(self):
+        """Asserts raises exception if cannot find cap."""
+        try:
+            SubjectIdentifier(
+                subject_type_name='subject',
+                model='edc_example.enrollment',
+                protocol='000',
+                device_id='99',
+                study_site='40')
+        except SubjectTypeCapError:
+            self.fail('SubjectTypeCapError unexpectedly raised')
+        self.assertRaises(
+            SubjectTypeCapError,
+            SubjectIdentifier,
+            subject_type_name='subject',
+            model='edc_example.enrollmentblahblahblah',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+
+    def test_increments(self):
+        """Asserts identifier sequence increments correctly."""
+        subject_type_name = 'subject'
+        model_name = 'edc_example.enrollment'
+        study_site = '40'
+        app_config = django_apps.get_app_config('edc_protocol')
+        cap = app_config.get_cap(subject_type_name, model_name, study_site)
+        padding = len(str(cap.max_subjects))
+        for i in range(1, 10):
+            subject_identifier = SubjectIdentifier(
+                subject_type_name=subject_type_name,
+                model=model_name,
+                study_site=study_site,
+                padding=padding)
+            self.assertEqual(subject_identifier.identifier[8:12], '000' + str(i))
+
+    def test_create_missing_args(self):
+        """Asserts raises exception for missing subject_type_name."""
+        self.assertRaises(
+            SubjectTypeCapError,
+            SubjectIdentifier,
+            subject_type_name='',
+            model='edc_example.enrollment',
+            study_site='40')
+
+    def test_create_missing_args2(self):
+        """Asserts raises exception for missing model."""
+        self.assertRaises(
+            SubjectTypeCapError,
+            SubjectIdentifier,
+            subject_type_name='subject',
+            model='',
+            study_site='40')
+
+    def test_create_missing_args3(self):
+        """Asserts raises exception for missing study_site."""
+        self.assertRaises(
+            SubjectIdentifierError,
+            SubjectIdentifier,
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            study_site='')
+
+    def test_create1(self):
+        """Asserts exact first identifier given parameters."""
+        subject_identifier = SubjectIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual('000-40990001-6', subject_identifier.identifier)
+
+    def test_create2(self):
+        """Asserts exact first identifier required parameters and those fetched from edc-example.AppConfig."""
+        subject_identifier = SubjectIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            study_site='40')
+        self.assertEqual('000-40140001-5', subject_identifier.identifier)
+
+    def test_create_hits_cap(self):
+        """Asserts raises exception if attempt to exceed cap."""
+        for _ in range(1, 6):
+            SubjectIdentifier(
+                subject_type_name='subject',
+                model='edc_example.enrollmentthree',
+                protocol='000',
+                device_id='99',
+                study_site='40')
+        self.assertEqual(IdentifierModel.objects.all().count(), 5)
+        self.assertRaises(
+            SubjectTypeCapError,
+            SubjectIdentifier,
+            subject_type_name='subject',
+            model='edc_example.enrollmentthree',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+
+    def test_create_hits_cap_with_other_models(self):
+        """Asserts raises exception if attempt to exceed cap."""
+        for _ in range(0, 10):
+            SubjectIdentifier(
+                subject_type_name='subject',
+                model='edc_example.enrollment',
+                protocol='000',
+                device_id='99',
+                study_site='40')
+        for _ in range(0, 5):
+            SubjectIdentifier(
+                subject_type_name='subject',
+                model='edc_example.enrollmentthree',
+                protocol='000',
+                device_id='99',
+                study_site='40')
+        self.assertEqual(IdentifierModel.objects.filter(model='edc_example.enrollmentthree').count(), 5)
+        self.assertRaises(
+            SubjectTypeCapError,
+            SubjectIdentifier,
+            subject_type_name='subject',
+            model='edc_example.enrollmentthree',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+
+    def test_updates_identifier_model(self):
+        """Asserts updates Identifier model with all attributes."""
+        for _ in range(0, 5):
+            SubjectIdentifier(
+                subject_type_name='subject',
+                model='edc_example.enrollmentthree',
+                protocol='000',
+                device_id='99',
+                study_site='40')
+        self.assertEqual(IdentifierModel.objects.all().count(), 5)
+        self.assertEqual(
+            IdentifierModel.objects.filter(
+                subject_type='subject',
+                model='edc_example.enrollmentthree',
+                protocol_number='000',
+                device_id='99',
+                study_site='40').count(), 5)
 
 
 class TestIdentifier(TestCase):

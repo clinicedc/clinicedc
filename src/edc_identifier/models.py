@@ -40,6 +40,38 @@ class Sequence(BaseModel):
         ordering = ['id', ]
 
 
+class IdentifierModel(BaseUuidModel):
+
+    name = models.CharField(max_length=50)
+
+    sequence_number = models.IntegerField()
+
+    identifier = models.CharField(max_length=50, unique=True)
+
+    device_id = models.IntegerField(default=99)
+
+    protocol_number = models.CharField(max_length=3)
+
+    model = models.CharField(max_length=50, null=True)
+
+    subject_type = models.CharField(max_length=25, null=True)
+
+    study_site = models.CharField(max_length=25)
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return self.pk
+
+    def natural_key(self):
+        return (self.identifier, )
+
+    class Meta:
+        app_label = 'edc_identifier'
+        ordering = ['sequence_number', ]
+        unique_together = ('name', 'identifier')
+
+
 class IdentifierTrackerManager(models.Manager):
 
     def get_by_natural_key(self, identifier):
