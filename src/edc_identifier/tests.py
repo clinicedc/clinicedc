@@ -74,6 +74,30 @@ class TestInfantIdentifier(TestCase):
                 protocol_number='000',
                 study_site='40').count(), 3)
 
+    def test_load_maternal_identifier_and_singleton(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        maternal_identifier.deliver(1, model='edc_example.maternallabdel')
+        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-10')
+
+    def test_load_maternal_identifier_and_twins(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        maternal_identifier.deliver(2, model='edc_example.maternallabdel')
+        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-25')
+        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-26')
+
 
 class TestSubjectIdentifier(TestCase):
 

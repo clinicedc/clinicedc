@@ -5,6 +5,12 @@ from edc_base.model.models import BaseModel, BaseUuidModel, HistoricalRecords
 from .model_mixins import IdentifierModelMixin, IdentifierHistoryMixin
 
 
+class IdentifierModelManager(models.Manager):
+
+    def get_by_natural_key(self, identifier):
+        return self.get(identifier=identifier)
+
+
 class SubjectIdentifierManager(models.Manager):
 
     def get_by_natural_key(self, identifier):
@@ -48,6 +54,8 @@ class IdentifierModel(BaseUuidModel):
 
     identifier = models.CharField(max_length=50, unique=True)
 
+    linked_identifier = models.CharField(max_length=50, null=True)
+
     device_id = models.IntegerField(default=99)
 
     protocol_number = models.CharField(max_length=3)
@@ -58,7 +66,7 @@ class IdentifierModel(BaseUuidModel):
 
     study_site = models.CharField(max_length=25)
 
-    objects = models.Manager()
+    objects = IdentifierModelManager()
 
     def __str__(self):
         return self.pk
