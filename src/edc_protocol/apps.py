@@ -1,13 +1,15 @@
 import sys
 
 from django.apps import AppConfig as DjangoAppConfig
-from django.core.exceptions import ImproperlyConfigured
 from dateutil.relativedelta import relativedelta
 
 from edc_base.utils import get_utcnow
 
-SUBJECT_TYPE = 0
-COUNT = 1
+from .cap import Cap
+from .subject_type import SubjectType
+from django.core.exceptions import ImproperlyConfigured
+from edc_protocol.cap import ALL_SITES
+from edc_protocol.exceptions import SubjectTypeCapError
 
 
 class AppConfig(DjangoAppConfig):
@@ -16,24 +18,56 @@ class AppConfig(DjangoAppConfig):
 
     # set with example defaults, you will need to change from your project
     protocol = 'BHP000'
-    protocol_number = '000'
+    protocol_number = '000'  # 3 digits, used for identifiers
     protocol_name = 'My Protocol'
     protocol_title = 'My Protocol of Many Things'
 
-    # these attributes are used by the EnrollmentCapMixin
-    subject_types = {'subject': 'Research Subjects'}  # {key: verbose_name}
-    enrollment_caps = {'example.enrollmentmodel': ('subject', -1)}  # {label_lower: (key, count)}
+    # these attributes are used by the SubjectTypeCapMixin
+    subject_types = [
+        SubjectType('subject', 'Research Subjects', Cap(model_name='edc_example.enrollment', max_subjects=9999)),
+        SubjectType('subject', 'Research Subjects', Cap(model_name='edc_example.enrollmentthree', max_subjects=5))
+    ]
     study_open_datetime = get_utcnow() - relativedelta(days=25)
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         sys.stdout.write(' * {}: {}.\n'.format(self.protocol, self.protocol_name))
-        for label, cap in self.enrollment_caps.items():
-            if cap[SUBJECT_TYPE] not in list(self.subject_types.keys()):
-                raise ImproperlyConfigured(
-                    'Enrollment cap refers to an undefined \'subject_type\'. See edc_protocol.AppConfig')
-            sys.stdout.write(
-                ' * enrollment cap set to {} for {} in \'{}\'.\n'.format(
-                    cap[COUNT], self.subject_types[cap[SUBJECT_TYPE]], label))
+        if isinstance(self.subject_types, (list, tuple)):
+            unique_labels = {}
+            for subject_type in self.subject_types:
+                for cap in subject_type.caps.values():
+                    if cap.subject_type_name:
+                        if cap.subject_type_name != subject_type.name:
+                            raise SubjectTypeCapError('Subject type name does not match cap.')
+                    else:
+                        cap.subject_type_name = subject_type.name
+                    label = '{}:{}:{}'.format(cap.subject_type_name, cap.model_name, cap.study_site)
+                    if label in unique_labels:
+                        raise ImproperlyConfigured('Enrollment cap not unique. Got {}'.format(label))
+                    else:
+                        unique_labels.update({label: cap})
+            self.subject_types = {}
+            for label, cap in unique_labels.items():
+                self.subject_types.update({label: cap})
+        sys.stdout.write(' * Enrollment caps:\n')
+        if len(self.subject_types) == 0:
+            sys.stdout.write('   * None specified.\n'.format(label, cap.max_subjects))
+        else:
+            for label, cap in self.subject_types.items():
+                sys.stdout.write('   - found {}.\n'.format(cap))
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
         sys.stdout.flush()
+
+    def get_cap(self, subject_type_name=None, model_name=None, study_site=None):
+        try:
+            cap = self.caps['{}:{}:{}'.format(subject_type_name, model_name, study_site)]
+        except KeyError:
+            try:
+                cap = self.caps['{}:{}:{}'.format(subject_type_name, model_name, ALL_SITES)]
+            except KeyError as e:
+                raise SubjectTypeCapError('Invalid criteria for Cap. Got {}.'.format(str(e)))
+        return cap
+
+    @property
+    def caps(self):
+        return {cap.name: cap for cap in self.subject_types.values()}

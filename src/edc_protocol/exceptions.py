@@ -1,0 +1,3 @@
+
+class SubjectTypeCapError(Exception):
+    pass
