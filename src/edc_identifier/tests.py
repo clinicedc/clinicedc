@@ -58,6 +58,76 @@ class TestInfantIdentifier(TestCase):
         self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-37')
         self.assertEqual(maternal_identifier.infants[2].identifier, '000-40990001-6-38')
 
+    def test_create_triplets_only_registered_2nd_born_as_list(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders=[2])
+        self.assertEqual(maternal_identifier.infants[0].identifier, None)
+        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-37')
+        self.assertEqual(maternal_identifier.infants[2].identifier, None)
+        self.assertEqual(len(maternal_identifier.infants), 3)
+
+    def test_create_triplets_only_registered_2nd_born(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders='2')
+        self.assertEqual(maternal_identifier.infants[0].identifier, None)
+        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-37')
+        self.assertEqual(maternal_identifier.infants[2].identifier, None)
+        self.assertEqual(len(maternal_identifier.infants), 3)
+
+    def test_create_triplets_only_registered_1st_born(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders='1')
+        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
+        self.assertEqual(maternal_identifier.infants[1].identifier, None)
+        self.assertEqual(maternal_identifier.infants[2].identifier, None)
+        self.assertEqual(len(maternal_identifier.infants), 3)
+
+    def test_create_triplets_only_registered_all_explicitly(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders='1,2,3')
+        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
+        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-37')
+        self.assertEqual(maternal_identifier.infants[2].identifier, '000-40990001-6-38')
+        self.assertEqual(len(maternal_identifier.infants), 3)
+
+    def test_create_triplets_only_registered_all_by_default(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders=None)
+        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
+        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-37')
+        self.assertEqual(maternal_identifier.infants[2].identifier, '000-40990001-6-38')
+        self.assertEqual(len(maternal_identifier.infants), 3)
+
     def test_update_identifiermodel(self):
         maternal_identifier = MaternalIdentifier(
             subject_type_name='subject',

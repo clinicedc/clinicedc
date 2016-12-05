@@ -19,6 +19,8 @@ class InfantIdentifier:
         if identifier:
             identifier_model = IdentifierModel.objects.get(identifier=identifier)
             self.identifier = identifier_model.identifier
+        elif not maternal_identifier:
+            self.identifier = None
         else:
             try:
                 maternal_identifier = IdentifierModel.objects.get(identifier=maternal_identifier)
