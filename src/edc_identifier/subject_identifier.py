@@ -15,12 +15,13 @@ edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
 
 class SubjectIdentifier(LuhnMixin, SubjectTypeCapMixin):
 
-    def __init__(self, subject_type_name=None, model=None, template=None, identifier=None, **template_options):
+    def __init__(self, subject_type_name=None, model=None, template=None, identifier=None,
+                 create_registration=None, **kwargs):
         self.template = template or '{protocol_number}-{study_site}{device_id}{sequence}'
-        self.template_options = template_options
-        self.template_options.update(
-            device_id=self.template_options.get('device_id', edc_device_app_config.device_id),
-            protocol_number=self.template_options.get('protocol_number', edc_protocol_app_config.protocol_number))
+        kwargs.update(
+            device_id=kwargs.get('device_id', edc_device_app_config.device_id),
+            protocol_number=kwargs.get('protocol_number', edc_protocol_app_config.protocol_number))
+        self.template_options = copy(kwargs)
         if identifier:
             self.identifier_model = IdentifierModel.objects.get(identifier=identifier)
             self.identifier = self.identifier_model.identifier
@@ -53,6 +54,11 @@ class SubjectIdentifier(LuhnMixin, SubjectTypeCapMixin):
                     model=model,
                     study_site=self.template_options.get('study_site'),
                     subject_type=subject_type_name)
+                if create_registration:
+                    self.create_registration(
+                        subject_identifier=self.identifier,
+                        subject_type=subject_type_name,
+                        **kwargs)
 
     def __str__(self):
         return self.identifier
@@ -87,3 +93,12 @@ class SubjectIdentifier(LuhnMixin, SubjectTypeCapMixin):
         except AttributeError:
             sequence_number = 1
         return sequence_number
+
+    def create_registration(self, **kwargs):
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
+        field_names = [field.name for field in RegisteredSubject._meta.get_fields()]
+        copy_of_kwargs = copy(kwargs)
+        for key in copy_of_kwargs:
+            if key not in field_names:
+                del kwargs[key]
+        RegisteredSubject.objects.create(**kwargs)

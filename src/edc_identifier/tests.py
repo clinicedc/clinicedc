@@ -14,10 +14,57 @@ from .numeric_identifier import NumericIdentifier, NumericIdentifierWithModulus
 from .short_identifier import ShortIdentifier
 from .subject_identifier import SubjectIdentifier
 from .maternal_identifier import MaternalIdentifier
+from faker import Faker
+from edc_base.faker import EdcBaseProvider
+
+
+fake = Faker()
+fake.add_provider(EdcBaseProvider)
 
 
 class TestIdentifierError(Exception):
     pass
+
+
+class TestMaternalIdentifier(TestCase):
+
+    def test_create(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40',
+            last_name=fake.last_name())
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+
+    def test_creates_registered_subject(self):
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
+        MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40',
+            last_name=fake.last_name())
+        try:
+            RegisteredSubject.objects.get(subject_identifier='000-40990001-6')
+        except RegisteredSubject.DoesNotExist:
+            self.fail('RegisteredSubject.DoesNotExist unexpectedly raised')
+
+    def test_creates_registered_subject_attrs(self):
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
+        MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40',
+            last_name=fake.last_name())
+        obj = RegisteredSubject.objects.get(subject_identifier='000-40990001-6')
+        self.assertEqual(obj.study_site, '40')
+        self.assertEqual(obj.subject_type, 'subject')
+        self.assertIsNotNone(obj.last_name)
 
 
 class TestInfantIdentifier(TestCase):
@@ -28,7 +75,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier.deliver(1, model='edc_example.maternallabdel')
         self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-10')
@@ -39,7 +87,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier.deliver(2, model='edc_example.maternallabdel')
         self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-25')
@@ -51,7 +100,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier.deliver(3, model='edc_example.maternallabdel')
         self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
@@ -64,7 +114,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders=[2])
         self.assertEqual(maternal_identifier.infants[0].identifier, None)
@@ -78,7 +129,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders='2')
         self.assertEqual(maternal_identifier.infants[0].identifier, None)
@@ -92,7 +144,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders='1')
         self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
@@ -106,7 +159,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders='1,2,3')
         self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
@@ -120,7 +174,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders=None)
         self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
@@ -133,7 +188,8 @@ class TestInfantIdentifier(TestCase):
             subject_type_name='subject',
             model='edc_example.enrollment',
             protocol='000',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         maternal_identifier.deliver(3, model='edc_example.maternallabdel')
         self.assertEqual(len(maternal_identifier.infants), 3)
         self.assertEqual(IdentifierModel.objects.filter(name='infantidentifier').count(), 3)
@@ -150,7 +206,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
         maternal_identifier.deliver(1, model='edc_example.maternallabdel')
@@ -162,10 +219,24 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         maternal_identifier.deliver(2, model='edc_example.maternallabdel')
         maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
         self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-25')
+        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-26')
+
+    def test_load_maternal_identifier_and_twins_2nd_registered(self):
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40',
+            last_name=fake.last_name())
+        maternal_identifier.deliver(2, model='edc_example.maternallabdel', birth_orders='2')
+        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        self.assertEqual(maternal_identifier.infants[0].identifier, None)
         self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-26')
 
     def test_creates_registered_subject(self):
@@ -175,7 +246,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
         maternal_identifier.deliver(1, model='edc_example.maternallabdel')
@@ -191,7 +263,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
         maternal_identifier.deliver(1, model='edc_example.maternallabdel', create_registration=False)
@@ -208,7 +281,8 @@ class TestInfantIdentifier(TestCase):
             model='edc_example.enrollment',
             protocol='000',
             device_id='99',
-            study_site='40')
+            study_site='40',
+            last_name=fake.last_name())
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
         maternal_identifier.deliver(1, model='edc_example.maternallabdel', create_registration=True)

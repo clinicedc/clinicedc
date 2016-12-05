@@ -69,7 +69,7 @@ class IdentifierModel(BaseUuidModel):
     objects = IdentifierModelManager()
 
     def __str__(self):
-        return self.pk
+        return '{} {}'.format(self.identifier, self.name)
 
     def natural_key(self):
         return (self.identifier, )

@@ -11,9 +11,17 @@ class MaternalIdentifier(SubjectIdentifier):
 
     def __init__(self, **kwargs):
         self.infants = []
+        kwargs.update(create_registration=True)
         super(MaternalIdentifier, self).__init__(**kwargs)
-        for obj in IdentifierModel.objects.filter(linked_identifier=self.identifier):
-            self.infants.append(InfantIdentifier(identifier=obj.identifier))
+        infant_identifiers = []
+        for obj in IdentifierModel.objects.filter(linked_identifier=self.identifier).order_by('linked_identifier'):
+            infant_identifiers.append(obj.identifier)
+        if infant_identifiers:
+            birth_order, live_infants = InfantIdentifier.reverse_infant_suffix(infant_identifiers[0])
+            self.infants = [InfantIdentifier()] * live_infants
+            for index, identifier in enumerate(infant_identifiers):
+                birth_order, live_infants = InfantIdentifier.reverse_infant_suffix(infant_identifiers[index])
+                self.infants[birth_order] = InfantIdentifier(identifier=identifier)
 
     @property
     def name(self):
@@ -23,8 +31,8 @@ class MaternalIdentifier(SubjectIdentifier):
         """Deliver all infants, only instantiate InfantIdentifier with maternal identifier
         if listed in birth orders or if birth orders is None."""
         if self.infants:
-            raise MaternalIdentifierError('Infant identifiers already created for this mother. Got \'{}\''.format(
-                '\', \''.join([infant_identifier.identifier for infant_identifier in self.infants])))
+            raise MaternalIdentifierError(
+                'Infant identifiers already created for this mother. Got {}'.format(self.infants))
         else:
             # birth order is zero-based, may be a list of strings, ints or none.
             if birth_orders:
