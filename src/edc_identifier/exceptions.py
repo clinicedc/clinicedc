@@ -26,3 +26,7 @@ class IndentifierFormatKeyError(Exception):
 
 class SubjectIdentifierError(Exception):
     pass
+
+
+class BirthModelError(Exception):
+    pass
