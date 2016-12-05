@@ -14,7 +14,6 @@ from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
 from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
-from edc_identifier.subject_identifier import SubjectIdentifier
 
 from .exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
@@ -27,10 +26,6 @@ YES_NO_UNKNOWN = (
     (NO, 'No'),
     ('?', 'Unknown'),
 )
-
-
-class AllocateSubjectIdentifierError(Exception):
-    pass
 
 
 class SubjectIdentifierModelMixin(models.Model):
@@ -58,31 +53,6 @@ class SubjectIdentifierModelMixin(models.Model):
 
     class Meta:
         abstract = True
-
-
-class AllocateSubjectIdentifierMixin(models.Model):
-
-    def allocate_subject_identifier(self, options=None):
-        """Allocates a subject identifier.
-
-        You can override to use your own method to allocate identifiers or
-        raise AllocateSubjectIdentifierError to bypass."""
-        try:
-            subject_identifier = SubjectIdentifier(site_code=self.study_site).get_identifier()
-        except AttributeError as e:
-            if 'study_site' in str(e):
-                raise AttributeError(str(e))
-            else:
-                subject_identifier = None
-        return subject_identifier
-
-    def save(self, *args, **kwargs):
-        try:
-            if not self.id and not self.subject_identifier:
-                self.subject_identifier = self.allocate_subject_identifier()
-        except (AttributeError, AllocateSubjectIdentifierError):
-            pass
-        super(AllocateSubjectIdentifierMixin, self).save(*args, **kwargs)
 
 
 class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
