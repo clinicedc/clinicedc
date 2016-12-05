@@ -7,8 +7,7 @@ class AliquotModelAdminMixin(admin.ModelAdmin):
 
     date_hierarchy = 'created'
 
-    list_display = ("aliquot_identifier", 'subject_identifier',
-                    'processing', 'drawn', 'created',
+    list_display = ("aliquot_identifier", 'created',
                     'user_created', 'hostname_created')
 
     search_fields = ('aliquot_identifier', 'receive__receive_identifier',
