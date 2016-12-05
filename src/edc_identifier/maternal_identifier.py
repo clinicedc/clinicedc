@@ -19,7 +19,7 @@ class MaternalIdentifier(SubjectIdentifier):
     def name(self):
         return 'maternalidentifier'
 
-    def deliver(self, live_infants, model):
+    def deliver(self, live_infants, model, create_registration=None, **kwargs):
         if self.infants:
             raise MaternalIdentifierError('Infant identifiers already created for this mother. Got \'{}\''.format(
                 '\', \''.join([infant_identifier.identifier for infant_identifier in self.infants])))
@@ -30,4 +30,6 @@ class MaternalIdentifier(SubjectIdentifier):
                         maternal_identifier=self.identifier,
                         model=model,
                         birth_order=n,
-                        live_infants=live_infants))
+                        live_infants=live_infants,
+                        create_registration=create_registration,
+                        **kwargs))

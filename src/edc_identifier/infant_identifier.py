@@ -11,9 +11,11 @@ class InfantIdentifierError(Exception):
 
 class InfantIdentifier:
     def __init__(self, model=None, maternal_identifier=None, birth_order=None,
-                 live_infants=None, identifier=None, template=None):
+                 live_infants=None, identifier=None, template=None,
+                 create_registration=None, **kwargs):
         subject_type = 'infant'
         template = template or '{maternal_identifier}-{infant_suffix}'
+        create_registration = True if create_registration is None else create_registration
         if identifier:
             identifier_model = IdentifierModel.objects.get(identifier=identifier)
             self.identifier = identifier_model.identifier
@@ -56,6 +58,18 @@ class InfantIdentifier:
                 model=model,
                 study_site=maternal_identifier.study_site,
                 subject_type=subject_type)
+            if create_registration:
+                RegisteredSubject = django_apps.get_app_config('edc_registration').model
+                RegisteredSubject.objects.create(
+                    subject_identifier=self.identifier,
+                    subject_type=subject_type,
+                    study_site=maternal_identifier.study_site,
+                    relative_identifier=maternal_identifier.identifier,
+                    first_name=kwargs.get('first_name', 'No Name'),
+                    initials=kwargs.get('initials', None),
+                    registration_status=kwargs.get('registration_status', 'DELIVERED'),
+                    registration_datetime=kwargs.get('registration_datetime', None),
+                )
 
     @property
     def name(self):

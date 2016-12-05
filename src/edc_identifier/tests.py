@@ -98,6 +98,53 @@ class TestInfantIdentifier(TestCase):
         self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-25')
         self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-26')
 
+    def test_creates_registered_subject(self):
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        maternal_identifier.deliver(1, model='edc_example.maternallabdel')
+        try:
+            RegisteredSubject.objects.get(subject_identifier='000-40990001-6-10')
+        except RegisteredSubject.DoesNotExist:
+            self.fail('RegisteredSubject.DoesNotExist unexpectedly raised')
+
+    def test_does_not_create_registered_subject(self):
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        maternal_identifier.deliver(1, model='edc_example.maternallabdel', create_registration=False)
+        try:
+            RegisteredSubject.objects.get(subject_identifier='000-40990001-6-10')
+            self.fail('RegisteredSubject.DoesNotExist unexpectedly raised')
+        except RegisteredSubject.DoesNotExist:
+            pass
+
+    def test_creates_registered_subject_with_user_created(self):
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
+        maternal_identifier = MaternalIdentifier(
+            subject_type_name='subject',
+            model='edc_example.enrollment',
+            protocol='000',
+            device_id='99',
+            study_site='40')
+        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
+        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        maternal_identifier.deliver(1, model='edc_example.maternallabdel', create_registration=True)
+        obj = RegisteredSubject.objects.get(subject_identifier='000-40990001-6-10')
+        self.assertIsNotNone(obj.user_created)
+
 
 class TestSubjectIdentifier(TestCase):
 
