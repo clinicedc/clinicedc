@@ -12,12 +12,13 @@ def update_timepoint_on_post_save(sender, instance, raw, created, using, **kwarg
         try:
             instance.timepoint_opened_datetime
             app_config = django_apps.get_app_config('edc_timepoint')
-            timepoint = app_config.timepoints[sender._meta.label_lower]
-            datetime_value = getattr(instance, timepoint.datetime_field)
-            if instance.timepoint_opened_datetime is None or instance.timepoint_opened_datetime != datetime_value:
-                instance.timepoint_opened_datetime = datetime_value
-                instance.timepoint_status = OPEN_TIMEPOINT
-                instance.save(update_fields=['timepoint_opened_datetime', 'timepoint_status'])
+            if 'historical' not in sender._meta.label_lower:
+                timepoint = app_config.timepoints[sender._meta.label_lower]
+                datetime_value = getattr(instance, timepoint.datetime_field)
+                if instance.timepoint_opened_datetime is None or instance.timepoint_opened_datetime != datetime_value:
+                    instance.timepoint_opened_datetime = datetime_value
+                    instance.timepoint_status = OPEN_TIMEPOINT
+                    instance.save(update_fields=['timepoint_opened_datetime', 'timepoint_status'])
         except AttributeError as e:
             if 'timepoint_opened_datetime' not in str(e):
                 raise AttributeError(str(e))
