@@ -20,7 +20,7 @@ class BaseSpecimenConsentForm(forms.ModelForm):
         """Returns an instance of the current maternal consent or
         raises an exception if not found."""
         cleaned_data = self.cleaned_data
-        subject_identifier = cleaned_data.get('registered_subject').subject_identifier
+        subject_identifier = cleaned_data.get('subject_identifier')
         consent_datetime = cleaned_data.get('consent_datetime')
         maternal_consent = self.STUDY_CONSENT.consent.valid_consent_for_period(
             subject_identifier, consent_datetime)
