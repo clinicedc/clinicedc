@@ -45,7 +45,7 @@ class MaternalIdentifier(SubjectIdentifier):
                             model=model,
                             birth_order=birth_order,
                             live_infants=live_infants,
-                            create_registration=create_registration,
+                            create_registration=True if create_registration is None else create_registration,
                             **kwargs))
                 else:
                     # instantiate empty object
