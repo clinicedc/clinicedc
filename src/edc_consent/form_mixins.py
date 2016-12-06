@@ -21,6 +21,8 @@ class ConsentFormMixin:
 
     def clean(self):
         cleaned_data = super(ConsentFormMixin, self).clean()
+        if not cleaned_data.get('consent_datetime'):
+            raise forms.ValidationError('Please provide the date of consent')
         self.clean_gender_of_consent()
         self.clean_identity_and_confirm_identity()
         self.clean_identity_with_unique_fields()
