@@ -8,6 +8,9 @@ from edc_protocol.validators import datetime_not_before_study_start
 from edc_registration.model_mixins import SubjectIdentifierModelMixin
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from dateutil.relativedelta import relativedelta
+from django.db.models import options
+
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model', )
 
 
 class OffstudyError(Exception):
@@ -75,14 +78,17 @@ class OffstudyModelMixin(SubjectIdentifierModelMixin, models.Model):
         except AttributeError as e:
             if 'consent_model' in str(e):
                 raise AttributeError('For model {} got: {}'.format(self._meta.label_lower, str(e)))
-            raise AttributeError(str(e))
+            raise OffstudyError(str(e))
         return consent
 
     def offstudy_datetime_after_last_visit_or_raise(self):
-        last_visit_datetime = site_visit_schedules.last_visit_datetime(self.subject_identifier)
-        if relativedelta(self.offstudy_datetime, last_visit_datetime).days < 0:
-            raise OffstudyError('Offstudy datetime cannot precede the last visit datetime {}. Got {}'.format(
-                timezone.localtime(last_visit_datetime), timezone.localtime(self.offstudy_datetime)))
+        try:
+            last_visit_datetime = site_visit_schedules.last_visit_datetime(self.subject_identifier)
+            if relativedelta(self.offstudy_datetime, last_visit_datetime).days < 0:
+                raise OffstudyError('Offstudy datetime cannot precede the last visit datetime {}. Got {}'.format(
+                    timezone.localtime(last_visit_datetime), timezone.localtime(self.offstudy_datetime)))
+        except AttributeError as e:
+            raise OffstudyError(str(e))
 
     class Meta:
         abstract = True
@@ -103,8 +109,14 @@ class OffstudyMixin(models.Model):
     def offstudy_model(self):
         try:
             return self.visit.schedule.offstudy_model
-        except AttributeError:
-            return self.schedule.offstudy_model
+        except AttributeError as e:
+            if 'visit' in str(e):
+                try:
+                    return self.schedule.offstudy_model
+                except AttributeError as e:
+                    raise OffstudyError(str(e))
+            else:
+                raise OffstudyError(str(e))
 
     def is_offstudy_or_raise(self):
         """Return True if the off-study report exists. """
