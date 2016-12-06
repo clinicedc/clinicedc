@@ -1,5 +1,6 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from edc_metadata.exceptions import CreatesMetadataError
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_create_on_post_save")
@@ -13,7 +14,7 @@ def metadata_create_on_post_save(sender, instance, raw, created, using, update_f
                 instance.metadata_run_rules()
         except AttributeError as e:
             if 'metadata_create' not in str(e):
-                raise AttributeError('{}. Got \'{}\''.format(sender, str(e)))
+                raise CreatesMetadataError('{}. Got \'{}\''.format(sender, str(e)))
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_update_on_post_save")

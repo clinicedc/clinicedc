@@ -184,11 +184,21 @@ class CreatesMetadataModelMixin(models.Model):
 
     def metadata_run_rules(self, source_model=None):
         """Runs all the rule groups for this app label."""
-        for rule_group in site_rule_groups.registry.get(self._meta.app_label, []):
-            if source_model:
-                rule_group.run_for_source_model(self, source_model)
-            else:
-                rule_group.run_all(self)
+        try:
+            for rule_group in site_rule_groups.registry.get(self._meta.app_label, []):
+                if source_model:
+                    try:
+                        rule_group.run_for_source_model(self, source_model)
+                    except AttributeError as e:
+                        raise AttributeError('{}. (See rule_group.run_for_source_model).'.format(str(e)))
+                else:
+                    try:
+                        rule_group.run_all(self)
+                    except AttributeError as e:
+                        raise AttributeError('{}. (See rule_group.run_all).'.format(str(e)))
+        except AttributeError as e:
+            raise CreatesMetadataError(
+                'An AttributeError was raised when attempting to run rules. Got {}.'.format(str(e)))
 
 # TODO:
 #     def metadata_require(self):
