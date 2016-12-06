@@ -110,8 +110,7 @@ class BaseEnrollmentModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMetho
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
         max_length=50,
-        default=get_uuid,
-        editable=False)
+        default=get_uuid)
 
     report_datetime = models.DateTimeField(
         validators=[
