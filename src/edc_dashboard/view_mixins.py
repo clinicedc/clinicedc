@@ -1,7 +1,12 @@
+import sys
+
+from django.core.management.color import color_style
 from django.apps import apps as django_apps
 from django.urls.base import reverse
 
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
+
+style = color_style()
 
 
 class DashboardSubjectMixin:
@@ -71,12 +76,14 @@ class DashboardMetaDataMixin:
             for crf in crf_meta_datas:
                 try:
                     obj = None
-                    if self.dashboard == 'td_maternal':
-                        obj = crf.model_class.objects.get(
-                            maternal_visit__appointment=self.selected_appointment)
-                    else:
-                        obj = crf.model_class.objects.get(
-                            infant_visit__appointment=self.selected_appointment)
+                    try:
+                        options = {
+                            '{}__appointment'.format(crf.model_class.visit_model_attr()): self.selected_appointment}
+                    except AttributeError:
+                        crf.delete()
+                        sys.stdout.write(style.NOTICE(
+                            'Dashboard detected and deleted a non-crf entry in crf metadata. Got {}'.format(crf)))
+                    obj = crf.model_class.objects.get(**options)
                     crf.instance = obj
                     crf.url = obj.get_absolute_url()
                     crf.title = obj._meta.verbose_name
@@ -96,12 +103,11 @@ class DashboardMetaDataMixin:
             for requisition in requisition_meta_data:
                 try:
                     obj = None
-                    if self.dashboard == 'td_maternal':
-                        obj = requisition.model_class.objects.get(
-                            maternal_visit__appointment=self.selected_appointment, panel_name=requisition.panel_name)
-                    else:
-                        obj = requisition.model_class.objects.get(
-                            infant_visit__appointment=self.selected_appointment, panel_name=requisition.panel_name)
+                    options = {
+                        '{}__appointment'.format(requisition.model_class.visit_model_attr()): self.selected_appointment,
+                        'panel_name': requisition.panel_name}
+
+                    obj = requisition.model_class.objects.get(**options)
                     requisition.instance = obj
                     requisition.url = obj.get_absolute_url()
                     requisition.title = obj._meta.verbose_name
