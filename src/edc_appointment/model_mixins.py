@@ -16,6 +16,7 @@ from .choices import APPT_TYPE, APPT_STATUS, COMPLETE_APPT, INCOMPLETE_APPT, CAN
 from .constants import IN_PROGRESS_APPT, NEW_APPT
 from .exceptions import AppointmentStatusError
 from .managers import AppointmentManager
+from uuid import uuid4, UUID
 
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
@@ -114,6 +115,16 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
     def natural_key(self):
         return (self.subject_identifier, self.visit_schedule_name, self.schedule_name,
                 self.visit_code, self.visit_code_sequence)
+
+    @property
+    def visit(self):
+        return self.subject_visit
+
+    @property
+    def str_pk(self):
+        if isinstance(self.id, UUID):
+            return str(self.pk)
+        return self.pk
 
     @property
     def title(self):
