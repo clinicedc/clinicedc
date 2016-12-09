@@ -1,0 +1,40 @@
+
+<div class="panel-group">
+	<div class="panel panel-warning">
+		<div class="panel-heading clearfix"><i class="fa fa-flask" aria-hidden="true"></i> Specimen / Test Requisitions <span class="pull-right">
+			<button type="button" id="btn-print-label" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-print"></span> Print all</button>
+			<button type="button" id="btn-print-label" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-print"></span> Print selected</button>
+			</span>
+		</div>
+ 		<div class="table table-responsive">
+			<table class="table table-striped table-hover">
+				<tbody>
+				{% for requisition in requisitions %}
+			    	<tr>
+			    		<td><label><input type="checkbox" name="requisition-checkbox" value="{{ requisition.subject_requisition.pk }}"></label></td>
+			    		<td>
+					    	{% if crf.entry_status == 'NOT_REQUIRED' %}
+					        	<del>{{ requisition.panel_name|title }}</del>
+					        {% else %}
+					        	{{ requisition.panel_name|title }}
+					   		{% endif %}
+			    		</td>
+			    		<td>
+			    			{% if requisition.instance %}
+			    				{{ requisition.instance.requisition_identifier }}
+			    			{% endif %}
+		    			</td>
+					    <td>
+							<span class="pull-right">
+							<a role="button" class="btn btn-sm {% if requisition.instance %}btn-success{% else %}btn-danger{% endif %}" href="{{ requisition.url }}?visit_code={{ requisition.visit_code }}&selected_appointment={{ selected_appointment.str_pk }}&subject_identifier={{ subject_identifier }}&panel_name={{ requisition.panel_name }}&next={{ subject_dashboard_url_name }},subject_identifier,selected_appointment">{% if requisition.instance %}Edit{% else %}Add{% endif %}</a>
+					        <a href="#" role="button" class="btn btn-sm btn-default">View</a>
+					        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
+					       	</span>
+					    </td>
+			    	</tr>
+			    {% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,36 @@
+
+{% if not selected_appointment %}
+	<div class="panel-group">
+		<div class="panel panel-warning">
+				<div class="panel-heading"><span class="glyphicon glyphicon-calendar"></span> Schedule</div>
+		     		<div class="table table-responsive">
+				    <table class="table table-striped table-hover">
+					    <tbody>
+			    		{% if not appointments %}
+			        		<tr><td colspan="8"><i>No appointments scheduled</i></td></tr>
+			    		{% else %}
+			        		{% for appointment in appointments %}
+					            <tr>
+					            <td>{{appointment.visit_code}}</td>
+						        <td>{{appointment.title}}</td>
+								<td>{{appointment.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
+								<td><a href="{{ appointment.get_absolute_url }}?next={{ subject_dashboard_url_name }},subject_identifier&subject_identifier={{subject_identifier}}">{{ appointment.get_appt_status_display | capfirst }}</a></td>
+						        <td>
+						        {% if appointment.appt_status == 'in_progress' %}
+						        	{% if appointment.visit %}
+						        		<a href="{{ appointment.visit.get_absolute_url }}?next={{ subject_dashboard_url_name }},subject_identifier,selected_appointment&subject_identifier={{subject_identifier}}&selected_appointment={{ appointment.str_pk }}&appointment={{ appointment.str_pk }}">{{ appointment.visit.report_datetime |date:"Y-m-d D"| capfirst }}</a>
+						        		<span class="pull-right"><a href="{% url subject_dashboard_url_name selected_appointment=appointment.str_pk subject_identifier=subject_identifier %}" role="button" class="btn btn-sm btn-default"><i class="fa fa-tasks" aria-hidden="true"></i> Forms</a></span>
+						        	{% else %}
+						        		<a href="{{ visit_url }}?next={{ subject_dashboard_url_name }},subject_identifier,selected_appointment&subject_identifier={{ subject_identifier }}&selected_appointment={{ appointment.str_pk }}">Start visit</a>
+						        	{% endif %}
+						        {% endif %}
+						        </td>
+					            </tr>
+					        {% endfor %}
+			    		{% endif %}
+			    		</tbody>
+				    </table>
+				</div>
+		</div>
+	</div>	    
+	{% endif %}
