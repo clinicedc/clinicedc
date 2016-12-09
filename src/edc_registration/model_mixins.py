@@ -313,6 +313,9 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
 
         Called from the signal"""
         self.registration_raise_on_not_unique()
+        if not getattr(self, self.registration_unique_field):
+            raise TypeError(
+                'Cannot update or create RegisteredSubject. Got {} is None.'.format(self.registration_unique_field))
         registered_subject, created = self.registration_model.objects.update_or_create(
             **{self.registration_unique_field: getattr(self, self.registration_unique_field)},
             defaults=self.registration_options)
