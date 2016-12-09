@@ -61,6 +61,13 @@ class InfantIdentifier:
                     registration_datetime=kwargs.get('registration_datetime', None),
                 )
 
+    def __str__(self):
+        return self.identifier
+
+    @property
+    def name(self):
+        return 'infantidentifier'
+
     def infant_suffix(self, live_infants):
         if live_infants == 1:
             infant_suffix = 10  # singlet 10
@@ -94,7 +101,3 @@ class InfantIdentifier:
         else:
             raise InfantIdentifierError('Unable to reverse infant identifier.')
         return birth_order, live_infants
-
-    @property
-    def name(self):
-        return 'infantidentifier'
