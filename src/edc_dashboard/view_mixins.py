@@ -1,6 +1,7 @@
 import sys
 
 from django.core.management.color import color_style
+from django.core.exceptions import ImproperlyConfigured
 from django.apps import apps as django_apps
 from django.urls.base import reverse
 
@@ -9,9 +10,13 @@ from edc_metadata.models import CrfMetadata, RequisitionMetadata
 style = color_style()
 
 
+class DashboardError(Exception):
+    pass
+
+
 class DashboardSubjectMixin:
 
-    dashboard_url_name = None
+    subject_dashboard_url_name = None
 
     def get_context_data(self, **kwargs):
         context = super(DashboardSubjectMixin, self).get_context_data(**kwargs)
@@ -20,18 +25,8 @@ class DashboardSubjectMixin:
         context.update(
             subject_identifier=self.subject_identifier,
             show=self.show,
-            dashboard_url_name=self.dashboard_url_name)
+            subject_dashboard_url_name=self.subject_dashboard_url_name)
         return context
-
-    @property
-    def dashboard_url(self):
-        try:
-            dashboard_url = reverse(
-                self.dashboard_url_name,
-                kwargs=dict(subject_identifier=self.subject_identifier))
-        except AttributeError:
-            dashboard_url = None
-        return dashboard_url
 
 
 class DashboardAppointmentMixin:
@@ -42,9 +37,9 @@ class DashboardAppointmentMixin:
 
     def get_context_data(self, **kwargs):
         context = super(DashboardAppointmentMixin, self).get_context_data(**kwargs)
-        appointment_pk = self.kwargs.get('appointment_pk')
+        pk = self.kwargs.get('selected_appointment')
         try:
-            self.selected_appointment = self.appointment_model.objects.get(pk=appointment_pk)
+            self.selected_appointment = self.appointment_model.objects.get(pk=pk)
             appointments = []
         except self.appointment_model.DoesNotExist:
             appointments = self.appointment_model.objects.filter(
@@ -52,8 +47,7 @@ class DashboardAppointmentMixin:
             self.selected_appointment = None
         context.update(
             appointments=appointments,
-            selected_appointment=self.selected_appointment,
-            appointment_pk=appointment_pk)
+            selected_appointment=self.selected_appointment)
         return context
 
 
@@ -79,16 +73,29 @@ class DashboardMetaDataMixin:
                     try:
                         options = {
                             '{}__appointment'.format(crf.model_class.visit_model_attr()): self.selected_appointment}
-                    except AttributeError:
+                    except AttributeError as e:
+                        if 'visit_model_attr' not in str(e):
+                            raise DashboardError(str(e))
+                        options = {}
                         crf.delete()
                         sys.stdout.write(style.NOTICE(
                             'Dashboard detected and deleted a non-crf entry in crf metadata. Got {}'.format(crf)))
+                        sys.stdout.flush()
                     obj = crf.model_class.objects.get(**options)
                     crf.instance = obj
+                    crf.visit_attr_name = crf.model_class.visit_model_attr()
+                    crf.visit = getattr(crf.instance, crf.visit_attr_name)
                     crf.url = obj.get_absolute_url()
                     crf.title = obj._meta.verbose_name
                 except crf.model_class.DoesNotExist:
                     crf.instance = None
+                    try:
+                        crf.visit_attr_name = crf.model_class.visit_model_attr()
+                    except AttributeError as e:
+                        raise ImproperlyConfigured(
+                            'Model {} is not configured as a CRF model. '
+                            'Correct or remove this model from your schedule. Got {}'.format(
+                                crf.model_class()._meta.label_lower, str(e)))
                     crf.url = crf.model_class().get_absolute_url()
                     crf.title = crf.model_class()._meta.verbose_name
                 crfs.append(crf)
