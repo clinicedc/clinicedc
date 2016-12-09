@@ -8,6 +8,7 @@ from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 from edc_base.model.validators import CellNumber, TelephoneNumber
 from edc_constants.choices import YES_NO, YES_NO_DOESNT_WORK
 from edc_constants.constants import YES
+from edc_base.utils import get_utcnow
 
 
 class LocatorManager(models.Manager):
@@ -21,8 +22,9 @@ class LocatorModelMixin(models.Model):
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
         max_length=50,
-        unique=True,
-        editable=False)
+        unique=True)
+
+    report_datetime = models.DateTimeField(default=get_utcnow)
 
     date_signed = models.DateField(
         verbose_name="Date Locator Form signed ",
