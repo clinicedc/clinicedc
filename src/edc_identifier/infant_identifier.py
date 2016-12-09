@@ -3,6 +3,7 @@ from django.apps import apps as django_apps
 from edc_identifier.models import IdentifierModel
 
 edc_device_app_config = django_apps.get_app_config('edc_device')
+edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
 
 
 class InfantIdentifierError(Exception):
@@ -23,11 +24,11 @@ class InfantIdentifier:
             self.identifier = None
         else:
             try:
-                maternal_identifier = IdentifierModel.objects.get(identifier=maternal_identifier)
+                IdentifierModel.objects.get(identifier=maternal_identifier.identifier)
             except IdentifierModel.DoesNotExist:
                 raise InfantIdentifierError(
                     'Unable to allocate infant identifier. Maternal_identifier {0} does not exist.'.format(
-                        maternal_identifier))
+                        maternal_identifier.identifier))
             if birth_order > live_infants:
                 raise InfantIdentifierError(
                     'Unable to allocate infant identifier. Birth order cannot be {} '
@@ -37,11 +38,11 @@ class InfantIdentifier:
                 maternal_identifier=maternal_identifier.identifier,
                 infant_suffix=infant_suffix)
             IdentifierModel.objects.create(
-                name=self.name,
+                name=self.label,
                 sequence_number=infant_suffix,
                 identifier=self.identifier,
                 linked_identifier=maternal_identifier.identifier,
-                protocol_number=maternal_identifier.protocol_number,
+                protocol_number=edc_protocol_app_config.protocol_number,
                 device_id=edc_device_app_config.device_id,
                 model=model,
                 study_site=maternal_identifier.study_site,
@@ -49,7 +50,7 @@ class InfantIdentifier:
             if create_registration:
                 RegisteredSubject = django_apps.get_app_config('edc_registration').model
                 obj = RegisteredSubject.objects.get(subject_identifier=maternal_identifier.identifier)
-                first_name = 'Baby{}{}'.format(birth_order + 1, obj.last_name.lower().title())
+                first_name = 'Baby{}{}'.format(birth_order + 1, (obj.last_name or 'UNKNOWN').lower().title())
                 RegisteredSubject.objects.create(
                     subject_identifier=self.identifier,
                     subject_type=subject_type,
@@ -58,14 +59,13 @@ class InfantIdentifier:
                     first_name=kwargs.get('first_name', first_name),
                     initials=kwargs.get('initials', None),
                     registration_status=kwargs.get('registration_status', 'DELIVERED'),
-                    registration_datetime=kwargs.get('registration_datetime', None),
-                )
+                    registration_datetime=kwargs.get('registration_datetime', None))
 
     def __str__(self):
         return self.identifier
 
     @property
-    def name(self):
+    def label(self):
         return 'infantidentifier'
 
     def infant_suffix(self, live_infants):

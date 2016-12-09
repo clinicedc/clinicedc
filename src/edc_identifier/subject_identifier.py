@@ -25,10 +25,12 @@ class SubjectIdentifier(LuhnMixin, SubjectTypeCapMixin):
         if identifier:
             self.identifier_model = IdentifierModel.objects.get(identifier=identifier)
             self.identifier = self.identifier_model.identifier
+            self.subject_type = self.identifier_model.subject_type
+            self.study_site = self.identifier_model.study_site
         else:
             if not self.missing_args:
                 identifier_model = IdentifierModel.objects.filter(
-                    name=self.name,
+                    name=self.label,
                     subject_type=subject_type_name,
                     model=model)
                 self.fetch_or_raise_on_cap_met(
@@ -46,7 +48,7 @@ class SubjectIdentifier(LuhnMixin, SubjectTypeCapMixin):
                 self.identifier = '{}-{}'.format(
                     identifier, self.calculate_checkdigit(''.join(identifier.split('-'))))
                 self.identifier_model = IdentifierModel.objects.create(
-                    name=self.name,
+                    name=self.label,
                     sequence_number=self.sequence_number,
                     identifier=self.identifier,
                     protocol_number=self.template_options.get('protocol_number'),
@@ -64,7 +66,7 @@ class SubjectIdentifier(LuhnMixin, SubjectTypeCapMixin):
         return self.identifier
 
     @property
-    def name(self):
+    def label(self):
         return 'subjectidentifier'
 
     @property
@@ -86,7 +88,7 @@ class SubjectIdentifier(LuhnMixin, SubjectTypeCapMixin):
         """Returns the next sequence number to use."""
         try:
             identifier_model = IdentifierModel.objects.filter(
-                name=self.name,
+                name=self.label,
                 device_id=self.template_options.get('device_id'),
                 study_site=self.template_options.get('study_site')).order_by('-sequence_number').first()
             sequence_number = identifier_model.sequence_number + 1

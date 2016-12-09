@@ -11,7 +11,7 @@ class MaternalIdentifier(SubjectIdentifier):
 
     def __init__(self, **kwargs):
         self.infants = []
-        kwargs.update(create_registration=True)
+        self.study_site = kwargs.get('study_site')
         super(MaternalIdentifier, self).__init__(**kwargs)
         infant_identifiers = []
         for obj in IdentifierModel.objects.filter(linked_identifier=self.identifier).order_by('linked_identifier'):
@@ -24,12 +24,13 @@ class MaternalIdentifier(SubjectIdentifier):
                 self.infants[birth_order] = InfantIdentifier(identifier=identifier)
 
     @property
-    def name(self):
+    def label(self):
         return 'maternalidentifier'
 
     def deliver(self, live_infants, model, birth_orders=None, create_registration=None, **kwargs):
         """Deliver all infants, only instantiate InfantIdentifier with maternal identifier
         if listed in birth orders or if birth orders is None."""
+        create_registration = True if create_registration is None else create_registration
         if self.infants:
             raise MaternalIdentifierError(
                 'Infant identifiers already created for this mother. Got {}'.format(self.infants))
@@ -49,11 +50,11 @@ class MaternalIdentifier(SubjectIdentifier):
                 if birth_order in birth_orders:
                     self.infants.append(
                         InfantIdentifier(
-                            maternal_identifier=self.identifier,
+                            maternal_identifier=self,
                             model=model,
                             birth_order=birth_order,
                             live_infants=live_infants,
-                            create_registration=True if create_registration is None else create_registration,
+                            create_registration=create_registration,
                             **kwargs))
                 else:
                     # instantiate empty object
