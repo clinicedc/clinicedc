@@ -4,14 +4,13 @@ import django.db.models.options as options
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
 from django.db import models, transaction
 from django.db.models.fields.related import OneToOneField, ForeignKey
-from django.utils import timezone
 
 from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
 from edc_base.model.fields.custom_fields import OtherCharField
 from edc_base.model.validators.date import datetime_not_future, date_not_future
+from edc_base.utils import get_utcnow
 from edc_constants.choices import YES_NO, ALIVE_DEAD_UNKNOWN
 from edc_constants.constants import YES, ALIVE
 from edc_protocol.validators import datetime_not_before_study_start, date_not_before_study_start
@@ -30,7 +29,25 @@ class PreviousVisitError(Exception):
     pass
 
 
-class CrfModelMixin(models.Model):
+class ModelMixin(models.Model):
+
+    @classmethod
+    def visit_model(cls):
+        return app_config.visit_model(cls._meta.app_label)
+
+    @property
+    def visit_code(self):
+        return self.visit.visit_code
+
+    @property
+    def subject_identifier(self):
+        return self.visit.subject_identifier
+
+    class Meta:
+        abstract = True
+
+
+class CrfModelMixin(ModelMixin, models.Model):
 
     """Base mixin for all CRF models.
 
@@ -47,7 +64,7 @@ class CrfModelMixin(models.Model):
         validators=[
             datetime_not_before_study_start,
             datetime_not_future, ],
-        default=timezone.now,
+        default=get_utcnow,
         help_text=('If reporting today, use today\'s date/time, otherwise use '
                    'the date/time this information was reported.'))
 
@@ -56,9 +73,14 @@ class CrfModelMixin(models.Model):
     def __str__(self):
         return str(self.visit)
 
-    @classmethod
-    def visit_model(cls):
-        return app_config.visit_model(cls._meta.app_label)
+    def save(self, *args, **kwargs):
+        datetime_not_before_study_start(self.report_datetime)
+        datetime_not_future(self.report_datetime)
+        super(CrfModelMixin, self).save(*args, **kwargs)
+
+    def natural_key(self):
+        return (getattr(self, self.visit_model_attr()).natural_key(), )
+    # TODO: need to add the natural key dependencies !!
 
     @classmethod
     def visit_model_attr(cls):
@@ -68,32 +90,11 @@ class CrfModelMixin(models.Model):
     def visit(self):
         return getattr(self, self.visit_model_attr())
 
-    @property
-    def visit_code(self):
-        return self.visit.visit_code
-
-    def natural_key(self):
-        return (getattr(self, self.visit_model_attr()).natural_key(), )
-    # TODO: need to add the natural key dependencies !!
-
-    @property
-    def subject_identifier(self):
-        return self.visit.appointment.subject_identifier
-
-    def dashboard(self):
-        url = reverse(
-            'subject_dashboard_url',
-            kwargs={'dashboard_model': 'appointment',
-                    'dashboard_id': self.visit.appointment.pk,
-                    'show': 'appointments'})
-        return """<a href="{url}" />dashboard</a>""".format(url=url)
-    dashboard.allow_tags = True
-
     class Meta:
         abstract = True
 
 
-class CrfInlineModelMixin(models.Model):
+class CrfInlineModelMixin(ModelMixin, models.Model):
     """A mixin for models used as inlines in ModelAdmin."""
 
     def __init__(self, *args, **kwargs):
@@ -136,10 +137,6 @@ class CrfInlineModelMixin(models.Model):
     def report_datetime(self):
         """Return the instance of the inline parent model's report_datetime."""
         return self.visit.report_datetime
-
-    @property
-    def subject_identifier(self):
-        return self.visit.subject_identifier
 
     class Meta:
         crf_inline_parent = None  # foreign key attribute that relates this model to the parent model
@@ -236,7 +233,7 @@ class VisitModelMixin(VisitScheduleModelMixin, PreviousVisitModelMixin, models.M
         validators=[
             datetime_not_before_study_start,
             datetime_not_future],
-        default=timezone.now,
+        default=get_utcnow,
         help_text='Date and time of this report')
 
     reason = models.CharField(

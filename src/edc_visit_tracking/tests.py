@@ -48,7 +48,7 @@ class TestVisitMixin(TestCase):
         Enrollment.objects.create(
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
-        appointment = Appointment.objects.all()[0]
+        appointment = Appointment.objects.all().order_by('timepoint_datetime')[0]
         subject_visit = mommy.make_recipe(
             'edc_example.subjectvisit', appointment=appointment)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
@@ -153,32 +153,34 @@ class TestVisit(TestCase):
                 appointment=appointment,
                 report_datetime=get_utcnow() - relativedelta(months=10 - index),
                 reason=SCHEDULED)
-        subject_visit = SubjectVisit.objects.all()[0]
+        subject_visits = SubjectVisit.objects.all().order_by('appointment__timepoint_datetime')
+        subject_visit = subject_visits[0]
         self.assertIsNone(subject_visit.previous_visit)
-        subject_visit = SubjectVisit.objects.all()[1]
-        self.assertEqual(subject_visit.previous_visit.pk, SubjectVisit.objects.all()[0].pk)
-        subject_visit = SubjectVisit.objects.all()[2]
-        self.assertEqual(subject_visit.previous_visit.pk, SubjectVisit.objects.all()[1].pk)
-        subject_visit = SubjectVisit.objects.all()[3]
-        self.assertEqual(subject_visit.previous_visit.pk, SubjectVisit.objects.all()[2].pk)
+        subject_visit = subject_visits[1]
+        self.assertEqual(subject_visit.previous_visit.pk, subject_visits[0].pk)
+        subject_visit = subject_visits[2]
+        self.assertEqual(subject_visit.previous_visit.pk, subject_visits[1].pk)
+        subject_visit = subject_visits[3]
+        self.assertEqual(subject_visit.previous_visit.pk, subject_visits[2].pk)
 
     def test_requires_previous_visit(self):
         """Asserts requires previous visit to exist on create."""
+        appointments = Appointment.objects.all().order_by('timepoint_datetime')
         SubjectVisit.objects.create(
-            appointment=Appointment.objects.all()[0],
+            appointment=appointments[0],
             report_datetime=get_utcnow() - relativedelta(months=10),
             reason=SCHEDULED)
         self.assertRaises(
             PreviousVisitError, SubjectVisit.objects.create,
-            appointment=Appointment.objects.all()[2],
+            appointment=appointments[2],
             report_datetime=get_utcnow() - relativedelta(months=8),
             reason=SCHEDULED)
         SubjectVisit.objects.create(
-            appointment=Appointment.objects.all()[1],
+            appointment=appointments[1],
             report_datetime=get_utcnow() - relativedelta(months=10),
             reason=SCHEDULED)
         self.assertRaises(
             PreviousVisitError, SubjectVisit.objects.create,
-            appointment=Appointment.objects.all()[3],
+            appointment=appointments[3],
             report_datetime=get_utcnow() - relativedelta(months=8),
             reason=SCHEDULED)
