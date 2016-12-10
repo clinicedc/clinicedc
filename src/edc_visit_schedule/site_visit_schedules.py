@@ -121,6 +121,7 @@ class SiteVisitSchedules:
         """Returns the last visit datetime for a subject.
 
         Does not assume every visit schedule uses the same visit model."""
+        last_visit_datetime = None
         if schedule_name and not visit_schedule_name:
             raise TypeError('Specify \'visit_schedule_name\' when specifying \'schedule_name\'. Got None')
         schedule_names = [] if not schedule_name else [schedule_name]
@@ -141,8 +142,8 @@ class SiteVisitSchedules:
                 if last_visit:
                     max_visit_datetimes.append(last_visit.report_datetime)
         if max_visit_datetimes:
-            return max(max_visit_datetimes)
-        return None
+            last_visit_datetime = max(max_visit_datetimes)
+        return last_visit_datetime
 
     def enrollment(self, subject_identifier, visit_schedule_name, schedule_name):
         """Returns the enrollment instance for the given subject."""
