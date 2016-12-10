@@ -140,7 +140,7 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
                             'visit_code', 'visit_code_sequence'),
                            ('subject_identifier', 'visit_schedule_name', 'schedule_name',
                             'visit_code', 'timepoint'))
-        ordering = ('appt_datetime', )
+        ordering = ('timepoint_datetime', )
 
 
 class CreateAppointmentsMixin(models.Model):

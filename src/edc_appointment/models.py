@@ -24,11 +24,7 @@ class Appointment(AppointmentModelMixin, BaseUuidModel):
 
     history = HistoricalRecords()
 
-    @property
-    def str_pk(self):
-        return str(self.pk)
-
-    class Meta:
+    class Meta(AppointmentModelMixin.Meta):
         app_label = 'edc_appointment'
 
 
