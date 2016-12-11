@@ -14,14 +14,14 @@
 					            <td>{{appointment.visit_code}}</td>
 						        <td>{{appointment.title}}</td>
 								<td>{{appointment.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
-								<td><a href="{{ appointment.get_absolute_url }}?next={{ subject_dashboard_url_name }},subject_identifier&subject_identifier={{subject_identifier}}">{{ appointment.get_appt_status_display | capfirst }}</a></td>
+								<td><a role="button" class="btn btn-sm btn-default" href="{{ appointment.get_absolute_url }}?next={{ subject_dashboard_url_name }},subject_identifier&subject_identifier={{subject_identifier}}">{{ appointment.get_appt_status_display | capfirst }}</a></td>
 						        <td>
 						        {% if appointment.appt_status == 'in_progress' %}
 						        	{% if appointment.visit %}
 						        		<a href="{{ appointment.visit.get_absolute_url }}?next={{ subject_dashboard_url_name }},subject_identifier,selected_appointment&subject_identifier={{subject_identifier}}&selected_appointment={{ appointment.str_pk }}&appointment={{ appointment.str_pk }}">{{ appointment.visit.report_datetime |date:"Y-m-d D"| capfirst }}</a>
 						        		<span class="pull-right"><a href="{% url subject_dashboard_url_name selected_appointment=appointment.str_pk subject_identifier=subject_identifier %}" role="button" class="btn btn-sm btn-default"><i class="fa fa-tasks" aria-hidden="true"></i> Forms</a></span>
 						        	{% else %}
-						        		<a href="{{ visit_url }}?next={{ subject_dashboard_url_name }},subject_identifier,selected_appointment&subject_identifier={{ subject_identifier }}&selected_appointment={{ appointment.str_pk }}">Start visit</a>
+						        		<a role="button" class="btn btn-sm btn-danger" href="{{ visit_url }}?next={{ subject_dashboard_url_name }},subject_identifier,selected_appointment&subject_identifier={{ subject_identifier }}&selected_appointment={{ appointment.str_pk }}&appointment={{ appointment.str_pk }}">Start visit</a>
 						        	{% endif %}
 						        {% endif %}
 						        </td>

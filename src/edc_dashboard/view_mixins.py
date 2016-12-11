@@ -2,6 +2,7 @@ import sys
 
 from django.core.management.color import color_style
 from django.core.exceptions import ImproperlyConfigured
+from django.db import OperationalError
 from django.apps import apps as django_apps
 from django.urls.base import reverse
 
@@ -73,6 +74,12 @@ class DashboardMetaDataMixin:
                     try:
                         options = {
                             '{}__appointment'.format(crf.model_class.visit_model_attr()): self.selected_appointment}
+                        obj = crf.model_class.objects.get(**options)
+                        crf.instance = obj
+                        crf.visit_attr_name = crf.model_class.visit_model_attr()
+                        crf.visit = getattr(crf.instance, crf.visit_attr_name)
+                        crf.url = obj.get_absolute_url()
+                        crf.title = obj._meta.verbose_name
                     except AttributeError as e:
                         if 'visit_model_attr' not in str(e):
                             raise DashboardError(str(e))
@@ -81,12 +88,21 @@ class DashboardMetaDataMixin:
                         sys.stdout.write(style.NOTICE(
                             'Dashboard detected and deleted a non-crf entry in crf metadata. Got {}'.format(crf)))
                         sys.stdout.flush()
-                    obj = crf.model_class.objects.get(**options)
-                    crf.instance = obj
-                    crf.visit_attr_name = crf.model_class.visit_model_attr()
-                    crf.visit = getattr(crf.instance, crf.visit_attr_name)
-                    crf.url = obj.get_absolute_url()
-                    crf.title = obj._meta.verbose_name
+                    except LookupError as e:
+                        # getting here means you changed a table name
+                        options = {}
+                        crf.delete()
+                        sys.stdout.write(style.NOTICE(
+                            'Dashboard detected and deleted an invalid crf entry in crf metadata. Got {}'.format(crf)))
+                        sys.stdout.flush()
+                    except OperationalError as e:
+                        # getting here means you changed a table name but havent migrated the change
+                        options = {}
+                        crf.delete()
+                        sys.stdout.write(style.NOTICE(
+                            'Dashboard detected and deleted an invalid crf model name entry in crf metadata. '
+                            'Got {}'.format(crf)))
+                        sys.stdout.flush()
                 except crf.model_class.DoesNotExist:
                     crf.instance = None
                     try:
