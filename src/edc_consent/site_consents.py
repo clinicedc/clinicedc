@@ -103,12 +103,12 @@ class SiteConsents:
                 'Cannot find a version for consent model \'{}\' using date \'{}\'. '
                 'Check edc_consent.AppConfig.'.format(
                     consent_model,
-                    timezone.localtime(report_datetime).strftime('%Y-%m-%d')))
+                    report_datetime.strftime('%Y-%m-%d %H:%M%z')))
         if len(consent_configs) > 1:
             raise exception_cls(
                 'Multiple consents found, using consent model {} date {}. '
                 'Check edc_consent.AppConfig.'.format(
-                    consent_model, timezone.localtime(report_datetime).strftime('%Y-%m-%d')))
+                    consent_model, report_datetime.strftime('%Y-%m-%d %H:%M%z')))
         return consent_configs[0]
 
 site_consents = SiteConsents()

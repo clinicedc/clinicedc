@@ -31,6 +31,9 @@ class AppConfig(DjangoAppConfig):
         for consent_config in self.consent_configs:
             site_consents.register(consent_config)
             sys.stdout.write(' * registered {}.\n'.format(consent_config))
+            sys.stdout.write('   - consent period {} to {}.\n'.format(
+                consent_config.start.strftime('%Y-%m-%d'),
+                consent_config.end.strftime('%Y-%m-%d')))
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
 
     def get_consent_config(self, model):

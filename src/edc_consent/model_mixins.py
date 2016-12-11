@@ -46,15 +46,15 @@ class RequiresConsentMixin(models.Model):
                 subject_identifier = self.subject_identifier
             except AttributeError:
                 subject_identifier = self.get_subject_identifier()
-        if not subject_identifier:
-            raise ImproperlyConfigured(
-                'Attribute subject_identifier cannot be None. Either set it manually, via a property, '
-                'or check method resolution order if model is declared with multiple mixins. '
-                'The mixin that updates subject_identifier should be declared before RequiresConsentMixin.')
         try:
-            consent_config.model.objects.get(
+            if not subject_identifier:
+                raise SiteConsentError(
+                    'Cannot lookup {} instance for subject. Got \'subject_identifier\' is None.'.format(
+                        consent_config.model._meat.label_lower))
+            options = dict(
                 subject_identifier=subject_identifier,
                 version=consent_config.version)
+            consent_config.model.objects.get(**options)
         except consent_config.model.DoesNotExist:
             raise exception_cls(
                 'Cannot find \'{consent_model} version {version}\' when saving model \'{model}\' '
@@ -63,7 +63,7 @@ class RequiresConsentMixin(models.Model):
                     consent_model=consent_config.model._meta.label_lower,
                     model=self._meta.label_lower,
                     version=consent_config.version,
-                    report_datetime=timezone.localtime(report_datetime).strftime('%Y-%m-%d')))
+                    report_datetime=report_datetime.strftime('%Y-%m-%d %H:%M%z')))
 
     class Meta:
         abstract = True
@@ -139,6 +139,10 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
     consent = ConsentManager()
 
+    def __str__(self):
+        return '{0} {1} {2} ({3}) v{4}'.format(
+            self.subject_identifier, self.first_name, self.last_name, self.initials, self.version)
+
     def natural_key(self):
         return (self.subject_identifier_as_pk, )
 
@@ -147,7 +151,8 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         self.set_uuid_as_subject_identifier_if_none()
         if not self.id and not self.subject_identifier:
             self.subject_identifier = self.subject_identifier_as_pk
-        consent_config = site_consents.get_consent_config(self._meta.label_lower, report_datetime=self.consent_datetime)
+        consent_config = site_consents.get_consent_config(
+            self._meta.label_lower, report_datetime=self.consent_datetime)
         self.version = consent_config.version
         if consent_config.updates_version:
             try:

@@ -23,13 +23,13 @@ class ConsentFormMixin:
         cleaned_data = super(ConsentFormMixin, self).clean()
         if not cleaned_data.get('consent_datetime'):
             raise forms.ValidationError('Please provide the date of consent')
-        self.clean_gender_of_consent()
-        self.clean_identity_and_confirm_identity()
-        self.clean_identity_with_unique_fields()
         self.clean_initials_with_full_name()
+        self.clean_gender_of_consent()
+        self.clean_is_literate_and_witness()
         self.clean_dob_relative_to_consent_datetime()
         self.clean_guardian_and_dob()
-        self.clean_is_literate_and_witness()
+        self.clean_identity_and_confirm_identity()
+        self.clean_identity_with_unique_fields()
         return cleaned_data
 
     @property
