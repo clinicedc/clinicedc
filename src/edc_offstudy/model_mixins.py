@@ -85,8 +85,10 @@ class OffstudyModelMixin(SubjectIdentifierModelMixin, models.Model):
         try:
             last_visit_datetime = site_visit_schedules.last_visit_datetime(self.subject_identifier)
             if relativedelta(self.offstudy_datetime, last_visit_datetime).days < 0:
-                raise OffstudyError('Offstudy datetime cannot precede the last visit datetime {}. Got {}'.format(
-                    timezone.localtime(last_visit_datetime), timezone.localtime(self.offstudy_datetime)))
+                raise OffstudyError(
+                    'Offstudy datetime cannot precede the last visit datetime {}. Got {}'.format(
+                        timezone.localtime(last_visit_datetime),
+                        timezone.localtime(self.offstudy_datetime)))
         except AttributeError as e:
             raise OffstudyError(str(e))
 
