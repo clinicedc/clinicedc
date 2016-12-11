@@ -1,11 +1,8 @@
-import pytz
-
 from django.apps import apps as django_apps
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
 app_config = django_apps.get_app_config('edc_protocol')
-tz = pytz.timezone('UTC')
 
 
 def date_not_before_study_start(value):

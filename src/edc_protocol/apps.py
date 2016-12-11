@@ -55,6 +55,8 @@ class AppConfig(DjangoAppConfig):
         else:
             for label, cap in self.subject_types.items():
                 sys.stdout.write('   - found {}.\n'.format(cap))
+        sys.stdout.write(' * Study opening date: {}\n'.format(self.study_open_datetime.strftime('%Y-%m-%d')))
+        sys.stdout.write(' * Expected study closing date: {}\n'.format(self.study_end_datetime.strftime('%Y-%m-%d')))
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
         sys.stdout.flush()
 
