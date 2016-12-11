@@ -283,6 +283,7 @@ class BaseMetadataModelMixin(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ('show_order', )
 
 
 class CrfMetadataModelMixin(BaseMetadataModelMixin):
