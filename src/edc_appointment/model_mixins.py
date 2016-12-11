@@ -17,6 +17,7 @@ from .constants import IN_PROGRESS_APPT, NEW_APPT
 from .exceptions import AppointmentStatusError
 from .managers import AppointmentManager
 from uuid import uuid4, UUID
+from edc_appointment.exceptions import CreateAppointmentError
 
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
@@ -233,8 +234,14 @@ class CreateAppointmentsOnEligibleMixin(CreateAppointmentsMixin):
     """Same as CreateAppointmentsMixin except will check for is_eigile=True before creating."""
     def create_appointments(self, base_appt_datetime=None):
         appointments = None
-        if self.is_eligible:
-            appointments = super(CreateAppointmentsOnEligibleMixin, self).create_appointments(base_appt_datetime)
+        try:
+            if self.is_eligible:
+                appointments = super(CreateAppointmentsOnEligibleMixin, self).create_appointments(
+                    base_appt_datetime)
+        except AttributeError as e:
+            if 'is_eligible' in str(e):
+                raise CreateAppointmentError(str(e))
+            raise AttributeError(str(e))
         return appointments
 
     class Meta:
