@@ -3,6 +3,7 @@ import sys
 from dateutil.relativedelta import relativedelta
 
 from django.apps import AppConfig as DjangoAppConfig
+from django.core.management.color import color_style
 
 from edc_base.utils import get_utcnow
 
@@ -27,7 +28,20 @@ class AppConfig(DjangoAppConfig):
     ]
 
     def ready(self):
+        style = color_style()
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
+        if 'test' in sys.argv:
+            sys.stdout.write(
+                style.NOTICE(
+                    'WARNING! Overwriting AppConfig consent.start and end dates for tests only. \n'
+                    'See EdcConsentAppConfig\n'))
+            testconsentconfigs = []
+            for consent_config in self.consent_configs:
+                duration_delta = relativedelta(consent_config.end, consent_config.start)
+                consent_config.start = (get_utcnow() - relativedelta(years=1)) - duration_delta
+                consent_config.end = get_utcnow() - relativedelta(years=1)
+                testconsentconfigs.append(consent_config)
+            self.consent_configs = testconsentconfigs
         for consent_config in self.consent_configs:
             site_consents.register(consent_config)
             sys.stdout.write(' * registered {}.\n'.format(consent_config))
