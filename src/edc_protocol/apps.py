@@ -10,6 +10,7 @@ from .subject_type import SubjectType
 from django.core.exceptions import ImproperlyConfigured
 from edc_protocol.cap import ALL_SITES
 from edc_protocol.exceptions import SubjectTypeCapError
+from django.core.management.color import color_style
 
 
 class AppConfig(DjangoAppConfig):
@@ -28,10 +29,22 @@ class AppConfig(DjangoAppConfig):
         SubjectType('subject', 'Research Subjects', Cap(model_name='edc_example.enrollmentthree', max_subjects=5))
     ]
     study_open_datetime = get_utcnow() - relativedelta(days=25)
+    study_close_datetime = get_utcnow() + relativedelta(days=25)
 
     def ready(self):
+        style = color_style()
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         sys.stdout.write(' * {}: {}.\n'.format(self.protocol, self.protocol_name))
+        if 'test' in sys.argv:
+            sys.stdout.write(
+                style.NOTICE(
+                    'WARNING! Overwriting AppConfig study_open_datetime and study_close_datetime for tests only. \n'
+                    'See EdcProtocolAppConfig\n'))
+            duration_delta = relativedelta(self.study_close_datetime, self.study_open_datetime)
+            self.study_open_datetime = (get_utcnow() - relativedelta(years=1)) - duration_delta
+            self.study_close_datetime = get_utcnow() - relativedelta(years=1)
+        sys.stdout.write(' * Study opening date: {}\n'.format(self.study_open_datetime.strftime('%Y-%m-%d')))
+        sys.stdout.write(' * Expected study closing date: {}\n'.format(self.study_close_datetime.strftime('%Y-%m-%d')))
         if isinstance(self.subject_types, (list, tuple)):
             unique_labels = {}
             for subject_type in self.subject_types:
@@ -55,8 +68,6 @@ class AppConfig(DjangoAppConfig):
         else:
             for label, cap in self.subject_types.items():
                 sys.stdout.write('   - found {}.\n'.format(cap))
-        sys.stdout.write(' * Study opening date: {}\n'.format(self.study_open_datetime.strftime('%Y-%m-%d')))
-        sys.stdout.write(' * Expected study closing date: {}\n'.format(self.study_end_datetime.strftime('%Y-%m-%d')))
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
         sys.stdout.flush()
 
