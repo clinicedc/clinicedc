@@ -28,5 +28,9 @@ class SubjectIdentifierError(Exception):
     pass
 
 
+class ResearchIdentifierError(Exception):
+    pass
+
+
 class BirthModelError(Exception):
     pass
