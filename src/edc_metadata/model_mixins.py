@@ -13,7 +13,15 @@ from .exceptions import CreatesMetadataError
 class BaseUpdatesMetadataModelMixin(models.Model):
 
     def metadata_update(self, entry_status=None):
-        obj = self.metadata_model.objects.get(**self.metadata_query_options)
+        try:
+            obj = self.metadata_model.objects.get(**self.metadata_query_options)
+        except self.metadata_model.DoesNotExist as e:
+            raise self.metadata_model.DoesNotExist(
+                '{} Is \'{}\' scheduled for \'{}.{}.{}\'?'.format(
+                    str(e), self.metadata_query_options.get('model'),
+                    self.metadata_query_options.get('visit_schedule_name'),
+                    self.metadata_query_options.get('schedule_name'),
+                    self.metadata_query_options.get('visit_code')))
         obj.entry_status = entry_status or KEYED
         obj.report_datetime = self.report_datetime
         obj.save()
