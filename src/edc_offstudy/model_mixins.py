@@ -95,7 +95,6 @@ class OffstudyModelMixin(SubjectIdentifierModelMixin, models.Model):
     class Meta:
         abstract = True
         consent_model = None
-        visit_schedule_name = None
 
 
 class OffstudyMixin(models.Model):
