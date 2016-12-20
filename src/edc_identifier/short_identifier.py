@@ -18,13 +18,10 @@ class ShortIdentifier(LuhnOrdMixin, IdentifierWithCheckdigit):
     seed = None
     template = '{prefix}{random_string}'
 
-    def __init__(self, options=None):
+    def __init__(self, **options):
         self.duplicate_counter = 0
         self._options = options or {}
-        try:
-            self.prefix = self._options['prefix']
-        except KeyError:
-            pass
+        self.prefix = options.get('prefix')
         self.identifier = self.next_on_duplicate(None)
         super(ShortIdentifier, self).__init__(self.identifier, prefix=self.prefix)
 
