@@ -14,13 +14,13 @@ from edc_registration.exceptions import RegisteredSubjectError
 class TestRegistration(TestCase):
 
     def setUp(self):
-        app_config = django_apps.get_app_config('edc_registration')
-        RegisteredSubject = app_config.model
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
         self.model = RegisteredSubject
         self.options = {
             'identity': '111111111',
             'confirm_identity': '111111111',
             'identity_type': 'OMANG',
+            'study_site': '40'
         }
         # put in a few records ...
         options = copy.copy(self.options)
@@ -36,27 +36,21 @@ class TestRegistration(TestCase):
 
     def test_subject_identifier_uuid(self):
         """Tests the subject_identifier is a uuid by default"""
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
         re_pk = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}')
-        app_config = django_apps.get_app_config('edc_registration')
-        RegisteredSubject = app_config.model
-        self.options = {
-            'identity': '111111112',
-            'identity_type': 'OMANG',
-        }
-        registered_subject = RegisteredSubject.objects.create(**self.options)
+        registered_subject = RegisteredSubject.objects.create(
+            identity='111111112',
+            identity_type='OMANG')
         self.assertTrue(re_pk.match(registered_subject.subject_identifier))
         self.assertTrue(re_pk.match(registered_subject.subject_identifier_as_pk))
 
     def test_subject_identifier_set(self):
         """Asserts subject_identifier_pk does not change when subject_identifier is set."""
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
         re_pk = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}')
-        app_config = django_apps.get_app_config('edc_registration')
-        RegisteredSubject = app_config.model
-        self.options = {
-            'identity': '111111112',
-            'identity_type': 'OMANG',
-        }
-        registered_subject = RegisteredSubject.objects.create(**self.options)
+        registered_subject = RegisteredSubject.objects.create(
+            identity='111111112',
+            identity_type='OMANG')
         subject_identifier_as_pk = registered_subject.subject_identifier_as_pk
         self.assertTrue(re_pk.match(subject_identifier_as_pk))
         registered_subject.subject_identifier = '999999999'
@@ -67,26 +61,27 @@ class TestRegistration(TestCase):
 
     def test_create_duplicate(self):
         """Asserts raises on attempt to create duplicate"""
-        options = copy.copy(self.options)
-        del options['confirm_identity']
-        app_config = django_apps.get_app_config('edc_registration')
-        RegisteredSubject = app_config.model
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
         self.assertEqual(RegisteredSubject.objects.filter(identity='111111111').count(), 1)
-        self.assertRaises(RegisteredSubjectError, RegisteredSubject.objects.create, **options)
+        self.assertRaises(
+            RegisteredSubjectError,
+            RegisteredSubject.objects.create,
+            identity='111111112',
+            identity_type='OMANG')
 
     def test_create_duplicate2(self):
         """Asserts raises on attempt to create duplicate"""
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
         options = copy.copy(self.options)
         del options['confirm_identity']
-        registered_subject_dupl = self.model(**options)
+        registered_subject_dupl = RegisteredSubject(**options)
         self.assertRaises(RegisteredSubjectError, registered_subject_dupl.save)
 
     def test_create_duplicate3(self):
         """Asserts raises on attempt to create duplicate"""
+        RegisteredSubject = django_apps.get_app_config('edc_registration').model
         options = copy.copy(self.options)
         del options['confirm_identity']
-        app_config = django_apps.get_app_config('edc_registration')
-        RegisteredSubject = app_config.model
         self.assertEqual(RegisteredSubject.objects.filter(identity='111111111').count(), 1)
         self.assertRaises(RegisteredSubjectError, RegisteredSubject.objects.create, **options)
 

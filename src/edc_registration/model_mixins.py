@@ -14,6 +14,7 @@ from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
 from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
+from edc_identifier.model_mixins import SubjectIdentifierFieldsModelMixin
 
 from .exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
@@ -28,34 +29,7 @@ YES_NO_UNKNOWN = (
 )
 
 
-class SubjectIdentifierModelMixin(models.Model):
-    """Mixin to add a unique subject identifier field."""
-
-    subject_identifier = models.CharField(
-        verbose_name="Subject Identifier",
-        max_length=50,
-        unique=True,
-        editable=False)
-
-    subject_identifier_as_pk = models.CharField(
-        verbose_name="Subject Identifier as pk",
-        max_length=50,
-        editable=False,
-    )
-
-    subject_identifier_aka = models.CharField(
-        verbose_name="Subject Identifier a.k.a",
-        max_length=50,
-        null=True,
-        editable=False,
-        help_text='track a previously allocated identifier.'
-    )
-
-    class Meta:
-        abstract = True
-
-
-class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
+class RegisteredSubjectModelMixin(SubjectIdentifierFieldsModelMixin, models.Model):
 
     """A model mixin for the RegisteredSubject model (only)."""
     # may not be available when instance created (e.g. infants prior to birth report)
@@ -199,14 +173,13 @@ class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
     objects = RegisteredSubjectManager()
 
     def save(self, *args, **kwargs):
-        using = kwargs.get('using')
         if self.identity:
             self.additional_key = None
             self.identity_or_pk = self.identity
         self.set_uuid_as_subject_identifier_if_none()
         self.raise_on_duplicate('subject_identifier')
         self.raise_on_duplicate('identity')
-        self.raise_on_changed_subject_identifier(using)
+        self.raise_on_changed_subject_identifier()
         super(RegisteredSubjectModelMixin, self).save(*args, **kwargs)
 
     def natural_key(self):
@@ -226,7 +199,7 @@ class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
             return False
         return True
 
-    def raise_on_changed_subject_identifier(self, using):
+    def raise_on_changed_subject_identifier(self):
         """Raises an exception if there is an attempt to change the subject identifier
         for an existing instance if the subject identifier is already set."""
         if self.id and self.subject_identifier_is_set():
@@ -266,31 +239,6 @@ class RegisteredSubjectModelMixin(SubjectIdentifierModelMixin, models.Model):
             self.subject_identifier_as_pk = str(get_uuid())  # this will never change
             if not self.subject_identifier:
                 self.subject_identifier = self.subject_identifier_as_pk
-
-    def get_registered_subject(self):
-        return self
-
-    def get_subject_identifier(self):
-        return self.subject_identifier
-
-    def age(self):
-        return self.screening_age_in_years
-    age.allow_tags = True
-
-    def dashboard(self):
-        ret = None
-        if self.subject_identifier:
-            try:
-                url = reverse('subject_dashboard_url', kwargs={
-                    'dashboard_type': self.subject_type.lower(),
-                    'dashboard_id': self.pk,
-                    'dashboard_model': 'registered_subject',
-                    'show': 'appointments'})
-                ret = """<a href="{url}" />dashboard</a>""".format(url=url)
-            except NoReverseMatch:
-                pass
-        return ret
-    dashboard.allow_tags = True
 
     class Meta:
         abstract = True
@@ -356,14 +304,9 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         abstract = True
 
 
-class SubjectIdentifierFromRegisteredSubjectModelMixin(models.Model):
+class SubjectIdentifierFromRegisteredSubjectModelMixin(SubjectIdentifierFieldsModelMixin, models.Model):
 
     """A mixin to ensure subject_identifier is on the model and always updated by the registration model."""
-
-    subject_identifier = models.CharField(
-        verbose_name="Subject Identifier",
-        max_length=50,
-        editable=False)
 
     def save(self, *args, **kwargs):
         self.subject_identifier = self.registration_instance.subject_identifier
