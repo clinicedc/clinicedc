@@ -34,7 +34,7 @@ class AppConfig(DjangoAppConfig):
             sys.stdout.write(
                 style.NOTICE(
                     'WARNING! Overwriting AppConfig consent.start and end dates for tests only. \n'
-                    'See EdcConsentAppConfig\n'))
+                    'See edc_consent.AppConfig\n'))
             testconsentconfigs = []
             for consent_config in self.consent_configs:
                 duration_delta = relativedelta(consent_config.end, consent_config.start)
