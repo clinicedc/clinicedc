@@ -4,7 +4,6 @@ from django.db.models import options
 from django.db import models
 from django_crypto_fields.fields import EncryptedTextField
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import timezone
 
 from edc_base.model.validators import datetime_not_future
 from edc_base.utils import formatted_age, age, get_utcnow
