@@ -5,7 +5,6 @@ from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
 
 from edc_visit_schedule.exceptions import VisitScheduleError, RegistryNotLoaded, AlreadyRegistered
-import sched
 from django.core.exceptions import MultipleObjectsReturned
 
 
