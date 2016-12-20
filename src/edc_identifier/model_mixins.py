@@ -1,71 +1,89 @@
+import re
+
 from django.apps import apps as django_apps
 from django.db import models
-from django.utils import timezone
 
-edc_device_app_config = django_apps.get_app_config('edc_device')
+from edc_base.utils import get_uuid
+from edc_identifier.subject_identifier import SubjectIdentifier
 
 
-class IdentifierModelMixin(models.Model):
-    """A model mixin for models that store identifiers as allocated."""
+class SubjectIdentifierFieldsModelMixin(models.Model):
 
-    identifier = models.CharField(max_length=36, unique=True, editable=False)
-    padding = models.IntegerField(default=4, editable=False)
-    sequence_number = models.IntegerField()
-    device_id = models.IntegerField(default=0)
-    is_derived = models.BooleanField(default=False)
-    sequence_app_label = models.CharField(max_length=50, editable=False, default='identifier')
-    sequence_model_name = models.CharField(max_length=50, editable=False, default='sequence')
+    subject_identifier = models.CharField(
+        verbose_name="Subject Identifier",
+        max_length=50,
+        unique=True,
+        editable=False)
 
-    def __str__(self):
-        return self.identifier
+    subject_identifier_as_pk = models.CharField(
+        verbose_name="Subject Identifier as pk",
+        max_length=50,
+        default=get_uuid,
+        editable=False,
+    )
 
-    def natural_key(self):
-        return (self.identifier, self.device_id, )
-
-    def save(self, *args, **kwargs):
-        self.device_id = edc_device_app_config.device_id
-        if not self.id:
-            if self.is_derived:
-                self.sequence_number = 0
-            else:
-                Sequence = django_apps.get_model('edc_identifier', 'sequence')
-                sequence = Sequence.objects.using(
-                    kwargs.get('using')).create(device_id=self.device_id)
-                self.sequence_number = sequence.pk
-        super(IdentifierModelMixin, self).save(*args, **kwargs)
-
-    @property
-    def formatted_sequence(self):
-        """Returns a padded sequence segment for the identifier"""
-        if self.is_derived:
-            return ''
-        return str(self.sequence_number).rjust(self.padding, '0')
+    subject_identifier_aka = models.CharField(
+        verbose_name="Subject Identifier a.k.a",
+        max_length=50,
+        null=True,
+        editable=False,
+        help_text='track a previously allocated identifier.'
+    )
 
     class Meta:
         abstract = True
 
 
-class IdentifierHistoryMixin(models.Model):
+class SubjectIdentifierMethodsModelMixin(models.Model):
+    """Mixin to add a unique subject identifier field and fill it with a unique value for new instances."""
 
-    identifier = models.CharField(
-        max_length=25,
-        unique=True
-    )
+    def save(self, *args, **kwargs):
+        if not self.id and not self.subject_identifier:
+            if not re.match('[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}', self.subject_identifier_as_pk or ''):
+                self.subject_identifier_as_pk = get_uuid()
+            self.subject_identifier = self.get_or_create_identifier()
+        super().save(*args, **kwargs)
 
-    identifier_type = models.CharField(
-        max_length=25,
-    )
+    @property
+    def registered_subject_model_class(self):
+        """Returns the registered subject model class."""
+        return django_apps.get_app_config('edc_registration').model
 
-    identifier_prefix = models.CharField(
-        max_length=25,
-        null=True,
-    )
+    def get_or_create_identifier(self):
+        """Returns a subject identifier either by retrieving and exisiting "subject"
+        identifier from RegisteredSubject or creating a new and unique "subject" identifier."""
+        try:
+            subject_identifier = self.registered_subject.subject_identifier
+        except LookupError:
+            raise
+        except self.registered_subject_model_class.DoesNotExist:
+            subject_identifier = self.make_new_identifier()
+        return subject_identifier
 
-    created_datetime = models.DateTimeField(
-        default=timezone.now)
+    def make_new_identifier(self):
+        """Returns a new and unique identifier.
 
-    def natural_key(self):
-        return (self.identifier, )
+        Override this if needed."""
+        subject_identifier = SubjectIdentifier(
+            subject_type_name='subject',
+            model=self._meta.label_lower,
+            study_site=self.study_site,
+            create_registration=False)
+        return subject_identifier.identifier
+
+    @property
+    def registered_subject(self):
+        """Returns a registered subject instance.
+
+        Override this if your query options are different."""
+        return self.registered_subject_model_class.objects.get(
+            identity=self.identity)
+
+    class Meta:
+        abstract = True
+
+
+class SubjectIdentifierModelMixin(SubjectIdentifierFieldsModelMixin, SubjectIdentifierMethodsModelMixin, models.Model):
 
     class Meta:
         abstract = True
