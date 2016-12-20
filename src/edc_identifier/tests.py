@@ -1,9 +1,13 @@
 import re
 
+from faker import Faker
+
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 
+from edc_base_test.faker import EdcBaseProvider
 from edc_protocol.exceptions import SubjectTypeCapError
+
 from .alphanumeric_identifier import AlphanumericIdentifier
 from .checkdigit_mixins import LuhnMixin, LuhnOrdMixin
 from .exceptions import IdentifierError, CheckDigitError, SubjectIdentifierError
@@ -14,8 +18,6 @@ from .numeric_identifier import NumericIdentifier, NumericIdentifierWithModulus
 from .short_identifier import ShortIdentifier
 from .subject_identifier import SubjectIdentifier
 from .maternal_identifier import MaternalIdentifier
-from faker import Faker
-from edc_base.faker import EdcBaseProvider
 
 
 fake = Faker()
