@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from edc_base.utils import get_utcnow, get_uuid
 from edc_base.model.validators import datetime_not_future
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
 
 from .exceptions import ScheduleError, EnrollmentError
@@ -104,13 +105,10 @@ class VisitScheduleModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMethod
         abstract = True
 
 
-class BaseEnrollmentModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin, models.Model):
+class BaseEnrollmentModelMixin(
+        NonUniqueSubjectIdentifierFieldMixin, VisitScheduleFieldsModelMixin,
+        VisitScheduleMethodsModelMixin, models.Model):
     """A base model mixin shared by the enrollment/disenrollment models."""
-
-    subject_identifier = models.CharField(
-        verbose_name="Subject Identifier",
-        max_length=50,
-        default=get_uuid)
 
     report_datetime = models.DateTimeField(
         validators=[
@@ -121,26 +119,28 @@ class BaseEnrollmentModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMetho
     def __str__(self):
         return self.subject_identifier
 
-    def save(self, *args, **kwargs):
-        schedule_name = self.schedule_name
-        self.visit_schedule_name, self.schedule_name = self._meta.visit_schedule_name.split('.')
-        if schedule_name and schedule_name != self.schedule_name:
+    def common_clean(self):
+        current_schedule_name = self.schedule_name
+        self.visit_schedule_name, schedule_name = self._meta.visit_schedule_name.split('.')
+        if current_schedule_name and current_schedule_name != schedule_name:
             raise ScheduleError(
                 'Invalid schedule name specified for \'{}\'. Expected \'{}\'. Got \'{}\'.'.format(
-                    self._meta.label_lower, self.schedule_name, schedule_name))
+                    self._meta.label_lower, schedule_name, current_schedule_name))
         schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name).schedules.get(self.schedule_name)
         models = [schedule.enrollment_model._meta.label_lower, schedule.disenrollment_model._meta.label_lower]
         if self._meta.label_lower not in models:
             raise ScheduleError('\'{}\' cannot be used with schedule \'{}\'. Expected {}'.format(
-                self._meta.label_lower, self.schedule_name, models))
-        self.additional_validation_on_save()
+                self._meta.label_lower, current_schedule_name, models))
+        super().common_clean()
+
+    def save(self, *args, **kwargs):
+        if not self.id and not self.subject_identifier:
+            self.subject_identifier = get_uuid()
+        self.visit_schedule_name, self.schedule_name = self._meta.visit_schedule_name.split('.')
         super(BaseEnrollmentModelMixin, self).save(*args, **kwargs)
 
     def natural_key(self):
         return (self.subject_identifier, self.visit_schedule_name, self.schedule_name)
-
-    def additional_validation_on_save(self):
-        pass
 
     class Meta:
         abstract = True
@@ -162,13 +162,14 @@ class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
         return site_visit_schedules.enrollment(
             self.subject_identifier, self.visit_schedule_name, self.schedule_name)
 
-    def additional_validation_on_save(self):
+    def common_clean(self):
         if not self.enrollment:
             raise EnrollmentError(
                 'Cannot disenroll subject \'{}\' from \'{}.{}\'. Enrollment does not exist.'.format(
                     self.subject_identifier, self.visit_schedule_name, self.schedule_name))
         self.datetime_not_before_enrollment_or_raise()
         self.datetime_after_last_visit_or_raise()
+        super().common_clean()
 
     def datetime_not_before_enrollment_or_raise(self):
         if relativedelta(self.disenrollment_datetime, self.enrollment.report_datetime).days < 0:
