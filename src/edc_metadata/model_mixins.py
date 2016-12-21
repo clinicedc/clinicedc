@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_rule_groups.site_rule_groups import site_rule_groups
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -129,7 +130,20 @@ class CreatesMetadataModelMixin(models.Model):
         visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
         schedule = visit_schedule.get_schedule(self.schedule_name)
         visit = schedule.get_visit(self.visit_code)
-        if getattr(self, app_config.reason_field[self._meta.label_lower]) in app_config.delete_on_reasons:
+        try:
+            reason_field = app_config.reason_field[self._meta.label_lower]
+            reason = getattr(self, reason_field)
+        except KeyError as e:
+            raise CreatesMetadataError(
+                'Unable to determine the reason field for model {}. Got KeyError({}). '
+                'edc_metadata.AppConfig reason_field = {}'.format(
+                    self._meta.label_lower, str(e), app_config.reason_field))
+        except AttributeError:
+            raise CreatesMetadataError(
+                'Invalid reason field. Expected attribute {}.{}. Got AttributeError({}). '
+                'edc_metadata.AppConfig reason_field = {}'.format(
+                    reason_field, self._meta.label_lower, str(e), app_config.reason_field))
+        if reason in app_config.delete_on_reasons:
             metadata_crf_model.objects.filter(
                 subject_identifier=self.subject_identifier,
                 **self.metadata_query_options).delete()
@@ -137,7 +151,7 @@ class CreatesMetadataModelMixin(models.Model):
                 subject_identifier=self.subject_identifier,
                 **self.metadata_query_options).delete()
             metadata_exists = False
-        elif getattr(self, app_config.reason_field[self._meta.label_lower]) in app_config.create_on_reasons:
+        elif reason in app_config.create_on_reasons:
             metadata_crf_model = django_apps.get_app_config('edc_metadata').crf_model
             metadata_requisition_model = django_apps.get_app_config('edc_metadata').requisition_model
             visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
@@ -223,17 +237,12 @@ class CreatesMetadataModelMixin(models.Model):
         abstract = True
 
 
-class BaseMetadataModelMixin(models.Model):
+class BaseMetadataModelMixin(NonUniqueSubjectIdentifierFieldMixin, models.Model):
 
     """ Mixin for CrfMetadata and RequisitionMetadata models to be created in the local app.
 
     Use the specific model mixins below.
     """
-
-    subject_identifier = models.CharField(
-        verbose_name="Subject Identifier",
-        max_length=50,
-        editable=False)
 
     visit_schedule_name = models.CharField(max_length=25)
 
