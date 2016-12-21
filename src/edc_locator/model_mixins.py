@@ -6,9 +6,10 @@ from django.utils.translation import ugettext as _
 from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 
 from edc_base.model.validators import CellNumber, TelephoneNumber
+from edc_base.utils import get_utcnow
 from edc_constants.choices import YES_NO, YES_NO_DOESNT_WORK
 from edc_constants.constants import YES
-from edc_base.utils import get_utcnow
+from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 
 
 class LocatorManager(models.Manager):
@@ -17,12 +18,7 @@ class LocatorManager(models.Manager):
         return self.get(subject_identifier=subject_identifier)
 
 
-class LocatorModelMixin(models.Model):
-
-    subject_identifier = models.CharField(
-        verbose_name="Subject Identifier",
-        max_length=50,
-        unique=True)
+class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
