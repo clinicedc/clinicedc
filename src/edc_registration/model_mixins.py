@@ -13,7 +13,7 @@ from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
 from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
-from edc_identifier.model_mixins import SubjectIdentifierOnlyFieldModelMixin, SubjectIdentifierFieldsModelMixin
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin, UniqueSubjectIdentifierModelMixin
 
 from .exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
@@ -28,7 +28,7 @@ YES_NO_UNKNOWN = (
 )
 
 
-class RegisteredSubjectModelMixin(SubjectIdentifierFieldsModelMixin, models.Model):
+class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Model):
 
     """A model mixin for the RegisteredSubject model (only)."""
     # may not be available when instance created (e.g. infants prior to birth report)
@@ -303,7 +303,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         abstract = True
 
 
-class SubjectIdentifierFromRegisteredSubjectModelMixin(SubjectIdentifierOnlyFieldModelMixin, models.Model):
+class SubjectIdentifierFromRegisteredSubjectModelMixin(NonUniqueSubjectIdentifierFieldMixin, models.Model):
 
     """A mixin to ensure subject_identifier is on the model and always updated by the registration model."""
 
