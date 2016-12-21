@@ -5,7 +5,7 @@ from django.utils import timezone
 from edc_base.model.fields import OtherCharField
 from edc_base.model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_identifier.model_mixins import SubjectIdentifierFieldsModelMixin
+from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from dateutil.relativedelta import relativedelta
 from django.db.models import options
@@ -23,7 +23,7 @@ class OffstudyModelManager(models.Manager):
         return self.get(subject_identifier=subject_identifier)
 
 
-class OffstudyModelMixin(SubjectIdentifierFieldsModelMixin, models.Model):
+class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     """Mixin for the Off Study model."""
     dateformat = '%Y-%m-%d %H:%M'
 
