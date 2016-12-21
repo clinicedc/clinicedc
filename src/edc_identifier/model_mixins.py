@@ -7,8 +7,18 @@ from edc_base.utils import get_uuid
 from edc_identifier.subject_identifier import SubjectIdentifier
 
 
-class SubjectIdentifierOnlyFieldModelMixin(models.Model):
+class NonUniqueSubjectIdentifierFieldMixin(models.Model):
+    """An internal model mixin providing a non-unique subject identifier field."""
+    subject_identifier = models.CharField(
+        verbose_name="Subject Identifier",
+        max_length=50)
 
+    class Meta:
+        abstract = True
+
+
+class UniqueSubjectIdentifierFieldMixin(models.Model):
+    """An internal model mixin providing a unique subject identifier field."""
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
         max_length=50,
@@ -18,7 +28,8 @@ class SubjectIdentifierOnlyFieldModelMixin(models.Model):
         abstract = True
 
 
-class SubjectIdentifierFieldsModelMixin(SubjectIdentifierOnlyFieldModelMixin, models.Model):
+class SubjectIdentifierAdditionalFieldsModelMixin(models.Model):
+    """An internal model mixin providing additional fields to used with the subject identifier field."""
 
     subject_identifier_as_pk = models.CharField(
         verbose_name="Subject Identifier as pk",
@@ -40,7 +51,8 @@ class SubjectIdentifierFieldsModelMixin(SubjectIdentifierOnlyFieldModelMixin, mo
 
 
 class SubjectIdentifierMethodsModelMixin(models.Model):
-    """Mixin to add a unique subject identifier field and fill it with a unique value for new instances."""
+    """An internal model mixin to add a unique subject identifier field and
+    fill it with a unique value for new instances."""
 
     def save(self, *args, **kwargs):
         if not self.id and not self.subject_identifier:
@@ -88,7 +100,20 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         abstract = True
 
 
-class SubjectIdentifierModelMixin(SubjectIdentifierFieldsModelMixin, SubjectIdentifierMethodsModelMixin, models.Model):
+class UniqueSubjectIdentifierModelMixin(
+        UniqueSubjectIdentifierFieldMixin,
+        SubjectIdentifierAdditionalFieldsModelMixin, SubjectIdentifierMethodsModelMixin, models.Model):
+    """A model mixin for concrete models requiring a unique subject identifier field and
+    corresponding fields and methods."""
+    class Meta:
+        abstract = True
+
+
+class NonUniqueSubjectIdentifierModelMixin(
+        NonUniqueSubjectIdentifierFieldMixin,
+        SubjectIdentifierAdditionalFieldsModelMixin, SubjectIdentifierMethodsModelMixin, models.Model):
+    """A model mixin for concrete models requiring a non-unique subject identifier field and
+    corresponding field and methods."""
 
     class Meta:
         abstract = True
