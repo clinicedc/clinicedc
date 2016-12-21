@@ -2,7 +2,6 @@ import re
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse, NoReverseMatch
 from django.core.validators import RegexValidator
 from django_crypto_fields.fields import (
     IdentityField, EncryptedCharField, FirstnameField, LastnameField)
