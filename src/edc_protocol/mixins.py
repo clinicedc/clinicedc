@@ -39,9 +39,8 @@ class SubjectTypeCapMixin:
                     subject_type_name, model, study_site))
         return cap
 
-    def fetch_or_raise_on_cap_met(self, subject_type_name=None, model=None, count=None, exception_cls=None):
+    def fetch_or_raise_on_cap_met(self, subject_type_name=None, model=None, count=None):
         """Raises an exception if cap reached for this model and subject_type."""
-        exception_cls = exception_cls or SubjectTypeCapError
         cap = self.get_cap(subject_type_name, model)
         if count is None:
             try:
@@ -49,7 +48,7 @@ class SubjectTypeCapMixin:
             except FieldError:
                 count = self.__class__.objects.all().count()
         if count >= cap.max_subjects:
-            raise exception_cls('Subject type Cap reached for \'{}\'.'.format(cap))
+            raise SubjectTypeCapError('Subject type Cap reached for \'{}\'.'.format(cap))
         return count, cap.max_subjects
 
     def get_subject_type_name(self):
