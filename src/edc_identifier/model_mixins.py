@@ -7,13 +7,18 @@ from edc_base.utils import get_uuid
 from edc_identifier.subject_identifier import SubjectIdentifier
 
 
-class SubjectIdentifierFieldsModelMixin(models.Model):
+class SubjectIdentifierOnlyFieldModelMixin(models.Model):
 
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
         max_length=50,
-        unique=True,
-        editable=False)
+        unique=True)
+
+    class Meta:
+        abstract = True
+
+
+class SubjectIdentifierFieldsModelMixin(SubjectIdentifierOnlyFieldModelMixin, models.Model):
 
     subject_identifier_as_pk = models.CharField(
         verbose_name="Subject Identifier as pk",
