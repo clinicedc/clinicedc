@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django_crypto_fields.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
-    'edc_consent.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_registration.apps.AppConfig',
     'edc_offstudy.apps.AppConfig',
@@ -51,6 +50,7 @@ INSTALLED_APPS = [
     'edc_identifier.apps.AppConfig',
     'edc_rule_groups.apps.AppConfig',
     'edc_metadata.apps.AppConfig',
+    'edc_example.apps.EdcConsentAppConfig',
     'edc_example.apps.EdcProtocolAppConfig',
     'edc_example.apps.EdcTimepointAppConfig',
     'edc_example.apps.AppConfig',
@@ -130,7 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Africa/Gaborone'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
