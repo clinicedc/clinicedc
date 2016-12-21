@@ -1,7 +1,7 @@
 from django.db import models
 
 from edc_base.model.models import BaseUuidModel, HistoricalRecords
-from edc_identifier.model_mixins import IdentifierModelMixin
+from edc_identifier.models import IdentifierModelMixin
 
 from .managers import AliquotManager, SpecimenCollectionItemManager, SpecimenCollectionManager
 from .model_mixins import (
