@@ -16,8 +16,9 @@ from .choices import APPT_TYPE, APPT_STATUS, COMPLETE_APPT, INCOMPLETE_APPT, CAN
 from .constants import IN_PROGRESS_APPT, NEW_APPT
 from .exceptions import AppointmentStatusError
 from .managers import AppointmentManager
-from uuid import uuid4, UUID
+from uuid import UUID
 from edc_appointment.exceptions import CreateAppointmentError
+from django.db.utils import IntegrityError
 
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
@@ -218,11 +219,16 @@ class CreateAppointmentsMixin(models.Model):
                 appointment.timepoint_datetime = timepoint_datetime
                 appointment.save(update_fields=['appt_datetime', 'timepoint_datetime'])
         except self.appointment_model.DoesNotExist:
-            appointment = self.appointment_model.objects.create(
-                **options,
-                timepoint_datetime=timepoint_datetime,
-                appt_datetime=available_datetime,
-                appt_type=self.default_appt_type)
+            try:
+                appointment = self.appointment_model.objects.create(
+                    **options,
+                    timepoint_datetime=timepoint_datetime,
+                    appt_datetime=available_datetime,
+                    appt_type=self.default_appt_type)
+            except IntegrityError as e:
+                raise CreateAppointmentError(
+                    'An \'IntegrityError\' was raised while trying to create an appointment for '
+                    'model \'{}\'. Got {}. Options were {}'. format(self._meta.label_lower, str(e), options))
         return appointment
 
     class Meta:
