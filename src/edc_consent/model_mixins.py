@@ -6,7 +6,7 @@ from django_crypto_fields.fields import EncryptedTextField
 from django.core.exceptions import ImproperlyConfigured
 
 from edc_base.model.validators import datetime_not_future
-from edc_base.utils import formatted_age, age, get_utcnow
+from edc_base.utils import formatted_age, age, get_utcnow, get_uuid
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
 from edc_protocol.validators import datetime_not_before_study_start
@@ -71,28 +71,9 @@ class RequiresConsentMixin(models.Model):
 
 class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
-    """Mixin for a Consent model class such as SubjectConsent."""
+    """Mixin for a Consent model class such as SubjectConsent.
 
-    subject_identifier = models.CharField(
-        verbose_name="Subject Identifier",
-        max_length=50,
-        blank=True,
-    )
-
-    subject_identifier_as_pk = models.CharField(
-        verbose_name="Subject Identifier as pk",
-        max_length=50,
-        default=None,
-        editable=False,
-    )
-
-    subject_identifier_aka = models.CharField(
-        verbose_name="Subject Identifier a.k.a",
-        max_length=50,
-        null=True,
-        editable=False,
-        help_text='track a previously allocated identifier.'
-    )
+    Use with edc_identifier's SubjectIdentifierModelMixin"""
 
     consent_datetime = models.DateTimeField(
         verbose_name="Consent date and time",
@@ -147,9 +128,6 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
     def save(self, *args, **kwargs):
         self.is_known_consent_model_or_raise()
-        self.set_uuid_as_subject_identifier_if_none()
-        if not self.id and not self.subject_identifier:
-            self.subject_identifier = self.subject_identifier_as_pk
         consent_config = site_consents.get_consent_config(
             self._meta.label_lower, report_datetime=self.consent_datetime)
         self.version = consent_config.version
@@ -168,10 +146,6 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
                     'Ensure all details match (identity, dob, first_name, last_name)'.format(
                         consent_config.updates_version, self.version))
         super(ConsentModelMixin, self).save(*args, **kwargs)
-
-    def set_uuid_as_subject_identifier_if_none(self):
-        if not self.subject_identifier_as_pk:
-            self.subject_identifier_as_pk = str(uuid4())  # this will never change
 
     def is_known_consent_model_or_raise(self, model=None, exception_cls=None):
         """Raises an exception if not listed in ConsentType."""
