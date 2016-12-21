@@ -14,7 +14,7 @@ from edc_base.model.fields import IdentityTypeField
 from edc_base.model.fields.custom_fields import IsDateEstimatedField
 from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
-from edc_identifier.model_mixins import SubjectIdentifierFieldsModelMixin
+from edc_identifier.model_mixins import SubjectIdentifierOnlyFieldModelMixin, SubjectIdentifierFieldsModelMixin
 
 from .exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
@@ -304,7 +304,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         abstract = True
 
 
-class SubjectIdentifierFromRegisteredSubjectModelMixin(SubjectIdentifierFieldsModelMixin, models.Model):
+class SubjectIdentifierFromRegisteredSubjectModelMixin(SubjectIdentifierOnlyFieldModelMixin, models.Model):
 
     """A mixin to ensure subject_identifier is on the model and always updated by the registration model."""
 
