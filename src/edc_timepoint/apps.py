@@ -13,7 +13,12 @@ class AppConfig(DjangoAppConfig):
             model='example.examplemodel',
             datetime_field='report_datetime',
             status_field='example_status',
-            closed_status='finish')
+            closed_status='finish'),
+        Timepoint(
+            model='edc_appointment.appointment',
+            datetime_field='report_datetime',
+            status_field='appt_status',
+            closed_status='complete')
     ]
 
     def ready(self):
