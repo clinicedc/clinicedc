@@ -16,11 +16,11 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_example.models import (
     SubjectVisit, Appointment, CrfOne, Enrollment, CrfOneInline, OtherModel, BadCrfOneInline)
-from edc_consent.form_mixins import RequiresConsentFormMixin
+from edc_consent.modelform_mixins import RequiresConsentModelFormMixin
 from edc_visit_tracking.model_mixins import PreviousVisitError
 
 
-class SubjectVisitForm(VisitFormMixin, RequiresConsentFormMixin, forms.ModelForm):
+class SubjectVisitForm(VisitFormMixin, RequiresConsentModelFormMixin, forms.ModelForm):
 
     class Meta:
         model = SubjectVisit
