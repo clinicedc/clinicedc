@@ -211,7 +211,7 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
                             'Got {} <> {}.'.format(self.subject_identifier, obj.subject_identifier))
 
     def raise_on_duplicate(self, attrname):
-        """Checks if the subject identifier is in use, for new and existing instances."""
+        """Checks if the subject identifier (or other attr) is in use, for new and existing instances."""
         if getattr(self, attrname):
             with transaction.atomic():
                 error_msg = (
