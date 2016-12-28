@@ -4,6 +4,7 @@ from string import Formatter
 from django.apps import apps as django_apps
 
 from edc_protocol.mixins import SubjectTypeCapMixin
+from edc_protocol.exceptions import SubjectTypeCapError
 
 from .exceptions import SubjectIdentifierError
 from .models import IdentifierModel
@@ -23,7 +24,8 @@ class SubjectIdentifier(SubjectTypeCapMixin, ResearchIdentifier):
                  create_registration=None, **kwargs):
         self.create_registration = create_registration
         super(SubjectIdentifier, self).__init__(
-            object_to_identify=subject_type_name, requesting_model=model, template=template, identifier=identifier, **kwargs)
+            object_to_identify=subject_type_name, requesting_model=model,
+            template=template, identifier=identifier, **kwargs)
 
     def create(self, **kwargs):
         super(SubjectIdentifier, self).create(**kwargs)
@@ -40,7 +42,10 @@ class SubjectIdentifier(SubjectTypeCapMixin, ResearchIdentifier):
 
     @property
     def padding(self):
-        return len(str(self.cap.max_subjects))
+        try:
+            return len(str(self.cap.max_subjects))
+        except SubjectTypeCapError:
+            return 5
 
     @property
     def cap(self):
