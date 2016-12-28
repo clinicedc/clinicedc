@@ -35,8 +35,9 @@ class SubjectTypeCapMixin:
             cap = app_config.subject_types.get('{}:{}:{}'.format(
                 subject_type_name, model, ALL_SITES))
             if not cap:
-                raise SubjectTypeCapError('Unknown cap. Got {}:{}:{}.'.format(
-                    subject_type_name, model, study_site))
+                raise SubjectTypeCapError(
+                    'Unknown cap. Got {}:{}:{}. Expected one of {}. See edc_protocol'.format(
+                        subject_type_name, model, study_site, app_config.subject_types.keys()))
         return cap
 
     def fetch_or_raise_on_cap_met(self, subject_type_name=None, model=None, count=None):
