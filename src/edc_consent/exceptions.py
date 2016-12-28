@@ -20,3 +20,19 @@ class ConsentMixinError(Exception):
 
 class NotConsentedError(Exception):
     pass
+
+
+class ConsentError(Exception):
+    pass
+
+
+class ConsentPeriodError(Exception):
+    pass
+
+
+class ConsentPeriodOverlapError(Exception):
+    pass
+
+
+class ConsentVersionSequenceError(Exception):
+    pass

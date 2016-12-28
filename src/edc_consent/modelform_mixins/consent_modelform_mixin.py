@@ -1,18 +1,18 @@
 from dateutil.relativedelta import relativedelta
 
 from django import forms
-from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
 from django.forms.utils import ErrorList
 from django.utils import timezone
 
+from edc_base.modelform_mixins import CommonCleanModelFormMixin
 from edc_base.utils import formatted_age
 from edc_constants.constants import YES, NO
 
-from .site_consents import site_consents
+from ..exceptions import SiteConsentError
+from ..site_consents import site_consents
 
 
-class ConsentFormMixin:
+class ConsentModelFormMixin(CommonCleanModelFormMixin):
     """Form for models that are a subclass of BaseConsent."""
 
     confirm_identity = forms.CharField(
@@ -20,9 +20,9 @@ class ConsentFormMixin:
         help_text="Retype the identity number")
 
     def clean(self):
-        cleaned_data = super(ConsentFormMixin, self).clean()
-        if not cleaned_data.get('consent_datetime'):
-            raise forms.ValidationError('Please provide the date of consent')
+        cleaned_data = super().clean()
+#         if not cleaned_data.get('consent_datetime'):
+#             raise forms.ValidationError('Please provide the date of consent')
         self.clean_initials_with_full_name()
         self.clean_gender_of_consent()
         self.clean_is_literate_and_witness()
@@ -35,20 +35,24 @@ class ConsentFormMixin:
     @property
     def consent_config(self):
         cleaned_data = self.cleaned_data
-        return site_consents.get_by_datetime(
-            self._meta.model._meta.label_lower,
-            cleaned_data.get('consent_datetime') or self.data.get('consent_datetime')
-        )
+        try:
+            consent_config = site_consents.get_consent(
+                report_datetime=cleaned_data.get('consent_datetime') or self.data.get('consent_datetime'),
+                consent_model=self._meta.model._meta.label_lower
+            )
+        except SiteConsentError as e:
+            raise forms.ValidationError(e)
+        return consent_config
 
-    def clean_consent_datetime(self):
-        consent_datetime = self.cleaned_data['consent_datetime']
-        app_config = django_apps.get_app_config('edc_protocol')
-        if consent_datetime < app_config.study_open_datetime:
-            self.add_error('consent_datetime', forms.ValidationError(
-                'Consent date may not be before study opening date {}. Got {}.'.format(
-                    app_config.study_open_datetime.date().isoformat(),
-                    consent_datetime.date().isoformat()), code='invalid'))
-        return consent_datetime
+#     def clean_consent_datetime(self):
+#         consent_datetime = self.cleaned_data['consent_datetime']
+#         app_config = django_apps.get_app_config('edc_protocol')
+#         if consent_datetime < app_config.study_open_datetime:
+#             raise forms.ValidationError(
+#                 'Invalid consent date. Consent date may not be before study opening date {}. Got {}.'.format(
+#                     app_config.study_open_datetime.date().isoformat(),
+#                     consent_datetime.date().isoformat()), code='invalid')
+#         return consent_datetime
 
     def clean_identity_and_confirm_identity(self):
         cleaned_data = self.cleaned_data
@@ -56,8 +60,8 @@ class ConsentFormMixin:
         confirm_identity = cleaned_data.get('confirm_identity')
         if identity != confirm_identity:
             raise forms.ValidationError(
-                'Identity mismatch. Identity must match the confirmation field. '
-                'Got %(identity)s != %(confirm_identity)s',
+                {'identity': 'Identity mismatch. Identity must match the confirmation field. '
+                 'Got {} != {}'.format(identity, confirm_identity)},
                 params={'identity': identity, 'confirm_identity': confirm_identity},
                 code='invalid')
 
@@ -72,18 +76,19 @@ class ConsentFormMixin:
             unique_together_model = self.unique_together_string(consent.first_name, consent.initials, consent.dob)
             if unique_together_form != unique_together_model:
                 raise forms.ValidationError(
-                    'Identity \'%(identity)s\' is already in use by subject %(subject_identifier)s. '
-                    'Please resolve.',
+                    {'identity': 'Identity \'{}\' is already in use by subject {}. '
+                     'Please resolve.'.format(identity, consent.subject_identifier)},
                     params={'subject_identifier': consent.subject_identifier, 'identity': identity},
                     code='invalid')
         for consent in self._meta.model.objects.filter(first_name=first_name, initials=initials, dob=dob):
             if consent.identity != identity:
                 raise forms.ValidationError(
-                    'Subject\'s identity was previously reported as \'%(existing_identity)s\'. '
-                    'You wrote \'%(identity)s\'. Please resolve.',
+                    'Subject\'s identity was previously reported as \'{}\'. '
+                    'You wrote \'{}\'. Please resolve.'.format(consent.identity, identity),
                     params={'existing_identity': consent.identity, 'identity': identity},
                     code='invalid')
 
+    # ok
     def clean_initials_with_full_name(self):
         cleaned_data = self.cleaned_data
         first_name = cleaned_data.get("first_name")
@@ -92,7 +97,7 @@ class ConsentFormMixin:
         try:
             if initials[:1] != first_name[:1] or initials[-1:] != last_name[:1]:
                 raise forms.ValidationError(
-                    'Initials do not match fullname. Got %(initials)s for %(first_name)s %(last_name)s',
+                    {'initials': 'Initials do not match full name.'},
                     params={'initials': initials, 'first_name': first_name, 'last_name': last_name},
                     code='invalid')
         except (IndexError, TypeError):
@@ -108,14 +113,16 @@ class ConsentFormMixin:
         if rdelta.years < self.consent_config.age_is_adult:
             if not guardian:
                 raise forms.ValidationError(
-                    'Subject\'s age is %(age)s. Subject is a minor. Guardian\'s '
-                    'name is required with signature on the paper document.',
+                    'Subject\'s age is {}. Subject is a minor. Guardian\'s '
+                    'name is required with signature on the paper document.'.format(
+                        formatted_age(dob, consent_datetime)),
                     params={'age': formatted_age(dob, consent_datetime)},
                     code='invalid')
         if rdelta.years >= self.consent_config.age_is_adult and guardian:
             if guardian:
                 raise forms.ValidationError(
-                    'Subject\'s age is %(age)s. Subject is an adult. Guardian\'s name is NOT required.',
+                    'Subject\'s age is {}. Subject is an adult. Guardian\'s name is '
+                    'NOT required.'.format(formatted_age(dob, consent_datetime)),
                     params={'age': formatted_age(dob, consent_datetime)},
                     code='invalid')
 
@@ -222,37 +229,3 @@ class ConsentFormMixin:
         except AttributeError:
             dob = ''
         return '{}{}{}'.format(first_name, dob, initials)
-
-
-class RequiresConsentFormMixin:
-
-    def clean(self):
-        cleaned_data = super(RequiresConsentFormMixin, self).clean()
-        self.validate_against_consent()
-        return cleaned_data
-
-    def validate_against_consent(self):
-        """Raise an exception if the report datetime doesn't make sense relative to the consent."""
-        cleaned_data = self.cleaned_data
-        appointment = cleaned_data.get('appointment')
-        consent = self.get_consent(appointment.subject_identifier, cleaned_data.get("report_datetime"))
-        if cleaned_data.get("report_datetime") < consent.consent_datetime:
-            raise forms.ValidationError("Report datetime cannot be before consent datetime")
-        if cleaned_data.get("report_datetime").date() < consent.dob:
-            raise forms.ValidationError("Report datetime cannot be before DOB")
-
-    def get_consent(self, subject_identifier, report_datetime):
-        """Return an instance of the consent model."""
-        consent_config = site_consents.get_by_datetime(
-            self._meta.model._meta.consent_model,
-            report_datetime, exception_cls=forms.ValidationError)
-        try:
-            consent = consent_config.model.objects.get(
-                subject_identifier=subject_identifier)
-        except consent_config.model.MultipleObjectsReturned:
-            consent = consent_config.model.objects.filter(
-                subject_identifier=subject_identifier).order_by('version').first()
-        except ObjectDoesNotExist:
-            raise forms.ValidationError(
-                '\'{}\' does not exist for subject.'.format(consent_config.model._meta.verbose_name))
-        return consent

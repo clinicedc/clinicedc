@@ -1,21 +1,20 @@
-from uuid import uuid4
-
 from django.db.models import options
 from django.db import models
 from django_crypto_fields.fields import EncryptedTextField
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, MultipleObjectsReturned
 
 from edc_base.model.validators import datetime_not_future
-from edc_base.utils import formatted_age, age, get_utcnow, get_uuid
+from edc_base.utils import formatted_age, age, get_utcnow
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
 from edc_protocol.validators import datetime_not_before_study_start
 
 from .choices import YES_NO_DECLINED_COPY
-from .exceptions import ConsentVersionError, SiteConsentError, NotConsentedError
+from .exceptions import SiteConsentError, NotConsentedError, ConsentVersionSequenceError
 from .field_mixins import VerificationFieldsMixin
 from .managers import ObjectConsentManager, ConsentManager
 from .site_consents import site_consents
+from edc_consent.exceptions import ConsentDoesNotExist
 
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model',)
@@ -23,46 +22,44 @@ options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model',)
 
 class RequiresConsentMixin(models.Model):
 
-    """Requires a model to check for a valid consent before allowing to save."""
+    """Requires a model to check for a valid consent before allowing to save.
+
+    Requires attrs subject_identfier, report_datetime"""
 
     consent_version = models.CharField(max_length=10, default='?', editable=False)
 
     def save(self, *args, **kwargs):
         if not self._meta.consent_model:
             raise ImproperlyConfigured(
-                'Consent model attribute not set. Got \'{}.consent_model\' = None'.format(self._meta.label_lower))
-        self.consented_for_period_or_raise()
+                'Consent model attribute not set. Got \'{}.consent_model\' = None'.format(
+                    self._meta.label_lower))
         super(RequiresConsentMixin, self).save(*args, **kwargs)
 
-    def consented_for_period_or_raise(self, report_datetime=None, subject_identifier=None, exception_cls=None):
-        exception_cls = exception_cls or NotConsentedError
-        report_datetime = report_datetime or self.report_datetime
-        consent_config = site_consents.get_consent_config(
-            self._meta.consent_model, report_datetime=report_datetime, exception_cls=exception_cls)
-        self.consent_version = consent_config.version
-        if not subject_identifier:
-            try:
-                subject_identifier = self.subject_identifier
-            except AttributeError:
-                subject_identifier = self.get_subject_identifier()
+    def common_clean(self):
+        consent = site_consents.get_consent(
+            consent_model=self._meta.consent_model,
+            report_datetime=self.report_datetime)
+        self.consent_version = consent.version
         try:
-            if not subject_identifier:
+            if not self.subject_identifier:
                 raise SiteConsentError(
                     'Cannot lookup {} instance for subject. Got \'subject_identifier\' is None.'.format(
-                        consent_config.model._meat.label_lower))
+                        consent.model._meat.label_lower))
             options = dict(
-                subject_identifier=subject_identifier,
-                version=consent_config.version)
-            consent_config.model.objects.get(**options)
-        except consent_config.model.DoesNotExist:
-            raise exception_cls(
-                'Cannot find \'{consent_model} version {version}\' when saving model \'{model}\' '
-                'for subject \'{subject_identifier}\' with date \'{report_datetime}\' .'.format(
-                    subject_identifier=subject_identifier,
-                    consent_model=consent_config.model._meta.label_lower,
+                subject_identifier=self.subject_identifier,
+                version=consent.version)
+            consent.model.objects.get(**options)
+        except consent.model.DoesNotExist:
+            raise NotConsentedError(
+                'Consent is required. Cannot find \'{consent_model} version {version}\' '
+                'when saving model \'{model}\' for subject \'{subject_identifier}\' with date '
+                '\'{report_datetime}\' .'.format(
+                    subject_identifier=self.subject_identifier,
+                    consent_model=consent.model._meta.label_lower,
                     model=self._meta.label_lower,
-                    version=consent_config.version,
-                    report_datetime=report_datetime.strftime('%Y-%m-%d %H:%M%z')))
+                    version=consent.version,
+                    report_datetime=self.report_datetime.strftime('%Y-%m-%d %H:%M%z')))
+        super().common_clean()
 
     class Meta:
         abstract = True
@@ -127,36 +124,50 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         return (self.subject_identifier_as_pk, )
 
     def save(self, *args, **kwargs):
-        self.is_known_consent_model_or_raise()
-        consent_config = site_consents.get_consent_config(
-            self._meta.label_lower, report_datetime=self.consent_datetime)
-        self.version = consent_config.version
-        if consent_config.updates_version:
-            try:
-                previous_consent = self.__class__.objects.get(
-                    subject_identifier=self.subject_identifier,
-                    identity=self.identity,
-                    version__in=consent_config.updates_version,
-                    **self.additional_filter_options())
-                previous_consent.subject_identifier_as_pk = self.subject_identifier_as_pk
-                previous_consent.subject_identifier_aka = self.subject_identifier_aka
-            except self.__class__.DoesNotExist:
-                raise ConsentVersionError(
-                    'Previous consent with version {0} for this subject not found. Version {1} updates {0}.'
-                    'Ensure all details match (identity, dob, first_name, last_name)'.format(
-                        consent_config.updates_version, self.version))
+        consent = site_consents.get_consent(
+            consent_model=self._meta.label_lower,
+            report_datetime=self.consent_datetime)
+        self.version = consent.version
+        if consent.updates_versions:
+            previous_consent = self.previous_consent_to_update(consent)
+            previous_consent.subject_identifier_as_pk = self.subject_identifier_as_pk
+            previous_consent.subject_identifier_aka = self.subject_identifier_aka
         super(ConsentModelMixin, self).save(*args, **kwargs)
 
-    def is_known_consent_model_or_raise(self, model=None, exception_cls=None):
-        """Raises an exception if not listed in ConsentType."""
-        model = model or self._meta.label_lower
-        exception_cls = exception_cls or SiteConsentError
-        consents = site_consents.get_by_model(model=model)
-        if not consents:
-            models = [consent.model_class._meta.verbose_name for consent in consents]
-            raise exception_cls(
-                '\'{}\' is not a known consent model. '
-                'Valid consent models are [\'{}\']. See AppConfig.'.format(model, '\', \''.join(models)))
+    def previous_consent_to_update(self, consent):
+        previous_consent = None
+        try:
+            previous_consent = self.__class__.objects.get(
+                subject_identifier=self.subject_identifier,
+                identity=self.identity,
+                version__in=consent.updates_versions,
+                **self.additional_filter_options())
+        except self.__class__.DoesNotExist:
+            raise ConsentVersionSequenceError(
+                'Previous consent with version {0} for this subject not found. Version {1} updates {0}. '
+                'Ensure all details match (identity, dob, first_name, last_name)'.format(
+                    ', '.join(consent.updates_versions), self.version))
+        except MultipleObjectsReturned:
+            previous_consents = self.__class__.objects.filter(
+                subject_identifier=self.subject_identifier,
+                identity=self.identity,
+                version__in=consent.updates_versions,
+                **self.additional_filter_options()).order_by('-version')
+            previous_consent = previous_consents[0]
+        return previous_consent
+
+    @property
+    def common_clean_exceptions(self):
+        common_clean_exceptions = super().common_clean_exceptions
+        return common_clean_exceptions + [ConsentVersionSequenceError, ConsentDoesNotExist]
+
+    def common_clean(self):
+        consent = site_consents.get_consent(
+            consent_model=self._meta.label_lower,
+            report_datetime=self.consent_datetime)
+        if consent.updates_versions:
+            self.previous_consent_to_update(consent)
+        super().common_clean()
 
     @property
     def report_datetime(self):

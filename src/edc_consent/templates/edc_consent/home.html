@@ -19,13 +19,13 @@
      	 	</tr>
     	</thead>
     	<tbody>
-      	{% for consent_type in  consent_types %}
+      	{% for consent in  consents %}
      	 <tr>
-        	<td>{{consent_type.verbose_name|title}}</td>
-        	<td>{{consent_type.version}}</td>
-          	<td>{{consent_type.start_datetime|date:"Y-M-d"}}</td>
-        	<td>{{consent_type.start_datetime|date:"Y-M-d"}}</td>
-        	<td>{{consent_type.updates_version}}</td>
+        	<td>{{consent.verbose_name|title}}</td>
+        	<td>{{consent.version}}</td>
+          	<td>{{consent.start_datetime|date:"Y-M-d"}}</td>
+        	<td>{{consent.start_datetime|date:"Y-M-d"}}</td>
+        	<td>{{consent.updates_versions}}</td>
       	</tr>
       	{% endfor %}
     	</tbody>

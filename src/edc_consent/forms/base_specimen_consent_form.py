@@ -24,7 +24,7 @@ class BaseSpecimenConsentForm(forms.ModelForm):
         cleaned_data = self.cleaned_data
         subject_identifier = cleaned_data.get('subject_identifier')
         consent_datetime = cleaned_data.get('consent_datetime')
-        maternal_consent = self.STUDY_CONSENT.consent.valid_consent_for_period(
+        maternal_consent = self.STUDY_CONSENT.consent.consent_for_period(
             subject_identifier, consent_datetime)
         if not maternal_consent:
             raise forms.ValidationError(

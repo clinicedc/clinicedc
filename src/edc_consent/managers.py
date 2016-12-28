@@ -11,13 +11,21 @@ class ObjectConsentManager(models.Manager):
 
 class ConsentManager(models.Manager):
 
-    def valid_consent_for_period(self, subject_identifier, report_datetime):
-        consent = None
+    def first_consent(self, subject_identifier):
+        consents = self.filter(subject_identifier=subject_identifier)
         try:
-            consent_type = site_consents.get_consent_config(
-                self.model._meta.label_lower, report_datetime=report_datetime)
-            if consent_type:
-                consent = self.get(subject_identifier=subject_identifier, version=consent_type.version)
+            return consents[0]
+        except IndexError:
+            return None
+
+    def consent_for_period(self, subject_identifier, report_datetime):
+        consent = site_consents.get_consent(
+            consent_model=self.model._meta.label_lower,
+            report_datetime=report_datetime)
+        subject_consent = None
+        try:
+            if consent:
+                subject_consent = self.get(subject_identifier=subject_identifier, version=consent.version)
         except self.model.DoesNotExist:
-            pass
-        return consent
+            subject_consent = None
+        return subject_consent

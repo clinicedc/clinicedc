@@ -1,11 +1,7 @@
 import re
 
-from dateutil.relativedelta import relativedelta
-
-
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
-from django.utils.timezone import localtime
 
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO, DECLINED, UNKNOWN, MALE, NEG, POS
@@ -40,30 +36,6 @@ class FullNameValidator:
 
     def __eq__(self, other):
         return self.regex == other.regex
-
-
-@deconstructible
-class AgeTodayValidator(object):
-
-    def __init__(self, min_age_in_years, max_age_in_years):
-        self.min_age = int(min_age_in_years)
-        self.max_age = int(max_age_in_years)
-
-    def __repr__(self):
-        return '{}({}, {})'.format(self.__class__.__name__, self.min_age, self.max_age)
-
-    def __call__(self, dob):
-        rdelta = relativedelta(localtime(get_utcnow().date()), dob)
-        if rdelta.years < self.min_age or rdelta.years > self.max_age:
-            raise ValidationError(
-                'Subject age is %(age)s yrs. Age of participant must be between '
-                '%(min_age)s yrs and %(max_age)s yrs. Got DoB \'%(dob)s\' relative to \'TODAY\'.',
-                code='invalid',
-                params={'min_age': self.min_age, 'max_age': self.max_age, 'age': rdelta.years, 'dob': dob}
-            )
-
-    def __eq__(self, other):
-        return self.min_age_in_years == other.min_age_in_years and self.max_age_in_years == other.max_age_in_years
 
 
 def dob_not_future(value):
