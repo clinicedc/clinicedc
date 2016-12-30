@@ -35,7 +35,7 @@ class Facility:
     def open_slot_on(self, r):
         return True
 
-    def as_arrow_utc(self, dt):
+    def to_arrow_utc(self, dt):
         """Returns timezone-aware datetime as a UTC arrow object."""
         return arrow.Arrow.fromdatetime(dt, dt.tzinfo).to('utc')
 
@@ -51,11 +51,11 @@ class Facility:
         """Returns a datetime closest to the suggested datetime based on the configuration of the facility.
 
         To exclude datetimes other than holidays, pass a list of datetimes to `taken_datetimes`."""
-        suggested = self.as_arrow_utc(suggested_datetime)
+        suggested = self.to_arrow_utc(suggested_datetime)
         if not window_delta:
             window_delta = relativedelta(months=1)
-        taken = [self.as_arrow_utc(dt) for dt in taken_datetimes or []]
-        maximum = self.as_arrow_utc(suggested.datetime + window_delta)
+        taken = [self.to_arrow_utc(dt) for dt in taken_datetimes or []]
+        maximum = self.to_arrow_utc(suggested.datetime + window_delta)
         for r in arrow.Arrow.span_range('day', suggested.datetime, maximum.datetime):
             # add back time to arrow object, r
             r = arrow.Arrow.fromdatetime(datetime.combine(r[0].date(), suggested.time()))
