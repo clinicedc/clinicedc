@@ -1,32 +1,31 @@
-from django.apps import apps as django_apps
-from django.utils import timezone
-from django.core.exceptions import ValidationError
+import arrow
 
-app_config = django_apps.get_app_config('edc_protocol')
+from dateutil.tz import gettz
+
+from django.apps import apps as django_apps
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 
 def date_not_before_study_start(value):
     if value:
-        try:
-            value.date()
-            raise TypeError('Expected date but got a datetime. Got {}'.format(value.strftime('%Y-%m-%d %H:%M')))
-        except AttributeError:
-            pass
-        study_open_date = timezone.localtime(app_config.study_open_datetime).date()
-        if value < study_open_date:
+        app_config = django_apps.get_app_config('edc_protocol')
+        tzinfo = gettz(settings.TIME_ZONE)
+        value_utc = arrow.Arrow.fromdate(value, tzinfo).to('utc').datetime
+        if value_utc < app_config.study_open_datetime:
             raise ValidationError(
                 'Invalid date. Study opened on {}. Got {}. See edc_protocol.AppConfig'.format(
-                    study_open_date, value))
+                    timezone.localtime(app_config.study_open_datetime).strftime('%Y-%m-%d'),
+                    timezone.localtime(value_utc).strftime('%Y-%m-%d')))
 
 
 def datetime_not_before_study_start(value_datetime):
     if value_datetime:
-        try:
-            value_datetime.date()
-        except AttributeError:
-            raise TypeError('Expected datetime but got a date. Got {}'.format(value_datetime.strftime('%Y-%m-%d')))
-        if value_datetime < app_config.study_open_datetime:
+        app_config = django_apps.get_app_config('edc_protocol')
+        value_utc = arrow.Arrow.fromdatetime(value_datetime, value_datetime.tzinfo).to('utc').datetime
+        if value_utc < app_config.study_open_datetime:
             raise ValidationError(
                 'Invalid date/time. Study opened on {}. Got {}.'.format(
                     timezone.localtime(app_config.study_open_datetime).strftime('%Y-%m-%d %H:%M'),
-                    timezone.localtime(value_datetime).strftime('%Y-%m-%d %H:%M')))
+                    timezone.localtime(value_utc).strftime('%Y-%m-%d %H:%M')))

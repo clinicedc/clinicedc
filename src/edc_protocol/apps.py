@@ -1,3 +1,4 @@
+import arrow
 import sys
 
 from dateutil.relativedelta import relativedelta
@@ -34,8 +35,12 @@ class AppConfig(DjangoAppConfig):
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         sys.stdout.write(' * {}: {}.\n'.format(self.protocol, self.protocol_name))
-        sys.stdout.write(' * Study opening date: {}\n'.format(self.study_open_datetime.strftime('%Y-%m-%d')))
-        sys.stdout.write(' * Expected study closing date: {}\n'.format(self.study_close_datetime.strftime('%Y-%m-%d')))
+        self.study_open_datetime = arrow.Arrow.fromdatetime(
+            self.study_open_datetime, self.study_open_datetime.tzinfo).to('utc').datetime
+        self.study_close_datetime = arrow.Arrow.fromdatetime(
+            self.study_close_datetime, self.study_close_datetime.tzinfo).to('utc').datetime
+        sys.stdout.write(' * Study opening date: {}\n'.format(self.study_open_datetime.strftime('%Y-%m-%d %Z')))
+        sys.stdout.write(' * Expected study closing date: {}\n'.format(self.study_close_datetime.strftime('%Y-%m-%d %Z')))
         if isinstance(self.subject_types, (list, tuple)):
             unique_labels = {}
             for subject_type in self.subject_types:
