@@ -1,5 +1,8 @@
+import arrow
+
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta, SA, SU
+from uuid import UUID
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
@@ -7,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.db.models import options
+from django.db.utils import IntegrityError
 
 from edc_registration.model_mixins import SubjectIdentifierFromRegisteredSubjectModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
@@ -14,11 +18,8 @@ from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
 from .choices import APPT_TYPE, APPT_STATUS, COMPLETE_APPT, INCOMPLETE_APPT, CANCELLED_APPT
 from .constants import IN_PROGRESS_APPT, NEW_APPT
-from .exceptions import AppointmentStatusError
+from .exceptions import AppointmentStatusError, CreateAppointmentError
 from .managers import AppointmentManager
-from uuid import UUID
-from edc_appointment.exceptions import CreateAppointmentError
-from django.db.utils import IntegrityError
 
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
@@ -176,9 +177,10 @@ class CreateAppointmentsMixin(models.Model):
         app_config = django_apps.get_app_config('edc_appointment')
         appointments = []
         base_appt_datetime = base_appt_datetime or self.report_datetime
+        base_appt_datetime = arrow.Arrow.fromdatetime(
+            base_appt_datetime, base_appt_datetime.tzinfo).to('utc').datetime
         facility = app_config.get_facility(self.facility_name)
-        timepoint_datetimes = self.timepoint_datetimes(
-            base_appt_datetime or self.report_datetime, self.schedule)
+        timepoint_datetimes = self.timepoint_datetimes(base_appt_datetime, self.schedule)
         taken_datetimes = []
         for visit, timepoint_datetime in timepoint_datetimes:
             adjusted_timepoint_datetime = self.move_to_facility_day(facility, timepoint_datetime)

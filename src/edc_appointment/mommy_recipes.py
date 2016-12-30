@@ -1,15 +1,11 @@
 from faker import Faker
 from model_mommy.recipe import Recipe, seq
 
-from django.apps import apps as django_apps
-
 from edc_base_test.faker import EdcBaseProvider
+from edc_base_test.utils import get_utcnow
 
 from .models import Appointment
 
-
-def get_utcnow():
-    return django_apps.get_app_config('edc_base_test').get_utcnow()
 
 fake = Faker()
 fake.add_provider(EdcBaseProvider)
