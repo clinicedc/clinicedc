@@ -15,6 +15,7 @@ class SiteConsents:
 
     def __init__(self):
         self.registry = []
+        self._backup_registry = []
 
     def register(self, consent):
         if consent.name in [item.name for item in self.registry]:
@@ -27,6 +28,16 @@ class SiteConsents:
 
     def reset_registry(self):
         self.registry = []
+
+    def backup_registry(self):
+        """Backs up registry for tests."""
+        self._backup_registry = copy.copy(self.registry)
+        self.registry = []
+
+    def restore_registry(self):
+        """Restores registry for tests."""
+        self.registry = copy.copy(self._backup_registry)
+        self._backup_registry = []
 
     @property
     def consents(self):
@@ -161,11 +172,14 @@ class SiteConsents:
                 except ConsentError as e:
                     writer('   - loading {}.consents ... '.format(app))
                     writer(style.ERROR('ERROR! {}\n'.format(str(e))))
-                except Exception as e:
+                except ImportError as e:
                     site_consents.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise
+                        raise SiteConsentError(str(e))
             except ImportError:
                 pass
+            except Exception as e:
+                raise SiteConsentError(
+                    'An {} was raised when loading site_consents. Got {}.'.format(e.__class__.__name__, str(e)))
 
 site_consents = SiteConsents()
