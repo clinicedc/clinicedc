@@ -7,11 +7,11 @@ from edc_search.forms import SearchForm
 class SearchViewMixin:
 
     form_class = SearchForm
-    template_name = None
+    list_url = '/'
     paginate_by = 10
     search_model = None
+    template_name = None
     url_lookup_parameters = []
-    list_url = '/'
 
     def __init__(self, **kwargs):
         self.filter_options = {}
@@ -26,10 +26,11 @@ class SearchViewMixin:
         return q, options
 
     def queryset_wrapper(self, qs):
+        """Wraps either the search queryset or the filtered queryset objects."""
         return qs
 
     def queryset(self, search_term, **kwargs):
-        """Returns a queryset matching the search term."""
+        """Returns a queryset matching the search term passed in through the form, see `form_valid`."""
         q, options = self.search_options(search_term, **kwargs)
         try:
             qs = [self.search_model.objects.get(q, **options)]
@@ -67,11 +68,17 @@ class SearchViewMixin:
 
     @property
     def filtered_results(self):
-        """Returns a queryset filtered by URL parameters from the context."""
+        """Returns a queryset filtered by values from the context, see `update_filter_options_from`.
+
+        This is not the "search" queryset"""
         return self.search_model.objects.filter(**self.filter_options).order_by('-created')
 
     def update_filter_options_from(self, context):
-        """Returns options for the filter() of `filtered_results`."""
+        """Intercepts from the context and returns options for the `filtered_results`.
+
+        If found, only one filter option is added.
+
+        url_lookup_parameters correspond with parameters defined in urls.py"""
         lookups = []
         for attrname in self.url_lookup_parameters:
             if isinstance(attrname, tuple):
@@ -82,9 +89,13 @@ class SearchViewMixin:
             if context.get(attrname):
                 self.filter_options = {lookup: context.get(attrname)}
                 context['search_term'] = context.get(attrname)
+                break  # only one attr is added to the filter options
         return context
 
     def get_context_data(self, **kwargs):
+        """Updates the context with the paginated filtered results and a few other simple attrs.
+
+        Results are filtered according to the `updated_filter_options_from` the context."""
         context = super().get_context_data(**kwargs)
         context = self.update_filter_options_from(context)
         context.update(
