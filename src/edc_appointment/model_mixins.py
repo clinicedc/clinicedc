@@ -119,9 +119,9 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
         return (self.subject_identifier, self.visit_schedule_name, self.schedule_name,
                 self.visit_code, self.visit_code_sequence)
 
-    @property
-    def visit(self):
-        return self.subject_visit
+#     @property
+#     def visit(self):
+#         return self.subject_visit
 
     @property
     def str_pk(self):
