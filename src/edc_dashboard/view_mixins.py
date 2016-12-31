@@ -32,6 +32,15 @@ class DashboardSubjectMixin:
 
 class DashboardAppointmentMixin:
 
+    visit_model = None
+
+    def appointment_wrapper(self, obj):
+        try:
+            obj.visit = self.visit_model.objects.get(appointment=obj)
+        except self.visit_model.DoesNotExist:
+            obj.visit = None
+        return obj
+
     @property
     def appointment_model(self):
         return django_apps.get_app_config('edc_appointment').model
@@ -39,12 +48,14 @@ class DashboardAppointmentMixin:
     def get_context_data(self, **kwargs):
         context = super(DashboardAppointmentMixin, self).get_context_data(**kwargs)
         pk = self.kwargs.get('selected_appointment')
+        appointments = []
         try:
-            self.selected_appointment = self.appointment_model.objects.get(pk=pk)
-            appointments = []
+            self.selected_appointment = self.appointment_wrapper(
+                self.appointment_model.objects.get(pk=pk))
         except self.appointment_model.DoesNotExist:
-            appointments = self.appointment_model.objects.filter(
-                subject_identifier=self.subject_identifier).order_by('visit_code')
+            for obj in self.appointment_model.objects.filter(
+                    subject_identifier=self.subject_identifier).order_by('visit_code'):
+                appointments.append(self.appointment_wrapper(obj))
             self.selected_appointment = None
         context.update(
             appointments=appointments,
