@@ -17,6 +17,7 @@ class SearchForm(forms.Form):
         self.helper = FormHelper(self)
         self.helper.form_action = None  # set in child class
         self.helper.form_id = 'form-search'
+        self.helper.form_class = 'form-inline'
         self.helper.form_method = 'post'
         self.helper.form_show_labels = False
         self.helper.html5_required = False

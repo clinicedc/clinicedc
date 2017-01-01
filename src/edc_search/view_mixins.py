@@ -12,6 +12,7 @@ class SearchViewMixin:
     search_model = None
     template_name = None
     url_lookup_parameters = []
+    queryset_ordering = '-created'
 
     def __init__(self, **kwargs):
         self.filter_options = {}
@@ -37,17 +38,17 @@ class SearchViewMixin:
         except self.search_model.DoesNotExist:
             qs = None
         except MultipleObjectsReturned:
-            qs = self.search_model.objects.filter(q, **options).order_by('-created')
+            qs = self.search_model.objects.filter(q, **options).order_by(self.queryset_ordering)
         return qs
 
     def paginate(self, qs):
         """Paginates a queryset."""
         paginator = Paginator(qs, self.paginate_by)
-        paginator.object_list = self.queryset_wrapper(paginator.object_list)
         try:
             page = paginator.page(self.kwargs.get('page', 1))
         except EmptyPage:
             page = paginator.page(paginator.num_pages)
+        page.object_list = self.queryset_wrapper(page.object_list)
         return page
 
     def form_valid(self, form):
