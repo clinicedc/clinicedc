@@ -18,12 +18,14 @@ class DashboardError(Exception):
 class DashboardSubjectMixin:
 
     subject_dashboard_url_name = None
+    subject_dashboard_base_html = 'edc_base/base.html'
 
     def get_context_data(self, **kwargs):
         context = super(DashboardSubjectMixin, self).get_context_data(**kwargs)
         self.subject_identifier = self.kwargs.get('subject_identifier')
         self.show = self.kwargs.get('show')
         context.update(
+            subject_dashboard_base_html=self.subject_dashboard_base_html,
             subject_identifier=self.subject_identifier,
             show=self.show,
             subject_dashboard_url_name=self.subject_dashboard_url_name)
