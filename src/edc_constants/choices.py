@@ -2,7 +2,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from .constants import (
     ALIVE, DEAD, DECLINED, DWTA, FEMALE, IND, MALE, NAIVE,
-    NEG, NEVER, NO, NOT_APPLICABLE, OMANG, OTHER, POS, REFUSED, UNKNOWN, YES)
+    NEG, NEVER, NO, NOT_APPLICABLE, OMANG, OTHER, POS, REFUSED, UNKNOWN, YES,
+    MORNING, AFTERNOON, EVENING, ANYTIME, WEEKDAYS, WEEKENDS)
 
 
 BLANK_CHOICE_DASH = [('', '---------')]
@@ -77,13 +78,6 @@ DAYS_OF_WEEK = (
     ('Saturday', 'Saturday'),
     ('Sunday', 'Sunday'),
     ('AnyDay', 'Any Day'),
-)
-
-TIME_OF_DAY = (
-    ('Morning', 'Morning'),
-    ('Afternoon', 'Afternoon'),
-    ('Evening', 'Evening'),
-    ('Anytime', 'Anytime'),
 )
 
 
@@ -283,14 +277,16 @@ SEXUAL_DEBUT = (
 )
 
 TIME_OF_WEEK = (
-    ('weekdays', 'Weekdays'),
-    ('weekend', 'Weekends'),
+    (WEEKDAYS, 'Weekdays'),
+    (WEEKENDS, 'Weekends'),
+    (ANYTIME, 'Anytime')
 )
 
 TIME_OF_DAY = (
-    ('morning', 'Morning'),
-    ('afternoon', 'Afternoon'),
-    ('evening', 'Evening'),
+    (MORNING, 'Morning'),
+    (AFTERNOON, 'Afternoon'),
+    (EVENING, 'Evening'),
+    (ANYTIME, 'Anytime')
 )
 
 TIME_UNITS = (
