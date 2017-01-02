@@ -77,10 +77,9 @@ class SearchViewMixin:
     def update_filter_options_from(self, context):
         """Intercepts from the context and returns options for the `filtered_results`.
 
-        If found, only one filter option is added.
-
         url_lookup_parameters correspond with parameters defined in urls.py"""
         lookups = []
+        self.filter_options = {}
         for attrname in self.url_lookup_parameters:
             if isinstance(attrname, tuple):
                 lookups.append((attrname[0], attrname[1]))
@@ -88,9 +87,9 @@ class SearchViewMixin:
                 lookups.append((attrname, attrname))
         for attrname, lookup in lookups:
             if context.get(attrname):
-                self.filter_options = {lookup: context.get(attrname)}
+                self.filter_options.update({lookup: context.get(attrname)})
+                # TODO: ??
                 context['search_term'] = context.get(attrname)
-                break  # only one attr is added to the filter options
         return context
 
     def get_context_data(self, **kwargs):
