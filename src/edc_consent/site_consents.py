@@ -3,12 +3,11 @@ import sys
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
-from django.utils.module_loading import import_module
-from django.utils.module_loading import module_has_submodule
+from django.utils.module_loading import import_module, module_has_submodule
 
-from .exceptions import SiteConsentError, AlreadyRegistered, ConsentError, ConsentPeriodError
-from edc_consent.exceptions import ConsentVersionSequenceError, ConsentVersionError, ConsentPeriodOverlapError,\
-    ConsentDoesNotExist
+from .exceptions import (
+    SiteConsentError, AlreadyRegistered, ConsentError, ConsentPeriodError,
+    ConsentVersionSequenceError, ConsentPeriodOverlapError, ConsentDoesNotExist)
 
 
 class SiteConsents:
@@ -17,14 +16,15 @@ class SiteConsents:
         self.registry = []
         self._backup_registry = []
 
-    def register(self, consent):
-        if consent.name in [item.name for item in self.registry]:
-            raise AlreadyRegistered('Consent already registered. Got {}'.format(str(consent)))
-        self.check_consent_period_within_study_period(consent)
-        self.check_consent_period_for_overlap(consent)
-        self.check_version(consent)
-        self.check_updates_versions(consent)
-        self.registry.append(consent)
+    def register(self, *consents):
+        for consent in consents:
+            if consent.name in [item.name for item in self.registry]:
+                raise AlreadyRegistered('Consent already registered. Got {}'.format(str(consent)))
+            self.check_consent_period_within_study_period(consent)
+            self.check_consent_period_for_overlap(consent)
+            self.check_version(consent)
+            self.check_updates_versions(consent)
+            self.registry.append(consent)
 
     def reset_registry(self):
         self.registry = []
@@ -98,6 +98,9 @@ class SiteConsents:
                 if consent_model and not version and consent_model == consent.model_name:
                     consents.append(consent)
                 if not consent_model and version and version == consent.version:
+                    consents.append(consent)
+            elif report_datetime and not consent_model and not version:
+                if consent.for_datetime(report_datetime):
                     consents.append(consent)
         if not consents:
             raise ConsentDoesNotExist(
