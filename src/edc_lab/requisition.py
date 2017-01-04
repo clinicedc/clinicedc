@@ -1,4 +1,4 @@
-from edc_lab.site_lab_profiles import site_lab_profiles
+from edc_lab.site_labs import site_labs
 
 
 class Requisition:
@@ -9,7 +9,7 @@ class Requisition:
         for field in self.object._meta.fields:
             if field.name not in ['specimen_identifier']:
                 setattr(self, field.name, getattr(self.object, field.name))
-        self.specimen_type = site_lab_profiles.get(self.object._meta.label_lower).aliquot_types[self.specimen_type]
+        self.specimen_type = site_labs.get(self.object._meta.label_lower).aliquot_types[self.specimen_type]
 
     def __str__(self):
         return str(self.object)

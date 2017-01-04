@@ -6,7 +6,7 @@ from django.utils import timezone
 from edc_label.label import Label
 from edc_label import LabelPrinterError
 
-from .site_lab_profiles import site_lab_profiles
+from .site_labs import site_labs
 
 
 def flag_as_received(modeladmin, request, queryset, **kwargs):
@@ -15,7 +15,7 @@ def flag_as_received(modeladmin, request, queryset, **kwargs):
     for qs in queryset:
         try:
             receive = None
-            lab_profile = site_lab_profiles.get(qs._meta.object_name)
+            lab_profile = site_labs.get(qs._meta.object_name)
             receive = lab_profile().receive(qs)
             msg = 'Received {} as {}'.format(
                 qs.requisition_identifier, receive.receive_identifier)

@@ -3,7 +3,7 @@ import sys
 from django.apps import apps as django_apps
 from django.apps import AppConfig as DjangoAppConfig
 
-from edc_lab.site_lab_profiles import site_lab_profiles
+from edc_lab.site_labs import site_labs
 
 
 class AppConfig(DjangoAppConfig):
@@ -17,7 +17,7 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
-        site_lab_profiles.autodiscover()
+        site_labs.autodiscover()
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
 
     def model(self, model_name):

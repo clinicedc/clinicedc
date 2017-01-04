@@ -12,7 +12,7 @@ from edc_base.model.validators import datetime_not_future
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NO
 from edc_identifier.alphanumeric_identifier import AlphanumericIdentifier
-from edc_lab.site_lab_profiles import site_lab_profiles
+from edc_lab.site_labs import site_labs
 
 from .constants import CONDITION_OK
 from .choices import ITEM_TYPE, REASON_NOT_DRAWN, ALIQUOT_STATUS, SPECIMEN_MEASURE_UNITS, SPECIMEN_MEDIUM
@@ -194,7 +194,7 @@ class RequisitionModelMixin(models.Model):
         if not self.requisition_identifier:
             self.requisition_identifier = str(uuid4())
         try:
-            site_lab_profiles.get(self._meta.label_lower).panels[self.panel_name]
+            site_labs.get(self._meta.label_lower).panels[self.panel_name]
         except KeyError as e:
             raise RequisitionError(
                 'Undefined panel name. Got {}. See AppConfig. Got {}'.format(self.panel_name, str(e)))

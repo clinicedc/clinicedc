@@ -2,7 +2,7 @@ import re
 
 from django.apps import apps as django_apps
 
-from .site_lab_profiles import site_lab_profiles
+from .site_labs import site_labs
 
 app_config = django_apps.get_app_config('edc_lab')
 
@@ -47,7 +47,7 @@ class Aliquot:
         """Creates aliquots according to the processing profile.
 
         Typically lab_profile_name is requisition._meta.label_lower."""
-        lab_profile = site_lab_profiles.get(lab_profile_name)
+        lab_profile = site_labs.get(lab_profile_name)
         processing_profile = lab_profile.panels[panel_name].processing_profile
         try:
             for process in processing_profile.processes.values():

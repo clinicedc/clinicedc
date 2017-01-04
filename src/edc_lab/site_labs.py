@@ -7,7 +7,7 @@ from django.utils.module_loading import import_module, module_has_submodule
 from .exceptions import AlreadyRegistered, RegistryNotLoaded
 
 
-class SiteLabProfiles(object):
+class SiteLabs(object):
 
     def __init__(self):
         self._registry = {}
@@ -31,22 +31,22 @@ class SiteLabProfiles(object):
             raise AlreadyRegistered('Lab profile {} is already registered.'.format(lab))
 
     def autodiscover(self, module_name=None):
-        """Autodiscovers classes in the visit_schedules.py file of any INSTALLED_APP."""
-        module_name = module_name or 'lab_profiles'
+        """Autodiscovers classes in the labs.py file of any INSTALLED_APP."""
+        module_name = module_name or 'labs'
         sys.stdout.write(' * checking for {} ...\n'.format(module_name))
         for app in django_apps.app_configs:
             try:
                 mod = import_module(app)
                 try:
-                    before_import_registry = copy.copy(site_lab_profiles._registry)
+                    before_import_registry = copy.copy(site_labs._registry)
                     import_module('{}.{}'.format(app, module_name))
-                    sys.stdout.write(' * registered lab profiles from application \'{}\'\n'.format(app))
+                    sys.stdout.write(' * registered labs from application \'{}\'\n'.format(app))
                 except Exception as e:
                     if 'No module named \'{}.{}\''.format(app, module_name) not in str(e):
-                        site_lab_profiles._registry = before_import_registry
+                        site_labs._registry = before_import_registry
                         if module_has_submodule(mod, module_name):
                             raise
             except ImportError:
                 pass
 
-site_lab_profiles = SiteLabProfiles()
+site_labs = SiteLabs()

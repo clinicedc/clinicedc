@@ -13,7 +13,7 @@ from .requisition_identifier import RequisitionIdentifier
 from .specimen import Specimen
 from .specimen_collection import SpecimenCollection
 
-# from .site_lab_profiles import site_lab_profiles
+# from .site_labs import site_labs
 
 app_config = django_apps.get_app_config('edc_lab')
 
