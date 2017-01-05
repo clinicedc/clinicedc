@@ -1,7 +1,11 @@
+import arrow
+
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.paginator import Paginator, EmptyPage
+from django.db.models import Q
 
 from edc_search.forms import SearchForm
+from arrow.parser import ParserError
 
 
 class SearchViewMixin:
@@ -18,13 +22,32 @@ class SearchViewMixin:
         self.filter_options = {}
         super().__init__(**kwargs)
 
-    def search_options(self, search_term, **kwargs):
-        """Override to return options for the search model filter().
-
-        Returns a Q object and additional kwargs for the filter"""
-        q = ()
+    def get_search_options(self, search_term, **kwargs):
+        q = Q()
         options = {}
+        try:
+            search_term = arrow.get(search_term)
+        except ParserError:
+            try:
+                field, value = search_term.split('=')
+                options = {field: value}
+            except ValueError:
+                q, options = self.search_options(search_term, **kwargs)
+        else:
+            q, options = self.search_options_for_date(search_term, **kwargs)
         return q, options
+
+    def search_options_for_date(self, search_term, **kwargs):
+        q = (Q(modified__date=search_term.to('utc').date()) |
+             Q(created__date=search_term.to('utc').date()))
+        return q, {}
+
+    def search_options(self, search_term, **kwargs):
+        q = (Q(user_modified=search_term) |
+             Q(user_created=search_term) |
+             Q(hostname_created=search_term) |
+             Q(hostname_modified=search_term))
+        return q, {}
 
     def queryset_wrapper(self, qs):
         """Wraps either the search queryset or the filtered queryset objects."""
@@ -32,10 +55,10 @@ class SearchViewMixin:
 
     def queryset(self, search_term, **kwargs):
         """Returns a queryset matching the search term passed in through the form, see `form_valid`."""
-        q, options = self.search_options(search_term, **kwargs)
+        q, options = self.get_search_options(search_term, **kwargs)
         try:
             qs = [self.search_model.objects.get(q, **options)]
-        except self.search_model.DoesNotExist:
+        except (self.search_model.DoesNotExist, ValueError):
             qs = None
         except MultipleObjectsReturned:
             qs = self.search_model.objects.filter(q, **options).order_by(self.queryset_ordering)
