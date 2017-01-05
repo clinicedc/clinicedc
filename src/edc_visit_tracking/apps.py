@@ -12,6 +12,11 @@ class AppConfig(DjangoAppConfig):
     name = 'edc_visit_tracking'
     verbose_name = 'Edc Visit Tracking'
 
+    # report_datetime_allowance:
+    #   set to not allow CRF report_datetimes to exceed the visit report_datetime
+    #   by more than X days. Set to -1 to ignore
+    report_datetime_allowance = 30
+
     # format {app_label: (model_attr, app_label.model_name)}
     # e.g. {'example': ('subject_visit', 'example.subjectvisit')}
     visit_models = {'edc_example': ('subject_visit', 'edc_example.subjectvisit')}
