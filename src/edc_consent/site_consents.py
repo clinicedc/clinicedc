@@ -149,13 +149,13 @@ class SiteConsents:
         edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
         study_open_datetime = edc_protocol_app_config.study_open_datetime
         study_close_datetime = edc_protocol_app_config.study_close_datetime
-        for dt in [new_consent.start, new_consent.end]:
+        for index, dt in enumerate([new_consent.start, new_consent.end]):
             if not (study_open_datetime <= dt <= study_close_datetime):
                 raise ConsentPeriodError(
                     'Invalid consent. Consent period for {} must be within '
-                    'study open/close dates of {} - {}. Got {}'.format(
+                    'study open/close dates of {} - {}. Got {}={}'.format(
                         new_consent.name,
-                        study_open_datetime, study_close_datetime, dt))
+                        study_open_datetime, study_close_datetime, 'start' if index == 0 else 'end', dt))
 
     def autodiscover(self, module_name=None, verbose=True):
         """Autodiscovers consent classes in the consents.py file of any INSTALLED_APP."""

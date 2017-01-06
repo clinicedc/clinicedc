@@ -12,5 +12,7 @@ class AppConfig(DjangoAppConfig):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         site_consents.autodiscover()
         for consent in site_consents.consents:
-            sys.stdout.write(' * {}\n'.format(consent))
+            sys.stdout.write(' * {} covering {} to {}\n'.format(
+                consent, consent.start.strftime('%Y-%m-%d %Z'),
+                consent.end.strftime('%Y-%m-%d %Z')))
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))

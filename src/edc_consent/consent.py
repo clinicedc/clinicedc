@@ -3,6 +3,12 @@ import arrow
 from django.apps import apps as django_apps
 
 
+class ArrowObject:
+    def __init__(self, start_dt, end_dt):
+        self.rstart = arrow.Arrow.fromdatetime(start_dt, start_dt.tzinfo).to('utc')
+        self.rend = arrow.Arrow.fromdatetime(end_dt, end_dt.tzinfo).to('utc')
+
+
 class Consent:
 
     def __init__(self, model, **kwargs):
@@ -21,7 +27,8 @@ class Consent:
         self.subject_type = kwargs.get('subject_type', 'subject')
         if self.updates_versions:
             if not isinstance(self.updates_versions, (list, tuple)):
-                self.updates_versions = [x.strip() for x in self.updates_versions.split(',') if x.strip() != '']
+                self.updates_versions = [
+                    x.strip() for x in self.updates_versions.split(',') if x.strip() != '']
 
     def __repr__(self):
         return '{0}(consent_model={1.model_name}, version={1.version}, ...)'.format(
@@ -42,3 +49,14 @@ class Consent:
         """Returns True of datetime is within start/end dates."""
         dt = arrow.get(dt, dt.tzinfo).to('UTC').datetime
         return self.start <= dt <= self.end
+
+    def get_absolute_url(self):
+        return self.model().get_absolute_url()
+
+    @property
+    def verbose_name(self):
+        return self.model._meta.verbose_name
+
+    @property
+    def arrow(self):
+        return ArrowObject(self.start, self.end)
