@@ -36,11 +36,33 @@ class DashboardAppointmentMixin:
 
     visit_model = None
 
-    def appointment_wrapper(self, obj):
+    def appointment_next_url_parameters(self, obj, selected_obj=None, **extra_parameters):
+        """Returns a dictionary of parameters needed to reverse the next_url."""
+        attrs = ['subject_identifier'] + ['selected_appointment'] if selected_obj else []
+        values = [obj.subject_identifier] + [str(selected_obj.id)] if selected_obj else []
+        parameters = dict(zip(attrs, values))
+        parameters.update(**extra_parameters)
+        return parameters
+
+    def appointment_next_url(self, obj, selected_obj=None, **extra_parameters):
+        """Returns the next_url querystring segment."""
+        parameters = ['='.join(z) for z in list(
+            self.appointment_next_url_parameters(
+                obj, selected_obj=selected_obj, **extra_parameters).items())]
+        return '{},{}?'.format(
+            self.dashboard_url, ','.join(parameters), parameters)
+
+    def appointment_wrapper(self, obj, selected_obj=None, **extra_parameters):
+        """Wraps the appointment objects.
+
+        * extra_parameters will be added to the default dictionary of parameters needed
+          to reverse the next_url."""
         try:
             obj.visit = self.visit_model.objects.get(appointment=obj)
         except self.visit_model.DoesNotExist:
             obj.visit = None
+        obj.next_url = self.appointment_next_url(
+            obj, selected_obj=selected_obj, **extra_parameters)
         return obj
 
     @property
