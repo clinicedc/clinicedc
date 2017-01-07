@@ -37,22 +37,12 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         cleaned_data = self.cleaned_data
         try:
             consent_config = site_consents.get_consent(
-                report_datetime=cleaned_data.get('consent_datetime') or self.data.get('consent_datetime'),
+                report_datetime=cleaned_data.get('consent_datetime') or self.instance.consent_datetime,
                 consent_model=self._meta.model._meta.label_lower
             )
         except SiteConsentError as e:
             raise forms.ValidationError(e)
         return consent_config
-
-#     def clean_consent_datetime(self):
-#         consent_datetime = self.cleaned_data['consent_datetime']
-#         app_config = django_apps.get_app_config('edc_protocol')
-#         if consent_datetime < app_config.study_open_datetime:
-#             raise forms.ValidationError(
-#                 'Invalid consent date. Consent date may not be before study opening date {}. Got {}.'.format(
-#                     app_config.study_open_datetime.date().isoformat(),
-#                     consent_datetime.date().isoformat()), code='invalid')
-#         return consent_datetime
 
     def clean_identity_and_confirm_identity(self):
         cleaned_data = self.cleaned_data
@@ -217,15 +207,9 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
                 code='invalid')
         return gender
 
-    def clean_dob(self):
-        dob = self.cleaned_data['dob']
-        if not dob:
-            raise forms.ValidationError('Date of birth is required')
-        return dob
-
     def unique_together_string(self, first_name, initials, dob):
         try:
-            dob = dob.isoforma()
+            dob = dob.isoformat()
         except AttributeError:
             dob = ''
         return '{}{}{}'.format(first_name, dob, initials)
