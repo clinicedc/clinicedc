@@ -21,12 +21,10 @@ class AppointmentMixin(NextUrlMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.subject_identifier = None
         self.appointment = None
 
     def get(self, request, *args, **kwargs):
-        """Overidden to add subject_identifier and appointment to the view instance."""
-        self.subject_identifier = kwargs.get('subject_identifier')
+        """Overidden to appointment to the view instance."""
         try:
             appointment = self.appointment_model.objects.get(
                 id=kwargs.get('appointment'))
@@ -47,14 +45,14 @@ class AppointmentMixin(NextUrlMixin):
 
     def appointment_wrapper(self, obj, **options):
         """Add next_url and if has a visit instance, wraps that too."""
-        options.update(**self.kwargs)
+        options.update({k: v for k, v in self.kwargs.items() if k not in options})
         obj.next_url = self.get_next_url('appointment', **options)
         obj = self.visit_wrapper(obj, **options)
         return obj
 
     def visit_wrapper(self, obj, **options):
         """Wraps visit instance attr of appointment and sets \'appointment.visit\' ."""
-        options.update(**self.kwargs)
+        options.update({k: v for k, v in self.kwargs.items() if k not in options})
         try:
             obj.visit = getattr(obj, self.visit_field_name)
         except AttributeError:

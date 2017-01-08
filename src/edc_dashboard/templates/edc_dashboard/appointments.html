@@ -12,7 +12,6 @@
 			        		<tr><td colspan="8"><i>No appointments scheduled</i></td></tr>
 			    		{% else %}
 			        		{% for obj in appointments %}
-			        			{{ obj }} {{ obj.next_url }}
 					            <tr>
 					            <td>{{obj.visit_code}}</td>
 						        <td>{{obj.title}}</td>
