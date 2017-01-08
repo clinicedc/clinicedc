@@ -1,7 +1,7 @@
 
 <!-- start appointments -->
 
-{% if not selected_appointment %}
+{% if not appointment_object %}
 	<div class="panel-group">
 		<div class="panel panel-warning">
 				<div class="panel-heading"><i class="fa fa-calendar fa-lg"></i></span> Schedule</div>
@@ -11,22 +11,25 @@
 			    		{% if not appointments %}
 			        		<tr><td colspan="8"><i>No appointments scheduled</i></td></tr>
 			    		{% else %}
-			        		{% for appointment in appointments %}
+			        		{% for obj in appointments %}
+			        			{{ obj }} {{ obj.next_url }}
 					            <tr>
-					            <td>{{appointment.visit_code}}</td>
-						        <td>{{appointment.title}}</td>
-								<td>{{appointment.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
-								<td><a role="button" class="btn btn-sm btn-default" href="{{ appointment.get_absolute_url }}?next={{ dashboard_url }},subject_identifier&subject_identifier={{subject_identifier}}">
-									{{ appointment.get_appt_status_display | capfirst }}</a></td>
+					            <td>{{obj.visit_code}}</td>
+						        <td>{{obj.title}}</td>
+								<td>{{obj.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
+								<td><a role="button" class="btn btn-sm btn-default" href="{{ obj.get_absolute_url }}?next={{ obj.next_url }}">
+									{{ obj.get_appt_status_display | capfirst }}</a></td>
 						        <td>
-						        {% if appointment.appt_status == 'in_progress' %}
-						        	{% if appointment.visit %}
-						        		<a href="{{ appointment.get_absolute_url }}?next={{ dashboard_url }},subject_identifier,selected_appointment&subject_identifier={{subject_identifier}}&selected_appointment={{ appointment.str_pk }}&appointment={{ appointment.str_pk }}">
-						        			{{ appointment.visit.report_datetime |date:"Y-m-d D"| capfirst }}</a>
-						        		<span class="pull-right"><a href="{% url dashboard_url selected_appointment=appointment.str_pk subject_identifier=subject_identifier %}" role="button" class="btn btn-sm btn-default">
-						        			<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Forms</a></span>
+						        {% if obj.appt_status == 'in_progress' %}
+						        	{% if obj.visit.id %}
+						        		<a href="{{ obj.get_absolute_url }}?next={{ obj.visit.next_url }}">
+						        			{{ obj.visit.report_datetime |date:"Y-m-d D"| capfirst }}</a>
+						        		<span class="pull-right">
+						        			<a role="button" class="btn btn-sm btn-default" href="{% url dashboard_url appointment=obj.str_pk subject_identifier=subject_identifier %}?{{ obj.next_url }}">
+						        				<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Forms</a></span>
 						        	{% else %}
-						        		<a role="button" class="btn btn-sm btn-danger" href="{{ visit_url }}?next={{ dashboard_url }},subject_identifier,selected_appointment&subject_identifier={{ subject_identifier }}&selected_appointment={{ appointment.str_pk }}&appointment={{ appointment.str_pk }}">Start visit</a>
+						        		<a role="button" class="btn btn-sm btn-warning" href="{{ visit_url }}?next={{ obj.visit_next_url }}&appointment={{ obj.str_pk }}">
+						        			Start visit</a>
 						        	{% endif %}
 						        {% endif %}
 						        </td>

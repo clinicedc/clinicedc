@@ -19,3 +19,14 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 ]
+
+# urlpatterns = [
+#     url(r'^dashboard/(?P<subject_identifier>' + subject_identifier + ')/(?P<selected_appointment>[0-9a-f-]+)/(?P<survey>' + survey + ')/',
+#         DashboardView.as_view(), name='dashboard_url'),
+#     url(r'^dashboard/(?P<subject_identifier>' + subject_identifier + ')/(?P<page>\d+)/',
+#         DashboardView.as_view(), name='dashboard_url'),
+#     url(r'^dashboard/(?P<subject_identifier>' + subject_identifier + ')/',
+#         DashboardView.as_view(), name='dashboard_url'),
+#     url(r'^dashboard/(?P<household_member>' + UUID_PATTERN.pattern + ')/',
+#         DashboardView.as_view(), name='dashboard_url'),
+# ]
