@@ -21,5 +21,5 @@ class Base:
         context = super().get_context_data(**kwargs)
         context.update(
             base_html=self.base_html,
-            dasbboard_url=self.dashboard_url)
+            dashboard_url=self.dashboard_url)
         return context

@@ -1,7 +1,7 @@
 
 <!-- start appointments -->
 
-{% if not appointment_object %}
+{% if not appointment %}
 	<div class="panel-group">
 		<div class="panel panel-warning">
 				<div class="panel-heading"><i class="fa fa-calendar fa-lg"></i></span> Schedule</div>
@@ -21,14 +21,19 @@
 						        <td>
 						        {% if obj.appt_status == 'in_progress' %}
 						        	{% if obj.visit.id %}
-						        		<a href="{{ obj.get_absolute_url }}?next={{ obj.visit.next_url }}">
-						        			{{ obj.visit.report_datetime |date:"Y-m-d D"| capfirst }}</a>
 						        		<span class="pull-right">
+						        		{% block visit_button_change %}
 						        			<a role="button" class="btn btn-sm btn-default" href="{% url dashboard_url appointment=obj.str_pk subject_identifier=subject_identifier %}?{{ obj.next_url }}">
-						        				<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Forms</a></span>
+						        				<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Forms
+						        			</a>
+						        		{% endblock visit_button_change %}
+						        		</span>
 						        	{% else %}
-						        		<a role="button" class="btn btn-sm btn-warning" href="{{ visit_url }}?next={{ obj.visit_next_url }}&appointment={{ obj.str_pk }}">
-						        			Start visit</a>
+						        		{% block visit_button_add %}
+							        		<a role="button" class="btn btn-sm btn-warning" href="{{ visit_url }}?next={{ obj.visit_next_url }}&appointment={{ obj.str_pk }}">
+							        			Start visit</a>
+						        		{% endblock visit_button_add %}
+
 						        	{% endif %}
 						        {% endif %}
 						        </td>

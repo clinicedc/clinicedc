@@ -17,7 +17,7 @@ class AppointmentMixin(NextUrlMixin):
         url(r'^dashboard/(?P<subject_identifier>' + subject_identifier + ')/',
     """
 
-    visit_field_name = 'subject_visit'
+    reverse_relation_visit_attr_name = 'subjectvisit'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -37,6 +37,7 @@ class AppointmentMixin(NextUrlMixin):
 
     @property
     def next_url_parameters(self):
+        """Add these additional parameters to the next url"""
         parameters = super().next_url_parameters
         parameters.update({
             'appointment': ['subject_identifier', 'appointment'],
@@ -54,7 +55,7 @@ class AppointmentMixin(NextUrlMixin):
         """Wraps visit instance attr of appointment and sets \'appointment.visit\' ."""
         options.update({k: v for k, v in self.kwargs.items() if k not in options})
         try:
-            obj.visit = getattr(obj, self.visit_field_name)
+            obj.visit = getattr(obj, self.reverse_relation_visit_attr_name)
         except AttributeError:
             obj.visit = None
         obj.visit_next_url = self.get_next_url('visit', **options)

@@ -203,6 +203,21 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
         self.assertIsNotNone(
             response.context_data.get('appointment').visit_next_url)
 
+    def test_appointment_has_visit_next_url3(self):
+
+        class Dummy(AppointmentMixin, TemplateView):
+            template_name = 'edc_dashboard.html'
+
+        appointment = self.appointments[0]
+        kwargs = {
+            'subject_identifier': self.subject_identifier,
+            'appointment': appointment.id}
+        response = Dummy.as_view()(self.request, **kwargs)
+        self.assertEqual(
+            response.context_data.get('appointment').visit_next_url,
+            'dashboard_url,subject_identifier,appointment&subject_identifier={}&appointment={}'.format(
+                self.subject_identifier, appointment.pk))
+
     @tag('me3')
     def test_consent(self):
 

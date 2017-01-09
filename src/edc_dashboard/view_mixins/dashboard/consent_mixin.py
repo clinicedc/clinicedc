@@ -1,7 +1,8 @@
-from .appointment_mixin import AppointmentMixin
-from edc_consent.site_consents import site_consents
-from edc_consent.exceptions import ConsentDoesNotExist
 from edc_base.utils import get_utcnow
+from edc_consent.exceptions import ConsentDoesNotExist
+from edc_consent.site_consents import site_consents
+
+from .appointment_mixin import AppointmentMixin
 
 
 class ConsentMixin(AppointmentMixin):
