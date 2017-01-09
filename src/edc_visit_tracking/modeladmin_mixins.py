@@ -1,32 +1,16 @@
-from collections import OrderedDict
-
 from django.contrib import admin
-from django.core.exceptions import ImproperlyConfigured
 
 
 class CrfModelAdminMixin:
 
     """ModelAdmin subclass for models with a ForeignKey to your visit model(s)"""
 
-    visit_model = None
-    visit_attr = None
     date_hierarchy = 'report_datetime'
 
     def __init__(self, *args, **kwargs):
-        super(CrfModelAdminMixin, self).__init__(*args, **kwargs)
-        if not self.visit_model:
-            # setting this now conflicts with AppConfig
-            raise ImproperlyConfigured('Class attribute \'visit model\' on CrfModelAdminMixin '
-                                       'for model {0} may not be None. '
-                                       'Please correct.'.format(self.model._meta.label_lower))
-        if not self.visit_attr:
-            # setting this now conflicts with AppConfig
-            raise ValueError(
-                'The admin class for \'{0}\' needs to know the field attribute that points to \'{1}\'. '
-                'Specify this on the ModelAdmin class as \'visit_attr\'.'.format(
-                    self.model._meta.model._meta.verbose_name, self.visit_model._meta.verbose_name))
+        super().__init__(*args, **kwargs)
         self.list_display = list(self.list_display)
-        self.list_display.append(self.visit_attr)
+        self.list_display.append(self.visit_model_attr)
         self.list_display = tuple(self.list_display)
         self.extend_search_fields()
         self.extend_list_filter()
@@ -42,30 +26,30 @@ class CrfModelAdminMixin:
     def extend_search_fields(self):
         self.search_fields = list(self.search_fields)
         self.search_fields.extend([
-            '{}__appointment__subject_identifier'.format(self.visit_attr)])
+            '{}__appointment__subject_identifier'.format(self.visit_model_attr)])
         self.search_fields = tuple(set(self.search_fields))
 
     def extend_list_filter(self):
         """Extends list filter with additional values from the visit model."""
         self.list_filter = list(self.list_filter)
         self.list_filter.extend([
-            self.visit_attr + '__report_datetime',
-            self.visit_attr + '__reason',
-            self.visit_attr + '__appointment__appt_status',
-            self.visit_attr + '__appointment__visit_code'])
+            self.visit_model_attr + '__report_datetime',
+            self.visit_model_attr + '__reason',
+            self.visit_model_attr + '__appointment__appt_status',
+            self.visit_model_attr + '__appointment__visit_code'])
         self.list_filter = tuple(self.list_filter)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == self.visit_attr:
-            if request.GET.get(self.visit_attr):
-                kwargs["queryset"] = self.visit_model.objects.filter(id__exact=request.GET.get(self.visit_attr, 0))
+        if db_field.name == self.visit_model_attr:
+            if request.GET.get(self.visit_model_attr):
+                kwargs["queryset"] = self.visit_model.objects.filter(id__exact=request.GET.get(self.visit_model_attr, 0))
             else:
                 self.readonly_fields = list(self.readonly_fields)
                 try:
-                    self.readonly_fields.index(self.visit_attr)
+                    self.readonly_fields.index(self.visit_model_attr)
                 except ValueError:
-                    self.readonly_fields.append(self.visit_attr)
-        return super(CrfModelAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+                    self.readonly_fields.append(self.visit_model_attr)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class VisitModelAdminMixin:
@@ -92,21 +76,22 @@ class VisitModelAdminMixin:
         'comments'
     ]
     list_display = ['appointment', 'report_datetime', 'reason', 'study_status', 'created',
-                             'modified', 'user_created', 'user_modified', ]
+                    'modified', 'user_created', 'user_modified', ]
 
     search_fields = ['id', 'reason', 'appointment__visit_code',
-                              'appointment__subject_identifier']
+                     'appointment__subject_identifier']
 
-    list_filter = ['study_status',
-                            'appointment__visit_instance',
-                            'reason',
-                            'appointment__visit_code',
-                            'report_datetime',
-                            'created',
-                            'modified',
-                            'user_created',
-                            'user_modified',
-                            'hostname_created']
+    list_filter = [
+        'study_status',
+        'appointment__visit_instance',
+        'reason',
+        'appointment__visit_code',
+        'report_datetime',
+        'created',
+        'modified',
+        'user_created',
+        'user_modified',
+        'hostname_created']
     radio_fields = {'require_crfs': admin.VERTICAL}
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

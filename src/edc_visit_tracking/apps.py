@@ -33,26 +33,29 @@ class AppConfig(DjangoAppConfig):
     def visit_model(self, app_label):
         """Return the visit model for this app_label."""
         try:
-            visit_model = django_apps.get_model(*self.visit_models[app_label][MODEL_LABEL].split('.'))
+            visit_model = django_apps.get_model(
+                *self.visit_models[app_label][MODEL_LABEL].split('.'))
         except LookupError as e:
             raise ImproperlyConfigured(
-                'Invalid visit model specified. See AppConfig for \'edc_visit_tracking\'. Got {}'.format(str(e)))
+                'Invalid visit model specified. See AppConfig '
+                'for \'edc_visit_tracking\'. Got {} {}'.format(str(e), self.visit_models))
         return visit_model
 
-    def visit_model_attr(self, label):
+    def visit_model_attr(self, label_lower):
         """Return the attribute name for models that use the visit model for the given app_label."""
-        app_label, model_name = label.split('.')
+        app_label, model_name = label_lower.split('.')
         try:
             visit_model_attr = self.visit_models[app_label][ATTR]
         except KeyError as e:
             raise ImproperlyConfigured(
                 'Unable to select visit_model attr given \'{}\'. '
-                'Got {}. See \'edc_visit_tracking.AppConfig\'.'.format(label, str(e)))
+                'Got {}. See \'edc_visit_tracking.AppConfig\'.'.format(label_lower, str(e)))
         model = django_apps.get_model(app_label, model_name)
         try:
             getattr(model, visit_model_attr)
         except AttributeError as e:
             raise ImproperlyConfigured(
                 'Invalid visit model attribute \'{}\' specified for model {}. '
-                'See AppConfig for \'edc_visit_tracking\'. Got {}'.format(visit_model_attr, label, str(e)))
+                'See AppConfig for \'edc_visit_tracking\'. Got {}'.format(
+                    visit_model_attr, label_lower, str(e)))
         return visit_model_attr

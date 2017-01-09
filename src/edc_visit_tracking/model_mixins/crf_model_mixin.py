@@ -73,6 +73,11 @@ class CrfModelMixin(ModelMixin, models.Model):
         app_config = django_apps.get_app_config('edc_visit_tracking')
         return app_config.visit_model_attr(cls._meta.label_lower)
 
+    @classmethod
+    def visit_model(cls):
+        app_config = django_apps.get_app_config('edc_visit_tracking')
+        return app_config.visit_model(cls._meta.app_label)
+
     @property
     def visit(self):
         return getattr(self, self.visit_model_attr())
