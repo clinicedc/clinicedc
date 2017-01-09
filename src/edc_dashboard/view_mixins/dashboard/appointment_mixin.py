@@ -54,6 +54,7 @@ class AppointmentMixin(NextUrlMixin):
     def visit_wrapper(self, obj, **options):
         """Wraps visit instance attr of appointment and sets \'appointment.visit\' ."""
         options.update({k: v for k, v in self.kwargs.items() if k not in options})
+        options.update(appointment=obj.id)
         try:
             obj.visit = getattr(obj, self.reverse_relation_visit_attr_name)
         except AttributeError:

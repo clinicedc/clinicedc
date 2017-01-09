@@ -42,7 +42,7 @@
 								</a>
 						        <a role="button" class="btn btn-sm btn-default" 
 						        	{% if crf.entry_status == NOT_REQUIRED or not crf.instance %} disabled {% endif %} 
-						        		href="{{ crf.url }}?edc_readonly=1&visit_code={{ crf.visit_code }}&appointment={{ appointment.str_pk }}&subject_identifier={{subject_identifier}}&{{ crf.visit_attr_name }}={{ appointment.visit.pk }}">View</a>
+						        		href="{{ crf.url }}?edc_readonly=1edc_readonly_next={{ crf.next_url }}&visit_code={{ crf.visit_code }}&appointment={{ appointment.str_pk }}&subject_identifier={{subject_identifier}}&{{ crf.visit_attr_name }}={{ appointment.visit.pk }}">View</a>
 						        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
 						       	</span>
 						    </td>

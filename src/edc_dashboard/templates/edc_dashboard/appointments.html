@@ -17,7 +17,7 @@
 						        <td>{{obj.title}}</td>
 								<td>{{obj.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
 								<td><a role="button" class="btn btn-sm btn-default" href="{{ obj.get_absolute_url }}?next={{ obj.next_url }}">
-									{{ obj.get_appt_status_display | capfirst }}</a></td>
+									<i class="fa fa-pencil fa-sm" aria-hidden="true"></i> {{ obj.get_appt_status_display | capfirst }}</a></td>
 						        <td>
 						        {% if obj.appt_status == 'in_progress' %}
 						        	{% if obj.visit.id %}
@@ -29,10 +29,12 @@
 						        		{% endblock visit_button_change %}
 						        		</span>
 						        	{% else %}
+						        		<span class="pull-right">
 						        		{% block visit_button_add %}
 							        		<a role="button" class="btn btn-sm btn-warning" href="{{ visit_url }}?next={{ obj.visit_next_url }}&appointment={{ obj.str_pk }}">
-							        			Start visit</a>
+							        			<i class="fa fa-plus fa-sm" aria-hidden="true"></i> Visit</a>
 						        		{% endblock visit_button_add %}
+						        		</span>
 
 						        	{% endif %}
 						        {% endif %}

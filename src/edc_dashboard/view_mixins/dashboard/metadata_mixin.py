@@ -24,7 +24,7 @@ class MetaDataMixin(ConsentMixin):
         context.update(
             NOT_REQUIRED=NOT_REQUIRED,
             crfs=self.crfs,
-            # requisitions=self.requisitions
+            requisitions=self.requisitions
         )
         return context
 
