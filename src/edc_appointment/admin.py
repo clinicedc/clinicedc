@@ -19,7 +19,7 @@ class AppointmentAdmin(ModelAdminFormInstructionsMixin, ModelAdminNextUrlRedirec
     date_hierarchy = 'appt_datetime'
     list_display = ('subject_identifier', 'visit_code', 'appt_datetime', 'appt_type', 'appt_status')
 
-    fieldset = (
+    fieldsets = (
         (None, ({
             'fields': (
                 'appt_datetime',
