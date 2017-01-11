@@ -1,0 +1,41 @@
+
+<!--  begin paginator -->
+
+<div class="paginator" style="text-align:center">
+
+{% if show_paginator_control %}
+     <span class="step-links">
+     	<a href="{% if results.has_previous %}{% url listboard_url_name page=1 %}{% else %}#{% endif %}"
+     	  class="btn btn-sm btn-default {% if not results.has_previous %}disabled{% endif %}" role="button">
+     	      <i class="fa fa-angle-double-left fa-md"></i>
+     	</a>
+        <a href="{% if results.has_previous %}{% url listboard_url_name page=results.previous_page_number %}{% else %}#{% endif %}"
+            class="btn btn-sm btn-default {% if not results.has_previous %}disabled{% endif %}" role="button">
+                <i class="fa fa-angle-left fa-md"></i>
+        </a>
+
+    	<span class="text small">Page {{ results.number|default:"1" }} of {{ results.paginator.num_pages|default:"1" }} <i class="fa fa-reorder fa-md"></i> {{ result_count_total|default:'0' }} result{{ result_count_total|pluralize }}</span>
+
+        <a href="{% if results.has_next %}{% url listboard_url_name page=results.next_page_number %}{% else %}#{% endif %}"
+            class="btn btn-sm btn-default {% if not results.has_next %}disabled{% endif %}" role="button">
+                <i class="fa fa-angle-right fa-md"></i>
+        </a>
+    	<a href="{% if results.has_next %}{% url listboard_url_name page=results.paginator.num_pages %}{% else %}#{% endif %}"
+    	   class="btn btn-sm btn-default {% if not results.has_next %}disabled{% endif %}" role="button">
+    	       <i class="fa fa-angle-double-right fa-md"></i>
+        </a>
+    </span>
+{% else %}
+	<span class="text small"><i class="fa fa-reorder fa-md"></i> {{ result_count_total|default:'0' }} result{{ result_count_total|pluralize }}</span>
+{% endif %}
+{% if search_term %}
+	<span class="text small">
+	   <a role="button" href="{% url listboard_url_name %}" title="undo search filter"
+	       class="btn btn-default btn-sm">
+	           <i class="fa fa-undo fa-sm"></i>
+	   </a></span>
+{% endif %}
+
+</div>
+
+<!--  end paginator -->
