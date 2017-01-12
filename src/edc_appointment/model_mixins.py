@@ -169,6 +169,11 @@ class CreateAppointmentsMixin(models.Model):
         app_config = django_apps.get_app_config('edc_appointment')
         return app_config.default_appt_type
 
+    @property
+    def extra_create_appointment_options(self):
+        """User can add extra options for appointment.objects.create."""
+        return {}
+
     def create_appointments(self, base_appt_datetime=None):
         """Creates appointments when called by post_save signal.
 
@@ -222,6 +227,7 @@ class CreateAppointmentsMixin(models.Model):
                 appointment.save(update_fields=['appt_datetime', 'timepoint_datetime'])
         except self.appointment_model.DoesNotExist:
             try:
+                options.update(self.extra_create_appointment_options)
                 appointment = self.appointment_model.objects.create(
                     **options,
                     timepoint_datetime=timepoint_datetime,
