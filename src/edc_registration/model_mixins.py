@@ -95,7 +95,7 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
 
     relative_identifier = models.CharField(
         verbose_name="Identifier of immediate relation",
-        max_length=25,
+        max_length=36,
         null=True,
         blank=True,
         help_text="For example, mother's identifier, if available / appropriate")
@@ -106,7 +106,7 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
 
     identity_or_pk = models.CharField(
         verbose_name="identity or pk",
-        max_length=50,
+        max_length=75,
         unique=True,
         default=get_uuid,
         editable=False,
