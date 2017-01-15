@@ -4,13 +4,17 @@ from arrow.parser import ParserError
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
-from django.views.generic.edit import FormView
 
 from edc_dashboard.paginator_mixin import PaginatorMixin
 from edc_search.forms import SearchForm
 
 
-class SearchViewMixin(PaginatorMixin, FormView):
+class SearchViewMixin(PaginatorMixin):
+
+    """Adds a search form that inserts a paginated list of wrapped models
+    into the context.
+
+    Declare with a FormView."""
 
     form_class = SearchForm
     search_model = None
