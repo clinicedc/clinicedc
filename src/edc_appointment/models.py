@@ -1,12 +1,12 @@
 from django.db import models
 
-from edc_base.model.models import BaseUuidModel, HistoricalRecords, UrlMixin
+from edc_base.model.models import BaseUuidModel, HistoricalRecords
 
 from .managers import AppointmentManager
 from .model_mixins import AppointmentModelMixin
 
 
-class Appointment(AppointmentModelMixin, UrlMixin, BaseUuidModel):
+class Appointment(AppointmentModelMixin, BaseUuidModel):
 
     ADMIN_SITE_NAME = 'edc_appointment_admin'
 
