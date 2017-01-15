@@ -1,9 +1,14 @@
-from ..next_url_mixin import NextUrlMixin
+from ..url_mixins import ExtraQuerystringMixin, NextUrlMixin
 
 
-class Wrapper(NextUrlMixin):
+class WrapperError(Exception):
+    pass
+
+
+class Wrapper(NextUrlMixin, ExtraQuerystringMixin):
 
     def __init__(self, obj):
+        super().__init__()
         self._wrapped = True
         self._original_object = obj
 

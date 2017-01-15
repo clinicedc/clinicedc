@@ -12,12 +12,6 @@ class FilteredListViewMixin(PaginatorMixin):
         self.filter_options = {}
         super().__init__(**kwargs)
 
-    @property
-    def object_wrappers(self, key=None):
-        object_wrappers = super().object_wrappers
-        object_wrappers.update(filtered=self.filtered_model_wrapper_class)
-        return object_wrappers
-
     def get_context_data(self, **kwargs):
         """Updates the context with the paginated filtered results and a few other simple attrs.
 

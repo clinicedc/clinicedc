@@ -16,14 +16,14 @@
 					            <td>{{obj.visit_code}}</td>
 						        <td>{{obj.title}}</td>
 								<td>{{obj.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
-								<td><a role="button" class="btn btn-sm btn-default" href="{{ obj.get_absolute_url }}?next={{ obj.next_url }}">
+								<td><a role="button" class="btn btn-sm btn-default" href="{{ obj.get_absolute_url }}?next={{ obj.next_url }}&{{ obj.extra_querystring }}">
 									<i class="fa fa-pencil fa-sm" aria-hidden="true"></i> {{ obj.get_appt_status_display | capfirst }}</a></td>
 						        <td>
 						        {% if obj.appt_status == 'in_progress' %}
 						        	{% if obj.visit.id %}
 						        		<span class="pull-right">
 						        		{% block visit_button_change %}
-						        			<a role="button" class="btn btn-sm btn-default" href="{% url dashboard_url appointment=obj.str_pk subject_identifier=subject_identifier %}?{{ obj.next_url }}">
+						        			<a role="button" class="btn btn-sm btn-default" href="{% url dashboard_url appointment=obj.str_pk subject_identifier=subject_identifier %}?{{ obj.next_url }}&{{ obj.extra_querystring }}">
 						        				<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Forms
 						        			</a>
 						        		{% endblock visit_button_change %}

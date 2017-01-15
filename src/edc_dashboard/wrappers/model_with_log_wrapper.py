@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from edc_base.utils import get_utcnow
 
-from .model_wrapper import model_name_as_attr
+from .utils import model_name_as_attr
 from .wrapper import Wrapper
 
 
@@ -12,6 +12,13 @@ class ModelWithLogWrapperError(Exception):
 
 
 class ModelWithLogWrapper(Wrapper):
+
+    """A model wrapper that expects the given model instance to
+    follow the LogEntry relational schema.
+
+    For example:
+        Plot->PlotLog->PlotLogEntry where Plot is the model that the
+        class is instantiated with."""
 
     model_wrapper_class = None
     log_entry_model_wrapper_class = None
@@ -27,6 +34,8 @@ class ModelWithLogWrapper(Wrapper):
 
     def __init__(self, obj, report_datetime=None):
         super().__init__(obj)
+        if not obj:
+            raise ModelWithLogWrapperError('Null objects cannot be wrapped.')
         if self._original_object._meta.label_lower != self.model_wrapper_class.model_name:
             raise ModelWithLogWrapperError('\'{}\' expected \'{}\'. Got \'{}\' instead.'.format(
                 self.__class__.__name__,
@@ -35,7 +44,7 @@ class ModelWithLogWrapper(Wrapper):
         if self.parent_lookup:
             self.parent = self.lookup_parent(obj)
         else:
-            self.parent = obj
+            self.parent = obj  # e.g. Plot
         self.log = None
         self.log_entry = None
         self.log_entry_set = None
@@ -74,9 +83,17 @@ class ModelWithLogWrapper(Wrapper):
 
     @property
     def mock_log_entry(self):
+        # TODO: can we do away with this????
         class MockLogEntry:
+            def get_absolute_url(self):
+                return self.log_entry_model.get_absolute_url
+
             class Meta:
                 label_lower = self.log_entry_model._meta.label_lower
+                verbose_name = 'Mock'
+                verbose_name_plural = 'Mock'
+                def get_fields(self):
+                    return []
             _mocked_object = True
             _meta = Meta()
         mock_log_entry = MockLogEntry()

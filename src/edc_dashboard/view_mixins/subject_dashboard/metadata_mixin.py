@@ -6,7 +6,6 @@ from django.db import OperationalError
 
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
-from .consent_mixin import ConsentMixin
 from edc_metadata.constants import NOT_REQUIRED
 
 
@@ -17,7 +16,7 @@ class DashboardError(Exception):
     pass
 
 
-class MetaDataMixin(ConsentMixin):
+class MetaDataMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

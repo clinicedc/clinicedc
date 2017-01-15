@@ -1,9 +1,8 @@
 
 
-class Base:
+class SubjectIdentifierViewMixin:
 
     dashboard_url = 'dashboard_url'
-    base_html = 'edc_base/base.html'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -20,6 +19,5 @@ class Base:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
-            base_html=self.base_html,
             dashboard_url=self.dashboard_url)
         return context

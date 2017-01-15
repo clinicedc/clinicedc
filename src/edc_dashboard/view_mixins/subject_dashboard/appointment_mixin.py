@@ -1,9 +1,7 @@
 from django.apps import apps as django_apps
 
-from .next_url_mixin import NextUrlMixin
 
-
-class AppointmentMixin(NextUrlMixin):
+class AppointmentMixin:
 
     """A view mixin to handle appointments on the dashboard.
 
@@ -18,6 +16,7 @@ class AppointmentMixin(NextUrlMixin):
     """
 
     reverse_relation_visit_attr_name = 'subjectvisit'
+    next_url_name = 'dashboard_url'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
