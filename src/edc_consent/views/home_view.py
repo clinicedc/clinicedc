@@ -3,7 +3,7 @@ from django.views.generic.base import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_consent.admin_site import edc_consent_admin
 
-from .site_consents import site_consents
+from ..site_consents import site_consents
 
 
 class HomeView(EdcBaseViewMixin, TemplateView):
