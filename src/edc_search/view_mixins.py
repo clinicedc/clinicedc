@@ -31,7 +31,7 @@ class SearchViewMixin(PaginatorMixin):
         options = {}
         try:
             search_term = arrow.get(search_term)
-        except ParserError:
+        except (ParserError, ValueError):
             try:
                 field, value = search_term.split('=')
                 options = {field: value}
