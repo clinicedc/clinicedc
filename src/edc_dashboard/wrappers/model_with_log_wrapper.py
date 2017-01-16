@@ -90,8 +90,10 @@ class ModelWithLogWrapper(Wrapper):
 
             class Meta:
                 label_lower = self.log_entry_model._meta.label_lower
+                label = self.log_entry_model._meta.label
                 verbose_name = 'Mock'
                 verbose_name_plural = 'Mock'
+
                 def get_fields(self):
                     return []
             _mocked_object = True

@@ -18,12 +18,20 @@ class DashboardError(Exception):
 
 class MetaDataMixin:
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.crfs = None
+        self.requisitions = None
+
+    def get(self, request, *args, **kwargs):
+        kwargs['crfs'] = self.get_crfs(**kwargs)
+        kwargs['requisitions'] = self.get_requisitions(**kwargs)
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
             NOT_REQUIRED=NOT_REQUIRED,
-            crfs=self.crfs,
-            requisitions=self.requisitions
         )
         return context
 
@@ -33,16 +41,7 @@ class MetaDataMixin:
             subject_identifier=self.subject_identifier,
             visit_code=self.appointment.visit_code).order_by('show_order')
 
-    @property
-    def next_url_parameters(self):
-        """Add these additional parameters to the next url"""
-        parameters = super().next_url_parameters
-        parameters.update({
-            'crfs': ['subject_identifier', 'appointment']})
-        return parameters
-
-    @property
-    def crfs(self):
+    def get_crfs(self, **kwargs):
         crfs = []
         if self.appointment:
             for metadata in self.crf_metadata_set:
@@ -87,8 +86,7 @@ class MetaDataMixin:
             subject_identifier=self.subject_identifier,
             visit_code=self.appointment.visit_code)
 
-    @property
-    def requisitions(self):
+    def get_requisitions(self, **kwargs):
         requisitions = []
         if self.appointment:
             for metadata in self.requisition_metadata_set:

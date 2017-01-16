@@ -2,6 +2,7 @@ from django.db.models.fields.reverse_related import ForeignObjectRel
 
 from .utils import model_name_as_attr
 from .wrapper import Wrapper
+from django.utils.functional import lazy_property
 
 
 class ModelWrapperError(Exception):
@@ -44,49 +45,35 @@ class ModelWrapper(Wrapper):
         except AssertionError:
             raise ModelWrapperError(
                 'Object is already wrapped. Got {}'.format(obj))
+        self.add_extra_attributes_before(obj)
         self.wrapped_object = self.model_url_wrapper(obj)
-        self.wrap_me()
+        self.add_extra_attributes_after()
 
-    def wrap_me(self):
-        """Sets additional attrs onto self."""
-        try:
-            self.add_model_audit_fields()
-        except AttributeError:
-            pass
-        else:
-            self.id = str(self._original_object.id)
-            model_name = model_name_as_attr(self._original_object)
-            setattr(self, model_name, self.wrapped_object)
-        self.add_from_wrapped_model()
-
-    def add_model_audit_fields(self):
-        """Adds a models audit fields to self."""
-        self.created = self._original_object.created
-        self.modified = self._original_object.modified
-        self.user_created = self._original_object.user_created
-        self.user_modified = self._original_object.user_modified
-        self.hostname_created = self._original_object.hostname_created
-        self.hostname_modified = self._original_object.hostname_modified
-        self.revision = self._original_object.revision
-
-    def add_from_wrapped_model(self):
-        """Add field attrs from the wrapped object to self."""
-        print(self)
-        for field in self.wrapped_object._meta.get_fields():
-            if not hasattr(self, field.name) and not isinstance(field, ForeignObjectRel):
-                setattr(self, field.name, getattr(self.wrapped_object, field.name))
-
-        self.verbose_name = self.wrapped_object._meta.verbose_name
-        self.verbose_name_plural = self.wrapped_object._meta.verbose_name_plural
+    def add_extra_attributes_after(self, **kwargs):
+        """Called after the model is wrapped."""
+        model_name = model_name_as_attr(self._original_object)
+        setattr(self, model_name, self.wrapped_object)
         # add admin urls.
         self.add_url_name = self.wrapped_object.add_url_name
         self.change_url_name = self.wrapped_object.change_url_name
-        self.get_absolute_url = self.wrapped_object.get_absolute_url
-        # add next url after save of model in admin
         self.next_url = self.wrapped_object.next_url
-        # add any extra querystring paramters, e.g. a foreign key value
-        # to filter a select list
         self.extra_querystring = self.wrapped_object.extra_querystring
+        return None
+
+    def add_extra_attributes_before(self, obj, **kwargs):
+        """Called before the model is wrapped."""
+        self.add_model_fields(obj)
+        return None
+
+    def add_model_fields(self, obj):
+        """Add field attrs to self before the model is wrapped."""
+        for field in obj._meta.get_fields():
+            if not hasattr(self, field.name) and not isinstance(field, ForeignObjectRel):
+                setattr(self, field.name, getattr(obj, field.name))
+
+        self.verbose_name = obj._meta.verbose_name
+        self.verbose_name_plural = obj._meta.verbose_name_plural
+        self.get_absolute_url = obj.get_absolute_url
 
     def model_url_wrapper(self, obj):
         """Add urls to obj, wrapped object."""

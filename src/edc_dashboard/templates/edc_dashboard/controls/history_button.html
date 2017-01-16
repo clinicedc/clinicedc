@@ -13,7 +13,7 @@
 	{% endif %}
 
 	<button title = "{{ title|default:'History' }}" type="button" class="btn btn-default btn-sm">
-	  <i class="fa fa-history fa-lg"></i> <i class="fa fa-files-o fa-lg"></i></button>
+	  <i class="fa fa-history fa-lg"></i> <i class="fa fa-files-o fa-lg"></i> {{ history_objects|length }}</button>
 	<div class="btn-group">
 	  <button title="History" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
 	      <span class="caret"></span></button>
