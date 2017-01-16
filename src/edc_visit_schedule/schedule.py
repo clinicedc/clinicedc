@@ -3,7 +3,7 @@ import re
 from dateutil.relativedelta import relativedelta
 
 from django.apps import apps as django_apps
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 
 from .exceptions import AlreadyRegistered, ScheduleError, CrfError
 from .visit import Visit
@@ -30,6 +30,14 @@ class Schedule:
 
     def __str__(self):
         return self.name
+
+    def enrollment_instance(self, subject_identifier):
+        """Returns the enrollment model instance or None."""
+        try:
+            enrollment_instance = self.enrollment_model.objects.get(subject_identifier=subject_identifier)
+        except ObjectDoesNotExist:
+            enrollment_instance = None
+        return enrollment_instance
 
     def add_visit(self, code, **kwargs):
         visit = Visit(code, **kwargs)
