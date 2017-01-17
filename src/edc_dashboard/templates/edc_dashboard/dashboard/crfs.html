@@ -1,14 +1,23 @@
 {% load tz %}
 <div class="panel-group">
-	<div class="panel panel-warning">
+	<div class="panel panel-default">
 			<div class="panel-heading clearfix">
-				<i class="fa fa-list-alt fa-lg" aria-hidden="true"></i> {{ appointment.title|lower|title }} started on {{ appointment.visit.report_datetime|localtime|date:"Y-m-d H:i" }}
+                <h6 class="panel-title">
+			     <i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>
+			     {{ appointment.title|lower|title }} {{ appointment.visit.report_datetime|localtime|date:"Y-m-d" }}
 				<span class="pull-right">
+
 					{% block schedule_button %}
-					<a href="{% url dashboard_url subject_identifier=subject_identifier %} role="button" class="btn btn-sm btn-default">
-						<i class="fa fa-reply fa-sm" aria-hidden="true"></i> <i class="fa fa-calendar fa-sm"></i> Schedule
+
+					<a href="{% url dashboard_url_name subject_identifier=subject_identifier %}"
+					   role="button" class="btn btn-sm btn-default">
+						<i class="fa fa-reply fa-fw" aria-hidden="true"></i> <i class="fa fa-calendar fa-fw"></i> Schedule
 					</a>
+
 					{% endblock schedule_button %}
+
+                </h6>
+
 				</span>
 			</div>
 			<div class="table table-responsive">
@@ -19,9 +28,9 @@
 						    <td>{{ forloop.counter }}</td>
 						    <td>
 						    	{% if crf.entry_status == NOT_REQUIRED %}
-						        	<del>{{ crf.title|title }}</del>
+						        	<del>{{ crf.object.verbose_name|title }}</del>
 						        {% else %}
-						        	{{ crf.title|title }}
+						        	{{ crf.object.verbose_name|title }}
 								    {% if crf.object.user_created %}
 									    <p class="text small text-info">
 										    {{ crf.object.user_created }} on {{ crf.object.created|date:"Y-m-d  H:i" }}
@@ -32,9 +41,9 @@
 						    </td>                
 						    <td>
 								<span class="pull-right">
-								<a role="button" class="btn btn-sm {% if crf.object %}btn-success{% else %}{% if crf.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
-										href="{{ crf.url }}?next={{ crf.next_url }}&visit_code={{ crf.visit_code }}&appointment={{ appointment.str_pk }}&subject_identifier={{subject_identifier}}&{{ crf.visit_attr_name }}={{ appointment.visit.pk }}">
-										{% if crf.object %}
+								<a role="button" class="btn btn-sm {% if crf.object.id %}btn-success{% else %}{% if crf.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
+										href="{{ crf.object.get_absolute_url }}?next={{ crf.object.next_url }}&{{ crf.object.extra_querystring }}">
+										{% if crf.object.id %}
 											<span class="glyphicon glyphicon-pencil"></span> Edit
 										{% else %}
 											<span class="glyphicon glyphicon-plus"></span> Add
@@ -42,7 +51,7 @@
 								</a>
 						        <a role="button" class="btn btn-sm btn-default" 
 						        	{% if crf.entry_status == NOT_REQUIRED or not crf.object %} disabled {% endif %} 
-						        		href="{{ crf.url }}?edc_readonly=1edc_readonly_next={{ crf.next_url }}&visit_code={{ crf.visit_code }}&appointment={{ appointment.str_pk }}&subject_identifier={{subject_identifier}}&{{ crf.visit_attr_name }}={{ appointment.visit.pk }}">View</a>
+						        		href="{{ crf.object.get_absolute_url }}?edc_readonly=1&edc_readonly_next={{ crf.object.next_url }}&&{{ crf.object.extra_querystring }}">View</a>
 						        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
 						       	</span>
 						    </td>

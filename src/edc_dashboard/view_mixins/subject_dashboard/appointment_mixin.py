@@ -23,14 +23,14 @@ class AppointmentMixin:
             appointment = self.appointment_model.objects.get(
                 id=kwargs.get('appointment'))
         except self.appointment_model.DoesNotExist:
-            kwargs['appointment'] = None
+            self.appointment = None  # self.get_empty_appointment(**kwargs)
         else:
             self.appointment = self.appointment_model_wrapper_class(appointment)
-            kwargs['appointment'] = self.appointment
+        kwargs['appointment'] = self.appointment
 
         appointments = self.appointment_model.objects.filter(
             subject_identifier=self.subject_identifier).order_by('visit_code')
-        self.appointments = [self.appointment_model_wrapper_class(obj) for obj in appointments]
+        self.appointments = (self.appointment_model_wrapper_class(obj) for obj in appointments)
         kwargs['appointments'] = self.appointments
         return super().get(request, *args, **kwargs)
 
@@ -45,3 +45,6 @@ class AppointmentMixin:
     @property
     def appointment_model(self):
         return django_apps.get_app_config('edc_appointment').model
+
+    def get_empty_appointment(self, **kwargs):
+        return self.appointment_model()

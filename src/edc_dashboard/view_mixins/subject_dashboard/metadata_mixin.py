@@ -68,7 +68,8 @@ class MetaDataMixin:
                     else:
 
                         metadata.object = self.crf_model_wrapper_class(
-                            obj, key='crf')
+                            obj, key='crf',
+                            model_name=metadata.model_class._meta.label_lower)
 
                 except ObjectDoesNotExist:
                     try:
@@ -82,7 +83,7 @@ class MetaDataMixin:
                     metadata.object = self.crf_model_wrapper_class(
                         metadata.model_class(
                             **{metadata.visit_attr_name: visit}),
-                        persistent=False,
+                        model_name=metadata.model_class._meta.label_lower,
                         key='crf')
 
                 crfs.append(metadata)
