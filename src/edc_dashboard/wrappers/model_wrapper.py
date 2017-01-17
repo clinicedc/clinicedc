@@ -66,6 +66,9 @@ class ModelWrapper(Wrapper):
             self._original_object.__class__.__name__,
             self._original_object, self._original_object.id)
 
+    def __bool__(self):
+        return True if self.id else False
+
     def add_extra_attributes_after(self, **kwargs):
         """Called after the model is wrapped."""
         model_name = model_name_as_attr(self._original_object)
