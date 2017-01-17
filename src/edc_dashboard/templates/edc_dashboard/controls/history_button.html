@@ -19,7 +19,7 @@
 	      <span class="caret"></span></button>
 	      <ul class="dropdown-menu" role="menu">
 	        <li class="dropdown-header">{{ title|default:"History" }}</li>
-	        {% for obj in history_objects %}
+	        {% for obj in history_objects reversed %}
 	          <li><a href="{{ obj.get_absolute_url }}?next={{ obj.next_url }}&{{ obj.extra_querystring }}">
 	               {{ obj.report_datetime }}</a></li>
 	        {% endfor %}

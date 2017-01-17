@@ -92,8 +92,7 @@ class ModelWrapper(Wrapper):
                     setattr(self, field.name, getattr(obj, field.name))
                 except ObjectDoesNotExist:
                     pass
-                except ValueError as e:
-                    print(e)
+                except ValueError:
                     pass
 
         self.verbose_name = obj._meta.verbose_name
