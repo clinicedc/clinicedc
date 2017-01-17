@@ -56,7 +56,7 @@ class ModelWrapper(Wrapper):
         except AssertionError:
             raise ModelWrapperError(
                 'Object is already wrapped. Got {}'.format(obj))
-        self.add_extra_attributes_before(obj)
+        self.add_extra_attributes_before(obj, **kwargs)
         self.wrapped_object = self.model_url_wrapper(obj)
         self.add_extra_attributes_after()
 
@@ -81,6 +81,8 @@ class ModelWrapper(Wrapper):
         """Called before the model is wrapped."""
         self.add_model_fields(obj)
         self.str_pk = str(obj.id)
+        for key, value in kwargs.items():
+            setattr(self, key, value)
         return None
 
     def add_model_fields(self, obj):
