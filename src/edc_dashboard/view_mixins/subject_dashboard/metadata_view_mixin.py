@@ -16,7 +16,7 @@ class DashboardError(Exception):
     pass
 
 
-class MetaDataMixin:
+class MetaDataViewMixin:
 
     crf_model_wrapper_class = None
     requisition_model_wrapper_class = None

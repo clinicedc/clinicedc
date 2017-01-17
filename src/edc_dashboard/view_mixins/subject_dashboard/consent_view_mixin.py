@@ -3,7 +3,7 @@ from edc_consent.exceptions import ConsentDoesNotExist
 from edc_consent.site_consents import site_consents
 
 
-class ConsentMixin:
+class ConsentViewMixin:
 
     consent_model_wrapper_class = None
 

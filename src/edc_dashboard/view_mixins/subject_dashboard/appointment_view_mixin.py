@@ -3,7 +3,7 @@ from django.apps import apps as django_apps
 from edc_appointment.constants import NEW_APPT, IN_PROGRESS_APPT
 
 
-class AppointmentMixin:
+class AppointmentViewMixin:
 
     """A view mixin to handle appointments on the dashboard.
     """
