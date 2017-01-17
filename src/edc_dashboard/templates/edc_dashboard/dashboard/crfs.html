@@ -1,10 +1,9 @@
 {% load tz %}
-<div class="panel-group">
 	<div class="panel panel-default">
 			<div class="panel-heading clearfix">
                 <h6 class="panel-title">
 			     <i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>
-			     {{ appointment.title|lower|title }} {{ appointment.visit.report_datetime|localtime|date:"Y-m-d" }}
+			     {{ appointment.visit_code }} {{ appointment.title|lower|title }} {{ appointment.visit.report_datetime|localtime|date:"Y-m-d" }}
 				<span class="pull-right">
 
 					{% block schedule_button %}
@@ -61,4 +60,3 @@
 			</table>
 		</div>
 	</div>
-</div>

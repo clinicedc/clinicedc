@@ -1,9 +1,12 @@
-from .subject_dashboard import MetaDataMixin, ConsentMixin, AppointmentMixin, VisitScheduleViewMixin
+from .subject_dashboard import (
+    MetaDataMixin, ConsentMixin, AppointmentMixin, VisitScheduleViewMixin,
+    ShowHideViewMixin)
 from .subject_identifier_view_mixin import SubjectIdentifierViewMixin
 
 
 class SubjectDashboardViewMixin(
-        SubjectIdentifierViewMixin, ConsentMixin, VisitScheduleViewMixin, AppointmentMixin, MetaDataMixin):
+        ShowHideViewMixin, SubjectIdentifierViewMixin, ConsentMixin,
+        VisitScheduleViewMixin, AppointmentMixin, MetaDataMixin):
 
     """Adds the show form attr from the URL."""
 

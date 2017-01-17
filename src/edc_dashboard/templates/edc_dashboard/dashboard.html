@@ -23,23 +23,30 @@
         
 	    {% for visit_schedule in visit_schedules %}
 	
-          <div class="panel panel-default">
+          <div class="panel panel-info">
 		      <div class="panel-heading">
 		          <h6 class="panel-title"><i class="fa fa-calendar fa-lg fa-fw"></i> 
 		              <a data-toggle="collapse" data-parent="#accordion_schedule"
-		                  href="#visit_schedule{{ forloop.counter }}">{{ visit_schedule.verbose_name }}</a>
+		                  href="#visit_schedule{{ forloop.counter }}">{{ visit_schedule.verbose_name }}
+		              </a>
 		          </h6>
 		      </div>
 		      <div id="visit_schedule{{ forloop.counter }}" class="panel-collapse collapse {% if forloop.first %}in{% endif %}">
 
-			  	{% block appointments %}
-			  	{% endblock appointments %}
+			  	{% if not appointment %}
 
-	            {% block crfs %}
-	            {% endblock crfs %}
+				  	{% block appointments %}
+				  	{% endblock appointments %}
+
+                {% else %}
+
+		            {% block crfs %}
+		            {% endblock crfs %}
 	        
-	            {% block requisitions %}
-	            {% endblock requisitions %}
+		            {% block requisitions %}
+		            {% endblock requisitions %}
+		        
+		        {% endif %}
 
 			  </div>
 	       </div>
