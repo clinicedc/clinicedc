@@ -22,13 +22,16 @@ class UrlMixin:
         return self.url_instance_attrs
 
     def url_parameters(self, obj=None, **options):
-        """Prepares a dictionary of parameters available to  the class."""
+        """Prepares a dictionary of parameters available to  the class.
+
+        Attributes on self take precedence over those of the same name
+        on the model instance."""
         options = OrderedDict(**options)
         for attr in self.get_url_instance_attrs():
             try:
-                value = getattr(obj, attr)
-            except AttributeError:
                 value = getattr(self, attr)
+            except AttributeError:
+                value = getattr(obj, attr)
             options.update({attr: value or ''})
         return self.sanitize_parameters(**options)
 

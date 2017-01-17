@@ -108,8 +108,3 @@ class ModelWrapper(Wrapper):
         obj = self.object_url_wrapper(
             key=self.key, obj=obj)
         return obj
-
-    def object_url_wrapper(self, key=None, obj=None):
-        """Override to add admin urls to the model instance."""
-        obj = super().object_url_wrapper(key=self.key, obj=obj)
-        return obj

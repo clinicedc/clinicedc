@@ -46,5 +46,5 @@ class AppointmentMixin:
     def appointment_model(self):
         return django_apps.get_app_config('edc_appointment').model
 
-    def get_empty_appointment(self, **kwargs):
+    def empty_appointment(self, **kwargs):
         return self.appointment_model()

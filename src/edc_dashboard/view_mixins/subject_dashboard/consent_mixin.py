@@ -40,7 +40,18 @@ class ConsentMixin:
                 self.subject_identifier, report_datetime=self.get_utcnow())
             if consent:
                 self._consent = self.consent_model_wrapper_class(consent)
+            else:
+                self._consent = self.consent_model_wrapper_class(self.empty_consent)
         return self._consent
+
+    @property
+    def empty_consent(self):
+        """Returns an unsaved consent model instance.
+
+        Override to include additional attrs to instantiate."""
+        return self.consent_model(
+            subject_identifier=self.subject_identifier,
+            version=self.consent_object.version)
 
     @property
     def consents(self):
