@@ -59,10 +59,9 @@ class CrfModelMixin(ModelMixin, models.Model):
                     'report_datetime')
         super().clean()
 
+    @property
     def common_clean_exceptions(self):
-        common_clean_exceptions = super().common_clean_exceptions
-        common_clean_exceptions.extend([VisitReportDateAllowanceError])
-        return common_clean_exceptions
+        return super().common_clean_exceptions + [VisitReportDateAllowanceError]
 
     def natural_key(self):
         return (getattr(self, self.visit_model_attr()).natural_key(), )

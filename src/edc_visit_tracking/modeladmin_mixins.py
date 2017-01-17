@@ -42,13 +42,8 @@ class CrfModelAdminMixin:
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == self.visit_model_attr:
             if request.GET.get(self.visit_model_attr):
-                kwargs["queryset"] = self.visit_model.objects.filter(id__exact=request.GET.get(self.visit_model_attr, 0))
-            else:
-                self.readonly_fields = list(self.readonly_fields)
-                try:
-                    self.readonly_fields.index(self.visit_model_attr)
-                except ValueError:
-                    self.readonly_fields.append(self.visit_model_attr)
+                kwargs["queryset"] = self.visit_model.objects.filter(
+                    id__exact=request.GET.get(self.visit_model_attr, 0))
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
