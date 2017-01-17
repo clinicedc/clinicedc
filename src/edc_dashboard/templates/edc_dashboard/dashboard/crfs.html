@@ -22,26 +22,26 @@
 						        	<del>{{ crf.title|title }}</del>
 						        {% else %}
 						        	{{ crf.title|title }}
-								    {% if crf.instance.user_created %}
+								    {% if crf.object.user_created %}
 									    <p class="text small text-info">
-										    {{ crf.instance.user_created }} on {{ crf.instance.created|date:"Y-m-d  H:i" }}
-											{% if crf.instance.user_modified %} | {{ crf.instance.user_modified }} on {{ crf.instance.modified|date:"Y-m-d H:i" }}{% endif %}
+										    {{ crf.object.user_created }} on {{ crf.object.created|date:"Y-m-d  H:i" }}
+											{% if crf.object.user_modified %} | {{ crf.object.user_modified }} on {{ crf.object.modified|date:"Y-m-d H:i" }}{% endif %}
 										</p>
 									{% endif %}
 						   		{% endif %}
 						    </td>                
 						    <td>
 								<span class="pull-right">
-								<a role="button" class="btn btn-sm {% if crf.instance %}btn-success{% else %}{% if crf.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
+								<a role="button" class="btn btn-sm {% if crf.object %}btn-success{% else %}{% if crf.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
 										href="{{ crf.url }}?next={{ crf.next_url }}&visit_code={{ crf.visit_code }}&appointment={{ appointment.str_pk }}&subject_identifier={{subject_identifier}}&{{ crf.visit_attr_name }}={{ appointment.visit.pk }}">
-										{% if crf.instance %}
+										{% if crf.object %}
 											<span class="glyphicon glyphicon-pencil"></span> Edit
 										{% else %}
 											<span class="glyphicon glyphicon-plus"></span> Add
 										{% endif %}
 								</a>
 						        <a role="button" class="btn btn-sm btn-default" 
-						        	{% if crf.entry_status == NOT_REQUIRED or not crf.instance %} disabled {% endif %} 
+						        	{% if crf.entry_status == NOT_REQUIRED or not crf.object %} disabled {% endif %} 
 						        		href="{{ crf.url }}?edc_readonly=1edc_readonly_next={{ crf.next_url }}&visit_code={{ crf.visit_code }}&appointment={{ appointment.str_pk }}&subject_identifier={{subject_identifier}}&{{ crf.visit_attr_name }}={{ appointment.visit.pk }}">View</a>
 						        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
 						       	</span>

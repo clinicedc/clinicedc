@@ -20,13 +20,13 @@
 					   		{% endif %}
 			    		</td>
 			    		<td>
-			    			{% if requisition.instance %}
-			    				{{ requisition.instance.requisition_identifier }}
+			    			{% if requisition.object %}
+			    				{{ requisition.object.requisition_identifier }}
 			    			{% endif %}
 		    			</td>
 					    <td>
 							<span class="pull-right">
-							<a role="button" class="btn btn-sm {% if requisition.instance %}btn-success{% else %}btn-danger{% endif %}" href="{{ requisition.url }}?visit_code={{ requisition.visit_code }}&selected_appointment={{ selected_appointment.str_pk }}&subject_identifier={{ subject_identifier }}&panel_name={{ requisition.panel_name }}&next={{ dashboard_url }},subject_identifier,selected_appointment">{% if requisition.instance %}Edit{% else %}Add{% endif %}</a>
+							<a role="button" class="btn btn-sm {% if requisition.object %}btn-success{% else %}btn-danger{% endif %}" href="{{ requisition.url }}?visit_code={{ requisition.visit_code }}&selected_appointment={{ selected_appointment.str_pk }}&subject_identifier={{ subject_identifier }}&panel_name={{ requisition.panel_name }}&next={{ dashboard_url }},subject_identifier,selected_appointment">{% if requisition.object %}Edit{% else %}Add{% endif %}</a>
 					        <a href="#" role="button" class="btn btn-sm btn-default">View</a>
 					        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
 					       	</span>

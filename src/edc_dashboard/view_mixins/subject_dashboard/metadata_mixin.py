@@ -1,6 +1,6 @@
 import sys
 
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.db import OperationalError
 
@@ -17,6 +17,9 @@ class DashboardError(Exception):
 
 
 class MetaDataMixin:
+
+    crf_model_wrapper_class = None
+    requisition_model_wrapper_class = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -44,12 +47,16 @@ class MetaDataMixin:
     def get_crfs(self, **kwargs):
         crfs = []
         if self.appointment:
+            try:
+                visit = self.appointment.visit._original_object
+            except AttributeError:
+                visit = self.appointment.visit
             for metadata in self.crf_metadata_set:
                 try:
                     obj = None
                     options = {
-                        '{}__appointment'.format(
-                            metadata.model_class.visit_model_attr()): self.appointment}
+                        '{}'.format(
+                            metadata.model_class.visit_model_attr()): visit}
                     try:
                         obj = metadata.model_class.objects.get(**options)
                     except AttributeError as e:
@@ -59,14 +66,11 @@ class MetaDataMixin:
                     except OperationalError as e:
                         self.handle_operational_error(metadata)
                     else:
-                        metadata.instance = obj
-                        metadata.visit_attr_name = metadata.model_class.visit_model_attr()
-                        metadata.visit = getattr(
-                            metadata.instance, metadata.visit_attr_name)
-                        metadata.url = obj.get_absolute_url()
-                        metadata.title = obj._meta.verbose_name
-                except metadata.model_class.DoesNotExist:
-                    metadata.instance = None
+
+                        metadata.object = self.crf_model_wrapper_class(
+                            obj, key='crf')
+
+                except ObjectDoesNotExist:
                     try:
                         metadata.visit_attr_name = metadata.model_class.visit_model_attr()
                     except AttributeError as e:
@@ -74,9 +78,13 @@ class MetaDataMixin:
                             'Model {} is not configured as a CRF model. '
                             'Correct or remove this model from your schedule. Got {}'.format(
                                 metadata.model_class()._meta.label_lower, str(e)))
-                    metadata.url = metadata.model_class().get_absolute_url()
-                    metadata.title = metadata.model_class()._meta.verbose_name
-                metadata.next_url = self.get_next_url(key='crfs')
+
+                    metadata.object = self.crf_model_wrapper_class(
+                        metadata.model_class(
+                            **{metadata.visit_attr_name: visit}),
+                        persistent=False,
+                        key='crf')
+
                 crfs.append(metadata)
         return crfs
 
@@ -93,16 +101,16 @@ class MetaDataMixin:
                 try:
                     obj = None
                     options = {
-                        '{}__appointment'.format(
-                            metadata.model_class.visit_model_attr()): self.appointment,
+                        '{}__appointment__id'.format(
+                            metadata.model_class.visit_model_attr()): self.appointment.id,
                         'panel_name': metadata.panel_name}
 
                     obj = metadata.model_class.objects.get(**options)
-                    metadata.instance = obj
+                    metadata.object = obj
                     metadata.url = obj.get_absolute_url()
                     metadata.title = obj._meta.verbose_name
                 except metadata.model_class.DoesNotExist:
-                    metadata.instance = None
+                    metadata.object = None
                     metadata.url = metadata.model_class().get_absolute_url()
                     metadata.title = metadata.model_class()._meta.verbose_name
                 requisitions.append(metadata)

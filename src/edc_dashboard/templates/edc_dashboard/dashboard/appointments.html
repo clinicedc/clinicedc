@@ -10,18 +10,21 @@
 			<td>
 				<a role="button" class="btn btn-sm btn-default {% if wrapped.appt_status != IN_PROGRESS_APPT %}disabled{% endif %}"
 				    href="{{ wrapped.get_absolute_url }}?next={{ wrapped.next_url }}&{{ wrapped.extra_querystring }}">
-				        <i class="fa fa-pencil fa-sm fa-fw" aria-hidden="true"></i> 
+				        <i class="fa fa-pencil fa-sm fa-fw" aria-hidden="true"></i> Appt
 				</a>
 			 
 		      {% if wrapped.appt_status == IN_PROGRESS_APPT %}
 		      	{% if wrapped.visit.id %}
 		      		
-		      			<a role="button" class="btn btn-sm btn-warning" href="{% url dashboard_url_name appointment=wrapped.str_pk subject_identifier=subject_identifier %}?{{ wrapped.next_url }}&{{ wrapped.extra_querystring }}">
-		      				<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Continue
+                        <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.visit.get_absolute_url }}?next={{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}">
+                            <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Visit Report
+                        </a>
+		      			<a role="button" class="btn btn-sm btn-warning" href="{{ wrapped.forms_url }}">
+		      				<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Forms
 		      			</a>
 		      	{% else %}
-		       		<a role="button" class="btn btn-sm btn-warning" href="{{ visit_url }}?next={{ wrapped.visit_next_url }}&appointment={{ wrapped.str_pk }}">
-		       			<i class="fa fa-plus fa-sm" aria-hidden="true"></i> Start {{wrapped.visit_code}}</a>
+		       		<a role="button" class="btn btn-sm btn-warning" href="{{ wrapped.visit.get_absolute_url }}?next={{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}">
+		       			<i class="fa fa-plus fa-sm" aria-hidden="true"></i> Start</a>
 		      	{% endif %}
 		      {% else %}
 				    {% comment%}

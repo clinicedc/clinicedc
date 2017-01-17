@@ -1,8 +1,9 @@
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.fields.related import ManyToManyField, ForeignKey, OneToOneField
 from django.db.models.fields.reverse_related import ForeignObjectRel
 
 from .utils import model_name_as_attr
 from .wrapper import Wrapper
-from django.utils.functional import lazy_property
 
 
 class ModelWrapperError(Exception):
@@ -11,7 +12,9 @@ class ModelWrapperError(Exception):
 
 class ModelWrapper(Wrapper):
 
-    """A class to set attrs, flatten relations, adds admin and next urls,
+    """A wrapper for model instances or classes.
+
+    Set attrs, flatten relations, adds admin and next urls,
     onto a model object to be used in views and templates.
 
     Common model and url attrs are added onto self so you can avoid
@@ -28,16 +31,24 @@ class ModelWrapper(Wrapper):
         and any other attrs that the wrapper is configured to add.
     * """
 
-    model_name = None
-    url_namespace = None
-    admin_site_name = 'admin'
+    key = None  # key attr for dictionaires for next_url and extra_querystring
+    model_name = None  # label lower
 
-    def __init__(self, obj):
-        super().__init__(obj)
+    def __init__(self, obj, **kwargs):
+        super().__init__(obj, **kwargs)
+
+        self.model_name = kwargs.get('model_name', self.model_name)
+        self.key = kwargs.get('key', self.key)
+        self.key = self.key if self.key else self.model_name
+
         if not hasattr(obj, '_meta'):
             raise ModelWrapperError(
                 'Only model objects can be wrapped by {}. Got {}'.format(
                     self.__class__.__name__, obj))
+        if self.model_name != obj._meta.label_lower:
+            raise ModelWrapperError(
+                'Expected {}. Got {}'.format(
+                    self.model_name, obj._meta.label_lower))
         try:
             assert not obj._wrapped
         except AttributeError:
@@ -49,13 +60,16 @@ class ModelWrapper(Wrapper):
         self.wrapped_object = self.model_url_wrapper(obj)
         self.add_extra_attributes_after()
 
+    def __repr__(self):
+        return '{0}(<{1}: {2} id={3}>)'.format(
+            self.__class__.__name__,
+            self._original_object.__class__.__name__,
+            self._original_object, self._original_object.id)
+
     def add_extra_attributes_after(self, **kwargs):
         """Called after the model is wrapped."""
         model_name = model_name_as_attr(self._original_object)
         setattr(self, model_name, self.wrapped_object)
-        # add admin urls.
-        self.add_url_name = self.wrapped_object.add_url_name
-        self.change_url_name = self.wrapped_object.change_url_name
         self.next_url = self.wrapped_object.next_url
         self.extra_querystring = self.wrapped_object.extra_querystring
         return None
@@ -63,38 +77,37 @@ class ModelWrapper(Wrapper):
     def add_extra_attributes_before(self, obj, **kwargs):
         """Called before the model is wrapped."""
         self.add_model_fields(obj)
+        self.str_pk = str(obj.id)
         return None
 
     def add_model_fields(self, obj):
-        """Add field attrs to self before the model is wrapped."""
+        """Add field attrs to self before the model is wrapped.
+
+        Skips foreign keys"""
         for field in obj._meta.get_fields():
-            if not hasattr(self, field.name) and not isinstance(field, ForeignObjectRel):
-                setattr(self, field.name, getattr(obj, field.name))
+            if (not hasattr(self, field.name) and
+                    not isinstance(field, (
+                        ManyToManyField, ForeignKey, OneToOneField, ForeignObjectRel))):
+                try:
+                    setattr(self, field.name, getattr(obj, field.name))
+                except ObjectDoesNotExist:
+                    pass
+                except ValueError as e:
+                    print(e)
+                    pass
 
         self.verbose_name = obj._meta.verbose_name
         self.verbose_name_plural = obj._meta.verbose_name_plural
+        self.label_lower = obj._meta.label_lower
         self.get_absolute_url = obj.get_absolute_url
 
     def model_url_wrapper(self, obj):
         """Add urls to obj, wrapped object."""
         obj = self.object_url_wrapper(
-            key=obj._meta.label_lower, obj=obj)
-        return obj
-
-    def admin_urls_wrapper(self, obj=None, label_lower=None):
-        """Adds the admin urls with namespace to the model.
-
-        Template may access `add_url_name` and `change_url_name`."""
-        admin_url_name = '{namespace}:{admin}:{label_lower}'.format(
-            namespace=self.url_namespace,
-            admin=self.admin_site_name,
-            label_lower='_'.join(label_lower.split('.')))
-        obj.add_url_name = admin_url_name + '_add'
-        obj.change_url_name = admin_url_name + '_change'
+            key=self.key, obj=obj)
         return obj
 
     def object_url_wrapper(self, key=None, obj=None):
         """Override to add admin urls to the model instance."""
-        obj = super().object_url_wrapper(key=key, obj=obj)
-        obj = self.admin_urls_wrapper(obj=obj, label_lower=key)
+        obj = super().object_url_wrapper(key=self.key, obj=obj)
         return obj

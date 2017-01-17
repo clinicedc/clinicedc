@@ -7,7 +7,7 @@ class NextUrlMixin(UrlMixin):
 
     """A class to set `next_url`.
 
-    next_url: a qyerystring that follows the format of edc_base model
+    `next_url` is  a qyerystring that follows the format of edc_base model
         admin mixin for redirecting the model admin on save
         to a url other than the default changelist.
         * Note: This is not a url but parameters need to reverse
@@ -23,9 +23,13 @@ class NextUrlMixin(UrlMixin):
             {key1: [param1, param2, ...], key2: [param1, param2, ...]}
 
     """
-
-    next_url_name = 'listboard_url'
+    next_url_name = None
     next_url_attrs = {}
+
+    def __init__(self, **kwargs):
+        self.next_url_name = kwargs.get('next_url_name', self.next_url_name)
+        self.next_url_attrs = kwargs.get('next_url_attrs', self.next_url_attrs)
+        self.next_url_attrs.update(kwargs.get('extra_next_url_attrs', {}))
 
     def get_next_url(self, key=None, obj=None, **options):
         """Returns the next_url querystring for attrs in next_url_attrs."""

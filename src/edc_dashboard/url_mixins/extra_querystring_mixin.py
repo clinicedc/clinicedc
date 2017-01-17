@@ -17,6 +17,12 @@ class ExtraQuerystringMixin(UrlMixin):
     """
     extra_querystring_attrs = {}
 
+    def __init__(self, **kwargs):
+        self.extra_querystring_attrs = kwargs.get(
+            'extra_querystring_attrs', self.extra_querystring_attrs)
+        self.extra_querystring_attrs.update(
+            kwargs.get('extra_extra_querystring_attrs', {}))
+
     def get_extra_querystring(self, key=None, obj=None):
         """Returns a querystring segment of format key=value&key=value, etc ...
 

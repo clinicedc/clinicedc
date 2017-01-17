@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+
 from edc_appointment.constants import NEW_APPT, IN_PROGRESS_APPT
 
 
@@ -9,6 +10,7 @@ class AppointmentMixin:
 
     reverse_relation_visit_attr_name = 'subjectvisit'
     appointment_model_wrapper_class = None
+    visit_model_wrapper_class = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -23,7 +25,7 @@ class AppointmentMixin:
         except self.appointment_model.DoesNotExist:
             kwargs['appointment'] = None
         else:
-            self.appointment = self.appointment_wrapper(appointment)
+            self.appointment = self.appointment_model_wrapper_class(appointment)
             kwargs['appointment'] = self.appointment
 
         appointments = self.appointment_model.objects.filter(
@@ -43,14 +45,3 @@ class AppointmentMixin:
     @property
     def appointment_model(self):
         return django_apps.get_app_config('edc_appointment').model
-
-    def visit_wrapper(self, obj, **options):
-        """Wraps visit instance attr of appointment and sets \'appointment.visit\' ."""
-        options.update({k: v for k, v in self.kwargs.items() if k not in options})
-        options.update(appointment=obj.id)
-        try:
-            obj.visit = getattr(obj, self.reverse_relation_visit_attr_name)
-        except AttributeError:
-            obj.visit = None
-        obj.visit_next_url = self.get_next_url('visit', **options)
-        return obj

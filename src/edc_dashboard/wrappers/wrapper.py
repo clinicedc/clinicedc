@@ -7,8 +7,10 @@ class WrapperError(Exception):
 
 class Wrapper(NextUrlMixin, ExtraQuerystringMixin):
 
-    def __init__(self, obj):
-        super().__init__()
+    """A general object wrapper."""
+
+    def __init__(self, obj, **kwargs):
+        super().__init__(**kwargs)
         self._wrapped = True
         self._original_object = obj
 

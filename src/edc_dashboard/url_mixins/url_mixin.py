@@ -14,6 +14,10 @@ class UrlMixin:
 
     url_instance_attrs = []
 
+    def __init__(self, **kwargs):
+        self.url_instance_attrs = kwargs.get('url_instance_attrs', self.url_instance_attrs)
+        self.url_instance_attrs.update(kwargs.get('extra_url_instance_attrs', {}))
+
     def get_url_instance_attrs(self):
         return self.url_instance_attrs
 
@@ -22,21 +26,9 @@ class UrlMixin:
         options = OrderedDict(**options)
         for attr in self.get_url_instance_attrs():
             try:
-                assert self._mocked_object
+                value = getattr(obj, attr)
             except AttributeError:
-                try:
-                    value = getattr(obj, attr)
-                except AttributeError:
-                    try:
-                        value = getattr(self, attr)
-                    except AttributeError as e:
-                        try:
-                            obj._mocked_object
-                            value = None
-                        except AttributeError:
-                            raise ValueError(e)
-            else:
-                value = None
+                value = getattr(self, attr)
             options.update({attr: value or ''})
         return self.sanitize_parameters(**options)
 
