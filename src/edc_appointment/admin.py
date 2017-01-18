@@ -36,8 +36,6 @@ class AppointmentAdmin(ModelAdminFormInstructionsMixin, ModelAdminNextUrlRedirec
 
     list_filter = ('visit_code', 'appt_datetime', 'appt_type', 'appt_status')
 
-#    def get_view_on_site_url(self, obj=None):
-
 
 @admin.register(Holiday, site=edc_appointment_admin)
 class HolidayAdmin(admin.ModelAdmin):
