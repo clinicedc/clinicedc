@@ -10,7 +10,8 @@ from .visit import Visit
 
 
 class Schedule:
-    def __init__(self, name, enrollment_model=None, disenrollment_model=None):
+    def __init__(self, name, title=None, enrollment_model=None, disenrollment_model=None, **kwargs):
+        self.title = title or name
         self.death_report_model = None
         self.disenrollment_model = None
         self.enrollment_model = None
