@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from .url_mixin import UrlMixin
+from django.urls.base import reverse
 
 
 class NextUrlMixin(UrlMixin):
@@ -27,6 +28,7 @@ class NextUrlMixin(UrlMixin):
     next_url_attrs = {}
 
     def __init__(self, **kwargs):
+        self._next_kwargs = {}
         self.next_url_name = kwargs.get('next_url_name', self.next_url_name)
         self.next_url_attrs = kwargs.get('next_url_attrs', self.next_url_attrs)
         self.next_url_attrs.update(kwargs.get('extra_next_url_attrs', {}))
@@ -46,9 +48,13 @@ class NextUrlMixin(UrlMixin):
             return ''
         parameters = {k: v for k, v in options.items()
                       if k in self.get_next_url_attrs().get(key)}
+        self._next_kwargs = parameters
         return '{},{}&{}'.format(
             self.next_url_name, ','.join(parameters),
             self.urlify(**parameters))
 
     def get_next_url_attrs(self):
         return self.next_url_attrs
+
+    def reverse(self):
+        return reverse(self.next_url_name, kwargs=self._next_kwargs)

@@ -14,7 +14,7 @@ class Wrapper(NextUrlMixin, ExtraQuerystringMixin):
         self._wrapped = True
         self._original_object = obj
 
-    def object_url_wrapper(self, key=None, obj=None):
-        obj.extra_querystring = self.get_extra_querystring(key=key, obj=obj)
-        obj.next_url = self.get_next_url(key=key, obj=obj)
+    def object_url_wrapper(self, key=None, obj=None, **kwargs):
+        obj.extra_querystring = self.get_extra_querystring(key=key, obj=obj, **kwargs)
+        obj.next_url = self.get_next_url(key=key, obj=obj, **kwargs)
         return obj
