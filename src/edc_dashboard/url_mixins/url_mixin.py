@@ -50,5 +50,4 @@ class UrlMixin:
 
     def urlify(self, **parameters):
         """Converts dict to a url querystring."""
-        print(parameters)
         return '&'.join(['='.join(z) for z in list(parameters.items())])

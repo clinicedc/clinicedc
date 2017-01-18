@@ -110,3 +110,11 @@ class ModelWrapper(Wrapper):
         obj = self.object_url_wrapper(
             key=self.key, obj=obj)
         return obj
+
+    @property
+    def href(self):
+        return '{0.absolute_url}?next={0.next_url}&{0.extra_querystring}'.format(self)
+
+    @property
+    def absolute_url(self):
+        return self.get_absolute_url()
