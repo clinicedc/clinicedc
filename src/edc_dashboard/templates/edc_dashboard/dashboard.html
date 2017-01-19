@@ -22,7 +22,6 @@
         {% endif %}
         
 	    {% for visit_schedule in visit_schedules %}
-	
           <div class="panel panel-info">
 		      <div class="panel-heading">
 		          <h6 class="panel-title"><i class="fa fa-calendar fa-lg fa-fw"></i> 
@@ -35,8 +34,8 @@
 
 			  	{% if not appointment %}
 
-				  	{% block appointments %}
-				  	{% endblock appointments %}
+					  	{% block appointments %}
+					  	{% endblock appointments %}
 
                 {% else %}
 

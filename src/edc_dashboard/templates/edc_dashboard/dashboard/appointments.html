@@ -5,6 +5,9 @@
 	<table class="table table-striped table-hover">
 	  <tbody>
 		{% for wrapped in appointments %}
+		
+		{% if wrapped.visit_schedule_name == visit_schedule.name  %}
+		
 		<tr>
 			<td><i class="fa fa-calendar-o fa-sm fa-fw"></i> {{wrapped.visit_code}}</td>
 			<td>
@@ -41,6 +44,7 @@
             <td>{{wrapped.title}}</td>
             <td>{{wrapped.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
 	         </tr>
+            {% endif %}
 	     {% endfor %}
 			</tbody>
 	 </table>
