@@ -5,6 +5,7 @@ from edc_consent.site_consents import site_consents
 
 class ConsentViewMixin:
 
+    consent_model = None
     consent_model_wrapper_class = None
 
     def __init__(self, **kwargs):

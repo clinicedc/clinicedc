@@ -56,6 +56,7 @@ class ModelWrapper(Wrapper):
         except AssertionError:
             raise ModelWrapperError(
                 'Object is already wrapped. Got {}'.format(obj))
+        self.validate_properties()
         self.add_extra_attributes_before(obj, **kwargs)
         self.wrapped_object = self.model_url_wrapper(obj)
         self.add_extra_attributes_after()
@@ -68,6 +69,14 @@ class ModelWrapper(Wrapper):
 
     def __bool__(self):
         return True if self.id else False
+
+    def validate_properties(self):
+        """Raises an exception if a property is set that returns a ModelWrapper."""
+        for key, value in self.__dict__.items():
+            if hasattr(value, '_wrapped'):
+                raise ModelWrapperError(
+                    'Invalid property. Property may not return a wrapped object. '
+                    'Got {}, {}'.format(key, value))
 
     def add_extra_attributes_after(self, **kwargs):
         """Called after the model is wrapped."""
@@ -82,7 +91,13 @@ class ModelWrapper(Wrapper):
         self.add_model_fields(obj)
         self.str_pk = str(obj.id)
         for key, value in kwargs.items():
-            setattr(self, key, value)
+            try:
+                setattr(self, key, value)
+            except AttributeError as e:
+                raise ModelWrapper(
+                    'An exception was raised when trying to set kwargs onto '
+                    '{}. Got {} Using key={} value={}'.format(
+                        self.__class__, str(e), key, value))
         return None
 
     def add_model_fields(self, obj):

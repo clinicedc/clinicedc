@@ -5,17 +5,16 @@
 {% load tz %}
 {% load edc_base_extras %}
 <div class="panel-group">
-    <div class="panel panel-info">
-       <div class="panel-heading clearfix">
+    <div class="panel panel-{% if navbar_name == 'anonymous' %}danger{% else %}info{% endif %}">
+       <div class="panel-heading">
 
-          <!--  show subject identifier and demographics from member -->
-
-          <i class="fa fa-user-circle-o fa-2x fa-fw"></i> 
     
-        {% if anonymous %}
+        {% if navbar_name == 'anonymous' %}
             <span class="text text-danger"><i class="fa fa-user-secret fa-2x fa-fw"></i></span>
+        {% else %}
+            <i class="fa fa-user-circle-o fa-2x fa-fw"></i> 
         {% endif %}
-
+        
         <span class="pull-right">
           <a {% block close_url %}href="#"{% endblock close_url %}
             role="button" class="btn btn-sm btn-primary">

@@ -38,7 +38,7 @@ class MostRecentView(PaginatorMixin, View):
             qs = model.objects.all().order_by('-created')
             json_data = self.paginate_to_json(qs, self.kwargs.get('page', 1))
             return HttpResponse(json_data, content_type='application/json')
-        raise TypeError()
+        raise TypeError('Only ajax requests are permitted')
 
 
 class SubjectSearchView(PaginatorMixin, View):
@@ -94,7 +94,7 @@ class QueryModelView(PaginatorMixin, View):
         if request.is_ajax():
             json_data = self.paginate_to_json(self.queryset, self.kwargs.get('page', 1))
             return HttpResponse(json_data, content_type='application/json')
-        raise TypeError()
+        raise TypeError('Only ajax requests are permitted')
 
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
