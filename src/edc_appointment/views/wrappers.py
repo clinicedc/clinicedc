@@ -1,8 +1,8 @@
 from django.apps import apps as django_apps
-
-from edc_dashboard.wrappers import ModelWrapper
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
+
+from edc_dashboard.wrappers import ModelWrapper
 
 
 class AppointmentModelWrapper(ModelWrapper):
@@ -25,7 +25,6 @@ class AppointmentModelWrapper(ModelWrapper):
         except ObjectDoesNotExist:
             visit_model = django_apps.get_model(
                 *self.visit_model_wrapper_class.model_name.split('.'))
-            print(self.survey_schedule_object, self, self.survey)
             return self.visit_model_wrapper_class(
                 visit_model(appointment=self._original_object))
 
