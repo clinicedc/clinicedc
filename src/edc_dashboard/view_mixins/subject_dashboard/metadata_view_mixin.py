@@ -98,22 +98,50 @@ class MetaDataViewMixin:
     def get_requisitions(self, **kwargs):
         requisitions = []
         if self.appointment:
+            try:
+                visit = self.appointment.visit._original_object
+            except AttributeError:
+                visit = self.appointment.visit
             for metadata in self.requisition_metadata_set:
                 try:
                     obj = None
                     options = {
-                        '{}__appointment__id'.format(
-                            metadata.model_class.visit_model_attr()): self.appointment.id,
+                        '{}'.format(
+                            metadata.model_class.visit_model_attr()): visit,
                         'panel_name': metadata.panel_name}
+#                     options = {
+#                         '{}__appointment__id'.format(
+#                             metadata.model_class.visit_model_attr()): self.appointment.id,
+#                         'panel_name': metadata.panel_name}
+                    try:
+                        obj = metadata.model_class.objects.get(**options)
+                    except AttributeError as e:
+                        self.delete_invalid_metadata(metadata, e)
+                    except LookupError as e:
+                        self.handle_lookup_error(metadata)
+                    except OperationalError as e:
+                        self.handle_operational_error(metadata)
+                    else:
+                        metadata.object = self.requisition_model_wrapper_class(
+                            obj, key='requisition',
+                            model_name=metadata.model_class._meta.label_lower,
+                            panel_name=metadata.panel_name)
+                except ObjectDoesNotExist:
+                    try:
+                        metadata.visit_attr_name = metadata.model_class.visit_model_attr()
+                    except AttributeError as e:
+                        raise ImproperlyConfigured(
+                            'Model {} is not configured as a Requisition model. '
+                            'Correct or remove this model from your schedule. Got {}'.format(
+                                metadata.model_class()._meta.label_lower, str(e)))
 
-                    obj = metadata.model_class.objects.get(**options)
-                    metadata.object = obj
-                    metadata.url = obj.get_absolute_url()
-                    metadata.title = obj._meta.verbose_name
-                except metadata.model_class.DoesNotExist:
-                    metadata.object = None
-                    metadata.url = metadata.model_class().get_absolute_url()
-                    metadata.title = metadata.model_class()._meta.verbose_name
+                    metadata.object = self.requisition_model_wrapper_class(
+                        metadata.model_class(
+                            **{metadata.visit_attr_name: visit}),
+                        model_name=metadata.model_class._meta.label_lower,
+                        key='requisition',
+                        panel_name=metadata.panel_name)
+
                 requisitions.append(metadata)
         return requisitions
 
