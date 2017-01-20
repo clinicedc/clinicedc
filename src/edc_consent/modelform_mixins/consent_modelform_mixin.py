@@ -38,7 +38,8 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         try:
             consent_config = site_consents.get_consent(
                 report_datetime=cleaned_data.get('consent_datetime') or self.instance.consent_datetime,
-                consent_model=self._meta.model._meta.label_lower
+                consent_model=self._meta.model._meta.label_lower,
+                consent_group=self._meta.model._meta.consent_group
             )
         except SiteConsentError as e:
             raise forms.ValidationError(e)

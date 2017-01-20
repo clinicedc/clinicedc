@@ -14,6 +14,7 @@ class Consent:
     def __init__(self, model, **kwargs):
         """A class that represents the general attributes of a consent."""
         self.model_name = model
+        self.group = kwargs.get('group', 'default')
         self.start = kwargs.get('start')
         self.start = arrow.Arrow.fromdatetime(self.start, self.start.tzinfo).to('UTC').datetime
         self.end = kwargs.get('end')

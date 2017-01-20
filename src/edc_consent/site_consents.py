@@ -80,10 +80,12 @@ class SiteConsents:
         """Returns a list of all consents using the given subject_type regardless of the consent model."""
         return [consent for consent in self.registry if consent.subject_type == subject_type]
 
-    def get_consent(self, report_datetime=None, consent_model=None, version=None):
+    def get_consent(self, report_datetime=None, consent_model=None, version=None, consent_group=None, **kwargs):
         """Return consent object valid for the datetime."""
         consents = []
-        for consent in self.registry:
+        consent_group = consent_group or 'default'
+        registered_consents = (c for c in self.registry if c.group == consent_group)
+        for consent in registered_consents:
             if report_datetime and consent_model and version:
                 if (consent.for_datetime(report_datetime) and consent_model == consent.model_name and
                         version == consent.version):

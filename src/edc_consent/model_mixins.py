@@ -17,7 +17,7 @@ from .site_consents import site_consents
 from edc_consent.exceptions import ConsentDoesNotExist
 
 
-options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model',)
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model', 'consent_group')
 
 
 class RequiresConsentMixin(models.Model):
@@ -35,35 +35,41 @@ class RequiresConsentMixin(models.Model):
                     self._meta.label_lower))
         super(RequiresConsentMixin, self).save(*args, **kwargs)
 
-    def common_clean(self):
-        consent = site_consents.get_consent(
+    def get_consent_object(self):
+        consent_object = site_consents.get_consent(
             consent_model=self._meta.consent_model,
+            consent_group=self._meta.consent_group,
             report_datetime=self.report_datetime)
-        self.consent_version = consent.version
+        return consent_object
+
+    def common_clean(self):
+        consent_object = self.get_consent_object()
+        self.consent_version = consent_object.version
         try:
             if not self.subject_identifier:
                 raise SiteConsentError(
                     'Cannot lookup {} instance for subject. Got \'subject_identifier\' is None.'.format(
-                        consent.model._meat.label_lower))
+                        consent_object.model._meta.label_lower))
             options = dict(
                 subject_identifier=self.subject_identifier,
-                version=consent.version)
-            consent.model.objects.get(**options)
-        except consent.model.DoesNotExist:
+                version=consent_object.version)
+            consent_object.model.objects.get(**options)
+        except consent_object.model.DoesNotExist:
             raise NotConsentedError(
                 'Consent is required. Cannot find \'{consent_model} version {version}\' '
                 'when saving model \'{model}\' for subject \'{subject_identifier}\' with date '
                 '\'{report_datetime}\' .'.format(
                     subject_identifier=self.subject_identifier,
-                    consent_model=consent.model._meta.label_lower,
+                    consent_model=consent_object.model._meta.label_lower,
                     model=self._meta.label_lower,
-                    version=consent.version,
+                    version=consent_object.version,
                     report_datetime=self.report_datetime.strftime('%Y-%m-%d %H:%M%z')))
         super().common_clean()
 
     class Meta:
         abstract = True
         consent_model = None
+        consent_group = None
 
 
 class ConsentModelMixin(VerificationFieldsMixin, models.Model):
@@ -126,6 +132,7 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     def save(self, *args, **kwargs):
         consent = site_consents.get_consent(
             consent_model=self._meta.label_lower,
+            consent_group=self._meta.consent_group,
             report_datetime=self.consent_datetime)
         self.version = consent.version
         if consent.updates_versions:
@@ -164,6 +171,7 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     def common_clean(self):
         consent = site_consents.get_consent(
             consent_model=self._meta.label_lower,
+            consent_group=self._meta.consent_group,
             report_datetime=self.consent_datetime)
         if consent.updates_versions:
             self.previous_consent_to_update(consent)
@@ -191,6 +199,7 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
     class Meta:
         abstract = True
+        consent_group = None
         get_latest_by = 'consent_datetime'
         unique_together = (('first_name', 'dob', 'initials', 'version'), )
         ordering = ('created', )
@@ -250,4 +259,5 @@ class SpecimenConsentMixin(VerificationFieldsMixin, models.Model):
 
     class Meta:
         consent_model = None
+        consent_group = None
         abstract = True

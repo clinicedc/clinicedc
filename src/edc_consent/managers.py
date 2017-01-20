@@ -24,6 +24,7 @@ class ConsentManager(models.Manager):
         try:
             consent = site_consents.get_consent(
                 consent_model=self.model._meta.label_lower,
+                consent_group=self.model._meta.consent_group,
                 report_datetime=report_datetime)
         except ConsentDoesNotExist:
             pass
