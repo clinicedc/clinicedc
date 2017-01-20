@@ -19,7 +19,7 @@ class SearchViewMixin(PaginatorMixin):
     form_class = SearchForm
     search_model = None
     search_queryset_ordering = '-created'
-    search_model_wrapper_class = None  # any ModelWrapper
+    search_model_wrapper_class = None
 
     def get_form_class(self):
         self.form_class = super().get_form_class()
