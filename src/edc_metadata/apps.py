@@ -2,8 +2,14 @@ import sys
 
 from django.apps.config import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps
+from django.core.management.color import color_style
 
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
+
+from .rules.site_rule_groups import site_rule_groups
+
+
+style = color_style()
 
 
 class AppConfig(DjangoAppConfig):
@@ -18,12 +24,20 @@ class AppConfig(DjangoAppConfig):
     delete_on_reasons = [MISSED_VISIT]
 
     def ready(self):
+
         from .signals import metadata_update_on_post_save, metadata_create_on_post_save
+
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         if self.app_label == self.name:
-            sys.stdout.write('  * using default metadata models from \'{}\'\n'.format(self.app_label))
+            sys.stdout.write(' * using default metadata models from \'{}\'\n'.format(self.app_label))
         else:
-            sys.stdout.write('  * using custom metadata models from \'{}\'\n'.format(self.app_label))
+            sys.stdout.write(' * using custom metadata models from \'{}\'\n'.format(self.app_label))
+
+        site_rule_groups.autodiscover()
+        if not site_rule_groups.registry:
+            sys.stdout.write(style.ERROR(
+                ' Warning. No metadata rules have loaded.\n'.format(self.verbose_name)))
+
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
 
     @property

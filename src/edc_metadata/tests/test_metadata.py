@@ -1,13 +1,14 @@
 from django.apps import apps as django_apps
 from django.test import TestCase
 
+from edc_appointment.models import Appointment
 from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory, SubjectRequisitionFactory
-from edc_example.models import (
-    SubjectVisit, Appointment, Enrollment, CrfMetadata, RequisitionMetadata, CrfOne)
+from edc_example.models import SubjectVisit, Enrollment, CrfOne
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
 
-from .constants import KEYED
+from ..constants import KEYED
+from ..models import CrfMetadata, RequisitionMetadata
 
 
 class TestMetadata(TestCase):

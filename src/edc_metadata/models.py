@@ -1,15 +1,15 @@
 from edc_base.model.models import BaseUuidModel
 
-from .model_mixins import CrfMetadataModelMixin, RequisitionMetadataModelMixin
+from .model_mixins.metadata_models import CrfModelMixin, RequisitionModelMixin
 
 
-class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
+class CrfMetadata(CrfModelMixin, BaseUuidModel):
 
-    class Meta(CrfMetadataModelMixin.Meta):
+    class Meta(CrfModelMixin.Meta):
         app_label = 'edc_metadata'
 
 
-class RequisitionMetadata(RequisitionMetadataModelMixin, BaseUuidModel):
+class RequisitionMetadata(RequisitionModelMixin, BaseUuidModel):
 
-    class Meta(RequisitionMetadataModelMixin.Meta):
+    class Meta(RequisitionModelMixin.Meta):
         app_label = 'edc_metadata'

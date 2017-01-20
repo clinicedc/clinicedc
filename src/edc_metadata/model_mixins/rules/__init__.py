@@ -1,0 +1,1 @@
+from .metadata_rules_model_mixin import MetadataRulesModelMixin

@@ -1,5 +1,6 @@
 REQUIRED = 'REQUIRED'
 NOT_REQUIRED = 'NOT_REQUIRED'
 KEYED = 'KEYED'
-# NEW = 'NEW'  .. use REQUIRED
-# UNKEYED = 'NEW' .. use REQUIRED
+CRF = 'crf'
+REQUISITION = 'requisition'
+DO_NOTHING = 'do_nothing'
