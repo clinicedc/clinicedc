@@ -33,13 +33,15 @@ class SiteVisitSchedules:
             raise AlreadyRegistered('Visit Schedule {} is already registered.'.format(visit_schedule))
 
     def get_visit_schedule(self, name):
-        name = name.split('.')[0]
-        try:
-            visit_schedule = self.registry[name]
-        except KeyError:
-            raise VisitScheduleError(
-                'Invalid visit schedule name. Got \'{}\'. Possible names are [{}].'.format(
-                    name, ', '.join(self.registry.keys())))
+        visit_schedule = None
+        if name:
+            name = name.split('.')[0]
+            try:
+                visit_schedule = self.registry[name]
+            except KeyError:
+                raise VisitScheduleError(
+                    'Invalid visit schedule name. Got \'{}\'. Possible names are [{}].'.format(
+                        name, ', '.join(self.registry.keys())))
         return visit_schedule
 
     def get_visit_schedules(self):

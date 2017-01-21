@@ -23,11 +23,13 @@ class DisenrollmentError(Exception):
 class VisitScheduleMethodsModelMixin(models.Model):
     """A model mixin that adds methods used to work with the visit schedule.
 
-    Declare with VisitScheduleFieldsModelMixin or the fields from VisitScheduleFieldsModelMixin"""
+    Declare with VisitScheduleFieldsModelMixin or the fields from
+    VisitScheduleFieldsModelMixin"""
 
     @property
     def schedule(self):
-        """Return the schedule name from Meta.visit_schedule_name or self.schedule_name.
+        """Return a schedule object from Meta.visit_schedule_name or
+        self.schedule_name.
 
         Declared on Meta like this:
             visit_schedule_name = 'visit_schedule_name.schedule_name'"""
@@ -43,7 +45,8 @@ class VisitScheduleMethodsModelMixin(models.Model):
 
     @property
     def visit_schedule(self):
-        """Return the visit schedule name from Meta.visit_schedule_name or self.visit_schedule_name."""
+        """Return a visit schedule object from Meta.visit_schedule_name
+        or self.visit_schedule_name."""
         try:
             visit_schedule_name = self._meta.visit_schedule_name
         except AttributeError:
@@ -52,28 +55,28 @@ class VisitScheduleMethodsModelMixin(models.Model):
             visit_schedule_name, _ = visit_schedule_name.split('.')
         except ValueError:
             pass
-        visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            visit_schedule_name)
         return visit_schedule
 
     def timepoint_datetimes(self, base_datetime, schedule):
-        """Returns a calculated list of unadjusted datetimes in order of timepoint based on the schedule."""
-        timepoint_datetimes = []
+        """Returns a calculated list of unadjusted datetimes in order
+        of timepoint based on the schedule."""
         for visit in schedule.visits:
             if visit.base_interval == 0:
                 timepoint_datetime = base_datetime
             else:
                 timepoint_datetime = base_datetime + relativedelta(
                     **{visit.base_interval_unit: visit.base_interval})
-            timepoint_datetimes.append((visit, timepoint_datetime))
-        return timepoint_datetimes
+            yield (visit, timepoint_datetime)
 
     class Meta:
         abstract = True
 
 
 class VisitScheduleFieldsModelMixin(models.Model):
-    """A model mixin that adds fields required to work with the visit schedule methods on the
-    VisitScheduleMethodsModelMixin.
+    """A model mixin that adds fields required to work with the visit
+    schedule methods on the VisitScheduleMethodsModelMixin.
 
     Note: visit_code is not included."""
 
@@ -90,11 +93,15 @@ class VisitScheduleFieldsModelMixin(models.Model):
         abstract = True
 
 
-class VisitScheduleModelMixin(VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin, models.Model):
+class VisitScheduleModelMixin(VisitScheduleFieldsModelMixin,
+                              VisitScheduleMethodsModelMixin,
+                              models.Model):
 
-    """A model mixin that adds adds field attributes and methods that link a model instance to its schedule.
+    """A model mixin that adds adds field attributes and methods that
+    link a model instance to its schedule.
 
-    This mixin is used with Appointment and Visit models via their respective model mixins."""
+    This mixin is used with Appointment and Visit models via their
+    respective model mixins."""
 
     visit_code = models.CharField(
         max_length=25,
@@ -124,13 +131,21 @@ class BaseEnrollmentModelMixin(
         self.visit_schedule_name, schedule_name = self._meta.visit_schedule_name.split('.')
         if current_schedule_name and current_schedule_name != schedule_name:
             raise ScheduleError(
-                'Invalid schedule name specified for \'{}\'. Expected \'{}\'. Got \'{}\'.'.format(
-                    self._meta.label_lower, schedule_name, current_schedule_name))
-        schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name).schedules.get(self.schedule_name)
-        models = [schedule.enrollment_model._meta.label_lower, schedule.disenrollment_model._meta.label_lower]
+                'Invalid schedule name specified for \'{}\'. '
+                'Expected \'{}\'. Got \'{}\'.'.format(
+                    self._meta.label_lower,
+                    schedule_name,
+                    current_schedule_name))
+        schedule = site_visit_schedules.get_visit_schedule(
+            self.visit_schedule_name).schedules.get(self.schedule_name)
+        models = [schedule.enrollment_model._meta.label_lower,
+                  schedule.disenrollment_model._meta.label_lower]
         if self._meta.label_lower not in models:
-            raise ScheduleError('\'{}\' cannot be used with schedule \'{}\'. Expected {}'.format(
-                self._meta.label_lower, current_schedule_name, models))
+            raise ScheduleError(
+                '\'{}\' cannot be used with schedule \'{}\'. '
+                'Expected {}'.format(
+                    self._meta.label_lower,
+                    current_schedule_name, models))
         super().common_clean()
 
     def save(self, *args, **kwargs):
@@ -140,12 +155,15 @@ class BaseEnrollmentModelMixin(
         super(BaseEnrollmentModelMixin, self).save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.subject_identifier, self.visit_schedule_name, self.schedule_name)
+        return (self.subject_identifier,
+                self.visit_schedule_name,
+                self.schedule_name)
 
     class Meta:
         abstract = True
         visit_schedule_name = None
-        unique_together = ('subject_identifier', 'visit_schedule_name', 'schedule_name')
+        unique_together = (
+            'subject_identifier', 'visit_schedule_name', 'schedule_name')
 
 
 class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
@@ -160,13 +178,18 @@ class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
     @property
     def enrollment(self):
         return site_visit_schedules.enrollment(
-            self.subject_identifier, self.visit_schedule_name, self.schedule_name)
+            self.subject_identifier,
+            self.visit_schedule_name,
+            self.schedule_name)
 
     def common_clean(self):
         if not self.enrollment:
             raise EnrollmentError(
-                'Cannot disenroll subject \'{}\' from \'{}.{}\'. Enrollment does not exist.'.format(
-                    self.subject_identifier, self.visit_schedule_name, self.schedule_name))
+                'Cannot disenroll subject \'{}\' from \'{}.{}\'. '
+                'Enrollment does not exist.'.format(
+                    self.subject_identifier,
+                    self.visit_schedule_name,
+                    self.schedule_name))
         self.datetime_not_before_enrollment_or_raise()
         self.datetime_after_last_visit_or_raise()
         super().common_clean()
@@ -174,7 +197,8 @@ class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
     def datetime_not_before_enrollment_or_raise(self):
         if relativedelta(self.disenrollment_datetime, self.enrollment.report_datetime).days < 0:
             raise DisenrollmentError(
-                'Disenrollment datetime cannot precede the enrollment datetime {}. Got {}'.format(
+                'Disenrollment datetime cannot precede the enrollment '
+                'datetime {}. Got {}'.format(
                     timezone.localtime(self.enrollment.report_datetime),
                     timezone.localtime(self.disenrollment_datetime)))
 
@@ -183,13 +207,16 @@ class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
             self.subject_identifier, visit_schedule_name=self.visit_schedule_name, schedule_name=self.schedule_name)
         if relativedelta(self.disenrollment_datetime, last_visit_datetime).days < 0:
             raise DisenrollmentError(
-                'Disenrollment datetime cannot precede the last visit datetime {}. Got {}'.format(
-                    timezone.localtime(last_visit_datetime), timezone.localtime(self.disenrollment_datetime)))
+                'Disenrollment datetime cannot precede the last visit '
+                'datetime {}. Got {}'.format(
+                    timezone.localtime(last_visit_datetime),
+                    timezone.localtime(self.disenrollment_datetime)))
 
     class Meta:
         abstract = True
         visit_schedule_name = None
-        unique_together = ('subject_identifier', 'visit_schedule_name', 'schedule_name')
+        unique_together = (
+            'subject_identifier', 'visit_schedule_name', 'schedule_name')
 
 
 class EnrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
@@ -202,4 +229,5 @@ class EnrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
     class Meta:
         abstract = True
         visit_schedule_name = None
-        unique_together = ('subject_identifier', 'visit_schedule_name', 'schedule_name')
+        unique_together = (
+            'subject_identifier', 'visit_schedule_name', 'schedule_name')

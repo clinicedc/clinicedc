@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'simple_history',
     'django_crypto_fields.apps.AppConfig',
     'edc_base.apps.AppConfig',
+    'edc_consent.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
@@ -52,7 +53,6 @@ INSTALLED_APPS = [
     'edc_visit_tracking.apps.AppConfig',
     'edc_example.apps.EdcProtocolAppConfig',
     'edc_example.apps.EdcTimepointAppConfig',
-    'edc_example.apps.EdcConsentAppConfig',
     'edc_example.apps.AppConfig',
 ]
 
