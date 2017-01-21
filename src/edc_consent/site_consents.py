@@ -86,24 +86,26 @@ class SiteConsents:
         consent_group = consent_group or 'default'
         registered_consents = (c for c in self.registry if c.group == consent_group)
         for consent in registered_consents:
-            if report_datetime and consent_model and version:
-                if (consent.for_datetime(report_datetime) and consent_model == consent.model_name and
-                        version == consent.version):
-                    consents.append(consent)
-            elif report_datetime and (consent_model or version):
-                if consent.for_datetime(report_datetime):
-                    if consent_model == consent.model_name:
+            if report_datetime:
+                if consent_model and version:
+                    if (consent.for_datetime(report_datetime) and consent_model == consent.model_name and
+                            version == consent.version):
                         consents.append(consent)
-                    if version == consent.version:
+                elif consent_model or version:
+                    if consent.for_datetime(report_datetime):
+                        if consent_model == consent.model_name:
+                            consents.append(consent)
+                        if version == consent.version:
+                            consents.append(consent)
+                elif not consent_model and not version:
+                    if consent.for_datetime(report_datetime):
                         consents.append(consent)
-            elif not report_datetime and (consent_model or version):
-                if consent_model and not version and consent_model == consent.model_name:
-                    consents.append(consent)
-                if not consent_model and version and version == consent.version:
-                    consents.append(consent)
-            elif report_datetime and not consent_model and not version:
-                if consent.for_datetime(report_datetime):
-                    consents.append(consent)
+            elif not report_datetime:
+                if (consent_model or version):
+                    if consent_model and not version and consent_model == consent.model_name:
+                        consents.append(consent)
+                    if not consent_model and version and version == consent.version:
+                        consents.append(consent)
         if not consents:
             raise ConsentDoesNotExist(
                 'No matching consent in site consents. Using consent model=\'{}\', date={}, version={}. '.format(
