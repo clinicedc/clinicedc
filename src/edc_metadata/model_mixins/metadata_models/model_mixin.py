@@ -2,20 +2,17 @@ from django.apps import apps as django_apps
 from django.db import models
 
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin, VisitScheduleFieldsModelMixin
 
 from ...choices import ENTRY_STATUS, REQUIRED, NOT_REQUIRED
 
 
-class ModelMixin(NonUniqueSubjectIdentifierFieldMixin, models.Model):
+class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,
+                 VisitScheduleMethodsModelMixin,
+                 VisitScheduleFieldsModelMixin,
+                 models.Model):
 
-    """ Mixin for CrfMetadata and RequisitionMetadata models to be created in the local app.
-
-    Use the specific model mixins below.
-    """
-
-    visit_schedule_name = models.CharField(max_length=25)
-
-    schedule_name = models.CharField(max_length=25)
+    """ Mixin for CrfMetadata and RequisitionMetadata models."""
 
     visit_code = models.CharField(max_length=25)
 
