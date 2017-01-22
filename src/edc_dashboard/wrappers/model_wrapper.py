@@ -62,10 +62,11 @@ class ModelWrapper(Wrapper):
         self.add_extra_attributes_after()
 
     def __repr__(self):
-        return '{0}(<{1}: {2} id={3}>)'.format(
+        return '{0}({1!r} id={2!r})'.format(
             self.__class__.__name__,
-            self._original_object.__class__.__name__,
-            self._original_object, self._original_object.id)
+            self._original_object,
+            self._original_object.id
+        )
 
     def __bool__(self):
         return True if self.id else False

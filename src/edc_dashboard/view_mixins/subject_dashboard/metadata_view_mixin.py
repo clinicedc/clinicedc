@@ -154,7 +154,8 @@ class MetaDataViewMixin:
         sys.stdout.flush()
 
     def handle_operational_error(self, metadata):
-        # getting here means you changed a table name but havent migrated the change
+        # getting here means you changed a table name but havent migrated the
+        # change
         metadata.delete()
         sys.stdout.write(style.NOTICE(
             'Dashboard detected and deleted an invalid crf model '

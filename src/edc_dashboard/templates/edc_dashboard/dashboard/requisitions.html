@@ -21,7 +21,7 @@
 			    		</td>
 			    		<td>
 			    			{% if requisition.object %}
-			    				{{ requisition.object.requisition_identifier }}
+			    				<span class="label label-default" style="font-size:18px;">{{ requisition.object.requisition_identifier }}</span>
 			    			{% endif %}
 		    			</td>
 					    <td>
@@ -29,9 +29,9 @@
 							<a role="button" class="btn btn-sm {% if requisition.object.id %}btn-success{% else %}{% if requisition.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-danger{% endif %}{% endif %}" 
 										href="{{ requisition.object.get_absolute_url }}?next={{ requisition.object.next_url }}&{{ requisition.object.extra_querystring }}">
 										{% if requisition.object.id %}
-											<span class="glyphicon glyphicon-pencil"></span> Edit
+											<span class="fa fa-pencil fa-fw"></span> Edit
 										{% else %}
-											<span class="glyphicon glyphicon-plus"></span> Add
+											<span class="fa fa-plus fa-fw"></span> Add
 										{% endif %}
 							</a> 
 					        <a role="button" class="btn btn-sm btn-default" 

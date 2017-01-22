@@ -30,7 +30,8 @@ class ConsentViewMixin:
         """Returns a consent object or None from site_consents for the current period."""
         if not self._consent_object:
             try:
-                self._consent_object = site_consents.get_consent(report_datetime=self.get_utcnow())
+                self._consent_object = site_consents.get_consent(
+                    report_datetime=self.get_utcnow())
             except ConsentDoesNotExist:
                 self._consent_object = None
         return self._consent_object
@@ -44,7 +45,8 @@ class ConsentViewMixin:
             if consent:
                 self._consent = self.consent_model_wrapper_class(consent)
             else:
-                self._consent = self.consent_model_wrapper_class(self.empty_consent)
+                self._consent = self.consent_model_wrapper_class(
+                    self.empty_consent)
         return self._consent
 
     @property
