@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 
@@ -23,3 +23,11 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
         except AttributeError as e:
             if 'time_point_status' not in str(e):
                 raise AttributeError(str(e))
+
+
+@receiver(post_delete, weak=False, dispatch_uid="delete_appointments_on_post_delete")
+def delete_appointments_on_post_delete(sender, instance, using, **kwargs):
+    try:
+        instance.delete_unused_appointments()
+    except AttributeError:
+        pass

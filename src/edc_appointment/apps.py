@@ -15,12 +15,20 @@ class AppConfig(DjangoAppConfig):
     app_label = 'edc_appointment'
     default_appt_type = 'clinic'
     facilities = {
-        'clinic': Facility(name='clinic', days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])}
+        'clinic': Facility(
+            name='clinic',
+            days=[MO, TU, WE, TH, FR],
+            slots=[100, 100, 100, 100, 100])}
 
     def ready(self):
-        from .signals import create_appointments_on_post_save, appointment_post_save
+        from .signals import (
+            create_appointments_on_post_save,
+            appointment_post_save,
+            delete_appointments_on_post_delete)
+
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
-        sys.stdout.write(' * using {}.{}.\n'.format(self.app_label, self.model_name))
+        sys.stdout.write(
+            ' * using {}.{}.\n'.format(self.app_label, self.model_name))
         for facility in self.facilities.values():
             sys.stdout.write(' * {}.\n'.format(facility))
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
@@ -37,5 +45,6 @@ class AppConfig(DjangoAppConfig):
         try:
             facility = self.facilities[name]
         except KeyError:
-            raise ImproperlyConfigured('Error creating appointment. Facility {} does not exist.'.format(name))
+            raise ImproperlyConfigured(
+                'Error creating appointment. Facility {} does not exist.'.format(name))
         return facility

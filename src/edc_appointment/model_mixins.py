@@ -20,6 +20,7 @@ from .choices import APPT_TYPE, APPT_STATUS, COMPLETE_APPT, INCOMPLETE_APPT, CAN
 from .constants import IN_PROGRESS_APPT, NEW_APPT
 from .exceptions import AppointmentStatusError, CreateAppointmentError
 from .managers import AppointmentManager
+from django.db.models.deletion import ProtectedError
 
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
@@ -185,10 +186,12 @@ class CreateAppointmentsMixin(models.Model):
         base_appt_datetime = arrow.Arrow.fromdatetime(
             base_appt_datetime, base_appt_datetime.tzinfo).to('utc').datetime
         facility = app_config.get_facility(self.facility_name)
-        timepoint_datetimes = self.timepoint_datetimes(base_appt_datetime, self.schedule)
+        timepoint_datetimes = self.timepoint_datetimes(
+            base_appt_datetime, self.schedule)
         taken_datetimes = []
         for visit, timepoint_datetime in timepoint_datetimes:
-            adjusted_timepoint_datetime = self.move_to_facility_day(facility, timepoint_datetime)
+            adjusted_timepoint_datetime = self.move_to_facility_day(
+                facility, timepoint_datetime)
             available_datetime = facility.available_datetime(
                 adjusted_timepoint_datetime, taken_datetimes=taken_datetimes)
             with transaction.atomic():
@@ -224,7 +227,8 @@ class CreateAppointmentsMixin(models.Model):
             if appointment.timepoint_datetime - available_datetime != timedelta(0, 0, 0):
                 appointment.appt_datetime = available_datetime
                 appointment.timepoint_datetime = timepoint_datetime
-                appointment.save(update_fields=['appt_datetime', 'timepoint_datetime'])
+                appointment.save(
+                    update_fields=['appt_datetime', 'timepoint_datetime'])
         except self.appointment_model.DoesNotExist:
             try:
                 options.update(self.extra_create_appointment_options)
@@ -239,6 +243,18 @@ class CreateAppointmentsMixin(models.Model):
                     'model \'{}\'. Got {}. Options were {}'. format(self._meta.label_lower, str(e), options))
         return appointment
 
+    def delete_unused_appointments(self):
+        appointments = self.appointment_model.objects.filter(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name)
+        for appointment in appointments:
+            try:
+                appointment.delete()
+            except ProtectedError:
+                pass
+        return None
+
     class Meta:
         abstract = True
         visit_schedule_name = None
@@ -246,6 +262,7 @@ class CreateAppointmentsMixin(models.Model):
 
 class CreateAppointmentsOnEligibleMixin(CreateAppointmentsMixin):
     """Same as CreateAppointmentsMixin except will check for is_eigile=True before creating."""
+
     def create_appointments(self, base_appt_datetime=None):
         appointments = None
         try:
@@ -290,7 +307,8 @@ class RequiresAppointmentModelMixin(models.Model):
                 appt_status = COMPLETE_APPT
             else:
                 if appt_status in [COMPLETE_APPT, INCOMPLETE_APPT]:
-                    appt_status = INCOMPLETE_APPT if self.unkeyed_forms() else COMPLETE_APPT
+                    appt_status = INCOMPLETE_APPT if self.unkeyed_forms(
+                    ) else COMPLETE_APPT
                 elif appt_status in [NEW_APPT, CANCELLED_APPT, IN_PROGRESS_APPT]:
                     appt_status = IN_PROGRESS_APPT
                     self.update_others_as_not_in_progress(using)
@@ -352,7 +370,8 @@ class RequiresAppointmentModelMixin(models.Model):
 #
 #     def unkeyed_requisitions(self):
 #         from edc_metadata.helpers import RequisitionMetaDataHelper
-#         return RequisitionMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
+# return
+# RequisitionMetaDataHelper(self).get_meta_data(entry_status=UNKEYED)
 
     def validate_continuation_appt_datetime(self, exception_cls=None):
         exception_cls = exception_cls or ValidationError
