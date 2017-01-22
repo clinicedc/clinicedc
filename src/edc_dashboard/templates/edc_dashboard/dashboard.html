@@ -10,7 +10,7 @@
         
         {% if not visit_schedules %}
           <div class="alert alert-warning">
-              <i class="fa fa-warning fa-lg fa-fw"></i> Subject is not enrolled to any schedules.</a>
+              <i class="fa fa-warning fa-lg fa-fw"></i> Subject is not enrolled to any schedules.
           </div>
           <div class="panel panel-default">
               <div class="panel-heading">
@@ -22,7 +22,7 @@
         {% endif %}
         
 	    {% for visit_schedule in visit_schedules %}
-          <div class="panel panel-info">
+          <div class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
 		      <div class="panel-heading">
 		          <h6 class="panel-title"><i class="fa fa-calendar fa-lg fa-fw"></i> 
 		              <a data-toggle="collapse" data-parent="#accordion_schedule"
