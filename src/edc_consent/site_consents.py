@@ -19,7 +19,8 @@ class SiteConsents:
     def register(self, *consents):
         for consent in consents:
             if consent.name in [item.name for item in self.registry]:
-                raise AlreadyRegistered('Consent already registered. Got {}'.format(str(consent)))
+                raise AlreadyRegistered(
+                    'Consent already registered. Got {}'.format(str(consent)))
             self.check_consent_period_within_study_period(consent)
             self.check_consent_period_for_overlap(consent)
             self.check_version(consent)
@@ -84,12 +85,14 @@ class SiteConsents:
         """Return consent object valid for the datetime."""
         consents = []
         consent_group = consent_group or 'default'
-        registered_consents = (c for c in self.registry if c.group == consent_group)
+        registered_consents = (
+            c for c in self.registry if c.group == consent_group)
         for consent in registered_consents:
             if report_datetime:
                 if consent_model and version:
-                    if (consent.for_datetime(report_datetime) and consent_model == consent.model_name and
-                            version == consent.version):
+                    if (consent.for_datetime(report_datetime)
+                            and consent_model == consent.model_name
+                            and version == consent.version):
                         consents.append(consent)
                 elif consent_model or version:
                     if consent.for_datetime(report_datetime):
