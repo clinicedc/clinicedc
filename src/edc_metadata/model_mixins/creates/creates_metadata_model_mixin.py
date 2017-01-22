@@ -4,7 +4,7 @@ from django.db import models
 
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ...constants import REQUIRED, NOT_REQUIRED
+from ...constants import REQUIRED, NOT_REQUIRED, KEYED
 from ...exceptions import CreatesMetadataError
 
 from ..rules import MetadataRulesModelMixin
@@ -17,7 +17,8 @@ class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
 
     @property
     def metadata_query_options(self):
-        visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            self.visit_schedule_name)
         schedule = visit_schedule.get_schedule(self.schedule_name)
         visit = schedule.get_visit(self.visit_code)
         options = dict(
@@ -45,7 +46,8 @@ class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
         if not metadata_requisition_model._meta.unique_together:
             raise ImproperlyConfigured(
                 '{}.unique_together constraint not set.'.format(metadata_requisition_model._meta.label_lower))
-        visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            self.visit_schedule_name)
         schedule = visit_schedule.get_schedule(self.schedule_name)
         visit = schedule.get_visit(self.visit_code)
         try:
@@ -70,9 +72,12 @@ class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
                 **self.metadata_query_options).delete()
             metadata_exists = False
         elif reason in app_config.create_on_reasons:
-            metadata_crf_model = django_apps.get_app_config('edc_metadata').crf_model
-            metadata_requisition_model = django_apps.get_app_config('edc_metadata').requisition_model
-            visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+            metadata_crf_model = django_apps.get_app_config(
+                'edc_metadata').crf_model
+            metadata_requisition_model = django_apps.get_app_config(
+                'edc_metadata').requisition_model
+            visit_schedule = site_visit_schedules.get_visit_schedule(
+                self.visit_schedule_name)
             schedule = visit_schedule.get_schedule(self.schedule_name)
             visit = schedule.get_visit(self.visit_code)
             options = self.metadata_query_options
@@ -107,16 +112,24 @@ class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
                     getattr(self, app_config.reason_field[self._meta.label_lower])))
         return metadata_exists
 
-# TODO:
-#     def metadata_require(self):
-#         if self.survival_status == DEAD:
-#             self.require_death_report()
-#         else:
-#             self.undo_require_death_report()
-#         if self.study_status == OFF_STUDY:
-#             self.require_off_study_report()
-#         else:
-#             self.undo_require_off_study_report()
+    def metadata_delete_for_visit(self, instance=None):
+        """Deletes metadata for a visit when the visit instance
+        is deleted."""
+        metadata_crf_model = django_apps.get_app_config(
+            'edc_metadata').crf_model
+
+        # TODO: delete requisitions
+#         metadata_requisition_model = django_apps.get_app_config(
+#             'edc_metadata').requisition_model
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            self.visit_schedule_name)
+        schedule = visit_schedule.get_schedule(self.schedule_name)
+        visit = schedule.get_visit(self.visit_code)
+        metadata_crf_model.objects.filter(
+            subject_identifier=instance.subject_identifier,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+            visit_code=visit.code).exclude(entry_status=KEYED).delete()
 
     class Meta:
         abstract = True
