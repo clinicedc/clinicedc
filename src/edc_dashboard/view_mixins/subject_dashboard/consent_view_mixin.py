@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from edc_base.utils import get_utcnow
 from edc_consent.exceptions import ConsentDoesNotExist
 from edc_consent.site_consents import site_consents
@@ -52,6 +54,7 @@ class ConsentViewMixin:
         Override to include additional attrs to instantiate."""
         return self.consent_model(
             subject_identifier=self.subject_identifier,
+            consent_identifier=uuid4(),
             version=self.consent_object.version)
 
     @property
