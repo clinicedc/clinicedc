@@ -59,17 +59,21 @@ class VisitModelAdminMixin:
     """
     date_hierarchy = 'report_datetime'
 
-    fields = [
-        'appointment',
-        'report_datetime',
-        'reason',
-        'reason_missed',
-        'study_status',
-        'require_crfs',
-        'info_source',
-        'info_source_other',
-        'comments'
-    ]
+    fieldsets = (
+        (None, {
+            'fields': [
+                'appointment',
+                'report_datetime',
+                'reason',
+                'reason_missed',
+                'study_status',
+                'require_crfs',
+                'info_source',
+                'info_source_other',
+                'comments'
+            ]})
+    )
+
     list_display = ['appointment', 'report_datetime', 'reason', 'study_status', 'created',
                     'modified', 'user_created', 'user_modified', ]
 
@@ -91,7 +95,8 @@ class VisitModelAdminMixin:
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'appointment' and request.GET.get('appointment'):
-            kwargs["queryset"] = db_field.related_model.objects.filter(pk=request.GET.get('appointment', 0))
+            kwargs["queryset"] = db_field.related_model.objects.filter(
+                pk=request.GET.get('appointment', 0))
         return super(VisitModelAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
