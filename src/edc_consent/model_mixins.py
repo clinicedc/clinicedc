@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.db.models import options
 from django.db import models
 from django_crypto_fields.fields import EncryptedTextField
@@ -117,6 +119,11 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         editable=False,
         help_text='see also edc.data manager.'
     )
+
+    consent_identifier = models.UUIDField(
+        default=uuid4,
+        editable=False,
+        help_text='A unique identifier for this consent instance')
 
     objects = ObjectConsentManager()
 
