@@ -10,6 +10,7 @@ from .visit import Visit
 
 
 class Schedule:
+
     def __init__(self, name, title=None, enrollment_model=None, disenrollment_model=None, **kwargs):
         self.title = title or name
         self.death_report_model = None
@@ -20,11 +21,14 @@ class Schedule:
         self.visit_registry = {}
         self.name = name
         if not re.match(r'[a-z0-9\_\-]+$', name):
-            raise ImproperlyConfigured('Schedule name may only contains numbers, lower case letters and \'_\'.')
+            raise ImproperlyConfigured(
+                'Schedule name may only contains numbers, lower case letters and \'_\'.')
         if disenrollment_model:
-            self.disenrollment_model = django_apps.get_model(*disenrollment_model.split('.'))
+            self.disenrollment_model = django_apps.get_model(
+                *disenrollment_model.split('.'))
         if enrollment_model:
-            self.enrollment_model = django_apps.get_model(*enrollment_model.split('.'))
+            self.enrollment_model = django_apps.get_model(
+                *enrollment_model.split('.'))
 
     def __repr__(self):
         return '<Schedule({}, {})>'.format(self.name, self.enrollment_model._meta.label_lower)
@@ -35,10 +39,16 @@ class Schedule:
     def enrollment_instance(self, subject_identifier):
         """Returns the enrollment model instance or None."""
         try:
-            enrollment_instance = self.enrollment_model.objects.get(subject_identifier=subject_identifier)
+            enrollment_instance = self.enrollment_model.objects.get(
+                subject_identifier=subject_identifier,
+                schedule_name=self.name)
         except ObjectDoesNotExist:
             enrollment_instance = None
         return enrollment_instance
+
+    @property
+    def field_value(self):
+        return self.name
 
     def add_visit(self, code, **kwargs):
         visit = Visit(code, **kwargs)
@@ -54,7 +64,8 @@ class Schedule:
                 'Visit with base_interval \'{}\' already registered with schedule \'{}\'. Got {}'.format(
                     visit.base_interval, self.name, visit))
         if kwargs.get('crfs'):
-            show_orders = sorted([crf.show_order for crf in kwargs.get('crfs')])
+            show_orders = sorted(
+                [crf.show_order for crf in kwargs.get('crfs')])
             if len(list(set(show_orders))) != len(show_orders):
                 raise CrfError(
                     'Crf show order must be a unique sequence. Got {} in schedule {}'.format(show_orders, self.name))
@@ -65,9 +76,11 @@ class Schedule:
         visit = self.visit_registry.get(code)
         if interval:
             if interval > 0:
-                visits = [v for v in self.visits if v.timepoint > visit.timepoint]
+                visits = [
+                    v for v in self.visits if v.timepoint > visit.timepoint]
             else:
-                visits = [i for i in reversed([v for v in self.visits if v.timepoint < visit.timepoint])]
+                visits = [
+                    i for i in reversed([v for v in self.visits if v.timepoint < visit.timepoint])]
             try:
                 visit = visits[abs(interval) - 1]
             except IndexError:
@@ -88,7 +101,8 @@ class Schedule:
 
     @property
     def visits(self):
-        ordered_visits = sorted(self.visit_registry.values(), key=lambda x: x.timepoint)
+        ordered_visits = sorted(
+            self.visit_registry.values(), key=lambda x: x.timepoint)
         return [x for x in ordered_visits]
 
     def relativedelta_from_base(self, code=None):
@@ -97,5 +111,6 @@ class Schedule:
         if visit.base_interval == 0:
             rdelta = relativedelta(days=0)
         else:
-            rdelta = relativedelta(**{visit.base_interval_unit: visit.base_interval})
+            rdelta = relativedelta(
+                **{visit.base_interval_unit: visit.base_interval})
         return rdelta
