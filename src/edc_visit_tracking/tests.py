@@ -94,7 +94,7 @@ class TestVisit(TestCase):
             subject_identifier=self.subject_consent.subject_identifier,
             schedule_name='schedule1')
         visit_schedule = site_visit_schedules.get_visit_schedule(enrollment._meta.visit_schedule_name)
-        schedule = visit_schedule.get_schedule(enrollment._meta.label_lower)
+        schedule = visit_schedule.get_schedule('schedule1')
         # verify appointments created as per edc_example visit_schedule "subject_visit_schedule"
         self.assertEqual(Appointment.objects.all().count(), 4)
         # get appointment for first visit
