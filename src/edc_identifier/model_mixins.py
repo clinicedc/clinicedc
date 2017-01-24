@@ -5,6 +5,8 @@ from django.db import models
 
 from edc_base.utils import get_uuid
 from edc_identifier.subject_identifier import SubjectIdentifier
+from edc_identifier.exceptions import IdentifierError
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 
 class NonUniqueSubjectIdentifierFieldMixin(models.Model):
@@ -71,9 +73,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         identifier from RegisteredSubject or creating a new and unique "subject" identifier."""
         try:
             subject_identifier = self.registered_subject.subject_identifier
-        except LookupError:
-            raise
-        except self.registered_subject_model_class.DoesNotExist:
+        except ObjectDoesNotExist:
             subject_identifier = self.make_new_identifier()
         return subject_identifier
 
@@ -93,8 +93,14 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         """Returns a registered subject instance.
 
         Override this if your query options are different."""
-        return self.registered_subject_model_class.objects.get(
-            identity=self.identity)
+        try:
+            obj = self.registered_subject_model_class.objects.get(
+                identity=self.identity)
+        except MultipleObjectsReturned as e:
+            raise IdentifierError(
+                'Cannot lookup a unique RegisteredSuject instance. '
+                'Identity {} is not unique. Got {}'.format(self.identity, e))
+        return obj
 
     class Meta:
         abstract = True
