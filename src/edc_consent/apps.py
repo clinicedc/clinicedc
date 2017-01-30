@@ -2,10 +2,13 @@ import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 
+from .constants import DEFAULT_CONSENT_GROUP
+
 
 class AppConfig(DjangoAppConfig):
     name = 'edc_consent'
     verbose_name = 'Edc Consent'
+    default_consent_group = DEFAULT_CONSENT_GROUP
 
     def ready(self):
         from .site_consents import site_consents

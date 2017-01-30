@@ -31,12 +31,14 @@ class SiteConsents:
         self.registry = []
 
     def backup_registry(self):
-        """Backs up registry for tests."""
+        """Backs up registry for tests.
+        """
         self._backup_registry = copy.copy(self.registry)
         self.registry = []
 
     def restore_registry(self):
-        """Restores registry for tests."""
+        """Restores registry for tests.
+        """
         self.registry = copy.copy(self._backup_registry)
         self._backup_registry = []
 
@@ -51,7 +53,8 @@ class SiteConsents:
         return [consent.model_name for consent in self.registry]
 
     def all_subject_types(self):
-        """Returns a list of consents by subject_type."""
+        """Returns a list of consents by subject_type.
+        """
         all_subject_types = {}
         for consent in self.registry:
             try:
@@ -61,7 +64,9 @@ class SiteConsents:
         return sorted(all_subject_types, key=lambda x: x.subject_type, reverse=False)
 
     def get_consents_by_model(self, consent_model=None):
-        """Returns a list of consents configured with the given consent model."""
+        """Returns a list of consents configured with the given
+        consent model.
+        """
         try:
             consent_model = consent_model._meta.label_lower
         except AttributeError:
@@ -69,24 +74,37 @@ class SiteConsents:
         return [consent for consent in self.registry if consent.model_name == consent_model]
 
     def get_consents_by_version(self, consent_model=None, version=None):
-        """Returns a list of consents of "version" configured with the given consent model."""
+        """Returns a list of consents of "version" configured with
+        the given consent model.
+        """
         consents = self.get_consents_by_model(consent_model)
         return [consent for consent in consents if consent.version == version]
 
     def get_all_by_version(self, version=None):
-        """Returns a list of all consents using the given version regardless of the consent model."""
+        """Returns a list of all consents using the given version
+        regardless of the consent model.
+        """
         return [consent for consent in self.registry if consent.version == version]
 
     def get_by_subject_type(self, subject_type=None):
-        """Returns a list of all consents using the given subject_type regardless of the consent model."""
-        return [consent for consent in self.registry if consent.subject_type == subject_type]
+        """Returns a list of all consents using the given subject_type
+        regardless of the consent model.
+        """
+        return [
+            consent for consent in self.registry
+            if consent.subject_type == subject_type]
 
-    def get_consent(self, report_datetime=None, consent_model=None, version=None, consent_group=None, **kwargs):
-        """Return consent object valid for the datetime."""
+    def get_consent(self, report_datetime=None, consent_model=None,
+                    version=None, consent_group=None, **kwargs):
+        """Return consent object valid for the datetime.
+        """
         consents = []
-        consent_group = consent_group or 'default'
-        registered_consents = (
-            c for c in self.registry if c.group == consent_group)
+        # consent_group = consent_group or 'default'
+        if consent_group:
+            registered_consents = (
+                c for c in self.registry if c.group == consent_group)
+        else:
+            registered_consents = self.registry
         for consent in registered_consents:
             if report_datetime:
                 if consent_model and version:
@@ -105,23 +123,35 @@ class SiteConsents:
                         consents.append(consent)
             elif not report_datetime:
                 if (consent_model or version):
-                    if consent_model and not version and consent_model == consent.model_name:
+                    if (consent_model
+                            and not version
+                            and consent_model == consent.model_name):
                         consents.append(consent)
-                    if not consent_model and version and version == consent.version:
+                    if (not consent_model
+                            and version
+                            and version == consent.version):
                         consents.append(consent)
         if not consents:
             raise ConsentDoesNotExist(
-                'No matching consent in site consents. Using consent model=\'{}\', date={}, version={}. '.format(
-                    consent_model, report_datetime, version))
+                'No matching consent in site consents. Using consent '
+                'model={}, date={}, consent_group={}, '
+                'version={}. '.format(
+                    consent_model, report_datetime, consent_group, version))
         elif len(list(set([consent.name for consent in consents]))) > 1:
             raise ConsentError(
-                'Multiple consents found, using consent model={}, date={}, version={}. Got {}'.format(
-                    consent_model, report_datetime, version, consents))
+                'Multiple consents found, using consent model={}, date={}, '
+                'consent_group={}, version={}. Got {}'.format(
+                    consent_model,
+                    report_datetime,
+                    consent_group,
+                    version,
+                    consents))
         return consents[0]
 
     def check_updates_versions(self, new_consent):
         for version in new_consent.updates_versions:
-            if not self.get_consents_by_version(consent_model=new_consent.model_name, version=version):
+            if not self.get_consents_by_version(
+                    consent_model=new_consent.model_name, version=version):
                 raise ConsentVersionSequenceError(
                     'Consent version {1} cannot be an update to version(s) \'{0}\'. '
                     'Version \'{0}\' not found for \'{2}\''.format(
@@ -132,19 +162,24 @@ class SiteConsents:
         if self.get_consents_by_version(
                 consent_model=new_consent.model_name, version=new_consent.version):
             raise ConsentVersionSequenceError(
-                'Consent version {update_versions} for \'{consent_model}.{version}\' is already registered'.format(
-                    update_versions=', '.join(new_consent.updates_versions), version=new_consent.version,
+                'Consent version {update_versions} for \'{consent_model}.{version}\''
+                ' is already registered'.format(
+                    update_versions=', '.join(new_consent.updates_versions),
+                    version=new_consent.version,
                     consent_model=new_consent.model_name))
 
     def check_consent_period_for_overlap(self, new_consent):
-        """Raises an error if consent period overlaps with a registered consent."""
+        """Raises an error if consent period overlaps with a
+        registered consent.
+        """
         for consent in self.consents:
             if consent.model_name == new_consent.model_name:
                 if (new_consent.start <= consent.start <= new_consent.end or
                         new_consent.start <= consent.end <= new_consent.end):
                     raise ConsentPeriodOverlapError(
-                        'Consent periods overlap. Version \'{0}\' overlaps with version \'{1}\'. '
-                        'Got {2} to {3} overlaps with {4} to {5}.'.format(
+                        'Consent periods overlap. Version \'{0}\' '
+                        'overlaps with version \'{1}\'. Got {2} to {3} '
+                        'overlaps with {4} to {5}.'.format(
                             ', '.join(new_consent.updates_versions),
                             new_consent.version,
                             consent.start.strftime('%Y-%m-%d'),
@@ -162,10 +197,15 @@ class SiteConsents:
                     'Invalid consent. Consent period for {} must be within '
                     'study open/close dates of {} - {}. Got {}={}'.format(
                         new_consent.name,
-                        study_open_datetime, study_close_datetime, 'start' if index == 0 else 'end', dt))
+                        study_open_datetime,
+                        study_close_datetime,
+                        'start' if index == 0 else 'end',
+                        dt))
 
     def autodiscover(self, module_name=None, verbose=True):
-        """Autodiscovers consent classes in the consents.py file of any INSTALLED_APP."""
+        """Autodiscovers consent classes in the consents.py file of
+        any INSTALLED_APP.
+        """
         module_name = module_name or 'consents'
         writer = sys.stdout.write if verbose else lambda x: x
         style = color_style()
@@ -178,7 +218,8 @@ class SiteConsents:
                     before_import_registry = copy.copy(site_consents.registry)
                     import_module('{}.{}'.format(app, module_name))
                     writer(
-                        ' * registered consents \'{}\' from \'{}\'\n'.format(module_name, app))
+                        ' * registered consents \'{}\' from \'{}\'\n'.format(
+                            module_name, app))
                 except ConsentError as e:
                     writer('   - loading {}.consents ... '.format(app))
                     writer(style.ERROR('ERROR! {}\n'.format(str(e))))
@@ -190,6 +231,7 @@ class SiteConsents:
                 pass
             except Exception as e:
                 raise SiteConsentError(
-                    'An {} was raised when loading site_consents. Got {}.'.format(e.__class__.__name__, str(e)))
+                    'An {} was raised when loading site_consents. Got '
+                    '{}.'.format(e.__class__.__name__, str(e)))
 
 site_consents = SiteConsents()
