@@ -38,7 +38,8 @@ class BaseSpecimenConsentForm(forms.ModelForm):
         value = cleaned_data.get(attrname)
         study_consent_value = getattr(study_consent, attrname)
         if value != study_consent_value:
-            fields = [field for field in study_consent._meta.fields if field.name == attrname]
+            fields = [
+                field for field in study_consent._meta.fields if field.name == attrname]
             raise forms.ValidationError(
                 'Specimen consent and maternal consent do not match for question '
                 '\'{}\'. Got {} != {}. Please correct.'.format(
@@ -66,4 +67,5 @@ class BaseSpecimenConsentForm(forms.ModelForm):
             if cleaned_data.get('offered_copy') != NO:
                 raise forms.ValidationError(
                     'Participant did not agree for specimens to be stored. '
-                    'Do not provide the participant with a copy of the specimen consent.')
+                    'Do not provide the participant with a copy of '
+                    'the specimen consent.')

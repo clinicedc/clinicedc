@@ -6,7 +6,8 @@ class VerificationFieldsMixin(models.Model):
     """A fields mixin for models that are verified against a
     paper document, such as an ICF.
 
-    These fields are updated through an Admin action"""
+    These fields are updated through an Admin action
+    """
 
     is_verified = models.BooleanField(default=False, editable=False)
 

@@ -12,28 +12,33 @@ from edc_constants.constants import NOT_APPLICABLE
 from edc_protocol.validators import datetime_not_before_study_start
 
 from .choices import YES_NO_DECLINED_COPY
-from .exceptions import SiteConsentError, NotConsentedError, ConsentVersionSequenceError
+from .exceptions import (
+    SiteConsentError, NotConsentedError, ConsentVersionSequenceError)
 from .field_mixins import VerificationFieldsMixin
 from .managers import ObjectConsentManager, ConsentManager
 from .site_consents import site_consents
 from edc_consent.exceptions import ConsentDoesNotExist
 
 
-options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model', 'consent_group')
+options.DEFAULT_NAMES = (options.DEFAULT_NAMES
+                         + ('consent_model', 'consent_group'))
 
 
 class RequiresConsentMixin(models.Model):
 
-    """Requires a model to check for a valid consent before allowing to save.
+    """Requires a model to check for a valid consent before
+    allowing to save.
 
     Requires attrs subject_identfier, report_datetime"""
 
-    consent_version = models.CharField(max_length=10, default='?', editable=False)
+    consent_version = models.CharField(
+        max_length=10, default='?', editable=False)
 
     def save(self, *args, **kwargs):
         if not self._meta.consent_model:
             raise ImproperlyConfigured(
-                'Consent model attribute not set. Got \'{}.consent_model\' = None'.format(
+                'Consent model attribute not set. Got '
+                '\'{}.consent_model\' = None'.format(
                     self._meta.label_lower))
         super(RequiresConsentMixin, self).save(*args, **kwargs)
 
@@ -50,7 +55,8 @@ class RequiresConsentMixin(models.Model):
         try:
             if not self.subject_identifier:
                 raise SiteConsentError(
-                    'Cannot lookup {} instance for subject. Got \'subject_identifier\' is None.'.format(
+                    'Cannot lookup {} instance for subject. '
+                    'Got \'subject_identifier\' is None.'.format(
                         consent_object.model._meta.label_lower))
             options = dict(
                 subject_identifier=self.subject_identifier,
@@ -58,14 +64,16 @@ class RequiresConsentMixin(models.Model):
             consent_object.model.objects.get(**options)
         except consent_object.model.DoesNotExist:
             raise NotConsentedError(
-                'Consent is required. Cannot find \'{consent_model} version {version}\' '
-                'when saving model \'{model}\' for subject \'{subject_identifier}\' with date '
+                'Consent is required. Cannot find \'{consent_model} '
+                'version {version}\' when saving model \'{model}\' for '
+                'subject \'{subject_identifier}\' with date '
                 '\'{report_datetime}\' .'.format(
                     subject_identifier=self.subject_identifier,
                     consent_model=consent_object.model._meta.label_lower,
                     model=self._meta.label_lower,
                     version=consent_object.version,
-                    report_datetime=self.report_datetime.strftime('%Y-%m-%d %H:%M%z')))
+                    report_datetime=self.report_datetime.strftime(
+                        '%Y-%m-%d %H:%M%z')))
         super().common_clean()
 
     class Meta:
@@ -78,10 +86,11 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
     """Mixin for a Consent model class such as SubjectConsent.
 
-    Use with edc_identifier's SubjectIdentifierModelMixin"""
+    Use with edc_identifier's SubjectIdentifierModelMixin
+    """
 
     consent_datetime = models.DateTimeField(
-        verbose_name="Consent date and time",
+        verbose_name='Consent date and time',
         validators=[
             datetime_not_before_study_start,
             datetime_not_future, ],
@@ -98,7 +107,7 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     study_site = models.CharField(max_length=15, null=True)
 
     sid = models.CharField(
-        verbose_name="SID",
+        verbose_name='SID',
         max_length=15,
         null=True,
         blank=True,
@@ -106,14 +115,14 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     )
 
     comment = EncryptedTextField(
-        verbose_name="Comment",
+        verbose_name='Comment',
         max_length=250,
         blank=True,
         null=True
     )
 
     dm_comment = models.CharField(
-        verbose_name="Data Management comment",
+        verbose_name='Data Management comment',
         max_length=150,
         null=True,
         editable=False,
@@ -131,7 +140,8 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
     def __str__(self):
         return '{0} {1} {2} ({3}) v{4}'.format(
-            self.subject_identifier, self.first_name, self.last_name, self.initials, self.version)
+            self.subject_identifier, self.first_name,
+            self.last_name, self.initials, self.version)
 
     def natural_key(self):
         return (self.subject_identifier_as_pk, )
@@ -158,8 +168,9 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
                 **self.additional_filter_options())
         except self.__class__.DoesNotExist:
             raise ConsentVersionSequenceError(
-                'Previous consent with version {0} for this subject not found. Version {1} updates {0}. '
-                'Ensure all details match (identity, dob, first_name, last_name)'.format(
+                'Previous consent with version {0} for this subject not '
+                'found. Version {1} updates {0}. Ensure all details '
+                'match (identity, dob, first_name, last_name)'.format(
                     ', '.join(consent.updates_versions), self.version))
         except MultipleObjectsReturned:
             previous_consents = self.__class__.objects.filter(
@@ -173,7 +184,8 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     @property
     def common_clean_exceptions(self):
         common_clean_exceptions = super().common_clean_exceptions
-        return common_clean_exceptions + [ConsentVersionSequenceError, ConsentDoesNotExist]
+        return (common_clean_exceptions
+                + [ConsentVersionSequenceError, ConsentDoesNotExist])
 
     def common_clean(self):
         consent = site_consents.get_consent(
@@ -189,7 +201,9 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         return self.consent_datetime
 
     def additional_filter_options(self):
-        """Additional kwargs to filter the consent when looking for the previous consent."""
+        """Additional kwargs to filter the consent when looking
+        for the previous consent.
+        """
         return {}
 
     @property
@@ -214,11 +228,13 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
 class SpecimenConsentMixin(VerificationFieldsMixin, models.Model):
 
-    """ A base class for a model completed by the user indicating whether a participant has agreed
-    for specimens to be stored after study closure."""
+    """A base class for a model completed by the user indicating
+    whether a participant has agreed
+    for specimens to be stored after study closure.
+    """
 
     consent_datetime = models.DateTimeField(
-        verbose_name="Consent date and time",
+        verbose_name='Consent date and time',
         validators=[
             datetime_not_before_study_start,
             datetime_not_future, ],
@@ -235,18 +251,19 @@ class SpecimenConsentMixin(VerificationFieldsMixin, models.Model):
     )
 
     purpose_explained = models.CharField(
-        verbose_name=("I have explained the purpose of the specimen consent"
-                      " to the participant."),
+        verbose_name=('I have explained the purpose of the specimen consent'
+                      ' to the participant.'),
         max_length=15,
         choices=YES_NO_NA,
         null=True,
         blank=False,
         default=NOT_APPLICABLE,
-        help_text="")
+        help_text='')
 
     purpose_understood = models.CharField(
-        verbose_name=("To the best of my knowledge, the client understands"
-                      " the purpose, procedures, risks and benefits of the specimen consent"),
+        verbose_name=('To the best of my knowledge, the client understands'
+                      ' the purpose, procedures, risks and benefits of the '
+                      'specimen consent'),
         max_length=15,
         choices=YES_NO_NA,
         null=True,
@@ -254,14 +271,14 @@ class SpecimenConsentMixin(VerificationFieldsMixin, models.Model):
         default=NOT_APPLICABLE,)
 
     offered_copy = models.CharField(
-        verbose_name=("I offered the participant a copy of the signed specimen consent and "
-                      "the participant accepted the copy"),
+        verbose_name=('I offered the participant a copy of the signed '
+                      'specimen consent and the participant accepted the copy'),
         max_length=20,
         choices=YES_NO_DECLINED_COPY,
         null=True,
         blank=False,
-        help_text=("If participant declined the copy, return the copy to the clinic to be "
-                   "filed with the original specimen consent")
+        help_text=('If participant declined the copy, return the copy '
+                   'to the clinic to be filed with the original specimen consent')
     )
 
     class Meta:

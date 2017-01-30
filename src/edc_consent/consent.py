@@ -4,21 +4,26 @@ from django.apps import apps as django_apps
 
 
 class ArrowObject:
+
     def __init__(self, start_dt, end_dt):
-        self.rstart = arrow.Arrow.fromdatetime(start_dt, start_dt.tzinfo).to('utc')
+        self.rstart = arrow.Arrow.fromdatetime(
+            start_dt, start_dt.tzinfo).to('utc')
         self.rend = arrow.Arrow.fromdatetime(end_dt, end_dt.tzinfo).to('utc')
 
 
 class Consent:
 
     def __init__(self, model, **kwargs):
-        """A class that represents the general attributes of a consent."""
+        """A class that represents the general attributes of a consent.
+        """
         self.model_name = model
         self.group = kwargs.get('group', 'default')
         self.start = kwargs.get('start')
-        self.start = arrow.Arrow.fromdatetime(self.start, self.start.tzinfo).to('UTC').datetime
+        self.start = arrow.Arrow.fromdatetime(
+            self.start, self.start.tzinfo).to('UTC').datetime
         self.end = kwargs.get('end')
-        self.end = arrow.Arrow.fromdatetime(self.end, self.end.tzinfo).to('UTC').datetime
+        self.end = arrow.Arrow.fromdatetime(
+            self.end, self.end.tzinfo).to('UTC').datetime
         self.updates_versions = kwargs.get('updates_versions', [])
         self.version = kwargs.get('version', '0')
         self.gender = kwargs.get('gender', [])
@@ -29,11 +34,13 @@ class Consent:
         if self.updates_versions:
             if not isinstance(self.updates_versions, (list, tuple)):
                 self.updates_versions = [
-                    x.strip() for x in self.updates_versions.split(',') if x.strip() != '']
+                    x.strip() for x in self.updates_versions.split(',')
+                    if x.strip() != '']
 
     def __repr__(self):
-        return '{0}(consent_model={1.model_name}, version={1.version}, ...)'.format(
-            self.__class__.__name__, self)
+        return ('{0}(consent_model={1.model_name}, version={1.version}, '
+                '...)'.format(
+                    self.__class__.__name__, self))
 
     def __str__(self):
         return self.name

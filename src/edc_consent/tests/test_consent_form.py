@@ -65,7 +65,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             'edc_example.subjectconsent',
             dob=self.dob,
             consent_datetime=self.study_open_datetime)
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = (subject_consent.first_name[0]
+                                    + subject_consent.last_name[0])
         consent_form = SubjectConsentForm(data=subject_consent.__dict__)
         self.assertTrue(consent_form.is_valid())
 
@@ -83,7 +84,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             'edc_example.subjectconsent',
             consent_datetime=self.study_open_datetime + relativedelta(days=1),
             dob=self.dob)
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         consent_form = SubjectConsentForm(data=subject_consent.__dict__)
         self.assertTrue(consent_form.is_valid())
         self.assertIsNone(consent_form.errors.get('consent_datetime'))
@@ -94,7 +96,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         subject_consent.confirm_identity = '1'
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         consent_form = SubjectConsentForm(data=subject_consent.__dict__)
         self.assertFalse(consent_form.is_valid())
 
@@ -113,61 +116,74 @@ class TestConsentForm(DatesTestMixin, TestCase):
         self.assertFalse(consent_form.is_valid())
 
     def test_base_form_guardian_and_dob1(self):
-        """Asserts form for minor is not valid without guardian name."""
+        """Asserts form for minor is not valid without guardian name.
+        """
         subject_consent = mommy.prepare_recipe(
             'edc_example.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         subject_consent.guardian_name = None
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         consent = site_consents.get_consent(
             report_datetime=subject_consent.consent_datetime,
             consent_model=subject_consent._meta.label_lower)
-        subject_consent.dob = self.study_open_datetime - relativedelta(years=consent.age_is_adult - 1)
+        subject_consent.dob = self.study_open_datetime - \
+            relativedelta(years=consent.age_is_adult - 1)
         consent_form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(consent_form.is_valid())
 
     def test_base_form_guardian_and_dob2(self):
-        """Asserts form for minor is valid with guardian name."""
+        """Asserts form for minor is valid with guardian name.
+        """
         subject_consent = mommy.prepare_recipe(
             'edc_example.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         subject_consent.guardian_name = 'SPOCK, YOUCOULDNTPRONOUNCEIT'
         consent = site_consents.get_consent(
             report_datetime=subject_consent.consent_datetime,
             consent_model=subject_consent._meta.label_lower)
-        subject_consent.dob = self.study_open_datetime - relativedelta(years=consent.age_is_adult - 1)
+        subject_consent.dob = self.study_open_datetime - \
+            relativedelta(years=consent.age_is_adult - 1)
         consent_form = SubjectConsentForm(subject_consent.__dict__)
         self.assertTrue(consent_form.is_valid())
 
     def test_base_form_guardian_and_dob3(self):
-        """Asserts form for adult is valid."""
+        """Asserts form for adult is valid.
+        """
         subject_consent = mommy.prepare_recipe(
             'edc_example.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         consent = site_consents.get_consent(
             report_datetime=subject_consent.consent_datetime,
             consent_model=subject_consent._meta.label_lower)
-        subject_consent.dob = self.study_open_datetime - relativedelta(years=consent.age_is_adult)
+        subject_consent.dob = self.study_open_datetime - \
+            relativedelta(years=consent.age_is_adult)
         consent_form = SubjectConsentForm(subject_consent.__dict__)
         self.assertTrue(consent_form.is_valid())
 
     def test_base_form_guardian_and_dob4(self):
-        """Asserts form for adult is not valid if guardian name specified."""
+        """Asserts form for adult is not valid if guardian name
+        specified.
+        """
         subject_consent = mommy.prepare_recipe(
             'edc_example.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         subject_consent.guardian_name = 'SPOCK, YOUCOULDNTPRONOUNCEIT'
         consent = site_consents.get_consent(
             report_datetime=subject_consent.consent_datetime,
             consent_model=subject_consent._meta.label_lower)
-        subject_consent.dob = self.study_open_datetime - relativedelta(years=consent.age_is_adult)
+        subject_consent.dob = self.study_open_datetime - \
+            relativedelta(years=consent.age_is_adult)
         consent_form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(consent_form.is_valid())
 
@@ -176,7 +192,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             'edc_example.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob + relativedelta(years=25))
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         consent_form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(consent_form.is_valid())
 
@@ -185,7 +202,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             'edc_example.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob - relativedelta(years=100))
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         consent_form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(consent_form.is_valid())
 
@@ -202,7 +220,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             dob=self.dob,
             gender=MALE)
         form = SubjectConsentForm(subject_consent.__dict__)
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         self.assertTrue(form.is_valid())
         subject_consent = mommy.prepare_recipe(
             'edc_example.subjectconsent',
@@ -210,7 +229,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             dob=self.dob,
             gender=FEMALE)
         form = SubjectConsentForm(subject_consent.__dict__)
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         self.assertFalse(form.is_valid())
 
     def test_base_form_catches_is_literate_and_witness(self):
@@ -220,7 +240,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
             dob=self.dob,
             is_literate=NO,
             witness_name='')
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(form.is_valid())
         subject_consent = mommy.prepare_recipe(
@@ -229,6 +250,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
             dob=self.dob,
             is_literate=NO,
             witness_name='BOND, JAMES')
-        subject_consent.initials = subject_consent.first_name[0] + subject_consent.last_name[0]
+        subject_consent.initials = subject_consent.first_name[
+            0] + subject_consent.last_name[0]
         form = SubjectConsentForm(subject_consent.__dict__)
         self.assertTrue(form.is_valid())

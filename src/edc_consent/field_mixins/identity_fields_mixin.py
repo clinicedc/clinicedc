@@ -9,12 +9,12 @@ from edc_base.model.fields import IdentityTypeField
 class IdentityFieldsMixin(CryptoMixin, models.Model):
 
     identity = IdentityField(
-        verbose_name="Identity number")
+        verbose_name='Identity number')
 
     identity_type = IdentityTypeField()
 
     confirm_identity = IdentityField(
-        help_text="Retype the identity number",
+        help_text='Retype the identity number',
         null=True,
         blank=False
     )

@@ -55,7 +55,9 @@ class TestConsentModel(DatesTestMixin, TestCase):
         self.assertEqual(subject_consent.first_name, 'ERIK')
 
     def test_gets_subject_identifier(self):
-        """Asserts a blank subject identifier is set to the subject_identifier_as_pk."""
+        """Asserts a blank subject identifier is set to the
+        subject_identifier_as_pk.
+        """
         consent = mommy.make_recipe(
             'edc_example.subjectconsent',
             subject_identifier=None,
@@ -63,17 +65,21 @@ class TestConsentModel(DatesTestMixin, TestCase):
             dob=self.dob,
             study_site='40')
         self.assertIsNotNone(consent.subject_identifier)
-        self.assertNotEqual(consent.subject_identifier, consent.subject_identifier_as_pk)
+        self.assertNotEqual(
+            consent.subject_identifier, consent.subject_identifier_as_pk)
         consent.save()
         self.assertIsNotNone(consent.subject_identifier)
-        self.assertNotEqual(consent.subject_identifier, consent.subject_identifier_as_pk)
+        self.assertNotEqual(
+            consent.subject_identifier, consent.subject_identifier_as_pk)
 
     def test_subject_has_current_consent(self):
         subject_identifier = '123456789'
         identity = '987654321'
         mommy.make_recipe(
             'edc_example.subjectconsent',
-            subject_identifier=subject_identifier, identity=identity, confirm_identity=identity,
+            subject_identifier=subject_identifier,
+            identity=identity,
+            confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=1),
             dob=self.get_utcnow() + relativedelta(years=25))
         subject_consent = SubjectConsent.consent.consent_for_period(

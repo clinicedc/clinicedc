@@ -1,12 +1,14 @@
 from django.contrib import admin
 
 from edc_base.modeladmin_mixins import ModelAdminBasicMixin
-from edc_consent.actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
+from edc_consent.actions import (
+    flag_as_verified_against_paper, unflag_as_verified_against_paper)
 
 
 class ModelAdminConsentMixin(ModelAdminBasicMixin):
 
-    actions = [flag_as_verified_against_paper, unflag_as_verified_against_paper]
+    actions = [flag_as_verified_against_paper,
+               unflag_as_verified_against_paper]
 
     def get_readonly_fields(self, request, obj=None):
         super(ModelAdminConsentMixin, self).get_readonly_fields(request, obj)
@@ -17,9 +19,11 @@ class ModelAdminConsentMixin(ModelAdminBasicMixin):
                 'study_site',
                 'consent_datetime',) + self.readonly_fields
         else:
-            return ('subject_identifier', 'subject_identifier_as_pk',) + self.readonly_fields
+            return (('subject_identifier', 'subject_identifier_as_pk',)
+                    + self.readonly_fields)
 
-    mixin_search_fields = ['id', 'subject_identifier', 'first_name', 'last_name', 'identity']
+    mixin_search_fields = [
+        'id', 'subject_identifier', 'first_name', 'last_name', 'identity']
 
     mixin_fields = [
         'subject_identifier',
@@ -60,8 +64,10 @@ class ModelAdminConsentMixin(ModelAdminBasicMixin):
         "is_literate": admin.VERTICAL}
 
     mixin_list_display = [
-        'subject_identifier', 'is_verified', 'is_verified_datetime', 'first_name',
-        'initials', 'gender', 'dob', 'may_store_samples', 'consent_datetime', 'created', 'modified',
+        'subject_identifier', 'is_verified', 'is_verified_datetime',
+        'first_name',
+        'initials', 'gender', 'dob', 'may_store_samples',
+        'consent_datetime', 'created', 'modified',
         'user_created', 'user_modified']
 
     mixin_list_filter = [

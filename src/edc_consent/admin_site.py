@@ -6,4 +6,6 @@ class EdcConsentAdminSite(AdminSite):
     site_title = 'Consent'
     index_title = 'Consent'
     site_url = '/edc-consent/'
+
+
 edc_consent_admin = EdcConsentAdminSite(name='edc_consent_admin')

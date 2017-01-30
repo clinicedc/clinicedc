@@ -8,14 +8,16 @@ from edc_base.model.fields import IdentityTypeField
 class IdentityFieldsMixin(models.Model):
 
     identity = IdentityField(
-        verbose_name="Identity number (OMANG, etc)",
-        help_text=("Use Omang, Passport number, driver's license number or Omang receipt number")
+        verbose_name='Identity number (OMANG, etc)',
+        help_text=(
+            'Use Omang, Passport number, driver\'s license '
+            'number or Omang receipt number')
     )
 
     identity_type = IdentityTypeField()
 
     confirm_identity = IdentityField(
-        help_text="Retype the identity number from the identity card",
+        help_text='Retype the identity number from the identity card',
         null=True,
         blank=False
     )

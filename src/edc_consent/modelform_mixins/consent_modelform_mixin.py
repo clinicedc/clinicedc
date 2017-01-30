@@ -21,8 +21,6 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
 
     def clean(self):
         cleaned_data = super().clean()
-#         if not cleaned_data.get('consent_datetime'):
-#             raise forms.ValidationError('Please provide the date of consent')
         self.clean_initials_with_full_name()
         self.clean_gender_of_consent()
         self.clean_is_literate_and_witness()
@@ -37,7 +35,8 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         cleaned_data = self.cleaned_data
         try:
             consent_config = site_consents.get_consent(
-                report_datetime=cleaned_data.get('consent_datetime') or self.instance.consent_datetime,
+                report_datetime=cleaned_data.get(
+                    'consent_datetime') or self.instance.consent_datetime,
                 consent_model=self._meta.model._meta.label_lower,
                 consent_group=self._meta.model._meta.consent_group
             )
@@ -51,9 +50,11 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         confirm_identity = cleaned_data.get('confirm_identity')
         if identity != confirm_identity:
             raise forms.ValidationError(
-                {'identity': 'Identity mismatch. Identity must match the confirmation field. '
-                 'Got {} != {}'.format(identity, confirm_identity)},
-                params={'identity': identity, 'confirm_identity': confirm_identity},
+                {'identity': 'Identity mismatch. Identity must match '
+                 'the confirmation field. Got {} != {}'.format(
+                     identity, confirm_identity)},
+                params={
+                    'identity': identity, 'confirm_identity': confirm_identity},
                 code='invalid')
 
     def clean_identity_with_unique_fields(self):
@@ -62,21 +63,28 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         first_name = cleaned_data.get('first_name')
         initials = cleaned_data.get('initials')
         dob = cleaned_data.get('dob')
-        unique_together_form = self.unique_together_string(first_name, initials, dob)
+        unique_together_form = self.unique_together_string(
+            first_name, initials, dob)
         for consent in self._meta.model.objects.filter(identity=identity):
-            unique_together_model = self.unique_together_string(consent.first_name, consent.initials, consent.dob)
+            unique_together_model = self.unique_together_string(
+                consent.first_name, consent.initials, consent.dob)
             if unique_together_form != unique_together_model:
                 raise forms.ValidationError(
                     {'identity': 'Identity \'{}\' is already in use by subject {}. '
                      'Please resolve.'.format(identity, consent.subject_identifier)},
-                    params={'subject_identifier': consent.subject_identifier, 'identity': identity},
+                    params={
+                        'subject_identifier': consent.subject_identifier,
+                        'identity': identity},
                     code='invalid')
-        for consent in self._meta.model.objects.filter(first_name=first_name, initials=initials, dob=dob):
+        for consent in self._meta.model.objects.filter(
+                first_name=first_name, initials=initials, dob=dob):
             if consent.identity != identity:
                 raise forms.ValidationError(
                     'Subject\'s identity was previously reported as \'{}\'. '
-                    'You wrote \'{}\'. Please resolve.'.format(consent.identity, identity),
-                    params={'existing_identity': consent.identity, 'identity': identity},
+                    'You wrote \'{}\'. Please resolve.'.format(
+                        consent.identity, identity),
+                    params={
+                        'existing_identity': consent.identity, 'identity': identity},
                     code='invalid')
 
     # ok
@@ -89,39 +97,50 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
             if initials[:1] != first_name[:1] or initials[-1:] != last_name[:1]:
                 raise forms.ValidationError(
                     {'initials': 'Initials do not match full name.'},
-                    params={'initials': initials, 'first_name': first_name, 'last_name': last_name},
+                    params={
+                        'initials': initials,
+                        'first_name': first_name,
+                        'last_name': last_name},
                     code='invalid')
         except (IndexError, TypeError):
             raise forms.ValidationError('Initials do not match fullname.')
 
     def clean_guardian_and_dob(self):
-        """Validates if guardian is required based in AGE_IS_ADULT set on the model."""
+        """Validates if guardian is required based in AGE_IS_ADULT
+        set on the model.
+        """
         cleaned_data = self.cleaned_data
         guardian = cleaned_data.get("guardian_name")
         dob = cleaned_data.get('dob')
-        consent_datetime = timezone.localtime(cleaned_data.get('consent_datetime', self.instance.consent_datetime))
+        consent_datetime = timezone.localtime(
+            cleaned_data.get('consent_datetime', self.instance.consent_datetime))
         rdelta = relativedelta(consent_datetime.date(), dob)
         if rdelta.years < self.consent_config.age_is_adult:
             if not guardian:
                 raise forms.ValidationError(
                     'Subject\'s age is {}. Subject is a minor. Guardian\'s '
-                    'name is required with signature on the paper document.'.format(
+                    'name is required with signature on the paper '
+                    'document.'.format(
                         formatted_age(dob, consent_datetime)),
                     params={'age': formatted_age(dob, consent_datetime)},
                     code='invalid')
         if rdelta.years >= self.consent_config.age_is_adult and guardian:
             if guardian:
                 raise forms.ValidationError(
-                    'Subject\'s age is {}. Subject is an adult. Guardian\'s name is '
-                    'NOT required.'.format(formatted_age(dob, consent_datetime)),
+                    'Subject\'s age is {}. Subject is an adult. Guardian\'s '
+                    'name is NOT required.'.format(
+                        formatted_age(dob, consent_datetime)),
                     params={'age': formatted_age(dob, consent_datetime)},
                     code='invalid')
 
     def clean_dob_relative_to_consent_datetime(self):
-        """Validates that the dob is within the bounds of MIN and MAX set on the model."""
+        """Validates that the dob is within the bounds of MIN and
+        MAX set on the model.
+        """
         cleaned_data = self.cleaned_data
         dob = cleaned_data.get('dob')
-        consent_datetime = cleaned_data.get('consent_datetime', self.instance.consent_datetime)
+        consent_datetime = cleaned_data.get(
+            'consent_datetime', self.instance.consent_datetime)
         if not consent_datetime:
             self._errors["consent_datetime"] = ErrorList(
                 [u"This field is required. Please fill consent date and time."])
@@ -129,14 +148,16 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         rdelta = relativedelta(consent_datetime.date(), dob)
         if rdelta.years > self.consent_config.age_max:
             raise forms.ValidationError(
-                'Subject\'s age is %(age)s. Subject is not eligible for consent. Maximum age of consent is %(max)s.',
+                'Subject\'s age is %(age)s. Subject is not eligible for '
+                'consent. Maximum age of consent is %(max)s.',
                 params={
                     'age': formatted_age(dob, consent_datetime),
                     'max': self.consent_config.age_max},
                 code='invalid')
         if rdelta.years < self.consent_config.age_min:
             raise forms.ValidationError(
-                'Subject\'s age is %(age)s. Subject is not eligible for consent. Minimum age of consent is %(min)s.',
+                'Subject\'s age is %(age)s. Subject is not eligible for '
+                'consent. Minimum age of consent is %(min)s.',
                 params={
                     'age': formatted_age(dob, consent_datetime),
                     'min': self.consent_config.age_min},
@@ -148,12 +169,14 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         witness_name = cleaned_data.get('witness_name')
         if is_literate == NO and not witness_name:
             raise forms.ValidationError(
-                'You wrote subject is illiterate. Please provide the name of a witness '
-                'on this form and signature on the paper document.',
+                'You wrote subject is illiterate. Please provide the '
+                'name of a witness on this form and signature on the '
+                'paper document.',
                 code='invalid')
         if is_literate == YES and witness_name:
             raise forms.ValidationError(
-                'You wrote subject is literate. The name of a witness is NOT required.',
+                'You wrote subject is literate. The name of a witness '
+                'is NOT required.',
                 code='invalid')
         return is_literate
 
@@ -169,7 +192,8 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         study_questions = self.cleaned_data.get('study_questions')
         if study_questions != YES:
             raise forms.ValidationError(
-                'Subject\'s questions related to the consent have not been answer or discussed.',
+                'Subject\'s questions related to the consent have not '
+                'been answer or discussed.',
                 code='invalid')
         return study_questions
 
@@ -177,8 +201,8 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         assessment_score = self.cleaned_data.get('assessment_score')
         if assessment_score != YES:
             raise forms.ValidationError(
-                'The scored assessment of the subject\'s understanding of the consent '
-                'should at least be passing.',
+                'The scored assessment of the subject\'s understanding '
+                'of the consent should at least be passing.',
                 code='invalid')
         return assessment_score
 
@@ -203,8 +227,10 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         gender = self.cleaned_data.get("gender")
         if gender not in self.consent_config.gender:
             raise forms.ValidationError(
-                'Gender of consent can only be \'%(gender_of_consent)s\'. Got \'%(gender)s\'.',
-                params={'gender_of_consent': '\' or \''.join(self.consent_config.gender), 'gender': gender},
+                'Gender of consent can only be \'%(gender_of_consent)s\'. '
+                'Got \'%(gender)s\'.',
+                params={'gender_of_consent': '\' or \''.join(
+                    self.consent_config.gender), 'gender': gender},
                 code='invalid')
         return gender
 
