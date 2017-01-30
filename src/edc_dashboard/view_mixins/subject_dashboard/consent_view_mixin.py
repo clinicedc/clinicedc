@@ -1,5 +1,7 @@
 from uuid import uuid4
 
+from django.apps import apps as django_apps
+
 from edc_base.utils import get_utcnow
 from edc_consent.exceptions import ConsentDoesNotExist
 from edc_consent.site_consents import site_consents
@@ -7,7 +9,6 @@ from edc_consent.site_consents import site_consents
 
 class ConsentViewMixin:
 
-    consent_model = None
     consent_model_wrapper_class = None
 
     def __init__(self, **kwargs):
@@ -27,20 +28,26 @@ class ConsentViewMixin:
 
     @property
     def consent_object(self):
-        """Returns a consent object or None from site_consents for the current period."""
+        """Returns a consent object or None from site_consents for
+        the current period.
+        """
         if not self._consent_object:
+            default_consent_group = django_apps.get_app_config(
+                'edc_consent').default_consent_group
             try:
                 self._consent_object = site_consents.get_consent(
-                    report_datetime=self.get_utcnow())
+                    report_datetime=self.get_utcnow(),
+                    consent_group=default_consent_group)
             except ConsentDoesNotExist:
                 self._consent_object = None
         return self._consent_object
 
     @property
     def consent(self):
-        """Returns a wrapped model instance or None for the current period."""
+        """Returns a wrapped model instance or None for the current period.
+        """
         if not self._consent:
-            consent = self.consent_model.consent.consent_for_period(
+            consent = self.consent_object.model.consent.consent_for_period(
                 self.subject_identifier, report_datetime=self.get_utcnow())
             if consent:
                 self._consent = self.consent_model_wrapper_class(consent)
@@ -53,8 +60,9 @@ class ConsentViewMixin:
     def empty_consent(self):
         """Returns an unsaved consent model instance.
 
-        Override to include additional attrs to instantiate."""
-        return self.consent_model(
+        Override to include additional attrs to instantiate.
+        """
+        return self.consent_object.model(
             subject_identifier=self.subject_identifier,
             consent_identifier=uuid4(),
             version=self.consent_object.version)
@@ -62,7 +70,7 @@ class ConsentViewMixin:
     @property
     def consents(self):
         if not self._consents:
-            consents = self.consent_model.objects.filter(
+            consents = self.consent_object.model.objects.filter(
                 subject_identifier=self.subject_identifier).order_by('version')
             self._consents = [
                 self.consent_model_wrapper_class(obj) for obj in consents]

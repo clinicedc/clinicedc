@@ -15,22 +15,18 @@ class AppointmentViewMixin:
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.appointment = None
-        self.appointments = None
+        self._appointments = None
 
     def get(self, request, *args, **kwargs):
-        """Overidden to add appointment instance and appointments."""
         try:
             appointment = self.appointment_model.objects.get(
                 id=kwargs.get('appointment'))
         except self.appointment_model.DoesNotExist:
             self.appointment = None  # self.get_empty_appointment(**kwargs)
         else:
-            self.appointment = self.appointment_model_wrapper_class(appointment)
+            self.appointment = self.appointment_model_wrapper_class(
+                appointment)
         kwargs['appointment'] = self.appointment
-
-        appointments = self.appointment_model.objects.filter(
-            subject_identifier=self.subject_identifier).order_by('visit_code')
-        self.appointments = (self.appointment_model_wrapper_class(obj) for obj in appointments)
         kwargs['appointments'] = self.appointments
         return super().get(request, *args, **kwargs)
 
@@ -41,6 +37,17 @@ class AppointmentViewMixin:
             IN_PROGRESS_APPT=IN_PROGRESS_APPT,
         )
         return context
+
+    @property
+    def appointments(self):
+        """Returns a generator of wrapped appointment instances.
+        """
+        if not self._appointments:
+            appointments = self.appointment_model.objects.filter(
+                subject_identifier=self.subject_identifier).order_by('visit_code')
+            self._appointments = (
+                self.appointment_model_wrapper_class(obj) for obj in appointments)
+        return self._appointments
 
     @property
     def appointment_model(self):
