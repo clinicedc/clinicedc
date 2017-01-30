@@ -3,7 +3,8 @@ from django.contrib import admin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 
 from edc_base.modeladmin_mixins import (
-    ModelAdminFormInstructionsMixin, ModelAdminNextUrlRedirectMixin, ModelAdminFormAutoNumberMixin,
+    ModelAdminFormInstructionsMixin, ModelAdminNextUrlRedirectMixin,
+    ModelAdminFormAutoNumberMixin,
     ModelAdminAuditFieldsMixin, ModelAdminReadOnlyMixin,
     audit_fieldset_tuple)
 
@@ -13,11 +14,13 @@ from .models import Holiday, Appointment
 
 @admin.register(Appointment, site=edc_appointment_admin)
 class AppointmentAdmin(ModelAdminFormInstructionsMixin, ModelAdminNextUrlRedirectMixin,
-                       ModelAdminFormAutoNumberMixin, ModelAdminRevisionMixin, ModelAdminAuditFieldsMixin,
+                       ModelAdminFormAutoNumberMixin, ModelAdminRevisionMixin,
+                       ModelAdminAuditFieldsMixin,
                        ModelAdminReadOnlyMixin, admin.ModelAdmin):
 
     date_hierarchy = 'appt_datetime'
-    list_display = ('subject_identifier', 'visit_code', 'appt_datetime', 'appt_type', 'appt_status')
+    list_display = ('subject_identifier', 'visit_code',
+                    'appt_datetime', 'appt_type', 'appt_status')
 
     fieldsets = (
         (None, ({
