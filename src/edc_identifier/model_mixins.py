@@ -10,7 +10,9 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 
 class NonUniqueSubjectIdentifierFieldMixin(models.Model):
-    """An internal model mixin providing a non-unique subject identifier field."""
+    """An internal model mixin providing a non-unique subject
+    identifier field.
+    """
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
         max_length=50)
@@ -20,7 +22,9 @@ class NonUniqueSubjectIdentifierFieldMixin(models.Model):
 
 
 class UniqueSubjectIdentifierFieldMixin(models.Model):
-    """An internal model mixin providing a unique subject identifier field."""
+    """An internal model mixin providing a unique subject identifier
+    field.
+    """
     subject_identifier = models.CharField(
         verbose_name="Subject Identifier",
         max_length=50,
@@ -31,7 +35,9 @@ class UniqueSubjectIdentifierFieldMixin(models.Model):
 
 
 class SubjectIdentifierAdditionalFieldsModelMixin(models.Model):
-    """An internal model mixin providing additional fields to used with the subject identifier field."""
+    """An internal model mixin providing additional fields to used
+    with the subject identifier field.
+    """
 
     subject_identifier_as_pk = models.CharField(
         verbose_name="Subject Identifier as pk",
@@ -53,24 +59,30 @@ class SubjectIdentifierAdditionalFieldsModelMixin(models.Model):
 
 
 class SubjectIdentifierMethodsModelMixin(models.Model):
-    """An internal model mixin to add a unique subject identifier field and
-    fill it with a unique value for new instances."""
+    """An internal model mixin to add a unique subject identifier
+    field and fill it with a unique value for new instances.
+    """
 
     def save(self, *args, **kwargs):
         if not self.id and not self.subject_identifier:
-            if not re.match('[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}', self.subject_identifier_as_pk or ''):
+            if not re.match(
+                    '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}',
+                    self.subject_identifier_as_pk or ''):
                 self.subject_identifier_as_pk = get_uuid()
             self.subject_identifier = self.get_or_create_identifier()
         super().save(*args, **kwargs)
 
     @property
     def registered_subject_model_class(self):
-        """Returns the registered subject model class."""
+        """Returns the registered subject model class.
+        """
         return django_apps.get_app_config('edc_registration').model
 
     def get_or_create_identifier(self):
-        """Returns a subject identifier either by retrieving and exisiting "subject"
-        identifier from RegisteredSubject or creating a new and unique "subject" identifier."""
+        """Returns a subject identifier either by retrieving and
+        exisiting "subject identifier from RegisteredSubject or
+        creating a new and unique "subject" identifier.
+        """
         try:
             subject_identifier = self.registered_subject.subject_identifier
         except ObjectDoesNotExist:
@@ -92,7 +104,8 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
     def registered_subject(self):
         """Returns a registered subject instance.
 
-        Override this if your query options are different."""
+        Override this if your query options are different.
+        """
         try:
             obj = self.registered_subject_model_class.objects.get(
                 identity=self.identity)
@@ -108,18 +121,22 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
 
 class UniqueSubjectIdentifierModelMixin(
         UniqueSubjectIdentifierFieldMixin,
-        SubjectIdentifierAdditionalFieldsModelMixin, SubjectIdentifierMethodsModelMixin, models.Model):
-    """A model mixin for concrete models requiring a unique subject identifier field and
-    corresponding fields and methods."""
+        SubjectIdentifierAdditionalFieldsModelMixin,
+        SubjectIdentifierMethodsModelMixin, models.Model):
+    """A model mixin for concrete models requiring a unique subject
+    identifier field and corresponding fields and methods.
+    """
     class Meta:
         abstract = True
 
 
 class NonUniqueSubjectIdentifierModelMixin(
         NonUniqueSubjectIdentifierFieldMixin,
-        SubjectIdentifierAdditionalFieldsModelMixin, SubjectIdentifierMethodsModelMixin, models.Model):
-    """A model mixin for concrete models requiring a non-unique subject identifier field and
-    corresponding field and methods."""
+        SubjectIdentifierAdditionalFieldsModelMixin,
+        SubjectIdentifierMethodsModelMixin, models.Model):
+    """A model mixin for concrete models requiring a non-unique
+    subject identifier field and corresponding field and methods.
+    """
 
     class Meta:
         abstract = True
