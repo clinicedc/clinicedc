@@ -7,53 +7,58 @@ class PreviousVisitError(Exception):
 
 class PreviousVisitModelMixin(models.Model):
 
-    """A model mixin to force the user to complete visit model instances in sequence.
+    """A model mixin to force the user to complete visit model
+    instances in sequence.
 
-    * Ensures the previous visit exists before allowing save() by raising PreviousVisitError.
+    * Ensures the previous visit exists before allowing save()
+      by raising PreviousVisitError.
     * If the visit is the first in the sequence, save() is allowed.
     * If 'requires_previous_visit' = False, mixin is disabled.
 
-    Important: Use together with the VisitModelMixin. Requires methods from the VisitModelMixin
-
+    Important: Use together with the VisitModelMixin.
+      Requires methods from the VisitModelMixin
     """
-
     requires_previous_visit = True
 
-    def save(self, *args, **kwargs):
+    def common_clean(self):
         self.has_previous_visit_or_raise()
-        super(PreviousVisitModelMixin, self).save(*args, **kwargs)
+        super().common_clean()
 
-    def has_previous_visit_or_raise(self, exception_cls=None):
-        """Returns True if the previous visit in the schedule exists or this is the first visit.
+    def has_previous_visit_or_raise(self):
+        """Returns True if the previous visit in the schedule
+        exists or this is the first visit.
 
         Is by-passed if 'requires_previous_visit' is False.
 
-        You can call this from the forms clean() method."""
-        exception_cls = exception_cls or PreviousVisitError
+        You can call this from the forms clean() method.
+        """
         if self.requires_previous_visit and self.previous_visit_code:
             if self.previous_visit:
                 has_previous_visit = True
-            elif (self.appointment.timepoint == 0 and self.appointment.base_interval == 0):
+            elif (self.appointment.timepoint == 0
+                  and self.appointment.base_interval == 0):
                 has_previous_visit = True
             else:
                 has_previous_visit = False
             if not has_previous_visit:
-                raise exception_cls({
-                    'appointment':
-                    'Previous visit report required. Enter report for \'{}\' before completing this report.'.format(
-                        self.previous_visit_code)})
+                raise PreviousVisitError(
+                    'Previous visit report required. Enter report for '
+                    '\'{}\' before completing this report.'.format(
+                        self.previous_visit_code))
 
     @property
     def previous_visit_code(self):
         try:
-            previous_visit_code = self.schedule.get_previous_visit(self.visit_code).code
+            previous_visit_code = self.schedule.get_previous_visit(
+                self.visit_code).code
         except AttributeError:
             previous_visit_code = None
         return previous_visit_code
 
     @property
     def previous_visit(self):
-        """Returns the previous visit model instance if it exists."""
+        """Returns the previous visit model instance if it exists.
+        """
         previous_visit = None
         if self.previous_visit_code:
             with transaction.atomic():

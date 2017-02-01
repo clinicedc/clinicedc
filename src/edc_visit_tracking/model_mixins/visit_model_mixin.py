@@ -20,7 +20,8 @@ from .previous_visit_model_mixin import PreviousVisitModelMixin
 
 
 class VisitModelMixin(
-        VisitScheduleModelMixin, NonUniqueSubjectIdentifierFieldMixin, PreviousVisitModelMixin, models.Model):
+        VisitScheduleModelMixin, NonUniqueSubjectIdentifierFieldMixin,
+        PreviousVisitModelMixin, models.Model):
 
     """
     For example:
@@ -100,7 +101,7 @@ class VisitModelMixin(
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
         self.visit_code = self.appointment.visit_code
-        super(VisitModelMixin, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def natural_key(self):
         return (self.subject_identifier, self.visit_schedule_name, self.schedule_name, self.visit_code)
@@ -175,7 +176,10 @@ class VisitModelMixin(
     class Meta:
         abstract = True
         unique_together = (
-            ('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code'),
-            ('subject_identifier', 'visit_schedule_name', 'schedule_name', 'report_datetime'),
+            ('subject_identifier', 'visit_schedule_name',
+             'schedule_name', 'visit_code'),
+            ('subject_identifier', 'visit_schedule_name',
+             'schedule_name', 'report_datetime'),
         )
-        ordering = (('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'report_datetime', ))
+        ordering = (('subject_identifier', 'visit_schedule_name',
+                     'schedule_name', 'visit_code', 'report_datetime', ))
