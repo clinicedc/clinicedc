@@ -40,7 +40,7 @@ class RequiresConsentMixin(models.Model):
                 'Consent model attribute not set. Got '
                 '\'{}.consent_model\' = None'.format(
                     self._meta.label_lower))
-        super(RequiresConsentMixin, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def get_consent_object(self):
         consent_object = site_consents.get_consent(
@@ -53,13 +53,13 @@ class RequiresConsentMixin(models.Model):
         consent_object = self.get_consent_object()
         self.consent_version = consent_object.version
         try:
-            if not self.subject_identifier:
+            if not self.appointment.subject_identifier:
                 raise SiteConsentError(
                     'Cannot lookup {} instance for subject. '
                     'Got \'subject_identifier\' is None.'.format(
                         consent_object.model._meta.label_lower))
             options = dict(
-                subject_identifier=self.subject_identifier,
+                subject_identifier=self.appointment.subject_identifier,
                 version=consent_object.version)
             consent_object.model.objects.get(**options)
         except consent_object.model.DoesNotExist:
@@ -68,7 +68,7 @@ class RequiresConsentMixin(models.Model):
                 'version {version}\' when saving model \'{model}\' for '
                 'subject \'{subject_identifier}\' with date '
                 '\'{report_datetime}\' .'.format(
-                    subject_identifier=self.subject_identifier,
+                    subject_identifier=self.appointment.subject_identifier,
                     consent_model=consent_object.model._meta.label_lower,
                     model=self._meta.label_lower,
                     version=consent_object.version,
@@ -156,7 +156,7 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
             previous_consent = self.previous_consent_to_update(consent)
             previous_consent.subject_identifier_as_pk = self.subject_identifier_as_pk
             previous_consent.subject_identifier_aka = self.subject_identifier_aka
-        super(ConsentModelMixin, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def previous_consent_to_update(self, consent):
         previous_consent = None
