@@ -2,8 +2,10 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 
-@receiver(post_save, weak=False, dispatch_uid="create_appointments_on_post_save")
-def create_appointments_on_post_save(sender, instance, raw, created, using, **kwargs):
+@receiver(post_save, weak=False,
+          dispatch_uid="create_appointments_on_post_save")
+def create_appointments_on_post_save(sender, instance, raw,
+                                     created, using, **kwargs):
     if not raw and not kwargs.get('update_fields'):
         try:
             instance.create_appointments()
@@ -14,7 +16,9 @@ def create_appointments_on_post_save(sender, instance, raw, created, using, **kw
 
 @receiver(post_save, weak=False, dispatch_uid="appointment_post_save")
 def appointment_post_save(sender, instance, raw, created, using, **kwargs):
-    """Update the TimePointStatus in appointment if the field is empty."""
+    """Update the TimePointStatus in appointment if the
+    field is empty.
+    """
     if not raw:
         try:
             if not instance.time_point_status:
@@ -25,7 +29,8 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
                 raise AttributeError(str(e))
 
 
-@receiver(post_delete, weak=False, dispatch_uid="delete_appointments_on_post_delete")
+@receiver(post_delete, weak=False,
+          dispatch_uid="delete_appointments_on_post_delete")
 def delete_appointments_on_post_delete(sender, instance, using, **kwargs):
     try:
         instance.delete_unused_appointments()
