@@ -15,12 +15,14 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_example.models import (
-    SubjectVisit, Appointment, CrfOne, Enrollment, CrfOneInline, OtherModel, BadCrfOneInline)
+    SubjectVisit, Appointment, CrfOne, Enrollment, CrfOneInline,
+    OtherModel, BadCrfOneInline)
 from edc_consent.modelform_mixins import RequiresConsentModelFormMixin
 from edc_visit_tracking.model_mixins import PreviousVisitError
 
 
-class SubjectVisitForm(VisitFormMixin, RequiresConsentModelFormMixin, forms.ModelForm):
+class SubjectVisitForm(VisitFormMixin, RequiresConsentModelFormMixin,
+                       forms.ModelForm):
 
     class Meta:
         model = SubjectVisit
@@ -48,16 +50,19 @@ class TestVisitMixin(TestCase):
         Enrollment.objects.create(
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
-        appointment = Appointment.objects.all().order_by('timepoint_datetime')[0]
+        appointment = Appointment.objects.all().order_by(
+            'timepoint_datetime')[0]
         subject_visit = mommy.make_recipe(
             'edc_example.subjectvisit', appointment=appointment)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = OtherModel.objects.create()
-        crf_one_inline = CrfOneInline.objects.create(crf_one=crf_one, other_model=other_model)
+        crf_one_inline = CrfOneInline.objects.create(
+            crf_one=crf_one, other_model=other_model)
         self.assertEqual(crf_one_inline.visit.pk, subject_visit.pk)
 
     def test_crf_inline_model_parent_model(self):
-        """Assert inline model cannot find parent, raises exception."""
+        """Assert inline model cannot find parent, raises exception.
+        """
         # subject_consent = SubjectConsentFactory()
         subject_consent = mommy.make_recipe(
             'edc_example.subjectconsent')
@@ -69,7 +74,11 @@ class TestVisitMixin(TestCase):
             'edc_example.subjectvisit', appointment=appointment)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = OtherModel.objects.create()
-        self.assertRaises(ImproperlyConfigured, BadCrfOneInline.objects.create, crf_one=crf_one, other_model=other_model)
+        self.assertRaises(
+            ImproperlyConfigured,
+            BadCrfOneInline.objects.create,
+            crf_one=crf_one,
+            other_model=other_model)
 
 
 class TestVisit(TestCase):
@@ -93,9 +102,11 @@ class TestVisit(TestCase):
         enrollment = Enrollment.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
             schedule_name='schedule1')
-        visit_schedule = site_visit_schedules.get_visit_schedule(enrollment._meta.visit_schedule_name)
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            enrollment._meta.visit_schedule_name)
         schedule = visit_schedule.get_schedule('schedule1')
-        # verify appointments created as per edc_example visit_schedule "subject_visit_schedule"
+        # verify appointments created as per edc_example visit_schedule
+        # "subject_visit_schedule"
         self.assertEqual(Appointment.objects.all().count(), 4)
         # get appointment for first visit
         visit = schedule.get_first_visit()
@@ -115,7 +126,8 @@ class TestVisit(TestCase):
         }
 
     def test_crf_inline_model_attrs(self):
-        """Assert inline model can find visit instance from parent."""
+        """Assert inline model can find visit instance from parent.
+        """
         form = SubjectVisitForm(self.data)
         self.assertTrue(form.is_valid())
         subject_visit = form.save()
@@ -131,29 +143,38 @@ class TestVisit(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_form_before_consent(self):
-        self.data.update({'report_datetime': get_utcnow() - relativedelta(years=1)})
+        self.data.update(
+            {'report_datetime': get_utcnow() - relativedelta(years=1)})
         form = SubjectVisitForm(self.data)
         self.assertFalse(form.is_valid())
-        self.assertIn('Report datetime cannot be before consent datetime', form.errors.get('__all__') or [])
+        self.assertIn(
+            'Report datetime cannot be before consent datetime',
+            form.errors.get('__all__') or [])
 
     def test_form_before_dob(self):
-        self.subject_consent.consent_datetime = get_utcnow() - relativedelta(days=30)
+        self.subject_consent.consent_datetime = get_utcnow(
+        ) - relativedelta(days=30)
         self.subject_consent.dob = get_utcnow().date() - relativedelta(days=10)
         self.subject_consent.save()
-        self.data.update({'report_datetime': get_utcnow() - relativedelta(days=15)})
+        self.data.update(
+            {'report_datetime': get_utcnow() - relativedelta(days=15)})
         form = SubjectVisitForm(self.data)
         self.assertFalse(form.is_valid())
-        self.assertIn('Report datetime cannot be before DOB', form.errors.get('__all__') or [])
+        self.assertIn(
+            'Report datetime cannot be before DOB', form.errors.get('__all__') or [])
 
     def test_get_previous_model_instance(self):
         """Assert model can determine the previous."""
 
-        for index, appointment in enumerate(Appointment.objects.all().order_by('visit_code')):
+        for index, appointment in enumerate(Appointment.objects.all().order_by(
+                'visit_code')):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() - relativedelta(months=10 - index),
+                report_datetime=get_utcnow() -
+                relativedelta(months=10 - index),
                 reason=SCHEDULED)
-        subject_visits = SubjectVisit.objects.all().order_by('appointment__timepoint_datetime')
+        subject_visits = SubjectVisit.objects.all().order_by(
+            'appointment__timepoint_datetime')
         subject_visit = subject_visits[0]
         self.assertIsNone(subject_visit.previous_visit)
         subject_visit = subject_visits[1]

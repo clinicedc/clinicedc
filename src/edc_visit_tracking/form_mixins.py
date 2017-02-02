@@ -4,7 +4,7 @@ from edc_constants.constants import (
     YES, NO, DEAD, OFF_STUDY, UNKNOWN, ALIVE, PARTICIPANT)
 
 from .constants import LOST_VISIT, COMPLETED_PROTOCOL_VISIT, MISSED_VISIT
-from edc_visit_tracking.model_mixins.previous_visit_model_mixin import PreviousVisitError
+from .model_mixins import PreviousVisitError
 
 
 class VisitFormMixin:

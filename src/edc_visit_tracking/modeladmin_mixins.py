@@ -3,7 +3,9 @@ from django.contrib import admin
 
 class CrfModelAdminMixin:
 
-    """ModelAdmin subclass for models with a ForeignKey to your visit model(s)"""
+    """ModelAdmin subclass for models with a ForeignKey to your
+    visit model(s).
+    """
 
     date_hierarchy = 'report_datetime'
 
@@ -26,11 +28,14 @@ class CrfModelAdminMixin:
     def extend_search_fields(self):
         self.search_fields = list(self.search_fields)
         self.search_fields.extend([
-            '{}__appointment__subject_identifier'.format(self.visit_model_attr)])
+            '{}__appointment__subject_identifier'.format(
+                self.visit_model_attr)])
         self.search_fields = tuple(set(self.search_fields))
 
     def extend_list_filter(self):
-        """Extends list filter with additional values from the visit model."""
+        """Extends list filter with additional values from the visit
+        model.
+        """
         self.list_filter = list(self.list_filter)
         self.list_filter.extend([
             self.visit_model_attr + '__report_datetime',
@@ -49,13 +54,14 @@ class CrfModelAdminMixin:
 
 class VisitModelAdminMixin:
 
-    """ModelAdmin subclass for models with a ForeignKey to 'appointment', such as your visit model(s).
+    """ModelAdmin subclass for models with a ForeignKey to
+    'appointment', such as your visit model(s).
 
-    In the child ModelAdmin class set the following attributes, for example::
+    In the child ModelAdmin class set the following attributes,
+    for example:
 
         visit_attr = 'maternal_visit'
         dashboard_type = 'maternal'
-
     """
     date_hierarchy = 'report_datetime'
 
@@ -74,8 +80,11 @@ class VisitModelAdminMixin:
             ]})
     )
 
-    list_display = ['appointment', 'report_datetime', 'reason', 'study_status', 'created',
-                    'modified', 'user_created', 'user_modified', ]
+    list_display = ['appointment', 'report_datetime',
+                    'reason',
+                    'study_status', 'created',
+                    'modified', 'user_created',
+                    'user_modified', ]
 
     search_fields = ['id', 'reason', 'appointment__visit_code',
                      'appointment__subject_identifier']
@@ -97,7 +106,8 @@ class VisitModelAdminMixin:
         if db_field.name == 'appointment' and request.GET.get('appointment'):
             kwargs["queryset"] = db_field.related_model.objects.filter(
                 pk=request.GET.get('appointment', 0))
-        return super(VisitModelAdminMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(
+            db_field, request, **kwargs)
 
 
 class CareTakerFieldsAdminMixin:

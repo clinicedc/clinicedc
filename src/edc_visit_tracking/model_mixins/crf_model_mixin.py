@@ -1,4 +1,5 @@
 import arrow
+from dateutil.relativedelta import relativedelta
 
 from django.apps import apps as django_apps
 from django.db import models
@@ -8,9 +9,8 @@ from edc_base.utils import get_utcnow
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_visit_tracking.managers import CrfModelManager
 
+from ..exceptions import VisitReportDateAllowanceError
 from .model_mixins import ModelMixin
-from edc_visit_tracking.exceptions import VisitReportDateAllowanceError
-from dateutil.relativedelta import relativedelta
 
 
 class CrfModelMixin(ModelMixin, models.Model):
@@ -22,9 +22,7 @@ class CrfModelMixin(ModelMixin, models.Model):
         subject_visit = models.ForeignKey(SubjectVisit)
 
     Uses edc_visit_tracking.AppConfig attributes.
-
     """
-
     report_datetime = models.DateTimeField(
         verbose_name="Report Date",
         validators=[
@@ -46,16 +44,20 @@ class CrfModelMixin(ModelMixin, models.Model):
         datetime_not_future(report_datetime)
         if report_datetime.date() < self.visit.report_datetime.date():
             raise VisitReportDateAllowanceError(
-                'Report datetime may not be before the visit report datetime.', 'report_datetime')
+                'Report datetime may not be before the visit report datetime.',
+                'report_datetime')
         app_config = django_apps.get_app_config('edc_visit_tracking')
         if app_config.report_datetime_allowance > 0:
-            max_report_datetime = report_datetime + relativedelta(days=app_config.report_datetime_allowance)
+            max_report_datetime = (
+                report_datetime
+                + relativedelta(days=app_config.report_datetime_allowance))
             if max_report_datetime.date() < self.visit.report_datetime.date():
                 raise VisitReportDateAllowanceError(
                     'Report datetime may not more than {} days greater than the '
                     'visit report datetime. Got {} days.'.format(
                         app_config.report_datetime_allowance,
-                        (max_report_datetime.date() - self.visit.report_datetime.date()).days),
+                        (max_report_datetime.date()
+                         - self.visit.report_datetime.date()).days),
                     'report_datetime')
         super().clean()
 
