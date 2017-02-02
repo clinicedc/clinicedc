@@ -53,13 +53,17 @@ class RequiresConsentMixin(models.Model):
         consent_object = self.get_consent_object()
         self.consent_version = consent_object.version
         try:
-            if not self.appointment.subject_identifier:
+            subject_identifier = self.appointment.subject_identifier
+        except AttributeError:
+            subject_identifier = self.subject_identifier
+        try:
+            if not subject_identifier:
                 raise SiteConsentError(
                     'Cannot lookup {} instance for subject. '
                     'Got \'subject_identifier\' is None.'.format(
                         consent_object.model._meta.label_lower))
             options = dict(
-                subject_identifier=self.appointment.subject_identifier,
+                subject_identifier=subject_identifier,
                 version=consent_object.version)
             consent_object.model.objects.get(**options)
         except consent_object.model.DoesNotExist:
@@ -68,7 +72,7 @@ class RequiresConsentMixin(models.Model):
                 'version {version}\' when saving model \'{model}\' for '
                 'subject \'{subject_identifier}\' with date '
                 '\'{report_datetime}\' .'.format(
-                    subject_identifier=self.appointment.subject_identifier,
+                    subject_identifier=subject_identifier,
                     consent_model=consent_object.model._meta.label_lower,
                     model=self._meta.label_lower,
                     version=consent_object.version,
