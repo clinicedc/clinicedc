@@ -40,13 +40,13 @@ class AppointmentViewMixin:
 
     @property
     def appointments(self):
-        """Returns a generator of wrapped appointment instances.
+        """Returns a list of wrapped appointment instances.
         """
         if not self._appointments:
             appointments = self.appointment_model.objects.filter(
                 subject_identifier=self.subject_identifier).order_by('visit_code')
-            self._appointments = (
-                self.appointment_model_wrapper_class(obj) for obj in appointments)
+            self._appointments = [
+                self.appointment_model_wrapper_class(obj) for obj in appointments]
         return self._appointments
 
     @property

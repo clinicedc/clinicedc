@@ -30,7 +30,7 @@
 		              </a>
 		          </h6>
 		      </div>
-		      <div id="visit_schedule{{ forloop.counter }}" class="panel-collapse collapse {% if forloop.first %}in{% endif %}">
+		      <div id="visit_schedule{{ forloop.counter }}" class="panel-collapse collapse {% if current_enrollment_model.visit_schedule_name ==  visit_schedule.name %}in{% endif %}">
 
 			  	{% if not appointment %}
 

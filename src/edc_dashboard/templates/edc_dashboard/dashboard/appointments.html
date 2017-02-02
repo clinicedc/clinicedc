@@ -4,49 +4,47 @@
 <div class="table table-responsive">
 	<table class="table table-striped table-hover">
 	  <tbody>
-		{% for wrapped in appointments %}
-		
-		{% if wrapped.visit_schedule_name == visit_schedule.name  %}
-		
-		<tr>
-			<td><i class="fa fa-calendar-o fa-sm fa-fw"></i> {{wrapped.visit_code}}</td>
-			<td>
-				<a role="button" class="btn btn-sm btn-default {% if wrapped.appt_status != IN_PROGRESS_APPT %}disabled{% endif %}"
-				    href="{{ wrapped.get_absolute_url }}?next={{ wrapped.next_url }}&{{ wrapped.extra_querystring }}">
-				        <i class="fa fa-pencil fa-sm fa-fw" aria-hidden="true"></i> Appt
-				</a>
-			 
-		      {% if wrapped.appt_status == IN_PROGRESS_APPT %}
-		      	{% if wrapped.visit.id %}
-		      		
-                        <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.visit.get_absolute_url }}?next={{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}">
-                            <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Visit Report
-                        </a>
-		      			<a role="button" class="btn btn-sm btn-warning" href="{{ wrapped.forms_url }}">
-		      				<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Forms
-		      			</a>
-		      	{% else %}
-		       		<a role="button" class="btn btn-sm btn-warning" href="{{ wrapped.visit.get_absolute_url }}?next={{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}">
-		       			<i class="fa fa-plus fa-sm" aria-hidden="true"></i> Start</a>
-		      	{% endif %}
-		      {% else %}
-				    {% comment%}
-				        This link goes to change the appointment instance
-				        for user to set appt_status == IN_PROGESS_APPT.
-				    {% endcomment%}
-				    <a role="button" 
-				        data-toggle="tooltip" title="Click to tell us about the appointment before starting with the visit."
-				            class="btn btn-sm btn-default" href="{{ wrapped.get_absolute_url }}?next={{ wrapped.next_url }}&{{ wrapped.extra_querystring }}">
-				         Start
-				    </a>
-		      {% endif %}
-	      </td>
-            <td>{{wrapped.title}}</td>
-            <td>{{wrapped.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
-	         </tr>
-            {% endif %}
-	     {% endfor %}
-			</tbody>
+        {% for wrapped in appointments %}
+            {% if wrapped.visit_schedule_name == visit_schedule.name  %}
+                <tr>
+					<td><i class="fa fa-calendar-o fa-sm fa-fw"></i> {{wrapped.visit_code}}</td>
+					<td>
+						<a role="button" class="btn btn-sm btn-default {% if wrapped.appt_status != IN_PROGRESS_APPT %}disabled{% endif %}"
+						    href="{{ wrapped.get_absolute_url }}?next={{ wrapped.next_url }}&{{ wrapped.extra_querystring }}">
+						        <i class="fa fa-pencil fa-sm fa-fw" aria-hidden="true"></i> Appt
+						</a>
+					 
+				      {% if wrapped.appt_status == IN_PROGRESS_APPT %}
+				      	{% if wrapped.visit.id %}
+				      		
+		                        <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.visit.get_absolute_url }}?next={{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}">
+		                            <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Visit Report
+		                        </a>
+				      			<a role="button" class="btn btn-sm btn-warning" href="{{ wrapped.forms_url }}">
+				      				<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Forms
+				      			</a>
+				      	{% else %}
+				       		<a role="button" class="btn btn-sm btn-warning" href="{{ wrapped.visit.get_absolute_url }}?next={{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}">
+				       			<i class="fa fa-plus fa-sm" aria-hidden="true"></i> Start</a>
+				      	{% endif %}
+				      {% else %}
+						    {% comment%}
+						        This link goes to change the appointment instance
+						        for user to set appt_status == IN_PROGESS_APPT.
+						    {% endcomment%}
+						    <a role="button" 
+						        data-toggle="tooltip" title="Click to tell us about the appointment before starting with the visit."
+						            class="btn btn-sm btn-default" href="{{ wrapped.get_absolute_url }}?next={{ wrapped.next_url }}&{{ wrapped.extra_querystring }}">
+						         Start
+						    </a>
+				      {% endif %}
+	   		        </td>
+	   		        <td>{{wrapped.title}}</td>
+                    <td>{{wrapped.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
+                </tr>
+		  {% endif %}
+        {% endfor %}
+		</tbody>
 	 </table>
  </div>
 
