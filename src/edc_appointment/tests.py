@@ -22,7 +22,8 @@ class TestAppointment(DatesTestMixin, TestCase):
             consent_datetime=self.get_utcnow())
 
     def test_deletes_appointments(self):
-        """Asserts manager method can delete appointments."""
+        """Asserts manager method can delete appointments.
+        """
         subject_consent = mommy.make_recipe(
             'edc_example.subjectconsent',
             consent_datetime=self.get_utcnow())
@@ -30,7 +31,8 @@ class TestAppointment(DatesTestMixin, TestCase):
             Enrollment,
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
-            visit_schedule_name=Enrollment._meta.visit_schedule_name.split('.')[0],
+            visit_schedule_name=Enrollment._meta.visit_schedule_name.split(
+                '.')[0],
             schedule_name=Enrollment._meta.visit_schedule_name.split('.')[-1])
         appointments = Appointment.objects.all()
         mommy.make(
@@ -44,7 +46,8 @@ class TestAppointment(DatesTestMixin, TestCase):
         self.assertEqual(Appointment.objects.all().count(), 1)
 
     def test_appointments_creation(self):
-        """Test if appointment triggering method creates appointments."""
+        """Test if appointment triggering method creates appointments.
+        """
         mommy.make(
             Enrollment,
             subject_identifier=self.subject_consent.subject_identifier,
@@ -106,12 +109,14 @@ class TestAppointment(DatesTestMixin, TestCase):
             schedule_name='schedule1')
         appointment = Appointment.objects.first_appointment(
             subject_identifier=enrollment.subject_identifier,
-            visit_schedule_name=enrollment._meta.visit_schedule_name.split('.')[0],
+            visit_schedule_name=enrollment._meta.visit_schedule_name.split(
+                '.')[0],
             schedule_name=enrollment._meta.visit_schedule_name.split('.')[-1])
         self.assertEqual(
             Appointment.objects.filter(
                 subject_identifier=enrollment.subject_identifier,
-                visit_schedule_name=enrollment._meta.visit_schedule_name.split('.')[0],
+                visit_schedule_name=enrollment._meta.visit_schedule_name.split(
+                    '.')[0],
                 schedule_name=enrollment._meta.visit_schedule_name.split('.')[-1]).order_by('appt_datetime')[0],
             appointment)
 
@@ -125,7 +130,8 @@ class TestAppointment(DatesTestMixin, TestCase):
         enrollment = mommy.make(
             Enrollment,
             subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=self.subject_consent.report_datetime + relativedelta(months=1),
+            report_datetime=self.subject_consent.report_datetime +
+            relativedelta(months=1),
             schedule_name='schedule1')
         appointment = Appointment.objects.first_appointment(
             subject_identifier=enrollment.subject_identifier,
@@ -147,18 +153,21 @@ class TestAppointment(DatesTestMixin, TestCase):
             schedule_name='schedule1')
         first_appointment = Appointment.objects.first_appointment(
             subject_identifier=enrollment.subject_identifier,
-            visit_schedule_name=enrollment._meta.visit_schedule_name.split('.')[0],
+            visit_schedule_name=enrollment._meta.visit_schedule_name.split(
+                '.')[0],
             schedule_name=enrollment._meta.visit_schedule_name.split('.')[-1])
         appointment = Appointment.objects.next_appointment(
             visit_code=first_appointment.visit_code,
             subject_identifier=enrollment.subject_identifier,
-            visit_schedule_name=enrollment._meta.visit_schedule_name.split('.')[0],
+            visit_schedule_name=enrollment._meta.visit_schedule_name.split(
+                '.')[0],
             schedule_name=enrollment._meta.visit_schedule_name.split('.')[-1])
         self.assertEqual(
             Appointment.objects.filter(
                 subject_identifier=enrollment.subject_identifier).order_by('appt_datetime')[1],
             appointment)
-        appointment = Appointment.objects.next_appointment(appointment=first_appointment)
+        appointment = Appointment.objects.next_appointment(
+            appointment=first_appointment)
         self.assertEqual(
             Appointment.objects.filter(
                 subject_identifier=enrollment.subject_identifier).order_by('appt_datetime')[1],
@@ -173,9 +182,11 @@ class TestAppointment(DatesTestMixin, TestCase):
             schedule_name='schedule1')
         last_appointment = Appointment.objects.last_appointment(
             subject_identifier=enrollment.subject_identifier,
-            visit_schedule_name=enrollment._meta.visit_schedule_name.split('.')[0],
+            visit_schedule_name=enrollment._meta.visit_schedule_name.split(
+                '.')[0],
             schedule_name=enrollment._meta.visit_schedule_name.split('.')[-1])
-        self.assertEqual(Appointment.objects.next_appointment(appointment=last_appointment), None)
+        self.assertEqual(
+            Appointment.objects.next_appointment(appointment=last_appointment), None)
 
     def test_next_appointment_until_none(self):
         """Assert can walk from first to last appointment."""
@@ -186,12 +197,15 @@ class TestAppointment(DatesTestMixin, TestCase):
             schedule_name='schedule1')
         appointments = Appointment.objects.filter(
             subject_identifier=enrollment.subject_identifier,
-            visit_schedule_name=enrollment._meta.visit_schedule_name.split('.')[0],
+            visit_schedule_name=enrollment._meta.visit_schedule_name.split(
+                '.')[0],
             schedule_name=enrollment._meta.visit_schedule_name.split('.')[-1]).order_by('appt_datetime')
-        first = Appointment.objects.first_appointment(appointment=appointments[0])
+        first = Appointment.objects.first_appointment(
+            appointment=appointments[0])
         appts = [first]
         for appointment in appointments:
-            appts.append(Appointment.objects.next_appointment(appointment=appointment))
+            appts.append(
+                Appointment.objects.next_appointment(appointment=appointment))
         self.assertIsNotNone(appts[0])
         self.assertEqual(appts[0], first)
         self.assertEqual(appts[-1], None)
@@ -205,9 +219,11 @@ class TestAppointment(DatesTestMixin, TestCase):
             schedule_name='schedule1')
         first_appointment = Appointment.objects.first_appointment(
             subject_identifier=enrollment.subject_identifier,
-            visit_schedule_name=enrollment._meta.visit_schedule_name.split('.')[0],
+            visit_schedule_name=enrollment._meta.visit_schedule_name.split(
+                '.')[0],
             schedule_name=enrollment._meta.visit_schedule_name.split('.')[-1])
-        self.assertEqual(Appointment.objects.previous_appointment(appointment=first_appointment), None)
+        self.assertEqual(
+            Appointment.objects.previous_appointment(appointment=first_appointment), None)
 
     def test_previous_appointment2(self):
         """Assert returns previous appointment."""
@@ -218,10 +234,13 @@ class TestAppointment(DatesTestMixin, TestCase):
             schedule_name='schedule1')
         first_appointment = Appointment.objects.first_appointment(
             subject_identifier=enrollment.subject_identifier,
-            visit_schedule_name=enrollment._meta.visit_schedule_name.split('.')[0],
+            visit_schedule_name=enrollment._meta.visit_schedule_name.split(
+                '.')[0],
             schedule_name=enrollment._meta.visit_schedule_name.split('.')[-1])
-        next_appointment = Appointment.objects.next_appointment(appointment=first_appointment)
-        self.assertEqual(Appointment.objects.previous_appointment(appointment=next_appointment), first_appointment)
+        next_appointment = Appointment.objects.next_appointment(
+            appointment=first_appointment)
+        self.assertEqual(Appointment.objects.previous_appointment(
+            appointment=next_appointment), first_appointment)
 
     def test_next_and_previous_appointment3(self):
         """Assert accepts appointment or indiviual attrs."""
@@ -232,18 +251,21 @@ class TestAppointment(DatesTestMixin, TestCase):
             schedule_name='schedule1')
         first_appointment = Appointment.objects.first_appointment(
             subject_identifier=enrollment.subject_identifier,
-            visit_schedule_name=enrollment._meta.visit_schedule_name.split('.')[0],
+            visit_schedule_name=enrollment._meta.visit_schedule_name.split(
+                '.')[0],
             schedule_name=enrollment._meta.visit_schedule_name.split('.')[-1])
         next_appointment = Appointment.objects.next_appointment(
             visit_code=first_appointment.visit_code,
             subject_identifier=enrollment.subject_identifier,
-            visit_schedule_name=enrollment._meta.visit_schedule_name.split('.')[0],
+            visit_schedule_name=enrollment._meta.visit_schedule_name.split(
+                '.')[0],
             schedule_name=enrollment._meta.visit_schedule_name.split('.')[-1])
         self.assertEqual(
             Appointment.objects.filter(
                 subject_identifier=enrollment.subject_identifier).order_by('appt_datetime')[1],
             next_appointment)
-        appointment = Appointment.objects.next_appointment(appointment=first_appointment)
+        appointment = Appointment.objects.next_appointment(
+            appointment=first_appointment)
         self.assertEqual(
             Appointment.objects.filter(
                 subject_identifier=enrollment.subject_identifier).order_by('appt_datetime')[1],
@@ -253,9 +275,11 @@ class TestAppointment(DatesTestMixin, TestCase):
 class TestFacility(DatesTestMixin, TestCase):
 
     def setUp(self):
-        self.facility = Facility(name='clinic', days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
+        self.facility = Facility(
+            name='clinic', days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
         self.subject_identifier = '111111111'
-        self.registered_subject = mommy.make(RegisteredSubject, subject_identifier=self.subject_identifier)
+        self.registered_subject = mommy.make(
+            RegisteredSubject, subject_identifier=self.subject_identifier)
         self.subject_consent = mommy.make_recipe(
             'edc_example.subjectconsent',
             identity=self.subject_identifier,
@@ -264,22 +288,27 @@ class TestFacility(DatesTestMixin, TestCase):
             consent_datetime=self.get_utcnow())
 
     def test_allowed_weekday(self):
-        facility = Facility(name='clinic', days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
+        facility = Facility(
+            name='clinic', days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
         for suggested, available in [(MO, MO), (TU, TU), (WE, WE), (TH, TH), (FR, FR), (SA, MO), (SU, MO)]:
             dt = self.get_utcnow() + relativedelta(weekday=suggested.weekday)
-            self.assertEqual(available.weekday, facility.available_datetime(dt).weekday())
+            self.assertEqual(
+                available.weekday, facility.available_datetime(dt).weekday())
 
     def test_allowed_weekday_limited(self):
         facility = Facility(name='clinic', days=[TU, TH], slots=[100, 100])
         for suggested, available in [(MO, TU), (TU, TU), (WE, TH), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
             dt = self.get_utcnow() + relativedelta(weekday=suggested.weekday)
-            self.assertEqual(available.weekday, facility.available_datetime(dt).weekday())
+            self.assertEqual(
+                available.weekday, facility.available_datetime(dt).weekday())
 
     def test_allowed_weekday_limited2(self):
-        facility = Facility(name='clinic', days=[TU, WE, TH], slots=[100, 100, 100])
+        facility = Facility(
+            name='clinic', days=[TU, WE, TH], slots=[100, 100, 100])
         for suggested, available in [(MO, TU), (TU, TU), (WE, WE), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
             dt = self.get_utcnow() + relativedelta(weekday=suggested.weekday)
-            self.assertEqual(available.weekday, facility.available_datetime(dt).weekday())
+            self.assertEqual(
+                available.weekday, facility.available_datetime(dt).weekday())
 
     @tag('me')
     def test_available_datetime(self):
