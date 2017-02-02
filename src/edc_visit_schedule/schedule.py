@@ -11,7 +11,8 @@ from .visit import Visit
 
 class Schedule:
 
-    def __init__(self, name, title=None, enrollment_model=None, disenrollment_model=None, **kwargs):
+    def __init__(self, name, title=None, enrollment_model=None,
+                 disenrollment_model=None, **kwargs):
         self.title = title or name
         self.death_report_model = None
         self.disenrollment_model = None
@@ -22,7 +23,8 @@ class Schedule:
         self.name = name
         if not re.match(r'[a-z0-9\_\-]+$', name):
             raise ImproperlyConfigured(
-                'Schedule name may only contains numbers, lower case letters and \'_\'.')
+                'Schedule name may only contains numbers, '
+                'lower case letters and \'_\'.')
         if disenrollment_model:
             self.disenrollment_model = django_apps.get_model(
                 *disenrollment_model.split('.'))
@@ -31,7 +33,8 @@ class Schedule:
                 *enrollment_model.split('.'))
 
     def __repr__(self):
-        return '<Schedule({}, {})>'.format(self.name, self.enrollment_model._meta.label_lower)
+        return '<Schedule({}, {})>'.format(
+            self.name, self.enrollment_model._meta.label_lower)
 
     def __str__(self):
         return self.name
@@ -54,21 +57,26 @@ class Schedule:
         visit = Visit(code, **kwargs)
         if visit.code in self.visit_registry:
             raise AlreadyRegistered(
-                'Visit is already registered with schedule \'{}\'. Got {}'.format(self.name, visit))
+                'Visit is already registered with schedule \'{}\'. '
+                'Got {}'.format(self.name, visit))
         if visit.timepoint in [v.timepoint for v in self.visit_registry.values()]:
             raise ScheduleError(
-                'Visit with timepoint \'{}\' already registered with schedule \'{}\'. Got {}'.format(
+                'Visit with timepoint \'{}\' already registered with schedule '
+                '\'{}\'. Got {}'.format(
                     visit.timepoint, self.name, visit))
-        if visit.base_interval in [v.base_interval for v in self.visit_registry.values()]:
+        if visit.base_interval in [
+                v.base_interval for v in self.visit_registry.values()]:
             raise ScheduleError(
-                'Visit with base_interval \'{}\' already registered with schedule \'{}\'. Got {}'.format(
+                'Visit with base_interval \'{}\' already registered with '
+                'schedule \'{}\'. Got {}'.format(
                     visit.base_interval, self.name, visit))
         if kwargs.get('crfs'):
             show_orders = sorted(
                 [crf.show_order for crf in kwargs.get('crfs')])
             if len(list(set(show_orders))) != len(show_orders):
                 raise CrfError(
-                    'Crf show order must be a unique sequence. Got {} in schedule {}'.format(show_orders, self.name))
+                    'Crf show order must be a unique sequence. Got {} in '
+                    'schedule {}'.format(show_orders, self.name))
         self.visit_registry.update({code: visit})
         return visit
 
@@ -80,7 +88,8 @@ class Schedule:
                     v for v in self.visits if v.timepoint > visit.timepoint]
             else:
                 visits = [
-                    i for i in reversed([v for v in self.visits if v.timepoint < visit.timepoint])]
+                    i for i in reversed([
+                        v for v in self.visits if v.timepoint < visit.timepoint])]
             try:
                 visit = visits[abs(interval) - 1]
             except IndexError:
@@ -88,15 +97,18 @@ class Schedule:
         return visit
 
     def get_first_visit(self):
-        """Returns the previous visit or None."""
+        """Returns the previous visit or None.
+        """
         return self.visits[0]
 
     def get_previous_visit(self, code):
-        """Returns the previous visit or None."""
+        """Returns the previous visit or None.
+        """
         return self.get_visit(code, -1)
 
     def get_next_visit(self, code):
-        """Returns the previous visit or None."""
+        """Returns the previous visit or None.
+        """
         return self.get_visit(code, 1)
 
     @property
@@ -106,7 +118,8 @@ class Schedule:
         return [x for x in ordered_visits]
 
     def relativedelta_from_base(self, code=None):
-        """Returns the relativedelta from the zero timepoint visit."""
+        """Returns the relativedelta from the zero timepoint visit.
+        """
         visit = self.visit_registry.get(code)
         if visit.base_interval == 0:
             rdelta = relativedelta(days=0)

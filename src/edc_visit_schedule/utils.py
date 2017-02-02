@@ -15,7 +15,9 @@ def get_lower_window_days(lower_window_value, lower_window_unit):
         else:
             days = round(lower_window_value / 24, 0)
     else:
-        raise TypeError('Invalid lower_window_value, You have the value \'%s\' stored' % (lower_window_unit.upper()))
+        raise TypeError(
+            'Invalid lower_window_value, You have the '
+            'value \'%s\' stored' % (lower_window_unit.upper()))
     return days
 
 
@@ -34,5 +36,7 @@ def get_upper_window_days(upper_window_value, upper_window_unit):
             days = round(upper_window_value / 24, 0)
 
     else:
-        raise TypeError('Invalid upper_window_value, You have the value \'%s\' stored' % (upper_window_unit.upper()))
+        raise TypeError(
+            'Invalid upper_window_value, You have the value \'%s\' stored' % (
+                upper_window_unit.upper()))
     return days

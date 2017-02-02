@@ -24,7 +24,8 @@ class VisitScheduleMethodsModelMixin(models.Model):
     """A model mixin that adds methods used to work with the visit schedule.
 
     Declare with VisitScheduleFieldsModelMixin or the fields from
-    VisitScheduleFieldsModelMixin"""
+    VisitScheduleFieldsModelMixin
+    """
 
     @property
     def schedule(self):
@@ -32,7 +33,8 @@ class VisitScheduleMethodsModelMixin(models.Model):
         self.schedule_name.
 
         Declared on Meta like this:
-            visit_schedule_name = 'visit_schedule_name.schedule_name'"""
+            visit_schedule_name = 'visit_schedule_name.schedule_name'
+            """
         try:
             schedule_name = self._meta.visit_schedule_name
         except AttributeError:
@@ -46,7 +48,8 @@ class VisitScheduleMethodsModelMixin(models.Model):
     @property
     def visit_schedule(self):
         """Return a visit schedule object from Meta.visit_schedule_name
-        or self.visit_schedule_name."""
+        or self.visit_schedule_name.
+        """
         try:
             visit_schedule_name = self._meta.visit_schedule_name
         except AttributeError:
@@ -101,7 +104,8 @@ class VisitScheduleModelMixin(VisitScheduleFieldsModelMixin,
     link a model instance to its schedule.
 
     This mixin is used with Appointment and Visit models via their
-    respective model mixins."""
+    respective model mixins.
+    """
 
     visit_code = models.CharField(
         max_length=25,
@@ -115,7 +119,9 @@ class VisitScheduleModelMixin(VisitScheduleFieldsModelMixin,
 class BaseEnrollmentModelMixin(
         NonUniqueSubjectIdentifierFieldMixin, VisitScheduleFieldsModelMixin,
         VisitScheduleMethodsModelMixin, models.Model):
-    """A base model mixin shared by the enrollment/disenrollment models."""
+    """A base model mixin shared by the enrollment/disenrollment
+    models.
+    """
 
     report_datetime = models.DateTimeField(
         validators=[
@@ -128,7 +134,8 @@ class BaseEnrollmentModelMixin(
 
     def common_clean(self):
         current_schedule_name = self.schedule_name
-        self.visit_schedule_name, schedule_name = self._meta.visit_schedule_name.split('.')
+        self.visit_schedule_name, schedule_name = (
+            self._meta.visit_schedule_name.split('.'))
         if current_schedule_name and current_schedule_name != schedule_name:
             raise ScheduleError(
                 'Invalid schedule name specified for \'{}\'. '
@@ -151,8 +158,9 @@ class BaseEnrollmentModelMixin(
     def save(self, *args, **kwargs):
         if not self.id and not self.subject_identifier:
             self.subject_identifier = get_uuid()
-        self.visit_schedule_name, self.schedule_name = self._meta.visit_schedule_name.split('.')
-        super(BaseEnrollmentModelMixin, self).save(*args, **kwargs)
+        self.visit_schedule_name, self.schedule_name = (
+            self._meta.visit_schedule_name.split('.'))
+        super().save(*args, **kwargs)
 
     def natural_key(self):
         return (self.subject_identifier,
@@ -195,7 +203,9 @@ class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
         super().common_clean()
 
     def datetime_not_before_enrollment_or_raise(self):
-        if relativedelta(self.disenrollment_datetime, self.enrollment.report_datetime).days < 0:
+        if relativedelta(
+                self.disenrollment_datetime,
+                self.enrollment.report_datetime).days < 0:
             raise DisenrollmentError(
                 'Disenrollment datetime cannot precede the enrollment '
                 'datetime {}. Got {}'.format(
@@ -204,7 +214,9 @@ class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
 
     def datetime_after_last_visit_or_raise(self):
         last_visit_datetime = site_visit_schedules.last_visit_datetime(
-            self.subject_identifier, visit_schedule_name=self.visit_schedule_name, schedule_name=self.schedule_name)
+            self.subject_identifier,
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name)
         if relativedelta(self.disenrollment_datetime, last_visit_datetime).days < 0:
             raise DisenrollmentError(
                 'Disenrollment datetime cannot precede the last visit '

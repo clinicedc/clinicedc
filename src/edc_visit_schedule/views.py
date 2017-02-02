@@ -11,7 +11,8 @@ class HomeView(EdcBaseViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context_data = super(HomeView, self).get_context_data(**kwargs)
         try:
-            selected_visit_schedule = site_visit_schedules.get_visit_schedule(self.kwargs.get('visit_schedule'))
+            selected_visit_schedule = site_visit_schedules.get_visit_schedule(
+                self.kwargs.get('visit_schedule'))
         except VisitScheduleError:
             selected_visit_schedule = None
         context_data.update({

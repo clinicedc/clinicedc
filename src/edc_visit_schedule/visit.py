@@ -10,7 +10,8 @@ from .utils import get_lower_window_days, get_upper_window_days
 
 class Panel:
 
-    def __init__(self, panel_name=None, panel_type=None, aliquot_type_alpha_code=None):
+    def __init__(self, panel_name=None, panel_type=None,
+                 aliquot_type_alpha_code=None):
         self.name = panel_name
         self.type = panel_type
         self.aliquot_type_code = aliquot_type_alpha_code
@@ -20,7 +21,9 @@ class Panel:
 
 
 class Crf:
-    def __init__(self, show_order, model=None, required=None, additional=None, **kwargs):
+
+    def __init__(self, show_order, model=None, required=None,
+                 additional=None, **kwargs):
         self.show_order = show_order
         self._model = '{}.{}'.format(*model.split('.'))
         self.model_label_lower = model
@@ -28,7 +31,8 @@ class Crf:
         self.additional = additional
 
     def __repr__(self):
-        return '<Crf({}, {}, {})>'.format(self.show_order, self.model_label_lower, self.required)
+        return '<Crf({}, {}, {})>'.format(
+            self.show_order, self.model_label_lower, self.required)
 
     def __str__(self):
         return '{} {}'.format(self._model, 'Required' if self.required else '')
@@ -48,7 +52,8 @@ class Requisition(Crf):
         return '<Requisition({}, {})>'.format(self.show_order, self.panel)
 
     def __str__(self):
-        return '{} {}'.format(self.panel.name, 'Required' if self.required else '')
+        return '{} {}'.format(
+            self.panel.name, 'Required' if self.required else '')
 
 
 class Visit:
@@ -60,8 +65,11 @@ class Visit:
         self.timepoint = kwargs.get('timepoint', 0)
         self.base_interval = kwargs.get('base_interval', self.timepoint)
         self.base_interval_unit = kwargs.get('base_interval_unit', DAYS)
-        if self.base_interval_unit not in [item[0] for item in VISIT_INTERVAL_UNITS]:
-            raise VisitScheduleError('Invalid interval unit. Got \'{}\''.format(self.base_interval_unit))
+        if self.base_interval_unit not in [
+                item[0] for item in VISIT_INTERVAL_UNITS]:
+            raise VisitScheduleError(
+                'Invalid interval unit. Got \'{}\''.format(
+                    self.base_interval_unit))
         self.lower_window = kwargs.get('lower_window', 0)
         self.lower_window_unit = kwargs.get('lower_window_unit', DAYS)
         self.upper_window = kwargs.get('upper_window', 0)

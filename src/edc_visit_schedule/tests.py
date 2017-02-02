@@ -4,10 +4,13 @@ from django.test import TestCase
 from edc_base.utils import get_utcnow
 from edc_example.factories import SubjectConsentFactory, SubjectVisitFactory
 from edc_example.models import (
-    Enrollment, EnrollmentTwo, EnrollmentThree, Disenrollment, SubjectVisit, SubjectOffstudy,
+    Enrollment, EnrollmentTwo, EnrollmentThree, Disenrollment,
+    SubjectVisit, SubjectOffstudy,
     Appointment, DisenrollmentThree)
 
-from .exceptions import EnrollmentError, AlreadyRegistered, ScheduleError, CrfError, VisitScheduleError
+from .exceptions import (
+    EnrollmentError, AlreadyRegistered, ScheduleError, CrfError,
+    VisitScheduleError)
 from .schedule import Schedule
 from .site_visit_schedules import site_visit_schedules
 from .visit import Crf
@@ -61,8 +64,10 @@ class TestVisitSchedule(TestCase):
         self.assertEqual(schedule.enrollment_model, Enrollment)
 
     def test_get_schedule_by_enrollmenttwo_model_label(self):
-        self.assertTrue(site_visit_schedules.get_schedule(EnrollmentTwo._meta.label_lower))
-        schedule = site_visit_schedules.get_schedule(EnrollmentTwo._meta.label_lower)
+        self.assertTrue(
+            site_visit_schedules.get_schedule(EnrollmentTwo._meta.label_lower))
+        schedule = site_visit_schedules.get_schedule(
+            EnrollmentTwo._meta.label_lower)
         self.assertEqual(schedule.enrollment_model, EnrollmentTwo)
 
     def test_get_schedule_by_enrollment_model(self):
@@ -76,14 +81,16 @@ class TestVisitSchedule(TestCase):
         self.assertEqual(schedule.enrollment_model, EnrollmentTwo)
 
     def test_schedule_get_visits(self):
-        visit_schedule = site_visit_schedules.get_visit_schedule('subject_visit_schedule')
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            'subject_visit_schedule')
         for schedule in visit_schedule.schedules.values():
             self.assertIsInstance(schedule.visits, list)
 
     def test_schedule_already_registered(self):
         schedule = Schedule('schedule1')
         schedule = self.bad_visit_schedule.add_schedule(schedule)
-        self.assertRaises(AlreadyRegistered, self.bad_visit_schedule.add_schedule, schedule)
+        self.assertRaises(
+            AlreadyRegistered, self.bad_visit_schedule.add_schedule, schedule)
 
     def test_visit_already_added_to_schedule(self):
         schedule = Schedule('schedule1')
@@ -95,30 +102,35 @@ class TestVisitSchedule(TestCase):
         schedule = Schedule('schedule1')
         schedule = self.bad_visit_schedule.add_schedule(schedule)
         schedule.add_visit('1000', timepoint=1)
-        self.assertRaises(ScheduleError, schedule.add_visit, '2000', timepoint=1)
+        self.assertRaises(
+            ScheduleError, schedule.add_visit, '2000', timepoint=1)
 
     def test_schedule_detects_duplicate_base_interval(self):
         schedule = Schedule('schedule1')
         schedule = self.bad_visit_schedule.add_schedule(schedule)
         schedule.add_visit('1000', timepoint=1, base_interval=1)
-        self.assertRaises(ScheduleError, schedule.add_visit, '2000', timepoint=2, base_interval=1)
+        self.assertRaises(
+            ScheduleError, schedule.add_visit, '2000', timepoint=2, base_interval=1)
 
     def test_add_schedule_detects_null_enrollment(self):
         schedule = Schedule('schedule1')
-        self.assertRaises(VisitScheduleError, self.visit_schedule.add_schedule, schedule)
+        self.assertRaises(
+            VisitScheduleError, self.visit_schedule.add_schedule, schedule)
 
     def test_gets_ordered_visits(self):
         """Assert visits are ordered by timepoint default."""
         schedule = Schedule('schedule1')
         for i in [1, 5, 3, 7, 2]:
             schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
-        self.assertEquals([x.timepoint for x in schedule.visits], [1, 2, 3, 5, 7])
+        self.assertEquals(
+            [x.timepoint for x in schedule.visits], [1, 2, 3, 5, 7])
 
     def test_gets_previous_visit(self):
         schedule = Schedule('schedule1')
         for i in [1, 5, 3, 7, 2]:
             schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
-        self.assertEquals(schedule.get_previous_visit('5000'), schedule.get_visit('3000'))
+        self.assertEquals(
+            schedule.get_previous_visit('5000'), schedule.get_visit('3000'))
 
     def test_gets_previous_visit2(self):
         schedule = Schedule('schedule1')
@@ -130,19 +142,22 @@ class TestVisitSchedule(TestCase):
         schedule = Schedule('schedule1')
         for i in [1, 5, 3, 7, 2]:
             schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
-        self.assertEquals(schedule.get_visit('5000', 1), schedule.get_visit('7000'))
+        self.assertEquals(
+            schedule.get_visit('5000', 1), schedule.get_visit('7000'))
 
     def test_gets_visit_forwards(self):
         schedule = Schedule('schedule1')
         for i in [1, 5, 3, 7, 2]:
             schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
-        self.assertEquals(schedule.get_visit('3000', 1), schedule.get_visit('5000'))
+        self.assertEquals(
+            schedule.get_visit('3000', 1), schedule.get_visit('5000'))
 
     def test_gets_visit_forwards2(self):
         schedule = Schedule('schedule1')
         for i in [1, 5, 3, 7, 2]:
             schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
-        self.assertEquals(schedule.get_visit('1000', 3), schedule.get_visit('5000'))
+        self.assertEquals(
+            schedule.get_visit('1000', 3), schedule.get_visit('5000'))
 
     def test_gets_visit_forwards3(self):
         schedule = Schedule('schedule1')
@@ -154,7 +169,8 @@ class TestVisitSchedule(TestCase):
         schedule = Schedule('schedule1')
         for i in [1, 5, 3, 7, 2]:
             schedule.add_visit('{}000'.format(i), timepoint=i, base_interval=i)
-        self.assertEquals(schedule.get_visit('7000', -3), schedule.get_visit('2000'))
+        self.assertEquals(
+            schedule.get_visit('7000', -3), schedule.get_visit('2000'))
 
     def test_crfs_unique_show_order(self):
         crfs = (
@@ -163,19 +179,24 @@ class TestVisitSchedule(TestCase):
             Crf(show_order=20, model='edc_example.CrfThree'),
         )
         schedule = Schedule('schedule1')
-        self.assertRaises(CrfError, schedule.add_visit, '1000', timepoint=0, crfs=crfs)
+        self.assertRaises(
+            CrfError, schedule.add_visit, '1000', timepoint=0, crfs=crfs)
 
     def test_enrollment_model_knows_schedule_name(self):
-        """Assert if schedule name provided on meta, does not need to be provided explicitly."""
+        """Assert if schedule name provided on meta, does not need to
+        be provided explicitly.
+        """
         SubjectConsentFactory(subject_identifier='111111')
         # schedule name not provided and is not on Meta
         try:
-            Enrollment.objects.create(subject_identifier='111111', is_eligible=True)
+            Enrollment.objects.create(
+                subject_identifier='111111', is_eligible=True)
         except (AttributeError, ScheduleError):
             self.fail('Error unexpectedly raised')
         # schedule name not provided and is on Meta
         try:
-            EnrollmentThree.objects.create(subject_identifier='111111', is_eligible=True)
+            EnrollmentThree.objects.create(
+                subject_identifier='111111', is_eligible=True)
         except (AttributeError, ScheduleError):
             self.fail('Error unexpectedly raised')
 
@@ -185,7 +206,8 @@ class TestVisitSchedule(TestCase):
         This will break of edc-example visit_schedules.py changes."""
         self.assertEqual(
             site_visit_schedules.get_schedule_names('subject_visit_schedule'),
-            ['subject_visit_schedule.schedule1', 'subject_visit_schedule.schedule2',
+            ['subject_visit_schedule.schedule1',
+             'subject_visit_schedule.schedule2',
              'subject_visit_schedule.schedule3'])
 
     def test_get_visit_schedule_names(self):
@@ -204,20 +226,26 @@ class TestVisitSchedule(TestCase):
             identity='111111',
             confirm_identity='111111')
         enrollment_datetime = get_utcnow()
-        Enrollment.objects.create(subject_identifier='111111', report_datetime=enrollment_datetime)
-        visit_schedule_name, schedule_name = Enrollment._meta.visit_schedule_name.split('.')
+        Enrollment.objects.create(
+            subject_identifier='111111', report_datetime=enrollment_datetime)
+        visit_schedule_name, schedule_name = (
+            Enrollment._meta.visit_schedule_name.split('.'))
         self.assertEqual(
             enrollment_datetime,
             site_visit_schedules.enrollment(
                 '111111', visit_schedule_name, schedule_name).report_datetime)
-        EnrollmentTwo.objects.create(subject_identifier='111111', report_datetime=enrollment_datetime)
-        visit_schedule_name, schedule_name = EnrollmentTwo._meta.visit_schedule_name.split('.')
+        EnrollmentTwo.objects.create(
+            subject_identifier='111111', report_datetime=enrollment_datetime)
+        visit_schedule_name, schedule_name = (
+            EnrollmentTwo._meta.visit_schedule_name.split('.'))
         self.assertEqual(
             enrollment_datetime,
             site_visit_schedules.enrollment(
                 '111111', visit_schedule_name, schedule_name).report_datetime)
-        EnrollmentThree.objects.create(subject_identifier='111111', report_datetime=enrollment_datetime)
-        visit_schedule_name, schedule_name = EnrollmentThree._meta.visit_schedule_name.split('.')
+        EnrollmentThree.objects.create(
+            subject_identifier='111111', report_datetime=enrollment_datetime)
+        visit_schedule_name, schedule_name = (
+            EnrollmentThree._meta.visit_schedule_name.split('.'))
         self.assertEqual(
             enrollment_datetime,
             site_visit_schedules.enrollment(
@@ -229,22 +257,30 @@ class TestVisitSchedule(TestCase):
             consent_datetime=get_utcnow() - relativedelta(weeks=4),
             identity='111111',
             confirm_identity='111111')
-        self.assertRaises(EnrollmentError, Disenrollment.objects.create, subject_identifier='111111')
+        self.assertRaises(
+            EnrollmentError,
+            Disenrollment.objects.create,
+            subject_identifier='111111')
 
     def test_get_enrollment_from_disenrollment(self):
-        """Asserts site can return the enrollment instance."""
+        """Asserts site can return the enrollment instance.
+        """
         SubjectConsentFactory(
             subject_identifier='111111',
             consent_datetime=get_utcnow() - relativedelta(weeks=4),
             identity='111111',
             confirm_identity='111111')
         enrollment_datetime = get_utcnow()
-        enrollment = EnrollmentThree.objects.create(subject_identifier='111111', report_datetime=enrollment_datetime)
-        disenrollment = DisenrollmentThree.objects.create(subject_identifier='111111', schedule_name='schedule3')
+        enrollment = EnrollmentThree.objects.create(
+            subject_identifier='111111', report_datetime=enrollment_datetime)
+        disenrollment = DisenrollmentThree.objects.create(
+            subject_identifier='111111', schedule_name='schedule3')
         self.assertEqual(disenrollment.enrollment, enrollment)
 
     def test_blocks_enrollment_not_for_schedule(self):
-        """Asserts that <enrollment>.<schedule_name> matches configuration in schedule."""
+        """Asserts that <enrollment>.<schedule_name> matches
+        configuration in schedule.
+        """
         for i in range(1, 4):
             SubjectConsentFactory(
                 subject_identifier='111111' + str(i),
@@ -252,13 +288,18 @@ class TestVisitSchedule(TestCase):
                 identity='111111' + str(i),
                 confirm_identity='111111' + str(i),)
         try:
-            EnrollmentTwo.objects.create(subject_identifier='1111111', schedule_name='schedule2')
+            EnrollmentTwo.objects.create(
+                subject_identifier='1111111', schedule_name='schedule2')
         except ScheduleError:
             self.fail('Unexpectedly raised ScheduleError')
         self.assertRaises(
-            ScheduleError, Enrollment.objects.create, subject_identifier='1111113', schedule_name='schedule3')
+            ScheduleError,
+            Enrollment.objects.create,
+            subject_identifier='1111113', schedule_name='schedule3')
         self.assertRaises(
-            ScheduleError, EnrollmentThree.objects.create, subject_identifier='1111112', schedule_name='schedule1')
+            ScheduleError,
+            EnrollmentThree.objects.create,
+            subject_identifier='1111112', schedule_name='schedule1')
 
     def test_get_last_visit(self):
         for i in range(1, 4):
@@ -276,17 +317,23 @@ class TestVisitSchedule(TestCase):
         EnrollmentThree.objects.create(subject_identifier='1111111')
         EnrollmentThree.objects.create(subject_identifier='1111112')
         EnrollmentThree.objects.create(subject_identifier='1111113')
-        for appointment in Appointment.objects.all().order_by('subject_identifier', 'appt_datetime'):
-            SubjectVisitFactory(appointment=appointment, report_datetime=appointment.appt_datetime)
+        for appointment in Appointment.objects.all().order_by(
+                'subject_identifier', 'appt_datetime'):
+            SubjectVisitFactory(
+                appointment=appointment,
+                report_datetime=appointment.appt_datetime)
         self.assertEqual(
             SubjectVisit.objects.filter(
-                subject_identifier='1111113').order_by('report_datetime').last().report_datetime,
+                subject_identifier='1111113').order_by(
+                    'report_datetime').last().report_datetime,
             site_visit_schedules.last_visit_datetime('1111113'))
         self.assertEqual(
             SubjectVisit.objects.filter(
-                subject_identifier='1111112').order_by('report_datetime').last().report_datetime,
+                subject_identifier='1111112').order_by(
+                    'report_datetime').last().report_datetime,
             site_visit_schedules.last_visit_datetime('1111112'))
         self.assertEqual(
             SubjectVisit.objects.filter(
-                subject_identifier='1111111').order_by('report_datetime').last().report_datetime,
+                subject_identifier='1111111').order_by(
+                    'report_datetime').last().report_datetime,
             site_visit_schedules.last_visit_datetime('1111111'))
