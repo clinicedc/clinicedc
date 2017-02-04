@@ -34,6 +34,7 @@ NONE = 'none'
 NOT_ADDITIONAL = False
 NOT_APPLICABLE = 'N/A'
 NOT_EVALUATED = 'Not evaluated'
+NOT_SURE = 'not_sure'
 OFF_STUDY = 'off study'
 OFF_STUDY_VISIT = 'off study'
 OMANG = 'OMANG'
