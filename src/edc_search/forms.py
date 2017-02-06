@@ -26,4 +26,5 @@ class SearchForm(forms.Form):
         self.helper.form_show_labels = False
         self.helper.html5_required = False
         self.helper.layout = Layout(
-            FieldWithButtons('search_term', StrictButton(self.button_label, type='submit')))
+            FieldWithButtons(
+                'search_term', StrictButton(self.button_label, type='submit')))
