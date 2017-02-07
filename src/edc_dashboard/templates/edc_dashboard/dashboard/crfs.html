@@ -57,10 +57,10 @@
 						        	{% if crf.entry_status == NOT_REQUIRED or not crf.object %} disabled {% endif %} 
 						        		href="{{ crf.object.get_absolute_url }}?edc_readonly=1&edc_readonly_next={{ crf.object.next_url }}&&{{ crf.object.extra_querystring }}">View</a>
 						        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
-						       	{% else%}
+						      {% else%}
 						       	<span class="text text-muted small">not required</span>
-						       	{% endif %}
-                                </span>
+						      {% endif %}
+                              </span>
 						    </td>
 				  		</tr>
 				  	{% endfor %}

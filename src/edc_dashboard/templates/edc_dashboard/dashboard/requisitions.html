@@ -11,10 +11,16 @@
 				<tbody>
 				{% for requisition in requisitions %}
 			    	<tr>
-			    		<td><label><input type="checkbox" name="requisition-checkbox" value="{{ requisition.subject_requisition.pk }}"></label></td>
 			    		<td>
-					    	{% if requisition.entry_status == 'NOT_REQUIRED' %}
-					        	<del>{{ requisition.panel_name|title }}</del>
+			    		   <label>
+			    		       <input type="checkbox" name="requisition-checkbox" value="{{ requisition.subject_requisition.pk }}">
+			    		   </label>
+			    		</td>
+			    		<td>
+                            {% if requisition.entry_status == NOT_REQUIRED %}
+                                <span class="text text-muted small">
+                                 {{ requisition.panel_name|title }}
+                                </span>
 					        {% else %}
 					        	{{ requisition.panel_name|title }}
 					   		{% endif %}
@@ -26,18 +32,22 @@
 		    			</td>
 					    <td>
 							<span class="pull-right">
-							<a role="button" class="btn btn-sm {% if requisition.object.id %}btn-success{% else %}{% if requisition.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-danger{% endif %}{% endif %}" 
+                            {% if requisition.entry_status != NOT_REQUIRED %}
+    							<a role="button" class="btn btn-sm {% if requisition.object.id %}btn-success{% else %}{% if requisition.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-danger{% endif %}{% endif %}" 
 										href="{{ requisition.object.get_absolute_url }}?next={{ requisition.object.next_url }}&{{ requisition.object.extra_querystring }}">
 										{% if requisition.object.id %}
 											<span class="fa fa-pencil fa-fw"></span> Edit
 										{% else %}
 											<span class="fa fa-plus fa-fw"></span> Add
 										{% endif %}
-							</a> 
-					        <a role="button" class="btn btn-sm btn-default" 
+	       						</a> 
+			     		        <a role="button" class="btn btn-sm btn-default" 
 						        	{% if requisition.entry_status == NOT_REQUIRED or not requisition.object %} disabled {% endif %} 
 						        		href="{{ requisition.object.get_absolute_url }}?edc_readonly=1&edc_readonly_next={{ requisition.object.next_url }}&&{{ requisition.object.extra_querystring }}">View</a>
-					        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
+				    	        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
+                              {% else%}
+                                <span class="text text-muted small">not required</span>
+                              {% endif %}
 					       	</span>
 					    </td>
 			    	</tr>
