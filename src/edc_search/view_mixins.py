@@ -68,6 +68,7 @@ class SearchViewMixin(PaginatorMixin, FormView):
             search_term = form.cleaned_data['search_term']
             results = None
             if search_term:
+                search_term = search_term.strip()
                 qs = self.search_queryset(search_term, **self.kwargs)
                 if not qs:
                     form.add_error(
@@ -93,11 +94,6 @@ class SearchViewMixin(PaginatorMixin, FormView):
         in through the form, see `form_valid`.
         """
         q, options = self.get_search_options(search_term, **kwargs)
-        try:
-            qs = [self.search_model.objects.get(q, **options)]
-        except (self.search_model.DoesNotExist, ValueError):
-            qs = None
-        except MultipleObjectsReturned:
-            qs = self.search_model.objects.filter(
-                q, **options).order_by(self.search_queryset_ordering)
+        qs = self.search_model.objects.filter(
+            q, **options).order_by(self.search_queryset_ordering)
         return qs
