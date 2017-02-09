@@ -133,7 +133,6 @@ class SiteRuleGroups(object):
                         site_rule_groups.registry)
                     import_module('{}.{}'.format(app, module_name))
                 except Exception as e:
-                    print(e)
                     if 'edc_metadata' in str(e) and 'metadata_rules' not in str(e):
                         raise MetadataRulesError(
                             'Failed to import {}.metadata_rules. Got \'{}\'.'.format(app, e))
