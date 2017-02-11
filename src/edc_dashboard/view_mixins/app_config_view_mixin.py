@@ -3,7 +3,9 @@ from django.apps import apps as django_apps
 
 class AppConfigViewMixin:
 
-    """Adds url and template names for listboard and dashboard from app_config"""
+    """Adds url and template names for listboard and dashboard
+    from app_config.
+    """
 
     app_config_name = None
 
@@ -28,7 +30,8 @@ class AppConfigViewMixin:
         context = super().get_context_data(**kwargs)
         context.update({k: v for k, v in self.url_names('listboard_url_name')})
         context.update({k: v for k, v in self.url_names('dashboard_url_name')})
-        context.update(base_template_name=self.base_template_name or 'edc_base/base.html')
+        context.update(
+            base_template_name=self.base_template_name or 'edc_base/base.html')
         context.update(listboard_url_name=self.listboard_url_name)
         context.update(dashboard_url_name=self.dashboard_url_name)
         return context
@@ -37,7 +40,8 @@ class AppConfigViewMixin:
     def listboard_url_name(self):
         if self.app_config_name:
             try:
-                return django_apps.get_app_config(self.app_config_name).listboard_url_name
+                return django_apps.get_app_config(
+                    self.app_config_name).listboard_url_name
             except AttributeError:
                 pass
         return None
@@ -46,7 +50,8 @@ class AppConfigViewMixin:
     def dashboard_url_name(self):
         if self.app_config_name:
             try:
-                return django_apps.get_app_config(self.app_config_name).dashboard_url_name
+                return django_apps.get_app_config(
+                    self.app_config_name).dashboard_url_name
             except AttributeError:
                 pass
         return None
@@ -55,7 +60,8 @@ class AppConfigViewMixin:
     def base_template_name(self):
         if self.app_config_name:
             try:
-                return django_apps.get_app_config(self.app_config_name).base_template_name
+                return django_apps.get_app_config(
+                    self.app_config_name).base_template_name
             except AttributeError:
                 pass
         return None

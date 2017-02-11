@@ -1,41 +1,47 @@
 
 <!--  begin paginator -->
 
-<div class="paginator" style="text-align:center">
+{% if page_obj.has_next or page_obj.has_previous %}
+ <div style="text-align:center">
+ <ul class="pagination pagination-sm">
+  <li class="{% if not page_obj.has_previous %}disabled{% endif %}">
+    <a  href="{% url listboard_url_name page=1 %}">
+        <i class="fa fa-angle-double-left fa-fw"></i>
+    </a>
+  </li>
+  <li class="{% if not page_obj.has_previous %}disabled{% endif %}">
+    <a href="{% if not page_obj.has_previous %}#{% else %}{% url listboard_url_name page=page_obj.previous_page_number %}{% endif %}">
+        <i class="fa fa-angle-left fa-fw"></i>
+    </a>
+  </li>
 
-{% if show_paginator_control %}
-     <span class="step-links">
-     	<a href="{% if results.has_previous %}{% url listboard_url_name page=1 %}{% else %}#{% endif %}"
-     	  class="btn btn-sm btn-default {% if not results.has_previous %}disabled{% endif %}" role="button">
-     	      <i class="fa fa-angle-double-left fa-md"></i>
-     	</a>
-        <a href="{% if results.has_previous %}{% url listboard_url_name page=results.previous_page_number %}{% else %}#{% endif %}"
-            class="btn btn-sm btn-default {% if not results.has_previous %}disabled{% endif %}" role="button">
-                <i class="fa fa-angle-left fa-md"></i>
-        </a>
+  {% for page in paginator.page_range %}
+    <li class="{% if page_obj.number == page %}active{% endif %}"><a href="{% url listboard_url_name page=page %}">{{ page }}</a></li>
+  {% endfor %}
 
-    	<span class="text small">Page {{ results.number|default:"1" }} of {{ results.paginator.num_pages|default:"1" }} <i class="fa fa-reorder fa-md"></i> {{ result_count_total|default:'0' }} result{{ result_count_total|pluralize }}</span>
-
-        <a href="{% if results.has_next %}{% url listboard_url_name page=results.next_page_number %}{% else %}#{% endif %}"
-            class="btn btn-sm btn-default {% if not results.has_next %}disabled{% endif %}" role="button">
-                <i class="fa fa-angle-right fa-md"></i>
-        </a>
-    	<a href="{% if results.has_next %}{% url listboard_url_name page=results.paginator.num_pages %}{% else %}#{% endif %}"
-    	   class="btn btn-sm btn-default {% if not results.has_next %}disabled{% endif %}" role="button">
-    	       <i class="fa fa-angle-double-right fa-md"></i>
-        </a>
-    </span>
-{% else %}
-	<span class="text small"><i class="fa fa-reorder fa-md"></i> {{ result_count_total|default:'0' }} result{{ result_count_total|pluralize }}</span>
+  <li class="{% if not page_obj.has_next %}disabled{% endif %}">
+    <a href="{% if not page_obj.has_next %}#{% else %}{% url listboard_url_name page=page_obj.next_page_number %}{% endif %}">
+        <i class="fa fa-angle-right fa-fw"></i>
+    </a>
+  </li>
+  <li class="{% if not page_obj.has_next %}disabled{% endif %}">
+    <a href="{% url listboard_url_name page=paginator.num_pages %}">
+        <i class="fa fa-angle-double-right fa-fw"></i>
+    </a>
+  </li>
+ </ul>
+ <div class="text text-muted"><small>
+    Showing items {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ paginator.count }} found.</small>
+ </div>
+</div>
 {% endif %}
 {% if search_term %}
 	<span class="text small">
-	   <a role="button" href="{% url listboard_url_name %}" title="undo search filter"
+	   <a role="button" href="?q=" title="undo search filter"
 	       class="btn btn-default btn-sm">
 	           <i class="fa fa-undo fa-sm"></i>
 	   </a></span>
 {% endif %}
-
 </div>
 
 <!--  end paginator -->
