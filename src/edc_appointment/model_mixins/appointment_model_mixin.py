@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from django.apps import apps as django_apps
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -11,6 +12,7 @@ from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from ..choices import APPT_TYPE, APPT_STATUS
 from ..constants import NEW_APPT
 from ..managers import AppointmentManager
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
@@ -84,7 +86,10 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
         choices=APPT_STATUS,
         max_length=25,
         default=NEW_APPT,
-        db_index=True)
+        db_index=True,
+        help_text=(
+            'If the visit has already begun, only \'in progress\' or '
+            '\'incomplete\' are valid options'))
 
     appt_reason = models.CharField(
         verbose_name=('Reason for appointment'),
@@ -121,6 +126,55 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
     @property
     def title(self):
         return self.schedule.get_visit(self.visit_code).title
+
+    @property
+    def visit_model_reverse_attr(self):
+        """Returns the visit attr of the reverse relation.
+        """
+        app_config = django_apps.get_app_config('edc_appointment')
+        return app_config.visit_model_reverse_attr(
+            key=self._meta.label_lower)
+
+    @property
+    def visit(self):
+        """Returns the visit instance.
+        """
+        return getattr(self, self.visit_model_reverse_attr)
+
+    @property
+    def previous(self):
+        """Returns the previous appointment or None in this schedule.
+        """
+        previous_appt = None
+        previous_visit = self.schedule.get_previous_visit(self.visit_code)
+        if previous_visit:
+            try:
+                previous_appt = self.__class__.objects.get(
+                    subject_identifier=self.subject_identifier,
+                    visit_schedule_name=self.visit_schedule_name,
+                    schedule_name=self.schedule_name,
+                    visit_code=previous_visit.code)
+            except ObjectDoesNotExist:
+                pass
+        return previous_appt
+
+    @property
+    def next(self):
+        """Returns the next appointment or None in this schedule.
+        """
+        next_appt = None
+        next_visit = self.schedule.get_next_visit(self.visit_code)
+        if next_visit:
+            try:
+                options = dict(
+                    subject_identifier=self.subject_identifier,
+                    visit_schedule_name=self.visit_schedule_name,
+                    schedule_name=self.schedule_name,
+                    visit_code=next_visit.code)
+                next_appt = self.__class__.objects.get(**options)
+            except ObjectDoesNotExist:
+                pass
+        return next_appt
 
     @property
     def report_datetime(self):

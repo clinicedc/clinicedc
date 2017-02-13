@@ -20,6 +20,11 @@ class AppConfig(DjangoAppConfig):
             days=[MO, TU, WE, TH, FR],
             slots=[100, 100, 100, 100, 100])}
 
+    visit_reverse_relations = {
+        None: 'subjectvisit',
+        'edc_appointment.appointment': 'subjectvisit',
+    }
+
     def ready(self):
         from .signals import (
             create_appointments_on_post_save,
@@ -48,3 +53,6 @@ class AppConfig(DjangoAppConfig):
             raise ImproperlyConfigured(
                 'Error creating appointment. Facility {} does not exist.'.format(name))
         return facility
+
+    def visit_model_reverse_attr(self, key=None):
+        return self.visit_reverse_relations.get(key, 'subjectvisit')

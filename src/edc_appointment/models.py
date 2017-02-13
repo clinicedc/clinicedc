@@ -8,8 +8,6 @@ from .model_mixins import AppointmentModelMixin
 
 class Appointment(AppointmentModelMixin, BaseUuidModel):
 
-    ADMIN_SITE_NAME = 'edc_appointment_admin'
-
     objects = AppointmentManager()
 
     history = HistoricalRecords()
