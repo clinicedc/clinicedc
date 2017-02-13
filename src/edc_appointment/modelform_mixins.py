@@ -12,29 +12,31 @@ class AppointmentFormMixin:
     def clean(self):
         cleaned_data = super().clean()
         appt_status = cleaned_data.get('appt_status')
-        if appt_status in [NEW_APPT, CANCELLED_APPT] and self.crf_metadata_exists:
+        if appt_status in [NEW_APPT, CANCELLED_APPT] and self.crf_metadata_required_exists:
             raise forms.ValidationError({
                 'appt_status': 'Invalid. Not all required CRFs have been keyed'})
-        elif appt_status in [NEW_APPT, CANCELLED_APPT] and self.requisition_metadata_exists:
+        elif appt_status in [NEW_APPT, CANCELLED_APPT] and self.requisition_metadata_required_exists:
             raise forms.ValidationError({
                 'appt_status': 'Invalid. Not all required requisitions have been keyed'})
         elif (appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT]
-              and self.crf_metadata_exists):
+              and self.crf_metadata_required_exists):
             raise forms.ValidationError({
                 'appt_status': 'Invalid. Not all required CRFs have been keyed'})
         elif (appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT]
-              and self.requisition_metadata_exists):
+              and self.requisition_metadata_required_exists):
             raise forms.ValidationError({
                 'appt_status': 'Invalid. Not all required requisitions have been keyed'})
         elif appt_status == IN_PROGRESS_APPT and self.appointment_in_progress_exists:
             raise forms.ValidationError({
                 'appt_status': 'Invalid. Another appointment in this schedule is in progress.'})
         elif (appt_status not in [COMPLETE_APPT, NEW_APPT]
-              and not self.crf_metadata_exists):
+              and self.crf_metadata_exists
+              and not self.crf_metadata_required_exists):
             raise forms.ValidationError({
                 'appt_status': 'Invalid. All required CRFs have been keyed'})
         elif (appt_status not in [COMPLETE_APPT, NEW_APPT]
-              and not self.requisition_metadata_exists):
+              and self.requisition_metadata_exists
+              and not self.requisition_metadata_required_exists):
             raise forms.ValidationError({
                 'appt_status': 'Invalid. All required requisitions have been keyed'})
         return cleaned_data
@@ -53,11 +55,27 @@ class AppointmentFormMixin:
             subject_identifier=self.instance.subject_identifier,
             visit_schedule_name=self.instance.visit_schedule_name,
             schedule_name=self.instance.schedule_name,
+            visit_code=self.instance.visit_code).exists()
+
+    @property
+    def crf_metadata_required_exists(self):
+        return CrfMetadata.objects.filter(
+            subject_identifier=self.instance.subject_identifier,
+            visit_schedule_name=self.instance.visit_schedule_name,
+            schedule_name=self.instance.schedule_name,
             visit_code=self.instance.visit_code,
             entry_status=REQUIRED).exists()
 
     @property
     def requisition_metadata_exists(self):
+        return RequisitionMetadata.objects.filter(
+            subject_identifier=self.instance.subject_identifier,
+            visit_schedule_name=self.instance.visit_schedule_name,
+            schedule_name=self.instance.schedule_name,
+            visit_code=self.instance.visit_code).exists()
+
+    @property
+    def requisition_metadata_required_exists(self):
         return RequisitionMetadata.objects.filter(
             subject_identifier=self.instance.subject_identifier,
             visit_schedule_name=self.instance.visit_schedule_name,
