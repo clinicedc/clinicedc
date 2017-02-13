@@ -10,6 +10,7 @@ from edc_constants.constants import YES, NO
 
 from ..exceptions import SiteConsentError
 from ..site_consents import site_consents
+from edc_registration.models import RegisteredSubject
 
 
 class ConsentModelFormMixin(CommonCleanModelFormMixin):
@@ -28,6 +29,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         self.clean_guardian_and_dob()
         self.clean_identity_and_confirm_identity()
         self.clean_identity_with_unique_fields()
+        self.clean_with_registered_subject()
         return cleaned_data
 
     @property
@@ -44,18 +46,31 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
             raise forms.ValidationError(e)
         return consent_config
 
+    def clean_with_registered_subject(self):
+        cleaned_data = self.cleaned_data
+        identity = cleaned_data.get('identity')
+        dob = cleaned_data.get('dob')
+        try:
+            registered_subject = RegisteredSubject.objects.get(
+                identity=identity)
+        except RegisteredSubject.DoesNotExist:
+            pass
+        else:
+            if registered_subject.dob != dob:
+                raise forms.ValidationError({
+                    'dob': 'Incorrect date of birth. Based on a previous '
+                    'registration expected {}.'.format(
+                        registered_subject.dob)})
+
     def clean_identity_and_confirm_identity(self):
         cleaned_data = self.cleaned_data
         identity = cleaned_data.get('identity')
         confirm_identity = cleaned_data.get('confirm_identity')
         if identity != confirm_identity:
-            raise forms.ValidationError(
-                {'identity': 'Identity mismatch. Identity must match '
-                 'the confirmation field. Got {} != {}'.format(
-                     identity, confirm_identity)},
-                params={
-                    'identity': identity, 'confirm_identity': confirm_identity},
-                code='invalid')
+            raise forms.ValidationError({
+                'identity': 'Identity mismatch. Identity must match '
+                'the confirmation field. Got {} != {}'.format(
+                    identity, confirm_identity)})
 
     def clean_identity_with_unique_fields(self):
         cleaned_data = self.cleaned_data
@@ -65,27 +80,20 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         dob = cleaned_data.get('dob')
         unique_together_form = self.unique_together_string(
             first_name, initials, dob)
-        for consent in self._meta.model.objects.filter(identity=identity):
+        for consent in self._meta.model.objects.filter(
+                identity=identity):
             unique_together_model = self.unique_together_string(
                 consent.first_name, consent.initials, consent.dob)
             if unique_together_form != unique_together_model:
                 raise forms.ValidationError(
-                    {'identity': 'Identity \'{}\' is already in use by subject {}. '
-                     'Please resolve.'.format(identity, consent.subject_identifier)},
-                    params={
-                        'subject_identifier': consent.subject_identifier,
-                        'identity': identity},
-                    code='invalid')
+                    {'identity': 'Identity \'{}\' is already in use by another '
+                     'subject. See {}.'.format(identity, consent.subject_identifier)})
         for consent in self._meta.model.objects.filter(
                 first_name=first_name, initials=initials, dob=dob):
             if consent.identity != identity:
-                raise forms.ValidationError(
-                    'Subject\'s identity was previously reported as \'{}\'. '
-                    'You wrote \'{}\'. Please resolve.'.format(
-                        consent.identity, identity),
-                    params={
-                        'existing_identity': consent.identity, 'identity': identity},
-                    code='invalid')
+                raise forms.ValidationError({
+                    'identity': 'Subject\'s identity was previously reported '
+                    'as \'{}\'.'.format(consent.identity, identity)})
 
     # ok
     def clean_initials_with_full_name(self):
@@ -168,16 +176,13 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         is_literate = cleaned_data.get('is_literate')
         witness_name = cleaned_data.get('witness_name')
         if is_literate == NO and not witness_name:
-            raise forms.ValidationError(
-                'You wrote subject is illiterate. Please provide the '
-                'name of a witness on this form and signature on the '
-                'paper document.',
-                code='invalid')
+            raise forms.ValidationError({
+                'witness_name':
+                'Provide a name of a witness on this form and '
+                'ensure paper consent is signed.'})
         if is_literate == YES and witness_name:
-            raise forms.ValidationError(
-                'You wrote subject is literate. The name of a witness '
-                'is NOT required.',
-                code='invalid')
+            raise forms.ValidationError({
+                'witness_name': 'This field is not required'})
         return is_literate
 
     def clean_consent_reviewed(self):
