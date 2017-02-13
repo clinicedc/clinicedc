@@ -12,7 +12,13 @@ class AppointmentFormMixin:
     def clean(self):
         cleaned_data = super().clean()
         appt_status = cleaned_data.get('appt_status')
-        if appt_status in [NEW_APPT, CANCELLED_APPT] and self.crf_metadata_required_exists:
+
+        if self.instance.previous and self.instance.previous.appt_status == NEW_APPT:
+            raise forms.ValidationError(
+                'Appointments should be updated in sequence. A previous '
+                'appointment needs be updated before continuing. '
+                'See appointment for {}'.format(self.instance.previous.visit_code))
+        elif appt_status in [NEW_APPT, CANCELLED_APPT] and self.crf_metadata_required_exists:
             raise forms.ValidationError({
                 'appt_status': 'Invalid. Not all required CRFs have been keyed'})
         elif appt_status in [NEW_APPT, CANCELLED_APPT] and self.requisition_metadata_required_exists:
