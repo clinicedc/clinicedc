@@ -336,7 +336,7 @@ YES_NO_REFUSED = (
 YES_NO_DWTA = (
     (YES, _(YES)),
     (NO, _(NO)),
-    ('DWTA', _('Don\'t want to answer')),
+    (DWTA, _('Don\'t want to answer')),
 )
 
 YES_NO_NA_SPECIFY = (
@@ -348,6 +348,14 @@ YES_NO_NA_SPECIFY = (
 YES_NO_NA = (
     (YES, YES),
     (NO, NO),
+    (NOT_APPLICABLE, 'Not applicable'),
+)
+
+
+YES_NO_NA_DWTA = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (DWTA, _('Don\'t want to answer')),
     (NOT_APPLICABLE, 'Not applicable'),
 )
 
