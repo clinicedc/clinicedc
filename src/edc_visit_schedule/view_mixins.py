@@ -10,11 +10,13 @@ class VisitScheduleViewMixin:
         self.schedule = None
         self.visit_schedules = []
 
-    def get(self, request, *args, **kwargs):
-        kwargs['visit_schedules'] = self.visit_schedules
-        kwargs['enrollment_models'] = self.enrollment_models
-        kwargs['current_enrollment_model'] = self.current_enrollment_model
-        return super().get(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            visit_schedules=self.visit_schedules,
+            enrollment_models=self.enrollment_models,
+            current_enrollment_model=self.current_enrollment_model)
+        return context
 
     @property
     def enrollment_models(self):
