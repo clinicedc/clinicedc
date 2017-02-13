@@ -142,6 +142,26 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
         return getattr(self, self.visit_model_reverse_attr)
 
     @property
+    def next_by_timepoint(self):
+        """Returns the previous appointment or None of all appointments
+        for this subject.
+        """
+        return self.__class__.objects.filter(
+            subject_identifier=self.subject_identifier,
+            timepoint_datetime__gt=self.timepoint_datetime
+        ).order_by('timepoint_datetime').first()
+
+    @property
+    def previous_by_timepoint(self):
+        """Returns the next appointment or None of all appointments
+        for this subject.
+        """
+        return self.__class__.objects.filter(
+            subject_identifier=self.subject_identifier,
+            timepoint_datetime__lt=self.timepoint_datetime
+        ).order_by('timepoint_datetime').last()
+
+    @property
     def previous(self):
         """Returns the previous appointment or None in this schedule.
         """
