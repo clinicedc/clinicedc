@@ -6,4 +6,6 @@
 
 </td>
 
-<td class="{% if wrapped %}{{ change_color|default:'success' }}{% else %}{{ add_color|default:'warning' }}{% endif %}"><h6>{{ wrapped.verbose_name|title }}</h6></td>
+<td class="{% if wrapped %}{{ change_color|default:'success' }}{% else %}{{ add_color|default:'warning' }}{% endif %}">
+    <h6>{{ wrapped.verbose_name|title }}{% if wrapped.id and report_datetime %}<br><span class="text text-muted">{{ report_datetime|date:"Y-m-d" }}</span>{% endif %}</h6>
+</td>

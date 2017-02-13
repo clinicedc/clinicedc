@@ -26,16 +26,14 @@ class MetaDataViewMixin:
         self.crfs = None
         self.requisitions = None
 
-    def get(self, request, *args, **kwargs):
-        kwargs['crfs'] = self.get_crfs(**kwargs)
-        kwargs['requisitions'] = self.get_requisitions(**kwargs)
-        return super().get(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(
-            NOT_REQUIRED=NOT_REQUIRED,
-        )
+        if self.appointment:
+            context.update(
+                report_datetime=self.appointment.visit.report_datetime,
+                crfs=self.get_crfs(**kwargs),
+                requisitions=self.get_requisitions(**kwargs),
+                NOT_REQUIRED=NOT_REQUIRED)
         return context
 
     @property
@@ -47,10 +45,7 @@ class MetaDataViewMixin:
     def get_crfs(self, **kwargs):
         crfs = []
         if self.appointment:
-            try:
-                visit = self.appointment.visit._original_object
-            except AttributeError:
-                visit = self.appointment.visit
+            visit = self.appointment.visit
             for metadata in self.crf_metadata_set:
                 try:
                     obj = None
@@ -98,10 +93,7 @@ class MetaDataViewMixin:
     def get_requisitions(self, **kwargs):
         requisitions = []
         if self.appointment:
-            try:
-                visit = self.appointment.visit._original_object
-            except AttributeError:
-                visit = self.appointment.visit
+            visit = self.appointment.visit
             for metadata in self.requisition_metadata_set:
                 try:
                     obj = None

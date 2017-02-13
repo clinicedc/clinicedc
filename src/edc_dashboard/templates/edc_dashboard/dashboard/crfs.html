@@ -3,7 +3,7 @@
 			<div class="panel-heading clearfix">
                 <h6 class="panel-title">
 			     <i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>
-			     {{ appointment.visit_code }} {{ appointment.title|lower|title }} {{ appointment.visit.report_datetime|localtime|date:"Y-m-d" }}
+			     {{ appointment.visit_code }} {{ appointment.title|lower|title }}: <span class="text text-muted"><small>Report date: {{ appointment.visit.report_datetime|localtime|date:"Y-m-d H:i" }}</small></span>
 				<span class="pull-right">
 
 					{% block schedule_button %}

@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 
-from edc_appointment.constants import NEW_APPT, IN_PROGRESS_APPT
+from edc_appointment.constants import (
+    NEW_APPT, IN_PROGRESS_APPT, INCOMPLETE_APPT, COMPLETE_APPT)
 
 
 class AppointmentViewMixin:
@@ -14,40 +15,60 @@ class AppointmentViewMixin:
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.appointment = None
         self._appointments = None
-
-    def get(self, request, *args, **kwargs):
-        try:
-            appointment = self.appointment_model.objects.get(
-                id=kwargs.get('appointment'))
-        except self.appointment_model.DoesNotExist:
-            self.appointment = None  # self.get_empty_appointment(**kwargs)
-        else:
-            self.appointment = self.appointment_model_wrapper_class(
-                appointment)
-        kwargs['appointment'] = self.appointment
-        kwargs['appointments'] = self.appointments
-        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
+            appointment=self.appointment_wrapped,
+            appointments=self.appointments_wrapped,
             NEW_APPT=NEW_APPT,
-            IN_PROGRESS_APPT=IN_PROGRESS_APPT,
-        )
+            INCOMPLETE_APPT=INCOMPLETE_APPT,
+            COMPLETE_APPT=COMPLETE_APPT,
+            IN_PROGRESS_APPT=IN_PROGRESS_APPT)
         return context
 
     @property
+    def appointment(self):
+        try:
+            appointment = self.appointment_model.objects.get(
+                id=self.kwargs.get('appointment'))
+        except self.appointment_model.DoesNotExist:
+            appointment = None
+        return appointment
+
+    @property
+    def appointment_wrapped(self):
+        if self.appointment:
+            return self.appointment_model_wrapper_class(
+                self.appointment)
+        return None
+
+    @property
     def appointments(self):
-        """Returns a list of wrapped appointment instances.
+        """Returns a Queryset of all appointments for this subject.
         """
         if not self._appointments:
-            appointments = self.appointment_model.objects.filter(
-                subject_identifier=self.subject_identifier).order_by('visit_code')
-            self._appointments = [
-                self.appointment_model_wrapper_class(obj) for obj in appointments]
+            self._appointments = self.appointment_model.objects.filter(
+                subject_identifier=self.subject_identifier).order_by(
+                    'timepoint_datetime')
         return self._appointments
+
+    @property
+    def appointments_wrapped(self):
+        """Returns a list of wrapped appointments.
+        """
+        appointments = []
+        if self.appointments:
+            appointments = [
+                self.appointment_model_wrapper_class(obj) for obj in self.appointments]
+            for i in range(0, len(appointments)):
+                if appointments[i].appt_status == IN_PROGRESS_APPT:
+                    appointments[i].disabled = False
+                    for j in range(0, len(appointments)):
+                        if j != i:
+                            appointments[j].disabled = True
+        return appointments
 
     @property
     def appointment_model(self):
