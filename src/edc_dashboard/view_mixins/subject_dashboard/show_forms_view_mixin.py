@@ -9,7 +9,6 @@ class ShowHideViewMixin:
         """Overidden to add show_forms to the view instance.
         """
         context = super().get_context_data(**kwargs)
-        print('ShowHideViewMixin')
         self.show_forms = self.kwargs.get('show_forms')
         context.update(show_forms=self.show_forms)
         return context
