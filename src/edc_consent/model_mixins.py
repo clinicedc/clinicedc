@@ -192,12 +192,14 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
                 + [ConsentVersionSequenceError, ConsentDoesNotExist])
 
     def common_clean(self):
-        consent = site_consents.get_consent(
-            consent_model=self._meta.label_lower,
-            consent_group=self._meta.consent_group,
-            report_datetime=self.consent_datetime)
-        if consent.updates_versions:
-            self.previous_consent_to_update(consent)
+        if self.consent_datetime:
+            options = dict(
+                consent_model=self._meta.label_lower,
+                consent_group=self._meta.consent_group,
+                report_datetime=self.consent_datetime)
+            consent = site_consents.get_consent(**options)
+            if consent.updates_versions:
+                self.previous_consent_to_update(consent)
         super().common_clean()
 
     @property
