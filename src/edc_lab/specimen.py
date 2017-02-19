@@ -3,8 +3,8 @@ from django.apps import apps as django_apps
 from edc_constants.constants import YES
 
 from .aliquot import Aliquot
-from .requisition import Requisition
 
+app_config = django_apps.get_app_config('edc_lab')
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
 
 
@@ -14,58 +14,81 @@ class SpecimenError(Exception):
 
 class Specimen:
 
-    def __init__(self, requisition, create_primary=None):
+    aliquot_model = django_apps.get_model(*app_config.aliquot_model.split('.'))
+    requisition_model = django_apps.get_model(
+        *app_config.requisition_model.split('.'))
+
+    def __init__(self, requisition=None, requisition_pk=None, **kwargs):
         self._aliquots = None
-        self.primary_aliquot = None
-        self.aliquot_model = django_apps.get_app_config('edc_lab').aliquot_model
-        self.requisition = Requisition(requisition)
-        create_primary = True if create_primary is None else create_primary
-        self.get_or_create_primary(create_primary)
+        self._identifier_prefix = None
+        self._primary_aliquot = None
+        self.requisition = requisition or self.requisition_model.objects.get(
+            pk=requisition_pk)
+        if not self.requisition.is_drawn == YES:
+            raise SpecimenError('Specimen was not drawn')
+        else:
+            if not self.requisition.identifier_prefix:
+                self.requisition.identifier_prefix = self.identifier_prefix
+                self.requisition.primary_aliquot_identifier = self.primary_aliquot.aliquot_identifier
+                self.requisition.save()
 
     @property
     def aliquots(self):
-        """Returns a queryset of aliquots."""
+        """Returns a queryset of wrapped aliquots.
+        """
         if not self._aliquots:
             self._aliquots = [Aliquot(obj) for obj in self.aliquot_model.objects.filter(
-                specimen_identifier=self.specimen_identifier)]
+                identifier_prefix=self.identifier_prefix)]
         return self._aliquots
 
     @property
     def aliquot_count(self):
         return len(self.aliquots)
 
-    def get_or_create_primary(self, create):
-        """Gets or creates the primary aliquot."""
-        if self.specimen_identifier:
-            self.requisition.specimen_identifier = self.specimen_identifier
+    @property
+    def primary_aliquot(self):
+        """Returns a wrapped aliquot object of the "primary" aliquot model
+        instance.
+
+        The aliquot model instance will be created if one does not
+        already exist.
+        """
+        if not self._primary_aliquot:
+
             try:
-                primary_aliquot = self.aliquot_model.objects.get(
-                    specimen_identifier=self.specimen_identifier,
+                obj = self.aliquot_model.objects.get(
+                    identifier_prefix=self.requisition.identifier_prefix,
                     is_primary=True)
             except self.aliquot_model.DoesNotExist:
-                if create:
-                    primary_aliquot = self.aliquot_model.objects.create(
-                        specimen_identifier=self.specimen_identifier,
-                        aliquot_type=self.requisition.specimen_type.numeric_code,
-                        aliquot_identifier=self.primary_aliquot_identifier,
-                        count=0,
-                        medium_count=self.requisition.item_count,
-                        medium=self.requisition.item_type,
-                        is_primary=True)
-            self.primary_aliquot = Aliquot(primary_aliquot)
+                obj = self.aliquot_model.objects.create(
+                    identifier_prefix=self.identifier_prefix,
+                    aliquot_type=self.requisition.panel_object.aliquot_type.numeric_code,
+                    aliquot_identifier=self.primary_aliquot_identifier,
+                    subject_identifier=self.requisition.subject_identifier,
+                    count=0,
+                    medium_count=self.requisition.item_count,
+                    medium=self.requisition.item_type,
+                    is_primary=True)
+            self._primary_aliquot = Aliquot(obj)
+        return self._primary_aliquot
+
+    @property
+    def identifier_prefix(self):
+        if not self._identifier_prefix:
+            identifier_prefix = '{protocol_number}{requisition_identifier}'.format(
+                protocol_number=edc_protocol_app_config.protocol_number,
+                requisition_identifier=self.requisition.requisition_identifier)
+            if len(identifier_prefix) != (18 - 8):
+                raise SpecimenError(
+                    'Invalid identifier prefix {}. Got length == {}. '
+                    'Expected 10.'.format(
+                        identifier_prefix, len(identifier_prefix)))
+            self._identifier_prefix = identifier_prefix
+        return self._identifier_prefix
 
     @property
     def primary_aliquot_identifier(self):
-        return self.specimen_identifier + '0000' + self.requisition.specimen_type.numeric_code + '01'
-
-    @property
-    def specimen_identifier(self):
-        """Returns a specimen identifier based on the requisition."""
-        specimen_identifier = None
-        if self.requisition.is_drawn == YES:
-            specimen_identifier = '{protocol_number}{requisition_identifier}'.format(
-                protocol_number=edc_protocol_app_config.protocol_number,
-                requisition_identifier=self.requisition.requisition_identifier)
-            if len(specimen_identifier) != (18 - 8):
-                raise SpecimenError('Invalid specimen identifier length. Got {}'.format(len(specimen_identifier)))
-        return specimen_identifier
+        return (self.identifier_prefix
+                + '0000'
+                + self.requisition.panel_object.aliquot_type.numeric_code
+                + '01')

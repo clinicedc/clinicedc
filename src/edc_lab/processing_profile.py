@@ -19,9 +19,10 @@ class Process:
 
 class ProcessingProfile:
 
-    def __init__(self, name, alpha_code):
+    def __init__(self, name, alpha_code, verbose_name=None):
         self.aliquot_type = alpha_code
         self.name = name
+        self.verbose_name = verbose_name or ' '.join(name.split('_')).title()
         self.processes = {}
 
     def __repr__(self):

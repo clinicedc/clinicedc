@@ -12,38 +12,14 @@ class AliquotManager(models.Manager):
 
 class DestinationManager(models.Manager):
 
-    def get_by_natural_key(self, code):
-        return self.get(code=code)
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
 
 
-class PackingListManager(models.Manager):
+class ManifestManager(models.Manager):
 
-    def get_by_natural_key(self, timestamp):
-        return self.get(timestamp=timestamp)
-
-
-class PackingListItemManager(models.Manager):
-
-    def get_by_natural_key(self, item_reference):
-        return self.get(item_reference=item_reference)
-
-
-class SpecimenCollectionManager(models.Manager):
-
-    def get_by_natural_key(self, collection_identifier):
-        return self.get(collection_identifier=collection_identifier)
-
-
-class SpecimenCollectionItemManager(models.Manager):
-
-    def get_by_natural_key(self, specimen_identifier):
-        return self.get(specimen_identifier=specimen_identifier)
-
-
-class ReceiveManager(models.Manager):
-
-    def get_by_natural_key(self, receive_identifier):
-        return self.get(receive_identifier=receive_identifier)
+    def get_by_natural_key(self, manifest_identifier):
+        return self.get(manifest_identifier=manifest_identifier)
 
 
 class RequisitionManager(models.Manager):
@@ -61,8 +37,10 @@ class RequisitionManager(models.Manager):
                 'Only SERVERs may access method \'get_global_identifier\' machine_type.')
         identifier = Identifier(
             subject_type='specimen',
-            site_code=kwargs.get('site_code', 'SITE??'),  # TODO: site_code: where does this come from?
-            protocol_code=kwargs.get('protocol_code', edc_protocol_app_config.protocol),
+            # TODO: site_code: where does this come from?
+            site_code=kwargs.get('site_code', 'SITE??'),
+            protocol_code=kwargs.get(
+                'protocol_code', edc_protocol_app_config.protocol),
             counter_length=4)
         identifier.create()
 

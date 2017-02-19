@@ -1,17 +1,19 @@
 import re
 
+from model_mommy import mommy
+
 from django.apps import apps as django_apps
 from django.test import TestCase
 from django.utils import timezone
-from model_mommy import mommy
+
 from edc_constants.constants import YES, NO
 from edc_example.models import Appointment, SubjectRequisition
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from .models import Aliquot
-from .requisition_identifier import RequisitionIdentifier
-from .specimen import Specimen
-from .specimen_collection import SpecimenCollection
+from ..models import Aliquot
+from ..requisition_identifier import RequisitionIdentifier
+from ..specimen import Specimen
+from ..specimen_collection import SpecimenCollection
 
 # from .site_labs import site_labs
 
@@ -25,8 +27,10 @@ class LabTests(TestCase):
         enrollment = mommy.make_recipe(
             'edc_example.enrollment',
             subject_identifier=subject_consent.subject_identifier)
-        visit_schedule = site_visit_schedules.get_visit_schedule(enrollment._meta.visit_schedule_name)
-        self.schedule = visit_schedule.get_schedule(enrollment._meta.label_lower)
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            enrollment._meta.visit_schedule_name)
+        self.schedule = visit_schedule.get_schedule(
+            enrollment._meta.label_lower)
         self.first_visit = self.schedule.get_first_visit()
         first_appointment = Appointment.objects.get(
             subject_identifier=enrollment.subject_identifier,
@@ -103,7 +107,8 @@ class LabTests(TestCase):
         requisition_identifier = requisition.requisition_identifier
         requisition.is_drawn = YES
         requisition.save()
-        self.assertEqual(requisition_identifier, requisition.requisition_identifier)
+        self.assertEqual(
+            requisition_identifier, requisition.requisition_identifier)
 
     def test_requisition_creates_aliquot(self):
         """Asserts passing requisition to specimen class creates an aliquot."""
@@ -114,7 +119,8 @@ class LabTests(TestCase):
             is_drawn=YES)
         Specimen(requisition)
         self.assertIsNotNone(requisition.specimen_identifier)
-        self.assertEqual(Aliquot.objects.filter(specimen_identifier=requisition.specimen_identifier).count(), 1)
+        self.assertEqual(Aliquot.objects.filter(
+            specimen_identifier=requisition.specimen_identifier).count(), 1)
 
     def test_requisition_creates_primary_aliquot(self):
         """Asserts passing requisition to specimen class creates an aliquot that is the primary."""
@@ -128,7 +134,8 @@ class LabTests(TestCase):
         self.assertEqual(Aliquot.objects.filter(
             specimen_identifier=specimen.requisition.specimen_identifier,
             is_primary=True).count(), 1)
-        self.assertTrue(SubjectRequisition.objects.get(specimen_identifier=specimen.requisition.specimen_identifier))
+        self.assertTrue(SubjectRequisition.objects.get(
+            specimen_identifier=specimen.requisition.specimen_identifier))
 
     def test_requisition_creates_primary_aliquot_only_once(self):
         """Asserts passing the same requisition to specimen class does not recreate a primary aliquot."""
@@ -168,7 +175,8 @@ class LabTests(TestCase):
         specimen = Specimen(requisition)
         specimen.primary_aliquot.create_aliquots('36', 3)
         self.assertEqual(specimen.aliquot_count, 4)
-        self.assertEqual(app_config.aliquot_model.objects.filter(aliquot_type='36').count(), 3)
+        self.assertEqual(
+            app_config.aliquot_model.objects.filter(aliquot_type='36').count(), 3)
 
     def test_requisition_create_aliquots_check_identifier(self):
         """Asserts aliquot class can create child aliquots from itself with the correct identifier format."""
@@ -242,7 +250,8 @@ class LabTests(TestCase):
                 is_primary=False).order_by('aliquot_identifier'):
             alpha_codes.append(aliquot.aliquot_identifier[-4:-2])
         alpha_codes.sort()
-        self.assertEqual(alpha_codes, ['12', '12', '12', '36', '36', '36', '36'])
+        self.assertEqual(
+            alpha_codes, ['12', '12', '12', '36', '36', '36', '36'])
 
     def test_collection(self):
         """Asserts specimens can be collected and still function correctly (e.g. create aliquots)."""

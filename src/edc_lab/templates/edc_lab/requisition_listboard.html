@@ -1,0 +1,61 @@
+{% extends base_template_name %}
+
+{% load tz %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+<div class="container">
+   <div class="row">
+      <div class="col-md-12">
+        <div class="panel-group">
+          <div class="panel panel-success">
+            <div class="panel-heading clearfix">
+           {% include 'edc_dashboard/search_form.html' %}
+            </div></div>
+            <div class="panel-body">
+              <!--start results-->
+              {% if object_list %}
+                <div class="form-group">
+                <form action="{% if not show_all %}{% url action_url_name %}{% endif %}" method="post" name="form_{{ form_action }}" id="form_{{ form_action}}">
+	            {% if not show_all %}<p>
+	               <input class="btn btn-sm btn-default" type="submit" value="{{ action|title }}">
+	              {% csrf_token %}</p>
+	            {% endif %}
+               {% endif %}
+    
+                  <div class="table table-responsive">
+                    <table class="table table-condensed table-hover small">
+                      <thead>
+
+                        {% include 'edc_lab/listboard/requisition/results_header.html' %}
+
+                      </thead>
+                      <tbody>
+
+                      {% if object_list %}
+                        {% include 'edc_lab/listboard/requisition/results_body.html' %}
+                      {% else %}
+                         <tr><td colspan="8">{{ empty_queryset_message }}</td></tr>
+                      {% endif %}
+
+                      </tbody>
+                    </table>
+
+                    {% include 'edc_dashboard/paginator.html' %}
+
+                  </div>
+	          </form>
+	          </div>
+                  
+              <!--end results-->
+
+            </div>
+          </div>
+                    
+        </div>
+      </div>
+    </div> 
+  </div>
+
+{% endblock main %}

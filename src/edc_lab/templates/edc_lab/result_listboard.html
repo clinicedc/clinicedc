@@ -1,0 +1,59 @@
+{% extends base_template_name %}
+
+{% load tz %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+<div class="container">
+   <div class="row">
+      <div class="col-md-12">
+        <div class="panel-group">
+          <div class="panel panel-success">
+            <div class="panel-heading clearfix">
+ 
+               {% include 'edc_dashboard/search_form.html' %}
+
+            </div></div>
+            <div class="panel-body">
+
+              <!--start results-->
+
+                  <div class="table table-responsive">
+                    <table class="table table-condensed table-hover small">
+                      <thead>
+
+                        {% include 'edc_lab/listboard/result/results_header.html' %}
+
+                      </thead>
+                      <tbody>
+                          {% if object_list %}
+
+                            {% include 'edc_lab/listboard/result/results_body.html' %}
+                          {% else %}
+    
+                            <tr><td colspan="8">{{ empty_queryset_message }}</td></tr>
+
+                          {% endif %}
+
+                      </tbody>
+                    </table>
+
+                    {% include 'edc_dashboard/paginator.html' %}
+
+                  </div>
+
+
+              <!--end results-->
+
+            </div>
+          </div>
+                    
+        </div>
+      </div>
+    </div> 
+  </div>
+  
+  
+
+{% endblock main %}

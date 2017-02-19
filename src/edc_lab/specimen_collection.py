@@ -34,7 +34,8 @@ class SpecimenCollection:
             if self.collection_identifier:
                 raise self.model.DoesNotExist(e)
             else:
-                self.collection_identifier = SpecimenCollectionIdentifier().identifier
+                self.collection_identifier = SpecimenCollectionIdentifier(
+                ).identifier
                 self.object = self.model.objects.create(
                     collection_identifier=self.collection_identifier)
 
@@ -42,10 +43,12 @@ class SpecimenCollection:
         try:
             specimen_collection_item = self.item_model.objects.get(
                 specimen_identifier=specimen.specimen_identifier)
-            SpecimenCollectionError('Specimen already collected. Got {} collected on {} manifest {}.'.format(
-                specimen_collection_item.specimen_identifier,
-                specimen_collection_item.specimen_collection.collection_datetime.date().isoformat(),
-                specimen_collection_item.specimen_collection.collection_identifier))
+            SpecimenCollectionError(
+                'Specimen already collected. Got {} collected on {} manifest {}.'.format(
+                    specimen_collection_item.specimen_identifier,
+                    specimen_collection_item.specimen_collection.collection_datetime.date(
+                    ).isoformat(),
+                    specimen_collection_item.specimen_collection.collection_identifier))
         except self.item_model.DoesNotExist:
             specimen_collection_item = self.item_model.objects.create(
                 specimen_identifier=specimen.specimen_identifier,

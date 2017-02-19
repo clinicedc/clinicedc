@@ -1,4 +1,5 @@
-from edc_constants.constants import PENDING, PARTIAL, COMPLETE
+from edc_constants.constants import PENDING, PARTIAL, COMPLETE, NOT_APPLICABLE,\
+    OTHER
 
 ABS_CALC = (
     ('absolute', 'Absolute'),
@@ -84,6 +85,7 @@ PRIORITY = (
 )
 
 REASON_NOT_DRAWN = (
+    (NOT_APPLICABLE, 'Not applicable'),
     ('collection_failed', 'Tried, but unable obtaining sample from patient'),
     ('absent', 'Patient did not attend visit'),
     ('refused', 'Patient refused'),
@@ -91,8 +93,9 @@ REASON_NOT_DRAWN = (
 )
 
 ITEM_TYPE = (
+    (NOT_APPLICABLE, 'Not applicable'),
     ('tube', 'Tube'),
     ('swab', 'Swab'),
     ('dbs', 'DBS Card'),
-    ('other', 'Other'),
+    (OTHER, 'Other'),
 )

@@ -14,3 +14,7 @@ class SpecimenError(Exception):
 
 class RequisitionError(Exception):
     pass
+
+
+class PanelError(Exception):
+    pass

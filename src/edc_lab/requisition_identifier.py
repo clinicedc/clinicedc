@@ -13,11 +13,13 @@ class RequisitionIdentifier:
         self.model = model
         self.device_id = edc_device_app_config.device_id
         self.template = '{device_id}{random_string}'
-        self.identifier = self.template.format(device_id=self.device_id, random_string=self.random_string)
+        self.identifier = self.template.format(
+            device_id=self.device_id, random_string=self.random_string)
         if model:
             if self.is_duplicate:
-                raise RequisitionError('Unable prepare a unique requisition identifier, '
-                                       'all are taken. Increase the length of the random string')
+                raise RequisitionError(
+                    'Unable prepare a unique requisition identifier, '
+                    'all are taken. Increase the length of the random string')
 
     def __str__(self):
         return self.identifier
@@ -32,7 +34,8 @@ class RequisitionIdentifier:
         if self.model.objects.filter(requisition_identifier=self.identifier):
             n = 1
             while self.model.objects.filter(requisition_identifier=self.identifier):
-                self.identifier = self.template.format(device_id=self.device_id, random_string=self.random_string)
+                self.identifier = self.template.format(
+                    device_id=self.device_id, random_string=self.random_string)
                 n += 1
                 if n == len('ABCDEFGHKMNPRTUVWXYZ2346789') ** 5:
                     is_duplicate = True

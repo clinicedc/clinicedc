@@ -1,0 +1,32 @@
+from django.db import models
+
+from edc_base.model.models import BaseUuidModel, HistoricalRecords
+from edc_dashboard.model_mixins import SearchSlugModelMixin
+
+from ..managers import ManifestManager
+from ..model_mixins import ManifestModelMixin
+from .destination import Destination
+
+
+class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
+
+    destination = models.ForeignKey(
+        Destination,
+        verbose_name='Ship to')
+
+    objects = ManifestManager()
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return '{} created on {} by {}'.format(
+            self.manifest_identifier,
+            self.manifest_datetime.strftime('%Y-%m-%d'),
+            self.user_created)
+
+    def get_slugs(self):
+        slugs = [self.manifest_identifier]
+        return slugs
+
+    class Meta(ManifestModelMixin.Meta):
+        app_label = 'edc_lab'
