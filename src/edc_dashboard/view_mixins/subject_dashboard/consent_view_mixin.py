@@ -5,7 +5,6 @@ from django.apps import apps as django_apps
 from edc_base.utils import get_utcnow
 from edc_consent.exceptions import ConsentDoesNotExist
 from edc_consent.site_consents import site_consents
-from pprint import pprint
 
 
 class ConsentViewMixin:
