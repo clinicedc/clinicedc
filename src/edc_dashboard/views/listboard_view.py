@@ -21,6 +21,10 @@ class ListboardView(ListView):
     orphans = 3
     search_form_class = SearchForm
 
+    @property
+    def search_form(self):
+        return self.search_form_class
+
     def get_template_names(self):
         return [django_apps.get_app_config(
             self.app_config_name).listboard_template_name]
@@ -51,11 +55,18 @@ class ListboardView(ListView):
             self.request, *self.args, **self.kwargs)
         if self.search_term and '|' not in self.search_term:
             search_terms = self.search_term.split('+')
-            q = Q()
+            q = None
+            q_objects = []
             for search_term in search_terms:
-                q = q | Q(slug__icontains=slugify(search_term))
-                q = q | self.extra_search_options(search_term)
-            queryset = self.model.objects.filter(q).exclude(**exclude_options)
+                q_objects.append(Q(slug__icontains=slugify(search_term)))
+                q_objects.append(self.extra_search_options(search_term))
+            for q_object in q_objects:
+                if q:
+                    q = q | q_object
+                else:
+                    q = q_object
+            queryset = self.model.objects.filter(
+                q or Q(), **filter_options).exclude(**exclude_options)
         else:
             queryset = self.model.objects.filter(
                 **filter_options).exclude(
@@ -82,7 +93,7 @@ class ListboardView(ListView):
         wrapped_queryset = self.get_wrapped_queryset(queryset)
         context.update(
             object_list=wrapped_queryset,
-            form=self.search_form_class(initial={'q': self.search_term}),
+            form=self.search_form(initial={'q': self.search_term}),
             search_term=self.search_term)
         if context_object_name is not None:
             context[context_object_name] = wrapped_queryset
