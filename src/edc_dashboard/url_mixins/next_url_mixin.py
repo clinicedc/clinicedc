@@ -45,7 +45,7 @@ class NextUrlMixin(UrlMixin):
             options.update(**self.url_parameters(obj=obj))
 
         if not self.get_next_url_attrs().get(key):
-            return ''
+            return self.next_url_name
         parameters = {k: v for k, v in options.items()
                       if k in self.get_next_url_attrs().get(key)}
         self._next_kwargs = parameters
