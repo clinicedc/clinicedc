@@ -4,9 +4,7 @@ from django.apps import apps as django_apps
 from django.db.utils import IntegrityError
 from django.db import transaction
 
-from .site_labs import site_labs
-
-app_config = django_apps.get_app_config('edc_lab')
+from ..site_labs import site_labs
 
 
 class AliquotError(Exception):
@@ -17,10 +15,11 @@ class Aliquot:
     """A wrapper for the Aliquot model instance.
     """
 
-    model = django_apps.get_model(*app_config.aliquot_model.split('.'))
-
     def __init__(self, obj):
+        app_config = django_apps.get_app_config('edc_lab')
         self.object = obj
+        self.model = django_apps.get_model(
+            *app_config.aliquot_model.split('.'))
         for field in self.object._meta.fields:
             setattr(self, field.name, getattr(self.object, field.name))
         self.is_primary = self.object.is_primary

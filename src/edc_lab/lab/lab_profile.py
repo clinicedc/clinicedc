@@ -1,4 +1,4 @@
-from .exceptions import AlreadyRegistered
+from ..exceptions import AlreadyRegistered
 
 
 class LabProfile:

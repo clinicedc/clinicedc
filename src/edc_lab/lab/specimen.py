@@ -4,9 +4,6 @@ from edc_constants.constants import YES
 
 from .aliquot import Aliquot
 
-app_config = django_apps.get_app_config('edc_lab')
-edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
-
 
 class SpecimenError(Exception):
     pass
@@ -14,11 +11,12 @@ class SpecimenError(Exception):
 
 class Specimen:
 
-    aliquot_model = django_apps.get_model(*app_config.aliquot_model.split('.'))
-    requisition_model = django_apps.get_model(
-        *app_config.requisition_model.split('.'))
-
     def __init__(self, requisition=None, requisition_pk=None, **kwargs):
+        app_config = django_apps.get_app_config('edc_lab')
+        self.aliquot_model = django_apps.get_model(
+            *app_config.aliquot_model.split('.'))
+        self.requisition_model = django_apps.get_model(
+            *app_config.requisition_model.split('.'))
         self._aliquots = None
         self._identifier_prefix = None
         self._primary_aliquot = None
@@ -75,6 +73,8 @@ class Specimen:
     @property
     def identifier_prefix(self):
         if not self._identifier_prefix:
+            edc_protocol_app_config = django_apps.get_app_config(
+                'edc_protocol')
             identifier_prefix = '{protocol_number}{requisition_identifier}'.format(
                 protocol_number=edc_protocol_app_config.protocol_number,
                 requisition_identifier=self.requisition.requisition_identifier)

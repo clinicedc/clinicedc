@@ -91,8 +91,8 @@ urlpatterns = [
         ReceiveView.as_view(receive_and_process=True), name='receive_and_process_url'),
     url(r'^aliquot/pack/', PackView.as_view(), name='pack_aliquots_url'),
     url(r'^requisition/ship/$', ProcessView.as_view(), name='ship_url'),
-    url(r'^box/(?P<box_identifier>[A-Z0-9]+)/additem/$',
-        BoxItemView.as_view(), name='add_boxitem_url'),
+    url(r'^box/(?P<box_identifier>[A-Z0-9]+)/manage/$',
+        BoxItemView.as_view(), name='manage_box_item_url'),
 
     url(r'^', HomeView.as_view(), name='home_url'),
 ]

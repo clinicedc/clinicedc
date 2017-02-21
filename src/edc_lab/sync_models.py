@@ -6,6 +6,7 @@ sync_models = [
     'edc_lab.aliquot',
     'edc_lab.box',
     'edc_lab.boxitem',
+    'edc_lab.boxtype',
     'edc_lab.destination',
     'edc_lab.manifest',
 ]

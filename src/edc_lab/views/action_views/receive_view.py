@@ -12,7 +12,7 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_constants.constants import UUID_PATTERN, YES
 from edc_dashboard.view_mixins import AppConfigViewMixin
 
-from ...specimen import Specimen
+from ...lab import Specimen
 from ..mixins import ProcessViewMixin
 
 

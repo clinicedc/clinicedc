@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .models import BoxItem
+from .box_item import BoxItem
 
 
 @receiver(post_save, weak=False, sender=BoxItem,

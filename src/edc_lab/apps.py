@@ -3,7 +3,7 @@ import sys
 from django.apps import AppConfig as DjangoAppConfig
 
 from .site_labs import site_labs
-from .manifest import Manifest
+from .lab import Manifest
 
 
 class AppConfig(DjangoAppConfig):
@@ -42,7 +42,7 @@ class AppConfig(DjangoAppConfig):
     result_listboard_url_name = 'edc-lab:result_listboard_url'
 
     def ready(self):
-        from .signals import box_item_on_post_save
+        from .models.signals import box_item_on_post_save
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         site_labs.autodiscover()
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))

@@ -1,5 +1,3 @@
-import re
-
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.utils import timezone
@@ -8,8 +6,8 @@ from edc_base.model.models import BaseUuidModel, HistoricalRecords
 from edc_constants.constants import OTHER, CLOSED, OPEN
 from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
-from ..identifier.box_identifier import BoxIdentifier
-from .aliquot import pattern as aliquot_identifier_pattern
+from ..identifiers import BoxIdentifier
+from .box_type import BoxType
 
 BOX_DIMENSIONS = (
     ('8 x 8', '8 x 8'),
@@ -28,64 +26,13 @@ STATUS = (
     (CLOSED, 'Closed'),
 )
 
-FILL_ORDER = (
-    ('across', 'Across'),
-    ('down', 'Down'),
-)
-
 human_readable_pattern = '^[A-Z]{3}\-[0-9]{4}\-[0-9]{2}$'
-
-
-class BoxTypeManager(models.Manager):
-
-    def get_by_natural_key(self, name):
-        return self.get(name=name)
 
 
 class BoxManager(SearchSlugManager, models.Manager):
 
     def get_by_natural_key(self, box_identifier):
         return self.get(box_identifier=box_identifier)
-
-
-class BoxItemManager(models.Manager):
-
-    def get_by_natural_key(self, position, identifier, box_identifier):
-        return self.get(
-            position=position,
-            identifier=identifier,
-            box_identifier=box_identifier)
-
-
-class BoxType(BaseUuidModel):
-
-    name = models.CharField(
-        max_length=25,
-        unique=True,
-        help_text="a unique name to describe this box type")
-
-    across = models.IntegerField(
-        help_text="number of cells in a row counting from left to right")
-
-    down = models.IntegerField(
-        help_text="number of cells in a column counting from top to bottom")
-
-    total = models.IntegerField(
-        help_text="total number of cells in this box type")
-
-    fill_order = models.CharField(
-        max_length=15,
-        default='across',
-        choices=FILL_ORDER)
-
-    objects = BoxTypeManager()
-
-    def natural_key(self):
-        return (self.name, )
-
-    class Meta:
-        app_label = 'edc_lab'
-        ordering = ('name', )
 
 
 class Box(SearchSlugModelMixin, BaseUuidModel):
@@ -127,6 +74,10 @@ class Box(SearchSlugModelMixin, BaseUuidModel):
         default=OPEN,
         choices=STATUS)
 
+    accept_primary = models.BooleanField(
+        default=False,
+        help_text='Tick to allow \'primary\' specimens to be added to this box')
+
     comment = models.TextField(
         null=True,
         blank=True)
@@ -137,7 +88,8 @@ class Box(SearchSlugModelMixin, BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if not self.box_identifier:
-            self.box_identifier = BoxIdentifier().identifier
+            identifier = BoxIdentifier()
+            self.box_identifier = identifier.next()
         if not self.name:
             self.name = self.box_identifier
         super().save(*args, **kwargs)
@@ -188,44 +140,3 @@ class Box(SearchSlugModelMixin, BaseUuidModel):
         app_label = 'edc_lab'
         ordering = ('-box_datetime', )
         verbose_name_plural = 'Boxes'
-
-
-class BoxItem(BaseUuidModel):
-
-    box = models.ForeignKey(Box, on_delete=PROTECT)
-
-    position = models.IntegerField(null=True)
-
-    identifier = models.CharField(
-        max_length=25,
-        null=True)
-
-    comment = models.CharField(
-        max_length=25,
-        null=True,
-        blank=True)
-
-    objects = BoxItemManager()
-
-    def natural_key(self):
-        return (self.position, self.identifier) + self.box.natural_key()
-
-    @property
-    def human_readable_identifier(self):
-        """Returns a human readable identifier.
-        """
-        x = self.identifier
-        if re.match(aliquot_identifier_pattern, self.identifier):
-            return '{}-{}-{}-{}-{}'.format(x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
-        return self.identifier
-
-    class Meta:
-        app_label = 'edc_lab'
-        ordering = ('position', )
-        unique_together = (('box', 'position'), ('box', 'identifier'))
-
-
-class SimpleBox(Box):
-
-    class Meta:
-        proxy = True

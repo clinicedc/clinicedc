@@ -1,4 +1,4 @@
-from ...specimen import Specimen
+from ...lab import Specimen
 
 
 class ProcessViewMixin:
