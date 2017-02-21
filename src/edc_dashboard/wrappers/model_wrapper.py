@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ManyToManyField, ForeignKey, OneToOneField
 from django.db.models.fields.reverse_related import ForeignObjectRel
@@ -134,3 +135,8 @@ class ModelWrapper(Wrapper):
     @property
     def absolute_url(self):
         return self.get_absolute_url()
+
+    @classmethod
+    def new(cls, **kwargs):
+        model = django_apps.get_model(*cls.model_name.split('.'))
+        return cls(model(), **kwargs)

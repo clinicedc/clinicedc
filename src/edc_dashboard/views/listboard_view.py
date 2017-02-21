@@ -1,5 +1,6 @@
 import six
 
+from django.utils.html import escape
 from django.apps import apps as django_apps
 from django.db.models import Q
 from django.utils.text import slugify
@@ -10,16 +11,16 @@ from ..forms import SearchForm
 
 class ListboardView(ListView):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.search_term = None
-
     context_object_name = 'results'
     model_wrapper_class = None
     ordering = '-created'
     paginate_by = 10
     orphans = 3
     search_form_class = SearchForm
+    listboard_url_name = None
+    search_term = None
+    cleaned_search_term = None
+    page = None
 
     @property
     def search_form(self):
@@ -47,8 +48,14 @@ class ListboardView(ListView):
         """
         return Q()
 
+    def clean_search_term(self):
+        return self.search_term
+
     def get_queryset(self):
         self.search_term = self.request.GET.get('q')
+        if self.search_term:
+            self.search_term = escape(self.search_term).strip()
+        self.search_term = self.clean_search_term()
         filter_options = self.get_queryset_filter_options(
             self.request, *self.args, **self.kwargs)
         exclude_options = self.get_queryset_exclude_options(
@@ -92,6 +99,7 @@ class ListboardView(ListView):
         context_object_name = self.get_context_object_name(queryset)
         wrapped_queryset = self.get_wrapped_queryset(queryset)
         context.update(
+            listboard_url_name=self.listboard_url_name,
             object_list=wrapped_queryset,
             form=self.search_form(initial={'q': self.search_term}),
             search_term=self.search_term)

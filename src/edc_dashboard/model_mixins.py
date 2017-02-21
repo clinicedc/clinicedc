@@ -12,8 +12,7 @@ class SearchSlugModelMixin(models.Model):
         help_text='a field used for quick search')
 
     def save(self, *args, **kwargs):
-        slugs = [slugify(item) for item in self.get_slugs()]
-        self.slug = '{}'.format('|'.join(slugs))
+        self.update_search_slugs()
         return super().save(*args, **kwargs)
 
     def get_slugs(self):
@@ -23,5 +22,17 @@ class SearchSlugModelMixin(models.Model):
         """
         return []
 
+    def update_search_slugs(self):
+        slugs = [slugify(item) for item in self.get_slugs()]
+        self.slug = '{}'.format('|'.join(slugs))
+
     class Meta:
         abstract = True
+
+
+class SearchSlugManager(models.Manager):
+
+    def update_search_slugs(self):
+        for obj in self.all():
+            obj.update_search_slugs()
+            obj.save_base(update_fields=['slug'])

@@ -8,6 +8,30 @@ class AppConfigViewMixin:
     """
 
     app_config_name = None
+    base_template_name = None
+    listboard_url_name = None
+    dashboard_url_name = None
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if not self.base_template_name:
+            try:
+                self.base_template_name = django_apps.get_app_config(
+                    self.app_config_name).base_template_name
+            except (AttributeError, LookupError):
+                pass
+        if not self.dashboard_url_name:
+            try:
+                self.dashboard_url_name = django_apps.get_app_config(
+                    self.app_config_name).dashboard_url_name
+            except (AttributeError, LookupError):
+                pass
+        if not self.listboard_url_name:
+            try:
+                self.listboard_url_name = django_apps.get_app_config(
+                    self.app_config_name).listboard_url_name
+            except (AttributeError, LookupError):
+                pass
 
     def url_names(self, attrname):
         """Returns a generator of <url attr name>, <url name>
@@ -35,33 +59,3 @@ class AppConfigViewMixin:
         context.update(listboard_url_name=self.listboard_url_name)
         context.update(dashboard_url_name=self.dashboard_url_name)
         return context
-
-    @property
-    def listboard_url_name(self):
-        if self.app_config_name:
-            try:
-                return django_apps.get_app_config(
-                    self.app_config_name).listboard_url_name
-            except AttributeError:
-                pass
-        return None
-
-    @property
-    def dashboard_url_name(self):
-        if self.app_config_name:
-            try:
-                return django_apps.get_app_config(
-                    self.app_config_name).dashboard_url_name
-            except AttributeError:
-                pass
-        return None
-
-    @property
-    def base_template_name(self):
-        if self.app_config_name:
-            try:
-                return django_apps.get_app_config(
-                    self.app_config_name).base_template_name
-            except AttributeError:
-                pass
-        return None
