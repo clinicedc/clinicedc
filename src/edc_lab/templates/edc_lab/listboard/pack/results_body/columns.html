@@ -1,0 +1,42 @@
+
+<!-- begin columns -->
+
+    <td>
+      <input id="box_{{wrapped.wrapped_object.id}}" name="boxes" type="checkbox" value="{{wrapped.wrapped_object.id}}">
+    </td>
+    <td>
+        <div class="btn-group">
+           <a title="Edit box" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fa fa-pencil fa-fw"></i></a>
+           <a role="button" href="{% url box_listboard_url_name box_identifier=wrapped.box_identifier %}" class="btn btn-default btn-sm">Manage box</a>
+        </div>&nbsp;
+    </td>
+    <td>
+      <span class="text text-identifier">
+      {{ wrapped.name }}
+      </span>
+    </td>
+    <td>
+      {{ wrapped.specimen_types }}
+    </td>
+    <td>
+      {{ wrapped.box_datetime|date:"Y-m-d H:i" }}
+    </td>
+    <td>
+      {{ wrapped.status }}
+    </td>
+    <td>
+      {{ wrapped.wrapped_object.count }}
+    </td>
+    <td>
+      {% if wrapped.shipped %}
+        <span class="text text-success"><i class="fa fa-check-circle fa-fw" title="Packed"></i></span>
+      {% endif %}
+    </td>
+    <td>
+      {{ wrapped.dimensions }}
+    </td>
+    <td>
+      {{ wrapped.user_created }}
+    </td>
+
+<!-- end columns -->

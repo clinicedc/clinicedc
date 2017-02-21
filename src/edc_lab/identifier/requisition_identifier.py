@@ -2,7 +2,7 @@ import random
 
 from django.apps import apps as django_apps
 
-from .exceptions import RequisitionError
+from ..exceptions import RequisitionError
 
 edc_device_app_config = django_apps.get_app_config('edc_device')
 

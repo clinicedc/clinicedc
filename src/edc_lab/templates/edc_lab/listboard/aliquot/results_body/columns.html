@@ -11,12 +11,14 @@
            <a title="Manifest" role="button" href="{% url manifest_listboard_url_name %}?q={{ wrapped.wrapped_object.manifest.manifest_identifier }}" class="btn btn-default btn-sm">Manifest</a>
       {% endif %}
         </div>&nbsp;
-      <span class="text text-default">
-        {{ wrapped.aliquot_identifier }}
+      <span class="text text-identifier">
+        {{ wrapped.human_aliquot_identifier }}
       </span>
     </td>
     <td>
+      <span class="text text-identifier">
       {{ wrapped.subject_identifier }}
+      </span>
     </td>
     <td>
       {{ wrapped.aliquot_datetime|date:"Y-m-d H:i" }}

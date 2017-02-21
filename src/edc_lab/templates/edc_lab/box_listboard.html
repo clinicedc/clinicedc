@@ -1,0 +1,96 @@
+{% extends "edc_lab/base_listboard.html" %}
+
+{% load tz %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+<div class="container">
+   <div class="row">
+      <div class="col-md-12">
+
+		{% block alert %}
+		
+			{% if messages %}
+			    {% for message in messages %}
+			        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+			        <div class="alert alert-danger alert-dismissable fade in">
+			        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>           
+			          <i class="fa fa-hand-stop-o fa-lg"></i> {{ message }}
+			        </div>
+			        {% endif %}
+			        {% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+			        <div class="alert alert-warning alert-dismissable fade in">
+			        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>           
+			          <i class="fa fa-hand-stop-o fa-lg"></i> {{ message }}
+			        </div>
+			        {% endif %}
+			        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+			        <div class="alert alert-success alert-dismissable fade in">
+			        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>           
+			          <i class="fa fa-hand-stop-o fa-lg"></i> {{ message }}
+			        </div>
+			        {% endif %}
+			        {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+			        <div class="alert alert-info alert-dismissable fade in">
+			        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>           
+			          <i class="fa fa-hand-stop-o fa-lg"></i> {{ message }}
+			        </div>
+			        {% endif %}
+			    {% endfor %}
+			{% endif %}
+		
+		{% endblock alert %}
+
+
+        <div class="panel-group">
+          <div class="panel panel-success">
+            <div class="panel-heading clearfix">
+                <div class="row">
+                   <div class="col-sm-6">   
+                   {% block action_form %}
+                                       
+                    <a role="button" class="btn btn-default btn-sm" href="{% url pack_listboard_url_name %}"><i class="fa fa-reply fa-fw"></i>&nbsp; Back to list of boxes</a>
+
+                   {% endblock action_form %}
+                   </div>
+                   <div class="col-sm-6">   
+                    {% include 'edc_dashboard/search_form.html' %}
+                   </div>
+                </div>
+                </div>
+            </div>
+            <div class="panel-body">
+              <!--start results-->
+                <div class="form-group">
+    
+                  <div class="table table-responsive">
+                    <table class="table table-condensed table-hover small">
+                      <thead>
+
+                        {% include 'edc_lab/listboard/box/results_header.html' %}
+
+                      </thead>
+                      <tbody>
+
+                        {% include 'edc_lab/listboard/box/results_body.html' %}
+
+                      </tbody>
+                    </table>
+
+                    {% include 'edc_dashboard/paginator.html' %}
+
+                  </div>
+              </div>
+                  
+              <!--end results-->
+
+            </div>
+          </div>
+                    
+        </div>
+      </div>
+    </div> 
+  </div>
+
+{% endblock main %}

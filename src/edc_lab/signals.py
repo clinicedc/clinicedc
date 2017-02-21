@@ -1,13 +1,13 @@
-# from django.db.models.signals import post_save, post_delete
-# from django.dispatch import receiver
-#
-#
-# @receiver(post_save, weak=False,
-#           dispatch_uid='aliquot_on_post_save')
-# def aliquot_on_post_save(sender, instance, raw, created, using, **kwargs):
-#     if not raw:
-#         try:
-#             instance.creates_primary_aliquot_on_receive()
-#         except AttributeError as e:
-#             if 'create_primary_aliquot' not in str(e):
-#                 raise
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from .models import BoxItem
+
+
+@receiver(post_save, weak=False, sender=BoxItem,
+          dispatch_uid='box_item_on_post_save')
+def box_item_on_post_save(sender, instance, raw, created, using, **kwargs):
+    if not raw:
+        if not instance.position:
+            print('hello')
+            instance.position = instance.box.boxitem_set.all().count() + 1

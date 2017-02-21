@@ -13,14 +13,15 @@ from edc_constants.constants import UUID_PATTERN, YES
 from edc_dashboard.view_mixins import AppConfigViewMixin
 
 from ..specimen import Specimen
+from .mixins import ProcessViewMixin
 
 
-class ReceiveView(EdcBaseViewMixin, AppConfigViewMixin, TemplateView):
+class ReceiveView(ProcessViewMixin, EdcBaseViewMixin, AppConfigViewMixin, TemplateView):
 
     template_name = 'edc_lab/home.html'
-    # navbar_item_selected = 'specimens'
     navbar_name = 'specimens'
     requisition_model = django_apps.get_app_config('edc_lab').requisition_model
+    receive_and_process = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -39,8 +40,13 @@ class ReceiveView(EdcBaseViewMixin, AppConfigViewMixin, TemplateView):
         for pk in request.POST.getlist('requisitions'):
             if re.match(UUID_PATTERN, pk):
                 requisitions.append(pk)
-        self.receive(requisitions)
-        self.create_specimens(requisitions)
+        if request.POST.get('receive'):
+            self.receive(requisitions)
+            self.create_specimens(requisitions)
+        elif request.POST.get('receive_and_process'):
+            self.receive(requisitions)
+            self.create_specimens(requisitions)
+            self.process(requisitions)
         url = reverse(
             django_apps.get_app_config('edc_lab').receive_listboard_url_name)
         return HttpResponseRedirect(url)

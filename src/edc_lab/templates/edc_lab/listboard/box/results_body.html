@@ -1,0 +1,33 @@
+
+<tr>
+<td colspan="8">
+    <form action="{% url add_boxitem_url_name box_identifier=box_identifier %}" method="post" name="form_new_boxitem" id="form_new_boxitem">
+     <div class="form-inline">
+     <div class="input-group">
+       <input class="textinput textInput form-control" type="text" id="box_item_identifier" name="box_item_identifier" value="" autofocus />
+       <span class="input-group-btn">
+       <button type="submit" class="btn" id="box_item_action" name="box_item_action" value="Add">
+            <i class="fa fa-plus fa-sm"></i>
+       </button>
+       </span>
+       </div>
+       <input type="hidden" id="box_identifier" name="box_identifier" value="{{ box_identifier }}" />
+       {% csrf_token %}
+      </div>
+    </form>
+</td>
+</tr>
+
+{% for wrapped in object_list %}
+  <!-- result is a ModelWithLogEntry wrapper -->
+  <tr>
+  
+      {% include 'edc_lab/listboard/box/results_body/button_column.html' %}
+
+      {% include 'edc_lab/listboard/box/results_body/columns.html' %}
+
+      {% include 'edc_lab/listboard/box/results_body/audit_columns.html' %}
+
+  </tr>
+
+{% endfor %}

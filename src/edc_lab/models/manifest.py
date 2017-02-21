@@ -1,11 +1,15 @@
 from django.db import models
 
 from edc_base.model.models import BaseUuidModel, HistoricalRecords
-from edc_dashboard.model_mixins import SearchSlugModelMixin
+from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..managers import ManifestManager
 from ..model_mixins import ManifestModelMixin
 from .destination import Destination
+
+
+class Manager(ManifestManager, SearchSlugManager):
+    pass
 
 
 class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
@@ -14,7 +18,7 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
         Destination,
         verbose_name='Ship to')
 
-    objects = ManifestManager()
+    objects = Manager()
 
     history = HistoricalRecords()
 

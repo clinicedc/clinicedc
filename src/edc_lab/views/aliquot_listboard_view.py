@@ -2,8 +2,8 @@ from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from edc_dashboard.forms import SearchForm as BaseSearchForm
 from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.forms import SearchForm as BaseSearchForm
 from edc_dashboard.view_mixins import AppConfigViewMixin
 from edc_dashboard.views import ListboardView
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
@@ -17,6 +17,9 @@ app_config = django_apps.get_app_config('edc_lab')
 class AliquotModelWrapper(ModelWrapper):
 
     model_name = 'edc_lab.aliquot'
+
+    def human_aliquot_identifier(self):
+        return self._original_object.human_aliquot_identifier
 #     extra_querystring_attrs = {
 #         'bcpp_subject.subjectvisit': ['household_member']}
 #     next_url_attrs = {'bcpp_subject.subjectvisit': [
@@ -31,7 +34,8 @@ class SearchForm(BaseSearchForm):
     action_url_name = app_config.aliquot_listboard_url_name
 
 
-class AliquotListboardView(AppConfigViewMixin, EdcBaseViewMixin,
+class AliquotListboardView(AppConfigViewMixin,
+                           EdcBaseViewMixin,
                            ListboardView):
 
     app_config_name = 'edc_lab'
@@ -45,13 +49,10 @@ class AliquotListboardView(AppConfigViewMixin, EdcBaseViewMixin,
     show_all = False
     packed = False
     shipped = False
+    listboard_url_name = 'edc-lab:aliquot_listboard_url'
     form_action_url_name = 'edc-lab:pack_aliquots_url'
     search_form_action_url_name = None
     empty_queryset_message = 'No aliquots to display'
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.search_term = None
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

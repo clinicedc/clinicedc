@@ -1,0 +1,13 @@
+{% extends 'edc_lab/requisition_listboard.html' %}
+
+{% block action_form %}
+    <form action="{% url action_url_name %}" method="post" name="form_{{ form_action }}" id="form_{{ form_action}}">
+     <div class="form-inline">
+    {% if not show_all %}
+       <input class="btn btn-sm btn-default" type="submit" id="receive" name="receive" value="Receive" />
+       <input class="btn btn-sm btn-default" type="submit" id="receive_and_process" name="receive_and_process" value="Receive and Process" />
+       {% csrf_token %}
+    {% endif %}
+      </div>
+    </form>
+{% endblock action_form %}

@@ -6,7 +6,9 @@ from django.db import models
 
 from edc_constants.constants import YES, UUID_PATTERN
 
-from ...requisition_identifier import RequisitionIdentifier
+from ...identifier import RequisitionIdentifier
+
+human_readable_pattern = '^[0-9A-Z]{3}\-[0-9A-Z]{4}$'
 
 
 class RequisitionIdentifierMixin(models.Model):
@@ -34,6 +36,13 @@ class RequisitionIdentifierMixin(models.Model):
             self.requisition_identifier = str(uuid4())
         self.requisition_identifier = self.get_requisition_identifier()
         super().save(*args, **kwargs)
+
+    @property
+    def human_requisition_identifier(self):
+        """Returns a human readable requisition identifier.
+        """
+        x = self.requisition_identifier
+        return '{}-{}'.format(x[0:3], x[3:7])
 
     def get_requisition_identifier(self):
         """Converts from uuid to a requisition identifier if

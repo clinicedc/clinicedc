@@ -13,7 +13,11 @@
             <div class="panel-heading clearfix">
                 <div class="row">
                    <div class="col-sm-6">   
-                   {% block action_form %}{% endblock action_form %}
+                   {% block action_form %}
+                   
+                        <a href="{{ new_box.href }}" role="button" class="btn btn-sm btn-default" />New box</a>
+
+                   {% endblock action_form %}
                    </div>
                    <div class="col-sm-6">   
                     {% include 'edc_dashboard/search_form.html' %}
@@ -31,13 +35,13 @@
                     <table class="table table-condensed table-hover small">
                       <thead>
 
-                        {% include 'edc_lab/listboard/requisition/results_header.html' %}
+                        {% include 'edc_lab/listboard/pack/results_header.html' %}
 
                       </thead>
                       <tbody>
 
                       {% if object_list %}
-                        {% include 'edc_lab/listboard/requisition/results_body.html' %}
+                        {% include 'edc_lab/listboard/pack/results_body.html' %}
                       {% else %}
                          <tr><td colspan="8">{{ empty_queryset_message }}</td></tr>
                       {% endif %}
@@ -48,7 +52,7 @@
                     {% include 'edc_dashboard/paginator.html' %}
 
                   </div>
-	          </div>
+              </div>
                   
               <!--end results-->
 

@@ -11,10 +11,10 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_constants.constants import UUID_PATTERN
 from edc_dashboard.view_mixins import AppConfigViewMixin
 
-from ..specimen import Specimen
+from .mixins import ProcessViewMixin
 
 
-class ProcessView(EdcBaseViewMixin, AppConfigViewMixin, TemplateView):
+class ProcessView(ProcessViewMixin, EdcBaseViewMixin, AppConfigViewMixin, TemplateView):
 
     template_name = 'edc_lab/home.html'
     navbar_name = 'specimens'
@@ -41,15 +41,3 @@ class ProcessView(EdcBaseViewMixin, AppConfigViewMixin, TemplateView):
         url = reverse(
             django_apps.get_app_config('edc_lab').process_listboard_url_name)
         return HttpResponseRedirect(url)
-
-    def process(self, requisitions=None):
-        created = []
-        for requisition in self.model.objects.filter(
-                pk__in=requisitions, received=True, processed=False):
-            specimen = Specimen(requisition=requisition)
-            if requisition.panel_object.processing_profile:
-                created.extend(
-                    specimen.primary_aliquot.create_aliquots_by_processing_profile(
-                        processing_profile=requisition.panel_object.processing_profile))
-                requisition.processed = True
-                requisition.save()

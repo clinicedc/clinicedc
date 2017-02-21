@@ -1,0 +1,7 @@
+{% extends base_template_name %}
+{% load staticfiles %}
+
+{% block extra-css %}
+<link rel="stylesheet" type="text/css" href="{% static "edc_lab/css/extra.css" %}">
+{{ block.super }}
+{% endblock extra-css %}

@@ -2,7 +2,9 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
 
-from ...choices import ALIQUOT_STATUS, SPECIMEN_MEASURE_UNITS, SPECIMEN_MEDIUM
+from ...choices import (
+    ALIQUOT_STATUS, SPECIMEN_MEASURE_UNITS, SPECIMEN_MEDIUM,
+    ALIQUOT_CONDITIONS)
 
 
 class AliquotModelMixin (models.Model):
@@ -54,6 +56,11 @@ class AliquotModelMixin (models.Model):
         max_length=25,
         choices=ALIQUOT_STATUS,
         default='available')
+
+    condition = models.CharField(
+        max_length=25,
+        choices=ALIQUOT_CONDITIONS,
+        default='10')
 
     comment = models.CharField(
         max_length=50,
