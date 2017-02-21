@@ -2,13 +2,13 @@ from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from edc_dashboard.forms import SearchForm as BaseSearchForm
 from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.forms import SearchForm as BaseSearchForm
 from edc_dashboard.view_mixins import AppConfigViewMixin
 from edc_dashboard.views import ListboardView
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
-from ..models import Aliquot
+from ...models import Aliquot
 
 
 app_config = django_apps.get_app_config('edc_lab')
@@ -17,14 +17,6 @@ app_config = django_apps.get_app_config('edc_lab')
 class AliquotModelWrapper(ModelWrapper):
 
     model_name = Aliquot
-#     extra_querystring_attrs = {
-#         'bcpp_subject.subjectvisit': ['household_member']}
-#     next_url_attrs = {'bcpp_subject.subjectvisit': [
-#         'appointment', 'household_identifier', 'subject_identifier',
-#         'survey_schedule', 'survey']}
-#     url_instance_attrs = [
-#         'household_identifier', 'subject_identifier', 'survey_schedule', 'survey',
-#         'appointment', 'household_member']
 
 
 class SearchForm(BaseSearchForm):
@@ -47,10 +39,6 @@ class ProcessListboardView(AppConfigViewMixin, EdcBaseViewMixin,
     processed = False
     packed = False
     shipped = False
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.search_term = None
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

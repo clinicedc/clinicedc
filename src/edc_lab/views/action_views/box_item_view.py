@@ -4,11 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.decorators import method_decorator
+from django.utils.html import escape
 from django.views.generic.base import TemplateView
 
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import AppConfigViewMixin
-from django.utils.html import escape
 
 
 class BoxItemView(EdcBaseViewMixin, AppConfigViewMixin, TemplateView):

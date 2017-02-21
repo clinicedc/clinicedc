@@ -8,7 +8,7 @@ from edc_dashboard.view_mixins import AppConfigViewMixin
 from edc_dashboard.views import ListboardView
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
-from ..forms import PackAliquotsForm
+from ...forms import PackAliquotsForm
 
 
 app_config = django_apps.get_app_config('edc_lab')
@@ -20,14 +20,6 @@ class AliquotModelWrapper(ModelWrapper):
 
     def human_aliquot_identifier(self):
         return self._original_object.human_aliquot_identifier
-#     extra_querystring_attrs = {
-#         'bcpp_subject.subjectvisit': ['household_member']}
-#     next_url_attrs = {'bcpp_subject.subjectvisit': [
-#         'appointment', 'household_identifier', 'subject_identifier',
-#         'survey_schedule', 'survey']}
-#     url_instance_attrs = [
-#         'household_identifier', 'subject_identifier', 'survey_schedule', 'survey',
-#         'appointment', 'household_member']
 
 
 class SearchForm(BaseSearchForm):

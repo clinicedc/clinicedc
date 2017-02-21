@@ -2,12 +2,12 @@ from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from edc_dashboard.forms import SearchForm as BaseSearchForm
 from edc_base.view_mixins import EdcBaseViewMixin
+from edc_constants.constants import YES
+from edc_dashboard.forms import SearchForm as BaseSearchForm
 from edc_dashboard.view_mixins import AppConfigViewMixin
 from edc_dashboard.views import ListboardView
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
-from edc_constants.constants import YES
 
 
 app_config = django_apps.get_app_config('edc_lab')

@@ -1,14 +1,13 @@
 from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
+from django.urls.base import reverse
 from django.utils.decorators import method_decorator
 
-from edc_dashboard.forms import SearchForm as BaseSearchForm
 from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.forms import SearchForm as BaseSearchForm
 from edc_dashboard.view_mixins import AppConfigViewMixin
 from edc_dashboard.views import ListboardView
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
-from pprint import pprint
-from django.urls.base import reverse
 
 
 app_config = django_apps.get_app_config('edc_lab')
@@ -20,6 +19,7 @@ class BoxItemModelWrapper(ModelWrapper):
     next_url_name = app_config.box_listboard_url_name
     next_url_attrs = {
         'edc_lab.boxitem': ['box_identifier']}
+    url_instance_attrs = ['box_identifier']
 
     def human_readable_identifier(self):
         return self._original_object.human_readable_identifier
@@ -68,7 +68,6 @@ class BoxListboardView(AppConfigViewMixin, EdcBaseViewMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        pprint(context)
         context.update(
             listboard_url=reverse(
                 django_apps.get_app_config('edc_lab').box_listboard_url_name,
@@ -80,9 +79,3 @@ class BoxListboardView(AppConfigViewMixin, EdcBaseViewMixin,
             action=self.action,
             action_url_name=self.action_url_name)
         return context
-
-    def get_queryset_filter_options(self, request, *args, **kwargs):
-        """Returns filter options applied to every
-        queryset.
-        """
-        return {}

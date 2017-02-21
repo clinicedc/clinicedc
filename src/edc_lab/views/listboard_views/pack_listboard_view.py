@@ -66,9 +66,3 @@ class PackListboardView(AppConfigViewMixin, EdcBaseViewMixin,
             action=self.action,
             action_url_name=self.action_url_name)
         return context
-
-    def get_queryset_filter_options(self, request, *args, **kwargs):
-        """Returns filter options applied to every
-        queryset.
-        """
-        return {}

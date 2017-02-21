@@ -1,6 +1,5 @@
 from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
-from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import FormView
@@ -9,8 +8,8 @@ from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import AppConfigViewMixin
 
-from ..forms import PackAliquotsForm
-from ..models import Destination, Manifest
+from ...forms import PackAliquotsForm
+from ...models import Destination, Manifest
 
 
 app_config = django_apps.get_app_config('edc_lab')
