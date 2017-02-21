@@ -21,9 +21,11 @@ class BoxItemModelWrapper(ModelWrapper):
         'edc_lab.boxitem': ['box_identifier']}
     url_instance_attrs = ['box_identifier']
 
+    @property
     def human_readable_identifier(self):
         return self._original_object.human_readable_identifier
 
+    @property
     def box_identifier(self):
         return self._original_object.box.box_identifier
 
