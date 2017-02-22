@@ -3,29 +3,25 @@ from django.apps import apps as django_apps
 
 from edc_constants.constants import YES, NO
 
-from ..constants import WHOLE_BLOOD
-
 
 class RequisitionFormMixin:
 
     default_item_type = 'tube'
     default_item_count = 1
     default_estimated_volume = 5.0
-    default_specimen_type = WHOLE_BLOOD
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not kwargs.get('instance'):
-            self.fields['specimen_type'].initial = self.default_specimen_type
             self.fields['item_type'].initial = self.default_item_type
             self.fields['item_count'].initial = self.default_item_count
             self.fields[
                 'estimated_volume'].initial = self.default_estimated_volume
         self.fields['panel_name'].widget.attrs['readonly'] = True
-
-    specimen_type = forms.Field(
-        label='Specimen Type',
-        disabled=True)
+        try:
+            self.fields['specimen_type'].widget.attrs['readonly'] = True
+        except KeyError:
+            pass
 
     def clean(self):
         cleaned_data = super().clean()
