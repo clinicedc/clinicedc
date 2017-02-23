@@ -3,7 +3,7 @@ function edcLabelReady() {
 	// var labelTemplates = JSON.parse( label_templates );
 
 	var post = $.ajax({
-		url: Urls['edc-label:home_url'](),
+		url: Urls['edc_label:home_url'](),
 		type: 'GET',
 		dataType: 'json',
 		contentType: 'application/json',
@@ -83,7 +83,7 @@ function updateLabelTemplates( label_templates ) {
 
 function testLabel(label_template){
 	var post = $.ajax({
-		url: Urls['edc-label:print-test-label'](label_template.label),
+		url: Urls['edc_label:print-test-label'](label_template.label),
 		type: 'GET',
 		dataType: 'json',
 		contentType: 'application/json',
