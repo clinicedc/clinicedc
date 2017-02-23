@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -12,7 +13,6 @@ from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from ..choices import APPT_TYPE, APPT_STATUS
 from ..constants import NEW_APPT
 from ..managers import AppointmentManager
-from django.core.exceptions import ObjectDoesNotExist
 
 
 class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,

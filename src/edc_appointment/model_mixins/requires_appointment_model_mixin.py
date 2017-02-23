@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.db import models
+from django.urls import reverse
 
 from ..choices import APPT_STATUS, COMPLETE_APPT, INCOMPLETE_APPT, CANCELLED_APPT
 from ..constants import IN_PROGRESS_APPT, NEW_APPT
