@@ -39,7 +39,7 @@
         <div class="panel panel-default">
         <div class="panel-heading">Administration</div>
         <ul class="nav nav-pills nav-stacked">
-        <li><a href="{% url 'edc_consent_admin:index' %}">Admin Site</a></li>
+        <li><a href="{% url 'edc_consent:edc_consent_admin:index' %}">Admin Site</a></li>
         {% for consent in consents %}
         <li><a href="">{{ consent.name }}</a></li>
         {% endfor %}
