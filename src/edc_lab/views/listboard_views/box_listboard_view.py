@@ -9,8 +9,8 @@ from edc_dashboard.view_mixins import AppConfigViewMixin
 from edc_dashboard.views import ListboardView
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
-
-app_config = django_apps.get_app_config('edc_lab')
+app_name = 'edc_lab'
+app_config = django_apps.get_app_config(app_name)
 
 
 class BoxItemModelWrapper(ModelWrapper):
@@ -53,7 +53,7 @@ class BoxListboardView(AppConfigViewMixin, EdcBaseViewMixin,
     search_form_class = SearchForm
     ordering = ('-position', )
 
-    manage_box_item_url_name = 'edc-lab:manage_box_item_url'
+    manage_box_item_url_name = '{}:manage_box_item_url'.format(app_name)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -96,7 +96,8 @@ class BoxListboardView(AppConfigViewMixin, EdcBaseViewMixin,
             manage_box_item_url_name=self.manage_box_item_url_name,
             empty_queryset_message=self.empty_queryset_message,
             action=self.action,
-            action_url_name=self.action_url_name)
+            action_url_name=self.action_url_name,
+            rendered_box=self.rendered_box(self.box))
         return context
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
@@ -104,3 +105,14 @@ class BoxListboardView(AppConfigViewMixin, EdcBaseViewMixin,
         queryset.
         """
         return {'box': self.box}
+
+    def rendered_box(self, box=None):
+        box = '<table class="table table-condensed table-hover">'
+        for _ in range(1, box.box_type.down):
+            box += '<tr>'
+            for column in range(1, box.box_type.across):
+                box += '<td><button class="btn btn-default btn-sm">{}</button></td>'.format(
+                    column)
+            box += '</tr>'
+        box += '</table>'
+        return box

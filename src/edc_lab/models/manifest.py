@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.deletion import PROTECT
 
 from edc_base.model.models import BaseUuidModel, HistoricalRecords
 from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
@@ -16,7 +17,8 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
 
     destination = models.ForeignKey(
         Destination,
-        verbose_name='Ship to')
+        verbose_name='Ship to',
+        on_delete=PROTECT)
 
     objects = Manager()
 

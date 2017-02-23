@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.deletion import PROTECT
 
 from edc_base.model.models import BaseUuidModel, HistoricalRecords
 from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
@@ -21,7 +22,8 @@ class Aliquot(AliquotModelMixin, AliquotIdentifierModelMixin,
               AliquotStatusModelMixin,
               SearchSlugModelMixin, BaseUuidModel):
 
-    manifest = models.ForeignKey(Manifest, null=True)
+    manifest = models.ForeignKey(
+        Manifest, null=True, on_delete=PROTECT)
 
     objects = Manager()
 

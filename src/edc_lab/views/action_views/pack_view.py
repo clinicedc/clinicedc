@@ -12,18 +12,22 @@ from ...forms import PackAliquotsForm
 from ...models import Destination, Manifest
 
 
-app_config = django_apps.get_app_config('edc_lab')
-
-
 class PackView(EdcBaseViewMixin, AppConfigViewMixin, FormView):
 
     template_name = 'edc_lab/home.html'
     navbar_name = 'specimens'
     form_class = PackAliquotsForm
-    aliquot_model = django_apps.get_model(*app_config.aliquot_model.split('.'))
+
+    @property
+    def app_config(self):
+        return django_apps.get_app_config('edc_lab')
+
+    @property
+    def aliquot_model(self):
+        return django_apps.get_model(*self.app_config.aliquot_model.split('.'))
 
     def get_success_url(self):
-        return reverse(app_config.aliquot_listboard_url_name)
+        return reverse(self.app_config.aliquot_listboard_url_name)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

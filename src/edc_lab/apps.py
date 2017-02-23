@@ -5,6 +5,8 @@ from django.apps import AppConfig as DjangoAppConfig
 from .site_labs import site_labs
 from .lab import Manifest
 
+app_name = 'edc_lab'
+
 
 class AppConfig(DjangoAppConfig):
     name = 'edc_lab'
@@ -31,15 +33,16 @@ class AppConfig(DjangoAppConfig):
     manifest_listboard_template_name = 'edc_lab/manifest_listboard.html'
     result_listboard_template_name = 'edc_lab/result_listboard.html'
 
-    home_url_name = 'edc-lab:home_url'
-    requisition_listboard_url_name = 'edc-lab:requisition_listboard_url'
-    receive_listboard_url_name = 'edc-lab:receive_listboard_url'
-    process_listboard_url_name = 'edc-lab:process_listboard_url'
-    pack_listboard_url_name = 'edc-lab:pack_listboard_url'
-    box_listboard_url_name = 'edc-lab:box_listboard_url'
-    aliquot_listboard_url_name = 'edc-lab:aliquot_listboard_url'
-    manifest_listboard_url_name = 'edc-lab:manifest_listboard_url'
-    result_listboard_url_name = 'edc-lab:result_listboard_url'
+    home_url_name = '{}:home_url'.format(app_name)
+    requisition_listboard_url_name = '{}:requisition_listboard_url'.format(
+        app_name)
+    receive_listboard_url_name = '{}:receive_listboard_url'.format(app_name)
+    process_listboard_url_name = '{}:process_listboard_url'.format(app_name)
+    pack_listboard_url_name = '{}:pack_listboard_url'.format(app_name)
+    box_listboard_url_name = '{}:box_listboard_url'.format(app_name)
+    aliquot_listboard_url_name = '{}:aliquot_listboard_url'.format(app_name)
+    manifest_listboard_url_name = '{}:manifest_listboard_url'.format(app_name)
+    result_listboard_url_name = '{}:result_listboard_url'.format(app_name)
 
     def ready(self):
         from .models.signals import box_item_on_post_save

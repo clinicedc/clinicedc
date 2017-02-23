@@ -18,7 +18,7 @@ class PackAliquotsForm(forms.Form):
             choices=[(obj.name, str(obj)) for obj in Destination.objects.all()])
         self.helper = FormHelper(self)
         self.helper.form_method = 'post'
-        self.helper.form_action = 'edc-lab:pack_aliquots_url'
+        self.helper.form_action = 'edc_lab:pack_aliquots_url'
         self.helper.html5_required = True
         self.helper.add_input(Submit('submit', 'Submit'))
         self.helper.form_class = 'form-horizontal'

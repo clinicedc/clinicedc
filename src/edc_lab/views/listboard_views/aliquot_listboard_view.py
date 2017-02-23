@@ -10,8 +10,8 @@ from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
 from ...forms import PackAliquotsForm
 
-
-app_config = django_apps.get_app_config('edc_lab')
+app_name = 'edc_lab'
+app_config = django_apps.get_app_config(app_name)
 
 
 class AliquotModelWrapper(ModelWrapper):
@@ -41,8 +41,8 @@ class AliquotListboardView(AppConfigViewMixin,
     show_all = False
     packed = False
     shipped = False
-    listboard_url_name = 'edc-lab:aliquot_listboard_url'
-    form_action_url_name = 'edc-lab:pack_aliquots_url'
+    listboard_url_name = '{}:aliquot_listboard_url'.format(app_name)
+    form_action_url_name = '{}:pack_aliquots_url'.format(app_name)
     search_form_action_url_name = None
     empty_queryset_message = 'No aliquots to display'
 

@@ -7,6 +7,8 @@ from .views import (
     ManifestListboardView, ReceiveListboardView, PackListboardView,
     BoxListboardView, BoxItemView)
 
+app_name = 'edc_lab'
+
 requisition_opts = dict(
     show_all=True,
     navbar_item_selected='requisition')
@@ -15,19 +17,19 @@ process_opts = dict(
     received=True,
     empty_queryset_message='All received specimens have been processed',
     action='process',
-    action_url_name='edc-lab:process_url',
-    listboard_url_name='edc-lab:process_listboard_url',
-    search_form_action_url_name='edc-lab:process_listboard_url',
+    action_url_name='{}:process_url'.format(app_name),
+    listboard_url_name='{}:process_listboard_url'.format(app_name),
+    search_form_action_url_name='{}:process_listboard_url'.format(app_name),
     navbar_item_selected='process')
 
 aliquot_opts = dict(
     show_all=True,
-    search_form_action_url_name='edc-lab:aliquot_listboard_url',
+    search_form_action_url_name='{}:aliquot_listboard_url'.format(app_name),
     navbar_item_selected='aliquot')
 
 manifest_opts = dict(
     action='ship',
-    action_url_name='edc-lab:ship_url',
+    action_url_name='{}:ship_url'.format(app_name),
     navbar_item_selected='manifest')
 
 urlpatterns = [
