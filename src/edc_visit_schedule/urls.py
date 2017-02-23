@@ -4,6 +4,8 @@ from edc_visit_schedule.views import HomeView
 
 admin.autodiscover()
 
+app_name = 'edc_visit_schedule'
+
 urlpatterns = [
 
     url(r'(?P<visit_schedule>[0-9A-Za-z_]+)/'
