@@ -1,6 +1,9 @@
-from django.conf.urls import include, url
-from edc_metadata.admin import edc_metadata_admin
+from django.conf.urls import url
+
+from .admin_site import edc_metadata_admin
+
+app_name = 'edc_metadata'
 
 urlpatterns = [
-    url(r'^admin/', include(edc_metadata_admin.urls)),
+    url(r'^admin/', edc_metadata_admin.urls),
 ]
