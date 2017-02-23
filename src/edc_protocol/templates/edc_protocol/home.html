@@ -1,0 +1,61 @@
+{% extends 'edc_base/base.html' %}
+
+{% load staticfiles %}
+
+{% block main %}
+
+ <div class="container">
+
+    <div class="col-md-8">
+          <div class="panel panel-default">
+            <div class="panel-heading">Protocol</div>
+                <div class="panel-body">
+                    <ul class="list-group">
+                    <li class="list-group-item">Protocol: {{ protocol }}</li>
+                    <li class="list-group-item">Number: {{ protocol_number }}</li>
+                    <li class="list-group-item">Name: {{ protocol_name }}</li>
+                    <li class="list-group-item">Title: {{ protocol_title }}</li>
+                    </ul>
+                </div>
+          </div>
+
+
+    </div>
+
+    <div class="col-md-4">
+    
+          <div class="panel panel-default">
+            <div class="panel-heading">Dates</div>
+                <div class="panel-body">
+                    <ul class="list-group">
+                    <li class="list-group-item">Study open date: {{ study_open_datetime|date:"Y-m-d" }}</li>
+                    <li class="list-group-item">Study close date: {{ study_close_datetime|date:"Y-m-d" }}</li>
+                  </ul>
+                </div>
+          </div>
+
+    </div>
+
+    <div class="col-md-12">
+    
+          <div class="panel panel-default">
+            <div class="panel-heading">Enrollment Caps</div>
+                <div class="panel-body">
+                    <ul class="list-group">
+                    {% for name, cap in enrollment_caps.items %}
+                        <li class="list-group-item list-group-item-info">{{ name }}</li>
+                        <li class="list-group-item list-group-item">Subject: {{ cap.subject_type_name }}</li>
+                        <li class="list-group-item list-group-item">Model: {{ cap.model_name }}</li>
+                        <li class="list-group-item list-group-item">Max: {{ cap.max_subjects }}</li>
+                        <li class="list-group-item list-group-item">Site: {{ cap.study_site }}</li>
+                        
+                    {% endfor %}
+                    </ul>
+                </div>
+          </div>
+
+    </div>
+
+
+</div> <!-- container -->
+{% endblock main %}
