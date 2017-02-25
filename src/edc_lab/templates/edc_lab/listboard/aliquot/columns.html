@@ -5,15 +5,18 @@
       <input id="requisition_{{wrapped.wrapped_object.id}}" name="requisitions" type="checkbox" value="{{wrapped.wrapped_object.id}}">
     </td>
     <td>
-        <div class="btn-group">
-           <a title="Edit {% if wrapped.is_primary %}primary {% endif %}aliquot" role="button" href="{{ wrapped.href }}" class="btn {% if wrapped.is_primary %}btn-info{% else %}btn-default{% endif %} btn-sm"><i class="fa fa-pencil fa-fw"></i></a>
-      {% if wrapped.packed %}
-           <a title="Manifest" role="button" href="{% url manifest_listboard_url_name %}?q={{ wrapped.wrapped_object.manifest.manifest_identifier }}" class="btn btn-default btn-sm">Manifest</a>
-      {% endif %}
-        </div>&nbsp;
       <span class="text text-identifier">
         {{ wrapped.human_aliquot_identifier }}
       </span>
+        <div class="btn-group">
+           <a title="Edit {% if wrapped.is_primary %}primary {% endif %}aliquot" role="button" href="{{ wrapped.href }}" class="btn {% if wrapped.is_primary %}btn-info{% else %}btn-default{% endif %} btn-sm"><i class="fa fa-pencil fa-fw"></i></a>
+          {% if wrapped.box_item %}
+             <a title="{{ wrapped.box_item.box.box_identifier }}" href="{% url manage_listboard_url_name box_identifier=wrapped.box_item.box.box_identifier action_name='manage' %}" role="button" class="btn btn-default btn-sm"><i class="fa fa-suitcase fa-fw"></i></a>
+          {% endif %}
+          {% if wrapped.manifest %}
+             <a title="{{ wrapped.manifest.manifest_identifier }}" href="{% url manifest_listboard_url_name manifest_identifier=wrapped.manifest.manifest_identifier %}" role="button" class="btn btn-default btn-sm"><i class="fa fa-ship fa-fw"></i></a>
+          {% endif %}
+        </div>&nbsp;
     </td>
     <td>
       <span class="text text-identifier">
@@ -27,7 +30,7 @@
       {{ wrapped.aliquot_type }}
     </td>
     <td>
-      {% if wrapped.packed %}
+      {% if wrapped.box_item %}
         <span class="text text-success"><i class="fa fa-check-circle fa-fw" title="Packed"></i></span>
       {% else %}
         <span class="text text-danger"><i class="fa fa-times-circle fa-fw" title="Not packed"></i></span>

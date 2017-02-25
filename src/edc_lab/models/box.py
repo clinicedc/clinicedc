@@ -3,11 +3,15 @@ from django.db.models.deletion import PROTECT
 from django.utils import timezone
 
 from edc_base.model.models import BaseUuidModel, HistoricalRecords
-from edc_constants.constants import OTHER, CLOSED, OPEN
+from edc_constants.constants import OTHER, OPEN
 from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..identifiers import BoxIdentifier
+from ..model_mixins.shipping import VerifyModelMixin
 from .box_type import BoxType
+from ..constants import VERIFIED, SHIPPED, TESTING, STORAGE
+from edc_base.utils import get_utcnow
+
 
 BOX_DIMENSIONS = (
     ('8 x 8', '8 x 8'),
@@ -16,14 +20,15 @@ BOX_DIMENSIONS = (
 )
 
 BOX_CATEGORY = (
-    ('testing', 'Testing'),
-    ('storage', 'Storage'),
+    (TESTING, 'Testing'),
+    (STORAGE, 'Storage'),
     (OTHER, 'Other'),
 )
 
 STATUS = (
     (OPEN, 'Open'),
-    (CLOSED, 'Closed'),
+    (VERIFIED, 'Verified'),
+    (SHIPPED, 'Shipped'),
 )
 
 human_readable_pattern = '^[A-Z]{3}\-[0-9]{4}\-[0-9]{2}$'
@@ -35,7 +40,7 @@ class BoxManager(SearchSlugManager, models.Manager):
         return self.get(box_identifier=box_identifier)
 
 
-class Box(SearchSlugModelMixin, BaseUuidModel):
+class Box(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
     box_identifier = models.CharField(
         max_length=25,
@@ -55,7 +60,7 @@ class Box(SearchSlugModelMixin, BaseUuidModel):
 
     category = models.CharField(
         max_length=25,
-        default='testing',
+        default=TESTING,
         choices=BOX_CATEGORY)
 
     category_other = models.CharField(
@@ -92,6 +97,16 @@ class Box(SearchSlugModelMixin, BaseUuidModel):
             self.box_identifier = identifier.next()
         if not self.name:
             self.name = self.box_identifier
+        if self.boxitem_set.all().exists():
+            self.verified = False if self.boxitem_set.filter(
+                verified=False).exists() else True
+        else:
+            self.status = OPEN
+            self.verified = False
+            self.verified_datetime = None
+        if self.status in [OPEN, VERIFIED] and self.verified:
+            self.status = VERIFIED
+            self.verified_datetime = get_utcnow()
         super().save(*args, **kwargs)
 
     def __str__(self):

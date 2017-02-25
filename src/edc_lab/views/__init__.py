@@ -1,7 +1,8 @@
 from .action_views import (
-    BoxItemView, PackView, ProcessView, ReceiveView)
+    ManageBoxItemView, ProcessView, ReceiveView, VerifyBoxItemView)
 from .home_view import HomeView
 from .listboard_views import (
-    AliquotListboardView, BoxListboardView,
+    AliquotListboardView, ManageBoxListboardView,
     ManifestListboardView, PackListboardView, ProcessListboardView,
-    ReceiveListboardView, RequisitionListboardView, ResultListboardView)
+    ReceiveListboardView, RequisitionListboardView, ResultListboardView,
+    VerifyBoxListboardView)

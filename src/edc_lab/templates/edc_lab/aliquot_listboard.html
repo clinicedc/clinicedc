@@ -12,8 +12,6 @@
           <div class="panel panel-success">
             <div class="panel-heading clearfix">
 
-		    <a data-toggle="modal" data-target="#packAliquotsModal" href="#" class="btn btn-default">Pack</a>    
- 
                {% include 'edc_dashboard/search_form.html' %}
 
             </div></div>
@@ -58,11 +56,3 @@
   
 
 {% endblock main %}
-
-{% block modals %}
-
-{{ block.super }}
-
-    {% include 'edc_lab/pack_aliquots_modal.html' %}
-
-{% endblock modals %}

@@ -1,29 +1,18 @@
-from django.db import models
-from django.db.models.deletion import PROTECT
-
 from edc_base.model.models import BaseUuidModel, HistoricalRecords
 from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..managers import AliquotManager
-from ..model_mixins import (
-    AliquotModelMixin, AliquotStatusModelMixin, AliquotIdentifierModelMixin)
-from .manifest import Manifest
-
-human_readable_pattern = '^[0-9]{3}\-[0-9A-Z]{3}\-[0-9A-Z]{4}\-[0-9]{4}\-[0-9]{4}$'
-
-pattern = '^[0-9]{3}[0-9A-Z]{3}[0-9A-Z]{4}[0-9]{4}[0-9]{4}$'
+from ..model_mixins.aliquot import (
+    AliquotModelMixin, AliquotIdentifierModelMixin)
 
 
 class Manager(AliquotManager, SearchSlugManager):
     pass
 
 
-class Aliquot(AliquotModelMixin, AliquotIdentifierModelMixin,
-              AliquotStatusModelMixin,
+class Aliquot(AliquotModelMixin,
+              AliquotIdentifierModelMixin,
               SearchSlugModelMixin, BaseUuidModel):
-
-    manifest = models.ForeignKey(
-        Manifest, null=True, on_delete=PROTECT)
 
     objects = Manager()
 
@@ -45,8 +34,6 @@ class Aliquot(AliquotModelMixin, AliquotIdentifierModelMixin,
                  self.subject_identifier,
                  self.parent_identifier,
                  self.requisition_identifier]
-        if self.manifest:
-            slugs.append(self.manifest.manifest_identifier)
         return slugs
 
     class Meta(AliquotModelMixin.Meta):

@@ -3,10 +3,10 @@ from ...lab import Specimen
 
 class ProcessViewMixin:
 
-    def process(self, requisitions=None):
+    def process(self):
         created = []
-        for requisition in self.model.objects.filter(
-                pk__in=requisitions, received=True, processed=False):
+        for requisition in self.requisition_model.objects.filter(
+                pk__in=self.requisitions, received=True, processed=False):
             specimen = Specimen(requisition=requisition)
             if requisition.panel_object.processing_profile:
                 created.extend(

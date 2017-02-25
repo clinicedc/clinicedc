@@ -5,7 +5,7 @@ from edc_base.model.models import BaseUuidModel, HistoricalRecords
 from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..managers import ManifestManager
-from ..model_mixins import ManifestModelMixin
+from ..model_mixins.shipping import ManifestModelMixin
 from .destination import Destination
 
 

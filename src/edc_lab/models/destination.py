@@ -1,7 +1,7 @@
 from edc_base.model.models import BaseUuidModel, HistoricalRecords
 
 from ..managers import DestinationManager
-from ..model_mixins import DestinationModelMixin
+from ..model_mixins.shipping import DestinationModelMixin
 
 
 class Destination(DestinationModelMixin, BaseUuidModel):

@@ -5,7 +5,6 @@ from edc_base.modeladmin_mixins import (
 
 from ..admin_site import edc_lab_admin
 from ..models import Manifest
-from .aliquot_admin import AliquotInlineAdmin
 from .base_model_admin import BaseModelAdmin
 
 
@@ -19,8 +18,6 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
                 'manifest_datetime',
             )}),
         audit_fieldset_tuple)
-
-    inlines = [AliquotInlineAdmin]
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj=obj) + audit_fields

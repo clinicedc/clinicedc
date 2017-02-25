@@ -6,7 +6,8 @@ from django.db.models.deletion import PROTECT
 from edc_base.model.models import BaseUuidModel
 from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
-from .aliquot import pattern as aliquot_identifier_pattern
+from ..model_mixins.shipping import VerifyModelMixin
+from ..patterns import aliquot_pattern
 from .box import Box
 
 
@@ -19,7 +20,7 @@ class BoxItemManager(SearchSlugManager, models.Manager):
             box_identifier=box_identifier)
 
 
-class BoxItem(SearchSlugModelMixin, BaseUuidModel):
+class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
     box = models.ForeignKey(Box, on_delete=PROTECT)
 
@@ -43,9 +44,10 @@ class BoxItem(SearchSlugModelMixin, BaseUuidModel):
     def human_readable_identifier(self):
         """Returns a human readable identifier.
         """
-        x = self.identifier
-        if re.match(aliquot_identifier_pattern, self.identifier):
-            return '{}-{}-{}-{}-{}'.format(x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
+        if self.identifier:
+            x = self.identifier
+            if re.match(aliquot_pattern, self.identifier):
+                return '{}-{}-{}-{}-{}'.format(x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
         return self.identifier
 
     def get_slugs(self):

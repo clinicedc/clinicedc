@@ -17,6 +17,22 @@
                    
                         <a href="{{ new_box.href }}" role="button" class="btn btn-sm btn-default" />New box</a>
 
+						 <div class="btn-group">
+						  <a title="Add selected boxes to an open manifest" href="{{ new_box.href }}" role="button" class="btn btn-sm btn-default" />Add to manifest</a>
+						  <button title="View open manifests" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+						    <span class="caret"></span>
+						  </button>
+						  <ul class="dropdown-menu" role="menu">
+						    {% if open_manifests %}
+							    {% for manifest in open_manifests %}
+							      <li><a href="{{ manifest.href }}">{{ manifest }}</a></li>
+							    {% endfor %}
+                            {% else %}
+                                <li><a href="#">No manifests</a></li>
+                            {% endif %}
+						  </ul>
+						</div>
+
                    {% endblock action_form %}
                    </div>
                    <div class="col-sm-6">   

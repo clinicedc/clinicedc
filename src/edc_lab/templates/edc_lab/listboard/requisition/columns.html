@@ -2,7 +2,7 @@
 <!-- begin columns -->
 
     <td>
-      <input id="requisition_{{wrapped.wrapped_object.id}}" form="form_{{ form_action }}" name="requisitions" type="checkbox" value="{{wrapped.wrapped_object.id}}" />
+      <input id="selected_item_{{wrapped.wrapped_object.id}}" form="{{ form_action_name }}" name="{{ form_action_selected_items_name }}" type="checkbox" value="{{wrapped.wrapped_object.id}}" />
     </td>
     <td>
       <a title="Edit requisition" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fa fa-pencil fa-fw"></i></a>      
