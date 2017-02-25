@@ -21,6 +21,11 @@ class ListboardView(ListView):
     search_term = None
     cleaned_search_term = None
     page = None
+    empty_queryset_message = 'Nothing to display'
+
+    @property
+    def model(self):
+        return django_apps.get_model(*self.model_name.split('.'))
 
     @property
     def search_form(self):
@@ -99,6 +104,7 @@ class ListboardView(ListView):
         context_object_name = self.get_context_object_name(queryset)
         wrapped_queryset = self.get_wrapped_queryset(queryset)
         context.update(
+            empty_queryset_message=self.empty_queryset_message,
             listboard_url_name=self.listboard_url_name,
             object_list=wrapped_queryset,
             form=self.search_form(initial={'q': self.search_term}),
