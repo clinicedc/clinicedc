@@ -1,5 +1,24 @@
-{% load staticfiles %}
-{% load crispy_forms_tags %}
+
+<!--start searchform-->
+
 <span class="pull-right">
-<!--start searchform-->{% crispy form %}<!--end searchform-->
+	<form  action="{% if search_form_url %}{{ search_form_url }}{% else %}{% url listboard_url_name %}{% endif %}" class="form-inline" id="form-search" method="get" >
+        <div class="form-group" >
+            <div class="controls ">
+                <div class="input-group">
+                    <input class="form-control input-sm textinput form-control" id="id_q" maxlength="150" name="q" placeholder="search" type="text" value="{{ q|default:'' }}" />
+                    <span class="input-group-btn">
+                        <button  type="submit" class="btn btn btn-default btn-sm">
+                            <i class="fa fa-search fa-sm"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+	    {% if f %}<input type="hidden" name="f" value="{{ f }}">{% endif %}
+	    {% if e %}<input type="hidden" name="e" value="{{ e }}">{% endif %}
+	    {% if o %}<input type="hidden" name="o" value="{{ o }}">{% endif %}
+	</form>    
 </span>
+
+<!--end searchform-->

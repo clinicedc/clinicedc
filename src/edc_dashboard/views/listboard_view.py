@@ -6,30 +6,28 @@ from django.db.models import Q
 from django.utils.text import slugify
 from django.views.generic.list import ListView
 
-from ..forms import SearchForm
+from .mixins import QueryStringViewMixin
 
 
-class ListboardView(ListView):
+class ListboardView(QueryStringViewMixin, ListView):
 
     context_object_name = 'results'
     model_wrapper_class = None
     ordering = '-created'
     paginate_by = 10
     orphans = 3
-    search_form_class = SearchForm
     listboard_url_name = None
-    search_term = None
     cleaned_search_term = None
     page = None
     empty_queryset_message = 'Nothing to display'
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._search_term = None
+
     @property
     def model(self):
         return django_apps.get_model(*self.model_name.split('.'))
-
-    @property
-    def search_form(self):
-        return self.search_form_class
 
     def get_template_names(self):
         return [django_apps.get_app_config(
@@ -53,14 +51,20 @@ class ListboardView(ListView):
         """
         return Q()
 
-    def clean_search_term(self):
-        return self.search_term
+    def clean_search_term(self, search_term):
+        return search_term
+
+    @property
+    def search_term(self):
+        if not self._search_term:
+            search_term = self.request.GET.get('q')
+            if search_term:
+                search_term = escape(search_term).strip()
+            search_term = self.clean_search_term(search_term)
+            self._search_term = search_term
+        return self._search_term
 
     def get_queryset(self):
-        self.search_term = self.request.GET.get('q')
-        if self.search_term:
-            self.search_term = escape(self.search_term).strip()
-        self.search_term = self.clean_search_term()
         filter_options = self.get_queryset_filter_options(
             self.request, *self.args, **self.kwargs)
         exclude_options = self.get_queryset_exclude_options(
@@ -107,7 +111,6 @@ class ListboardView(ListView):
             empty_queryset_message=self.empty_queryset_message,
             listboard_url_name=self.listboard_url_name,
             object_list=wrapped_queryset,
-            form=self.search_form(initial={'q': self.search_term}),
             search_term=self.search_term)
         if context_object_name is not None:
             context[context_object_name] = wrapped_queryset
