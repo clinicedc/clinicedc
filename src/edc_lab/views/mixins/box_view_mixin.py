@@ -2,6 +2,8 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.utils.html import escape
 
+from ...exceptions import SpecimenError
+
 
 class IdentifierDoesNotExist(Exception):
     pass
@@ -34,11 +36,11 @@ class BoxViewMixin:
 
     @property
     def box_item_identifier(self):
-        """Returns a cleaned box_item_identifier.
+        """Returns a cleaned box_item_identifier or None.
         """
         if not self._box_item_identifier:
             self.original_box_item_identifier = escape(
-                self.request.POST.get('box_item_identifier')).strip()
+                self.request.POST.get('box_item_identifier', '')).strip()
             if self.original_box_item_identifier:
                 self._box_item_identifier = self._clean_box_item_identifier()
         return self._box_item_identifier
@@ -46,11 +48,12 @@ class BoxViewMixin:
     @property
     def box(self):
         if not self._box:
-            try:
-                self._box = self.box_model.objects.get(
-                    box_identifier=self.box_identifier)
-            except self.box_model.DoesNotExist:
-                self._box = None
+            if self.box_identifier:
+                try:
+                    self._box = self.box_model.objects.get(
+                        box_identifier=self.box_identifier)
+                except self.box_model.DoesNotExist:
+                    self._box = None
         return self._box
 
     @property
@@ -58,18 +61,15 @@ class BoxViewMixin:
         """Returns a box item model instance.
         """
         if not self._box_item:
-            try:
-                self._box_item = self.box_item_model.objects.get(
-                    box=self.box,
-                    identifier=self.box_item_identifier)
-            except self.box_item_model.DoesNotExist:
-                message = 'Invalid identifier for box. Got {}'.format(
-                    self.original_box_item_identifier)
-                messages.error(self.request, message)
-            except IdentifierDoesNotExist:
-                message = 'Invalid identifier. Got {}'.format(
-                    self.original_box_item_identifier)
-                messages.error(self.request, message)
+            if self.box_item_identifier:
+                try:
+                    self._box_item = self.box_item_model.objects.get(
+                        box=self.box,
+                        identifier=self.box_item_identifier)
+                except self.box_item_model.DoesNotExist:
+                    message = 'Invalid identifier for box. Got {}'.format(
+                        self.original_box_item_identifier)
+                    messages.error(self.request, message)
         return self._box_item
 
     def get_box_item(self, position):
@@ -100,12 +100,12 @@ class BoxViewMixin:
             message = 'Invalid aliquot identifier. Got {}.'.format(
                 self.original_box_item_identifier or 'None')
             messages.error(self.request, message)
-            raise IdentifierDoesNotExist()
+            raise SpecimenError(message)
         if obj.is_primary and not self.box.accept_primary:
             message = 'Box does not accept "primary" specimens. Got {} is primary.'.format(
                 self.original_box_item_identifier)
             messages.error(self.request, message)
-            raise IdentifierDoesNotExist()
+            raise SpecimenError(message)
         elif obj.aliquot_type not in self.box.specimen_types.split(','):
             message = (
                 'Invalid specimen type. Box accepts types {}. '
@@ -114,7 +114,7 @@ class BoxViewMixin:
                     self.original_box_item_identifier,
                     obj.aliquot_type))
             messages.error(self.request, message)
-            raise IdentifierDoesNotExist()
+            raise SpecimenError(message)
         return box_item_identifier
 
     def get_context_data(self, **kwargs):

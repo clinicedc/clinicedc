@@ -28,13 +28,13 @@ class VerifyBoxListboardView(BaseBoxItemListboardView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        reverse_kwargs = copy(self.reverse_kwargs)
-        reverse_kwargs.pop('position')
-        reverse_kwargs['action_name'] = 'manage'
+        url_kwargs = copy(self.url_kwargs)
+        url_kwargs.pop('position')
+        url_kwargs['action_name'] = 'manage'
         context.update(
             manage_box_listboard_url=reverse(
                 self.manage_box_listboard_url_name,
-                kwargs=reverse_kwargs),
+                kwargs=url_kwargs),
             position=self.kwargs.get('position'))
         return context
 

@@ -6,7 +6,7 @@ from .views import (
     ResultListboardView, ReceiveView, ProcessView,
     ManifestListboardView, ReceiveListboardView, PackListboardView,
     ManageBoxListboardView, VerifyBoxListboardView, ManageBoxItemView,
-    VerifyBoxItemView, ProcessListboardView)
+    VerifyBoxItemView, ProcessListboardView, PackView, ManifestView)
 
 app_name = 'edc_lab'
 
@@ -78,13 +78,15 @@ urlpatterns = [
     # action urls
     url(r'^requisition/receive/$', ReceiveView.as_view(), name='receive_url'),
     url(r'^requisition/process/$', ProcessView.as_view(), name='process_url'),
-    url(r'^requisition/ship/$', ProcessView.as_view(), name='ship_url'),
+    url(r'^requisition/pack/$', PackView.as_view(), name='pack_url'),
     url(r'^box/(?P<box_identifier>[A-Z0-9]+)/(?P<action_name>manage)/$',
         ManageBoxItemView.as_view(), name='manage_box_item_url'),
     url(r'^box/(?P<box_identifier>[A-Z0-9]+)/'
         '(?P<action_name>verify)/'
         '(?P<position>[0-9]+)/$',
         VerifyBoxItemView.as_view(), name='verify_box_item_url'),
+    url(r'^requisition/manifest/$',
+        ManifestView.as_view(), name='manifest_url'),
 
     url(r'^', HomeView.as_view(), name='home_url'),
 ]

@@ -2,7 +2,7 @@
 <!-- begin columns -->
 
     <td>
-      <input id="box_{{wrapped.wrapped_object.id}}" name="boxes" type="checkbox" value="{{wrapped.wrapped_object.id}}">
+      <input id="selected_item_{{wrapped.wrapped_object.id}}" form="{{ form_action_name }}" name="{{ form_action_selected_items_name }}" type="checkbox" value="{{wrapped.wrapped_object.id}}" />
     </td>
     <td>
         <div class="btn-group">

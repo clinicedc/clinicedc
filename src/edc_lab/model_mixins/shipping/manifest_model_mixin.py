@@ -23,6 +23,9 @@ class ManifestModelMixin(models.Model):
 
     shipped = models.BooleanField(default=False)
 
+    def natural_key(self):
+        return (self.manifest_identifier, )
+
     class Meta:
         abstract = True
         ordering = ('-manifest_identifier', )

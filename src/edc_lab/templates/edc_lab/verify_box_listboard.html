@@ -1,4 +1,4 @@
-{% extends "edc_lab/manage_box_listboard.html" %}
+{% extends "edc_lab/box_listboard.html" %}
 
 {% load staticfiles %}
 {% load edc_lab_extras %}
@@ -16,29 +16,32 @@
 {% endblock extra-scripts %}
 
 
-{% block panel_inputs %}
+{% block results_panel_form %}
     <audio id="play" src="{% static "edc_lab/beep-03.mp3" %}"></audio>
-    <input class="form-control" type="text" id="box_item_identifier" name="box_item_identifier" value="" placeholder="aliquot identifier" autofocus />
-	<span class="input-group-btn">
-	<button title="check item"  type="submit" class="btn btn-default btn-sm" id="box_action" name="box_action" value="add_item" form="form_boxitem">
-	     <i class="fa fa-check fa-sm"></i> {{ position }}
-	</button>
-    <button title="undo last item" type="submit" class="btn btn-default btn-sm" id="box_action" name="box_action" value="undo_last_item" form="form_boxitem">
-         <i class="fa fa-undo fa-sm"></i>
-    </button>
-    </span>
-{% endblock panel_inputs %}
+    <form action="{{ form_action_url }}" method="post" id="{{ form_action_name }}" name="{{ form_action_name }}">
+    <div class="form-group form-inline">
+        <div class="input-group input-group-sm">
+        <input class="form-control" type="text" form="{{ form_action_name }}" id="box_item_identifier" name="box_item_identifier" placeholder="aliquot identifier" autofocus />
+        <div class="input-group-btn">
+            <button title="check item"  type="submit" class="btn btn-default btn-sm" id="action" name="action" value="verify_item" form="{{ form_action_name }}">
+                 <i class="fa fa-check fa-sm"></i> {{ position }}
+            </button>
+            <button title="undo last item" type="submit" class="btn btn-default btn-sm" id="action" name="action" value="undo_last_item" form="{{ form_action_name }}">
+                 <i class="fa fa-undo fa-sm"></i>
+            </button>
+        </div>
+        </div>
+		<button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="reset_box" form="{{ form_action_name }}">
+		     <i class="fa fa-undo fa-sm"></i> &nbsp;Undo All
+		</button>
+	    <a role="button" class="btn btn-default btn-sm" href="{{ manage_box_listboard_url }}">
+	        Manage box
+	    </a>
+    </div>
+    {% csrf_token %}
+    </form>
 
-{% block panel_action_buttons %}
-
-	<button type="submit" class="btn btn-default btn-sm" id="box_action" name="box_action" value="reset_box" form="form_boxitem">
-	     <i class="fa fa-undo fa-sm"></i> &nbsp;Undo All
-	</button>
-    <a role="button" class="btn btn-default btn-sm" href="{{ manage_box_listboard_url }}">
-        Manage box
-    </a>
-
-{% endblock panel_action_buttons %}
+{% endblock results_panel_form %}
 
 {% block results_header %}
 {% endblock results_header %}

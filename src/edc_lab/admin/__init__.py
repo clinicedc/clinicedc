@@ -10,5 +10,6 @@ from .fieldsets import (
     requisition_status_fieldset,
     requisition_identifier_fieldset)
 from .manifest_admin import ManifestAdmin
+from .manifest_item_admin import ManifestItemAdmin
 from .modeladmin_mixins import RequisitionAdminMixin
 from .simple_box_admin import SimpleBoxAdmin

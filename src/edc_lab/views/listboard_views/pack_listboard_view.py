@@ -3,7 +3,7 @@ from django.utils.decorators import method_decorator
 
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
-from .base_listboard import BaseListboardView, app_config
+from .base_listboard import BaseListboardView, app_config, app_name
 
 
 class BoxModelWrapper(ModelWrapper):
@@ -14,6 +14,7 @@ class BoxModelWrapper(ModelWrapper):
 
 class PackListboardView(BaseListboardView):
 
+    form_action_url_name = '{}:pack_url'.format(app_name)
     listboard_url_name = app_config.pack_listboard_url_name
     listboard_template_name = app_config.pack_listboard_template_name
     model_name = app_config.box_model

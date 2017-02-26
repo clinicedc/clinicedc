@@ -24,11 +24,10 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
     box = models.ForeignKey(Box, on_delete=PROTECT)
 
-    position = models.IntegerField(null=True)
+    position = models.IntegerField()
 
     identifier = models.CharField(
-        max_length=25,
-        null=True)
+        max_length=25)
 
     comment = models.CharField(
         max_length=25,

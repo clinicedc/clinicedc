@@ -1,67 +1,20 @@
-{% extends base_template_name %}
+{% extends "edc_lab/listboard.html" %}
 
-{% load tz %}
-{% load staticfiles %}
-{% load crispy_forms_tags %}
 
-{% block main %}
-<div class="container">
-   <div class="row">
-      <div class="col-md-12">
-        <div class="panel-group">
-          <div class="panel panel-success">
-            <div class="panel-heading clearfix">
- 
-               {% include 'edc_dashboard/search_form.html' %}
+{% block panel_action_buttons %}
+             
+    <a href="{{ new_manifest.href }}" role="button" class="btn btn-sm btn-default" />New manifest</a>
 
-            </div></div>
-            <div class="panel-body">
+{% endblock panel_action_buttons %}
 
-              <!--start results-->
+{% block panel_action_hidden %}
+{% endblock panel_action_hidden %}                   
 
-                  <div class="table table-responsive">
-                    <table class="table table-condensed table-hover small">
-                      <thead>
 
-                        {% include 'edc_lab/listboard/manifest/results_header.html' %}
+{% block results_header %}
+    {% include 'edc_lab/listboard/manifest/results_header.html' %}
+{% endblock results_header %}
 
-                      </thead>
-                      <tbody>
-                          {% if object_list %}
-
-                            {% include 'edc_lab/listboard/manifest/results_body.html' %}
-                          {% else %}
-    
-                            <tr><td colspan="8">{{ empty_queryset_message }}</td></tr>
-
-                          {% endif %}
-
-                      </tbody>
-                    </table>
-                    <!-- begin spacer rows -->
-                    <table>
-                    <tr><td>&nbsp;</td></tr>
-                    <tr><td>&nbsp;</td></tr>
-                    <tr><td>&nbsp;</td></tr>
-                    <tr><td>&nbsp;</td></tr>
-                    <tr><td>&nbsp;</td></tr>
-                    </table>
-                    <!-- end spacer rows -->
-
-                    {% include 'edc_dashboard/paginator.html' %}
-
-                  </div>
-
-              <!--end results-->
-
-            </div>
-          </div>
-                    
-        </div>
-      </div>
-    </div> 
-  </div>
-  
-  
-
-{% endblock main %}
+{% block results_body %}
+    {% include 'edc_lab/listboard/manifest/results_body.html' %}
+{% endblock results_body %}

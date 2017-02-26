@@ -4,7 +4,8 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 
-from ..mixins import IdentifierDoesNotExist, BoxViewMixin
+from ...exceptions import SpecimenError
+from ..mixins import BoxViewMixin
 from .base_action_view import BaseActionView, app_config
 
 
@@ -26,7 +27,11 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
 
     def process_form_action(self):
         if self.action == 'add_item':
-            self.add_box_item()
+            try:
+                if self.box_item_identifier:
+                    self.add_box_item()
+            except SpecimenError:
+                pass
         elif self.action == 'renumber_items':
             self.renumber_items()
         elif self.action == 'remove_selected_items':
@@ -85,8 +90,6 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
                                 'action_name': 'manage'}),
                         box_identifier=box_item.box.box_identifier))
                 messages.error(self.request, message)
-        except IdentifierDoesNotExist:
-            pass
         else:
             message = 'Duplicate item. {} is already in position {}.'.format(
                 box_item.human_readable_identifier, box_item.position)

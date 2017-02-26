@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-from django.contrib import messages
 from django.urls.base import reverse
 
 from edc_base.view_mixins import EdcBaseViewMixin
@@ -60,7 +59,6 @@ class BaseListboardView(UrlsViewMixin, ModelsViewMixin, AppConfigViewMixin,
         context = super().get_context_data(**kwargs)
         context.update(
             action_name=self.action_name,
-            # messages=messages,
             form_action_name=self.form_action_name,
             form_action_selected_items_name=self.form_action_selected_items_name,
             form_action_url=self.form_action_url,

@@ -9,6 +9,7 @@ class ProcessView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
 
     post_url_name = app_config.process_listboard_url_name
     valid_form_actions = ['process']
+    action_name = 'process'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

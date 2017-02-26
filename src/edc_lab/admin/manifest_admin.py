@@ -16,13 +16,14 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
             'fields': (
                 'manifest_identifier',
                 'manifest_datetime',
+                'destination'
             )}),
         audit_fieldset_tuple)
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj=obj) + audit_fields
 
-    list_display = ('manifest_identifier', 'manifest_datetime', )
+    list_display = ('manifest_identifier', 'manifest_datetime', 'destination')
 
     list_filter = ('manifest_datetime', )
 

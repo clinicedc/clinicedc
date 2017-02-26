@@ -44,9 +44,7 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
 
     @property
     def url_kwargs(self):
-        return {
-            'action_name': self.action_name,
-            'box_identifier': self.box_identifier}
+        return {}
 
     @property
     def post_url(self):

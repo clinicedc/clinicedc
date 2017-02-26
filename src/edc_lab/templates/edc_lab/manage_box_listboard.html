@@ -1,64 +1,29 @@
-{% extends "edc_lab/listboard.html" %}
-
-{% block panel_back %}
-    <a title="Back to list of boxes" role="button" class="btn btn-default btn-sm"
-        href="{% url pack_listboard_url_name %}"><i class="fa fa-reply fa-fw"></i>
-    </a>&nbsp;
-{% endblock panel_back %}
-
-{% block panel_description %}                    
-    <span class="text"> 
-     <span class="label label-success">Box {{ box.name }}</span> 
-     <span class="label label-success">{{ box.get_category_display }}</span> 
-     <span class="label label-success">{{ box.specimen_types }}</span> 
-     {% if box.accept_primary %}
-         <span class="label label-success">accepts primary</span>
-     {% endif %}
-     <span class="label label-success">{{ box.box_type }}</span> 
-     <span class="label label-success">{{ box.count}}/{{ box.box_type.total}}</span> 
-     <span class="label label-success">{{ box.box_datetime|date:"Y-m-d" }}</span> 
-     </span>
-{% endblock panel_description %}
-
-{% block panel_inputs %}
-{% endblock panel_inputs %}
-{% block panel_action_buttons %}
-{% endblock panel_action_buttons %}
+{% extends "edc_lab/box_listboard.html" %}
 
 
 {% block results_panel_form %}
 
     <form action="{{ form_action_url }}" method="post" id="{{ form_action_name }}" name="{{ form_action_name }}">
     <div class="form-group form-inline">
-	    <div class="input-group input-group-sm">
-		<input class="form-control" type="text" form="form_box_items" id="box_item_identifier" name="box_item_identifier" placeholder="aliquot identifier" autofocus />
-	    <div class="input-group-btn">
-		<button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="add_item" form="{{ form_action_name }}">
-		     <i class="fa fa-plus fa-sm"></i>
-		</button>
-		</div>
-	    </div>
+        <div class="input-group input-group-sm">
+        <input class="form-control" type="text" form="{{ form_action_name }}" id="box_item_identifier" name="box_item_identifier" placeholder="aliquot identifier" autofocus />
+        <div class="input-group-btn">
+        <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="add_item" form="{{ form_action_name }}">
+             <i class="fa fa-plus fa-sm"></i>
+        </button>
+        </div>
+        </div>
         
-		<button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="renumber_items" form="{{ form_action_name }}">
-		     <i class="fa fa-sort-numeric-desc fa-sm"></i> &nbsp;Renumber
-		</button>
-		<button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="remove_selected_items" form="{{ form_action_name }}">
-		     <span class="text text-danger"><i class="fa fa-window-close fa-sm"></i></span> &nbsp;Remove selected
-		</button>
-		<a role="button" class="btn btn-default btn-sm" href="{{ verify_box_listboard_url }}">
-		     Verify box
-		</a>
-	</div>
-	{% csrf_token %}
-	</form>
+        <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="renumber_items" form="{{ form_action_name }}">
+             <i class="fa fa-sort-numeric-desc fa-sm"></i> &nbsp;Renumber
+        </button>
+        <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="remove_selected_items" form="{{ form_action_name }}">
+             <span class="text text-danger"><i class="fa fa-window-close fa-sm"></i></span> &nbsp;Remove selected
+        </button>
+        <a role="button" class="btn btn-default btn-sm" href="{{ verify_box_listboard_url }}">
+             Verify box
+        </a>
+    </div>
+    {% csrf_token %}
+    </form>
 {% endblock results_panel_form %}
-
-
-{% block results_header %}
-    {% include 'edc_lab/listboard/box/results_header.html' %}
-{% endblock results_header %}
-
-{% block results_body %}
-    {% include 'edc_lab/listboard/box/results_body.html' %}
-{% endblock results_body %}
-
