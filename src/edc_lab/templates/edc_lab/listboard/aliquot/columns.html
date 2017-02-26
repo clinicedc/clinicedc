@@ -2,7 +2,7 @@
 <!-- begin columns -->
 
     <td>
-      <input id="requisition_{{wrapped.wrapped_object.id}}" name="requisitions" type="checkbox" value="{{wrapped.wrapped_object.id}}">
+      <input id="selected_item_{{wrapped.wrapped_object.id}}" form="{{ form_action_name }}" name="{{ form_action_selected_items_name }}" type="checkbox" value="{{wrapped.wrapped_object.id}}" />
     </td>
     <td>
       <span class="text text-identifier">
@@ -11,10 +11,12 @@
         <div class="btn-group">
            <a title="Edit {% if wrapped.is_primary %}primary {% endif %}aliquot" role="button" href="{{ wrapped.href }}" class="btn {% if wrapped.is_primary %}btn-info{% else %}btn-default{% endif %} btn-sm"><i class="fa fa-pencil fa-fw"></i></a>
           {% if wrapped.box_item %}
-             <a title="{{ wrapped.box_item.box.box_identifier }}" href="{% url manage_listboard_url_name box_identifier=wrapped.box_item.box.box_identifier action_name='manage' %}" role="button" class="btn btn-default btn-sm"><i class="fa fa-suitcase fa-fw"></i></a>
+             <a title="Box {{ wrapped.box_item.box.box_identifier }} ({{ wrapped.box_item.box.get_category_display }})" href="{% url manage_box_listboard_url_name box_identifier=wrapped.box_item.box.box_identifier action_name='manage' %}" role="button" class="btn btn-default btn-sm">
+                <i class="fa fa-archive fa-fw"></i>
+            </a>
           {% endif %}
           {% if wrapped.manifest %}
-             <a title="{{ wrapped.manifest.manifest_identifier }}" href="{% url manifest_listboard_url_name manifest_identifier=wrapped.manifest.manifest_identifier %}" role="button" class="btn btn-default btn-sm"><i class="fa fa-ship fa-fw"></i></a>
+             <a title="{{ wrapped.manifest.manifest_identifier }}" href="{% url manage_box_listboard_url_name manifest_identifier=wrapped.manifest.manifest_identifier %}" role="button" class="btn btn-default btn-sm"><i class="fa fa-ship fa-fw"></i></a>
           {% endif %}
         </div>&nbsp;
     </td>

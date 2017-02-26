@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_dashboard.forms import SearchForm as BaseSearchForm
 from edc_dashboard.view_mixins import AppConfigViewMixin
 from edc_dashboard.views import ListboardView
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
@@ -17,10 +16,6 @@ class ResultModelWrapper(ModelWrapper):
     model_name = app_config.result_model
 
 
-class SearchForm(BaseSearchForm):
-    action_url_name = app_config.result_listboard_url_name
-
-
 class ResultListboardView(AppConfigViewMixin, EdcBaseViewMixin,
                           ListboardView):
 
@@ -30,7 +25,6 @@ class ResultListboardView(AppConfigViewMixin, EdcBaseViewMixin,
 
     model = django_apps.get_model(*app_config.result_model.split('.'))
     model_wrapper_class = ResultModelWrapper
-    search_form_class = SearchForm
     paginate_by = 10
     show_all = False
     resulted = False

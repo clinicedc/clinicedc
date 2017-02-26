@@ -60,8 +60,10 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
             for index, boxitem in enumerate(
                     self.box.boxitem_set.all().order_by('position'), start=1):
                 boxitem.position = index
+                boxitem.verified = False
+                boxitem.verified_datetime = None
                 boxitem.save()
-            message = ('Box {} has been renumber. Be sure to physically verify '
+            message = ('Box {} has been renumber. Be sure to verify '
                        'the position of each specimen.'.format(
                            self.box_identifier))
             messages.success(self.request, message)

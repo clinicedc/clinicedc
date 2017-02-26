@@ -1,58 +1,27 @@
-{% extends "edc_lab/base_listboard.html" %}
+{% extends "edc_lab/listboard.html" %}
 
-{% load tz %}
-{% load staticfiles %}
-{% load crispy_forms_tags %}
 
-{% block main %}
-<div class="container">
-   <div class="row">
-      <div class="col-md-12">
-        <div class="panel-group">
-          <div class="panel panel-success">
-            <div class="panel-heading clearfix">
+{% block panel_action_buttons %}
+<div class="btn-group">
+    <a role="button" class="btn btn-sm btn-default" href="{{ form_action_url }}?f=all">
+        {% if not f or f == 'all'%}<i class="fa fa-filter fa-fw"></i>&nbsp;{% endif %}All
+    </a>
+    <a role="button" class="btn btn-sm btn-default" href="{{ form_action_url }}?f=is_primary">
+        {% if f == 'is_primary' %}<i class="fa fa-filter fa-fw"></i>&nbsp;{% endif %}Primary
+    </a>
+    <a role="button" class="btn btn-sm btn-default" href="{{ form_action_url }}?f=packed">
+        {% if f == 'packed' %}<i class="fa fa-filter fa-fw"></i>&nbsp;{% endif %}Packed
+    </a>
+    <a role="button" class="btn btn-sm btn-default" href="{{ form_action_url }}?f=not_packed">
+        {% if f == 'not_packed' %}<i class="fa fa-filter fa-fw"></i>&nbsp;{% endif %}Not packed
+    </a>
+</div>
+{% endblock panel_action_buttons %}
 
-               {% include 'edc_dashboard/search_form.html' %}
+{% block results_header %}
+    {% include 'edc_lab/listboard/aliquot/results_header.html' %}
+{% endblock results_header %}
 
-            </div></div>
-            <div class="panel-body">
-
-              <!--start results-->
-
-                  <div class="table table-responsive">
-                    <table class="table table-condensed table-hover small">
-                      <thead>
-
-                        {% include 'edc_lab/listboard/aliquot/results_header.html' %}
-
-                      </thead>
-                      <tbody>
-                          {% if object_list %}
-
-                            {% include 'edc_lab/listboard/aliquot/results_body.html' %}
-                          {% else %}
-    
-                            <tr><td colspan="8">{{ empty_queryset_message }}</td></tr>
-
-                          {% endif %}
-
-                      </tbody>
-                    </table>
-
-                    {% include 'edc_dashboard/paginator.html' %}
-
-                  </div>
-
-              <!--end results-->
-
-            </div>
-          </div>
-                    
-        </div>
-      </div>
-    </div> 
-  </div>
-  
-  
-
-{% endblock main %}
+{% block results_body %}
+    {% include 'edc_lab/listboard/aliquot/results_body.html' %}
+{% endblock results_body %}

@@ -1,18 +1,10 @@
-from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from edc_base.view_mixins import EdcBaseViewMixin
-from edc_dashboard.forms import SearchForm as BaseSearchForm
-from edc_dashboard.view_mixins import AppConfigViewMixin
-from edc_dashboard.views import ListboardView
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
 from ...models import BoxItem
-from django.urls.base import reverse
-
-app_name = 'edc_lab'
-app_config = django_apps.get_app_config(app_name)
+from .base_listboard import BaseListboardView, app_config
 
 
 class AliquotModelWrapper(ModelWrapper):
@@ -31,37 +23,34 @@ class AliquotModelWrapper(ModelWrapper):
             return None
 
 
-class AliquotListboardView(AppConfigViewMixin,
-                           EdcBaseViewMixin,
-                           ListboardView):
+class AliquotListboardView(BaseListboardView):
 
-    app_config_name = 'edc_lab'
     navbar_item_selected = 'aliquot'
-    navbar_name = 'specimens'
-    model = django_apps.get_model(*app_config.aliquot_model.split('.'))
+    model_name = app_config.aliquot_model
     model_wrapper_class = AliquotModelWrapper
-    empty_queryset_message = 'No aliquots to display'
-    listboard_template_name = app_config.aliquot_listboard_template_name
     listboard_url_name = app_config.aliquot_listboard_url_name
+    listboard_template_name = app_config.aliquot_listboard_template_name
+    show_all = True
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-    def get_template_names(self):
-        return [self.listboard_template_name]
-
-    @property
-    def search_form(self):
-        self.search_form_class.action_url = reverse(
-            self.listboard_url_name)
-        return self.search_form_class
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         app_config.manifest.update_destinations()
-        context.update(
-            manage_listboard_url_name=app_config.manage_box_listboard_url_name,
-            manifest_listboard_url_name=app_config.manifest_listboard_url_name,
-            empty_queryset_message=self.empty_queryset_message)
         return context
+
+    def get_queryset_filter_options(self, request, *args, **kwargs):
+        if self.request.GET.get('f') == 'is_primary':
+            return {'is_primary': True}
+        elif self.request.GET.get('f') == 'packed':
+            return {'aliquot_identifier__in': BoxItem.objects.all().values('identifier')}
+        elif self.request.GET.get('f') == 'all':
+            return {}
+        return {}
+
+    def get_queryset_exclude_options(self, request, *args, **kwargs):
+        if self.request.GET.get('e') == 'not_packed':
+            return {'aliquot_identifier__in': BoxItem.objects.all().values('identifier')}
+        return {}

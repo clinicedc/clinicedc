@@ -2,7 +2,6 @@ from django.apps import apps as django_apps
 from django.urls.base import reverse
 
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_dashboard.forms import SearchForm
 from edc_dashboard.view_mixins import AppConfigViewMixin
 from edc_dashboard.views import ListboardView
 
@@ -18,7 +17,6 @@ class BaseListboardView(UrlsViewMixin, ModelsViewMixin, AppConfigViewMixin,
     app_config_name = app_name
     navbar_name = 'specimens'
 
-    search_form_class = SearchForm
     search_url_name = None
     listboard_url_name = None
     listboard_template_name = None
@@ -28,11 +26,12 @@ class BaseListboardView(UrlsViewMixin, ModelsViewMixin, AppConfigViewMixin,
     form_action_selected_items_name = 'selected_items'
 
     @property
-    def search_form(self):
-        self.search_form_class.action_url = reverse(
-            self.search_url_name or self.listboard_url_name,
-            kwargs=self.search_url_kwargs)
-        return self.search_form_class
+    def search_form_url(self):
+        return '{}{}'.format(
+            reverse(
+                self.search_url_name or self.listboard_url_name,
+                kwargs=self.search_url_kwargs),
+            self.querystring)
 
     @property
     def search_url_kwargs(self):
@@ -59,6 +58,7 @@ class BaseListboardView(UrlsViewMixin, ModelsViewMixin, AppConfigViewMixin,
         context = super().get_context_data(**kwargs)
         context.update(
             action_name=self.action_name,
+            search_form_url=self.search_form_url,
             form_action_name=self.form_action_name,
             form_action_selected_items_name=self.form_action_selected_items_name,
             form_action_url=self.form_action_url,

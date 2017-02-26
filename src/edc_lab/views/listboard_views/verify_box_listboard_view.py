@@ -28,15 +28,19 @@ class VerifyBoxListboardView(BaseBoxItemListboardView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update(
+            manage_box_listboard_url=self.manage_box_listboard_url,
+            position=self.kwargs.get('position'))
+        return context
+
+    @property
+    def manage_box_listboard_url(self):
         url_kwargs = copy(self.url_kwargs)
         url_kwargs.pop('position')
         url_kwargs['action_name'] = 'manage'
-        context.update(
-            manage_box_listboard_url=reverse(
-                self.manage_box_listboard_url_name,
-                kwargs=url_kwargs),
-            position=self.kwargs.get('position'))
-        return context
+        return reverse(
+            self.manage_box_listboard_url_name,
+            kwargs=url_kwargs)
 
     @property
     def url_kwargs(self):
