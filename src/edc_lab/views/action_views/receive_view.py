@@ -13,7 +13,6 @@ class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
 
     post_url_name = app_config.receive_listboard_url_name
     valid_form_actions = ['receive', 'receive_and_process']
-    action_name = 'receive'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -29,12 +28,16 @@ class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
             self.process()
 
     def receive(self):
+        """Updates selected requisitions as received.
+        """
         return self.requisition_model.objects.filter(
             pk__in=self.requisitions, is_drawn=YES).exclude(
                 received=True).update(
                     received=True, received_datetime=get_utcnow())
 
     def create_specimens(self):
+        """Creates aliquots for each selected and recevied requisition.
+        """
         for requisition in self.requisition_model.objects.filter(
                 pk__in=self.requisitions, received=True):
             Specimen(requisition=requisition)

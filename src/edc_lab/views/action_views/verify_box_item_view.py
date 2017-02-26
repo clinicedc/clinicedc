@@ -39,10 +39,15 @@ class VerifyBoxItemView(BoxViewMixin, BaseActionView):
             self.verify_box()
 
     def next_position(self):
+        """Returns the next position relative to that from the URL.
+        """
         self.kwargs['position'] = str(
             int(self.kwargs.get('position', '1')) + 1)
 
     def verify_item(self):
+        """Updates the box_item as verified if the identifier matches
+        the identifier already in that position.
+        """
         box_item_in_position = self.get_box_item(
             position=self.kwargs.get('position'))
         self.redirect_querystring.update(alert=1)

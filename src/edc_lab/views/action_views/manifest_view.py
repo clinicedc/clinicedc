@@ -30,6 +30,8 @@ class ManifestView(BoxViewMixin, BaseActionView):
             self.remove_selected_items()
 
     def remove_selected_items(self):
+        """Deletes the selected items, if allowed.
+        """
         if not self.selected_items:
             message = ('Nothing to do. No items have been selected.')
             messages.warning(self.request, message)
@@ -44,7 +46,7 @@ class ManifestView(BoxViewMixin, BaseActionView):
                 messages.error(self.request, message)
 
     def add_item(self, **kwargs):
-        """Adds the item to the next available position in the manifest.
+        """Adds the item to the manifest.
         """
         try:
             manifest_item = self.manifest_item.objects.get(

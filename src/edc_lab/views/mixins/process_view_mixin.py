@@ -4,6 +4,10 @@ from ...lab import Specimen
 class ProcessViewMixin:
 
     def process(self):
+        """Creates aliquots according to the lab_profile.
+
+        Actions handled by the Specimen object.
+        """
         created = []
         for requisition in self.requisition_model.objects.filter(
                 pk__in=self.requisitions, received=True, processed=False):

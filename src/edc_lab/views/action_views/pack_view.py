@@ -23,6 +23,8 @@ class PackView(BoxViewMixin, BaseActionView):
             self.remove_selected_items()
 
     def remove_selected_items(self):
+        """Deletes the selected items, if allowed.
+        """
         if not self.selected_items:
             message = ('Nothing to do. No items have been selected.')
             messages.warning(self.request, message)

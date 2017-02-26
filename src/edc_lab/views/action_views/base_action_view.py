@@ -37,6 +37,8 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
 
     @property
     def selected_items(self):
+        """Returns a list of selected listboard items.
+        """
         if not self._selected_items:
             self._selected_items = self.request.POST.getlist(
                 self.form_action_selected_items_name) or []
@@ -44,10 +46,14 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
 
     @property
     def url_kwargs(self):
+        """Returns the default dictionary to reverse the listboard url.
+        """
         return {}
 
     @property
     def post_url(self):
+        """Returns a URL.
+        """
         return reverse(self.post_url_name, kwargs=self.url_kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -64,6 +70,8 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
         return HttpResponseRedirect(self.post_url)
 
     def process_form_action(self):
+        """Override to conditionally handle the action POST attr.
+        """
         pass
 
     def get_context_data(self, **kwargs):

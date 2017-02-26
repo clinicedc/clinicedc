@@ -38,6 +38,8 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
             self.remove_selected_items()
 
     def remove_selected_items(self):
+        """Deletes the selected items.
+        """
         if not self.selected_items:
             message = ('Nothing to do. No items have been selected.')
             messages.warning(self.request, message)
@@ -48,6 +50,8 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
             messages.success(self.request, message)
 
     def renumber_items(self):
+        """Resets positions to be a sequence incremented by 1.
+        """
         box_items = self.box.boxitem_set.all().order_by('position')
         if box_items.count() == 0:
             message = ('Nothing to do. There are no items in the box.')
