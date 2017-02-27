@@ -2,20 +2,6 @@
 
 
 {% block panel_action_buttons %}
-<div class="btn-group">
-    <a role="button" class="btn btn-sm btn-default" href="{{ form_action_url }}?f=all">
-        {% if not f or f == 'all'%}<i class="fa fa-filter fa-fw"></i>&nbsp;{% endif %}All
-    </a>
-    <a role="button" class="btn btn-sm btn-default" href="{{ form_action_url }}?f=is_primary">
-        {% if f == 'is_primary' %}<i class="fa fa-filter fa-fw"></i>&nbsp;{% endif %}Primary
-    </a>
-    <a role="button" class="btn btn-sm btn-default" href="{{ form_action_url }}?f=packed">
-        {% if f == 'packed' %}<i class="fa fa-filter fa-fw"></i>&nbsp;{% endif %}Packed
-    </a>
-    <a role="button" class="btn btn-sm btn-default" href="{{ form_action_url }}?f=not_packed">
-        {% if f == 'not_packed' %}<i class="fa fa-filter fa-fw"></i>&nbsp;{% endif %}Not packed
-    </a>
-</div>
 {% endblock panel_action_buttons %}
 
 {% block results_header %}

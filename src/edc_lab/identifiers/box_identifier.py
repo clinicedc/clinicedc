@@ -1,9 +1,8 @@
-from edc_identifier.alphanumeric_identifier import AlphanumericIdentifier
+from .base_identifier import Identifier
 
 
-class BoxIdentifier(AlphanumericIdentifier):
+class BoxIdentifier(Identifier):
 
-    name = 'boxidentifier'
-    alpha_pattern = r'^[A-Z]{3}$'
-    numeric_pattern = r'^[0-9]{5}$'
-    seed = ['AAA', '00000']
+    random_string_length = 9
+    identifier_attr = 'box_identifier'
+    template = 'B{device_id}{random_string}'

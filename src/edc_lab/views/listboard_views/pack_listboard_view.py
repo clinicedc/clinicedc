@@ -1,8 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
+from edc_constants.constants import OPEN
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
+from ...constants import SHIPPED
+from ...models import Manifest
 from .base_listboard import BaseListboardView, app_config, app_name
 
 
@@ -18,18 +21,25 @@ class PackListboardView(BaseListboardView):
     listboard_url_name = app_config.pack_listboard_url_name
     listboard_template_name = app_config.pack_listboard_template_name
     model_name = app_config.box_model
+    manifest_model_name = app_config.manifest_model
     model_wrapper_class = BoxModelWrapper
     navbar_item_selected = 'pack'
-    shipped = None
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
+    @property
+    def open_manifests(self):
+        return Manifest.objects.filter(status=OPEN).order_by('-manifest_datetime')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
             new_box=BoxModelWrapper.new(),
-            shipped=self.shipped,
+            open_manifests=self.open_manifests,
         )
         return context
+
+    def get_queryset_exclude_options(self, request, *args, **kwargs):
+        return {'status': SHIPPED}

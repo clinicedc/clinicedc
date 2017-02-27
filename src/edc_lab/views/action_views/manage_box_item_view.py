@@ -63,6 +63,7 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
                 boxitem.verified = False
                 boxitem.verified_datetime = None
                 boxitem.save()
+            self.box.save()
             message = ('Box {} has been renumber. Be sure to verify '
                        'the position of each specimen.'.format(
                            self.box_identifier))

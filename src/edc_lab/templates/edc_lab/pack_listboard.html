@@ -4,22 +4,7 @@
              
 	<a href="{{ new_box.href }}" role="button" class="btn btn-sm btn-default" />New box</a>
 
-    <div class="form-group form-inline">
-    <div class="btn-group">
-      <a title="Add selected boxes to an open manifest" href="#" role="button" class="btn btn-sm btn-default" />Add selected to manifest</a>
-      <button title="Open manifests" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-        <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu" role="menu">
-        {% if open_manifests %}
-            {% for manifest in open_manifests %}
-              <li><a href="{{ manifest.href }}"><i class="fa fa-plus fa-sm"></i> &nbsp;{{ manifest }}</a></li>
-            {% endfor %}
-		{% else %}
-		    <li><a href="{% url manifest_listboard_url_name %}">No open manifests</a></li>
-		{% endif %}
-      </ul>
-    </div>
+    <div class="form-group form-group-sm form-inline">
         <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="remove_selected_items" form="{{ form_action_name }}">
              <span class="text text-danger"><i class="fa fa-window-close fa-sm"></i></span> &nbsp;Remove selected boxes
         </button>
@@ -30,6 +15,26 @@
 {% block panel_action_hidden %}
     {% csrf_token %}
 {% endblock panel_action_hidden %}                   
+
+{% block results_panel_form %}
+
+    <form action="{{ form_action_url }}" method="post" id="{{ form_action_name }}" name="{{ form_action_name }}">
+    <div class="form-group form-group-sm form-inline">
+       {% if open_manifests %}
+           <select class="form-control" id="selected_manifest" name="selected_manifest" form="{{ form_action_name }}">
+           {% for manifest in open_manifests %}
+             <option value="{{ manifest.pk }}">{{ manifest.get_category_display }} {{ manifest.destination.name|upper }} {{ manifest.human_readable_identifier }}</option>
+           {% endfor %}
+           </select>
+      {% endif %}
+        <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="add_selected_to_manifest" form="{{ form_action_name }}">
+             <i class="fa fa-plus fa-sm"></i> &nbsp;Add selected to manifest
+        </button>
+    </div>
+    {% csrf_token %}
+    </form>
+        
+{% endblock results_panel_form %}
 
 
 {% block results_header %}

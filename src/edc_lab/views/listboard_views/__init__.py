@@ -1,5 +1,6 @@
 from .aliquot_listboard_view import AliquotListboardView
 from .manage_box_listboard_view import ManageBoxListboardView
+from .manage_manifest_listboard_view import ManageManifestListboardView
 from .manifest_listboard_view import ManifestListboardView
 from .pack_listboard_view import PackListboardView
 from .process_listboard_view import ProcessListboardView

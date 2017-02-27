@@ -6,11 +6,10 @@ from edc_base.model.models import BaseUuidModel, HistoricalRecords
 from edc_constants.constants import OTHER, OPEN
 from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
-from ..identifiers import BoxIdentifier
-from ..model_mixins.shipping import VerifyModelMixin
-from .box_type import BoxType
 from ..constants import VERIFIED, SHIPPED, TESTING, STORAGE
-from edc_base.utils import get_utcnow
+from ..identifiers import BoxIdentifier
+from ..model_mixins.shipping import VerifyBoxModelMixin
+from .box_type import BoxType
 
 
 BOX_DIMENSIONS = (
@@ -40,7 +39,7 @@ class BoxManager(SearchSlugManager, models.Manager):
         return self.get(box_identifier=box_identifier)
 
 
-class Box(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
+class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
 
     box_identifier = models.CharField(
         max_length=25,
@@ -93,20 +92,11 @@ class Box(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if not self.box_identifier:
-            identifier = BoxIdentifier()
-            self.box_identifier = identifier.next()
+            identifier = BoxIdentifier(model=self.__class__)
+            self.box_identifier = identifier.identifier
         if not self.name:
             self.name = self.box_identifier
-        if self.boxitem_set.all().exists():
-            self.verified = False if self.boxitem_set.filter(
-                verified=False).exists() else True
-        else:
-            self.status = OPEN
-            self.verified = False
-            self.verified_datetime = None
-        if self.status in [OPEN, VERIFIED] and self.verified:
-            self.status = VERIFIED
-            self.verified_datetime = get_utcnow()
+        self.update_verified()
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -124,9 +114,9 @@ class Box(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
         return self.boxitem_set.all().order_by('position')
 
     @property
-    def human_box_identifier(self):
+    def human_readable_identifier(self):
         x = self.box_identifier
-        return '{}-{}-{}'.format(x[0:3], x[3:7], x[7:9])
+        return '{}-{}-{}'.format(x[0:4], x[4:8], x[8:12])
 
     @property
     def next_position(self):
@@ -147,7 +137,7 @@ class Box(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
     def get_slugs(self):
         slugs = [self.box_identifier,
-                 self.human_box_identifier,
+                 self.human_readable_identifier,
                  self.name]
         return slugs
 

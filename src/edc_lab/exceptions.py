@@ -18,3 +18,7 @@ class RequisitionError(Exception):
 
 class PanelError(Exception):
     pass
+
+
+class BoxItemError(Exception):
+    pass

@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 
 from ..models import BoxItem
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -42,3 +43,15 @@ def show_box_rows(box, listboard_url_name, position=None):
             row['cells'].append(cell)
         rows.append(row)
     return {'headers': header, 'rows': rows}
+
+
+@register.filter(is_safe=True)
+def verified(box_item):
+    if not box_item.verified:
+        verified = False
+    elif box_item.verified == 1:
+        verified = True
+    elif box_item.verified == -1:
+        verified = False
+    return '' if not verified else mark_safe(
+        '<span title="position verified" class="text text-success"><i class="fa fa-check fa-fw"></i></span>')

@@ -10,6 +10,7 @@ class UrlsViewMixin:
     aliquot_listboard_url_name = app_config.aliquot_listboard_url_name
     manage_box_listboard_url_name = app_config.manage_box_listboard_url_name
     manifest_listboard_url_name = app_config.manifest_listboard_url_name
+    manage_manifest_listboard_url_name = app_config.manage_manifest_listboard_url_name
     pack_listboard_url_name = app_config.pack_listboard_url_name
     process_listboard_url_name = app_config.process_listboard_url_name
     receive_listboard_url_name = app_config.receive_listboard_url_name
@@ -22,6 +23,7 @@ class UrlsViewMixin:
             aliquot_listboard_url_name=self.aliquot_listboard_url_name,
             manage_box_listboard_url_name=self.manage_box_listboard_url_name,
             manifest_listboard_url_name=self.manifest_listboard_url_name,
+            manage_manifest_listboard_url_name=self.manage_manifest_listboard_url_name,
             pack_listboard_url_name=self.pack_listboard_url_name,
             process_listboard_url_name=self.process_listboard_url_name,
             receive_listboard_url_name=self.receive_listboard_url_name,

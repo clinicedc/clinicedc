@@ -14,7 +14,6 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': (
-                'manifest_identifier',
                 'manifest_datetime',
                 'destination'
             )}),

@@ -4,6 +4,7 @@ from django.utils.decorators import method_decorator
 from edc_constants.constants import YES
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
+from ..listboard_filters import RequisitionListboardViewFilters
 from .base_listboard import BaseListboardView, app_config
 
 
@@ -22,6 +23,7 @@ class RequisitionListboardView(BaseListboardView):
     listboard_url_name = app_config.requisition_listboard_url_name
     listboard_template_name = app_config.requisition_listboard_template_name
     show_all = True
+    listboard_view_filters = RequisitionListboardViewFilters()
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

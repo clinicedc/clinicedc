@@ -2,24 +2,19 @@
 <!-- begin columns -->
 
     <td>
-      <input id="requisition_{{wrapped.wrapped_object.id}}" name="requisitions" type="checkbox" value="{{wrapped.wrapped_object.id}}">
+      <input id="selected_item_{{wrapped.wrapped_object.id}}" form="{{ form_action_name }}" name="{{ form_action_selected_items_name }}" type="checkbox" value="{{wrapped.wrapped_object.id}}" />
     </td>
-    <td>            
-        {{ wrapped.manifest_identifier }}&nbsp;
+    <td>
         <div class="btn-group">
-          <a title="Edit Manifest" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fa fa-pencil fa-fw"></i></a>
-  	      <a title="List aliquots in manifest" role="button" href="{% url aliquot_listboard_url_name %}?q={{wrapped.manifest_identifier}}" class="btn btn-default btn-sm">{{ wrapped.item_count }} Aliquots</a>
-          <button title="History" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-              <span class="caret"></span></button>
-              <ul class="dropdown-menu" role="menu">
-                <li class="dropdown-header">Aliquots</li>
-                <li><a href="{% url aliquot_listboard_url_name %}?q={{ wrapped.manifest_identifier }}">All</a></li>
-               {% for obj in wrapped.aliquots %}
-                   <li><a href="{% url aliquot_listboard_url_name %}?q={{ obj.aliquot_identifier }}">
-                   {{ obj.aliquot_identifier }}</a></li>
-               {% endfor %}
-              </ul>
-       </div>
+           <a title="Edit manifest" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fa fa-pencil fa-fw"></i></a>
+           <a role="button" href="{% url manage_manifest_listboard_url_name manifest_identifier=wrapped.manifest_identifier action_name='manage' %}" class="btn btn-default btn-sm">Manage</a>
+           <a role="button" href="{% url manifest_listboard_url_name %}" class="btn btn-default btn-sm {% if not wrapped.verified %}disabled{% endif %}">Ship</a>
+        </div>&nbsp;
+    </td>
+    <td>
+      <span class="text text-identifier">
+      {{ wrapped.wrapped_object.human_readable_identifier }}
+      </span>
     </td>
     <td>
       {{ wrapped.manifest_datetime|date:"Y-m-d H:i" }}

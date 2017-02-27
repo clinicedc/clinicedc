@@ -1,2 +1,3 @@
 from .box_identifier import BoxIdentifier
+from .manifest_identifier import ManifestIdentifier
 from .requisition_identifier import RequisitionIdentifier

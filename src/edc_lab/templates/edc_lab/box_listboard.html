@@ -7,8 +7,9 @@
 {% endblock panel_back %}
 
 {% block panel_description %}                    
-    <span class="text"> 
-     <span class="label label-success">Box {{ box.name }}</span> 
+    <span class="text">
+    <span class="label label-success">Box</span>&nbsp;
+     <span class="text text-identifier"><strong>{{ box.human_readable_identifier }}</strong></span>&nbsp; 
      <span class="label label-success">{{ box.get_category_display }}</span> 
      <span class="label label-success">{{ box.specimen_types }}</span> 
      {% if box.accept_primary %}

@@ -3,6 +3,7 @@ from django.urls.base import reverse
 
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import AppConfigViewMixin
+from edc_dashboard.view_mixins import ListboardFilterViewMixin
 from edc_dashboard.views import ListboardView
 
 from ..mixins import UrlsViewMixin, ModelsViewMixin
@@ -11,7 +12,8 @@ app_name = 'edc_lab'
 app_config = django_apps.get_app_config(app_name)
 
 
-class BaseListboardView(UrlsViewMixin, ModelsViewMixin, AppConfigViewMixin,
+class BaseListboardView(UrlsViewMixin, ListboardFilterViewMixin,
+                        ModelsViewMixin, AppConfigViewMixin,
                         EdcBaseViewMixin, ListboardView):
 
     app_config_name = app_name

@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
-from .base_listboard import BaseListboardView, app_config
+from .base_listboard import BaseListboardView, app_config, app_name
 
 
 class ManifestModelWrapper(ModelWrapper):
@@ -15,6 +15,7 @@ class ManifestListboardView(BaseListboardView):
 
     navbar_item_selected = 'manifest'
 
+    form_action_url_name = '{}:manifest_url'.format(app_name)
     listboard_url_name = app_config.manifest_listboard_url_name
     listboard_template_name = app_config.manifest_listboard_template_name
     model_name = app_config.manifest_model

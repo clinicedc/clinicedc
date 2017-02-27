@@ -1,3 +1,4 @@
+{% load edc_lab_extras %}
 
 <!-- begin columns -->
 
@@ -8,12 +9,13 @@
         <div class="btn-group">
            <a title="Edit box" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fa fa-pencil fa-fw"></i></a>
            <a role="button" href="{% url manage_box_listboard_url_name box_identifier=wrapped.box_identifier action_name='manage' %}" class="btn btn-default btn-sm">Manage</a>
-           <a role="button" href="{% url verify_box_listboard_url_name box_identifier=wrapped.box_identifier action_name='verify' position=1 %}" class="btn btn-default btn-sm">Verify</a>
+           <a role="button" href="{% url verify_box_listboard_url_name box_identifier=wrapped.box_identifier action_name='verify' position=1 %}" class="btn {% if wrapped.verified %}btn-success{% else %}btn-default{% endif %} btn-sm {% if wrapped.wrapped_object.count == 0 %}disabled{% endif %}">Verify</a>
+           <a role="button" href="{% url manifest_listboard_url_name %}" class="btn btn-default btn-sm {% if not wrapped.verified %}disabled{% endif %}">Ship</a>
         </div>&nbsp;
     </td>
     <td>
       <span class="text text-identifier">
-      {{ wrapped.name }}
+      {{ wrapped.wrapped_object.human_readable_identifier }}
       </span>
     </td>
     <td>            

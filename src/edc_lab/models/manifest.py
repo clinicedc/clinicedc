@@ -31,7 +31,7 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
             self.user_created)
 
     def get_slugs(self):
-        slugs = [self.manifest_identifier]
+        slugs = [self.manifest_identifier, self.human_readable_identifier]
         return slugs
 
     class Meta(ManifestModelMixin.Meta):

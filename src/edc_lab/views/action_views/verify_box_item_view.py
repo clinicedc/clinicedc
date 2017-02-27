@@ -65,6 +65,7 @@ class VerifyBoxItemView(BoxViewMixin, BaseActionView):
                 box_item_in_position.verified = 0
                 box_item_in_position.verified_datetime = None
             box_item_in_position.save()
+            self.box.save()
 
     def unverify_box(self):
         self.box.unverify_box()
