@@ -8,6 +8,9 @@ from django.utils.safestring import mark_safe
 from ...exceptions import BoxItemError
 from ..mixins import ManifestViewMixin
 from .base_action_view import BaseActionView, app_config
+from edc_lab.models.manifest_item import ManifestItem
+from edc_lab.models.box import Box
+from edc_lab.constants import VERIFIED
 
 
 class ManageManifestView(ManifestViewMixin, BaseActionView):
@@ -25,6 +28,13 @@ class ManageManifestView(ManifestViewMixin, BaseActionView):
         return {
             'action_name': self.kwargs.get('action_name'),
             'manifest_identifier': self.manifest_identifier}
+
+    @property
+    def box(self):
+        try:
+            return Box.objects.get(box_identifier=self.manifest_item_identifier)
+        except Box.DoesNotExist:
+            return None
 
     def process_form_action(self):
         if self.action == 'add_item':
@@ -55,31 +65,40 @@ class ManageManifestView(ManifestViewMixin, BaseActionView):
     def add_item(self, **kwargs):
         """Adds the item to the manifest.
         """
-        try:
-            manifest_item = self.manifest_item_model.objects.get(
-                manifest__manifest_identifier=self.manifest_identifier,
-                identifier=self.manifest_item_identifier)
-        except self.manifest_item_model.DoesNotExist:
+        if self.box and self.box.status != VERIFIED:
+            message = 'Box is not verified. Got {}.'.format(
+                self.box.box_identifier)
+            messages.error(self.request, message)
+        elif not self.box:
+            message = 'Box does not exist. Got {}.'.format(
+                self.manifest_item_identifier)
+            messages.error(self.request, message)
+        else:
             try:
                 manifest_item = self.manifest_item_model.objects.get(
+                    manifest__manifest_identifier=self.manifest_identifier,
                     identifier=self.manifest_item_identifier)
             except self.manifest_item_model.DoesNotExist:
-                manifest_item = self.manifest_item_model(
-                    manifest=self.manifest,
-                    identifier=self.manifest_item_identifier)
-                manifest_item.save()
+                try:
+                    manifest_item = self.manifest_item_model.objects.get(
+                        identifier=self.manifest_item_identifier)
+                except self.manifest_item_model.DoesNotExist:
+                    manifest_item = self.manifest_item_model(
+                        manifest=self.manifest,
+                        identifier=self.manifest_item_identifier)
+                    manifest_item.save()
+                else:
+                    message = mark_safe(
+                        'Item is already in a manifest. See <a href="{href}" class="alert-link">'
+                        '{manifest_identifier}</a>'.format(
+                            href=reverse(
+                                self.listboard_url_name,
+                                kwargs={
+                                    'manifest_identifier':
+                                    manifest_item.manifest.manifest_identifier}),
+                            manifest_identifier=manifest_item.manifest.manifest_identifier))
+                    messages.error(self.request, message)
             else:
-                message = mark_safe(
-                    'Item is already in a manifest. See <a href="{href}" class="alert-link">'
-                    '{manifest_identifier}</a>'.format(
-                        href=reverse(
-                            self.listboard_url_name,
-                            kwargs={
-                                'manifest_identifier':
-                                manifest_item.manifest.manifest_identifier}),
-                        manifest_identifier=manifest_item.manifest.manifest_identifier))
+                message = 'Duplicate item. Got {}.'.format(
+                    manifest_item.manifest.manifest_identifier)
                 messages.error(self.request, message)
-        else:
-            message = 'Duplicate item. Got {}.'.format(
-                manifest_item.manifest.manifest_identifier)
-            messages.error(self.request, message)

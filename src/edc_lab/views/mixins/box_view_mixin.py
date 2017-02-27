@@ -14,7 +14,8 @@ class BoxViewMixin(ContainerViewMixin):
     container_name = 'box'
     container_item_name = 'box_item'
     container_identifier_name = 'box_identifier'
-    container_item_identifier_name = 'identifier'
+    item_model_identifier_name = 'identifier'
+    item_request_identifier_name = 'box_item_identifier'
     container_model = django_apps.get_model(
         *django_apps.get_app_config('edc_lab').box_model.split('.'))
     container_item_model = django_apps.get_model(

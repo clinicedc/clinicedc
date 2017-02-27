@@ -34,8 +34,13 @@ class ManifestItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
     def natural_key(self):
         return (self.identifier, ) + self.manifest.natural_key()
 
+    @property
+    def human_readable_identifier(self):
+        x = self.identifier
+        return '{}-{}-{}'.format(x[0:4], x[4:8], x[8:12])
+
     def get_slugs(self):
-        slugs = [self.identifier]
+        slugs = [self.identifier, self.human_readable_identifier]
         return slugs
 
     class Meta:

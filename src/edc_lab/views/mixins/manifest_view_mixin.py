@@ -11,7 +11,8 @@ class ManifestViewMixin(ContainerViewMixin):
     container_name = 'manifest'
     container_item_name = 'manifest_item'
     container_identifier_name = 'manifest_identifier'
-    container_item_identifier_name = 'manifest_item_identifier'
+    item_model_identifier_name = 'identifier'
+    item_request_identifier_name = 'manifest_item_identifier'
     container_model = django_apps.get_model(
         *django_apps.get_app_config('edc_lab').manifest_model.split('.'))
     container_item_model = django_apps.get_model(

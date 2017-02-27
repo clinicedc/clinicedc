@@ -7,7 +7,8 @@ class ContainerViewMixin:
     container_name = None
     container_item_name = None
     container_identifier_name = None
-    container_item_identifier_name = None
+    item_model_identifier_name = None
+    item_request_identifier_name = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -17,12 +18,14 @@ class ContainerViewMixin:
         self._container_item_identifier = None
         self.original_container_item_identifier = None
         self.original_container_identifier = None
+        if not self.item_request_identifier_name:
+            self.item_request_identifier_name = self.item_model_identifier_name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
             self.container_identifier_name: self.original_container_identifier,
-            self.container_item_identifier_name: self.original_container_item_identifier,
+            self.item_request_identifier_name: self.original_container_item_identifier,
             self.container_name: self.container
         })
         return context
@@ -42,7 +45,7 @@ class ContainerViewMixin:
         """
         if not self._container_item_identifier:
             self.original_container_item_identifier = escape(
-                self.request.POST.get(self.container_item_identifier_name, '')).strip()
+                self.request.POST.get(self.item_request_identifier_name, '')).strip()
             if self.original_container_item_identifier:
                 self._container_item_identifier = self._clean_container_item_identifier()
         return self._container_item_identifier
@@ -67,7 +70,7 @@ class ContainerViewMixin:
                 try:
                     self._container_item = self.container_item_model.objects.get(
                         **{self.container_name: self.container,
-                           self.container_item_identifier_name: self.container_item_identifier})
+                           self.item_model_identifier_name: self.container_item_identifier})
                 except self.container_item_model.DoesNotExist:
                     message = 'Invalid identifier for container. Got {}'.format(
                         self.original_container_item_identifier)
