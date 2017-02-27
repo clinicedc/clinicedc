@@ -1,6 +1,5 @@
 
 <!--start searchform-->
-
 <span class="pull-right">
 	<form  action="{% if search_form_url %}{{ search_form_url }}{% else %}{% url listboard_url_name %}{% endif %}" class="form-inline" id="form-search" method="get" >
         <div class="form-group" >
@@ -11,6 +10,21 @@
                         <button  type="submit" class="btn btn btn-default btn-sm">
                             <i class="fa fa-search fa-sm"></i>
                         </button>
+                        {% if listboard_view_filters %}
+	                        <button  type="button" class="btn btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+	                            <i class="fa fa-filter fa-sm"></i>&nbsp;<span class="caret"></span>
+	                        </button>
+	                            <ul class="dropdown-menu pull-right" role="menu">
+	                              {% for listboard_filter in listboard_view_filters %}
+	                                <li>
+	                                   <a href="{{ form_action_url }}?{{ listboard_filter.querystring }}">
+	                                       {{ listboard_filter.label }}{% if f == listboard_filter.name %}&nbsp;<i class="fa fa-check fa-fw"></i>{% endif %}
+	                                   </a>
+	                                </li>
+	                              {% endfor %}
+	                            </ul>
+	                    {% endif %}
+
                     </span>
                 </div>
             </div>
