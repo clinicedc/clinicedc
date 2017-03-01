@@ -5,9 +5,6 @@
       <input id="selected_item_{{wrapped.wrapped_object.id}}" form="{{ form_action_name }}" name="{{ form_action_selected_items_name }}" type="checkbox" value="{{wrapped.wrapped_object.id}}" />
     </td>
     <td>
-      <span class="text text-identifier">
-        {{ wrapped.human_aliquot_identifier }}
-      </span>
         <div class="btn-group">
            <a title="Edit {% if wrapped.is_primary %}primary {% endif %}aliquot" role="button" href="{{ wrapped.href }}" class="btn {% if wrapped.is_primary %}btn-info{% else %}btn-default{% endif %} btn-sm"><i class="fa fa-pencil fa-fw"></i></a>
           {% if wrapped.box_item %}
@@ -19,6 +16,9 @@
              <a title="{{ wrapped.manifest.manifest_identifier }}" href="{% url manage_box_listboard_url_name manifest_identifier=wrapped.manifest.manifest_identifier %}" role="button" class="btn btn-default btn-sm"><i class="fa fa-ship fa-fw"></i></a>
           {% endif %}
         </div>&nbsp;
+      <span class="text text-identifier">
+        {{ wrapped.wrapped_object.human_readable_identifier }}
+      </span>
     </td>
     <td>
       <span class="text text-identifier">
@@ -29,7 +29,7 @@
       {{ wrapped.aliquot_datetime|date:"Y-m-d H:i" }}
     </td>
     <td>
-      {{ wrapped.aliquot_type }}
+      {{ wrapped.aliquot_type }} {{ wrapped.numeric_code }} {{ wrapped.alpha_code }}
     </td>
     <td>
       {% if wrapped.box_item %}

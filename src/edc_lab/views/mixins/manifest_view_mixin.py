@@ -1,63 +1,113 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
-
-from ...exceptions import BoxItemError
-
-from .container_view_mixin import ContainerViewMixin
+from django.utils.html import escape
 
 
-class ManifestViewMixin(ContainerViewMixin):
+app_name = 'edc_lab'
+app_config = django_apps.get_app_config(app_name)
 
-    container_name = 'manifest'
-    container_item_name = 'manifest_item'
-    container_identifier_name = 'manifest_identifier'
-    item_model_identifier_name = 'identifier'
-    item_request_identifier_name = 'manifest_item_identifier'
-    container_model = django_apps.get_model(
-        *django_apps.get_app_config('edc_lab').manifest_model.split('.'))
-    container_item_model = django_apps.get_model(
-        *django_apps.get_app_config('edc_lab').manifest_item_model.split('.'))
 
-    @property
-    def manifest_model(self):
-        return self.container_model
+class ManifestItemError(Exception):
+    pass
 
-    @property
-    def manifest_item_model(self):
-        return self.container_item_model
 
-    @property
-    def manifest(self):
-        return self.container
+class ManifestViewMixin:
+
+    manifest_model = django_apps.get_model(
+        *app_config.manifest_model.split('.'))
+    manifest_item_model = django_apps.get_model(
+        *app_config.manifest_item_model.split('.'))
+    box_model = django_apps.get_model(*app_config.box_model.split('.'))
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._manifest = None
+        self._manifest_item = None
+        self._manifest_identifier = None
+        self._manifest_item_identifier = None
+        self.original_manifest_item_identifier = None
+        self.original_manifest_identifier = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'manifest_identifier': self.original_manifest_identifier,
+            'manifest_item_identifier': self.original_manifest_item_identifier,
+            'manifest': self.manifest
+        })
+        return context
 
     @property
     def manifest_identifier(self):
-        return self.container_identifier
-
-    @property
-    def manifest_item(self):
-        return self.container_item
+        if not self._manifest_identifier:
+            self.original_manifest_identifier = escape(
+                self.kwargs.get('manifest_identifier')).strip()
+            self._manifest_identifier = ''.join(
+                self.original_manifest_identifier.split('-'))
+        return self._manifest_identifier
 
     @property
     def manifest_item_identifier(self):
-        return self.container_item_identifier
+        """Returns a cleaned manifest_item_identifier or None.
+        """
+        if not self._manifest_item_identifier:
+            self.original_manifest_item_identifier = escape(
+                self.request.POST.get('manifest_item_identifier', '')).strip()
+            if self.original_manifest_item_identifier:
+                self._manifest_item_identifier = self._clean_manifest_item_identifier()
+        return self._manifest_item_identifier
 
-    def get_manifest_item(self):
-        return self.get_container_item()
+    @property
+    def manifest(self):
+        if not self._manifest:
+            if self.manifest_identifier:
+                try:
+                    self._manifest = self.manifest_model.objects.get(
+                        manifest_identifier=self.manifest_identifier)
+                except self.manifest_model.DoesNotExist:
+                    self._manifest = None
+        return self._manifest
 
-    def _clean_container_item_identifier(self):
+    @property
+    def manifest_item(self):
+        """Returns a manifest item model instance.
+        """
+        if not self._manifest_item:
+            if self.manifest_item_identifier:
+                try:
+                    self._manifest_item = self.manifest_item_model.objects.get(
+                        manifest=self.manifest,
+                        identifier=self.manifest_item_identifier)
+                except self.manifest_item_model.DoesNotExist:
+                    message = 'Invalid manifest item. Got {}'.format(
+                        self.original_manifest_item_identifier)
+                    messages.error(self.request, message)
+        return self._manifest_item
+
+    def get_manifest_item(self, position):
+        """Returns a manifest item model instance for the given position.
+        """
+        try:
+            manifest_item = self.manifest_item_model.objects.get(
+                manifest=self.manifest, position=position)
+        except self.manifest_item_model.DoesNotExist:
+            message = 'Invalid position for manifest. Got {}'.format(
+                position)
+            messages.error(self.request, message)
+            return None
+        return manifest_item
+
+    def _clean_manifest_item_identifier(self):
         """Returns a valid identifier or raises.
         """
-        box_model = django_apps.get_model(
-            *django_apps.get_app_config('edc_lab').box_model.split('.'))
-        container_item_identifier = ''.join(
-            self.original_container_item_identifier.split('-'))
+        manifest_item_identifier = ''.join(
+            self.original_manifest_item_identifier.split('-'))
         try:
-            box_model.objects.get(
-                box_identifier=container_item_identifier)
-        except box_model.DoesNotExist:
-            message = 'Invalid box identifier. Got {}.'.format(
-                self.original_container_item_identifier or 'None')
+            self.box_model.objects.get(
+                box_identifier=manifest_item_identifier)
+        except self.box_model.DoesNotExist:
+            message = 'Invalid box. Got {}.'.format(
+                self.original_manifest_item_identifier or 'None')
             messages.error(self.request, message)
-            raise BoxItemError(message)
-        return container_item_identifier
+            raise ManifestItemError(message)
+        return manifest_item_identifier

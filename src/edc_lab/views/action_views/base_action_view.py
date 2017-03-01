@@ -1,6 +1,7 @@
 import urllib
 
 from django.apps import apps as django_apps
+from django.contrib import messages
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.text import slugify
@@ -8,6 +9,7 @@ from django.views.generic.base import TemplateView
 
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import AppConfigViewMixin
+from edc_label.exceptions import PrintLabelError
 
 from ..mixins.models_view_mixin import ModelsViewMixin
 
@@ -28,7 +30,9 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
 
     valid_form_actions = []
     redirect_querystring = {}
+    # form_action_name = 'form_action'
     form_action_selected_items_name = 'selected_items'
+    label_class = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -46,7 +50,7 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
 
     @property
     def url_kwargs(self):
-        """Returns the default dictionary to reverse the listboard url.
+        """Returns the default dictionary to reverse the post url.
         """
         return {}
 
@@ -74,7 +78,21 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
         """
         pass
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({'form_action_name': self.form_action_name})
-        return context
+    def print_labels(self, pks=None):
+        """Print labels for each selected item.
+
+        if use_total, print 1/3, 2/3, 3/3 otherwise just 1, 2, 3
+
+        See also: edc_lab AppConfig
+        """
+        for pk in pks:
+            label = self.label_class(pk=pk, children_count=len(pks))
+            try:
+                printed = label.print_label()
+            except PrintLabelError as e:
+                messages.error(self.request, str(e))
+            else:
+                messages.success(
+                    self.request,
+                    'Printed {print_count}/{copies} {name} to '
+                    '{printer}. JobID {jobid}'.format(**printed))

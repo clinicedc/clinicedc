@@ -12,6 +12,7 @@ from .base_action_view import BaseActionView, app_config
 class ManageBoxItemView(BoxViewMixin, BaseActionView):
 
     post_url_name = app_config.manage_box_listboard_url_name
+    listboard_url_name = app_config.manage_box_listboard_url_name
     valid_form_actions = [
         'add_item', 'renumber_items', 'remove_selected_items']
 
@@ -86,6 +87,8 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
                     identifier=self.box_item_identifier,
                     position=self.box.next_position)
                 box_item.save()
+                if self.box.verified:
+                    self.box.save()
             else:
                 message = mark_safe(
                     'Item is already packed. See box <a href="{href}" class="alert-link">'
@@ -95,7 +98,7 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
                             kwargs={
                                 'box_identifier': box_item.box.box_identifier,
                                 'action_name': 'manage'}),
-                        box_identifier=box_item.box.box_identifier))
+                        box_identifier=box_item.box.human_readable_identifier))
                 messages.error(self.request, message)
         else:
             message = 'Duplicate item. {} is already in position {}.'.format(

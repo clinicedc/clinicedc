@@ -1,80 +1,122 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
+from django.utils.html import escape
 
 from ...exceptions import SpecimenError
-from .container_view_mixin import ContainerViewMixin
 
 
-class IdentifierDoesNotExist(Exception):
-    pass
+class BoxViewMixin:
 
-
-class BoxViewMixin(ContainerViewMixin):
-
-    container_name = 'box'
-    container_item_name = 'box_item'
-    container_identifier_name = 'box_identifier'
-    item_model_identifier_name = 'identifier'
-    item_request_identifier_name = 'box_item_identifier'
-    container_model = django_apps.get_model(
+    box_model = django_apps.get_model(
         *django_apps.get_app_config('edc_lab').box_model.split('.'))
-    container_item_model = django_apps.get_model(
+    box_item_model = django_apps.get_model(
         *django_apps.get_app_config('edc_lab').box_item_model.split('.'))
+    aliqout_model = django_apps.get_model(
+        *django_apps.get_app_config('edc_lab').aliquot_model.split('.'))
 
-    @property
-    def box_model(self):
-        return self.container_model
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._box = None
+        self._box_item = None
+        self._box_identifier = None
+        self._box_item_identifier = None
+        self.original_box_item_identifier = None
+        self.original_box_identifier = None
 
-    @property
-    def box_item_model(self):
-        return self.container_item_model
-
-    @property
-    def box(self):
-        return self.container
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'box_identifier': self.original_box_identifier,
+            'box_item_identifier': self.original_box_item_identifier,
+            'box': self.box
+        })
+        return context
 
     @property
     def box_identifier(self):
-        return self.container_identifier
-
-    @property
-    def box_item(self):
-        return self.container_item
+        if not self._box_identifier:
+            self.original_box_identifier = escape(
+                self.kwargs.get('box_identifier')).strip()
+            self._box_identifier = ''.join(
+                self.original_box_identifier.split('-'))
+        return self._box_identifier
 
     @property
     def box_item_identifier(self):
-        return self.container_item_identifier
+        """Returns a cleaned box_item_identifier or None.
+        """
+        if not self._box_item_identifier:
+            self.original_box_item_identifier = escape(
+                self.request.POST.get('box_item_identifier', '')).strip()
+            if self.original_box_item_identifier:
+                self._box_item_identifier = self._clean_box_item_identifier()
+        return self._box_item_identifier
+
+    @property
+    def box(self):
+        if not self._box:
+            if self.box_identifier:
+                try:
+                    self._box = self.box_model.objects.get(
+                        box_identifier=self.box_identifier)
+                except self.box_model.DoesNotExist:
+                    self._box = None
+        return self._box
+
+    @property
+    def box_item(self):
+        """Returns a box item model instance.
+        """
+        if not self._box_item:
+            if self.box_item_identifier:
+                try:
+                    self._box_item = self.box_item_model.objects.get(
+                        box=self.box,
+                        identifier=self.box_item_identifier)
+                except self.box_item_model.DoesNotExist:
+                    message = 'Invalid box item. Got {}'.format(
+                        self.original_box_item_identifier)
+                    messages.error(self.request, message)
+        return self._box_item
 
     def get_box_item(self, position):
-        return self.get_container_item(position)
+        """Returns a box item model instance for the given position.
+        """
+        try:
+            box_item = self.box_item_model.objects.get(
+                box=self.box, position=position)
+        except self.box_item_model.DoesNotExist:
+            message = 'Invalid position for box. Got {}'.format(
+                position)
+            messages.error(self.request, message)
+            return None
+        return box_item
 
-    def _clean_container_item_identifier(self):
+    def _clean_box_item_identifier(self):
         """Returns a valid identifier or raises.
         """
-        aliqout_model = django_apps.get_model(
-            *django_apps.get_app_config('edc_lab').aliquot_model.split('.'))
-        container_item_identifier = ''.join(
-            self.original_container_item_identifier.split('-'))
+        box_item_identifier = ''.join(
+            self.original_box_item_identifier.split('-'))
         try:
-            obj = aliqout_model.objects.get(
-                aliquot_identifier=container_item_identifier)
-        except aliqout_model.DoesNotExist:
+            obj = self.aliqout_model.objects.get(
+                aliquot_identifier=box_item_identifier)
+        except self.aliqout_model.DoesNotExist:
             message = 'Invalid aliquot identifier. Got {}.'.format(
-                self.original_container_item_identifier or 'None')
+                self.original_box_item_identifier or 'None')
             messages.error(self.request, message)
             raise SpecimenError(message)
-        if obj.is_primary and not self.container.accept_primary:
+        if obj.is_primary and not self.box.accept_primary:
             message = 'Box does not accept "primary" specimens. Got {} is primary.'.format(
-                self.original_container_item_identifier)
+                self.original_box_item_identifier)
             messages.error(self.request, message)
             raise SpecimenError(message)
-        elif obj.aliquot_type not in self.container.specimen_types.split(','):
+        elif obj.numeric_code not in self.box.specimen_types.split(','):
             message = (
                 'Invalid specimen type. Box accepts types {}. '
                 'Got {} is type {}.'.format(
-                    ', '.join(self.container.specimen_types.split(',')),
-                    self.original_container_item_identifier,
-                    obj.aliquot_type))
+                    ', '.join(self.box.specimen_types.split(',')),
+                    self.original_box_item_identifier,
+                    obj.numeric_code))
             messages.error(self.request, message)
             raise SpecimenError(message)
-        return container_item_identifier
+        return box_item_identifier

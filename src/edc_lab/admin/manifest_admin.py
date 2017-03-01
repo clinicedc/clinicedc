@@ -4,6 +4,7 @@ from edc_base.modeladmin_mixins import (
     audit_fieldset_tuple, audit_fields)
 
 from ..admin_site import edc_lab_admin
+from ..forms import ManifestForm
 from ..models import Manifest
 from .base_model_admin import BaseModelAdmin
 
@@ -11,11 +12,16 @@ from .base_model_admin import BaseModelAdmin
 @admin.register(Manifest, site=edc_lab_admin)
 class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
 
+    form = ManifestForm
+
     fieldsets = (
         (None, {
             'fields': (
                 'manifest_datetime',
-                'destination'
+                'destination',
+                'status',
+                'category',
+                'category_other',
             )}),
         audit_fieldset_tuple)
 

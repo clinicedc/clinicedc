@@ -10,27 +10,28 @@
            <a role="button" href="{% url manage_manifest_listboard_url_name manifest_identifier=wrapped.manifest_identifier action_name='manage' %}" class="btn btn-default btn-sm">Manage</a>
            <a role="button" href="{% url manifest_listboard_url_name %}" class="btn btn-default btn-sm {% if not wrapped.verified %}disabled{% endif %}">Ship</a>
         </div>&nbsp;
-    </td>
-    <td>
       <span class="text text-identifier">
       {{ wrapped.wrapped_object.human_readable_identifier }}
       </span>
     </td>
     <td>
-      {{ wrapped.manifest_datetime|date:"Y-m-d H:i" }}
-    </td>
-    <td>
-      {% if wrapped.shipped %}
-        <span class="text text-success"><i class="fa fa-check-circle fa-fw" title="Shipped"></i></span>
+      {% if wrapped.wrapped_object.category == OTHER %}
+      {{ wrapped.wrapped_object.category_other }}
       {% else %}
-        <span class="text text-danger"><i class="fa fa-times-circle fa-fw" title="Not shipped"></i></span>
+        {{ wrapped.wrapped_object.get_category_display }}
       {% endif %}
     </td>
     <td>
-      {{ wrapped.user_created }}
+      {{ wrapped.wrapped_object.count }} boxes
     </td>
     <td>
-      {{ wrapped.user_modified }}
+      {{ wrapped.wrapped_object.get_status_display }}
+    </td>
+    <td>
+      {{ wrapped.manifest_datetime|date:"Y-m-d H:i" }}
+    </td>
+    <td>
+      {{ wrapped.user_created }}
     </td>
     <td>
       {{ wrapped.hostname_created }}

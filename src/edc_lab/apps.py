@@ -3,7 +3,6 @@ import sys
 from django.apps import AppConfig as DjangoAppConfig
 
 from .site_labs import site_labs
-from .lab import Manifest
 
 app_name = 'edc_lab'
 
@@ -21,10 +20,6 @@ class AppConfig(DjangoAppConfig):
     manifest_model = 'edc_lab.manifest'
     manifest_item_model = 'edc_lab.manifestitem'
     box_model = 'edc_lab.box'
-
-    manifest = Manifest(
-        destinations={'bhhrl': 'BHHRL'},
-        default_destination='bhhrl')
 
     aliquot_listboard_template_name = 'edc_lab/aliquot_listboard.html'
     manage_box_listboard_template_name = 'edc_lab/manage_box_listboard.html'

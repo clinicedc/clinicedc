@@ -7,7 +7,7 @@ from .views import (
     ManifestListboardView, ReceiveListboardView, PackListboardView,
     ManageBoxListboardView, VerifyBoxListboardView, ManageBoxItemView,
     VerifyBoxItemView, ProcessListboardView, PackView, ManageManifestView,
-    ManageManifestListboardView, ManifestView)
+    ManageManifestListboardView, ManifestView, AliquotView)
 
 app_name = 'edc_lab'
 
@@ -100,6 +100,7 @@ urlpatterns = [
     url(r'^manifest/$', ManifestView.as_view(), name='manifest_url'),
     url(r'^manifest/(?P<manifest_identifier>[A-Z0-9]+)/(?P<action_name>manage)/$',
         ManageManifestView.as_view(), name='manage_manifest_item_url'),
+    url(r'^aliquot/$', AliquotView.as_view(), name='aliquot_url'),
 
     url(r'^', HomeView.as_view(), name='home_url'),
 ]

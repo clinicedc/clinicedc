@@ -1,4 +1,3 @@
-from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
 
@@ -12,11 +11,6 @@ class AliquotModelMixin (models.Model):
     aliquot_datetime = models.DateTimeField(
         verbose_name="Date and time aliquot created",
         default=timezone.now)
-
-    aliquot_type = models.CharField(
-        verbose_name='Aliquot Type',
-        validators=[RegexValidator('\d+')],
-        max_length=25)
 
     is_primary = models.BooleanField(
         default=False,

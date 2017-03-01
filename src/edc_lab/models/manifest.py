@@ -30,6 +30,10 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
             self.manifest_datetime.strftime('%Y-%m-%d'),
             self.user_created)
 
+    @property
+    def count(self):
+        return self.manifestitem_set.all().count()
+
     def get_slugs(self):
         slugs = [self.manifest_identifier, self.human_readable_identifier]
         return slugs

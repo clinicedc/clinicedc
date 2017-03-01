@@ -12,8 +12,8 @@ class AliquotManager(models.Manager):
 
 class DestinationManager(models.Manager):
 
-    def get_by_natural_key(self, name):
-        return self.get(name=name)
+    def get_by_natural_key(self, short_name):
+        return self.get(short_name=short_name)
 
 
 class ManifestManager(models.Manager):

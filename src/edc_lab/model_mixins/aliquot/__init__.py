@@ -1,3 +1,4 @@
 from .aliquot_identifier_model_mixin import AliquotIdentifierModelMixin
 from .aliquot_label_mixin import AliquotLabelMixin
 from .aliquot_model_mixin import AliquotModelMixin
+from .aliquot_type_model_mixin import AliquotTypeModelMixin

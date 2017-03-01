@@ -34,6 +34,7 @@ class ManifestItemModelWrapper(ModelWrapper):
 class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
 
     action_name = 'manage'
+    navbar_item_selected = 'manifest'
     form_action_url_name = '{}:manage_manifest_item_url'.format(app_name)
     listboard_template_name = app_config.manage_manifest_listboard_template_name
     listboard_url_name = app_config.manage_manifest_listboard_url_name

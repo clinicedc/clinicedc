@@ -4,8 +4,8 @@ from django.utils.decorators import method_decorator
 from edc_constants.constants import OPEN
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
-from ...constants import SHIPPED
 from ...models import Manifest
+from ..listboard_filters import PackListboardViewFilters
 from .base_listboard import BaseListboardView, app_config, app_name
 
 
@@ -24,6 +24,7 @@ class PackListboardView(BaseListboardView):
     manifest_model_name = app_config.manifest_model
     model_wrapper_class = BoxModelWrapper
     navbar_item_selected = 'pack'
+    listboard_view_filters = PackListboardViewFilters()
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -40,6 +41,3 @@ class PackListboardView(BaseListboardView):
             open_manifests=self.open_manifests,
         )
         return context
-
-    def get_queryset_exclude_options(self, request, *args, **kwargs):
-        return {'status': SHIPPED}

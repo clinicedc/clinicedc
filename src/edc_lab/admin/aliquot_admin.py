@@ -32,6 +32,8 @@ class AliquotAdmin(BaseModelAdmin, admin.ModelAdmin):
                 'aliquot_identifier',
                 'aliquot_datetime',
                 'aliquot_type',
+                'numeric_code',
+                'alpha_code',
                 'condition',
             )}),
         aliquot_identifiers_fieldset_tuple,

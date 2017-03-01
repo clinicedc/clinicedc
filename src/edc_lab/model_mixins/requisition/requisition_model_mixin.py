@@ -40,6 +40,11 @@ class RequisitionModelMixin(PanelModelMixin, models.Model):
         null=True,
         blank=True)
 
+    study_site_name = models.CharField(
+        max_length=25,
+        null=True,
+        blank=True)
+
     clinician_initials = InitialsField(
         null=True,
         blank=True)

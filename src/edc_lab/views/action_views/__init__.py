@@ -1,3 +1,4 @@
+from .aliquot_view import AliquotView
 from .manage_box_item_view import ManageBoxItemView
 from .manage_manifest_view import ManageManifestView
 from .manifest_view import ManifestView

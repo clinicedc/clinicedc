@@ -2,15 +2,14 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
 from ...labels import AliquotLabel
-from ..mixins import RequisitionViewMixin, ProcessViewMixin
 from .base_action_view import BaseActionView, app_config
 
 
-class ProcessView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
+class AliquotView(BaseActionView):
 
-    post_url_name = app_config.process_listboard_url_name
-    valid_form_actions = ['process']
-    action_name = 'process'
+    post_url_name = app_config.aliquot_listboard_url_name
+    valid_form_actions = ['print_labels']
+    action_name = 'aliquot'
     label_class = AliquotLabel
 
     @method_decorator(login_required)
@@ -18,5 +17,5 @@ class ProcessView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
         return super().dispatch(*args, **kwargs)
 
     def process_form_action(self):
-        if self.action == 'process':
-            self.process()
+        if self.action == 'print_labels':
+            self.print_labels(pks=self.selected_items)

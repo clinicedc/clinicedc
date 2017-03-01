@@ -2,7 +2,14 @@
 
 
 {% block panel_action_buttons %}
+    <button class="btn btn-sm btn-default" type="submit" id="action" name="action" form="{{ form_action_name }}" value="print_labels">
+        Print labels
+    </button>
 {% endblock panel_action_buttons %}
+
+{% block panel_action_hidden %}                   
+    {% csrf_token %}
+{% endblock panel_action_hidden %}
 
 {% block results_header %}
     {% include 'edc_lab/listboard/aliquot/results_header.html' %}

@@ -21,6 +21,7 @@ class VerifyBoxListboardView(BaseBoxItemListboardView):
     listboard_template_name = app_config.verify_box_listboard_template_name
     listboard_url_name = app_config.verify_box_listboard_url_name
     model_wrapper_class = BoxItemModelWrapper
+    navbar_item_selected = 'pack'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

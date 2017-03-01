@@ -38,7 +38,7 @@ class RequisitionIdentifierMixin(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def human_requisition_identifier(self):
+    def human_readable_identifier(self):
         """Returns a human readable requisition identifier.
         """
         x = self.requisition_identifier

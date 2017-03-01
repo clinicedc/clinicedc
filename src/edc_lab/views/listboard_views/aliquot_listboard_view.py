@@ -5,7 +5,7 @@ from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
 from ...models import BoxItem
 from ..listboard_filters import AliquotListboardViewFilters
-from .base_listboard import BaseListboardView, app_config
+from .base_listboard import BaseListboardView, app_config, app_name
 
 
 class AliquotModelWrapper(ModelWrapper):
@@ -33,12 +33,8 @@ class AliquotListboardView(BaseListboardView):
     listboard_template_name = app_config.aliquot_listboard_template_name
     show_all = True
     listboard_view_filters = AliquotListboardViewFilters()
+    form_action_url_name = '{}:aliquot_url'.format(app_name)
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        app_config.manifest.update_destinations()
-        return context

@@ -60,9 +60,12 @@ class Specimen:
             except self.aliquot_model.DoesNotExist:
                 obj = self.aliquot_model.objects.create(
                     identifier_prefix=self.identifier_prefix,
-                    aliquot_type=self.requisition.panel_object.aliquot_type.numeric_code,
+                    aliquot_type=self.requisition.panel_object.aliquot_type.name,
+                    numeric_code=self.requisition.panel_object.aliquot_type.numeric_code,
+                    alpha_code=self.requisition.panel_object.aliquot_type.alpha_code,
                     aliquot_identifier=self.primary_aliquot_identifier,
                     subject_identifier=self.requisition.subject_identifier,
+                    requisition_identifier=self.requisition.requisition_identifier,
                     count=0,
                     medium_count=self.requisition.item_count,
                     medium=self.requisition.item_type,

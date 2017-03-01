@@ -53,6 +53,12 @@ class BaseListboardView(UrlsViewMixin, ListboardFilterViewMixin,
             self.form_action_url_name or self.listboard_url_name,
             kwargs=self.form_action_url_kwargs)
 
+    @property
+    def listboard_url(self):
+        return reverse(
+            self.listboard_url_name,
+            kwargs=self.url_kwargs)
+
     def get_template_names(self):
         return [self.listboard_template_name]
 
@@ -61,6 +67,7 @@ class BaseListboardView(UrlsViewMixin, ListboardFilterViewMixin,
         context.update(
             action_name=self.action_name,
             search_form_url=self.search_form_url,
+            listboard_url=self.listboard_url,
             form_action_name=self.form_action_name,
             form_action_selected_items_name=self.form_action_selected_items_name,
             form_action_url=self.form_action_url,

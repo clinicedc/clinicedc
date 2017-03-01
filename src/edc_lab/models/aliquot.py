@@ -3,7 +3,7 @@ from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..managers import AliquotManager
 from ..model_mixins.aliquot import (
-    AliquotModelMixin, AliquotIdentifierModelMixin)
+    AliquotModelMixin, AliquotIdentifierModelMixin, AliquotTypeModelMixin)
 
 
 class Manager(AliquotManager, SearchSlugManager):
@@ -12,6 +12,7 @@ class Manager(AliquotManager, SearchSlugManager):
 
 class Aliquot(AliquotModelMixin,
               AliquotIdentifierModelMixin,
+              AliquotTypeModelMixin,
               SearchSlugModelMixin, BaseUuidModel):
 
     objects = Manager()
@@ -22,15 +23,16 @@ class Aliquot(AliquotModelMixin,
         return self.aliquot_identifier
 
     @property
-    def human_aliquot_identifier(self):
+    def human_readable_identifier(self):
         """Returns a human readable aliquot identifier.
         """
         x = self.aliquot_identifier
-        return '{}-{}-{}-{}-{}'.format(x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
+        return '{}-{}-{}-{}-{}'.format(
+            x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
 
     def get_slugs(self):
         slugs = [self.aliquot_identifier,
-                 self.human_aliquot_identifier,
+                 self.human_readable_identifier,
                  self.subject_identifier,
                  self.parent_identifier,
                  self.requisition_identifier]
