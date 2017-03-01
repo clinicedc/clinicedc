@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models.deletion import ProtectedError
 from django.utils.decorators import method_decorator
 
+from ...labels import ManifestLabel
 from ..mixins import ManifestViewMixin
 from .base_action_view import BaseActionView, app_config
 
@@ -11,7 +12,8 @@ class ManifestView(ManifestViewMixin, BaseActionView):
 
     post_url_name = app_config.manifest_listboard_url_name
     valid_form_actions = [
-        'remove_selected_items']
+        'remove_selected_items', 'print_labels']
+    label_class = ManifestLabel
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -20,6 +22,8 @@ class ManifestView(ManifestViewMixin, BaseActionView):
     def process_form_action(self):
         if self.action == 'remove_selected_items':
             self.remove_selected_items()
+        elif self.action == 'print_labels':
+            self.print_labels(pks=self.selected_items)
 
     def remove_selected_items(self):
         """Deletes the selected items, if allowed.

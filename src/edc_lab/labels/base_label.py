@@ -14,6 +14,6 @@ class BaseLabel(Label):
         *app_config.requisition_model.split('.'))
     template_name = 'aliquot'
 
-    def __init__(self, pk=None):
+    def __init__(self, pk=None, **kwargs):
         super().__init__()
         self.object = self.model.objects.get(pk=pk)
