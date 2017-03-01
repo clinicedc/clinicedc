@@ -1,6 +1,10 @@
 import cups
+import sys
 
 from django.apps import apps as django_apps
+from django.core.management.color import color_style
+
+style = color_style()
 
 
 class Printer:
@@ -35,7 +39,10 @@ class PrintServer:
         try:
             self.conn = self.connect()
         except (cups.IPPError, RuntimeError) as e:
-            self.error_message = self.connection_err_msg.format(self.ip_address, str(e))
+            sys.stdout.write(style.ERROR('{}\n'.format(e)))
+            sys.stdout.flush()
+            self.error_message = self.connection_err_msg.format(
+                self.ip_address, str(e))
 
     def __str__(self):
         return self.name
@@ -59,7 +66,8 @@ class PrintServer:
         try:
             return self.conn.getPrinters()
         except (AttributeError, cups.IPPError) as e:
-            self.error_message = self.error_message or self.connection_err_msg.format(self.ip_address, str(e))
+            self.error_message = self.error_message or self.connection_err_msg.format(
+                self.ip_address, str(e))
         return {}
 
     def select_printer(self, label):
@@ -72,9 +80,11 @@ class PrintServer:
             self.selected_printer.data = printer.get(label)
             self.selected_printer.label = label
             self.selected_printer.full_name = '{}@{}'.format(label, str(self))
-            self.selected_printer.verbose_name = self.selected_printer.data.get('printer-info')
+            self.selected_printer.verbose_name = self.selected_printer.data.get(
+                'printer-info')
         except KeyError:
-            self.error_message = self.error_message or self.printer_err_msg.format(label, str(self))
+            self.error_message = self.error_message or self.printer_err_msg.format(
+                label, str(self))
 
     def get_printer(self, label):
         """Return a dictionary for one printer by label from CUPS.getPrinter().
@@ -83,7 +93,8 @@ class PrintServer:
         after update both 'printer-info' and printer_info' are valid."""
         try:
             properties = self.printers[label]
-            properties.update({k.replace('-', '_'): v for k, v in properties.items()})
+            properties.update(
+                {k.replace('-', '_'): v for k, v in properties.items()})
             return {label: properties}
         except TypeError:
             raise KeyError
@@ -96,11 +107,13 @@ class PrintServer:
         try:
             return self.conn.getJobs()
         except cups.IPPError as e:
-            self.error_message = self.error_message or self.connection_err_msg.format(self.ip_address, str(e))
+            self.error_message = self.error_message or self.connection_err_msg.format(
+                self.ip_address, str(e))
 
     def cancelJobs(self, job_ids):
         try:
             for job_id in job_ids:
                 self.conn.cancelJob(job_id)
         except cups.IPPError as e:
-            self.error_message = self.error_message or self.connection_err_msg.format(self.ip_address, str(e))
+            self.error_message = self.error_message or self.connection_err_msg.format(
+                self.ip_address, str(e))

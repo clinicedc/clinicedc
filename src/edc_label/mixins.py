@@ -14,7 +14,7 @@ class EdcLabelMixin:
         self._printers = {}
         self.cups_server_ip = app_config.default_cups_server_ip
         self.label_templates = app_config.label_templates
-        self.printer_label = app_config.default_printer_label
+        self.printer_label = app_config.default_printer_name
         super(EdcLabelMixin, self).__init__(*args, **kwargs)
 
     @property
@@ -33,7 +33,8 @@ class EdcLabelMixin:
             if self.print_server:
                 for printer in self.print_server.printers.items():
                     printer = str(printer[0])
-                    printer_properties = {k.replace('-', '_'): v for k, v in self.print_server.printers[printer].items()}
+                    printer_properties = {
+                        k.replace('-', '_'): v for k, v in self.print_server.printers[printer].items()}
                     self._printers.update({printer: printer_properties})
         return self._printers
 
@@ -41,6 +42,7 @@ class EdcLabelMixin:
         copies = 3 if copies is None else copies
         label_template = self.label_templates.get(label_name)
         context = label_template.test_context if context is None else context
-        label = Label(label_name, print_server=self.print_server, context=context)
+        label = Label(
+            label_name, print_server=self.print_server, context=context)
         label.print_label(copies)
         return label

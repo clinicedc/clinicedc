@@ -26,7 +26,7 @@ function updatePage( data ) {
 	$( "#div-printers-panel" ).text( 'Printers@' + data.default_cups_server_ip );
 
 	updateLabelTemplates( label_templates );
-	updatePrinters( printers, data.default_printer_label );
+	updatePrinters( printers, data.default_printer_name );
 
 	$( "#alert-print-server-wait" ).hide();
 	$( "#alert-print-error" ).hide();	
@@ -40,12 +40,12 @@ function updatePage( data ) {
 }
 
 
-function updatePrinters( printers, default_printer_label ){
-	$.each( printers, function( label, printer ) {
-		if( label == default_printer_label ) {
-			row = '<tr id="row-printer-label" class="success"><td colspan="5">Label: ' + label +'<span class="pull-right">default</span></td></tr>';
+function updatePrinters( printers, default_printer_name ){
+	$.each( printers, function( printer_name, printer ) {
+		if( printer_name == default_printer_name ) {
+			row = '<tr id="row-printer-printer_name" class="success"><td colspan="5">Label: ' + printer_name +'<span class="pull-right">default</span></td></tr>';
 		} else {
-			row = '<tr id="row-printer-label"><td colspan="5">Label: ' + label +'</td></tr>';
+			row = '<tr id="row-printer-printer_name"><td colspan="5">Label: ' + printer_name +'</td></tr>';
 		};
 		$( "#tbl-printers" ).append(row);
 		row = '<tr><td>' + printer.printer_info + '</td>' +

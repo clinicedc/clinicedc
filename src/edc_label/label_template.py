@@ -1,3 +1,5 @@
+import os
+
 from string import Template
 
 from django.apps import apps as django_apps
@@ -5,17 +7,17 @@ from django.apps import apps as django_apps
 
 class LabelTemplate:
 
-    def __init__(self, label, label_template_file, verbose_name=None, ):
+    def __init__(self, template_name=None):
         app_config = django_apps.get_app_config('edc_label')
-        self.label = label
-        self.verbose_name = verbose_name or ' '.join([x.capitalize() for x in self.label.split('_')]) + ' Label'
-        self.file = label_template_file.split('/')[-1:][0]
-        self.filename = label_template_file or app_config.default_template_file
+        self.template_name = template_name
+        self.filename = os.path.join(
+            app_config.template_folder,
+            template_name + '.' + app_config.template_ext)
         with open(self.filename, 'r') as f:
-            self.label_template = f.read()
+            self.template = f.read()
 
     def __str__(self):
-        return self.verbose_name
+        return self.template_name
 
     def render(self, context):
-        return Template(self.label_template).safe_substitute(context)
+        return Template(self.template).safe_substitute(context)
