@@ -17,7 +17,7 @@
 	                            <ul class="dropdown-menu pull-right" role="menu">
 	                              {% for listboard_filter in listboard_view_filters %}
 	                                <li>
-	                                   <a href="{{ form_action_url }}?{{ listboard_filter.querystring }}">
+	                                   <a href="{{ listboard_url }}?{{ listboard_filter.querystring }}">
 	                                       {{ listboard_filter.label }}{% if f == listboard_filter.name %}&nbsp;<i class="fa fa-check fa-fw"></i>{% endif %}
 	                                   </a>
 	                                </li>

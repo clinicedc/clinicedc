@@ -7,6 +7,7 @@ from django.utils.text import slugify
 from django.views.generic.list import ListView
 
 from ..view_mixins import QueryStringViewMixin
+from edc_constants.constants import OTHER, YES, NO
 
 
 class ListboardView(QueryStringViewMixin, ListView):
@@ -108,6 +109,9 @@ class ListboardView(QueryStringViewMixin, ListView):
         context_object_name = self.get_context_object_name(queryset)
         wrapped_queryset = self.get_wrapped_queryset(queryset)
         context.update(
+            OTHER=OTHER,
+            YES=YES,
+            NO=NO,
             empty_queryset_message=self.empty_queryset_message,
             listboard_url_name=self.listboard_url_name,
             object_list=wrapped_queryset,
