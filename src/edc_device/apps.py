@@ -12,6 +12,7 @@ style = color_style()
 
 
 class DevicePermission:
+
     def __init__(self, model=None, create_roles=None, create_devices=None, change_roles=None, change_devices=None):
         self.create_roles = create_roles or []
         self.create_devices = create_devices or []
@@ -32,6 +33,7 @@ class DevicePermission:
 
 
 class AppConfig(DjangoAppConfig):
+
     def __init__(self, app_name, app_module):
         self._device_id = None
         super().__init__(app_name, app_module)
@@ -52,10 +54,14 @@ class AppConfig(DjangoAppConfig):
         self.verbose_messaging = self.verbose_messaging if verbose_messaging is None else verbose_messaging
         if self.verbose_messaging:
             sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
-        self.device_id = self.get_nonlist_attr('device_id', value=self.device_id)
-        self.central_server_id = self.get_nonlist_attr('central_server_id', value=self.central_server_id)
-        self.middleman_id_list = self.get_list_attr('middleman_id_list', value=self.middleman_id_list)
-        self.server_id_list = self.get_list_attr('server_id_list', value=self.server_id_list)
+        self.device_id = self.get_nonlist_attr(
+            'device_id', value=self.device_id)
+        self.central_server_id = self.get_nonlist_attr(
+            'central_server_id', value=self.central_server_id)
+        self.middleman_id_list = self.get_list_attr(
+            'middleman_id_list', value=self.middleman_id_list)
+        self.server_id_list = self.get_list_attr(
+            'server_id_list', value=self.server_id_list)
 
         if not re.match(r'^\d+$', self.device_id):
             raise ImproperlyConfigured('Incorrect format for device_id. Must be a '
@@ -66,14 +72,16 @@ class AppConfig(DjangoAppConfig):
                     '  ! Warning: Device not set, using default of \'00\'. See app_config.device_id\n'))
 
         if self.central_server_id not in self.server_id_list:
-            ImproperlyConfigured('Central server is not listed as a server. Got {}\n'.format(self.central_server_id))
+            ImproperlyConfigured(
+                'Central server is not listed as a server. Got {}\n'.format(self.central_server_id))
 
         if [x for x in self.server_id_list if x in self.middleman_id_list]:
             raise ImproperlyConfigured(
                 'Middleman cannot be listed as a server. Got {} cannot be in {}. '
                 'See app_config'.format(self.middleman_id_list, self.server_id_list))
         if self.verbose_messaging:
-            sys.stdout.write('  * device is a {} with ID {}\n'.format(self.role.lower(), self.device_id))
+            sys.stdout.write(
+                '  * device is a {} with ID {}\n'.format(self.role.lower(), self.device_id))
         if self.device_permissions:
             if self.verbose_messaging:
                 sys.stdout.write('  * found device permissions for models:\n')
@@ -121,7 +129,8 @@ class AppConfig(DjangoAppConfig):
         elif self.is_client:
             return CLIENT
         else:
-            raise ImproperlyConfigured('Unable to configure Device. See DeviceClass.')
+            raise ImproperlyConfigured(
+                'Unable to configure Device. See DeviceClass.')
 
     @property
     def is_client(self):
