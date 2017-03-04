@@ -14,9 +14,12 @@ from .subject_type import SubjectType
 
 
 class ArrowObject:
+
     def __init__(self, open_dt, close_dt):
-        self.ropen = arrow.Arrow.fromdatetime(open_dt, open_dt.tzinfo).to('utc')
-        self.rclose = arrow.Arrow.fromdatetime(close_dt, close_dt.tzinfo).to('utc')
+        self.ropen = arrow.Arrow.fromdatetime(
+            open_dt, open_dt.tzinfo).to('utc')
+        self.rclose = arrow.Arrow.fromdatetime(
+            close_dt, close_dt.tzinfo).to('utc')
 
 
 class AppConfig(DjangoAppConfig):
@@ -41,7 +44,8 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
-        sys.stdout.write(' * {}: {}.\n'.format(self.protocol, self.protocol_name))
+        sys.stdout.write(
+            ' * {}: {}.\n'.format(self.protocol, self.protocol_name))
 
         self.rstudy_open = arrow.Arrow.fromdatetime(
             self.study_open_datetime, self.study_open_datetime.tzinfo).to('utc').floor('hour')
@@ -61,12 +65,15 @@ class AppConfig(DjangoAppConfig):
                 for cap in subject_type.caps.values():
                     if cap.subject_type_name:
                         if cap.subject_type_name != subject_type.name:
-                            raise SubjectTypeCapError('Subject type name does not match cap.')
+                            raise SubjectTypeCapError(
+                                'Subject type name does not match cap.')
                     else:
                         cap.subject_type_name = subject_type.name
-                    label = '{}:{}:{}'.format(cap.subject_type_name, cap.model_name, cap.study_site)
+                    label = '{}:{}:{}'.format(
+                        cap.subject_type_name, cap.model_name, cap.study_site)
                     if label in unique_labels:
-                        raise ImproperlyConfigured('Enrollment cap not unique. Got {}'.format(label))
+                        raise ImproperlyConfigured(
+                            'Enrollment cap not unique. Got {}'.format(label))
                     else:
                         unique_labels.update({label: cap})
             self.subject_types = {}
@@ -74,7 +81,8 @@ class AppConfig(DjangoAppConfig):
                 self.subject_types.update({label: cap})
         sys.stdout.write(' * Enrollment caps:\n')
         if len(self.subject_types) == 0:
-            sys.stdout.write('   * None specified.\n'.format(label, cap.max_subjects))
+            sys.stdout.write(
+                '   * None specified.\n'.format(label, cap.max_subjects))
         else:
             for label, cap in self.subject_types.items():
                 sys.stdout.write('   - found {}.\n'.format(cap))
@@ -83,12 +91,15 @@ class AppConfig(DjangoAppConfig):
 
     def get_cap(self, subject_type_name=None, model_name=None, study_site=None):
         try:
-            cap = self.caps['{}:{}:{}'.format(subject_type_name, model_name, study_site)]
+            cap = self.caps[
+                '{}:{}:{}'.format(subject_type_name, model_name, study_site)]
         except KeyError:
             try:
-                cap = self.caps['{}:{}:{}'.format(subject_type_name, model_name, ALL_SITES)]
+                cap = self.caps[
+                    '{}:{}:{}'.format(subject_type_name, model_name, ALL_SITES)]
             except KeyError as e:
-                raise SubjectTypeCapError('Invalid criteria for Cap. Got {}.'.format(str(e)))
+                raise SubjectTypeCapError(
+                    'Invalid criteria for Cap. Got {}.'.format(str(e)))
         return cap
 
     @property
@@ -98,3 +109,11 @@ class AppConfig(DjangoAppConfig):
     @property
     def arrow(self):
         return ArrowObject(self.study_open_datetime, self.study_close_datetime)
+
+    @property
+    def site_name(self):
+        return TypeError('Not defined. See edc_protocol.AppConfig')
+
+    @property
+    def site_code(self):
+        return TypeError('Not defined. See edc_protocol.AppConfig')
