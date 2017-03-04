@@ -5,7 +5,7 @@ from edc_constants.constants import YES
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
 from ..listboard_filters import RequisitionListboardViewFilters
-from .base_listboard import BaseListboardView, app_config
+from .base_listboard import BaseListboardView, app_config, app_name
 
 
 class RequisitionModelWrapper(ModelWrapper):
@@ -24,6 +24,7 @@ class RequisitionListboardView(BaseListboardView):
     listboard_template_name = app_config.requisition_listboard_template_name
     show_all = True
     listboard_view_filters = RequisitionListboardViewFilters()
+    form_action_url_name = '{}:requisition_url'.format(app_name)
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

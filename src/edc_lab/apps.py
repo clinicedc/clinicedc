@@ -12,6 +12,11 @@ class AppConfig(DjangoAppConfig):
     verbose_name = 'Edc Lab'
     admin_site_name = 'edc_lab_admin'
 
+    lab_name = 'Botswana-Harvard HIV Reference Laboratory'
+    lab_address = 'Private Bag BO 320, Gaborone, Botswana'
+    lab_tel = '+267 3902671 ext 2003'
+    lab_fax = '+267 3901284'
+
     aliquot_model = 'edc_lab.aliquot'
     box_model = 'edc_lab.box'
     box_item_model = 'edc_lab.boxitem'

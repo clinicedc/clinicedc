@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from django.db import models
 from django.utils import timezone
 
@@ -46,6 +47,12 @@ class ManifestModelMixin(models.Model):
         null=True,
         blank=True)
 
+    site_code = models.CharField(
+        max_length=25)
+
+    site_name = models.CharField(
+        max_length=25)
+
     comment = models.TextField(
         verbose_name='Comment',
         null=True)
@@ -56,6 +63,10 @@ class ManifestModelMixin(models.Model):
         if not self.manifest_identifier:
             identifier = ManifestIdentifier(model=self.__class__)
             self.manifest_identifier = identifier.identifier
+            edc_protocol_app_config = django_apps.get_app_config(
+                'edc_protocol')
+            self.site_code = edc_protocol_app_config.site_code
+            self.site_name = edc_protocol_app_config.site_name
         self.shipped = True if self.status == SHIPPED else False
         super().save(*args, **kwargs)
 

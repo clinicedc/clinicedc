@@ -12,7 +12,7 @@ class ManifestView(ManifestViewMixin, BaseActionView):
 
     post_url_name = app_config.manifest_listboard_url_name
     valid_form_actions = [
-        'remove_selected_items', 'print_labels']
+        'remove_selected_items', 'print_labels', 'print_manifests']
     label_class = ManifestLabel
 
     @method_decorator(login_required)
@@ -24,6 +24,8 @@ class ManifestView(ManifestViewMixin, BaseActionView):
             self.remove_selected_items()
         elif self.action == 'print_labels':
             self.print_labels(pks=self.selected_items)
+        elif self.action == 'print_manifests':
+            self.print_manifests()
 
     def remove_selected_items(self):
         """Deletes the selected items, if allowed.

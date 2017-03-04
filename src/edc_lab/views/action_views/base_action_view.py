@@ -30,7 +30,6 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
 
     valid_form_actions = []
     redirect_querystring = {}
-    # form_action_name = 'form_action'
     form_action_selected_items_name = 'selected_items'
     label_class = None
 
@@ -70,7 +69,8 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
         self.process_form_action()
         if self.redirect_querystring:
             return HttpResponseRedirect(
-                self.post_url + '?' + urllib.parse.urlencode(self.redirect_querystring))
+                self.post_url + '?'
+                + urllib.parse.urlencode(self.redirect_querystring))
         return HttpResponseRedirect(self.post_url)
 
     def process_form_action(self):
@@ -80,8 +80,6 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
 
     def print_labels(self, pks=None):
         """Print labels for each selected item.
-
-        if use_total, print 1/3, 2/3, 3/3 otherwise just 1, 2, 3
 
         See also: edc_lab AppConfig
         """

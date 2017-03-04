@@ -22,11 +22,15 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
                 'status',
                 'category',
                 'category_other',
+                'site_name',
+                'site_code',
             )}),
         audit_fieldset_tuple)
 
     def get_readonly_fields(self, request, obj=None):
-        return super().get_readonly_fields(request, obj=obj) + audit_fields
+        return (super().get_readonly_fields(request, obj=obj)
+                + audit_fields
+                + ('site_name', 'site_code'))
 
     list_display = ('manifest_identifier', 'manifest_datetime', 'destination')
 
