@@ -44,6 +44,7 @@ class AppConfig(DjangoAppConfig):
     central_server_id = '99'
     middleman_id_list = ['95']
     server_id_list = ['99', '98']
+    client_hostname_list = []
     verbose_messaging = True
 
     device_permissions = {}  # see repo example-survey for example
