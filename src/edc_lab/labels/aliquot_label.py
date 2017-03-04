@@ -54,4 +54,5 @@ class AliquotLabel(BaseLabel):
             'gender': self.registered_subject.gender,
             'dob': self.registered_subject.dob,
             'initials': self.registered_subject.initials,
-            'alpha_code': self.aliquot.alpha_code}
+            'alpha_code': self.aliquot.alpha_code,
+            'panel': self.requisition.panel_object.abbreviation}

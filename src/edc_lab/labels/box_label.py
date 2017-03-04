@@ -14,8 +14,8 @@ class BoxLabel(BaseLabel):
             'barcode_value': self.object.box_identifier,
             'box_identifier': self.object.human_readable_identifier,
             'protocol': edc_protocol_app_config.protocol,
-            'site': 'site',  # self.requisition.study_site,
-            'site_name': 'site_name',  # self.requisition.study_site_name,
+            'site': edc_protocol_app_config.site_code,
             'box_datetime': self.object.box_datetime.strftime('%Y-%m-%d %H:%M'),
             'category': self.object.get_category_display().upper(),
-            'specimen_types': self.object.specimen_types}
+            'specimen_types': self.object.specimen_types,
+            'site_name': edc_protocol_app_config.site_name.upper()}
