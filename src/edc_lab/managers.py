@@ -10,12 +10,6 @@ class AliquotManager(models.Manager):
         return self.get(aliquot_identifier=aliquot_identifier)
 
 
-class DestinationManager(models.Manager):
-
-    def get_by_natural_key(self, short_name):
-        return self.get(short_name=short_name)
-
-
 class ManifestManager(models.Manager):
 
     def get_by_natural_key(self, manifest_identifier):

@@ -4,15 +4,9 @@ from edc_base.modeladmin_mixins import (
     audit_fieldset_tuple, audit_fields)
 
 from ..admin_site import edc_lab_admin
-from ..forms import BoxItemForm, SimpleBoxItemForm
+from ..forms import BoxItemForm
 from ..models import BoxItem
 from .base_model_admin import BaseModelAdmin
-
-
-class BoxItemInlineAdmin(admin.TabularInline):
-    model = BoxItem
-    form = SimpleBoxItemForm
-    extra = 1
 
 
 @admin.register(BoxItem, site=edc_lab_admin)

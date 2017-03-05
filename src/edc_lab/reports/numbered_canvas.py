@@ -2,6 +2,8 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.pdfgen import canvas
+from django.utils import timezone
+from django_revision.revision import Revision
 
 
 class NumberedCanvas(canvas.Canvas):
@@ -31,3 +33,8 @@ class NumberedCanvas(canvas.Canvas):
         self.setFont('Helvetica', 6)
         self.drawCentredString(
             width / 2, 25, "Page %d of %d" % (self.getPageNumber(), page_count))
+        timestamp = 'printed on {}'.format(
+            timezone.now().strftime('%Y-%m-%d %H:%M'))
+        self.drawRightString(
+            width - len(timestamp), 25, 'printed on {}'.format(timezone.now().strftime('%Y-%m-%d %H:%M')))
+        self.drawString(15, 25, 'revision {}'.format(Revision().revision))

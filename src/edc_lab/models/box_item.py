@@ -3,7 +3,8 @@ import re
 from django.db import models
 from django.db.models.deletion import PROTECT
 
-from edc_base.model.models import BaseUuidModel
+from edc_base.model_managers import HistoricalRecords
+from edc_base.model_mixins import BaseUuidModel
 from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..model_mixins.shipping import VerifyModelMixin
@@ -35,6 +36,8 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
         blank=True)
 
     objects = BoxItemManager()
+
+    history = HistoricalRecords()
 
     def natural_key(self):
         return (self.position, self.identifier) + self.box.natural_key()

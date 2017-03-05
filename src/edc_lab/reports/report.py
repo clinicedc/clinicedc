@@ -9,30 +9,27 @@ from django.utils import timezone
 
 class Report:
 
-    def __init__(self, **kwargs):
+    def __init__(self, header_line=None, **kwargs):
         self._styles = None
         self.edc_base_app_config = django_apps.get_app_config('edc_base')
         self.edc_protocol_app_config = django_apps.get_app_config(
             'edc_protocol')
-        self.header_line = self.edc_base_app_config.institution
+        self.header_line = header_line or self.edc_base_app_config.institution
 
-    def _header_footer(self, canvas, doc):
-        # Save the state of our canvas so we can draw on it
+    def header_footer(self, canvas, doc):
         canvas.saveState()
         _, height = A4
-        # Header
-        header = Paragraph(
+
+        header_para = Paragraph(
             self.header_line,
             self.styles['header'])
-        header.drawOn(canvas, doc.leftMargin, height - 15)
+        header_para.drawOn(canvas, doc.leftMargin, height - 15)
 
-        # Footer
-        footer = Paragraph(
+        footer_para = Paragraph(
             'printed on {}'.format(timezone.now().strftime('%Y-%m-%d %H:%M')),
             self.styles['footer'])
-        _, h = footer.wrap(doc.width, doc.bottomMargin)
-        footer.drawOn(canvas, doc.leftMargin, h)
-        # Release the canvas
+        _, h = footer_para.wrap(doc.width, doc.bottomMargin)
+        footer_para.drawOn(canvas, doc.leftMargin, h)
         canvas.restoreState()
 
     @property

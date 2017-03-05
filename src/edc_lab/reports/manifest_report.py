@@ -44,16 +44,14 @@ class ManifestReport(Report):
             'country_code': 'country_code',
             'export_country': 'export_country',
             'destination_country': 'destination_country',
-            'manifest_identifier': self.manifest.human_readable_identifier,
-            'manifest_date': self.manifest.manifest_datetime.strftime('%Y-%m-%d %H:%M'),
-            'export_date': self.manifest.manifest_datetime.strftime('%Y-%m-%d %H:%M'),
-            'export_refs': 'export_refs',
+            'export_date': self.manifest.export_datetime.strftime('%Y-%m-%d %H:%M'),
+            'export_refs': self.manifest.export_references,
             'country_of_origin': 'country_of_origin',
         }
 
     @property
-    def exporter_data(self):
-        return {
+    def formatted_exporter_address(self):
+        data = {
             'first_name': 'first_name',
             'last_name': 'last_name',
             'address': 'address',
@@ -62,10 +60,12 @@ class ManifestReport(Report):
             'postal_code': 'postal_code',
             'country_code': 'country_code',
         }
+        data.update(**self.exporter_data)
+        return self.address_paragraph(**data)
 
     @property
-    def consignee_data(self):
-        return {
+    def formatted_consignee_address(self):
+        data = {
             'first_name': 'first_name',
             'last_name': 'last_name',
             'address': 'address',
@@ -74,22 +74,23 @@ class ManifestReport(Report):
             'postal_code': 'postal_code',
             'country_code': 'country_code',
         }
+        data.update(**self.consignee_data)
+        return self.address_paragraph(**data)
 
     @property
-    def company_address(self, **kwargs):
-        company_address = {
+    def formatted_company_address(self):
+        data = {
             'address': 'address',
             'city': 'city',
             'state_code': 'state_code',
             'postal_code': 'postal_code',
             'country_code': 'country_code',
         }
-        company_address.update(**kwargs)
+        data.update(**self.company_address)
         return ('{address}<br />{city}, '
                 '{state_code}<br />'
-                '{postal_code} {country_code}'.format(**company_address))
+                '{postal_code} {country_code}'.format(**data))
 
-    @property
     def address_paragraph(self, **kwargs):
         address_paragraph = {
             'first_name': 'first_name',
@@ -110,13 +111,13 @@ class ManifestReport(Report):
     def render(self, export_data=None, consignee_data=None, exporter_data=None,
                company_address=None, **kwargs):
         if export_data:
-            self.export_data = export_data
+            self.export_data = export_data or {}
         if consignee_data:
-            self.consignee_data = consignee_data
+            self.consignee_data = consignee_data or {}
         if exporter_data:
-            self.exporter_data = exporter_data
+            self.exporter_data = exporter_data or {}
         if company_address:
-            self.company_address = company_address
+            self.company_address = company_address or {}
 
         response = HttpResponse(content_type='application/pdf')
         buffer = BytesIO()
@@ -132,7 +133,8 @@ class ManifestReport(Report):
             [Paragraph(
                 self.export_data['company'], self.styles["line_data_large"])],
             [Paragraph('SITE NAME', self.styles["line_label"])],
-            [Paragraph(self.company_address, self.styles["line_data_large"])],
+            [Paragraph(
+                self.formatted_company_address, self.styles["line_data_large"])],
             [Paragraph('SITE DETAILS', self.styles["line_label"])]]
 
         t = Table(data, colWidths=(9 * cm))
@@ -148,15 +150,16 @@ class ManifestReport(Report):
         story.append(
             Paragraph("SPECIMEN MANIFEST", self.styles["line_label_center"]))
 
+        barcode = code39.Standard39(
+            self.manifest.manifest_identifier, barHeight=10 * mm, stop=1)
+
         data = [
             [Paragraph('MANIFEST NO.', self.styles["line_label"]),
              Paragraph(
-                 self.export_data['manifest_identifier'], self.styles["line_data_largest"]),
-             Paragraph('<b>NOTE: All specimens must be <br /> '
-                       'verfied on the EDC before release <br /> '
-                       'from the site.</b>', self.styles["line_data_small"]),
+                 self.manifest.human_readable_identifier, self.styles["line_data_largest"]),
+             barcode,
              ]]
-        t = Table(data, colWidths=(3 * cm, None, 4.5 * cm,))
+        t = Table(data, colWidths=(3 * cm, None, 5.5 * cm))
         t.setStyle(TableStyle([
             ('INNERGRID', (1, 0), (-1, -1), 0.25, colors.black),
             ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
@@ -166,10 +169,15 @@ class ManifestReport(Report):
         story.append(t)
 
         data = [[Paragraph('MANIFEST DATE', self.styles["line_label"]),
-                 Paragraph('EXPORT REFERENCES (i.e. order no., invoice no.)', self.styles["line_label"])],
-                [Paragraph(self.export_data['manifest_date'], self.styles["line_data_largest"]),
                  Paragraph(
-                    self.export_data['export_refs'], self.styles["line_data_largest"]),
+                     'EXPORT REFERENCES (i.e. order no., invoice no.)',
+                     self.styles["line_label"])],
+                [Paragraph(
+                    self.manifest.manifest_datetime.strftime('%Y-%m-%d'),
+                    self.styles["line_data_largest"]),
+                 Paragraph(
+                    self.export_data['export_refs'],
+                    self.styles["line_data_largest"]),
                  ]]
         t = Table(data)
         t.setStyle(TableStyle([
@@ -180,16 +188,10 @@ class ManifestReport(Report):
         ]))
         story.append(t)
 
-        cosignee_paragraph = self.address_paragraph.format(
-            **self.consignee_data)
-        exporter_paragraph = self.address_paragraph.format(
-            **self.exporter_data)
-
         data = [[Paragraph('SHIPPER/EXPORTER (complete name and address)', self.styles["line_label"]),
                  Paragraph('CONSIGNEE (complete name and address)', self.styles["line_label"])],
-
-                [Paragraph(cosignee_paragraph, self.styles["line_data_large"]),
-                 Paragraph(exporter_paragraph, self.styles["line_data_large"])]
+                [Paragraph(self.formatted_consignee_address, self.styles["line_data_large"]),
+                 Paragraph(self.formatted_exporter_address, self.styles["line_data_large"])]
                 ]
 
         t = Table(data)
@@ -208,7 +210,7 @@ class ManifestReport(Report):
                              'city': '', 'address': ''}
             importer_paragraph = 'importer_paragraph'
         else:
-            importer_paragraph = self.address_paragraph.format(**importer_data)
+            importer_paragraph = self.address_paragraph(**importer_data)
 
         data1 = [[Paragraph('COUNTRY OF EXPORT', self.styles["line_label"]),
                   Paragraph('DESCRIPTION OF CONTENTS <br />', self.styles["line_label"])],
@@ -301,9 +303,10 @@ class ManifestReport(Report):
             Paragraph('BOX:', self.styles["line_label"]),
             Paragraph(
                 'CATEGORY:', self.styles["line_label"]),
-            Paragraph('SPECIMEN TYPES:', self.styles["line_label"]),
-            Paragraph('ITEM COUNT:', self.styles["line_label"]),
-            Paragraph('BOX DATE:', self.styles["line_label"])]
+            Paragraph('TYPES:', self.styles["line_label"]),
+            Paragraph('ITEMS:', self.styles["line_label"]),
+            Paragraph('BOX DATE:', self.styles["line_label"]),
+            Paragraph('BOX BARCODE:', self.styles["line_label"])]
         for index, manifest_item in enumerate(
                 self.manifest.manifestitem_set.all().order_by('-created')):
             if index > 0:
@@ -322,9 +325,11 @@ class ManifestReport(Report):
                 Paragraph(box.specimen_types, self.styles["line_data_large"]),
                 Paragraph(
                     '{}/{}'.format(str(box.count), str(box.box_type.total)), self.styles["line_data_large"]),
-                Paragraph(box.box_datetime.strftime('%Y-%m-%d'), self.styles["line_data_large"])])
+                Paragraph(box.box_datetime.strftime(
+                    '%Y-%m-%d'), self.styles["line_data_large"]),
+                barcode])
             t1 = Table(
-                data1, colWidths=(None, 3 * cm, 3 * cm, 3 * cm, 3 * cm))
+                data1, colWidths=(None, None, None, None, None, None))
             t1.setStyle(TableStyle([
                 ('INNERGRID', (0, 0), (-1, 0), 0.25, colors.black),
                 ('INNERGRID', (0, 1), (-1, -1), 0.25, colors.black),
@@ -371,8 +376,9 @@ class ManifestReport(Report):
                     ('BOX', (0, 0), (-1, -1), 0.25, colors.black)]))
             story.append(t1)
 
-        doc.build(story, onFirstPage=self._header_footer, onLaterPages=self._header_footer,
-                  canvasmaker=NumberedCanvas)
+        doc.build(story, canvasmaker=NumberedCanvas)
+#         doc.build(story, onFirstPage=self.header_footer, onLaterPages=self.header_footer,
+#                   canvasmaker=NumberedCanvas)
         pdf = buffer.getvalue()
         response.write(pdf)
         return response

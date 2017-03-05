@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_base.model.models import BaseUuidModel
+from edc_base.model_mixins import BaseUuidModel
 
 FILL_ORDER = (
     ('across', 'Across'),

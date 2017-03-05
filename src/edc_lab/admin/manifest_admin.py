@@ -18,7 +18,9 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
         (None, {
             'fields': (
                 'manifest_datetime',
-                'destination',
+                'shipper',
+                'consignee',
+                'export_references',
                 'status',
                 'category',
                 'category_other',
@@ -32,7 +34,8 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
                 + audit_fields
                 + ('site_name', 'site_code'))
 
-    list_display = ('manifest_identifier', 'manifest_datetime', 'destination')
+    list_display = (
+        'manifest_identifier', 'manifest_datetime', 'shipper', 'consignee')
 
     list_filter = ('manifest_datetime', )
 

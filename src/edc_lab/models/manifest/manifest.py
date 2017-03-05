@@ -1,12 +1,14 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 
-from edc_base.model.models import BaseUuidModel, HistoricalRecords
+from edc_base.model_managers import HistoricalRecords
+from edc_base.model_mixins import BaseUuidModel
 from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
-from ..managers import ManifestManager
-from ..model_mixins.shipping import ManifestModelMixin
-from .destination import Destination
+from ...managers import ManifestManager
+from ...model_mixins.shipping import ManifestModelMixin
+from .consignee import Consignee
+from .shipper import Shipper
 
 
 class Manager(ManifestManager, SearchSlugManager):
@@ -15,9 +17,14 @@ class Manager(ManifestManager, SearchSlugManager):
 
 class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
 
-    destination = models.ForeignKey(
-        Destination,
-        verbose_name='Ship to',
+    consignee = models.ForeignKey(
+        Consignee,
+        verbose_name='Consignee',
+        on_delete=PROTECT)
+
+    shipper = models.ForeignKey(
+        Shipper,
+        verbose_name='Shipper/Exporter',
         on_delete=PROTECT)
 
     objects = Manager()
@@ -35,7 +42,11 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
         return self.manifestitem_set.all().count()
 
     def get_slugs(self):
-        slugs = [self.manifest_identifier, self.human_readable_identifier]
+        slugs = [
+            self.manifest_identifier,
+            self.human_readable_identifier,
+            self.shipper.name,
+            self.consignee.name]
         return slugs
 
     class Meta(ManifestModelMixin.Meta):

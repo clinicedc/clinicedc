@@ -1,11 +1,11 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
 from edc_lab.constants import VERIFIED
 from edc_lab.models import BoxItem
 
 from .box import Box
-from .manifest_item import ManifestItem
+from .manifest import ManifestItem
 
 
 @receiver(post_delete, weak=False, sender=ManifestItem,

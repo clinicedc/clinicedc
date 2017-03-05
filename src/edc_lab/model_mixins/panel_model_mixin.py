@@ -1,7 +1,7 @@
 from django.db import models
 
-from ..site_labs import site_labs
 from ..exceptions import PanelError
+from ..site_labs import site_labs
 
 
 class PanelModelMixin(models.Model):

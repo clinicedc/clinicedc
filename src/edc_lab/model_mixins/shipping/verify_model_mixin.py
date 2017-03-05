@@ -2,7 +2,8 @@ from django.db import models
 
 from edc_base.utils import get_utcnow
 from edc_constants.constants import OPEN
-from edc_lab.constants import VERIFIED
+
+from ...constants import VERIFIED
 
 
 class VerifyModelMixin(models.Model):

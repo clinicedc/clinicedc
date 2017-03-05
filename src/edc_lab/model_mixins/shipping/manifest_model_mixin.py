@@ -2,11 +2,11 @@ from django.apps import apps as django_apps
 from django.db import models
 from django.utils import timezone
 
+from edc_base.utils import get_utcnow
 from edc_constants.constants import OPEN, CLOSED, OTHER
 
+from ...constants import SHIPPED, TESTING, STORAGE
 from ...identifiers import ManifestIdentifier
-from ...constants import SHIPPED
-from edc_lab.constants import TESTING, STORAGE
 
 STATUS = (
     (OPEN, 'Open'),
@@ -31,6 +31,16 @@ class ManifestModelMixin(models.Model):
 
     manifest_datetime = models.DateTimeField(
         default=timezone.now)
+
+    export_datetime = models.DateTimeField(
+        null=True)
+
+    export_references = models.TextField(
+        null=True)
+
+    description = models.TextField(
+        verbose_name='Description of contents',
+        null=True)
 
     status = models.CharField(
         max_length=15,
@@ -68,6 +78,8 @@ class ManifestModelMixin(models.Model):
             self.site_code = edc_protocol_app_config.site_code
             self.site_name = edc_protocol_app_config.site_name
         self.shipped = True if self.status == SHIPPED else False
+        if self.shipped and not self.export_datetime:
+            self.export_datetime = get_utcnow()
         super().save(*args, **kwargs)
 
     def natural_key(self):

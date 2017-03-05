@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-from edc_base.model.fields.custom_fields import InitialsField
+from edc_base.model_fields import InitialsField
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NOT_APPLICABLE
 
