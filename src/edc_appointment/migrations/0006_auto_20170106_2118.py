@@ -3,8 +3,8 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import edc_base.model.fields.hostname_modification_field
-import edc_base.model.fields.userfield
+import edc_base.model_fields.hostname_modification_field
+import edc_base.model_fields.userfield
 import edc_base.utils
 
 
@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='appointment',
             name='hostname_modified',
-            field=edc_base.model.fields.hostname_modification_field.HostnameModificationField(blank=True, help_text='System field. (modified on every save)', max_length=50),
+            field=edc_base.model_fields.hostname_modification_field.HostnameModificationField(blank=True, help_text='System field. (modified on every save)', max_length=50),
         ),
         migrations.AlterField(
             model_name='appointment',
@@ -38,12 +38,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='appointment',
             name='user_created',
-            field=edc_base.model.fields.userfield.UserField(blank=True, max_length=50, verbose_name='user created'),
+            field=edc_base.model_fields.userfield.UserField(blank=True, max_length=50, verbose_name='user created'),
         ),
         migrations.AlterField(
             model_name='appointment',
             name='user_modified',
-            field=edc_base.model.fields.userfield.UserField(blank=True, max_length=50, verbose_name='user modified'),
+            field=edc_base.model_fields.userfield.UserField(blank=True, max_length=50, verbose_name='user modified'),
         ),
         migrations.AlterField(
             model_name='historicalappointment',
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='historicalappointment',
             name='hostname_modified',
-            field=edc_base.model.fields.hostname_modification_field.HostnameModificationField(blank=True, help_text='System field. (modified on every save)', max_length=50),
+            field=edc_base.model_fields.hostname_modification_field.HostnameModificationField(blank=True, help_text='System field. (modified on every save)', max_length=50),
         ),
         migrations.AlterField(
             model_name='historicalappointment',
@@ -68,11 +68,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='historicalappointment',
             name='user_created',
-            field=edc_base.model.fields.userfield.UserField(blank=True, max_length=50, verbose_name='user created'),
+            field=edc_base.model_fields.userfield.UserField(blank=True, max_length=50, verbose_name='user created'),
         ),
         migrations.AlterField(
             model_name='historicalappointment',
             name='user_modified',
-            field=edc_base.model.fields.userfield.UserField(blank=True, max_length=50, verbose_name='user modified'),
+            field=edc_base.model_fields.userfield.UserField(blank=True, max_length=50, verbose_name='user modified'),
         ),
     ]
