@@ -8,9 +8,8 @@ from django_crypto_fields.fields import (
 from django.db import models, transaction
 from django.utils.translation import ugettext as _
 
-from edc_base.model.constants import DEFAULT_BASE_FIELDS
-from edc_base.model.fields import IdentityTypeField
-from edc_base.model.fields.custom_fields import IsDateEstimatedField
+from edc_base.model_mixins import DEFAULT_BASE_FIELDS
+from edc_base.model_fields import IdentityTypeField, IsDateEstimatedField
 from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
 from edc_identifier.model_mixins import (

@@ -1,4 +1,4 @@
-from edc_base.model.models import BaseUuidModel
+from edc_base.model_mixins import BaseUuidModel
 
 from .model_mixins import RegisteredSubjectModelMixin
 
