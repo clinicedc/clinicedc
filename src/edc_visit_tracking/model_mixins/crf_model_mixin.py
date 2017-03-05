@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.db import models
 
-from edc_base.model.validators.date import datetime_not_future
+from edc_base.model_validators.date import datetime_not_future
 from edc_base.utils import get_utcnow
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_visit_tracking.managers import CrfModelManager
