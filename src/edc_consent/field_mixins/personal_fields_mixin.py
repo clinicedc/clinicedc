@@ -4,7 +4,7 @@ from django_crypto_fields.fields import (
     FirstnameField, LastnameField, EncryptedCharField)
 from django_crypto_fields.mixins import CryptoMixin
 
-from edc_base.model.fields import IsDateEstimatedField
+from edc_base.model_fields import IsDateEstimatedField
 from edc_constants.choices import GENDER_UNDETERMINED
 
 from ..validators import FullNameValidator

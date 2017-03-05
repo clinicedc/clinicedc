@@ -3,7 +3,7 @@ from django.db import models
 from django_crypto_fields.fields import IdentityField
 from django_crypto_fields.mixins import CryptoMixin
 
-from edc_base.model.fields import IdentityTypeField
+from edc_base.model_fields import IdentityTypeField
 
 
 class IdentityFieldsMixin(CryptoMixin, models.Model):
