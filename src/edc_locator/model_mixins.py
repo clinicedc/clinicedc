@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 
 from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 
-from edc_base.model.validators import CellNumber, TelephoneNumber
+from edc_base.model_validators import CellNumber, TelephoneNumber
 from edc_base.utils import get_utcnow
 from edc_constants.choices import YES_NO, YES_NO_DOESNT_WORK
 from edc_constants.constants import YES
@@ -204,7 +204,8 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
                 'Phone: {subject_phone} {alt_subject_phone}\n'
                 '').format(
                     may_sms_follow_up='SMS permitted' if self.may_sms_follow_up == 'Yes' else 'NO SMS!',
-                    subject_cell='{} (primary)'.format(self.subject_cell) if self.subject_cell else '(none)',
+                    subject_cell='{} (primary)'.format(
+                        self.subject_cell) if self.subject_cell else '(none)',
                     alt_subject_cell=self.subject_cell_alt,
                     subject_phone=self.subject_phone or '(none)', alt_subject_phone=self.subject_phone_alt
             )
