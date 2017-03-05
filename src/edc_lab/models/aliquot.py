@@ -4,7 +4,8 @@ from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..managers import AliquotManager
 from ..model_mixins.aliquot import (
-    AliquotModelMixin, AliquotIdentifierModelMixin, AliquotTypeModelMixin)
+    AliquotModelMixin, AliquotIdentifierModelMixin, AliquotTypeModelMixin,
+    AliquotShippingMixin)
 
 
 class Manager(AliquotManager, SearchSlugManager):
@@ -14,6 +15,7 @@ class Manager(AliquotManager, SearchSlugManager):
 class Aliquot(AliquotModelMixin,
               AliquotIdentifierModelMixin,
               AliquotTypeModelMixin,
+              AliquotShippingMixin,
               SearchSlugModelMixin, BaseUuidModel):
 
     objects = Manager()

@@ -33,7 +33,7 @@ class ManifestViewMixin:
         context.update({
             'manifest_identifier': self.original_manifest_identifier,
             'manifest_item_identifier': self.original_manifest_item_identifier,
-            'manifest': self.manifest
+            'manifest': self.manifest,
         })
         return context
 
@@ -109,5 +109,4 @@ class ManifestViewMixin:
             message = 'Invalid box. Got {}.'.format(
                 self.original_manifest_item_identifier or 'None')
             messages.error(self.request, message)
-            raise ManifestItemError(message)
         return manifest_item_identifier

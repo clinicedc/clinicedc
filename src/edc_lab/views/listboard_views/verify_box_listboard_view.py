@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 
+from ...constants import SHIPPED
 from .base_listboard import app_config, app_name
 from .base_box_item_listboard_view import BaseBoxItemListboardView, BaseBoxItemModelWrapper
 
@@ -31,7 +32,9 @@ class VerifyBoxListboardView(BaseBoxItemListboardView):
         context = super().get_context_data(**kwargs)
         context.update(
             manage_box_listboard_url=self.manage_box_listboard_url,
-            position=self.kwargs.get('position'))
+            position=self.kwargs.get('position'),
+            SHIPPED=SHIPPED,
+        )
         return context
 
     @property

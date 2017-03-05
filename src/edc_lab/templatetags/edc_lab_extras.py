@@ -4,6 +4,7 @@ from django.urls import reverse
 
 from ..models import BoxItem
 from django.utils.safestring import mark_safe
+from edc_lab.constants import SHIPPED
 
 register = template.Library()
 
@@ -54,4 +55,10 @@ def verified(box_item):
     elif box_item.verified == -1:
         verified = False
     return '' if not verified else mark_safe(
-        '<span title="position verified" class="text text-success"><i class="fa fa-check fa-fw"></i></span>')
+        '&nbsp;<span title="verified" class="text text-success"><i class="fa fa-check fa-fw"></i></span>')
+
+
+@register.filter(is_safe=True)
+def shipped(box_item):
+    return '' if not box_item.status == SHIPPED else mark_safe(
+        '&nbsp;<span title="shipped" class="text text-success"><i class="fa fa-ship fa-fw"></i></span>')

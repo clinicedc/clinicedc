@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
@@ -6,6 +7,7 @@ from edc_base.utils import get_utcnow
 from ...exceptions import SpecimenError
 from ..mixins import BoxViewMixin
 from .base_action_view import BaseActionView, app_config
+from edc_lab.constants import SHIPPED
 
 
 class VerifyBoxItemView(BoxViewMixin, BaseActionView):
@@ -48,24 +50,32 @@ class VerifyBoxItemView(BoxViewMixin, BaseActionView):
         """Updates the box_item as verified if the identifier matches
         the identifier already in that position.
         """
-        box_item_in_position = self.get_box_item(
-            position=self.kwargs.get('position'))
-        self.redirect_querystring.update(alert=1)
-        if box_item_in_position:
-            if self.box_item:
-                if self.box_item == box_item_in_position:
-                    box_item_in_position.verified = 1
-                    box_item_in_position.verified_datetime = get_utcnow()
-                    self.next_position()
-                    self.redirect_querystring.pop('alert')
+        if self.box.status == SHIPPED:
+            message = ('Unable to verify. Box has already been shipped.')
+            messages.error(self.request, message)
+        else:
+            box_item_in_position = self.get_box_item(
+                position=self.kwargs.get('position'))
+            self.redirect_querystring.update(alert=1)
+            if box_item_in_position:
+                if self.box_item:
+                    if self.box_item == box_item_in_position:
+                        box_item_in_position.verified = 1
+                        box_item_in_position.verified_datetime = get_utcnow()
+                        self.next_position()
+                        self.redirect_querystring.pop('alert')
+                    else:
+                        box_item_in_position.verified = -1
+                        box_item_in_position.verified_datetime = None
                 else:
-                    box_item_in_position.verified = -1
+                    box_item_in_position.verified = 0
                     box_item_in_position.verified_datetime = None
-            else:
-                box_item_in_position.verified = 0
-                box_item_in_position.verified_datetime = None
-            box_item_in_position.save()
-            self.box.save()
+                box_item_in_position.save()
+                self.box.save()
 
     def unverify_box(self):
-        self.box.unverify_box()
+        if self.box.status == SHIPPED:
+            message = ('Unable to reset. Box has already been shipped.')
+            messages.error(self.request, message)
+        else:
+            self.box.unverify_box()

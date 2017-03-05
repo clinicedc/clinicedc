@@ -26,3 +26,12 @@ class AliquotListboardViewFilters(ListboardViewFilters):
         label='Not Packed',
         exclude_filter=True,
         lookup={'aliquot_identifier__in': get_box_items})
+
+    shipped = ListboardFilter(
+        label='Shipped',
+        lookup={'shipped': True})
+
+    not_shipped = ListboardFilter(
+        label='Not shipped',
+        default=True,
+        lookup={'shipped': False})

@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models.deletion import ProtectedError
 from django.utils.decorators import method_decorator
 
-from ...constants import SHIPPED
+from ...constants import PACKED
 from ...labels import BoxLabel
 from ...lab.manifest import Manifest as ManifestObject
 from ...models import Manifest
@@ -69,7 +69,7 @@ class PackView(BaseActionView):
                             box=box,
                             manifest_item_identifier=box.box_identifier):
                         added += 1
-                        box.status = SHIPPED
+                        box.status = PACKED
                         box.save()
                     else:
                         break

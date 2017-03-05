@@ -5,13 +5,12 @@ from django.utils import timezone
 from edc_base.utils import get_utcnow
 from edc_constants.constants import OPEN, CLOSED, OTHER
 
-from ...constants import SHIPPED, TESTING, STORAGE
+from ...constants import TESTING, STORAGE
 from ...identifiers import ManifestIdentifier
 
 STATUS = (
     (OPEN, 'Open'),
     (CLOSED, 'Closed'),
-    (SHIPPED, 'Shipped'),
 )
 
 MANIFEST_CATEGORY = (
@@ -33,14 +32,17 @@ class ManifestModelMixin(models.Model):
         default=timezone.now)
 
     export_datetime = models.DateTimeField(
-        null=True)
+        null=True,
+        blank=True)
 
     export_references = models.TextField(
-        null=True)
+        null=True,
+        blank=True)
 
     description = models.TextField(
         verbose_name='Description of contents',
-        null=True)
+        null=True,
+        help_text='If blank will be automatically generated')
 
     status = models.CharField(
         max_length=15,
@@ -69,6 +71,12 @@ class ManifestModelMixin(models.Model):
 
     shipped = models.BooleanField(default=False)
 
+    printed = models.BooleanField(default=False)
+
+    printed_datetime = models.DateTimeField(
+        null=True,
+        blank=True)
+
     def save(self, *args, **kwargs):
         if not self.manifest_identifier:
             identifier = ManifestIdentifier(model=self.__class__)
@@ -77,9 +85,11 @@ class ManifestModelMixin(models.Model):
                 'edc_protocol')
             self.site_code = edc_protocol_app_config.site_code
             self.site_name = edc_protocol_app_config.site_name
-        self.shipped = True if self.status == SHIPPED else False
         if self.shipped and not self.export_datetime:
             self.export_datetime = get_utcnow()
+        elif not self.shipped:
+            self.export_datetime = None
+            self.printed = False
         super().save(*args, **kwargs)
 
     def natural_key(self):

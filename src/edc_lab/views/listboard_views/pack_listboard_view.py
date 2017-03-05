@@ -4,6 +4,7 @@ from django.utils.decorators import method_decorator
 from edc_constants.constants import OPEN
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
+from ...constants import SHIPPED
 from ...models import Manifest
 from ..listboard_filters import PackListboardViewFilters
 from .base_listboard import BaseListboardView, app_config, app_name
@@ -39,5 +40,6 @@ class PackListboardView(BaseListboardView):
         context.update(
             new_box=BoxModelWrapper.new(),
             open_manifests=self.open_manifests,
+            SHIPPED=SHIPPED,
         )
         return context

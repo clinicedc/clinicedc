@@ -12,8 +12,8 @@
                 <i class="fa fa-archive fa-fw"></i>
             </a>
           {% endif %}
-          {% if wrapped.manifest %}
-             <a title="{{ wrapped.manifest.manifest_identifier }}" href="{% url manage_box_listboard_url_name manifest_identifier=wrapped.manifest.manifest_identifier %}" role="button" class="btn btn-default btn-sm"><i class="fa fa-ship fa-fw"></i></a>
+          {% if wrapped.manifest_item.manifest %}
+             <a title="{{ wrapped.manifest_item.manifest.manifest_identifier }}" href="{% url manage_manifest_listboard_url_name action_name='manage' manifest_identifier=wrapped.manifest_item.manifest.manifest_identifier %}" role="button" class="btn btn-default btn-sm"><i class="fa fa-ship fa-fw"></i></a>
           {% endif %}
         </div>&nbsp;
       <span class="text text-identifier">

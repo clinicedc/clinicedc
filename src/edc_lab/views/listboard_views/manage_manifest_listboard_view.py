@@ -4,6 +4,7 @@ from django.utils.decorators import method_decorator
 
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
+from ...constants import SHIPPED
 from ..mixins import ManifestViewMixin
 from .base_listboard import BaseListboardView, app_config, app_name
 
@@ -44,6 +45,11 @@ class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(SHIPPED=SHIPPED)
+        return context
 
     @property
     def url_kwargs(self):

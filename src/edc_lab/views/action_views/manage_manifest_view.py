@@ -41,10 +41,17 @@ class ManageManifestView(ManifestViewMixin, BaseActionView):
         if not self.selected_items:
             message = ('Nothing to do. No items have been selected.')
             messages.warning(self.request, message)
+        elif self.manifest_item_model.objects.filter(
+                pk__in=self.selected_items,
+                manifest__shipped=True).exists():
+            message = (
+                'Unable to remove. Some selected items have already been shipped.')
+            messages.error(self.request, message)
         else:
             try:
                 deleted = self.manifest_item_model.objects.filter(
-                    pk__in=self.selected_items).delete()
+                    pk__in=self.selected_items,
+                    manifest__shipped=False).delete()
                 message = ('{} items have been removed.'.format(deleted[0]))
                 messages.success(self.request, message)
             except ProtectedError:

@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls.base import reverse
 from django.utils.decorators import method_decorator
 
+from ...constants import SHIPPED
 from .base_box_item_listboard_view import BaseBoxItemListboardView, BaseBoxItemModelWrapper
 
 app_name = 'edc_lab'
@@ -42,6 +43,7 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
         url_kwargs['position'] = 1
         url_kwargs['action_name'] = 'verify'
         context.update(
+            SHIPPED=SHIPPED,
             verify_box_listboard_url=reverse(
                 self.verify_box_listboard_url_name,
                 kwargs=url_kwargs))

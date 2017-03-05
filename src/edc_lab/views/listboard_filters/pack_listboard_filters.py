@@ -1,6 +1,6 @@
 from edc_dashboard.listboard_filter import ListboardFilter, ListboardViewFilters
 
-from edc_lab.constants import VERIFIED, SHIPPED
+from edc_lab.constants import VERIFIED, SHIPPED, PACKED
 
 
 class PackListboardViewFilters(ListboardViewFilters):
@@ -19,6 +19,16 @@ class PackListboardViewFilters(ListboardViewFilters):
         exclude_filter=True,
         lookup={'status': VERIFIED})
 
+    packed = ListboardFilter(
+        label='Packed',
+        lookup={'status': PACKED})
+
+    not_packed = ListboardFilter(
+        label='Packed',
+        exclude_filter=True,
+        default=True,
+        lookup={'status': PACKED})
+
     shipped = ListboardFilter(
         label='Shipped',
         lookup={'status': SHIPPED})
@@ -26,5 +36,4 @@ class PackListboardViewFilters(ListboardViewFilters):
     not_shipped = ListboardFilter(
         label='Not shipped',
         exclude_filter=True,
-        lookup={'status': SHIPPED},
-        default=True)
+        lookup={'status': SHIPPED})

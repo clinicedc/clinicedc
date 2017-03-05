@@ -8,8 +8,7 @@
         <div class="btn-group">
            <a title="Edit manifest" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fa fa-pencil fa-fw"></i></a>
            <a role="button" href="{% url manage_manifest_listboard_url_name manifest_identifier=wrapped.manifest_identifier action_name='manage' %}" class="btn btn-default btn-sm">Manage</a>
-           <a role="button" href="{% url manifest_listboard_url_name %}" class="btn btn-default btn-sm {% if not wrapped.verified %}disabled{% endif %}">Ship</a>
-           <a role="button" href="?pdf={{wrapped.manifest_identifier}}" class="btn btn-sm btn-default"><i class="fa fa-file-pdf-o fa-sm"></i></a>
+           <a role="button" href="?pdf={{wrapped.manifest_identifier}}" class="btn btn-sm {% if wrapped.wrapped_object.shipped and not wrapped.wrapped_object.printed %}btn-warning{% elif wrapped.wrapped_object.shipped and wrapped.wrapped_object.printed %}btn-success{% else %}btn-default{% endif %}"><i class="fa fa-file-pdf-o fa-sm"></i></a>
            
         </div>&nbsp;
       <span class="text text-identifier">
@@ -18,7 +17,7 @@
     </td>
     <td>
       {% if wrapped.wrapped_object.category == OTHER %}
-      {{ wrapped.wrapped_object.category_other }}
+        {{ wrapped.wrapped_object.category_other }}
       {% else %}
         {{ wrapped.wrapped_object.get_category_display }}
       {% endif %}
@@ -27,7 +26,7 @@
       {{ wrapped.wrapped_object.count }} boxes
     </td>
     <td>
-      {{ wrapped.wrapped_object.get_status_display }}
+      {{ wrapped.wrapped_object.get_status_display }} {% if wrapped.printed %} and printed {% endif %}
     </td>
     <td>
       {{ wrapped.manifest_datetime|date:"Y-m-d H:i" }}

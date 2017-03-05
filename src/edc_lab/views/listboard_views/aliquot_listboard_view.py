@@ -3,7 +3,7 @@ from django.utils.decorators import method_decorator
 
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
-from ...models import BoxItem
+from ...models import BoxItem, ManifestItem
 from ..listboard_filters import AliquotListboardViewFilters
 from .base_listboard import BaseListboardView, app_config, app_name
 
@@ -22,6 +22,17 @@ class AliquotModelWrapper(ModelWrapper):
             return BoxItem.objects.get(identifier=self.aliquot_identifier)
         except BoxItem.DoesNotExist:
             return None
+
+    @property
+    def manifest_item(self):
+        manifest_item = None
+        if self.box_item:
+            try:
+                manifest_item = ManifestItem.objects.get(
+                    identifier=self.box_item.box.box_identifier)
+            except ManifestItem.DoesNotExist:
+                pass
+        return manifest_item
 
 
 class AliquotListboardView(BaseListboardView):

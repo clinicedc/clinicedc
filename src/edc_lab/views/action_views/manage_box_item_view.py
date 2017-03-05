@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 
+from ...constants import SHIPPED
 from ...exceptions import SpecimenError
 from ..mixins import BoxViewMixin
 from .base_action_view import BaseActionView, app_config
@@ -44,9 +45,13 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
         if not self.selected_items:
             message = ('Nothing to do. No items have been selected.')
             messages.warning(self.request, message)
+        elif self.box.status == SHIPPED:
+            message = ('Unable to remove. Box has already been shipped.')
+            messages.error(self.request, message)
         else:
             deleted = self.box_item_model.objects.filter(
-                pk__in=self.selected_items).delete()
+                pk__in=self.selected_items,
+            ).exclude(box__status=SHIPPED).delete()
             message = ('{} items have been removed.'.format(deleted[0]))
             messages.success(self.request, message)
 
@@ -57,6 +62,9 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
         if box_items.count() == 0:
             message = ('Nothing to do. There are no items in the box.')
             messages.warning(self.request, message)
+        elif self.box.status == SHIPPED:
+            message = ('Unable to renumber. Box has already been shipped.')
+            messages.error(self.request, message)
         else:
             for index, boxitem in enumerate(
                     self.box.boxitem_set.all().order_by('position'), start=1):
@@ -73,34 +81,38 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
     def add_box_item(self, **kwargs):
         """Adds the item to the next available position in the box.
         """
-        try:
-            box_item = self.box_item_model.objects.get(
-                box__box_identifier=self.box_identifier,
-                identifier=self.box_item_identifier)
-        except self.box_item_model.DoesNotExist:
+        if self.box.status == SHIPPED:
+            message = ('Unable to add. Box has already been shipped.')
+            messages.error(self.request, message)
+        else:
             try:
                 box_item = self.box_item_model.objects.get(
+                    box__box_identifier=self.box_identifier,
                     identifier=self.box_item_identifier)
             except self.box_item_model.DoesNotExist:
-                box_item = self.box_item_model(
-                    box=self.box,
-                    identifier=self.box_item_identifier,
-                    position=self.box.next_position)
-                box_item.save()
-                if self.box.verified:
-                    self.box.save()
+                try:
+                    box_item = self.box_item_model.objects.get(
+                        identifier=self.box_item_identifier)
+                except self.box_item_model.DoesNotExist:
+                    box_item = self.box_item_model(
+                        box=self.box,
+                        identifier=self.box_item_identifier,
+                        position=self.box.next_position)
+                    box_item.save()
+                    if self.box.verified:
+                        self.box.save()
+                else:
+                    message = mark_safe(
+                        'Item is already packed. See box <a href="{href}" class="alert-link">'
+                        '{box_identifier}</a>'.format(
+                            href=reverse(
+                                self.listboard_url_name,
+                                kwargs={
+                                    'box_identifier': box_item.box.box_identifier,
+                                    'action_name': 'manage'}),
+                            box_identifier=box_item.box.human_readable_identifier))
+                    messages.error(self.request, message)
             else:
-                message = mark_safe(
-                    'Item is already packed. See box <a href="{href}" class="alert-link">'
-                    '{box_identifier}</a>'.format(
-                        href=reverse(
-                            self.listboard_url_name,
-                            kwargs={
-                                'box_identifier': box_item.box.box_identifier,
-                                'action_name': 'manage'}),
-                        box_identifier=box_item.box.human_readable_identifier))
+                message = 'Duplicate item. {} is already in position {}.'.format(
+                    box_item.human_readable_identifier, box_item.position)
                 messages.error(self.request, message)
-        else:
-            message = 'Duplicate item. {} is already in position {}.'.format(
-                box_item.human_readable_identifier, box_item.position)
-            messages.error(self.request, message)

@@ -24,8 +24,18 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
                 'status',
                 'category',
                 'category_other',
+            )}),
+        ('Site', {
+            'classes': ('collapse',),
+            'fields': (
                 'site_name',
                 'site_code',
+            )}),
+        ('Shipping', {
+            'classes': ('collapse',),
+            'fields': (
+                'shipped',
+                'export_datetime',
             )}),
         audit_fieldset_tuple)
 

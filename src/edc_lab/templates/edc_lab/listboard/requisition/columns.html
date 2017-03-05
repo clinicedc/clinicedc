@@ -26,16 +26,6 @@
       {% else %}
         <span class="text text-danger"><i class="fa fa-times-circle fa-lg" title="Not processed"></i></span>
       {% endif %}
-      {% if wrapped.packed %}
-        <span class="text text-success"><i class="fa fa-check-circle fa-lg" title="Packed"></i></span>
-      {% else %}
-        <span class="text text-danger"><i class="fa fa-times-circle fa-lg" title="Not packed"></i></span>
-      {% endif %}
-      {% if wrapped.shipped %}
-        <span class="text text-success"><i class="fa fa-check-circle fa-lg" title="Shipped"></i></span>
-      {% else %}
-        <span class="text text-danger"><i class="fa fa-times-circle fa-lg" title="Not shipped"></i></span>
-      {% endif %}
     </td>
     <td>
       {{ wrapped.wrapped_object.panel_object.verbose_name }}

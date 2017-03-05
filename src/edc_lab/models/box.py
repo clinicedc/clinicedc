@@ -7,7 +7,7 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_constants.constants import OTHER, OPEN
 from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
-from ..constants import VERIFIED, SHIPPED, TESTING, STORAGE
+from ..constants import VERIFIED, PACKED, SHIPPED, TESTING, STORAGE
 from ..identifiers import BoxIdentifier
 from ..model_mixins.shipping import VerifyBoxModelMixin
 from .box_type import BoxType
@@ -28,6 +28,7 @@ BOX_CATEGORY = (
 STATUS = (
     (OPEN, 'Open'),
     (VERIFIED, 'Verified'),
+    (PACKED, 'Packed'),
     (SHIPPED, 'Shipped'),
 )
 

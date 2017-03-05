@@ -13,19 +13,21 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.http import HttpResponse
 
-
 from .numbered_canvas import NumberedCanvas
 from .report import Report
 
 
 class ManifestReport(Report):
 
-    def __init__(self, manifest=None, **kwargs):
+    def __init__(self, manifest=None, user=None, **kwargs):
         super().__init__(**kwargs)
         app_config = django_apps.get_app_config('edc_lab')
         self.manifest = manifest
+        self.user = user
         self.box_model = django_apps.get_model(
             *app_config.box_model.split('.'))
+        self.box_item_model = django_apps.get_model(
+            *app_config.box_item_model.split('.'))
         self.aliquot_model = django_apps.get_model(
             *app_config.aliquot_model.split('.'))
         self.requisition_model = django_apps.get_model(
@@ -34,91 +36,61 @@ class ManifestReport(Report):
             settings.STATIC_ROOT, 'bcpp', 'images')
 
     @property
-    def export_data(self):
-        return {
-            'company': 'company',
-            'address': 'address',
-            'city': 'city',
-            'state_code': 'state_code',
-            'postal_code': 'postal_code',
-            'country_code': 'country_code',
-            'export_country': 'export_country',
-            'destination_country': 'destination_country',
-            'export_date': self.manifest.export_datetime.strftime('%Y-%m-%d %H:%M'),
-            'export_refs': self.manifest.export_references,
-            'country_of_origin': 'country_of_origin',
-        }
+    def contact_name(self):
+        return '{} {}'.format(
+            self.user.first_name, self.user.last_name)
 
     @property
-    def formatted_exporter_address(self):
+    def shipper_data(self):
+        data = self.manifest.shipper.__dict__
+        data.update(contact_name=self.contact_name)
+        return data
+
+    def formatted_address(self, **kwargs):
         data = {
-            'first_name': 'first_name',
-            'last_name': 'last_name',
-            'address': 'address',
-            'city': 'city',
-            'state_code': 'state_code',
-            'postal_code': 'postal_code',
-            'country_code': 'country_code',
+            'contact_name': None,
+            'address': None,
+            'city': None,
+            'state': None,
+            'postal_code': '0000',
+            'country': None,
         }
-        data.update(**self.exporter_data)
-        return self.address_paragraph(**data)
+        data.update(**kwargs)
+        data_list = [v for v in [
+            data.get('contact_name'),
+            data.get('address'),
+            data.get('city') if not data.get('state') else '{} {}'.format(
+                data.get('city'), data.get('state')),
+            data.get('postal_code'),
+            data.get('country'),
+        ] if v]
+        return '<br />'.join(data_list)
 
     @property
-    def formatted_consignee_address(self):
-        data = {
-            'first_name': 'first_name',
-            'last_name': 'last_name',
-            'address': 'address',
-            'city': 'city',
-            'state_code': 'state_code',
-            'postal_code': 'postal_code',
-            'country_code': 'country_code',
+    def description(self):
+        boxes = self.box_model.objects.filter(
+            box_identifier__in=[
+                obj.identifier for obj in self.manifest.manifestitem_set.all()])
+        box_items = self.box_item_model.objects.filter(box__in=boxes)
+        aliquots = self.aliquot_model.objects.filter(
+            aliquot_identifier__in=[
+                obj.identifier for obj in box_items])
+        specimen_types = list(set([obj.aliquot_type for obj in aliquots]))
+        description = {
+            'box_count': boxes.count(),
+            'specimen_count': aliquots.count(),
+            'specimen_types': ', '.join(specimen_types)
         }
-        data.update(**self.consignee_data)
-        return self.address_paragraph(**data)
+        box_word = 'box' if boxes.count() == 1 else 'boxes'
+        specimen_word = 'specimen' if aliquots.count() == 1 else 'specimens'
+        type_word = 'type' if len(specimen_types) == 1 else 'types'
+        return (
+            '{box_count} {box_word} containing {specimen_count} '
+            '{specimen_word} of {type_word} {specimen_types}.'.format(
+                box_word=box_word, specimen_word=specimen_word,
+                type_word=type_word, **description))
 
-    @property
-    def formatted_company_address(self):
-        data = {
-            'address': 'address',
-            'city': 'city',
-            'state_code': 'state_code',
-            'postal_code': 'postal_code',
-            'country_code': 'country_code',
-        }
-        data.update(**self.company_address)
-        return ('{address}<br />{city}, '
-                '{state_code}<br />'
-                '{postal_code} {country_code}'.format(**data))
-
-    def address_paragraph(self, **kwargs):
-        address_paragraph = {
-            'first_name': 'first_name',
-            'last_name': 'last_name',
-            'address': 'address',
-            'city': 'city',
-            'state_code': 'state_code',
-            'postal_code': 'postal_code',
-            'country_code': 'country_code',
-        }
-        address_paragraph.update(**kwargs)
-        return ('{first_name}, {last_name}<br />'
-                '{address}<br />'
-                '{city}, {state_code} <br />'
-                '{postal_code}, <br />'
-                '{country_code}'.format(**address_paragraph))
-
-    def render(self, export_data=None, consignee_data=None, exporter_data=None,
-               company_address=None, **kwargs):
-        if export_data:
-            self.export_data = export_data or {}
-        if consignee_data:
-            self.consignee_data = consignee_data or {}
-        if exporter_data:
-            self.exporter_data = exporter_data or {}
-        if company_address:
-            self.company_address = company_address or {}
-
+    def render(self, **kwargs):
         response = HttpResponse(content_type='application/pdf')
         buffer = BytesIO()
 
@@ -131,10 +103,13 @@ class ManifestReport(Report):
 
         data = [
             [Paragraph(
-                self.export_data['company'], self.styles["line_data_large"])],
+                ' '.join(self.manifest.site_name.split('_')).upper(),
+                self.styles["line_data_large"])],
             [Paragraph('SITE NAME', self.styles["line_label"])],
             [Paragraph(
-                self.formatted_company_address, self.styles["line_data_large"])],
+                self.formatted_address(
+                    **self.manifest.shipper.__dict__),
+                self.styles["line_data_large"])],
             [Paragraph('SITE DETAILS', self.styles["line_label"])]]
 
         t = Table(data, colWidths=(9 * cm))
@@ -148,15 +123,22 @@ class ManifestReport(Report):
         story.append(Spacer(0.1 * cm, .5 * cm))
 
         story.append(
-            Paragraph("SPECIMEN MANIFEST", self.styles["line_label_center"]))
+            Paragraph(
+                "SPECIMEN MANIFEST{}".format(
+                    ' (reprint)' if self.manifest.printed else ''),
+                self.styles["line_label_center"]))
 
-        barcode = code39.Standard39(
-            self.manifest.manifest_identifier, barHeight=10 * mm, stop=1)
+        if self.manifest.shipped:
+            barcode = code39.Standard39(
+                self.manifest.manifest_identifier, barHeight=10 * mm, stop=1)
+        else:
+            barcode = 'PREVIEW'
 
         data = [
             [Paragraph('MANIFEST NO.', self.styles["line_label"]),
              Paragraph(
-                 self.manifest.human_readable_identifier, self.styles["line_data_largest"]),
+                 self.manifest.human_readable_identifier if self.manifest.shipped else 'PREVIEW',
+                 self.styles["line_data_largest"]),
              barcode,
              ]]
         t = Table(data, colWidths=(3 * cm, None, 5.5 * cm))
@@ -170,13 +152,13 @@ class ManifestReport(Report):
 
         data = [[Paragraph('MANIFEST DATE', self.styles["line_label"]),
                  Paragraph(
-                     'EXPORT REFERENCES (i.e. order no., invoice no.)',
+                     'EXPORT REFERENCES',
                      self.styles["line_label"])],
                 [Paragraph(
                     self.manifest.manifest_datetime.strftime('%Y-%m-%d'),
                     self.styles["line_data_largest"]),
                  Paragraph(
-                    self.export_data['export_refs'],
+                    self.manifest.export_references,
                     self.styles["line_data_largest"]),
                  ]]
         t = Table(data)
@@ -190,8 +172,14 @@ class ManifestReport(Report):
 
         data = [[Paragraph('SHIPPER/EXPORTER (complete name and address)', self.styles["line_label"]),
                  Paragraph('CONSIGNEE (complete name and address)', self.styles["line_label"])],
-                [Paragraph(self.formatted_consignee_address, self.styles["line_data_large"]),
-                 Paragraph(self.formatted_exporter_address, self.styles["line_data_large"])]
+                [Paragraph(
+                    self.formatted_address(**self.shipper_data),
+                    self.styles["line_data_large"]),
+                 Paragraph(
+                    self.formatted_address(
+                        **self.manifest.consignee.__dict__),
+                    self.styles["line_data_large"]),
+                 ]
                 ]
 
         t = Table(data)
@@ -203,27 +191,20 @@ class ManifestReport(Report):
         ]))
         story.append(t)
 
-        importer_data = {}
-        if not importer_data:
-            importer_data = {'first_name': '', 'last_name': '',
-                             'postal_code': '', 'country_code': '', 'state_code': '',
-                             'city': '', 'address': ''}
-            importer_paragraph = 'importer_paragraph'
-        else:
-            importer_paragraph = self.address_paragraph(**importer_data)
-
         data1 = [[Paragraph('COUNTRY OF EXPORT', self.styles["line_label"]),
-                  Paragraph('DESCRIPTION OF CONTENTS <br />', self.styles["line_label"])],
-                 [Paragraph(self.export_data['export_country'], self.styles["line_data_largest"]),
-                  Paragraph(importer_paragraph, self.styles["line_data_large"])],
+                  Paragraph(
+                      'DESCRIPTION OF GOODS (description and special instructions)<br />',
+                      self.styles["line_label"])],
+                 [Paragraph(self.manifest.shipper.country, self.styles["line_data_largest"]),
+                  Paragraph(self.description, self.styles["line_data_large"])],
                  [Paragraph(
                      'COUNTRY OF ORIGIN', self.styles["line_label"]), ''],
                  [Paragraph(
-                     self.export_data['country_of_origin'], self.styles["line_data_largest"]), ''],
+                     self.manifest.shipper.country, self.styles["line_data_largest"]), ''],
                  [Paragraph(
                      'COUNTRY OF ULTIMATE DESTINATION', self.styles["line_label"]), ''],
                  [Paragraph(
-                     self.export_data['destination_country'], self.styles["line_data_largest"]), ''],
+                     self.manifest.consignee.country, self.styles["line_data_largest"]), ''],
                  ]
         t1 = Table(data1)
         t1.setStyle(TableStyle([
@@ -241,34 +222,6 @@ class ManifestReport(Report):
         ]))
         story.append(t1)
 
-#         checked_image_path = os.path.join(
-#             self.image_folder, 'checked.png')
-#         unchecked_image_path = os.path.join(
-#             self.image_folder, 'unchecked.png')
-#
-#         flags = {
-#             'fob': None,
-#             'caf': True,
-#             'cif': None,
-#         }
-#         flag_image_paths = {}
-#         for key, value in flags.items():
-#             flag_image_paths[
-#                 key] = checked_image_path if value else unchecked_image_path
-#
-#         check_data = [[Paragraph('Check one', self.styles["line_label"]), ''],
-#                       [Image(flag_image_paths['fob'], .25 * cm, .25 * cm),
-#                        Paragraph('F.O.B.', self.styles["line_label"])],
-#                       [Image(flag_image_paths['caf'], .25 * cm, .25 * cm),
-#                        Paragraph('C & F', self.styles["line_label"])],
-#                       [Image(flag_image_paths['cif'], .25 * cm, .25 * cm),
-#                        Paragraph('C.I.F.', self.styles["line_label"])]]
-#         tc = Table(check_data, colWidths=(.4 * cm, None))
-#         tc.setStyle(TableStyle([
-#             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-#             ('SPAN', (0, 0), (1, 0)),
-#         ]))
-
         story.append(Spacer(0.1 * cm, .5 * cm))
 
         story.append(Table([[Paragraph('I DECLARE THE INFORMATION CONTAINED IN THIS '
@@ -276,14 +229,15 @@ class ManifestReport(Report):
 
         story.append(Spacer(0.1 * cm, .5 * cm))
 
-        # TODO: signature could be image ? Date could be sign_date ?
-        # TODO: signature, date
         data1 = [
-            [Paragraph(self.export_data['company'], self.styles["line_data_large"]), '',
+            [Paragraph(self.contact_name, self.styles["line_data_large"]), '',
              Paragraph(
-                 self.export_data['export_date'], self.styles["line_data_large"])
+                 self.manifest.export_datetime.strftime(
+                     '%Y-%m-%d %H:%M') if self.manifest.shipped else 'PREVIEW',
+                 self.styles["line_data_large"])
              ],
-            [Paragraph('SIGNATURE OF SHIPPER/EXPORTER (Type name and title and sign.)', self.styles["line_label"]), '',
+            [Paragraph('SIGNATURE OF SHIPPER/EXPORTER (Type name and title and sign.)',
+                       self.styles["line_label"]), '',
              Paragraph('DATE', self.styles["line_label"])]]
 
         t1 = Table(data1, colWidths=(None, 2 * cm, None))
@@ -376,9 +330,11 @@ class ManifestReport(Report):
                     ('BOX', (0, 0), (-1, -1), 0.25, colors.black)]))
             story.append(t1)
 
+        if self.manifest.shipped and not self.manifest.printed:
+            self.manifest.printed = True
+            self.manifest.save()
+
         doc.build(story, canvasmaker=NumberedCanvas)
-#         doc.build(story, onFirstPage=self.header_footer, onLaterPages=self.header_footer,
-#                   canvasmaker=NumberedCanvas)
         pdf = buffer.getvalue()
         response.write(pdf)
         return response

@@ -1,9 +1,12 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
+from ...constants import SHIPPED
 from ...reports import ManifestReport
+from ..listboard_filters import ManifestListboardViewFilters
 from .base_listboard import BaseListboardView, app_config, app_name
 
 
@@ -22,6 +25,7 @@ class ManifestListboardView(BaseListboardView):
     listboard_template_name = app_config.manifest_listboard_template_name
     model_name = app_config.manifest_model
     model_wrapper_class = ManifestModelWrapper
+    listboard_view_filters = ManifestListboardViewFilters()
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -32,6 +36,7 @@ class ManifestListboardView(BaseListboardView):
         context.update(
             new_manifest=ManifestModelWrapper.new(),
             print_manifest_url_name='{}:print_manifest_url'.format(app_name),
+            SHIPPED=SHIPPED,
         )
         return context
 
@@ -47,5 +52,7 @@ class ManifestListboardView(BaseListboardView):
             manifest_identifier=self.request.GET.get('pdf'))
 
     def print_manifest(self):
-        manifest_report = ManifestReport(manifest=self.manifest)
+        user = User.objects.get(username=self.request.user)
+        manifest_report = ManifestReport(
+            manifest=self.manifest, user=user)
         return manifest_report.render()
