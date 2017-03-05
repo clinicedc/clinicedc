@@ -5,7 +5,7 @@ from django.db.models import options
 from django.utils import timezone
 
 from edc_base.utils import get_utcnow, get_uuid
-from edc_base.model.validators import datetime_not_future
+from edc_base.model_validators import datetime_not_future
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
 
