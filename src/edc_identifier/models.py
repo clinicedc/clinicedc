@@ -1,7 +1,8 @@
 from django.apps import apps as django_apps
 from django.db import models
 
-from edc_base.model.models import BaseModel, BaseUuidModel, HistoricalRecords
+from edc_base.model_mixins import BaseModel, BaseUuidModel
+from edc_base.model_managers import HistoricalRecords
 from edc_base.utils import get_utcnow
 
 
@@ -25,8 +26,10 @@ class IdentifierModelMixin(models.Model):
     sequence_number = models.IntegerField()
     device_id = models.IntegerField(default=0)
     is_derived = models.BooleanField(default=False)
-    sequence_app_label = models.CharField(max_length=50, editable=False, default='identifier')
-    sequence_model_name = models.CharField(max_length=50, editable=False, default='sequence')
+    sequence_app_label = models.CharField(
+        max_length=50, editable=False, default='identifier')
+    sequence_model_name = models.CharField(
+        max_length=50, editable=False, default='sequence')
 
     def __str__(self):
         return self.identifier

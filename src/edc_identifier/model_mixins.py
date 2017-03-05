@@ -1,12 +1,13 @@
 import re
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
 
 from edc_base.utils import get_uuid
-from edc_identifier.subject_identifier import SubjectIdentifier
-from edc_identifier.exceptions import IdentifierError
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+
+from .exceptions import IdentifierError
+from .subject_identifier import SubjectIdentifier
 
 
 class NonUniqueSubjectIdentifierFieldMixin(models.Model):
