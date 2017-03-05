@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.db import models
-from edc_device.exceptions import DevicePermissionError
+
+from .exceptions import DevicePermissionError
 
 
 class DeviceModelMixin(models.Model):
@@ -18,7 +19,8 @@ class DeviceModelMixin(models.Model):
         app_config = django_apps.get_app_config('edc_device')
         if self.id:
             if app_config.device_permissions.get(self._meta.label_lower):
-                device_permission = app_config.device_permissions.get(self._meta.label_lower)
+                device_permission = app_config.device_permissions.get(
+                    self._meta.label_lower)
                 if not device_permission.may_change(app_config.role):
                     raise DevicePermissionError(
                         'Device does not have permissions to change this model. Got role={}, model={}'.format(
@@ -32,7 +34,8 @@ class DeviceModelMixin(models.Model):
         app_config = django_apps.get_app_config('edc_device')
         if self.id:
             if app_config.device_permissions.get(self._meta.label_lower):
-                device_permission = app_config.device_permissions.get(self._meta.label_lower)
+                device_permission = app_config.device_permissions.get(
+                    self._meta.label_lower)
                 if not device_permission.may_change(app_config.role):
                     raise DevicePermissionError(
                         'Device does not have permissions to change this model. Got role={}, model={}'.format(
