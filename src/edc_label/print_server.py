@@ -62,7 +62,8 @@ class PrintServer:
 
     @property
     def printers(self):
-        """Return all printers from for CUPS.getPrinter()."""
+        """Return all printers from for CUPS.getPrinter().
+        """
         try:
             return self.conn.getPrinters()
         except (AttributeError, cups.IPPError) as e:
@@ -71,7 +72,9 @@ class PrintServer:
         return {}
 
     def select_printer(self, label):
-        """Select a printer by label from those available on the CUPS server."""
+        """Select a printer by label from those available on
+        the CUPS server.
+        """
         self.selected_printer = Printer()
         if not label:
             raise TypeError('Attribute \'label\' cannot be None')
@@ -87,10 +90,13 @@ class PrintServer:
                 label, str(self))
 
     def get_printer(self, label):
-        """Return a dictionary for one printer by label from CUPS.getPrinter().
+        """Return a dictionary for one printer by label from
+        CUPS.getPrinter().
 
-        Note: dictionary items are added using the '_' in place of '-', e.g.
-        after update both 'printer-info' and printer_info' are valid."""
+        Note: dictionary items are added using the '_' in place
+        of '-', e.g. after update both 'printer-info' and
+        printer_info' are valid.
+        """
         try:
             properties = self.printers[label]
             properties.update(

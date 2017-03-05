@@ -15,7 +15,10 @@ class AppConfig(DjangoAppConfig):
     # IP address of the CUPS server, if localhost leave as None
     default_cups_server_ip = None
     # CUPS name of the default printer
-    default_printer_name = None
+    try:
+        default_printer_name = settings.LABEL_PRINTER
+    except AttributeError:
+        default_printer_name = 'label_printer'
     # full path to static templates folder
     template_folder = os.path.join(
         settings.STATIC_ROOT, 'edc_label', 'label_templates')

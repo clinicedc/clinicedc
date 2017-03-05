@@ -40,8 +40,8 @@ class Label:
         return {}
 
     def print_label(self, copies=None, context=None):
-        """ Prints the label or fails silently with a message. """
-        self.messages = {'success': [], 'error': []}
+        """ Prints the label or fails silently with a message.
+        """
         job_ids = []
         copies = copies or 1
         context = context or self.context

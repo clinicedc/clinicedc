@@ -26,8 +26,12 @@ urlpatterns = [
     url(r'login', LoginView.as_view(), name='login_url'),
     url(r'logout', LogoutView.as_view(
         pattern_name='login_url'), name='logout_url'),
-    url(r'^print/(?P<label_name>\w+)/(?P<copies>\d+)/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})/$', HomeView.as_view(
-    ), name='print-test-label'),
+    url(r'^print/(?P<label_name>\w+)/'
+        '(?P<copies>\d+)/(?P<app_label>\w+)/'
+        '(?P<model_name>\w+)/'
+        '(?P<pk>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})/$',
+        HomeView.as_view(
+        ), name='print-test-label'),
     url(r'^print/(?P<label_name>\w+)/$',
         HomeView.as_view(), name='print-test-label'),
     url(r'^edc_base/', include('edc_base.urls', namespace='edc-base')),

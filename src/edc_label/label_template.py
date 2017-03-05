@@ -5,15 +5,21 @@ from string import Template
 from django.apps import apps as django_apps
 
 
+app_config = django_apps.get_app_config('edc_label')
+
+
 class LabelTemplate:
 
+    template_name = None
+    template_folder = app_config.template_folder
+    template_ext = app_config.template_ext
+
     def __init__(self, template_name=None):
-        app_config = django_apps.get_app_config('edc_label')
-        self.template_name = template_name
-        self.filename = os.path.join(
-            app_config.template_folder,
-            template_name + '.' + app_config.template_ext)
-        with open(self.filename, 'r') as f:
+        if template_name:
+            self.template_name = template_name
+        filename = os.path.join(
+            self.template_folder, template_name + '.' + self.template_ext)
+        with open(filename, 'r') as f:
             self.template = f.read()
 
     def __str__(self):

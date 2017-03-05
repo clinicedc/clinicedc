@@ -4,18 +4,20 @@ from .label import Label
 from .print_server import PrintServer
 
 
+app_config = django_apps.get_app_config('edc_label')
+
+
 class EdcLabelMixin:
 
     print_server_error = None
 
     def __init__(self, *args, **kwargs):
-        app_config = django_apps.get_app_config('edc_label')
+        super().__init__(*args, **kwargs)
         self._print_server = None
         self._printers = {}
         self.cups_server_ip = app_config.default_cups_server_ip
         self.label_templates = app_config.label_templates
         self.printer_label = app_config.default_printer_name
-        super(EdcLabelMixin, self).__init__(*args, **kwargs)
 
     @property
     def print_server(self):
