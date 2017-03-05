@@ -81,7 +81,8 @@ class TimepointModelMixin(models.Model):
         if self.timepoint_status == CLOSED_TIMEPOINT:
             self.timepoint_status = OPEN_TIMEPOINT
             self.timepoint_closed_datetime = None
-            self.save(update_fields=['timepoint_closed_datetime', 'timepoint_status'])
+            self.save(
+                update_fields=['timepoint_closed_datetime', 'timepoint_status'])
 
     def timepoint(self):
         """Formats and returns the status for the change_list."""
