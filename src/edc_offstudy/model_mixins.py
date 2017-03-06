@@ -25,7 +25,8 @@ class OffstudyModelManager(models.Manager):
 
 
 class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
-    """Mixin for the Off Study model."""
+    """Mixin for the Off Study model.
+    """
     dateformat = '%Y-%m-%d %H:%M'
 
     offstudy_datetime = models.DateTimeField(
@@ -50,8 +51,9 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     def save(self, *args, **kwargs):
         if not self.consented_before_offstudy:
-            raise OffstudyError('Offstudy date may not be before the date of consent. Got {}.'.format(
-                timezone.localtime(self.offstudy_datetime).strftime(self.dateformat)))
+            raise OffstudyError(
+                'Offstudy date may not be before the date of consent. Got {}.'.format(
+                    timezone.localtime(self.offstudy_datetime).strftime(self.dateformat)))
         self.offstudy_datetime_after_last_visit_or_raise()
         app_config = django_apps.get_app_config('edc_appointment')
         Appointment = app_config.model
@@ -64,7 +66,8 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     def __str__(self):
         return "{0} {1}".format(
-            self.subject_identifier, timezone.localtime(self.offstudy_datetime).strftime(self.dateformat))
+            self.subject_identifier,
+            timezone.localtime(self.offstudy_datetime).strftime(self.dateformat))
 
     @property
     def consented_before_offstudy(self):
@@ -104,7 +107,8 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 class OffstudyMixin(models.Model):
 
     """A mixin for CRF models to add the ability to determine
-    if the subject is off study."""
+    if the subject is off study.
+    """
 
     def save(self, *args, **kwargs):
         self.is_offstudy_or_raise()
@@ -131,8 +135,10 @@ class OffstudyMixin(models.Model):
                 subject_identifier=self.subject_identifier
             )
             raise OffstudyError(
-                'Participant was reported off study on \'{0}\'. Data reported after this date'
-                ' cannot be captured.'.format(timezone.localtime(offstudy.offstudy_datetime).strftime('%Y-%m-%d')))
+                'Participant was reported off study on \'{0}\'. '
+                'Data reported after this date'
+                ' cannot be captured.'.format(timezone.localtime(
+                    offstudy.offstudy_datetime).strftime('%Y-%m-%d')))
         except self.offstudy_model.DoesNotExist:
             offstudy = None
         return offstudy
