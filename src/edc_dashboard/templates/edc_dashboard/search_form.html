@@ -12,13 +12,13 @@
                         </button>
                         {% if listboard_view_filters %}
 	                        <button  type="button" class="btn btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-	                            <i class="fa fa-filter fa-sm"></i>&nbsp;<span class="caret"></span>
+	                            <span class="text {% if f == 'all' %}text-default{% elif f or e %}text-info{% else %}text-default{% endif %}"><i class="fa fa-filter fa-sm"></i></span>&nbsp;<span class="caret"></span>
 	                        </button>
 	                            <ul class="dropdown-menu pull-right" role="menu">
 	                              {% for listboard_filter in listboard_view_filters %}
 	                                <li>
 	                                   <a href="{{ listboard_url }}?{{ listboard_filter.querystring }}">
-	                                       {{ listboard_filter.label }}{% if f == listboard_filter.name %}&nbsp;<i class="fa fa-check fa-fw"></i>{% endif %}
+	                                       {{ listboard_filter.label }}{% if f == listboard_filter.name or e == listboard_filter.name %}&nbsp;<i class="fa fa-check fa-fw"></i>{% endif %}
 	                                   </a>
 	                                </li>
 	                              {% endfor %}
