@@ -1,14 +1,15 @@
+from dateutil.relativedelta import relativedelta
+
 from django.apps import apps as django_apps
 from django.db import models
+from django.db.models import options
 from django.utils import timezone
 
-from edc_base.model.fields import OtherCharField
-from edc_base.model.validators import datetime_not_future
-from edc_protocol.validators import datetime_not_before_study_start
+from edc_base.model_fields import OtherCharField
+from edc_base.model_validators import datetime_not_future
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_protocol.validators import datetime_not_before_study_start
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from dateutil.relativedelta import relativedelta
-from django.db.models import options
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model', )
 
@@ -69,7 +70,8 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     def consented_before_offstudy(self):
         consent = None
         try:
-            Consent = django_apps.get_model(*self._meta.consent_model.split('.'))
+            Consent = django_apps.get_model(
+                *self._meta.consent_model.split('.'))
             consent = Consent.objects.get(
                 subject_identifier=self.subject_identifier,
                 consent_datetime__lte=self.offstudy_datetime)
@@ -77,13 +79,15 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
             consent = None
         except AttributeError as e:
             if 'consent_model' in str(e):
-                raise AttributeError('For model {} got: {}'.format(self._meta.label_lower, str(e)))
+                raise AttributeError(
+                    'For model {} got: {}'.format(self._meta.label_lower, str(e)))
             raise OffstudyError(str(e))
         return consent
 
     def offstudy_datetime_after_last_visit_or_raise(self):
         try:
-            last_visit_datetime = site_visit_schedules.last_visit_datetime(self.subject_identifier)
+            last_visit_datetime = site_visit_schedules.last_visit_datetime(
+                self.subject_identifier)
             if relativedelta(self.offstudy_datetime, last_visit_datetime).days < 0:
                 raise OffstudyError(
                     'Offstudy datetime cannot precede the last visit datetime {}. Got {}'.format(
