@@ -1,8 +1,9 @@
-from django.contrib import admin
-from django.conf.urls import include, url
+from django.conf.urls import url
 
-admin.autodiscover()
+from .admin_site import edc_registration_admin
+
+app_name = 'edc_registration'
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', edc_registration_admin.urls),
 ]
