@@ -1,11 +1,11 @@
-from django.contrib import admin
-from django.conf.urls import include, url
+from django.conf.urls import url
 
-from edc_base.utils import edc_base_startup
+from .admin_site import edc_appointment_admin
+from .views import HomeView
 
-edc_base_startup()
-admin.autodiscover()
+app_name = 'edc_appointment'
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', edc_appointment_admin.urls),
+    url(r'^', HomeView.as_view(), name='home_url'),
 ]

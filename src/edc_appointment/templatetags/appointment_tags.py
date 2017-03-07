@@ -1,7 +1,6 @@
 from django import template
 from django.core.urlresolvers import reverse
-
-from ..models import Appointment
+from django.apps import apps as django_apps
 
 register = template.Library()
 
@@ -13,6 +12,10 @@ class ContinuationAppointmentAnchor(template.Node):
         self.unresolved_dashboard_type = template.Variable(dashboard_type)
         self.unresolved_extra_url_context = template.Variable(extra_url_context)
 
+    @property
+    def appointment_model(self):
+        return django_apps.get_app_config('edc_appointment').appointment_model
+
     def render(self, context):
         self.appointment = self.unresolved_appointment.resolve(context)
         self.dashboard_type = self.unresolved_dashboard_type.resolve(context)
@@ -23,10 +26,11 @@ class ContinuationAppointmentAnchor(template.Node):
             self.extra_url_context = ''
 
         # does a continuation appointment exist? instance will be instance+1
-        visit_instances = []
-        for appointment in Appointment.objects.filter(registered_subject=self.appointment.registered_subject):
-            visit_instances.append(int(appointment.visit_instance))
-        if (int(self.appointment.visit_instance) + 1) in visit_instances:
+        visit_code_sequences = []
+        for appointment in self.appointment_model.objects.filter(
+                registered_subject=self.appointment.registered_subject):
+            visit_code_sequences.append(int(appointment.visit_code_sequence))
+        if (int(self.appointment.visit_code_sequence) + 1) in visit_code_sequences:
             anchor = ''
         else:
             view = 'admin:{}_{}_add'.format(self.appointment._meta.app_label, self.appointment._meta.module_name)
@@ -34,9 +38,9 @@ class ContinuationAppointmentAnchor(template.Node):
                 # TODO: resolve error when using extra_url_context...give back variable name ???
                 rev_url = (
                     '{}?next=dashboard_url&dashboard_type={}&registered_subject={}&visit_definition={}'
-                    '&visit_instance={}').format(
+                    '&visit_code_sequence={}').format(
                         reverse(view), self.dashboard_type, self.appointment.registered_subject.pk,
-                        self.appointment.visit_definition.pk, str(int(self.appointment.visit_instance) + 1))
+                        self.appointment.visit_definition.pk, str(int(self.appointment.visit_code_sequence) + 1))
                 anchor = '<A href="{}">continuation</A>'.format(rev_url)
             except:
                 raise TypeError(
