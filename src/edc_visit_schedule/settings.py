@@ -15,8 +15,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import sys
 
-from django.utils import timezone
-
 from unipath import Path
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -35,7 +33,6 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,30 +40,29 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_crypto_fields',
     'simple_history',
-    'edc_base',
-    'edc_appointment',
-    'edc_content_type_map',
-    'edc_registration',
-    'edc_visit_schedule',
+    'django_crypto_fields.apps.AppConfig',
+    'edc_base.apps.AppConfig',
+    'edc_consent.apps.AppConfig',
+    'edc_appointment.apps.AppConfig',
+    'edc_device.apps.AppConfig',
+    'edc_identifier.apps.AppConfig',
+    'edc_lab.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
+    'edc_visit_schedule.apps.AppConfig',
+    'edc_visit_tracking.apps.AppConfig',
+    'edc_example.apps.EdcProtocolAppConfig',
+    'edc_example.apps.EdcTimepointAppConfig',
+    'edc_example.apps.AppConfig',
 ]
 
 if 'test' in sys.argv:
-    INSTALLED_APPS = INSTALLED_APPS + [
-        'tastypie',
-        'edc_configuration',
-        'edc_consent',
-        'edc_data_manager',
-        'edc_lab.lab_clinic_api',
-        'edc_lab.lab_clinic_reference',
-        'edc_lab.lab_packing',
-        'edc_meta_data',
-        'edc_offstudy',
-        'edc_sync',
-        'edc_testing',
-        'edc_visit_tracking',
-    ]
+    MIGRATION_MODULES = {
+        'example': None,
+        'edc_visit_schedule': None,
+        'edc_appointment': None,
+        'django_crypto_fields': None}
+
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -140,7 +136,6 @@ IS_SECURE_DEVICE = True
 KEY_PREFIX = 'user'
 ALLOW_MODEL_SERIALIZATION = True
 MIN_AGE_OF_CONSENT = None
-STUDY_OPEN_DATETIME = timezone.datetime(2013, 10, 18)
 DEVICE_ID = '99'
 SERVER_DEVICE_ID_LIST = ['99']
 MIDDLEMAN_DEVICE_ID_LIST = []
