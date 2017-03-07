@@ -12,10 +12,10 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from unipath import Path
+# import sys
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -31,40 +31,49 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'edc_appointment',
-    'edc_base',
-    'edc_configuration',
-    'edc_consent',
-    'edc_content_type_map',
-    'edc_crypto_fields',
-    'edc_data_manager',
-    'edc_export',
-    'edc_lab.lab_clinic_api',
-    'edc_meta_data',
-    'edc_offstudy',
-    'edc_registration',
-    'edc_sync',
-    'edc_testing',
-    'edc_visit_schedule',
-)
+    'django_crypto_fields.apps.AppConfig',
+    'edc_base.apps.AppConfig',
+    'edc_appointment.apps.AppConfig',
+    'edc_device.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
+    'edc_offstudy.apps.AppConfig',
+    'edc_visit_schedule.apps.AppConfig',
+    'edc_visit_tracking.apps.AppConfig',
+    'edc_lab.apps.AppConfig',
+    'edc_identifier.apps.AppConfig',
+    'edc_metadata.apps.AppConfig',
+    'edc_example.apps.EdcConsentAppConfig',
+    'edc_example.apps.EdcProtocolAppConfig',
+    'edc_example.apps.EdcTimepointAppConfig',
+    'edc_example.apps.AppConfig',
+]
 
-MIDDLEWARE_CLASSES = (
+# if 'test' in sys.argv:
+#     MIGRATION_MODULES = {
+#         'edc_metadata': None,
+#         'edc_example': None,
+#         'edc_visit_schedule': None,
+#         'edc_appointment': None,
+#         'django_crypto_fields': None,
+#         'edc_identifier': None}
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'django.middleware.security.SecurityMiddleware',
-)
+]
+
 
 ROOT_URLCONF = 'edc_offstudy.urls'
 
@@ -97,6 +106,23 @@ DATABASES = {
     }
 }
 
+# Password validation
+# https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -109,24 +135,10 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = False
+USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-
-GIT_DIR = BASE_DIR.ancestor(1)
-
-SITE_CODE = '10'
-DEVICE_ID = '10'
-SERVER_DEVICE_ID_LIST = [99]
-MIDDLEMAN_DEVICE_ID_LIST = []
-PROJECT_ROOT = BASE_DIR.ancestor(1)
-FIELD_MAX_LENGTH = 'default'
-IS_SECURE_DEVICE = True
-KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
-KEY_PREFIX = 'user'
-ALLOW_MODEL_SERIALIZATION = False
-DISPATCH_APP_LABELS = []
