@@ -1,19 +1,16 @@
 from django.core.validators import RegexValidator
 from django.db import models
+from django_crypto_fields.fields import (
+    FirstnameField, LastnameField, EncryptedCharField)
+from django_crypto_fields.mixins import CryptoMixin
 
-from edc_base.encrypted_fields import FirstnameField, LastnameField, EncryptedCharField
-from edc_consent.models.validators import FullNameValidator
-from edc_consent.plain_fields import IsDateEstimatedField
+from edc_base.model_fields import IsDateEstimatedField
 from edc_constants.choices import GENDER_UNDETERMINED
 
+from ..validators import FullNameValidator
 
-class PersonalFieldsMixin(models.Model):
 
-    SUBJECT_TYPES = ['subject']
-    GENDER_OF_CONSENT = ['M', 'F']
-    AGE_IS_ADULT = 18
-    MIN_AGE_OF_CONSENT = 16
-    MAX_AGE_OF_CONSENT = 64
+class PersonalFieldsMixin(CryptoMixin, models.Model):
 
     first_name = FirstnameField(
         null=True,
@@ -68,9 +65,14 @@ class PersonalFieldsMixin(models.Model):
     )
 
     def additional_filter_options(self):
-        """Additional kwargs to filter the consent when looking for the previous consent in base save."""
-        options = super(PersonalFieldsMixin, self).additional_filter_options()
-        options.update({'first_name': self.first_name, 'dob': self.dob, 'last_name': self.last_name})
+        """Additional kwargs to filter the consent when looking
+        for the previous consent in base save.
+        """
+        options = super().additional_filter_options()
+        options.update(
+            {'first_name': self.first_name,
+             'dob': self.dob,
+             'last_name': self.last_name})
         return options
 
     class Meta:

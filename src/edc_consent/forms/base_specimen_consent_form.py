@@ -5,6 +5,8 @@ from edc_constants.constants import YES, NO
 
 class BaseSpecimenConsentForm(forms.ModelForm):
 
+    # TODO: This code needs to be updated!!
+
     STUDY_CONSENT = None
 
     def clean(self):
@@ -20,9 +22,9 @@ class BaseSpecimenConsentForm(forms.ModelForm):
         """Returns an instance of the current maternal consent or
         raises an exception if not found."""
         cleaned_data = self.cleaned_data
-        subject_identifier = cleaned_data.get('registered_subject').subject_identifier
+        subject_identifier = cleaned_data.get('subject_identifier')
         consent_datetime = cleaned_data.get('consent_datetime')
-        maternal_consent = self.STUDY_CONSENT.consent.valid_consent_for_period(
+        maternal_consent = self.STUDY_CONSENT.consent.consent_for_period(
             subject_identifier, consent_datetime)
         if not maternal_consent:
             raise forms.ValidationError(
@@ -36,7 +38,8 @@ class BaseSpecimenConsentForm(forms.ModelForm):
         value = cleaned_data.get(attrname)
         study_consent_value = getattr(study_consent, attrname)
         if value != study_consent_value:
-            fields = [field for field in study_consent._meta.fields if field.name == attrname]
+            fields = [
+                field for field in study_consent._meta.fields if field.name == attrname]
             raise forms.ValidationError(
                 'Specimen consent and maternal consent do not match for question '
                 '\'{}\'. Got {} != {}. Please correct.'.format(
@@ -64,4 +67,5 @@ class BaseSpecimenConsentForm(forms.ModelForm):
             if cleaned_data.get('offered_copy') != NO:
                 raise forms.ValidationError(
                     'Participant did not agree for specimens to be stored. '
-                    'Do not provide the participant with a copy of the specimen consent.')
+                    'Do not provide the participant with a copy of '
+                    'the specimen consent.')
