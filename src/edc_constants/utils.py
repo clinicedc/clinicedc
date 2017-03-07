@@ -1,13 +1,8 @@
 
-def displayed_choice(choices, stored_choice):
-    """Returns the display choice of the choice tuple given the stored choice."""
-    displayed_choice = None
-    STORED_CHOICE = 0
-    DISPLAYED_CHOICE = 1
+def get_display(choices, label):
+    """Returns the display value of a choices tuple for label."""
     for choice in choices:
-        if choice[STORED_CHOICE] == stored_choice:
-            displayed_choice = choice[DISPLAYED_CHOICE]
-    if not displayed_choice:
-        raise ValueError(
-            '\'{}\' is not a stored value in choices tuple. Got {}.'.format(stored_choice, choices))
-    return displayed_choice
+        store_value, display_value = choice
+        if label == store_value:
+            return display_value
+    return None

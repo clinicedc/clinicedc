@@ -2,7 +2,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from .constants import (
     ALIVE, DEAD, DECLINED, DWTA, FEMALE, IND, MALE, NAIVE,
-    NEG, NEVER, NO, NOT_APPLICABLE, OMANG, OTHER, POS, REFUSED, UNKNOWN, YES)
+    NEG, NEVER, NO, NOT_APPLICABLE, OMANG, OTHER, POS, REFUSED, UNKNOWN, YES,
+    MORNING, AFTERNOON, EVENING, ANYTIME, WEEKDAYS, WEEKENDS,
+    NOT_SURE)
 
 
 BLANK_CHOICE_DASH = [('', '---------')]
@@ -77,13 +79,6 @@ DAYS_OF_WEEK = (
     ('Saturday', 'Saturday'),
     ('Sunday', 'Sunday'),
     ('AnyDay', 'Any Day'),
-)
-
-TIME_OF_DAY = (
-    ('Morning', 'Morning'),
-    ('Afternoon', 'Afternoon'),
-    ('Evening', 'Evening'),
-    ('Anytime', 'Anytime'),
 )
 
 
@@ -167,7 +162,8 @@ HIV_RESULT = (
     (NEG, 'HIV Negative (Non-reactive)'),
     (IND, 'Indeterminate'),
     (DECLINED, 'Participant declined testing'),
-    ('Not performed', 'Test could not be performed (e.g. supply outage, technical problem)'),
+    ('Not performed',
+     'Test could not be performed (e.g. supply outage, technical problem)'),
 )
 
 """do not change without inspecting implication to check_omang_field() in utils.py"""
@@ -235,6 +231,13 @@ POS_NEG_UNKNOWN = (
     (UNKNOWN, _('Unknown')),
 )
 
+POS_NEG_IND_UNKNOWN = (
+    (POS, _('Positive')),
+    (NEG, _('Negative')),
+    (IND, 'Indeterminate'),
+    (UNKNOWN, _('Unknown')),
+)
+
 POS_NEG_ACU = (
     ('Positive', 'Positive'),
     ('Negative', 'Negative'),
@@ -276,14 +279,16 @@ SEXUAL_DEBUT = (
 )
 
 TIME_OF_WEEK = (
-    ('weekdays', 'Weekdays'),
-    ('weekend', 'Weekends'),
+    (WEEKDAYS, 'Weekdays'),
+    (WEEKENDS, 'Weekends'),
+    (ANYTIME, 'Anytime')
 )
 
 TIME_OF_DAY = (
-    ('morning', 'Morning'),
-    ('afternoon', 'Afternoon'),
-    ('evening', 'Evening'),
+    (MORNING, 'Morning'),
+    (AFTERNOON, 'Afternoon'),
+    (EVENING, 'Evening'),
+    (ANYTIME, 'Anytime')
 )
 
 TIME_UNITS = (
@@ -331,7 +336,7 @@ YES_NO_REFUSED = (
 YES_NO_DWTA = (
     (YES, _(YES)),
     (NO, _(NO)),
-    ('DWTA', _('Don\'t want to answer')),
+    (DWTA, _('Don\'t want to answer')),
 )
 
 YES_NO_NA_SPECIFY = (
@@ -343,6 +348,14 @@ YES_NO_NA_SPECIFY = (
 YES_NO_NA = (
     (YES, YES),
     (NO, NO),
+    (NOT_APPLICABLE, 'Not applicable'),
+)
+
+
+YES_NO_NA_DWTA = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (DWTA, _('Don\'t want to answer')),
     (NOT_APPLICABLE, 'Not applicable'),
 )
 
@@ -374,20 +387,27 @@ YES_NO_DOESNT_WORK = (
 YES_NO_UNKNOWN = (
     (YES, YES),
     (NO, NO),
-    ('Unknown', 'Unknown'),
+    (UNKNOWN, 'Unknown'),
 )
 
 YES_NO_UNKNOWN_NA = (
     (YES, YES),
     (NO, NO),
-    ('Unknown', 'Unknown'),
+    (UNKNOWN, 'Unknown'),
     (NOT_APPLICABLE, 'Not applicable'),
 )
 
 YES_NO_UNSURE = (
     (YES, YES),
     (NO, NO),
+    (NOT_SURE, 'Not Sure'),
+)
+
+YES_NO_UNSURE_DWTA = (
+    (YES, YES),
+    (NO, NO),
     ('Not Sure', 'Not Sure'),
+    (DWTA, 'Don\'t want to answer')
 )
 
 YES_NO_UNSURE_NA = (
@@ -447,8 +467,10 @@ ARV_MODIFICATION_REASON = (
     ('Completed PMTCT intervention', 'Completed PMTCT intervention'),
     ('Completed postpartum tail', 'Completed postpartum "tail"'),
     ('Scheduled dose increase', 'Scheduled dose increase'),
-    ('Confirmed infant HIV infection, ending study drug', 'Confirmed infant HIV infection, ending study drug'),
-    ('completed protocol', 'Completion of protocol-required period of study treatment'),
+    ('Confirmed infant HIV infection, ending study drug',
+     'Confirmed infant HIV infection, ending study drug'),
+    ('completed protocol',
+     'Completion of protocol-required period of study treatment'),
     ('HAART not available', 'HAART not available'),
     ('Anemia', 'Anemia'),
     ('Bleeding', 'Bleeding'),
@@ -464,15 +486,18 @@ ARV_MODIFICATION_REASON = (
     ('Rash', 'Rash'),
     ('Rash resolved', 'Rash resolved'),
     ('Neuropathy', 'Neuropathy'),
-    ('Hypersensitivity_allergic reaction', 'Hypersensitivity / allergic reaction'),
+    ('Hypersensitivity_allergic reaction',
+     'Hypersensitivity / allergic reaction'),
     ('Pancreatitis', 'Pancreatitis'),
     ('Lactic Acidiosis', 'Lactic Acidiosis'),
     ('Pancytopenia', 'Pancytopenia'),
     ('Virologic failure', 'Virologic failure'),
     ('Immunologic failure', 'Immunologic failure(CD4)'),
     ('Clinical failure', 'Clinical failure'),
-    ('Clinician request', 'Clinician request, other reason (including convenience)'),
-    ('Subject request', 'Subject request, other reason (including convenience)'),
+    ('Clinician request',
+     'Clinician request, other reason (including convenience)'),
+    ('Subject request',
+     'Subject request, other reason (including convenience)'),
     ('Non-adherence with clinic visits', 'Non-adherence with clinic visits'),
     ('Non-adherence with ARVs', 'Non-adherence with ARVs'),
     ('Death', 'Death'),
@@ -481,8 +506,10 @@ ARV_MODIFICATION_REASON = (
 
 ARV_STATUS = (
     ('no_mod', '1. No modifications made to existing HAART treatment',),
-    ('start', '2. Started antriretroviral treatment since last attended scheduled visit(including today)',),
-    ('discontinued', '3. Permanently discontinued antiretroviral treatment at or before last study visit',),
+    ('start',
+     '2. Started antriretroviral treatment since last attended scheduled visit(including today)',),
+    ('discontinued',
+     '3. Permanently discontinued antiretroviral treatment at or before last study visit',),
     ('modified', ('4. Change in at least one antiretroviral medication since last '
                   'attended scheduled visit (including today)(dose modification, '
                   'permanent discontinuation, temporary hold, resumption / initiation '
@@ -491,11 +518,15 @@ ARV_STATUS = (
 
 ARV_STATUS_WITH_NEVER = (
 
-    ('no_mod', '1. No modifications made since the last attended scheduled visit or today'),
-    ('start', '2. Starting today or has started since last attended scheduled visit'),
-    ('discontinued', '3. Permanently discontinued at or before the last attended scheduled visit'),
+    ('no_mod',
+     '1. No modifications made since the last attended scheduled visit or today'),
+    ('start',
+     '2. Starting today or has started since last attended scheduled visit'),
+    ('discontinued',
+     '3. Permanently discontinued at or before the last attended scheduled visit'),
     ('never started', '4. Never started'),
-    ('modified', '5. Change in at least one medication since the last attended scheduled visit or today'),
+    ('modified',
+     '5. Change in at least one medication since the last attended scheduled visit or today'),
     (NOT_APPLICABLE, 'Not applicable'),
 )
 
@@ -510,15 +541,22 @@ DOSE_STATUS = (
 
 WHYNOPARTICIPATE_CHOICE = (
     ('I don\'t have time', _('I don\'t have time')),
-    ('I don\'t want to answer the questions', _('I don\'t want to answer the questions')),
-    ('I don\'t want to have the blood drawn', _('I don\'t want to have the blood drawn')),
-    ('I am afraid my information will not be private', _('I am afraid my information will not be private')),
+    ('I don\'t want to answer the questions',
+     _('I don\'t want to answer the questions')),
+    ('I don\'t want to have the blood drawn',
+     _('I don\'t want to have the blood drawn')),
+    ('I am afraid my information will not be private',
+     _('I am afraid my information will not be private')),
     ('Fear of needles', _('Fear of needles')),
-    ('Illiterate does not want a witness', _('Illiterate does not want a witness')),
+    ('Illiterate does not want a witness',
+     _('Illiterate does not want a witness')),
     ('I don\'t want to take part', _('I don\'t want to take part')),
-    ('I haven\'t had a chance to think about it', _('I haven\'t had a chance to think about it')),
-    ('Have a newly born baby, not permitted', _('Have a newly born baby, not permitted')),
-    ('The appointment was not honoured', _('The appointment was not honoured')),
+    ('I haven\'t had a chance to think about it',
+     _('I haven\'t had a chance to think about it')),
+    ('Have a newly born baby, not permitted',
+     _('Have a newly born baby, not permitted')),
+    ('The appointment was not honoured',
+     _('The appointment was not honoured')),
     ('not_sure', _('I am not sure')),
     ('OTHER', _('Other, specify:')),
     ('not_answering', _('Don\'t want to answer')),
