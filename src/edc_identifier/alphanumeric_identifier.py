@@ -14,15 +14,18 @@ class AlphanumericIdentifier(LuhnOrdMixin, NumericIdentifier):
     separator = None
 
     def __init__(self, last_identifier=None, prefix=None):
-        self.identifier_pattern = '{}{}'.format(self.alpha_pattern[:-1], self.numeric_pattern[1:])
+        self.identifier_pattern = '{}{}'.format(
+            self.alpha_pattern[:-1], self.numeric_pattern[1:])
         self.verify_seed()
-        super(AlphanumericIdentifier, self).__init__(last_identifier, prefix=prefix)
+        super().__init__(last_identifier, prefix=prefix)
 
     def verify_seed(self):
         """Verifies the class attribute "seed" matches the regular expressions
-        of alpha and numeric and adds a checkdigit to the numeric segment."""
+        of alpha and numeric and adds a checkdigit to the numeric segment.
+        """
         if not isinstance(self.seed, list):
-            raise TypeError('Expected attribute seed to be a list. Got {}'.format(self.seed))
+            raise TypeError(
+                'Expected attribute seed to be a list. Got {}'.format(self.seed))
         re.match(self.alpha_pattern, self.seed[0]).group()
         re.match(self.numeric_pattern, self.seed[1]).group()
 
@@ -48,26 +51,33 @@ class AlphanumericIdentifier(LuhnOrdMixin, NumericIdentifier):
         elif int(numeric) == self.max_numeric(numeric):
             return self.increment_alpha(alpha)
         else:
-            raise IdentifierError('Unexpected numeric sequence. Got {}'.format(identifier))
+            raise IdentifierError(
+                'Unexpected numeric sequence. Got {}'.format(identifier))
 
     def increment_numeric_segment(self, identifier):
-        """Increments the numeric segment of the identifier."""
+        """Increments the numeric segment of the identifier.
+        """
         numeric = self.numeric_segment(identifier)
-        return super(AlphanumericIdentifier, self).increment(numeric)
+        return super().increment(numeric)
 
     def alpha_segment(self, identifier):
         """Returns the alpha segment of the identifier."""
-        segment = identifier[len(self.prefix):len(self.prefix) + len(self.seed[0])]
+        segment = identifier[
+            len(self.prefix):len(self.prefix) + len(self.seed[0])]
         return re.match(self.alpha_pattern, segment).group()
 
     def numeric_segment(self, identifier):
-        """Returns the numeric segment of the partial identifier."""
+        """Returns the numeric segment of the partial identifier.
+        """
         segment = identifier[
-            len(self.prefix or '') + len(self.seed[0]):len(self.prefix or '') + len(self.seed[0]) + len(self.seed[1])]
+            len(self.prefix or '')
+            + len(self.seed[0]):len(self.prefix or '')
+            + len(self.seed[0]) + len(self.seed[1])]
         return re.match(self.numeric_pattern, segment).group()
 
     def increment_alpha(self, text):
-        """Increments an alpha string."""
+        """Increments an alpha string.
+        """
         letters = []
         letters[0:] = text.upper()
         letters.reverse()

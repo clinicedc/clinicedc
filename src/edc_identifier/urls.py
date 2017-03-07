@@ -1,12 +1,23 @@
-# from django.conf.urls import patterns, url
-#
-# from edc_audit import audit_trail_view
-# # from edc.edc_audit.views.audit_trail_view import AuditTrailView
-#
-#
-# urlpatterns = patterns('',
-#     url(r'^(?P<section_name>\w+)/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<dashboard_type>\w+)/(?P<audit_subject_identifier>[\w\-]+)/(?P<audit_id>[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12})/(?P<visit_code>\w+)/(?P<visit_instance>\w+)/$',
-#     audit_trail_view,
-#     name="audit_trail_url"
-#     ),
-# )
+""" URL Configuration
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/1.9/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.conf.urls import url, include
+    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
+"""
+from django.conf.urls import url
+from django.contrib import admin
+
+app_name = 'edc_identifier'
+
+urlpatterns = [
+    url(r'^admin/', admin.site.urls),
+]

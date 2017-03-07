@@ -1,7 +1,7 @@
 import random
 import re
 
-from django.db.models import get_model
+from django.apps import apps as django_apps
 from .checkdigit_mixins import LuhnOrdMixin
 from .exceptions import IdentifierError
 from .identifier_with_checkdigit import IdentifierWithCheckdigit
@@ -18,13 +18,10 @@ class ShortIdentifier(LuhnOrdMixin, IdentifierWithCheckdigit):
     seed = None
     template = '{prefix}{random_string}'
 
-    def __init__(self, options=None):
+    def __init__(self, **options):
         self.duplicate_counter = 0
         self._options = options or {}
-        try:
-            self.prefix = self._options['prefix']
-        except KeyError:
-            pass
+        self.prefix = options.get('prefix')
         self.identifier = self.next_on_duplicate(None)
         super(ShortIdentifier, self).__init__(self.identifier, prefix=self.prefix)
 
@@ -91,7 +88,7 @@ class ShortIdentifier(LuhnOrdMixin, IdentifierWithCheckdigit):
         try:
             HistoryModel = self.history_model
         except AttributeError:
-            HistoryModel = get_model('edc_identifier', 'IdentifierHistory')
+            HistoryModel = django_apps.get_model('edc_identifier', 'IdentifierHistory')
         try:
             HistoryModel.objects.get(identifier=identifier)
             return True
