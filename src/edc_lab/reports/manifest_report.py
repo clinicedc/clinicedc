@@ -46,6 +46,11 @@ class ManifestReport(Report):
         data.update(contact_name=self.contact_name)
         return data
 
+    @property
+    def consignee_data(self):
+        data = self.manifest.consignee.__dict__
+        return data
+
     def formatted_address(self, **kwargs):
         data = {
             'contact_name': None,
@@ -177,7 +182,7 @@ class ManifestReport(Report):
                     self.styles["line_data_large"]),
                  Paragraph(
                     self.formatted_address(
-                        **self.manifest.consignee.__dict__),
+                        **self.consignee_data),
                     self.styles["line_data_large"]),
                  ]
                 ]

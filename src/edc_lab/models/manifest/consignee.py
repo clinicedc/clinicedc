@@ -14,7 +14,8 @@ class Consignee(AddressMixin, BaseUuidModel):
 
     name = models.CharField(
         unique=True,
-        max_length=50)
+        max_length=50,
+        help_text='Company name')
 
     objects = ConsigneeManager()
 
