@@ -1,1 +1,0 @@
-from .test_visit_factory import TestVisitFactory
