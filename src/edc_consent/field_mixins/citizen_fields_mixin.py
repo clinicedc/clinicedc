@@ -10,7 +10,6 @@ class CitizenFieldsMixin(models.Model):
         verbose_name='Are you a Botswana citizen? ',
         max_length=3,
         choices=YES_NO,
-        help_text='',
     )
 
     legal_marriage = models.CharField(
@@ -18,9 +17,9 @@ class CitizenFieldsMixin(models.Model):
             'If not a citizen, are you legally married to a Botswana Citizen?'),
         max_length=3,
         choices=YES_NO_NA,
+        default=NOT_APPLICABLE,
         null=True,
         blank=False,
-        default=NOT_APPLICABLE,
         help_text='If \'NO\' participant will not be enrolled.',
     )
 
@@ -30,9 +29,9 @@ class CitizenFieldsMixin(models.Model):
             'certificate, as proof? '),
         max_length=3,
         choices=YES_NO_NA,
+        default=NOT_APPLICABLE,
         null=True,
         blank=False,
-        default=NOT_APPLICABLE,
         help_text='If \'NO\' participant will not be enrolled.',
     )
 

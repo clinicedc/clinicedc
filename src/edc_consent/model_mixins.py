@@ -103,7 +103,6 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     version = models.CharField(
         verbose_name='Consent version',
         max_length=10,
-        default='?',
         help_text='See \'Consent Type\' for consent versions by period.',
         editable=False,
     )
