@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 
 
-class ModelToDataFrame(object):
+class ModelToDataFrame:
     """
-        e = EdcModelToDataFrame(ClinicVlResult, add_columns_for='clinic_visit')
+        e = ModelToDataFrame(ClinicVlResult, add_columns_for='clinic_visit')
         my_df = e.dataframe
     """
 
