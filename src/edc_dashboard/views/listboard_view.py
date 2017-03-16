@@ -113,13 +113,29 @@ class ListboardView(QueryStringViewMixin, ListView):
         else:
             return False
 
+    def is_last_pages(self, context):
+        """Returns a boolean that verifies if current page lies in the range
+        of the last pages to be shown
+        """
+        current_page = int(self.kwargs.get('page'))
+        num_pages = context.get('paginator').num_pages
+        last_pages_range = range(num_pages - self.pagination_limit + 1,
+                                 num_pages + 1)
+        return current_page in last_pages_range
+
     def page_range_list(self, context):
         """Returns a list of page numbers that will be shown in the template
         """
         if self.kwargs.get('page'):
-            return [i for i in range(int(self.kwargs.get('page')),
-                                     int(self.kwargs.get('page')) +
-                                     self.pagination_limit)]
+            if not self.is_last_pages(context):
+                return [i for i in range(int(self.kwargs.get('page')),
+                                         int(self.kwargs.get('page')) +
+                                         self.pagination_limit)]
+            else:
+                return [i for i in range(context.get('paginator').num_pages -
+                                         self.pagination_limit + 1,
+                                         context.get('paginator').num_pages +
+                                         1)]
         else:
             return [i for i in range(1, self.pagination_limit + 1)]
 
