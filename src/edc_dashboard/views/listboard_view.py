@@ -6,8 +6,9 @@ from django.db.models import Q
 from django.utils.text import slugify
 from django.views.generic.list import ListView
 
-from ..view_mixins import QueryStringViewMixin
 from edc_constants.constants import OTHER, YES, NO
+
+from ..view_mixins import QueryStringViewMixin
 
 
 class ListboardView(QueryStringViewMixin, ListView):
@@ -15,6 +16,7 @@ class ListboardView(QueryStringViewMixin, ListView):
     context_object_name = 'results'
     model_wrapper_class = None
     ordering = '-created'
+    pagination_limit = 10
     paginate_by = 10
     orphans = 3
     listboard_url_name = None
@@ -103,6 +105,24 @@ class ListboardView(QueryStringViewMixin, ListView):
             object_list.append(self.model_wrapper_class(obj))
         return object_list
 
+    def pagination_limit_reached(self, context):
+        """Returns a boolean that verifies if pagination limit has been reached
+        """
+        if context.get('paginator').num_pages > self.pagination_limit:
+            return True
+        else:
+            return False
+
+    def page_range_list(self, context):
+        """Returns a list of page numbers that will be shown in the template
+        """
+        if self.kwargs.get('page'):
+            return [i for i in range(int(self.kwargs.get('page')),
+                                     int(self.kwargs.get('page')) +
+                                     self.pagination_limit)]
+        else:
+            return [i for i in range(1, self.pagination_limit + 1)]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = context.get('object_list')
@@ -115,7 +135,9 @@ class ListboardView(QueryStringViewMixin, ListView):
             empty_queryset_message=self.empty_queryset_message,
             listboard_url_name=self.listboard_url_name,
             object_list=wrapped_queryset,
-            search_term=self.search_term)
+            search_term=self.search_term,
+            pagination_limit_reached=self.pagination_limit_reached(context),
+            page_range=self.page_range_list(context))
         if context_object_name is not None:
             context[context_object_name] = wrapped_queryset
         return context

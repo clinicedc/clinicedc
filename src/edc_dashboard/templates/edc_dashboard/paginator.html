@@ -1,6 +1,5 @@
 
 <!--  begin paginator -->
-
 {% if page_obj.has_next or page_obj.has_previous %}
  <div style="text-align:center">
  <ul class="pagination pagination-sm">
@@ -15,9 +14,19 @@
     </a>
   </li>
 
-  {% for page in paginator.page_range %}
-    <li class="{% if page_obj.number == page %}active{% endif %}"><a href="{% if listboard_url %}{{ listboard_url }}{% else %}{% url listboard_url_name %}{% endif %}{{ page }}/{{ querystring }}">{{ page }}</a></li>
-  {% endfor %}
+{% if pagination_limit_reached %}
+	{% for page in page_range %}
+		<li class="{% if page_obj.number == page %}active{% endif %}">
+		<a href="{% if listboard_url %}{{ listboard_url }}{% else %}{% url listboard_url_name %}{% endif %}{{ page }}/{{ querystring }}">{{ page }}</a>
+		</li>
+	{% endfor %}
+{% else %}
+	{% for page in paginator.page_range %}
+		<li class="{% if page_obj.number == page %}active{% endif %}">
+		<a href="{% if listboard_url %}{{ listboard_url }}{% else %}{% url listboard_url_name %}{% endif %}{{ page }}/{{ querystring }}">{{ page }}</a>
+		</li>
+	{% endfor %}
+{% endif %}
 
   <li class="{% if not page_obj.has_next %}disabled{% endif %}">
     <a href="{% if not page_obj.has_next %}#{% else %}{% if listboard_url %}{{ listboard_url }}{% else %}{% url listboard_url_name %}{% endif %}{{ page_obj.next_page_number }}/{% endif %}{{ querystring }}">
