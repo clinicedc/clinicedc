@@ -49,6 +49,8 @@ class CrfModelAdminMixin:
             if request.GET.get(self.visit_model_attr):
                 kwargs["queryset"] = self.visit_model.objects.filter(
                     id__exact=request.GET.get(self.visit_model_attr, 0))
+            else:
+                kwargs["queryset"] = self.visit_model.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
