@@ -1,9 +1,8 @@
 import re
 
-from uuid import uuid4
-
 from django.db import models
 
+from edc_base.utils import get_uuid
 from edc_constants.constants import YES, UUID_PATTERN
 
 from ...identifiers import RequisitionIdentifier
@@ -33,7 +32,7 @@ class RequisitionIdentifierMixin(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.requisition_identifier:
-            self.requisition_identifier = str(uuid4())
+            self.requisition_identifier = get_uuid()
         self.requisition_identifier = self.get_requisition_identifier()
         super().save(*args, **kwargs)
 
