@@ -1,8 +1,6 @@
-from uuid import uuid4
-
 from django.apps import apps as django_apps
 
-from edc_base.utils import get_utcnow
+from edc_base.utils import get_utcnow, get_uuid
 from edc_consent.exceptions import ConsentDoesNotExist
 from edc_consent.site_consents import site_consents
 
@@ -78,7 +76,7 @@ class ConsentViewMixin:
         """
         return self.consent_object.model(
             subject_identifier=self.subject_identifier,
-            consent_identifier=uuid4(),
+            consent_identifier=get_uuid(),
             version=self.consent_object.version)
 
     @property
