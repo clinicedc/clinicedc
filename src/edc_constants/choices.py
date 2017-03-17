@@ -193,14 +193,6 @@ NORMAL_ABNORMAL_NOTEVALUATED = (
     ('NOT_EVAL', 'Not Evaluated'),
 )
 
-PIMA = (
-    ('Participant Declined', 'Participant Declined'),
-    ('Multiple PIMA malfunction', 'Multiple PIMA malfunction'),
-    ('Failed Blood Collection', 'Failed Blood Collection'),
-    (OTHER, _('Other, specify:')),
-)
-
-
 POS_NEG = (
     (POS, 'Positive'),
     (NEG, 'Negative'),
