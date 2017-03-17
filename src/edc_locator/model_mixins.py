@@ -22,14 +22,9 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    date_signed = models.DateField(
-        verbose_name="Date Locator Form signed ",
-        default=date.today,
-        help_text="",
-    )
-
     mail_address = EncryptedTextField(
         verbose_name=_("Mailing address "),
+        max_length=500,
         help_text="",
         null=True,
         blank=True
@@ -44,6 +39,7 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     physical_address = EncryptedTextField(
         verbose_name=_("Physical address with detailed description"),
+        max_length=500,
         blank=True,
         null=True,
         help_text="",
@@ -106,6 +102,7 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     subject_work_place = EncryptedTextField(
         verbose_name=_("Name and location of work place"),
+        max_length=250,
         help_text="",
         blank=True,
         null=True,
@@ -143,6 +140,7 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     contact_physical_address = EncryptedTextField(
         verbose_name=_("Full physical address "),
+        max_length=500,
         blank=True,
         null=True,
         help_text="",

@@ -6,7 +6,6 @@ from edc_base.modeladmin_mixins import ModelAdminBasicMixin
 class ModelAdminLocatorMixin(ModelAdminBasicMixin):
 
     mixin_fields = (
-        'date_signed',
         'mail_address',
         'home_visit_permission',
         'physical_address',
