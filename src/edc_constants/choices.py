@@ -193,14 +193,6 @@ NORMAL_ABNORMAL_NOTEVALUATED = (
     ('NOT_EVAL', 'Not Evaluated'),
 )
 
-PIMA = (
-    ('Participant Declined', 'Participant Declined'),
-    ('Multiple PIMA malfunction', 'Multiple PIMA malfunction'),
-    ('Failed Blood Collection', 'Failed Blood Collection'),
-    (OTHER, _('Other, specify:')),
-)
-
-
 POS_NEG = (
     (POS, 'Positive'),
     (NEG, 'Negative'),
@@ -330,7 +322,7 @@ YES_NO_OPTIONAL = (
 YES_NO_REFUSED = (
     (YES, _(YES)),
     (NO, _(NO)),
-    ('REF', _('Refused to answer')),
+    (REFUSED, _('Refused to answer')),
 )
 
 YES_NO_DWTA = (
@@ -406,14 +398,14 @@ YES_NO_UNSURE = (
 YES_NO_UNSURE_DWTA = (
     (YES, YES),
     (NO, NO),
-    ('Not Sure', 'Not Sure'),
+    (NOT_SURE, 'Not Sure'),
     (DWTA, 'Don\'t want to answer')
 )
 
 YES_NO_UNSURE_NA = (
     (YES, YES),
     (NO, NO),
-    ('Not Sure', 'Not Sure'),
+    (NOT_SURE, 'Not Sure'),
     (NOT_APPLICABLE, 'Not Applicable'),
 )
 
