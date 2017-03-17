@@ -9,7 +9,8 @@ from .model_to_dataframe import ModelToDataFrame
 
 class ExportDataToCsv:
 
-    def __init__(self, recipe=None, export_model=None, overwrite_csv=None, export_csv=None, **kwargs):
+    def __init__(self, recipe=None, export_model=None, overwrite_csv=None,
+                 export_csv=None, **kwargs):
         export_csv = True if export_csv is None else export_csv
         if recipe:
             self.path = recipe.out_path

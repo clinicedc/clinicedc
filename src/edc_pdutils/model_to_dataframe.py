@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 import numpy as np
 
@@ -16,9 +17,17 @@ class ModelToDataFrame:
         columns = self.columns(qs, add_columns_for)
         if self.has_encrypted_fields:
             qs = qs.filter(**query_filter)
-            self.dataframe = pd.DataFrame(
-                [[getattr(obj, key) for key in columns]
-                 for obj in qs], columns=columns)
+            data = []
+            row_count = qs.count()
+            for index, obj in enumerate(qs.order_by('id')):
+                sys.stdout.write('{}/{}  \r'.format(index + 1, row_count))
+                row = [getattr(obj, key) for key in columns]
+                data.append(row)
+                self.dataframe = pd.DataFrame(data, columns=columns)
+            sys.stdout.write('{}/{}  Done.\n'.format(index + 1, row_count))
+#             self.dataframe = pd.DataFrame(
+#                 [[getattr(obj, key) for key in columns]
+#                  for obj in qs], columns=columns)
         else:
             qs = qs.values_list(*columns.keys()).filter(**query_filter)
             self.dataframe = pd.DataFrame(list(qs), columns=columns.keys())
@@ -41,7 +50,7 @@ class ModelToDataFrame:
     def columns(self, qs, add_columns_for):
         """Return a dictionary of column names.
         """
-        columns = qs[0].__dict__.keys()
+        columns = list(qs[0].__dict__.keys())
         columns = self.remove_sys_columns(columns)
         columns = dict(zip(columns, columns))
         if add_columns_for in columns or '{}_id'.format(add_columns_for) in columns:
