@@ -13,11 +13,11 @@ from edc_protocol.validators import datetime_not_before_study_start
 
 from .choices import YES_NO_DECLINED_COPY
 from .exceptions import (
-    SiteConsentError, NotConsentedError, ConsentVersionSequenceError)
+    SiteConsentError, NotConsentedError, ConsentVersionSequenceError,
+    ConsentDoesNotExist)
 from .field_mixins import VerificationFieldsMixin
 from .managers import ObjectConsentManager, ConsentManager
 from .site_consents import site_consents
-from edc_consent.exceptions import ConsentDoesNotExist
 
 
 options.DEFAULT_NAMES = (options.DEFAULT_NAMES
@@ -103,7 +103,6 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     version = models.CharField(
         verbose_name='Consent version',
         max_length=10,
-        default='?',
         help_text='See \'Consent Type\' for consent versions by period.',
         editable=False,
     )

@@ -44,7 +44,6 @@ class ReviewFieldsMixin(models.Model):
         validators=[eligible_if_yes, ],
         null=True,
         blank=False,
-        # default='Yes',
         help_text='If no, INELIGIBLE',
     )
 
