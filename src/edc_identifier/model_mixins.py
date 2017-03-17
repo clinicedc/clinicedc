@@ -1,5 +1,7 @@
 import re
 
+from uuid import uuid4
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
@@ -40,10 +42,8 @@ class SubjectIdentifierAdditionalFieldsModelMixin(models.Model):
     with the subject identifier field.
     """
 
-    subject_identifier_as_pk = models.CharField(
-        verbose_name="Subject Identifier as pk",
-        max_length=50,
-        default=get_uuid,
+    subject_identifier_as_pk = models.UUIDField(
+        default=uuid4,
         editable=False,
     )
 
