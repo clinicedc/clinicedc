@@ -1,5 +1,7 @@
 import re
 
+from collections import OrderedDict
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 
@@ -11,8 +13,9 @@ class VisitSchedule:
     def __init__(self, name, app_label, default_enrollment_model=None,
                  default_disenrollment_model=None, visit_model=None,
                  offstudy_model=None, death_report_model=None,
-                 verbose_name=None):
+                 verbose_name=None, previous_visit_schedule=None):
         self.name = name
+        self.previous_visit_schedule = previous_visit_schedule
         if not re.match(r'[a-z0-9\_\-]+$', name):
             raise ImproperlyConfigured(
                 'Visit schedule name may only contains numbers, '
@@ -40,7 +43,7 @@ class VisitSchedule:
             self.add_default_enrollment_model(default_enrollment_model)
         if death_report_model:
             self.add_death_report_model(death_report_model)
-        self.schedules = {}
+        self.schedules = OrderedDict()
 
     def __repr__(self):
         return '<VisitSchedule(\'{}\', \'{}\')>'.format(
