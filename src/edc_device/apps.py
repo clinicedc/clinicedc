@@ -43,6 +43,7 @@ class AppConfig(DjangoAppConfig):
     use_settings = False
 
     device_id = '00'
+    device_role = None  # not required
     central_server_id = '99'
     middleman_id_list = ['95']
     server_id_list = ['99', '98']
@@ -120,18 +121,24 @@ class AppConfig(DjangoAppConfig):
     @property
     def role(self):
         if self.is_central_server:
-            return CENTRAL_SERVER
+            role = CENTRAL_SERVER
         elif self.is_node_server:
-            return NODE_SERVER  # a.k.a Community Server
+            role = NODE_SERVER  # a.k.a Community Server
         elif self.is_middleman:
-            return MIDDLEMAN
+            role = MIDDLEMAN
         elif self.is_server:
-            return SERVER
+            role = SERVER
         elif self.is_client:
-            return CLIENT
+            role = CLIENT
         else:
             raise ImproperlyConfigured(
-                'Unable to configure Device. See DeviceClass.')
+                'Unable to configure device a role. See AppConfig.')
+        if self.device_role and self.device_role != role:
+            raise ImproperlyConfigured(
+                'Unable to configure device a role. Role explicitly set. '
+                'Expected \'{}\'. Got device_id=\'{}\' but device_role=\'{}\'. See AppConfig.'.format(
+                    role, self.device_id, self.device_role))
+        return role
 
     @property
     def is_client(self):
