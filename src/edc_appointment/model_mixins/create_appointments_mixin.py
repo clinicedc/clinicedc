@@ -65,10 +65,9 @@ class CreateAppointmentsMixin(models.Model):
                 facility, timepoint_datetime)
             available_datetime = facility.available_datetime(
                 adjusted_timepoint_datetime, taken_datetimes=taken_datetimes)
-            with transaction.atomic():
-                appointment = self.update_or_create_appointment(
-                    visit, available_datetime, timepoint_datetime)
-                appointments.append(appointment)
+            appointment = self.update_or_create_appointment(
+                visit, available_datetime, timepoint_datetime)
+            appointments.append(appointment)
             taken_datetimes.append(available_datetime)
         return appointments
 
@@ -108,12 +107,13 @@ class CreateAppointmentsMixin(models.Model):
                     update_fields=['appt_datetime', 'timepoint_datetime'])
         except self.appointment_model.DoesNotExist:
             try:
-                options.update(self.extra_create_appointment_options)
-                appointment = self.appointment_model.objects.create(
-                    **options,
-                    timepoint_datetime=timepoint_datetime,
-                    appt_datetime=available_datetime,
-                    appt_type=self.default_appt_type)
+                with transaction.atomic():
+                    options.update(self.extra_create_appointment_options)
+                    appointment = self.appointment_model.objects.create(
+                        **options,
+                        timepoint_datetime=timepoint_datetime,
+                        appt_datetime=available_datetime,
+                        appt_type=self.default_appt_type)
             except IntegrityError as e:
                 raise CreateAppointmentError(
                     'An \'IntegrityError\' was raised while trying to '
