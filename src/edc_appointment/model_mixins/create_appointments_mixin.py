@@ -103,8 +103,8 @@ class CreateAppointmentsMixin(models.Model):
                     - available_datetime != timedelta(0, 0, 0)):
                 appointment.appt_datetime = available_datetime
                 appointment.timepoint_datetime = timepoint_datetime
-                appointment.save(
-                    update_fields=['appt_datetime', 'timepoint_datetime'])
+            # update_fields=['appt_datetime', 'timepoint_datetime'])
+            appointment.save()
         except self.appointment_model.DoesNotExist:
             try:
                 with transaction.atomic():
