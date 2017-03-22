@@ -68,7 +68,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         if not self.id and not self.subject_identifier:
             if not re.match(
                     '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}',
-                    self.subject_identifier_as_pk or ''):
+                    str(self.subject_identifier_as_pk) or ''):
                 self.subject_identifier_as_pk = get_uuid()
             self.subject_identifier = self.get_or_create_identifier()
         super().save(*args, **kwargs)
