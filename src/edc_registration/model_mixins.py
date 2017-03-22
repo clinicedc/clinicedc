@@ -1,4 +1,5 @@
 import re
+import uuid
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
@@ -250,11 +251,8 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         serialization/deserialization. Value must not change
         once set.
         """
-        if not self.subject_identifier_as_pk:
-            self.subject_identifier_as_pk = str(
-                get_uuid())  # this will never change
-            if not self.subject_identifier:
-                self.subject_identifier = self.subject_identifier_as_pk
+        if not self.subject_identifier:
+            self.subject_identifier = self.subject_identifier_as_pk
 
     class Meta:
         abstract = True
