@@ -6,7 +6,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
 
-from edc_base.utils import get_uuid
+from edc_constants.constants import UUID_PATTERN
 
 from .exceptions import IdentifierError
 from .subject_identifier import SubjectIdentifier
@@ -65,12 +65,10 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
     """
 
     def save(self, *args, **kwargs):
-        if not self.id and not self.subject_identifier:
-            if not re.match(
-                    '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}',
-                    str(self.subject_identifier_as_pk) or ''):
-                self.subject_identifier_as_pk = get_uuid()
-            self.subject_identifier = self.get_or_create_identifier()
+        if not self.id:
+            if (not self.subject_identifier
+                    or re.match(UUID_PATTERN, self.subject_identifier)):
+                self.subject_identifier = self.get_or_create_identifier()
         super().save(*args, **kwargs)
 
     @property
