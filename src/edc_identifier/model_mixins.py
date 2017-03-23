@@ -67,7 +67,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             if (not self.subject_identifier
-                    or re.match(UUID_PATTERN, self.subject_identifier)):
+                    or re.match(UUID_PATTERN, str(self.subject_identifier))):
                 self.subject_identifier = self.get_or_create_identifier()
         super().save(*args, **kwargs)
 
