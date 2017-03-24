@@ -22,6 +22,7 @@ class MetaListboardViewFilters(type):
                     elif obj.default and obj.exclude_filter:
                         default_exclude_filter = obj
                     filters.append(obj)
+        filters.sort(key=lambda x: x.position)
         attrs.update({'filters': filters})
         attrs.update({'default_include_filter': default_include_filter})
         attrs.update({'default_exclude_filter': default_exclude_filter})
@@ -31,9 +32,10 @@ class MetaListboardViewFilters(type):
 class ListboardFilter:
 
     def __init__(self, name=None, label=None, lookup=None,
-                 exclude_filter=None, default=None):
+                 exclude_filter=None, default=None, position=None):
         self.name = name
         self.label = label or name
+        self.position = position or 0
         self.exclude_filter = exclude_filter
         if exclude_filter:
             self.attr = 'e'
