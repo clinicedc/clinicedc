@@ -10,7 +10,7 @@ class RequisitionViewMixin:
         if not self._selected_items:
             for pk in self.request.POST.getlist(
                     self.form_action_selected_items_name):
-                if re.match(UUID_PATTERN, pk):
+                if re.match(UUID_PATTERN, str(pk)):
                     self._selected_items.append(pk)
         return self._selected_items
 
