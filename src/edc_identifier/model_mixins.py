@@ -105,12 +105,16 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
 
         Override this if your query options are different.
         """
+        if not self.identity:
+            raise IdentifierError(
+                'Cannot lookup a unique RegisteredSubject instance. '
+                'Identity may not be None')
         try:
             obj = self.registered_subject_model_class.objects.get(
                 identity=self.identity)
         except MultipleObjectsReturned as e:
             raise IdentifierError(
-                'Cannot lookup a unique RegisteredSuject instance. '
+                'Cannot lookup a unique RegisteredSubject instance. '
                 'Identity {} is not unique. Got {}'.format(self.identity, e))
         return obj
 
