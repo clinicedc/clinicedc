@@ -22,9 +22,7 @@ class ListboardFilterViewMixin:
         for listboard_filter in self.listboard_view_filters.include_filters:
             if self.request.GET.get(listboard_filter.attr) == listboard_filter.name:
                 lookup_options = listboard_filter.lookup_options
-                if not lookup_options:
-                    options = {}
-                else:
+                if lookup_options:
                     options.update(**listboard_filter.lookup_options)
                 self.listboard_view_include_filter_applied = True
         if (not self.listboard_view_include_filter_applied
@@ -40,9 +38,7 @@ class ListboardFilterViewMixin:
         for listboard_filter in self.listboard_view_filters.exclude_filters:
             if self.request.GET.get(listboard_filter.attr) == listboard_filter.name:
                 lookup_options = listboard_filter.lookup_options
-                if not lookup_options:
-                    options = {}
-                else:
+                if lookup_options:
                     options.update(**listboard_filter.lookup_options)
                 self.listboard_view_exclude_filter_applied = True
         if (not self.listboard_view_exclude_filter_applied

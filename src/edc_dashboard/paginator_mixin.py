@@ -6,7 +6,8 @@ class PaginatorMixin:
     paginate_by = 10
 
     def paginate(self, queryset=None, model_wrapper_class=None):
-        """Paginates a queryset."""
+        """Paginates a queryset.
+        """
         paginator = Paginator(queryset, self.paginate_by)
         try:
             page = paginator.page(self.kwargs.get('page', 1))
@@ -17,7 +18,8 @@ class PaginatorMixin:
         return page
 
     def page_object_list_wrapper(self, page=None, model_wrapper_class=None):
-        """Wraps the filtered queryset objects."""
+        """Wraps the filtered queryset objects.
+        """
         object_list = []
         qs = page.object_list
         for obj in qs:
