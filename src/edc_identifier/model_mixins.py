@@ -84,7 +84,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         """
         try:
             subject_identifier = self.registered_subject.subject_identifier
-        except ObjectDoesNotExist:
+        except AttributeError:
             subject_identifier = self.make_new_identifier()
         return subject_identifier
 
@@ -105,13 +105,11 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
 
         Override this if your query options are different.
         """
-        if not self.identity:
-            raise IdentifierError(
-                'Cannot lookup a unique RegisteredSubject instance. '
-                'Identity may not be None')
         try:
             obj = self.registered_subject_model_class.objects.get(
                 identity=self.identity)
+        except self.registered_subject_model_class.DoesNotExist:
+            obj = None
         except MultipleObjectsReturned as e:
             raise IdentifierError(
                 'Cannot lookup a unique RegisteredSubject instance. '
