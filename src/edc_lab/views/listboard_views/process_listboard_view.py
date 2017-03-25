@@ -17,7 +17,9 @@ class ProcessListboardView(RequisitionListboardView):
     action_name = 'process'
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
-        return {'is_drawn': YES, 'received': True, 'processed': False}
+        options = super().get_queryset_filter_options(request, *args, **kwargs)
+        options.update({'is_drawn': YES, 'received': True, 'processed': False})
+        return options
 
     @property
     def empty_queryset_message(self):

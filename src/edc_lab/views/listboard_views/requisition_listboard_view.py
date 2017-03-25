@@ -6,6 +6,7 @@ from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
 from ..listboard_filters import RequisitionListboardViewFilters
 from .base_listboard import BaseListboardView, app_config, app_name
+from ..mixins import StudySiteNameQuerysetViewMixin
 
 
 class RequisitionModelWrapper(ModelWrapper):
@@ -14,7 +15,7 @@ class RequisitionModelWrapper(ModelWrapper):
     next_url_name = app_config.requisition_listboard_url_name
 
 
-class RequisitionListboardView(BaseListboardView):
+class RequisitionListboardView(StudySiteNameQuerysetViewMixin, BaseListboardView):
 
     navbar_item_selected = 'requisition'
 
@@ -31,4 +32,6 @@ class RequisitionListboardView(BaseListboardView):
         return super().dispatch(*args, **kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
-        return {'is_drawn': YES}
+        options = super().get_queryset_filter_options(request, *args, **kwargs)
+        options.update(is_drawn=YES)
+        return options
