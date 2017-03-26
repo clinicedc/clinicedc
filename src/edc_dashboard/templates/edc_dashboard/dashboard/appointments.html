@@ -18,10 +18,12 @@
 						{% elif wrapped.appt_status == COMPLETE_APPT %}
                           <i class="fa fa-star fa-fw" aria-hidden="true" data-toggle="tooltip" title="Complete"></i>
 						{% endif %}
+                        {% if wrapped.appt_status != COMPLETE_APPT %}
 						<a role="button" class="btn btn-sm btn-default {% if wrapped.appt_status != IN_PROGRESS_APPT %}disabled{% endif %}"
 						    href="{{ wrapped.get_absolute_url }}?next={{ wrapped.next_url }}&{{ wrapped.extra_querystring }}">
 						        <i class="fa fa-pencil fa-fw" aria-hidden="true"></i> Appt
 						</a>
+                        {% endif %}
 					 
 				      {% if wrapped.appt_status == IN_PROGRESS_APPT %}
 				      	{% if wrapped.visit.id %}
@@ -53,7 +55,7 @@
                                     {% elif wrapped.appt_status == INCOMPLETE_APPT %}
                                        Continue
                                     {% elif wrapped.appt_status == COMPLETE_APPT %}
-                                       Done
+                                       <i class="fa fa-check fa-fw"></i>Done
                                     {% endif %}
 							    </a>
 							{% else %}
@@ -66,11 +68,18 @@
 			                        {% elif wrapped.appt_status == INCOMPLETE_APPT %}
                                        Continue
 			                        {% elif wrapped.appt_status == COMPLETE_APPT %}
-                                       Done
+                                       <i class="fa fa-check fa-fw"></i>Done
 			                        {% endif %}
                                 </a>
 							{% endif %}
 				      {% endif %}
+				      
+                      {% if wrapped.appt_status == COMPLETE_APPT %}
+                                <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.visit.get_absolute_url }}?next={{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}">
+                                    <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Review
+                                </a>
+                      {% endif %}
+				      
 	   		        </td>
 	   		        <td>{{wrapped.title}}</td>
                     <td>{{wrapped.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
