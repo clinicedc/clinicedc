@@ -3,7 +3,7 @@ import re
 from uuid import uuid4
 
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 
 from edc_constants.constants import UUID_PATTERN
@@ -66,10 +66,17 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            if (not self.subject_identifier
-                    or re.match(UUID_PATTERN, str(self.subject_identifier))):
-                self.subject_identifier = self.get_or_create_identifier()
+            self.subject_identifier = self.update_subject_identifier_on_save()
         super().save(*args, **kwargs)
+
+    def update_subject_identifier_on_save(self):
+        """Returns a subject_identifier if not already set.
+        """
+        if not self.subject_identifier:
+            self.subject_identifier = self.get_or_create_identifier()
+        elif re.match(UUID_PATTERN, self.subject_identifier):
+            self.subject_identifier = self.get_or_create_identifier()
+        return self.subject_identifier
 
     @property
     def registered_subject_model_class(self):
@@ -107,13 +114,15 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         """
         try:
             obj = self.registered_subject_model_class.objects.get(
-                identity=self.identity)
+                identity_or_pk=self.identity_or_pk)
         except self.registered_subject_model_class.DoesNotExist:
+            # means this is a new model instance that creates RS on the
+            # post save signal.
             obj = None
         except MultipleObjectsReturned as e:
             raise IdentifierError(
                 'Cannot lookup a unique RegisteredSubject instance. '
-                'Identity {} is not unique. Got {}'.format(self.identity, e))
+                'Identity {} is not unique. Got {}'.format(self.identity_or_pk, e))
         return obj
 
     class Meta:
