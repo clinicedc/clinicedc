@@ -5,7 +5,8 @@ from .updates_metadata_model_mixin import UpdatesMetadataModelMixin
 
 class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
     """A mixin used on Requisition models to enable them to
-    update metadata upon update/delete."""
+    update metadata upon update/delete.
+    """
 
     @property
     def metadata_category(self):
