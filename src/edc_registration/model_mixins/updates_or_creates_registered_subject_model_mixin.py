@@ -36,7 +36,6 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
             pass
         else:
             self.registration_raise_on_illegal_value_change(obj)
-
         registered_subject, created = self.registration_model.objects.update_or_create(
             **{self.registration_unique_field: getattr(self, self.registration_unique_field)},
             defaults=self.registration_options)

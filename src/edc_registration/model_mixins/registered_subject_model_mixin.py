@@ -181,13 +181,25 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         self.raise_on_duplicate('subject_identifier')
         self.raise_on_duplicate('identity')
         self.raise_on_changed_subject_identifier()
-        super(RegisteredSubjectModelMixin, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def natural_key(self):
         return (self.subject_identifier_as_pk, )
 
     def __str__(self):
         return self.mask_subject_identifier()
+
+    def update_subject_identifier_on_save(self):
+        """Overridden to not set the subject identifier on save.
+        """
+        if not self.subject_identifier:
+            self.subject_identifier = self.subject_identifier_as_pk.hex
+        elif re.match(UUID_PATTERN, self.subject_identifier):
+            pass
+        return self.subject_identifier
+
+    def make_new_identifier(self):
+        return self.subject_identifier_as_pk.hex
 
     def mask_subject_identifier(self):
         if not self.subject_identifier_is_set():
@@ -207,7 +219,7 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         if self.id and self.subject_identifier_is_set():
             with transaction.atomic():
                 obj = self.__class__.objects.get(pk=self.id)
-                if obj.subject_identifier != self.subject_identifier_as_pk:
+                if obj.subject_identifier != self.subject_identifier_as_pk.hex:
                     if self.subject_identifier != obj.subject_identifier:
                         raise RegisteredSubjectError(
                             'Subject identifier cannot be changed for '
@@ -248,7 +260,7 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         once set.
         """
         if not self.subject_identifier:
-            self.subject_identifier = self.subject_identifier_as_pk
+            self.subject_identifier = self.subject_identifier_as_pk.hex
 
     class Meta:
         abstract = True
