@@ -5,8 +5,8 @@ from edc_constants.constants import YES
 from edc_dashboard.wrappers.model_wrapper import ModelWrapper
 
 from ..listboard_filters import RequisitionListboardViewFilters
-from .base_listboard import BaseListboardView, app_config, app_name
 from ..mixins import StudySiteNameQuerysetViewMixin
+from .base_listboard import BaseListboardView, app_config, app_name
 
 
 class RequisitionModelWrapper(ModelWrapper):
