@@ -1,23 +1,20 @@
 import re
-import uuid
 
 from django.apps import apps as django_apps
-from django.core.exceptions import ImproperlyConfigured
 from django.core.validators import RegexValidator
 from django_crypto_fields.fields import (
     IdentityField, EncryptedCharField, FirstnameField, LastnameField)
 from django.db import models, transaction
 from django.utils.translation import ugettext as _
 
-from edc_base.model_mixins import DEFAULT_BASE_FIELDS
 from edc_base.model_fields import IdentityTypeField, IsDateEstimatedField
 from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
-from edc_identifier.model_mixins import (
-    NonUniqueSubjectIdentifierFieldMixin, UniqueSubjectIdentifierModelMixin)
+from edc_constants.constants import UUID_PATTERN
+from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 
-from .exceptions import RegisteredSubjectError
-from .managers import RegisteredSubjectManager
+from ..exceptions import RegisteredSubjectError
+from ..managers import RegisteredSubjectManager
 
 
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
@@ -184,7 +181,7 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         self.raise_on_duplicate('subject_identifier')
         self.raise_on_duplicate('identity')
         self.raise_on_changed_subject_identifier()
-        super(RegisteredSubjectModelMixin, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def natural_key(self):
         return (self.subject_identifier_as_pk, )
@@ -192,14 +189,25 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
     def __str__(self):
         return self.mask_subject_identifier()
 
+    def update_subject_identifier_on_save(self):
+        """Overridden to not set the subject identifier on save.
+        """
+        if not self.subject_identifier:
+            self.subject_identifier = self.subject_identifier_as_pk.hex
+        elif re.match(UUID_PATTERN, self.subject_identifier):
+            pass
+        return self.subject_identifier
+
+    def make_new_identifier(self):
+        return self.subject_identifier_as_pk.hex
+
     def mask_subject_identifier(self):
         if not self.subject_identifier_is_set():
             return '<identifier not set>'
         return self.subject_identifier
 
     def subject_identifier_is_set(self):
-        re_pk = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}')
-        if re_pk.match(self.subject_identifier):
+        if re.match(UUID_PATTERN, self.subject_identifier):
             return False
         return True
 
@@ -211,7 +219,7 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         if self.id and self.subject_identifier_is_set():
             with transaction.atomic():
                 obj = self.__class__.objects.get(pk=self.id)
-                if obj.subject_identifier != self.subject_identifier_as_pk:
+                if obj.subject_identifier != self.subject_identifier_as_pk.hex:
                     if self.subject_identifier != obj.subject_identifier:
                         raise RegisteredSubjectError(
                             'Subject identifier cannot be changed for '
@@ -252,122 +260,10 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         once set.
         """
         if not self.subject_identifier:
-            self.subject_identifier = self.subject_identifier_as_pk
+            self.subject_identifier = self.subject_identifier_as_pk.hex
 
     class Meta:
         abstract = True
         verbose_name = 'Registered Subject'
         ordering = ['subject_identifier']
         unique_together = ('first_name', 'dob', 'initials', 'additional_key')
-
-
-class UpdatesOrCreatesRegistrationModelMixin(models.Model):
-
-    """A model mixin that creates or updates RegisteredSubject
-    on post_save signal.
-    """
-
-    @property
-    def registration_model(self):
-        """Returns the RegisteredSubject model, Do not override.
-        """
-        return django_apps.get_app_config('edc_registration').model
-
-    def registration_update_or_create(self):
-        """Creates or Updates the registration model with attributes
-        from this instance.
-
-        Called from the signal
-        """
-        self.registration_raise_on_not_unique()
-        if not getattr(self, self.registration_unique_field):
-            raise TypeError(
-                'Cannot update or create RegisteredSubject. Got {} '
-                'is None.'.format(self.registration_unique_field))
-        try:
-            obj = self.registration_model.objects.get(
-                **{self.registration_unique_field:
-                   getattr(self, self.registration_unique_field)})
-        except self.registration_model.DoesNotExist:
-            pass
-        else:
-            self.registration_raise_on_illegal_value_change(obj)
-
-        registered_subject, created = self.registration_model.objects.update_or_create(
-            **{self.registration_unique_field: getattr(self, self.registration_unique_field)},
-            defaults=self.registration_options)
-        return registered_subject, created
-
-    @property
-    def registration_unique_field(self):
-        return 'subject_identifier'
-
-    def registration_raise_on_illegal_value_change(self, registered_subject):
-        """Raises an exception if a value changes between
-        updates.
-
-        Values are available in `registration_options`.
-        """
-        pass
-
-    def registration_raise_on_not_unique(self):
-        """Asserts the field specified for update_or_create is unique.
-        """
-        unique_fields = []
-        for f in self.registration_model._meta.get_fields():
-            try:
-                if f.unique:
-                    unique_fields.append(f.name)
-            except AttributeError:
-                pass
-        if self.registration_unique_field not in unique_fields:
-            raise ImproperlyConfigured('Field is not unique. Got {}.{} -- {}'.format(
-                self._meta.label_lower, self.registration_unique_field))
-
-    @property
-    def registration_options(self):
-        """Gathers values for common attributes between the
-        registration model and this instance.
-        """
-        registration_options = {}
-        rs = self.registration_model()
-        for k, v in self.__dict__.items():
-            if k not in DEFAULT_BASE_FIELDS + ['_state'] + [self.registration_unique_field]:
-                try:
-                    getattr(rs, k)
-                    registration_options.update({k: v})
-                except AttributeError:
-                    pass
-        return registration_options
-
-    class Meta:
-        abstract = True
-
-
-class SubjectIdentifierFromRegisteredSubjectModelMixin(
-        NonUniqueSubjectIdentifierFieldMixin, models.Model):
-
-    """A mixin to ensure subject_identifier is on the model and
-    always updated by the registration model.
-    """
-
-    def save(self, *args, **kwargs):
-        self.subject_identifier = self.registration_instance.subject_identifier
-        super(SubjectIdentifierFromRegisteredSubjectModelMixin, self).save(
-            *args, **kwargs)
-
-    @property
-    def registration_instance(self):
-        registration_instance = None
-        model = django_apps.get_app_config('edc_registration').model
-        try:
-            registration_instance = model.objects.get(
-                subject_identifier=self.subject_identifier)
-        except model.DoesNotExist as e:
-            raise model.DoesNotExist(
-                '{} subject_identifier=\'{}\', model=\'{}\''.format(
-                    str(e), self.subject_identifier, self._meta.label_lower))
-        return registration_instance
-
-    class Meta:
-        abstract = True
