@@ -22,6 +22,7 @@ class HomeView(EdcBaseViewMixin, AppConfigViewMixin, TemplateView):
             process_listboard_url_name=app_config.process_listboard_url_name,
             pack_listboard_url_name=app_config.pack_listboard_url_name,
             manifest_listboard_url_name=app_config.manifest_listboard_url_name,
+            base_template_name=app_config.base_template_name
         )
         return context
 

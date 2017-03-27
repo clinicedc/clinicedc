@@ -12,7 +12,8 @@ app_name = 'edc_lab'
 app_config = django_apps.get_app_config(app_name)
 
 
-class BaseListboardView(UrlsViewMixin, ListboardFilterViewMixin,
+class BaseListboardView(UrlsViewMixin,
+                        ListboardFilterViewMixin,
                         ModelsViewMixin, AppConfigViewMixin,
                         EdcBaseViewMixin, ListboardView):
 
