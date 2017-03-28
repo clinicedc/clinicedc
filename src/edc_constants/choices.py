@@ -29,7 +29,7 @@ ALIVE_DEAD = (
 
 ALIVE_DEAD_UNKNOWN = (
     (ALIVE, 'Alive'),
-    (DEAD, 'Dead'),
+    (DEAD, 'Deceased'),
     (UNKNOWN, 'Unknown'),
 )
 
