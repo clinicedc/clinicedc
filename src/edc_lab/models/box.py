@@ -105,7 +105,8 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
         return self.name
 
     def natural_key(self):
-        return (self.box_identifier, )
+        return (self.box_identifier, ) + self.box_type.natural_key()
+    natural_key.dependencies = ['edc_lab.box_type']
 
     @property
     def count(self):

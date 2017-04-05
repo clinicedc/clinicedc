@@ -21,6 +21,9 @@ class Consignee(AddressMixin, BaseUuidModel):
 
     history = HistoricalRecords()
 
+    def natural_key(self):
+        return (self.name, )
+
     def __str__(self):
         return self.name
 
