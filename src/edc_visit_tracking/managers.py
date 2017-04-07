@@ -19,6 +19,13 @@ class CrfModelManager(models.Manager):
         options.update(**kwargs)
         return self.get(**options)
 
+    def filter_for_visit(self, visit, **kwargs):
+        """Returns an instance for the given visit.
+        """
+        options = {self.model.visit_model_attr(): visit}
+        options.update(**kwargs)
+        return self.filter(**options)
+
     def get_for_subject_identifier(self, subject_identifier):
         """Returns a queryset for the given subject_identifier.
         """
