@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist, FieldError
+from django.core.exceptions import (
+    ObjectDoesNotExist, FieldError, MultipleObjectsReturned)
 
 from ..constants import DO_NOTHING
 from .exceptions import RuleError
@@ -35,6 +36,9 @@ class Rule:
                 source_obj = source_model.objects.get_for_visit(visit)
             except source_model.DoesNotExist:
                 source_obj = None
+            except MultipleObjectsReturned:
+                source_obj = source_model.objects.filter_for_visit(
+                    visit).order_by('created').last()
             except AttributeError as e:
                 if 'get_for_visit' not in str(e):
                     raise RuleError(
