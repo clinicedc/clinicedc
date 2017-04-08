@@ -33,6 +33,7 @@ class ManifestItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
     def natural_key(self):
         return (self.identifier, ) + self.manifest.natural_key()
+    natural_key.dependencies = ['edc_lab.manifest']
 
     @property
     def human_readable_identifier(self):

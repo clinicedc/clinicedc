@@ -31,6 +31,10 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
 
     history = HistoricalRecords()
 
+    def natural_key(self):
+        return (self.manifest_identifier, )
+    natural_key.dependencies = ['edc_lab.shipper', 'edc_lab.consignee']
+
     def __str__(self):
         return '{} created on {} by {}'.format(
             self.manifest_identifier,

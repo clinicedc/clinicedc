@@ -41,6 +41,7 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
     def natural_key(self):
         return (self.position, self.identifier) + self.box.natural_key()
+    natural_key.dependencies = ['edc_lab.box']
 
     @property
     def human_readable_identifier(self):
