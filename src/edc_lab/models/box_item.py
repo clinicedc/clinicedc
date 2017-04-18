@@ -14,11 +14,12 @@ from .box import Box
 
 class BoxItemManager(SearchSlugManager, models.Manager):
 
-    def get_by_natural_key(self, position, identifier, box_identifier):
+    def get_by_natural_key(self, position, identifier, box_identifier, name):
         return self.get(
             position=position,
             identifier=identifier,
-            box_identifier=box_identifier)
+            box_identifier=box_identifier,
+            box__box_type__name=name)
 
 
 class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
