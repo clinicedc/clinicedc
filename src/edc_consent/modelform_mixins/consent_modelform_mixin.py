@@ -146,6 +146,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         MAX set on the model.
         """
         cleaned_data = self.cleaned_data
+        identity = cleaned_data.get('identity')
         dob = cleaned_data.get('dob')
         consent_datetime = cleaned_data.get(
             'consent_datetime', self.instance.consent_datetime)
@@ -153,8 +154,13 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
             self._errors["consent_datetime"] = ErrorList(
                 [u"This field is required. Please fill consent date and time."])
             raise forms.ValidationError('Please correct the errors below.')
+
+        consent_model = self._meta.model
+        previously_consented = False
+        if consent_model.objects.filter(identity=identity).exists():
+            previously_consented = True
         rdelta = relativedelta(consent_datetime.date(), dob)
-        if rdelta.years > self.consent_config.age_max:
+        if (rdelta.years > self.consent_config.age_max and not previously_consented):
             raise forms.ValidationError(
                 'Subject\'s age is %(age)s. Subject is not eligible for '
                 'consent. Maximum age of consent is %(max)s.',
