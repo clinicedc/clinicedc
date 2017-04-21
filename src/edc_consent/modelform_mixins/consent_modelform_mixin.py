@@ -147,7 +147,6 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         MAX set on the model.
         """
         cleaned_data = self.cleaned_data
-        dob = cleaned_data.get('dob')
         consent_datetime = cleaned_data.get(
             'consent_datetime', self.instance.consent_datetime)
         if not consent_datetime:
@@ -158,8 +157,8 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         if consent_datetime:
             age
 
-        self.validate_min_age(consent_datetime=consent_datetime, dob=dob)
-        self.validate_max_age(consent_datetime=consent_datetime, dob=dob)
+        self.validate_min_age()
+        self.validate_max_age()
 
     @property
     def age(self):
