@@ -5,12 +5,13 @@ from django.forms.utils import ErrorList
 from django.utils import timezone
 
 from edc_base.modelform_mixins import CommonCleanModelFormMixin
-from edc_base.utils import formatted_age
+from edc_base.utils import formatted_age, age
 from edc_constants.constants import YES, NO
 
 from ..exceptions import SiteConsentError
 from ..site_consents import site_consents
 from edc_registration.models import RegisteredSubject
+from edc_base.templatetags.edc_base_extras import age_in_years
 
 
 class ConsentModelFormMixin(CommonCleanModelFormMixin):
@@ -146,30 +147,49 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         MAX set on the model.
         """
         cleaned_data = self.cleaned_data
-        dob = cleaned_data.get('dob')
         consent_datetime = cleaned_data.get(
             'consent_datetime', self.instance.consent_datetime)
         if not consent_datetime:
             self._errors["consent_datetime"] = ErrorList(
                 [u"This field is required. Please fill consent date and time."])
             raise forms.ValidationError('Please correct the errors below.')
-        rdelta = relativedelta(consent_datetime.date(), dob)
-        if rdelta.years > self.consent_config.age_max:
-            raise forms.ValidationError(
-                'Subject\'s age is %(age)s. Subject is not eligible for '
-                'consent. Maximum age of consent is %(max)s.',
-                params={
-                    'age': formatted_age(dob, consent_datetime),
-                    'max': self.consent_config.age_max},
-                code='invalid')
-        if rdelta.years < self.consent_config.age_min:
-            raise forms.ValidationError(
-                'Subject\'s age is %(age)s. Subject is not eligible for '
-                'consent. Minimum age of consent is %(min)s.',
-                params={
-                    'age': formatted_age(dob, consent_datetime),
-                    'min': self.consent_config.age_min},
-                code='invalid')
+
+        if consent_datetime:
+            age
+
+        self.validate_min_age()
+        self.validate_max_age()
+
+    @property
+    def age(self):
+        consent_datetime = self.cleaned_data.get(
+            'consent_datetime', self.instance.consent_datetime)
+        dob = self.cleaned_data.get('dob')
+        if consent_datetime and dob:
+            return age(dob, consent_datetime.date())
+        return None
+
+    def validate_min_age(self):
+        if self.age:
+            if self.age.years < self.consent_config.age_min:
+                raise forms.ValidationError(
+                    'Subject\'s age is %(age)s. Subject is not eligible for '
+                    'consent. Minimum age of consent is %(min)s.',
+                    params={
+                        'age': self.age.years,
+                        'min': self.consent_config.age_min},
+                    code='invalid')
+
+    def validate_max_age(self):
+        if self.age:
+            if self.age.years > self.consent_config.age_max:
+                raise forms.ValidationError(
+                    'Subject\'s age is %(age)s. Subject is not eligible for '
+                    'consent. Maximum age of consent is %(max)s.',
+                    params={
+                        'age': self.age.years,
+                        'max': self.consent_config.age_max},
+                    code='invalid')
 
     def clean_is_literate_and_witness(self):
         cleaned_data = self.cleaned_data
