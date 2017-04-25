@@ -37,8 +37,9 @@ human_readable_pattern = '^[A-Z]{3}\-[0-9]{4}\-[0-9]{2}$'
 
 class BoxManager(SearchSlugManager, models.Manager):
 
-    def get_by_natural_key(self, box_identifier):
-        return self.get(box_identifier=box_identifier)
+    def get_by_natural_key(self, box_identifier, name):
+        return self.get(
+            box_identifier=box_identifier, box_type__name=name)
 
 
 class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
