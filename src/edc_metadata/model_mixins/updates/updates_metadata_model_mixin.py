@@ -10,7 +10,8 @@ class UpdatesMetadataModelMixin(models.Model):
 
     def metadata_update(self, entry_status=None):
         try:
-            obj = self.metadata_model.objects.get(**self.metadata_query_options)
+            obj = self.metadata_model.objects.get(
+                **self.metadata_query_options)
         except self.metadata_model.DoesNotExist as e:
             raise self.metadata_model.DoesNotExist(
                 '{} Is \'{}\' scheduled for \'{}.{}.{}\'?'.format(
@@ -23,7 +24,8 @@ class UpdatesMetadataModelMixin(models.Model):
         obj.save()
 
     def metadata_delete(self):
-        """Sets the metadata instance to its original state."""
+        """Sets the metadata instance to its original state.
+        """
         obj = self.metadata_model.objects.get(**self.metadata_query_options)
         obj.entry_status = self.metadata_default_entry_status or REQUIRED
         obj.report_datetime = None
@@ -32,7 +34,8 @@ class UpdatesMetadataModelMixin(models.Model):
     @property
     def metadata_default_entry_status(self):
         """Returns a string that represents the configured entry status
-        of the crf or requisition in the visit schedule."""
+        of the crf or requisition in the visit schedule.
+        """
         visit_schedule = site_visit_schedules.get_visit_schedule(
             self.visit.visit_schedule_name)
         schedule = visit_schedule.get_schedule(self.visit.schedule_name)
@@ -57,7 +60,8 @@ class UpdatesMetadataModelMixin(models.Model):
 
     @property
     def metadata_model(self):
-        """Returns the metadata model associated with self."""
+        """Returns the metadata model associated with self.
+        """
         app_config = django_apps.get_app_config('edc_metadata')
         return app_config.get_metadata_model(self.metadata_category)
 

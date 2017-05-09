@@ -6,8 +6,6 @@ from model_mommy import mommy
 
 from edc_base.utils import get_utcnow
 from edc_constants.constants import MALE, FEMALE
-from edc_example.factories import (
-    SubjectConsentFactory, SubjectVisitFactory, EnrollmentFactory)
 from edc_example.models import (
     Appointment, CrfOne, CrfTwo, CrfThree, CrfFive, CrfFour, Enrollment)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -28,8 +26,11 @@ edc_registration_app_config = django_apps.get_app_config('edc_registration')
 class MetadataRulesTests(TestCase):
 
     def setUp(self):
-        visit_schedule = site_visit_schedules.get_visit_schedule(Enrollment._meta.visit_schedule_name)
-        self.schedule = visit_schedule.get_schedule(Enrollment._meta.label_lower)
+        django_apps.app_configs['edc_metadata'].metadata_rules_enabled = True
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            Enrollment._meta.visit_schedule_name)
+        self.schedule = visit_schedule.get_schedule(
+            Enrollment._meta.label_lower)
         self.first_visit = self.schedule.get_first_visit()
         self.panel_name = self.first_visit.requisitions[0].panel.name
 
@@ -49,7 +50,6 @@ class MetadataRulesTests(TestCase):
             consequence='OLD',
             alternative=NOT_REQUIRED)
 
-    @tag('me')
     def test_example_rules_run_if_male(self):
         subject_consent = mommy.make_recipe(
             'edc_example.subjectconsent',
@@ -90,14 +90,18 @@ class MetadataRulesTests(TestCase):
             ).entry_status, REQUIRED)
 
     def test_example_rules_run_if_female(self):
-        subject_consent = SubjectConsentFactory(subject_identifier='123456789-0', gender=FEMALE)
-        enrollment = EnrollmentFactory(
+        subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent',
+            subject_identifier='123456789-0', gender=FEMALE)
+        enrollment = mommy.make_recipe(
+            'edc_example.enrollment',
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
         appointment = Appointment.objects.get(
             subject_identifier=enrollment.subject_identifier,
             visit_code=self.first_visit.code)
-        subject_visit = SubjectVisitFactory(appointment=appointment)
+        subject_visit = mommy.make_recipe(
+            'edc_example.subjectvisit', appointment=appointment)
         self.assertEqual(
             CrfMetadata.objects.get(
                 model=CrfTwo._meta.label_lower,
@@ -144,58 +148,84 @@ class MetadataRulesTests(TestCase):
             class Meta:
                 app_label = 'edc_example'
 
-        self.assertRaises(AlreadyRegistered, site_rule_groups.register, ExampleCrfRuleGroup)
+        self.assertRaises(AlreadyRegistered,
+                          site_rule_groups.register, ExampleCrfRuleGroup)
 
     def test_example2(self):
         """Asserts CrfTwo is REQUIRED if f1==\'car\' as specified
         by edc_example.rule_groups.ExampleRuleGroup2."""
-        subject_consent = SubjectConsentFactory(subject_identifier='123456789-0', gender=MALE)
-        enrollment = EnrollmentFactory(
+        subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent',
+            subject_identifier='123456789-0', gender=MALE)
+        enrollment = mommy.make_recipe(
+            'edc_example.enrollment',
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
         appointment = Appointment.objects.get(
             subject_identifier=enrollment.subject_identifier,
             visit_code=self.first_visit.code)
-        subject_visit = SubjectVisitFactory(appointment=appointment)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
+        subject_visit = mommy.make_recipe(
+            'edc_example.subjectvisit', appointment=appointment)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
         CrfOne.objects.create(subject_visit=subject_visit, f1='car')
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
 
     def test_example3(self):
         """Asserts CrfThree is REQUIRED if f1==\'bicycle\' as specified
         by edc_example.rule_groups.ExampleRuleGroup2."""
-        subject_consent = SubjectConsentFactory(subject_identifier='123456789-0', gender=MALE)
-        enrollment = EnrollmentFactory(
+        subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent',
+            subject_identifier='123456789-0', gender=MALE)
+        enrollment = mommy.make_recipe(
+            'edc_example.enrollment',
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
         appointment = Appointment.objects.get(
             subject_identifier=enrollment.subject_identifier,
             visit_code=self.first_visit.code)
-        subject_visit = SubjectVisitFactory(appointment=appointment)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
+        subject_visit = mommy.make_recipe(
+            'edc_example.subjectvisit', appointment=appointment)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
         CrfOne.objects.create(subject_visit=subject_visit, f1='bicycle')
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, REQUIRED)
 
     def test_example4(self):
         """Asserts CrfThree is REQUIRED if f1==\'bicycle\' but then not when f1 is changed to \'car\' as specified
         by edc_example.rule_groups.ExampleRuleGroup2."""
-        subject_consent = SubjectConsentFactory(subject_identifier='123456789-0', gender=MALE)
-        enrollment = EnrollmentFactory(
+        subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent',
+            subject_identifier='123456789-0', gender=MALE)
+        enrollment = mommy.make_recipe(
+            'edc_example.enrollment',
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
         appointment = Appointment.objects.get(
             subject_identifier=enrollment.subject_identifier,
             visit_code=self.first_visit.code)
-        subject_visit = SubjectVisitFactory(appointment=appointment)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
-        crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1='bicycle')
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, REQUIRED)
+        subject_visit = mommy.make_recipe(
+            'edc_example.subjectvisit', appointment=appointment)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
+        crf_one = CrfOne.objects.create(
+            subject_visit=subject_visit, f1='bicycle')
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, REQUIRED)
         crf_one.f1 = 'car'
         crf_one.save()
         self.assertEqual(
@@ -214,27 +244,34 @@ class MetadataRulesTests(TestCase):
     def test_example5(self):
         """Asserts same as above for edc_example.rule_groups.ExampleRuleGroup2 but add
         a second visit and CrfOne."""
-        subject_consent = SubjectConsentFactory(subject_identifier='123456789-0', gender=MALE)
-        enrollment = EnrollmentFactory(
+        subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent',
+            subject_identifier='123456789-0', gender=MALE)
+        enrollment = mommy.make_recipe(
+            'edc_example.enrollment',
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
         appointment = Appointment.objects.get(
             subject_identifier=enrollment.subject_identifier,
             visit_code=self.first_visit.code)
-        subject_visit1 = SubjectVisitFactory(
-            appointment=appointment,
+        subject_visit1 = mommy.make_recipe(
+            'edc_example.subjectvisit', appointment=appointment,
             report_datetime=get_utcnow() - relativedelta(days=5))
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
         CrfOne.objects.create(subject_visit=subject_visit1, f1='bicycle')
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, REQUIRED)
         next_visit = self.schedule.get_next_visit(self.first_visit.code)
         appointment = Appointment.objects.get(
             subject_identifier=enrollment.subject_identifier,
             visit_code=next_visit.code)
-        subject_visit2 = SubjectVisitFactory(
-            appointment=appointment)
+        subject_visit2 = mommy.make_recipe(
+            'edc_example.subjectvisit', appointment=appointment)
         CrfOne.objects.create(subject_visit=subject_visit2, f1='car')
         self.assertEqual(
             CrfMetadata.objects.get(
@@ -263,65 +300,102 @@ class MetadataRulesTests(TestCase):
 
     def test_example6(self):
         """Asserts resaving subject visit does not overwrite."""
-        subject_consent = SubjectConsentFactory(subject_identifier='123456789-0', gender=MALE)
-        enrollment = EnrollmentFactory(
+        subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent',
+            subject_identifier='123456789-0', gender=MALE)
+        enrollment = mommy.make_recipe(
+            'edc_example.enrollment',
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
         appointment = Appointment.objects.get(
             subject_identifier=enrollment.subject_identifier,
             visit_code=self.first_visit.code)
-        subject_visit = SubjectVisitFactory(appointment=appointment)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
-        crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1='bicycle')
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, REQUIRED)
+        subject_visit = mommy.make_recipe(
+            'edc_example.subjectvisit', appointment=appointment)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
+        crf_one = CrfOne.objects.create(
+            subject_visit=subject_visit, f1='bicycle')
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, REQUIRED)
         subject_visit.save()
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, REQUIRED)
 
     def test_example7(self):
         """Asserts if instance exists, rule is ignored."""
-        subject_consent = SubjectConsentFactory(subject_identifier='123456789-0', gender=MALE)
-        enrollment = EnrollmentFactory(
+        subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent',
+            subject_identifier='123456789-0', gender=MALE)
+        enrollment = mommy.make_recipe(
+            'edc_example.enrollment',
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
         appointment = Appointment.objects.get(
             subject_identifier=enrollment.subject_identifier,
             visit_code=self.first_visit.code)
-        subject_visit = SubjectVisitFactory(appointment=appointment)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
-        crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1='bicycle')
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, REQUIRED)
+        subject_visit = mommy.make_recipe(
+            'edc_example.subjectvisit', appointment=appointment)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
+        crf_one = CrfOne.objects.create(
+            subject_visit=subject_visit, f1='bicycle')
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, REQUIRED)
         CrfThree.objects.create(subject_visit=subject_visit)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, KEYED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, KEYED)
         crf_one.f1 = 'car'
         crf_one.save()
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, KEYED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, KEYED)
         crf_one.f1 = 'bicycle'
         crf_one.save()
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, KEYED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, KEYED)
 
     def test_delete(self):
         """Asserts delete returns to default entry status."""
-        subject_consent = SubjectConsentFactory(subject_identifier='123456789-0', gender=MALE)
-        enrollment = EnrollmentFactory(
+        subject_consent = mommy.make_recipe(
+            'edc_example.subjectconsent',
+            subject_identifier='123456789-0', gender=MALE)
+        enrollment = mommy.make_recipe(
+            'edc_example.enrollment',
             subject_identifier=subject_consent.subject_identifier,
             schedule_name='schedule1')
         appointment = Appointment.objects.get(
             subject_identifier=enrollment.subject_identifier,
             visit_code=self.first_visit.code)
-        subject_visit = SubjectVisitFactory(appointment=appointment)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
-        crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1='bicycle')
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, REQUIRED)
+        subject_visit = mommy.make_recipe(
+            'edc_example.subjectvisit', appointment=appointment)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
+        crf_one = CrfOne.objects.create(
+            subject_visit=subject_visit, f1='bicycle')
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, REQUIRED)
         crf_one.delete()
-        self.assertEqual(CrfMetadata.objects.get(model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
-        self.assertEqual(CrfMetadata.objects.get(model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfTwo._meta.label_lower).entry_status, NOT_REQUIRED)
+        self.assertEqual(CrfMetadata.objects.get(
+            model=CrfThree._meta.label_lower).entry_status, NOT_REQUIRED)

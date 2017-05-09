@@ -16,6 +16,7 @@ class AppConfig(DjangoAppConfig):
     name = 'edc_metadata'
     verbose_name = 'Edc Metadata'
     app_label = 'edc_metadata'
+    metadata_rules_enabled = True
     crf_model_name = 'crfmetadata'
     requisition_model_name = 'requisitionmetadata'
 
@@ -29,14 +30,19 @@ class AppConfig(DjangoAppConfig):
 
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         if self.app_label == self.name:
-            sys.stdout.write(' * using default metadata models from \'{}\'\n'.format(self.app_label))
+            sys.stdout.write(
+                ' * using default metadata models from \'{}\'\n'.format(self.app_label))
         else:
-            sys.stdout.write(' * using custom metadata models from \'{}\'\n'.format(self.app_label))
+            sys.stdout.write(
+                ' * using custom metadata models from \'{}\'\n'.format(self.app_label))
 
         site_rule_groups.autodiscover()
         if not site_rule_groups.registry:
             sys.stdout.write(style.ERROR(
                 ' Warning. No metadata rules have loaded.\n'.format(self.verbose_name)))
+        if not self.metadata_rules_enabled:
+            sys.stdout.write(
+                style.NOTICE(' * metadata rules disabled.\n'.format(self.app_label)))
 
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
 

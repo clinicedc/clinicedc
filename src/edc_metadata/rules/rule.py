@@ -4,6 +4,7 @@ from django.core.exceptions import (
 
 from ..constants import DO_NOTHING
 from .exceptions import RuleError
+from edc_metadata.constants import KEYED
 
 
 class Rule:
@@ -84,6 +85,10 @@ class Rule:
                         str(e)))
             else:
                 raise RuleError(str(e))
+        else:
+            visit.run_rules_for_model(
+                target_model._meta.label_lower,
+                entry_status=KEYED)
 
     def runif(self, visit, **kwargs):
         """May be overridden to run only on a condition.

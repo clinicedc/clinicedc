@@ -133,3 +133,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
+KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')

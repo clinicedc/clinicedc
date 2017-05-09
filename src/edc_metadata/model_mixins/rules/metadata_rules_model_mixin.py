@@ -9,10 +9,12 @@ from ...rules.site_rule_groups import site_rule_groups
 
 class MetadataRulesModelMixin(models.Model):
 
-    """A model mixin that enables a visit model to run rule groups."""
+    """A model mixin that enables a visit model to run rule groups.
+    """
 
     def run_rules_for_model(self, model, entry_status, panel_name=None):
-        """Runs rules a given model for this visit and subject_identifier."""
+        """Runs rules a given model for this visit and subject_identifier.
+        """
         # FIXME: do these run for just the visit or for
         #        all visits?
         model = django_apps.get_model(*model.split('.'))
@@ -29,7 +31,8 @@ class MetadataRulesModelMixin(models.Model):
         return obj
 
     def run_rules_for_app_label(self, source_model=None):
-        """Runs all the rule groups for this app label."""
+        """Runs all the rule groups for this app label.
+        """
         try:
             for rule_group in site_rule_groups.registry.get(self._meta.app_label, []):
                 if source_model:
