@@ -85,10 +85,6 @@ class Rule:
                         str(e)))
             else:
                 raise RuleError(str(e))
-        else:
-            visit.run_rules_for_model(
-                target_model._meta.label_lower,
-                entry_status=KEYED)
 
     def runif(self, visit, **kwargs):
         """May be overridden to run only on a condition.

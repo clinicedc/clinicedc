@@ -80,7 +80,6 @@ class MetadataRulesDisabledTests(TestCase):
         self.assertGreater(
             CrfMetadata.objects.filter(model='edc_example.crfone').count(), 0)
 
-    @tag('erik')
     def test_updates_crf_metadata_for_existing_with_rule(self):
         """Asserts creates and updates as KEYED even if rules disabled.
         """
@@ -98,7 +97,6 @@ class MetadataRulesDisabledTests(TestCase):
         self.assertEqual(CrfMetadata.objects.filter(
             entry_status=KEYED).count(), 1)
 
-    @tag('erik')
     def test_updates_crf_metadata_for_existing_without_rule(self):
         """Asserts creates and updates as KEYED even if rules disabled.
         """
@@ -128,7 +126,6 @@ class MetadataRulesTests(TestCase):
         self.first_visit = self.schedule.get_first_visit()
         self.panel_name = self.first_visit.requisitions[0].panel.name
 
-    @tag('erik')
     def test_rules_disabled(self):
         """Asserts rules are disabled.
 
