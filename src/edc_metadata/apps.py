@@ -16,13 +16,14 @@ class AppConfig(DjangoAppConfig):
     name = 'edc_metadata'
     verbose_name = 'Edc Metadata'
     app_label = 'edc_metadata'
-    metadata_rules_enabled = True
     crf_model_name = 'crfmetadata'
     requisition_model_name = 'requisitionmetadata'
 
     reason_field = {'edc_example.subjectvisit': 'reason'}
     create_on_reasons = [SCHEDULED, UNSCHEDULED]
     delete_on_reasons = [MISSED_VISIT]
+
+    metadata_rules_enabled = True
 
     def ready(self):
 
@@ -42,7 +43,7 @@ class AppConfig(DjangoAppConfig):
                 ' Warning. No metadata rules have loaded.\n'.format(self.verbose_name)))
         if not self.metadata_rules_enabled:
             sys.stdout.write(
-                style.NOTICE(' * metadata rules disabled.\n'.format(self.app_label)))
+                style.NOTICE(' * metadata rules disabled!\n'.format(self.app_label)))
 
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
 

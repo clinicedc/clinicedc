@@ -161,7 +161,7 @@ class Metadata:
                 f'{visit_instance._meta.label_lower}. Got AttributeError({e}). '
                 f'edc_metadata.AppConfig reason_field = {app_config.reason_field}')
 
-    def process(self):
+    def prepare(self):
         """Creates or deletes metadata, depending on the visit reason,
         for the visit instance.
         """
