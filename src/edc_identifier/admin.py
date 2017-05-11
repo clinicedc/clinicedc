@@ -33,8 +33,6 @@ class SequenceAdmin(admin.ModelAdmin):
 class IdentifierHistoryAdmin(admin.ModelAdmin):
 
     list_display = (
-        'identifier', 'identifier_type', 'identifier_prefix',
-        'created_datetime', 'created', 'user_created')
+        'identifier', 'identifier_type', 'identifier_prefix', 'created', 'user_created')
     search_fields = ('identifier', 'identifier_prefix')
-    list_filter = (
-        'created_datetime', 'created', 'identifier_prefix', 'user_created')
+    list_filter = ('created', 'identifier_prefix', 'user_created')

@@ -20,14 +20,14 @@ class SimpleIdentifier:
     """
 
     random_string_length = 5
-    identifier_attr = None
+    identifier_attr = 'identifier'
     model = None
     error_class = DuplicateIdentifierError
     template = '{device_id}{random_string}'
 
-    def __init__(self, model=None, identifier_attr=None):
+    def __init__(self, model=None, identifier_type=None):
         self.model = model or self.model
-        self.identifier_attr = identifier_attr or self.identifier_attr
+        self.identifier_type = identifier_type or self.identifier_type
         self.device_id = edc_device_app_config.device_id
         self.identifier = self.template.format(
             device_id=self.device_id, random_string=self.random_string)
@@ -35,6 +35,8 @@ class SimpleIdentifier:
             raise self.error_class(
                 'Unable prepare a unique identifier, '
                 'all are taken. Increase the length of the random string')
+        self.model_class.objects.create(
+            identifier=self.identifier, identifier_type=self.identifier_type)
 
     def __str__(self):
         return self.identifier
@@ -46,11 +48,17 @@ class SimpleIdentifier:
                 self.random_string_length)])
 
     @property
+    def model_class(self):
+        return django_apps.get_model(*self.model.split('.'))
+
+    @property
     def is_duplicate(self):
         is_duplicate = False
-        if self.model.objects.filter(**{self.identifier_attr: self.identifier}):
+        if self.model_class.objects.filter(
+                identifier=self.identifier, identifier_type=self.identifier_type):
             n = 1
-            while self.model.objects.filter(**{self.identifier_attr: self.identifier}):
+            while self.model_class.objects.filter(
+                    identifier=self.identifier, identifier_type=self.identifier_type):
                 self.identifier = self.template.format(
                     device_id=self.device_id, random_string=self.random_string)
                 n += 1
