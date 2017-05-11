@@ -179,7 +179,9 @@ class LabTests(TestCase):
             app_config.aliquot_model.objects.filter(aliquot_type='36').count(), 3)
 
     def test_requisition_create_aliquots_check_identifier(self):
-        """Asserts aliquot class can create child aliquots from itself with the correct identifier format."""
+        """Asserts aliquot class can create child aliquots from
+        itself with the correct identifier format.
+        """
         requisition = mommy.make_recipe(
             'edc_example.subjectrequisition',
             subject_visit=self.subject_visit,
@@ -208,8 +210,10 @@ class LabTests(TestCase):
             self.assertEqual(obj.aliquot_identifier[-1:], str(index + 1))
 
     def test_aliquots_identifier_sequence2(self):
-        """Asserts aliquot class can create child aliquots from itself with the correct sequence numbers
-        even if multiple specimens are processed."""
+        """Asserts aliquot class can create child aliquots from
+        itself with the correct sequence numbers even if multiple
+        specimens are processed.
+        """
         requisition1 = mommy.make_recipe(
             'edc_example.subjectrequisition',
             subject_visit=self.subject_visit,
@@ -254,7 +258,9 @@ class LabTests(TestCase):
             alpha_codes, ['12', '12', '12', '36', '36', '36', '36'])
 
     def test_collection(self):
-        """Asserts specimens can be collected and still function correctly (e.g. create aliquots)."""
+        """Asserts specimens can be collected and still function
+        correctly (e.g. create aliquots).
+        """
         requisition1 = mommy.make_recipe(
             'edc_example.subjectrequisition',
             subject_visit=self.subject_visit,
@@ -271,9 +277,11 @@ class LabTests(TestCase):
         specimen_collection.add(Specimen(requisition2))
         self.assertEqual(len(specimen_collection.specimens), 2)
         self.assertIn(requisition1.requisition_identifier,
-                      [s.requisition.requisition_identifier for s in specimen_collection.specimens.values()])
+                      [s.requisition.requisition_identifier
+                       for s in specimen_collection.specimens.values()])
         self.assertIn(requisition2.requisition_identifier,
-                      [s.requisition.requisition_identifier for s in specimen_collection.specimens.values()])
+                      [s.requisition.requisition_identifier
+                       for s in specimen_collection.specimens.values()])
         self.assertEqual(
             app_config.aliquot_model.objects.filter(
                 specimen_identifier__in=[

@@ -1,9 +1,9 @@
 from ..exceptions import RequisitionError
 
-from .base_identifier import Identifier
+from edc_identifier.simple_identifier import SimpleIdentifier
 
 
-class RequisitionIdentifier(Identifier):
+class RequisitionIdentifier(SimpleIdentifier):
 
     random_string_length = 5
     identifier_attr = 'requisition_identifier'
