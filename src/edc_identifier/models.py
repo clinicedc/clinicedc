@@ -64,21 +64,18 @@ class IdentifierModelMixin(models.Model):
 class IdentifierHistoryMixin(models.Model):
 
     identifier = models.CharField(
-        max_length=25,
+        max_length=50,
         unique=True
     )
 
     identifier_type = models.CharField(
-        max_length=25,
+        max_length=50,
     )
 
     identifier_prefix = models.CharField(
         max_length=25,
         null=True,
     )
-
-    created_datetime = models.DateTimeField(
-        default=get_utcnow)
 
     def natural_key(self):
         return (self.identifier, )
