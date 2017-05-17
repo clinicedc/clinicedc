@@ -1,6 +1,7 @@
 import re
 
 ADDITIONAL = True
+ABNORMAL = 'ABNORMAL'
 AFTERNOON = 'afternoon'
 ALIVE = 'alive'
 ANYTIME = 'anytime'
@@ -31,6 +32,7 @@ NEVER = 'NEVER'
 NEW = 'New'
 NO = 'No'
 NONE = 'none'
+NORMAL = 'NORMAL'
 NOT_ADDITIONAL = False
 NOT_APPLICABLE = 'N/A'
 NOT_EVALUATED = 'Not evaluated'
