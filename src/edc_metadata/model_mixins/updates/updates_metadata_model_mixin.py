@@ -4,6 +4,7 @@ from django.db import models
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...constants import REQUIRED, NOT_REQUIRED, KEYED, CRF, REQUISITION
+from edc_metadata.exceptions import MetadataError
 
 
 class UpdatesMetadataModelMixin(models.Model):
@@ -45,8 +46,11 @@ class UpdatesMetadataModelMixin(models.Model):
                            if r.panel.name == self.panel_name][0]
             default_entry_status = REQUIRED if requisition.required else NOT_REQUIRED
         elif self.metadata_category == CRF:
-            crf = [c for c in visit.crfs
-                   if c.model_label_lower == self._meta.label_lower][0]
+            try:
+                crf = [c for c in visit.crfs
+                       if c.model_label_lower == self._meta.label_lower][0]
+            except IndexError as e:
+                raise MetadataError(f'{self._meta.label_lower}. Got {e}') from e
             default_entry_status = REQUIRED if crf.required else NOT_REQUIRED
         return default_entry_status
 
