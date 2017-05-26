@@ -9,11 +9,18 @@ from edc_base.model_validators import datetime_not_future
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
 
-from .exceptions import ScheduleError, EnrollmentError
 from .site_visit_schedules import site_visit_schedules
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
+
+
+class EnrollmentModelError(Exception):
+    pass
+
+
+class EnrollmentError(Exception):
+    pass
 
 
 class DisenrollmentError(Exception):
@@ -43,7 +50,7 @@ class VisitScheduleMethodsModelMixin(models.Model):
             _, schedule_name = schedule_name.split('.')
         except ValueError:
             pass
-        return self.visit_schedule.get_schedule(self.schedule_name)
+        return self.visit_schedule.get_schedule(schedule_name=self.schedule_name)
 
     @property
     def visit_schedule(self):
@@ -133,33 +140,42 @@ class BaseEnrollmentModelMixin(
         return self.subject_identifier
 
     def common_clean(self):
-        current_schedule_name = self.schedule_name
         self.visit_schedule_name, schedule_name = (
             self._meta.visit_schedule_name.split('.'))
-        if current_schedule_name and current_schedule_name != schedule_name:
-            raise ScheduleError(
-                'Invalid schedule name specified for \'{}\'. '
-                'Expected \'{}\'. Got \'{}\'.'.format(
-                    self._meta.label_lower,
-                    schedule_name,
-                    current_schedule_name))
-        schedule = site_visit_schedules.get_visit_schedule(
-            self.visit_schedule_name).schedules.get(self.schedule_name)
+        if self.schedule_name and self.schedule_name != schedule_name:
+            raise EnrollmentModelError(
+                f'Invalid schedule name specified for \'{self._meta.label_lower}\'. '
+                f'Expected \'{schedule_name}\' (field). Got \'{self.schedule_name}\' (model._meta).')
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            visit_schedule_name=self.visit_schedule_name)
+        if not visit_schedule:
+            raise EnrollmentModelError(
+                f'Invalid visit schedule name or visit schedule not registered. '
+                f'Got \'{self.visit_schedule_name}\'.')
+        schedule = visit_schedule.get_schedule(
+            schedule_name=self.schedule_name)
+        if not schedule:
+            raise EnrollmentModelError(
+                f'Invalid schedule name or schedule name not added. '
+                f'Got \'{self.schedule_name}\'.')
         models = [schedule.enrollment_model._meta.label_lower,
                   schedule.disenrollment_model._meta.label_lower]
         if self._meta.label_lower not in models:
-            raise ScheduleError(
-                '\'{}\' cannot be used with schedule \'{}\'. '
-                'Expected {}'.format(
-                    self._meta.label_lower,
-                    current_schedule_name, models))
+            raise EnrollmentModelError(
+                f'\'{self._meta.label_lower}\' cannot be used with schedule '
+                f' \'{self.schedule_name}\'. Expected {models}')
         super().common_clean()
 
     def save(self, *args, **kwargs):
         if not self.id and not self.subject_identifier:
             self.subject_identifier = get_uuid()
-        self.visit_schedule_name, self.schedule_name = (
-            self._meta.visit_schedule_name.split('.'))
+        try:
+            self.visit_schedule_name, self.schedule_name = (
+                self._meta.visit_schedule_name.split('.'))
+        except AttributeError as e:
+            raise EnrollmentModelError(
+                f'Invalid _meta.visit_schedule_name \'{self._meta.visit_schedule_name}\'. '
+                f'Got {e}.') from e
         super().save(*args, **kwargs)
 
     def natural_key(self):
@@ -191,38 +207,38 @@ class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
             self.schedule_name)
 
     def common_clean(self):
-        if not self.enrollment:
-            raise EnrollmentError(
-                'Cannot disenroll subject \'{}\' from \'{}.{}\'. '
-                'Enrollment does not exist.'.format(
-                    self.subject_identifier,
-                    self.visit_schedule_name,
-                    self.schedule_name))
-        self.datetime_not_before_enrollment_or_raise()
-        self.datetime_after_last_visit_or_raise()
-        super().common_clean()
-
-    def datetime_not_before_enrollment_or_raise(self):
-        if relativedelta(
-                self.disenrollment_datetime,
-                self.enrollment.report_datetime).days < 0:
-            raise DisenrollmentError(
-                'Disenrollment datetime cannot precede the enrollment '
-                'datetime {}. Got {}'.format(
-                    timezone.localtime(self.enrollment.report_datetime),
-                    timezone.localtime(self.disenrollment_datetime)))
-
-    def datetime_after_last_visit_or_raise(self):
-        last_visit_datetime = site_visit_schedules.last_visit_datetime(
-            self.subject_identifier,
-            visit_schedule_name=self.visit_schedule_name,
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            visit_schedule_name=self.visit_schedule_name)
+        schedule = visit_schedule.get_schedule(
             schedule_name=self.schedule_name)
-        if relativedelta(self.disenrollment_datetime, last_visit_datetime).days < 0:
+
+        try:
+            enrollment = schedule.enrollment_model.objects.get(
+                subject_identifier=self.subject_identifier)
+        except schedule.enrollment_model.DoesNotExist:
             raise DisenrollmentError(
-                'Disenrollment datetime cannot precede the last visit '
-                'datetime {}. Got {}'.format(
-                    timezone.localtime(last_visit_datetime),
-                    timezone.localtime(self.disenrollment_datetime)))
+                f'Cannot disenroll before enrollment. Subject \'{self.subject_identifier}\' '
+                f'is not enrolled to \'{self.visit_schedule_name}.{self.schedule_name}\'. ')
+
+        if relativedelta(self.disenrollment_datetime, enrollment.report_datetime).days < 0:
+            raise DisenrollmentError(
+                f'Disenrollment datetime cannot precede the enrollment '
+                f'datetime {timezone.localtime(enrollment.report_datetime)}. '
+                f'Got {timezone.localtime(self.disenrollment_datetime)}')
+
+        visit = visit_schedule.models.visit_model.objects.filter(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name).order_by('report_datetime').last()
+
+        if visit:
+            if relativedelta(self.disenrollment_datetime, visit.last_visit_datetime).days < 0:
+                raise DisenrollmentError(
+                    f'Disenrollment datetime cannot precede the last visit '
+                    f'datetime {timezone.localtime(visit.last_visit_datetime)}. '
+                    f'Got {timezone.localtime(self.disenrollment_datetime)}')
+
+        super().common_clean()
 
     class Meta:
         abstract = True

@@ -1,4 +1,4 @@
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from .site_visit_schedules import site_visit_schedules
 
 
 class VisitScheduleViewMixin:
@@ -24,9 +24,9 @@ class VisitScheduleViewMixin:
         """
         if not self._enrollment_models:
             # find if the subject has an enrollment for for a schedule
-            for visit_schedule in site_visit_schedules.get_visit_schedules().values():
+            for visit_schedule in site_visit_schedules.visit_schedules.values():
                 for schedule in visit_schedule.schedules.values():
-                    enrollment_instance = schedule.enrollment_instance(
+                    enrollment_instance = schedule.enrollment(
                         subject_identifier=self.subject_identifier)
                     if enrollment_instance:
                         self.visit_schedules.append(visit_schedule)

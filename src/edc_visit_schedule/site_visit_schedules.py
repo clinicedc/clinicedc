@@ -4,9 +4,17 @@ import sys
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
 
-from edc_visit_schedule.exceptions import (
-    VisitScheduleError, RegistryNotLoaded, AlreadyRegistered)
-from django.core.exceptions import MultipleObjectsReturned
+
+class RegistryNotLoaded(Exception):
+    pass
+
+
+class AlreadyRegisteredVisitSchedule(Exception):
+    pass
+
+
+class SiteVisitScheduleError(Exception):
+    pass
 
 
 class SiteVisitSchedules:
@@ -28,90 +36,85 @@ class SiteVisitSchedules:
                 'declared in settings?.')
         return self._registry
 
+    @property
+    def visit_schedules(self):
+        return self.registry
+
     def register(self, visit_schedule):
         self.loaded = True
         if visit_schedule.name not in self.registry:
             self.registry.update({visit_schedule.name: visit_schedule})
         else:
-            raise AlreadyRegistered(
+            raise AlreadyRegisteredVisitSchedule(
                 'Visit Schedule {} is already registered.'.format(
                     visit_schedule))
+        if not visit_schedule.schedules:
+            raise SiteVisitScheduleError(
+                f'Visit schedule {visit_schedule} has not schedules. Add one before registering.')
 
-    def get_visit_schedule(self, name):
+    def get_visit_schedule(self, visit_schedule_name=None):
         visit_schedule = None
-        if name:
-            name = name.split('.')[0]
+        if visit_schedule_name:
             try:
-                visit_schedule = self.registry[name]
-            except KeyError:
-                raise VisitScheduleError(
-                    'Invalid visit schedule name. Got \'{}\'. '
-                    'Possible names are [{}].'.format(
-                        name, ', '.join(self.registry.keys())))
+                visit_schedule_name = visit_schedule_name.split('.')[0]
+            except (AttributeError, KeyError):
+                pass
+            visit_schedule = self.registry.get(visit_schedule_name)
+            if not visit_schedule:
+                visit_schedule_names = '\', \''.join(self.registry.keys())
+                raise SiteVisitScheduleError(
+                    f'Invalid visit schedule name. Got \'{visit_schedule_name}\'. '
+                    f'Expected one of \'{visit_schedule_names}\'.')
         return visit_schedule
 
-    def get_visit_schedules(self):
-        return self.registry
-
-    def get_schedules(self, visit_schedule_name):
-        return self.registry[visit_schedule_name].schedules
-
-    def get_schedule(self, value=None):
+    def get_schedule(self, model=None, visit_schedule_name=None, schedule_name=None):
         """Returns a schedule by name, meta.label_lower or
         meta.visit_schedule_name.
         """
-        schedule = self.get_schedule_by_model(value)
-        if not schedule:
-            schedule = self.get_schedule_by_meta(visit_schedule_name=value)
-        if not schedule:
-            schedule = self.get_schedule_by_name(name=value)
+        schedule = None
+        if model:
+            schedule = self.get_schedule_by_model(model=model)
+        elif visit_schedule_name:
+            schedule = self.get_schedule_by_meta(
+                visit_schedule_name=visit_schedule_name)
+        elif schedule_name:
+            schedule = self.get_schedule_by_name(
+                schedule_name=schedule_name)
         return schedule
 
-    def get_schedule_by_name(self, name):
-        """Lookup and return a schedule using a schedule name.
-        """
-        schedules = []
-        for visit_schedule in self.registry.values():
-            for schedule_name, schedule in visit_schedule.schedules.items():
-                if name == schedule_name:
-                    schedules.append(schedule)
-        if len(schedules) > 1:
-            raise MultipleObjectsReturned(
-                'More than one schedule returned for \'{}\'. Got {}.'.format(
-                    name, [s.name for s in schedules]))
-        if schedules:
-            return schedules[0]
-        return None
-
-    def get_schedule_by_meta(self, visit_schedule_name):
-        """Lookup and return a schedule using the Meta
+    def get_schedules(self, visit_schedule_name=None):
+        """Returns a dictionary of schedules for this
         visit_schedule_name.
         """
         try:
-            visit_schedule_name, schedule_name = visit_schedule_name.split('.')
-            schedule = self.get_visit_schedule(
-                visit_schedule_name).schedules.get(schedule_name)
-        except (ValueError, VisitScheduleError):
-            schedule = None
-        return schedule
+            return self.registry[visit_schedule_name].schedules
+        except KeyError as e:
+            raise SiteVisitScheduleError(f'Invalid visit_schedule_name. Got {e}.') from e
 
-    def get_schedule_by_model(self, value):
+    def get_schedule_by_name(self, schedule_name=None):
+        """Lookup and return a schedule using a schedule name.
+        """
+        for visit_schedule in self.registry.values():
+            schedule = visit_schedule.get_schedule(schedule_name=schedule_name)
+            if schedule:
+                return schedule
+        return None
+
+    def get_schedule_by_meta(self, visit_schedule_name=None):
+        """Lookup and return a schedule using the Meta
+        visit_schedule_name.
+        """
+        _, schedule_name = visit_schedule_name.split('.')
+        return self.get_schedule_by_name(schedule_name=schedule_name)
+
+    def get_schedule_by_model(self, model=None):
         """Lookup and return a schedule using the Meta label_lower.
         """
-        try:
-            model = django_apps.get_model(*value.split('.'))
-        except (ValueError, AttributeError):
-            model = value
-        except LookupError:
-            model = None
-        try:
-            visit_schedule_name, schedule_name = model._meta.visit_schedule_name.split(
-                '.')
-            schedule = self.get_visit_schedule(
-                visit_schedule_name).schedules.get(schedule_name)
-        except (ValueError, AttributeError):
-            schedule = None
-        return schedule
+        for _, visit_schedule in self.registry.items():
+            schedule = visit_schedule.get_schedule(model=model)
+            if schedule:
+                return schedule
+        return None
 
     def get_visit_schedule_names(self):
         """Returns an ordered list of visit schedule names for
@@ -121,21 +124,19 @@ class SiteVisitSchedules:
         visit_schedule_names.sort()
         return visit_schedule_names
 
-    def get_schedule_names(self, visit_schedule_name):
+    def get_schedule_names(self, visit_schedule_names=None):
         """Returns an ordered list of schedule names for a given
         visit schedule name in visit_schedule_name.schedule_name
         dot format.
         """
         schedule_names = []
-        if not isinstance(visit_schedule_name, (list, tuple)):
-            visit_schedule_names = [visit_schedule_name]
-        else:
-            visit_schedule_names = visit_schedule_name
-        for name in visit_schedule_names:
+        if not isinstance(visit_schedule_names, (list, tuple)):
+            visit_schedule_names = [visit_schedule_names]
+        for visit_schedule_name in visit_schedule_names:
             schedule_names.extend(
-                ['{}.{}'.format(name, schedule_name)
+                ['{}.{}'.format(visit_schedule_name, schedule_name)
                  for schedule_name in list(
-                     self.get_visit_schedule(name).schedules.keys())])
+                     self.get_visit_schedule(visit_schedule_name=visit_schedule_name).schedules.keys())])
         schedule_names.sort()
         return schedule_names
 
@@ -175,17 +176,19 @@ class SiteVisitSchedules:
             last_visit_datetime = max(max_visit_datetimes)
         return last_visit_datetime
 
-    def enrollment(self, subject_identifier, visit_schedule_name, schedule_name):
+    def enrollment(self, subject_identifier=None, visit_schedule_name=None, schedule_name=None):
         """Returns the enrollment instance for the given subject.
         """
-        schedule = self.get_visit_schedule(
-            visit_schedule_name).get_schedule(schedule_name)
+        visit_schedule = self.get_visit_schedule(
+            visit_schedule_name=visit_schedule_name)
+        schedule = visit_schedule.get_schedule(schedule_name=schedule_name)
+        model = schedule.enrollment_model
         try:
-            enrollment = schedule.enrollment_model.objects.get(
+            obj = model.objects.get(
                 subject_identifier=subject_identifier)
-        except schedule.enrollment_model.DoesNotExist:
-            enrollment = None
-        return enrollment
+        except model.DoesNotExist:
+            obj = None
+        return obj
 
     def autodiscover(self, module_name=None):
         """Autodiscovers classes in the visit_schedules.py file of
@@ -204,13 +207,13 @@ class SiteVisitSchedules:
                         ' * registered visit schedule from application '
                         '\'{}\'\n'.format(app))
                 except Exception as e:
-                    if 'No module named \'{}.{}\''.format(
-                            app, module_name) not in str(e):
-                        raise Exception(e)
+                    if f'No module named \'{app}.{module_name}\'' not in str(e):
+                        raise SiteVisitScheduleError(f'In module {app}.{module_name}: Got {e}') from e
                     site_visit_schedules._registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise
+                        raise SiteVisitScheduleError(f'In module {app}.{module_name}: Got {e}') from e
             except ImportError:
                 pass
+
 
 site_visit_schedules = SiteVisitSchedules()

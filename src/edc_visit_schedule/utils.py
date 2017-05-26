@@ -1,8 +1,13 @@
 from .constants import DAYS, MONTHS, YEARS, HOURS
 
 
+class VisitWindowError(Exception):
+    pass
+
+
 def get_lower_window_days(lower_window_value, lower_window_unit):
-    """Returns the lower bound in days."""
+    """Returns the lower bound in days.
+    """
     if lower_window_unit.upper() == DAYS:
         days = lower_window_value * 1
     elif lower_window_unit.upper() == MONTHS:
@@ -15,7 +20,7 @@ def get_lower_window_days(lower_window_value, lower_window_unit):
         else:
             days = round(lower_window_value / 24, 0)
     else:
-        raise TypeError(
+        raise VisitWindowError(
             'Invalid lower_window_value, You have the '
             'value \'%s\' stored' % (lower_window_unit.upper()))
     return days
@@ -36,7 +41,7 @@ def get_upper_window_days(upper_window_value, upper_window_unit):
             days = round(upper_window_value / 24, 0)
 
     else:
-        raise TypeError(
+        raise VisitWindowError(
             'Invalid upper_window_value, You have the value \'%s\' stored' % (
                 upper_window_unit.upper()))
     return days

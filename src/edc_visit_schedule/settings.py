@@ -15,10 +15,10 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import sys
 
-from unipath import Path
+from pathlib import PurePath
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -42,25 +42,26 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'simple_history',
     'django_crypto_fields.apps.AppConfig',
+    'django_revision.apps.AppConfig',
     'edc_base.apps.AppConfig',
-    'edc_consent.apps.AppConfig',
-    'edc_appointment.apps.AppConfig',
+    #     'edc_appointment.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
-    'edc_lab.apps.AppConfig',
-    'edc_registration.apps.AppConfig',
-    'edc_visit_schedule.apps.AppConfig',
+    'edc_protocol.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
-    'edc_example.apps.EdcProtocolAppConfig',
-    'edc_example.apps.EdcTimepointAppConfig',
-    'edc_example.apps.AppConfig',
+    'edc_visit_schedule.apps.AppConfig',
 ]
 
 if 'test' in sys.argv:
     MIGRATION_MODULES = {
         'example': None,
+        'django_crypto_fields': None,
         'edc_visit_schedule': None,
+        'edc_registration': None,
         'edc_appointment': None,
+        'edc_metadata': None,
+        'edc_consent': None,
+        'edc_lab': None,
         'django_crypto_fields': None}
 
 
@@ -126,9 +127,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-GIT_DIR = BASE_DIR.ancestor(1)
+GIT_DIR = str(PurePath(BASE_DIR).parent)
 
-KEY_PATH = os.path.join(BASE_DIR.ancestor(1), 'crypto_fields')
+KEY_PATH = os.path.join(str(PurePath(BASE_DIR).parent), 'crypto_fields')
 
 PROJECT_ROOT = GIT_DIR
 FIELD_MAX_LENGTH = 'default'
