@@ -36,6 +36,10 @@ class VisitScheduleMethodsModelMixin(models.Model):
     """
 
     @property
+    def visits(self):
+        return self.schedule.get_visits()
+
+    @property
     def schedule(self):
         """Returns a schedule object from Meta.visit_schedule_name or
         self.schedule_name.

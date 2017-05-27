@@ -47,6 +47,18 @@ class TestModels(TestCase):
         else:
             self.fail('VisitScheduleSiteError unexpectedly not raised.')
 
+    def test_visits(self):
+        """Asserts can access visits for this  site_visit_schedule loaded.
+        """
+        site_visit_schedules.loaded = False
+        obj = Enrollment()
+        try:
+            obj.visits
+        except VisitScheduleModelError:
+            pass
+        else:
+            self.fail('VisitScheduleSiteError unexpectedly not raised.')
+
     def test_model_bad_meta(self):
         """Asserts raises if _meta is wrong format.
         """

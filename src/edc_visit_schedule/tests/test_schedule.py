@@ -38,6 +38,10 @@ class TestSchedule(TestCase):
 
     def test_schedule_bad_label_lower(self):
         self.assertRaises(
+            ScheduleModelError, Schedule, name='schedule', enrollment_model='x.x')
+
+    def test_schedule_bad_label_lower2(self):
+        self.assertRaises(
             ScheduleModelError, Schedule, name='schedule', disenrollment_model='x.x')
 
     def test_schedule_ok(self):

@@ -7,7 +7,7 @@ class WindowPeriod:
         self.rlower = rlower
         self.rupper = rupper
 
-    def window(self, dt=None):
+    def get_window(self, dt=None):
         """Returns a named tuple of the lower and upper values.
         """
         Window = namedtuple('window', ['lower', 'upper'])

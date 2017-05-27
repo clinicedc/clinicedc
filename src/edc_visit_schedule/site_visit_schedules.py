@@ -4,6 +4,8 @@ import sys
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
 
+from .visit_schedule import SchedulesCollectionError
+
 
 class RegistryNotLoaded(Exception):
     pass
@@ -42,24 +44,21 @@ class SiteVisitSchedules:
 
     def register(self, visit_schedule):
         self.loaded = True
+        if not visit_schedule.schedules:
+            raise SiteVisitScheduleError(
+                f'Visit schedule {visit_schedule} has no schedules. Add one before registering.')
         if visit_schedule.name not in self.registry:
             self.registry.update({visit_schedule.name: visit_schedule})
         else:
             raise AlreadyRegisteredVisitSchedule(
                 'Visit Schedule {} is already registered.'.format(
                     visit_schedule))
-        if not visit_schedule.schedules:
-            raise SiteVisitScheduleError(
-                f'Visit schedule {visit_schedule} has not schedules. Add one before registering.')
 
     def get_visit_schedule(self, visit_schedule_name=None):
         visit_schedule = None
         if visit_schedule_name:
-            try:
-                visit_schedule_name = visit_schedule_name.split('.')[0]
-            except (AttributeError, KeyError):
-                pass
-            visit_schedule = self.registry.get(visit_schedule_name)
+            visit_schedule = self.registry.get(
+                visit_schedule_name.split('.')[0])
             if not visit_schedule:
                 visit_schedule_names = '\', \''.join(self.registry.keys())
                 raise SiteVisitScheduleError(
@@ -101,19 +100,23 @@ class SiteVisitSchedules:
         return None
 
     def get_schedule_by_meta(self, visit_schedule_name=None):
-        """Lookup and return a schedule using the Meta
+        """Looks up and returns a schedule or None using the Meta
         visit_schedule_name.
         """
         _, schedule_name = visit_schedule_name.split('.')
         return self.get_schedule_by_name(schedule_name=schedule_name)
 
     def get_schedule_by_model(self, model=None):
-        """Lookup and return a schedule using the Meta label_lower.
+        """Looks up and returns a schedule or None using the Meta label_lower.
         """
         for _, visit_schedule in self.registry.items():
-            schedule = visit_schedule.get_schedule(model=model)
-            if schedule:
-                return schedule
+            try:
+                schedule = visit_schedule.get_schedule(model=model)
+            except SchedulesCollectionError:
+                pass
+            else:
+                if schedule:
+                    return schedule
         return None
 
     def get_visit_schedule_names(self):
