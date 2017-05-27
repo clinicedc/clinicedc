@@ -9,7 +9,8 @@ from edc_base.model_validators import datetime_not_future
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
 
-from .site_visit_schedules import site_visit_schedules
+from .site_visit_schedules import site_visit_schedules, RegistryNotLoaded, SiteVisitScheduleError
+from .visit_schedule import VisitScheduleModelError
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
@@ -36,37 +37,38 @@ class VisitScheduleMethodsModelMixin(models.Model):
 
     @property
     def schedule(self):
-        """Return a schedule object from Meta.visit_schedule_name or
+        """Returns a schedule object from Meta.visit_schedule_name or
         self.schedule_name.
 
         Declared on Meta like this:
             visit_schedule_name = 'visit_schedule_name.schedule_name'
-            """
+        """
         try:
-            schedule_name = self._meta.visit_schedule_name
-        except AttributeError:
-            schedule_name = self.schedule_name
-        try:
-            _, schedule_name = schedule_name.split('.')
-        except ValueError:
-            pass
-        return self.visit_schedule.get_schedule(schedule_name=self.schedule_name)
+            _, schedule_name = self._meta.visit_schedule_name.split('.')
+        except ValueError as e:
+            raise VisitScheduleModelError(f'{self.__class__.__name__}. Got {e}') from e
+        return self.visit_schedule.get_schedule(schedule_name=schedule_name)
 
     @property
     def visit_schedule(self):
-        """Return a visit schedule object from Meta.visit_schedule_name
-        or self.visit_schedule_name.
+        """Returns a visit schedule object from Meta.visit_schedule_name.
+
+        Declared on Meta like this:
+            visit_schedule_name = 'visit_schedule_name.schedule_name'
         """
         try:
-            visit_schedule_name = self._meta.visit_schedule_name
-        except AttributeError:
-            visit_schedule_name = self.visit_schedule_name
+            visit_schedule_name, _ = self._meta.visit_schedule_name.split('.')
+        except ValueError as e:
+            raise VisitScheduleModelError(f'{self.__class__.__name__}. Got {e}') from e
         try:
-            visit_schedule_name, _ = visit_schedule_name.split('.')
-        except ValueError:
-            pass
-        visit_schedule = site_visit_schedules.get_visit_schedule(
-            visit_schedule_name)
+            visit_schedule = site_visit_schedules.get_visit_schedule(
+                visit_schedule_name)
+        except RegistryNotLoaded as e:
+            raise VisitScheduleModelError(
+                f'visit_schedule_name: \'{visit_schedule_name}\'. Got {e}') from e
+        except SiteVisitScheduleError as e:
+            raise VisitScheduleModelError(
+                f'visit_schedule_name: \'{visit_schedule_name}\'. Got {e}') from e
         return visit_schedule
 
     def timepoint_datetimes(self, base_datetime, schedule):
@@ -167,15 +169,22 @@ class BaseEnrollmentModelMixin(
         super().common_clean()
 
     def save(self, *args, **kwargs):
-        if not self.id and not self.subject_identifier:
-            self.subject_identifier = get_uuid()
-        try:
+        if not self.id:
+            if not self.subject_identifier:
+                self.subject_identifier = get_uuid()
             self.visit_schedule_name, self.schedule_name = (
                 self._meta.visit_schedule_name.split('.'))
-        except AttributeError as e:
-            raise EnrollmentModelError(
-                f'Invalid _meta.visit_schedule_name \'{self._meta.visit_schedule_name}\'. '
-                f'Got {e}.') from e
+        else:
+            visit_schedule_name, schedule_name = (
+                self._meta.visit_schedule_name.split('.'))
+            if self.visit_schedule_name != visit_schedule_name:
+                raise EnrollmentModelError(
+                    f'Not allowing attempt to change visit schedule name. '
+                    f'Expected {self.visit_schedule_name}. Got \'{visit_schedule_name}\'')
+            if self.schedule_name != schedule_name:
+                raise EnrollmentModelError(
+                    f'Not allowing attempt to change schedule name. '
+                    f'Expected {self.schedule_name}. Got \'{schedule_name}\'')
         super().save(*args, **kwargs)
 
     def natural_key(self):

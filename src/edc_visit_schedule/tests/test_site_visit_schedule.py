@@ -7,6 +7,8 @@ from .models import SubjectVisit, SubjectOffstudy, DeathReport
 from .models import Enrollment, Disenrollment, DisenrollmentTwo, EnrollmentTwo
 from edc_visit_schedule.site_visit_schedules import SiteVisitScheduleError
 from edc_base.utils import get_utcnow
+from edc_visit_schedule.visit_schedule.visit_schedule import VisitScheduleModelError
+from edc_visit_schedule.model_mixins import EnrollmentModelError
 
 
 @tag('site')
@@ -145,3 +147,18 @@ class TestSiteVisitSchedule(TestCase):
         obj = Enrollment.objects.create(subject_identifier='1')
         schedule = site_visit_schedules.get_schedule(schedule_name='schedule')
         self.assertEqual(obj, schedule.enrollment(subject_identifier='1'))
+
+    @tag('models')
+    def test_enrollment(self):
+        obj = Enrollment.objects.create()
+        self.assertEqual(obj.visit_schedule_name, 'visit_schedule')
+        self.assertEqual(obj.schedule_name, 'schedule')
+        self.assertIsNotNone(obj.visit_schedule)
+        self.assertIsNotNone(obj.schedule)
+
+    @tag('models')
+    def test_enrollment_cannot_change(self):
+        obj = Enrollment.objects.create()
+        obj.visit_schedule_name = 'blah'
+        obj.schedule_name = 'blah'
+        self.assertRaises(EnrollmentModelError, obj.save)

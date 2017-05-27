@@ -18,6 +18,10 @@ class VisitScheduleModelError(Exception):
     pass
 
 
+class VisitScheduleSiteError(Exception):
+    pass
+
+
 class AlreadyRegisteredSchedule(Exception):
     pass
 

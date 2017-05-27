@@ -1,7 +1,6 @@
 import itertools
 
 from collections import OrderedDict
-from pprint import pprint
 
 
 class OrderedCollection(OrderedDict):
