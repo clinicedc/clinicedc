@@ -2,13 +2,12 @@ from django.test import TestCase, tag
 
 from edc_base.utils import get_utcnow
 
+from ..model_mixins import EnrollmentModelError
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError, AlreadyRegisteredVisitSchedule
-from ..visit_schedule import VisitSchedule
+from ..visit_schedule import VisitSchedule, VisitScheduleError
 from .models import SubjectVisit, SubjectOffstudy, DeathReport
 from .models import Enrollment, Disenrollment, DisenrollmentTwo, EnrollmentTwo
-
-from ..model_mixins import EnrollmentModelError
 
 
 @tag('site')
@@ -94,6 +93,12 @@ class TestSiteVisitSchedule1(TestCase):
             self.visit_schedule_two,
             site_visit_schedules.visit_schedules.values())
 
+    def test_get_visit_schedules(self):
+        """Asserts returns a dictionary of visit schedules.
+        """
+        self.assertEqual(
+            len(site_visit_schedules.get_visit_schedules()), 2)
+
     def test_get_visit_schedule_by_name(self):
         visit_schedule_name = self.visit_schedule.name
         self.assertEqual(
@@ -140,8 +145,7 @@ class TestSiteVisitSchedule1(TestCase):
             site_visit_schedules.get_schedule(visit_schedule_name=Enrollment._meta.visit_schedule_name))
 
     def test_get_schedule_by_bad_model(self):
-        self.assertIsNone(
-            site_visit_schedules.get_schedule(model='blah'))
+        self.assertIsNone(site_visit_schedules.get_schedule(model='blah'))
 
     def test_get_schedule_by_enrollment_model_label(self):
         self.assertIsNotNone(
@@ -201,31 +205,6 @@ class TestSiteVisitSchedule1(TestCase):
         self.assertEqual(
             site_visit_schedules.get_visit_schedule_names(),
             ['visit_schedule', 'visit_schedule_two'])
-
-    def test_get_enrollment_for_subject_from_site(self):
-        """Asserts site can return the enrollment instance.
-        """
-        enrollment_datetime = get_utcnow()
-        for model, subject_identifier in [(Enrollment, '111111'), (EnrollmentTwo, '222222')]:
-            model.objects.create(
-                subject_identifier=subject_identifier, report_datetime=enrollment_datetime)
-            visit_schedule_name, schedule_name = (
-                model._meta.visit_schedule_name.split('.'))
-            self.assertEqual(
-                enrollment_datetime,
-                site_visit_schedules.enrollment(
-                    subject_identifier, visit_schedule_name, schedule_name).report_datetime)
-
-    def test_get_enrollment_from_schedule(self):
-
-        schedule = site_visit_schedules.get_schedule(schedule_name='schedule')
-        self.assertRaises(
-            schedule.enrollment_model.DoesNotExist,
-            schedule.enrollment(subject_identifier='1'))
-
-        obj = Enrollment.objects.create(subject_identifier='1')
-        schedule = site_visit_schedules.get_schedule(schedule_name='schedule')
-        self.assertEqual(obj, schedule.enrollment(subject_identifier='1'))
 
     @tag('models')
     def test_enrollment(self):
@@ -305,16 +284,3 @@ class TestSiteVisitSchedule2(TestCase):
             site_visit_schedules.get_schedule_names('visit_schedule'),
             ['visit_schedule.schedule', 'visit_schedule.schedule1',
              'visit_schedule.schedule2', 'visit_schedule.schedule3'])
-
-    def test_get_enrollment_for_subject_from_site(self):
-        """Asserts site can return the enrollment instance.
-        """
-        enrollment_datetime = get_utcnow()
-        Enrollment.objects.create(
-            subject_identifier='111111', report_datetime=enrollment_datetime)
-        visit_schedule_name, schedule_name = (
-            Enrollment._meta.visit_schedule_name.split('.'))
-        self.assertEqual(
-            enrollment_datetime,
-            site_visit_schedules.enrollment(
-                '111111', visit_schedule_name, schedule_name).report_datetime)

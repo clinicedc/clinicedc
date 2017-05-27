@@ -13,7 +13,7 @@ class TestSchedulesCollection(TestCase):
         od = SchedulesCollection()
         self.assertRaises(
             SchedulesCollectionError,
-            od.get_schedule_by_model, 'blah')
+            od._get_schedule_by_model, 'blah')
 
     def test_get_by_model(self):
         """Asserts can get the object using either model,
@@ -40,5 +40,5 @@ class TestSchedulesCollection(TestCase):
         od = TestCollection()
         obj = Obj('one', 1, )
         od.update({obj.key: obj})
-        self.assertEqual(od.get_schedule_by_model(ModelA), obj)
-        self.assertEqual(od.get_schedule_by_model(ModelB), obj)
+        self.assertEqual(od.get_schedule(model=ModelA), obj)
+        self.assertEqual(od.get_schedule(model=ModelB), obj)

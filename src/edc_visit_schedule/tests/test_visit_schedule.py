@@ -1,8 +1,6 @@
 from django.test import TestCase, tag
 
-from edc_base.utils import get_utcnow
-
-from ..model_mixins import EnrollmentError, DisenrollmentError, EnrollmentModelError
+from ..model_mixins import DisenrollmentError, EnrollmentModelError
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..visit import Crf, FormsCollectionError
@@ -231,21 +229,7 @@ class TestVisitSchedule3(TestCase):
         self.assertEqual(obj.schedule_name, self.schedule.name)
 
     def test_cannot_enroll_if_visit_schedule_not_registered(self):
-        """Asserts site can return the enrollment instance.
-        """
-        self.assertRaises(SiteVisitScheduleError, EnrollmentTwo.objects.create)
+        self.assertRaises(EnrollmentModelError, EnrollmentTwo.objects.create)
 
     def test_cannot_enroll_if_schedule_not_added(self):
-        """Asserts site can return the enrollment instance.
-        """
-        self.assertRaises(EnrollmentModelError, EnrollmentThree.objects.create)
-
-    def test_get_enrollment_from_disenrollment(self):
-        """Asserts site can return the enrollment instance.
-        """
-        enrollment_datetime = get_utcnow()
-        enrollment = Enrollment.objects.create(
-            subject_identifier='111111', report_datetime=enrollment_datetime)
-        disenrollment = Disenrollment.objects.create(
-            subject_identifier='111111')
-        self.assertEqual(disenrollment.enrollment, enrollment)
+        self.assertRaises(VisitScheduleError, EnrollmentThree.objects.create)

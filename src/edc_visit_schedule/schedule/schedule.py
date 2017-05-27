@@ -1,7 +1,6 @@
 import re
 
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
 
 from ..visit import Visit
 from .visit_collection import VisitCollection
@@ -20,6 +19,14 @@ class AlreadyRegisteredVisit(Exception):
 
 
 class Schedule:
+
+    """A class that represents a "schedule" of visits.
+
+    Is contained by a "visit schedule".
+
+    Contains an ordered dictionary of visit instances and the enrollment
+    and disenrollment models used to get on and off the schedule.
+    """
 
     name_regex = r'[a-z0-9\_\-]+$'
     visit_cls = Visit
@@ -61,6 +68,10 @@ class Schedule:
     def __str__(self):
         return self.name
 
+    @property
+    def field_value(self):
+        return self.name
+
     def add_visit(self, visit=None, **kwargs):
         """Adds a unique visit to the schedule.
         """
@@ -72,19 +83,3 @@ class Schedule:
                     f'See schedule \'{self}\'')
         self.visits.update({visit.code: visit})
         return visit
-
-    def enrollment(self, subject_identifier=None):
-        """Returns the enrollment model instance or None
-        from this schedule for the subject_identifier.
-        """
-        try:
-            enrollment = self.enrollment_model.objects.get(
-                subject_identifier=subject_identifier,
-                schedule_name=self.name)
-        except self.enrollment_model.DoesNotExist:
-            enrollment = None
-        return enrollment
-
-    @property
-    def field_value(self):
-        return self.name

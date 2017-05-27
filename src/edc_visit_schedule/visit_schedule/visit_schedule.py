@@ -1,5 +1,6 @@
 import re
 
+from ..visit_schedule import SchedulesCollectionError
 from .model_validator import ModelValidator, ModelValidatorError
 from .model_validator import EnrollmentModelValidator, DisenrollmentModelValidator
 from .model_validator import EnrollmentModelValidatorError
@@ -59,10 +60,25 @@ class VisitSchedule:
         return self.name
 
     def get_schedule(self, **kwargs):
-        return self.schedules.get_schedule(**kwargs)
+        """Returns a schedule instance or raises.
+        """
+        try:
+            return self.schedules.get_schedule(**kwargs)
+        except SchedulesCollectionError as e:
+            raise VisitScheduleError(e) from e
 
-    def get_schedule_by_model(self, **kwargs):
-        return self.schedules.get_schedule_by_model(**kwargs)
+    def get_schedules(self, schedule_name=None, **kwargs):
+        """Returns a dictionary of schedules.
+        """
+        if schedule_name:
+            try:
+                schedules = dict(
+                    schedule_name=self.get_schedule(schedule_name=schedule_name, **kwargs))
+            except SchedulesCollectionError as e:
+                raise VisitScheduleError(e) from e
+        else:
+            schedules = self.schedules
+        return schedules
 
     def add_schedule(self, schedule):
         """Adds a schedule, if not already added.
