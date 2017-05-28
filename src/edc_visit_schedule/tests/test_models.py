@@ -7,7 +7,8 @@ from ..model_mixins import DisenrollmentModelMixin
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules
 from ..visit_schedule import VisitScheduleModelError, VisitSchedule
-from .models import Enrollment
+from .models import Enrollment, Disenrollment
+from .models import SubjectVisit, SubjectOffstudy, DeathReport
 
 
 class ModelC(EnrollmentModelMixin, BaseUuidModel):
@@ -34,6 +35,18 @@ class ModelF(DisenrollmentModelMixin, BaseUuidModel):
         visit_schedule_name = 'visit_schedule_blah.schedule_blah'
 
 
+class ModelG(EnrollmentModelMixin, BaseUuidModel):
+
+    class Meta(EnrollmentModelMixin.Meta):
+        visit_schedule_name = 'visit_schedule1.schedule1'
+
+
+class ModelG2(DisenrollmentModelMixin, BaseUuidModel):
+
+    class Meta(DisenrollmentModelMixin.Meta):
+        visit_schedule_name = 'visit_schedule1.schedule1'
+
+
 @tag('models')
 class TestModels(TestCase):
 
@@ -43,6 +56,7 @@ class TestModels(TestCase):
 
     def test_str(self):
         site_visit_schedules.loaded = False
+        site_visit_schedules._registry = {}
         obj = Enrollment(subject_identifier='1111')
         self.assertEqual(str(obj), '1111')
 
@@ -50,6 +64,7 @@ class TestModels(TestCase):
         """Asserts cannot access without site_visit_schedule loaded.
         """
         site_visit_schedules.loaded = False
+        site_visit_schedules._registry = {}
         obj = Enrollment()
         try:
             obj.visit_schedule
@@ -62,6 +77,7 @@ class TestModels(TestCase):
         """Asserts cannot access without site_visit_schedule loaded.
         """
         site_visit_schedules.loaded = False
+        site_visit_schedules._registry = {}
         obj = Enrollment()
         try:
             obj.schedule
@@ -74,6 +90,7 @@ class TestModels(TestCase):
         """Asserts can access visits for this  site_visit_schedule loaded.
         """
         site_visit_schedules.loaded = False
+        site_visit_schedules._registry = {}
         obj = Enrollment()
         try:
             obj.visits
@@ -81,6 +98,27 @@ class TestModels(TestCase):
             pass
         else:
             self.fail('VisitScheduleSiteError unexpectedly not raised.')
+
+    def test_model_meta(self):
+        """Asserts accepts apha-numeric pattern.
+        """
+        visit_schedule = VisitSchedule(
+            name='visit_schedule1',
+            verbose_name='Visit Schedule',
+            app_label='edc_visit_schedule',
+            visit_model=SubjectVisit,
+            offstudy_model=SubjectOffstudy,
+            death_report_model=DeathReport)
+
+        schedule = Schedule(
+            name='schedule1',
+            enrollment_model=ModelG,
+            disenrollment_model=ModelG2)
+        visit_schedule.add_schedule(schedule)
+        site_visit_schedules.register(visit_schedule)
+
+        obj = ModelG()
+        obj.visit_schedule
 
     def test_model_bad_meta(self):
         """Asserts raises if _meta is wrong format.

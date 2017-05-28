@@ -38,7 +38,7 @@ class Validator:
     """
 
     func_get_model = get_model
-    meta_pattern = r'(^([a-z]+[\_]{0,1})+([a-z]+){1}\.([a-z]+[\_]{0,1})+[a-z]+$)'
+    meta_pattern = r'(^([a-z0-9]+[\_]{0,1})+([a-z0-9]+){1}\.([a-z0-9]+[\_]{0,1})+[a-z0-9]+$)'
 
     def __init__(self, visit_schedule_name=None, schedule_name=None, model=None,
                  required_fields=None, meta_pattern=None, **kwargs):
