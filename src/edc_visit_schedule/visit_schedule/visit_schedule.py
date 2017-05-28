@@ -1,6 +1,6 @@
 import re
 
-from ..models_validator import Validator, ValidatorLookupError
+from ..validator import Validator, ValidatorLookupError
 from ..visit_schedule import SchedulesCollectionError
 from .schedules_collection import SchedulesCollection
 

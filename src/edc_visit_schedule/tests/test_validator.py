@@ -1,7 +1,7 @@
 from django.test import TestCase, tag
 
-from ..models_validator import Validator, ValidatorLookupError, ValidatorMetaValueError
-from ..models_validator import ValidatorModelFieldError, ValidatorMetaAttributeError, ValidatorMetaFormatError
+from ..validator import Validator, ValidatorLookupError, ValidatorMetaValueError
+from ..validator import ValidatorModelFieldError, ValidatorMetaAttributeError, ValidatorMetaFormatError
 from .models import Enrollment, Disenrollment, SubjectVisit
 
 

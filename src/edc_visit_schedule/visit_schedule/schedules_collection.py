@@ -1,5 +1,5 @@
 from ..ordered_collection import OrderedCollection
-from ..models_validator import get_model
+from ..validator import get_model
 
 
 class SchedulesCollectionError(Exception):

@@ -1,6 +1,6 @@
 import re
 
-from ..models_validator.validator import Validator, ValidatorLookupError
+from ..validator import Validator, ValidatorLookupError
 from ..visit import Visit
 from .visit_collection import VisitCollection
 
