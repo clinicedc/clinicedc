@@ -32,6 +32,8 @@ class DeathReport(BaseUuidModel):
     report_datetime = models.DateTimeField()
 
 
+# visit_schedule
+
 class Enrollment(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
 
     class Meta(EnrollmentModelMixin.Meta):
@@ -43,6 +45,20 @@ class Disenrollment(DisenrollmentModelMixin, BaseUuidModel):
     class Meta(DisenrollmentModelMixin.Meta):
         visit_schedule_name = 'visit_schedule.schedule'
 
+
+class EnrollmentThree(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+
+    class Meta(EnrollmentModelMixin.Meta):
+        visit_schedule_name = 'visit_schedule.schedule_three'
+
+
+class DisenrollmentThree(DisenrollmentModelMixin, BaseUuidModel):
+
+    class Meta(DisenrollmentModelMixin.Meta):
+        visit_schedule_name = 'visit_schedule.schedule_three'
+
+
+# visit_schedule_two
 
 class EnrollmentTwo(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
 
@@ -56,13 +72,19 @@ class DisenrollmentTwo(DisenrollmentModelMixin, BaseUuidModel):
         visit_schedule_name = 'visit_schedule_two.schedule_two'
 
 
-class EnrollmentThree(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class EnrollmentFour(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
 
     class Meta(EnrollmentModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule.schedule_three'
+        visit_schedule_name = 'visit_schedule_two.schedule_four'
 
 
-class DisenrollmentThree(DisenrollmentModelMixin, BaseUuidModel):
+class DisenrollmentFour(DisenrollmentModelMixin, BaseUuidModel):
 
     class Meta(DisenrollmentModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule.schedule_three'
+        visit_schedule_name = 'visit_schedule_two.schedule_four'
+
+
+class BadMetaModel(EnrollmentModelMixin, BaseUuidModel):
+
+    class Meta(DisenrollmentModelMixin.Meta):
+        visit_schedule_name = 'bad.dog'

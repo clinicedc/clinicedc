@@ -1,9 +1,7 @@
 import re
 
+from ..models_validator import Validator, ValidatorLookupError
 from ..visit_schedule import SchedulesCollectionError
-from .model_validator import ModelValidator, ModelValidatorError
-from .model_validator import EnrollmentModelValidator, DisenrollmentModelValidator
-from .model_validator import EnrollmentModelValidatorError
 from .schedules_collection import SchedulesCollection
 
 
@@ -31,27 +29,55 @@ class VisitSchedule:
 
     name_regex = r'[a-z0-9\_\-]+$'
     name_regex_msg = 'numbers, lower case letters and \'_\''
-    model_validator_cls = ModelValidator
-    enrollment_model_validator = EnrollmentModelValidator
-    disenrollment_model_validator = DisenrollmentModelValidator
+    model_validator_cls = Validator
+    enrollment_required_fields = [
+        'report_datetime', 'visit_schedule_name', 'schedule_name']
     schedules_collection = SchedulesCollection
 
-    def __init__(self, name=None, app_label=None,
-                 verbose_name=None, previous_visit_schedule=None, **kwargs):
+    def __init__(self, name=None, verbose_name=None, previous_visit_schedule=None,
+                 enrollment_model=None, disenrollment_model=None,
+                 visit_model=None, death_report_model=None, offstudy_model=None, **kwargs):
+        self.models = {}
         self.name = name
         self.schedules = SchedulesCollection()
         self.previous_visit_schedule = previous_visit_schedule
         if not re.match(self.name_regex, name):
             raise VisitScheduleNameError(
                 f'Visit schedule name may only contain {self.name_regex_msg}. Got {name}')
-        self.app_label = app_label
         self.title = self.verbose_name = verbose_name or ' '.join(
             [s.capitalize() for s in name.split('_')])
-        try:
-            self.models = self.model_validator_cls(
-                visit_schedule_name=self.name, **kwargs)
-        except (ModelValidatorError, EnrollmentModelValidatorError) as e:
-            raise VisitScheduleModelError(e) from e
+
+        if enrollment_model:
+            try:
+                model = self.model_validator_cls(
+                    model=enrollment_model,
+                    visit_schedule_name=self.name,
+                    required_fields=self.enrollment_required_fields).validated_model
+            except ValidatorLookupError as e:
+                raise VisitScheduleModelError(f'{repr(self)} raised {e}')
+            else:
+                self.models.update(enrollment_model=model)
+
+        if disenrollment_model:
+            try:
+                model = self.model_validator_cls(
+                    model=disenrollment_model,
+                    visit_schedule_name=self.name,
+                    required_fields=self.enrollment_required_fields).validated_model
+            except ValidatorLookupError as e:
+                raise VisitScheduleModelError(f'{repr(self)} raised {e}')
+            else:
+                self.models.update(disenrollment_model=model)
+
+        if visit_model:
+            self.models.update(visit_model=self.model_validator_cls(
+                model=visit_model).validated_model)
+        if death_report_model:
+            self.models.update(death_report_model=self.model_validator_cls(
+                model=death_report_model).validated_model)
+        if offstudy_model:
+            self.models.update(offstudy_model=self.model_validator_cls(
+                model=offstudy_model).validated_model)
 
     def __repr__(self):
         return f'{self.__class__.__name__}(\'{self.name}\')'
@@ -71,11 +97,8 @@ class VisitSchedule:
         """Returns a dictionary of schedules.
         """
         if schedule_name:
-            try:
-                schedules = dict(
-                    schedule_name=self.get_schedule(schedule_name=schedule_name, **kwargs))
-            except SchedulesCollectionError as e:
-                raise VisitScheduleError(e) from e
+            schedules = {
+                schedule_name: self.get_schedule(schedule_name=schedule_name, **kwargs)}
         else:
             schedules = self.schedules
         return schedules
@@ -91,17 +114,13 @@ class VisitSchedule:
                 f'Schedule \'{schedule.name}\' is already registered. See \'{self}\'')
         schedule.enrollment_model = (
             schedule.enrollment_model or self.models.enrollment_model)
-        try:
-            schedule.enrollment_model = self.enrollment_model_validator(
-                model=schedule.enrollment_model or self.models.enrollment_model,
-                visit_schedule_name=self.name).model
-        except EnrollmentModelValidatorError as e:
-            raise VisitScheduleModelError(e) from e
-        try:
-            schedule.disenrollment_model = self.disenrollment_model_validator(
-                model=schedule.disenrollment_model or self.models.disenrollment_model,
-                visit_schedule_name=self.name).model
-        except EnrollmentModelValidatorError as e:
-            raise VisitScheduleModelError(e) from e
+        schedule.enrollment_model = self.model_validator_cls(
+            model=schedule.enrollment_model,
+            visit_schedule_name=self.name).validated_model
+        schedule.disenrollment_model = (
+            schedule.disenrollment_model or self.models.disenrollment_model)
+        schedule.disenrollment_model = self.model_validator_cls(
+            model=schedule.disenrollment_model,
+            visit_schedule_name=self.name).validated_model
         self.schedules.update({schedule.name: schedule})
         return schedule

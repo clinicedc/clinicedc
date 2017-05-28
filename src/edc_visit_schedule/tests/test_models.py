@@ -3,8 +3,10 @@ from django.test import TestCase, tag
 from edc_base.model_mixins import BaseUuidModel
 from edc_visit_schedule.model_mixins import EnrollmentModelMixin
 
+from ..model_mixins import DisenrollmentModelMixin
+from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules
-from ..visit_schedule import VisitScheduleModelError
+from ..visit_schedule import VisitScheduleModelError, VisitSchedule
 from .models import Enrollment
 
 
@@ -20,8 +22,29 @@ class ModelD(EnrollmentModelMixin, BaseUuidModel):
         visit_schedule_name = 'blah.blah'
 
 
+class ModelE(EnrollmentModelMixin, BaseUuidModel):
+
+    class Meta(EnrollmentModelMixin.Meta):
+        visit_schedule_name = 'visit_schedule_blah.schedule_blah'
+
+
+class ModelF(DisenrollmentModelMixin, BaseUuidModel):
+
+    class Meta(DisenrollmentModelMixin.Meta):
+        visit_schedule_name = 'visit_schedule_blah.schedule_blah'
+
+
 @tag('models')
 class TestModels(TestCase):
+
+    def setUp(self):
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+
+    def test_str(self):
+        site_visit_schedules.loaded = False
+        obj = Enrollment(subject_identifier='1111')
+        self.assertEqual(str(obj), '1111')
 
     def test_visit_schedule(self):
         """Asserts cannot access without site_visit_schedule loaded.
@@ -110,3 +133,14 @@ class TestModels(TestCase):
             pass
         else:
             self.fail('VisitScheduleModelError unexpectedly not raised')
+
+    def test_natural_key(self):
+        v = VisitSchedule(name='visit_schedule_blah')
+        s = Schedule(name='schedule_blah', enrollment_model=ModelE,
+                     disenrollment_model=ModelF)
+        v.add_schedule(s)
+        site_visit_schedules.register(v)
+        obj = ModelE(subject_identifier='11111')
+        obj.save()
+        self.assertEqual(obj.natural_key(),
+                         ('11111', 'visit_schedule_blah', 'schedule_blah'))

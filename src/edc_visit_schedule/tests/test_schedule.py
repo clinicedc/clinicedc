@@ -4,6 +4,9 @@ from django.test import TestCase, tag
 from ..schedule import Schedule, AlreadyRegisteredVisit, ScheduleNameError, ScheduleModelError
 from ..visit import Visit
 from .models import Enrollment, Disenrollment
+from edc_base.utils import get_utcnow
+from pprint import pprint
+from datetime import timedelta
 
 
 @tag('schedule')
@@ -25,16 +28,14 @@ class TestSchedule(TestCase):
         self.assertEqual(schedule.field_value, 'schedule')
 
     def test_schedule_enrollment_model_is_none(self):
-        try:
-            Schedule(name='schedule', enrollment_model=None)
-        except ScheduleModelError:
-            self.fail('ScheduleModelError unexpectedly raised.')
+        self.assertRaises(
+            ScheduleModelError,
+            Schedule, name='schedule', enrollment_model=None)
 
     def test_schedule_disenrollment_model_is_none(self):
-        try:
-            Schedule(name='schedule', disenrollment_model=None)
-        except ScheduleModelError:
-            self.fail('ScheduleModelError unexpectedly raised.')
+        self.assertRaises(
+            ScheduleModelError,
+            Schedule, name='schedule', disenrollment_model=None)
 
     def test_schedule_bad_label_lower(self):
         self.assertRaises(
@@ -42,7 +43,8 @@ class TestSchedule(TestCase):
 
     def test_schedule_bad_label_lower2(self):
         self.assertRaises(
-            ScheduleModelError, Schedule, name='schedule', disenrollment_model='x.x')
+            ScheduleModelError, Schedule, name='schedule',
+            enrollment_model='edc_visit_schedule.enrollment', disenrollment_model='x.x')
 
     def test_schedule_ok(self):
         try:
@@ -193,3 +195,18 @@ class TestScheduleWithVisits(TestCase):
                           rlower=relativedelta(days=0), rupper=relativedelta(days=6))
             self.schedule.add_visit(visit=visit)
         self.assertIsNone(self.schedule.visits.next('5'))
+
+    def test_visit_dates(self):
+        dt = get_utcnow()
+        for index, seq in enumerate(range(0, 5)):
+            visit = Visit(
+                code=str(seq),
+                timepoint=seq * (index + 1),
+                rbase=relativedelta(days=seq * (index + 1)),
+                rlower=relativedelta(days=0),
+                rupper=relativedelta(days=6))
+            self.schedule.add_visit(visit=visit)
+        index = 0
+        for k, v in self.schedule.visits.timepoint_dates(dt=dt).items():
+            self.assertEqual(v - dt, timedelta(index * (index + 1)), msg=k)
+            index += 1

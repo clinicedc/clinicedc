@@ -1,5 +1,3 @@
-from dateutil.relativedelta import relativedelta
-
 from django.db import models
 from django.db.models import options
 
@@ -57,17 +55,6 @@ class VisitScheduleMethodsModelMixin(models.Model):
             raise VisitScheduleModelError(
                 f'visit_schedule_name: \'{visit_schedule_name}\'. Got {e}') from e
         return visit_schedule
-
-    def timepoint_datetimes(self, base_datetime, schedule):
-        """Returns a calculated list of unadjusted datetimes in order
-        of timepoint based on the schedule."""
-        for visit in schedule.visits:
-            if visit.base_interval == 0:
-                timepoint_datetime = base_datetime
-            else:
-                timepoint_datetime = base_datetime + relativedelta(
-                    **{visit.base_interval_unit: visit.base_interval})
-            yield (visit, timepoint_datetime)
 
     class Meta:
         abstract = True

@@ -1,13 +1,13 @@
 from django.test import TestCase, tag
 
-from edc_base.utils import get_utcnow
-
 from ..model_mixins import EnrollmentModelError
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError, AlreadyRegisteredVisitSchedule
-from ..visit_schedule import VisitSchedule, VisitScheduleError
+from ..visit_schedule import VisitSchedule
 from .models import SubjectVisit, SubjectOffstudy, DeathReport
 from .models import Enrollment, Disenrollment, DisenrollmentTwo, EnrollmentTwo
+from edc_visit_schedule.tests.models import EnrollmentThree, EnrollmentFour,\
+    DisenrollmentThree, DisenrollmentFour
 
 
 @tag('site')
@@ -165,7 +165,8 @@ class TestSiteVisitSchedule1(TestCase):
         # in two steps
         visit_schedule = site_visit_schedules.get_visit_schedule(
             visit_schedule_name=EnrollmentTwo._meta.visit_schedule_name.split('.')[0])
-        self.assertEqual(visit_schedule.models.enrollment_model, EnrollmentTwo)
+        self.assertEqual(visit_schedule.models.get(
+            'enrollment_model'), EnrollmentTwo)
 
         schedule = visit_schedule.get_schedule(model=EnrollmentTwo)
         self.assertEqual(schedule.enrollment_model, EnrollmentTwo)
@@ -185,9 +186,9 @@ class TestSiteVisitSchedule1(TestCase):
         """Assert site can return list of schedules.
         """
         self.assertEqual(
-            len(site_visit_schedules.get_schedules('visit_schedule')), 1)
+            len(site_visit_schedules.get_schedules(visit_schedule_name='visit_schedule')), 1)
         self.assertEqual(
-            len(site_visit_schedules.get_schedules('visit_schedule_two')), 1)
+            len(site_visit_schedules.get_schedules(visit_schedule_name='visit_schedule_two')), 1)
 
     def test_get_schedule_names(self):
         """Assert site can return list of schedule names.
@@ -206,7 +207,6 @@ class TestSiteVisitSchedule1(TestCase):
             site_visit_schedules.get_visit_schedule_names(),
             ['visit_schedule', 'visit_schedule_two'])
 
-    @tag('models')
     def test_enrollment(self):
         obj = Enrollment.objects.create()
         self.assertEqual(obj.visit_schedule_name, 'visit_schedule')
@@ -214,10 +214,14 @@ class TestSiteVisitSchedule1(TestCase):
         self.assertIsNotNone(obj.visit_schedule)
         self.assertIsNotNone(obj.schedule)
 
-    @tag('models')
-    def test_enrollment_cannot_change(self):
+    def test_enrollment_cannot_change_visit_schedule(self):
         obj = Enrollment.objects.create()
         obj.visit_schedule_name = 'blah'
+        obj.schedule_name = 'blah'
+        self.assertRaises(EnrollmentModelError, obj.save)
+
+    def test_enrollment_cannot_change_schedule(self):
+        obj = Enrollment.objects.create()
         obj.schedule_name = 'blah'
         self.assertRaises(EnrollmentModelError, obj.save)
 
@@ -237,38 +241,52 @@ class TestSiteVisitSchedule2(TestCase):
             enrollment_model=Enrollment,
             disenrollment_model=Disenrollment)
 
+        self.visit_schedule2 = VisitSchedule(
+            name='visit_schedule_two',
+            verbose_name='Visit Schedule Two',
+            app_label='edc_visit_schedule',
+            visit_model=SubjectVisit,
+            offstudy_model=SubjectOffstudy,
+            death_report_model=DeathReport,
+            enrollment_model=EnrollmentTwo,
+            disenrollment_model=DisenrollmentTwo)
+
         self.schedule = Schedule(
             name='schedule',
             enrollment_model=Enrollment._meta.label_lower,
             disenrollment_model=Disenrollment._meta.label_lower)
 
-        self.schedule1 = Schedule(
-            name='schedule1',
-            enrollment_model=Enrollment._meta.label_lower,
-            disenrollment_model=Disenrollment._meta.label_lower)
-
         self.schedule2 = Schedule(
-            name='schedule2',
-            enrollment_model=Enrollment._meta.label_lower,
-            disenrollment_model=Disenrollment._meta.label_lower)
+            name='schedule_two',
+            enrollment_model=EnrollmentTwo._meta.label_lower,
+            disenrollment_model=DisenrollmentTwo._meta.label_lower)
 
         self.schedule3 = Schedule(
-            name='schedule3',
-            enrollment_model=Enrollment._meta.label_lower,
-            disenrollment_model=Disenrollment._meta.label_lower)
+            name='schedule_three',
+            enrollment_model=EnrollmentThree._meta.label_lower,
+            disenrollment_model=DisenrollmentThree._meta.label_lower)
+
+        self.schedule4 = Schedule(
+            name='schedule_four',
+            enrollment_model=EnrollmentFour._meta.label_lower,
+            disenrollment_model=DisenrollmentFour._meta.label_lower)
 
         self.visit_schedule.add_schedule(self.schedule)
-        self.visit_schedule.add_schedule(self.schedule1)
-        self.visit_schedule.add_schedule(self.schedule2)
         self.visit_schedule.add_schedule(self.schedule3)
+
+        self.visit_schedule2.add_schedule(self.schedule2)
+        self.visit_schedule2.add_schedule(self.schedule4)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule)
+        site_visit_schedules.register(self.visit_schedule2)
 
     def test_get_schedules(self):
         """Assert site can return list of schedules.
         """
         self.assertEqual(
-            len(site_visit_schedules.get_schedules('visit_schedule')), 4)
+            len(site_visit_schedules.get_schedules('visit_schedule')), 2)
+        self.assertEqual(
+            len(site_visit_schedules.get_schedules('visit_schedule_two')), 2)
 
     def test_get_schedules_raises(self):
         """Assert site can return list of schedules.
@@ -282,5 +300,8 @@ class TestSiteVisitSchedule2(TestCase):
         """
         self.assertEqual(
             site_visit_schedules.get_schedule_names('visit_schedule'),
-            ['visit_schedule.schedule', 'visit_schedule.schedule1',
-             'visit_schedule.schedule2', 'visit_schedule.schedule3'])
+            ['visit_schedule.schedule', 'visit_schedule.schedule_three'])
+
+        self.assertEqual(
+            site_visit_schedules.get_schedule_names('visit_schedule_two'),
+            ['visit_schedule_two.schedule_four', 'visit_schedule_two.schedule_two'])

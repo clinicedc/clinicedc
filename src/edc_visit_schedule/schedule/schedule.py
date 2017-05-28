@@ -1,7 +1,6 @@
 import re
 
-from django.apps import apps as django_apps
-
+from ..models_validator.validator import Validator, ValidatorLookupError
 from ..visit import Visit
 from .visit_collection import VisitCollection
 
@@ -31,6 +30,7 @@ class Schedule:
     name_regex = r'[a-z0-9\_\-]+$'
     visit_cls = Visit
     visit_collection_cls = VisitCollection
+    model_validator_cls = Validator
 
     def __init__(self, name=None, title=None, sequence=None, enrollment_model=None,
                  disenrollment_model=None, **kwargs):
@@ -43,27 +43,23 @@ class Schedule:
             self.name = name
         self.title = title or name
         self.sequence = sequence or name
-        if enrollment_model:
-            try:
-                enrollment_model = django_apps.get_model(
-                    *enrollment_model.split('.'))
-            except (AttributeError, LookupError) as e:
-                raise ScheduleModelError(
-                    f'Invalid enrollment model \'{enrollment_model}\'. Got {e}') from e
-            else:
-                self.enrollment_model = enrollment_model
-        if disenrollment_model:
-            try:
-                disenrollment_model = django_apps.get_model(
-                    *disenrollment_model.split('.'))
-            except (AttributeError, LookupError) as e:
-                raise ScheduleModelError(
-                    f'Invalid disenrollment model \'{disenrollment_model}\'. Got {e}') from e
-            else:
-                self.disenrollment_model = disenrollment_model
+
+        try:
+            self.enrollment_model = self.model_validator_cls(
+                model=enrollment_model,
+                schedule_name=self.name).validated_model
+        except ValidatorLookupError as e:
+            raise ScheduleModelError(f'{repr(self)} raised {e}')
+
+        try:
+            self.disenrollment_model = self.model_validator_cls(
+                model=disenrollment_model,
+                schedule_name=self.name).validated_model
+        except ValidatorLookupError as e:
+            raise ScheduleModelError(f'{repr(self)} raised {e}')
 
     def __repr__(self):
-        return f'Schedule({self.name}, {self.enrollment_model._meta.label_lower})'
+        return f'Schedule({self.name})'
 
     def __str__(self):
         return self.name
