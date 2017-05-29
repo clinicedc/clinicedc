@@ -57,10 +57,10 @@ class CreateAppointmentsMixin(models.Model):
         base_appt_datetime = arrow.Arrow.fromdatetime(
             base_appt_datetime, base_appt_datetime.tzinfo).to('utc').datetime
         facility = app_config.get_facility(self.facility_name)
-        timepoint_datetimes = self.timepoint_datetimes(
-            base_appt_datetime, self.schedule)
+        timepoint_dates = self.schedule.visits.timepoint_dates(
+            dt=base_appt_datetime)
         taken_datetimes = []
-        for visit, timepoint_datetime in timepoint_datetimes:
+        for visit, timepoint_datetime in timepoint_dates.items():
             adjusted_timepoint_datetime = self.move_to_facility_day(
                 facility, timepoint_datetime)
             available_datetime = facility.available_datetime(
