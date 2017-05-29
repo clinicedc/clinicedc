@@ -7,7 +7,8 @@ from .exceptions import CreatesMetadataError
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_create_on_post_save")
 def metadata_create_on_post_save(sender, instance, raw, created, using, update_fields, **kwargs):
-    """Create all meta data on post save of model using CreatesMetaDataModelMixin.
+    """Create all meta data on post save of model using
+    CreatesMetaDataModelMixin.
 
     For example, when saving the visit model.
     """
@@ -18,8 +19,7 @@ def metadata_create_on_post_save(sender, instance, raw, created, using, update_f
                     instance.run_rules_for_app_label()
         except AttributeError as e:
             if 'metadata_create' not in str(e):
-                raise CreatesMetadataError(
-                    f'{sender}. Got \'{e}\'. ') from e
+                raise CreatesMetadataError(f'{sender}. Got \'{e}\'. ') from e
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_update_on_post_save")
@@ -34,7 +34,7 @@ def metadata_update_on_post_save(sender, instance, raw, created, using, update_f
                 instance.visit.run_rules_for_app_label()
         except AttributeError as e:
             if 'metadata_update' not in str(e):
-                raise AttributeError(e)
+                raise AttributeError(e) from e
 
 
 @receiver(post_delete, weak=False, dispatch_uid="metadata_delete_on_post_save")
@@ -46,10 +46,10 @@ def metadata_delete_on_post_save(sender, instance, using, **kwargs):
             instance.visit.run_rules_for_app_label()
     except AttributeError as e:
         if 'metadata_delete' not in str(e):
-            raise AttributeError(e)
+            raise AttributeError(e) from e
     # deletes all for a visit used by CreatesMetadataMixin
     try:
         instance.metadata_delete_for_visit(instance)
     except AttributeError as e:
         if 'metadata_delete_for_visit' not in str(e):
-            raise AttributeError(e)
+            raise AttributeError(e) from e
