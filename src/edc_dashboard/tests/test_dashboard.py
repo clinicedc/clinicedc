@@ -101,7 +101,8 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
             template_name = 'edc_dashboard.html'
 
         view = Dummy()
-        view.kwargs = {'subject_identifier': self.subject_identifier}  # attrs from url
+        # attrs from url
+        view.kwargs = {'subject_identifier': self.subject_identifier}
         options = {}
         self.assertEqual(
             view.get_next_url('appointment', **options),
@@ -147,7 +148,8 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
         kwargs = {
             'subject_identifier': self.subject_identifier}
         response = Dummy.as_view()(self.request, **kwargs)
-        self.assertEqual(response.context_data.get('subject_identifier'), self.subject_identifier)
+        self.assertEqual(response.context_data.get(
+            'subject_identifier'), self.subject_identifier)
 
     def test_sets_appointment(self):
         class Dummy(AppointmentMixin, TemplateView):
