@@ -23,10 +23,10 @@ class VisitScheduleViewMixin:
         """Returns a list of enrollment model instances.
         """
         if not self._enrollment_models:
-            # find if the subject has an enrollment for for a schedule
+            # find if the subject has an enrollment for a schedule
             for visit_schedule in site_visit_schedules.visit_schedules.values():
                 for schedule in visit_schedule.schedules.values():
-                    enrollment_instance = schedule.enrollment(
+                    enrollment_instance = schedule.enrollment_model(
                         subject_identifier=self.subject_identifier)
                     if enrollment_instance:
                         self.visit_schedules.append(visit_schedule)
