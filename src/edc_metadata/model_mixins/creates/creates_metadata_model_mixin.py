@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.db import models
 
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule import site_visit_schedules
 
 from ...constants import KEYED
 from ...metadata import Metadata
@@ -16,13 +16,10 @@ class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
 
     @property
     def metadata_query_options(self):
-        visit_schedule = site_visit_schedules.get_visit_schedule(
-            self.visit_schedule_name)
-        schedule = visit_schedule.get_schedule(self.schedule_name)
-        visit = schedule.get_visit(self.visit_code)
+        visit = self.visits.get(self.visit_code)
         options = dict(
-            visit_schedule_name=visit_schedule.name,
-            schedule_name=schedule.name,
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
             visit_code=visit.code)
         return options
 

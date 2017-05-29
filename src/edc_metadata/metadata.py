@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule import site_visit_schedules
 
 from .constants import NOT_REQUIRED, REQUIRED, KEYED
 from .exceptions import CreatesMetadataError
@@ -25,20 +25,6 @@ class Base:
             raise ImproperlyConfigured(
                 f'{self.metadata_requisition_model._meta.label_lower}.unique_together '
                 'constraint not set.')
-
-
-class Destroyer(Base):
-
-    def delete(self):
-        """Deletes all CRF and requisition metadata for
-        the visit instance.
-        """
-        self.metadata_crf_model.objects.filter(
-            subject_identifier=self.visit_instance.subject_identifier,
-            **self.visit_instance.metadata_query_options).delete()
-        self.metadata_requisition_model.objects.filter(
-            subject_identifier=self.visit_instance.subject_identifier,
-            **self.visit_instance.metadata_query_options).delete()
 
 
 class CrfCreator(Base):
@@ -120,15 +106,17 @@ class RequisitionCreator(Base):
 
 class Creator:
 
-    def __init__(self, visit_instance=None, update_keyed=None, **kwargs):
-        self.crf_creator = CrfCreator(
-            visit_instance=visit_instance, update_keyed=update_keyed, **kwargs)
-        self.requisition_creator = RequisitionCreator(
-            visit_instance=visit_instance, update_keyed=update_keyed, **kwargs)
-        visit_schedule = site_visit_schedules.get_visit_schedule(
-            visit_instance.visit_schedule_name)
-        schedule = visit_schedule.get_schedule(visit_instance.schedule_name)
-        self.visit = schedule.get_visit(visit_instance.visit_code)
+    crf_creator_cls = CrfCreator
+    requisition_creator_cls = RequisitionCreator
+
+    def __init__(self, **kwargs):
+        self.crf_creator = self.crf_creator_cls(**kwargs)
+        self.requisition_creator = self.requisition_creator_cls(**kwargs)
+        visit_instance = kwargs.get('visit_instance')
+        schedule = site_visit_schedules.get_schedule(
+            visit_schedule_name=visit_instance.visit_schedule_name,
+            schedule_name=visit_instance.schedule_name)
+        self.visit = schedule.visits.get(visit_instance.visit_code)
 
     def create(self):
         """Creates all CRF and requisition metadata for
@@ -140,26 +128,44 @@ class Creator:
             self.requisition_creator.create(requisition=requisition)
 
 
+class Destroyer(Base):
+
+    def delete(self):
+        """Deletes all CRF and requisition metadata for
+        the visit instance.
+        """
+        self.metadata_crf_model.objects.filter(
+            subject_identifier=self.visit_instance.subject_identifier,
+            **self.visit_instance.metadata_query_options).delete()
+        self.metadata_requisition_model.objects.filter(
+            subject_identifier=self.visit_instance.subject_identifier,
+            **self.visit_instance.metadata_query_options).delete()
+
+
 class Metadata:
 
+    creator_cls = Creator
+    destroyer_cls = Destroyer
+
     def __init__(self, visit_instance=None, update_keyed=None, **kwargs):
-        self.creator = Creator(
+        self.creator = self.creator_cls(
             visit_instance=visit_instance, update_keyed=update_keyed, **kwargs)
-        self.destroyer = Destroyer(visit_instance=visit_instance, **kwargs)
+        self.destroyer = self.destroyer_cls(
+            visit_instance=visit_instance, **kwargs)
         try:
             self.reason_field = app_config.reason_field[visit_instance._meta.label_lower]
         except KeyError as e:
             raise CreatesMetadataError(
                 f'Unable to determine the reason field for model '
-                f'{visit_instance._meta.label_lower}. Got KeyError({e}). '
-                f'edc_metadata.AppConfig reason_field = {app_config.reason_field}')
+                f'{visit_instance._meta.label_lower}. Got {e}. '
+                f'edc_metadata.AppConfig reason_field = {app_config.reason_field}') from e
         try:
             self.reason = getattr(visit_instance, self.reason_field)
         except AttributeError as e:
             raise CreatesMetadataError(
                 f'Invalid reason field. Expected attribute {self.reason_field}. '
-                f'{visit_instance._meta.label_lower}. Got AttributeError({e}). '
-                f'edc_metadata.AppConfig reason_field = {app_config.reason_field}')
+                f'{visit_instance._meta.label_lower}. Got {e}. '
+                f'edc_metadata.AppConfig reason_field = {app_config.reason_field}') from e
 
     def prepare(self):
         """Creates or deletes metadata, depending on the visit reason,

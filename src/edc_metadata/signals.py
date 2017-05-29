@@ -19,7 +19,7 @@ def metadata_create_on_post_save(sender, instance, raw, created, using, update_f
         except AttributeError as e:
             if 'metadata_create' not in str(e):
                 raise CreatesMetadataError(
-                    '{}. Got \'{}\'. '.format(sender, str(e)))
+                    f'{sender}. Got \'{e}\'. ') from e
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_update_on_post_save")
