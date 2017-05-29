@@ -6,8 +6,9 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
 
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
+from ..visit_schedule import VisitScheduleError
 from .visit_schedule_model_mixins import VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin
-from edc_visit_schedule.visit_schedule.visit_schedule import VisitScheduleError
+from .visit_schedule_model_mixins import VisitScheduleMetaMixin
 
 
 class EnrollmentModelError(Exception):
@@ -15,7 +16,8 @@ class EnrollmentModelError(Exception):
 
 
 class BaseEnrollmentModelMixin(
-        NonUniqueSubjectIdentifierFieldMixin, VisitScheduleFieldsModelMixin,
+        NonUniqueSubjectIdentifierFieldMixin,
+        VisitScheduleFieldsModelMixin,
         VisitScheduleMethodsModelMixin, models.Model):
     """A base model mixin shared by the enrollment/disenrollment
     models.
@@ -63,8 +65,7 @@ class BaseEnrollmentModelMixin(
                 self.visit_schedule_name,
                 self.schedule_name)
 
-    class Meta:
+    class Meta(VisitScheduleMetaMixin.Meta):
         abstract = True
-        visit_schedule_name = None
         unique_together = (
             'subject_identifier', 'visit_schedule_name', 'schedule_name')

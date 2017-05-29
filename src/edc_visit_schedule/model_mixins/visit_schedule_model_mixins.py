@@ -9,6 +9,16 @@ if 'visit_schedule_name' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
 
 
+class VisitScheduleMetaMixin(models.Model):
+
+    """Adds the \'visit_schedule_name\' Meta class attribute.
+    """
+
+    class Meta:
+        abstract = True
+        visit_schedule_name = None
+
+
 class VisitScheduleMethodsModelMixin(models.Model):
     """A model mixin that adds methods used to work with the visit schedule.
 
@@ -18,7 +28,7 @@ class VisitScheduleMethodsModelMixin(models.Model):
 
     @property
     def visits(self):
-        return self.schedule.get_visits()
+        return self.schedule.visits
 
     @property
     def schedule(self):
@@ -32,6 +42,9 @@ class VisitScheduleMethodsModelMixin(models.Model):
             _, schedule_name = self._meta.visit_schedule_name.split('.')
         except ValueError as e:
             raise VisitScheduleModelError(f'{self.__class__.__name__}. Got {e}') from e
+        except AttributeError as e:
+            if 'visit_schedule_name' in str(e):
+                return self.visit_schedule.get_schedule(schedule_name=self.schedule_name)
         return self.visit_schedule.get_schedule(schedule_name=schedule_name)
 
     @property
@@ -45,9 +58,11 @@ class VisitScheduleMethodsModelMixin(models.Model):
             visit_schedule_name, _ = self._meta.visit_schedule_name.split('.')
         except ValueError as e:
             raise VisitScheduleModelError(f'{self.__class__.__name__}. Got {e}') from e
+        except AttributeError as e:
+            visit_schedule_name = self.visit_schedule_name
         try:
             visit_schedule = site_visit_schedules.get_visit_schedule(
-                visit_schedule_name)
+                visit_schedule_name=visit_schedule_name)
         except RegistryNotLoaded as e:
             raise VisitScheduleModelError(
                 f'visit_schedule_name: \'{visit_schedule_name}\'. Got {e}') from e
