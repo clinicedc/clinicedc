@@ -1,5 +1,4 @@
-from edc_constants.constants import PENDING, PARTIAL, COMPLETE, NOT_APPLICABLE,\
-    OTHER
+from edc_constants.constants import PENDING, PARTIAL, COMPLETE, NOT_APPLICABLE, OTHER
 
 ABS_CALC = (
     ('absolute', 'Absolute'),

@@ -6,4 +6,6 @@ class EdcLabAdminSite(AdminSite):
     site_title = 'Edc Lab'
     index_title = 'Edc Lab Administration'
     site_url = '/edc_lab/'
+
+
 edc_lab_admin = EdcLabAdminSite(name='edc_lab_admin')

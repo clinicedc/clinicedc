@@ -9,9 +9,8 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-
 import os
-
+import sys
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -53,7 +52,6 @@ INSTALLED_APPS = [
     'edc_visit_tracking.apps.AppConfig',
     'edc_example.apps.EdcProtocolAppConfig',
     'edc_example.apps.EdcTimepointAppConfig',
-    'edc_example.apps.EdcConsentAppConfig',
     'edc_example.apps.AppConfig',
 ]
 
@@ -130,6 +128,31 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+
+if 'test' in sys.argv:
+    MIGRATION_MODULES = {
+        "django_crypto_fields": None,
+        "edc_call_manager": None,
+        "edc_appointment": None,
+        "edc_call_manager": None,
+        "edc_consent": None,
+        "edc_death_report": None,
+        "edc_export": None,
+        "edc_identifier": None,
+        "edc_metadata": None,
+        "edc_registration": None,
+        "edc_sync": None,
+        "edc_map": None,
+        'admin': None,
+        "auth": None,
+        'contenttypes': None,
+        'sessions': None,
+    }
+if 'test' in sys.argv:
+    PASSWORD_HASHERS = ('django_plainpasswordhasher.PlainPasswordHasher', )
+if 'test' in sys.argv:
+    DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'
 
 
 # Static files (CSS, JavaScript, Images)

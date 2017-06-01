@@ -1,4 +1,4 @@
-from edc_dashboard.wrappers.model_wrapper import ModelWrapper
+from edc_model_wrapper import ModelWrapper
 
 from ..mixins import BoxViewMixin
 from .base_listboard import BaseListboardView, app_config

@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 
-from edc_dashboard.wrappers.model_wrapper import ModelWrapper
+from edc_model_wrapper import ModelWrapper
 
 from ...constants import SHIPPED
 from ...reports import ManifestReport

@@ -7,7 +7,7 @@ from django.utils.module_loading import import_module, module_has_submodule
 from .exceptions import AlreadyRegistered, RegistryNotLoaded
 
 
-class SiteLabs(object):
+class SiteLabs:
 
     def __init__(self):
         self._registry = {}
@@ -53,5 +53,6 @@ class SiteLabs(object):
                             raise
             except ImportError:
                 pass
+
 
 site_labs = SiteLabs()
