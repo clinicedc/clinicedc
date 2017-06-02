@@ -81,8 +81,8 @@
                       {% endif %}
 				      
 	   		        </td>
-	   		        <td>{{wrapped.title}}</td>
-                    <td>{{wrapped.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
+	   		        <td>{{wrapped.object.title}}</td>
+                    <td>{{wrapped.object.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
                 </tr>
 		  {% endif %}
         {% endfor %}
