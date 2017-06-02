@@ -1,19 +1,19 @@
 from django.db import models
-from django.utils.text import slugify
+
+from .search_slug import SearchSlug
 
 
 class SearchSlugManager(models.Manager):
 
     def update_search_slugs(self):
         for obj in self.all():
-            obj.update_search_slugs()
             obj.save_base(update_fields=['slug'])
 
 
 class SearchSlugModelMixin(models.Model):
 
-    SEARCH_SLUG_SEP = '|'
     search_slug_fields = []
+    SEARCH_SLUG_SEP = '|'
 
     slug = models.CharField(
         max_length=250,
@@ -23,28 +23,11 @@ class SearchSlugModelMixin(models.Model):
         help_text='a field used for quick search')
 
     def save(self, *args, **kwargs):
-        self.slug = self.get_search_slug()
+        self.slug = SearchSlug(
+            obj=self,
+            fields=self.search_slug_fields,
+            sep=self.SEARCH_SLUG_SEP).slug
         return super().save(*args, **kwargs)
-
-    def get_search_slug_values(self):
-        """Returns a list of field values.
-
-        Allows field.field.field ... syntax.
-        """
-        values = []
-        for field in self.search_slug_fields:
-            value = self
-            for f in field.split('.'):
-                value = getattr(value, f)
-            values.append(value)
-        return values
-
-    def get_search_slug(self):
-        """Returns a string of slugified values joined
-        by SEARCH_SLUG_SEP.
-        """
-        slugs = [slugify(item or '') for item in self.get_search_slug_values()]
-        return f'{self.SEARCH_SLUG_SEP.join(slugs)}'
 
     class Meta:
         abstract = True
