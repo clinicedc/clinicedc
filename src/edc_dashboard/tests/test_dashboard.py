@@ -2,16 +2,78 @@ from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import TemplateView
 
-from edc_base_test.mixins.dates_test_mixin import DatesTestMixin
-from edc_dashboard.view_mixins.dashboard.appointment_mixin import AppointmentMixin
-from edc_dashboard.view_mixins.dashboard.next_url_mixin import NextUrlMixin
-from edc_dashboard.view_mixins.dashboard.consent_mixin import ConsentMixin
-from edc_example.test_mixins import TestMixin
-from edc_example.models import SubjectConsent
-from edc_base_test.utils import get_utcnow
+# from edc_base_test.mixins.dates_test_mixin import DatesTestMixin
+from edc_consent.tests.models import SubjectConsent
+from edc_visit_schedule.tests.models import Enrollment, Disenrollment, SubjectVisit
+# from edc_model_wrapper.url_mixins import NextUrlMixin
+# from edc_example.test_mixins import TestMixin
+# from edc_example.models import SubjectConsent
+from edc_base.utils import get_utcnow
+from edc_appointment.models import Appointment
+
+from ..view_mixins import AppointmentViewMixin, ConsentViewMixin
+from django.apps import apps as django_apps
+
+from edc_consent.consent import Consent
+from edc_consent.site_consents import site_consents
+from edc_constants.constants import MALE, FEMALE
+from edc_visit_schedule.visit_schedule.visit_schedule import VisitSchedule
+from edc_visit_schedule.schedule.schedule import Schedule
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
+
+app_config = django_apps.get_app_config('edc_protocol')
+
+subjectconsent_v1 = Consent(
+    'edc_consent.subjectconsent',
+    version='1',
+    start=app_config.study_open_datetime,
+    end=app_config.study_close_datetime,
+    age_min=16,
+    age_is_adult=18,
+    age_max=64,
+    gender=[MALE, FEMALE],
+    subject_type='subject')
+
+site_consents.register(subjectconsent_v1)
+
+visit_schedule = VisitSchedule(
+    name='visit_schedule',
+    verbose_name='Visit Schedule',
+    visit_model=SubjectVisit)
+#     offstudy_model=SubjectOffstudy,
+#     death_report_model=DeathReport,
+#     enrollment_model=Enrollment,
+#     disenrollment_model=Disenrollment)
+
+schedule = Schedule(
+    name='schedule',
+    enrollment_model=Enrollment._meta.label_lower,
+    disenrollment_model=Disenrollment)
+visit_schedule.add_schedule(schedule)
+site_visit_schedules.register(visit_schedule)
 
 
-class TestDashboard(DatesTestMixin, TestMixin, TestCase):
+# class TestDashboard(DatesTestMixin, TestMixin, TestCase):
+class TestDashboard(TestCase):
+
+    def add_visit(self, appointment):
+        SubjectVisit.objects.create(
+            appointment=appointment,
+            report_datetime=appointment.appt_datetime,
+            reason=SCHEDULED)
+
+    def make_enrolled_subject(self):
+        self.subject_consent = SubjectConsent.objects.create(
+            subject_identifier='11111111',
+            consent_datetime=get_utcnow(),
+            identity='111111111',
+            confirm_identity='111111111')
+        self.enrollment = Enrollment.objects.create(
+            subject_identifier='11111111',
+            report_datetime=self.subject_consent.consent_datetime)
+        self.appointments = Appointment.objects.all().order_by('appt_datetime')
+        self.subject_identifier = self.subject_consent.subject_identifier
 
     def setUp(self):
         super().setUp()
@@ -26,60 +88,8 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
         self.assertIsNotNone(self.enrollment)
         self.assertIsNotNone(self.appointments)
 
-    def test_next_url(self):
-        view = NextUrlMixin()
-        view.kwargs = {}
-        self.assertEqual(view.get_next_url(), '')
-
-    def test_next_url_add_paramters_no_values(self):
-        """Assert if values not in kwargs parameters are removed."""
-        class Dummy(NextUrlMixin, TemplateView):
-            @property
-            def next_url_parameters(self):
-                parameters = super().next_url_parameters
-                parameters.update({
-                    'appointment': ['subject_identifier', 'selected_obj'],
-                    'visit': ['subject_identifier', 'appointment']})
-                return parameters
-        view = Dummy()
-        view.kwargs = {}
-        options = {}
-        self.assertEqual(view.get_next_url(**options), '')
-
-    def test_next_url_add_paramters_with_values(self):
-        """Assert if values in kwargs parameters are not removed."""
-        class Dummy(NextUrlMixin, TemplateView):
-            @property
-            def next_url_parameters(self):
-                parameters = super().next_url_parameters
-                parameters.update({
-                    'appointment': ['subject_identifier', 'selected_obj'],
-                    'visit': ['subject_identifier', 'appointment']})
-                return parameters
-        view = Dummy()
-        view.kwargs = {'subject_identifier': '123456-0'}
-        self.assertEqual(
-            view.get_next_url('appointment'),
-            'dashboard_url,subject_identifier&subject_identifier=123456-0')
-
-    def test_next_url_add_paramters_with_values_ignores_others(self):
-        class Dummy(NextUrlMixin, TemplateView):
-            @property
-            def next_url_parameters(self):
-                parameters = super().next_url_parameters
-                parameters.update({
-                    'appointment': ['subject_identifier', 'selected_obj'],
-                    'visit': ['subject_identifier', 'appointment']})
-                return parameters
-        view = Dummy()
-        view.kwargs = {'subject_identifier': '123456-0'}
-        options = {'some_value': 'abcdef'}
-        self.assertEqual(
-            view.get_next_url('appointment', **options),
-            'dashboard_url,subject_identifier&subject_identifier=123456-0')
-
     def test_appointment_next_url_no_values(self):
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             pass
         view = Dummy()
         view.kwargs = {}
@@ -87,7 +97,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
             view.get_next_url('appointment'), '')
 
     def test_appointment_next_url_values(self):
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             pass
         view = Dummy()
         view.kwargs = {'subject_identifier': self.subject_identifier}
@@ -97,7 +107,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
             'dashboard_url,subject_identifier&subject_identifier={}'.format(self.subject_identifier))
 
     def test_appointment_next_url_gets_values_from_reponse(self):
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             template_name = 'edc_dashboard.html'
 
         view = Dummy()
@@ -109,7 +119,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
             'dashboard_url,subject_identifier&subject_identifier={}'.format(self.subject_identifier))
 
     def test_appointment_next_url_gets_values_from_reponse_ignores_unwanted(self):
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             template_name = 'edc_dashboard.html'
 
         view = Dummy()
@@ -123,7 +133,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
 
     def test_appointment_next_url_gets_values_from_reponse2(self):
 
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             template_name = 'edc_dashboard.html'
 
             @property
@@ -143,7 +153,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
         self.assertIn('wanted_thing=wanted_value', next_url)
 
     def test_sets_subject_identifier(self):
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             template_name = 'edc_dashboard.html'
         kwargs = {
             'subject_identifier': self.subject_identifier}
@@ -152,7 +162,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
             'subject_identifier'), self.subject_identifier)
 
     def test_sets_appointment(self):
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             template_name = 'edc_dashboard.html'
         appointment = self.appointments[0]
         kwargs = {
@@ -163,7 +173,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
 
     def test_sets_appointments(self):
 
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             template_name = 'edc_dashboard.html'
 
         kwargs = {'subject_identifier': self.subject_identifier}
@@ -173,7 +183,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
 
     def test_appointment_wrapper(self):
 
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             template_name = 'edc_dashboard.html'
 
         kwargs = {'subject_identifier': self.subject_identifier}
@@ -183,7 +193,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
 
     def test_appointment_has_visit_next_url(self):
 
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             template_name = 'edc_dashboard.html'
 
         kwargs = {
@@ -194,7 +204,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
 
     def test_appointment_has_visit_next_url2(self):
 
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             template_name = 'edc_dashboard.html'
 
         appointment = self.appointments[0]
@@ -207,7 +217,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
 
     def test_appointment_has_visit_next_url3(self):
 
-        class Dummy(AppointmentMixin, TemplateView):
+        class Dummy(AppointmentViewMixin, TemplateView):
             template_name = 'edc_dashboard.html'
 
         appointment = self.appointments[0]
@@ -223,7 +233,7 @@ class TestDashboard(DatesTestMixin, TestMixin, TestCase):
     @tag('me3')
     def test_consent(self):
 
-        class Dummy(ConsentMixin, TemplateView):
+        class Dummy(ConsentViewMixin, TemplateView):
             template_name = 'edc_dashboard.html'
             consent_model = SubjectConsent
 

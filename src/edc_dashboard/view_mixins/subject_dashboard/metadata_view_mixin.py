@@ -5,7 +5,6 @@ from django.core.management.color import color_style
 from django.db import OperationalError
 
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
-
 from edc_metadata.constants import NOT_REQUIRED
 
 
