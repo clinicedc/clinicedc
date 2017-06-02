@@ -3,7 +3,7 @@ from django.db.models.deletion import PROTECT
 
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
-from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
+from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ...managers import ManifestManager
 from ...model_mixins.shipping import ManifestModelMixin

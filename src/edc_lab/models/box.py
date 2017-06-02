@@ -5,7 +5,7 @@ from django.utils import timezone
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_constants.constants import OTHER, OPEN
-from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
+from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..constants import VERIFIED, PACKED, SHIPPED, TESTING, STORAGE
 from ..identifiers import BoxIdentifier
