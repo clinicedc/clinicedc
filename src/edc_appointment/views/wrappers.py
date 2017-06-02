@@ -7,7 +7,7 @@ from edc_model_wrapper import ModelWrapper
 
 class AppointmentModelWrapper(ModelWrapper):
 
-    model_name = django_apps.get_app_config(
+    model = django_apps.get_app_config(
         'edc_appointment').model._meta.label_lower
 
     def add_extra_attributes_after(self):
@@ -22,12 +22,12 @@ class AppointmentModelWrapper(ModelWrapper):
     def visit(self):
         """Returns a wrapped persistent or non-persistent visit instance."""
         try:
-            return self.visit_model_wrapper_class(self._original_object.subjectvisit)
+            return self.visit_model_wrapper_class(self.object.subjectvisit)
         except ObjectDoesNotExist:
             visit_model = django_apps.get_model(
                 *self.visit_model_wrapper_class.model_name.split('.'))
             return self.visit_model_wrapper_class(
-                visit_model(appointment=self._original_object))
+                visit_model(appointment=self.object))
 
     @property
     def forms_url(self):

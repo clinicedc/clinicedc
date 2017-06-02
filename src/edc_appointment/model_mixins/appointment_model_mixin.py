@@ -125,7 +125,7 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
 
     @property
     def title(self):
-        return self.schedule.visit.get(self.visit_code).title
+        return self.schedule.visits.get(self.visit_code).title
 
     @property
     def visit_model_reverse_attr(self):
@@ -208,4 +208,4 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
             ('subject_identifier', 'visit_schedule_name',
              'schedule_name', 'visit_code', 'timepoint')
         )
-        ordering = ('timepoint_datetime', )
+        ordering = ('timepoint_datetime',)
