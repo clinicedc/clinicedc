@@ -9,12 +9,10 @@ from .models import TestModel
 
 class TestSearchSlug(TestCase):
 
-    @tag('1')
     def test_search_slug_no_fields(self):
         search_slug = SearchSlug()
         self.assertEqual(search_slug.slug, '')
 
-    @tag('1')
     def test_search_slug_with_fields(self):
         class Obj:
             f1 = 1
@@ -32,7 +30,7 @@ class TestSearchSlug(TestCase):
             f2=dt,
             f3=1234)
         obj.save()
-        self.assertEqual(obj.slug, f'erik-is|{slugify(dt)}|1234|attr')
+        self.assertEqual(obj.slug, f'erik-is|{slugify(dt)}|1234|attr|dummy|dummy_attr')
 
     def test_gets_values_with_none(self):
         obj = TestModel(
@@ -40,4 +38,4 @@ class TestSearchSlug(TestCase):
             f2=None,
             f3=None)
         obj.save()
-        self.assertEqual(obj.slug, f'|||attr')
+        self.assertEqual(obj.slug, f'|||attr|dummy|dummy_attr')
