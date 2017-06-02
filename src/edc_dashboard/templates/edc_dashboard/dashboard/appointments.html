@@ -20,7 +20,7 @@
 						{% endif %}
                         {% if wrapped.appt_status != COMPLETE_APPT %}
 						<a role="button" class="btn btn-sm btn-default {% if wrapped.appt_status != IN_PROGRESS_APPT %}disabled{% endif %}"
-						    href="{{ wrapped.get_absolute_url }}?next={{ wrapped.next_url }}&{{ wrapped.extra_querystring }}">
+						    href="{{ wrapped.get_absolute_url }}?{{ wrapped.next_url }}&{{ wrapped.extra_querystring }}">
 						        <i class="fa fa-pencil fa-fw" aria-hidden="true"></i> Appt
 						</a>
                         {% endif %}
@@ -28,14 +28,14 @@
 				      {% if wrapped.appt_status == IN_PROGRESS_APPT %}
 				      	{% if wrapped.visit.id %}
 				      		
-		                        <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.visit.get_absolute_url }}?next={{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}">
+		                        <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.visit.get_absolute_url }}?{{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}">
 		                            <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Visit Report
 		                        </a>
 				      			<a role="button" class="btn btn-sm btn-warning" href="{{ wrapped.forms_url }}">
 				      				<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Forms
 				      			</a>
 				      	{% else %}
-				       		<a role="button" class="btn btn-sm btn-warning" href="{{ wrapped.visit.get_absolute_url }}?next={{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}"
+				       		<a role="button" class="btn btn-sm btn-warning" href="{{ wrapped.visit.get_absolute_url }}?{{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}"
 				       		   data-toggle="tooltip" title="Click to update the visit report">
 				       			<i class="fa fa-plus fa-sm" aria-hidden="true"></i> Start</a>
 				      	{% endif %}
@@ -47,7 +47,7 @@
 						    {% if not wrapped.disabled %}
 							    <a role="button" 
 							        data-toggle="tooltip" title=""
-							            class="btn btn-sm btn-default" href="{{ wrapped.get_absolute_url }}?next={{ wrapped.next_url }}&{{ wrapped.extra_querystring }}">
+							            class="btn btn-sm btn-default" href="{{ wrapped.get_absolute_url }}?{{ wrapped.next_url }}&{{ wrapped.extra_querystring }}">
                                      {% if wrapped.appt_status == NEW_APPT %}
                                        Start
                                     {% elif wrapped.appt_status == IN_PROGRESS_APPT%}
@@ -75,7 +75,7 @@
 				      {% endif %}
 				      
                       {% if wrapped.appt_status == COMPLETE_APPT %}
-                                <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.visit.get_absolute_url }}?next={{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}">
+                                <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.visit.get_absolute_url }}?{{ wrapped.visit.next_url }}&{{ wrapped.visit.extra_querystring }}">
                                     <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Review
                                 </a>
                       {% endif %}

@@ -10,8 +10,8 @@ class AppointmentViewMixin:
     """
 
     reverse_relation_visit_attr_name = 'subjectvisit'
-    appointment_model_wrapper_class = None
-    visit_model_wrapper_class = None
+    appointment_model_wrapper_cls = None
+    # visit_model_wrapper_cls = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -40,7 +40,7 @@ class AppointmentViewMixin:
     @property
     def appointment_wrapped(self):
         if self.appointment:
-            return self.appointment_model_wrapper_class(
+            return self.appointment_model_wrapper_cls(
                 self.appointment)
         return None
 
@@ -61,7 +61,7 @@ class AppointmentViewMixin:
         appointments = []
         if self.appointments:
             appointments = [
-                self.appointment_model_wrapper_class(obj) for obj in self.appointments]
+                self.appointment_model_wrapper_cls(obj) for obj in self.appointments]
             for i in range(0, len(appointments)):
                 if appointments[i].appt_status == IN_PROGRESS_APPT:
                     appointments[i].disabled = False
