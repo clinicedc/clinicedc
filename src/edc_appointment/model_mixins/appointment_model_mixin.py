@@ -166,7 +166,7 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
         """Returns the previous appointment or None in this schedule.
         """
         previous_appt = None
-        previous_visit = self.schedule.get_previous_visit(self.visit_code)
+        previous_visit = self.schedule.visits.previous(self.visit_code)
         if previous_visit:
             try:
                 previous_appt = self.__class__.objects.get(
