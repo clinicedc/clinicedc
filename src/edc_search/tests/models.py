@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_search.search_slug_model_mixin import SearchSlugModelMixin
+from ..model_mixins import SearchSlugModelMixin
 
 
 class TestModel(SearchSlugModelMixin, models.Model):

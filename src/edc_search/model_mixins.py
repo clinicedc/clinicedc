@@ -2,6 +2,14 @@ from django.db import models
 from django.utils.text import slugify
 
 
+class SearchSlugManager(models.Manager):
+
+    def update_search_slugs(self):
+        for obj in self.all():
+            obj.update_search_slugs()
+            obj.save_base(update_fields=['slug'])
+
+
 class SearchSlugModelMixin(models.Model):
 
     SEARCH_SLUG_SEP = '|'
