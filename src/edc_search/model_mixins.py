@@ -28,6 +28,8 @@ class SearchSlugModelMixin(models.Model):
 
     def get_search_slug_values(self):
         """Returns a list of field values.
+
+        Allows field.field.field ... syntax.
         """
         values = []
         for field in self.search_slug_fields:
