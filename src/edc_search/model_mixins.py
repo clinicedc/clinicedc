@@ -31,7 +31,10 @@ class SearchSlugModelMixin(models.Model):
         """
         values = []
         for field in self.search_slug_fields:
-            values.append(getattr(self, field))
+            value = self
+            for f in field.split('.'):
+                value = getattr(value, f)
+            values.append(value)
         return values
 
     def get_search_slug(self):
