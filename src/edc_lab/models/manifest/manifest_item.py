@@ -19,6 +19,8 @@ class ManifestItemManager(SearchSlugManager, models.Manager):
 
 class ManifestItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
+    search_slug_fields = ['identifier', 'human_readable_identifier']
+
     manifest = models.ForeignKey(Manifest, on_delete=PROTECT)
 
     identifier = models.CharField(
@@ -39,10 +41,6 @@ class ManifestItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
     def human_readable_identifier(self):
         x = self.identifier
         return '{}-{}-{}'.format(x[0:4], x[4:8], x[8:12])
-
-    def get_slugs(self):
-        slugs = [self.identifier, self.human_readable_identifier]
-        return slugs
 
     class Meta:
         app_label = 'edc_lab'

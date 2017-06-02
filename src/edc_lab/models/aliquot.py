@@ -18,6 +18,13 @@ class Aliquot(AliquotModelMixin,
               AliquotShippingMixin,
               SearchSlugModelMixin, BaseUuidModel):
 
+    search_slug_fields = [
+        'aliquot_identifier',
+        'human_readable_identifier',
+        'subject_identifier',
+        'parent_identifier',
+        'requisition_identifier']
+
     objects = Manager()
 
     history = HistoricalRecords()
@@ -32,14 +39,6 @@ class Aliquot(AliquotModelMixin,
         x = self.aliquot_identifier
         return '{}-{}-{}-{}-{}'.format(
             x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
-
-    def get_slugs(self):
-        slugs = [self.aliquot_identifier,
-                 self.human_readable_identifier,
-                 self.subject_identifier,
-                 self.parent_identifier,
-                 self.requisition_identifier]
-        return slugs
 
     class Meta(AliquotModelMixin.Meta):
         app_label = 'edc_lab'
