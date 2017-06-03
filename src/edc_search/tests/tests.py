@@ -4,7 +4,7 @@ from django.utils.text import slugify
 from edc_base.utils import get_utcnow
 
 from ..search_slug import SearchSlug
-from .models import TestModel
+from .models import TestModel, TestModelExtra
 
 
 class TestSearchSlug(TestCase):
@@ -23,6 +23,7 @@ class TestSearchSlug(TestCase):
             fields=['f1', 'f2'])
         self.assertEqual(search_slug.slug, '1|2')
 
+    @tag('1')
     def test_gets_slug(self):
         dt = get_utcnow()
         obj = TestModel(
@@ -32,10 +33,19 @@ class TestSearchSlug(TestCase):
         obj.save()
         self.assertEqual(obj.slug, f'erik-is|{slugify(dt)}|1234|attr|dummy|dummy_attr')
 
-    def test_gets_values_with_none(self):
+    def test_gets_with_none(self):
         obj = TestModel(
             f1=None,
             f2=None,
             f3=None)
         obj.save()
         self.assertEqual(obj.slug, f'|||attr|dummy|dummy_attr')
+
+    def test_gets_with_inherit(self):
+        obj = TestModelExtra(
+            f1='i am from testmodel',
+            f2=None,
+            f3=None,
+            f4='i am from testmodelextra')
+        obj.save()
+        self.assertEqual(obj.slug, f'i-am-from-testmodel|||attr|dummy|dummy_attr|i-am-from-testmodelextra')

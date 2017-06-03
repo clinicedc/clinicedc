@@ -12,21 +12,28 @@ class SearchSlugManager(models.Manager):
 
 class SearchSlugModelMixin(models.Model):
 
-    search_slug_fields = []
     SEARCH_SLUG_SEP = '|'
+
+    def get_search_slug_fields(self):
+        return []
 
     slug = models.CharField(
         max_length=250,
+        default='',
         null=True,
         editable=False,
         db_index=True,
         help_text='a field used for quick search')
 
     def save(self, *args, **kwargs):
-        self.slug = SearchSlug(
+        search_slug = SearchSlug(
             obj=self,
-            fields=self.search_slug_fields,
-            sep=self.SEARCH_SLUG_SEP).slug
+            fields=self.get_search_slug_fields(),
+            sep=self.SEARCH_SLUG_SEP)
+        if self.slug:
+            self.slug = f'{self.slug}|{search_slug.slug}'
+        else:
+            self.slug = search_slug.slug
         return super().save(*args, **kwargs)
 
     class Meta:
