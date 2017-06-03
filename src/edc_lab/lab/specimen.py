@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 
 from edc_constants.constants import YES
 
-from .aliquot import Aliquot
+from .aliquot_object import AliquotObject
 
 
 class SpecimenError(Exception):
@@ -35,7 +35,7 @@ class Specimen:
         """Returns a queryset of wrapped aliquots.
         """
         if not self._aliquots:
-            self._aliquots = [Aliquot(obj) for obj in self.aliquot_model.objects.filter(
+            self._aliquots = [AliquotObject(obj) for obj in self.aliquot_model.objects.filter(
                 identifier_prefix=self.identifier_prefix)]
         return self._aliquots
 
@@ -70,7 +70,7 @@ class Specimen:
                     medium_count=self.requisition.item_count,
                     medium=self.requisition.item_type,
                     is_primary=True)
-            self._primary_aliquot = Aliquot(obj)
+            self._primary_aliquot = AliquotObject(obj)
         return self._primary_aliquot
 
     @property

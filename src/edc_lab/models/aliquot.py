@@ -3,9 +3,8 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..managers import AliquotManager
-from ..model_mixins.aliquot import (
-    AliquotModelMixin, AliquotIdentifierModelMixin, AliquotTypeModelMixin,
-    AliquotShippingMixin)
+from ..model_mixins import AliquotModelMixin, AliquotIdentifierModelMixin
+from ..model_mixins import AliquotTypeModelMixin, AliquotShippingMixin
 
 
 class Manager(AliquotManager, SearchSlugManager):
@@ -18,12 +17,13 @@ class Aliquot(AliquotModelMixin,
               AliquotShippingMixin,
               SearchSlugModelMixin, BaseUuidModel):
 
-    search_slug_fields = [
-        'aliquot_identifier',
-        'human_readable_identifier',
-        'subject_identifier',
-        'parent_identifier',
-        'requisition_identifier']
+    def get_search_slug_fields(self):
+        return [
+            'aliquot_identifier',
+            'human_readable_identifier',
+            'subject_identifier',
+            'parent_identifier',
+            'requisition_identifier']
 
     objects = Manager()
 
@@ -40,5 +40,5 @@ class Aliquot(AliquotModelMixin,
         return '{}-{}-{}-{}-{}'.format(
             x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
 
-    class Meta(AliquotModelMixin.Meta):
+    class Meta:
         app_label = 'edc_lab'

@@ -40,19 +40,19 @@ INSTALLED_APPS = [
     'crispy_forms',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
-    'edc_appointment.apps.AppConfig',
+    # 'edc_appointment.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
-    'edc_lab.apps.AppConfig',
     'edc_label.apps.AppConfig',
-    'edc_metadata.apps.AppConfig',
+    # 'edc_metadata.apps.AppConfig',
     'edc_registration.apps.AppConfig',
-    'edc_visit_schedule.apps.AppConfig',
-    'edc_visit_tracking.apps.AppConfig',
-    'edc_example.apps.EdcProtocolAppConfig',
-    'edc_example.apps.EdcTimepointAppConfig',
-    'edc_example.apps.AppConfig',
+    # 'edc_visit_schedule.apps.AppConfig',
+    # 'edc_visit_tracking.apps.AppConfig',
+    'edc_protocol.apps.AppConfig',
+    # 'edc_timepoint.apps.AppConfig',
+    'edc_search.apps.AppConfig',
+    'edc_lab.apps.AppConfig',
 ]
 
 MIDDLEWARE = [
@@ -144,6 +144,7 @@ if 'test' in sys.argv:
         "edc_registration": None,
         "edc_sync": None,
         "edc_map": None,
+        "edc_lab": None,
         'admin': None,
         "auth": None,
         'contenttypes': None,
@@ -164,3 +165,4 @@ GIT_DIR = BASE_DIR
 KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 ETC_DIR = os.path.join(BASE_DIR, 'etc')
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+EDC_LAB_REQUISITION_MODEL = 'edc_lab.subjectrequisition'

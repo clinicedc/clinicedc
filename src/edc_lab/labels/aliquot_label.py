@@ -2,15 +2,13 @@ from django.apps import apps as django_apps
 
 from edc_registration.models import RegisteredSubject
 
-from .base_label import BaseLabel, app_config, edc_protocol_app_config
+from .base_label import BaseLabel
 
 
 class AliquotLabel(BaseLabel):
 
+    model_attr = 'aliquot_model'
     template_name = 'aliquot'
-    model = django_apps.get_model(*app_config.aliquot_model.split('.'))
-    requisition_model = django_apps.get_model(
-        *app_config.requisition_model.split('.'))
 
     def __init__(self, pk=None, children_count=None):
         super().__init__(pk=pk)
@@ -39,10 +37,11 @@ class AliquotLabel(BaseLabel):
 
     @property
     def context(self):
+        edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
         return {
             'aliquot_identifier': self.aliquot.human_readable_identifier,
             'aliquot_count': 1 if self.aliquot.is_primary else self.aliquot.count,
-            'children_count': 1 if self.aliquot.is_primary else self.children_count,
+            'children_count': 1 if self.aliquot.is_primary else self.children.all().count,
             'primary': '<P>' if self.aliquot.is_primary else '',
             'barcode_value': self.aliquot.aliquot_identifier,
             'protocol': edc_protocol_app_config.protocol,

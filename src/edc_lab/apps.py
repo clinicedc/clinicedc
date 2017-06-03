@@ -1,7 +1,7 @@
 import sys
 
 from django.apps import AppConfig as DjangoAppConfig
-
+from django.conf import settings
 from .site_labs import site_labs
 
 app_name = 'edc_lab'
@@ -20,7 +20,10 @@ class AppConfig(DjangoAppConfig):
     aliquot_model = 'edc_lab.aliquot'
     box_model = 'edc_lab.box'
     box_item_model = 'edc_lab.boxitem'
-    requisition_model = None
+    try:
+        requisition_model = settings.EDC_LAB_REQUISITION_MODEL
+    except AttributeError:
+        requisition_model = None
     result_model = None
     manifest_model = 'edc_lab.manifest'
     manifest_item_model = 'edc_lab.manifestitem'

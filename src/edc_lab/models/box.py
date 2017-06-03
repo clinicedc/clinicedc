@@ -44,6 +44,9 @@ class BoxManager(SearchSlugManager, models.Manager):
 
 class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
 
+    search_slug_fields = [
+        'box_identifier', 'human_readable_identifier', 'name']
+
     box_identifier = models.CharField(
         max_length=25,
         editable=False,
@@ -138,12 +141,6 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
     @property
     def max_position(self):
         return
-
-    def get_slugs(self):
-        slugs = [self.box_identifier,
-                 self.human_readable_identifier,
-                 self.name]
-        return slugs
 
     class Meta:
         app_label = 'edc_lab'

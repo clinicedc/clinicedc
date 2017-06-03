@@ -62,10 +62,10 @@ class AliquotModelMixin (models.Model):
         blank=True)
 
     def __str__(self):
-        return '%s' % (self.aliquot_identifier)
+        return self.aliquot_identifier
 
     def natural_key(self):
-        return (self.aliquot_identifier,)
+        return (self.aliquot_identifier, )
 
     class Meta:
         abstract = True

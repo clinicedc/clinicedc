@@ -4,6 +4,7 @@ from django.apps import apps as django_apps
 from django.db.utils import IntegrityError
 from django.db import transaction
 
+from ..identifiers import AliquotIdentifier
 from ..site_labs import site_labs
 
 
@@ -11,26 +12,24 @@ class AliquotError(Exception):
     pass
 
 
-class Aliquot:
+class AliquotObject:
     """A wrapper for the Aliquot model instance.
     """
 
-    def __init__(self, obj):
-        self._registered_subject = None
-        self._registered_subject = None
-        self.object = obj
+    def __init__(self, model_obj=None):
+        self.object = model_obj
+
         # set attrs from model fields
         for field in self.object._meta.fields:
             setattr(self, field.name, getattr(self.object, field.name))
+
         self.children = self.model.objects.filter(
             parent_identifier=self.aliquot_identifier).order_by(
                 'aliquot_identifier')
-        self.children_count = self.children.count()
 
     @property
     def model(self):
-        app_name = 'edc_lab'
-        app_config = django_apps.get_app_config(app_name)
+        app_config = django_apps.get_app_config('edc_lab')
         return django_apps.get_model(*app_config.aliquot_model.split('.'))
 
     def __str__(self):
@@ -53,10 +52,13 @@ class Aliquot:
         for i in range(1, aliquot_count + 1):
             self.count += 1
             with transaction.atomic():
+                aliquot_identifier = AliquotIdentifier(
+                    parent_identifier=self.object.aliquot_identifier,
+                    aliquot_type=self.object.aliquot_type_object,
+                    count=i)
                 try:
                     obj = self.model.objects.create(
-                        aliquot_identifier=self.get_identifier(
-                            numeric_code, i),
+                        aliquot_identifier=aliquot_identifier,
                         parent_identifier=self.object.aliquot_identifier,
                         identifier_prefix=self.object.identifier_prefix,
                         subject_identifier=self.object.subject_identifier,
@@ -74,10 +76,9 @@ class Aliquot:
     def create_aliquot(self, numeric_code):
         self.create_aliquots(self, numeric_code, 1)
 
-    def create_aliquots_by_processing_profile(self, panel_name=None,
-                                              lab_profile_name=None,
-                                              processing_profile=None,
-                                              **kwargs):
+    def create_aliquots_by_processing_profile(
+            self, panel_name=None, lab_profile_name=None,
+            processing_profile=None, **kwargs):
         """Creates aliquots according to the processing profile.
 
         Typically lab_profile_name is requisition._meta.label_lower.
@@ -96,7 +97,7 @@ class Aliquot:
                 raise AttributeError(e)
         return created_aliquots
 
-    def get_identifier(self, numeric_code, count):
-        prefix = self.aliquot_identifier[0:10]
-        child_segment = self.aliquot_identifier[-4:]
-        return prefix + child_segment + numeric_code + '{0:02d}'.format(count)
+#     def get_identifier(self, numeric_code, count):
+#         prefix = self.aliquot_identifier[0:10]
+#         child_segment = self.aliquot_identifier[-4:]
+# return prefix + child_segment + numeric_code + '{0:02d}'.format(count)
