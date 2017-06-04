@@ -2,9 +2,9 @@ from django.test import TestCase, tag
 
 from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel
 from ..lab import PanelAlreadyRegistered, ProcessingProfileInvalidDerivative
-from ..lab import RequisitionPanelError, Process, InvalidProcessingProfile, RequisitionModelError
+from ..lab import RequisitionPanelError, Process, InvalidProcessingProfile, GetModelError
+from ..lab import LabProfileRequisitionModelError
 from .models import SubjectRequisition
-from tkinter.constants import NUMERIC
 
 
 @tag('profile')
@@ -24,18 +24,14 @@ class TestBuildProfile(TestCase):
         obj = LabProfile(name='profile')
         self.assertTrue(str(obj))
 
-    def test_aliquot_derivatives_single(self):
-        """Asserts can add a derivative.
-        """
-        self.wb.add_derivatives(self.bc)
-        self.assertEqual(self.wb.derivatives, [self.bc])
-
-    def test_aliquot_derivatives_multi(self):
-        """Asserts can add more than one derivative.
-        """
-        pl = AliquotType(name='plasma', numeric_code='32', alpha_code='PL')
-        self.wb.add_derivatives(self.bc, pl)
-        self.assertEqual(self.wb.derivatives, [self.bc, pl])
+    def test_no_model_raises(self):
+        obj = LabProfile(name='profile')
+        try:
+            obj.requisition_model
+        except LabProfileRequisitionModelError:
+            pass
+        else:
+            self.fail('LabProfileRequisitionModelError unexpectedly not raised')
 
     def test_processing_bad(self):
         """Asserts CANNOT add process for aliquot B to a profile
@@ -84,10 +80,10 @@ class TestBuildProfile(TestCase):
                     model=model)
                 try:
                     req.model
-                except RequisitionModelError:
+                except GetModelError:
                     pass
                 else:
-                    self.fail('RequisitionModelError unexpectedly not raised.')
+                    self.fail('GetModelError unexpectedly not raised.')
 
     def test_panel_accepts_model_as_a_class(self):
         a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
@@ -96,8 +92,8 @@ class TestBuildProfile(TestCase):
                 name='Viral Load',
                 aliquot_type=a,
                 model=SubjectRequisition).model
-        except RequisitionModelError:
-            self.fail('RequisitionModelError unexpectedly raised.')
+        except GetModelError:
+            self.fail('GetModelError unexpectedly raised.')
 
     def test_panel_adds_processing_profile(self):
         a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
@@ -170,4 +166,24 @@ class TestBuildProfile(TestCase):
         lab_profile.add_panel(panel=panel)
         self.assertRaises(
             PanelAlreadyRegistered,
+            lab_profile.add_panel, panel=panel)
+
+    def test_add_panel_not_matching_requisition_model(self):
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
+        b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
+        a.add_derivatives(b)
+        process = Process(aliquot_type=b, aliquot_count=3)
+        processing_profile = ProcessingProfile(
+            name='process', aliquot_type=a)
+        processing_profile.add_processes(process)
+        panel = RequisitionPanel(
+            name='Viral Load',
+            aliquot_type=a,
+            model='edc_lab.subjectrequisition',
+            processing_profile=processing_profile)
+        lab_profile = LabProfile(
+            name='profile',
+            requisition_model='auth.user')
+        self.assertRaises(
+            LabProfileRequisitionModelError,
             lab_profile.add_panel, panel=panel)

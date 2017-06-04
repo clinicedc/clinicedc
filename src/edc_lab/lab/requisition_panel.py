@@ -1,8 +1,4 @@
-from django.apps import apps as django_apps
-
-
-class RequisitionModelError(Exception):
-    pass
+from .get_model_cls import GetModelCls
 
 
 class RequisitionPanelError(Exception):
@@ -22,50 +18,18 @@ class Names:
         self.verbose_name = f'{title} {alpha_code} {self.abbreviation}'.replace('  ', ' ')
 
 
-class RequisitionModel:
-
-    """A class to get the requisition model based on label_lower
-    or a model class.
-
-    This is needed so that the call to get_model is after the
-    Apps registry has loaded.
-    """
-
-    def __init__(self, model=None):
-        try:
-            self.model_name = model._meta.label_lower
-        except AttributeError:
-            self._model = None
-            self.model_name = model
-        else:
-            self._model = model
-
-    @property
-    def model(self):
-        if not self._model:
-            try:
-                self._model = django_apps.get_model(self.model_name)
-            except (AttributeError, ValueError) as e:
-                raise RequisitionModelError(
-                    f'Invalid model name \'{self.model_name}\'. Got {e}') from e
-            except LookupError as e:
-                raise RequisitionModelError(
-                    f'Invalid model \'{self.model_name}\'. Got {e}') from e
-        return self._model
-
-
 class RequisitionPanel:
 
     """A container class of processing profile instances.
     """
 
     names_cls = Names
-    model_cls = RequisitionModel
+    model_cls = GetModelCls
 
     def __init__(self, name=None, model=None, aliquot_type=None,
                  processing_profile=None,
                  verbose_name=None, abbreviation=None, **kwargs):
-        self._model_obj = self.model_cls(model=model)
+        self._get_model = self.model_cls(model=model).get_model
         self.aliquot_type = aliquot_type
         self.verbose_name = None
         self.name = name
@@ -91,7 +55,7 @@ class RequisitionPanel:
 
     @property
     def model(self):
-        return self._model_obj.model
+        return self._get_model()
 
     @property
     def numeric_code(self):

@@ -16,8 +16,3 @@ class TestAliquot(TestCase):
 
     def test_create_aliquot(self):
         self.assertRaises(AliquotCreatorError, AliquotCreator)
-
-    def test_aliquot_type_repr(self):
-        aliquot_type = AliquotType(
-            name='aliquot', numeric_code='00', alpha_code='AA')
-        self.assertTrue(repr(aliquot_type))

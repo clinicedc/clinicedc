@@ -1,7 +1,11 @@
 import re
 
 
-class AliquotTypeError(Exception):
+class AliquotTypeAlphaCodeError(Exception):
+    pass
+
+
+class AliquotTypeNumericCodeError(Exception):
     pass
 
 
@@ -18,11 +22,11 @@ class AliquotType:
         self.derivatives = []
         self.name = name
         if not alpha_code or not re.match('^[A-Z]+$', alpha_code, re.ASCII):
-            raise AliquotTypeError(f'Invalid alpha code. Got {alpha_code}.')
+            raise AliquotTypeAlphaCodeError(f'Invalid alpha code. Got {alpha_code}.')
         else:
             self.alpha_code = alpha_code
         if not numeric_code or not re.match('^\d+$', numeric_code, re.ASCII):
-            raise AliquotTypeError(f'Invalid numeric code. Got {numeric_code}.')
+            raise AliquotTypeNumericCodeError(f'Invalid numeric code. Got {numeric_code}.')
         else:
             self.numeric_code = numeric_code
 
