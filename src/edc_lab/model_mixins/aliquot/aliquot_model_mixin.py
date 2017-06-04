@@ -20,12 +20,14 @@ class AliquotModelMixin (models.Model):
         editable=False,
         help_text='pos in sequence of aliquots from parent')
 
+    # FIXME: not used
     medium = models.CharField(
         verbose_name='Medium',
         max_length=25,
         choices=SPECIMEN_MEDIUM,
         default='TUBE')
 
+    # FIXME: not used
     medium_count = models.IntegerField(
         editable=False,
         default=1,

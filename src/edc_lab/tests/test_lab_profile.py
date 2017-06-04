@@ -44,7 +44,7 @@ class TestBuildProfile(TestCase):
             name='process', aliquot_type=a)
         self.assertRaises(
             ProcessingProfileInvalidDerivative,
-            processing_profile.add_processes, process=process)
+            processing_profile.add_processes, process)
 
     def test_processing_ok(self):
         """Asserts CAN add process for aliquot B to a profile

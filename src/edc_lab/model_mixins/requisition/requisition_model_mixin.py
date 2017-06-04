@@ -45,6 +45,11 @@ class RequisitionModelMixin(PanelModelMixin, models.Model):
         null=True,
         blank=True)
 
+    protocol_number = models.CharField(
+        max_length=10,
+        null=True,
+        editable=False)
+
     clinician_initials = InitialsField(
         null=True,
         blank=True)

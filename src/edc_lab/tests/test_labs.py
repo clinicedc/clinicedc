@@ -14,25 +14,39 @@ app_config = django_apps.get_app_config('edc_lab')
 class LabTests(TestCase):
 
     def setUp(self):
-        lab_profile = LabProfile(
-            name='lab_profile', requisition_model=SubjectRequisition)
+        site_labs._registry = {}
+
+        # create aliquots and their relationship
         a = AliquotType(name='aliquot_a')
         b = AliquotType(name='aliquot_b')
         a.add_derivatives(b)
-        process = Process(aliquot_type=a, aliquot_count=3)
+
+        # set up processes
+        process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(
             name='process', aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(
-            name='panel', model=SubjectRequisition,
-            aliquot_type=a)
-        lab_profile.add_panel(panel)
-        site_labs.register(lab_profile)
+
+        # create a panel
+        self.panel = RequisitionPanel(
+            name='panel',
+            model=SubjectRequisition,
+            aliquot_type=a,
+            processing_profile=processing_profile)
+
+        # lab profile
+        self.lab_profile = LabProfile(
+            name='lab_profile',
+            requisition_model=SubjectRequisition)
+        self.lab_profile.add_panel(self.panel)
+
+        # register with site
+        site_labs.register(self.lab_profile)
 
         self.subject_identifier = '111111111'
         self.subject_visit = SubjectVisit.objects.create(
             subject_identifier=self.subject_identifier)
-        self.panel_name = 'my_panel'
+        self.panel_name = 'panel'
 
     def test_requisition_creates_aliquot(self):
         """Asserts passing requisition to specimen class creates an aliquot."""
@@ -116,6 +130,7 @@ class LabTests(TestCase):
         self.assertEqual(app_config.aliquot_model.objects.filter(
             aliquot_identifier__startswith=specimen.primary_aliquot.aliquot_identifier[0:14]).count(), 1)
 
+    @tag('1')
     def test_aliquots_identifier_sequence(self):
         """Asserts aliquot class can create child aliquots from
         itself with the correct sequence numbers.

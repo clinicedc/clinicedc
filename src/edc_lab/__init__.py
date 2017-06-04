@@ -1,2 +1,2 @@
-from .lab import AliquotObject, AliquotType, RequisitionPanel
+from .lab import AliquotWrapper, AliquotType, RequisitionPanel
 from .lab import ProcessingProfile, Specimen, LabProfile

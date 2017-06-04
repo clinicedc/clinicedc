@@ -8,11 +8,11 @@ from ..identifiers import AliquotIdentifier
 from ..site_labs import site_labs
 
 
-class AliquotError(Exception):
+class AliquotWrapperError(Exception):
     pass
 
 
-class AliquotObject:
+class AliquotWrapper:
     """A wrapper for the Aliquot model instance.
     """
 
@@ -46,7 +46,7 @@ class AliquotObject:
             alpha_code = None
             aliquot_type = numeric_code
         if not re.match('\d+', numeric_code, re.ASCII):
-            raise AliquotError(
+            raise AliquotWrapperError(
                 'Invalid aliquot type format. Expected numeric code. '
                 'Got {}.'.format(numeric_code))
         for i in range(1, aliquot_count + 1):
