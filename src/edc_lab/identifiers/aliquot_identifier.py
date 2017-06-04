@@ -1,3 +1,6 @@
+from pprint import pprint
+
+
 class AliquotIdentifierLengthError(Exception):
     pass
 
@@ -35,11 +38,14 @@ class AliquotIdentifier:
             child_segment = '0000'
             count = 1
 
-        self.identifier = self.template.format(
-            prefix=str(prefix or ''),
+        options = dict(
+            prefix=str(prefix or '?prefix?'),
             child_segment=child_segment,
-            numeric_code=numeric_code or '',
-            count=str(count).zfill(count_padding or 0))
+            numeric_code=numeric_code or '?numeric_code?',
+            count=str(count).zfill(count_padding or 0)
+        )
+
+        self.identifier = self.template.format(**options)
 
         if len(self.identifier) != length:
             raise AliquotIdentifierLengthError(

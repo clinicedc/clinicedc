@@ -12,20 +12,22 @@ from .models import SubjectRequisition, SubjectVisit
 class TestSpecimen(TestCase):
 
     def setUp(self):
-        self.setup_site_lab()
+        self.setup_site_labs()
         self.subject_visit = SubjectVisit.objects.create(
             subject_identifier='1111111111')
         self.requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             panel_name=self.panel.name,
+            protocol_number='999',
             is_drawn=YES)
 
-    def setup_site_lab(self):
+    def setup_site_labs(self):
         site_labs._registry = {}
+        site_labs.loaded = False
 
         # create aliquots and their relationship
-        a = AliquotType(name='aliquot_a')
-        b = AliquotType(name='aliquot_b')
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
+        b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
         a.add_derivatives(b)
 
         # set up processes
@@ -51,12 +53,14 @@ class TestSpecimen(TestCase):
         site_labs.register(self.lab_profile)
 
     def test_specimen(self):
-        Specimen(requisition=self.requisition)
+        Specimen(
+            requisition=self.requisition)
 
     def test_specimen_from_pk(self):
         self.requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             panel_name=self.panel.name,
+            protocol_number='999',
             is_drawn=YES)
         Specimen(requisition_pk=self.requisition.pk)
 
@@ -64,6 +68,7 @@ class TestSpecimen(TestCase):
         self.requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             panel_name=self.panel.name,
+            protocol_number='999',
             is_drawn=NO)
         self.assertRaises(
             SpecimenNotDrawnError,

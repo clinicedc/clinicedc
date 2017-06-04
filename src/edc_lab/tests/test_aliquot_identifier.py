@@ -1,6 +1,6 @@
 from django.test import TestCase, tag
 
-from ..identifiers import AliquotIdentifier, Prefix, PrefixError
+from ..identifiers import AliquotIdentifier, Prefix, PrefixKeyError, PrefixLengthError
 from ..identifiers import AliquotIdentifierLengthError, AliquotIdentifierCountError
 
 
@@ -16,7 +16,7 @@ class TestAliquotPrefix(TestCase):
 
     def test_prefix_invalid_length(self):
         self.assertRaises(
-            PrefixError,
+            PrefixLengthError,
             Prefix,
             template='{opt1}{opt2}',
             length=7,
@@ -24,7 +24,7 @@ class TestAliquotPrefix(TestCase):
 
     def test_prefix_missing_opt(self):
         self.assertRaises(
-            PrefixError,
+            PrefixKeyError,
             Prefix,
             template='{opt1}{opt2}',
             length=8,
@@ -36,8 +36,9 @@ class TestAliquotIdentifier(TestCase):
     def test_valid_length(self):
         AliquotIdentifier(
             prefix='1234567890',
+            numeric_code='22',
             count_padding=2,
-            length=16)
+            length=18)
 
     def test_length_raises(self):
         """Asserts raises exception for invalid identifier length.

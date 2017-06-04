@@ -96,8 +96,3 @@ class AliquotWrapper:
             if 'processes' not in str(e):
                 raise AttributeError(e)
         return created_aliquots
-
-#     def get_identifier(self, numeric_code, count):
-#         prefix = self.aliquot_identifier[0:10]
-#         child_segment = self.aliquot_identifier[-4:]
-# return prefix + child_segment + numeric_code + '{0:02d}'.format(count)

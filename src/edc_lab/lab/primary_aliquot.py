@@ -1,6 +1,6 @@
 from django.db.models import Q
 
-from ..identifiers import AliquotIdentifier, AliquotIdentifierLengthError
+from ..identifiers import AliquotIdentifierLengthError
 
 
 class PrimaryAliquotError(Exception):
@@ -16,16 +16,15 @@ class PrimaryAliquot:
     """A class that gets or creates the primary aliquot.
     """
 
-    aliquot_identifier_cls = AliquotIdentifier
-
     def __init__(self, subject_identifier=None, requisition_identifier=None,
                  identifier_prefix=None, aliquot_type=None,
-                 aliquot_model=None, **kwargs):
+                 aliquot_model=None, aliquot_identifier_cls=None, **kwargs):
         self.aliquot_type = aliquot_type
         self.aliquot_model = aliquot_model
         self.requisition_identifier = requisition_identifier
         self.subject_identifier = subject_identifier
         self.identifier_prefix = identifier_prefix
+        self.aliquot_identifier_cls = aliquot_identifier_cls
 
         try:
             model_obj = self.aliquot_model.objects.get(

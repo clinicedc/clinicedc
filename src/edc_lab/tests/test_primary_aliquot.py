@@ -2,6 +2,7 @@ from django.test import TestCase, tag
 
 from ..lab import PrimaryAliquot, AliquotType
 from ..models import Aliquot
+from ..identifiers import AliquotIdentifier
 
 
 @tag('primary')
@@ -16,7 +17,8 @@ class TestPrimaryAliquot(TestCase):
             aliquot_model=Aliquot,
             aliquot_type=aliquot_type,
             length=16,
-            count_padding=2)
+            count_padding=2,
+            aliquot_identifier_cls=AliquotIdentifier)
         self.assertTrue(p.object)
 
     def test_primary_aliquot_exists(self):
@@ -30,11 +32,13 @@ class TestPrimaryAliquot(TestCase):
             aliquot_model=Aliquot,
             aliquot_type=aliquot_type,
             length=16,
-            count_padding=2)
+            count_padding=2,
+            aliquot_identifier_cls=AliquotIdentifier)
         obj = primary_aliquot.object
         p = PrimaryAliquot(
             identifier_prefix=obj.identifier_prefix,
-            aliquot_model=Aliquot)
+            aliquot_model=Aliquot,
+            aliquot_identifier_cls=AliquotIdentifier)
         self.assertEqual(obj.aliquot_identifier, p.object.aliquot_identifier)
 
     def test_primary_aliquot_exists2(self):
@@ -48,11 +52,13 @@ class TestPrimaryAliquot(TestCase):
             aliquot_model=Aliquot,
             aliquot_type=aliquot_type,
             length=16,
-            count_padding=2)
+            count_padding=2,
+            aliquot_identifier_cls=AliquotIdentifier)
         obj = primary_aliquot.object
         p = PrimaryAliquot(
             requisition_identifier=obj.requisition_identifier,
-            aliquot_model=Aliquot)
+            aliquot_model=Aliquot,
+            aliquot_identifier_cls=AliquotIdentifier)
         self.assertEqual(obj.aliquot_identifier, p.object.aliquot_identifier)
 
     def test_str(self):
@@ -64,5 +70,6 @@ class TestPrimaryAliquot(TestCase):
             aliquot_model=Aliquot,
             aliquot_type=aliquot_type,
             length=16,
-            count_padding=2)
+            count_padding=2,
+            aliquot_identifier_cls=AliquotIdentifier)
         self.assertTrue(str(primary_aliquot))
