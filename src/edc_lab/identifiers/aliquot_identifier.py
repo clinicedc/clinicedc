@@ -7,16 +7,6 @@ class AliquotIdentifierCountError(Exception):
     pass
 
 
-def parent_segment(aliquot_identifier=None):
-    if not aliquot_identifier:
-        return '0000'
-    return aliquot_identifier[-8:-4]
-
-
-def child_segment(aliquot_identifier):
-    return aliquot_identifier[-4:]
-
-
 class AliquotIdentifier:
 
     template = '{identifier_prefix}{parent_segment}{numeric_code}{count}'
