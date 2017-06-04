@@ -4,10 +4,17 @@ from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel
 from ..lab import PanelAlreadyRegistered, ProcessingProfileInvalidDerivative
 from ..lab import RequisitionPanelError, Process, InvalidProcessingProfile, RequisitionModelError
 from .models import SubjectRequisition
+from tkinter.constants import NUMERIC
 
 
 @tag('profile')
 class TestBuildProfile(TestCase):
+
+    def setUp(self):
+        self.wb = AliquotType(
+            name='whole_blood', numeric_code='02', alpha_code='WB')
+        self.bc = AliquotType(
+            name='buffy_coat', numeric_code='12', alpha_code='BC')
 
     def test_repr(self):
         obj = LabProfile(name='profile')
@@ -20,25 +27,21 @@ class TestBuildProfile(TestCase):
     def test_aliquot_derivatives_single(self):
         """Asserts can add a derivative.
         """
-        wb = AliquotType(name='whole_blood')
-        bc = AliquotType(name='buffy_coat')
-        wb.add_derivatives(bc)
-        self.assertEqual(wb.derivatives, [bc])
+        self.wb.add_derivatives(self.bc)
+        self.assertEqual(self.wb.derivatives, [self.bc])
 
     def test_aliquot_derivatives_multi(self):
         """Asserts can add more than one derivative.
         """
-        wb = AliquotType(name='whole_blood')
-        bc = AliquotType(name='buffy_coat')
-        pl = AliquotType(name='plasma')
-        wb.add_derivatives(bc, pl)
-        self.assertEqual(wb.derivatives, [bc, pl])
+        pl = AliquotType(name='plasma', numeric_code='32', alpha_code='PL')
+        self.wb.add_derivatives(self.bc, pl)
+        self.assertEqual(self.wb.derivatives, [self.bc, pl])
 
     def test_processing_bad(self):
         """Asserts CANNOT add process for aliquot B to a profile
         for aliquot A if B cannot be derived from A."""
-        a = AliquotType(name='aliquot_a')
-        b = AliquotType(name='aliquot_b')
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
+        b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(
             name='process', aliquot_type=a)
@@ -49,8 +52,8 @@ class TestBuildProfile(TestCase):
     def test_processing_ok(self):
         """Asserts CAN add process for aliquot B to a profile
         for aliquot A since B can be derived from A."""
-        a = AliquotType(name='aliquot_a')
-        b = AliquotType(name='aliquot_b')
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
+        b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
         a.add_derivatives(b)
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(
@@ -61,8 +64,7 @@ class TestBuildProfile(TestCase):
             self.fail('ProcessingProfileInvalidDerivative unexpectedly raised.')
 
     def test_panel(self):
-        aliquot_type = AliquotType(name='buffy_coat')
-        RequisitionPanel(name='Viral Load', aliquot_type=aliquot_type)
+        RequisitionPanel(name='Viral Load', aliquot_type=self.bc)
 
     def test_panel_raises_missing_aliquot_type(self):
         self.assertRaises(
@@ -73,7 +75,7 @@ class TestBuildProfile(TestCase):
             model='edc_lab.subjectrequisition')
 
     def test_panel_raises_on_invalid_model(self):
-        a = AliquotType(name='aliquot_a')
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
         for model in [None, 'edc_lab.blah', 'blah']:
             with self.subTest(model=model):
                 req = RequisitionPanel(
@@ -88,7 +90,7 @@ class TestBuildProfile(TestCase):
                     self.fail('RequisitionModelError unexpectedly not raised.')
 
     def test_panel_accepts_model_as_a_class(self):
-        a = AliquotType(name='aliquot_a')
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
         try:
             RequisitionPanel(
                 name='Viral Load',
@@ -98,8 +100,8 @@ class TestBuildProfile(TestCase):
             self.fail('RequisitionModelError unexpectedly raised.')
 
     def test_panel_adds_processing_profile(self):
-        a = AliquotType(name='aliquot_a')
-        b = AliquotType(name='aliquot_b')
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
+        b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
         a.add_derivatives(b)
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(
@@ -115,9 +117,9 @@ class TestBuildProfile(TestCase):
         """Asserts CANNOT add processing profile for aliquot type B
         to panel for aliquot type C.
         """
-        a = AliquotType(name='aliquot_a')
-        b = AliquotType(name='aliquot_b')
-        c = AliquotType(name='aliquot_c')
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
+        b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
+        c = AliquotType(name='aliquot_c', numeric_code='77', alpha_code='CC')
         a.add_derivatives(b)
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(
@@ -132,8 +134,8 @@ class TestBuildProfile(TestCase):
             model='edc_lab.subjectrequisition')
 
     def test_add_processesing(self):
-        a = AliquotType(name='aliquot_a')
-        b = AliquotType(name='aliquot_b')
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
+        b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
         a.add_derivatives(b)
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(
@@ -150,8 +152,8 @@ class TestBuildProfile(TestCase):
         lab_profile.add_panel(panel=panel)
 
     def test_add_panel(self):
-        a = AliquotType(name='aliquot_a')
-        b = AliquotType(name='aliquot_b')
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
+        b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
         a.add_derivatives(b)
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(

@@ -44,7 +44,7 @@ class ProcessingProfile:
         self.verbose_name = verbose_name or ' '.join(name.split('_')).title()
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.name}, {self.alpha_code})'
+        return f'{self.__class__.__name__}({self.name}, {self.aliquot_type})'
 
     def __str__(self):
         return f'Processing profile {self.verbose_name}'

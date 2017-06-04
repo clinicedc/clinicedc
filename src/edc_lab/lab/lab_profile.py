@@ -39,6 +39,8 @@ class LabProfile:
             raise LabProfileRequisitionModelError(e) from e
 
     def add_panel(self, panel=None):
+        """Adds a panel instance to the profile.
+        """
         if panel.model != self.requisition_model:
             raise LabProfileRequisitionModelError(
                 f'Invalid requisition model when adding panel {panel} '

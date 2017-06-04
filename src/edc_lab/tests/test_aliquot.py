@@ -1,7 +1,7 @@
 from django.db.utils import IntegrityError
 from django.test import TestCase, tag
 
-from ..lab import AliquotWrapper
+from ..lab import AliquotCreator, AliquotCreatorError, AliquotType
 from ..models import Aliquot
 
 
@@ -14,17 +14,10 @@ class TestAliquot(TestCase):
             IntegrityError,
             aliquot=Aliquot.objects.create, count=0)
 
+    def test_create_aliquot(self):
+        self.assertRaises(AliquotCreatorError, AliquotCreator)
 
-@tag('aliquot')
-class TestAliquotObject(TestCase):
-
-    def test_aliquot(self):
-        aliquot = Aliquot.objects.create(aliquot_identifier='1111111', count=0)
-        aliquot_obj = AliquotWrapper(model_obj=aliquot)
-        self.assertEqual(aliquot_obj.children.all().count(), 0)
-        self.assertEqual(aliquot_obj.aliquot_identifier, '1111111')
-
-#     def test_create(self):
-#         aliquot = Aliquot.objects.create(aliquot_identifier='1111111', count=0)
-#         aliquot_obj = AliquotObject(model_obj=aliquot)
-#         aliquot_obj.create_aliquots(process, numeric_code, aliquot_count)
+    def test_aliquot_type_repr(self):
+        aliquot_type = AliquotType(
+            name='aliquot', numeric_code='00', alpha_code='AA')
+        self.assertTrue(repr(aliquot_type))

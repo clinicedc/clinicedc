@@ -1,7 +1,5 @@
 from django.db.models import Q
 
-from ..identifiers import AliquotIdentifierLengthError
-
 
 class PrimaryAliquotError(Exception):
     pass
@@ -18,13 +16,14 @@ class PrimaryAliquot:
 
     def __init__(self, subject_identifier=None, requisition_identifier=None,
                  identifier_prefix=None, aliquot_type=None,
-                 aliquot_model=None, aliquot_identifier_cls=None, **kwargs):
+                 aliquot_model=None, aliquot_creator_cls=None,
+                 aliquot_identifier_cls=None, **kwargs):
         self.aliquot_type = aliquot_type
         self.aliquot_model = aliquot_model
         self.requisition_identifier = requisition_identifier
         self.subject_identifier = subject_identifier
         self.identifier_prefix = identifier_prefix
-        self.aliquot_identifier_cls = aliquot_identifier_cls
+        self.subject_identifier = subject_identifier
 
         try:
             model_obj = self.aliquot_model.objects.get(
@@ -33,7 +32,16 @@ class PrimaryAliquot:
                 is_primary=True)
             self.identifier = model_obj.aliquot_identifier
         except self.aliquot_model.DoesNotExist:
-            model_obj = self.create_primary(**kwargs)
+            options = dict(
+                aliquot_identifier_cls=aliquot_identifier_cls,
+                aliquot_model=aliquot_model,
+                identifier_prefix=self.identifier_prefix,
+                is_primary=True,
+                requisition_identifier=self.requisition_identifier,
+                subject_identifier=self.subject_identifier,
+                **kwargs)
+            aliquot_creator = aliquot_creator_cls(**options)
+            model_obj = aliquot_creator.create(aliquot_type=self.aliquot_type)
             self.identifier = model_obj.aliquot_identifier
         self.object = model_obj
 
@@ -41,22 +49,3 @@ class PrimaryAliquot:
 
     def __str__(self):
         return self.object.aliquot_identifier
-
-    def create_primary(self, **kwargs):
-        try:
-            aliquot_identifier_obj = self.aliquot_identifier_cls(
-                numeric_code=self.aliquot_type.numeric_code,
-                prefix=self.identifier_prefix, **kwargs)
-        except AliquotIdentifierLengthError as e:
-            raise PrimaryAliquotError(e) from e
-        options = dict(
-            identifier_prefix=self.identifier_prefix,
-            aliquot_type=self.aliquot_type.name,
-            numeric_code=self.aliquot_type.numeric_code,
-            alpha_code=self.aliquot_type.alpha_code,
-            aliquot_identifier=str(aliquot_identifier_obj),
-            subject_identifier=self.subject_identifier,
-            requisition_identifier=self.requisition_identifier,
-            count=0,
-            is_primary=True)
-        return self.aliquot_model.objects.create(**options)

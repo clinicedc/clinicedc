@@ -1,17 +1,30 @@
+import re
+
+
+class AliquotTypeError(Exception):
+    pass
+
 
 class AliquotType:
 
     """A class to represent an aliquot type by an alpha and
     numeric code.
 
-    An aliquot type manages a list of valid derivatives.
+    An aliquot type manages a list of valid derivatives for the
+    aliquot type, e.g. WB->Plasma, WB->Buffy Coat.
     """
 
     def __init__(self, name=None, alpha_code=None, numeric_code=None):
         self.derivatives = []
         self.name = name
-        self.alpha_code = alpha_code
-        self.numeric_code = numeric_code
+        if not alpha_code or not re.match('^[A-Z]+$', alpha_code, re.ASCII):
+            raise AliquotTypeError(f'Invalid alpha code. Got {alpha_code}.')
+        else:
+            self.alpha_code = alpha_code
+        if not numeric_code or not re.match('^\d+$', numeric_code, re.ASCII):
+            raise AliquotTypeError(f'Invalid numeric code. Got {numeric_code}.')
+        else:
+            self.numeric_code = numeric_code
 
     def __repr__(self):
         return '{self.__class__.__name__}({self.name}, {self.alpha_code}, {self.numeric_code})'
@@ -22,4 +35,7 @@ class AliquotType:
         return f'{self.name.title()} ({alpha_code}:{numeric_code})'
 
     def add_derivatives(self, *aliquot_type):
+        """Adds an aliquot instance that is a valid
+        derivative of self.
+        """
         self.derivatives.extend(aliquot_type)

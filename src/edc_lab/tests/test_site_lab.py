@@ -5,9 +5,10 @@ from django.test import TestCase, tag
 from edc_constants.constants import YES, NO
 
 from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel
-from ..lab import Process
+from ..lab import Process, ProcessingProfileAlreadyAdded
 from ..site_labs import SiteLabs, site_labs
 from .models import SubjectRequisition, SubjectVisit
+from edc_lab.tests.test_specimens import TestMixin
 
 
 @tag('site')
@@ -32,42 +33,30 @@ class TestSiteLab(TestCase):
 
 
 @tag('site')
-class TestSiteLab2(TestCase):
+class TestSiteLab2(TestMixin, TestCase):
 
     def setUp(self):
-        site_labs._registry = {}
-
-        # create aliquots and their relationship
-        a = AliquotType(name='aliquot_a')
-        b = AliquotType(name='aliquot_b')
-        a.add_derivatives(b)
-
-        # set up processes
-        process = Process(aliquot_type=b, aliquot_count=3)
-        processing_profile = ProcessingProfile(
-            name='process', aliquot_type=a)
-        processing_profile.add_processes(process)
-
-        # create a panel
-        self.panel = RequisitionPanel(
-            name='panel',
-            model=SubjectRequisition,
-            aliquot_type=a,
-            processing_profile=processing_profile)
-
-        # lab profile
-        self.lab_profile = LabProfile(
-            name='lab_profile',
-            requisition_model=SubjectRequisition)
-        self.lab_profile.add_panel(self.panel)
-
-        # register with site
-        site_labs.register(self.lab_profile)
+        self.setup_site_labs()
 
     def test_site_lab_panels(self):
         self.assertIn(
             self.panel.name,
             site_labs.get(self.lab_profile.name).panels)
+
+    def test_panel_repr(self):
+        self.assertTrue(repr(self.panel))
+
+    def test_assert_cannot_add_duplicate_process(self):
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
+        b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
+        a.add_derivatives(b)
+        process = Process(aliquot_type=b, aliquot_count=3)
+        processing_profile = ProcessingProfile(
+            name='process', aliquot_type=a)
+        processing_profile.add_processes(process)
+        self.assertRaises(
+            ProcessingProfileAlreadyAdded,
+            processing_profile.add_processes, process)
 
     def test_requisition_specimen(self):
         """Asserts can create a requisition.
@@ -100,18 +89,18 @@ class TestSiteLab2(TestCase):
         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
         self.assertFalse(pattern.match(requisition.requisition_identifier))
 
-    def test_requisition_identifier4(self):
-        """Asserts requisition identifier is CLEARED if specimen
-        changed to not drawn."""
-        subject_visit = SubjectVisit.objects.create()
-        requisition = SubjectRequisition.objects.create(
-            subject_visit=subject_visit,
-            panel_name=self.panel.name,
-            is_drawn=YES)
-        requisition.is_drawn = NO
-        requisition.save()
-        pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
-        self.assertFalse(pattern.match(requisition.requisition_identifier))
+#     def test_requisition_identifier4(self):
+#         """Asserts requisition identifier is CLEARED if specimen
+#         changed to not drawn."""
+#         subject_visit = SubjectVisit.objects.create()
+#         requisition = SubjectRequisition.objects.create(
+#             subject_visit=subject_visit,
+#             panel_name=self.panel.name,
+#             is_drawn=YES)
+#         requisition.is_drawn = NO
+#         requisition.save()
+#         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
+#         self.assertFalse(pattern.match(requisition.requisition_identifier))
 
     def test_requisition_identifier5(self):
         """Asserts requisition identifier is set if specimen changed to drawn."""

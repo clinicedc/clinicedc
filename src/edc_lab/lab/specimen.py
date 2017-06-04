@@ -2,11 +2,10 @@ from django.apps import apps as django_apps
 
 from edc_constants.constants import YES
 
-from ..identifiers import Prefix
-from .aliquot_wrapper import AliquotWrapper
+from ..identifiers import Prefix, AliquotIdentifier
+from .specimen_processor import SpecimenProcessor
 from .primary_aliquot import PrimaryAliquot
-from edc_lab.identifiers.aliquot_identifier import AliquotIdentifier
-from edc_lab.lab.aliquot_type import AliquotType
+from .aliquot_creator import AliquotCreator
 
 
 class SpecimenNotDrawnError(Exception):
@@ -22,9 +21,9 @@ class Specimen:
 
     """
 
-    aliquot_wrapper = AliquotWrapper
-
+    aliquot_creator_cls = AliquotCreator
     aliquot_identifier_cls = AliquotIdentifier
+    specimen_processor_cls = SpecimenProcessor
 
     primary_aliquot_cls = PrimaryAliquot
     identifier_length = 18
@@ -57,15 +56,42 @@ class Specimen:
 
         if not self.requisition.identifier_prefix:
             self.requisition.identifier_prefix = self.primary_aliquot.identifier_prefix
-            self.requisition.primary_aliquot_identifier = self.primary_aliquot.identifier
+            self.requisition.primary_aliquot_identifier = self.primary_aliquot.aliquot_identifier
             self.requisition.save()
 
-        self.aliquots = [self.aliquot_wrapper(obj) for obj in self.aliquot_model.objects.filter(
-            identifier_prefix=self.identifier_prefix)]
+    @property
+    def primary_aliquot(self):
+        """Returns a primary aliquot model instance after
+        getting or creating one.
+        """
+        options = dict(
+            aliquot_identifier_cls=self.aliquot_identifier_cls,
+            aliquot_creator_cls=self.aliquot_creator_cls,
+            aliquot_model=self.aliquot_model,
+            aliquot_type=self.aliquot_type,
+            count_padding=self.count_padding,
+            identifier_prefix=self.identifier_prefix,
+            identifier_length=self.identifier_length,
+            requisition_identifier=self.requisition.requisition_identifier)
+        primary_aliquot_obj = self.primary_aliquot_cls(**options)
+        return primary_aliquot_obj.object
+
+    def process(self):
+        specimen_processor = self.specimen_processor_cls(
+            aliquot_identifier_cls=self.aliquot_identifier_cls,
+            aliquot_creator_cls=self.aliquot_creator_cls,
+            count_padding=self.count_padding,
+            identifier_length=self.identifier_length,
+            identifier_prefix=self.identifier_prefix,
+            model_obj=self.primary_aliquot,
+            processing_profile=self.requisition.panel_object.processing_profile,
+        )
+        return specimen_processor.create()
 
     @property
-    def aliquot_count(self):
-        return len(self.aliquots)
+    def aliquots(self):
+        return self.aliquot_model.objects.filter(
+            identifier_prefix=self.identifier_prefix)
 
     @property
     def identifier_prefix(self):
@@ -73,21 +99,9 @@ class Specimen:
         requisition_identifier.
         """
         prefix_obj = self.prefix_cls(
-            template=self.prefix_template,
             length=self.prefix_length,
             protocol_number=self.requisition.protocol_number,
-            requisition_identifier=self.requisition.requisition_identifier)
+            requisition_identifier=self.requisition.requisition_identifier,
+            template=self.prefix_template,
+        )
         return str(prefix_obj)
-
-    @property
-    def primary_aliquot(self):
-        """Returns a primary aliquot object after getting or creating
-        the primary aliquot model instance.
-        """
-        return self.primary_aliquot_cls(
-            aliquot_model=self.aliquot_model,
-            aliquot_type=self.aliquot_type,
-            identifier_prefix=self.identifier_prefix,
-            count_padding=self.count_padding,
-            length=self.identifier_length,
-            aliquot_identifier_cls=AliquotIdentifier)
