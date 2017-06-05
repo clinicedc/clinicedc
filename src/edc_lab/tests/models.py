@@ -1,11 +1,13 @@
-from edc_base.utils import get_utcnow
 __all__ = ['SubjectVisit', 'SubjectRequisition']
 
 from django.db import models
 
 from edc_base.model_mixins import BaseUuidModel
+from edc_base.utils import get_utcnow
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_lab.model_mixins.requisition import RequisitionModelMixin, RequisitionStatusMixin, RequisitionIdentifierMixin
+from edc_lab.model_mixins.requisition import RequisitionModelMixin
+from edc_lab.model_mixins.requisition import RequisitionStatusMixin
+from edc_lab.model_mixins.requisition import RequisitionIdentifierMixin
 
 
 class SubjectVisit(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):

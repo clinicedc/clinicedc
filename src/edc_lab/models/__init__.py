@@ -8,4 +8,4 @@ from .manifest import Manifest, ManifestItem, Shipper, Consignee
 import sys
 
 if 'test' in sys.argv:
-    from ..tests.models import *
+    from ..tests.models import SubjectVisit, SubjectRequisition
