@@ -7,27 +7,26 @@ from edc_model_wrapper import ModelWrapper
 
 class AppointmentModelWrapper(ModelWrapper):
 
-    model = django_apps.get_app_config(
-        'edc_appointment').model._meta.label_lower
+    visit_model_wrapper_cls = None
 
-    def add_extra_attributes_after(self):
-        super().add_extra_attributes_after()
-        self.get_appt_status_display = self.wrapped_object.get_appt_status_display
+    model = django_apps.get_app_config('edc_appointment').model
+
+    def get_appt_status_display(self):
+        return self.object.get_appt_status_display()
 
     @property
     def title(self):
-        return self.wrapped_object.title
+        return self.object.title
 
     @property
     def visit(self):
         """Returns a wrapped persistent or non-persistent visit instance."""
         try:
-            return self.visit_model_wrapper_class(self.object.subjectvisit)
+            return self.visit_model_wrapper_cls(model_obj=self.object.subjectvisit)
         except ObjectDoesNotExist:
-            visit_model = django_apps.get_model(
-                *self.visit_model_wrapper_class.model_name.split('.'))
-            return self.visit_model_wrapper_class(
-                visit_model(appointment=self.object))
+            visit_model = self.visit_model_wrapper_cls.model
+            return self.visit_model_wrapper_cls(
+                model_obj=visit_model.objects.get(appointment=self.object))
 
     @property
     def forms_url(self):
@@ -36,5 +35,5 @@ class AppointmentModelWrapper(ModelWrapper):
         This is standard for edc_dashboard"""
         kwargs = dict(
             subject_identifier=self.subject_identifier,
-            appointment=self.wrapped_object.id)
+            appointment=self.object.id)
         return reverse(self.dashboard_url_name, kwargs=kwargs)

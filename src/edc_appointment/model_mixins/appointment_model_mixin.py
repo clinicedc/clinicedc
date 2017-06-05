@@ -183,7 +183,7 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
         """Returns the next appointment or None in this schedule.
         """
         next_appt = None
-        next_visit = self.schedule.get_next_visit(self.visit_code)
+        next_visit = self.schedule.visits.next(self.visit_code)
         if next_visit:
             try:
                 options = dict(
