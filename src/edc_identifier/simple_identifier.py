@@ -2,8 +2,6 @@ import random
 
 from django.apps import apps as django_apps
 
-edc_device_app_config = django_apps.get_app_config('edc_device')
-
 
 class DuplicateIdentifierError(Exception):
     pass
@@ -17,6 +15,7 @@ class SimpleIdentifier:
     template = '{device_id}{random_string}'
 
     def __init__(self, model=None, identifier_type=None):
+        edc_device_app_config = django_apps.get_app_config('edc_device')
         self.model = model or self.model
         device_id = edc_device_app_config.device_id
         self.identifier = self.template.format(
@@ -50,6 +49,7 @@ class SimpleUniqueIdentifier:
     template = '{device_id}{random_string}'
 
     def __init__(self, model=None, identifier_type=None):
+        edc_device_app_config = django_apps.get_app_config('edc_device')
         self._simple_identifier = SimpleIdentifier()
         self.model = model or self.model
         self.identifier_type = identifier_type or self.identifier_type

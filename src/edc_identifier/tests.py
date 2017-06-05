@@ -1,11 +1,8 @@
-import re
-
 from faker import Faker
 
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 
-from edc_base_test.faker import EdcBaseProvider
 from edc_protocol.exceptions import SubjectTypeCapError
 
 from .alphanumeric_identifier import AlphanumericIdentifier
@@ -21,7 +18,6 @@ from .maternal_identifier import MaternalIdentifier
 
 
 fake = Faker()
-fake.add_provider(EdcBaseProvider)
 
 
 class TestIdentifierError(Exception):
@@ -42,7 +38,8 @@ class TestMaternalIdentifier(TestCase):
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
 
     def test_creates_registered_subject(self):
-        RegisteredSubject = django_apps.get_app_config('edc_registration').model
+        RegisteredSubject = django_apps.get_app_config(
+            'edc_registration').model
         MaternalIdentifier(
             subject_type_name='subject',
             model='edc_example.enrollment',
@@ -57,7 +54,8 @@ class TestMaternalIdentifier(TestCase):
             self.fail('RegisteredSubject.DoesNotExist unexpectedly raised')
 
     def test_creates_registered_subject_attrs(self):
-        RegisteredSubject = django_apps.get_app_config('edc_registration').model
+        RegisteredSubject = django_apps.get_app_config(
+            'edc_registration').model
         MaternalIdentifier(
             subject_type_name='subject',
             model='edc_example.enrollment',
@@ -66,7 +64,8 @@ class TestMaternalIdentifier(TestCase):
             study_site='40',
             last_name=fake.last_name(),
             create_registration=True)
-        obj = RegisteredSubject.objects.get(subject_identifier='000-40990001-6')
+        obj = RegisteredSubject.objects.get(
+            subject_identifier='000-40990001-6')
         self.assertEqual(obj.study_site, '40')
         self.assertEqual(obj.subject_type, 'subject')
         self.assertIsNotNone(obj.last_name)
@@ -86,7 +85,8 @@ class TestInfantIdentifier(TestCase):
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier.deliver(1, model='edc_example.maternallabdel')
-        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-10')
+        self.assertEqual(
+            maternal_identifier.infants[0].identifier, '000-40990001-6-10')
 
     def test_create_twins(self):
         maternal_identifier = MaternalIdentifier(
@@ -99,8 +99,10 @@ class TestInfantIdentifier(TestCase):
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier.deliver(2, model='edc_example.maternallabdel')
-        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-25')
-        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-26')
+        self.assertEqual(
+            maternal_identifier.infants[0].identifier, '000-40990001-6-25')
+        self.assertEqual(
+            maternal_identifier.infants[1].identifier, '000-40990001-6-26')
 
     def test_create_triplets(self):
         maternal_identifier = MaternalIdentifier(
@@ -113,9 +115,12 @@ class TestInfantIdentifier(TestCase):
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier.deliver(3, model='edc_example.maternallabdel')
-        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
-        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-37')
-        self.assertEqual(maternal_identifier.infants[2].identifier, '000-40990001-6-38')
+        self.assertEqual(
+            maternal_identifier.infants[0].identifier, '000-40990001-6-36')
+        self.assertEqual(
+            maternal_identifier.infants[1].identifier, '000-40990001-6-37')
+        self.assertEqual(
+            maternal_identifier.infants[2].identifier, '000-40990001-6-38')
 
     def test_create_triplets_only_registered_2nd_born_as_list(self):
         maternal_identifier = MaternalIdentifier(
@@ -127,9 +132,11 @@ class TestInfantIdentifier(TestCase):
             last_name=fake.last_name(),
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders=[2])
+        maternal_identifier.deliver(
+            3, model='edc_example.maternallabdel', birth_orders=[2])
         self.assertEqual(maternal_identifier.infants[0].identifier, None)
-        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-37')
+        self.assertEqual(
+            maternal_identifier.infants[1].identifier, '000-40990001-6-37')
         self.assertEqual(maternal_identifier.infants[2].identifier, None)
         self.assertEqual(len(maternal_identifier.infants), 3)
 
@@ -143,9 +150,11 @@ class TestInfantIdentifier(TestCase):
             last_name=fake.last_name(),
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders='2')
+        maternal_identifier.deliver(
+            3, model='edc_example.maternallabdel', birth_orders='2')
         self.assertEqual(maternal_identifier.infants[0].identifier, None)
-        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-37')
+        self.assertEqual(
+            maternal_identifier.infants[1].identifier, '000-40990001-6-37')
         self.assertEqual(maternal_identifier.infants[2].identifier, None)
         self.assertEqual(len(maternal_identifier.infants), 3)
 
@@ -159,8 +168,10 @@ class TestInfantIdentifier(TestCase):
             last_name=fake.last_name(),
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders='1')
-        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
+        maternal_identifier.deliver(
+            3, model='edc_example.maternallabdel', birth_orders='1')
+        self.assertEqual(
+            maternal_identifier.infants[0].identifier, '000-40990001-6-36')
         self.assertEqual(maternal_identifier.infants[1].identifier, None)
         self.assertEqual(maternal_identifier.infants[2].identifier, None)
         self.assertEqual(len(maternal_identifier.infants), 3)
@@ -175,10 +186,14 @@ class TestInfantIdentifier(TestCase):
             last_name=fake.last_name(),
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders='1,2,3')
-        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
-        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-37')
-        self.assertEqual(maternal_identifier.infants[2].identifier, '000-40990001-6-38')
+        maternal_identifier.deliver(
+            3, model='edc_example.maternallabdel', birth_orders='1,2,3')
+        self.assertEqual(
+            maternal_identifier.infants[0].identifier, '000-40990001-6-36')
+        self.assertEqual(
+            maternal_identifier.infants[1].identifier, '000-40990001-6-37')
+        self.assertEqual(
+            maternal_identifier.infants[2].identifier, '000-40990001-6-38')
         self.assertEqual(len(maternal_identifier.infants), 3)
 
     def test_create_triplets_only_registered_all_by_default(self):
@@ -191,10 +206,14 @@ class TestInfantIdentifier(TestCase):
             last_name=fake.last_name(),
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(3, model='edc_example.maternallabdel', birth_orders=None)
-        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-36')
-        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-37')
-        self.assertEqual(maternal_identifier.infants[2].identifier, '000-40990001-6-38')
+        maternal_identifier.deliver(
+            3, model='edc_example.maternallabdel', birth_orders=None)
+        self.assertEqual(
+            maternal_identifier.infants[0].identifier, '000-40990001-6-36')
+        self.assertEqual(
+            maternal_identifier.infants[1].identifier, '000-40990001-6-37')
+        self.assertEqual(
+            maternal_identifier.infants[2].identifier, '000-40990001-6-38')
         self.assertEqual(len(maternal_identifier.infants), 3)
 
     def test_update_identifiermodel(self):
@@ -207,7 +226,8 @@ class TestInfantIdentifier(TestCase):
             create_registration=True)
         maternal_identifier.deliver(3, model='edc_example.maternallabdel')
         self.assertEqual(len(maternal_identifier.infants), 3)
-        self.assertEqual(IdentifierModel.objects.filter(name='infantidentifier').count(), 3)
+        self.assertEqual(IdentifierModel.objects.filter(
+            name='infantidentifier').count(), 3)
         self.assertEqual(
             IdentifierModel.objects.filter(
                 subject_type='infant',
@@ -227,7 +247,8 @@ class TestInfantIdentifier(TestCase):
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
         maternal_identifier.deliver(1, model='edc_example.maternallabdel')
-        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-10')
+        self.assertEqual(
+            maternal_identifier.infants[0].identifier, '000-40990001-6-10')
 
     def test_load_maternal_identifier_and_twins(self):
         maternal_identifier = MaternalIdentifier(
@@ -240,8 +261,10 @@ class TestInfantIdentifier(TestCase):
             create_registration=True)
         maternal_identifier.deliver(2, model='edc_example.maternallabdel')
         maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
-        self.assertEqual(maternal_identifier.infants[0].identifier, '000-40990001-6-25')
-        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-26')
+        self.assertEqual(
+            maternal_identifier.infants[0].identifier, '000-40990001-6-25')
+        self.assertEqual(
+            maternal_identifier.infants[1].identifier, '000-40990001-6-26')
 
     def test_load_maternal_identifier_and_twins_2nd_registered(self):
         maternal_identifier = MaternalIdentifier(
@@ -252,13 +275,16 @@ class TestInfantIdentifier(TestCase):
             study_site='40',
             last_name=fake.last_name(),
             create_registration=True)
-        maternal_identifier.deliver(2, model='edc_example.maternallabdel', birth_orders='2')
+        maternal_identifier.deliver(
+            2, model='edc_example.maternallabdel', birth_orders='2')
         maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
         self.assertEqual(maternal_identifier.infants[0].identifier, None)
-        self.assertEqual(maternal_identifier.infants[1].identifier, '000-40990001-6-26')
+        self.assertEqual(
+            maternal_identifier.infants[1].identifier, '000-40990001-6-26')
 
     def test_creates_registered_subject(self):
-        RegisteredSubject = django_apps.get_app_config('edc_registration').model
+        RegisteredSubject = django_apps.get_app_config(
+            'edc_registration').model
         maternal_identifier = MaternalIdentifier(
             subject_type_name='subject',
             model='edc_example.enrollment',
@@ -271,12 +297,14 @@ class TestInfantIdentifier(TestCase):
         maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
         maternal_identifier.deliver(1, model='edc_example.maternallabdel')
         try:
-            RegisteredSubject.objects.get(subject_identifier='000-40990001-6-10')
+            RegisteredSubject.objects.get(
+                subject_identifier='000-40990001-6-10')
         except RegisteredSubject.DoesNotExist:
             self.fail('RegisteredSubject.DoesNotExist unexpectedly raised')
 
     def test_does_not_create_registered_subject(self):
-        RegisteredSubject = django_apps.get_app_config('edc_registration').model
+        RegisteredSubject = django_apps.get_app_config(
+            'edc_registration').model
         maternal_identifier = MaternalIdentifier(
             subject_type_name='subject',
             model='edc_example.enrollment',
@@ -287,15 +315,18 @@ class TestInfantIdentifier(TestCase):
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
-        maternal_identifier.deliver(1, model='edc_example.maternallabdel', create_registration=False)
+        maternal_identifier.deliver(
+            1, model='edc_example.maternallabdel', create_registration=False)
         try:
-            RegisteredSubject.objects.get(subject_identifier='000-40990001-6-10')
+            RegisteredSubject.objects.get(
+                subject_identifier='000-40990001-6-10')
             self.fail('RegisteredSubject.DoesNotExist unexpectedly raised')
         except RegisteredSubject.DoesNotExist:
             pass
 
     def test_creates_registered_subject_with_user_created(self):
-        RegisteredSubject = django_apps.get_app_config('edc_registration').model
+        RegisteredSubject = django_apps.get_app_config(
+            'edc_registration').model
         maternal_identifier = MaternalIdentifier(
             subject_type_name='subject',
             model='edc_example.enrollment',
@@ -306,8 +337,10 @@ class TestInfantIdentifier(TestCase):
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
         maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
-        maternal_identifier.deliver(1, model='edc_example.maternallabdel', create_registration=True)
-        obj = RegisteredSubject.objects.get(subject_identifier='000-40990001-6-10')
+        maternal_identifier.deliver(
+            1, model='edc_example.maternallabdel', create_registration=True)
+        obj = RegisteredSubject.objects.get(
+            subject_identifier='000-40990001-6-10')
         self.assertIsNotNone(obj.user_created)
 
 
@@ -348,7 +381,8 @@ class TestSubjectIdentifier(TestCase):
                 model=model_name,
                 study_site=study_site,
                 padding=padding)
-            self.assertEqual(subject_identifier.identifier[8:12], '000' + str(i))
+            self.assertEqual(
+                subject_identifier.identifier[8:12], '000' + str(i))
 
     def test_create_missing_args(self):
         """Asserts raises exception for missing subject_type_name."""
@@ -430,7 +464,8 @@ class TestSubjectIdentifier(TestCase):
                 protocol='000',
                 device_id='99',
                 study_site='40')
-        self.assertEqual(IdentifierModel.objects.filter(model='edc_example.enrollmentthree').count(), 5)
+        self.assertEqual(IdentifierModel.objects.filter(
+            model='edc_example.enrollmentthree').count(), 5)
         self.assertRaises(
             SubjectTypeCapError,
             SubjectIdentifier,
@@ -499,14 +534,16 @@ class TestIdentifier(TestCase):
     def test_short_identifier(self):
         ShortIdentifier.prefix_pattern = '^[0-9]{2}$'
         short_identifier = ShortIdentifier(options=dict(prefix=22))
-        expected_identifier = '{}{}'.format('22', short_identifier.options.get('random_string'))
+        expected_identifier = '{}{}'.format(
+            '22', short_identifier.options.get('random_string'))
         self.assertEqual(short_identifier.identifier, expected_identifier)
         self.assertIsInstance(
             IdentifierHistory.objects.get(identifier=expected_identifier),
             IdentifierHistory
         )
         self.assertIsInstance(
-            IdentifierHistory.objects.get(identifier=short_identifier.identifier),
+            IdentifierHistory.objects.get(
+                identifier=short_identifier.identifier),
             IdentifierHistory
         )
         self.assertIsNotNone(short_identifier.identifier)
@@ -520,7 +557,8 @@ class TestIdentifier(TestCase):
             identifier_type=ShortIdentifier.name,
             identifier_prefix='22')
         short_identifier = ShortIdentifier(options={'prefix': 22})
-        expected_identifier = '{}{}'.format('22', short_identifier.options.get('random_string'))
+        expected_identifier = '{}{}'.format(
+            '22', short_identifier.options.get('random_string'))
         self.assertEqual(short_identifier.identifier, expected_identifier)
         self.assertNotEqual(short_identifier.identifier, '22KVTB4')
         self.assertIsInstance(
@@ -528,7 +566,8 @@ class TestIdentifier(TestCase):
             IdentifierHistory
         )
         self.assertIsInstance(
-            IdentifierHistory.objects.get(identifier=short_identifier.identifier),
+            IdentifierHistory.objects.get(
+                identifier=short_identifier.identifier),
             IdentifierHistory
         )
         self.assertIsNotNone(short_identifier.identifier)
@@ -695,13 +734,15 @@ class TestIdentifier(TestCase):
 
         instance = DummyIdentifierWithCheckDigit()
         identifier_with_checkdigit = '98765-4'
-        self.assertRaises(CheckDigitError, instance.remove_checkdigit, identifier_with_checkdigit)
+        self.assertRaises(
+            CheckDigitError, instance.remove_checkdigit, identifier_with_checkdigit)
 
     def test_checkdigit(self):
         identifier = 'AAA00007'
         alpha_identifier = AlphanumericIdentifier(identifier)
         identifier_with_checkdigit = alpha_identifier.identifier
-        identifier = alpha_identifier.remove_checkdigit(identifier_with_checkdigit)
+        identifier = alpha_identifier.remove_checkdigit(
+            identifier_with_checkdigit)
         checkdigit = identifier_with_checkdigit.replace(identifier, '')
         self.assertEqual(checkdigit, '5')
         self.assertEqual(identifier_with_checkdigit, 'AAA00015')
