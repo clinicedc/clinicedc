@@ -64,5 +64,6 @@ class RequisitionPanel:
     @property
     def alpha_code(self):
         return self.aliquot_type.alpha_code
+
 # TODO: panel should have some relation to the interface, e.g. a mapping of test_code to test_code on interface
 #       for example CD4% = cd4_perc or VL = AUVL, VL = PMH

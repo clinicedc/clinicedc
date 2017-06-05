@@ -56,8 +56,10 @@ class ProcessingProfile:
             if process.aliquot_type not in self.aliquot_type.derivatives:
                 raise ProcessingProfileInvalidDerivative(
                     f'Invalid process for profile. Got \'{process}\'. '
-                    f'\'{process.aliquot_type}\' cannot be derived from \'{self.aliquot_type}\'.')
+                    f'\'{process.aliquot_type}\' cannot be derived '
+                    f'from \'{self.aliquot_type}\'.')
             if process.name in self.processes:
                 raise ProcessingProfileAlreadyAdded(
-                    f'Process {process.name} has already been added to this procesing profile.')
+                    f'Process {process.name} has already been added '
+                    f'to this procesing profile.')
             self.processes.update({process.name: process})
