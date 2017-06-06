@@ -19,7 +19,8 @@ class ManifestItemManager(SearchSlugManager, models.Manager):
 
 class ManifestItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
-    search_slug_fields = ['identifier', 'human_readable_identifier']
+    def get_search_slug_fields(self):
+        return ['identifier', 'human_readable_identifier']
 
     manifest = models.ForeignKey(Manifest, on_delete=PROTECT)
 

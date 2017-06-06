@@ -12,17 +12,13 @@ class Report:
     def __init__(self, header_line=None, **kwargs):
         self._styles = None
         self.edc_base_app_config = django_apps.get_app_config('edc_base')
-        self.edc_protocol_app_config = django_apps.get_app_config(
-            'edc_protocol')
         self.header_line = header_line or self.edc_base_app_config.institution
 
     def header_footer(self, canvas, doc):
         canvas.saveState()
         _, height = A4
 
-        header_para = Paragraph(
-            self.header_line,
-            self.styles['header'])
+        header_para = Paragraph(self.header_line, self.styles['header'])
         header_para.drawOn(canvas, doc.leftMargin, height - 15)
 
         footer_para = Paragraph(
