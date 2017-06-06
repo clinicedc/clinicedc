@@ -264,6 +264,18 @@ class ManifestReport(Report):
         story.append(
             Table([[Paragraph('MANIFEST CONTENTS', self.styles["line_label_center"])]]))
 
+        story = self.append_manifest_items_story(story)
+
+        if self.manifest.shipped and not self.manifest.printed:
+            self.manifest.printed = True
+            self.manifest.save()
+
+        doc.build(story, canvasmaker=NumberedCanvas)
+        pdf = buffer.getvalue()
+        response.write(pdf)
+        return response
+
+    def append_manifest_items_story(self, story):
         box_header = [
             Paragraph('BOX:', self.styles["line_label"]),
             Paragraph(
@@ -355,12 +367,4 @@ class ManifestReport(Report):
                     ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
                     ('BOX', (0, 0), (-1, -1), 0.25, colors.black)]))
             story.append(t1)
-
-        if self.manifest.shipped and not self.manifest.printed:
-            self.manifest.printed = True
-            self.manifest.save()
-
-        doc.build(story, canvasmaker=NumberedCanvas)
-        pdf = buffer.getvalue()
-        response.write(pdf)
-        return response
+        return story
