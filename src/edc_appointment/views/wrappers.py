@@ -26,7 +26,9 @@ class AppointmentModelWrapper(ModelWrapper):
         except ObjectDoesNotExist:
             visit_model = self.visit_model_wrapper_cls.model
             return self.visit_model_wrapper_cls(
-                model_obj=visit_model.objects.get(appointment=self.object))
+                model_obj=visit_model(
+                    appointment=self.object,
+                    subject_identifier=self.subject_identifier,))
 
     @property
     def forms_url(self):
@@ -35,5 +37,5 @@ class AppointmentModelWrapper(ModelWrapper):
         This is standard for edc_dashboard"""
         kwargs = dict(
             subject_identifier=self.subject_identifier,
-            appointment=self.object.id)
+            appointment=self.object)
         return reverse(self.dashboard_url_name, kwargs=kwargs)
