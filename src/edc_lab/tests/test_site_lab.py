@@ -2,9 +2,9 @@ import re
 
 from django.test import TestCase, tag
 
-from edc_constants.constants import YES, NO
+from edc_constants.constants import YES, NO, NOT_APPLICABLE
 
-from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel
+from ..lab import AliquotType, LabProfile, ProcessingProfile
 from ..lab import Process, ProcessingProfileAlreadyAdded
 from ..site_labs import SiteLabs, site_labs
 from .models import SubjectRequisition, SubjectVisit
@@ -85,7 +85,8 @@ class TestSiteLab2(TestMixin, TestCase):
         requisition = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
             panel_name=self.panel.name,
-            is_drawn=NO)
+            is_drawn=NO,
+            reason_not_drawn=NOT_APPLICABLE)
         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
         self.assertFalse(pattern.match(requisition.requisition_identifier))
 

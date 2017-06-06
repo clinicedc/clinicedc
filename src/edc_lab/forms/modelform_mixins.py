@@ -1,11 +1,14 @@
 from django import forms
 from django.apps import apps as django_apps
 
+from edc_base.modelform_mixins import ApplicableValidationMixin, RequiredFieldValidationMixin
 from edc_constants.constants import YES, NO
 
 
-class RequisitionFormMixin:
+class RequisitionFormMixin(ApplicableValidationMixin, RequiredFieldValidationMixin):
 
+    aliquot_model = django_apps.get_model(
+        *django_apps.get_app_config('edc_lab').aliquot_model.split('.'))
     default_item_type = 'tube'
     default_item_count = 1
     default_estimated_volume = 5.0
@@ -18,10 +21,8 @@ class RequisitionFormMixin:
             self.fields[
                 'estimated_volume'].initial = self.default_estimated_volume
         self.fields['panel_name'].widget.attrs['readonly'] = True
-        try:
+        if self.fields.get('specimen_type'):
             self.fields['specimen_type'].widget.attrs['readonly'] = True
-        except KeyError:
-            pass
 
     def clean(self):
         cleaned_data = super().clean()
@@ -31,15 +32,14 @@ class RequisitionFormMixin:
                 'packed':
                 'Value may not be changed here.'})
         elif cleaned_data.get('processed') != self.instance.processed:
-            if self.has_aliquots():
-                raise forms.ValidationError({
-                    'processed':
-                    'Value may not be changed. Aliquots exist.'})
+            if self.aliquot_model.objects.filter(
+                    requisition_identifier=self.instance.requisition_identifier).exists():
+                raise forms.ValidationError(
+                    {'processed': 'Value may not be changed. Aliquots exist.'})
         elif not cleaned_data.get('received') and self.instance.received:
             if self.instance.processed:
-                raise forms.ValidationError({
-                    'received':
-                    'Specimen has already been processed.'})
+                raise forms.ValidationError(
+                    {'received': 'Specimen has already been processed.'})
         elif cleaned_data.get('received') and not self.instance.received:
             raise forms.ValidationError({
                 'received':
@@ -61,11 +61,3 @@ class RequisitionFormMixin:
             YES, field='is_drawn', field_required='estimated_volume')
 
         return cleaned_data
-
-    def has_aliquots(self):
-        if self.instance.requisition_identifier:
-            Aliquot = django_apps.get_model(
-                *django_apps.get_app_config('edc_lab').aliquot_model.split('.'))
-            return Aliquot.objects.filter(
-                requisition_identifier=self.instance.requisition_identifier).exists()
-        return False

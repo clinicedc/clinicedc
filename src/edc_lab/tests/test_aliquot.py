@@ -1,7 +1,7 @@
 from django.db.utils import IntegrityError
 from django.test import TestCase, tag
 
-from ..lab import AliquotCreator, AliquotCreatorError, AliquotType
+from ..lab import AliquotCreator, AliquotCreatorError
 from ..models import Aliquot
 
 
