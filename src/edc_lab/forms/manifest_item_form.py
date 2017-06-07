@@ -1,8 +1,10 @@
 from django import forms
 
-from edc_base.modelform_mixins import OtherSpecifyValidationMixin
+from ..models import ManifestItem
 
 
-class ManifestItemForm(OtherSpecifyValidationMixin, forms.ModelForm):
+class ManifestItemForm(forms.ModelForm):
 
-    pass
+    class Meta:
+        fields = '__all__'
+        model = ManifestItem

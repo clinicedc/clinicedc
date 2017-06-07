@@ -1,17 +1,14 @@
 import os
 
-from io import BytesIO
-
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.platypus import (
-    SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer)
-from reportlab.graphics.barcode import code39
-from reportlab.lib.units import mm, cm
-
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.http import HttpResponse
+from io import BytesIO
+from reportlab.graphics.barcode import code39
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm, cm
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
 from .numbered_canvas import NumberedCanvas
 from .report import Report

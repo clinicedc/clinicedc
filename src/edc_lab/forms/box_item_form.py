@@ -1,8 +1,10 @@
 from django import forms
 
-from edc_base.modelform_mixins import OtherSpecifyValidationMixin
+from ..models import BoxItem
 
 
-class BoxItemForm(OtherSpecifyValidationMixin, forms.ModelForm):
+class BoxItemForm(forms.ModelForm):
 
-    pass
+    class Meta:
+        fields = '__all__'
+        model = BoxItem

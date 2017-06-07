@@ -2,15 +2,16 @@ import re
 
 from django import forms
 
-from edc_base.modelform_mixins import OtherSpecifyValidationMixin
+from edc_base.modelform_validators import FormValidator
 
 from ..models import Box
 
 
-class BoxForm(OtherSpecifyValidationMixin, forms.ModelForm):
+class BoxForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        form_validator = FormValidator(cleaned_data=cleaned_data)
         if cleaned_data.get('specimen_types'):
             pattern = '([1-9][0-9]*[ ]*,[ ]*)*[1-9][0-9]*'
             match = re.match(pattern, cleaned_data.get('specimen_types'))
@@ -30,7 +31,7 @@ class BoxForm(OtherSpecifyValidationMixin, forms.ModelForm):
                         {'specimen_types': 'List must be unique.'},
                         code='list not unique')
             cleaned_data['specimen_types'] = ','.join(specimen_types)
-        self.validate_other_specify('category')
+        form_validator.validate_other_specify('category')
         return cleaned_data
 
     class Meta:
