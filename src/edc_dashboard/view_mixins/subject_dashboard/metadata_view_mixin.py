@@ -63,7 +63,7 @@ class MetaDataViewMixin:
 
                         metadata.object = self.crf_model_wrapper_class(
                             obj, key='crf',
-                            model_name=metadata.model_class._meta.label_lower)
+                            model=metadata.model_class._meta.label_lower)
 
                 except ObjectDoesNotExist:
                     try:
@@ -77,7 +77,7 @@ class MetaDataViewMixin:
                     metadata.object = self.crf_model_wrapper_class(
                         metadata.model_class(
                             **{metadata.visit_attr_name: visit}),
-                        model_name=metadata.model_class._meta.label_lower,
+                        model=metadata.model_class._meta.label_lower,
                         key='crf')
 
                 crfs.append(metadata)
@@ -115,7 +115,7 @@ class MetaDataViewMixin:
                     else:
                         metadata.object = self.requisition_model_wrapper_class(
                             obj, key='requisition',
-                            model_name=metadata.model_class._meta.label_lower,
+                            model=metadata.model_class._meta.label_lower,
                             panel_name=metadata.panel_name)
                 except ObjectDoesNotExist:
                     try:
@@ -129,7 +129,7 @@ class MetaDataViewMixin:
                     metadata.object = self.requisition_model_wrapper_class(
                         metadata.model_class(
                             **{metadata.visit_attr_name: visit}),
-                        model_name=metadata.model_class._meta.label_lower,
+                        model=metadata.model_class._meta.label_lower,
                         key='requisition',
                         panel_name=metadata.panel_name)
 

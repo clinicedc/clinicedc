@@ -11,7 +11,6 @@ class AppointmentViewMixin:
 
     reverse_relation_visit_attr_name = 'subjectvisit'
     appointment_model_wrapper_cls = None
-    # visit_model_wrapper_cls = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
