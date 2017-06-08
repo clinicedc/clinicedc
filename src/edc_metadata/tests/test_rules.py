@@ -6,8 +6,6 @@ from model_mommy import mommy
 
 from edc_base.utils import get_utcnow
 from edc_constants.constants import MALE, FEMALE
-# from edc_example.models import (
-#     Appointment, CrfOne, CrfTwo, CrfThree, CrfFive, CrfFour, Enrollment)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import NOT_REQUIRED, REQUIRED, KEYED
@@ -19,6 +17,11 @@ from ..rules.logic import Logic
 from ..rules.predicate import P, PF
 from ..rules.rule_group import RuleGroup
 from ..rules.site_rule_groups import site_rule_groups, AlreadyRegistered
+from .models import Appointment, CrfOne, CrfTwo, CrfThree, CrfFive, CrfFour, Enrollment
+from edc_registration.models import RegisteredSubject
+from edc_metadata.tests.visit_schedule import visit_schedule
+from edc_metadata.tests.models import SubjectVisit
+from edc_visit_tracking.constants import SCHEDULED
 
 edc_registration_app_config = django_apps.get_app_config('edc_registration')
 
@@ -27,11 +30,31 @@ class MetadataRulesTests(TestCase):
 
     def setUp(self):
         django_apps.app_configs['edc_metadata'].metadata_rules_enabled = True
-        visit_schedule = site_visit_schedules.get_visit_schedule(
-            Enrollment._meta.visit_schedule_name)
-        self.schedule = visit_schedule.get_schedule(
-            Enrollment._meta.label_lower)
-        self.first_visit = self.schedule.get_first_visit()
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        site_visit_schedules.register(visit_schedule)
+        self.schedule = site_visit_schedules.get_schedule(
+            visit_schedule_name='visit_schedule',
+            schedule_name='schedule')
+        self.male_subject_identifier = '1111111'
+        RegisteredSubject.objects.create(
+            subject_identifier=self.male_subject_identifier,
+            gender=MALE)
+        self.female_subject_identifier = '2222222'
+        RegisteredSubject.objects.create(
+            subject_identifier=self.female_subject_identifier,
+            gender=FEMALE)
+        Enrollment.objects.create(
+            subject_identifier=self.male_subject_identifier)
+        Enrollment.objects.create(
+            subject_identifier=self.female_subject_identifier)
+        self.male_appointment = Appointment.objects.get(
+            subject_identifier=self.male_subject_identifier,
+            visit_code=self.schedule.visits.first.code)
+        self.female_appointment = Appointment.objects.get(
+            subject_identifier=self.female_subject_identifier,
+            visit_code=self.schedule.visits.first.code)
+        self.first_visit = self.schedule.visits.first
         self.panel_name = self.first_visit.requisitions[0].panel.name
 
     def test_logic(self):
@@ -51,19 +74,8 @@ class MetadataRulesTests(TestCase):
             alternative=NOT_REQUIRED)
 
     def test_example_rules_run_if_male(self):
-        subject_consent = mommy.make_recipe(
-            'edc_example.subjectconsent',
-            subject_identifier='123456789-0', gender=MALE)
-        enrollment = mommy.make_recipe(
-            'edc_example.enrollment',
-            subject_identifier=subject_consent.subject_identifier,
-            schedule_name='schedule1')
-        appointment = Appointment.objects.get(
-            subject_identifier=enrollment.subject_identifier,
-            visit_code=self.first_visit.code)
-        subject_visit = mommy.make_recipe(
-            'edc_example.subjectvisit',
-            appointment=appointment)
+        subject_visit = SubjectVisit.objects.create(
+            appointment=self.appointment, reason=SCHEDULED)
         self.assertEqual(
             CrfMetadata.objects.get(
                 model=CrfTwo._meta.label_lower,
@@ -90,18 +102,8 @@ class MetadataRulesTests(TestCase):
             ).entry_status, REQUIRED)
 
     def test_example_rules_run_if_female(self):
-        subject_consent = mommy.make_recipe(
-            'edc_example.subjectconsent',
-            subject_identifier='123456789-0', gender=FEMALE)
-        enrollment = mommy.make_recipe(
-            'edc_example.enrollment',
-            subject_identifier=subject_consent.subject_identifier,
-            schedule_name='schedule1')
-        appointment = Appointment.objects.get(
-            subject_identifier=enrollment.subject_identifier,
-            visit_code=self.first_visit.code)
-        subject_visit = mommy.make_recipe(
-            'edc_example.subjectvisit', appointment=appointment)
+        subject_visit = SubjectVisit.objects.create(
+            appointment=self.appointment, reason=SCHEDULED)
         self.assertEqual(
             CrfMetadata.objects.get(
                 model=CrfTwo._meta.label_lower,

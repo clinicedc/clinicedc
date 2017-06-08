@@ -1,5 +1,4 @@
 from django.test import TestCase, tag
-from model_mommy import mommy
 
 from edc_appointment.models import Appointment
 from edc_registration.models import RegisteredSubject
@@ -32,42 +31,36 @@ class TestCreatesDeletesMetadata(TestCase):
             subject_identifier=self.subject_identifier,
             visit_code=self.schedule.visits.first.code)
 
-    @tag('1')
     def test_creates_metadata_on_scheduled(self):
         SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED)
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
         self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
 
-    @tag('1')
     def test_creates_metadata_on_unscheduled(self):
         SubjectVisit.objects.create(
             appointment=self.appointment, reason=UNSCHEDULED)
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
         self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
 
-    @tag('1')
     def test_does_not_creates_metadata_on_missed(self):
         SubjectVisit.objects.create(
             appointment=self.appointment, reason=MISSED_VISIT)
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
 
-    @tag('1')
     def test_unknown_reason_raises(self):
         self.assertRaises(
             CreatesMetadataError,
             SubjectVisit.objects.create,
             appointment=self.appointment, reason='ERIK')
 
-    @tag('1')
     def test_change_to_unknown_reason_raises(self):
         obj = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED)
         obj.reason = 'ERIK'
         self.assertRaises(CreatesMetadataError, obj.save)
 
-    @tag('1')
     def test_deletes_metadata_on_changed_reason(self):
         obj = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED)
@@ -96,7 +89,6 @@ class TestUpdatesMetadata(TestCase):
             subject_identifier=self.subject_identifier,
             visit_code=self.schedule.visits.first.code)
 
-    @tag('1')
     def test_updates_crf_metadata_as_keyed(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED)
@@ -114,7 +106,6 @@ class TestUpdatesMetadata(TestCase):
             model='edc_metadata.crfthree',
             visit_code=subject_visit.visit_code).count(), 1)
 
-    @tag('1')
     def test_updates_all_crf_metadata_as_keyed(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED)
@@ -127,7 +118,6 @@ class TestUpdatesMetadata(TestCase):
                 model=f'edc_metadata.{model_name}',
                 visit_code=subject_visit.visit_code).count(), 1)
 
-    @tag('1')
     def test_updates_requisition_metadata_as_keyed(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED)
@@ -145,7 +135,6 @@ class TestUpdatesMetadata(TestCase):
             panel_name='two',
             visit_code=subject_visit.visit_code).count(), 1)
 
-    @tag('1')
     def test_resets_crf_metadata_on_delete(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED)
@@ -164,7 +153,6 @@ class TestUpdatesMetadata(TestCase):
             model='edc_metadata.crfthree',
             visit_code=subject_visit.visit_code).count(), 1)
 
-    @tag('1')
     def test_resets_requisition_metadata_on_delete1(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED)
@@ -183,7 +171,6 @@ class TestUpdatesMetadata(TestCase):
             panel_name='two',
             visit_code=subject_visit.visit_code).count(), 1)
 
-    @tag('1')
     def test_resets_requisition_metadata_on_delete2(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED)
@@ -202,7 +189,6 @@ class TestUpdatesMetadata(TestCase):
             panel_name='two',
             visit_code=subject_visit.visit_code).count(), 1)
 
-    @tag('1')
     def test_get_metadata_for_subject_visit(self):
         """Asserts can get metadata for a subject and visit code.
         """

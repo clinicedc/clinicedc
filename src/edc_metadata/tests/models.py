@@ -69,3 +69,13 @@ class CrfTwo(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
 class CrfThree(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit)
+
+
+class CrfFour(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+
+    subject_visit = models.ForeignKey(SubjectVisit)
+
+
+class CrfFive(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+
+    subject_visit = models.ForeignKey(SubjectVisit)
