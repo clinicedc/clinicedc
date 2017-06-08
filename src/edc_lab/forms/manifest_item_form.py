@@ -1,8 +1,8 @@
 from django import forms
 
-from edc_base.modelform_mixins import OtherSpecifyValidationMixin
+from edc_base.modelform_validators import OtherSpecifyFieldValidator
 
 
-class ManifestItemForm(OtherSpecifyValidationMixin, forms.ModelForm):
+class ManifestItemForm(OtherSpecifyFieldValidator, forms.ModelForm):
 
     pass

@@ -1,11 +1,11 @@
 from django import forms
 
-from edc_base.modelform_mixins import OtherSpecifyValidationMixin
+from edc_base.modelform_validators import OtherSpecifyFieldValidator
 
 from ..models import Manifest
 
 
-class ManifestForm(OtherSpecifyValidationMixin, forms.ModelForm):
+class ManifestForm(OtherSpecifyFieldValidator, forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()

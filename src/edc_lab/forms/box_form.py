@@ -2,12 +2,12 @@ import re
 
 from django import forms
 
-from edc_base.modelform_mixins import OtherSpecifyValidationMixin
+from edc_base.modelform_validators import OtherSpecifyFieldValidator
 
 from ..models import Box
 
 
-class BoxForm(OtherSpecifyValidationMixin, forms.ModelForm):
+class BoxForm(OtherSpecifyFieldValidator, forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()

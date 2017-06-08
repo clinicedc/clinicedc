@@ -4,3 +4,7 @@ class RequisitionError(Exception):
 
 class BoxItemError(Exception):
     pass
+
+
+class SpecimenError(Exception):
+    pass

@@ -1,11 +1,12 @@
 from django import forms
 from django.apps import apps as django_apps
 
-from edc_base.modelform_mixins import ApplicableValidationMixin, RequiredFieldValidationMixin
+from edc_base.modelform_validators import (
+    ApplicableFieldValidator, RequiredFieldValidator)
 from edc_constants.constants import YES, NO
 
 
-class RequisitionFormMixin(ApplicableValidationMixin, RequiredFieldValidationMixin):
+class RequisitionFormMixin(ApplicableFieldValidator, RequiredFieldValidator):
 
     aliquot_model = django_apps.get_model(
         *django_apps.get_app_config('edc_lab').aliquot_model.split('.'))

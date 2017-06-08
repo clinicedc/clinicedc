@@ -1,11 +1,11 @@
 from django import forms
 
-from edc_base.modelform_mixins import OtherSpecifyValidationMixin
+from edc_base.modelform_validators import OtherSpecifyFieldValidator
 
 from..models import BoxType
 
 
-class BoxTypeForm(OtherSpecifyValidationMixin, forms.ModelForm):
+class BoxTypeForm(OtherSpecifyFieldValidator, forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
