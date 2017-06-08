@@ -1,8 +1,10 @@
 from django import forms
 
-from edc_base.modelform_validators import OtherSpecifyFieldValidator
+from ..models import ManifestItem
 
 
-class ManifestItemForm(OtherSpecifyFieldValidator, forms.ModelForm):
+class ManifestItemForm(forms.ModelForm):
 
-    pass
+    class Meta:
+        fields = '__all__'
+        model = ManifestItem

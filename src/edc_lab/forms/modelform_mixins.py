@@ -1,12 +1,11 @@
 from django import forms
 from django.apps import apps as django_apps
 
-from edc_base.modelform_validators import (
-    ApplicableFieldValidator, RequiredFieldValidator)
+from edc_base.modelform_validators import FormValidator
 from edc_constants.constants import YES, NO
 
 
-class RequisitionFormMixin(ApplicableFieldValidator, RequiredFieldValidator):
+class RequisitionFormMixin:
 
     aliquot_model = django_apps.get_model(
         *django_apps.get_app_config('edc_lab').aliquot_model.split('.'))
@@ -27,6 +26,7 @@ class RequisitionFormMixin(ApplicableFieldValidator, RequiredFieldValidator):
 
     def clean(self):
         cleaned_data = super().clean()
+        form_validator = FormValidator(cleaned_data=cleaned_data)
 
         if cleaned_data.get('packed') != self.instance.packed:
             raise forms.ValidationError({
@@ -50,15 +50,15 @@ class RequisitionFormMixin(ApplicableFieldValidator, RequiredFieldValidator):
                 'Requisition may not be changed. The specimen has '
                 'already been received.')
 
-        self.applicable_if(
+        form_validator.applicable_if(
             NO, field='is_drawn', field_applicable='reason_not_drawn')
-        self.required_if(
+        form_validator.required_if(
             YES, field='is_drawn', field_required='drawn_datetime')
-        self.applicable_if(
+        form_validator.applicable_if(
             YES, field='is_drawn', field_applicable='item_type')
-        self.required_if(
+        form_validator.required_if(
             YES, field='is_drawn', field_required='item_count')
-        self.required_if(
+        form_validator.required_if(
             YES, field='is_drawn', field_required='estimated_volume')
 
         return cleaned_data
