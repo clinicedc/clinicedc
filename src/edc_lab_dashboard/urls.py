@@ -8,6 +8,9 @@ from .views import (
     VerifyBoxItemView, ProcessListboardView, PackView, ManageManifestView,
     ManageManifestListboardView, ManifestView, AliquotView, RequisitionView)
 
+
+app_name = 'edc_lab_dashboard'
+
 urlpatterns = [
     # listboard urls
     url(r'^listboard/requisition/$', RequisitionListboardView.as_view(),
