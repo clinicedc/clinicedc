@@ -37,5 +37,5 @@ class AppointmentModelWrapper(ModelWrapper):
         This is standard for edc_dashboard"""
         kwargs = dict(
             subject_identifier=self.subject_identifier,
-            appointment=self.object)
+            appointment=self.object.id)
         return reverse(self.dashboard_url_name, kwargs=kwargs)
