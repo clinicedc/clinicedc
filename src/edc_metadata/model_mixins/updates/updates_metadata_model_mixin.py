@@ -4,7 +4,7 @@ from django.db import models
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...constants import REQUIRED, NOT_REQUIRED, KEYED, CRF, REQUISITION
-from edc_metadata.exceptions import MetadataError
+from ...exceptions import MetadataError
 
 
 class UpdatesMetadataModelMixin(models.Model):
@@ -38,9 +38,10 @@ class UpdatesMetadataModelMixin(models.Model):
         of the crf or requisition in the visit schedule.
         """
         visit_schedule = site_visit_schedules.get_visit_schedule(
-            self.visit.visit_schedule_name)
-        schedule = visit_schedule.get_schedule(self.visit.schedule_name)
-        visit = schedule.get_visit(self.visit.visit_code)
+            visit_schedule_name=self.visit.visit_schedule_name)
+        schedule = visit_schedule.get_schedule(
+            schedule_name=self.visit.schedule_name)
+        visit = schedule.visits.get(self.visit.visit_code)
         if self.metadata_category == REQUISITION:
             requisition = [r for r in visit.requisitions
                            if r.panel.name == self.panel_name][0]

@@ -26,33 +26,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #     'django_crypto_fields.apps.AppConfig',
+    'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
     'edc_base.apps.AppConfig',
-    'edc_base_test.apps.AppConfig',
-    #     'edc_appointment.apps.AppConfig',
+    # 'edc_base_test.apps.AppConfig',
+    'edc_appointment.apps.AppConfig',
+    'edc_offstudy.apps.AppConfig',
+    'edc_timepoint.apps.AppConfig',
     #     'edc_consent.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
-    #     'edc_registration.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
-    'edc_visit_tracking.apps.AppConfig',
     #     # 'edc_lab.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
+    'edc_metadata.apps.EdcVisitTrackingAppConfig',
     'edc_metadata.apps.AppConfig',
     #     'edc_example.apps.EdcProtocolAppConfig',
     #     'edc_example.apps.EdcTimepointAppConfig',
     #     'edc_example.apps.AppConfig',
 ]
 
-
-if 'test' in sys.argv:
-    MIGRATION_MODULES = {
-        'edc_metadata': None,
-        'edc_example': None,
-        'edc_visit_schedule': None,
-        'edc_appointment': None,
-        'django_crypto_fields': None}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -135,3 +129,23 @@ USE_TZ = True
 STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
 KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
+
+if 'test' in sys.argv:
+    MIGRATION_MODULES = {
+        "django_crypto_fields": None,
+        "edc_appointment": None,
+        "edc_consent": None,
+        "edc_identifier": None,
+        "edc_metadata": None,
+        "edc_registration": None,
+        "edc_sync": None,
+        "edc_offstudy": None,
+        'admin': None,
+        "auth": None,
+        'contenttypes': None,
+        'sessions': None,
+    }
+if 'test' in sys.argv:
+    PASSWORD_HASHERS = ('django_plainpasswordhasher.PlainPasswordHasher', )
+if 'test' in sys.argv:
+    DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'

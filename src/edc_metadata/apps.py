@@ -19,7 +19,7 @@ class AppConfig(DjangoAppConfig):
     crf_model_name = 'crfmetadata'
     requisition_model_name = 'requisitionmetadata'
 
-    reason_field = {'edc_example.subjectvisit': 'reason'}
+    reason_field = {'edc_metadata.subjectvisit': 'reason'}
     create_on_reasons = [SCHEDULED, UNSCHEDULED]
     delete_on_reasons = [MISSED_VISIT]
 
@@ -70,3 +70,11 @@ class AppConfig(DjangoAppConfig):
                 subject_identifier=subject_identifier, **options),
             'requisition': self.requisition_model.objects.filter(
                 subject_identifier=subject_identifier, **options)}
+
+
+if 'test' in sys.argv:
+    from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
+
+    class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
+        visit_models = {
+            'edc_metadata': ('subject_visit', 'edc_metadata.subjectvisit')}

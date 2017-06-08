@@ -112,11 +112,11 @@ class Creator:
     def __init__(self, **kwargs):
         self.crf_creator = self.crf_creator_cls(**kwargs)
         self.requisition_creator = self.requisition_creator_cls(**kwargs)
-        visit_instance = kwargs.get('visit_instance')
+        self.visit_instance = kwargs.get('visit_instance')
         schedule = site_visit_schedules.get_schedule(
-            visit_schedule_name=visit_instance.visit_schedule_name,
-            schedule_name=visit_instance.schedule_name)
-        self.visit = schedule.visits.get(visit_instance.visit_code)
+            visit_schedule_name=self.visit_instance.visit_schedule_name,
+            schedule_name=self.visit_instance.schedule_name)
+        self.visit = schedule.visits.get(self.visit_instance.visit_code)
 
     def create(self):
         """Creates all CRF and requisition metadata for
@@ -184,5 +184,5 @@ class Metadata:
                 f'{visit_instance._meta.label_lower}.'
                 f'{app_config.reason_field[visit_instance._meta.label_lower]} = '
                 f'\'{getattr(visit_instance, app_config.reason_field[visit_instance._meta.label_lower])}\'. '
-                'Check field value and/or edc_metadata.AppConfig.reason_field.')
+                'Check field value and/or edc_metadata.AppConfig.create_on_reasons/delete_on_reasons.')
         return metadata_exists

@@ -6,8 +6,8 @@ from model_mommy import mommy
 
 from edc_base.utils import get_utcnow
 from edc_constants.constants import MALE, FEMALE
-from edc_example.models import (
-    Appointment, CrfOne, CrfTwo, CrfThree, CrfFive, CrfFour, Enrollment)
+# from edc_example.models import (
+#     Appointment, CrfOne, CrfTwo, CrfThree, CrfFive, CrfFour, Enrollment)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import NOT_REQUIRED, REQUIRED, KEYED

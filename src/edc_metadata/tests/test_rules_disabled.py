@@ -3,8 +3,8 @@ from django.test import TestCase, tag
 from model_mommy import mommy
 
 from edc_constants.constants import MALE
-from edc_example.models import (
-    Appointment, CrfOne, CrfTwo, CrfThree, CrfFive, CrfFour, Enrollment)
+# from edc_example.models import (
+#     Appointment, CrfOne, CrfTwo, CrfThree, CrfFive, CrfFour, Enrollment)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 

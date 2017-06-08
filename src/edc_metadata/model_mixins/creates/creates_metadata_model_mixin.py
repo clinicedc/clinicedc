@@ -46,9 +46,10 @@ class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
 #         metadata_requisition_model = django_apps.get_app_config(
 #             'edc_metadata').requisition_model
         visit_schedule = site_visit_schedules.get_visit_schedule(
-            self.visit_schedule_name)
-        schedule = visit_schedule.get_schedule(self.schedule_name)
-        visit = schedule.get_visit(self.visit_code)
+            visit_schedule_name=self.visit_schedule_name)
+        schedule = visit_schedule.get_schedule(
+            schedule_name=self.schedule_name)
+        visit = schedule.visits.get(self.visit_code)
         metadata_crf_model.objects.filter(
             subject_identifier=instance.subject_identifier,
             visit_schedule_name=visit_schedule.name,
