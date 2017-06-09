@@ -19,16 +19,16 @@ class AppointmentModelWrapper(ModelWrapper):
         return self.object.title
 
     @property
-    def visit(self):
+    def wrapped_visit(self):
         """Returns a wrapped persistent or non-persistent visit instance."""
         try:
-            return self.visit_model_wrapper_cls(model_obj=self.object.subjectvisit)
+            model_obj = self.object.subjectvisit
         except ObjectDoesNotExist:
             visit_model = self.visit_model_wrapper_cls.model
-            return self.visit_model_wrapper_cls(
-                model_obj=visit_model(
-                    appointment=self.object,
-                    subject_identifier=self.subject_identifier,))
+            model_obj = visit_model(
+                appointment=self.object,
+                subject_identifier=self.subject_identifier,)
+        return self.visit_model_wrapper_cls(model_obj=model_obj)
 
     @property
     def forms_url(self):
