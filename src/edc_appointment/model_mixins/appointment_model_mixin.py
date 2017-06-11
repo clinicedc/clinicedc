@@ -125,7 +125,7 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
 
     @property
     def title(self):
-        return self.schedule.visit.get(self.visit_code).title
+        return self.schedule.visits.get(self.visit_code).title
 
     @property
     def visit_model_reverse_attr(self):
@@ -166,7 +166,7 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
         """Returns the previous appointment or None in this schedule.
         """
         previous_appt = None
-        previous_visit = self.schedule.get_previous_visit(self.visit_code)
+        previous_visit = self.schedule.visits.previous(self.visit_code)
         if previous_visit:
             try:
                 previous_appt = self.__class__.objects.get(
@@ -183,7 +183,7 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
         """Returns the next appointment or None in this schedule.
         """
         next_appt = None
-        next_visit = self.schedule.get_next_visit(self.visit_code)
+        next_visit = self.schedule.visits.next(self.visit_code)
         if next_visit:
             try:
                 options = dict(
@@ -208,4 +208,4 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
             ('subject_identifier', 'visit_schedule_name',
              'schedule_name', 'visit_code', 'timepoint')
         )
-        ordering = ('timepoint_datetime', )
+        ordering = ('timepoint_datetime',)
