@@ -7,8 +7,8 @@ from edc_dashboard.views import ListboardView
 
 from ..mixins import UrlsViewMixin, ModelsViewMixin
 
-app_name = 'edc_lab'
-app_config = django_apps.get_app_config(app_name)
+app_name = 'edc_lab_dashboard'
+app_config = django_apps.get_app_config('edc_lab')
 
 
 class BaseListboardView(UrlsViewMixin,
