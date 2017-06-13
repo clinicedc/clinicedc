@@ -17,8 +17,8 @@ class DashboardError(Exception):
 
 class MetaDataViewMixin:
 
-    crf_model_wrapper_class = None
-    requisition_model_wrapper_class = None
+    crf_model_wrapper_cls = None
+    requisition_model_wrapper_cls = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -61,7 +61,7 @@ class MetaDataViewMixin:
                         self.handle_operational_error(metadata)
                     else:
 
-                        metadata.object = self.crf_model_wrapper_class(
+                        metadata.object = self.crf_model_wrapper_cls(
                             obj, key='crf',
                             model=metadata.model_class._meta.label_lower)
 
@@ -74,7 +74,7 @@ class MetaDataViewMixin:
                             'Correct or remove this model from your schedule. Got {}'.format(
                                 metadata.model_class()._meta.label_lower, str(e)))
 
-                    metadata.object = self.crf_model_wrapper_class(
+                    metadata.object = self.crf_model_wrapper_cls(
                         metadata.model_class(
                             **{metadata.visit_attr_name: visit}),
                         model=metadata.model_class._meta.label_lower,
@@ -113,7 +113,7 @@ class MetaDataViewMixin:
                     except OperationalError as e:
                         self.handle_operational_error(metadata)
                     else:
-                        metadata.object = self.requisition_model_wrapper_class(
+                        metadata.object = self.requisition_model_wrapper_cls(
                             obj, key='requisition',
                             model=metadata.model_class._meta.label_lower,
                             panel_name=metadata.panel_name)
@@ -126,7 +126,7 @@ class MetaDataViewMixin:
                             'Correct or remove this model from your schedule. Got {}'.format(
                                 metadata.model_class()._meta.label_lower, str(e)))
 
-                    metadata.object = self.requisition_model_wrapper_class(
+                    metadata.object = self.requisition_model_wrapper_cls(
                         metadata.model_class(
                             **{metadata.visit_attr_name: visit}),
                         model=metadata.model_class._meta.label_lower,
