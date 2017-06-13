@@ -25,19 +25,21 @@
 						</a>
                         {% endif %}
 				      {% if wrapped.appt_status == IN_PROGRESS_APPT %}
-				      	{% if wrapped.wrapped_visit.id %}
+				        {% with wrapped.wrapped_visit as visit %}
+				      	     {% if visit.id %}
 				      		
-		                        <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.href }}">
+		                        <a role="button" class="btn btn-sm btn-default" href="{{ visit.href }}">
 		                            <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Visit Report
 		                        </a>
 				      			<a role="button" class="btn btn-sm btn-warning" href="{{ wrapped.forms_url }}">
 				      				<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Forms
 				      			</a>
-				      	{% else %}
-				       		<a role="button" class="btn btn-sm btn-warning" href="{{ wrapped.wrapped_visit.href }}"
-				       		   data-toggle="tooltip" title="Click to update the visit report">
-				       			<i class="fa fa-plus fa-sm" aria-hidden="true"></i> Start</a>
-				      	{% endif %}
+				      	     {% else %}
+					       		<a role="button" class="btn btn-sm btn-warning" href="{{ visit.href }}"
+					       		   data-toggle="tooltip" title="Click to update the visit report">
+					       			<i class="fa fa-plus fa-sm" aria-hidden="true"></i> Start</a>
+				      	     {% endif %}
+				      {% endwith %}
 				      {% else %}
 						    {% comment%}
 						        This link goes to change the appointment instance
@@ -72,7 +74,6 @@
                                 </a>
 							{% endif %}
 				      {% endif %}
-				      
                       {% if wrapped.appt_status == COMPLETE_APPT %}
                                 <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.wrapped_visit.href }}">
                                     <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Review
