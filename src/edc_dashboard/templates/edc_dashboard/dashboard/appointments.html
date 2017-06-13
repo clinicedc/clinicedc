@@ -25,7 +25,7 @@
 						</a>
                         {% endif %}
 				      {% if wrapped.appt_status == IN_PROGRESS_APPT %}
-				      	{% if wrapped.visit.id %}
+				      	{% if wrapped.wrapped_visit.id %}
 				      		
 		                        <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.href }}">
 		                            <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Visit Report
