@@ -73,7 +73,6 @@ class MetaDataViewMixin:
                             'Model {} is not configured as a CRF model. '
                             'Correct or remove this model from your schedule. Got {}'.format(
                                 metadata.model_class()._meta.label_lower, str(e)))
-
                     metadata.object = self.crf_model_wrapper_cls(
                         metadata.model_class(
                             **{metadata.visit_attr_name: visit}),
