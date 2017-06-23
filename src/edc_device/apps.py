@@ -18,7 +18,7 @@ class AppConfig(DjangoAppConfig):
 
     name = 'edc_device'
     verbose_name = 'Edc Device'
-    use_settings = False
+    messages_written = False
 
     device_id = None
     device_role = None
@@ -26,10 +26,8 @@ class AppConfig(DjangoAppConfig):
     central_server_id = '99'
     middleman_id_list = ['95']
     node_server_id_list = ['98']
-    client_hostname_list = []
-    messages_written = False
 
-    device_permissions = {}  # see repo example-survey for example
+    device_permissions = None
 
     def ready(self):
 
@@ -46,11 +44,11 @@ class AppConfig(DjangoAppConfig):
             self.messages_written = True
             sys.stdout.write(f'Loading {self.verbose_name} ...\n')
             sys.stdout.write(
-                f'  * device role is \'{self.device_role}\'; device ID is '
-                f'\'{self.device_id}\'.\n')
+                f'  * device id is \'{self.device_id}\'.\n'
+                f'  * device role is \'{self.device_role}\'.\n')
             if self.device_permissions:
                 sys.stdout.write(
                     '  * found device permissions for models:\n')
-            for model in self.device_permissions:
+            for model in (self.device_permissions or {}):
                 sys.stdout.write(f'    - {model}\n')
             sys.stdout.write(f' Done loading {self.verbose_name}.\n')

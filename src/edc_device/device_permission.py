@@ -31,17 +31,25 @@ class DevicePermission:
             change = True
         return change
 
-    def check(self, obj):
+    def is_add(self, model_obj=None, **kwargs):
+        return not model_obj.id
+
+    def is_change(self, model_obj=None, **kwargs):
+        return model_obj.id
+
+    def check(self, model_obj, **kwargs):
         app_config = django_apps.get_app_config('edc_device')
-        if not obj.id and not self.may_add(app_config.device_role):
+        if (self.is_add(model_obj=model_obj, **kwargs)
+                and not self.may_add(app_config.device_role)):
             raise DevicePermissionAddError(
                 f'Device does not have ADD permissions. '
                 f'Got \'{app_config.device_role}\' may not add '
-                f'\'{obj._meta.verbose_name}\'.',
+                f'\'{model_obj._meta.verbose_name}\'.',
                 code='add_permissions')
-        elif obj.id and not self.may_change(app_config.device_role):
+        elif (self.is_change(model_obj, **kwargs)
+              and not self.may_change(app_config.device_role)):
             raise DevicePermissionChangeError(
                 f'Device does not have CHANGE permissions. '
                 f'Got \'{app_config.device_role}\' may not change '
-                f'\'{obj._meta.verbose_name}\'.',
+                f'\'{model_obj._meta.verbose_name}\'.',
                 code='change_permissions')
