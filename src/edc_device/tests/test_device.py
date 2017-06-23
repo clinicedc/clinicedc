@@ -1,11 +1,11 @@
+# import random
+
 from django.test import TestCase, tag
 
 from django.test.utils import override_settings
 
 from ..constants import CENTRAL_SERVER, CLIENT, NODE_SERVER, MIDDLEMAN
-from ..device import Device, DeviceIdError
-from edc_device.device import DeviceRoleError
-import random
+from ..device import Device, DeviceIdError, DeviceRoleError
 
 
 class TestDevice(TestCase):
