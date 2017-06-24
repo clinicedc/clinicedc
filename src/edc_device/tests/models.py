@@ -5,6 +5,7 @@ from edc_base.utils import get_utcnow
 
 from ..constants import CLIENT
 from ..device_permission import DevicePermissions, DeviceChangePermission
+from ..model_mixins import DeviceModelMixin
 
 
 class TestModel(BaseUuidModel):
@@ -16,6 +17,6 @@ class TestModelPermissions(BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    class Meta:
+    class Meta(DeviceModelMixin.Meta):
         device_permissions = DevicePermissions(
             DeviceChangePermission(device_roles=[CLIENT]))
