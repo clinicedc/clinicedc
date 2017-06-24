@@ -28,7 +28,7 @@ class AppConfig(DjangoAppConfig):
     middleman_id_list = ['95']
     node_server_id_list = ['98']
 
-    device_permissions = DevicePermissions()
+    device_permissions = None
 
     def ready(self):
 
@@ -38,6 +38,7 @@ class AppConfig(DjangoAppConfig):
             central_server_id=self.central_server_id,
             middlemen=self.middleman_id_list,
             nodes=self.node_server_id_list)
+        # set app_config instance attrs including device_id, device_role
         for k, v in device.__dict__.items():
             setattr(self, k, v)
 
@@ -47,7 +48,7 @@ class AppConfig(DjangoAppConfig):
             sys.stdout.write(
                 f'  * device id is \'{self.device_id}\'.\n'
                 f'  * device role is \'{self.device_role}\'.\n')
-            for index, device_permission in enumerate(self.device_permissions):
+            for index, device_permission in enumerate(self.device_permissions or []):
                 if index == 0:
                     sys.stdout.write(
                         '  * device permissions exist for:\n')
