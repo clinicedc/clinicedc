@@ -4,6 +4,7 @@ from django.test.utils import override_settings
 
 from ..constants import CLIENT
 from .models import TestModel
+from edc_device.tests.models import TestModelPermissions
 
 
 class TestModelMixin(TestCase):
@@ -17,6 +18,7 @@ class TestModelMixin(TestCase):
         app_config = django_apps.get_app_config('edc_device')
         with override_settings(DEVICE_ID='10', DEVICE_ROLE=CLIENT):
             app_config.device_id = None
+            app_config.device_role = None
             app_config.ready()
             obj = TestModel.objects.create()
             self.assertEqual(obj.device_created, '10')
@@ -26,12 +28,46 @@ class TestModelMixin(TestCase):
         app_config = django_apps.get_app_config('edc_device')
         with override_settings(DEVICE_ID='10', DEVICE_ROLE=CLIENT):
             app_config.device_id = None
+            app_config.device_role = None
             app_config.ready()
             obj = TestModel.objects.create()
             self.assertEqual(obj.device_created, '10')
             self.assertEqual(obj.device_modified, '10')
         with override_settings(DEVICE_ID='20', DEVICE_ROLE=CLIENT):
             app_config.device_id = None
+            app_config.device_role = None
+            app_config.ready()
+            obj.save()
+            self.assertEqual(obj.device_created, '10')
+            self.assertEqual(obj.device_modified, '20')
+
+    def test_model2(self):
+        obj = TestModelPermissions()
+        self.assertFalse(obj.device_created)
+        self.assertFalse(obj.device_modified)
+
+    def test_model2_on_create(self):
+        app_config = django_apps.get_app_config('edc_device')
+        with override_settings(DEVICE_ID='10', DEVICE_ROLE=CLIENT):
+            app_config.device_id = None
+            app_config.device_role = None
+            app_config.ready()
+            obj = TestModelPermissions.objects.create()
+            self.assertEqual(obj.device_created, '10')
+            self.assertEqual(obj.device_modified, '10')
+
+    def test_model2_on_modified(self):
+        app_config = django_apps.get_app_config('edc_device')
+        with override_settings(DEVICE_ID='10', DEVICE_ROLE=CLIENT):
+            app_config.device_id = None
+            app_config.device_role = None
+            app_config.ready()
+            obj = TestModelPermissions.objects.create()
+            self.assertEqual(obj.device_created, '10')
+            self.assertEqual(obj.device_modified, '10')
+        with override_settings(DEVICE_ID='20', DEVICE_ROLE=CLIENT):
+            app_config.device_id = None
+            app_config.device_role = None
             app_config.ready()
             obj.save()
             self.assertEqual(obj.device_created, '10')

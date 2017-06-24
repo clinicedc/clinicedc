@@ -10,6 +10,10 @@ class DevicePermissionChangeError(ValidationError):
     pass
 
 
+class DevicePermissionError(Exception):
+    pass
+
+
 class BaseDevicePermission:
 
     label = None
@@ -29,7 +33,7 @@ class BaseDevicePermission:
 
     def model_operation(self, model_obj=None, **kwargs):
         """Override."""
-        return None
+        raise DevicePermissionError('Method not implemented')
 
     @property
     def _permit_model_operation(self):
@@ -39,7 +43,9 @@ class BaseDevicePermission:
             return True
         return False
 
-    def check(self, model_obj=None, on_success=None, err_message=None, **kwargs):
+    def check(self, model_obj=None, err_message=None, **kwargs):
+        if not self.model:
+            self.model = model_obj._meta.label_lower
         if model_obj._meta.label_lower == self.model:
             if (self.model_operation(model_obj=model_obj, **kwargs)
                     and not self._permit_model_operation):
@@ -51,9 +57,6 @@ class BaseDevicePermission:
                     f'Device/Role has insufficient permissions for action. '
                     f'Got {err_message}. Device role is {app_config.device_role}.',
                     code=f'{self.label}_permission')
-            else:
-                if on_success:
-                    on_success(model_obj=model_obj, **kwargs)
 
 
 class DeviceAddPermission(BaseDevicePermission):
@@ -108,8 +111,9 @@ class DevicePermissions:
     def register(self, device_permission):
         self._registry.append(device_permission)
         self._registry = list(set(self._registry))
-        self.models.append(device_permission.model)
-        self.models = list(set(self.models))
+        if device_permission.model:
+            self.models.append(device_permission.model)
+            self.models = list(set(self.models))
 
     def check(self, model_obj=None, **kwargs):
         for device_permission in self._registry:

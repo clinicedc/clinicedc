@@ -1,9 +1,16 @@
 from django.apps import apps as django_apps
 from django.db import models
+from django.db.models import options
+from edc_device.device_permission import DevicePermissions
+
+if 'device_permissions' not in options.DEFAULT_NAMES:
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('device_permissions',)
 
 
 class DeviceModelMixin(models.Model):
-    """Mixin to add device created and modified fields and check device permissions."""
+    """Mixin to add device created and modified fields and
+    check device permissions.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,8 +30,13 @@ class DeviceModelMixin(models.Model):
             self.device_created = app_config.device_id
         self.device_modified = app_config.device_id
         if self.check_device_permissions:
+            try:
+                self._meta.device_permissions.check(self)
+            except AttributeError:
+                pass
             app_config.device_permissions.check(self)
         super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
+        device_permissions = DevicePermissions()

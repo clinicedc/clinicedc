@@ -3,7 +3,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from .constants import CENTRAL_SERVER, NODE_SERVER, MIDDLEMAN, CLIENT
-from pprint import pprint
 
 
 class DeviceIdError(ValidationError):
@@ -18,7 +17,6 @@ class Device:
 
     default_central_server_id = '99'
     default_device_id = '99'
-    default_role = CENTRAL_SERVER
 
     def __init__(self, device_id=None, device_role=None, central_server_id=None,
                  nodes=None, middlemen=None, **kwargs):
@@ -53,7 +51,36 @@ class Device:
         self.device_role = self.get_device_role(device_role)
 
     def get_device_role(self, device_role=None):
+        """Returns the device role.
 
+        *Keywords:
+            device_role: a device role usually from AppConfig.
+
+        All values must match; settings.DEVICE_ROLE, if specified,
+        AppConfig.device_role, if specified, and the calculated role.
+        """
+
+        try:
+            settings_device_role = settings.DEVICE_ROLE
+        except AttributeError:
+            settings_device_role = None
+        calculated_role = self.calculated_device_role
+
+        if not (calculated_role
+                == (device_role or calculated_role)
+                == (settings_device_role or calculated_role)):
+            raise DeviceRoleError(
+                f'Device role conflict. Calculated role as \'{calculated_role}\' but '
+                f'got settings.DEVICE_ID=\'{settings_device_role}\', '
+                f'AppConfig.device_role=\'{device_role}\' and device_id=\'{self.device_id}\'',
+                code='device_role_conflict')
+
+        return calculated_role
+
+    @property
+    def calculated_device_role(self):
+        """Returns the device role based on the device ID only.
+        """
         if self.device_id == self.central_server_id:
             role = CENTRAL_SERVER
             self.is_central_server = True
@@ -67,18 +94,6 @@ class Device:
             role = CLIENT
             self.is_client = True
             self.is_server = False
-
-        try:
-            assert settings.DEVICE_ROLE == role
-        except AttributeError:
-            pass
-        except AssertionError:
-            if settings.DEVICE_ROLE:
-                raise DeviceRoleError(
-                    f'AppConfig.device_role conflicts with settings.DEVICE_ROLE '
-                    f'Got {device_role} != {settings.DEVICE_ROLE}',
-                    code='device_role_conflict')
-
         return role
 
     def get_device_id(self, device_id=None):
@@ -88,10 +103,6 @@ class Device:
             value = device_id
         else:
             value = value or device_id
-#         if not value:
-#             raise DeviceIdError(
-#                 f'Unable to determine device_id. Check settings.DEVICE_ID '
-#                 'and/or AppConfig.', code='device_id_none')
         if value and device_id:
             try:
                 assert value == device_id
