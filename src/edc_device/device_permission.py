@@ -10,46 +10,107 @@ class DevicePermissionChangeError(ValidationError):
     pass
 
 
-class DevicePermission:
+class BaseDevicePermission:
 
-    def __init__(self, model=None, create_roles=None, create_devices=None,
-                 change_roles=None, change_devices=None):
-        self.create_roles = create_roles or []
-        self.create_devices = create_devices or []
-        self.change_roles = change_roles or []
-        self.change_devices = change_devices or []
+    label = None
+    exception_cls = None
 
-    def may_add(self, value=None):
-        add = False
-        if value in self.create_roles + self.create_devices:
-            add = True
-        return add
+    def __init__(self, model=None, device_roles=None, device_ids=None):
+        self.model = model
+        self.device_roles = device_roles or []
+        self.device_ids = device_ids or []
 
-    def may_change(self, value=None):
-        change = False
-        if value in self.change_roles + self.change_devices:
-            change = True
-        return change
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.model},{self.device_roles})'
 
-    def is_add(self, model_obj=None, **kwargs):
-        return not model_obj.id
+    def __str__(self):
+        roles = ','.join(self.device_roles)
+        return f'{self.model} {self.label} {roles}'
 
-    def is_change(self, model_obj=None, **kwargs):
-        return model_obj.id
+    def model_operation(self, model_obj=None, **kwargs):
+        """Override."""
+        return None
 
-    def check(self, model_obj, **kwargs):
+    @property
+    def _permit_model_operation(self):
         app_config = django_apps.get_app_config('edc_device')
-        if (self.is_add(model_obj=model_obj, **kwargs)
-                and not self.may_add(app_config.device_role)):
-            raise DevicePermissionAddError(
-                f'Device does not have ADD permissions. '
-                f'Got \'{app_config.device_role}\' may not add '
-                f'\'{model_obj._meta.verbose_name}\'.',
-                code='add_permissions')
-        elif (self.is_change(model_obj, **kwargs)
-              and not self.may_change(app_config.device_role)):
-            raise DevicePermissionChangeError(
-                f'Device does not have CHANGE permissions. '
-                f'Got \'{app_config.device_role}\' may not change '
-                f'\'{model_obj._meta.verbose_name}\'.',
-                code='change_permissions')
+        if (app_config.device_role in self.device_roles
+                or app_config.device_id in self.device_ids):
+            return True
+        return False
+
+    def check(self, model_obj=None, on_success=None, err_message=None, **kwargs):
+        if model_obj._meta.label_lower == self.model:
+            if (self.model_operation(model_obj=model_obj, **kwargs)
+                    and not self._permit_model_operation):
+                app_config = django_apps.get_app_config('edc_device')
+                err_message = err_message or (
+                    f'Device role may not {self.label.lower()} '
+                    f'\'{model_obj._meta.verbose_name}\'.')
+                raise self.exception_cls(
+                    f'Device/Role has insufficient permissions for action. '
+                    f'Got {err_message}. Device role is {app_config.device_role}.',
+                    code=f'{self.label}_permission')
+            else:
+                if on_success:
+                    on_success(model_obj=model_obj, **kwargs)
+
+
+class DeviceAddPermission(BaseDevicePermission):
+
+    label = 'ADD'
+    exception_cls = DevicePermissionAddError
+
+    def model_operation(self, model_obj=None, **kwargs):
+        """Returns ADD if this is an add model.
+        """
+        if not model_obj.id:
+            return self.label
+        return None
+
+
+class DeviceChangePermission(BaseDevicePermission):
+
+    label = 'CHANGE'
+    exception_cls = DevicePermissionChangeError
+
+    def model_operation(self, model_obj=None, **kwargs):
+        """Returns CHANGE if this is a change model.
+        """
+        if model_obj.id:
+            return self.label
+        return None
+
+
+class DevicePermissions:
+    """Container class for registered device permission instances.
+    """
+
+    def __init__(self, *device_permissions):
+        self._registry = []
+        self.n = 0
+        self.models = []
+        for device_permission in device_permissions:
+            self.register(device_permission)
+
+    def __iter__(self):
+        self.n = 0
+        return self
+
+    def __next__(self):
+        try:
+            item = self._registry[self.n]
+            self.n += 1
+        except IndexError:
+            raise StopIteration
+        return item
+
+    def register(self, device_permission):
+        self._registry.append(device_permission)
+        self._registry = list(set(self._registry))
+        self.models.append(device_permission.model)
+        self.models = list(set(self.models))
+
+    def check(self, model_obj=None, **kwargs):
+        for device_permission in self._registry:
+            device_permission.check(model_obj=model_obj, **kwargs)

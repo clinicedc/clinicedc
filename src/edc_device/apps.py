@@ -4,6 +4,7 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.core.management.color import color_style
 
 from .device import Device
+from .device_permission import DevicePermissions
 
 style = color_style()
 
@@ -27,7 +28,7 @@ class AppConfig(DjangoAppConfig):
     middleman_id_list = ['95']
     node_server_id_list = ['98']
 
-    device_permissions = None
+    device_permissions = DevicePermissions()
 
     def ready(self):
 
@@ -46,9 +47,9 @@ class AppConfig(DjangoAppConfig):
             sys.stdout.write(
                 f'  * device id is \'{self.device_id}\'.\n'
                 f'  * device role is \'{self.device_role}\'.\n')
-            if self.device_permissions:
-                sys.stdout.write(
-                    '  * found device permissions for models:\n')
-            for model in (self.device_permissions or {}):
-                sys.stdout.write(f'    - {model}\n')
+            for index, device_permission in enumerate(self.device_permissions):
+                if index == 0:
+                    sys.stdout.write(
+                        '  * device permissions exist for:\n')
+                sys.stdout.write(f'    - {device_permission}\n')
             sys.stdout.write(f' Done loading {self.verbose_name}.\n')
