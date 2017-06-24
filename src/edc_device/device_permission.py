@@ -18,11 +18,13 @@ class BaseDevicePermission:
 
     label = None
     exception_cls = None
+    device_roles = []
+    device_ids = []
 
     def __init__(self, model=None, device_roles=None, device_ids=None):
         self.model = model
-        self.device_roles = device_roles or []
-        self.device_ids = device_ids or []
+        self.device_roles = device_roles or self.device_roles
+        self.device_ids = device_ids or self.device_ids
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.model},{self.device_roles})'
