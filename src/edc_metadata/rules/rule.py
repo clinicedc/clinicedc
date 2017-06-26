@@ -36,19 +36,7 @@ class Rule:
         source_qs = None
         if self.source_model:
             source_model = django_apps.get_model(*self.source_model)
-            try:
-                source_obj = source_model.objects.get_for_visit(visit)
-            except source_model.DoesNotExist:
-                source_obj = None
-            except MultipleObjectsReturned:
-                source_obj = source_model.objects.filter_for_visit(
-                    visit).order_by('created').last()
-            except AttributeError as e:
-                if 'get_for_visit' not in str(e):
-                    raise RuleError(
-                        '{} See \'{}\'.'.format(
-                            str(e), source_model._meta.label_lower))
-                source_obj = visit
+            source_obj = self.get_source_obj(source_model, visit)
             try:
                 source_qs = source_model.objects.filter(
                     subject_identifier=visit.subject_identifier)
@@ -63,6 +51,23 @@ class Rule:
                 else:
                     self.run_rules(
                         target_model, visit, registered_subject, source_obj, source_qs)
+
+    def get_source_obj(self, source_model, visit):
+        try:
+            source_obj = source_model.objects.get_for_visit(visit)
+        except source_model.DoesNotExist:
+            source_obj = None
+        except MultipleObjectsReturned:
+            source_obj = source_model.objects.filter_for_visit(
+                visit).order_by('created').last()
+        except AttributeError as e:
+            if 'get_for_visit' not in str(e):
+                raise RuleError(
+                    '{} See \'{}\'.'.format(
+                        str(e), source_model._meta.label_lower))
+            source_obj = visit
+
+        return source_obj
 
     def run_rules(self, target_model, visit, *args):
         if target_model._meta.label_lower == visit._meta.label_lower:

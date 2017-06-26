@@ -59,6 +59,24 @@ class RuleGroupMetaClass(type):
         # get the meta class delared on the RuleGroup
         meta = attrs.pop('Meta', None)
 
+        source_model = cls.__get_source_model(meta)
+
+        try:
+            getattr(meta, 'source_fk')
+        except AttributeError:
+            meta.source_fk = None
+
+        rules = cls.__get_rules(name, attrs, meta, source_model)
+
+        meta_attrs = {k: getattr(meta, k)
+                      for k in meta.__dict__ if not k.startswith('_')}
+        meta_attrs.update({'rules': tuple(rules)})
+        attrs.update({'_meta': RuleGroupMeta(name, **meta_attrs)})
+        attrs.update({'name': f'{meta.app_label}.{name.lower()}'})
+        return super().__new__(cls, name, bases, attrs)
+
+    @classmethod
+    def __get_source_model(cls, meta):
         try:
             if meta.source_model == meta.source_model.split('.'):
                 source_model = meta.app_label, meta.source_model
@@ -70,14 +88,12 @@ class RuleGroupMetaClass(type):
                 source_model = None
             else:
                 source_model = meta.source_model
+        return source_model
 
-        try:
-            if not meta.source_fk:
-                meta.source_fk = None
-        except AttributeError:
-            meta.source_fk = None
-
-        # update attrs in each rule from values in Meta
+    @classmethod
+    def __get_rules(cls, name, attrs, meta, source_model):
+        """Update attrs in each rule from values in Meta.
+        """
         rules = []
         for rule_name, rule in attrs.items():
             if not rule_name.startswith('_'):
@@ -104,13 +120,7 @@ class RuleGroupMetaClass(type):
                             rule.target_models = [rule.target_model]
                         rule.source_model = source_model
                         rules.append(rule)
-        # add a django like _meta to Rulegroup as an instance of BaseMeta
-        meta_attrs = {k: getattr(meta, k)
-                      for k in meta.__dict__ if not k.startswith('_')}
-        meta_attrs.update({'rules': tuple(rules)})
-        attrs.update({'_meta': RuleGroupMeta(name, **meta_attrs)})
-        attrs.update({'name': f'{meta.app_label}.{name.lower()}'})
-        return super().__new__(cls, name, bases, attrs)
+        return rules
 
 
 class RuleGroup(object, metaclass=RuleGroupMetaClass):
