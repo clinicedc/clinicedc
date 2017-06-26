@@ -9,10 +9,13 @@ class Panel:
 
 
 crfs = (
-    Crf(show_order=1, model='edc_metadata.crfone'),
-    Crf(show_order=2, model='edc_metadata.crftwo'),
-    Crf(show_order=3, model='edc_metadata.crfthree'),
+    Crf(show_order=1, model='edc_metadata.crfone', required=True),
+    Crf(show_order=2, model='edc_metadata.crftwo', required=True),
+    Crf(show_order=3, model='edc_metadata.crfthree', required=True),
+    Crf(show_order=4, model='edc_metadata.crffour', required=True),
+    Crf(show_order=5, model='edc_metadata.crffive', required=True),
 )
+
 requisitions = (
     Requisition(
         show_order=10, model='edc_metadata.subjectrequisition',

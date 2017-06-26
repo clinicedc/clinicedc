@@ -1,12 +1,12 @@
 from .rule_group import RuleGroup
-from .site_rule_groups import site_rule_groups
+from .site_metadata_rules import site_metadata_rules
 
 
 def register(site=None, **kwargs):
     """
     Registers a rule group
     """
-    site = site or site_rule_groups
+    site = site or site_metadata_rules
 
     def _rule_group_wrapper(rule_group_class):
 

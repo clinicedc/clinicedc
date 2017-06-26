@@ -4,7 +4,7 @@ from django.db import models
 from ...constants import REQUISITION
 
 from ...rules.exceptions import RuleGroupError
-from ...rules.site_rule_groups import site_rule_groups
+from ...rules.site_metadata_rules import site_metadata_rules
 
 
 class MetadataRulesModelMixin(models.Model):
@@ -34,7 +34,7 @@ class MetadataRulesModelMixin(models.Model):
         """Runs all the rule groups for this app label.
         """
         try:
-            for rule_group in site_rule_groups.registry.get(self._meta.app_label, []):
+            for rule_group in site_metadata_rules.registry.get(self._meta.app_label, []):
                 if source_model:
                     try:
                         rule_group.run_for_source_model(self, source_model)

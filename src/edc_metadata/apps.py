@@ -6,7 +6,7 @@ from django.core.management.color import color_style
 
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
 
-from .rules.site_rule_groups import site_rule_groups
+from .rules.site_metadata_rules import site_metadata_rules
 
 
 style = color_style()
@@ -37,8 +37,8 @@ class AppConfig(DjangoAppConfig):
             sys.stdout.write(
                 ' * using custom metadata models from \'{}\'\n'.format(self.app_label))
 
-        site_rule_groups.autodiscover()
-        if not site_rule_groups.registry:
+        site_metadata_rules.autodiscover()
+        if not site_metadata_rules.registry:
             sys.stdout.write(style.ERROR(
                 ' Warning. No metadata rules have loaded.\n'.format(self.verbose_name)))
         if not self.metadata_rules_enabled:

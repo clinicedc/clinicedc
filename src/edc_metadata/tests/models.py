@@ -5,19 +5,21 @@ from edc_appointment.model_mixins import CreateAppointmentsMixin
 from edc_appointment.models import Appointment
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
+from edc_constants.choices import GENDER
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_visit_schedule.model_mixins import EnrollmentModelMixin, DisenrollmentModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin, CrfModelMixin
 
 from ..model_mixins.creates import CreatesMetadataModelMixin
-from ..model_mixins.updates import UpdatesCrfMetadataModelMixin
-from edc_metadata.model_mixins.updates.updates_requisition_metadata_model_mixin import UpdatesRequisitionMetadataModelMixin
+from ..model_mixins.updates import UpdatesCrfMetadataModelMixin, UpdatesRequisitionMetadataModelMixin
 
 
 class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     consent_datetime = models.DateTimeField(default=get_utcnow)
+
+    gender = models.CharField(max_length=25, choices=GENDER)
 
 
 class Enrollment(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):

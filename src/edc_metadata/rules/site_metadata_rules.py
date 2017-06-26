@@ -8,34 +8,30 @@ from django.utils.module_loading import import_module, module_has_submodule
 from .exceptions import MetadataRulesError
 
 
-class AlreadyRegistered(Exception):
+class MetadataRulesAlreadyRegistered(Exception):
     pass
 
 
-class NotRegistered(Exception):
-    pass
+class SiteMetadataRules(object):
 
-
-class SiteRuleGroups(object):
-
-    """ Main controller of :class:`RuleGroup` objects.
+    """ Main controller of :class:`MetadataRules` objects.
     """
 
     def __init__(self):
         self.registry = OrderedDict()
 
-    def register(self, rule_group):
-        """ Register Rule groups to the list for the module the rule
+    def register(self, rule_group=None):
+        """ Register MetadataRules to a list per app_label for the module the rule
         groups were declared in.
         """
-        if rule_group._meta.app_label not in self.registry:
+        if rule_group and rule_group._meta.app_label not in self.registry:
             self.registry.update({rule_group._meta.app_label: []})
-        for rg in self.registry.get(rule_group._meta.app_label):
-            if rg.name == rule_group.name:
-                raise AlreadyRegistered(
-                    'The rule group {0} is already registered'.format(
-                        rule_group.name))
-        self.registry.get(rule_group._meta.app_label).append(rule_group)
+        else:
+            for rgroup in self.registry.get(rule_group._meta.app_label):
+                if rgroup.name == rule_group.name:
+                    raise MetadataRulesAlreadyRegistered(
+                        f'The metadata rule group {rule_group.name} is already registered')
+            self.registry.get(rule_group._meta.app_label).append(rule_group)
 
     def get(self, app_label):
         return self.registry.get(app_label)
@@ -124,32 +120,33 @@ class SiteRuleGroups(object):
         of any INSTALLED_APP.
         """
         module_name = module_name or 'metadata_rules'
-        sys.stdout.write(' * checking for {} ...\n'.format(module_name))
+        sys.stdout.write(f' * checking for {module_name} ...\n')
         for app in django_apps.app_configs:
             try:
                 mod = import_module(app)
                 try:
                     before_import_registry = copy.copy(
-                        site_rule_groups.registry)
-                    import_module('{}.{}'.format(app, module_name))
+                        site_metadata_rules.registry)
+                    import_module(f'{app}.{module_name}')
                 except Exception as e:
                     if 'edc_metadata' in str(e) and 'metadata_rules' not in str(e):
                         raise MetadataRulesError(
-                            'Failed to import {}.metadata_rules. Got \'{}\'.'.format(app, e))
+                            f'Failed to import {app}.metadata_rules. Got \'{e}\'.')
                     if 'edc_rule_groups' in str(e):
                         raise MetadataRulesError(
-                            'Failed to import {}.metadata_rules. '
-                            'App \'edc_rule_groups\' no longer exists. Use '
-                            '\'edc_metadata.rules\' instead. '
-                            'Got \'{}\'.'.format(app, e))
-                    if 'No module named \'{}.{}\''.format(app, module_name) not in str(e):
-                        site_rule_groups.registry = before_import_registry
+                            f'Failed to import {app}.metadata_rules. '
+                            f'App \'edc_rule_groups\' no longer exists. Use '
+                            f'\'edc_metadata.rules\' instead. '
+                            f'Got \'{e}\'.')
+                    if f'No module named \'{app}.{module_name}\'' not in str(e):
+                        site_metadata_rules.registry = before_import_registry
                         if module_has_submodule(mod, module_name):
                             raise
                 else:
                     sys.stdout.write(
-                        '   - registered metadata rules from \'{}\'\n'.format(app))
+                        f'   - registered metadata rules from \'{app}\'\n')
             except ImportError as e:
                 pass
 
-site_rule_groups = SiteRuleGroups()
+
+site_metadata_rules = SiteMetadataRules()
