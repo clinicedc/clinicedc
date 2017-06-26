@@ -16,23 +16,26 @@ class InfantIdentifier:
                  create_registration=None, **kwargs):
         subject_type = 'infant'
         template = template or '{maternal_identifier}-{infant_suffix}'
-        create_registration = True if create_registration is None else create_registration
+        create_registration = (
+            True if create_registration is None else create_registration)
         if identifier:
-            identifier_model = IdentifierModel.objects.get(identifier=identifier)
+            identifier_model = IdentifierModel.objects.get(
+                identifier=identifier)
             self.identifier = identifier_model.identifier
         elif not maternal_identifier:
             self.identifier = None
         else:
             try:
-                IdentifierModel.objects.get(identifier=maternal_identifier.identifier)
+                IdentifierModel.objects.get(
+                    identifier=maternal_identifier.identifier)
             except IdentifierModel.DoesNotExist:
                 raise InfantIdentifierError(
-                    'Unable to allocate infant identifier. Maternal_identifier {0} does not exist.'.format(
-                        maternal_identifier.identifier))
+                    'Unable to allocate infant identifier. Maternal_identifier '
+                    f'{maternal_identifier.identifier} does not exist.')
             if birth_order > live_infants:
                 raise InfantIdentifierError(
-                    'Unable to allocate infant identifier. Birth order cannot be {} '
-                    'if number of live infants is {}.'.format(birth_order, live_infants))
+                    f'Unable to allocate infant identifier. Birth order cannot be '
+                    f'{birth_order} if number of live infants is {live_infants}.')
             infant_suffix = self.infant_suffix(live_infants) + birth_order
             self.identifier = template.format(
                 maternal_identifier=maternal_identifier.identifier,
@@ -45,20 +48,24 @@ class InfantIdentifier:
                 protocol_number=edc_protocol_app_config.protocol_number,
                 device_id=edc_device_app_config.device_id,
                 model=model,
-                study_site=maternal_identifier.study_site,
+                study_site=maternal_identifier.site_code,
                 subject_type=subject_type)
             if create_registration:
-                RegisteredSubject = django_apps.get_app_config('edc_registration').model
-                obj = RegisteredSubject.objects.get(subject_identifier=maternal_identifier.identifier)
-                first_name = 'Baby{}{}'.format(birth_order + 1, (obj.last_name or 'UNKNOWN').lower().title())
+                RegisteredSubject = django_apps.get_app_config(
+                    'edc_registration').model
+                obj = RegisteredSubject.objects.get(
+                    subject_identifier=maternal_identifier.identifier)
+                first_name = 'Baby{}{}'.format(
+                    birth_order + 1, (obj.last_name or 'UNKNOWN').lower().title())
                 RegisteredSubject.objects.create(
                     subject_identifier=self.identifier,
                     subject_type=subject_type,
-                    study_site=maternal_identifier.study_site,
+                    study_site=maternal_identifier.site_code,
                     relative_identifier=maternal_identifier.identifier,
                     first_name=kwargs.get('first_name', first_name),
                     initials=kwargs.get('initials', None),
-                    registration_status=kwargs.get('registration_status', 'DELIVERED'),
+                    registration_status=kwargs.get(
+                        'registration_status', 'DELIVERED'),
                     registration_datetime=kwargs.get('registration_datetime', None))
 
     def __str__(self):
@@ -81,8 +88,9 @@ class InfantIdentifier:
             infant_suffix = 58  # quintuplets 58, 59, 60, 61, 62
         else:
             raise InfantIdentifierError(
-                'Unable to allocate infant identifier. Ensure number of infants is greater than 0 and less than '
-                'or equal to 5. You wrote %s' % (live_infants))
+                f'Unable to allocate infant identifier. Ensure number of infants '
+                f'is greater than 0 and less than or equal to 5. '
+                f'You wrote {live_infants}.')
         return infant_suffix
 
     @classmethod

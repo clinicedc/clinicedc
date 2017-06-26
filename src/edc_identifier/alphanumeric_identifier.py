@@ -5,17 +5,18 @@ from .exceptions import IdentifierError
 from .numeric_identifier import NumericIdentifier
 
 
-class AlphanumericIdentifier(LuhnOrdMixin, NumericIdentifier):
+class AlphanumericIdentifier(NumericIdentifier):
 
     name = 'alphanumericidentifier'
     alpha_pattern = r'^[A-Z]{3}$'
     numeric_pattern = r'^[0-9]{4}$'
     seed = ['AAA', '0000']
     separator = None
+    checkdigit = LuhnOrdMixin()
 
     def __init__(self, last_identifier=None, prefix=None):
-        self.identifier_pattern = '{}{}'.format(
-            self.alpha_pattern[:-1], self.numeric_pattern[1:])
+        self.identifier_pattern = (
+            f'{self.alpha_pattern[:-1]}{self.numeric_pattern[1:]}')
         self.verify_seed()
         super().__init__(last_identifier, prefix=prefix)
 
@@ -25,21 +26,18 @@ class AlphanumericIdentifier(LuhnOrdMixin, NumericIdentifier):
         """
         if not isinstance(self.seed, list):
             raise TypeError(
-                'Expected attribute seed to be a list. Got {}'.format(self.seed))
+                f'Expected attribute seed to be a list. Got {self.seed}')
         re.match(self.alpha_pattern, self.seed[0]).group()
         re.match(self.numeric_pattern, self.seed[1]).group()
 
     @property
     def identifier_pattern_with_checkdigit(self):
-        return '{}{}'.format(self.identifier_pattern[:-1], self.checkdigit_pattern[1:])
+        return f'{self.identifier_pattern[:-1]}{self.checkdigit_pattern[1:]}'
 
     def increment(self, identifier):
         """Returns the incremented identifier."""
-        identifier = '{}{}{}'.format(
-            self.prefix,
-            self.increment_alpha_segment(identifier),
-            self.increment_numeric_segment(identifier)
-        )
+        identifier = (f'{self.prefix}{self.increment_alpha_segment(identifier)}'
+                      f'{self.increment_numeric_segment(identifier)}')
         return identifier
 
     def increment_alpha_segment(self, identifier):
@@ -52,7 +50,7 @@ class AlphanumericIdentifier(LuhnOrdMixin, NumericIdentifier):
             return self.increment_alpha(alpha)
         else:
             raise IdentifierError(
-                'Unexpected numeric sequence. Got {}'.format(identifier))
+                f'Unexpected numeric sequence. Got {identifier}')
 
     def increment_numeric_segment(self, identifier):
         """Increments the numeric segment of the identifier.
@@ -61,7 +59,8 @@ class AlphanumericIdentifier(LuhnOrdMixin, NumericIdentifier):
         return super().increment(numeric)
 
     def alpha_segment(self, identifier):
-        """Returns the alpha segment of the identifier."""
+        """Returns the alpha segment of the identifier.
+        """
         segment = identifier[
             len(self.prefix):len(self.prefix) + len(self.seed[0])]
         return re.match(self.alpha_pattern, segment).group()

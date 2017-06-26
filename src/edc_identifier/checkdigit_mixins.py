@@ -1,7 +1,7 @@
 from .exceptions import CheckDigitError
 
 
-class BaseCheckDigitMixin(object):
+class BaseCheckDigit:
 
     def is_valid_checkdigit(self, identifier, checkdigit):
         try:
@@ -14,37 +14,38 @@ class BaseCheckDigitMixin(object):
             return False
 
 
-class LuhnMixin(BaseCheckDigitMixin):
+class LuhnMixin(BaseCheckDigit):
 
     def calculate_checkdigit(self, identifier):
-        return str(self.calculate_luhn(identifier))
+        return str(self._calculate_luhn(identifier))
 
-    def digits_of(self, n):
+    def _digits_of(self, n):
         return [int(d) for d in str(n)]
 
-    def luhn_checksum(self, identifier):
-        digits = self.digits_of(identifier)
+    def _luhn_checksum(self, identifier):
+        digits = self._digits_of(identifier)
         odd_digits = digits[-1::-2]
         even_digits = digits[-2::-2]
         checksum = 0
         checksum += sum(odd_digits)
         for d in even_digits:
-            checksum += sum(self.digits_of(d * 2))
+            checksum += sum(self._digits_of(d * 2))
         return checksum % 10
 
-    def calculate_luhn(self, identifier):
-        check_digit = self.luhn_checksum(int(''.join(map(str, self.digits_of(identifier)))) * 10)
+    def _calculate_luhn(self, identifier):
+        check_digit = self._luhn_checksum(
+            int(''.join(map(str, self._digits_of(identifier)))) * 10)
         return check_digit if check_digit == 0 else 10 - check_digit
 
 
 class LuhnOrdMixin(LuhnMixin):
     """Accepts alpha/numeric but is not standard."""
 
-    def digits_of(self, n):
+    def _digits_of(self, n):
         return [ord(d) for d in str(n)]
 
 
-class ModulusMixin(BaseCheckDigitMixin):
+class ModulusMixin(BaseCheckDigit):
 
     modulus = 13
 

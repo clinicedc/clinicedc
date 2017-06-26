@@ -2,100 +2,120 @@ import random
 import re
 
 from django.apps import apps as django_apps
+
 from .checkdigit_mixins import LuhnOrdMixin
-from .exceptions import IdentifierError
-from .identifier_with_checkdigit import IdentifierWithCheckdigit
 
 
-class ShortIdentifier(LuhnOrdMixin, IdentifierWithCheckdigit):
+class ShortIdentifierError(Exception):
+    pass
+
+
+class ShortIdentifierPrefixError(Exception):
+    pass
+
+
+class ShortIdentifierPrefixPatternError(Exception):
+    pass
+
+
+class DuplicateIdentifierError(Exception):
+    pass
+
+
+class ShortIdentifier:
 
     name = 'shortidentifier'
-    allowed_chars = 'ABCDEFGHKMNPRTUVWXYZ2346789'
-    checkdigit_pattern = None
-    identifier_pattern = r'^[A-Z0-9]{5}$'
-    prefix_pattern = None
-    random_string_pattern = r'^[A-Z0-9]{5}$'
-    seed = None
     template = '{prefix}{random_string}'
+    random_string_pattern = r'[A-Z0-9]+'  # alhpanumeric
+    random_string_length = 5
+    prefix_pattern = '^[0-9]{2}$'
+    history_model = 'edc_identifier.identifierhistory'
 
-    def __init__(self, **options):
-        self.duplicate_counter = 0
-        self._options = options or {}
-        self.prefix = options.get('prefix')
-        self.identifier = self.next_on_duplicate(None)
-        super(ShortIdentifier, self).__init__(self.identifier, prefix=self.prefix)
+    prefix = None
+    seed = None
 
-    @property
-    def options(self):
-        if 'prefix' not in self._options:
-            try:
-                self.prefix = re.match(self.prefix_pattern[:-1], self.last_identifier).group()
-                self._options.update({'prefix': self.prefix})
-            except TypeError:
-                self._options.update({'prefix': ''})
-        return self._options
+    checkdigit = LuhnOrdMixin()
 
-    def next_identifier(self):
-        """Sets the identifier attr to the next identifier.
+    def __init__(self, name=None, prefix_pattern=None, prefix=None,
+                 template=None, random_string_length=None,
+                 random_string_pattern=None, history_model=None):
+        self._last_random_string = None
+        self.name = name or self.name
 
-        Removes the checkdigit if it has one."""
-        identifier_pattern = self.identifier_pattern
-        if self.checkdigit_pattern:
-            identifier_pattern = self.identifier_pattern[:-1] + self.checkdigit_pattern[1:]
-        if self.identifier:
-            if re.match(identifier_pattern, self.identifier):
-                self.identifier = self.remove_checkdigit(self.identifier)
-        identifier = self.remove_separator(self.identifier)
-        identifier = self.increment(identifier)
-        if self.checkdigit_pattern:
-            checkdigit = self.calculate_checkdigit(identifier)
+        self.template = template or self.template
+        self.random_string_length = random_string_length or self.random_string_length
+        self.random_string_pattern = random_string_pattern or self.random_string_pattern
+        self.random_string_pattern = re.compile(self.random_string_pattern)
+
+        if history_model:
+            self.history_model = django_apps.get_model(
+                *history_model.split('.'))
         else:
-            checkdigit = None
-        identifier = self.insert_separator(identifier, checkdigit)
-        self.identifier = self.validate_identifier_pattern(
-            identifier, pattern=identifier_pattern)
-        self.update_history()
+            self.history_model = django_apps.get_model(
+                *self.history_model.split('.'))
 
-    def increment(self, identifier):
-        """Creates a new almost unique identifier."""
-        return self.next_on_duplicate(identifier)
+        self.prefix_pattern = prefix_pattern or self.prefix_pattern
 
-    def next_on_duplicate(self, identifier):
-        """If a duplicate, create a new identifier."""
-        while True:
-            self.options.update({'random_string': self.get_random_string(length=self.random_string_length)})
-            identifier = self.template.format(**self.options)
-            if not self.is_duplicate(identifier):
-                break
-            self.duplicate_counter += 1
-            if self.duplicate_counter >= self.duplicate_tries:
-                raise IdentifierError(
-                    'Unable prepare a unique requisition identifier, '
-                    'all are taken. Increase the length of the random string')
+        self.prefix = prefix or self.prefix or ''
+        self.prefix = str(self.prefix)
+        if self.prefix and not self.prefix_pattern:
+            raise ShortIdentifierPrefixError(
+                'Prefix declared without a corresponding pattern. '
+                f'Got prefix=\'{self.prefix}\', '
+                f'prefix_pattern=\'{self.prefix_pattern}\'.')
+
+        if self.prefix_pattern:
+            if (not self.prefix_pattern.startswith('^')
+                    or not self.prefix_pattern.endswith('$')):
+                raise ShortIdentifierPrefixPatternError(
+                    f'Invalid prefix pattern. Got {self.prefix_pattern}.')
+            self.prefix_pattern = re.compile(self.prefix_pattern)
+
+        if not self.prefix and self.prefix_pattern:
+            raise ShortIdentifierPrefixError(
+                f'Prefix does not match prefix pattern. '
+                f'Got prefix=None.')
+        elif self.prefix and not self.prefix_pattern.match(self.prefix):
+            raise ShortIdentifierPrefixError(
+                f'Prefix does not match prefix pattern. '
+                f'Got \'{self.prefix}\' does not match '
+                f'pattern \'{self.prefix_pattern}\'.')
+        self.identifier = self.get_identifier()
+
+    def __str__(self):
+        return self.identifier
+
+    def get_identifier(self):
+        """Returns a new unique identifier.
+        """
+        identifier = None
+        allowed_chars = self.random_string_pattern.match(
+            'ABCDEFGHKMNPRTUVWXYZ2346789').group()
+        max_tries = len(allowed_chars) ** (self.random_string_length + 1)
+        tries = 0
+        while not identifier:
+            tries += 1
+            random_string = ''.join([
+                random.choice(allowed_chars)
+                for _ in range(self.random_string_length)])
+            identifier = self.template.format(
+                random_string=random_string,
+                prefix=self.prefix)
+            try:
+                self.history_model.objects.get(
+                    identifier=identifier,
+                    identifier_type=self.name)
+            except self.history_model.DoesNotExist:
+                pass
+            else:
+                identifier = None
+                if tries >= max_tries:
+                    raise DuplicateIdentifierError(
+                        'Unable prepare a unique requisition identifier, '
+                        'all are taken. Increase the length of the random string. '
+                        f'tries={tries}, max_tries={max_tries}.')
+        self.history_model.objects.create(
+            identifier=identifier,
+            identifier_type=self.name,
+            identifier_prefix=self.prefix)
         return identifier
-
-    @property
-    def duplicate_tries(self):
-        return len(self.allowed_chars) ** (self.random_string_length)
-
-    @property
-    def random_string_length(self):
-        sample_string = 'A' * 100
-        return len(re.match(self.random_string_pattern[:-1], sample_string).group())
-
-    def is_duplicate(self, identifier):
-        """May override with your algorithm for determining duplicates."""
-        try:
-            HistoryModel = self.history_model
-        except AttributeError:
-            HistoryModel = django_apps.get_model('edc_identifier', 'IdentifierHistory')
-        try:
-            HistoryModel.objects.get(identifier=identifier)
-            return True
-        except HistoryModel.DoesNotExist:
-            pass
-        return False
-
-    def get_random_string(self, length):
-        """ safe for people, no lowercase and no 0OL1J5S etc."""
-        return ''.join([random.choice(self.allowed_chars) for _ in range(length)])

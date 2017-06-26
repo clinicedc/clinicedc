@@ -1,9 +1,12 @@
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.db import models
 
 from edc_base.model_mixins import BaseModel, BaseUuidModel
 from edc_base.model_managers import HistoricalRecords
-from edc_base.utils import get_utcnow
+
+if settings.APP_NAME == 'edc_identifier':
+    from .tests.models import Enrollment, EnrollmentThree
 
 
 class IdentifierModelManager(models.Manager):

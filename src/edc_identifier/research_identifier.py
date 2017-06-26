@@ -1,86 +1,99 @@
-from copy import copy
 from string import Formatter
 
 from django.apps import apps as django_apps
 
 from .checkdigit_mixins import LuhnMixin
-from .exceptions import ResearchIdentifierError
 from .models import IdentifierModel
 
-edc_device_app_config = django_apps.get_app_config('edc_device')
-edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
+
+class IdentifierMissingTemplateValue(Exception):
+    pass
 
 
-class ResearchIdentifier(LuhnMixin):
+class ResearchIdentifier:
 
     label = None  # e.g. subject_identifier, plot_identifier, etc
-    exception = ResearchIdentifierError
+    identifier_type = None  # e.g. 'subject', 'infant', 'plot', a.k.a subject_type
+    template = None
+    padding = 5
+    checkdigit = LuhnMixin()
 
-    def __init__(self, object_to_identify=None, requesting_model=None,
-                 template=None, identifier=None, **kwargs):
-        # e.g. 'subject', 'infant', 'plot', a.k.a subject_type
-        self.object_to_identify = object_to_identify
-        self.requesting_model = requesting_model
+    def __init__(self, identifier_type=None, template=None, identifier=None,
+                 device_id=None, protocol_number=None, site_code=None,
+                 model=None):
+
+        self._identifier = None
+        self.model = model
+        self.identifier_type = identifier_type or self.identifier_type
         self.template = template or self.template
-        kwargs.update(
-            device_id=kwargs.get('device_id', edc_device_app_config.device_id),
-            protocol_number=kwargs.get(
-                'protocol_number', edc_protocol_app_config.protocol_number))
-        self.template_options = copy(kwargs)
+        app_config = django_apps.get_app_config('edc_device')
+        self.device_id = device_id or app_config.device_id
+        app_config = django_apps.get_app_config('edc_protocol')
+        self.protocol_number = protocol_number or app_config.protocol_number
+        self.site_code = site_code or app_config.site_code
         if identifier:
             # load an existing identifier
             self.identifier_model = IdentifierModel.objects.get(
                 identifier=identifier)
-            self.identifier = self.identifier_model.identifier
+            self._identifier = self.identifier_model.identifier
             self.subject_type = self.identifier_model.subject_type
-            self.study_site = self.identifier_model.study_site
-        else:
-            if not self.missing_args:
-                self.create(**kwargs)
+            self.site_code = self.identifier_model.study_site
 
-    def create(self, **kwargs):
-        """Creates a new and unique identifier and updates
-        the IdentifierModel.
-        """
-        self.template_options.update(
-            sequence=str(self.sequence_number).rjust(self.padding, '0'))
-        identifier = self.template.format(**self.template_options)
-        self.identifier = '{}-{}'.format(
-            identifier, self.calculate_checkdigit(''.join(identifier.split('-'))))
-        self.identifier_model = IdentifierModel.objects.create(
-            name=self.label,
-            sequence_number=self.sequence_number,
-            identifier=self.identifier,
-            protocol_number=self.template_options.get('protocol_number'),
-            device_id=self.template_options.get('device_id'),
-            model=self.requesting_model,
-            study_site=self.template_options.get('study_site'),
-            subject_type=self.object_to_identify)
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.label})'
 
     def __str__(self):
         return self.identifier
 
     @property
-    def padding(self):
-        return 5
+    def identifier(self):
+        """Returns a new and unique identifier and updates
+        the IdentifierModel.
+        """
+        if not self._identifier:
+            self._identifier = self.template.format(**self.template_opts)
+            check_digit = self.checkdigit.calculate_checkdigit(
+                ''.join(self._identifier.split('-')))
+            self._identifier = f'{self._identifier}-{check_digit}'
+            self.identifier_model = IdentifierModel.objects.create(
+                name=self.label,
+                sequence_number=self.sequence_number,
+                identifier=self._identifier,
+                protocol_number=self.protocol_number,
+                device_id=self.device_id,
+                model=self.model,
+                study_site=self.site_code,
+                subject_type=self.identifier_type)
+            self.post_identifier()
+        return self._identifier
+
+    def post_identifier(self):
+        pass
 
     @property
-    def missing_args(self):
-        """Raises an exception if an arg used in the template is
-        not provided.
+    def template_opts(self):
+        """Returns the template key/values, if a key from the template
+        does not exist raises an exception.
         """
+        template_opts = {}
         formatter = Formatter()
-        template_options = copy(self.template_options)
-        template_options.update(sequence='0000')
-        fields = [tpl[1] for tpl in formatter.parse(self.template)]
-        for field in fields:
+        keys = [opt[1] for opt in formatter.parse(
+            self.template) if opt[1] != 'sequence']
+        template_opts.update(
+            sequence=str(self.sequence_number).rjust(self.padding, '0'))
+        for key in keys:
             try:
-                if not template_options[field]:
-                    raise self.exception(
-                        'Required option not provided. Got {}'.format(field))
-            except KeyError:
-                raise self.exception(
-                    'Required option not provided. Got {}'.format(field))
+                value = getattr(self, key)
+            except AttributeError:
+                raise IdentifierMissingTemplateValue(
+                    f'Required option not provided. Got \'{key}\'.')
+            else:
+                if value:
+                    template_opts.update({key: value})
+                else:
+                    raise IdentifierMissingTemplateValue(
+                        f'Required option cannot be None. Got \'{key}\'.')
+        return template_opts
 
     @property
     def sequence_number(self):
@@ -89,9 +102,8 @@ class ResearchIdentifier(LuhnMixin):
         try:
             identifier_model = IdentifierModel.objects.filter(
                 name=self.label,
-                device_id=self.template_options.get('device_id'),
-                study_site=self.template_options.get(
-                    'study_site')).order_by('-sequence_number').first()
+                device_id=self.device_id,
+                study_site=self.site_code).order_by('-sequence_number').first()
             sequence_number = identifier_model.sequence_number + 1
         except AttributeError:
             sequence_number = 1

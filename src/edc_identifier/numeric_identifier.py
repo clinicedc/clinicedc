@@ -4,7 +4,8 @@ from .identifier_with_checkdigit import IdentifierWithCheckdigit
 
 
 class NumericIdentifier(IdentifierWithCheckdigit):
-    """Class for numeric identifier with check digit."""
+    """Class for numeric identifier with check digit.
+    """
 
     name = 'numericidentifier'
     identifier_pattern = r'^[0-9]{10}$'
@@ -13,19 +14,22 @@ class NumericIdentifier(IdentifierWithCheckdigit):
     seed = ('0000000000')
 
     def increment(self, identifier):
-        """Returns the incremented identifier."""
+        """Returns the incremented identifier.
+        """
         if int(identifier) < self.max_numeric(identifier):
             incr = int(identifier) + 1
         elif int(identifier) == self.max_numeric(identifier):
             incr = 1
         else:
-            raise IdentifierError('Unexpected numeric sequence. Got {}'.format(identifier))
+            raise IdentifierError(
+                f'Unexpected numeric sequence. Got {identifier}')
         frmt = '{{0:0{}d}}'.format(len(identifier))
-        identifier = '{}'.format(frmt.format(incr))
+        identifier = f'{frmt.format(incr)}'
         return identifier
 
     def max_numeric(self, identifier):
-        """Returns max value for numeric segment."""
+        """Returns max value for numeric segment.
+        """
         return int('9' * len(identifier))
 
 

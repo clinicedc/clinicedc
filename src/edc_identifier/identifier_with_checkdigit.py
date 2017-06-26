@@ -5,10 +5,11 @@ from .exceptions import CheckDigitError
 from .identifier import Identifier
 
 
-class IdentifierWithCheckdigit(Identifier, LuhnMixin):
+class IdentifierWithCheckdigit(Identifier):
 
     name = 'identifierwithcheckdigit'
     checkdigit_pattern = r'^[0-9]{1}$'
+    checkdigit = LuhnMixin()
 
     def __init__(self, last_identifier=None, **kwargs):
         if self.checkdigit_pattern:
@@ -29,7 +30,7 @@ class IdentifierWithCheckdigit(Identifier, LuhnMixin):
         identifier = self.remove_separator(self.identifier)
         identifier = self.increment(identifier)
         if self.checkdigit_pattern:
-            checkdigit = self.calculate_checkdigit(identifier)
+            checkdigit = self.checkdigit.calculate_checkdigit(identifier)
         identifier = self.insert_separator(identifier, checkdigit)
         self.identifier = self.validate_identifier_pattern(
             identifier,
@@ -38,8 +39,7 @@ class IdentifierWithCheckdigit(Identifier, LuhnMixin):
 
     @property
     def identifier_pattern_with_checkdigit(self):
-        return '{}{}'.format(
-            self.identifier_pattern[:-1], self.checkdigit_pattern[1:])
+        return f'{self.identifier_pattern[:-1]}{self.checkdigit_pattern[1:]}'
 
     def insert_separator(self, identifier, checkdigit=None):
         """Returns the identifier with the separator inserted.
@@ -65,14 +65,13 @@ class IdentifierWithCheckdigit(Identifier, LuhnMixin):
                     self.checkdigit_pattern[1:], identifier_with_checkdigit)[0]
             except IndexError:
                 raise CheckDigitError(
-                    'Cannot match check digit for this identifier using '
-                    'pattern {}. Got {}.'.format(
-                        self.checkdigit_pattern, identifier_with_checkdigit))
+                    f'Cannot match check digit for this identifier using '
+                    f'pattern {self.checkdigit_pattern}. '
+                    f'Got {identifier_with_checkdigit}.')
             identifier = identifier_with_checkdigit[:-len(checkdigit)]
             checkdigit = checkdigit.replace(self.separator or '', '')
-            if not checkdigit == self.calculate_checkdigit(identifier):
+            if not checkdigit == self.checkdigit.calculate_checkdigit(identifier):
                 raise CheckDigitError(
-                    'Identifier with check digit {} is invalid. '
-                    'Got identifier {}'.format(
-                        checkdigit, identifier_with_checkdigit))
+                    f'Identifier with check digit {checkdigit} is invalid. '
+                    f'Got identifier {identifier_with_checkdigit}')
         return identifier
