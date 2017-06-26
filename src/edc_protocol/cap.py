@@ -17,19 +17,17 @@ class Cap:
                 'See edc_protocol.app_config'.format(max_subjects))
         self.max_subjects = max_subjects or -1
 
+    def __repr__(self):
+        return (f'{self.__class__.__name__}(study_site={self.study_site}, '
+                f'max={self.max_subjects})')
+
     def __str__(self):
-        return '{}:{} max={} ({})'.format(
-            self.subject_type_name,
-            self.model_name,
-            self.max_subjects,
-            'All sites' if self.study_site == ALL_SITES else 'site {}'.format(self.study_site))
+        return (f'{self.subject_type_name} model={self.model_name}, '
+                f'study_sites={self.study_site}, max={self.max_subjects}')
 
     @property
     def name(self):
-        return '{}:{}:{}'.format(
-            self.subject_type_name,
-            self.model_name,
-            self.study_site)
+        return f'{self.subject_type_name}:{self.model_name}:{self.study_site}'
 
     @property
     def model(self):
