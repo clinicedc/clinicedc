@@ -37,12 +37,7 @@ class Rule:
         if self.source_model:
             source_model = django_apps.get_model(*self.source_model)
             source_obj = self.get_source_obj(source_model, visit)
-            try:
-                source_qs = source_model.objects.filter(
-                    subject_identifier=visit.subject_identifier)
-            except FieldError:
-                source_qs = source_model.objects.get_for_subject_identifier(
-                    visit.subject_identifier)
+            source_qs = self.get_source_qs(source_model, visit)
         for target_model in self.target_models:
             target_model = django_apps.get_model(*target_model.split('.'))
             if self.runif(visit):
@@ -66,8 +61,16 @@ class Rule:
                     '{} See \'{}\'.'.format(
                         str(e), source_model._meta.label_lower))
             source_obj = visit
-
         return source_obj
+
+    def get_source_qs(self, source_model, visit):
+        try:
+            source_qs = source_model.objects.filter(
+                subject_identifier=visit.subject_identifier)
+        except FieldError:
+            source_qs = source_model.objects.get_for_subject_identifier(
+                visit.subject_identifier)
+        return source_qs
 
     def run_rules(self, target_model, visit, *args):
         if target_model._meta.label_lower == visit._meta.label_lower:
