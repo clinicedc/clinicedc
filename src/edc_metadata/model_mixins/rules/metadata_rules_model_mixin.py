@@ -3,8 +3,7 @@ from django.db import models
 
 from ...constants import REQUISITION
 
-from ...rules.exceptions import RuleGroupError
-from ...rules.site_metadata_rules import site_metadata_rules
+from ...rules import site_metadata_rules, RuleGroupError
 
 
 class MetadataRulesModelMixin(models.Model):

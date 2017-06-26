@@ -6,7 +6,7 @@ from django.core.management.color import color_style
 
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
 
-from .rules.site_metadata_rules import site_metadata_rules
+from .rules import site_metadata_rules
 
 
 style = color_style()

@@ -10,11 +10,16 @@ from ..exceptions import CreatesMetadataError
 from ..models import CrfMetadata, RequisitionMetadata
 from .models import SubjectVisit, Enrollment, CrfOne, CrfTwo, CrfThree, SubjectRequisition
 from .visit_schedule import visit_schedule
+from ..rules import site_metadata_rules
+from collections import OrderedDict
 
 
 class TestCreatesDeletesMetadata(TestCase):
 
     def setUp(self):
+
+        site_metadata_rules.registry = OrderedDict()
+
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)

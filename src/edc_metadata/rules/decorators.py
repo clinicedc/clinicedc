@@ -1,19 +1,24 @@
 from .rule_group import RuleGroup
-from .site_metadata_rules import site_metadata_rules
+
+from .site import site_metadata_rules
+
+
+class RegisterRuleGroupError(Exception):
+    pass
 
 
 def register(site=None, **kwargs):
-    """
-    Registers a rule group
+    """Registers a rule group.
     """
     site = site or site_metadata_rules
 
-    def _rule_group_wrapper(rule_group_class):
+    def _rule_group_wrapper(rule_group_cls):
 
-        if not issubclass(rule_group_class, RuleGroup):
-            raise ValueError('Wrapped class must RuleGroup.')
+        if not issubclass(rule_group_cls, RuleGroup):
+            raise RegisterRuleGroupError(
+                f'Wrapped class must a RuleGroup class. Got {rule_group_cls}')
 
-        site.register(rule_group_class)
+        site.register(rule_group_cls=rule_group_cls)
 
-        return rule_group_class
+        return rule_group_cls
     return _rule_group_wrapper

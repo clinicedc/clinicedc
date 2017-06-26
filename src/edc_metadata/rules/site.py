@@ -5,14 +5,20 @@ from collections import OrderedDict
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
 
-from .exceptions import MetadataRulesError
 
-
-class MetadataRulesAlreadyRegistered(Exception):
+class SiteMetadataRulesAlreadyRegistered(Exception):
     pass
 
 
-class SiteMetadataRules(object):
+class SiteMetadataNoRulesError(Exception):
+    pass
+
+
+class SiteMetadataRulesImportError(Exception):
+    pass
+
+
+class SiteMetadataRules:
 
     """ Main controller of :class:`MetadataRules` objects.
     """
@@ -20,21 +26,30 @@ class SiteMetadataRules(object):
     def __init__(self):
         self.registry = OrderedDict()
 
-    def register(self, rule_group=None):
-        """ Register MetadataRules to a list per app_label for the module the rule
-        groups were declared in.
+    def register(self, rule_group_cls=None):
+        """ Register MetadataRules to a list per app_label
+        for the module the rule groups were declared in.
         """
-        if rule_group and rule_group._meta.app_label not in self.registry:
-            self.registry.update({rule_group._meta.app_label: []})
-        else:
-            for rgroup in self.registry.get(rule_group._meta.app_label):
-                if rgroup.name == rule_group.name:
-                    raise MetadataRulesAlreadyRegistered(
-                        f'The metadata rule group {rule_group.name} is already registered')
-            self.registry.get(rule_group._meta.app_label).append(rule_group)
+        if rule_group_cls:
+            if not rule_group_cls._meta.rules:
+                raise SiteMetadataNoRulesError(
+                    f'The metadata rule group {rule_group_cls.name} '
+                    f'has no rule!')
 
-    def get(self, app_label):
-        return self.registry.get(app_label)
+            if rule_group_cls._meta.app_label not in self.registry:
+                self.registry.update({rule_group_cls._meta.app_label: []})
+
+            for rgroup in self.registry.get(rule_group_cls._meta.app_label):
+                if rgroup.name == rule_group_cls.name:
+                    raise SiteMetadataRulesAlreadyRegistered(
+                        f'The metadata rule group {rule_group_cls.name} '
+                        f'is already registered')
+            self.registry.get(rule_group_cls._meta.app_label).append(
+                rule_group_cls)
+
+    @property
+    def rule_groups(self):
+        return self.registry
 
     def get_rule_group(self, name):
         app_label, _ = name.split('.')
@@ -130,10 +145,10 @@ class SiteMetadataRules(object):
                     import_module(f'{app}.{module_name}')
                 except Exception as e:
                     if 'edc_metadata' in str(e) and 'metadata_rules' not in str(e):
-                        raise MetadataRulesError(
+                        raise SiteMetadataRulesImportError(
                             f'Failed to import {app}.metadata_rules. Got \'{e}\'.')
                     if 'edc_rule_groups' in str(e):
-                        raise MetadataRulesError(
+                        raise SiteMetadataRulesImportError(
                             f'Failed to import {app}.metadata_rules. '
                             f'App \'edc_rule_groups\' no longer exists. Use '
                             f'\'edc_metadata.rules\' instead. '

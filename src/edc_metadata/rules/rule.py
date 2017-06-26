@@ -4,7 +4,6 @@ from django.core.exceptions import (
 
 from ..constants import DO_NOTHING
 from .exceptions import RuleError
-from edc_metadata.constants import KEYED
 
 
 class Rule:
@@ -17,7 +16,11 @@ class Rule:
         self.logic = logic
 
     def __repr__(self):
-        return '<{}.rule_groups.{}: {}>'.format(self.app_label, self.group, self.name)
+        return (f'{self.__class__.__name__}({self.app_label}.rule_groups.'
+                f'{self.group}: {self.name})')
+
+    def __str__(self):
+        return self.name
 
     def run(self, visit):
         """Runs the rule for each model in target_models and updates

@@ -19,9 +19,11 @@ class RequisitionRule(Rule):
             try:
                 panel_name = panel.name
             except AttributeError as e:
-                raise RequisitionRuleGroupErrror('{} Expected panel instance. Got panel={}.'.format(str(e), panel))
+                raise RequisitionRuleGroupErrror(
+                    f'{e} Expected panel instance. Got panel={panel}.')
             try:
-                target_model.objects.get_for_visit(visit, panel_name=panel_name)
+                target_model.objects.get_for_visit(
+                    visit, panel_name=panel_name)
             except target_model.DoesNotExist:
                 entry_status = self.evaluate(visit, *args)
                 try:

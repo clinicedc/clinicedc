@@ -14,8 +14,9 @@ class VisitScheduleRule(Rule):
         super().__init__(**kwargs)
         self.schedule = None
         self.visits = None
+        self.visit_schedule_name = visit_schedule_name or self.visit_schedule_name
         self.visit_schedule = site_visit_schedules.get_visit_schedule(
-            visit_schedule_name=visit_schedule_name or self.visit_schedule_name)
+            self.visit_schedule_name)
         if self.visit_schedule:
             self.schedule = self.visit_schedule.schedules.get(
                 schedule_name or self.schedule_name)
