@@ -1,5 +1,9 @@
 from django.apps import apps as django_apps
-from edc_protocol.exceptions import SubjectTypeCapError
+
+
+class CapError(Exception):
+    pass
+
 
 ALL_SITES = 'ALL'
 
@@ -13,7 +17,7 @@ class Cap:
         self.study_site = study_site or ALL_SITES
         max_subjects = max_subjects or 0
         if max_subjects <= 0:
-            raise SubjectTypeCapError(
+            raise CapError(
                 'Subject type cap must be greater than 0. Got max_subjects={}. '
                 'See edc_protocol.app_config'.format(max_subjects))
         self.max_subjects = max_subjects or -1
