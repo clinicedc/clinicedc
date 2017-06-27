@@ -6,7 +6,8 @@ ALL_SITES = 'ALL'
 
 class Cap:
 
-    def __init__(self, subject_type_name=None, model_name=None, study_site=None, max_subjects=None):
+    def __init__(self, subject_type_name=None, model_name=None,
+                 study_site=None, max_subjects=None):
         self.subject_type_name = subject_type_name
         self.model_name = model_name
         self.study_site = study_site or ALL_SITES
