@@ -1,8 +1,17 @@
 import copy
 import inspect
 
-from .exceptions import RuleGroupError
 from .rule import Rule
+from .metadata_updater import MetadataUpdater
+from collections import OrderedDict
+
+
+class RuleGroupError(Exception):
+    pass
+
+
+class RuleGroupModelConflict(Exception):
+    pass
 
 
 class RuleGroupMeta:
@@ -28,12 +37,6 @@ class RuleGroupMetaClass(type):
     """Rule group metaclass.
     """
 
-    def __str__(self):
-        return f'{self.__class__.__name__}({self.name})'
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}({self.name})'
-
     def __new__(cls, name, bases, attrs):
         """Add the Meta attributes to each rule.
         """
@@ -58,40 +61,29 @@ class RuleGroupMetaClass(type):
 
         # get the meta class delared on the RuleGroup
         meta = attrs.pop('Meta', None)
-
-        source_model = cls.__get_source_model(meta)
+        if not meta:
+            raise AttributeError(f'Missing Meta class. See {name}')
 
         try:
             getattr(meta, 'source_fk')
         except AttributeError:
             meta.source_fk = None
+        try:
+            getattr(meta, 'source_model')
+        except AttributeError:
+            meta.source_model = None
 
-        rules = cls.__get_rules(name, attrs, meta, source_model)
+        rules = cls.__get_rules(name, attrs, meta)
 
-        meta_attrs = {k: getattr(meta, k)
-                      for k in meta.__dict__ if not k.startswith('_')}
+        meta_attrs = {
+            k: getattr(meta, k) for k in meta.__dict__ if not k.startswith('_')}
         meta_attrs.update({'rules': tuple(rules)})
         attrs.update({'_meta': RuleGroupMeta(name, **meta_attrs)})
         attrs.update({'name': f'{meta.app_label}.{name.lower()}'})
         return super().__new__(cls, name, bases, attrs)
 
     @classmethod
-    def __get_source_model(cls, meta):
-        try:
-            if meta.source_model == meta.source_model.split('.'):
-                source_model = meta.app_label, meta.source_model
-            else:
-                source_model = meta.source_model.split('.')
-        except AttributeError as e:
-            if '\'tuple\' object has no attribute \'split\'' not in str(e):
-                meta.source_model = None
-                source_model = None
-            else:
-                source_model = meta.source_model
-        return source_model
-
-    @classmethod
-    def __get_rules(cls, name, attrs, meta, source_model):
+    def __get_rules(cls, name, attrs, meta):
         """Update attrs in each rule from values in Meta.
         """
         rules = []
@@ -101,49 +93,57 @@ class RuleGroupMetaClass(type):
                     rule.name = rule_name
                     rule.group = name
                     rule.app_label = meta.app_label
-                    if meta:
-                        rule.app_label = meta.app_label
-                        target_models = []
-                        try:
-                            for target_model in rule.target_models:
-                                if len(target_model.split('.')) != 2:
-                                    target_model = (
-                                        f'{meta.app_label}.{target_model}')
-                                target_models.append(target_model)
-                            rule.target_models = target_models
-                        except AttributeError as e:
-                            if 'target_models' not in str(e):
-                                raise AttributeError(e)
-                            if len(rule.target_model.split('.')) != 2:
-                                rule.target_model = (
-                                    f'{meta.app_label}.{rule.target_model}')
-                            rule.target_models = [rule.target_model]
-                        rule.source_model = source_model
-                        rules.append(rule)
+                    rule.target_models = cls.__get_target_models(rule, meta)
+                    rule.source_model = meta.source_model
+                    rules.append(rule)
         return rules
+
+    @classmethod
+    def __get_target_models(cls, rule, meta):
+        """Returns target models as list of label_lower.
+
+        Target models are the models whose metadata is acted upon.
+
+        If `model_name` instead of `label_lower`, assumes `app_label`
+        from meta.app_label.
+
+        Accepts rule attr `target_model` or `target_models`.
+        """
+        target_models = []
+        for target_model in rule.target_models:
+            if len(target_model.split('.')) != 2:
+                target_model = (
+                    f'{meta.app_label}.{target_model}')
+            target_models.append(target_model)
+        if meta.source_model in target_models:
+            raise RuleGroupModelConflict(
+                f'Source model cannot be a target model. Got \'{meta.source_model}\' '
+                f'is in target models {target_models}')
+        return target_models
 
 
 class RuleGroup(object, metaclass=RuleGroupMetaClass):
     """A class used to declare and contain rules.
     """
 
-    @classmethod
-    def run_for_source_model(cls, obj, source_model):
-        for rule in cls._meta.rules:
-            if rule.source_model == source_model:
-                try:
-                    rule.run(obj)
-                except AttributeError as e:
-                    raise RuleGroupError(
-                        f'An exception was raised for rule {rule} with object '
-                        f'\'{obj._meta.label_lower}\'. Got {e}')
+    metadata_updater_cls = MetadataUpdater
+
+    def __str__(self):
+        return f'{self.__class__.__name__}({self.name})'
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.name})'
 
     @classmethod
-    def run_all(cls, obj):
+    def evaluate_rules(cls, visit=None):
+        rule_results = OrderedDict()
+        metadata_objects = OrderedDict()
+        metadata_updater = MetadataUpdater(visit=visit)
         for rule in cls._meta.rules:
-            try:
-                rule.run(obj)
-            except AttributeError as e:
-                raise RuleGroupError(
-                    f'An exception was raised for rule {rule} with object '
-                    f'\'{obj._meta.label_lower}\'. Got {e}')
+            rule_results.update({str(rule): rule.run(visit=visit)})
+            for target_model, entry_status in rule_results[str(rule)].items():
+                metadata_object = metadata_updater.update(
+                    target_model=target_model,
+                    entry_status=entry_status)
+                metadata_objects.update({target_model: metadata_object})
+        return rule_results, metadata_objects

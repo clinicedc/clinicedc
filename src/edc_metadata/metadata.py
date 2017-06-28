@@ -6,13 +6,12 @@ from edc_visit_schedule import site_visit_schedules
 from .constants import NOT_REQUIRED, REQUIRED, KEYED
 from .exceptions import CreatesMetadataError
 
-app_config = django_apps.get_app_config('edc_metadata')
-
 
 class Base:
 
     def __init__(self, visit_instance=None, metadata_crf_model=None,
                  metadata_requisition_model=None, **kwargs):
+        app_config = django_apps.get_app_config('edc_metadata')
         self.visit_instance = visit_instance
         self.metadata_crf_model = metadata_crf_model or app_config.crf_model
         self.metadata_requisition_model = (
@@ -148,6 +147,7 @@ class Metadata:
     destroyer_cls = Destroyer
 
     def __init__(self, visit_instance=None, update_keyed=None, **kwargs):
+        app_config = django_apps.get_app_config('edc_metadata')
         self.creator = self.creator_cls(
             visit_instance=visit_instance, update_keyed=update_keyed, **kwargs)
         self.destroyer = self.destroyer_cls(
@@ -172,6 +172,7 @@ class Metadata:
         for the visit instance.
         """
         metadata_exists = False
+        app_config = django_apps.get_app_config('edc_metadata')
         if self.reason in app_config.delete_on_reasons:
             self.destroyer.delete()
         elif self.reason in app_config.create_on_reasons:

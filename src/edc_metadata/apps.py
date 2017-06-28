@@ -2,6 +2,7 @@ import sys
 
 from django.apps.config import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.management.color import color_style
 
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
@@ -72,7 +73,7 @@ class AppConfig(DjangoAppConfig):
                 subject_identifier=subject_identifier, **options)}
 
 
-if 'test' in sys.argv:
+if settings.APP_NAME == 'edc_metadata':
     from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
 
     class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):

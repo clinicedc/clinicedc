@@ -1,12 +1,13 @@
+from collections import OrderedDict
 from django.test import TestCase, tag
 
 from edc_constants.constants import MALE
 
-from ..rules import site_metadata_rules, RuleGroup, SiteMetadataNoRulesError
-from ..rules import CrfRule, P, SiteMetadataRulesAlreadyRegistered
-from ..rules import Logic, register, RegisterRuleGroupError
 from ..constants import REQUIRED, NOT_REQUIRED
-from collections import OrderedDict
+from ..rules import CrfRule, P, SiteMetadataRulesAlreadyRegistered
+from ..rules import Logic, register, RegisterRuleGroupError, SiteMetadataRulesImportError
+from ..rules import site_metadata_rules, RuleGroup, SiteMetadataNoRulesError
+from edc_metadata.rules.rule_group import RuleGroupMeta
 
 
 class RuleGroupWithoutRules(RuleGroup):
@@ -75,6 +76,10 @@ class TestSiteMetadataRules(TestCase):
             SiteMetadataRulesAlreadyRegistered,
             site_metadata_rules.register, RuleGroupWithRules)
 
+    def test_rule_group_repr(self):
+        repr(RuleGroupWithRules())
+        str(RuleGroupWithRules())
+
     def test_register_decorator(self):
 
         @register()
@@ -104,3 +109,8 @@ class TestSiteMetadataRules(TestCase):
             pass
         else:
             self.fail('RegisterRuleGroupError unexpectedly not raised.')
+
+    def test_autodiscover(self):
+        self.assertRaises(
+            SiteMetadataRulesImportError,
+            site_metadata_rules.autodiscover, 'tests.metadata_rules')

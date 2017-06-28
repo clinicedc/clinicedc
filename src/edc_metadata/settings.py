@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
+    'rest_framework.authtoken',
     'edc_base.apps.AppConfig',
     'edc_sync.apps.AppConfig',
     'edc_appointment.apps.AppConfig',

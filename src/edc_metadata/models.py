@@ -1,7 +1,7 @@
 from edc_base.model_mixins import BaseUuidModel
 
-from .model_mixins.metadata_models import CrfModelMixin, RequisitionModelMixin
 from .managers import CrfMetadataManager, RequisitionMetadataManager
+from .model_mixins.metadata_models import CrfModelMixin, RequisitionModelMixin
 
 
 class CrfMetadata(CrfModelMixin, BaseUuidModel):

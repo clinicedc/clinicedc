@@ -1,32 +1,48 @@
+import inspect
+
 
 class PredicateError(Exception):
     pass
 
 
-class Base:
+class NoValueError(Exception):
+    pass
 
-    def get_value(self, *args, attr=None):
+
+class BasePredicate:
+
+    def get_value(self, attr=None, **kwargs):
         """Returns a value by checking for the attr on each arg.
 
-        Each arg in args may be a model instance, queryset, or None."""
+        Each arg in args may be a model instance, queryset, or None.
+
+        A NoValueError is raised if attr found but is not found on any "instance".
+        in kwargs.
+
+        A PredicateError is raised if attr is not found on any object in kwargs.
+        """
         value = None
-        for arg in args:
+        found_on_instance = None
+        for instance in kwargs.values():
             try:
-                value = getattr(arg, attr)
-                if value:
-                    break
+                getattr(instance, attr)
             except AttributeError:
-                try:
-                    for obj in arg:
-                        value = getattr(obj, attr)
-                        if value:
-                            break
-                except (AttributeError, TypeError):
-                    pass
+                pass
+            else:
+                found_on_instance = instance
+                break
+        if found_on_instance:
+            if not inspect.isclass(found_on_instance):
+                value = getattr(found_on_instance, attr)
+            else:
+                raise NoValueError(
+                    f'No value found for {attr}. Given {kwargs}')
+        else:
+            raise PredicateError(f'Invalid attribute. Got {attr}.')
         return value
 
 
-class P(Base):
+class P(BasePredicate):
 
     """
     Simple predicate class.
@@ -58,20 +74,22 @@ class P(Base):
 
     def __init__(self, attr, operator, expected_value):
         self.attr = attr
-        self.operator = operator
         self.expected_value = expected_value
-        self.func = self.funcs.get(self.operator)
+        self.func = self.funcs.get(operator)
+        if not self.func:
+            raise PredicateError(f'Invalid operator. Got {operator}.')
+        self.operator = operator
 
     def __repr__(self):
-        return '<{}({}, {}, {})>'.format(
-            self.__class__.__name__, self.attr, self.operator, self.expected_value)
+        return (f'{self.__class__.__name__}({self.attr}, {self.operator}, '
+                f'{self.expected_value})')
 
-    def __call__(self, *args):
-        value = self.get_value(*args, attr=self.attr)
+    def __call__(self, **kwargs):
+        value = self.get_value(attr=self.attr, **kwargs)
         return self.func(value, self.expected_value)
 
 
-class PF(Base):
+class PF(BasePredicate):
     """
         Predicate with a lambda function.
 
@@ -92,15 +110,16 @@ class PF(Base):
                     ...
 
     """
+
     def __init__(self, *attrs, func=None):
         self.attrs = attrs
         self.func = func
 
-    def __call__(self, *args):
+    def __call__(self, **kwargs):
         values = []
         for attr in self.attrs:
-            values.append(self.get_value(*args, attr=attr))
+            values.append(self.get_value(attr=attr, **kwargs))
         return self.func(*values)
 
     def __repr__(self):
-        return '<{}({}, {})>'.format(self.__class__.__name__, self.attr, self.func)
+        return f'{self.__class__.__name__}({self.attrs}, {self.func})'

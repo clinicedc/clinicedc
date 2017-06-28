@@ -6,7 +6,6 @@ from ..rules import Logic, RuleLogicError
 
 class MetadataRulesTests(TestCase):
 
-    @tag('1')
     def test_logic(self):
         logic = Logic(
             predicate=lambda x: True if x else False,
@@ -17,7 +16,6 @@ class MetadataRulesTests(TestCase):
         self.assertTrue(logic.alternative == NOT_REQUIRED)
         self.assertTrue(repr(logic))
 
-    @tag('1')
     def test_logic_invalid_consequence(self):
         self.assertRaises(
             RuleLogicError, Logic,
@@ -25,7 +23,6 @@ class MetadataRulesTests(TestCase):
             consequence='blah',
             alternative=NOT_REQUIRED)
 
-    @tag('1')
     def test_logic_invalid_alternative(self):
         self.assertRaises(
             RuleLogicError, Logic,
@@ -33,7 +30,6 @@ class MetadataRulesTests(TestCase):
             consequence=NOT_REQUIRED,
             alternative='blah')
 
-    @tag('1')
     def test_logic_assert_predicate_is_callable(self):
         self.assertRaises(
             RuleLogicError, Logic,

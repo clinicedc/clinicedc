@@ -1,123 +1,38 @@
-from django.apps import apps as django_apps
-from django.core.exceptions import (
-    ObjectDoesNotExist, FieldError, MultipleObjectsReturned)
+from collections import OrderedDict
 
-from ..constants import DO_NOTHING
-from .exceptions import RuleError
+from .rule_evaluator import RuleEvaluator
+
+
+class RuleError(Exception):
+    pass
 
 
 class Rule:
 
-    def __init__(self, logic, **kwargs):
-        self.source_model = None  # set by metaclass
-        self.name = None  # set by metaclass
-        self.group = None  # set by metaclass
-        self.app_label = None  # set by metaclass
+    rule_evaluator_cls = RuleEvaluator
+
+    def __init__(self, logic=None):
         self.logic = logic
+        self.target_models = None
+        self.app_label = None  # set by metaclass
+        self.group = None  # set by metaclass
+        self.name = None  # set by metaclass
+        self.source_model = None  # set by metaclass
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}({self.app_label}.rule_groups.'
-                f'{self.group}: {self.name})')
+        return (f'{self.__class__.__name__}(name=\'{self.name}\', group=\'{self.group}\')')
 
     def __str__(self):
-        return self.name
+        return f'{self.group}.{self.name}'
 
-    def run(self, visit):
-        """Runs the rule for each model in target_models and updates
-        metadata if the model instance does not exist.
+    def run(self, visit=None):
+        """Returns a dictionary of {target_model: entry_status, ...} updated
+        by running the rule for each target model given a visit.
         """
-        try:
-            app_config = django_apps.get_app_config('edc_registration')
-            registered_subject = app_config.model.objects.get(
-                subject_identifier=visit.subject_identifier)
-        except app_config.model.DoesNotExist:
-            registered_subject = None
-        source_obj = None
-        source_qs = None
-        if self.source_model:
-            source_model = django_apps.get_model(*self.source_model)
-            source_obj = self.get_source_obj(source_model, visit)
-            source_qs = self.get_source_qs(source_model, visit)
+        result = OrderedDict()
+        rule_evaluator = self.rule_evaluator_cls(
+            logic=self.logic, source_model=self.source_model, visit=visit)
+        entry_status = rule_evaluator.result
         for target_model in self.target_models:
-            target_model = django_apps.get_model(*target_model.split('.'))
-            if self.runif(visit):
-                if self.source_model and not source_obj:
-                    pass  # without source_obj, predicate will fail
-                else:
-                    self.run_rules(
-                        target_model, visit, registered_subject, source_obj, source_qs)
-
-    def get_source_obj(self, source_model, visit):
-        try:
-            source_obj = source_model.objects.get_for_visit(visit)
-        except source_model.DoesNotExist:
-            source_obj = None
-        except MultipleObjectsReturned:
-            source_obj = source_model.objects.filter_for_visit(
-                visit).order_by('created').last()
-        except AttributeError as e:
-            if 'get_for_visit' not in str(e):
-                raise RuleError(
-                    '{} See \'{}\'.'.format(
-                        str(e), source_model._meta.label_lower))
-            source_obj = visit
-        return source_obj
-
-    def get_source_qs(self, source_model, visit):
-        try:
-            source_qs = source_model.objects.filter(
-                subject_identifier=visit.subject_identifier)
-        except FieldError:
-            source_qs = source_model.objects.get_for_subject_identifier(
-                visit.subject_identifier)
-        return source_qs
-
-    def run_rules(self, target_model, visit, *args):
-        if target_model._meta.label_lower == visit._meta.label_lower:
-            raise RuleError(
-                'Target model and visit model are the same. Got {}=={}'.format(
-                    target_model._meta.label_lower, visit._meta.label_lower))
-        try:
-            target_model.objects.get_for_visit(visit)
-        except target_model.DoesNotExist:
-            entry_status = self.evaluate(visit, *args)
-            try:
-                visit.run_rules_for_model(
-                    target_model._meta.label_lower,
-                    entry_status=entry_status)
-            except ObjectDoesNotExist:
-                pass
-        except AttributeError as e:
-            if 'get_for_visit' in str(e):
-                raise RuleError(
-                    'An exception was raised for target model \'{}\'. '
-                    'Got {}'.format(
-                        target_model._meta.label_lower,
-                        str(e)))
-            else:
-                raise RuleError(str(e))
-
-    def runif(self, visit, **kwargs):
-        """May be overridden to run only on a condition.
-        """
-        return True
-
-    def evaluate(self, visit, *args):
-        """ Evaluates the predicate function and returns a result.
-        """
-        result = None
-        try:
-            if self.logic.predicate(visit, *args):
-                if self.logic.consequence != DO_NOTHING:
-                    result = self.logic.consequence
-            else:
-                if self.logic.alternative != DO_NOTHING:
-                    result = self.logic.alternative
-        except Exception as e:
-            raise RuleError(
-                'An exception was raised when running rule {}. Got {}'.format(self, str(e)))
+            result.update({target_model: entry_status})
         return result
-
-    @property
-    def __doc__(self):
-        return self.logic.predicate.__doc__ or "missing docstring for {}".format(self.logic.predicate)

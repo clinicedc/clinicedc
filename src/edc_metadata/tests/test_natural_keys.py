@@ -2,18 +2,17 @@ from faker import Faker
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 
+from edc_appointment.models import Appointment
+from edc_constants.constants import MALE
+from edc_registration.models import RegisteredSubject
 from edc_sync.models import OutgoingTransaction
 from edc_sync.tests import SyncTestHelper
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
 
 from ..sync_models import sync_models
 from .visit_schedule import visit_schedule
 from .models import Enrollment, SubjectVisit
-from edc_appointment.models import Appointment
-from edc_registration.models import RegisteredSubject
-from edc_visit_tracking.constants import SCHEDULED
-from edc_constants.constants import MALE
-from pprint import pprint
 
 fake = Faker()
 
@@ -34,6 +33,7 @@ class TestNaturalKey(TestCase):
         'edc_metadata.crfthree',
         'edc_metadata.crffour',
         'edc_metadata.crffive',
+        'edc_metadata.crfmissingmanager',
     ]
 
     def setUp(self):

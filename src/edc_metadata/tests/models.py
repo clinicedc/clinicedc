@@ -86,3 +86,10 @@ class CrfFive(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit)
 
     f1 = models.CharField(max_length=50, null=True)
+
+
+class CrfMissingManager(BaseUuidModel):
+
+    subject_visit = models.ForeignKey(SubjectVisit)
+
+    f1 = models.CharField(max_length=50, null=True)

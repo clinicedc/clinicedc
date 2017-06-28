@@ -16,7 +16,7 @@ def metadata_create_on_post_save(sender, instance, raw, created, using, update_f
         try:
             if instance.metadata_create(sender=sender, instance=instance):
                 if django_apps.get_app_config('edc_metadata').metadata_rules_enabled:
-                    instance.run_rules_for_app_label()
+                    instance.run_metadata_rules()
         except AttributeError as e:
             if 'metadata_create' not in str(e):
                 raise CreatesMetadataError(f'{sender}. Got \'{e}\'. ') from e
@@ -31,7 +31,7 @@ def metadata_update_on_post_save(sender, instance, raw, created, using, update_f
         try:
             instance.metadata_update()
             if django_apps.get_app_config('edc_metadata').metadata_rules_enabled:
-                instance.visit.run_rules_for_app_label()
+                instance.visit.run_metadata_rules()
         except AttributeError as e:
             if 'metadata_update' not in str(e):
                 raise AttributeError(e) from e
@@ -43,7 +43,7 @@ def metadata_delete_on_post_save(sender, instance, using, **kwargs):
     try:
         instance.metadata_delete()
         if django_apps.get_app_config('edc_metadata').metadata_rules_enabled:
-            instance.visit.run_rules_for_app_label()
+            instance.visit.run_metadata_rules()
     except AttributeError as e:
         if 'metadata_delete' not in str(e):
             raise AttributeError(e) from e

@@ -32,8 +32,3 @@ class VisitScheduleRule(Rule):
         else:
             # get all schedules, all visits
             pass
-
-    def runif(self, visit, **kwargs):
-        """ """
-        # add your logic here
-        return True

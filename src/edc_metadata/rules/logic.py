@@ -14,7 +14,9 @@ class Logic(object):
     def __init__(self, predicate=None, consequence=None, alternative=None,
                  comment=None, **kwargs):
         if not hasattr(predicate, '__call__'):
-            raise RuleLogicError('Predicate must be a callable.')
+            raise RuleLogicError(
+                'Predicate must be a callable. For example a '
+                'predicate class such as "P" or "PF"')
         self.predicate = predicate
         self.consequence = consequence
         self.alternative = alternative

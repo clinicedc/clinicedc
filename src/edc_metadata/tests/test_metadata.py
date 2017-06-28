@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from django.test import TestCase, tag
 
 from edc_appointment.models import Appointment
@@ -11,7 +12,6 @@ from ..models import CrfMetadata, RequisitionMetadata
 from .models import SubjectVisit, Enrollment, CrfOne, CrfTwo, CrfThree, SubjectRequisition
 from .visit_schedule import visit_schedule
 from ..rules import site_metadata_rules
-from collections import OrderedDict
 
 
 class TestCreatesDeletesMetadata(TestCase):

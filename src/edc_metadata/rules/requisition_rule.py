@@ -2,8 +2,11 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from ..constants import REQUISITION
 
-from .exceptions import RequisitionRuleGroupErrror
 from .rule import Rule
+
+
+class RequisitionRuleGroupErrror(Exception):
+    pass
 
 
 class RequisitionRule(Rule):
@@ -12,7 +15,7 @@ class RequisitionRule(Rule):
         self.metadata_category = REQUISITION
         self.target_model = target_model
         self.target_panels = target_panels
-        super(RequisitionRule, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def run_rules(self, target_model, visit, *args):
         for panel in self.target_panels:
