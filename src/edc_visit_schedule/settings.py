@@ -19,7 +19,7 @@ from pathlib import PurePath
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-
+APP_NAME = 'edc_visit_schedule'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 

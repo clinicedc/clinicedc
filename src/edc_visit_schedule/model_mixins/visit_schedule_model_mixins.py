@@ -41,7 +41,8 @@ class VisitScheduleMethodsModelMixin(models.Model):
         try:
             _, schedule_name = self._meta.visit_schedule_name.split('.')
         except ValueError as e:
-            raise VisitScheduleModelError(f'{self.__class__.__name__}. Got {e}') from e
+            raise VisitScheduleModelError(
+                f'{self.__class__.__name__}. Got {e}') from e
         except AttributeError as e:
             if 'visit_schedule_name' in str(e):
                 return self.visit_schedule.get_schedule(schedule_name=self.schedule_name)
@@ -57,7 +58,8 @@ class VisitScheduleMethodsModelMixin(models.Model):
         try:
             visit_schedule_name, _ = self._meta.visit_schedule_name.split('.')
         except ValueError as e:
-            raise VisitScheduleModelError(f'{self.__class__.__name__}. Got {e}') from e
+            raise VisitScheduleModelError(
+                f'{self.__class__.__name__}. Got {e}') from e
         except AttributeError as e:
             visit_schedule_name = self.visit_schedule_name
         try:
