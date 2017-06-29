@@ -11,7 +11,7 @@ from ..exceptions import CreatesMetadataError
 from ..models import CrfMetadata, RequisitionMetadata
 from .models import SubjectVisit, Enrollment, CrfOne, CrfTwo, CrfThree, SubjectRequisition
 from .visit_schedule import visit_schedule
-from ..rules import site_metadata_rules
+from ..rules import site_metadata_rules, MetadataUpdater
 
 
 class TestCreatesDeletesMetadata(TestCase):
@@ -35,6 +35,10 @@ class TestCreatesDeletesMetadata(TestCase):
         self.appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_code=self.schedule.visits.first.code)
+
+    def test_metadata_updater_repr(self):
+        obj = MetadataUpdater()
+        self.assertTrue(repr(obj))
 
     def test_creates_metadata_on_scheduled(self):
         SubjectVisit.objects.create(

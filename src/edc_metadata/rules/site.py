@@ -31,7 +31,7 @@ class SiteMetadataRules:
         for the module the rule groups were declared in.
         """
         if rule_group_cls:
-            if not rule_group_cls._meta.rules:
+            if not rule_group_cls._meta.options.get('rules'):
                 raise SiteMetadataNoRulesError(
                     f'The metadata rule group {rule_group_cls.name} '
                     f'has no rule!')

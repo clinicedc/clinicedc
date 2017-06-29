@@ -1,8 +1,7 @@
-from django.core.exceptions import ObjectDoesNotExist
-
 from ..constants import REQUISITION
 
 from .rule import Rule
+from collections import OrderedDict
 
 
 class RequisitionRuleGroupErrror(Exception):
@@ -11,28 +10,28 @@ class RequisitionRuleGroupErrror(Exception):
 
 class RequisitionRule(Rule):
 
+    # rule_evaluator_cls = RequisitionRuleEvaluator
+
     def __init__(self, target_model, target_panels, **kwargs):
         self.metadata_category = REQUISITION
         self.target_model = target_model
         self.target_panels = target_panels
-        super().__init__(**kwargs)
-
-    def run_rules(self, target_model, visit, *args):
         for panel in self.target_panels:
             try:
-                panel_name = panel.name
+                panel.name
             except AttributeError as e:
                 raise RequisitionRuleGroupErrror(
                     f'{e} Expected panel instance. Got panel={panel}.')
-            try:
-                target_model.objects.get_for_visit(
-                    visit, panel_name=panel_name)
-            except target_model.DoesNotExist:
-                entry_status = self.evaluate(visit, *args)
-                try:
-                    visit.run_rules_for_model(
-                        target_model._meta.label_lower,
-                        entry_status=entry_status,
-                        panel_name=panel_name)
-                except ObjectDoesNotExist:
-                    pass
+        super().__init__(**kwargs)
+
+    def run(self, visit=None):
+        """Returns a dictionary of {target_panel: entry_status, ...} updated
+        by running the rule for each target panel given a visit.
+        """
+        result = OrderedDict()
+        rule_evaluator = self.rule_evaluator_cls(
+            logic=self.logic, source_model=self.source_model, visit=visit)
+        entry_status = rule_evaluator.result
+        for target_panel in self.target_panels:
+            result.update({target_panel: entry_status})
+        return result

@@ -7,7 +7,6 @@ from ..constants import REQUIRED, NOT_REQUIRED
 from ..rules import CrfRule, P, SiteMetadataRulesAlreadyRegistered
 from ..rules import Logic, register, RegisterRuleGroupError, SiteMetadataRulesImportError
 from ..rules import site_metadata_rules, RuleGroup, SiteMetadataNoRulesError
-from edc_metadata.rules.rule_group import RuleGroupMeta
 
 
 class RuleGroupWithoutRules(RuleGroup):

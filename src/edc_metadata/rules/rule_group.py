@@ -1,12 +1,17 @@
 import copy
 import inspect
 
-from .rule import Rule
-from .metadata_updater import MetadataUpdater
 from collections import OrderedDict
+
+from .metadata_updater import MetadataUpdater
+from .rule import Rule
 
 
 class RuleGroupError(Exception):
+    pass
+
+
+class RuleGroupMetaError(Exception):
     pass
 
 
@@ -20,11 +25,10 @@ class RuleGroupMeta:
 
     app_label = None
     source_model = None
-    source_fk = None
-    rules = None
 
-    def __init__(self, group_name, **meta_attrs):
-        for k, v in meta_attrs.items():
+    def __init__(self, group_name, attrs):
+        self.options = self.__get_meta_attrs(group_name, attrs)
+        for k, v in self.options.items():
             setattr(self, k, v)
         self.group_name = group_name
 
@@ -32,10 +36,29 @@ class RuleGroupMeta:
         return (f'<{self.__class__.__name__}({self.group_name}), '
                 f'source_model={self.source_model}>')
 
+    def __get_meta_attrs(self, name, attrs):
+        meta = attrs.pop('Meta', None)
+        if not meta:
+            raise AttributeError(f'Missing Meta class. See {name}')
+        for attr in RuleGroupMeta.__dict__:
+            try:
+                getattr(meta, attr)
+            except AttributeError:
+                setattr(meta, attr, None)
+        meta_attrs = {
+            k: getattr(meta, k) for k in meta.__dict__ if not k.startswith('_')}
+        for meta_attr in meta_attrs:
+            if meta_attr not in [k for k in RuleGroupMeta.__dict__ if not k.startswith('_')]:
+                raise RuleGroupMetaError(
+                    f'Invalid _meta attr. Got \'{meta_attr}\'. See {name}.')
+        return meta_attrs
+
 
 class RuleGroupMetaClass(type):
     """Rule group metaclass.
     """
+
+    rule_group_meta = RuleGroupMeta
 
     def __new__(cls, name, bases, attrs):
         """Add the Meta attributes to each rule.
@@ -59,26 +82,14 @@ class RuleGroupMetaClass(type):
             except AttributeError:
                 pass
 
-        # get the meta class delared on the RuleGroup
-        meta = attrs.pop('Meta', None)
-        if not meta:
-            raise AttributeError(f'Missing Meta class. See {name}')
+        # get meta options
+        meta = cls.rule_group_meta(name, attrs)
 
-        try:
-            getattr(meta, 'source_fk')
-        except AttributeError:
-            meta.source_fk = None
-        try:
-            getattr(meta, 'source_model')
-        except AttributeError:
-            meta.source_model = None
-
+        # update rules tuple to meta options
         rules = cls.__get_rules(name, attrs, meta)
+        meta.options.update(rules=rules)
 
-        meta_attrs = {
-            k: getattr(meta, k) for k in meta.__dict__ if not k.startswith('_')}
-        meta_attrs.update({'rules': tuple(rules)})
-        attrs.update({'_meta': RuleGroupMeta(name, **meta_attrs)})
+        attrs.update({'_meta': meta})
         attrs.update({'name': f'{meta.app_label}.{name.lower()}'})
         return super().__new__(cls, name, bases, attrs)
 
@@ -92,11 +103,11 @@ class RuleGroupMetaClass(type):
                 if isinstance(rule, Rule):
                     rule.name = rule_name
                     rule.group = name
-                    rule.app_label = meta.app_label
+                    for k, v in meta.options.items():
+                        setattr(rule, k, v)
                     rule.target_models = cls.__get_target_models(rule, meta)
-                    rule.source_model = meta.source_model
                     rules.append(rule)
-        return rules
+        return tuple(rules)
 
     @classmethod
     def __get_target_models(cls, rule, meta):
@@ -139,7 +150,7 @@ class RuleGroup(object, metaclass=RuleGroupMetaClass):
         rule_results = OrderedDict()
         metadata_objects = OrderedDict()
         metadata_updater = MetadataUpdater(visit=visit)
-        for rule in cls._meta.rules:
+        for rule in cls._meta.options.get('rules'):
             rule_results.update({str(rule): rule.run(visit=visit)})
             for target_model, entry_status in rule_results[str(rule)].items():
                 metadata_object = metadata_updater.update(

@@ -13,6 +13,7 @@ from ..rules import RuleGroup, CrfRule, Logic, P, PF, site_metadata_rules
 from ..rules import RuleEvaluatorRegisterSubjectError, RuleGroupModelConflict
 from ..rules import TargetModelConflict, PredicateError, RuleEvaluatorError
 from ..rules import TargetModelLookupError, TargetModelMissingManagerMethod
+from ..rules import RuleGroupMetaError
 from .models import Appointment, SubjectVisit, Enrollment, CrfOne
 from .visit_schedule import visit_schedule
 from pprint import pprint
@@ -113,16 +114,16 @@ class TestMetadataRulesWithGender(TestCase):
         return subject_visit
 
     def test_rules_with_source_model(self):
-        for rule in CrfRuleGroupWithSourceModel._meta.rules:
+        for rule in CrfRuleGroupWithSourceModel._meta.options.get('rules'):
             self.assertEqual(rule.source_model, 'edc_metadata.crfone')
 
     def test_rules_without_source_model(self):
-        for rule in CrfRuleGroupWithoutSourceModel._meta.rules:
+        for rule in CrfRuleGroupWithoutSourceModel._meta.options.get('rules'):
             self.assertIsNone(rule.source_model)
 
     def test_rules_run_source_object_is_none(self):
         subject_visit = self.enroll(MALE)
-        for rule in CrfRuleGroupWithoutSourceModel._meta.rules:
+        for rule in CrfRuleGroupWithoutSourceModel._meta.options.get('rules'):
             with self.subTest(rule=rule):
                 result = rule.run(subject_visit)
                 if rule.name == 'crfs_male':
@@ -138,7 +139,7 @@ class TestMetadataRulesWithGender(TestCase):
 
     def test_rules_skipped_if_no_source(self):
         subject_visit = self.enroll(MALE)
-        for rule in CrfRuleGroupWithSourceModel._meta.rules:
+        for rule in CrfRuleGroupWithSourceModel._meta.options.get('rules'):
             with self.subTest(rule=rule):
                 result = rule.run(subject_visit)
                 if rule.name == 'crfs_male':
@@ -155,7 +156,7 @@ class TestMetadataRulesWithGender(TestCase):
     def test_rules_run_if_source_f1_equals_car(self):
         subject_visit = self.enroll(MALE)
         CrfOne.objects.create(subject_visit=subject_visit, f1='car')
-        for rule in CrfRuleGroupWithSourceModel._meta.rules:
+        for rule in CrfRuleGroupWithSourceModel._meta.options.get('rules'):
             with self.subTest(rule=rule):
                 result = rule.run(subject_visit)
                 if rule.name == 'crfs_male':
@@ -172,7 +173,7 @@ class TestMetadataRulesWithGender(TestCase):
     def test_rules_run_if_source_f1_equals_bicycle(self):
         subject_visit = self.enroll(MALE)
         CrfOne.objects.create(subject_visit=subject_visit, f1='bicycle')
-        for rule in CrfRuleGroupWithSourceModel._meta.rules:
+        for rule in CrfRuleGroupWithSourceModel._meta.options.get('rules'):
             with self.subTest(rule=rule):
                 result = rule.run(subject_visit)
                 if rule.name == 'crfs_male':
@@ -189,7 +190,7 @@ class TestMetadataRulesWithGender(TestCase):
     def test_rules_run_requires_registered_subject(self):
         subject_visit = self.enroll(MALE)
         RegisteredSubject.objects.all().delete()
-        for rule in CrfRuleGroupWithSourceModel._meta.rules:
+        for rule in CrfRuleGroupWithSourceModel._meta.options.get('rules'):
             self.assertRaises(
                 RuleEvaluatorRegisterSubjectError,
                 rule.run, subject_visit)
@@ -598,7 +599,7 @@ class TestMetadataRulesWithGender(TestCase):
                 app_label = 'edc_metadata'
                 source_model = 'edc_metadata.crfmissingmanager'
 
-        self.assertTrue(len(NewCrfRuleGroup()._meta.rules), 2)
+        self.assertTrue(len(NewCrfRuleGroup()._meta.options.get('rules')), 2)
 
     def test_rule_group_missing_meta(self):
 
@@ -612,6 +613,27 @@ class TestMetadataRulesWithGender(TestCase):
                     target_models=['crftwo'])
 
         except AttributeError:
+            pass
+        else:
+            self.fail('AttributeError not raised.')
+
+    def test_rule_group_invalid_meta_option(self):
+
+        try:
+            class CrfRuleGroup(RuleGroup):
+                rule1 = CrfRule(
+                    logic=Logic(
+                        predicate=P('f1', 'eq', 'car'),
+                        consequence=REQUIRED,
+                        alternative=NOT_REQUIRED),
+                    target_models=['crftwo'])
+
+                class Meta:
+                    app_label = 'edc_metadata'
+                    source_model = 'edc_metadata.crfmissingmanager'
+                    blah = 'blah'
+
+        except RuleGroupMetaError:
             pass
         else:
             self.fail('AttributeError not raised.')
