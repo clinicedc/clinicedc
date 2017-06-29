@@ -149,7 +149,7 @@ class RuleGroup(object, metaclass=RuleGroupMetaClass):
     def evaluate_rules(cls, visit=None):
         rule_results = OrderedDict()
         metadata_objects = OrderedDict()
-        metadata_updater = MetadataUpdater(visit=visit)
+        metadata_updater = cls.metadata_updater_cls(visit=visit)
         for rule in cls._meta.options.get('rules'):
             rule_results.update({str(rule): rule.run(visit=visit)})
             for target_model, entry_status in rule_results[str(rule)].items():

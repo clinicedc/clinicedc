@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 
-from ..constants import DO_NOTHING, REQUISITION
+from ..constants import DO_NOTHING
 from .predicate import PredicateError, NoValueError
 
 

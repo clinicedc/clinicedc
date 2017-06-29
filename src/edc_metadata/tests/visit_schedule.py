@@ -23,6 +23,12 @@ requisitions = (
     Requisition(
         show_order=20, model='edc_metadata.subjectrequisition',
         panel=Panel('two'), required=False, additional=False),
+    Requisition(
+        show_order=30, model='edc_metadata.subjectrequisition',
+        panel=Panel('three'), required=True, additional=False),
+    Requisition(
+        show_order=40, model='edc_metadata.subjectrequisition',
+        panel=Panel('four'), required=False, additional=False),
 )
 
 visit0 = Visit(

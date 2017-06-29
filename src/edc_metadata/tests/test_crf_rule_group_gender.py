@@ -9,19 +9,18 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ..constants import NOT_REQUIRED, REQUIRED
 from ..models import CrfMetadata
-from ..rules import RuleGroup, CrfRule, Logic, P, PF, site_metadata_rules
+from ..rules import CrfRuleGroup, CrfRule, Logic, P, PF, site_metadata_rules
 from ..rules import RuleEvaluatorRegisterSubjectError, RuleGroupModelConflict
 from ..rules import TargetModelConflict, PredicateError, RuleEvaluatorError
 from ..rules import TargetModelLookupError, TargetModelMissingManagerMethod
 from ..rules import RuleGroupMetaError
 from .models import Appointment, SubjectVisit, Enrollment, CrfOne
 from .visit_schedule import visit_schedule
-from pprint import pprint
 
 fake = Faker()
 
 
-class CrfRuleGroupWithSourceModel(RuleGroup):
+class CrfRuleGroupWithSourceModel(CrfRuleGroup):
     """Specifies source model.
     """
 
@@ -44,7 +43,7 @@ class CrfRuleGroupWithSourceModel(RuleGroup):
         source_model = 'edc_metadata.crfone'
 
 
-class CrfRuleGroupWithoutSourceModel(RuleGroup):
+class CrfRuleGroupWithoutSourceModel(CrfRuleGroup):
 
     crfs_male = CrfRule(
         logic=Logic(
@@ -64,7 +63,7 @@ class CrfRuleGroupWithoutSourceModel(RuleGroup):
         app_label = 'edc_metadata'
 
 
-class CrfRuleGroupGender(RuleGroup):
+class CrfRuleGroupGender(CrfRuleGroup):
 
     crfs_male = CrfRule(
         logic=Logic(
@@ -265,7 +264,7 @@ class TestMetadataRulesWithGender(TestCase):
         site_metadata_rules.registry = OrderedDict()
         subject_visit = self.enroll(gender=MALE)
 
-        class BadCrfRuleGroup(RuleGroup):
+        class BadCrfRuleGroup(CrfRuleGroup):
             crfs_male = CrfRule(
                 logic=Logic(
                     predicate=P('f1', 'eq', 'car'),
@@ -285,7 +284,7 @@ class TestMetadataRulesWithGender(TestCase):
         site_metadata_rules.registry = OrderedDict()
 
         try:
-            class BadCrfRuleGroup(RuleGroup):
+            class BadCrfRuleGroup(CrfRuleGroup):
                 crfs_male = CrfRule(
                     logic=Logic(
                         predicate=P('f1', 'eq', 'car'),
@@ -306,7 +305,7 @@ class TestMetadataRulesWithGender(TestCase):
 
         subject_visit = self.enroll(gender=MALE)
 
-        class BadCrfRuleGroup(RuleGroup):
+        class BadCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
                 logic=Logic(
                     predicate=P('f1', 'eq', 'car'),
@@ -323,7 +322,7 @@ class TestMetadataRulesWithGender(TestCase):
 
     def test_bad_predicate_blah_is_not_an_operator(self):
         try:
-            class BadCrfRuleGroup(RuleGroup):
+            class BadCrfRuleGroup(CrfRuleGroup):
                 rule = CrfRule(
                     logic=Logic(
                         predicate=P('f1', 'blah', 'car'),
@@ -342,7 +341,7 @@ class TestMetadataRulesWithGender(TestCase):
     def test_bad_predicate_blah_is_not_a_valid_attr(self):
         subject_visit = self.enroll(gender=MALE)
 
-        class BadCrfRuleGroup(RuleGroup):
+        class BadCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
                 logic=Logic(
                     predicate=P('blah', 'eq', 'car'),
@@ -365,7 +364,7 @@ class TestMetadataRulesWithGender(TestCase):
         def func(f1, f2):
             return True if f1 == 'f1' and f2 == 'f2' else False
 
-        class CrfRuleGroup(RuleGroup):
+        class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
                 logic=Logic(
                     predicate=PF('f1', 'f2', func=func),
@@ -380,7 +379,7 @@ class TestMetadataRulesWithGender(TestCase):
         site_metadata_rules.registry = OrderedDict()
         subject_visit = self.enroll(gender=MALE)
 
-        CrfRuleGroup().evaluate_rules(visit=subject_visit)
+        MyCrfRuleGroup().evaluate_rules(visit=subject_visit)
 
         obj = CrfMetadata.objects.get(
             model='edc_metadata.crftwo',
@@ -396,7 +395,7 @@ class TestMetadataRulesWithGender(TestCase):
         def func(f1, f2):
             return True if f1 == 'f1' and f2 == 'f2' else False
 
-        class CrfRuleGroup(RuleGroup):
+        class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
                 logic=Logic(
                     predicate=PF('f1', 'f2', func=func),
@@ -411,7 +410,7 @@ class TestMetadataRulesWithGender(TestCase):
         site_metadata_rules.registry = OrderedDict()
         subject_visit = self.enroll(gender=MALE)
         CrfOne.objects.create(subject_visit=subject_visit)
-        CrfRuleGroup().evaluate_rules(visit=subject_visit)
+        MyCrfRuleGroup().evaluate_rules(visit=subject_visit)
 
         obj = CrfMetadata.objects.get(
             model='edc_metadata.crftwo',
@@ -427,7 +426,7 @@ class TestMetadataRulesWithGender(TestCase):
         def func(f1, f2):
             return True if f1 == 'f1' and f2 == 'f2' else False
 
-        class CrfRuleGroup(RuleGroup):
+        class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
                 logic=Logic(
                     predicate=PF('f1', 'f2', func=func),
@@ -442,7 +441,7 @@ class TestMetadataRulesWithGender(TestCase):
         site_metadata_rules.registry = OrderedDict()
         subject_visit = self.enroll(gender=MALE)
         CrfOne.objects.create(subject_visit=subject_visit, f1='f1', f2='f2')
-        CrfRuleGroup().evaluate_rules(visit=subject_visit)
+        MyCrfRuleGroup().evaluate_rules(visit=subject_visit)
 
         obj = CrfMetadata.objects.get(
             model='edc_metadata.crftwo',
@@ -457,7 +456,7 @@ class TestMetadataRulesWithGender(TestCase):
         def func(f1, f2):
             return True if f1 == 'f1' and f2 == 'f2' else False
 
-        class CrfRuleGroup(RuleGroup):
+        class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
                 logic=Logic(
                     predicate=PF('blah', 'f2', func=func),
@@ -472,7 +471,7 @@ class TestMetadataRulesWithGender(TestCase):
         subject_visit = self.enroll(gender=MALE)
         self.assertRaises(
             RuleEvaluatorError,
-            CrfRuleGroup().evaluate_rules, visit=subject_visit)
+            MyCrfRuleGroup().evaluate_rules, visit=subject_visit)
 
     def test_p_repr(self):
 
@@ -496,7 +495,7 @@ class TestMetadataRulesWithGender(TestCase):
         self.assertTrue(repr(rule))
 
     def test_target_model_missing_manager(self):
-        class BadCrfRuleGroup(RuleGroup):
+        class BadCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
                 logic=Logic(
                     predicate=P('f1', 'eq', 'car'),
@@ -514,34 +513,9 @@ class TestMetadataRulesWithGender(TestCase):
             TargetModelMissingManagerMethod,
             BadCrfRuleGroup().evaluate_rules, visit=subject_visit)
 
-    def test_target_model(self):
-        """Assert can declare a single target model as \'target_model\'
-        instead of a list of \'target_models\'.
-        """
-        class CrfRuleGroup(RuleGroup):
-            rule = CrfRule(
-                logic=Logic(
-                    predicate=P('f1', 'eq', 'car'),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
-                target_model='crftwo')  # diff is here
-
-            class Meta:
-                app_label = 'edc_metadata'
-                source_model = 'edc_metadata.crfone'
-
-        site_metadata_rules.registry = OrderedDict()
-        subject_visit = self.enroll(gender=MALE)
-        CrfRuleGroup().evaluate_rules(visit=subject_visit)
-        obj = CrfMetadata.objects.get(
-            model='edc_metadata.crftwo',
-            subject_identifier=subject_visit.subject_identifier,
-            visit_code=subject_visit.visit_code)
-        self.assertEqual(obj.entry_status, REQUIRED)
-
     def test_rule_group_meta_repr(self):
 
-        class CrfRuleGroup(RuleGroup):
+        class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
                 logic=Logic(
                     predicate=P('f1', 'eq', 'car'),
@@ -552,10 +526,10 @@ class TestMetadataRulesWithGender(TestCase):
             class Meta:
                 app_label = 'edc_metadata'
                 source_model = 'edc_metadata.crfmissingmanager'
-        self.assertTrue(repr(CrfRuleGroup()._meta))
+        self.assertTrue(repr(MyCrfRuleGroup()._meta))
 
     def test_source_model_missing_manager(self):
-        class CrfRuleGroup(RuleGroup):
+        class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
                 logic=Logic(
                     predicate=P('f1', 'eq', 'car'),
@@ -571,11 +545,11 @@ class TestMetadataRulesWithGender(TestCase):
         subject_visit = self.enroll(gender=MALE)
         self.assertRaises(
             RuleEvaluatorError,
-            CrfRuleGroup().evaluate_rules, visit=subject_visit)
+            MyCrfRuleGroup().evaluate_rules, visit=subject_visit)
 
     def test_sub_class_rule_group(self):
 
-        class CrfRuleGroup(RuleGroup):
+        class MyCrfRuleGroup(CrfRuleGroup):
             rule1 = CrfRule(
                 logic=Logic(
                     predicate=P('f1', 'eq', 'car'),
@@ -604,7 +578,7 @@ class TestMetadataRulesWithGender(TestCase):
     def test_rule_group_missing_meta(self):
 
         try:
-            class CrfRuleGroup(RuleGroup):
+            class MyCrfRuleGroup(CrfRuleGroup):
                 rule1 = CrfRule(
                     logic=Logic(
                         predicate=P('f1', 'eq', 'car'),
@@ -620,7 +594,7 @@ class TestMetadataRulesWithGender(TestCase):
     def test_rule_group_invalid_meta_option(self):
 
         try:
-            class CrfRuleGroup(RuleGroup):
+            class MyCrfRuleGroup(CrfRuleGroup):
                 rule1 = CrfRule(
                     logic=Logic(
                         predicate=P('f1', 'eq', 'car'),
