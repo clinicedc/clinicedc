@@ -2,7 +2,8 @@ from django.apps import apps as django_apps
 from django.db import models
 
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin, VisitScheduleFieldsModelMixin
+from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
+from edc_visit_schedule.model_mixins import VisitScheduleFieldsModelMixin
 
 from ...choices import ENTRY_STATUS, REQUIRED, NOT_REQUIRED
 
