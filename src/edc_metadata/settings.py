@@ -126,22 +126,16 @@ STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
 KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 
+
 if 'test' in sys.argv:
-    MIGRATION_MODULES = {
-        "django_crypto_fields": None,
-        "edc_appointment": None,
-        "edc_consent": None,
-        "edc_identifier": None,
-        "edc_metadata": None,
-        "edc_registration": None,
-        "edc_sync": None,
-        "edc_offstudy": None,
-        'admin': None,
-        "auth": None,
-        'contenttypes': None,
-        'sessions': None,
-    }
-if 'test' in sys.argv:
-    PASSWORD_HASHERS = ('django_plainpasswordhasher.PlainPasswordHasher', )
-if 'test' in sys.argv:
+
+    class DisableMigrations:
+        def __contains__(self, item):
+            return True
+
+        def __getitem__(self, item):
+            return None
+
+    MIGRATION_MODULES = DisableMigrations()
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
     DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'
