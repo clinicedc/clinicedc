@@ -1,12 +1,31 @@
 from collections import OrderedDict, namedtuple
 
-from ..rule_group import RuleGroup
+from ..metaclasses import RuleGroupMetaOptions, RuleGroupMetaclass
 from .requisition_metadata_updater import RequisitionMetadataUpdater
 
 RuleResult = namedtuple('RuleResult', 'target_panel entry_status')
 
 
-class RequisitionRuleGroup(RuleGroup):
+class RequisitionRuleGroupMetaOptions(RuleGroupMetaOptions):
+
+    def __init__(self, group_name, attrs):
+        super().__init__(group_name, attrs)
+        self.options.update(
+            target_models=[self.options.get('requisition_model')])
+
+    @property
+    def default_meta_options(self):
+        opts = super().default_meta_options
+        opts.extend(['requisition_model', 'source_panel'])
+        return opts
+
+
+class RequisitionMetaclass(RuleGroupMetaclass):
+
+    rule_group_meta = RequisitionRuleGroupMetaOptions
+
+
+class RequisitionRuleGroup(object, metaclass=RequisitionMetaclass):
 
     metadata_updater_cls = RequisitionMetadataUpdater
 
@@ -31,6 +50,3 @@ class RequisitionRuleGroup(RuleGroup):
                     rule_results[str(rule)][target_model].append(
                         RuleResult(target_panel, entry_status))
         return rule_results, metadata_objects
-
-    class Meta:
-        abstract = True

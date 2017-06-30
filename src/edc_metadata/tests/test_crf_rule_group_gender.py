@@ -9,8 +9,8 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ..constants import NOT_REQUIRED, REQUIRED
 from ..models import CrfMetadata
-from ..rules import CrfRuleGroup, CrfRule, Logic, P, PF, site_metadata_rules
-from ..rules import RuleEvaluatorRegisterSubjectError, RuleGroupModelConflict
+from ..rules import CrfRuleGroup, CrfRule, P, PF, site_metadata_rules
+from ..rules import RuleEvaluatorRegisterSubjectError, CrfRuleModelConflict
 from ..rules import TargetModelConflict, PredicateError, RuleEvaluatorError
 from ..rules import TargetModelLookupError, TargetModelMissingManagerMethod
 from ..rules import RuleGroupMetaError
@@ -25,17 +25,15 @@ class CrfRuleGroupWithSourceModel(CrfRuleGroup):
     """
 
     crfs_male = CrfRule(
-        logic=Logic(
-            predicate=P('f1', 'eq', 'car'),
-            consequence=REQUIRED,
-            alternative=NOT_REQUIRED),
+        predicate=P('f1', 'eq', 'car'),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
         target_models=['crffive', 'crffour'])
 
     crfs_female = CrfRule(
-        logic=Logic(
-            predicate=P('f1', 'eq', 'bicycle'),
-            consequence=REQUIRED,
-            alternative=NOT_REQUIRED),
+        predicate=P('f1', 'eq', 'bicycle'),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
         target_models=['crfthree', 'crftwo'])
 
     class Meta:
@@ -46,17 +44,15 @@ class CrfRuleGroupWithSourceModel(CrfRuleGroup):
 class CrfRuleGroupWithoutSourceModel(CrfRuleGroup):
 
     crfs_male = CrfRule(
-        logic=Logic(
-            predicate=P('gender', 'eq', MALE),
-            consequence=REQUIRED,
-            alternative=NOT_REQUIRED),
+        predicate=P('gender', 'eq', MALE),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
         target_models=['crffive', 'crffour'])
 
     crfs_female = CrfRule(
-        logic=Logic(
-            predicate=P('gender', 'eq', FEMALE),
-            consequence=REQUIRED,
-            alternative=NOT_REQUIRED),
+        predicate=P('gender', 'eq', FEMALE),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
         target_models=['crfthree', 'crftwo'])
 
     class Meta:
@@ -66,17 +62,15 @@ class CrfRuleGroupWithoutSourceModel(CrfRuleGroup):
 class CrfRuleGroupGender(CrfRuleGroup):
 
     crfs_male = CrfRule(
-        logic=Logic(
-            predicate=P('gender', 'eq', MALE),
-            consequence=REQUIRED,
-            alternative=NOT_REQUIRED),
+        predicate=P('gender', 'eq', MALE),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
         target_models=['crffour', 'crffive'])
 
     crfs_female = CrfRule(
-        logic=Logic(
-            predicate=P('gender', 'eq', FEMALE),
-            consequence=REQUIRED,
-            alternative=NOT_REQUIRED),
+        predicate=P('gender', 'eq', FEMALE),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
         target_models=['crftwo', 'crfthree'])
 
     class Meta:
@@ -266,10 +260,9 @@ class TestMetadataRulesWithGender(TestCase):
 
         class BadCrfRuleGroup(CrfRuleGroup):
             crfs_male = CrfRule(
-                logic=Logic(
-                    predicate=P('f1', 'eq', 'car'),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=P('f1', 'eq', 'car'),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['blah'])
 
             class Meta:
@@ -282,23 +275,21 @@ class TestMetadataRulesWithGender(TestCase):
     def test_bad_rule_group_target_model_cannot_also_be_source_model(self):
 
         site_metadata_rules.registry = OrderedDict()
+        subject_visit = self.enroll(gender=MALE)
 
-        try:
-            class BadCrfRuleGroup(CrfRuleGroup):
-                crfs_male = CrfRule(
-                    logic=Logic(
-                        predicate=P('f1', 'eq', 'car'),
-                        consequence=REQUIRED,
-                        alternative=NOT_REQUIRED),
-                    target_models=['crfone'])
+        class BadCrfRuleGroup(CrfRuleGroup):
+            crfs_male = CrfRule(
+                predicate=P('f1', 'eq', 'car'),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
+                target_models=['crfone'])
 
-                class Meta:
-                    app_label = 'edc_metadata'
-                    source_model = 'edc_metadata.crfone'
-        except RuleGroupModelConflict:
-            pass
-        else:
-            self.fail('RuleGroupModelConflict not raised.')
+            class Meta:
+                app_label = 'edc_metadata'
+                source_model = 'edc_metadata.crfone'
+        self.assertRaises(
+            CrfRuleModelConflict,
+            BadCrfRuleGroup().evaluate_rules, visit=subject_visit)
 
     def test_rule_group_target_model_cannot_be_visit_model(self):
         site_metadata_rules.registry = OrderedDict()
@@ -307,10 +298,9 @@ class TestMetadataRulesWithGender(TestCase):
 
         class BadCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
-                logic=Logic(
-                    predicate=P('f1', 'eq', 'car'),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=P('f1', 'eq', 'car'),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['subjectvisit'])
 
             class Meta:
@@ -324,10 +314,9 @@ class TestMetadataRulesWithGender(TestCase):
         try:
             class BadCrfRuleGroup(CrfRuleGroup):
                 rule = CrfRule(
-                    logic=Logic(
-                        predicate=P('f1', 'blah', 'car'),
-                        consequence=REQUIRED,
-                        alternative=NOT_REQUIRED),
+                    predicate=P('f1', 'blah', 'car'),
+                    consequence=REQUIRED,
+                    alternative=NOT_REQUIRED,
                     target_models=['crftwo'])
 
                 class Meta:
@@ -343,10 +332,9 @@ class TestMetadataRulesWithGender(TestCase):
 
         class BadCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
-                logic=Logic(
-                    predicate=P('blah', 'eq', 'car'),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=P('blah', 'eq', 'car'),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['crftwo'])
 
             class Meta:
@@ -366,10 +354,9 @@ class TestMetadataRulesWithGender(TestCase):
 
         class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
-                logic=Logic(
-                    predicate=PF('f1', 'f2', func=func),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=PF('f1', 'f2', func=func),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['crftwo'])
 
             class Meta:
@@ -397,10 +384,9 @@ class TestMetadataRulesWithGender(TestCase):
 
         class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
-                logic=Logic(
-                    predicate=PF('f1', 'f2', func=func),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=PF('f1', 'f2', func=func),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['crftwo'])
 
             class Meta:
@@ -428,10 +414,9 @@ class TestMetadataRulesWithGender(TestCase):
 
         class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
-                logic=Logic(
-                    predicate=PF('f1', 'f2', func=func),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=PF('f1', 'f2', func=func),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['crftwo'])
 
             class Meta:
@@ -458,10 +443,9 @@ class TestMetadataRulesWithGender(TestCase):
 
         class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
-                logic=Logic(
-                    predicate=PF('blah', 'f2', func=func),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=PF('blah', 'f2', func=func),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['crftwo'])
 
             class Meta:
@@ -487,20 +471,18 @@ class TestMetadataRulesWithGender(TestCase):
 
     def test_rule_repr(self):
         rule = CrfRule(
-            logic=Logic(
-                predicate=P('f1', 'eq', 'car'),
-                consequence=REQUIRED,
-                alternative=NOT_REQUIRED),
+            predicate=P('f1', 'eq', 'car'),
+            consequence=REQUIRED,
+            alternative=NOT_REQUIRED,
             target_models=['crftwo'])
         self.assertTrue(repr(rule))
 
     def test_target_model_missing_manager(self):
         class BadCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
-                logic=Logic(
-                    predicate=P('f1', 'eq', 'car'),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=P('f1', 'eq', 'car'),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['crfmissingmanager'])
 
             class Meta:
@@ -517,10 +499,9 @@ class TestMetadataRulesWithGender(TestCase):
 
         class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
-                logic=Logic(
-                    predicate=P('f1', 'eq', 'car'),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=P('f1', 'eq', 'car'),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['crftwo'])
 
             class Meta:
@@ -531,10 +512,9 @@ class TestMetadataRulesWithGender(TestCase):
     def test_source_model_missing_manager(self):
         class MyCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
-                logic=Logic(
-                    predicate=P('f1', 'eq', 'car'),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=P('f1', 'eq', 'car'),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['crftwo'])
 
             class Meta:
@@ -551,10 +531,9 @@ class TestMetadataRulesWithGender(TestCase):
 
         class MyCrfRuleGroup(CrfRuleGroup):
             rule1 = CrfRule(
-                logic=Logic(
-                    predicate=P('f1', 'eq', 'car'),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=P('f1', 'eq', 'car'),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['crftwo'])
 
             class Meta:
@@ -563,10 +542,9 @@ class TestMetadataRulesWithGender(TestCase):
         class NewCrfRuleGroup(CrfRuleGroup):
 
             rule2 = CrfRule(
-                logic=Logic(
-                    predicate=P('f1', 'eq', 'car'),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=P('f1', 'eq', 'car'),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['crfthree'])
 
             class Meta:
@@ -580,10 +558,9 @@ class TestMetadataRulesWithGender(TestCase):
         try:
             class MyCrfRuleGroup(CrfRuleGroup):
                 rule1 = CrfRule(
-                    logic=Logic(
-                        predicate=P('f1', 'eq', 'car'),
-                        consequence=REQUIRED,
-                        alternative=NOT_REQUIRED),
+                    predicate=P('f1', 'eq', 'car'),
+                    consequence=REQUIRED,
+                    alternative=NOT_REQUIRED,
                     target_models=['crftwo'])
 
         except AttributeError:
@@ -596,10 +573,9 @@ class TestMetadataRulesWithGender(TestCase):
         try:
             class MyCrfRuleGroup(CrfRuleGroup):
                 rule1 = CrfRule(
-                    logic=Logic(
-                        predicate=P('f1', 'eq', 'car'),
-                        consequence=REQUIRED,
-                        alternative=NOT_REQUIRED),
+                    predicate=P('f1', 'eq', 'car'),
+                    consequence=REQUIRED,
+                    alternative=NOT_REQUIRED,
                     target_models=['crftwo'])
 
                 class Meta:

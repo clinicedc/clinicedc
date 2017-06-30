@@ -1,4 +1,4 @@
-from edc_metadata.constants import NOT_REQUIRED, REQUIRED
+from ..constants import NOT_REQUIRED, REQUIRED
 
 from ..constants import DO_NOTHING
 

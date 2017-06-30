@@ -10,7 +10,7 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ..constants import NOT_REQUIRED, REQUIRED, KEYED
 from ..models import CrfMetadata
-from ..rules import RuleGroup, CrfRule, Logic, P, site_metadata_rules
+from ..rules import CrfRuleGroup, CrfRule, P, site_metadata_rules
 from .models import Appointment, SubjectVisit
 from .models import CrfOne, CrfTwo, Enrollment
 from .visit_schedule import visit_schedule
@@ -19,20 +19,18 @@ fake = Faker()
 edc_registration_app_config = django_apps.get_app_config('edc_registration')
 
 
-class CrfRuleGroup(RuleGroup):
+class MyCrfRuleGroup(CrfRuleGroup):
 
     crfs_car = CrfRule(
-        logic=Logic(
-            predicate=P('f1', 'eq', 'car'),
-            consequence=REQUIRED,
-            alternative=NOT_REQUIRED),
+        predicate=P('f1', 'eq', 'car'),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
         target_models=['crftwo'])
 
     crfs_bicycle = CrfRule(
-        logic=Logic(
-            predicate=P('f3', 'eq', 'bicycle'),
-            consequence=REQUIRED,
-            alternative=NOT_REQUIRED),
+        predicate=P('f3', 'eq', 'bicycle'),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
         target_models=['crfthree'])
 
     class Meta:
@@ -54,7 +52,7 @@ class TestMetadataRules(TestCase):
             schedule_name='schedule')
 
         site_metadata_rules.registry = OrderedDict()
-        site_metadata_rules.register(rule_group_cls=CrfRuleGroup)
+        site_metadata_rules.register(rule_group_cls=MyCrfRuleGroup)
 
     def enroll(self, gender=None):
         subject_identifier = fake.credit_card_number()

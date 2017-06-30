@@ -5,22 +5,21 @@ from edc_constants.constants import MALE
 
 from ..constants import REQUIRED, NOT_REQUIRED
 from ..rules import CrfRule, P, SiteMetadataRulesAlreadyRegistered
-from ..rules import Logic, register, RegisterRuleGroupError, SiteMetadataRulesImportError
-from ..rules import site_metadata_rules, RuleGroup, SiteMetadataNoRulesError
+from ..rules import register, RegisterRuleGroupError, SiteMetadataRulesImportError
+from ..rules import site_metadata_rules, CrfRuleGroup, SiteMetadataNoRulesError
 
 
-class RuleGroupWithoutRules(RuleGroup):
+class RuleGroupWithoutRules(CrfRuleGroup):
     class Meta:
         app_label = 'edc_metadata'
         source_model = 'edc_metadata.subjectvisit'
 
 
-class RuleGroupWithRules(RuleGroup):
+class RuleGroupWithRules(CrfRuleGroup):
     rule1 = CrfRule(
-        logic=Logic(
-            predicate=P('gender', 'eq', MALE),
-            consequence=REQUIRED,
-            alternative=NOT_REQUIRED),
+        predicate=P('gender', 'eq', MALE),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
         target_models=['crfone', 'crftwo'])
 
     class Meta:
@@ -28,12 +27,11 @@ class RuleGroupWithRules(RuleGroup):
         source_model = 'edc_metadata.subjectvisit'
 
 
-class RuleGroupWithRules2(RuleGroup):
+class RuleGroupWithRules2(CrfRuleGroup):
     rule1 = CrfRule(
-        logic=Logic(
-            predicate=P('gender', 'eq', MALE),
-            consequence=REQUIRED,
-            alternative=NOT_REQUIRED),
+        predicate=P('gender', 'eq', MALE),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
         target_models=['crfone', 'crftwo'])
 
     class Meta:
@@ -82,12 +80,11 @@ class TestSiteMetadataRules(TestCase):
     def test_register_decorator(self):
 
         @register()
-        class RuleGroupWithRules(RuleGroup):
+        class RuleGroupWithRules(CrfRuleGroup):
             rule1 = CrfRule(
-                logic=Logic(
-                    predicate=P('gender', 'eq', MALE),
-                    consequence=REQUIRED,
-                    alternative=NOT_REQUIRED),
+                predicate=P('gender', 'eq', MALE),
+                consequence=REQUIRED,
+                alternative=NOT_REQUIRED,
                 target_models=['crfone', 'crftwo'])
 
             class Meta:

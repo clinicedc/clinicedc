@@ -19,7 +19,7 @@ class RuleEvaluator:
     Sets self.result to REQUIRED, NOT_REQUIRED or None.
     """
 
-    def __init__(self, logic=None, source_model=None, visit=None):
+    def __init__(self, logic=None, source_model=None, visit=None, **kwargs):
         self._registered_subject = None
         self._source_object = None
         self.logic = logic

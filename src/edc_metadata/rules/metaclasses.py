@@ -1,9 +1,6 @@
 import copy
 import inspect
 
-from collections import OrderedDict
-
-from .metadata_updater import MetadataUpdater
 from .rule import Rule
 
 
@@ -15,50 +12,68 @@ class RuleGroupMetaError(Exception):
     pass
 
 
-class RuleGroupModelConflict(Exception):
-    pass
+class RuleGroupMetaOptions:
+    """Class to prepare the "meta" instance with the Meta class
+    attributes.
 
+    Adds default options if they were not declared on Meta class.
 
-class RuleGroupMeta:
-    """Base class for RuleGroup "Meta" class.
     """
 
-    app_label = None
-    source_model = None
-
     def __init__(self, group_name, attrs):
-        self.options = self.__get_meta_attrs(group_name, attrs)
-        for k, v in self.options.items():
-            setattr(self, k, v)
-        self.group_name = group_name
-
-    def __repr__(self):
-        return (f'<{self.__class__.__name__}({self.group_name}), '
-                f'source_model={self.source_model}>')
-
-    def __get_meta_attrs(self, name, attrs):
+        self._source_model = None
         meta = attrs.pop('Meta', None)
+        # assert meta class was declared on the rule group
         if not meta:
-            raise AttributeError(f'Missing Meta class. See {name}')
-        for attr in RuleGroupMeta.__dict__:
+            raise AttributeError(f'Missing Meta class. See {group_name}')
+        # add default options if they do not exist
+        for attr in self.default_meta_options:
             try:
                 getattr(meta, attr)
             except AttributeError:
                 setattr(meta, attr, None)
-        meta_attrs = {
+        # populate options dictionary
+        self.options = {
             k: getattr(meta, k) for k in meta.__dict__ if not k.startswith('_')}
-        for meta_attr in meta_attrs:
-            if meta_attr not in [k for k in RuleGroupMeta.__dict__ if not k.startswith('_')]:
+        # raise on any unknown attributes declared on the Meta class
+        for meta_attr in self.options:
+            if meta_attr not in [k for k in self.default_meta_options if not k.startswith('_')]:
                 raise RuleGroupMetaError(
-                    f'Invalid _meta attr. Got \'{meta_attr}\'. See {name}.')
-        return meta_attrs
+                    f'Invalid _meta attr. Got \'{meta_attr}\'. See {group_name}.')
+        # default app_label if not declared
+        module_name = attrs.get('__module__').split('.')[0]
+        self.app_label = self.options.get('app_label', module_name)
+        # source_model
+        self.source_model = self.options.get('source_model')
+        if self.source_model:
+            try:
+                assert len(self.source_model.split('.')) == 2
+            except AssertionError:
+                self.source_model = f'{self.app_label}.{self.source_model}'
+                self.options.update(source_model=self.source_model)
 
 
-class RuleGroupMetaClass(type):
+#     @property
+#     def source_model(self):
+#         if not self._source_model:
+#             self._source_model = self.options.get('source_model')
+#             if self._source_model:
+#                 try:
+#                     self._source_model.split('.')
+#                 except AttributeError:
+#                     self._source_model = f'{self.app_label}.{self._source_model}'
+#         return self._source_model
+
+    @property
+    def default_meta_options(self):
+        return ['app_label', 'source_model']
+
+
+class RuleGroupMetaclass(type):
     """Rule group metaclass.
     """
 
-    rule_group_meta = RuleGroupMeta
+    rule_group_meta = RuleGroupMetaOptions
 
     def __new__(cls, name, bases, attrs):
         """Add the Meta attributes to each rule.
@@ -67,7 +82,7 @@ class RuleGroupMetaClass(type):
             abstract = attrs.get('Meta', False).abstract
         except AttributeError:
             abstract = False
-        parents = [b for b in bases if isinstance(b, RuleGroupMetaClass)]
+        parents = [b for b in bases if isinstance(b, RuleGroupMetaclass)]
         if not parents or abstract:
             # If this isn't a subclass of BaseRuleGroup, don't do anything
             # special.
@@ -90,7 +105,8 @@ class RuleGroupMetaClass(type):
         meta.options.update(rules=rules)
 
         attrs.update({'_meta': meta})
-        attrs.update({'name': f'{meta.app_label}.{name.lower()}'})
+        attrs.update(
+            {'name': f'{meta.app_label}.{name.lower()}'})
         return super().__new__(cls, name, bases, attrs)
 
     @classmethod
@@ -126,35 +142,4 @@ class RuleGroupMetaClass(type):
                 target_model = (
                     f'{meta.app_label}.{target_model}')
             target_models.append(target_model)
-        if meta.source_model in target_models:
-            raise RuleGroupModelConflict(
-                f'Source model cannot be a target model. Got \'{meta.source_model}\' '
-                f'is in target models {target_models}')
         return target_models
-
-
-class RuleGroup(object, metaclass=RuleGroupMetaClass):
-    """A class used to declare and contain rules.
-    """
-
-    metadata_updater_cls = MetadataUpdater
-
-    def __str__(self):
-        return f'{self.__class__.__name__}({self.name})'
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}({self.name})'
-
-    @classmethod
-    def evaluate_rules(cls, visit=None):
-        rule_results = OrderedDict()
-        metadata_objects = OrderedDict()
-        metadata_updater = cls.metadata_updater_cls(visit=visit)
-        for rule in cls._meta.options.get('rules'):
-            rule_results.update({str(rule): rule.run(visit=visit)})
-            for target_model, entry_status in rule_results[str(rule)].items():
-                metadata_object = metadata_updater.update(
-                    target_model=target_model,
-                    entry_status=entry_status)
-                metadata_objects.update({target_model: metadata_object})
-        return rule_results, metadata_objects

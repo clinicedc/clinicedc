@@ -1,5 +1,5 @@
-from .rule_group import RuleGroup
-
+from .crf import CrfRuleGroup
+from .requisition import RequisitionRuleGroup
 from .site import site_metadata_rules
 
 
@@ -14,7 +14,7 @@ def register(site=None, **kwargs):
 
     def _rule_group_wrapper(rule_group_cls):
 
-        if not issubclass(rule_group_cls, RuleGroup):
+        if not issubclass(rule_group_cls, (CrfRuleGroup, RequisitionRuleGroup)):
             raise RegisterRuleGroupError(
                 f'Wrapped class must a RuleGroup class. Got {rule_group_cls}')
 
