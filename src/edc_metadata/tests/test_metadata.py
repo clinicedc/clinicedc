@@ -139,7 +139,7 @@ class TestUpdatesMetadata(TestCase):
             panel_name='one',
             visit_code=subject_visit.visit_code).count(), 1)
         self.assertEqual(RequisitionMetadata.objects.filter(
-            entry_status=NOT_REQUIRED,
+            entry_status=REQUIRED,
             model='edc_metadata.subjectrequisition',
             panel_name='two',
             visit_code=subject_visit.visit_code).count(), 1)
@@ -175,7 +175,7 @@ class TestUpdatesMetadata(TestCase):
             panel_name='one',
             visit_code=subject_visit.visit_code).count(), 1)
         self.assertEqual(RequisitionMetadata.objects.filter(
-            entry_status=NOT_REQUIRED,
+            entry_status=REQUIRED,
             model='edc_metadata.subjectrequisition',
             panel_name='two',
             visit_code=subject_visit.visit_code).count(), 1)
@@ -193,7 +193,7 @@ class TestUpdatesMetadata(TestCase):
             panel_name='one',
             visit_code=subject_visit.visit_code).count(), 1)
         self.assertEqual(RequisitionMetadata.objects.filter(
-            entry_status=NOT_REQUIRED,
+            entry_status=REQUIRED,
             model='edc_metadata.subjectrequisition',
             panel_name='two',
             visit_code=subject_visit.visit_code).count(), 1)

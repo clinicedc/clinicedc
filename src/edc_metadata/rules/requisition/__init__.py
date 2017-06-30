@@ -1,3 +1,3 @@
 from .requisition_metadata_updater import MetadataUpdater, RequisitionMetadataError
-from .requisition_rule_group import RequisitionRuleGroup
+from .requisition_rule_group import RequisitionRuleGroup, RequisitionRuleGroupMetaOptionsError
 from .requisition_rule import RequisitionRule

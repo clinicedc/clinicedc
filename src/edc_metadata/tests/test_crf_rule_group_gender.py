@@ -478,6 +478,7 @@ class TestMetadataRulesWithGender(TestCase):
         self.assertTrue(repr(rule))
 
     def test_target_model_missing_manager(self):
+
         class BadCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(
                 predicate=P('f1', 'eq', 'car'),

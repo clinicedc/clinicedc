@@ -4,6 +4,7 @@ from .logic import Logic, RuleLogicError
 from .metadata_updater import MetadataUpdater
 from .predicate import P, PF, PredicateError
 from .requisition import RequisitionRule, RequisitionRuleGroup, RequisitionMetadataError
+from .requisition import RequisitionRuleGroupMetaOptionsError
 from .rule import Rule, RuleError
 from .rule_evaluator import RuleEvaluatorRegisterSubjectError, RuleEvaluatorError
 from .rule_group_meta_options import RuleGroupMetaError

@@ -7,17 +7,45 @@ from .requisition_metadata_updater import RequisitionMetadataUpdater
 RuleResult = namedtuple('RuleResult', 'target_panel entry_status')
 
 
+class RequisitionRuleGroupMetaOptionsError(Exception):
+    pass
+
+
 class RequisitionRuleGroupMetaOptions(RuleGroupMetaOptions):
 
     def __init__(self, group_name, attrs):
         super().__init__(group_name, attrs)
-        self.options.update(
-            target_models=[self.options.get('requisition_model')])
+        self.requisition_model = self.options.get('requisition_model')
+        if self.requisition_model:
+            try:
+                assert len(self.requisition_model.split('.')) == 2
+            except AssertionError:
+                self.requisition_model = f'{self.app_label}.{self.requisition_model}'
+                self.options.update(requisition_model=self.requisition_model)
+            self.options.update(
+                target_models=[self.requisition_model])
+            rules = {k: v for k, v in attrs.items() if not k.startswith('_')}
+            if self.requisition_model == self.source_model:
+                for name, rule in rules.items():
+                    if not rule.source_panel:
+                        raise RequisitionRuleGroupMetaOptionsError(
+                            f'Rule expects "source_panel". Got '
+                            f'requisition_model="{self.requisition_model}", '
+                            f'source_model="{self.source_model}". '
+                            f'See {group_name}.{name}.')
+            else:
+                for name, rule in rules.items():
+                    if rule.source_panel:
+                        raise RequisitionRuleGroupMetaOptionsError(
+                            f'Rule does not expect "source_panel". Got '
+                            f'requisition_model="{self.requisition_model}", '
+                            f'source_model="{self.source_model}". '
+                            f'See {group_name}.{name}.')
 
     @property
     def default_meta_options(self):
         opts = super().default_meta_options
-        opts.extend(['requisition_model', 'source_panel'])
+        opts.append('requisition_model')
         return opts
 
 
@@ -47,7 +75,7 @@ class RequisitionRuleGroup(object, metaclass=RequisitionMetaclass):
                         target_model=target_model,
                         target_panel=target_panel,
                         entry_status=entry_status)
-                    metadata_objects.update({target_model: metadata_object})
+                    metadata_objects.update({target_panel: metadata_object})
                     rule_results[str(rule)][target_model].append(
                         RuleResult(target_panel, entry_status))
         return rule_results, metadata_objects

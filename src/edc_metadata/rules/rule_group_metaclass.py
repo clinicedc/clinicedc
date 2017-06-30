@@ -52,12 +52,15 @@ class RuleGroupMetaclass(type):
     @classmethod
     def __get_rules(cls, name, attrs, meta):
         """Update attrs in each rule from values in Meta.
+
+        Note: Attrs from Meta will overwrite those on rule.
         """
         rules = []
-        for rule_name, rule in attrs.items():
-            if not rule_name.startswith('_'):
-                if isinstance(rule, Rule):
-                    rule.name = rule_name
+        for key, value in attrs.items():
+            if not key.startswith('_'):
+                if isinstance(value, Rule):
+                    rule = value
+                    rule.name = key
                     rule.group = name
                     for k, v in meta.options.items():
                         setattr(rule, k, v)

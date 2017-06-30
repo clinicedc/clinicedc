@@ -22,13 +22,19 @@ requisitions = (
         panel=Panel('one'), required=True, additional=False),
     Requisition(
         show_order=20, model='edc_metadata.subjectrequisition',
-        panel=Panel('two'), required=False, additional=False),
+        panel=Panel('two'), required=True, additional=False),
     Requisition(
         show_order=30, model='edc_metadata.subjectrequisition',
         panel=Panel('three'), required=True, additional=False),
     Requisition(
         show_order=40, model='edc_metadata.subjectrequisition',
-        panel=Panel('four'), required=False, additional=False),
+        panel=Panel('four'), required=True, additional=False),
+    Requisition(
+        show_order=50, model='edc_metadata.subjectrequisition',
+        panel=Panel('five'), required=True, additional=False),
+    Requisition(
+        show_order=60, model='edc_metadata.subjectrequisition',
+        panel=Panel('six'), required=True, additional=False),
 )
 
 visit0 = Visit(

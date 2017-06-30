@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 
 from ..metadata_updater import MetadataUpdater
+from .requisition_target_handler import RequisitionTargetHandler
 
 
 class RequisitionMetadataError(Exception):
@@ -12,11 +13,12 @@ class RequisitionMetadataUpdater(MetadataUpdater):
     """A class to update a visit's metadata given the target
     model name and desired entry status.
     """
+    target_handler = RequisitionTargetHandler
 
     def update(self, target_model=None, target_panel=None, entry_status=None):
         metadata_obj = None
         self.target = self.target_handler(
-            model=target_model, visit=self.visit)
+            model=target_model, visit=self.visit, target_panel=target_panel)
         if entry_status and not self.target.object:
             options = self.visit.metadata_query_options
             options.update({
