@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from ..metaclasses import RuleGroupMetaclass
+from ..rule_group_metaclass import RuleGroupMetaclass
 from ..metadata_updater import MetadataUpdater
 
 

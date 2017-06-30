@@ -1,6 +1,7 @@
 from collections import OrderedDict, namedtuple
 
-from ..metaclasses import RuleGroupMetaOptions, RuleGroupMetaclass
+from ..rule_group_meta_options import RuleGroupMetaOptions
+from ..rule_group_metaclass import RuleGroupMetaclass
 from .requisition_metadata_updater import RequisitionMetadataUpdater
 
 RuleResult = namedtuple('RuleResult', 'target_panel entry_status')
