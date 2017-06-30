@@ -16,17 +16,16 @@ class RuleGroupMetaclass(type):
     rule_group_meta = RuleGroupMetaOptions
 
     def __new__(cls, name, bases, attrs):
-        """Add the Meta attributes to each rule.
-        """
         try:
             abstract = attrs.get('Meta', False).abstract
         except AttributeError:
             abstract = False
         parents = [b for b in bases if isinstance(b, RuleGroupMetaclass)]
         if not parents or abstract:
-            # If this isn't a subclass of BaseRuleGroup, don't do anything
-            # special.
+            # If this isn't a subclass, don't do anything special.
             return super().__new__(cls, name, bases, attrs)
+
+        # get rules from abstract parents
         for parent in parents:
             try:
                 if parent.Meta.abstract:
@@ -37,21 +36,22 @@ class RuleGroupMetaclass(type):
             except AttributeError:
                 pass
 
-        # get meta options
+        # prepare "meta" options from class Meta:
         meta = cls.rule_group_meta(name, attrs)
-
-        # update rules tuple to meta options
+        # add the rules tuple to the meta options
         rules = cls.__get_rules(name, attrs, meta)
         meta.options.update(rules=rules)
-
+        # ... django style _meta
         attrs.update({'_meta': meta})
+
         attrs.update(
             {'name': f'{meta.app_label}.{name.lower()}'})
         return super().__new__(cls, name, bases, attrs)
 
     @classmethod
     def __get_rules(cls, name, attrs, meta):
-        """Update attrs in each rule from values in Meta.
+        """Returns a list of rules after updating each rule's attrs
+        with values from Meta.
 
         Note: Attrs from Meta will overwrite those on rule.
         """
@@ -70,14 +70,12 @@ class RuleGroupMetaclass(type):
 
     @classmethod
     def __get_target_models(cls, rule, meta):
-        """Returns target models as list of label_lower.
+        """Returns target models as a list of label_lowers.
 
         Target models are the models whose metadata is acted upon.
 
         If `model_name` instead of `label_lower`, assumes `app_label`
         from meta.app_label.
-
-        Accepts rule attr `target_model` or `target_models`.
         """
         target_models = []
         for target_model in rule.target_models:
