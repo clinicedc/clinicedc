@@ -13,6 +13,13 @@ class TestModel(BaseUuidModel):
     report_datetime = models.DateTimeField(default=get_utcnow)
 
 
+class TestModel2(BaseUuidModel):
+
+    check_device_permissions = False
+
+    report_datetime = models.DateTimeField(default=get_utcnow)
+
+
 class TestModelPermissions(BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)

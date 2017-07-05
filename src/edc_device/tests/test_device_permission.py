@@ -6,7 +6,7 @@ from ..constants import CENTRAL_SERVER, CLIENT, NODE_SERVER
 from ..device_permission import DevicePermissions, DeviceAddPermission, DeviceChangePermission
 from ..device_permission import DevicePermissionAddError, DevicePermissionChangeError
 from .models import TestModel
-from edc_device.tests.models import TestModelPermissions
+from edc_device.tests.models import TestModelPermissions, TestModel2
 
 
 class TestDevicePermission(TestCase):
@@ -124,3 +124,22 @@ class TestDevicePermission(TestCase):
             app_config.ready()
             obj = model.objects.create()
             self.assertRaises(DevicePermissionChangeError, obj.save)
+
+    def test_device_permission_change_false_disabled(self):
+        self.assertFalse(TestModel2.check_device_permissions)
+        device_permission = DeviceAddPermission(
+            model=TestModel2._meta.label_lower,
+            device_roles=[CENTRAL_SERVER])
+        self.device_permissions.register(device_permission)
+        device_permission = DeviceChangePermission(
+            model=TestModel2._meta.label_lower,
+            device_roles=[CENTRAL_SERVER])
+        self.device_permissions.register(device_permission)
+        app_config = django_apps.get_app_config('edc_device')
+        with override_settings(DEVICE_ID='10', DEVICE_ROLE=CLIENT):
+            app_config.device_id = None
+            app_config.device_role = None
+            app_config.device_permissions = self.device_permissions
+            app_config.ready()
+            obj = TestModel2.objects.create()
+            obj.save()
