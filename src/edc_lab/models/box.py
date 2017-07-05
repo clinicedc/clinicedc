@@ -109,8 +109,8 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
         return self.name
 
     def natural_key(self):
-        return (self.box_identifier, ) + self.box_type.natural_key()
-    natural_key.dependencies = ['edc_lab.box_type']
+        return (self.box_identifier,) + self.box_type.natural_key()
+    natural_key.dependencies = ['edc_lab.boxtype']
 
     @property
     def count(self):
@@ -144,5 +144,5 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
 
     class Meta:
         app_label = 'edc_lab'
-        ordering = ('-box_datetime', )
+        ordering = ('-box_datetime',)
         verbose_name_plural = 'Boxes'
