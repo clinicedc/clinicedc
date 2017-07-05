@@ -22,7 +22,7 @@ class EnrollmentCapModelMixin(models.Model):
                 subject_type_name = self.subject_type_name
             except AttributeError:
                 subject_type_name = self._meta.subject_type_name
-            enrollment_cap = EnrollmentCap(
+            enrollment_cap = self.enrollment_cap_cls(
                 model=self, subject_type_name=subject_type_name)
             self.cap_count, self.cap = enrollment_cap.fetch_or_raise_on_cap_met()
         super().save(*args, **kwargs)
