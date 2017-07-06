@@ -28,7 +28,6 @@ class TestMixin:
         # create a panel
         self.panel = RequisitionPanel(
             name='panel',
-            model=SubjectRequisition,
             aliquot_type=a,
             processing_profile=processing_profile)
 
@@ -39,4 +38,6 @@ class TestMixin:
         self.lab_profile.add_panel(self.panel)
 
         # register with site
-        site_labs.register(self.lab_profile)
+        site_labs.register(
+            lab_profile=self.lab_profile,
+            requisition_model=SubjectRequisition)

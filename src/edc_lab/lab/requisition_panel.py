@@ -1,7 +1,11 @@
-from .get_model_cls import GetModelCls
+from django.apps import apps as django_apps
 
 
 class RequisitionPanelError(Exception):
+    pass
+
+
+class RequisitionPanelModelError(Exception):
     pass
 
 
@@ -15,7 +19,8 @@ class Names:
         self.abbreviation = f'{name[0:2]}{name[-1:]}'.upper()
         title = ' '.join(name.split('_')).title()
         alpha_code = alpha_code or ''
-        self.verbose_name = f'{title} {alpha_code} {self.abbreviation}'.replace('  ', ' ')
+        self.verbose_name = f'{title} {alpha_code} {self.abbreviation}'.replace(
+            '  ', ' ')
 
 
 class RequisitionPanel:
@@ -24,12 +29,9 @@ class RequisitionPanel:
     """
 
     names_cls = Names
-    model_cls = GetModelCls
 
-    def __init__(self, name=None, model=None, aliquot_type=None,
-                 processing_profile=None,
+    def __init__(self, name=None, aliquot_type=None, processing_profile=None,
                  verbose_name=None, abbreviation=None, **kwargs):
-        self._get_model = self.model_cls(model=model).get_model
         self.aliquot_type = aliquot_type
         self.verbose_name = None
         self.name = name
@@ -54,8 +56,16 @@ class RequisitionPanel:
         return self.verbose_name or self.name
 
     @property
-    def model(self):
-        return self._get_model()
+    def model_cls(self):
+        try:
+            model = django_apps.get_model(*self.model.split('.'))
+        except (ValueError, LookupError) as e:
+            raise RequisitionPanelModelError(e) from e
+        except AttributeError as e:
+            if 'NoneType' in str(e):
+                raise RequisitionPanelModelError(e) from e
+            model = self.model
+        return model
 
     @property
     def numeric_code(self):

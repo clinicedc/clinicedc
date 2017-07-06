@@ -1,4 +1,4 @@
-from .get_model_cls import GetModelCls, GetModelError
+# from .get_model_cls import GetModelCls, GetModelError
 
 
 class PanelAlreadyRegistered(Exception):
@@ -15,15 +15,15 @@ class LabProfile:
 
     Added panels must have a matching requisition_model.
     """
-    model_cls = GetModelCls
+    # model_cls = GetModelCls
+    requisition_model = None
 
     def __init__(self, name=None, requisition_model=None):
-        self._get_requisition_model = self.model_cls(
-            model=requisition_model).get_model
-        self.name = name
         self.aliquot_types = {}
         self.processing_profiles = {}
         self.panels = {}
+        self.name = name
+        self.requisition_model = requisition_model or self.requisition_model
 
     def __repr__(self):
         return f'{self.__class__.__name__}(name={self.name})'
@@ -31,20 +31,10 @@ class LabProfile:
     def __str__(self):
         return self.name
 
-    @property
-    def requisition_model(self):
-        try:
-            return self._get_requisition_model()
-        except GetModelError as e:
-            raise LabProfileRequisitionModelError(e) from e
-
     def add_panel(self, panel=None):
         """Adds a panel instance to the profile.
         """
-        if panel.model != self.requisition_model:
-            raise LabProfileRequisitionModelError(
-                f'Invalid requisition model when adding panel {panel} '
-                f'to {repr(self)}. Got  {panel.model}')
+        panel.model = self.requisition_model
         if panel.name in self.panels:
             raise PanelAlreadyRegistered(
                 f'Panel already registered. Got {panel.name}')

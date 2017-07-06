@@ -35,7 +35,7 @@ class SiteLabs:
             raise RegistryNotLoaded(self)
         return self._registry.get(lab_profile_name)
 
-    def register(self, lab_profile=None):
+    def register(self, lab_profile=None, requisition_model=None):
         """Registers a lab profile instance using the label_lower (model)
         as the key.
 
@@ -43,6 +43,7 @@ class SiteLabs:
             lab_profile: instance of LabProfile
         """
         if lab_profile:
+            lab_profile.requisition_model = requisition_model
             self.loaded = True
             value = self.registry.get(
                 lab_profile.requisition_model._meta.label_lower)
