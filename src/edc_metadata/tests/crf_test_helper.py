@@ -1,6 +1,6 @@
 from model_mommy import mommy
 
-from ..models import CrfMetadata
+from ..models import CrfMetadata, RequisitionMetadata
 from ..constants import REQUIRED, NOT_REQUIRED
 
 
@@ -15,6 +15,22 @@ class CrfTestHelper:
         'mommy recipe {label_lower: {key: value}, ...}.
         """
         return {}
+
+    def crf_metadata_obj(self, model, entry_status, visit_code):
+        return CrfMetadata.objects.filter(
+            entry_status=entry_status,
+            model=model,
+            visit_code=visit_code,
+            subject_identifier=self.subject_identifier)
+
+    def requisition_metadata_obj(
+            self, model, entry_status, visit_code, panel_name):
+        return RequisitionMetadata.objects.filter(
+            entry_status=entry_status,
+            model=model,
+            subject_identifier=self.subject_identifier,
+            panel_name=panel_name,
+            visit_code=visit_code)
 
     def get_crfs(self, visit_code=None, subject_identifier=None):
         """Return a queryset of crf metadata for the visit.
