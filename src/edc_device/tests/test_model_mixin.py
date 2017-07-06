@@ -3,8 +3,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from ..constants import CLIENT
-from .models import TestModel
-from edc_device.tests.models import TestModelPermissions
+from .models import TestModel, TestModelPermissions
 
 
 class TestModelMixin(TestCase):

@@ -4,8 +4,8 @@ from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin
 from django.test.utils import override_settings
 
-from ..view_mixins import EdcDeviceViewMixin
 from ..constants import CLIENT
+from ..view_mixins import EdcDeviceViewMixin
 from ..views import HomeView
 
 

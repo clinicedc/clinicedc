@@ -5,8 +5,7 @@ from django.test.utils import override_settings
 from ..constants import CENTRAL_SERVER, CLIENT, NODE_SERVER
 from ..device_permission import DevicePermissions, DeviceAddPermission, DeviceChangePermission
 from ..device_permission import DevicePermissionAddError, DevicePermissionChangeError
-from .models import TestModel
-from edc_device.tests.models import TestModelPermissions, TestModel2
+from .models import TestModel, TestModelPermissions, TestModel2
 
 
 class TestDevicePermission(TestCase):
