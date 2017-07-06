@@ -21,7 +21,8 @@ class TestSiteLab(TestCase):
     def test_site_labs_register(self):
         lab_profile = LabProfile(name='lab_profile')
         site_lab = SiteLabs()
-        site_lab.register(lab_profile, requisition_model=SubjectRequisition)
+        site_lab.register(
+            lab_profile, requisition_model='edc_lab.subjectrequisition')
         self.assertTrue(site_lab.loaded)
 
     def test_site_labs_register_none(self):

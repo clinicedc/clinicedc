@@ -40,4 +40,4 @@ class TestMixin:
         # register with site
         site_labs.register(
             lab_profile=self.lab_profile,
-            requisition_model=SubjectRequisition)
+            requisition_model='edc_lab.subjectrequisition')

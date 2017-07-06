@@ -29,6 +29,7 @@ class RequisitionPanel:
     """
 
     names_cls = Names
+    model = None  # set by lab profile
 
     def __init__(self, name=None, aliquot_type=None, processing_profile=None,
                  verbose_name=None, abbreviation=None, **kwargs):

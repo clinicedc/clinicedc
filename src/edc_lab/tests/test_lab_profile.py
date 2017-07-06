@@ -2,10 +2,9 @@ from django.test import TestCase, tag
 
 from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel
 from ..lab import PanelAlreadyRegistered, ProcessingProfileInvalidDerivative
-from ..lab import RequisitionPanelError, Process, InvalidProcessingProfile, GetModelError
+from ..lab import RequisitionPanelError, Process, InvalidProcessingProfile
 from ..lab import RequisitionPanelModelError
-from ..lab import LabProfileRequisitionModelError
-from .models import SubjectRequisition
+from ..site_labs import site_labs
 
 
 @tag('profile')
@@ -77,19 +76,6 @@ class TestBuildProfile(TestCase):
                     self.fail(
                         'RequisitionPanelModelError unexpectedly not raised.')
 
-    def test_panel_accepts_model_as_a_class(self):
-        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
-        req = RequisitionPanel(
-            name='Viral Load',
-            aliquot_type=a,
-        )
-        req.model = SubjectRequisition
-        try:
-            req.model_cls
-        except RequisitionPanelModelError as e:
-            self.fail(
-                f'RequisitionPanelModelError unexpectedly raised. Got {e}')
-
     def test_panel_adds_processing_profile(self):
         a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
         b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
@@ -134,9 +120,7 @@ class TestBuildProfile(TestCase):
             name='Viral Load',
             aliquot_type=a,
             processing_profile=processing_profile)
-        lab_profile = LabProfile(
-            name='profile',
-            requisition_model='edc_lab.subjectrequisition')
+        lab_profile = LabProfile(name='profile')
         lab_profile.add_panel(panel=panel)
 
     def test_add_panel(self):
@@ -151,10 +135,44 @@ class TestBuildProfile(TestCase):
             name='Viral Load',
             aliquot_type=a,
             processing_profile=processing_profile)
-        lab_profile = LabProfile(
-            name='profile',
-            requisition_model='edc_lab.subjectrequisition')
+        lab_profile = LabProfile(name='profile')
         lab_profile.add_panel(panel=panel)
         self.assertRaises(
             PanelAlreadyRegistered,
             lab_profile.add_panel, panel=panel)
+
+
+class TestRequisitionModel(TestCase):
+
+    def setUp(self):
+        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
+        b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
+        a.add_derivatives(b)
+        process = Process(aliquot_type=b, aliquot_count=3)
+        processing_profile = ProcessingProfile(
+            name='process', aliquot_type=a)
+        processing_profile.add_processes(process)
+        panel = RequisitionPanel(
+            name='Viral Load',
+            aliquot_type=a,
+            processing_profile=processing_profile)
+        self.lab_profile = LabProfile(name='profile')
+        self.lab_profile.add_panel(panel=panel)
+        site_labs._registry = {}
+        site_labs.loaded = False
+        site_labs.register(
+            lab_profile=self.lab_profile,
+            requisition_model='edc_lab.subjectrequisition')
+
+    def test_(self):
+        obj = site_labs.get(lab_profile_name='profile')
+        self.assertEqual(obj, self.lab_profile)
+
+    def test_lab_profile_model(self):
+        obj = site_labs.get(lab_profile_name='profile')
+        self.assertEqual('edc_lab.subjectrequisition',
+                         obj.requisition_model)
+
+    def test_panel_model(self):
+        for panel in site_labs.get(lab_profile_name='profile').panels.values():
+            self.assertEqual(panel.model, 'edc_lab.subjectrequisition')

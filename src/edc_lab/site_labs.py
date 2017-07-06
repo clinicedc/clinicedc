@@ -13,6 +13,10 @@ class RegistryNotLoaded(Exception):
     pass
 
 
+class SiteLabsRequisitionModelError(Exception):
+    pass
+
+
 class SiteLabs:
 
     def __init__(self):
@@ -39,22 +43,25 @@ class SiteLabs:
         """Registers a lab profile instance using the label_lower (model)
         as the key.
 
-            model: label_lower string
+            requisition_model: label_lower string
             lab_profile: instance of LabProfile
         """
         if lab_profile:
-            lab_profile.requisition_model = requisition_model
+            try:
+                lab_profile.requisition_model = '.'.join(
+                    requisition_model.split('.'))
+            except AttributeError as e:
+                raise SiteLabsRequisitionModelError(e) from e
             self.loaded = True
-            value = self.registry.get(
-                lab_profile.requisition_model._meta.label_lower)
+            value = self.registry.get(lab_profile.requisition_model)
             if value and value != lab_profile:
                 raise AlreadyRegistered(
                     f'Lab profile {lab_profile} is already registered with '
-                    f'model \'{lab_profile.requisition_model._meta.label_lower}\'.')
+                    f'model \'{lab_profile.requisition_model}\'.')
             elif lab_profile.name not in self.registry:
                 self.registry.update({lab_profile.name: lab_profile})
                 self.registry.update(
-                    {lab_profile.requisition_model._meta.label_lower: lab_profile})
+                    {lab_profile.requisition_model: lab_profile})
             else:
                 raise AlreadyRegistered(
                     f'Lab profile {lab_profile} is already registered.')
