@@ -8,7 +8,7 @@ from ..lab import AliquotType, LabProfile, ProcessingProfile
 from ..lab import Process, ProcessingProfileAlreadyAdded
 from ..site_labs import SiteLabs, site_labs
 from .models import SubjectRequisition, SubjectVisit
-from edc_lab.tests.test_specimens import TestMixin
+from .site_labs_test_helper import SiteLabsTestHelper
 
 
 @tag('site')
@@ -32,10 +32,14 @@ class TestSiteLab(TestCase):
 
 
 @tag('site')
-class TestSiteLab2(TestMixin, TestCase):
+class TestSiteLab2(TestCase):
+
+    lab_helper = SiteLabsTestHelper()
 
     def setUp(self):
-        self.setup_site_labs()
+        self.lab_helper.setup_site_labs()
+        self.panel = self.lab_helper.panel
+        self.lab_profile = self.lab_helper.lab_profile
 
     def test_site_lab_panels(self):
         self.assertIn(

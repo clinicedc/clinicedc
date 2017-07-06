@@ -1,6 +1,5 @@
 from .aliquot_creator import AliquotCreator, AliquotCreatorError
 from .aliquot_type import AliquotType, AliquotTypeNumericCodeError, AliquotTypeAlphaCodeError
-from .get_model_cls import GetModelCls, GetModelError
 from .lab_profile import LabProfile
 from .lab_profile import PanelAlreadyRegistered, LabProfileRequisitionModelError
 from .manifest import Manifest

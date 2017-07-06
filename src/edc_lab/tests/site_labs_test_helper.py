@@ -3,7 +3,9 @@ from ..site_labs import site_labs
 from .models import SubjectRequisition
 
 
-class TestMixin:
+class SiteLabsTestHelper:
+
+    requisition_model = 'edc_lab.subjectrequisition'
 
     def setup_site_labs(self):
         """Sets up the site_lab global.
@@ -40,4 +42,4 @@ class TestMixin:
         # register with site
         site_labs.register(
             lab_profile=self.lab_profile,
-            requisition_model='edc_lab.subjectrequisition')
+            requisition_model=self.requisition_model)

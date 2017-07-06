@@ -1,13 +1,9 @@
 from django.contrib.auth.models import User
 from django.test import TestCase, tag
 
+from ..models import Box, BoxItem, BoxType, Aliquot
 from ..models import Manifest, Shipper, Consignee, ManifestItem
-from ..reports import ManifestReport
-from edc_lab.reports.manifest_report import ManifestReportError
-from edc_lab.models.box import Box
-from edc_lab.models.box_item import BoxItem
-from edc_lab.models.box_type import BoxType
-from edc_lab.models.aliquot import Aliquot
+from ..reports import ManifestReport, ManifestReportError
 
 
 @tag('manifest')

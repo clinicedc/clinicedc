@@ -6,14 +6,18 @@ from ..lab import AliquotType, Process, ProcessingProfile
 from ..lab import Specimen, SpecimenNotDrawnError
 from ..models import Aliquot
 from .models import SubjectRequisition, SubjectVisit
-from .site_labs_test_mixin import TestMixin
+from .site_labs_test_helper import SiteLabsTestHelper
 
 
 @tag('specimen')
-class TestSpecimen(TestMixin, TestCase):
+class TestSpecimen(TestCase):
+
+    lab_helper = SiteLabsTestHelper()
 
     def setUp(self):
-        self.setup_site_labs()
+        self.lab_helper.setup_site_labs()
+        self.panel = self.lab_helper.panel
+
         self.subject_visit = SubjectVisit.objects.create(
             subject_identifier='1111111111')
 
@@ -54,10 +58,14 @@ class TestSpecimen(TestMixin, TestCase):
 
 
 @tag('specimen')
-class TestSpecimen2(TestMixin, TestCase):
+class TestSpecimen2(TestCase):
+
+    lab_helper = SiteLabsTestHelper()
 
     def setUp(self):
-        self.setup_site_labs()
+        self.lab_helper.setup_site_labs()
+        self.panel = self.lab_helper.panel
+        self.profile_aliquot_count = self.lab_helper.profile_aliquot_count
         self.subject_visit = SubjectVisit.objects.create(
             subject_identifier='1111111111')
         self.requisition = SubjectRequisition.objects.create(
@@ -156,4 +164,5 @@ class TestSpecimen2(TestMixin, TestCase):
         for index, aliquot in enumerate(self.specimen.aliquots.order_by('count')[1:]):
             index += 2
             self.assertFalse(aliquot.is_primary)
-            self.assertEqual(f'66{str(index).zfill(2)}', aliquot.aliquot_identifier[-4:])
+            self.assertEqual(f'66{str(index).zfill(2)}',
+                             aliquot.aliquot_identifier[-4:])

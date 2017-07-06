@@ -1,8 +1,8 @@
 from django.test import TestCase, tag
 
+from ..identifiers import AliquotIdentifier
 from ..lab import PrimaryAliquot, AliquotType, AliquotCreator
 from ..models import Aliquot
-from ..identifiers import AliquotIdentifier
 
 
 @tag('primary')

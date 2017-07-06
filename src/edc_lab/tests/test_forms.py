@@ -6,8 +6,7 @@ from edc_constants.constants import OTHER, YES, NO, NOT_APPLICABLE
 from ..forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
 from ..models import Aliquot
 from .models import SubjectRequisition, SubjectVisit
-from .site_labs_test_mixin import TestMixin
-from pprint import pprint
+from .site_labs_test_helper import SiteLabsTestHelper
 
 
 class TestForms(TestCase):
@@ -88,10 +87,12 @@ class TestForms(TestCase):
         self.assertNotIn('item_type', list(form.errors.keys()))
 
 
-class TestForms2(TestMixin, TestCase):
+class TestForms2(TestCase):
+
+    lab_helper = SiteLabsTestHelper()
 
     def setUp(self):
-        self.setup_site_labs()
+        self.lab_helper.setup_site_labs()
 
         class RequisitionForm(RequisitionFormMixin, forms.ModelForm):
             aliquot_model = Aliquot

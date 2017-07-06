@@ -1,5 +1,3 @@
-# from .get_model_cls import GetModelCls, GetModelError
-
 
 class PanelAlreadyRegistered(Exception):
     pass
@@ -15,7 +13,6 @@ class LabProfile:
 
     Added panels must have a matching requisition_model.
     """
-    # model_cls = GetModelCls
 
     def __init__(self, name=None, requisition_model=None):
         self.aliquot_types = {}
