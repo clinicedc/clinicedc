@@ -1,13 +1,16 @@
-from ..constants import NOT_REQUIRED, REQUIRED
-
-from ..constants import DO_NOTHING
+from ..constants import NOT_REQUIRED, REQUIRED, DO_NOTHING
 
 
 class RuleLogicError(Exception):
     pass
 
 
-class Logic(object):
+class Logic:
+
+    """A class that serves as a container for the logic attribute
+    of a rule, the predicate, and the outcomes (result) of that
+    rule; consequence and alternative.
+    """
 
     valid_results = [REQUIRED, NOT_REQUIRED, DO_NOTHING]
 

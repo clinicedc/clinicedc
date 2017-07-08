@@ -3,6 +3,7 @@ from django.test import TestCase, tag
 from faker import Faker
 
 from edc_constants.constants import MALE, FEMALE
+from edc_reference.models import Reference
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -11,9 +12,8 @@ from ..constants import NOT_REQUIRED, REQUIRED
 from ..models import RequisitionMetadata
 from ..rules import RequisitionRuleGroup, RequisitionRule, P, site_metadata_rules
 from ..rules import RequisitionMetadataError, RequisitionRuleGroupMetaOptionsError
-from .models import Appointment, SubjectVisit, Enrollment, CrfOne
+from .models import Appointment, SubjectVisit, Enrollment, SubjectRequisition
 from .visit_schedule import visit_schedule
-from edc_metadata.tests.models import SubjectRequisition
 
 fake = Faker()
 
@@ -227,7 +227,6 @@ class TestRequisitionRuleGroup(TestCase):
                     panel_name=panel_name)
                 self.assertEqual(obj.entry_status, REQUIRED)
 
-    @tag('1')
     def test_metadata_for_rule_male_with_source_model_as_requisition2(self):
         subject_visit = self.enroll(gender=MALE)
         site_metadata_rules.registry = OrderedDict()
@@ -243,10 +242,17 @@ class TestRequisitionRuleGroup(TestCase):
                     panel_name=panel_name)
                 self.assertEqual(obj.entry_status, NOT_REQUIRED)
 
+    @tag('1')
     def test_metadata_for_rule_female_with_source_model_as_requisition1(self):
         subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = OrderedDict()
         site_metadata_rules.register(RequisitionRuleGroup2)
+        Reference.objects.create(
+            timepoint=subject_visit.visit_code,
+            identifier=subject_visit.subject_identifier,
+            report_datetime=subject_visit.report_datetime,
+            field_name='panel_name',
+            value_str=panel_five.name)
         SubjectRequisition.objects.create(
             subject_visit=subject_visit, panel_name=panel_five.name)
         for panel_name in ['three', 'four']:
@@ -258,7 +264,6 @@ class TestRequisitionRuleGroup(TestCase):
                     panel_name=panel_name)
                 self.assertEqual(obj.entry_status, REQUIRED)
 
-    @tag('1')
     def test_metadata_for_rule_female_with_source_model_as_requisition2(self):
         subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = OrderedDict()

@@ -10,8 +10,8 @@ class RequisitionMetadataError(Exception):
 
 class RequisitionMetadataUpdater(MetadataUpdater):
 
-    """A class to update a visit's metadata given the target
-    model name and desired entry status.
+    """A class to update a subject's requisition metadata given
+    the visit, target model name and desired entry status.
     """
     target_handler = RequisitionTargetHandler
 

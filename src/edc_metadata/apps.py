@@ -27,8 +27,11 @@ class AppConfig(DjangoAppConfig):
     metadata_rules_enabled = True
 
     def ready(self):
-
-        from .signals import metadata_update_on_post_save, metadata_create_on_post_save
+        from .signals import (
+            metadata_update_on_post_save,
+            metadata_create_on_post_save,
+            metadata_reset_on_post_delete,
+        )
 
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
         if self.app_label == self.name:

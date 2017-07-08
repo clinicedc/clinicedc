@@ -26,7 +26,7 @@ class SiteMetadataRules:
     def __init__(self):
         self.registry = OrderedDict()
 
-    def register(self, rule_group_cls=None, predicates=None):
+    def register(self, rule_group_cls=None):
         """ Register MetadataRules to a list per app_label
         for the module the rule groups were declared in.
         """

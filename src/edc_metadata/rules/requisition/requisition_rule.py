@@ -14,26 +14,6 @@ class RequisitionRuleEvaluator(RuleEvaluator):
         self.source_panel = source_panel
         super().__init__(**kwargs)
 
-    @property
-    def source_object(self):
-        """Returns the source model instance or None.
-        """
-        if not self._source_object:
-            if self.source_model:
-                opts = {}
-                if self.source_panel:
-                    opts = dict(panel_name=self.source_panel)
-                try:
-                    self._source_object = self.source_model.objects.get_for_visit(
-                        self.visit, **opts)
-                except self.source_model.DoesNotExist:
-                    pass
-                except AttributeError as e:
-                    raise RequisitionRuleEvaluatorError(
-                        f'Model missing required manager method \'get_for_visit\'. '
-                        f'See \'{self.source_model}\'. Got {e}') from e
-        return self._source_object
-
 
 class RequisitionRule(Rule):
 

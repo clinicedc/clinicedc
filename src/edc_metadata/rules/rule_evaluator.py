@@ -1,7 +1,8 @@
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 
 from ..constants import DO_NOTHING
-from .predicate import PredicateError, NoValueError
+from .predicate import NoValueError
 
 
 class RuleEvaluatorError(Exception):
@@ -17,30 +18,22 @@ class RuleEvaluator:
     """A class to evaluate a rule.
 
     Sets self.result to REQUIRED, NOT_REQUIRED or None.
+
+    Set as a class attribute on Rule.
     """
 
-    def __init__(self, logic=None, source_model=None, visit=None, **kwargs):
+    def __init__(self, logic=None, visit=None, **kwargs):
         self._registered_subject = None
         self._source_object = None
         self.logic = logic
         self.result = None
-        self.subject_identifier = visit.subject_identifier
         self.visit = visit
-        if source_model:
-            self.source_model = django_apps.get_model(*source_model.split('.'))
-        else:
-            self.source_model = None
-        opts = dict(
+        options = dict(
             visit=self.visit,
-            registered_subject=self.registered_subject,
-            source_object=self.source_object,
-            source_model=self.source_model)
+            registered_subject=self.registered_subject, **kwargs)
         try:
-            predicate = self.logic.predicate(**opts)
-        except PredicateError as e:
-            raise RuleEvaluatorError(
-                f'Rule predicate failed to evaluate. Rule {repr(self)}. Got {e}')
-        except NoValueError as e:
+            predicate = self.logic.predicate(**options)
+        except NoValueError:
             pass
         else:
             if predicate:
@@ -49,26 +42,6 @@ class RuleEvaluator:
             else:
                 if self.logic.alternative != DO_NOTHING:
                     self.result = self.logic.alternative
-
-    @property
-    def source_object(self):
-        """Returns the source model instance or None.
-
-        Raises an exception if source model is missing a required
-        manager method, `get_for_visit`.
-        """
-        if not self._source_object:
-            if self.source_model:
-                try:
-                    self._source_object = self.source_model.objects.get_for_visit(
-                        self.visit)
-                except self.source_model.DoesNotExist:
-                    pass
-                except AttributeError as e:
-                    raise RuleEvaluatorError(
-                        f'Model missing required manager method \'get_for_visit\'. '
-                        f'See \'{self.source_model}\'. Got {e}') from e
-        return self._source_object
 
     @property
     def registered_subject_model(self):
@@ -82,9 +55,10 @@ class RuleEvaluator:
         if not self._registered_subject:
             try:
                 self._registered_subject = self.registered_subject_model.objects.get(
-                    subject_identifier=self.subject_identifier)
-            except self.registered_subject_model.DoesNotExist as e:
+                    subject_identifier=self.visit.subject_identifier)
+            except ObjectDoesNotExist as e:
                 raise RuleEvaluatorRegisterSubjectError(
                     f'Registered subject required for rule {repr(self)}. '
-                    f'subject_identifier=\'{self.subject_identifier}\'. Got {e}.')
+                    f'subject_identifier=\'{self.visit.subject_identifier}\'. '
+                    f'Got {e}.')
         return self._registered_subject

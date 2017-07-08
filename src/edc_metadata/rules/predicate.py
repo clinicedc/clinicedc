@@ -1,5 +1,3 @@
-import inspect
-
 
 class PredicateError(Exception):
     pass
@@ -16,13 +14,14 @@ class BasePredicate:
 
         Each arg in args may be a model instance, queryset, or None.
 
-        A NoValueError is raised if attr found but is not found on any "instance".
+        A NoValueError is raised if attr is not found on any "instance".
         in kwargs.
-
-        A PredicateError is raised if attr is not found on any object in kwargs.
         """
         value = None
         found_on_instance = None
+        reference_model = kwargs.pop('reference_model')
+        reference_model_getter_cls = kwargs.pop('reference_model_getter_cls')
+        source_model = kwargs.pop('source_model')
         for instance in kwargs.values():
             try:
                 getattr(instance, attr)
@@ -32,13 +31,18 @@ class BasePredicate:
                 found_on_instance = instance
                 break
         if found_on_instance:
-            if not inspect.isclass(found_on_instance):
-                value = getattr(found_on_instance, attr)
+            value = getattr(found_on_instance, attr)
+        else:
+            reference = reference_model_getter_cls(
+                field_name=attr,
+                model=source_model,
+                reference_model=reference_model,
+                visit=kwargs.get('visit'))
+            if reference.has_value:
+                value = getattr(reference, attr)
             else:
                 raise NoValueError(
                     f'No value found for {attr}. Given {kwargs}')
-        else:
-            raise PredicateError(f'Invalid attribute. Got {attr}.')
         return value
 
 

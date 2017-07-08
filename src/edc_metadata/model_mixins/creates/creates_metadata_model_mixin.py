@@ -14,6 +14,8 @@ class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
     Typically this is a Visit model.
     """
 
+    metadata_cls = Metadata
+
     @property
     def metadata_query_options(self):
         visit = self.visits.get(self.visit_code)
@@ -33,7 +35,7 @@ class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
             self.subject_identifier, **self.metadata_query_options)
 
     def metadata_create(self, sender=None, instance=None):
-        metadata = Metadata(visit_instance=self, update_keyed=True)
+        metadata = self.metadata_cls(visit_instance=self, update_keyed=True)
         return metadata.prepare()
 
     def metadata_delete_for_visit(self, instance=None):
@@ -42,9 +44,6 @@ class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
         """
         metadata_crf_model = django_apps.get_app_config(
             'edc_metadata').crf_model
-        # TODO: delete requisitions
-#         metadata_requisition_model = django_apps.get_app_config(
-#             'edc_metadata').requisition_model
         visit_schedule = site_visit_schedules.get_visit_schedule(
             visit_schedule_name=self.visit_schedule_name)
         schedule = visit_schedule.get_schedule(

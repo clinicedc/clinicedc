@@ -3,8 +3,8 @@ from .target_handler import TargetHandler
 
 class MetadataUpdater:
 
-    """A class to update a visit's metadata given the target
-    model name and desired entry status.
+    """A class to update a subject's metadata given
+    the visit, target model name and desired entry status.
     """
 
     target_handler = TargetHandler

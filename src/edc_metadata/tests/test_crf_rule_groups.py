@@ -14,6 +14,7 @@ from ..rules import CrfRuleGroup, CrfRule, P, site_metadata_rules
 from .models import Appointment, SubjectVisit
 from .models import CrfOne, CrfTwo, Enrollment
 from .visit_schedule import visit_schedule
+from edc_reference.models import Reference
 
 fake = Faker()
 edc_registration_app_config = django_apps.get_app_config('edc_registration')
@@ -167,8 +168,10 @@ class TestMetadataRules(TestCase):
         self.assertEqual(CrfMetadata.objects.get(
             model='edc_metadata.crftwo').entry_status, KEYED)
 
+    @tag('3')
     def test_delete(self):
-        """Asserts delete returns to default entry status."""
+        """Asserts delete returns to default entry status.
+        """
         subject_visit = self.enroll(gender=MALE)
         self.assertEqual(CrfMetadata.objects.get(
             model='edc_metadata.crftwo').entry_status, REQUIRED)

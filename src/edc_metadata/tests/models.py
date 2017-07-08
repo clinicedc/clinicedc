@@ -11,6 +11,7 @@ from edc_visit_tracking.model_mixins import VisitModelMixin, CrfModelMixin
 
 from ..model_mixins.creates import CreatesMetadataModelMixin
 from ..model_mixins.updates import UpdatesCrfMetadataModelMixin, UpdatesRequisitionMetadataModelMixin
+from edc_reference.model_mixins import ReferenceModelMixin
 
 
 class Enrollment(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
@@ -42,14 +43,19 @@ class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin, BaseUuidModel):
     subject_identifier = models.CharField(max_length=50)
 
 
-class SubjectRequisition(CrfModelMixin, UpdatesRequisitionMetadataModelMixin, BaseUuidModel):
+class SubjectRequisition(CrfModelMixin, UpdatesRequisitionMetadataModelMixin,
+                         ReferenceModelMixin, BaseUuidModel):
+
+    edc_reference_fields = ['panel_name']
 
     subject_visit = models.ForeignKey(SubjectVisit)
 
     panel_name = models.CharField(max_length=25)
 
 
-class CrfOne(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfOne(CrfModelMixin, UpdatesCrfMetadataModelMixin, ReferenceModelMixin, BaseUuidModel):
+
+    edc_reference_fields = ['f1', 'f2', 'f3']
 
     subject_visit = models.ForeignKey(SubjectVisit)
 
@@ -60,35 +66,45 @@ class CrfOne(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
     f3 = models.CharField(max_length=50, null=True)
 
 
-class CrfTwo(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfTwo(CrfModelMixin, UpdatesCrfMetadataModelMixin, ReferenceModelMixin, BaseUuidModel):
+
+    edc_reference_fields = ['f1']
 
     subject_visit = models.ForeignKey(SubjectVisit)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfThree(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfThree(CrfModelMixin, UpdatesCrfMetadataModelMixin, ReferenceModelMixin, BaseUuidModel):
+
+    edc_reference_fields = ['f1']
 
     subject_visit = models.ForeignKey(SubjectVisit)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfFour(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfFour(CrfModelMixin, UpdatesCrfMetadataModelMixin, ReferenceModelMixin, BaseUuidModel):
+
+    edc_reference_fields = ['f1']
 
     subject_visit = models.ForeignKey(SubjectVisit)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfFive(CrfModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfFive(CrfModelMixin, UpdatesCrfMetadataModelMixin, ReferenceModelMixin, BaseUuidModel):
+
+    edc_reference_fields = ['f1']
 
     subject_visit = models.ForeignKey(SubjectVisit)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfMissingManager(BaseUuidModel):
+class CrfMissingManager(ReferenceModelMixin, BaseUuidModel):
+
+    edc_reference_fields = ['f1']
 
     subject_visit = models.ForeignKey(SubjectVisit)
 

@@ -23,6 +23,8 @@ class Rule:
         self.group = None  # set by metaclass
         self.name = None  # set by metaclass
         self.source_model = None  # set by metaclass
+        self.reference_model_helper_cls = None  # set by metaclass
+        self.reference_model = None  # set by metaclass
 
     def __repr__(self):
         return (f'{self.__class__.__name__}(name=\'{self.name}\', group=\'{self.group}\')')

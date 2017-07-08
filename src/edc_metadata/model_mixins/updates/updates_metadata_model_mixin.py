@@ -24,7 +24,7 @@ class UpdatesMetadataModelMixin(models.Model):
         obj.report_datetime = self.report_datetime
         obj.save()
 
-    def metadata_delete(self):
+    def metadata_reset_on_delete(self):
         """Sets the metadata instance to its original state.
         """
         obj = self.metadata_model.objects.get(**self.metadata_query_options)
@@ -51,7 +51,8 @@ class UpdatesMetadataModelMixin(models.Model):
                 crf = [c for c in visit.crfs
                        if c.model_label_lower == self._meta.label_lower][0]
             except IndexError as e:
-                raise MetadataError(f'{self._meta.label_lower}. Got {e}') from e
+                raise MetadataError(
+                    f'{self._meta.label_lower}. Got {e}') from e
             default_entry_status = REQUIRED if crf.required else NOT_REQUIRED
         return default_entry_status
 

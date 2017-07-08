@@ -1,3 +1,6 @@
+from edc_reference import ReferenceModelGetter
+
+
 class RuleGroupMetaError(Exception):
     pass
 
@@ -9,6 +12,9 @@ class RuleGroupMetaOptions:
     Adds default options if they were not declared on Meta class.
 
     """
+
+    default_reference_model = 'edc_reference.reference'
+    reference_model_getter_cls = ReferenceModelGetter
 
     def __init__(self, group_name, attrs):
         self._source_model = None
@@ -33,15 +39,21 @@ class RuleGroupMetaOptions:
         # default app_label if not declared
         module_name = attrs.get('__module__').split('.')[0]
         self.app_label = self.options.get('app_label', module_name)
-        # source_model
+        # reference model and helper class
+        self.reference_model = (
+            self.options.get('reference_model') or self.default_reference_model)
+        self.options.update(reference_model=self.reference_model)
+        self.options.update(
+            reference_model_getter_cls=self.reference_model_getter_cls)
+        # source model
         self.source_model = self.options.get('source_model')
         if self.source_model:
             try:
                 assert len(self.source_model.split('.')) == 2
             except AssertionError:
                 self.source_model = f'{self.app_label}.{self.source_model}'
-                self.options.update(source_model=self.source_model)
+            self.options.update(source_model=self.source_model)
 
     @property
     def default_meta_options(self):
-        return ['app_label', 'source_model']
+        return ['app_label', 'source_model', 'reference_model']

@@ -45,7 +45,7 @@ class RequisitionRuleGroupMetaOptions(RuleGroupMetaOptions):
     @property
     def default_meta_options(self):
         opts = super().default_meta_options
-        opts.append('requisition_model')
+        opts.extend(['requisition_model'])
         return opts
 
 
