@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.db import models
 
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
@@ -62,9 +61,12 @@ class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,
     def is_not_required(self):
         return not self.is_required()
 
-    @property
-    def model_class(self):
-        return django_apps.get_model(*self.model.split('.'))
+#     @property
+#     def model_cls(self):
+#         """Returns the model class that this metadata
+#         instance represents.
+#         """
+#         return django_apps.get_model(*self.model.split('.'))
 
     class Meta:
         abstract = True

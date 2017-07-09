@@ -12,6 +12,8 @@ class Base:
     def __init__(self, visit_instance=None, metadata_crf_model=None,
                  metadata_requisition_model=None, **kwargs):
         app_config = django_apps.get_app_config('edc_metadata')
+        reference_model = app_config.metadata_reference_model
+        self.reference_model_cls = django_apps.get_model(reference_model)
         self.visit_instance = visit_instance
         self.metadata_crf_model = metadata_crf_model or app_config.crf_model
         self.metadata_requisition_model = (
@@ -38,7 +40,7 @@ class CrfCreator(Base):
         options = self.visit_instance.metadata_query_options
         options.update(
             {'subject_identifier': self.visit_instance.subject_identifier,
-             'model': crf.model._meta.label_lower})
+             'model': crf.model_label_lower})
         try:
             metadata_obj = self.metadata_crf_model.objects.get(**options)
         except self.metadata_crf_model.DoesNotExist:
@@ -51,15 +53,14 @@ class CrfCreator(Base):
                 metadata_obj.save()
 
     def is_keyed(self, crf=None):
-        """Returns True if CRF is keyed.
+        """Returns True if CRF is keyed determined by
+        querying the reference model.
+
+        See also edc_reference.
         """
-        model_class = django_apps.get_model(
-            *crf.model._meta.label_lower.split('.'))
-        return model_class.objects.filter(
-            **{f'{model_class.visit_model_attr()}__visit_code':
-               self.visit_instance.visit_code,
-               f'{model_class.visit_model_attr()}__subject_identifier':
-               self.visit_instance.subject_identifier}).exists()
+        return self.reference_model_cls.objects.filter_crf_for_visit(
+            model=crf.model_label_lower,
+            visit=self.visit_instance).exists()
 
 
 class RequisitionCreator(Base):
@@ -74,7 +75,7 @@ class RequisitionCreator(Base):
         options = self.visit_instance.metadata_query_options
         options.update(
             {'subject_identifier': self.visit_instance.subject_identifier,
-             'model': requisition.model._meta.label_lower,
+             'model': requisition.model_label_lower,
              'panel_name': requisition.panel.name})
         try:
             metadata_obj = self.metadata_requisition_model.objects.get(
@@ -90,17 +91,16 @@ class RequisitionCreator(Base):
             metadata_obj.save()
 
     def is_keyed(self, requisition=None):
-        """Returns True if requisition is keyed.
+        """Returns True if requisition is keyed determined by
+        getting the reference model instance for this
+        requisition+panel_name .
+
+        See also edc_reference.
         """
-        model_class = django_apps.get_model(
-            *requisition.model._meta.label_lower.split('.'))
-        options = {
-            f'{model_class.visit_model_attr()}__visit_code':
-            self.visit_instance.visit_code,
-            f'{model_class.visit_model_attr()}__subject_identifier':
-            self.visit_instance.subject_identifier,
-            f'panel_name': requisition.panel.name}
-        return model_class.objects.filter(**options).exists()
+        return self.reference_model_cls.objects.get_requisition_for_visit(
+            model=requisition.model_label_lower,
+            visit=self.visit_instance,
+            panel_name=requisition.panel.name)
 
 
 class Creator:

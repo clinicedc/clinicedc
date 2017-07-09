@@ -14,7 +14,6 @@ from ..rules import CrfRuleGroup, CrfRule, P, site_metadata_rules
 from .models import Appointment, SubjectVisit
 from .models import CrfOne, CrfTwo, Enrollment
 from .visit_schedule import visit_schedule
-from edc_reference.models import Reference
 
 fake = Faker()
 edc_registration_app_config = django_apps.get_app_config('edc_registration')
