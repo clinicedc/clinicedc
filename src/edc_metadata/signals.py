@@ -8,7 +8,8 @@ from .exceptions import CreatesMetadataError
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_create_on_post_save")
-def metadata_create_on_post_save(sender, instance, raw, created, using, update_fields, **kwargs):
+def metadata_create_on_post_save(sender, instance, raw, created, using,
+                                 update_fields, **kwargs):
     """Create all meta data on post save of model using
     CreatesMetaDataModelMixin.
 

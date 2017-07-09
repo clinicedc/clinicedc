@@ -1,5 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
-
 from ..target_handler import TargetHandler
 
 
@@ -14,10 +12,7 @@ class RequisitionTargetHandler(TargetHandler):
 
     @property
     def object(self):
-        opts = {}
-        if self.target_panel:
-            opts = dict(panel_name=self.target_panel)
-        try:
-            return self.model.objects.get_for_visit(self.visit, **opts)
-        except ObjectDoesNotExist:
-            return None
+        return self.reference_model_cls.objects.get_requisition_for_visit(
+            visit=self.visit,
+            model=self.model,
+            panel_name=self.target_panel)

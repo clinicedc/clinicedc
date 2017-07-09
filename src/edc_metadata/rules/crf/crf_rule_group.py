@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from ...constants import CRF
 from ..rule_group_metaclass import RuleGroupMetaclass
 from ..metadata_updater import MetadataUpdater
 
@@ -9,6 +10,7 @@ class CrfRuleGroup(object, metaclass=RuleGroupMetaclass):
     """
 
     metadata_updater_cls = MetadataUpdater
+    metadata_category = CRF
 
     def __str__(self):
         return f'{self.__class__.__name__}({self.name})'
@@ -20,7 +22,8 @@ class CrfRuleGroup(object, metaclass=RuleGroupMetaclass):
     def evaluate_rules(cls, visit=None):
         rule_results = OrderedDict()
         metadata_objects = OrderedDict()
-        metadata_updater = cls.metadata_updater_cls(visit=visit)
+        metadata_updater = cls.metadata_updater_cls(
+            visit=visit, metadata_category=cls.metadata_category)
         for rule in cls._meta.options.get('rules'):
             rule_results.update({str(rule): rule.run(visit=visit)})
             for target_model, entry_status in rule_results[str(rule)].items():

@@ -9,7 +9,8 @@ class MetadataUpdater:
 
     target_handler = TargetHandler
 
-    def __init__(self, visit=None):
+    def __init__(self, visit=None, metadata_category=None):
+        self.metadata_category = metadata_category
         self.visit = visit
 
     def __repr__(self):
@@ -18,7 +19,9 @@ class MetadataUpdater:
     def update(self, target_model=None, entry_status=None):
         metadata_obj = None
         self.target = self.target_handler(
-            model=target_model, visit=self.visit)
+            model=target_model,
+            visit=self.visit,
+            metadata_category=self.metadata_category)
         if entry_status and not self.target.object:
             options = self.visit.metadata_query_options
             options.update({

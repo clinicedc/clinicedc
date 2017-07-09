@@ -3,6 +3,7 @@ from collections import OrderedDict, namedtuple
 from ..rule_group_meta_options import RuleGroupMetaOptions
 from ..rule_group_metaclass import RuleGroupMetaclass
 from .requisition_metadata_updater import RequisitionMetadataUpdater
+from edc_metadata.constants import REQUISITION
 
 RuleResult = namedtuple('RuleResult', 'target_panel entry_status')
 
@@ -57,6 +58,7 @@ class RequisitionMetaclass(RuleGroupMetaclass):
 class RequisitionRuleGroup(object, metaclass=RequisitionMetaclass):
 
     metadata_updater_cls = RequisitionMetadataUpdater
+    metadata_category = REQUISITION
 
     @classmethod
     def evaluate_rules(cls, visit=None):
@@ -65,7 +67,8 @@ class RequisitionRuleGroup(object, metaclass=RequisitionMetaclass):
         """
         rule_results = OrderedDict()
         metadata_objects = OrderedDict()
-        metadata_updater = cls.metadata_updater_cls(visit=visit)
+        metadata_updater = cls.metadata_updater_cls(
+            visit=visit, metadata_category=cls.metadata_category)
         for rule in cls._meta.options.get('rules'):
             rule_results[str(rule)] = OrderedDict()
             for target_model, entry_status in rule.run(visit=visit).items():

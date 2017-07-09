@@ -290,25 +290,6 @@ class TestMetadataRulesWithGender(TestCase):
         self.assertEqual(rule_results['CrfRuleGroupGender.crfs_female'].get(
             'edc_metadata.crfthree'), NOT_REQUIRED)
 
-    def test_bad_rule_group_target_model(self):
-
-        site_metadata_rules.registry = OrderedDict()
-        subject_visit = self.enroll(gender=MALE)
-
-        class BadCrfRuleGroup(CrfRuleGroup):
-            crfs_male = CrfRule(
-                predicate=P('f1', 'eq', 'car'),
-                consequence=REQUIRED,
-                alternative=NOT_REQUIRED,
-                target_models=['blah'])
-
-            class Meta:
-                app_label = 'edc_metadata'
-                source_model = 'edc_metadata.crfone'
-        self.assertRaises(
-            TargetModelLookupError,
-            BadCrfRuleGroup().evaluate_rules, visit=subject_visit)
-
     def test_bad_rule_group_target_model_cannot_also_be_source_model(self):
 
         site_metadata_rules.registry = OrderedDict()
@@ -469,25 +450,6 @@ class TestMetadataRulesWithGender(TestCase):
             alternative=NOT_REQUIRED,
             target_models=['crftwo'])
         self.assertTrue(repr(rule))
-
-    def test_target_model_missing_manager(self):
-
-        class BadCrfRuleGroup(CrfRuleGroup):
-            rule = CrfRule(
-                predicate=P('f1', 'eq', 'car'),
-                consequence=REQUIRED,
-                alternative=NOT_REQUIRED,
-                target_models=['crfmissingmanager'])
-
-            class Meta:
-                app_label = 'edc_metadata'
-                source_model = 'edc_metadata.crfone'
-
-        site_metadata_rules.registry = OrderedDict()
-        subject_visit = self.enroll(gender=MALE)
-        self.assertRaises(
-            TargetModelMissingManagerMethod,
-            BadCrfRuleGroup().evaluate_rules, visit=subject_visit)
 
     def test_rule_group_meta_repr(self):
 
