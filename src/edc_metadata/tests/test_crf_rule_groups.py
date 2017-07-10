@@ -11,6 +11,7 @@ from edc_visit_tracking.constants import SCHEDULED
 from ..constants import NOT_REQUIRED, REQUIRED, KEYED
 from ..models import CrfMetadata
 from ..rules import CrfRuleGroup, CrfRule, P, site_metadata_rules
+from .metadata_rules import register_to_site_reference_fields
 from .models import Appointment, SubjectVisit
 from .models import CrfOne, CrfTwo, Enrollment
 from .visit_schedule import visit_schedule
@@ -42,6 +43,7 @@ class TestMetadataRules(TestCase):
 
     def setUp(self):
 
+        register_to_site_reference_fields()
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)

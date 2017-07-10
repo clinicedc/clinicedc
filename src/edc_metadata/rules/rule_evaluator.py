@@ -24,7 +24,6 @@ class RuleEvaluator:
 
     def __init__(self, logic=None, visit=None, **kwargs):
         self._registered_subject = None
-        self._source_object = None
         self.logic = logic
         self.result = None
         self.visit = visit

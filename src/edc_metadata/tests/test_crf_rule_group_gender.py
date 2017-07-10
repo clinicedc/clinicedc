@@ -12,8 +12,8 @@ from ..models import CrfMetadata
 from ..rules import CrfRuleGroup, CrfRule, P, PF, site_metadata_rules
 from ..rules import RuleEvaluatorRegisterSubjectError, CrfRuleModelConflict
 from ..rules import TargetModelConflict, PredicateError
-from ..rules import TargetModelLookupError, TargetModelMissingManagerMethod
 from ..rules import RuleGroupMetaError
+from .metadata_rules import register_to_site_reference_fields
 from .models import Appointment, SubjectVisit, Enrollment, CrfOne
 from .visit_schedule import visit_schedule
 
@@ -100,6 +100,7 @@ class TestMetadataRulesWithGender(TestCase):
 
     def setUp(self):
 
+        register_to_site_reference_fields()
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
@@ -154,8 +155,6 @@ class TestMetadataRulesWithGender(TestCase):
         for rule in CrfRuleGroupWithoutExplicitReferenceModel._meta.options.get('rules'):
             with self.subTest(rule=rule):
                 self.assertIsNotNone(rule.source_model)
-                self.assertEqual(rule.reference_model,
-                                 'edc_reference.reference')
                 result = rule.run(subject_visit)
                 if rule.name == 'crfs_male':
                     self.assertEqual(

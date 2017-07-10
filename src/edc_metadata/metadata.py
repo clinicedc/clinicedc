@@ -5,15 +5,15 @@ from edc_visit_schedule import site_visit_schedules
 
 from .constants import NOT_REQUIRED, REQUIRED, KEYED
 from .exceptions import CreatesMetadataError
+from edc_reference.site import site_reference_fields
 
 
 class Base:
 
     def __init__(self, visit_instance=None, metadata_crf_model=None,
                  metadata_requisition_model=None, **kwargs):
+        self.reference_model_cls = None
         app_config = django_apps.get_app_config('edc_metadata')
-        reference_model = app_config.metadata_reference_model
-        self.reference_model_cls = django_apps.get_model(reference_model)
         self.visit_instance = visit_instance
         self.metadata_crf_model = metadata_crf_model or app_config.crf_model
         self.metadata_requisition_model = (
@@ -58,6 +58,9 @@ class CrfCreator(Base):
 
         See also edc_reference.
         """
+        reference_model = site_reference_fields.get_reference_model(
+            crf.model_label_lower)
+        self.reference_model_cls = django_apps.get_model(reference_model)
         return self.reference_model_cls.objects.filter_crf_for_visit(
             model=crf.model_label_lower,
             visit=self.visit_instance).exists()
@@ -97,6 +100,9 @@ class RequisitionCreator(Base):
 
         See also edc_reference.
         """
+        reference_model = site_reference_fields.get_reference_model(
+            requisition.model_label_lower)
+        self.reference_model_cls = django_apps.get_model(reference_model)
         return self.reference_model_cls.objects.get_requisition_for_visit(
             model=requisition.model_label_lower,
             visit=self.visit_instance,

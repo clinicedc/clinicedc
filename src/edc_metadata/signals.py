@@ -43,8 +43,16 @@ def metadata_update_on_post_save(sender, instance, raw, created, using,
 
 @receiver(post_delete, weak=False, dispatch_uid="metadata_reset_on_post_delete")
 def metadata_reset_on_post_delete(sender, instance, using, **kwargs):
-    # deletes a single instance used by UpdatesMetadataMixin
-    ReferenceModelDeleter(model_obj=instance)
+    """Deletes a single instance used by UpdatesMetadataMixin.
+
+    Calls edc_reference_model_deleter_cls in case this signal fires before
+    the post_delete signal in edc_reference.
+    """
+    try:
+        instance.edc_reference_model_deleter_cls(model_obj=instance)
+    except AttributeError:
+        pass
+
     try:
         instance.metadata_reset_on_delete()
         if django_apps.get_app_config('edc_metadata').metadata_rules_enabled:

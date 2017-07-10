@@ -12,6 +12,7 @@ from ..constants import NOT_REQUIRED, REQUIRED
 from ..models import RequisitionMetadata
 from ..rules import RequisitionRuleGroup, RequisitionRule, P, site_metadata_rules
 from ..rules import RequisitionMetadataError, RequisitionRuleGroupMetaOptionsError
+from .metadata_rules import register_to_site_reference_fields
 from .models import Appointment, SubjectVisit, Enrollment, SubjectRequisition
 from .visit_schedule import visit_schedule
 
@@ -103,6 +104,7 @@ class TestRequisitionRuleGroup(TestCase):
 
     def setUp(self):
 
+        register_to_site_reference_fields()
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)

@@ -13,11 +13,9 @@ class RuleGroupMetaOptions:
 
     """
 
-    default_reference_model = 'edc_reference.reference'
     reference_model_getter_cls = ReferenceModelGetter
 
     def __init__(self, group_name, attrs):
-        self._source_model = None
         meta = attrs.pop('Meta', None)
         # assert meta class was declared on the rule group
         if not meta:
@@ -39,10 +37,7 @@ class RuleGroupMetaOptions:
         # default app_label if not declared
         module_name = attrs.get('__module__').split('.')[0]
         self.app_label = self.options.get('app_label', module_name)
-        # reference model and helper class
-        self.reference_model = (
-            self.options.get('reference_model') or self.default_reference_model)
-        self.options.update(reference_model=self.reference_model)
+        # reference model helper class
         self.options.update(
             reference_model_getter_cls=self.reference_model_getter_cls)
         # source model
@@ -56,4 +51,4 @@ class RuleGroupMetaOptions:
 
     @property
     def default_meta_options(self):
-        return ['app_label', 'source_model', 'reference_model']
+        return ['app_label', 'source_model']

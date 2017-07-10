@@ -25,7 +25,6 @@ class AppConfig(DjangoAppConfig):
     delete_on_reasons = [MISSED_VISIT]
 
     metadata_rules_enabled = True
-    metadata_reference_model = 'edc_reference.reference'
 
     def ready(self):
         from .signals import (

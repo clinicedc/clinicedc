@@ -12,7 +12,8 @@ class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,
                  VisitScheduleFieldsModelMixin,
                  models.Model):
 
-    """ Mixin for CrfMetadata and RequisitionMetadata models."""
+    """ Mixin for CrfMetadata and RequisitionMetadata models.
+    """
 
     visit_code = models.CharField(max_length=25)
 

@@ -7,6 +7,7 @@ from ..constants import REQUIRED, NOT_REQUIRED
 from ..rules import CrfRule, P, SiteMetadataRulesAlreadyRegistered
 from ..rules import register, RegisterRuleGroupError, SiteMetadataRulesImportError
 from ..rules import site_metadata_rules, CrfRuleGroup, SiteMetadataNoRulesError
+from .metadata_rules import register_to_site_reference_fields
 
 
 class RuleGroupWithoutRules(CrfRuleGroup):
@@ -42,6 +43,7 @@ class RuleGroupWithRules2(CrfRuleGroup):
 class TestSiteMetadataRules(TestCase):
 
     def setUp(self):
+        register_to_site_reference_fields()
         site_metadata_rules.registry = OrderedDict()
 
     def test_register_rule_group_no_rules_raises_on_register(self):
