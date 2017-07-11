@@ -1,6 +1,10 @@
 from django.apps import apps as django_apps
 
 
+class CrfLookupError(Exception):
+    pass
+
+
 class Crf:
 
     def __init__(self, show_order=None, model=None, required=None,
@@ -18,6 +22,8 @@ class Crf:
         required = 'Required' if self.required else ''
         return f'{self.model_label_lower} {required}'
 
-    @property
-    def model(self):
-        return django_apps.get_model(*self.model_label_lower.split('.'))
+    def validate(self):
+        try:
+            django_apps.get_model(*self.model_label_lower.split('.'))
+        except LookupError as e:
+            raise CrfLookupError(e) from e

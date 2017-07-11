@@ -45,7 +45,7 @@ class Visit:
                  crfs=None, requisitions=None, title=None,
                  instructions=None, grouping=None, **kwargs):
 
-        self.dates = VisitDate(**kwargs)
+        self.dates = self.visit_date_cls(**kwargs)
         self.title = title or f'Visit {code}'
         if not code or isinstance(code, int) or not re.match(self.code_regex, code):
             raise VisitCodeError(f'Invalid visit code. Got \'{code}\'')
