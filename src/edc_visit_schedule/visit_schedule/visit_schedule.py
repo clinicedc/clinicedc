@@ -79,7 +79,7 @@ class VisitSchedule:
             schedules = self.schedules
         return schedules
 
-    def add_schedule(self, schedule):
+    def add_schedule(self, schedule=None):
         """Adds a schedule, if not already added.
 
         Note: Meta (visit_schedule_name.schedule_name) on enroll/disenrollment models must

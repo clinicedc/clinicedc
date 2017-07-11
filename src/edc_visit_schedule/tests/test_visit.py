@@ -118,26 +118,26 @@ class TestVisit(TestCase):
             rupper=relativedelta(days=6))
 
     def test_forms_collection_empty(self):
-        items = []
+        crfs = []
         try:
-            FormsCollection(*items)
+            FormsCollection(*crfs)
         except FormsCollectionError as e:
             self.fail(f'FormsCollectionError unexpectedly raised. Got {e}')
 
     def test_forms_collection_none1(self):
-        items = None
+        crfs = None
         try:
-            FormsCollection(items)
+            FormsCollection(crfs)
         except FormsCollectionError as e:
             self.fail(f'FormsCollectionError unexpectedly raised. Got {e}')
 
     def test_forms_collection_order(self):
-        items = []
+        crfs = []
         for i in range(0, 10):
-            items.append(Crf(show_order=i, model='x.x'))
+            crfs.append(Crf(show_order=i, model='x.x'))
         try:
-            FormsCollection(*items)
+            FormsCollection(*crfs)
         except FormsCollectionError as e:
             self.fail(f'FormsCollectionError unexpectedly raised. Got {e}')
-        items.append(0)
-        self.assertRaises(FormsCollectionError, FormsCollection, *items)
+        crfs.append(0)
+        self.assertRaises(FormsCollectionError, FormsCollection, *crfs)

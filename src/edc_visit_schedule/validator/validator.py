@@ -44,7 +44,7 @@ class Validator:
                  required_fields=None, meta_pattern=None, **kwargs):
         self._model_cls = None
         self.meta_pattern = re.compile(meta_pattern or self.meta_pattern)
-        self.model_label_lower = model
+        self.model = model
         self.required_fields = required_fields or []
         self.name = visit_schedule_name or schedule_name
         if not self.name:
@@ -58,10 +58,10 @@ class Validator:
                 self.INDEX = 1
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.name}, {self.model_label_lower})'
+        return f'{self.__class__.__name__}({self.name}, {self.model})'
 
     def __str__(self):
-        return f'{self.name} {self.model_label_lower}'
+        return f'{self.name} {self.model}'
 
     @property
     def validated_model(self):
@@ -78,7 +78,7 @@ class Validator:
         if not self._model_cls:
             try:
                 self._model_cls = self.func_get_model(
-                    model=self.model_label_lower)
+                    model=self.model)
             except LookupError as e:
                 raise ValidatorLookupError(e) from e
         return self._model_cls

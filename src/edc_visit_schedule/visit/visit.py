@@ -52,9 +52,9 @@ class Visit:
         else:
             self.code = code  # unique
         self.name = self.code
-        self.crfs = self.forms_collection_cls(*(crfs or []), **kwargs).items
+        self.crfs = self.forms_collection_cls(*(crfs or []), **kwargs).forms
         self.requisitions = self.forms_collection_cls(
-            *(requisitions or []), **kwargs).items
+            *(requisitions or []), **kwargs).forms
 
         self.instructions = instructions
         self.timepoint = timepoint

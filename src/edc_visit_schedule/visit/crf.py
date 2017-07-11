@@ -10,22 +10,22 @@ class Crf:
     def __init__(self, show_order=None, model=None, required=None,
                  additional=None, **kwargs):
         self.additional = additional
-        self.model_label_lower = model
+        self.model = model
         self.required = True if required is None else required
         self.show_order = show_order
 
     def __repr__(self):
         return (f'{self.__class__.__name__}({self.show_order}, '
-                f'{self.model_label_lower}, {self.required})')
+                f'{self.model}, {self.required})')
 
     def __str__(self):
         required = 'Required' if self.required else ''
-        return f'{self.model_label_lower} {required}'
+        return f'{self.model} {required}'
 
     def validate(self):
         """Raises an exception if a CRF model lookup fails.
         """
         try:
-            django_apps.get_model(*self.model_label_lower.split('.'))
+            django_apps.get_model(*self.model.split('.'))
         except LookupError as e:
             raise CrfLookupError(e) from e

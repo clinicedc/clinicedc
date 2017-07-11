@@ -134,13 +134,14 @@ class SiteVisitSchedules:
         schedule_names.sort()
         return schedule_names
 
-    def autodiscover(self, module_name=None):
+    def autodiscover(self, module_name=None, apps=None):
         """Autodiscovers classes in the visit_schedules.py file of
         any INSTALLED_APP.
         """
         module_name = module_name or 'visit_schedules'
-        sys.stdout.write(' * checking for site {} ...\n'.format(module_name))
-        for app in django_apps.app_configs:
+        sys.stdout.write(
+            f' * checking site for module \'{module_name}\' ...\n')
+        for app in (apps or django_apps.app_configs):
             try:
                 mod = import_module(app)
                 try:
