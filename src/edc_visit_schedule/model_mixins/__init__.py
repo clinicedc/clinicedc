@@ -1,5 +1,6 @@
 from .base_enrollment_model_mixin import EnrollmentModelError
 from .disenrollment_model_mixin import DisenrollmentModelMixin, DisenrollmentError
 from .enrollment_model_mixin import EnrollmentModelMixin
-from .visit_schedule_model_mixins import VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin
-from .visit_schedule_model_mixins import VisitScheduleModelMixin
+from .visit_schedule_model_mixins import VisitScheduleFieldsModelMixin
+from .visit_schedule_model_mixins import VisitScheduleMethodsModelMixin
+from .visit_schedule_model_mixins import VisitScheduleModelMixin, VisitScheduleMethodsError

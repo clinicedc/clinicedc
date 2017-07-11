@@ -1,5 +1,7 @@
 import re
 
+from django.apps import apps as django_apps
+
 from ..validator import Validator, ValidatorLookupError
 from ..visit import Visit
 from .visit_collection import VisitCollection
@@ -33,7 +35,7 @@ class Schedule:
     model_validator_cls = Validator
 
     def __init__(self, name=None, title=None, sequence=None, enrollment_model=None,
-                 disenrollment_model=None, **kwargs):
+                 disenrollment_model=None, validate=None, **kwargs):
         self.visits = self.visit_collection_cls()
         if not name or not re.match(r'[a-z0-9\_\-]+$', name):
             raise ScheduleNameError(
@@ -43,20 +45,14 @@ class Schedule:
             self.name = name
         self.title = title or name
         self.sequence = sequence or name
-
-        try:
-            self.enrollment_model = self.model_validator_cls(
-                model=enrollment_model,
-                schedule_name=self.name).validated_model
-        except ValidatorLookupError as e:
-            raise ScheduleModelError(f'{repr(self)} raised {e}')
-
-        try:
-            self.disenrollment_model = self.model_validator_cls(
-                model=disenrollment_model,
-                schedule_name=self.name).validated_model
-        except ValidatorLookupError as e:
-            raise ScheduleModelError(f'{repr(self)} raised {e}')
+        if not enrollment_model:
+            raise ScheduleModelError('Invalid enrollment model. Got None')
+        self.enrollment_model = enrollment_model.lower()
+        if not disenrollment_model:
+            raise ScheduleModelError('Invalid disenrollment model. Got None')
+        self.disenrollment_model = disenrollment_model.lower()
+        if validate:
+            self.validate()
 
     def __repr__(self):
         return f'Schedule({self.name})'
@@ -67,6 +63,14 @@ class Schedule:
     @property
     def field_value(self):
         return self.name
+
+    @property
+    def enrollment_model_cls(self):
+        return django_apps.get_model(self.enrollment_model)
+
+    @property
+    def disenrollment_model_cls(self):
+        return django_apps.get_model(self.disenrollment_model)
 
     def add_visit(self, visit=None, **kwargs):
         """Adds a unique visit to the schedule.
@@ -79,3 +83,23 @@ class Schedule:
                     f'See schedule \'{self}\'')
         self.visits.update({visit.code: visit})
         return visit
+
+    def validate(self, visit_schedule_name=None):
+        """Raises an exception if enrollment/disenrollment models
+        are invalid.
+        """
+        try:
+            self.model_validator_cls(
+                model=self.enrollment_model,
+                schedule_name=self.name,
+                visit_schedule_name=visit_schedule_name).validated_model
+        except ValidatorLookupError as e:
+            raise ScheduleModelError(f'{repr(self)} raised {e}')
+
+        try:
+            self.model_validator_cls(
+                model=self.disenrollment_model,
+                schedule_name=self.name,
+                visit_schedule_name=visit_schedule_name).validated_model
+        except ValidatorLookupError as e:
+            raise ScheduleModelError(f'{repr(self)} raised {e}')

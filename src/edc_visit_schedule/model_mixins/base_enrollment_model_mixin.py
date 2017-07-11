@@ -7,7 +7,8 @@ from edc_protocol.validators import datetime_not_before_study_start
 
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..visit_schedule import VisitScheduleError
-from .visit_schedule_model_mixins import VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin
+from .visit_schedule_model_mixins import VisitScheduleFieldsModelMixin
+from .visit_schedule_model_mixins import VisitScheduleMethodsModelMixin
 from .visit_schedule_model_mixins import VisitScheduleMetaMixin
 
 

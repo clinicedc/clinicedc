@@ -23,6 +23,8 @@ class Crf:
         return f'{self.model_label_lower} {required}'
 
     def validate(self):
+        """Raises an exception if a CRF model lookup fails.
+        """
         try:
             django_apps.get_model(*self.model_label_lower.split('.'))
         except LookupError as e:

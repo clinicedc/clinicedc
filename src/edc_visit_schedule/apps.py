@@ -11,6 +11,7 @@ style = color_style()
 class AppConfig(DjangoAppConfig):
     name = 'edc_visit_schedule'
     verbose_name = "Visit Schedules"
+    validate_models = True
 
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))

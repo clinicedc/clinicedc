@@ -10,25 +10,26 @@ from .models import Enrollment, EnrollmentTwo, EnrollmentThree, DisenrollmentTwo
 
 @tag('enroll')
 class TestEnrolledSubject(TestCase):
+
     def setUp(self):
         self.visit_schedule = VisitSchedule(
             name='visit_schedule',
             verbose_name='Visit Schedule',
             app_label='edc_visit_schedule',
-            visit_model=SubjectVisit,
-            offstudy_model=SubjectOffstudy,
-            death_report_model=DeathReport,
-            enrollment_model=Enrollment,
-            disenrollment_model=Disenrollment)
+            visit_model='edc_visit_schedule.SubjectVisit',
+            offstudy_model='edc_visit_schedule.SubjectOffstudy',
+            death_report_model='edc_visit_schedule.DeathReport',
+            enrollment_model='edc_visit_schedule.Enrollment',
+            disenrollment_model='edc_visit_schedule.Disenrollment')
 
         self.schedule = Schedule(
             name='schedule',
-            enrollment_model=Enrollment._meta.label_lower,
-            disenrollment_model=Disenrollment._meta.label_lower)
+            enrollment_model='edc_visit_schedule.Enrollment',
+            disenrollment_model='edc_visit_schedule.Disenrollment')
         self.schedule3 = Schedule(
             name='schedule_three',
-            enrollment_model=EnrollmentThree._meta.label_lower,
-            disenrollment_model=DisenrollmentThree._meta.label_lower)
+            enrollment_model='edc_visit_schedule.EnrollmentThree',
+            disenrollment_model='edc_visit_schedule.DisenrollmentThree')
 
         self.visit_schedule.add_schedule(self.schedule)
         self.visit_schedule.add_schedule(self.schedule3)
@@ -39,24 +40,25 @@ class TestEnrolledSubject(TestCase):
             name='visit_schedule_two',
             verbose_name='Visit Schedule Two',
             app_label='edc_visit_schedule',
-            visit_model=SubjectVisit,
-            offstudy_model=SubjectOffstudy,
-            death_report_model=DeathReport)
+            visit_model='edc_visit_schedule.SubjectVisit',
+            offstudy_model='edc_visit_schedule.SubjectOffstudy',
+            death_report_model='edc_visit_schedule.DeathReport')
 
         self.schedule_two_1 = Schedule(
             name='schedule_two',
-            enrollment_model=EnrollmentTwo._meta.label_lower,
-            disenrollment_model=DisenrollmentTwo._meta.label_lower)
+            enrollment_model='edc_visit_schedule.EnrollmentTwo',
+            disenrollment_model='edc_visit_schedule.DisenrollmentTwo')
         self.schedule_two_2 = Schedule(
             name='schedule_four',
-            enrollment_model=EnrollmentFour._meta.label_lower,
-            disenrollment_model=DisenrollmentFour._meta.label_lower)
+            enrollment_model='edc_visit_schedule.EnrollmentFour',
+            disenrollment_model='edc_visit_schedule.DisenrollmentFour')
 
         self.visit_schedule_two.add_schedule(self.schedule_two_1)
         self.visit_schedule_two.add_schedule(self.schedule_two_2)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule_two)
 
+    @tag('3')
     def test_enrolled_subject(self):
         enrolled_subject = EnrolledSubject()
         self.assertFalse(enrolled_subject.enrollments)

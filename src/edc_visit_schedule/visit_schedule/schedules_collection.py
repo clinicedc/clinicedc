@@ -1,5 +1,4 @@
 from ..ordered_collection import OrderedCollection
-from ..validator import get_model
 
 
 class SchedulesCollectionError(Exception):
@@ -11,32 +10,30 @@ class SchedulesCollection(OrderedCollection):
     key = 'name'
     ordering_attr = 'sequence'
 
+    def __init__(self, visit_schedule_name=None, *args, **kwargs):
+        self.visit_schedule_name = visit_schedule_name
+        super().__init__(*args, **kwargs)
+
     def get_schedule(self, model=None, schedule_name=None, **kwargs):
         """Returns a schedule or raises; by name, by enrollment/disenrollment model
         or by model label_lower.
         """
         schedule = None
         if model:
-            schedule = self._get_schedule_by_model(model=model)
+            model = model.lower()
+            for item in self.values():
+                if item.enrollment_model == model:
+                    schedule = item
+                elif item.disenrollment_model == model:
+                    schedule = item
         elif schedule_name:
             schedule = self.get(schedule_name)
         if not schedule:
             raise SchedulesCollectionError(
-                f'Schedule does not exist. Using model={model}, schedule_name={schedule_name}.')
+                f'Schedule does not exist. Using model={model}, '
+                f'schedule_name={schedule_name}.')
         return schedule
 
-    def _get_schedule_by_model(self, model=None):
-        """Returns a schedule or None looked up using the model
-        class or label_lower.
-        """
-        schedule = None
-        try:
-            model = get_model(model=model)
-        except LookupError as e:
-            raise SchedulesCollectionError(f'Invalid model for schedule. Got {e}')
+    def validate(self):
         for schedule in self.values():
-            if schedule.enrollment_model == model:
-                return schedule
-            elif schedule.disenrollment_model == model:
-                return schedule
-        return None
+            schedule.validate(visit_schedule_name=self.visit_schedule_name)

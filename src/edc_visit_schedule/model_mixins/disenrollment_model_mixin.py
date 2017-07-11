@@ -1,6 +1,3 @@
-from datetime import timedelta
-from dateutil.relativedelta import relativedelta
-
 from django.db import models
 from django.utils import timezone
 
@@ -8,9 +5,9 @@ from edc_base.model_validators import datetime_not_future
 from edc_base.utils import get_utcnow
 from edc_protocol.validators import datetime_not_before_study_start
 
+from ..enrolled_subject import EnrolledSubject
 from ..site_visit_schedules import site_visit_schedules
 from .base_enrollment_model_mixin import BaseEnrollmentModelMixin
-from edc_visit_schedule.enrolled_subject import EnrolledSubject
 
 
 class DisenrollmentError(Exception):
@@ -18,7 +15,8 @@ class DisenrollmentError(Exception):
 
 
 class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
-    """A model mixin for a schedule's enrollment model."""
+    """A model mixin for a schedule's enrollment model.
+    """
 
     disenrollment_datetime = models.DateTimeField(
         validators=[
@@ -33,12 +31,13 @@ class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
             schedule_name=self.schedule_name)
 
         try:
-            enrollment = schedule.enrollment_model.objects.get(
+            enrollment = schedule.enrollment_model_cls.objects.get(
                 subject_identifier=self.subject_identifier)
-        except schedule.enrollment_model.DoesNotExist:
+        except schedule.enrollment_model_cls.DoesNotExist as e:
             raise DisenrollmentError(
                 f'Cannot disenroll before enrollment. Subject \'{self.subject_identifier}\' '
-                f'is not enrolled to \'{self.visit_schedule_name}.{self.schedule_name}\'. ')
+                f'is not enrolled to \'{self.visit_schedule_name}.{self.schedule_name}\'. '
+                f'Got {e}') from e
 
         tdelta = enrollment.report_datetime - self.disenrollment_datetime
         if tdelta.days > 0:

@@ -75,13 +75,15 @@ class SiteVisitSchedules:
         """
         if visit_schedule_name:
             visit_schedule_name = visit_schedule_name.split('.')[0]
-            return dict(visit_schedule_name=self.get_visit_schedule(visit_schedule_name))
+            return dict(
+                visit_schedule_name=self.get_visit_schedule(visit_schedule_name))
         else:
             return self.visit_schedules
 
-    def get_schedule(self, model=None, visit_schedule_name=None, schedule_name=None, **kwargs):
-        """Returns a schedule or None; by name, meta.label_lower, model class or
-        meta.visit_schedule_name.
+    def get_schedule(self, model=None, visit_schedule_name=None,
+                     schedule_name=None, **kwargs):
+        """Returns a schedule or None; by name, meta.label_lower,
+        model class or meta.visit_schedule_name.
         """
         schedule = None
         if not schedule_name:
@@ -137,7 +139,7 @@ class SiteVisitSchedules:
         any INSTALLED_APP.
         """
         module_name = module_name or 'visit_schedules'
-        sys.stdout.write(' * checking for site {}s ...\n'.format(module_name))
+        sys.stdout.write(' * checking for site {} ...\n'.format(module_name))
         for app in django_apps.app_configs:
             try:
                 mod = import_module(app)
@@ -150,10 +152,12 @@ class SiteVisitSchedules:
                         '\'{}\'\n'.format(app))
                 except Exception as e:
                     if f'No module named \'{app}.{module_name}\'' not in str(e):
-                        raise SiteVisitScheduleError(f'In module {app}.{module_name}: Got {e}') from e
+                        raise SiteVisitScheduleError(
+                            f'In module {app}.{module_name}: Got {e}') from e
                     site_visit_schedules._registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise SiteVisitScheduleError(f'In module {app}.{module_name}: Got {e}') from e
+                        raise SiteVisitScheduleError(
+                            f'In module {app}.{module_name}: Got {e}') from e
             except ImportError:
                 pass
 

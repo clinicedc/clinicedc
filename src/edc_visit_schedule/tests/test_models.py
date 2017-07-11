@@ -3,12 +3,11 @@ from django.test import TestCase, tag
 from edc_base.model_mixins import BaseUuidModel
 from edc_visit_schedule.model_mixins import EnrollmentModelMixin
 
-from ..model_mixins import DisenrollmentModelMixin
+from ..model_mixins import DisenrollmentModelMixin, VisitScheduleMethodsError
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules
-from ..visit_schedule import VisitScheduleModelError, VisitSchedule
-from .models import Enrollment, Disenrollment
-from .models import SubjectVisit, SubjectOffstudy, DeathReport
+from ..visit_schedule import VisitSchedule
+from .models import Enrollment
 
 
 class ModelC(EnrollmentModelMixin, BaseUuidModel):
@@ -68,7 +67,7 @@ class TestModels(TestCase):
         obj = Enrollment()
         try:
             obj.visit_schedule
-        except VisitScheduleModelError:
+        except VisitScheduleMethodsError:
             pass
         else:
             self.fail('VisitScheduleSiteError unexpectedly not raised.')
@@ -81,7 +80,7 @@ class TestModels(TestCase):
         obj = Enrollment()
         try:
             obj.schedule
-        except VisitScheduleModelError:
+        except VisitScheduleMethodsError:
             pass
         else:
             self.fail('VisitScheduleSiteError unexpectedly not raised.')
@@ -94,7 +93,7 @@ class TestModels(TestCase):
         obj = Enrollment()
         try:
             obj.visits
-        except VisitScheduleModelError:
+        except VisitScheduleMethodsError:
             pass
         else:
             self.fail('VisitScheduleSiteError unexpectedly not raised.')
@@ -106,14 +105,14 @@ class TestModels(TestCase):
             name='visit_schedule1',
             verbose_name='Visit Schedule',
             app_label='edc_visit_schedule',
-            visit_model=SubjectVisit,
-            offstudy_model=SubjectOffstudy,
-            death_report_model=DeathReport)
+            visit_model='edc_visit_schedule.SubjectVisit',
+            offstudy_model='edc_visit_schedule.SubjectOffstudy',
+            death_report_model='edc_visit_schedule.DeathReport')
 
         schedule = Schedule(
             name='schedule1',
-            enrollment_model=ModelG,
-            disenrollment_model=ModelG2)
+            enrollment_model='edc_visit_schedule.ModelG',
+            disenrollment_model='edc_visit_schedule.ModelG2')
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
 
@@ -128,7 +127,7 @@ class TestModels(TestCase):
         obj = ModelC()
         try:
             obj.visit_schedule
-        except VisitScheduleModelError:
+        except VisitScheduleMethodsError:
             pass
         else:
             self.fail('VisitScheduleModelError unexpectedly not raised')
@@ -141,7 +140,7 @@ class TestModels(TestCase):
         obj = ModelD()
         try:
             obj.visit_schedule
-        except VisitScheduleModelError:
+        except VisitScheduleMethodsError:
             pass
         else:
             self.fail('VisitScheduleModelError unexpectedly not raised')
@@ -154,7 +153,7 @@ class TestModels(TestCase):
         obj = ModelC()
         try:
             obj.schedule
-        except VisitScheduleModelError:
+        except VisitScheduleMethodsError:
             pass
         else:
             self.fail('VisitScheduleModelError unexpectedly not raised')
@@ -167,15 +166,15 @@ class TestModels(TestCase):
         obj = ModelD()
         try:
             obj.schedule
-        except VisitScheduleModelError:
+        except VisitScheduleMethodsError:
             pass
         else:
             self.fail('VisitScheduleModelError unexpectedly not raised')
 
     def test_natural_key(self):
         v = VisitSchedule(name='visit_schedule_blah')
-        s = Schedule(name='schedule_blah', enrollment_model=ModelE,
-                     disenrollment_model=ModelF)
+        s = Schedule(name='schedule_blah', enrollment_model='edc_visit_schedule.ModelE',
+                     disenrollment_model='edc_visit_schedule.ModelF')
         v.add_schedule(s)
         site_visit_schedules.register(v)
         obj = ModelE(subject_identifier='11111')
