@@ -32,7 +32,7 @@ class AliquotLabel(BaseLabel):
     def registered_subject(self):
         if not self._registered_subject:
             self._registered_subject = RegisteredSubject.objects.get(
-                subject_identifier=self.object.subject_identifier)
+                subject_identifier=self.requisition.subject_identifier)
         return self._registered_subject
 
     @property
@@ -41,7 +41,7 @@ class AliquotLabel(BaseLabel):
         return {
             'aliquot_identifier': self.aliquot.human_readable_identifier,
             'aliquot_count': 1 if self.aliquot.is_primary else self.aliquot.count,
-            'children_count': 1 if self.aliquot.is_primary else self.children.all().count,
+            'children_count': 1 if self.aliquot.is_primary else self.children_count,
             'primary': '<P>' if self.aliquot.is_primary else '',
             'barcode_value': self.aliquot.aliquot_identifier,
             'protocol': edc_protocol_app_config.protocol,

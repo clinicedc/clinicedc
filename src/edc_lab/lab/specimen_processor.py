@@ -41,6 +41,8 @@ class SpecimenProcessor:
                         aliquot_creator = self.aliquot_creator_cls(
                             aliquot_identifier_cls=self.aliquot_identifier_cls,
                             parent_identifier=self.object.aliquot_identifier,
+                            requisition_identifier=self.object.requisition_identifier,
+                            subject_identifier=self.object.subject_identifier,
                             **self.aliquot_creator_defaults
                         )
                         aliquot = aliquot_creator.create(

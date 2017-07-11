@@ -72,7 +72,8 @@ class Specimen:
             count_padding=self.count_padding,
             identifier_prefix=self.identifier_prefix,
             identifier_length=self.identifier_length,
-            requisition_identifier=self.requisition.requisition_identifier)
+            requisition_identifier=self.requisition.requisition_identifier,
+            subject_identifier=self.requisition.subject_identifier)
         primary_aliquot_obj = self.primary_aliquot_cls(**options)
         return primary_aliquot_obj.object
 
@@ -85,6 +86,7 @@ class Specimen:
             identifier_prefix=self.identifier_prefix,
             model_obj=self.primary_aliquot,
             processing_profile=self.requisition.panel_object.processing_profile,
+            subject_identifier=self.requisition.subject_identifier
         )
         return specimen_processor.create()
 
