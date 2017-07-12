@@ -1,0 +1,1 @@
+from .appointment_view_mixin import AppointmentViewMixin
