@@ -18,4 +18,4 @@ class ProcessViewMixin:
                 requisition.save()
         for created_aliquots in processed.values():
             self.print_labels(
-                pks=[specimen.primary_aliquot.object.pk] + [obj.pk for obj in created_aliquots])
+                pks=[specimen.primary_aliquot.pk] + [obj.pk for obj in created_aliquots])

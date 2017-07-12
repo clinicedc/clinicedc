@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from edc_model_wrapper import ModelWrapper
 from edc_lab.constants import SHIPPED
 from edc_lab.reports import ManifestReport
+from edc_lab.models import Manifest
 
 from ..listboard_filters import ManifestListboardViewFilters
 from .base_listboard import BaseListboardView, app_config, app_name
@@ -34,7 +35,7 @@ class ManifestListboardView(BaseListboardView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
-            new_manifest=ManifestModelWrapper.new(),
+            new_manifest=ManifestModelWrapper(Manifest()),
             print_manifest_url_name='{}:print_manifest_url'.format(app_name),
             SHIPPED=SHIPPED,
         )

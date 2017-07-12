@@ -11,6 +11,7 @@ from .base_listboard import BaseListboardView, app_config, app_name
 class AliquotModelWrapper(ModelWrapper):
 
     model_name = 'edc_lab.aliquot'
+    next_url_name = app_config.aliquot_listboard_url_name
 
     @property
     def human_aliquot_identifier(self):
