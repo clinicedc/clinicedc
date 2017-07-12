@@ -4,6 +4,8 @@ import sys
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
 
+from edc_base.utils import get_utcnow
+
 from .visit_schedule import VisitScheduleError
 
 
@@ -57,6 +59,8 @@ class SiteVisitSchedules:
     def get_visit_schedule(self, visit_schedule_name=None, **kwargs):
         """Returns a visit schedule instance or raises.
         """
+        if not self.loaded:
+            raise SiteVisitScheduleError('Registry is not loaded.')
         visit_schedule = None
         if visit_schedule_name:
             visit_schedule = self.registry.get(
@@ -73,6 +77,8 @@ class SiteVisitSchedules:
 
         If visit_schedule_name not specified, returns all visit schedules.
         """
+        if not self.loaded:
+            raise SiteVisitScheduleError('Registry is not loaded.')
         if visit_schedule_name:
             visit_schedule_name = visit_schedule_name.split('.')[0]
             return dict(
@@ -85,6 +91,8 @@ class SiteVisitSchedules:
         """Returns a schedule or None; by name, meta.label_lower,
         model class or meta.visit_schedule_name.
         """
+        if not self.loaded:
+            raise SiteVisitScheduleError('Registry is not loaded.')
         schedule = None
         if not schedule_name:
             try:
@@ -106,6 +114,8 @@ class SiteVisitSchedules:
         """Returns a dictionary of schedules for this
         visit_schedule_name.
         """
+        if not self.loaded:
+            raise SiteVisitScheduleError('Registry is not loaded.')
         visit_schedule = self.get_visit_schedule(
             visit_schedule_name=visit_schedule_name)
         return visit_schedule.get_schedules(schedule_name=schedule_name)
@@ -161,6 +171,13 @@ class SiteVisitSchedules:
                             f'In module {app}.{module_name}: Got {e}') from e
             except ImportError:
                 pass
+
+    def validate(self):
+        if not self.loaded:
+            raise SiteVisitScheduleError('Registry is not loaded.')
+        for visit_schedule in self.registry.values():
+            for schedule in visit_schedule.schedules.values():
+                schedule.visits.timepoint_dates(dt=get_utcnow())
 
 
 site_visit_schedules = SiteVisitSchedules()
