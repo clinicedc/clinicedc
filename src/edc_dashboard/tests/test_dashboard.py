@@ -1,26 +1,22 @@
+from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import TemplateView
 
-# from edc_base_test.mixins.dates_test_mixin import DatesTestMixin
-from edc_consent.tests.models import SubjectConsent
-from edc_visit_schedule.tests.models import Enrollment, Disenrollment, SubjectVisit
-# from edc_model_wrapper.url_mixins import NextUrlMixin
-# from edc_example.test_mixins import TestMixin
-# from edc_example.models import SubjectConsent
-from edc_base.utils import get_utcnow
 from edc_appointment.models import Appointment
-
-from ..view_mixins import AppointmentViewMixin, ConsentViewMixin
-from django.apps import apps as django_apps
-
+from edc_appointment.view_mixins import AppointmentViewMixin
+from edc_base.utils import get_utcnow
 from edc_consent.consent import Consent
 from edc_consent.site_consents import site_consents
+from edc_consent.tests.models import SubjectConsent
 from edc_constants.constants import MALE, FEMALE
-from edc_visit_schedule.visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_schedule.schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.tests.models import Enrollment, Disenrollment, SubjectVisit
+from edc_visit_schedule.visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
+
+from ..view_mixins import ConsentViewMixin
 
 app_config = django_apps.get_app_config('edc_protocol')
 

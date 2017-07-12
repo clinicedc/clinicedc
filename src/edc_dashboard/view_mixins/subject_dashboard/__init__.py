@@ -1,4 +1,2 @@
-from .appointment_view_mixin import AppointmentViewMixin
 from .consent_view_mixin import ConsentViewMixin
-from .metadata_view_mixin import MetaDataViewMixin
 from .show_forms_view_mixin import ShowHideViewMixin
