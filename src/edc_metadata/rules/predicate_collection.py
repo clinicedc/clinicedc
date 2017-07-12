@@ -10,7 +10,18 @@ class PredicateCollection:
     def __init__(self):
         self.reference_model_cls = django_apps.get_model(self.reference_model)
 
-    def exists(self, model=None, visit=None, subject_identifier=None, **kwargs):
+    def exists(self, **kwargs):
+        return self.get_reference_object(**kwargs)
+
+    def exists_for_value(self, value=None, **kwargs):
+        reference_object = self.get_reference_object(**kwargs)
+        try:
+            reference_value = reference_object.value
+        except AttributeError:
+            reference_value = None
+        return reference_value == value
+
+    def get_reference_object(self, model=None, visit=None, subject_identifier=None, **kwargs):
         try:
             model.split('.')[1]
         except IndexError:
@@ -20,13 +31,9 @@ class PredicateCollection:
                           report_datetime=visit.report_datetime)
         elif subject_identifier:
             kwargs.update(identifier=subject_identifier)
-        return self.get_value(model=model, **kwargs)
-
-    def get_value(self, value=None, **kwargs):
         try:
-            reference_object = self.reference_model_cls.objects.get(**kwargs)
+            reference_object = self.reference_model_cls.objects.get(
+                model=model, **kwargs)
         except ObjectDoesNotExist:
-            value = None
-        else:
-            value = reference_object.value
-        return value
+            reference_object = None
+        return reference_object

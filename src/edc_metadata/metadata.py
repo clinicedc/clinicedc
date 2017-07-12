@@ -159,12 +159,7 @@ class Metadata:
         self.destroyer = self.destroyer_cls(
             visit=visit, **kwargs)
         try:
-<<<<<<< HEAD
             self.reason_field = app_config.reason_field[visit._meta.label_lower]
-=======
-            self.reason_field = app_config.reason_field[
-                visit_instance._meta.label_lower]
->>>>>>> 428dcec2bed994e7bdd6fd2881c496cf9b8c51c2
         except KeyError as e:
             raise CreatesMetadataError(
                 f'Unable to determine the reason field for model '
