@@ -49,7 +49,7 @@ class UpdatesMetadataModelMixin(models.Model):
         elif self.metadata_category == CRF:
             try:
                 crf = [c for c in visit.crfs
-                       if c.model_label_lower == self._meta.label_lower][0]
+                       if c.model == self._meta.label_lower][0]
             except IndexError as e:
                 raise MetadataError(
                     f'{self._meta.label_lower}. Got {e}') from e

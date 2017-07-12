@@ -213,9 +213,10 @@ class TestUpdatesMetadata(TestCase):
         a.sort()
         schedule = site_visit_schedules.get_schedule(
             schedule_name=subject_visit.metadata_query_options['schedule_name'])
-        b = [crf.model._meta.label_lower
-             for crf in schedule.visits.get(subject_visit.visit_code).crfs]
-        b.extend([requisition.model._meta.label_lower
-                  for requisition in schedule.visits.get(subject_visit.visit_code).requisitions])
+        b = [crf.model for crf in schedule.visits.get(
+            subject_visit.visit_code).crfs]
+        b.extend([
+            requisition.model
+            for requisition in schedule.visits.get(subject_visit.visit_code).requisitions])
         b.sort()
         self.assertEqual(a, b)
