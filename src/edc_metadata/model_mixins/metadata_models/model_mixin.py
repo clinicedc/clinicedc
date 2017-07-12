@@ -62,13 +62,6 @@ class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,
     def is_not_required(self):
         return not self.is_required()
 
-#     @property
-#     def model_cls(self):
-#         """Returns the model class that this metadata
-#         instance represents.
-#         """
-#         return django_apps.get_model(*self.model.split('.'))
-
     class Meta:
         abstract = True
         ordering = ('show_order', )
