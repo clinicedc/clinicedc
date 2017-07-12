@@ -2,9 +2,7 @@ from django.apps import apps as django_apps
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from edc_reference import ReferenceModelDeleter
-
-from .exceptions import CreatesMetadataError
+from .metadata import CreatesMetadataError
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_create_on_post_save")

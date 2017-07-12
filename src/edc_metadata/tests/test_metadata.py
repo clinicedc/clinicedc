@@ -6,13 +6,13 @@ from edc_registration.models import RegisteredSubject
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
 
-from ..constants import KEYED, REQUIRED, NOT_REQUIRED
-from ..exceptions import CreatesMetadataError
+from ..constants import KEYED, REQUIRED
+from ..metadata import CreatesMetadataError
 from ..models import CrfMetadata, RequisitionMetadata
-from .models import SubjectVisit, Enrollment, CrfOne, CrfTwo, CrfThree, SubjectRequisition
-from .visit_schedule import visit_schedule
 from ..rules import site_metadata_rules, MetadataUpdater
 from .metadata_rules import register_to_site_reference_fields
+from .models import SubjectVisit, Enrollment, CrfOne, CrfTwo, CrfThree, SubjectRequisition
+from .visit_schedule import visit_schedule
 
 
 class TestCreatesDeletesMetadata(TestCase):

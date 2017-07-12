@@ -42,6 +42,8 @@ class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin, BaseUuidModel):
 
     subject_identifier = models.CharField(max_length=50)
 
+    reason = models.CharField(max_length=25)
+
 
 class SubjectRequisition(CrfModelMixin, UpdatesRequisitionMetadataModelMixin,
                          ReferenceModelMixin, BaseUuidModel):

@@ -1,11 +1,14 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 
+from edc_reference.site import site_reference_fields
 from edc_visit_schedule import site_visit_schedules
 
-from .constants import NOT_REQUIRED, REQUIRED, KEYED
-from .exceptions import CreatesMetadataError
-from edc_reference.site import site_reference_fields
+from ..constants import NOT_REQUIRED, REQUIRED, KEYED
+
+
+class CreatesMetadataError(Exception):
+    pass
 
 
 class Base:
