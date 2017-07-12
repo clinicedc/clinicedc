@@ -19,8 +19,6 @@ class TargetHandler:
 
     """A class that gets the target model "model instance"
     for a given visit, if it exists.
-
-    The target model "model class" requires manager method `get_for_visit`.
     """
 
     def __init__(self, model=None, visit=None, metadata_category=None):

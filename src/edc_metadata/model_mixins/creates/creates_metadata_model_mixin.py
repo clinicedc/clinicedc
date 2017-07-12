@@ -35,7 +35,7 @@ class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
             self.subject_identifier, **self.metadata_query_options)
 
     def metadata_create(self, sender=None, instance=None):
-        metadata = self.metadata_cls(visit_instance=self, update_keyed=True)
+        metadata = self.metadata_cls(visit=self, update_keyed=True)
         return metadata.prepare()
 
     def metadata_delete_for_visit(self, instance=None):

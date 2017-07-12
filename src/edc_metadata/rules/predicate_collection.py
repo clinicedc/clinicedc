@@ -1,16 +1,32 @@
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class PredicateCollection:
 
-    app_config_name = 'edc_metadata'
+    app_label = 'edc_metadata'
+    reference_model = 'edc_reference.reference'
 
-    def __init_(self, predicate_models=None):
-        self.predicate_models = predicate_models
-        if not predicate_models:
-            self.model_registry = django_apps.get_app_config(
-                self.app_config_name).predicate_models
+    def __init__(self):
+        self.reference_model_cls = django_apps.get_model(self.reference_model)
 
-    def get_model(self, model_name=None):
-        return django_apps.get_model(
-            **self.predicate_models.get(model_name).split(','))
+    def exists(self, model=None, visit=None, subject_identifier=None, **kwargs):
+        try:
+            model.split('.')[1]
+        except IndexError:
+            model = f'{self.app_label}.{model}'
+        if visit:
+            kwargs.update(identifier=subject_identifier,
+                          report_datetime=visit.report_datetime)
+        elif subject_identifier:
+            kwargs.update(identifier=subject_identifier)
+        return self.get_value(model=model, **kwargs)
+
+    def get_value(self, value=None, **kwargs):
+        try:
+            reference_object = self.reference_model_cls.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            value = None
+        else:
+            value = reference_object.value
+        return value
