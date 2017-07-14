@@ -1,5 +1,3 @@
-from dateutil.relativedelta import relativedelta
-
 from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import options
@@ -135,7 +133,7 @@ class OffstudyMixin(VisitScheduleMethodsModelMixin, models.Model):
                     raise OffstudyError(str(e))
             else:
                 raise OffstudyError(str(e))
-        return offstudy_model
+        return django_apps.get_model(*offstudy_model.split('.'))
 
     def is_offstudy_or_raise(self):
         """Return True if the off-study report exists. """
