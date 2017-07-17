@@ -16,7 +16,6 @@ from .models import Enrollment, SubjectVisit, CrfOne, SubjectRequisition
 from .visit_schedule import visit_schedule
 
 
-@tag('1')
 class TestMetaformObjects(TestCase):
 
     def setUp(self):

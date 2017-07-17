@@ -17,7 +17,6 @@ from .models import Enrollment, SubjectVisit
 fake = Faker()
 
 
-@tag('natural_keys')
 class TestNaturalKey(TestCase):
 
     sync_helper = SyncTestHelper()

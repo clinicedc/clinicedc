@@ -244,7 +244,6 @@ class TestRequisitionRuleGroup(TestCase):
                     panel_name=panel_name)
                 self.assertEqual(obj.entry_status, NOT_REQUIRED)
 
-    @tag('1')
     def test_metadata_for_rule_female_with_source_model_as_requisition1(self):
         subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = OrderedDict()

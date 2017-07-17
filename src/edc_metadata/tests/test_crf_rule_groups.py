@@ -169,7 +169,6 @@ class TestMetadataRules(TestCase):
         self.assertEqual(CrfMetadata.objects.get(
             model='edc_metadata.crftwo').entry_status, KEYED)
 
-    @tag('3')
     def test_delete(self):
         """Asserts delete returns to default entry status.
         """

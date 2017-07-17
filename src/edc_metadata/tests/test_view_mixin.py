@@ -11,10 +11,8 @@ from ..models import CrfMetadata, RequisitionMetadata
 from ..rules import site_metadata_rules
 from ..view_mixins import MetaDataViewMixin
 from .metadata_rules import register_to_site_reference_configs
-from .models import Enrollment, SubjectVisit
+from .models import Enrollment, SubjectVisit, CrfOne, CrfThree
 from .visit_schedule import visit_schedule
-from pprint import pprint
-from edc_metadata.tests.models import CrfOne, CrfThree
 
 
 class DummyModelWrapper:
@@ -28,7 +26,6 @@ class MyView(MetaDataViewMixin, ContextMixin):
     requisition_model_wrapper_cls = None
 
 
-@tag('view')
 class TestViewMixin(TestCase):
 
     def setUp(self):

@@ -15,7 +15,6 @@ from .models import Enrollment, SubjectVisit
 from .visit_schedule import visit_schedule
 
 
-@tag('get')
 class TestMetadataGetter(TestCase):
 
     def setUp(self):

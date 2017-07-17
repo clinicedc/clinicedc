@@ -1,14 +1,10 @@
 from dateutil.relativedelta import relativedelta
 
-from edc_visit_schedule import VisitSchedule, Schedule, Visit, Crf, Requisition
+from edc_visit_schedule import VisitSchedule, Schedule, Visit
+from edc_visit_schedule import FormsCollection, Crf, Requisition
 
 
-class Panel:
-    def __init__(self, name=None):
-        self.name = name
-
-
-crfs = (
+crfs = FormsCollection(
     Crf(show_order=1, model='edc_metadata.crfone', required=True),
     Crf(show_order=2, model='edc_metadata.crftwo', required=True),
     Crf(show_order=3, model='edc_metadata.crfthree', required=True),
@@ -16,25 +12,25 @@ crfs = (
     Crf(show_order=5, model='edc_metadata.crffive', required=True),
 )
 
-requisitions = (
+requisitions = FormsCollection(
     Requisition(
         show_order=10, model='edc_metadata.subjectrequisition',
-        panel=Panel('one'), required=True, additional=False),
+        panel='one', required=True, additional=False),
     Requisition(
         show_order=20, model='edc_metadata.subjectrequisition',
-        panel=Panel('two'), required=True, additional=False),
+        panel='two', required=True, additional=False),
     Requisition(
         show_order=30, model='edc_metadata.subjectrequisition',
-        panel=Panel('three'), required=True, additional=False),
+        panel='three', required=True, additional=False),
     Requisition(
         show_order=40, model='edc_metadata.subjectrequisition',
-        panel=Panel('four'), required=True, additional=False),
+        panel='four', required=True, additional=False),
     Requisition(
         show_order=50, model='edc_metadata.subjectrequisition',
-        panel=Panel('five'), required=True, additional=False),
+        panel='five', required=True, additional=False),
     Requisition(
         show_order=60, model='edc_metadata.subjectrequisition',
-        panel=Panel('six'), required=True, additional=False),
+        panel='six', required=True, additional=False),
 )
 
 visit0 = Visit(
