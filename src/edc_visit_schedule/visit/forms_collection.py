@@ -25,6 +25,9 @@ class FormsCollection:
         # convert to tuple
         self._forms = tuple(forms)
 
+    def __iter__(self):
+        return iter(self._forms)
+
     @property
     def forms(self):
         return self._forms
