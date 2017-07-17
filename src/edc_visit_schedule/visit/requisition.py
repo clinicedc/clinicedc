@@ -3,9 +3,9 @@ from .crf import Crf
 
 class Panel:
 
-    def __init__(self, panel_name=None, panel_type=None,
+    def __init__(self, name=None, panel_type=None,
                  aliquot_type_alpha_code=None):
-        self.name = panel_name
+        self.name = name
         self.type = panel_type
         self.aliquot_type_code = aliquot_type_alpha_code
 

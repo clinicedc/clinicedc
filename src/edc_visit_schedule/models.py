@@ -1,4 +1,4 @@
-import sys
+from django.conf import settings
 
-if 'test' in sys.argv:
-    from .tests.models import *
+if settings.APP_NAME == 'edc_visit_schedule':
+    from .tests import models

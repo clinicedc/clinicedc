@@ -5,7 +5,6 @@ from django.apps import apps as django_apps
 from ..visit_schedule import SchedulesCollectionError
 from .models_collection import ModelsCollection
 from .schedules_collection import SchedulesCollection
-from pprint import pprint
 
 
 class VisitScheduleError(Exception):

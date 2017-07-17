@@ -144,23 +144,26 @@ class SiteVisitSchedules:
         schedule_names.sort()
         return schedule_names
 
-    def autodiscover(self, module_name=None, apps=None):
+    def autodiscover(self, module_name=None, apps=None, verbose=None):
         """Autodiscovers classes in the visit_schedules.py file of
         any INSTALLED_APP.
         """
         module_name = module_name or 'visit_schedules'
-        sys.stdout.write(
-            f' * checking site for module \'{module_name}\' ...\n')
+        verbose = True if verbose is None else verbose
+        if verbose:
+            sys.stdout.write(
+                f' * checking site for module \'{module_name}\' ...\n')
         for app in (apps or django_apps.app_configs):
             try:
                 mod = import_module(app)
                 try:
                     before_import_registry = copy.copy(
                         site_visit_schedules._registry)
-                    import_module('{}.{}'.format(app, module_name))
-                    sys.stdout.write(
-                        ' * registered visit schedule from application '
-                        '\'{}\'\n'.format(app))
+                    import_module(f'{app}.{module_name}')
+                    if verbose:
+                        sys.stdout.write(
+                            ' * registered visit schedule from application '
+                            f'\'{app}\'\n')
                 except Exception as e:
                     if f'No module named \'{app}.{module_name}\'' not in str(e):
                         raise SiteVisitScheduleError(
