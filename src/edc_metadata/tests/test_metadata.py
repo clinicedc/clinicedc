@@ -10,7 +10,7 @@ from ..constants import KEYED, REQUIRED
 from ..metadata import CreatesMetadataError
 from ..models import CrfMetadata, RequisitionMetadata
 from ..rules import site_metadata_rules, MetadataUpdater
-from .metadata_rules import register_to_site_reference_fields
+from .metadata_rules import register_to_site_reference_configs
 from .models import SubjectVisit, Enrollment, CrfOne, CrfTwo, CrfThree, SubjectRequisition
 from .visit_schedule import visit_schedule
 
@@ -19,7 +19,7 @@ class TestCreatesDeletesMetadata(TestCase):
 
     def setUp(self):
 
-        register_to_site_reference_fields()
+        register_to_site_reference_configs()
         site_metadata_rules.registry = OrderedDict()
 
         site_visit_schedules._registry = {}
@@ -84,7 +84,7 @@ class TestCreatesDeletesMetadata(TestCase):
 class TestUpdatesMetadata(TestCase):
 
     def setUp(self):
-        register_to_site_reference_fields()
+        register_to_site_reference_configs()
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)

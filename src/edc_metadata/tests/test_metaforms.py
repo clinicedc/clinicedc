@@ -11,7 +11,7 @@ from ..metaforms import MetaformError
 from ..metaforms import CrfMetaforms, RequisitionMetaforms
 from ..models import CrfMetadata, RequisitionMetadata
 from ..rules import site_metadata_rules
-from .metadata_rules import register_to_site_reference_fields
+from .metadata_rules import register_to_site_reference_configs
 from .models import Enrollment, SubjectVisit, CrfOne, SubjectRequisition
 from .visit_schedule import visit_schedule
 
@@ -20,7 +20,7 @@ from .visit_schedule import visit_schedule
 class TestMetaformObjects(TestCase):
 
     def setUp(self):
-        register_to_site_reference_fields()
+        register_to_site_reference_configs()
         site_metadata_rules.registry = OrderedDict()
 
         site_visit_schedules._registry = {}

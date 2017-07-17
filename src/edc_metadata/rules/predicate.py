@@ -32,10 +32,13 @@ class BasePredicate:
         if found_on_instance:
             value = getattr(found_on_instance, attr)
         else:
+            visit = kwargs.get('visit')
             reference = reference_model_getter_cls(
                 field_name=attr,
                 model=source_model,
-                visit=kwargs.get('visit'))
+                subject_identifier=visit.subject_identifier,
+                report_datetime=visit.report_datetime,
+                visit_code=visit.visit_code)
             if reference.has_value:
                 value = getattr(reference, attr)
             else:

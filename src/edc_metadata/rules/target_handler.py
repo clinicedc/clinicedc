@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 
-from edc_reference.site import site_reference_fields
+from edc_reference.site import site_reference_configs
 
 
 class TargetModelConflict(Exception):
@@ -31,7 +31,7 @@ class TargetHandler:
         app_config = django_apps.get_app_config('edc_metadata')
         self.metadata_model = app_config.get_metadata_model(
             metadata_category)
-        reference_model = site_reference_fields.get_reference_model(model)
+        reference_model = site_reference_configs.get_reference_model(model)
         self.reference_model_cls = django_apps.get_model(reference_model)
 
     def __repr__(self):

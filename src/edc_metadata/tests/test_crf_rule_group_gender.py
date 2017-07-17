@@ -13,7 +13,7 @@ from ..rules import CrfRuleGroup, CrfRule, P, PF, site_metadata_rules
 from ..rules import RuleEvaluatorRegisterSubjectError, CrfRuleModelConflict
 from ..rules import TargetModelConflict, PredicateError
 from ..rules import RuleGroupMetaError
-from .metadata_rules import register_to_site_reference_fields
+from .metadata_rules import register_to_site_reference_configs
 from .models import Appointment, SubjectVisit, Enrollment, CrfOne
 from .visit_schedule import visit_schedule
 
@@ -100,7 +100,7 @@ class TestMetadataRulesWithGender(TestCase):
 
     def setUp(self):
 
-        register_to_site_reference_fields()
+        register_to_site_reference_configs()
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
