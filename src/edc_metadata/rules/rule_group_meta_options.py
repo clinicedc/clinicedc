@@ -1,4 +1,4 @@
-from edc_reference import ReferenceModelGetter
+from edc_reference import ReferenceGetter
 
 
 class RuleGroupMetaError(Exception):
@@ -13,7 +13,7 @@ class RuleGroupMetaOptions:
 
     """
 
-    reference_model_getter_cls = ReferenceModelGetter
+    reference_getter_cls = ReferenceGetter
 
     def __init__(self, group_name, attrs):
         meta = attrs.pop('Meta', None)
@@ -39,7 +39,7 @@ class RuleGroupMetaOptions:
         self.app_label = self.options.get('app_label', module_name)
         # reference model helper class
         self.options.update(
-            reference_model_getter_cls=self.reference_model_getter_cls)
+            reference_getter_cls=self.reference_getter_cls)
         # source model
         self.source_model = self.options.get('source_model')
         if self.source_model:

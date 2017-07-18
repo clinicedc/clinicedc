@@ -19,7 +19,7 @@ class BasePredicate:
         """
         value = None
         found_on_instance = None
-        reference_model_getter_cls = kwargs.pop('reference_model_getter_cls')
+        reference_getter_cls = kwargs.pop('reference_getter_cls')
         source_model = kwargs.pop('source_model')
         for instance in kwargs.values():
             try:
@@ -33,7 +33,7 @@ class BasePredicate:
             value = getattr(found_on_instance, attr)
         else:
             visit = kwargs.get('visit')
-            reference = reference_model_getter_cls(
+            reference = reference_getter_cls(
                 field_name=attr,
                 model=source_model,
                 subject_identifier=visit.subject_identifier,
