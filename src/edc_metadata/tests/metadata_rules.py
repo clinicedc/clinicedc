@@ -1,7 +1,6 @@
 # intentionally blank
 # needed for site_metadat_rules.autodiscover test
-from edc_reference.reference_model_config import ReferenceModelConfig
-from edc_reference.site import site_reference_configs
+from edc_reference import ReferenceModelConfig, site_reference_configs
 
 
 def register_to_site_reference_configs():

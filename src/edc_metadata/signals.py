@@ -43,11 +43,11 @@ def metadata_update_on_post_save(sender, instance, raw, created, using,
 def metadata_reset_on_post_delete(sender, instance, using, **kwargs):
     """Deletes a single instance used by UpdatesMetadataMixin.
 
-    Calls edc_reference_model_deleter_cls in case this signal fires before
+    Calls reference_deleter_cls in case this signal fires before
     the post_delete signal in edc_reference.
     """
     try:
-        instance.edc_reference_model_deleter_cls(model_obj=instance)
+        instance.reference_deleter_cls(model_obj=instance)
     except AttributeError:
         pass
 

@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 
-from edc_reference.site import site_reference_configs
+from edc_reference import site_reference_configs
 
 
 class TargetModelConflict(Exception):
