@@ -1,39 +1,40 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
+
+from edc_reference import LongitudinalRefset, site_reference_configs
 
 
 class PredicateCollection:
 
     app_label = 'edc_metadata'
-    reference_model = 'edc_reference.reference'
+    visit_model = None
 
     def __init__(self):
-        self.reference_model_cls = django_apps.get_model(self.reference_model)
+        self.reference_model_cls = django_apps.get_model(
+            site_reference_configs.get_reference_model(self.visit_model))
 
-    def exists(self, **kwargs):
-        return self.get_reference_object(**kwargs)
+    def values(self, value=None, field_name=None, **kwargs):
+        """Returns a list of matching values or an empty list.
+        """
+        return self.exists(value=value, field_name=field_name, **kwargs)
 
-    def exists_for_value(self, value=None, **kwargs):
-        reference_object = self.get_reference_object(**kwargs)
-        try:
-            reference_value = reference_object.value
-        except AttributeError:
-            reference_value = None
-        return reference_value == value
+    def exists(self, value=None, field_name=None, **kwargs):
+        """Returns a list of values, all or filtered, or an empty
+        list.
+        """
+        refsets = self.refsets(**kwargs)
+        if value:
+            return refsets.fieldset(field_name).filter(value).values
+        else:
+            return refsets.fieldset(field_name).all().values
 
-    def get_reference_object(self, model=None, visit=None, subject_identifier=None, **kwargs):
+    def refsets(self, model=None, **options):
         try:
             model.split('.')[1]
         except IndexError:
             model = f'{self.app_label}.{model}'
-        if visit:
-            kwargs.update(identifier=subject_identifier,
-                          report_datetime=visit.report_datetime)
-        elif subject_identifier:
-            kwargs.update(identifier=subject_identifier)
-        try:
-            reference_object = self.reference_model_cls.objects.get(
-                model=model, **kwargs)
-        except ObjectDoesNotExist:
-            reference_object = None
-        return reference_object
+        refsets = LongitudinalRefset(
+            visit_model=self.visit_model,
+            model=model,
+            reference_model_cls=self.reference_model_cls,
+            **options)
+        return refsets
