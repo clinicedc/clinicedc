@@ -16,7 +16,6 @@ from .models import SubjectVisit
 
 class TestVisitSchedule(TestCase):
 
-    @tag('1')
     def test_visit_schedule_name(self):
         """Asserts raises on invalid name.
         """
@@ -32,7 +31,6 @@ class TestVisitSchedule(TestCase):
             enrollment_model='edc_visit_schedule.enrollment',
             disenrollment_model='edc_visit_schedule.disenrollment')
 
-    @tag('1')
     def test_visit_schedule_repr(self):
         """Asserts repr evaluates correctly.
         """
@@ -47,7 +45,6 @@ class TestVisitSchedule(TestCase):
             disenrollment_model='edc_visit_schedule.disenrollment')
         self.assertTrue(v.__repr__())
 
-    @tag('1')
     def test_visit_schedule_validates(self):
         visit_schedule = VisitSchedule(
             name='visit_schedule',
@@ -62,7 +59,6 @@ class TestVisitSchedule(TestCase):
         except VisitScheduleError as e:
             self.fail(f'VisitScheduleError unepectedly raised {e}')
 
-    @tag('1')
     def test_visit_schedule_bad_enrollment_model_raises_on_validate(self):
         visit_schedule = VisitSchedule(
             name='visit_schedule',
@@ -76,7 +72,6 @@ class TestVisitSchedule(TestCase):
             ModelsCollectionError,
             visit_schedule.validate)
 
-    @tag('1')
     def test_visit_schedule_bad_disenrollment_model_raises_on_validate(self):
         visit_schedule = VisitSchedule(
             name='visit_schedule',
@@ -118,7 +113,6 @@ class TestVisitSchedule2(TestCase):
             enrollment_model='edc_visit_schedule.enrollmentthree',
             disenrollment_model='edc_visit_schedule.disenrollmentthree')
 
-    @tag('1')
     def test_visit_schedule_add_schedule(self):
         try:
             self.visit_schedule.add_schedule(self.schedule)
@@ -135,13 +129,11 @@ class TestVisitSchedule2(TestCase):
             ValidatorMetaValueError,
             self.visit_schedule.validate)
 
-    @tag('1')
     def test_visit_already_added_to_schedule(self):
         self.visit_schedule.add_schedule(self.schedule)
         self.assertRaises(AlreadyRegisteredSchedule,
                           self.visit_schedule.add_schedule, self.schedule)
 
-    @tag('1')
     def test_visit_schedule_get_schedule_by_name(self):
         self.visit_schedule.add_schedule(self.schedule)
         self.visit_schedule.add_schedule(self.schedule3)
@@ -151,7 +143,6 @@ class TestVisitSchedule2(TestCase):
             schedule_name='schedule_three')
         self.assertEqual(schedule.name, 'schedule_three')
 
-    @tag('1')
     def test_visit_schedule_get_schedule_by_model(self):
         self.visit_schedule.add_schedule(self.schedule)
         self.visit_schedule.add_schedule(self.schedule3)
@@ -162,7 +153,6 @@ class TestVisitSchedule2(TestCase):
             model='edc_visit_schedule.enrollmentthree')
         self.assertEqual(schedule.name, 'schedule_three')
 
-    @tag('1')
     def test_visit_schedule_get_schedules(self):
         self.visit_schedule.add_schedule(self.schedule)
         self.visit_schedule.add_schedule(self.schedule3)
@@ -171,14 +161,12 @@ class TestVisitSchedule2(TestCase):
             list(schedules.keys()), [
                 'schedule', 'schedule_three'])
 
-    @tag('1')
     def test_visit_schedule_get_schedules_by_name(self):
         self.visit_schedule.add_schedule(self.schedule)
         self.visit_schedule.add_schedule(self.schedule3)
         schedules = self.visit_schedule.get_schedules(schedule_name='schedule')
         self.assertEqual(list(schedules.keys()), ['schedule'])
 
-    @tag('1')
     def test_visit_schedule_get_schedule_bad_name(self):
         self.visit_schedule.add_schedule(self.schedule)
         self.visit_schedule.add_schedule(self.schedule3)
@@ -186,7 +174,6 @@ class TestVisitSchedule2(TestCase):
             VisitScheduleError,
             self.visit_schedule.get_schedules, schedule_name='blah')
 
-    @tag('1')
     def test_crfs_unique_show_order(self):
         crfs = (
             Crf(show_order=10, model='edc_example.CrfOne'),
@@ -220,7 +207,6 @@ class TestVisitSchedule3(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule)
 
-    @tag('1')
     def test_can_create_disenrollment_with_enrollment(self):
         Enrollment.objects.create(
             subject_identifier='1',
@@ -232,14 +218,12 @@ class TestVisitSchedule3(TestCase):
         except Exception as e:
             self.fail(f'Exception unexpectedly raised. Got {e}.')
 
-    @tag('1')
     def test_cannot_create_disenrollment_without_enrollment(self):
         self.assertRaises(
             DisenrollmentError,
             Disenrollment.objects.create,
             subject_identifier='111111')
 
-    @tag('1')
     def test_cannot_create_disenrollment_before_enrollment(self):
         Enrollment.objects.create(
             subject_identifier='1',
@@ -250,7 +234,6 @@ class TestVisitSchedule3(TestCase):
             subject_identifier='1',
             disenrollment_datetime=get_utcnow() - relativedelta(months=2))
 
-    @tag('1')
     def test_cannot_create_disenrollment_before_last_visit(self):
         Enrollment.objects.create(
             subject_identifier='1',
@@ -264,7 +247,6 @@ class TestVisitSchedule3(TestCase):
             subject_identifier='1',
             disenrollment_datetime=get_utcnow())
 
-    @tag('1')
     def test_can_create_disenrollment_without_last_visit(self):
         Enrollment.objects.create(
             subject_identifier='1',
@@ -276,7 +258,6 @@ class TestVisitSchedule3(TestCase):
         except DisenrollmentError:
             self.fail('DisenrollmentError unexpectedly raised')
 
-    @tag('1')
     def test_enrollment_model_knows_schedule_name(self):
         """Assert if schedule name provided on meta, does not need to
         be provided explicitly.
@@ -286,11 +267,9 @@ class TestVisitSchedule3(TestCase):
         self.assertEqual(obj.visit_schedule_name, self.visit_schedule.name)
         self.assertEqual(obj.schedule_name, self.schedule.name)
 
-    @tag('1')
     def test_cannot_enroll_if_visit_schedule_not_registered(self):
         self.assertRaises(EnrollmentModelError, EnrollmentTwo.objects.create)
 
-    @tag('1')
     def test_cannot_enroll_if_schedule_not_added(self):
         self.assertRaises(
             EnrollmentModelError, EnrollmentThree.objects.create)

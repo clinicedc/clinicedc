@@ -1,3 +1,5 @@
+from django.core.exceptions import ObjectDoesNotExist
+
 from .site_visit_schedules import site_visit_schedules
 
 
@@ -26,9 +28,12 @@ class VisitScheduleViewMixin:
             # find if the subject has an enrollment for a schedule
             for visit_schedule in site_visit_schedules.visit_schedules.values():
                 for schedule in visit_schedule.schedules.values():
-                    enrollment_instance = schedule.enrollment_model(
-                        subject_identifier=self.subject_identifier)
-                    if enrollment_instance:
+                    try:
+                        enrollment_instance = schedule.enrollment_model_cls.objects.get(
+                            subject_identifier=self.subject_identifier)
+                    except ObjectDoesNotExist:
+                        pass
+                    else:
                         self.visit_schedules.append(visit_schedule)
                         if self.is_current_enrollment_model(
                                 enrollment_instance, schedule=schedule):
