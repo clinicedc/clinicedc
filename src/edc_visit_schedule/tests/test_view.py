@@ -6,7 +6,6 @@ from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules
 from ..view_mixins import VisitScheduleViewMixin
 from ..visit_schedule import VisitSchedule
-from pprint import pprint
 from .models import Enrollment
 
 
