@@ -1,0 +1,20 @@
+{% extends "edc_lab_dashboard/listboard.html" %}
+
+
+{% block panel_action_buttons %}
+    <button class="btn btn-sm btn-default" type="submit" id="action" name="action" form="{{ form_action_name }}" value="print_labels">
+        <i class="fa fa-barcode fa-sm"></i> Print labels
+    </button>
+{% endblock panel_action_buttons %}
+
+{% block panel_action_hidden %}                   
+    {% csrf_token %}
+{% endblock panel_action_hidden %}
+
+{% block results_header %}
+    {% include 'edc_lab_dashboard/listboard/aliquot/results_header.html' %}
+{% endblock results_header %}
+
+{% block results_body %}
+    {% include 'edc_lab_dashboard/listboard/aliquot/results_body.html' %}
+{% endblock results_body %}

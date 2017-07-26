@@ -8,10 +8,12 @@ from edc_lab.constants import SHIPPED
 from ..mixins import ManifestViewMixin
 from .base_listboard import BaseListboardView, app_config, app_name
 
+edc_lab_app_config = django_apps.get_app_config('edc_lab')
+
 
 class ManifestItemModelWrapper(ModelWrapper):
 
-    model_name = app_config.manifest_item_model
+    model = edc_lab_app_config.manifest_item_model
     next_url_name = app_config.manage_manifest_listboard_url_name
     action_name = 'manage'
 
@@ -29,17 +31,17 @@ class ManifestItemModelWrapper(ModelWrapper):
 
     @property
     def box_model(self):
-        return django_apps.get_model(*app_config.box_model.split('.'))
+        return django_apps.get_model(*edc_lab_app_config.box_model.split('.'))
 
 
 class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
 
     action_name = 'manage'
     navbar_item_selected = 'manifest'
-    form_action_url_name = '{}:manage_manifest_item_url'.format(app_name)
+    form_action_url_name = f'{app_name}:manage_manifest_item_url'
     listboard_template_name = app_config.manage_manifest_listboard_template_name
     listboard_url_name = app_config.manage_manifest_listboard_url_name
-    model_name = app_config.manifest_item_model
+    model_name = edc_lab_app_config.manifest_item_model
     model_wrapper_class = ManifestItemModelWrapper
 
     @method_decorator(login_required)

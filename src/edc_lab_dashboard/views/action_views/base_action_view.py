@@ -18,7 +18,7 @@ class InvalidPostError(Exception):
     pass
 
 
-app_name = 'edc_lab'
+app_name = 'edc_lab_dashboard'
 app_config = django_apps.get_app_config(app_name)
 
 

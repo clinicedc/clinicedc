@@ -1,0 +1,19 @@
+@page {
+    size: {{ pagesize }};
+    margin: 1cm;
+    top: 4cm;
+    margin-bottom: 2cm;
+    @frame footer {
+        -pdf-frame-content: footerContent;
+        bottom: 1cm;
+        margin-left: 1cm;
+        margin-right: 1cm;
+        height: 1cm;
+    }
+    @frame header {
+        -pdf-frame-content: headerContent;
+        top: 1cm;
+        margin-left: 1cm;
+        margin-right: 1cm;
+    }
+}

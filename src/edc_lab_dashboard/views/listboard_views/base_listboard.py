@@ -8,7 +8,7 @@ from edc_dashboard.views import ListboardView
 from ..mixins import UrlsViewMixin, ModelsViewMixin
 
 app_name = 'edc_lab_dashboard'
-app_config = django_apps.get_app_config('edc_lab')
+app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 
 class BaseListboardView(UrlsViewMixin,
@@ -29,11 +29,10 @@ class BaseListboardView(UrlsViewMixin,
 
     @property
     def search_form_url(self):
-        return '{}{}'.format(
-            reverse(
-                self.search_url_name or self.listboard_url_name,
-                kwargs=self.search_url_kwargs),
-            self.querystring)
+        url = reverse(
+            self.search_url_name or self.listboard_url_name,
+            kwargs=self.search_url_kwargs)
+        return f'{url}{self.querystring}'
 
     @property
     def search_url_kwargs(self):

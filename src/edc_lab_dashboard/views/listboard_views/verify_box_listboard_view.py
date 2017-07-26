@@ -19,7 +19,7 @@ class BoxItemModelWrapper(BaseBoxItemModelWrapper):
 class VerifyBoxListboardView(BaseBoxItemListboardView):
 
     action_name = 'verify'
-    form_action_url_name = '{}:verify_box_item_url'.format(app_name)
+    form_action_url_name = f'{app_name}:verify_box_item_url'
     listboard_template_name = app_config.verify_box_listboard_template_name
     listboard_url_name = app_config.verify_box_listboard_url_name
     model_wrapper_class = BoxItemModelWrapper

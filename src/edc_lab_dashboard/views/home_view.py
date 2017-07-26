@@ -7,12 +7,12 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import AppConfigViewMixin
 
 
-app_config = django_apps.get_app_config('edc_lab')
+app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 
 class HomeView(EdcBaseViewMixin, AppConfigViewMixin, TemplateView):
 
-    template_name = 'edc_lab/home.html'
+    template_name = 'edc_lab_dashboard/home.html'
     navbar_name = 'specimens'
 
     def get_context_data(self, **kwargs):

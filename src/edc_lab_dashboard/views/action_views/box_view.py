@@ -6,7 +6,7 @@ from .base_action_view import BaseActionView, app_config
 
 class BoxView(BaseActionView):
 
-    template_name = 'edc_lab/home.html'
+    template_name = 'edc_lab_dashboard/home.html'
     navbar_name = 'specimens'
     listboard_url_name = app_config.pack_listboard_url_name
 

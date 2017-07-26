@@ -13,7 +13,7 @@ class ReceiveListboardView(RequisitionListboardView):
     listboard_url_name = app_config.receive_listboard_url_name
     listboard_template_name = app_config.receive_listboard_template_name
     show_all = True
-    form_action_url_name = '{}:receive_url'.format(app_name)
+    form_action_url_name = f'{app_name}:receive_url'
     action_name = 'receive'
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
@@ -27,4 +27,4 @@ class ReceiveListboardView(RequisitionListboardView):
         href = reverse(self.process_listboard_url_name)
         return mark_safe(
             'All specimens have been received. Continue to '
-            '<a href="{}" class="alert-link">processing</a>'.format(href))
+            f'<a href="{href}" class="alert-link">processing</a>')
