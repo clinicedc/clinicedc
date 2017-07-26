@@ -14,6 +14,7 @@ edc_lab_app_config = django_apps.get_app_config('edc_lab')
 class AliquotModelWrapper(ModelWrapper):
 
     model = edc_lab_app_config.aliquot_model
+    next_url_name = app_config.aliquot_listboard_url_name
 
     @property
     def human_aliquot_identifier(self):

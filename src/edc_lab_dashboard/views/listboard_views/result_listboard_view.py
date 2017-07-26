@@ -31,7 +31,3 @@ class ResultListboardView(BaseListboardView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-
-    def get_template_names(self):
-        return [django_apps.get_app_config(
-            self.app_config_name).result_listboard_template_name]
