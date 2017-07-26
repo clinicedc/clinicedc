@@ -21,3 +21,11 @@ class SubjectRequisition(RequisitionModelMixin,
                          BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit)
+
+    @property
+    def visit(self):
+        return self.subject_visit
+
+    @property
+    def subject_identifier(self):
+        return self.visit.subject_identifier
