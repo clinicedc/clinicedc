@@ -102,5 +102,5 @@ urlpatterns = [
         ManageManifestView.as_view(), name='manage_manifest_item_url'),
     url(r'^aliquot/$', AliquotView.as_view(), name='aliquot_url'),
 
-    url(r'^', HomeView.as_view(), name='home_url'),
+    url(r'/', HomeView.as_view(), name='home_url'),
 ]

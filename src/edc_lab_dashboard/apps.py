@@ -7,6 +7,9 @@ class AppConfig(DjangoAppConfig):
 
     admin_site_name = 'edc_lab_admin'
     dashboard_name = 'edc_lab_dashboard'
+    base_template_name = 'edc_base/base.html'
+    listboard_url_name = f'{dashboard_name}:requisition_listboard_url'
+    dashboard_url_name = 'home_url'
 
     aliquot_listboard_template_name = 'edc_lab_dashboard/aliquot_listboard.html'
     manage_box_listboard_template_name = 'edc_lab_dashboard/manage_box_listboard.html'

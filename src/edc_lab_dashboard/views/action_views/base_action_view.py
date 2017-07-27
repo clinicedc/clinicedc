@@ -25,7 +25,7 @@ app_config = django_apps.get_app_config(app_name)
 class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
                      AppConfigViewMixin, TemplateView):
 
-    template_name = 'edc_lab/home.html'
+    template_name = 'edc_lab_dashboard/home.html'
     post_url_name = None
     navbar_name = 'specimens'
 

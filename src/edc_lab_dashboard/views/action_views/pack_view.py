@@ -9,8 +9,9 @@ from edc_lab.labels import BoxLabel
 from edc_lab.lab import Manifest as ManifestObject
 from edc_lab.models import Manifest
 
-from .base_action_view import BaseActionView, app_config
+from .base_action_view import BaseActionView
 
+app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 

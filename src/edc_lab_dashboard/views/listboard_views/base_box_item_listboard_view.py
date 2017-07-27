@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+
 from edc_model_wrapper import ModelWrapper
 
 from ..mixins import BoxViewMixin
@@ -27,7 +28,7 @@ class BaseBoxItemListboardView(BoxViewMixin, BaseListboardView):
 
     navbar_item_selected = 'pack'
     ordering = ('-position', )
-    model_name = edc_lab_app_config.box_item_model
+    model = edc_lab_app_config.box_item_model
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         return {'box': self.box}

@@ -2,7 +2,6 @@ from django.test import TestCase, tag
 from django.urls import reverse
 
 
-@tag('1')
 class TestUrls(TestCase):
 
     def test_requisition_listboard_url(self):

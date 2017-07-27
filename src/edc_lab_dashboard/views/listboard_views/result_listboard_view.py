@@ -7,14 +7,13 @@ from edc_model_wrapper import ModelWrapper
 from .base_listboard import BaseListboardView
 
 
-app_name = 'edc_lab_dashboard'
-app_config = django_apps.get_app_config(app_name)
+app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class ResultModelWrapper(ModelWrapper):
 
-    model_name = edc_lab_app_config.result_model
+    model = edc_lab_app_config.result_model
 
 
 class ResultListboardView(BaseListboardView):
@@ -24,9 +23,9 @@ class ResultListboardView(BaseListboardView):
 
     listboard_url_name = app_config.result_listboard_url_name
     listboard_template_name = app_config.result_listboard_template_name
-    model_name = edc_lab_app_config.result_model
+    model = edc_lab_app_config.result_model
     model_wrapper_class = ResultModelWrapper
-    form_action_url_name = f'{app_name}:aliquot_url'
+    form_action_url_name = f'edc_lab_dashboard:aliquot_url'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

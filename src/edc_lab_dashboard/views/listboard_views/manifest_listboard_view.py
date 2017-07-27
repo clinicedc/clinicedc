@@ -9,8 +9,9 @@ from edc_lab.reports import ManifestReport
 from edc_lab.models import Manifest
 
 from ..listboard_filters import ManifestListboardViewFilters
-from .base_listboard import BaseListboardView, app_config, app_name
+from .base_listboard import BaseListboardView
 
+app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
@@ -24,10 +25,10 @@ class ManifestListboardView(BaseListboardView):
 
     navbar_item_selected = 'manifest'
 
-    form_action_url_name = f'{app_name}:manifest_url'
+    form_action_url_name = f'edc_lab_dashboard:manifest_url'
     listboard_url_name = app_config.manifest_listboard_url_name
     listboard_template_name = app_config.manifest_listboard_template_name
-    model_name = edc_lab_app_config.manifest_model
+    model = edc_lab_app_config.manifest_model
     model_wrapper_class = ManifestModelWrapper
     listboard_view_filters = ManifestListboardViewFilters()
 
@@ -39,7 +40,7 @@ class ManifestListboardView(BaseListboardView):
         context = super().get_context_data(**kwargs)
         context.update(
             new_manifest=ManifestModelWrapper(Manifest()),
-            print_manifest_url_name=f'{app_name}:print_manifest_url',
+            print_manifest_url_name=f'edc_lab_dashboard:print_manifest_url',
             SHIPPED=SHIPPED,
         )
         return context

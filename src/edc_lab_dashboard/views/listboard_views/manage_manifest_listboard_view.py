@@ -6,8 +6,10 @@ from edc_model_wrapper import ModelWrapper
 from edc_lab.constants import SHIPPED
 
 from ..mixins import ManifestViewMixin
-from .base_listboard import BaseListboardView, app_config, app_name
+from .base_listboard import BaseListboardView
 
+
+app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
@@ -38,10 +40,10 @@ class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
 
     action_name = 'manage'
     navbar_item_selected = 'manifest'
-    form_action_url_name = f'{app_name}:manage_manifest_item_url'
+    form_action_url_name = f'edc_lab_dashboard:manage_manifest_item_url'
     listboard_template_name = app_config.manage_manifest_listboard_template_name
     listboard_url_name = app_config.manage_manifest_listboard_url_name
-    model_name = edc_lab_app_config.manifest_item_model
+    model = edc_lab_app_config.manifest_item_model
     model_wrapper_class = ManifestItemModelWrapper
 
     @method_decorator(login_required)
