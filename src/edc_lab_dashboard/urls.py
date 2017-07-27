@@ -90,6 +90,7 @@ urlpatterns = [
     url(r'^requisition/receive/$', ReceiveView.as_view(), name='receive_url'),
     url(r'^requisition/process/$', ProcessView.as_view(), name='process_url'),
     url(r'^requisition/pack/$', PackView.as_view(), name='pack_url'),
+
     url(r'^box/(?P<box_identifier>[A-Z0-9]+)/(?P<action_name>manage)/$',
         ManageBoxItemView.as_view(), name='manage_box_item_url'),
     url(r'^box/(?P<box_identifier>[A-Z0-9]+)/'
