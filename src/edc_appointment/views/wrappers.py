@@ -24,7 +24,8 @@ class AppointmentModelWrapper(ModelWrapper):
         try:
             model_obj = self.object.subjectvisit
         except ObjectDoesNotExist:
-            visit_model = self.visit_model_wrapper_cls.model
+            visit_model = django_apps.get_model(
+                *self.visit_model_wrapper_cls.model.split('.'))
             model_obj = visit_model(
                 appointment=self.object,
                 subject_identifier=self.subject_identifier,)
