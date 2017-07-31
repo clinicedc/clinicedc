@@ -26,7 +26,6 @@ class RequisitionFormMixin:
 
     def clean(self):
         cleaned_data = super().clean()
-        form_validator = FormValidator(cleaned_data=cleaned_data)
 
         if cleaned_data.get('packed') != self.instance.packed:
             raise forms.ValidationError({
@@ -50,6 +49,9 @@ class RequisitionFormMixin:
                 'Requisition may not be changed. The specimen has '
                 'already been received.')
 
+        form_validator = FormValidator(
+            cleaned_data=cleaned_data,
+            instance=self.instance)
         form_validator.applicable_if(
             NO, field='is_drawn', field_applicable='reason_not_drawn')
         form_validator.required_if(
