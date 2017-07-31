@@ -17,11 +17,11 @@ class BaseBoxItemModelWrapper(ModelWrapper):
 
     @property
     def human_readable_identifier(self):
-        return self._original_object.human_readable_identifier
+        return self.object.human_readable_identifier
 
     @property
     def box_identifier(self):
-        return self._original_object.box.box_identifier
+        return self.object.box.box_identifier
 
 
 class BaseBoxItemListboardView(BoxViewMixin, BaseListboardView):

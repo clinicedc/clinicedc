@@ -21,15 +21,15 @@ class ManifestItemModelWrapper(ModelWrapper):
 
     @property
     def manifest_identifier(self):
-        return self._original_object.manifest.manifest_identifier
+        return self.object.manifest.manifest_identifier
 
     @property
     def box_identifier(self):
-        return self._original_object.identifier
+        return self.object.identifier
 
     @property
     def box(self):
-        return self.box_model.objects.get(box_identifier=self._original_object.identifier)
+        return self.box_model.objects.get(box_identifier=self.object.identifier)
 
     @property
     def box_model(self):

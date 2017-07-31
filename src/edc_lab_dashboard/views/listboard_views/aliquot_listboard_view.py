@@ -19,7 +19,7 @@ class AliquotModelWrapper(ModelWrapper):
 
     @property
     def human_aliquot_identifier(self):
-        return self._original_object.human_aliquot_identifier
+        return self.object.human_aliquot_identifier
 
     @property
     def box_item(self):
