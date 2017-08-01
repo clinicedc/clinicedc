@@ -1,18 +1,18 @@
 import arrow
 
-from django.apps import apps as django_apps
-from datetime import datetime
 from collections import OrderedDict
-from calendar import Calendar
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from dateutil.rrule import rrule, MONTHLY
+from django.apps import apps as django_apps
+
+from edc_base.utils import get_utcnow
 
 
 class Facility:
-    def __init__(self, name, days, slots, forward_only=None):
+    def __init__(self, name=None, days=None, slots=None, forward_only=None):
         self.name = name
         self.days = days
-        self.slots = slots
+        self.slots = slots or [99999 for _ in self.days]
         self.forward_only = True if forward_only is None else forward_only
         self.config = OrderedDict(zip([str(d) for d in self.days], self.slots))
 
@@ -47,21 +47,25 @@ class Facility:
             return r
         return None
 
-    def available_datetime(self, suggested_datetime, window_delta=None, taken_datetimes=None):
+    def available_datetime(self, suggested_datetime=None, window_delta=None, taken_datetimes=None):
         """Returns a datetime closest to the suggested datetime based on the configuration of the facility.
 
         To exclude datetimes other than holidays, pass a list of datetimes to `taken_datetimes`."""
-        suggested = self.to_arrow_utc(suggested_datetime)
+        if suggested_datetime:
+            rdate = arrow.Arrow.fromdatetime(suggested_datetime)
+        else:
+            rdate = arrow.Arrow.fromdatetime(get_utcnow())
         if not window_delta:
             window_delta = relativedelta(months=1)
         taken = [self.to_arrow_utc(dt) for dt in taken_datetimes or []]
-        maximum = self.to_arrow_utc(suggested.datetime + window_delta)
-        for r in arrow.Arrow.span_range('day', suggested.datetime, maximum.datetime):
+        maximum = self.to_arrow_utc(rdate.datetime + window_delta)
+        for r in arrow.Arrow.span_range('day', rdate.datetime, maximum.datetime):
             # add back time to arrow object, r
-            r = arrow.Arrow.fromdatetime(datetime.combine(r[0].date(), suggested.time()))
+            r = arrow.Arrow.fromdatetime(
+                datetime.combine(r[0].date(), rdate.time()))
             # see if available
-            if r.datetime.weekday() in self.weekdays and (suggested.date() <= r.date() < maximum.date()):
+            if r.datetime.weekday() in self.weekdays and (rdate.date() <= r.date() < maximum.date()):
                 if (self.not_holiday(r) and r.date() not in [d.date() for d in taken] and
                         self.open_slot_on(r)):
                     return r.datetime
-        return suggested.datetime
+        return rdate.datetime
