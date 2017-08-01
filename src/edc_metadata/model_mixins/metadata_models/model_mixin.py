@@ -1,8 +1,8 @@
-from django.apps import apps as django_apps
 from django.db import models
 
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin, VisitScheduleFieldsModelMixin
+from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
+from edc_visit_schedule.model_mixins import VisitScheduleFieldsModelMixin
 
 from ...choices import ENTRY_STATUS, REQUIRED, NOT_REQUIRED
 
@@ -12,7 +12,8 @@ class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,
                  VisitScheduleFieldsModelMixin,
                  models.Model):
 
-    """ Mixin for CrfMetadata and RequisitionMetadata models."""
+    """ Mixin for CrfMetadata and RequisitionMetadata models.
+    """
 
     visit_code = models.CharField(max_length=25)
 
@@ -60,10 +61,6 @@ class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,
 
     def is_not_required(self):
         return not self.is_required()
-
-    @property
-    def model_class(self):
-        return django_apps.get_model(*self.model.split('.'))
 
     class Meta:
         abstract = True

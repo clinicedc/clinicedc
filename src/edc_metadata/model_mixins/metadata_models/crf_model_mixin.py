@@ -6,9 +6,12 @@ from .model_mixin import ModelMixin
 class CrfModelMixin(ModelMixin):
 
     def __str__(self):
-        return 'CrfMeta {}.{} {} {}'.format(
-            self.model, self.visit_code, self.entry_status,
-            self.subject_identifier)
+        return (f'CrfMeta {self.model}.{self.visit_code} {self.entry_status} '
+                f'{self.subject_identifier}')
+
+    def natural_key(self):
+        return (self.model, self.subject_identifier,
+                self.schedule_name, self.visit_schedule_name, self.visit_code)
 
     @property
     def verbose_name(self):

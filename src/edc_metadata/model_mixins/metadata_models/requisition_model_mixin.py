@@ -17,8 +17,8 @@ class RequisitionModelMixin(ModelMixin):
         return self.panel_name
 
     def natural_key(self):
-        return (self.subject_identifier, self.visit_schedule_name, self.schedule_name,
-                self.visit_code, self.model, self.panel_name)
+        return (self.panel_name, self.model, self.subject_identifier,
+                self.visit_schedule_name, self.schedule_name, self.visit_code)
 
     class Meta(ModelMixin.Meta):
         abstract = True
