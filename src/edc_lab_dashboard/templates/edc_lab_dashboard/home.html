@@ -1,0 +1,54 @@
+{% extends base_template_name %}
+{% load staticfiles %}
+
+{% block main %}
+
+<style>
+
+.bg-1 {
+    background-color: #428bca; /* dark blue */
+    color: #ffffff;
+}
+.bg-2 {
+    background-color: #5bc0de; /* light Blue */
+    color: #ffffff;
+}
+.bg-3 {
+    background-color: #f9f9f9; /* White */
+    color: #555555;
+}
+
+</style>
+
+    {{ block.super }}
+
+<div class="container bg-3 text-center">
+</div>
+
+
+<div class="container bg-3 text-center">
+    <h3 class="text text-muted">Receive specimens against requisitions.</h3>
+        <h3>
+            <a href="{% url receive_listboard_url_name %}" class="btn btn-default btn-lg"><i class="fa fa-inbox fa-lg"></i> Receive</a>
+        </h3>
+
+
+</div>
+<div class="container bg-3 text-center">
+<h3 class="text text-muted">Process received specimens.</h3>
+<h3>
+    <a href="{% url process_listboard_url_name %}" class="btn btn-default btn-lg">
+       <i class="fa fa-gears fa-lg"></i> Process</a>
+</h3>
+
+</div>
+
+<div class="container bg-3 text-center">
+<h3 class="text text-muted">Pack labelled specimens for shipping.</h3>
+    <h3>
+    <a href="{% url pack_listboard_url_name %}" class="btn btn-default btn-lg"><i class="fa fa-shopping-bag fa-lg"></i> Pack</a>
+    </h3>
+</div>
+
+
+{% endblock main %}

@@ -9,7 +9,10 @@ from edc_lab.labels import BoxLabel
 from edc_lab.lab import Manifest as ManifestObject
 from edc_lab.models import Manifest
 
-from .base_action_view import BaseActionView, app_config
+from .base_action_view import BaseActionView
+
+app_config = django_apps.get_app_config('edc_lab_dashboard')
+edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class PackView(BaseActionView):
@@ -18,7 +21,7 @@ class PackView(BaseActionView):
     listboard_url_name = app_config.pack_listboard_url_name
     valid_form_actions = [
         'add_selected_to_manifest', 'remove_selected_items', 'print_labels']
-    box_model = django_apps.get_model(*app_config.box_model.split('.'))
+    box_model = django_apps.get_model(*edc_lab_app_config.box_model.split('.'))
     label_class = BoxLabel
 
     def __init__(self, **kwargs):

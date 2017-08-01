@@ -8,7 +8,8 @@ from .views import (
     VerifyBoxItemView, ProcessListboardView, PackView, ManageManifestView,
     ManageManifestListboardView, ManifestView, AliquotView, RequisitionView)
 
-app_name = 'edc_lab'
+
+app_name = 'edc_lab_dashboard'
 
 urlpatterns = [
     # listboard urls
@@ -89,6 +90,7 @@ urlpatterns = [
     url(r'^requisition/receive/$', ReceiveView.as_view(), name='receive_url'),
     url(r'^requisition/process/$', ProcessView.as_view(), name='process_url'),
     url(r'^requisition/pack/$', PackView.as_view(), name='pack_url'),
+
     url(r'^box/(?P<box_identifier>[A-Z0-9]+)/(?P<action_name>manage)/$',
         ManageBoxItemView.as_view(), name='manage_box_item_url'),
     url(r'^box/(?P<box_identifier>[A-Z0-9]+)/'
@@ -100,5 +102,5 @@ urlpatterns = [
         ManageManifestView.as_view(), name='manage_manifest_item_url'),
     url(r'^aliquot/$', AliquotView.as_view(), name='aliquot_url'),
 
-    url(r'^', HomeView.as_view(), name='home_url'),
+    url(r'/', HomeView.as_view(), name='home_url'),
 ]

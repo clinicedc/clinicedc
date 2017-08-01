@@ -1,0 +1,37 @@
+{% load edc_lab_extras %}
+
+<!-- begin columns -->
+
+    <td>
+      <input id="selected_item_{{wrapped.wrapped_object.id}}" form="{{ form_action_name }}" name="{{ form_action_selected_items_name }}" type="checkbox" value="{{wrapped.wrapped_object.id}}" />
+    </td>
+    <td>
+        <div class="btn-group">
+           <a title="Edit box" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fa fa-pencil fa-fw"></i></a>
+           <a role="button" href="{% url manage_box_listboard_url_name box_identifier=wrapped.box_identifier action_name='manage' %}" class="btn btn-default btn-sm">Manage</a>
+           <a role="button" href="{% url verify_box_listboard_url_name box_identifier=wrapped.box_identifier action_name='verify' position=1 %}" class="btn {% if wrapped.verified %}btn-success{% else %}btn-default{% endif %} btn-sm {% if wrapped.wrapped_object.count == 0 %}disabled{% endif %}">Verify</a>
+        </div>&nbsp;
+    </td>
+    <td>
+      <span class="text text-identifier">
+      {{ wrapped.wrapped_object.human_readable_identifier }}
+      </span>
+    </td>
+    <td>            
+        {{ wrapped.wrapped_object.get_category_display }}&nbsp;
+    </td>
+    <td>
+      {{ wrapped.wrapped_object.count }}/{{ wrapped.wrapped_object.box_type.total }}&nbsp;
+      ({{ wrapped.specimen_types }})
+    </td>
+    <td>
+      {{ wrapped.wrapped_object.get_status_display }}
+    </td>
+    <td>
+      {{ wrapped.user_created }}
+    </td>
+    <td>
+      {{ wrapped.box_datetime|date:"Y-m-d H:i" }}
+    </td>
+
+<!-- end columns -->

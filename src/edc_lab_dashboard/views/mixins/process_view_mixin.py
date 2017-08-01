@@ -13,12 +13,9 @@ class ProcessViewMixin:
                 pk__in=self.requisitions, received=True, processed=False):
             specimen = SpecimenObject(requisition=requisition)
             if requisition.panel_object.processing_profile:
-                processed.update({
-                    'requisition':
-                    specimen.primary_aliquot.create_aliquots_by_processing_profile(
-                        processing_profile=requisition.panel_object.processing_profile)})
+                processed.update({'requisition': specimen.process()})
                 requisition.processed = True
                 requisition.save()
         for created_aliquots in processed.values():
             self.print_labels(
-                pks=[specimen.primary_aliquot.object.pk] + [obj.pk for obj in created_aliquots])
+                pks=[specimen.primary_aliquot.pk] + [obj.pk for obj in created_aliquots])

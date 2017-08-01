@@ -9,8 +9,7 @@ from edc_lab.constants import SHIPPED
 
 from .base_box_item_listboard_view import BaseBoxItemListboardView, BaseBoxItemModelWrapper
 
-app_name = 'edc_lab'
-app_config = django_apps.get_app_config(app_name)
+app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 
 class BoxItemModelWrapper(BaseBoxItemModelWrapper):
@@ -22,7 +21,7 @@ class BoxItemModelWrapper(BaseBoxItemModelWrapper):
 class ManageBoxListboardView(BaseBoxItemListboardView):
 
     action_name = 'manage'
-    form_action_url_name = '{}:manage_box_item_url'.format(app_name)
+    form_action_url_name = f'edc_lab_dashboard:manage_box_item_url'
     listboard_template_name = app_config.manage_box_listboard_template_name
     listboard_url_name = app_config.manage_box_listboard_url_name
     model_wrapper_class = BoxItemModelWrapper

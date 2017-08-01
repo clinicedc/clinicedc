@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
@@ -6,12 +7,15 @@ from edc_model_wrapper import ModelWrapper
 
 from ..listboard_filters import RequisitionListboardViewFilters
 from ..mixins import StudySiteNameQuerysetViewMixin
-from .base_listboard import BaseListboardView, app_config, app_name
+from .base_listboard import BaseListboardView
+
+app_config = django_apps.get_app_config('edc_lab_dashboard')
+edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class RequisitionModelWrapper(ModelWrapper):
 
-    model_name = app_config.requisition_model
+    model = edc_lab_app_config.requisition_model
     next_url_name = app_config.requisition_listboard_url_name
 
 
@@ -19,13 +23,13 @@ class RequisitionListboardView(StudySiteNameQuerysetViewMixin, BaseListboardView
 
     navbar_item_selected = 'requisition'
 
-    model_name = app_config.requisition_model
+    model = edc_lab_app_config.requisition_model
     model_wrapper_class = RequisitionModelWrapper
     listboard_url_name = app_config.requisition_listboard_url_name
     listboard_template_name = app_config.requisition_listboard_template_name
     show_all = True
     listboard_view_filters = RequisitionListboardViewFilters()
-    form_action_url_name = '{}:requisition_url'.format(app_name)
+    form_action_url_name = f'edc_lab_dashboard:requisition_url'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

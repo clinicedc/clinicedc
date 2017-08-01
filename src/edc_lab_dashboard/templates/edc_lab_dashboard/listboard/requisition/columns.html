@@ -1,0 +1,43 @@
+
+<!-- begin columns -->
+
+    <td>
+      <input id="selected_item_{{wrapped.object.id}}" form="{{ form_action_name }}" name="{{ form_action_selected_items_name }}" type="checkbox" value="{{wrapped.object.id}}" />
+    </td>
+    <td>
+      <a title="Edit requisition" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fa fa-pencil fa-fw"></i></a>      
+      <span class="text text-identifier">
+        {{ wrapped.object.human_readable_identifier }}
+      </span>&nbsp;
+    </td>
+    <td>
+      <span class="text text-identifier">
+      {{ wrapped.object.subject_visit.subject_identifier }}
+      </span>
+    </td>
+    <td>
+      {% if wrapped.received %}
+        <span class="text text-success"><i class="fa fa-check-circle fa-lg" title="Received"></i></span>
+      {% else %}
+        <span class="text text-danger"><i class="fa fa-times-circle fa-lg" title="Not received"></i></span>
+      {% endif %}
+      {% if wrapped.processed %}
+        <span class="text text-success"><i class="fa fa-check-circle fa-lg" title="Processed"></i></span>
+      {% else %}
+        <span class="text text-danger"><i class="fa fa-times-circle fa-lg" title="Not processed"></i></span>
+      {% endif %}
+    </td>
+    <td>
+      {{ wrapped.object.panel_object.verbose_name }}
+    </td>
+    <td>
+      {{wrapped.object.panel_object.processing_profile.verbose_name|default:'<span class="text text-danger"><i class="fa fa-warning"></i> Processing profile not configured</span>'}}
+    </td>
+    <td>
+      {{ wrapped.drawn_datetime|date:"Y-m-d H:i" }}
+    </td>
+    <td>
+      {{ wrapped.requisition_datetime|date:"Y-m-d" }}
+    </td>
+
+<!-- end columns -->

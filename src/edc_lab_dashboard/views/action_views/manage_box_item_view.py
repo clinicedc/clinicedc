@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
@@ -8,7 +9,10 @@ from edc_lab.constants import SHIPPED
 from edc_lab.exceptions import SpecimenError
 
 from ..mixins import BoxViewMixin
-from .base_action_view import BaseActionView, app_config
+from .base_action_view import BaseActionView
+
+
+app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 
 class ManageBoxItemView(BoxViewMixin, BaseActionView):

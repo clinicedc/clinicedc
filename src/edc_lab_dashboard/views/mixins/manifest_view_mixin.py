@@ -3,8 +3,7 @@ from django.contrib import messages
 from django.utils.html import escape
 
 
-app_name = 'edc_lab'
-app_config = django_apps.get_app_config(app_name)
+edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class ManifestItemError(Exception):
@@ -14,10 +13,10 @@ class ManifestItemError(Exception):
 class ManifestViewMixin:
 
     manifest_model = django_apps.get_model(
-        *app_config.manifest_model.split('.'))
+        *edc_lab_app_config.manifest_model.split('.'))
     manifest_item_model = django_apps.get_model(
-        *app_config.manifest_item_model.split('.'))
-    box_model = django_apps.get_model(*app_config.box_model.split('.'))
+        *edc_lab_app_config.manifest_item_model.split('.'))
+    box_model = django_apps.get_model(*edc_lab_app_config.box_model.split('.'))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

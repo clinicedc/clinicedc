@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
@@ -5,16 +6,20 @@ from edc_model_wrapper import ModelWrapper
 from edc_lab.models import BoxItem, ManifestItem
 
 from ..listboard_filters import AliquotListboardViewFilters
-from .base_listboard import BaseListboardView, app_config, app_name
+from .base_listboard import BaseListboardView
+
+app_config = django_apps.get_app_config('edc_lab_dashboard')
+edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class AliquotModelWrapper(ModelWrapper):
 
-    model_name = 'edc_lab.aliquot'
+    model = edc_lab_app_config.aliquot_model
+    next_url_name = app_config.aliquot_listboard_url_name
 
     @property
     def human_aliquot_identifier(self):
-        return self._original_object.human_aliquot_identifier
+        return self.object.human_aliquot_identifier
 
     @property
     def box_item(self):
@@ -38,13 +43,13 @@ class AliquotModelWrapper(ModelWrapper):
 class AliquotListboardView(BaseListboardView):
 
     navbar_item_selected = 'aliquot'
-    model_name = app_config.aliquot_model
+    model = edc_lab_app_config.aliquot_model
     model_wrapper_class = AliquotModelWrapper
     listboard_url_name = app_config.aliquot_listboard_url_name
     listboard_template_name = app_config.aliquot_listboard_template_name
     show_all = True
     listboard_view_filters = AliquotListboardViewFilters()
-    form_action_url_name = '{}:aliquot_url'.format(app_name)
+    form_action_url_name = f'edc_lab_dashboard:aliquot_url'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
