@@ -2,10 +2,10 @@ import re
 
 from django.apps import apps as django_apps
 from django.core.validators import RegexValidator
-from django_crypto_fields.fields import (
-    IdentityField, EncryptedCharField, FirstnameField, LastnameField)
 from django.db import models, transaction
 from django.utils.translation import ugettext as _
+from django_crypto_fields.fields import FirstnameField, LastnameField
+from django_crypto_fields.fields import IdentityField, EncryptedCharField
 
 from edc_base.model_fields import IdentityTypeField, IsDateEstimatedField
 from edc_base.utils import get_uuid

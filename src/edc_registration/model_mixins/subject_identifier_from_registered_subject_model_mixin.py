@@ -25,8 +25,8 @@ class SubjectIdentifierFromRegisteredSubjectModelMixin(
                 subject_identifier=self.subject_identifier)
         except model.DoesNotExist as e:
             raise model.DoesNotExist(
-                '{} subject_identifier=\'{}\', model=\'{}\''.format(
-                    str(e), self.subject_identifier, self._meta.label_lower))
+                f'{e} subject_identifier=\'{self.subject_identifier}\','
+                f'model=\'{self._meta.label_lower}\'') from e
         return registration_instance
 
     class Meta:
