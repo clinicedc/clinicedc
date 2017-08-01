@@ -20,7 +20,6 @@ class TestProtocol(TestCase):
         app_config.site_name = 'test_site'
         app_config.ready()
 
-    @tag('1')
     def test_raises_on_enrollment_cap_none(self):
         app_config = django_apps.get_app_config('edc_protocol')
         app_config.subject_types = [
