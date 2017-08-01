@@ -1,3 +1,0 @@
-
-class DevicePermissionError(Exception):
-    pass

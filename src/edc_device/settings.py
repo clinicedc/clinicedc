@@ -11,10 +11,9 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+APP_NAME = 'edc_device'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -37,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_revision.apps.AppConfig',
+    'edc_base.apps.AppConfig',
     'edc_device.apps.AppConfig',
 ]
 
@@ -120,3 +121,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+GIT_DIR = BASE_DIR
+
+# DEVICE_ID = None
+# DEVICE_ROLE = None
