@@ -52,7 +52,7 @@
 				          {% for crf in visit.crfs %}
 				            <tr>
 			                  <td>{{crf.show_order}}</td>
-                              <td>{{crf.model_label_lower}}</td>
+                              <td>{{crf.model}}</td>
                               <td>{% if crf.required %}Required{% endif %}</td>
 			                 </tr>
 				          {% endfor %}
