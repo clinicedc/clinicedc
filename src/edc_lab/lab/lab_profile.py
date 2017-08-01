@@ -1,33 +1,55 @@
-from ..exceptions import AlreadyRegistered
+
+class PanelAlreadyRegistered(Exception):
+    pass
+
+
+class LabProfileRequisitionModelError(Exception):
+    pass
 
 
 class LabProfile:
 
-    def __init__(self, name):
-        self.name = name
+    """A container class for panels.
+
+    Added panels must have a matching requisition_model.
+    """
+
+    def __init__(self, name=None, requisition_model=None):
         self.aliquot_types = {}
         self.processing_profiles = {}
         self.panels = {}
+        self.name = name
+        self.requisition_model = requisition_model
 
-    def add_aliquot_type(self, aliquot_type):
-        if aliquot_type.name in self.aliquot_types:
-            raise AlreadyRegistered(
-                'Aliquot type already registered. Got {}'.format(
-                    aliquot_type.name))
-        self.aliquot_types.update({aliquot_type.name: aliquot_type})
-        self.aliquot_types.update({aliquot_type.numeric_code: aliquot_type})
-        self.aliquot_types.update({aliquot_type.alpha_code: aliquot_type})
+    def __repr__(self):
+        return f'{self.__class__.__name__}(name={self.name})'
 
-    def add_processing_profile(self, processing_profile):
-        if processing_profile.name in self.processing_profiles:
-            raise AlreadyRegistered(
-                'Processing profile already registered. '
-                'Got {}'.format(processing_profile.name))
-        self.processing_profiles.update(
-            {processing_profile.name: processing_profile})
+    def __str__(self):
+        return self.name
 
-    def add_panel(self, panel):
+    @property
+    def requisition_model(self):
+        return self._requisition_model
+
+    @requisition_model.setter
+    def requisition_model(self, value):
+        """Sets the requisition model as label lower and updates
+        the panel models.
+        """
+        self._requisition_model = value
+        for panel in self.panels.values():
+            panel.model = self.requisition_model
+
+    def add_panel(self, panel=None):
+        """Adds a panel instance to the profile.
+        """
+        panel.model = self.requisition_model
         if panel.name in self.panels:
-            raise AlreadyRegistered(
-                'Panel already registered. Got {}'.format(panel.name))
+            raise PanelAlreadyRegistered(
+                f'Panel already registered. Got {panel.name}')
         self.panels.update({panel.name: panel})
+        self.processing_profiles.update(
+            {panel.processing_profile.name: panel.processing_profile})
+        self.aliquot_types.update({panel.name: panel})
+        self.aliquot_types.update({panel.numeric_code: panel})
+        self.aliquot_types.update({panel.alpha_code: panel})

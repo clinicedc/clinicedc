@@ -1,5 +1,7 @@
 from django import forms
 
+from ..models import Aliquot
+
 
 class AliquotForm(forms.ModelForm):
 
@@ -7,6 +9,6 @@ class AliquotForm(forms.ModelForm):
         label='Aliquot identifier',
         disabled=True)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        return cleaned_data
+    class Meta:
+        model = Aliquot
+        fields = '__all__'

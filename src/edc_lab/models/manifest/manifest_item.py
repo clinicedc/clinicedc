@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 
 from edc_base.model_mixins import BaseUuidModel
-from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
+from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ...model_mixins.shipping import VerifyModelMixin
 from .manifest import Manifest
@@ -18,6 +18,9 @@ class ManifestItemManager(SearchSlugManager, models.Manager):
 
 
 class ManifestItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
+
+    def get_search_slug_fields(self):
+        return ['identifier', 'human_readable_identifier']
 
     manifest = models.ForeignKey(Manifest, on_delete=PROTECT)
 
@@ -39,10 +42,6 @@ class ManifestItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
     def human_readable_identifier(self):
         x = self.identifier
         return '{}-{}-{}'.format(x[0:4], x[4:8], x[8:12])
-
-    def get_slugs(self):
-        slugs = [self.identifier, self.human_readable_identifier]
-        return slugs
 
     class Meta:
         app_label = 'edc_lab'

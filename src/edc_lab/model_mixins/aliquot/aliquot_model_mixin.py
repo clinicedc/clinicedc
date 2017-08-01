@@ -20,12 +20,14 @@ class AliquotModelMixin (models.Model):
         editable=False,
         help_text='pos in sequence of aliquots from parent')
 
+    # FIXME: not used
     medium = models.CharField(
         verbose_name='Medium',
         max_length=25,
         choices=SPECIMEN_MEDIUM,
         default='TUBE')
 
+    # FIXME: not used
     medium_count = models.IntegerField(
         editable=False,
         default=1,
@@ -62,10 +64,10 @@ class AliquotModelMixin (models.Model):
         blank=True)
 
     def __str__(self):
-        return '%s' % (self.aliquot_identifier)
+        return self.aliquot_identifier
 
     def natural_key(self):
-        return (self.aliquot_identifier,)
+        return (self.aliquot_identifier, )
 
     class Meta:
         abstract = True

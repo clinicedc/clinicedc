@@ -1,11 +1,18 @@
 from django import forms
 
-from edc_base.modelform_mixins import OtherSpecifyValidationMixin
+from edc_base.modelform_validators import FormValidator
+
+from ..models import Manifest
 
 
-class ManifestForm(OtherSpecifyValidationMixin, forms.ModelForm):
+class ManifestForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        self.validate_other_specify('category')
+        form_validator = FormValidator(cleaned_data=cleaned_data)
+        form_validator.validate_other_specify('category')
         return cleaned_data
+
+    class Meta:
+        fields = '__all__'
+        model = Manifest

@@ -3,7 +3,7 @@ from django.db.models.deletion import PROTECT
 
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
-from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
+from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ...managers import ManifestManager
 from ...model_mixins.shipping import ManifestModelMixin
@@ -16,6 +16,12 @@ class Manager(ManifestManager, SearchSlugManager):
 
 
 class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
+
+    search_slug_fields = [
+        'manifest_identifier',
+        'human_readable_identifier',
+        'shipper.name',
+        'consignee.name']
 
     consignee = models.ForeignKey(
         Consignee,
@@ -44,14 +50,6 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
     @property
     def count(self):
         return self.manifestitem_set.all().count()
-
-    def get_slugs(self):
-        slugs = [
-            self.manifest_identifier,
-            self.human_readable_identifier,
-            self.shipper.name,
-            self.consignee.name]
-        return slugs
 
     class Meta(ManifestModelMixin.Meta):
         app_label = 'edc_lab'

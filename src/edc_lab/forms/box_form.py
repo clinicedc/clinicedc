@@ -2,31 +2,38 @@ import re
 
 from django import forms
 
-from edc_base.modelform_mixins import OtherSpecifyValidationMixin
+from edc_base.modelform_validators import FormValidator
+
+from ..models import Box
 
 
-class BoxForm(OtherSpecifyValidationMixin, forms.ModelForm):
+class BoxForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        form_validator = FormValidator(cleaned_data=cleaned_data)
         if cleaned_data.get('specimen_types'):
             pattern = '([1-9][0-9]*[ ]*,[ ]*)*[1-9][0-9]*'
             match = re.match(pattern, cleaned_data.get('specimen_types'))
             if not match:
-                raise forms.ValidationError({
-                    'specimen_types':
-                    'Invalid list of specimen types.'})
+                raise forms.ValidationError(
+                    {'specimen_types': 'Invalid list of specimen types.'},
+                    code='invalid format')
             elif match.group() != cleaned_data.get('specimen_types'):
-                raise forms.ValidationError({
-                    'specimen_types':
-                    'Invalid list of specimen types.'})
+                raise forms.ValidationError(
+                    {'specimen_types': 'Invalid list of specimen types.'},
+                    code='invalid format')
             else:
                 specimen_types = [code.strip()
                                   for code in match.group().split(',')]
                 if len(specimen_types) != len(list(set(specimen_types))):
-                    raise forms.ValidationError({
-                        'specimen_types':
-                        'List must be unique.'})
-
-        self.validate_other_specify('category')
+                    raise forms.ValidationError(
+                        {'specimen_types': 'List must be unique.'},
+                        code='list not unique')
+            cleaned_data['specimen_types'] = ','.join(specimen_types)
+        form_validator.validate_other_specify('category')
         return cleaned_data
+
+    class Meta:
+        fields = '__all__'
+        model = Box

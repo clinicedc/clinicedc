@@ -1,15 +1,16 @@
 from django.apps import apps as django_apps
 
-from .base_label import BaseLabel, app_config, edc_protocol_app_config
+from .base_label import BaseLabel
 
 
 class ManifestLabel(BaseLabel):
 
-    model = django_apps.get_model(*app_config.manifest_model.split('.'))
+    model = 'manifest_model'
     template_name = 'manifest'
 
     @property
     def context(self):
+        edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
         return {
             'barcode_value': self.object.manifest_identifier,
             'manifest_identifier': self.object.human_readable_identifier,

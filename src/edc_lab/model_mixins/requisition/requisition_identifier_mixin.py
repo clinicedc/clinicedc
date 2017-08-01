@@ -41,7 +41,7 @@ class RequisitionIdentifierMixin(models.Model):
         """Returns a human readable requisition identifier.
         """
         x = self.requisition_identifier
-        return '{}-{}'.format(x[0:3], x[3:7])
+        return f'{x[0:3]}-{x[3:7]}'
 
     def get_requisition_identifier(self):
         """Converts from uuid to a requisition identifier if

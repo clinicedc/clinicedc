@@ -1,20 +1,23 @@
 import os
 
-from io import BytesIO
-
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.platypus import (
-    SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer)
-from reportlab.graphics.barcode import code39
-from reportlab.lib.units import mm, cm
-
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.http import HttpResponse
+from io import BytesIO
+from reportlab.graphics.barcode import code39
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm, cm
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
 from .numbered_canvas import NumberedCanvas
 from .report import Report
+
+
+class ManifestReportError(Exception):
+    def __init__(self, message, code=None):
+        super().__init__(message)
+        self.code = code
 
 
 class ManifestReport(Report):
@@ -22,8 +25,8 @@ class ManifestReport(Report):
     def __init__(self, manifest=None, user=None, **kwargs):
         super().__init__(**kwargs)
         app_config = django_apps.get_app_config('edc_lab')
-        self.manifest = manifest
-        self.user = user
+        self.manifest = manifest  # a Manifest model instance
+        self.user = user  # a User model instance
         self.box_model = django_apps.get_model(
             *app_config.box_model.split('.'))
         self.box_item_model = django_apps.get_model(
@@ -163,7 +166,7 @@ class ManifestReport(Report):
                     self.manifest.manifest_datetime.strftime('%Y-%m-%d'),
                     self.styles["line_data_largest"]),
                  Paragraph(
-                    self.manifest.export_references,
+                    self.manifest.export_references or '',
                     self.styles["line_data_largest"]),
                  ]]
         t = Table(data)
@@ -258,6 +261,18 @@ class ManifestReport(Report):
         story.append(
             Table([[Paragraph('MANIFEST CONTENTS', self.styles["line_label_center"])]]))
 
+        story = self.append_manifest_items_story(story)
+
+        if self.manifest.shipped and not self.manifest.printed:
+            self.manifest.printed = True
+            self.manifest.save()
+
+        doc.build(story, canvasmaker=NumberedCanvas)
+        pdf = buffer.getvalue()
+        response.write(pdf)
+        return response
+
+    def append_manifest_items_story(self, story):
         box_header = [
             Paragraph('BOX:', self.styles["line_label"]),
             Paragraph(
@@ -272,8 +287,13 @@ class ManifestReport(Report):
                 story.append(Spacer(0.1 * cm, .5 * cm))
             data1 = []
             data1.append(box_header)
-            box = self.box_model.objects.get(
-                box_identifier=manifest_item.identifier)
+            try:
+                box = self.box_model.objects.get(
+                    box_identifier=manifest_item.identifier)
+            except self.box_model.DoesNotExist as e:
+                raise ManifestReportError(
+                    f'{e} Got Manifest item \'{manifest_item.identifier}\'.',
+                    code='unboxed_item') from e
             barcode = code39.Standard39(
                 box.box_identifier, barHeight=5 * mm, stop=1)
             data1.append([
@@ -308,10 +328,20 @@ class ManifestReport(Report):
                 Paragraph('DATE', self.styles["line_label_center"]),
             ]]
             for box_item in box.boxitem_set.all().order_by('position'):
-                aliquot = self.aliquot_model.objects.get(
-                    aliquot_identifier=box_item.identifier)
-                requisition = self.requisition_model.objects.get(
-                    requisition_identifier=aliquot.requisition_identifier)
+                try:
+                    aliquot = self.aliquot_model.objects.get(
+                        aliquot_identifier=box_item.identifier)
+                except self.aliquot_model.DoesNotExist as e:
+                    raise ManifestReportError(
+                        f'{e} Got Box item \'{box_item.identifier}\'',
+                        code='invalid_aliquot_identifier')
+                try:
+                    requisition = self.requisition_model.objects.get(
+                        requisition_identifier=aliquot.requisition_identifier)
+                except self.requisition_model.DoesNotExist as e:
+                    raise ManifestReportError(
+                        f'{e} Got requisition identifier {aliquot.requisition_identifier}',
+                        code='invalid_requisition_identifier')
                 barcode = code39.Standard39(
                     aliquot.aliquot_identifier, barHeight=5 * mm, stop=1)
                 table_data.append([
@@ -334,12 +364,4 @@ class ManifestReport(Report):
                     ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
                     ('BOX', (0, 0), (-1, -1), 0.25, colors.black)]))
             story.append(t1)
-
-        if self.manifest.shipped and not self.manifest.printed:
-            self.manifest.printed = True
-            self.manifest.save()
-
-        doc.build(story, canvasmaker=NumberedCanvas)
-        pdf = buffer.getvalue()
-        response.write(pdf)
-        return response
+        return story

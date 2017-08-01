@@ -5,7 +5,7 @@ from django.utils import timezone
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_constants.constants import OTHER, OPEN
-from edc_dashboard.model_mixins import SearchSlugModelMixin, SearchSlugManager
+from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..constants import VERIFIED, PACKED, SHIPPED, TESTING, STORAGE
 from ..identifiers import BoxIdentifier
@@ -43,6 +43,9 @@ class BoxManager(SearchSlugManager, models.Manager):
 
 
 class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
+
+    search_slug_fields = [
+        'box_identifier', 'human_readable_identifier', 'name']
 
     box_identifier = models.CharField(
         max_length=25,
@@ -106,8 +109,8 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
         return self.name
 
     def natural_key(self):
-        return (self.box_identifier, ) + self.box_type.natural_key()
-    natural_key.dependencies = ['edc_lab.box_type']
+        return (self.box_identifier,) + self.box_type.natural_key()
+    natural_key.dependencies = ['edc_lab.boxtype']
 
     @property
     def count(self):
@@ -139,13 +142,7 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
     def max_position(self):
         return
 
-    def get_slugs(self):
-        slugs = [self.box_identifier,
-                 self.human_readable_identifier,
-                 self.name]
-        return slugs
-
     class Meta:
         app_label = 'edc_lab'
-        ordering = ('-box_datetime', )
+        ordering = ('-box_datetime',)
         verbose_name_plural = 'Boxes'

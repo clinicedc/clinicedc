@@ -1,3 +1,2 @@
-from .lab import (
-    Aliquot, AliquotType, RequisitionPanel, ProcessingProfile, Specimen,
-    LabProfile)
+from .lab import SpecimenProcessor, AliquotType, RequisitionPanel
+from .lab import ProcessingProfile, Specimen, LabProfile
