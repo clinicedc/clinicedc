@@ -10,7 +10,7 @@ from django.views.generic.base import View
 from edc_consent.site_consents import site_consents
 
 from ..forms import SubjectSearchForm
-from edc_dashboard.paginator_mixin import PaginatorMixin
+from ..paginator_mixin import PaginatorMixin
 
 
 app_config = django_apps.get_app_config('edc_dashboard')

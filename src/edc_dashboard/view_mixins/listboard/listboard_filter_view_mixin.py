@@ -1,4 +1,4 @@
-from edc_dashboard.listboard_filter import ListboardViewFilters
+from ...listboard_filter import ListboardViewFilters
 
 
 class ListboardFilterViewMixin:

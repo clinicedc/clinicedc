@@ -13,6 +13,7 @@ from ..view_mixins import QueryStringViewMixin
 
 class ListboardView(QueryStringViewMixin, ListView):
 
+    model = None  # label_lower model name
     context_object_name = 'results'
     model_wrapper_class = None
     ordering = '-created'
@@ -29,8 +30,8 @@ class ListboardView(QueryStringViewMixin, ListView):
         self._search_term = None
 
     @property
-    def model(self):
-        return django_apps.get_model(*self.model_name.split('.'))
+    def model_cls(self):
+        return django_apps.get_model(self.model)
 
     def get_template_names(self):
         return [django_apps.get_app_config(
@@ -84,10 +85,10 @@ class ListboardView(QueryStringViewMixin, ListView):
                     q = q | q_object
                 else:
                     q = q_object
-            queryset = self.model.objects.filter(
+            queryset = self.model_cls.objects.filter(
                 q or Q(), **filter_options).exclude(**exclude_options)
         else:
-            queryset = self.model.objects.filter(
+            queryset = self.model_cls.objects.filter(
                 **filter_options).exclude(
                     **exclude_options)
         ordering = self.get_ordering()

@@ -46,7 +46,7 @@
 						      <span class="pull-right">
 						      {% if crf.entry_status != NOT_REQUIRED %}
 								<a role="button" class="btn btn-sm {% if crf.object.id %}btn-success{% else %}{% if crf.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
-										href="{{ crf.object.get_absolute_url }}?next={{ crf.object.next_url }}&{{ crf.object.extra_querystring }}">
+										href="{{ crf.object.href }}">
 										{% if crf.object.id %}
 											<span class="glyphicon glyphicon-pencil"></span> Edit
 										{% else %}
@@ -55,7 +55,7 @@
 								</a>
 						        <a role="button" class="btn btn-sm btn-default" 
 						        	{% if crf.entry_status == NOT_REQUIRED or not crf.object %} disabled {% endif %} 
-						        		href="{{ crf.object.get_absolute_url }}?edc_readonly=1&edc_readonly_next={{ crf.object.next_url }}&&{{ crf.object.extra_querystring }}">View</a>
+						        		href="{{ crf.object.href }}&edc_readonly=1">View</a>
 						        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
 						      {% else%}
 						       	<span class="text text-muted small">not required</span>

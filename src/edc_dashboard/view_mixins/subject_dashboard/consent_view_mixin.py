@@ -7,7 +7,7 @@ from edc_consent.site_consents import site_consents
 
 class ConsentViewMixin:
 
-    consent_model_wrapper_class = None
+    consent_model_wrapper_cls = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -55,7 +55,7 @@ class ConsentViewMixin:
         """
         if not self._consent:
             self._consent = self.consent_object.model.consent.consent_for_period(
-                self.subject_identifier, report_datetime=self.report_datetime)
+                subject_identifier=self.subject_identifier, report_datetime=self.report_datetime)
         return self._consent
 
     @property
@@ -64,9 +64,9 @@ class ConsentViewMixin:
         for the current period.
         """
         if self.consent:
-            return self.consent_model_wrapper_class(self.consent)
+            return self.consent_model_wrapper_cls(self.consent)
         else:
-            return self.consent_model_wrapper_class(self.empty_consent)
+            return self.consent_model_wrapper_cls(self.empty_consent)
 
     @property
     def empty_consent(self):
@@ -94,5 +94,5 @@ class ConsentViewMixin:
         """
         if self.consents:
             return [
-                self.consent_model_wrapper_class(obj) for obj in self.consents]
+                self.consent_model_wrapper_cls(obj) for obj in self.consents]
         return []
