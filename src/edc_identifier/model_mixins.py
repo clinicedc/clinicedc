@@ -98,11 +98,12 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
     def make_new_identifier(self):
         """Returns a new and unique identifier.
 
-        Override this if needed."""
+        Override this if needed.
+        """
         subject_identifier = SubjectIdentifier(
-            subject_type_name='subject',
+            identifier_type='subject',
             model=self._meta.label_lower,
-            study_site=self.study_site,
+            site_code=self.study_site,
             create_registration=False)
         return subject_identifier.identifier
 
