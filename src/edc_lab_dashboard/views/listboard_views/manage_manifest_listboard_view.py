@@ -44,7 +44,7 @@ class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
     listboard_template_name = app_config.manage_manifest_listboard_template_name
     listboard_url_name = app_config.manage_manifest_listboard_url_name
     model = edc_lab_app_config.manifest_item_model
-    model_wrapper_class = ManifestItemModelWrapper
+    model_wrapper_cls = ManifestItemModelWrapper
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
