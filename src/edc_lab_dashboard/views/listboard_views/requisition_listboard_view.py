@@ -24,7 +24,7 @@ class RequisitionListboardView(StudySiteNameQuerysetViewMixin, BaseListboardView
     navbar_item_selected = 'requisition'
 
     model = edc_lab_app_config.requisition_model
-    model_wrapper_class = RequisitionModelWrapper
+    model_wrapper_cls = RequisitionModelWrapper
     listboard_url_name = app_config.requisition_listboard_url_name
     listboard_template_name = app_config.requisition_listboard_template_name
     show_all = True

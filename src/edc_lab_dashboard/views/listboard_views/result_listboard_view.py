@@ -24,7 +24,7 @@ class ResultListboardView(BaseListboardView):
     listboard_url_name = app_config.result_listboard_url_name
     listboard_template_name = app_config.result_listboard_template_name
     model = edc_lab_app_config.result_model
-    model_wrapper_class = ResultModelWrapper
+    model_wrapper_cls = ResultModelWrapper
     form_action_url_name = f'edc_lab_dashboard:aliquot_url'
 
     @method_decorator(login_required)

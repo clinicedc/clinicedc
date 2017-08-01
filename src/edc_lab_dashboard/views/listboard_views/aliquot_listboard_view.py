@@ -44,7 +44,7 @@ class AliquotListboardView(BaseListboardView):
 
     navbar_item_selected = 'aliquot'
     model = edc_lab_app_config.aliquot_model
-    model_wrapper_class = AliquotModelWrapper
+    model_wrapper_cls = AliquotModelWrapper
     listboard_url_name = app_config.aliquot_listboard_url_name
     listboard_template_name = app_config.aliquot_listboard_template_name
     show_all = True

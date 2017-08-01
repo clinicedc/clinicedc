@@ -29,7 +29,7 @@ class ManifestListboardView(BaseListboardView):
     listboard_url_name = app_config.manifest_listboard_url_name
     listboard_template_name = app_config.manifest_listboard_template_name
     model = edc_lab_app_config.manifest_model
-    model_wrapper_class = ManifestModelWrapper
+    model_wrapper_cls = ManifestModelWrapper
     listboard_view_filters = ManifestListboardViewFilters()
 
     @method_decorator(login_required)

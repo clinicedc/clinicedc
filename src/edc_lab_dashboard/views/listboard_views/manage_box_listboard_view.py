@@ -24,7 +24,7 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
     form_action_url_name = f'edc_lab_dashboard:manage_box_item_url'
     listboard_template_name = app_config.manage_box_listboard_template_name
     listboard_url_name = app_config.manage_box_listboard_url_name
-    model_wrapper_class = BoxItemModelWrapper
+    model_wrapper_cls = BoxItemModelWrapper
     navbar_item_selected = 'pack'
 
     @method_decorator(login_required)
