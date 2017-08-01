@@ -1,5 +1,3 @@
-from dateutil.relativedelta import relativedelta
-
 from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import options
@@ -9,7 +7,8 @@ from edc_base.model_fields import OtherCharField
 from edc_base.model_validators import datetime_not_future
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model', )
 
@@ -24,7 +23,8 @@ class OffstudyModelManager(models.Manager):
         return self.get(subject_identifier=subject_identifier)
 
 
-class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
+class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
+                         VisitScheduleMethodsModelMixin, models.Model):
     """Mixin for the Off Study model.
     """
     dateformat = '%Y-%m-%d %H:%M'
@@ -59,7 +59,7 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         Appointment = app_config.model
         Appointment.objects.delete_for_subject_after_date(
             self.subject_identifier, self.offstudy_datetime)
-        super(OffstudyModelMixin, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def natural_key(self):
         return (self.subject_identifier, )
@@ -89,14 +89,16 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     def offstudy_datetime_after_last_visit_or_raise(self):
         try:
-            last_visit_datetime = site_visit_schedules.last_visit_datetime(
-                self.subject_identifier)
-            if relativedelta(self.offstudy_datetime, last_visit_datetime).days < 0:
+            last_visit = site_visit_schedules.visits(
+                self.subject_identifier)[-1:][0]
+            if (last_visit.report_datetime - self.offstudy_datetime).days > 0:
                 raise OffstudyError(
                     'Offstudy datetime cannot precede the last visit datetime {}. Got {}'.format(
-                        timezone.localtime(last_visit_datetime),
+                        timezone.localtime(last_visit.report_datetime),
                         timezone.localtime(self.offstudy_datetime)))
         except AttributeError as e:
+            raise OffstudyError(str(e))
+        except IndexError as e:
             raise OffstudyError(str(e))
 
     class Meta:
@@ -104,7 +106,7 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         consent_model = None
 
 
-class OffstudyMixin(models.Model):
+class OffstudyMixin(VisitScheduleMethodsModelMixin, models.Model):
 
     """A mixin for CRF models to add the ability to determine
     if the subject is off study.
@@ -116,16 +118,22 @@ class OffstudyMixin(models.Model):
 
     @property
     def offstudy_model(self):
+        # FIXME: if you get an AttributeError, is self.visit_schedule
+        # not going to just raise another. Use the visit schedule methods
+        # mixin? If instance is being saved for the first time???
+        offstudy_model = None
         try:
-            return self.visit.schedule.offstudy_model
+            offstudy_model = self.visit.visit_schedule.models.get(
+                'offstudy_model')
         except AttributeError as e:
             if 'visit' in str(e):
                 try:
-                    return self.schedule.offstudy_model
+                    offstudy_model = self.visit_schedule.offstudy_model
                 except AttributeError as e:
                     raise OffstudyError(str(e))
             else:
                 raise OffstudyError(str(e))
+        return django_apps.get_model(*offstudy_model.split('.'))
 
     def is_offstudy_or_raise(self):
         """Return True if the off-study report exists. """
