@@ -28,6 +28,7 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
     template_name = 'edc_lab_dashboard/home.html'
     post_url_name = None
     navbar_name = 'specimens'
+    app_config_name = 'edc_lab_dashboard'
 
     valid_form_actions = []
     redirect_querystring = {}
