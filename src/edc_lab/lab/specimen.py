@@ -102,7 +102,7 @@ class Specimen:
         """
         prefix_obj = self.prefix_cls(
             length=self.prefix_length,
-            protocol_number=self.requisition.protocol_number,
+            protocol_number=self.requisition.get_protocol_number(),
             requisition_identifier=self.requisition.requisition_identifier,
             template=self.prefix_template,
         )
