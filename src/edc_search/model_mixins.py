@@ -39,10 +39,7 @@ class SearchSlugModelMixin(models.Model):
         search_slug = SearchSlug(
             obj=self, fields=fields, sep=self.SEARCH_SLUG_SEP)
         self._search_slug_warning = search_slug.warning
-        if self.slug:
-            self.slug = f'{self.slug}|{search_slug.slug}'
-        else:
-            self.slug = search_slug.slug
+        self.slug = search_slug.slug
         return super().save(*args, **kwargs)
 
     class Meta:
