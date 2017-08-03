@@ -52,3 +52,13 @@ class TestModelExtra(TestModelMixin, models.Model):
         fields = super().get_search_slug_fields()
         fields.append('f4')
         return fields
+
+
+class TestModelDuplicate(TestModelMixin, models.Model):
+
+    f4 = models.CharField(max_length=25, null=True)
+
+    def get_search_slug_fields(self):
+        fields = super().get_search_slug_fields()
+        fields.extend(['f1', 'f4'])
+        return fields

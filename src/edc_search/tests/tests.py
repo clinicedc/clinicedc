@@ -5,6 +5,8 @@ from edc_base.utils import get_utcnow
 
 from ..search_slug import SearchSlug
 from .models import TestModel, TestModelExtra
+from edc_search.tests.models import TestModelDuplicate
+from edc_search.model_mixins import SearchSlugDuplicateFields
 
 
 class TestSearchSlug(TestCase):
@@ -23,7 +25,6 @@ class TestSearchSlug(TestCase):
             fields=['f1', 'f2'])
         self.assertEqual(search_slug.slug, '1|2')
 
-    @tag('1')
     def test_gets_slug(self):
         dt = get_utcnow()
         obj = TestModel(
@@ -31,7 +32,8 @@ class TestSearchSlug(TestCase):
             f2=dt,
             f3=1234)
         obj.save()
-        self.assertEqual(obj.slug, f'erik-is|{slugify(dt)}|1234|attr|dummy|dummy_attr')
+        self.assertEqual(
+            obj.slug, f'erik-is|{slugify(dt)}|1234|attr|dummy|dummy_attr')
 
     def test_gets_with_none(self):
         obj = TestModel(
@@ -48,4 +50,20 @@ class TestSearchSlug(TestCase):
             f3=None,
             f4='i am from testmodelextra')
         obj.save()
-        self.assertEqual(obj.slug, f'i-am-from-testmodel|||attr|dummy|dummy_attr|i-am-from-testmodelextra')
+        self.assertEqual(
+            obj.slug, f'i-am-from-testmodel|||attr|dummy|dummy_attr|i-am-from-testmodelextra')
+
+    def test_duplicates(self):
+        obj = TestModelDuplicate(
+            f1='i am from testmodel',
+            f2=None,
+            f3=None,
+            f4='i am from testmodelextra')
+        self.assertRaises(
+            SearchSlugDuplicateFields,
+            obj.save)
+
+    def test_too_long(self):
+        obj = TestModel(f1='x' * 300)
+        obj.save()
+        self.assertIsNotNone(obj._search_slug_warning)
