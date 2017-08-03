@@ -26,10 +26,10 @@ class SearchSlugModelMixin(models.Model):
         help_text='a field used for quick search')
 
     def save(self, *args, **kwargs):
+        fields = self.get_search_slug_fields()
+        fields = list(set(fields))
         search_slug = SearchSlug(
-            obj=self,
-            fields=self.get_search_slug_fields(),
-            sep=self.SEARCH_SLUG_SEP)
+            obj=self, fields=fields, sep=self.SEARCH_SLUG_SEP)
         if self.slug:
             self.slug = f'{self.slug}|{search_slug.slug}'
         else:
