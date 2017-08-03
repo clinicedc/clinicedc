@@ -70,3 +70,14 @@ class TestSearchSlug(TestCase):
         self.assertEqual(len(obj.slug), 250)
         obj = TestModel.objects.all()[0]
         obj.save()
+
+    def test_updater(self):
+        obj = TestModel.objects.create(f1='x' * 300)
+        obj.save()
+        obj.slug = None
+        obj.save_base()
+        obj = TestModel.objects.all()[0]
+        self.assertIsNone(obj.slug)
+        TestModel.objects.update_search_slugs()
+        obj = TestModel.objects.all()[0]
+        self.assertIsNotNone(obj.slug)

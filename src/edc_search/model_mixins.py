@@ -7,17 +7,32 @@ class SearchSlugDuplicateFields(Exception):
     pass
 
 
+class SearchSlugUpdater:
+    def __init__(self, fields, model_obj=None):
+        if len(fields) > len(list(set(fields))):
+            raise SearchSlugDuplicateFields(
+                f'Duplicate search slug fields detected. Got {fields}. '
+                f'See {repr(self)}')
+        search_slug = SearchSlug(
+            obj=model_obj, fields=fields, sep='|')
+        self.warning = search_slug.warning
+        self.slug = search_slug.slug
+
+
 class SearchSlugManager(models.Manager):
 
     def update_search_slugs(self):
         for obj in self.all():
+            updater = SearchSlugUpdater(
+                fields=obj.get_search_slug_fields(),
+                model_obj=obj)
+            obj.slug = updater.slug
             obj.save_base(update_fields=['slug'])
 
 
 class SearchSlugModelMixin(models.Model):
 
     _search_slug_warning = None
-    SEARCH_SLUG_SEP = '|'
 
     def get_search_slug_fields(self):
         return []
@@ -31,15 +46,10 @@ class SearchSlugModelMixin(models.Model):
         help_text='a field used for quick search')
 
     def save(self, *args, **kwargs):
-        fields = self.get_search_slug_fields()
-        if len(fields) > len(list(set(fields))):
-            raise SearchSlugDuplicateFields(
-                f'Duplicate search slug fields detected. Got {fields}. '
-                f'See {repr(self)}')
-        search_slug = SearchSlug(
-            obj=self, fields=fields, sep=self.SEARCH_SLUG_SEP)
-        self._search_slug_warning = search_slug.warning
-        self.slug = search_slug.slug
+        updater = SearchSlugUpdater(
+            fields=self.get_search_slug_fields(), model_obj=self)
+        self._search_slug_warning = updater.warning
+        self.slug = updater.slug
         return super().save(*args, **kwargs)
 
     class Meta:

@@ -2,6 +2,7 @@ __all__ = ['TestModel', 'TestModelExtra']
 
 from django.db import models
 
+from ..model_mixins import SearchSlugManager
 from ..model_mixins import SearchSlugModelMixin
 
 
@@ -20,6 +21,8 @@ class TestModelMixin(SearchSlugModelMixin, models.Model):
     f2 = models.DateTimeField(null=True)
 
     f3 = models.IntegerField(null=True)
+
+    objects = SearchSlugManager()
 
     @property
     def attr(self):
