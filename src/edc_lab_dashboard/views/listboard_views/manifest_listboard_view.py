@@ -2,23 +2,16 @@ from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
-
-from edc_model_wrapper import ModelWrapper
 from edc_lab.constants import SHIPPED
 from edc_lab.reports import ManifestReport
 from edc_lab.models import Manifest
 
+from ...model_wrappers import ManifestModelWrapper
 from ..listboard_filters import ManifestListboardViewFilters
 from .base_listboard import BaseListboardView
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
-
-
-class ManifestModelWrapper(ModelWrapper):
-
-    model = edc_lab_app_config.manifest_model
-    next_url_name = app_config.manifest_listboard_url_name
 
 
 class ManifestListboardView(BaseListboardView):

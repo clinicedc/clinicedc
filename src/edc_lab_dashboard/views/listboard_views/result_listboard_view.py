@@ -2,18 +2,12 @@ from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from edc_model_wrapper import ModelWrapper
-
+from ...model_wrappers import ResultModelWrapper
 from .base_listboard import BaseListboardView
 
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
-
-
-class ResultModelWrapper(ModelWrapper):
-
-    model = edc_lab_app_config.result_model
 
 
 class ResultListboardView(BaseListboardView):
