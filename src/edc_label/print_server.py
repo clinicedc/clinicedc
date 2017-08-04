@@ -3,16 +3,35 @@ import sys
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
+from pprint import pprint
 
 style = color_style()
+app_config = django_apps.get_app_config('edc_label')
+
+
+class PrintServerError(Exception):
+    pass
+
+
+class PrintServerSelectPrinterError(Exception):
+    pass
+
+
+class PrinterError(Exception):
+    pass
 
 
 class Printer:
 
-    data = None
-    full_name = None
-    label = None
-    verbose_name = None
+    def __init__(self, printer_name=None, printer_data=None, print_server=None):
+        if not printer_data:
+            raise PrinterError(
+                f'Unable to determine printer. Got printer_name={printer_name}.')
+        else:
+            self.printer_data = printer_data
+            self.printer_name = printer_name
+            self.full_name = f'{self.printer_name}@{print_server}'
+            self.verbose_name = self.printer_data.get('printer-info')
 
     def __str__(self):
         return self.verbose_name
@@ -28,21 +47,24 @@ class PrintServer:
 
     connection_err_msg = 'Unable to connect to CUPS server {}. Got \'{}\''
     printer_err_msg = 'Printer \'{}\' not found on \'{}\'.'
+    printer_cls = Printer
+    cups_server_ip = app_config.default_cups_server_ip
+    printer_name = app_config.default_printer_name
 
-    def __init__(self, cups_server_ip=None):
-        app_config = django_apps.get_app_config('edc_label')
+    def __init__(self, cups_server_ip=None, printer_name=None):
+        self._selected_printer = None
         self.conn = None
         self.error_message = None
-        self.selected_printer = Printer()
-        self.ip_address = cups_server_ip or app_config.default_cups_server_ip
+        self.ip_address = cups_server_ip or self.cups_server_ip
         self.name = self.ip_address or 'localhost'
         try:
             self.conn = self.connect()
         except (cups.IPPError, RuntimeError) as e:
-            sys.stdout.write(style.ERROR('{}\n'.format(e)))
+            sys.stdout.write(style.ERROR(f'{e}\n'))
             sys.stdout.flush()
             self.error_message = self.connection_err_msg.format(
                 self.ip_address, str(e))
+        self.selected_printer = printer_name or self.printer_name
 
     def __str__(self):
         return self.name
@@ -51,8 +73,7 @@ class PrintServer:
         return {
             'ip_address': self.ip_address or 'localhost',
             'selected_printer': self.selected_printer.full_name,
-            'name': self.name,
-        }
+            'name': self.name}
 
     def connect(self):
         if self.ip_address == 'localhost' or self.ip_address is None:
@@ -62,51 +83,63 @@ class PrintServer:
 
     @property
     def printers(self):
-        """Return all printers from for CUPS.getPrinter().
+        """Return a dictionary all printers from for CUPS.getPrinter().
         """
+        printers = {}
         try:
-            return self.conn.getPrinters()
+            printers = self.conn.getPrinters()
         except (AttributeError, cups.IPPError) as e:
+            sys.stdout.write(style.WARNING(
+                f'Unable to list printers from CUPS. Got {e}'))
             self.error_message = self.error_message or self.connection_err_msg.format(
                 self.ip_address, str(e))
-        return {}
+        return printers
 
-    def select_printer(self, label):
-        """Select a printer by label from those available on
+    @property
+    def selected_printer(self):
+        return self._selected_printer
+
+    @selected_printer.setter
+    def selected_printer(self, printer_name=None):
+        """Select a printer by printer_name from those available on
         the CUPS server.
         """
-        self.selected_printer = Printer()
-        if not label:
-            raise TypeError('Attribute \'label\' cannot be None')
-        try:
-            printer = self.get_printer(label)
-            self.selected_printer.data = printer.get(label)
-            self.selected_printer.label = label
-            self.selected_printer.full_name = '{}@{}'.format(label, str(self))
-            self.selected_printer.verbose_name = self.selected_printer.data.get(
-                'printer-info')
-        except KeyError:
-            self.error_message = self.error_message or self.printer_err_msg.format(
-                label, str(self))
+        properties = self.get_printer_properties(printer_name)
+        self._selected_printer = self.printer_cls(
+            printer_name=printer_name,
+            print_server=self,
+            printer_data=properties)
 
-    def get_printer(self, label):
-        """Return a dictionary for one printer by label from
+    def get_printer_properties(self, printer_name=None):
+        """Return a dictionary of one printer by label from
         CUPS.getPrinter().
 
         Note: dictionary items are added using the '_' in place
         of '-', e.g. after update both 'printer-info' and
         printer_info' are valid.
         """
+        properties = None
         try:
-            properties = self.printers[label]
-            properties.update(
-                {k.replace('-', '_'): v for k, v in properties.items()})
-            return {label: properties}
-        except TypeError:
-            raise KeyError
+            properties = self.printers[printer_name]
+        except KeyError:
+            if not printer_name:
+                try:
+                    printer_name = list(self.printers.keys())[0]
+                except IndexError:
+                    pass
+                else:
+                    properties = self.printers[printer_name]
+        if not properties:
+            raise PrintServerSelectPrinterError(
+                f'Unable to select a printer. Printer \'{self.printer_name}\' not found. '
+                f'Expected one of {list(self.printers.keys())}. '
+                'See AppConfig.default_printer_name.')
+        properties.update(
+            {k.replace('-', '_'): v for k, v in properties.items()})
+        return properties
 
     def print_file(self, *args):
-        return self.conn.printFile(*args)
+        return self.conn.printFile(self.selected_printer.printer_name, *args)
 
     @property
     def jobs(self):

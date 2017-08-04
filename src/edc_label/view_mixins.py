@@ -1,29 +1,27 @@
 import json
 
+from django.apps import apps as django_apps
 from django.http.response import HttpResponse
 
-from .mixins import EdcLabelMixin, app_config
+from .labeler import Labeler
+
+app_config = django_apps.get_app_config('edc_label')
 
 
-class EdcLabelViewMixin(EdcLabelMixin):
+class EdcLabelViewMixin:
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._print_server = None
-        self._printers = {}
-        self.cups_server_ip = app_config.default_cups_server_ip
-        self.default_printer_name = app_config.default_printer_name
-        self.default_cups_server_ip = app_config.default_cups_server_ip or 'localhost'
-        self.verbose_name = app_config.verbose_name
-        self.label_templates = app_config.label_templates
-        self.printer_label = app_config.default_printer_name
+    labeler_cls = Labeler
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.labeler = self.labeler_cls()
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         if request.is_ajax():
             response_data = {}
             if self.kwargs.get('label_name'):
-                label = self.print_label(self.kwargs.get('label_name'))
+                label = self.labeler.print_label(self.kwargs.get('label_name'))
                 response_data.update({
                     'label_message': label.message,
                     'label_error_message': label.error_message,
@@ -32,26 +30,26 @@ class EdcLabelViewMixin(EdcLabelMixin):
             else:
                 print('label_templates', {
                       label: (label_template.__dict__
-                              for label, label_template in self.label_templates.items())})
+                              for label, label_template in self.labeler.label_templates.items())})
                 response_data.update({
                     'label_templates': json.dumps(
                         {label: (label_template.__dict__
-                                 for label, label_template in self.label_templates.items())}),
-                    'print_server': json.dumps(self.print_server.to_dict()),
-                    'print_server_error': self.print_server.error_message,
-                    'default_printer_name': self.default_printer_name,
-                    'default_cups_server_ip': self.default_cups_server_ip,
-                    'printers': json.dumps(self.printers),
+                                 for label, label_template in self.labeler.label_templates.items())}),
+                    'print_server': json.dumps(self.labeler.print_server.to_dict()),
+                    'print_server_error': self.labeler.print_server.error_message,
+                    'default_printer_name': self.labeler.default_printer_name,
+                    'default_cups_server_ip': self.labeler.default_cups_server_ip,
+                    'printers': json.dumps(self.labeler.printers),
                 })
             return HttpResponse(json.dumps(response_data),
                                 content_type='application/json')
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
-        context = super(EdcLabelViewMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        project_name = context.get('project_name')
         context.update({
-            'project_name': '{}: {}'.format(
-                context.get('project_name'), self.verbose_name),
-            'default_cups_server_ip': self.default_cups_server_ip,
+            'project_name': f'{project_name}: {self.verbose_name}',
+            'default_cups_server_ip': self.labeler.default_cups_server_ip,
         })
         return context

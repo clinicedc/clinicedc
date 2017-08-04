@@ -25,6 +25,15 @@ class AppConfig(DjangoAppConfig):
     # default extension
     template_ext = 'lbl'
 
+    label_templates = {}
+
     def ready(self):
         sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
+        if not os.path.exists(self.template_folder):
+            os.makedirs(self.template_folder)
+        for filename in os.listdir(self.template_folder):
+            if filename.endswith(self.template_ext):
+                label_name = filename.split('.')[0]
+                self.label_templates.update({label_name: filename})
+                sys.stdout.write(f' * {filename}\n')
         sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
