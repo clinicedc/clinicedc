@@ -18,7 +18,7 @@ class ManifestView(ManifestViewMixin, BaseActionView):
     post_url_name = app_config.manifest_listboard_url_name
     valid_form_actions = [
         'remove_selected_items', 'print_labels', 'ship_selected_items']
-    label_class = ManifestLabel
+    label_cls = ManifestLabel
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
