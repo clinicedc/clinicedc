@@ -55,7 +55,8 @@ def verified(box_item):
     elif box_item.verified == -1:
         verified = False
     return '' if not verified else mark_safe(
-        '&nbsp;<span title="verified" class="text text-success"><i class="fa fa-check fa-fw"></i></span>')
+        '&nbsp;<span title="verified" alt="verified" class="text text-success">'
+        '<i class="fa fa-check fa-fw"></i></span>')
 
 
 @register.filter(is_safe=True)

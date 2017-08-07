@@ -3,8 +3,9 @@ from django.test import TestCase, tag
 from edc_lab.models import Aliquot, Box, BoxType, Manifest, Shipper, Consignee
 from edc_lab.models import ManifestItem
 
-from ..model_wrappers import AliquotModelWrapper, BoxModelWrapper, ManageBoxItemModelWrapper
+from ..model_wrappers import BoxModelWrapper, ManageBoxItemModelWrapper
 from ..model_wrappers import ManifestItemModelWrapper, ManifestModelWrapper
+from edc_lab.models.box_item import BoxItem
 # from ..model_wrappers import RequisitionModelWrapper
 
 
@@ -13,15 +14,22 @@ app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 class TestModelWrapper(TestCase):
 
-    def test_aliquot_model_wrapper(self):
-        wrapper_cls = AliquotModelWrapper
-        next_url_name = wrapper_cls.next_url_name
-        wrapper_cls.next_url_name = next_url_name.split(':')[1]
-        obj = Aliquot.objects.create(count=0)
-        wrapper = wrapper_cls(obj)
-        self.assertEqual(
-            wrapper.href, f'/admin/edc_lab/aliquot/{obj.id}/change/?next=aliquot_listboard_url&')
-        self.assertEqual(wrapper.reverse(), '/listboard/aliquot/')
+    def setUp(self):
+        self.box_type = BoxType.objects.create(
+            name='9 x 9',
+            across=9, down=9, total=81)
+        self.box = Box.objects.create(
+            box_identifier='12345678',
+            box_type=self.box_type)
+        self.box_item = BoxItem.objects.create(
+            box=self.box, position=0)
+        self.aliquot = Aliquot.objects.create(
+            subject_identifier='ABCDEFG',
+            count=1,
+            is_primary=True,
+            aliquot_type='Whole Blood',
+            numeric_code='02',
+            alpha_code='WB')
 
     def test_box_model_wrapper(self):
         wrapper_cls = BoxModelWrapper

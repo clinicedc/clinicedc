@@ -13,8 +13,8 @@ class AliquotModelWrapper(ModelWrapper):
     next_url_name = app_config.aliquot_listboard_url_name
 
     @property
-    def human_aliquot_identifier(self):
-        return self.object.human_aliquot_identifier
+    def human_readable_identifier(self):
+        return self.object.human_readable_identifier
 
     @property
     def box_item(self):
