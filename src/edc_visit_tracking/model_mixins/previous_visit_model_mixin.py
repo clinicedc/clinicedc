@@ -48,9 +48,9 @@ class PreviousVisitModelMixin(models.Model):
 
     @property
     def previous_visit_code(self):
+        previous_visit = self.schedule.visits.previous(self.visit_code)
         try:
-            previous_visit_code = self.schedule.get_previous_visit(
-                self.visit_code).code
+            previous_visit_code = previous_visit.code
         except AttributeError:
             previous_visit_code = None
         return previous_visit_code
