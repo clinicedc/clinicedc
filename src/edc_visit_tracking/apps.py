@@ -56,9 +56,9 @@ class AppConfig(DjangoAppConfig):
             visit_model_attr = self.visit_models[app_label][ATTR]
         except KeyError as e:
             raise ImproperlyConfigured(
-                'Unable to select visit_model attr given \'{}\'. '
-                'Got {}. See \'edc_visit_tracking.AppConfig\'.'.format(
-                    label_lower, str(e)))
+                f'Unable to select visit_model attr given \'{label_lower}\'. '
+                f'Got {e}. Expected one of {list(self.visit_models.keys())}. '
+                'See \'edc_visit_tracking.AppConfig\'.')
         model = django_apps.get_model(app_label, model_name)
         try:
             getattr(model, visit_model_attr)
