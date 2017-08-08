@@ -4,6 +4,10 @@ from django.db.models.deletion import ProtectedError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
+class AppointmentManagerError(Exception):
+    pass
+
+
 class AppointmentManager(models.Manager):
 
     def get_by_natural_key(self, subject_identifier, visit_schedule_name,
@@ -65,8 +69,13 @@ class AppointmentManager(models.Manager):
                 visit_code = appointment.visit_code
             except AttributeError:
                 pass
-        attrname = 'get_{}_visit'.format(action)
-        visit = getattr(schedule, attrname)(visit_code)
+        if action == 'next':
+            visit = schedule.visits.next(visit_code)
+        elif action == 'previous':
+            visit = schedule.visits.previous(visit_code)
+        else:
+            raise AppointmentManagerError(
+                f'Unknown action. Expected one of [next, previous]. Got \'{action}\'.')
         try:
             visit_code = visit.code
         except AttributeError:

@@ -7,9 +7,8 @@ from edc_model_wrapper import ModelWrapper
 
 class AppointmentModelWrapper(ModelWrapper):
 
+    model = None  # django_apps.get_app_config('edc_appointment').model
     visit_model_wrapper_cls = None
-
-    model = django_apps.get_app_config('edc_appointment').model
 
     def get_appt_status_display(self):
         return self.object.get_appt_status_display()
