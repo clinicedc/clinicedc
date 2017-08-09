@@ -3,7 +3,6 @@ import sys
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
-from pprint import pprint
 
 style = color_style()
 app_config = django_apps.get_app_config('edc_label')

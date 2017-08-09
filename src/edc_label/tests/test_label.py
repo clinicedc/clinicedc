@@ -3,10 +3,10 @@ import cups
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 
-from ..label import Label, PrintLabelError
-from ..print_server import PrintServer, Printer, PrintServerSelectPrinterError
+from ..label import Label
 from ..label_template import LabelTemplate, LabelTemplateError
-from edc_label.labeler import Labeler
+from ..labeler import Labeler
+from ..print_server import PrintServer, Printer, PrintServerSelectPrinterError
 from pprint import pprint
 
 
@@ -78,6 +78,10 @@ class TestLabels(TestCase):
     def test_print_server_get_printers(self):
         ps = PrintServer()
         self.assertTrue(ps.printers)
+
+    def test_print_server_get_properties(self):
+        ps = PrintServer()
+        pprint(ps.selected_printer.printer_data)
 
     def test_print_server_options(self):
         """Requires CUPS printer "home_label_printer".
