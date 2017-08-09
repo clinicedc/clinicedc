@@ -34,7 +34,8 @@ class AppointmentModelWrapper(ModelWrapper):
     def forms_url(self):
         """Returns a reversed URL to show forms for this appointment/visit.
 
-        This is standard for edc_dashboard"""
+        This is standard for edc_dashboard.
+        """
         kwargs = dict(
             subject_identifier=self.subject_identifier,
             appointment=self.object.id)

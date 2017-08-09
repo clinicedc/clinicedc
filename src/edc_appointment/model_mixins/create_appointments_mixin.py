@@ -10,7 +10,6 @@ from django.db.models.deletion import ProtectedError
 from django.db.utils import IntegrityError
 
 from ..exceptions import CreateAppointmentError
-from pprint import pprint
 
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
