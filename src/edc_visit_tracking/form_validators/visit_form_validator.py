@@ -3,7 +3,7 @@ from edc_base.modelform_validators import FormValidator
 from edc_constants.constants import YES, NO, DEAD, OFF_STUDY, UNKNOWN, ALIVE, PARTICIPANT
 
 from ..constants import LOST_VISIT, COMPLETED_PROTOCOL_VISIT, MISSED_VISIT
-from ..model_mixins import PreviousVisitError
+# from ..model_mixins import PreviousVisitError
 
 
 class VisitFormValidator(FormValidator):
