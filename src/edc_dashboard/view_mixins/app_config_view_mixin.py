@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.views.generic.base import ContextMixin
 
 
 class AppConfigViewLookupError(Exception):
@@ -9,7 +10,7 @@ class AppConfigViewError(Exception):
     pass
 
 
-class AppConfigViewMixin:
+class AppConfigViewMixin(ContextMixin):
 
     """Adds url and template names for listboard and dashboard
     from app_config.
