@@ -150,5 +150,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+GIT_DIR = BASE_DIR
+KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
