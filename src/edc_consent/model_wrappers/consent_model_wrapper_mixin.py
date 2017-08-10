@@ -49,6 +49,6 @@ class ConsentModelWrapperMixin:
         consent model instance.
         """
         options = dict(
-            subject_identifier=self.consent_object.subject_identifier,
+            subject_identifier=self.object.subject_identifier,
             version=self.consent_object.version)
         return options
