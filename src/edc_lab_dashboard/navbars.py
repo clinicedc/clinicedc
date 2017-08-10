@@ -1,4 +1,4 @@
-from edc_base.navbar_item import NavbarItem
+from edc_base import NavbarItem
 
 navbar_items = []
 config = [

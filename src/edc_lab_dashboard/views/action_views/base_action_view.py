@@ -6,14 +6,13 @@ from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.text import slugify
 from django.views.generic.base import TemplateView
-
+from edc_base import Navbar
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import AppConfigViewMixin
 from edc_label.label import PrintLabelError
 from edc_label.print_server import PrintServerSelectPrinterError
 
 from ..mixins.models_view_mixin import ModelsViewMixin
-from pprint import pprint
 
 
 class InvalidPostError(Exception):
@@ -29,13 +28,14 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
 
     template_name = 'edc_lab_dashboard/home.html'
     post_url_name = None
-    navbar_name = 'specimens'
     app_config_name = 'edc_lab_dashboard'
 
     valid_form_actions = []
     redirect_querystring = {}
     form_action_selected_items_name = 'selected_items'
     label_cls = None
+
+    navbar_name = 'specimens'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
