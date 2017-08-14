@@ -8,8 +8,8 @@ from django.conf import settings
 
 from django.apps import AppConfig as DjangoAppConfig
 
-
-from edc_protocol.apps import AppConfig as BaseEdcProtocolAppConfig, SubjectType, Cap
+from edc_protocol.apps import (
+    AppConfig as BaseEdcProtocolAppConfig, SubjectType, Cap)
 
 
 class AppConfig(DjangoAppConfig):
@@ -28,6 +28,7 @@ class AppConfig(DjangoAppConfig):
     def model(self):
         return django_apps.get_model(self.app_label, 'registeredsubject')
 
+
 if 'edc_registration' in settings.APP_NAME:
     class EdcProtocolAppConfig(BaseEdcProtocolAppConfig):
         protocol = 'BHP091'
@@ -36,7 +37,9 @@ if 'edc_registration' in settings.APP_NAME:
         protocol_title = ''
         subject_types = [
             SubjectType('subject', 'Research Subject',
-                        Cap(model_name='edc_registration.subjectconsent', max_subjects=9999)),
+                        Cap(
+                            model_name='edc_registration.subjectconsent',
+                            max_subjects=9999)),
         ]
         study_open_datetime = datetime(
             2016, 12, 31, 0, 0, 0, tzinfo=gettz('UTC'))

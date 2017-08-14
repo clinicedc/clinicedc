@@ -1,17 +1,18 @@
 import copy
 import re
-
+from django.test.utils import tag
 from dateutil.relativedelta import relativedelta
 
 from django.apps import apps as django_apps
 from django.test import TestCase
-from edc_base.utils import get_uuid, get_utcnow
+from edc_base.utils import get_utcnow
 
 from ..exceptions import RegisteredSubjectError
 from .models import SubjectEligibility, SubjectConsent
 RegisteredSubject = django_apps.get_app_config('edc_registration').model
 
 
+@tag('1')
 class TestRegistration(TestCase):
 
     def setUp(self):

@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
 from edc_base.model_mixins import DEFAULT_BASE_FIELDS
