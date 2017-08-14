@@ -23,7 +23,6 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
 
         Called from the signal
         """
-        self.registration_raise_on_not_unique()
         if not getattr(self, self.registration_unique_field):
             raise TypeError(
                 'Cannot update or create RegisteredSubject. Got {} '
@@ -43,6 +42,10 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
 
     @property
     def registration_unique_field(self):
+        """Returns the field that will update registration identifier.
+        The field attribute name does not necessarily have to be registration
+        identifier on the model that creates or update registered subject.
+        """
         return 'registration_identifier'
 
     def registration_raise_on_illegal_value_change(self, registered_subject):
@@ -52,20 +55,6 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         Values are available in `registration_options`.
         """
         pass
-
-    def registration_raise_on_not_unique(self):
-        """Asserts the field specified for update_or_create is unique.
-        """
-        unique_fields = []
-        for f in self.registration_model._meta.get_fields():
-            try:
-                if f.unique:
-                    unique_fields.append(f.name)
-            except AttributeError:
-                pass
-        if self.registration_unique_field not in unique_fields:
-            raise ImproperlyConfigured('Field is not unique. Got {}.{}'.format(
-                self._meta.label_lower, self.registration_unique_field))
 
     @property
     def registration_options(self):
