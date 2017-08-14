@@ -120,7 +120,7 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
     screening_identifier = models.CharField(
         max_length=36,
         null=True,
-        blank=True)
+        unique=True,)
 
     screening_datetime = models.DateTimeField(
         null=True,
@@ -128,7 +128,7 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
 
     screening_age_in_years = models.IntegerField(
         null=True,
-        blank=True)
+        unique=True)
 
     registration_datetime = models.DateTimeField(
         null=True,

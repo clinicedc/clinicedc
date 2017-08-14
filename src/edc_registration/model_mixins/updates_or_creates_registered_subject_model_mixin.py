@@ -30,20 +30,20 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
                 'is None.'.format(self.registration_unique_field))
         try:
             obj = self.registration_model.objects.get(
-                **{self.registration_unique_field:
+                **{'registration_identifier':
                    getattr(self, self.registration_unique_field)})
         except self.registration_model.DoesNotExist:
             pass
         else:
             self.registration_raise_on_illegal_value_change(obj)
         registered_subject, created = self.registration_model.objects.update_or_create(
-            **{self.registration_unique_field: getattr(self, self.registration_unique_field)},
+            **{'registration_identifier': getattr(self, self.registration_unique_field)},
             defaults=self.registration_options)
         return registered_subject, created
 
     @property
     def registration_unique_field(self):
-        return 'subject_identifier'
+        return 'registration_identifier'
 
     def registration_raise_on_illegal_value_change(self, registered_subject):
         """Raises an exception if a value changes between
@@ -64,7 +64,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
             except AttributeError:
                 pass
         if self.registration_unique_field not in unique_fields:
-            raise ImproperlyConfigured('Field is not unique. Got {}.{} -- {}'.format(
+            raise ImproperlyConfigured('Field is not unique. Got {}.{}'.format(
                 self._meta.label_lower, self.registration_unique_field))
 
     @property
@@ -75,7 +75,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         registration_options = {}
         rs = self.registration_model()
         for k, v in self.__dict__.items():
-            if k not in DEFAULT_BASE_FIELDS + ['_state'] + [self.registration_unique_field]:
+            if k not in DEFAULT_BASE_FIELDS + ['_state']:
                 try:
                     getattr(rs, k)
                     registration_options.update({k: v})
