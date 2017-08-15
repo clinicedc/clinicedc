@@ -42,7 +42,8 @@ class Visit:
     visit_date_cls = VisitDate
 
     def __init__(self, code=None, timepoint=None, rbase=None,
-                 crfs=None, requisitions=None, title=None,
+                 crfs=None, requisitions=None, crfs_unscheduled=None,
+                 requisitions_unscheduled=None, title=None,
                  instructions=None, grouping=None, **kwargs):
 
         self.dates = self.visit_date_cls(**kwargs)
@@ -55,6 +56,8 @@ class Visit:
         self.crfs = self.forms_collection_cls(*(crfs or []), **kwargs).forms
         self.requisitions = self.forms_collection_cls(
             *(requisitions or []), **kwargs).forms
+        self.crfs_unscheduled = crfs_unscheduled
+        self.requisitions_unscheduled = requisitions_unscheduled
 
         self.instructions = instructions
         self.timepoint = timepoint
