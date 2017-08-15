@@ -1,6 +1,6 @@
 from django.db.models import options
 
-from ..exceptions import CreateAppointmentError
+from ..appointment_creator import CreateAppointmentError
 from .create_appointments_mixin import CreateAppointmentsMixin
 
 
