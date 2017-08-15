@@ -29,6 +29,7 @@ class AppConfig(DjangoAppConfig):
     # e.g. {'example': ('subject_visit', 'example.subjectvisit')}
     visit_models = {'edc_visit_tracking': (
         'subject_visit', 'edc_visit_tracking.subjectvisit')}
+    reason_field = {}
 
     def ready(self):
         sys.stdout.write(f'Loading {self.verbose_name} ...\n')
