@@ -2,14 +2,9 @@ import sys
 
 from datetime import datetime
 from dateutil.tz import gettz
-
+from django.apps import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps
 from django.conf import settings
-
-from django.apps import AppConfig as DjangoAppConfig
-
-from edc_protocol.apps import (
-    AppConfig as BaseEdcProtocolAppConfig, SubjectType, Cap)
 
 
 class AppConfig(DjangoAppConfig):
@@ -19,10 +14,9 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         from .signals import update_registered_subject_from_model_on_post_save
-        sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
-        sys.stdout.write(
-            '  * using {}.registeredsubject\n'.format(self.app_label, ))
-        sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
+        sys.stdout.write(f'Loading {self.verbose_name} ...\n')
+        sys.stdout.write(f'  * using {self.app_label}.registeredsubject\n')
+        sys.stdout.write(f' Done loading {self.verbose_name}.\n')
 
     @property
     def model(self):
@@ -30,6 +24,9 @@ class AppConfig(DjangoAppConfig):
 
 
 if 'edc_registration' in settings.APP_NAME:
+
+    from edc_protocol.apps import AppConfig as BaseEdcProtocolAppConfig, SubjectType, Cap
+
     class EdcProtocolAppConfig(BaseEdcProtocolAppConfig):
         protocol = 'BHP091'
         protocol_number = '091'
