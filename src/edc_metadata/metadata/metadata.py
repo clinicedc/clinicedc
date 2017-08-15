@@ -175,6 +175,10 @@ class Metadata:
                 f'Invalid reason field. Expected attribute {self.reason_field}. '
                 f'{visit._meta.label_lower}. Got {e}. '
                 f'edc_metadata.AppConfig reason_field = {app_config.reason_field}') from e
+        if not self.reason:
+            raise CreatesMetadataError(
+                f'Invalid reason from field \'{self.reason_field}\'. Got None. '
+                'Check field value and/or edc_metadata.AppConfig.create_on_reasons/delete_on_reasons.')
 
     def prepare(self):
         """Creates or deletes metadata, depending on the visit reason,
@@ -191,8 +195,6 @@ class Metadata:
             visit = self.creator.visit
             raise CreatesMetadataError(
                 f'Undefined \'reason\'. Cannot create metadata. Got '
-                f'{visit._meta.label_lower}.'
-                f'{app_config.reason_field[visit._meta.label_lower]} = '
-                f'\'{getattr(visit, app_config.reason_field[visit._meta.label_lower])}\'. '
+                f'reason=\'{self.reason}\'. Visit=\'{visit}\'. '
                 'Check field value and/or edc_metadata.AppConfig.create_on_reasons/delete_on_reasons.')
         return metadata_exists
