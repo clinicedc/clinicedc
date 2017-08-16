@@ -22,7 +22,7 @@ TAIL_FIELDS = [
 
 class ExportObjectAsCsv(object):
 
-    def __init__(self, export_filename, fields=None, exclude=None, extra_fields=None,
+    def __init__(self, export_filename=None, fields=None, exclude=None, extra_fields=None,
                  header=True, track_history=None, show_all_fields=True, delimiter=None, encrypt=True,
                  strip=None, target_path=None, notification_plan_name=None, export_datetime=None,
                  dateformat=None):
@@ -35,14 +35,17 @@ class ExportObjectAsCsv(object):
         self.include_header_row = header
         self.dateformat = dateformat or '%Y-%m-%d %H:%M'
         self.show_all_fields = show_all_fields
-        self.strip = False if strip is False else True
-        self.track_history = False if track_history is False else True
+        self.strip = True if strip is None else strip
+        self.track_history = True if track_history is None else track_history
         self.notification_plan_name = notification_plan_name
         self.extra_fields = extra_fields or OrderedDict({})
+
         for field_name in self.field_names:
-            self.extra_fields.pop(field_name, None)  # remove items if already listed in field_names
+            # remove items if already listed in field_names
+            self.extra_fields.pop(field_name, None)
         self.field_names.extend(self.extra_fields.keys() or [])
-        self.field_names = list(OrderedDict.fromkeys(self.field_names))  # remove duplicates, maintain order
+        # remove duplicates, maintain order
+        self.field_names = list(OrderedDict.fromkeys(self.field_names))
         self.insert_defaults_and_reorder_field_names()
         self.exclude_field_names(exclude)  # a list of names
         self.header_row = copy(self.field_names)
@@ -52,16 +55,20 @@ class ExportObjectAsCsv(object):
         self.target_path = target_path
 
     def write_to_file(self, instances, write_header=True):
-        """Writes the export file and returns the file name."""
+        """Writes the export file and returns the file name.
+        """
         # search for unique key in file
         try:
             column = np.loadtxt(
-                os.path.join(os.path.expanduser(self.target_path) or '', self.export_filename),
+                os.path.join(os.path.expanduser(self.target_path)
+                             or '', self.export_filename),
                 dtype=str, delimiter=self.delimiter, skiprows=1, usecols=(1,))
-            dups = [instance for instance in instances if instance.unique_key in column]
+            dups = [
+                instance for instance in instances if instance.unique_key in column]
             for dup in dups:
                 instances.remove(dup)
-                print('Warning! Not writing record to csv. Duplicate record. Unique Key: {}'.format(dup.unique_key))
+                print('Warning! Not writing record to csv. Duplicate record. Unique Key: {}'.format(
+                    dup.unique_key))
         except IOError:
             pass
         with open(os.path.join(os.path.expanduser(self.target_path) or '', self.export_filename), 'a') as f:
@@ -104,11 +111,14 @@ class ExportObjectAsCsv(object):
         if exclude:
             for field_name in exclude:
                 try:
-                    self.field_names.pop(self.field_names.index(field_name))  # delete from field names
+                    self.field_names.pop(self.field_names.index(
+                        field_name))  # delete from field names
                 except ValueError:
-                    raise ValueError('Invalid field name in exclude. Got {0}'.format(field_name))
+                    raise ValueError(
+                        'Invalid field name in exclude. Got {0}'.format(field_name))
                 try:
-                    self.header_row.pop(self.header_row.index(field_name))  # delete from header row
+                    self.header_row.pop(self.header_row.index(
+                        field_name))  # delete from header row
                 except ValueError:
                     pass
 
@@ -122,15 +132,18 @@ class ExportObjectAsCsv(object):
             for name in HEAD_FIELDS:
                 # find a matching field
                 if name in self.field_names:
-                    head_fields.append(self.field_names.pop(self.field_names.index(name)))
+                    head_fields.append(self.field_names.pop(
+                        self.field_names.index(name)))
                 elif name in [fld[1].split(LOOKUP_SEP)[-1] for fld in self.field_names if isinstance(fld, tuple)]:
-                    head_fields.append(self.field_names.pop(self.field_names.index(fld.split(LOOKUP_SEP)[-1])))
+                    head_fields.append(self.field_names.pop(
+                        self.field_names.index(fld.split(LOOKUP_SEP)[-1])))
         except ValueError:
             pass
         # move tail fields to the end of the list
         for name in TAIL_FIELDS:
             try:
-                tail_fields.append(self.field_names.pop(self.field_names.index(name)))
+                tail_fields.append(self.field_names.pop(
+                    self.field_names.index(name)))
             except ValueError:
                 pass
         self.field_names = head_fields + self.field_names + tail_fields

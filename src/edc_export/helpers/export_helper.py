@@ -10,14 +10,18 @@ from ..classes import ExportJsonAsCsv
 from ..models import ExportPlan
 
 
+class ExportHelperError(Exception):
+    pass
+
+
 class ExportHelper(object):
 
-    def __init__(self, export_plan, exception_cls=None, notify=None, export_filename=None):
+    def __init__(self, export_plan=None, notify=None, export_filename=None):
         self.reset()
         self.export_plan = export_plan
         self.export_filename = export_filename
-        self.exception_cls = exception_cls or TypeError
-        self.notify = False if notify is False else True  # default is to queue_notification
+        # default is to queue_notification
+        self.notify = False if notify is False else True
         self.export_failure_msg = 'Error exporting transactions for {objects} to file {filename}. Got {error}'
         self.export_success_msg = 'Successfully exported {count} transactions to file {filename} for {object}.'
 
@@ -100,17 +104,24 @@ class ExportHelper(object):
             try:
                 export_plan_instance = ExportPlan.objects.get(
                     app_label=model._meta.app_label, object_name=model._meta.object_name)
-                export_plan_instance.fields = json.dumps(export_plan.get('fields'))
-                export_plan_instance.extra_fields = json.dumps(export_plan.get('extra_fields'))
-                export_plan_instance.exclude = json.dumps(export_plan.get('exclude'))
+                export_plan_instance.fields = json.dumps(
+                    export_plan.get('fields'))
+                export_plan_instance.extra_fields = json.dumps(
+                    export_plan.get('extra_fields'))
+                export_plan_instance.exclude = json.dumps(
+                    export_plan.get('exclude'))
                 export_plan_instance.header = export_plan.get('header')
-                export_plan_instance.track_history = export_plan.get('track_history')
-                export_plan_instance.show_all_fields = export_plan.get('show_all_fields')
+                export_plan_instance.track_history = export_plan.get(
+                    'track_history')
+                export_plan_instance.show_all_fields = export_plan.get(
+                    'show_all_fields')
                 export_plan_instance.delimiter = export_plan.get('delimiter')
                 export_plan_instance.encrypt = export_plan.get('encrypt')
                 export_plan_instance.strip = export_plan.get('strip')
-                export_plan_instance.target_path = export_plan.get('target_path')
-                export_plan_instance.notification_plan_name = export_plan.get('notification_plan_name')
+                export_plan_instance.target_path = export_plan.get(
+                    'target_path')
+                export_plan_instance.notification_plan_name = export_plan.get(
+                    'notification_plan_name')
                 export_plan_instance.save()
             except ExportPlan.DoesNotExist:
                 ExportPlan.objects.create(

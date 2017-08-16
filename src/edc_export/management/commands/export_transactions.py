@@ -22,5 +22,4 @@ class Command(BaseCommand):
         export_model_helper = ExportModelHelper(
             export_plan, app_label, model_name, exception_cls=CommandError)
         exit_status = export_model_helper.export()
-        print exit_status
         self.stdout.write(exit_status[1])

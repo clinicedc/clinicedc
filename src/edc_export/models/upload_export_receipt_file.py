@@ -3,11 +3,9 @@ import os
 import re
 
 from datetime import datetime
-
 from django.db import models
 from django.conf import settings
-
-from edc_base.model.models import BaseUuidModel
+from edc_base.model_mixins import BaseUuidModel
 from edc_export.models import ExportHistory
 
 
@@ -20,7 +18,7 @@ class UploadExportReceiptFileManager(models.Manager):
 class UploadExportReceiptFile(BaseUuidModel):
 
     export_receipt_file = models.FileField(
-        upload_to=os.path.join(settings.BASE_DIR, 'uploads'))
+        upload_to=os.path.join('media', 'edc_export', 'uploads'))
 
     file_name = models.CharField(
         max_length=50, null=True, editable=False, unique=True)
@@ -43,7 +41,8 @@ class UploadExportReceiptFile(BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.file_name = self.export_receipt_file.name.replace('\\', '/').split('/')[-1]
+            self.file_name = self.export_receipt_file.name.replace(
+                '\\', '/').split('/')[-1]
             self.update_export_history()
         super(UploadExportReceiptFile, self).save(*args, **kwargs)
 
@@ -51,7 +50,9 @@ class UploadExportReceiptFile(BaseUuidModel):
         return (self.file_name, )
 
     def update_export_history(self):
-        """Reads the csv file and updates the export history for the given export_uuid."""
+        """Reads the csv file and updates the export history for
+        the given export_uuid.
+        """
         self.export_receipt_file.open()
         reader = csv.reader(self.export_receipt_file)
         re_pk = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}')
@@ -65,7 +66,8 @@ class UploadExportReceiptFile(BaseUuidModel):
                     elif ExportHistory.objects.filter(export_uuid=item, received=True):
                         self.duplicate += 1
                     else:
-                        export_history = ExportHistory.objects.get(export_uuid=item)
+                        export_history = ExportHistory.objects.get(
+                            export_uuid=item)
                         export_history.received = True
                         export_history.received_datetime = datetime.today()
                         export_history.save()

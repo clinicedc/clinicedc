@@ -2,9 +2,8 @@ from uuid import uuid4
 
 from django.db import models
 from django.utils import timezone
-
-from edc_base.model.fields import UUIDAutoField
-from edc_base.model.models import BaseUuidModel, HistoricalRecords
+from edc_base.model_mixins import BaseUuidModel
+from edc_base.model_managers import HistoricalRecords
 
 
 class ExportHistoryManager(models.Manager):
@@ -15,16 +14,13 @@ class ExportHistoryManager(models.Manager):
 
 class ExportHistory(BaseUuidModel):
 
-    history_uuid = UUIDAutoField(
+    history_uuid = models.UUIDField(
         editable=False,
         default=uuid4,
         unique=True,
         help_text="system field for export tracking.")
 
-    app_label = models.CharField(
-        max_length=50)
-
-    model_name = models.CharField(
+    model = models.CharField(
         max_length=50)
 
     export_uuid_list = models.TextField(
@@ -43,11 +39,11 @@ class ExportHistory(BaseUuidModel):
         null=True,
         help_text='0=success, 1=failed from the export_transactions command')
 
-    export_filename = models.CharField(
+    filename = models.CharField(
         max_length=250,
         help_text='original filename on export')
 
-    export_file_contents = models.TextField(
+    file_contents = models.TextField(
         null=True,
         help_text='save contents of file as a list of rows')
 
@@ -96,5 +92,4 @@ class ExportHistory(BaseUuidModel):
         return (self.history_uuid, )
 
     class Meta:
-        app_label = 'edc_export'
         ordering = ('-sent_datetime', )

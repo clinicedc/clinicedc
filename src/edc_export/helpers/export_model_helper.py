@@ -11,14 +11,14 @@ from .export_helper import ExportHelper
 
 class ExportModelHelper(ExportHelper):
 
-    def __init__(self, export_plan, app_label, model_name, exception_cls=None, notify=None):
+    def __init__(self, app_label=None, model_name=None, **kwargs):
+        super().__init__(**kwargs)
         self.app_label = app_label
         self.model_name = model_name
-        super(ExportModelHelper, self).__init__(
-            export_plan, exception_cls=exception_cls, notify=notify)
 
     def reset(self):
-        """Resets instance attr."""
+        """Resets instance attr.
+        """
         self._transactions = []
         self.export_datetime = None
         self.export_filename = None
@@ -26,7 +26,8 @@ class ExportModelHelper(ExportHelper):
 
     @property
     def transactions(self):
-        """Prepares a list of transactions to export."""
+        """Prepares a list of transactions to export.
+        """
         if not self._transactions:
             self.app_label = self.export_plan.app_label
             self.model_name = self.export_plan.object_name

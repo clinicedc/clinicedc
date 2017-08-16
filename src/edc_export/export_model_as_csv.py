@@ -2,10 +2,10 @@ import csv
 
 from django.http import HttpResponse
 
-from .base_export_model import BaseExportModel
+from .export_model import ExportModel
 
 
-class ExportAsCsv(BaseExportModel):
+class ExportModelAsCsv(ExportModel):
 
     @property
     def file_obj(self):
@@ -31,5 +31,6 @@ class ExportAsCsv(BaseExportModel):
             export_uuid_list.append(self.row_instance.export_uuid)
             export_file_contents.append(row)
         if self.track_history:
-            self.update_export_history(exported_pk_list, export_uuid_list, export_file_contents)
+            self.update_export_history(
+                exported_pk_list, export_uuid_list, export_file_contents)
         return self.file_obj

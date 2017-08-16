@@ -1,7 +1,6 @@
 from django.db import models
-
-from edc_base.model.fields import UUIDAutoField
-from edc_base.model.models import BaseUuidModel, HistoricalRecords
+from edc_base.model_mixins import BaseUuidModel
+from edc_base.model_managers import HistoricalRecords
 
 
 class ExportReceiptManager(models.Manager):
@@ -12,14 +11,11 @@ class ExportReceiptManager(models.Manager):
 
 class ExportReceipt(BaseUuidModel):
 
-    export_uuid = UUIDAutoField(
+    export_uuid = models.UUIDField(
         editable=False,
         help_text="system field for export tracking.")
 
-    app_label = models.CharField(
-        max_length=64)
-
-    model_name = models.CharField(
+    model = models.CharField(
         max_length=64)
 
     tx_pk = models.CharField(
@@ -38,11 +34,10 @@ class ExportReceipt(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return '{} {}'.format(self.model_name, self.export_uuid)
+        return f'{self.model_name}.{self.export_uuid}'
 
     def natural_key(self):
         return (self.export_uuid, )
 
     class Meta:
-        app_label = 'edc_export'
         ordering = ('-timestamp', )

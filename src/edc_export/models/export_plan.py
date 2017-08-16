@@ -1,6 +1,6 @@
 from django.db import models
-
-from edc_base.model.models import BaseUuidModel, HistoricalRecords
+from edc_base.model_mixins import BaseUuidModel
+from edc_base.model_managers import HistoricalRecords
 
 
 class ExportPlanManager(models.Manager):
@@ -11,9 +11,7 @@ class ExportPlanManager(models.Manager):
 
 class ExportPlan(BaseUuidModel):
 
-    app_label = models.CharField(max_length=50)
-
-    model_name = models.CharField(max_length=50)
+    model = models.CharField(max_length=50, unique=True)
 
     fields = models.TextField(max_length=500)
 
@@ -42,11 +40,7 @@ class ExportPlan(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return '{}.{}'.format(self.app_label, self.model_name)
+        return self.model
 
     def natural_key(self):
         return (self.app_label, self.model_name, )
-
-    class Meta:
-        app_label = 'edc_export'
-        unique_together = (('app_label', 'model_name'), )

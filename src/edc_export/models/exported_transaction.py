@@ -1,30 +1,29 @@
 from django.core.urlresolvers import reverse
 from django.db import models
+from django_crypto_fields.fields import EncryptedTextField
+from edc_base.model_managers import HistoricalRecords
+from edc_base.model_mixins import BaseUuidModel
+from edc_constants.constants import CLOSED, NEW
 
-from edc_base.model.models import BaseUuidModel, HistoricalRecords
-from edc_constants.constants import CLOSED
-
-from ..model_mixins import ExportTrackingFieldsMixin
+from ..model_mixins import ExportTrackingFieldsModelMixin
+from ..constants import EXPORTED, CANCELLED
 
 
-class ExportTransactionManager(models.Manager):
+class ExportedTransactionManager(models.Manager):
 
     def get_by_natural_key(self, export_uuid):
         return self.get(export_uuid=export_uuid)
 
 
-class ExportTransaction(ExportTrackingFieldsMixin, BaseUuidModel):
+class ExportedTransaction(ExportTrackingFieldsModelMixin, BaseUuidModel):
 
-    tx = models.TextField()
+    model = models.CharField(max_length=64)
 
-    app_label = models.CharField(
-        max_length=64)
+    tx_pk = models.UUIDField()
 
-    model_name = models.CharField(
-        max_length=64)
+    tx = EncryptedTextField()
 
-    tx_pk = models.CharField(
-        max_length=36)
+    exported_datetime = models.DateTimeField()
 
     timestamp = models.CharField(
         max_length=50,
@@ -33,12 +32,12 @@ class ExportTransaction(ExportTrackingFieldsMixin, BaseUuidModel):
 
     status = models.CharField(
         max_length=15,
-        default='new',
+        default=NEW,
         choices=(
-            ('new', 'New'),
-            ('exported', 'Exported'),
+            (NEW, 'New'),
+            (EXPORTED, 'Exported'),
             (CLOSED, 'Closed'),
-            ('cancelled', 'Cancelled')),
+            (CANCELLED, 'Cancelled')),
         help_text='exported by export_transactions, closed by import_receipts')
 
     received = models.BooleanField(
@@ -56,12 +55,12 @@ class ExportTransaction(ExportTrackingFieldsMixin, BaseUuidModel):
     is_error = models.BooleanField(
         default=False)
 
-    objects = ExportTransactionManager()
+    objects = ExportedTransactionManager()
 
     history = HistoricalRecords()
 
     def __str__(self):
-        return '{} {} {}'.format(self.model_name, self.status, self.export_uuid)
+        return f'{self.model_name} {self.status} {self.export_uuid}'
 
     def natural_key(self):
         return (self.export_uuid, )
@@ -71,12 +70,11 @@ class ExportTransaction(ExportTrackingFieldsMixin, BaseUuidModel):
                       kwargs={'app_label': self._meta.app_label,
                               'model_name': self._meta.model_name.lower(),
                               'pk': self.pk})
-        ret = ('<a href="{url}" class="add-another" id="add_id_report" onclick="return '
+        ret = (f'<a href="{url}" class="add-another" id="add_id_report" onclick="return '
                'showAddAnotherPopup(this);"> <img src="/static/admin/img/icon_addlink.gif" '
-               'width="10" height="10" alt="View transaction"/></a>').format(url=url)
+               'width="10" height="10" alt="View transaction"/></a>')
         return ret
     render.allow_tags = True
 
     class Meta:
-        app_label = 'edc_export'
         ordering = ('-timestamp', )

@@ -11,9 +11,9 @@ class ExportJsonAsCsv(BaseExportModel):
         self.target_path = target_path
         self.export_datetime = export_datetime
         self.remove_duplicates = remove_duplicates
-        super(ExportJsonAsCsv, self).__init__(queryset, model, modeladmin, fields, exclude, extra_fields, header,
-                                              track_history, show_all_fields, delimiter, encrypt, strip,
-                                              notification_plan_name, export_datetime)
+        super().__init__(queryset, model, modeladmin, fields, exclude, extra_fields, header,
+                         track_history, show_all_fields, delimiter, encrypt, strip,
+                         notification_plan_name, export_datetime)
 
     @property
     def row_instance(self):
