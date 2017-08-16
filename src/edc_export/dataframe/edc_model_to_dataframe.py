@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+from django.apps import apps as django_apps
+
 
 class EdcModelToDataFrame(object):
     """
@@ -13,7 +15,10 @@ class EdcModelToDataFrame(object):
         self.exclude_encrypted_fields = False if exclude_encrypted_fields is None else exclude_encrypted_fields
         query_filter = query_filter or {}
         qs = queryset or model.objects.all()
-        self.model = model or qs.model
+        try:
+            self.model = django_apps.get_model(*model.split('.'))
+        except AttributeError:
+            self.model = model or qs.model
         columns = self.columns(qs, add_columns_for)
         qs = qs.values_list(*columns.keys()).filter(**query_filter)
         self.dataframe = pd.DataFrame(list(qs), columns=columns.keys())
