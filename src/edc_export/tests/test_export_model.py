@@ -8,7 +8,7 @@ from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 
 from ..constants import EXPORTED, UPDATE, INSERT
-from ..model_exporter import ModelExporter, ModelExporterInvalidLookup
+from ..model_exporter import ModelExporter, ValueGetterInvalidLookup
 from ..models import ObjectHistory, FileHistory
 from .models import Crf, SubjectVisit, ListModel, CrfEncrypted
 
@@ -175,7 +175,7 @@ class TesExportModel(TestCase):
             queryset=queryset,
             lookups={'subject_visit': 'blah__blah'})
         self.assertRaises(
-            ModelExporterInvalidLookup,
+            ValueGetterInvalidLookup,
             model_exporter.export)
 
     @tag('1')

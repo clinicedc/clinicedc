@@ -1,16 +1,14 @@
 import csv
 import os
-import string
 import uuid
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from django.db.models.constants import LOOKUP_SEP
-from django_crypto_fields.fields import BaseField as BaseEncryptedField
 from edc_base.utils import get_utcnow
 
 from .file_history_updater import FileHistoryUpdater
 from .object_history_helpers import ObjectHistoryHelper
+from .value_getter import ValueGetter
 
 app_config = django_apps.get_app_config('edc_export')
 
@@ -38,12 +36,11 @@ class AdditionalValues:
 class ModelExporter(object):
 
     delimiter = '|'
-    m2m_delimiter = ';'
     file_history_updater_cls = FileHistoryUpdater
     object_history_helper_cls = ObjectHistoryHelper
+    value_getter_cls = ValueGetter
     additional_values_cls = AdditionalValues
     export_folder = app_config.export_folder
-    encrypted_label = '<encrypted>'
 
     export_fields = [
         'export_uuid', 'timestamp', 'export_datetime', 'export_change_type']
@@ -135,20 +132,14 @@ class ModelExporter(object):
         additional_values = self.additional_values_cls(
             export_datetime=exported_datetime)
         row = {}
-        value = None
         for field_name in self.field_names:
-            try:
-                value = self.get_field_value(model_obj, field_name)
-            except ModelExporterUnknownField as e:
-                try:
-                    value = getattr(model_obj, e.code)
-                except AttributeError:
-
-                    value = getattr(additional_values, e.code)
-            if value is None:
-                value = ''
-            value = self.strip_value(value)
-            row.update({field_name: value})
+            value_getter = self.value_getter_cls(
+                field_name=field_name,
+                model_obj=model_obj,
+                additional_values=additional_values,
+                lookups=self.lookups,
+                encrypt=self.encrypt)
+            row.update({field_name: value_getter.value})
             row['exported'] = True
             row['exported_datetime'] = exported_datetime
             row['timestamp'] = exported_datetime.strftime('%Y%m%d%H%M%S')
@@ -163,62 +154,3 @@ class ModelExporter(object):
         formatted_model = self.model_cls._meta.label_lower.replace(".", "_")
         formatted_date = exported_datetime.strftime('%Y%m%d%H%M%S')
         return f'{formatted_model}_{formatted_date}.csv'
-
-    def get_field_value(self, model_obj=None, field_name=None):
-        """Returns a field value.
-        """
-        value = ''
-        for f in model_obj.__class__._meta.fields:
-            if f.name == field_name and issubclass(f.__class__, BaseEncryptedField) and self.encrypt:
-                value = self.encrypted_label
-        if value != self.encrypted_label:
-            try:
-                value = self.getattr(model_obj, field_name)
-            except AttributeError:
-                if field_name in self.lookups:
-                    value = self.get_lookup_value(
-                        model_obj=model_obj,
-                        field_name=field_name)
-                elif field_name in self.m2m_field_names:
-                    value = self.get_m2m_value(model_obj, field_name)
-                else:
-                    raise ModelExporterUnknownField(
-                        f'Unknown field name. Got {field_name}.', code=field_name)
-        return value
-
-    def get_lookup_value(self, model_obj=None, field_name=None):
-        """Returns the field value by following the lookup string
-        to a related instance.
-        """
-        value = model_obj
-        lookup_string = self.lookups.get(field_name)
-        for attr in lookup_string.split(LOOKUP_SEP):
-            try:
-                value = getattr(value, attr)
-            except AttributeError:
-                raise ModelExporterInvalidLookup(
-                    f'Invalid lookup string. Got {lookup_string}')
-        return value
-
-    @property
-    def m2m_field_names(self):
-        """Returns the list of m2m field names for this model.
-        """
-        return [m2m.name for m2m in self.model_cls._meta.many_to_many]
-
-    def get_m2m_value(self, model_obj=None, field_name=None):
-        """Returns an m2m field value as a delimited string.
-        """
-        return self.m2m_delimiter.join(
-            [value.name for value in getattr(model_obj, field_name).all()])
-
-    def strip_value(self, value):
-        """Returns a string cleaned of \n\t\r and double spaces.
-        """
-        try:
-            value = value.replace(string.whitespace, ' ')
-        except (TypeError, AttributeError):
-            pass
-        else:
-            value = ' '.join(value.split())
-        return value
