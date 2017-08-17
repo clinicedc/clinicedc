@@ -40,7 +40,7 @@ class ValueGetter:
         self.additional_values = additional_values
         self.field_name = field_name
         self.model_obj = model_obj
-        self.lookups = lookups
+        self.lookups = lookups or {}
         self.model_cls = self.model_obj.__class__
         self.encrypt = True if encrypt is None else encrypt
 
