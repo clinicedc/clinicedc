@@ -1,17 +1,11 @@
-from django.apps import apps as django_apps
-from django.core import serializers
 from django.db import models
-from edc_constants.constants import NEW
-from edc_base.utils import get_utcnow
+
+from .model_exporter import TransactionHistoryCreator
 
 
 class ExportHistoryManager(models.Manager):
 
-    transaction_history_model = 'edc_export.exportedtransaction'
-
-    @property
-    def transaction_history_model_model_cls(self):
-        return django_apps.get_model(self.transaction_history_model)
+    tx_creator = TransactionHistoryCreator()
 
     def serialize_to_export_transaction(self, instance, change_type,
                                         using, force_export=False):
@@ -32,22 +26,7 @@ class ExportHistoryManager(models.Manager):
             else:
                 raise
         if ready_to_export_transaction:
-            if instance._meta.proxy_for_model:  # if this is a proxy model, get to the main model
-                instance = instance._meta.proxy_for_model.objects.get(
-                    id=instance.id)
-            json_tx = serializers.serialize(
-                "json", [instance, ],
-                ensure_ascii=True,
-                use_natural_foreign_keys=True,
-                use_natural_primary_keys=False)
-            export_datetime = get_utcnow()
-            return self.transaction_history_model_model_cls.objects.using(using).create(
-                model=instance._meta.label_lower,
-                tx_pk=instance.id,
-                export_change_type=change_type,
-                exported=False,
-                export_uuid=instance.export_uuid,
-                status=NEW,
-                tx=json_tx,
-                exported_datetime=export_datetime,
-                timestamp=export_datetime.strftime('%Y%m%d%H%M%S%f'))
+            self.tx_creator.create(
+                model_obj=instance,
+                change_type=change_type,
+                using=using)

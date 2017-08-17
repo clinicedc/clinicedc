@@ -1,3 +1,3 @@
 from .model_exporter import ModelExporter, ModelExporterError
 from .model_exporter import ModelExporterInvalidLookup, ModelExporterUnknownField
-from .transaction_history_updater import TransactionHistoryUpdater
+from .transaction_history_helpers import TransactionHistoryCreator

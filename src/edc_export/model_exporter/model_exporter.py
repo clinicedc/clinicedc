@@ -9,9 +9,10 @@ from django.db.models.constants import LOOKUP_SEP
 from django_crypto_fields.fields import BaseField as BaseEncryptedField
 from edc_base.utils import get_utcnow
 
+from ..constants import EXPORTED
 from .export_history_updater import ExportHistoryUpdater
-from .transaction_history_updater import TransactionHistoryUpdater
-from edc_export.constants import EXPORTED
+from edc_export.model_exporter.transaction_history_helpers import TransactionHistoryGetter,\
+    TransactionHistoryHelper
 
 app_config = django_apps.get_app_config('edc_export')
 
@@ -41,6 +42,7 @@ class ModelExporter(object):
     delimiter = '|'
     m2m_delimiter = ';'
     export_history_updater_cls = ExportHistoryUpdater
+    transaction_history_helper_cls = TransactionHistoryHelper
     transaction_history_model = 'edc_export.exportedtransaction'
     additional_values_cls = AdditionalValues
     export_folder = app_config.export_folder
@@ -109,27 +111,25 @@ class ModelExporter(object):
         """Writes the export file and returns the file name.
         """
         self.queryset = queryset or self.queryset
-        export_datetime = get_utcnow()
-        formatted_model = self.model_cls._meta.label_lower.replace(".", "_")
-        formatted_date = export_datetime.strftime('%Y%m%d%H%M%S')
-        filename = f'{formatted_model}_{formatted_date}.csv'
+        exported_datetime = get_utcnow()
+        filename = self.get_filename(exported_datetime)
         path = os.path.join(self.export_folder, filename)
         with open(path, 'w') as f:
             csv_writer = csv.DictWriter(
                 f, fieldnames=self.field_names, delimiter=self.delimiter)
             csv_writer.writeheader()
             for model_obj in self.queryset:
-                row = self.prepare_row(model_obj, export_datetime)
-                row['timestamp'] = formatted_date
-                tx_obj = self.transaction_history_model_cls.objects.get(
-                    export_uuid=model_obj.export_uuid)
-                row['export_change_type'] = tx_obj.export_change_type
-                row['export_uuid'] = tx_obj.export_uuid
-                csv_writer.writerow(row)
-                tx_obj.status = EXPORTED
-                tx_obj.exported_datetime = export_datetime
-                tx_obj.timestamp = formatted_date
-                tx_obj.save()
+                tx_helper = self.transaction_history_helper_cls(
+                    model_obj=model_obj, create=True)
+                tx_objects = tx_helper.get_not_exported()
+                for tx_obj in tx_objects:
+                    row = self.prepare_row(
+                        model_obj=model_obj,
+                        exported_datetime=exported_datetime,
+                        export_change_type=tx_obj.export_change_type)
+                    csv_writer.writerow(row)
+                tx_helper.update_as_exported(
+                    tx_objects=tx_objects, exported_datetime=exported_datetime)
         export_history_updater = self.export_history_updater_cls(
             path=path,
             delimiter=self.delimiter,
@@ -139,11 +139,11 @@ class ModelExporter(object):
         export_history_updater.update()
         return path
 
-    def prepare_row(self, model_obj=None, export_datetime=None):
+    def prepare_row(self, model_obj=None, exported_datetime=None, export_change_type=None):
         """Returns one row for the CSV writer.
         """
         additional_values = self.additional_values_cls(
-            export_datetime=export_datetime)
+            export_datetime=exported_datetime)
         row = {}
         value = None
         for field_name in self.field_names:
@@ -159,7 +159,20 @@ class ModelExporter(object):
                 value = ''
             value = self.strip_value(value)
             row.update({field_name: value})
+            row['exported'] = True
+            row['exported_datetime'] = exported_datetime
+            row['timestamp'] = exported_datetime.strftime('%Y%m%d%H%M%S')
+            row['export_uuid'] = model_obj.export_uuid
+            row['export_change_type'] = export_change_type
         return row
+
+    def get_filename(self, exported_datetime=None):
+        """Returns a CSV filename using the model label lower
+        and the exported date.
+        """
+        formatted_model = self.model_cls._meta.label_lower.replace(".", "_")
+        formatted_date = exported_datetime.strftime('%Y%m%d%H%M%S')
+        return f'{formatted_model}_{formatted_date}.csv'
 
     def get_field_value(self, model_obj=None, field_name=None):
         """Returns a field value.

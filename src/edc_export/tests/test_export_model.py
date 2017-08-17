@@ -3,6 +3,7 @@ import os
 import uuid
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 
@@ -10,7 +11,6 @@ from ..constants import EXPORTED, UPDATE, INSERT
 from ..model_exporter import ModelExporter, ModelExporterInvalidLookup
 from ..models import ExportHistory, ExportedTransaction
 from .models import Crf, SubjectVisit, ListModel, CrfEncrypted
-from django.core.exceptions import ObjectDoesNotExist
 
 app_config = django_apps.get_app_config('edc_export')
 
@@ -19,10 +19,27 @@ class TesExportModel(TestCase):
 
     path = app_config.export_folder
 
+    def setUp(self):
+        self.thing_one = ListModel.objects.create(
+            name='thing_one', short_name='thing_one')
+        self.thing_two = ListModel.objects.create(
+            name='thing_two', short_name='thing_two')
+        self.subject_visit = SubjectVisit.objects.create(
+            subject_identifier='12345',
+            report_datetime=get_utcnow())
+        self.crf = Crf.objects.create(
+            subject_visit=self.subject_visit,
+            char1='char',
+            date1=get_utcnow(),
+            int1=1,
+            uuid1=uuid.uuid4())
+
     def tearDown(self):
+        """Remove .csv files created in tests.
+        """
         super().tearDown()
         if 'edc_export' not in self.path:
-            raise ValueError
+            raise ValueError(f'Invalid path in test. Got {self.path}')
         files = os.listdir(self.path)
         for file in files:
             if '.csv' in file:
@@ -35,6 +52,7 @@ class TesExportModel(TestCase):
 
     @tag('1')
     def test_queryset_no_data(self):
+        Crf.objects.all().delete()
         queryset = Crf.objects.all()
         self.assertEqual(queryset.model, Crf)
         ModelExporter(queryset=queryset)
@@ -43,6 +61,7 @@ class TesExportModel(TestCase):
     def test_export_file(self):
         """Assert creates file.
         """
+        Crf.objects.all().delete()
         queryset = Crf.objects.all()
         self.assertEqual(queryset.model, Crf)
         model_exporter = ModelExporter(queryset=queryset)
@@ -52,6 +71,7 @@ class TesExportModel(TestCase):
 
     @tag('1')
     def test_field_names(self):
+        Crf.objects.all().delete()
         queryset = Crf.objects.all()
         self.assertEqual(queryset.model, Crf)
         model_exporter = ModelExporter(queryset=queryset)
@@ -69,8 +89,8 @@ class TesExportModel(TestCase):
 
     @tag('1')
     def test_field_names_with_excluded(self):
+        Crf.objects.all().delete()
         queryset = Crf.objects.all()
-        self.assertEqual(queryset.model, Crf)
         model_exporter = ModelExporter(
             queryset=queryset,
             exclude_field_names=['date1', 'uuid1'])
@@ -88,8 +108,8 @@ class TesExportModel(TestCase):
 
     @tag('1')
     def test_field_names_provided(self):
+        Crf.objects.all().delete()
         queryset = Crf.objects.all()
-        self.assertEqual(queryset.model, Crf)
         model_exporter = ModelExporter(
             queryset=queryset, field_names=['char1'])
         self.assertIn('char1', model_exporter.field_names)
@@ -106,17 +126,7 @@ class TesExportModel(TestCase):
 
     @tag('1')
     def test_with_queryset(self):
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier='12345',
-            report_datetime=get_utcnow())
-        Crf.objects.create(
-            subject_visit=subject_visit,
-            char1='char',
-            date1=get_utcnow(),
-            int1=1,
-            uuid1=uuid.uuid4())
         queryset = Crf.objects.all()
-        self.assertEqual(queryset.model, Crf)
         model_exporter = ModelExporter(queryset=queryset)
         path = model_exporter.export()
         with open(path, 'r') as f:
@@ -126,17 +136,7 @@ class TesExportModel(TestCase):
 
     @tag('1')
     def test_header_row(self):
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier='12345',
-            report_datetime=get_utcnow())
-        Crf.objects.create(
-            subject_visit=subject_visit,
-            char1='char',
-            date1=get_utcnow(),
-            int1=1,
-            uuid1=uuid.uuid4())
         queryset = Crf.objects.all()
-        self.assertEqual(queryset.model, Crf)
         model_exporter = ModelExporter(
             queryset=queryset,
             lookups={'subject_visit': 'subject_visit__report_datetime'})
@@ -149,17 +149,7 @@ class TesExportModel(TestCase):
 
     @tag('1')
     def test_values_row(self):
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier='12345',
-            report_datetime=get_utcnow())
-        Crf.objects.create(
-            subject_visit=subject_visit,
-            char1='char',
-            date1=get_utcnow(),
-            int1=1,
-            uuid1=uuid.uuid4())
         queryset = Crf.objects.all()
-        self.assertEqual(queryset.model, Crf)
         model_exporter = ModelExporter(
             queryset=queryset,
             lookups={'subject_visit': 'subject_visit__report_datetime'})
@@ -172,17 +162,7 @@ class TesExportModel(TestCase):
 
     @tag('1')
     def test_lookup(self):
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier='12345',
-            report_datetime=get_utcnow())
-        Crf.objects.create(
-            subject_visit=subject_visit,
-            char1='char',
-            date1=get_utcnow(),
-            int1=1,
-            uuid1=uuid.uuid4())
         queryset = Crf.objects.all()
-        self.assertEqual(queryset.model, Crf)
         model_exporter = ModelExporter(
             queryset=queryset,
             lookups={'subject_visit': 'subject_visit__report_datetime'})
@@ -190,15 +170,6 @@ class TesExportModel(TestCase):
 
     @tag('1')
     def test_invalid_lookup_raises(self):
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier='12345',
-            report_datetime=get_utcnow())
-        Crf.objects.create(
-            subject_visit=subject_visit,
-            char1='char',
-            date1=get_utcnow(),
-            int1=1,
-            uuid1=uuid.uuid4())
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
@@ -209,21 +180,8 @@ class TesExportModel(TestCase):
 
     @tag('1')
     def test_m2m(self):
-        thing_one = ListModel.objects.create(
-            name='thing_one', short_name='thing_one')
-        thing_two = ListModel.objects.create(
-            name='thing_two', short_name='thing_two')
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier='12345',
-            report_datetime=get_utcnow())
-        crf = Crf.objects.create(
-            subject_visit=subject_visit,
-            char1='char',
-            date1=get_utcnow(),
-            int1=1,
-            uuid1=uuid.uuid4())
-        crf.m2m.add(thing_one)
-        crf.m2m.add(thing_two)
+        self.crf.m2m.add(self.thing_one)
+        self.crf.m2m.add(self.thing_two)
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(queryset=queryset)
         path = model_exporter.export()
@@ -271,21 +229,8 @@ class TesExportModel(TestCase):
 
     @tag('1')
     def test_export_history(self):
-        thing_one = ListModel.objects.create(
-            name='thing_one', short_name='thing_one')
-        thing_two = ListModel.objects.create(
-            name='thing_two', short_name='thing_two')
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier='12345',
-            report_datetime=get_utcnow())
-        crf = Crf.objects.create(
-            subject_visit=subject_visit,
-            char1='char',
-            date1=get_utcnow(),
-            int1=1,
-            uuid1=uuid.uuid4())
-        crf.m2m.add(thing_one)
-        crf.m2m.add(thing_two)
+        self.crf.m2m.add(self.thing_one)
+        self.crf.m2m.add(self.thing_two)
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(queryset=queryset)
         path = model_exporter.export()
@@ -297,107 +242,84 @@ class TesExportModel(TestCase):
         self.assertFalse(obj.sent_datetime)
         self.assertFalse(obj.received)
         self.assertFalse(obj.received_datetime)
-        self.assertIn(str(crf.pk), obj.pk_list)
+        self.assertIn(str(self.crf.pk), obj.pk_list)
 
     @tag('1')
     def test_export_transaction(self):
-        thing_one = ListModel.objects.create(
-            name='thing_one', short_name='thing_one')
-        thing_two = ListModel.objects.create(
-            name='thing_two', short_name='thing_two')
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier='12345',
-            report_datetime=get_utcnow())
-        crf = Crf.objects.create(
-            subject_visit=subject_visit,
-            char1='char',
-            date1=get_utcnow(),
-            int1=1,
-            uuid1=uuid.uuid4())
-        crf.m2m.add(thing_one)
-        crf.m2m.add(thing_two)
+        self.crf.m2m.add(self.thing_one)
+        self.crf.m2m.add(self.thing_two)
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(queryset=queryset)
         path = model_exporter.export()
         history_obj = ExportHistory.objects.get(
             filename=os.path.basename(path))
-        tx_obj = ExportedTransaction.objects.get(tx_pk=crf.pk)
+        tx_obj = ExportedTransaction.objects.get(tx_pk=self.crf.pk)
         self.assertIn(str(tx_obj.export_uuid), history_obj.export_uuid_list)
         self.assertEqual(tx_obj.status, EXPORTED)
 
     @tag('1')
-    def test_export_change_type(self):
-        thing_one = ListModel.objects.create(
-            name='thing_one', short_name='thing_one')
-        thing_two = ListModel.objects.create(
-            name='thing_two', short_name='thing_two')
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier='12345',
-            report_datetime=get_utcnow())
-        crf = Crf.objects.create(
-            subject_visit=subject_visit,
-            char1='char',
-            date1=get_utcnow(),
-            int1=1,
-            uuid1=uuid.uuid4())
-        crf.m2m.add(thing_one)
-        crf.m2m.add(thing_two)
+    def test_export_change_type_insert(self):
+        self.crf.m2m.add(self.thing_one)
+        self.crf.m2m.add(self.thing_two)
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(queryset=queryset)
         model_exporter.export()
         model_exporter = ModelExporter(queryset=queryset)
         model_exporter.export()
         tx_qs = ExportedTransaction.objects.filter(
-            tx_pk=crf.pk).order_by('exported_datetime')
+            tx_pk=self.crf.pk).order_by('exported_datetime')
         self.assertEqual(tx_qs[0].export_change_type, INSERT)
-        # self.assertEqual(tx_qs[1].export_change_type, UPDATE)
+
+    @tag('1')
+    def test_export_change_type_update(self):
+        self.crf.m2m.add(self.thing_one)
+        self.crf.m2m.add(self.thing_two)
+        self.crf.date1 = get_utcnow()
+        self.crf.save()
+        queryset = Crf.objects.all()
+        model_exporter = ModelExporter(queryset=queryset)
+        model_exporter.export()
+        model_exporter = ModelExporter(queryset=queryset)
+        model_exporter.export()
+        tx_qs = ExportedTransaction.objects.filter(
+            tx_pk=self.crf.pk).order_by('exported_datetime')
+        self.assertEqual(tx_qs[0].export_change_type, INSERT)
+        self.assertEqual(tx_qs[1].export_change_type, UPDATE)
 
     @tag('1')
     def test_export_change_type_in_csv(self):
-        thing_one = ListModel.objects.create(
-            name='thing_one', short_name='thing_one')
-        thing_two = ListModel.objects.create(
-            name='thing_two', short_name='thing_two')
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier='12345',
-            report_datetime=get_utcnow())
-        crf = Crf.objects.create(
-            subject_visit=subject_visit,
-            char1='char',
-            date1=get_utcnow(),
-            int1=1,
-            uuid1=uuid.uuid4())
-        crf.m2m.add(thing_one)
-        crf.m2m.add(thing_two)
+        self.crf.m2m.add(self.thing_one)
+        self.crf.m2m.add(self.thing_two)
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(queryset=queryset)
         path = model_exporter.export()
         with open(path, 'r') as f:
-            csv_reader = csv.reader(f)
+            csv_reader = csv.DictReader(f, delimiter='|')
             rows = [row for row in enumerate(csv_reader)]
-        values_row = rows[1][1][0]
-        self.assertIn(f'|{INSERT}|', values_row)
-#         model_exporter = ModelExporter(queryset=queryset)
-#         path = model_exporter.export()
-#         with open(path, 'r') as f:
-#             csv_reader = csv.reader(f)
-#             rows = [row for row in enumerate(csv_reader)]
-#         values_row = rows[1][1][0]
-#         self.assertIn(f'|{UPDATE}|', values_row)
+        values_row = rows[0][1]
+        self.assertEqual(INSERT, values_row.get('export_change_type'))
+
+    @tag('1')
+    def test_export_change_type_in_csv_update(self):
+        self.crf.m2m.add(self.thing_one)
+        self.crf.m2m.add(self.thing_two)
+        self.crf.date1 = get_utcnow()
+        self.crf.save()
+        queryset = Crf.objects.all()
+        model_exporter = ModelExporter(queryset=queryset)
+        path = model_exporter.export()
+        with open(path, 'r') as f:
+            csv_reader = csv.DictReader(f, delimiter='|')
+            rows = [row for row in enumerate(csv_reader)]
+        values_row = rows[0][1]
+        self.assertEqual(INSERT, values_row.get('export_change_type'))
+        values_row = rows[1][1]
+        self.assertEqual(UPDATE, values_row.get('export_change_type'))
 
     @tag('1')
     def test_manager_creates_exported_tx(self):
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier='12345',
-            report_datetime=get_utcnow())
-        obj = Crf.objects.create(
-            subject_visit=subject_visit,
-            char1='char',
-            date1=get_utcnow(),
-            int1=1,
-            uuid1=uuid.uuid4())
         try:
-            tx_obj = ExportedTransaction.objects.get(tx_pk=obj.pk)
+            tx_obj = ExportedTransaction.objects.get(tx_pk=self.crf.pk)
         except ObjectDoesNotExist:
             self.fail('ExportedTransaction unexpectedly does not exist.')
         self.assertEqual(tx_obj.export_change_type, INSERT)
