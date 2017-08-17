@@ -4,9 +4,9 @@ import re
 
 from datetime import datetime
 from django.db import models
-from django.conf import settings
 from edc_base.model_mixins import BaseUuidModel
-from edc_export.models import ExportHistory
+
+from .file_history import FileHistory
 
 
 class UploadExportReceiptFileManager(models.Manager):
@@ -43,13 +43,13 @@ class UploadExportReceiptFile(BaseUuidModel):
         if not self.id:
             self.file_name = self.export_receipt_file.name.replace(
                 '\\', '/').split('/')[-1]
-            self.update_export_history()
+            self.update_file_history()
         super(UploadExportReceiptFile, self).save(*args, **kwargs)
 
     def natural_key(self):
         return (self.file_name, )
 
-    def update_export_history(self):
+    def update_file_history(self):
         """Reads the csv file and updates the export history for
         the given export_uuid.
         """
@@ -61,16 +61,16 @@ class UploadExportReceiptFile(BaseUuidModel):
             self.total += 1
             for item in row:
                 if re.match(re_pk, item):  # match a row item on uuid
-                    if not ExportHistory.objects.filter(export_uuid=item):
+                    if not FileHistory.objects.filter(export_uuid=item):
                         error_list.append(item)
-                    elif ExportHistory.objects.filter(export_uuid=item, received=True):
+                    elif FileHistory.objects.filter(export_uuid=item, received=True):
                         self.duplicate += 1
                     else:
-                        export_history = ExportHistory.objects.get(
+                        file_history = FileHistory.objects.get(
                             export_uuid=item)
-                        export_history.received = True
-                        export_history.received_datetime = datetime.today()
-                        export_history.save()
+                        file_history.received = True
+                        file_history.received_datetime = datetime.today()
+                        file_history.save()
                         self.accepted += 1
         self.errors = '; '.join(error_list)
 

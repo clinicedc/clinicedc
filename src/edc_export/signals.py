@@ -12,7 +12,7 @@ def export_transaction_history_on_post_save(sender, instance, raw, created, usin
     if not raw:
         try:
             change_type = INSERT if created else UPDATE
-            sender.export_history.serialize_to_export_transaction(
+            sender.export_history.serialize_to_exported_object_history(
                 instance, change_type, using=using)
         except AttributeError as e:
             if 'export_history' not in str(e):
@@ -24,7 +24,7 @@ def export_transaction_history_on_pre_delete(sender, instance, using, **kwargs):
     """Serializes the model instance, before deleting, to export
     history model if manager exists."""
     try:
-        sender.export_history.serialize_to_export_transaction(
+        sender.export_history.serialize_to_exported_object_history(
             instance, DELETE, using=using)
     except AttributeError as e:
         if 'export_history' not in str(e):

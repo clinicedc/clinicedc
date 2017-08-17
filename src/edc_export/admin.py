@@ -2,12 +2,12 @@ from django.contrib import admin
 
 # from .actions import export_file_contents, export_as_csv_action, export_tx_to_csv_action
 from .admin_site import edc_export_admin
-from .models import ExportHistory, ExportPlan, ExportReceipt
-from .models import ExportedTransaction, UploadExportReceiptFile
+from .models import ObjectHistory, ExportPlan, ExportReceipt
+from .models import FileHistory, UploadExportReceiptFile
 
 
-@admin.register(ExportHistory, site=edc_export_admin)
-class ExportHistoryAdmin (admin.ModelAdmin):
+@admin.register(FileHistory, site=edc_export_admin)
+class FileHistoryAdmin (admin.ModelAdmin):
 
     date_hierarchy = 'sent_datetime'
     list_display = (
@@ -38,8 +38,8 @@ class ExportReceiptAdmin (admin.ModelAdmin):
     search_fields = ('export_uuid', 'tx_pk', 'id')
 
 
-@admin.register(ExportedTransaction, site=edc_export_admin)
-class ExportedTransactionAdmin (admin.ModelAdmin):
+@admin.register(ObjectHistory, site=edc_export_admin)
+class ObjectHistoryAdmin (admin.ModelAdmin):
 
     date_hierarchy = 'created'
     list_display = (

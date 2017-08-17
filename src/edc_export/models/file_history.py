@@ -6,13 +6,13 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_base.model_managers import HistoricalRecords
 
 
-class ExportHistoryManager(models.Manager):
+class FileHistoryManager(models.Manager):
 
     def get_by_natural_key(self, history_uuid):
         return self.get(history_uuid=history_uuid)
 
 
-class ExportHistory(BaseUuidModel):
+class FileHistory(BaseUuidModel):
 
     history_uuid = models.UUIDField(
         editable=False,
@@ -78,7 +78,7 @@ class ExportHistory(BaseUuidModel):
     closed_datetime = models.DateTimeField(
         null=True)
 
-    objects = ExportHistoryManager()
+    objects = FileHistoryManager()
 
     history = HistoricalRecords()
 
@@ -86,7 +86,7 @@ class ExportHistory(BaseUuidModel):
         if self.sent and self.received and self.exported and not self.closed:
             self.closed = True
             self.closed_datetime = timezone.now()
-        super(ExportHistory, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def natural_key(self):
         return (self.history_uuid, )

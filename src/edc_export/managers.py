@@ -1,14 +1,14 @@
 from django.db import models
 
-from .model_exporter import TransactionHistoryCreator
+from .model_exporter import ObjectHistoryCreator
 
 
 class ExportHistoryManager(models.Manager):
 
-    tx_creator = TransactionHistoryCreator()
+    obj_creator = ObjectHistoryCreator()
 
-    def serialize_to_export_transaction(self, instance, change_type,
-                                        using, force_export=False):
+    def serialize_to_exported_object_history(self, instance, change_type,
+                                             using, force_export=False):
         """Serialize this instance to the export transaction model if ready.
 
         Be sure to inspect model property ready_to_export_transaction. ready_to_export_transaction can
@@ -26,7 +26,7 @@ class ExportHistoryManager(models.Manager):
             else:
                 raise
         if ready_to_export_transaction:
-            self.tx_creator.create(
+            self.obj_creator.create(
                 model_obj=instance,
                 change_type=change_type,
                 using=using)

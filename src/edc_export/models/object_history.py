@@ -9,13 +9,13 @@ from ..model_mixins import ExportTrackingFieldsModelMixin
 from ..constants import EXPORTED, CANCELLED
 
 
-class ExportedTransactionManager(models.Manager):
+class ObjectHistoryManager(models.Manager):
 
     def get_by_natural_key(self, export_uuid):
         return self.get(export_uuid=export_uuid)
 
 
-class ExportedTransaction(ExportTrackingFieldsModelMixin, BaseUuidModel):
+class ObjectHistory(ExportTrackingFieldsModelMixin, BaseUuidModel):
 
     model = models.CharField(max_length=64)
 
@@ -55,7 +55,7 @@ class ExportedTransaction(ExportTrackingFieldsModelMixin, BaseUuidModel):
     is_error = models.BooleanField(
         default=False)
 
-    objects = ExportedTransactionManager()
+    objects = ObjectHistoryManager()
 
     history = HistoricalRecords()
 

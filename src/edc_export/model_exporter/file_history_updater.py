@@ -4,9 +4,9 @@ from django.apps import apps as django_apps
 from edc_base.utils import get_utcnow
 
 
-class ExportHistoryUpdater:
+class FileHistoryUpdater:
 
-    export_history_model = 'edc_export.exporthistory'
+    file_history_model = 'edc_export.filehistory'
 
     def __init__(self, model=None, filename=None, notification_plan_name=None,
                  path=None, delimiter=None):
@@ -18,7 +18,7 @@ class ExportHistoryUpdater:
 
     @property
     def model_cls(self):
-        return django_apps.get_model(self.export_history_model)
+        return django_apps.get_model(self.file_history_model)
 
     def update(self):
         exported_pks = []

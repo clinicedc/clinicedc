@@ -9,10 +9,8 @@ from django.db.models.constants import LOOKUP_SEP
 from django_crypto_fields.fields import BaseField as BaseEncryptedField
 from edc_base.utils import get_utcnow
 
-from ..constants import EXPORTED
-from .export_history_updater import ExportHistoryUpdater
-from edc_export.model_exporter.transaction_history_helpers import TransactionHistoryGetter,\
-    TransactionHistoryHelper
+from .file_history_updater import FileHistoryUpdater
+from .object_history_helpers import ObjectHistoryHelper
 
 app_config = django_apps.get_app_config('edc_export')
 
@@ -41,9 +39,8 @@ class ModelExporter(object):
 
     delimiter = '|'
     m2m_delimiter = ';'
-    export_history_updater_cls = ExportHistoryUpdater
-    transaction_history_helper_cls = TransactionHistoryHelper
-    transaction_history_model = 'edc_export.exportedtransaction'
+    file_history_updater_cls = FileHistoryUpdater
+    object_history_helper_cls = ObjectHistoryHelper
     additional_values_cls = AdditionalValues
     export_folder = app_config.export_folder
     encrypted_label = '<encrypted>'
@@ -57,7 +54,7 @@ class ModelExporter(object):
 
     def __init__(self, queryset=None, model=None, field_names=None,
                  exclude_field_names=None, lookups=None,
-                 exclude_m2m=None, encrypt=None, strip=None,
+                 exclude_m2m=None, encrypt=None,
                  notification_plan_name=None):
         self._model = model
         self._model_cls = None
@@ -89,9 +86,6 @@ class ModelExporter(object):
                             + self.field_names
                             + self.audit_fields)
 
-    def model(self):
-        return self.model_cls._meta.label_lower
-
     @property
     def model_cls(self):
         if not self._model_cls:
@@ -102,10 +96,6 @@ class ModelExporter(object):
             else:
                 self._model_cls = self.queryset.model
         return self._model_cls
-
-    @property
-    def transaction_history_model_cls(self):
-        return django_apps.get_model(self.transaction_history_model)
 
     def export(self, queryset=None):
         """Writes the export file and returns the file name.
@@ -119,24 +109,24 @@ class ModelExporter(object):
                 f, fieldnames=self.field_names, delimiter=self.delimiter)
             csv_writer.writeheader()
             for model_obj in self.queryset:
-                tx_helper = self.transaction_history_helper_cls(
+                object_helper = self.object_history_helper_cls(
                     model_obj=model_obj, create=True)
-                tx_objects = tx_helper.get_not_exported()
-                for tx_obj in tx_objects:
+                objects = object_helper.get_not_exported()
+                for obj in objects:
                     row = self.prepare_row(
                         model_obj=model_obj,
                         exported_datetime=exported_datetime,
-                        export_change_type=tx_obj.export_change_type)
+                        export_change_type=obj.export_change_type)
                     csv_writer.writerow(row)
-                tx_helper.update_as_exported(
-                    tx_objects=tx_objects, exported_datetime=exported_datetime)
-        export_history_updater = self.export_history_updater_cls(
+                object_helper.update_as_exported(
+                    objects=objects, exported_datetime=exported_datetime)
+        file_history_updater = self.file_history_updater_cls(
             path=path,
             delimiter=self.delimiter,
             model=self.model_cls._meta.label_lower,
             filename=filename,
             notification_plan_name=self.notification_plan_name)
-        export_history_updater.update()
+        file_history_updater.update()
         return path
 
     def prepare_row(self, model_obj=None, exported_datetime=None, export_change_type=None):

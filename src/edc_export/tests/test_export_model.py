@@ -9,7 +9,7 @@ from edc_base.utils import get_utcnow
 
 from ..constants import EXPORTED, UPDATE, INSERT
 from ..model_exporter import ModelExporter, ModelExporterInvalidLookup
-from ..models import ExportHistory, ExportedTransaction
+from ..models import ObjectHistory, FileHistory
 from .models import Crf, SubjectVisit, ListModel, CrfEncrypted
 
 app_config = django_apps.get_app_config('edc_export')
@@ -234,7 +234,7 @@ class TesExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(queryset=queryset)
         path = model_exporter.export()
-        obj = ExportHistory.objects.get(
+        obj = FileHistory.objects.get(
             filename=os.path.basename(path))
         self.assertTrue(obj.exported)
         self.assertTrue(obj.exported_datetime)
@@ -251,10 +251,11 @@ class TesExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(queryset=queryset)
         path = model_exporter.export()
-        history_obj = ExportHistory.objects.get(
+        file_history_obj = FileHistory.objects.get(
             filename=os.path.basename(path))
-        tx_obj = ExportedTransaction.objects.get(tx_pk=self.crf.pk)
-        self.assertIn(str(tx_obj.export_uuid), history_obj.export_uuid_list)
+        tx_obj = ObjectHistory.objects.get(tx_pk=self.crf.pk)
+        self.assertIn(str(tx_obj.export_uuid),
+                      file_history_obj.export_uuid_list)
         self.assertEqual(tx_obj.status, EXPORTED)
 
     @tag('1')
@@ -266,7 +267,7 @@ class TesExportModel(TestCase):
         model_exporter.export()
         model_exporter = ModelExporter(queryset=queryset)
         model_exporter.export()
-        tx_qs = ExportedTransaction.objects.filter(
+        tx_qs = ObjectHistory.objects.filter(
             tx_pk=self.crf.pk).order_by('exported_datetime')
         self.assertEqual(tx_qs[0].export_change_type, INSERT)
 
@@ -281,7 +282,7 @@ class TesExportModel(TestCase):
         model_exporter.export()
         model_exporter = ModelExporter(queryset=queryset)
         model_exporter.export()
-        tx_qs = ExportedTransaction.objects.filter(
+        tx_qs = ObjectHistory.objects.filter(
             tx_pk=self.crf.pk).order_by('exported_datetime')
         self.assertEqual(tx_qs[0].export_change_type, INSERT)
         self.assertEqual(tx_qs[1].export_change_type, UPDATE)
@@ -319,7 +320,7 @@ class TesExportModel(TestCase):
     @tag('1')
     def test_manager_creates_exported_tx(self):
         try:
-            tx_obj = ExportedTransaction.objects.get(tx_pk=self.crf.pk)
+            tx_obj = ObjectHistory.objects.get(tx_pk=self.crf.pk)
         except ObjectDoesNotExist:
             self.fail('ExportedTransaction unexpectedly does not exist.')
         self.assertEqual(tx_obj.export_change_type, INSERT)
