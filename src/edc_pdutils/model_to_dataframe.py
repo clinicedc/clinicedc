@@ -67,9 +67,7 @@ class ModelToDataframe:
     def get_column_value(self, model_obj=None, column_name=None, lookup=None):
         """Returns the column value.
         """
-        lookups = None
-        if LOOKUP_SEP in lookup:
-            lookups = {column_name: lookup}
+        lookups = {column_name: lookup} if LOOKUP_SEP in lookup else None
         value_getter = self.value_getter_cls(
             field_name=column_name,
             model_obj=model_obj,
@@ -101,7 +99,7 @@ class ModelToDataframe:
                 except ValueError:
                     pass
             columns = dict(zip(columns, columns))
-            if self.add_columns_for in columns or '{}_id'.format(self.add_columns_for) in columns:
+            if self.add_columns_for in columns or f'{self.add_columns_for}_id' in columns:
                 if self.add_columns_for.endswith('_visit'):
                     columns.update({
                         f'{self.add_columns_for}__appointment__visit_code': 'visit_code'})
