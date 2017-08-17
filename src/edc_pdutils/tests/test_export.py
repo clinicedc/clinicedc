@@ -1,9 +1,9 @@
+import csv
 import os
 import uuid
-import pandas as pd
 
 from django.apps import apps as django_apps
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
 from edc_registration.models import RegisteredSubject
@@ -12,6 +12,7 @@ from ..model_to_dataframe import ModelToDataframe
 from .models import ListModel, SubjectVisit, Crf
 from pprint import pprint
 from edc_pdutils.tests.models import CrfEncrypted
+from edc_pdutils.csv_exporter import CsvExporter
 
 app_config = django_apps.get_app_config('edc_pdutils')
 
@@ -78,6 +79,7 @@ class TestExport(TestCase):
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
         self.assertEqual(len(list(m.dataframe.columns)), 18)
 
+    @tag('1')
     def test_values(self):
         model = 'edc_pdutils.crf'
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
@@ -106,3 +108,37 @@ class TestExport(TestCase):
         m = ModelToDataframe(
             queryset=CrfEncrypted.objects.all(), add_columns_for='subject_visit')
         self.assertEqual(len(m.dataframe.index), 1)
+
+    def test_encrypted_to_csv_from_qs(self):
+        CrfEncrypted.objects.create(
+            subject_visit=self.subject_visit,
+            encrypted1=f'encrypted1')
+        exporter = CsvExporter(
+            queryset=CrfEncrypted.objects.all(), add_columns_for='subject_visit')
+        exporter.to_csv()
+
+    def test_encrypted_to_csv_from_model(self):
+        CrfEncrypted.objects.create(
+            subject_visit=self.subject_visit,
+            encrypted1=f'encrypted1')
+        exporter = CsvExporter(
+            model='edc_pdutils.CrfEncrypted', add_columns_for='subject_visit')
+        exporter.to_csv()
+
+    def test_records_to_csv_from_qs(self):
+        exporter = CsvExporter(
+            queryset=Crf.objects.all(), add_columns_for='subject_visit')
+        exporter.to_csv()
+
+    @tag('1')
+    def test_records_to_csv_from_model(self):
+        exporter = CsvExporter(
+            model='edc_pdutils.crf', add_columns_for='subject_visit')
+        path = exporter.to_csv()
+        with open(path, 'r') as f:
+            csv_reader = csv.DictReader(f, delimiter='|')
+            rows = [row for row in enumerate(csv_reader)]
+        self.assertEqual(len(rows), 5)
+        for i in range(0, 5):
+            self.assertEqual(rows[i][1].get('subject_identifier'), f'12345{i}')
+            self.assertEqual(rows[i][1].get('visit_code'), f'{i}000')

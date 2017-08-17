@@ -2,55 +2,61 @@ import os
 import sys
 
 from django.apps import apps as django_apps
-from django.db.utils import OperationalError
+from django.core.management.color import color_style
 from edc_base.utils import get_utcnow
 
-from .model_to_dataframe import ModelToDataFrame
+from .model_to_dataframe import ModelToDataframe
 
 app_config = django_apps.get_app_config('edc_pdutils')
+
+style = color_style()
 
 
 class CsvExporter:
 
-    export_folder = app_config.export_folder
+    delimiter = '|'
+    encoding = 'utf-8'
     excluded_model_names = ['incomingtransaction',
                             'outgoingtransaction',
                             'crypt']
+    export_folder = app_config.export_folder
+    dataframe_maker_cls = ModelToDataframe
 
-    def __init__(self, recipe=None, model=None):
+    def __init__(self, recipe=None, model=None, queryset=None,
+                 include_index=None, **kwargs):
+        self.include_index = include_index
+        self.queryset = queryset
         if recipe:
             self.export_folder = recipe.out_path
-            self.model = recipe.model
-        else:
-            self.model = model
+            model = recipe.model
+        self.dataframe_maker = self.dataframe_maker_cls(
+            model=model, queryset=self.queryset, **kwargs)
+        self.model = self.dataframe_maker.model
         self.encrypted_models, self.unencrypted_models = self.categorize_models()
 
-    def export_to_file(self, exists_ok=None):
+    def to_csv(self, exists_ok=None):
         encrypted = True if self.model_cls in self.encrypted_models else False
         msg = f'{self.model} {"(encrypted)" if encrypted else ""}'
         sys.stdout.write(msg + '\r')
         count = self.model_cls.objects.all().count()
+        path = None
         if count > 0:
             path = os.path.join(self.export_folder, self.get_filename())
             if os.path.exists(path) and not exists_ok:
-                sys.stdout.write(f'{msg} exists ({count} records).\n')
+                sys.stdout.write(style.ERROR(
+                    f'File \'{path}\' exists! Got model={self.model}.\n'))
             else:
-                sys.stdout.write(f'( ) {msg} ... \r')
-                try:
-                    m2df = ModelToDataFrame(self.model_cls)
-                except OperationalError as e:
-                    sys.stdout.write(f'\nError. {self.model}. Got {e}\n\n')
-                else:
-                    m2df.dataframe.to_csv(
-                        columns=m2df.columns(
-                            self.model_cls.objects.all(), None),
-                        path_or_buf=path,
-                        index=False,
-                        encoding='utf-8',
-                        sep='|')
-                    sys.stdout.write(f'(*) {msg}      \n')
+                sys.stdout.write(f'( ) {msg} ...     \r')
+                self.dataframe_maker.dataframe.to_csv(
+                    columns=self.dataframe_maker.dataframe.columns,
+                    path_or_buf=path,
+                    index=self.include_index,
+                    encoding=self.encoding,
+                    sep=self.delimiter)
+                sys.stdout.write(f'(*) {msg}           \n')
         else:
             sys.stdout.write(f'(?) {msg} empty  \n')
+        return path
 
     def categorize_models(self):
         """Returns a tuple of two lists (encrypted_models, unencrypted_models).

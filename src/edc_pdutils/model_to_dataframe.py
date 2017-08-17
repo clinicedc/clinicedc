@@ -10,56 +10,72 @@ from pprint import pprint
 
 class ModelToDataframe:
     """
-        e = ModelToDataframe(model='edc_pdutils.crf', add_columns_for='clinic_visit')
-        my_df = e.dataframe
+        m = ModelToDataframe(model='edc_pdutils.crf', add_columns_for='clinic_visit')
+        my_df = m.dataframe
     """
 
     value_getter_cls = ValueGetter
+    sys_field_names = ['_state', '_user_container_instance', 'using']
 
     def __init__(self, model=None, queryset=None, query_filter=None,
                  add_columns_for=None):
-        query_filter = query_filter or {}
+        self._columns = None
+        self._dataframe = pd.DataFrame()
+        self.add_columns_for = add_columns_for
+        self.query_filter = query_filter or {}
         if queryset:
             self.model = queryset.model._meta.label_lower
         else:
             self.model = model
-        queryset = queryset or self.model_cls.objects.all()
-        row_count = queryset.count()
-        if row_count == 0:
-            self.dataframe = pd.DataFrame()
-        else:
-            columns = self.columns(queryset, add_columns_for)
-            if self.has_encrypted_fields:
-                queryset = queryset.filter(**query_filter)
-                data = []
-                for index, model_obj in enumerate(queryset.order_by('id')):
-                    sys.stdout.write(
-                        f'{self.model} {index + 1}/{row_count} ... \r')
-                    row = []
-                    for lookup, column_name in columns.items():
-                        lookups = None
-                        if LOOKUP_SEP in lookup:
-                            lookups = {column_name: lookup}
-                        value_getter = self.value_getter_cls(
-                            field_name=column_name,
-                            model_obj=model_obj,
-                            lookups=lookups)
-                        row.append(value_getter.value)
-                    data.append(row)
-                    self.dataframe = pd.DataFrame(data, columns=columns)
-                    sys.stdout.write(
-                        f'{self.model} {row_count} / {row_count}  Done.\n')
-            else:
-                queryset = queryset.values_list(
-                    *columns.keys()).filter(**query_filter)
-                self.dataframe = pd.DataFrame(
-                    list(queryset), columns=columns.keys())
-            self.dataframe.rename(columns=columns, inplace=True)
-            self.dataframe.fillna(value=np.nan, inplace=True)
-            for column in list(self.dataframe.select_dtypes(
-                    include=['datetime64[ns, UTC]']).columns):
-                self.dataframe[column] = self.dataframe[
-                    column].astype('datetime64[ns]')
+        self.queryset = queryset or self.model_cls.objects.all()
+
+    @property
+    def dataframe(self):
+        """Returns a pandas dataframe.
+        """
+        if self._dataframe.empty:
+            row_count = self.queryset.count()
+            if row_count > 0:
+                if self.has_encrypted_fields:
+                    queryset = self.queryset.filter(**self.query_filter)
+                    data = []
+                    for index, model_obj in enumerate(queryset.order_by('id')):
+                        sys.stdout.write(
+                            f'   {self.model} {index + 1}/{row_count} ... \r')
+                        row = []
+                        for lookup, column_name in self.columns.items():
+                            value = self.get_column_value(
+                                model_obj=model_obj, column_name=column_name, lookup=lookup)
+                            row.append(value)
+                        data.append(row)
+                        self._dataframe = pd.DataFrame(
+                            data, columns=self.columns)
+                        sys.stdout.write(
+                            f'    {self.model} {row_count}/{row_count}      \r')
+                else:
+                    queryset = self.queryset.values_list(
+                        *self.columns.keys()).filter(**self.query_filter)
+                    self._dataframe = pd.DataFrame(
+                        list(queryset), columns=self.columns.keys())
+                self._dataframe.rename(columns=self.columns, inplace=True)
+                self._dataframe.fillna(value=np.nan, inplace=True)
+                for column in list(self._dataframe.select_dtypes(
+                        include=['datetime64[ns, UTC]']).columns):
+                    self._dataframe[column] = self._dataframe[
+                        column].astype('datetime64[ns]')
+        return self._dataframe
+
+    def get_column_value(self, model_obj=None, column_name=None, lookup=None):
+        """Returns the column value.
+        """
+        lookups = None
+        if LOOKUP_SEP in lookup:
+            lookups = {column_name: lookup}
+        value_getter = self.value_getter_cls(
+            field_name=column_name,
+            model_obj=model_obj,
+            lookups=lookups)
+        return value_getter.value
 
     @property
     def model_cls(self):
@@ -74,30 +90,27 @@ class ModelToDataframe:
                 return True
         return False
 
-    def columns(self, qs, add_columns_for):
+    @property
+    def columns(self):
         """Return a dictionary of column names.
         """
-        columns = list(qs[0].__dict__.keys())
-        columns = self.remove_sys_columns(columns)
-        columns = dict(zip(columns, columns))
-        if add_columns_for in columns or '{}_id'.format(add_columns_for) in columns:
-            if add_columns_for.endswith('_visit'):
-                columns.update({
-                    '{}__appointment__visit_code'.format(add_columns_for):
-                    'visit_code'})
+        if not self._columns:
+            columns = list(self.queryset[0].__dict__.keys())
+            for name in self.sys_field_names:
                 try:
-                    del columns['subject_identifier']
-                except KeyError:
+                    columns.remove(name)
+                except ValueError:
+                    pass
+            columns = dict(zip(columns, columns))
+            if self.add_columns_for in columns or '{}_id'.format(self.add_columns_for) in columns:
+                if self.add_columns_for.endswith('_visit'):
                     columns.update({
-                        '{}__appointment__subject_identifier'.format(add_columns_for):
-                        'subject_identifier'})
-        return columns
-
-    def remove_sys_columns(self, columns):
-        names = ['_state', '_user_container_instance', 'using']
-        for name in names:
-            try:
-                columns.remove(name)
-            except ValueError:
-                pass
-        return columns
+                        f'{self.add_columns_for}__appointment__visit_code': 'visit_code'})
+                    try:
+                        del columns['subject_identifier']
+                    except KeyError:
+                        columns.update({
+                            f'{self.add_columns_for}__appointment__subject_identifier':
+                            'subject_identifier'})
+            self._columns = columns
+        return self._columns
