@@ -69,6 +69,7 @@ class SiteMetadataRules:
                         site_metadata_rules.registry = before_import_registry
                         if module_has_submodule(mod, module_name):
                             raise
+
                 else:
                     if not self.rule_groups.get(str(app)):
                         raise SiteMetadataRulesImportError(

@@ -34,6 +34,7 @@ class BasePredicate:
         else:
             visit = kwargs.get('visit')
             reference = reference_getter_cls(
+                create=True,
                 field_name=attr,
                 model=source_model,
                 subject_identifier=visit.subject_identifier,
