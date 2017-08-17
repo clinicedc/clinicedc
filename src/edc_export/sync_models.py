@@ -3,10 +3,10 @@ from edc_sync.sync_model import SyncModel
 
 
 sync_models = [
-    'edc_export.exporthistory',
+    'edc_export.objecthistory',
     'edc_export.exportplan',
     'edc_export.exportreceipt',
-    'edc_export.exporttransaction',
+    'edc_export.filehistory',
     'edc_export.uploadexportreceiptfile',
 ]
 
