@@ -5,7 +5,6 @@ import sys
 from django.apps import apps as django_apps
 from django.db.models.constants import LOOKUP_SEP
 from edc_export.model_exporter import ValueGetter
-from pprint import pprint
 
 
 class ModelToDataframe:
