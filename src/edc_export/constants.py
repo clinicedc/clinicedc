@@ -1,5 +1,5 @@
 CANCELLED = 'cancelled'
+DELETE = 'D'
 EXPORTED = 'exported'
 INSERT = 'I'
 UPDATE = 'U'
-DELETE = 'D'
