@@ -44,6 +44,9 @@ class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin, BaseUuidModel):
 
     reason = models.CharField(max_length=25)
 
+    class Meta:
+        rulegroup_app_label = 'edc_metadata'
+
 
 class SubjectRequisition(CrfModelMixin, UpdatesRequisitionMetadataModelMixin,
                          ReferenceModelMixin, BaseUuidModel):

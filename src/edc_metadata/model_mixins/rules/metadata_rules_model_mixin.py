@@ -17,7 +17,7 @@ class MetadataRulesModelMixin(models.Model):
 
         Gets called in the signal.
         """
-        for rule_group in site_metadata_rules.registry.get(self._meta.app_label, []):
+        for rule_group in site_metadata_rules.registry.get(self._meta.rulegroup_app_label, []):
             rule_group.evaluate_rules(visit=self)
 
     class Meta:
