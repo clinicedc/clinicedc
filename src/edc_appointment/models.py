@@ -5,6 +5,7 @@ from edc_base.model_managers import HistoricalRecords
 
 from .managers import AppointmentManager
 from .model_mixins import AppointmentModelMixin
+from django.conf import settings
 
 
 class Appointment(AppointmentModelMixin, BaseUuidModel):
@@ -33,3 +34,7 @@ class Holiday(models.Model):
     class Meta:
         ordering = ['day', ]
         app_label = 'edc_appointment'
+
+
+if 'edc_appointment' in settings.APP_NAME:
+    from .tests import models

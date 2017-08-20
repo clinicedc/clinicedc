@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'edc_base.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
+    'edc_timepoint.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
@@ -91,22 +93,6 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'OPTIONS': {
-#             'read_default_file': os.path.join(BASE_DIR, 'etc', 'default.cnf'),
-#         },
-#         'HOST': '',
-#         'PORT': '',
-#         'ATOMIC_REQUESTS': True,
-#     }
-# }
-
-if 'test' in sys.argv and DATABASES.get('default').get('ENGINE') != 'django.db.backends.mysql':
-    MIGRATION_MODULES = {'edc_example': None}
-
-
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
@@ -147,4 +133,17 @@ STATIC_URL = '/static/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 GIT_DIR = BASE_DIR
-APP_LABEL = 'edc_appointment'
+
+if 'test' in sys.argv:
+
+    class DisableMigrations:
+
+        def __contains__(self, item):
+            return True
+
+        def __getitem__(self, item):
+            return None
+
+    MIGRATION_MODULES = DisableMigrations()
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
+    DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'

@@ -1,16 +1,13 @@
 import arrow
 
-from datetime import timedelta
 from dateutil.relativedelta import relativedelta, SA, SU
 
 from django.apps import apps as django_apps
-from django.db import models, transaction
+from django.db import models
 from django.db.models import options
 from django.db.models.deletion import ProtectedError
-from django.db.utils import IntegrityError
 
-from ..exceptions import CreateAppointmentError
-from pprint import pprint
+from ..appointment_creator import AppointmentCreator
 
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
@@ -24,27 +21,14 @@ class CreateAppointmentsMixin(models.Model):
     Requires model mixins VisitScheduleFieldsModelMixin,
     VisitScheduleMethodsModelMixin.
     """
+
+    appointment_creator_cls = AppointmentCreator
+
     facility_name = models.CharField(
         verbose_name='To which facility is this subject being enrolled?',
         max_length=25,
         default='clinic',
         help_text='The facility name is need when scheduling appointments')
-
-    @property
-    def appointment_model(self):
-        app_config = django_apps.get_app_config('edc_appointment')
-        return app_config.model
-
-    @property
-    def default_appt_type(self):
-        app_config = django_apps.get_app_config('edc_appointment')
-        return app_config.default_appt_type
-
-    @property
-    def extra_create_appointment_options(self):
-        """User can add extra options for appointment.objects.create.
-        """
-        return {}
 
     def create_appointments(self, base_appt_datetime=None):
         """Creates appointments when called by post_save signal.
@@ -90,37 +74,12 @@ class CreateAppointmentsMixin(models.Model):
         """Updates or creates an appointment for this subject
         for the visit.
         """
-        options = dict(
-            subject_identifier=self.subject_identifier,
-            visit_schedule_name=self.visit_schedule.name,
-            schedule_name=self.schedule.name,
-            visit_code=visit.code,
-            visit_code_sequence=0,
-            timepoint=visit.timepoint,
-            facility_name=self.facility_name)
-        try:
-            appointment = self.appointment_model.objects.get(**options)
-            if (appointment.timepoint_datetime
-                    - available_datetime != timedelta(0, 0, 0)):
-                appointment.appt_datetime = available_datetime
-                appointment.timepoint_datetime = timepoint_datetime
-            # update_fields=['appt_datetime', 'timepoint_datetime'])
-            appointment.save()
-        except self.appointment_model.DoesNotExist:
-            try:
-                with transaction.atomic():
-                    options.update(self.extra_create_appointment_options)
-                    appointment = self.appointment_model.objects.create(
-                        **options,
-                        timepoint_datetime=timepoint_datetime,
-                        appt_datetime=available_datetime,
-                        appt_type=self.default_appt_type)
-            except IntegrityError as e:
-                raise CreateAppointmentError(
-                    'An \'IntegrityError\' was raised while trying to '
-                    'create an appointment for model \'{}\'. Got {}. '
-                    'Options were {}'. format(
-                        self._meta.label_lower, str(e), options))
+        creator = self.appointment_creator_cls(
+            model_obj=self,
+            visit=visit,
+            available_datetime=available_datetime,
+            timepoint_datetime=timepoint_datetime)
+        appointment = creator.update_or_create()
         return appointment
 
     def delete_unused_appointments(self):

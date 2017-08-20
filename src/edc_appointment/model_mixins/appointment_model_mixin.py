@@ -5,8 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 from django.db import models
 
-from edc_registration.model_mixins import (
-    SubjectIdentifierFromRegisteredSubjectModelMixin)
+from edc_registration.model_mixins import SubjectIdentifierFromRegisteredSubjectModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
@@ -204,8 +203,6 @@ class AppointmentModelMixin(TimepointModelMixin, VisitScheduleModelMixin,
         abstract = True
         unique_together = (
             ('subject_identifier', 'visit_schedule_name',
-             'schedule_name', 'visit_code', 'visit_code_sequence'),
-            ('subject_identifier', 'visit_schedule_name',
-             'schedule_name', 'visit_code', 'timepoint')
+             'schedule_name', 'visit_code', 'timepoint', 'visit_code_sequence'),
         )
         ordering = ('timepoint_datetime',)

@@ -6,7 +6,3 @@ class AppointmentStatusError(Exception):
 
 class AppointmentCreateError(Exception):
     pass
-
-
-class CreateAppointmentError(Exception):
-    pass
