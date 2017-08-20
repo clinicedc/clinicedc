@@ -13,8 +13,7 @@ class SubjectIdentifierFromRegisteredSubjectModelMixin(
 
     def save(self, *args, **kwargs):
         self.subject_identifier = self.registration_instance.subject_identifier
-        super(SubjectIdentifierFromRegisteredSubjectModelMixin, self).save(
-            *args, **kwargs)
+        super().save(*args, **kwargs)
 
     @property
     def registration_instance(self):

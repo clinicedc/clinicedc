@@ -14,4 +14,7 @@ class EdcRegistrationAdminSite(AdminSite):
     site_title = 'Registration'
     index_title = 'Registration Administration'
     site_url = '/registration/'
-edc_registration_admin = EdcRegistrationAdminSite(name='edc_registration_admin')
+
+
+edc_registration_admin = EdcRegistrationAdminSite(
+    name='edc_registration_admin')

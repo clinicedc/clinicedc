@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
 from edc_base.model_mixins import DEFAULT_BASE_FIELDS
@@ -23,27 +22,30 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
 
         Called from the signal
         """
-        self.registration_raise_on_not_unique()
         if not getattr(self, self.registration_unique_field):
             raise TypeError(
                 'Cannot update or create RegisteredSubject. Got {} '
                 'is None.'.format(self.registration_unique_field))
         try:
             obj = self.registration_model.objects.get(
-                **{self.registration_unique_field:
+                **{'registration_identifier':
                    getattr(self, self.registration_unique_field)})
         except self.registration_model.DoesNotExist:
             pass
         else:
             self.registration_raise_on_illegal_value_change(obj)
         registered_subject, created = self.registration_model.objects.update_or_create(
-            **{self.registration_unique_field: getattr(self, self.registration_unique_field)},
+            **{'registration_identifier': getattr(self, self.registration_unique_field)},
             defaults=self.registration_options)
         return registered_subject, created
 
     @property
     def registration_unique_field(self):
-        return 'subject_identifier'
+        """Returns the field that will update registration identifier.
+        The field attribute name does not necessarily have to be registration
+        identifier on the model that creates or update registered subject.
+        """
+        return 'registration_identifier'
 
     def registration_raise_on_illegal_value_change(self, registered_subject):
         """Raises an exception if a value changes between
@@ -53,20 +55,6 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         """
         pass
 
-    def registration_raise_on_not_unique(self):
-        """Asserts the field specified for update_or_create is unique.
-        """
-        unique_fields = []
-        for f in self.registration_model._meta.get_fields():
-            try:
-                if f.unique:
-                    unique_fields.append(f.name)
-            except AttributeError:
-                pass
-        if self.registration_unique_field not in unique_fields:
-            raise ImproperlyConfigured('Field is not unique. Got {}.{} -- {}'.format(
-                self._meta.label_lower, self.registration_unique_field))
-
     @property
     def registration_options(self):
         """Gathers values for common attributes between the
@@ -75,7 +63,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         registration_options = {}
         rs = self.registration_model()
         for k, v in self.__dict__.items():
-            if k not in DEFAULT_BASE_FIELDS + ['_state'] + [self.registration_unique_field]:
+            if k not in DEFAULT_BASE_FIELDS + ['_state']:
                 try:
                     getattr(rs, k)
                     registration_options.update({k: v})
