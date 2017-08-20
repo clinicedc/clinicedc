@@ -1,7 +1,7 @@
 import re
 
+from django.apps import apps as django_apps
 from django.db import models
-
 from edc_base.utils import get_uuid
 from edc_constants.constants import YES, UUID_PATTERN
 
@@ -34,6 +34,7 @@ class RequisitionIdentifierMixin(models.Model):
         if not self.requisition_identifier:
             self.requisition_identifier = get_uuid()
         self.requisition_identifier = self.get_requisition_identifier()
+        self.protocol_number = self.get_protocol_number()
         super().save(*args, **kwargs)
 
     @property
@@ -42,6 +43,16 @@ class RequisitionIdentifierMixin(models.Model):
         """
         x = self.requisition_identifier
         return f'{x[0:3]}-{x[3:7]}'
+
+    def get_protocol_number(self):
+        """Returns the protocol number from the field or
+        AppConfig.
+        """
+        protocol_number = self.protocol_number
+        if not self.protocol_number:
+            protocol_number = django_apps.get_app_config(
+                'edc_protocol').protocol_number
+        return protocol_number
 
     def get_requisition_identifier(self):
         """Converts from uuid to a requisition identifier if

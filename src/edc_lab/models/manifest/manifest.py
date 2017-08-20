@@ -17,11 +17,12 @@ class Manager(ManifestManager, SearchSlugManager):
 
 class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
 
-    search_slug_fields = [
-        'manifest_identifier',
-        'human_readable_identifier',
-        'shipper.name',
-        'consignee.name']
+    def get_search_slug_fields(self):
+        return [
+            'manifest_identifier',
+            'human_readable_identifier',
+            'shipper.name',
+            'consignee.name']
 
     consignee = models.ForeignKey(
         Consignee,
