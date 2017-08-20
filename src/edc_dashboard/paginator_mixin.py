@@ -5,7 +5,7 @@ class PaginatorMixin:
 
     paginate_by = 10
 
-    def paginate(self, queryset=None, model_wrapper_class=None):
+    def paginate(self, queryset=None, model_wrapper_cls=None):
         """Paginates a queryset.
         """
         paginator = Paginator(queryset, self.paginate_by)
@@ -14,15 +14,15 @@ class PaginatorMixin:
         except EmptyPage:
             page = paginator.page(paginator.num_pages)
         page = self.page_object_list_wrapper(
-            page=page, model_wrapper_class=model_wrapper_class)
+            page=page, model_wrapper_cls=model_wrapper_cls)
         return page
 
-    def page_object_list_wrapper(self, page=None, model_wrapper_class=None):
+    def page_object_list_wrapper(self, page=None, model_wrapper_cls=None):
         """Wraps the filtered queryset objects.
         """
         object_list = []
         qs = page.object_list
         for obj in qs:
-            object_list.append(model_wrapper_class(obj))
+            object_list.append(model_wrapper_cls(obj))
         page.object_list = object_list
         return page

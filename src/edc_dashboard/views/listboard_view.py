@@ -15,7 +15,7 @@ class ListboardView(QueryStringViewMixin, ListView):
 
     model = None  # label_lower model name
     context_object_name = 'results'
-    model_wrapper_class = None
+    model_wrapper_cls = None
     ordering = '-created'
     pagination_limit = 10
     paginate_by = 10
@@ -103,7 +103,7 @@ class ListboardView(QueryStringViewMixin, ListView):
         """
         object_list = []
         for obj in queryset:
-            object_list.append(self.model_wrapper_class(obj))
+            object_list.append(self.model_wrapper_cls(obj))
         return object_list
 
     def pagination_limit_reached(self, context):
