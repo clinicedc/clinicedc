@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from django.test import TestCase, tag
 
 from edc_appointment.models import Appointment
@@ -9,18 +8,16 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ..metadata import CrfMetadataGetter
 from ..models import CrfMetadata, RequisitionMetadata
-from ..rules import site_metadata_rules
-from .metadata_rules import register_to_site_reference_configs
 from .models import Enrollment, SubjectVisit
+from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 
 
+@tag('1')
 class TestMetadataGetter(TestCase):
 
     def setUp(self):
         register_to_site_reference_configs()
-        site_metadata_rules.registry = OrderedDict()
-
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)

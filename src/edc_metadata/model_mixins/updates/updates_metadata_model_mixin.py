@@ -4,7 +4,10 @@ from django.db import models
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...constants import REQUIRED, NOT_REQUIRED, KEYED, CRF, REQUISITION
-from ...exceptions import MetadataError
+
+
+class MetadataError(Exception):
+    pass
 
 
 class UpdatesMetadataModelMixin(models.Model):

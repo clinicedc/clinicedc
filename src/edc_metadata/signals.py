@@ -14,9 +14,15 @@ def metadata_create_on_post_save(sender, instance, raw, created, using,
     For example, when saving the visit model.
     """
     if not raw:
+
+        try:
+            instance.reference_creator_cls(model_obj=instance)
+        except AttributeError:
+            pass
+
         try:
             if instance.metadata_create(sender=sender, instance=instance):
-                if django_apps.get_app_config('edc_metadata').metadata_rules_enabled:
+                if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
                     instance.run_metadata_rules()
         except AttributeError as e:
             if 'metadata_create' not in str(e):
@@ -30,9 +36,15 @@ def metadata_update_on_post_save(sender, instance, raw, created, using,
     """
 
     if not raw:
+
+        try:
+            instance.reference_updater_cls(model_obj=instance)
+        except AttributeError:
+            pass
+
         try:
             instance.metadata_update()
-            if django_apps.get_app_config('edc_metadata').metadata_rules_enabled:
+            if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
                 instance.visit.run_metadata_rules()
         except AttributeError as e:
             if 'metadata_update' not in str(e):
@@ -53,7 +65,7 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs):
 
     try:
         instance.metadata_reset_on_delete()
-        if django_apps.get_app_config('edc_metadata').metadata_rules_enabled:
+        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
             instance.visit.run_metadata_rules()
     except AttributeError as e:
         if 'metadata_reset_on_delete' not in str(e):

@@ -1,11 +1,11 @@
 from django.apps import apps as django_apps
 from django.db import models
 
+from edc_metadata_rules.model_mixins import MetadataRulesModelMixin
 from edc_visit_schedule import site_visit_schedules
 
 from ...constants import KEYED
 from ...metadata import Metadata
-from ..rules import MetadataRulesModelMixin
 
 
 class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
