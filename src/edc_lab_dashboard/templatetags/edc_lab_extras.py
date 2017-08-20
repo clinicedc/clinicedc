@@ -5,12 +5,22 @@ from django.utils.safestring import mark_safe
 
 from edc_lab.constants import SHIPPED
 from edc_lab.models import BoxItem
+from django.templatetags.i18n import BlockTranslateNode
 
 register = template.Library()
 
 
 @register.inclusion_tag('edc_lab_dashboard/listboard/box/box_cell.html')
 def show_box_rows(box, listboard_url_name, position=None):
+    """Returns rendered HTML of a box as a dictionary of keys headers, rows.
+
+    Usage::
+
+        {% block results_body %}
+            {% show_box_rows box listboard_url_name position=position %}
+        {% endblock results_body %}
+
+    """
     position = '0' if position is None else str(position)
     btn_style = {
         -1: 'btn-danger',
@@ -48,6 +58,8 @@ def show_box_rows(box, listboard_url_name, position=None):
 
 @register.filter(is_safe=True)
 def verified(box_item):
+    """Returns a safe HTML check mark string if a Box item has been verified.
+    """
     if not box_item.verified:
         verified = False
     elif box_item.verified == 1:
@@ -55,10 +67,14 @@ def verified(box_item):
     elif box_item.verified == -1:
         verified = False
     return '' if not verified else mark_safe(
-        '&nbsp;<span title="verified" class="text text-success"><i class="fa fa-check fa-fw"></i></span>')
+        '&nbsp;<span title="verified" alt="verified" class="text text-success">'
+        '<i class="fa fa-check fa-fw"></i></span>')
 
 
 @register.filter(is_safe=True)
 def shipped(box_item):
+    """Returns a safe HTML check mark string if a Box item has been shipped.
+    """
     return '' if not box_item.status == SHIPPED else mark_safe(
-        '&nbsp;<span title="shipped" class="text text-success"><i class="fa fa-ship fa-fw"></i></span>')
+        '&nbsp;<span title="shipped" class="text text-success">'
+        '<i class="fa fa-ship fa-fw"></i></span>')

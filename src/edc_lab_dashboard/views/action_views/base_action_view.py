@@ -6,10 +6,11 @@ from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.text import slugify
 from django.views.generic.base import TemplateView
-
+from edc_base import Navbar
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import AppConfigViewMixin
-from edc_label.exceptions import PrintLabelError
+from edc_label.label import PrintLabelError
+from edc_label.print_server import PrintServerSelectPrinterError
 
 from ..mixins.models_view_mixin import ModelsViewMixin
 
@@ -27,12 +28,14 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
 
     template_name = 'edc_lab_dashboard/home.html'
     post_url_name = None
-    navbar_name = 'specimens'
+    app_config_name = 'edc_lab_dashboard'
 
     valid_form_actions = []
     redirect_querystring = {}
     form_action_selected_items_name = 'selected_items'
-    label_class = None
+    label_cls = None
+
+    navbar_name = 'specimens'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -85,13 +88,20 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
         See also: edc_lab AppConfig
         """
         for pk in pks:
-            label = self.label_class(pk=pk, children_count=len(pks))
             try:
-                printed = label.print_label()
-            except PrintLabelError as e:
-                messages.error(self.request, str(e))
-            else:
-                messages.success(
+                label = self.label_cls(pk=pk, children_count=len(pks))
+            except PrintServerSelectPrinterError as e:
+                messages.error(
                     self.request,
-                    'Printed {print_count}/{copies} {name} to '
-                    '{printer}. JobID {jobid}'.format(**printed))
+                    str(e), extra_tags='PrintServerSelectPrinterError')
+                break
+            else:
+                try:
+                    result = label.print_label()
+                except PrintLabelError as e:
+                    messages.error(self.request, str(e))
+                else:
+                    messages.success(
+                        self.request,
+                        f'Printed {result.print_count}/{result.copies} {result.name} to '
+                        f'{result.printer}. JobID {result.jobid}')

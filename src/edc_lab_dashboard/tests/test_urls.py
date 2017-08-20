@@ -141,4 +141,4 @@ class TestUrls(TestCase):
 
     def test_home_url(self):
         url = reverse('home_url')
-        self.assertEqual('/', url)
+        self.assertEqual('/%2F', url)

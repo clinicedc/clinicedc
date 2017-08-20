@@ -4,18 +4,12 @@ from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.urls.base import reverse
 from django.utils.decorators import method_decorator
-
 from edc_lab.constants import SHIPPED
 
-from .base_box_item_listboard_view import BaseBoxItemListboardView, BaseBoxItemModelWrapper
+from ...model_wrappers import ManageBoxItemModelWrapper
+from .base_box_item_listboard_view import BaseBoxItemListboardView
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
-
-
-class BoxItemModelWrapper(BaseBoxItemModelWrapper):
-
-    next_url_name = app_config.manage_box_listboard_url_name
-    action_name = 'manage'
 
 
 class ManageBoxListboardView(BaseBoxItemListboardView):
@@ -24,7 +18,7 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
     form_action_url_name = f'edc_lab_dashboard:manage_box_item_url'
     listboard_template_name = app_config.manage_box_listboard_template_name
     listboard_url_name = app_config.manage_box_listboard_url_name
-    model_wrapper_cls = BoxItemModelWrapper
+    model_wrapper_cls = ManageBoxItemModelWrapper
     navbar_item_selected = 'pack'
 
     @method_decorator(login_required)

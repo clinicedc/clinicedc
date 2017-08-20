@@ -1,22 +1,15 @@
 from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-
 from edc_constants.constants import YES
-from edc_model_wrapper import ModelWrapper
 
+from ...model_wrappers import RequisitionModelWrapper
 from ..listboard_filters import RequisitionListboardViewFilters
 from ..mixins import StudySiteNameQuerysetViewMixin
 from .base_listboard import BaseListboardView
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
-
-
-class RequisitionModelWrapper(ModelWrapper):
-
-    model = edc_lab_app_config.requisition_model
-    next_url_name = app_config.requisition_listboard_url_name
 
 
 class RequisitionListboardView(StudySiteNameQuerysetViewMixin, BaseListboardView):

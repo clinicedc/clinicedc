@@ -11,7 +11,7 @@ class AliquotView(BaseActionView):
     post_url_name = app_config.aliquot_listboard_url_name
     valid_form_actions = ['print_labels']
     action_name = 'aliquot'
-    label_class = AliquotLabel
+    label_cls = AliquotLabel
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

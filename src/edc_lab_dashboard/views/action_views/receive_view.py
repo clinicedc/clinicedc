@@ -20,7 +20,7 @@ class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
 
     post_url_name = app_config.receive_listboard_url_name
     valid_form_actions = ['receive', 'receive_and_process']
-    label_class = AliquotLabel
+    label_cls = AliquotLabel
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

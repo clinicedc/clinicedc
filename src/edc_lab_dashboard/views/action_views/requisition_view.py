@@ -15,7 +15,7 @@ class RequisitionView(BaseActionView):
     post_url_name = app_config.requisition_listboard_url_name
     valid_form_actions = ['print_labels']
     action_name = 'requisition'
-    label_class = AliquotLabel
+    label_cls = AliquotLabel
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

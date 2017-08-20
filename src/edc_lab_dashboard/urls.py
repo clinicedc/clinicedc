@@ -7,6 +7,7 @@ from .views import (
     ManageBoxListboardView, VerifyBoxListboardView, ManageBoxItemView,
     VerifyBoxItemView, ProcessListboardView, PackView, ManageManifestView,
     ManageManifestListboardView, ManifestView, AliquotView, RequisitionView)
+from django.conf import settings
 
 
 app_name = 'edc_lab_dashboard'
@@ -104,3 +105,12 @@ urlpatterns = [
 
     url(r'/', HomeView.as_view(), name='home_url'),
 ]
+
+
+if settings.APP_NAME == 'edc_lab_dashboard':
+    from django.conf.urls import include
+    from edc_lab.admin_site import edc_lab_admin
+    urlpatterns += [
+        url(r'^admin/', edc_lab_admin.urls),
+        url(r'^edc_lab/', include('edc_lab.urls')),
+    ]

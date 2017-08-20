@@ -22,7 +22,7 @@ class PackView(BaseActionView):
     valid_form_actions = [
         'add_selected_to_manifest', 'remove_selected_items', 'print_labels']
     box_model = django_apps.get_model(*edc_lab_app_config.box_model.split('.'))
-    label_class = BoxLabel
+    label_cls = BoxLabel
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
