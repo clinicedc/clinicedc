@@ -33,8 +33,10 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     home_visit_permission = models.CharField(
         max_length=25,
         choices=YES_NO,
-        verbose_name=("Has the participant given his/her permission for study staff "
-                      "to make home visits for follow-up purposes during the study?"),
+        verbose_name=("Has the participant given his/her permission for study"
+                      "staff to make home visits for follow-up purposes"
+                      "(such as return of test results, contact about future"
+                      "studies or sharing BCPP results)?"),
     )
 
     physical_address = EncryptedTextField(
