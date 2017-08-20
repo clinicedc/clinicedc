@@ -44,7 +44,9 @@ class CrfModelMixin(ModelMixin, models.Model):
         datetime_not_future(report_datetime)
         if report_datetime.date() < self.visit.report_datetime.date():
             raise VisitReportDateAllowanceError(
-                'Report datetime may not be before the visit report datetime.',
+                'Report datetime may not be before the visit report datetime. '
+                f'Got report_datetime={self.report_datetime} ',
+                f'visit.report_datetime={self.visit.report_datetime}. ',
                 'report_datetime')
         app_config = django_apps.get_app_config('edc_visit_tracking')
         if app_config.report_datetime_allowance > 0:
@@ -52,12 +54,14 @@ class CrfModelMixin(ModelMixin, models.Model):
                 report_datetime
                 + relativedelta(days=app_config.report_datetime_allowance))
             if max_report_datetime.date() < self.visit.report_datetime.date():
+                diff = (max_report_datetime.date()
+                        - self.visit.report_datetime.date()).days
                 raise VisitReportDateAllowanceError(
-                    'Report datetime may not more than {} days greater than the '
-                    'visit report datetime. Got {} days.'.format(
-                        app_config.report_datetime_allowance,
-                        (max_report_datetime.date()
-                         - self.visit.report_datetime.date()).days),
+                    f'Report datetime may not more than {app_config.report_datetime_allowance} '
+                    f'days greater than the visit report datetime. Got {diff} days.'
+                    f'report_datetime={self.report_datetime} ',
+                    f'visit.report_datetime={self.visit.report_datetime}. '
+                    f'See also AppConfig.report_datetime_allowance.',
                     'report_datetime')
         super().clean()
 

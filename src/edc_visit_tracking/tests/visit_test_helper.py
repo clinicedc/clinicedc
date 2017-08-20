@@ -16,7 +16,8 @@ class VisitTestHelperError(Exception):
 
 class VisitTestHelper:
 
-    def add_visit(self, model_label=None, visit_code=None, reason=None, subject_identifier=None):
+    def add_visit(self, model_label=None, visit_code=None, reason=None,
+                  subject_identifier=None):
         """Adds (or gets) and returns a visit for give model and code.
         """
         Appointment = django_apps.get_app_config('edc_appointment').model
