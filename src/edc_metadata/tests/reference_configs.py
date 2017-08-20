@@ -1,5 +1,3 @@
-# intentionally blank
-# needed for site_metadat_rules.autodiscover test
 from edc_reference import ReferenceModelConfig, site_reference_configs
 
 

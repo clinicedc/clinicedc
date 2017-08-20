@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from django.test import TestCase, tag
 from django.views.generic.base import ContextMixin
 
@@ -8,10 +7,9 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..models import CrfMetadata, RequisitionMetadata
-from ..rules import site_metadata_rules
 from ..view_mixins import MetaDataViewMixin
-from .metadata_rules import register_to_site_reference_configs
 from .models import Enrollment, SubjectVisit, CrfOne, CrfThree
+from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 
 
@@ -30,7 +28,6 @@ class TestViewMixin(TestCase):
 
     def setUp(self):
         register_to_site_reference_configs()
-        site_metadata_rules.registry = OrderedDict()
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False

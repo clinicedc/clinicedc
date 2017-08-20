@@ -1,6 +1,5 @@
-from ..constants import CRF, NOT_REQUIRED
+from ..constants import CRF, NOT_REQUIRED, REQUISITION
 from ..metaforms import CrfMetaforms, RequisitionMetaforms
-from ..constants import REQUISITION
 
 
 class MetaDataViewMixin:
