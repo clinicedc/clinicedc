@@ -1,2 +1,0 @@
-class PrintLabelError(Exception):
-    pass
