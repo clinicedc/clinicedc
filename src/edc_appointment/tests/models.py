@@ -20,6 +20,10 @@ class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
+    @property
+    def registration_unique_field(self):
+        return 'subject_identifier'
+
 
 class EnrollmentOne(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
 
