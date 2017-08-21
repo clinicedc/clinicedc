@@ -4,6 +4,10 @@ from django.db import models
 from edc_base.model_mixins import DEFAULT_BASE_FIELDS
 
 
+class UpdatesOrCreatesRegistrationModelError(Exception):
+    pass
+
+
 class UpdatesOrCreatesRegistrationModelMixin(models.Model):
 
     """A model mixin that creates or updates RegisteredSubject
@@ -23,19 +27,19 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         Called from the signal
         """
         if not getattr(self, self.registration_unique_field):
-            raise TypeError(
-                'Cannot update or create RegisteredSubject. Got {} '
-                'is None.'.format(self.registration_unique_field))
+            raise UpdatesOrCreatesRegistrationModelError(
+                f'Cannot update or create RegisteredSubject. '
+                f'Field value for \'{self.registration_unique_field}\' is None.')
         try:
             obj = self.registration_model.objects.get(
-                **{'registration_identifier':
+                **{self.registration_unique_field:
                    getattr(self, self.registration_unique_field)})
         except self.registration_model.DoesNotExist:
             pass
         else:
             self.registration_raise_on_illegal_value_change(obj)
         registered_subject, created = self.registration_model.objects.update_or_create(
-            **{'registration_identifier': getattr(self, self.registration_unique_field)},
+            **{self.registration_unique_field: getattr(self, self.registration_unique_field)},
             defaults=self.registration_options)
         return registered_subject, created
 
