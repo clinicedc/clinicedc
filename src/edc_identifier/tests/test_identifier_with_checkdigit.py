@@ -8,7 +8,7 @@ from ..identifier_with_checkdigit import IdentifierWithCheckdigit
 @tag('checkdigit')
 class TestIdentifierWithCheckdigit(TestCase):
 
-    @tag('1')
+    
     def test_identifier_with_checkdigit(self):
         for identifier in ['18', '26', '34']:
             last_identifier = None
@@ -18,7 +18,7 @@ class TestIdentifierWithCheckdigit(TestCase):
                 self.assertEqual(identifier, instance.identifier)
                 last_identifier = instance.identifier
 
-    @tag('1')
+    
     def test_split_checkdigit_one(self):
         """Asserts can split identifier with checkdigit into identifier, checkdigit."""
         class DummyIdentifierWithCheckdigit(IdentifierWithCheckdigit):
@@ -32,7 +32,7 @@ class TestIdentifierWithCheckdigit(TestCase):
         self.assertEqual(identifier, identifier_with_checkdigit[:-1])
         self.assertEqual(checkdigit, identifier_with_checkdigit[-1:])
 
-    @tag('1')
+    
     def test_split_checkdigit_two(self):
         """Asserts can split identifier with checkdigit into identifier, checkdigit.
 

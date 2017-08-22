@@ -193,7 +193,6 @@ class IdentifierTracker(BaseUuidModel):
         return (self.identifier, )
 
     class Meta:
-        app_label = 'edc_identifier'
         ordering = ['root_number', 'counter']
         unique_together = ['root_number', 'counter']
 
@@ -210,5 +209,5 @@ class IdentifierHistory(IdentifierHistoryMixin, BaseUuidModel):
 
     history = HistoricalRecords()
 
-    class Meta:
-        app_label = 'edc_identifier'
+    def __str__(self):
+        return self.identifier
