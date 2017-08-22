@@ -27,7 +27,7 @@ class ConsentModelWrapperMixin:
         """
         try:
             consent = self.object.subjectconsent_set.get(
-                **self.get_consent_options)
+                **self.consent_options)
         except ObjectDoesNotExist:
             consent = self.consent_object.model(**self.create_consent_options)
         return self.consent_model_wrapper_cls(model_obj=consent)
@@ -44,7 +44,7 @@ class ConsentModelWrapperMixin:
         return options
 
     @property
-    def get_consent_options(self):
+    def consent_options(self):
         """Returns a dictionary of options to get an existing
         consent model instance.
         """
