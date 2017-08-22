@@ -10,6 +10,7 @@ import django_crypto_fields.fields.identity_field
 import django_crypto_fields.fields.lastname_field
 import django_extensions.db.fields
 import django_revision.revision_field
+import edc_base.model_fields.date_estimated
 import edc_base.model_fields.custom_fields
 import edc_base.model_fields.hostname_modification_field
 import edc_base.model_fields.userfield
@@ -58,7 +59,7 @@ class Migration(migrations.Migration):
                  django.core.validators.RegexValidator(message='Ensure initials consist of letters only in upper case, no spaces.', regex='^[A-Z]{2,3}$')])),
                 ('dob', models.DateField(
                     help_text='Format is YYYY-MM-DD', null=True, verbose_name='Date of birth')),
-                ('is_dob_estimated', edc_base.model_fields.custom_fields.IsDateEstimatedField(choices=[('-', 'No'), ('D', 'Yes, estimated the Day'), ('MD', 'Yes, estimated Month and Day'), (
+                ('is_dob_estimated', edc_base.model_fields.date_estimated.IsDateEstimatedField(choices=[('-', 'No'), ('D', 'Yes, estimated the Day'), ('MD', 'Yes, estimated Month and Day'), (
                     'YMD', 'Yes, estimated Year, Month and Day')], help_text='If the exact date is not known, please indicate which part of the date is estimated.', max_length=25, null=True, verbose_name='Is date of birth estimated?')),
                 ('gender', models.CharField(choices=[
                  ('M', 'Male'), ('F', 'Female')], max_length=1, null=True, verbose_name='Gender')),
