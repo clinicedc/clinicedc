@@ -48,7 +48,7 @@ class TimepointModelMixin(models.Model):
                 kwargs.get('update_fields') != ['timepoint_opened_datetime', 'timepoint_status'] and
                 kwargs.get('update_fields') != ['timepoint_closed_datetime', 'timepoint_status']):
             self.timepoint_open_or_raise()
-        super(TimepointModelMixin, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def timepoint_open_or_raise(self, timepoint=None, exception_cls=None):
         app_config = django_apps.get_app_config('edc_timepoint')
