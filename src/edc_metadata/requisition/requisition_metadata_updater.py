@@ -26,7 +26,8 @@ class RequisitionMetadataUpdater(MetadataUpdater):
             options.update({
                 'model': target_model,
                 'panel_name': target_panel,
-                'subject_identifier': self.visit.subject_identifier})
+                'subject_identifier': self.visit.subject_identifier,
+                'visit_code': self.visit.visit_code})
             try:
                 metadata_obj = self.target.metadata_model.objects.get(
                     **options)
