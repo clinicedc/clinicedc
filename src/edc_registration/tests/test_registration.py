@@ -62,3 +62,22 @@ class TestRegistration(TestCase):
         rs = RegisteredSubject.objects.get(
             subject_identifier=obj.subject_identifier)
         self.assertEqual(rs.dob, new_dob)
+
+    @tag('4')
+    def test_updates_registered_by_modeltwo(self):
+        """Assert 1 model creates RegisteredSubject and the other updates it.
+        """
+        obj = SubjectModelOne.objects.create(
+            screening_identifier='12345')
+        try:
+            RegisteredSubject.objects.get(
+                registration_identifier=obj.registration_identifier)
+        except ObjectDoesNotExist:
+            self.fail('RegisteredSubject was unexpectedly not created')
+
+        SubjectModelTwo.objects.create(
+            subject_identifier='12345',
+            dob=get_utcnow() - relativedelta(years=5))
+
+        rs = RegisteredSubject.objects.all()
+        self.assertEqual(rs.count(), 1)
