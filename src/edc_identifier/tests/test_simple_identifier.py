@@ -6,7 +6,6 @@ from edc_identifier.models import IdentifierHistory
 from django.core.exceptions import ObjectDoesNotExist
 
 
-@tag('1')
 class TestSimpleIdentifier(TestCase):
 
     def test_simple(self):
