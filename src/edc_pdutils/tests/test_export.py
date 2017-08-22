@@ -1,7 +1,9 @@
+import sys
 import csv
 import os
 import uuid
 
+from datetime import datetime
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
@@ -23,28 +25,7 @@ class TestExport(TestCase):
 
     def setUp(self):
         for i in range(0, 5):
-            subject_identifier = f'12345{i}'
-            visit_code = f'{i}000'
-            RegisteredSubject.objects.create(
-                subject_identifier=subject_identifier)
-            appointment = Appointment.objects.create(
-                subject_identifier=subject_identifier,
-                visit_code=visit_code,
-                appt_datetime=get_utcnow())
-            self.thing_one = ListModel.objects.create(
-                name=f'thing_one_{i}', short_name=f'thing_one_{i}')
-            self.thing_two = ListModel.objects.create(
-                name=f'thing_two_{i}', short_name=f'thing_two_{i}')
-            self.subject_visit = SubjectVisit.objects.create(
-                appointment=appointment,
-                subject_identifier=subject_identifier,
-                report_datetime=get_utcnow())
-            Crf.objects.create(
-                subject_visit=self.subject_visit,
-                char1=f'char{i}',
-                date1=get_utcnow(),
-                int1=i,
-                uuid1=uuid.uuid4())
+            self.create_crf(i)
 
     def tearDown(self):
         """Remove .csv files created in tests.
@@ -57,6 +38,31 @@ class TestExport(TestCase):
             if '.csv' in file:
                 file = os.path.join(self.path, file)
                 os.remove(file)
+
+    def create_crf(self, i=None):
+        i = i or 0
+        subject_identifier = f'12345{i}'
+        visit_code = f'{i}000'
+        RegisteredSubject.objects.create(
+            subject_identifier=subject_identifier)
+        appointment = Appointment.objects.create(
+            subject_identifier=subject_identifier,
+            visit_code=visit_code,
+            appt_datetime=get_utcnow())
+        self.thing_one = ListModel.objects.create(
+            name=f'thing_one_{i}', short_name=f'thing_one_{i}')
+        self.thing_two = ListModel.objects.create(
+            name=f'thing_two_{i}', short_name=f'thing_two_{i}')
+        self.subject_visit = SubjectVisit.objects.create(
+            appointment=appointment,
+            subject_identifier=subject_identifier,
+            report_datetime=get_utcnow())
+        Crf.objects.create(
+            subject_visit=self.subject_visit,
+            char1=f'char{i}',
+            date1=get_utcnow(),
+            int1=i,
+            uuid1=uuid.uuid4())
 
     def test_none(self):
         Crf.objects.all().delete()
