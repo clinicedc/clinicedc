@@ -1,7 +1,10 @@
 import numpy as np
 import pandas as pd
 
-from django_crypto_fields.field_cryptor import FieldCryptor
+try:
+    from django_crypto_fields.field_cryptor import FieldCryptor
+except ModuleNotFoundError:
+    pass
 
 
 class DecryptError(Exception):

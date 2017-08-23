@@ -1,20 +1,17 @@
-import sys
 import csv
 import os
 import uuid
 
-from datetime import datetime
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
+from edc_pdutils.mysqldb import Credentials
 from edc_registration.models import RegisteredSubject
 
+from ..csv_exporters import CsvModelExporter, CsvTablesExporter
 from ..model_to_dataframe import ModelToDataframe
-from .models import ListModel, SubjectVisit, Crf
-from pprint import pprint
-from edc_pdutils.tests.models import CrfEncrypted
-from edc_pdutils.csv_exporter import CsvExporter
+from .models import ListModel, SubjectVisit, Crf, CrfEncrypted
 
 app_config = django_apps.get_app_config('edc_pdutils')
 
@@ -85,7 +82,6 @@ class TestExport(TestCase):
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
         self.assertEqual(len(list(m.dataframe.columns)), 18)
 
-    @tag('1')
     def test_values(self):
         model = 'edc_pdutils.crf'
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
@@ -119,28 +115,27 @@ class TestExport(TestCase):
         CrfEncrypted.objects.create(
             subject_visit=self.subject_visit,
             encrypted1=f'encrypted1')
-        exporter = CsvExporter(
+        model_exporter = CsvModelExporter(
             queryset=CrfEncrypted.objects.all(), add_columns_for='subject_visit')
-        exporter.to_csv()
+        model_exporter.to_csv()
 
     def test_encrypted_to_csv_from_model(self):
         CrfEncrypted.objects.create(
             subject_visit=self.subject_visit,
             encrypted1=f'encrypted1')
-        exporter = CsvExporter(
+        model_exporter = CsvModelExporter(
             model='edc_pdutils.CrfEncrypted', add_columns_for='subject_visit')
-        exporter.to_csv()
+        model_exporter.to_csv()
 
     def test_records_to_csv_from_qs(self):
-        exporter = CsvExporter(
+        model_exporter = CsvModelExporter(
             queryset=Crf.objects.all(), add_columns_for='subject_visit')
-        exporter.to_csv()
+        model_exporter.to_csv()
 
-    @tag('1')
     def test_records_to_csv_from_model(self):
-        exporter = CsvExporter(
+        model_exporter = CsvModelExporter(
             model='edc_pdutils.crf', add_columns_for='subject_visit')
-        path = exporter.to_csv()
+        path = model_exporter.to_csv()
         with open(path, 'r') as f:
             csv_reader = csv.DictReader(f, delimiter='|')
             rows = [row for row in enumerate(csv_reader)]
@@ -148,3 +143,22 @@ class TestExport(TestCase):
         for i in range(0, 5):
             self.assertEqual(rows[i][1].get('subject_identifier'), f'12345{i}')
             self.assertEqual(rows[i][1].get('visit_code'), f'{i}000')
+
+    def test_tables_to_csv_from_app_label(self):
+        credentials = Credentials(
+            user='root', passwd='cc3721b', host='localhost', port='3306', dbname='bhp066')
+        tables_exporter = CsvTablesExporter(
+            app_label='bcpp_clinic', credentials=credentials)
+        for path in tables_exporter.exported_paths:
+            with open(path, 'r') as f:
+                csv_reader = csv.DictReader(f, delimiter='|')
+                rows = [row for row in enumerate(csv_reader)]
+            self.assertGreater(len(rows), 0)
+
+    def test_tables_to_csv_from_app_label_exclude_history(self):
+        credentials = Credentials(
+            user='root', passwd='cc3721b', host='localhost', port='3306', dbname='bhp066')
+        tables_exporter = CsvTablesExporter(
+            app_label='bcpp_clinic', credentials=credentials, exclude_history=True)
+        for path in tables_exporter.exported_paths:
+            self.assertNotIn('history', path)

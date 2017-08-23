@@ -36,8 +36,11 @@ class SubjectConsent(BaseUuidModel):
 
     marriage_certificate = models.CharField(max_length=25, null=True)
 
-    happy = models.CharField(max_length=25, choices=(
-        ('YES', 'YES', 1), ('NO', 'NO', 2)), null=True)
+    happy = models.CharField(
+        max_length=25,
+        choices=(
+            ('YES', 'YES'), ('NO', 'NO')),
+        null=True)
 
 
 class SubjectLocator(BaseUuidModel):

@@ -17,9 +17,10 @@ class ModelToDataframe:
     sys_field_names = ['_state', '_user_container_instance', 'using']
 
     def __init__(self, model=None, queryset=None, query_filter=None,
-                 add_columns_for=None):
+                 add_columns_for=None, decrypt=None):
         self._columns = None
         self._dataframe = pd.DataFrame()
+        self.decrypt = decrypt
         self.add_columns_for = add_columns_for
         self.query_filter = query_filter or {}
         if queryset:
@@ -35,7 +36,7 @@ class ModelToDataframe:
         if self._dataframe.empty:
             row_count = self.queryset.count()
             if row_count > 0:
-                if self.has_encrypted_fields:
+                if self.has_encrypted_fields and self.decrypt:
                     queryset = self.queryset.filter(**self.query_filter)
                     data = []
                     for index, model_obj in enumerate(queryset.order_by('id')):
