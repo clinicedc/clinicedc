@@ -45,15 +45,19 @@ class MysqlDialect:
         return 'SELECT SCHEMA_NAME AS `database` FROM INFORMATION_SCHEMA.SCHEMATA'
 
     def show_tables(self, app_label=None):
+        select = ('SELECT table_name FROM information_schema.tables')
+        where = [f'table_schema=\'{self.dbname}\'']
         if app_label:
-            sql = (
-                f'SELECT table_name FROM information_schema.'
-                f'tables WHERE table_schema=\'{self.dbname}\' '
-                f'AND table_name LIKE \'{app_label}%%\'')
-        else:
-            sql = (f'SELECT table_name FROM information_schema.tables '
-                   f'WHERE table_schema=\'{self.dbname}\'')
-        return sql
+            where.append(f'table_name LIKE \'{app_label}%%\'')
+        return f'{select} WHERE {" AND ".join(where)}'
+
+    def show_tables_with_columns(self, app_label=None, column_names=None):
+        column_names = '\',\''.join(column_names)
+        return (
+            'SELECT DISTINCT table_name FROM information_schema.columns '
+            f'WHERE table_schema=\'{self.dbname}\' '
+            f'AND table_name LIKE \'{app_label}%%\' '
+            f'AND column_name IN (\'{column_names}\')')
 
     def select_table(self, table_name=None):
         return f'select * from {table_name}'
@@ -90,24 +94,40 @@ class MysqlDb(object):
             credentials.dbname = dbname
 
     def show_databases(self):
+        """Returns a dataframe of database names in the schema.
+        """
         with self.engine.connect() as conn, conn.begin():
             df = pd.read_sql(
                 self.dialect.show_databases(), conn)
         return df
 
     def select_table(self, table_name=None):
+        """Returns a dataframe of a table.
+        """
         with self.engine.connect() as conn, conn.begin():
             df = pd.read_sql(
                 self.dialect.select_table(table_name), conn)
         return df
 
     def show_tables(self, app_label=None):
+        """Returns a dataframe of table names in the schema.
+        """
         with self.engine.connect() as conn, conn.begin():
             df = pd.read_sql(
                 self.dialect.show_tables(app_label), conn)
         return df
 
+    def show_tables_with_columns(self, app_label=None, column_names=None):
+        """Returns a dataframe of table names in the schema.
+        """
+        with self.engine.connect() as conn, conn.begin():
+            df = pd.read_sql(
+                self.dialect.show_tables_with_columns(app_label, column_names), conn)
+        return df
+
     def to_df(self, table_name=None, rename_columns=None, force_lower_columns=None):
+        """Returns as a dataframe.
+        """
         force_lower_columns = True if force_lower_columns is None else force_lower_columns
         with self.engine.connect() as conn, conn.begin():
             df = pd.read_sql_table(table_name, conn)

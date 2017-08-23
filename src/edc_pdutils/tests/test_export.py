@@ -1,3 +1,4 @@
+import sys
 import csv
 import os
 import uuid
@@ -9,7 +10,7 @@ from edc_base.utils import get_utcnow
 from edc_pdutils.mysqldb import Credentials
 from edc_registration.models import RegisteredSubject
 
-from ..csv_exporters import CsvModelExporter, CsvTablesExporter
+from ..csv_exporters import CsvModelExporter, CsvTablesExporter, CsvCrfTablesExporter
 from ..model_to_dataframe import ModelToDataframe
 from .models import ListModel, SubjectVisit, Crf, CrfEncrypted
 
@@ -145,6 +146,7 @@ class TestExport(TestCase):
             self.assertEqual(rows[i][1].get('visit_code'), f'{i}000')
 
     def test_tables_to_csv_from_app_label(self):
+        sys.stdout.write('\n')
         credentials = Credentials(
             user='root', passwd='cc3721b', host='localhost', port='3306', dbname='bhp066')
         tables_exporter = CsvTablesExporter(
@@ -156,9 +158,25 @@ class TestExport(TestCase):
             self.assertGreater(len(rows), 0)
 
     def test_tables_to_csv_from_app_label_exclude_history(self):
+        sys.stdout.write('\n')
         credentials = Credentials(
             user='root', passwd='cc3721b', host='localhost', port='3306', dbname='bhp066')
         tables_exporter = CsvTablesExporter(
             app_label='bcpp_clinic', credentials=credentials, exclude_history=True)
         for path in tables_exporter.exported_paths:
             self.assertNotIn('history', path)
+
+    @tag('1')
+    def test_tables_to_csv_from_app_label_with_columns(self):
+        sys.stdout.write('\n')
+        credentials = Credentials(
+            user='root', passwd='cc3721b', host='localhost', port='3306', dbname='bhp066')
+        tables_exporter = CsvCrfTablesExporter(
+            app_label='bcpp_clinic', credentials=credentials,
+            visit_column='clinic_visit_id')
+        self.assertNotEqual(tables_exporter.exported_paths, [])
+        for path in tables_exporter.exported_paths:
+            with open(path, 'r') as f:
+                csv_reader = csv.DictReader(f, delimiter='|')
+                rows = [row for row in enumerate(csv_reader)]
+            self.assertGreater(len(rows), 0)
