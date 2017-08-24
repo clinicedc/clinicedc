@@ -9,11 +9,22 @@ app_config = django_apps.get_app_config('edc_pdutils')
 style = color_style()
 
 
+class CsvExporterExportFolder(Exception):
+    pass
+
+
 class CsvExporter:
 
     delimiter = '|'
     encoding = 'utf-8'
     export_folder = app_config.export_folder
+
+    def __init__(self, export_folder=None, **kwargs):
+        if export_folder:
+            self.export_folder = export_folder
+        if not self.export_folder or not os.path.exists(self.export_folder):
+            raise CsvExporterExportFolder(
+                f'Invalid export folder. Got {self.export_folder}')
 
     def to_csv(self, label=None, dataframe=None, include_index=None, exists_ok=None):
         sys.stdout.write(label + '\r')

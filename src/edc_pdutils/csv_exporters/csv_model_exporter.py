@@ -1,5 +1,3 @@
-import os
-
 from django.core.management.color import color_style
 
 from ..model_to_dataframe import ModelToDataframe
@@ -14,6 +12,7 @@ class CsvModelExporter(CsvExporter):
     dataframe_maker_cls = ModelToDataframe
 
     def __init__(self, model=None, queryset=None, decrypt=None, **kwargs):
+        super().__init__(**kwargs)
         self.dataframe_maker = self.dataframe_maker_cls(
             model=model, queryset=queryset,
             decrypt=decrypt, **kwargs)

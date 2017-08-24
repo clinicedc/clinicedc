@@ -1,4 +1,4 @@
-from ..df_prepper import DfPrepper
+from ..df_preppers import DfPrepper
 from ..mysqldb import MysqlDb
 from .csv_exporter import CsvExporter
 
@@ -26,6 +26,7 @@ class CsvTablesExporter(CsvExporter):
 
     def __init__(self, app_label=None, table_names=None, credentials=None,
                  exclude_history=None, **kwargs):
+        super().__init__(**kwargs)
         self.db = self.db_cls(credentials=credentials, **kwargs)
         if not table_names:
             table_names = self.get_table_names(app_label=app_label, **kwargs)
