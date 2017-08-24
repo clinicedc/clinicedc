@@ -38,7 +38,8 @@ class CsvTablesExporter(CsvExporter):
         for table_name in table_names:
             df = self.db.select_table(table_name)
             if self.df_prepper_cls:
-                df = self.df_prepper_cls(dataframe=df, db=self.db).dataframe
+                df = self.df_prepper_cls(
+                    dataframe=df, original_row_count=len(df.index)).dataframe
             path = super().to_csv(label=table_name, dataframe=df)
             if path:
                 self.exported_paths.append(path)
