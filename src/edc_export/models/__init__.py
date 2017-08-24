@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from .export_plan import ExportPlan
+from .plan import Plan
 from .export_receipt import ExportReceipt
 from .file_history import FileHistory
 from .object_history import ObjectHistory

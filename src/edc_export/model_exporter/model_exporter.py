@@ -51,14 +51,12 @@ class ModelExporter(object):
 
     def __init__(self, queryset=None, model=None, field_names=None,
                  exclude_field_names=None, lookups=None,
-                 exclude_m2m=None, encrypt=None,
-                 notification_plan_name=None):
+                 exclude_m2m=None, encrypt=None):
         self._model = model
         self._model_cls = None
         self.encrypt = True if encrypt is None else encrypt
         self.exclude_m2m = exclude_m2m
         self.lookups = lookups or {}
-        self.notification_plan_name = notification_plan_name
         self.queryset = queryset
         self.row = None
         self.row_instance = None
@@ -121,8 +119,7 @@ class ModelExporter(object):
             path=path,
             delimiter=self.delimiter,
             model=self.model_cls._meta.label_lower,
-            filename=filename,
-            notification_plan_name=self.notification_plan_name)
+            filename=filename)
         file_history_updater.update()
         return path
 

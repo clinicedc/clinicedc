@@ -68,7 +68,8 @@ class ValueGetter:
         """
         value = ''
         for f in model_obj.__class__._meta.fields:
-            if f.name == field_name and issubclass(f.__class__, BaseEncryptedField) and self.encrypt:
+            if (f.name == field_name and issubclass(f.__class__, BaseEncryptedField)
+                    and self.encrypt):
                 value = self.encrypted_label
         if value != self.encrypted_label:
             try:

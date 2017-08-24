@@ -124,7 +124,7 @@ class TesExportModel(TestCase):
         for i, name in enumerate(model_exporter.audit_fields):
             self.assertEqual(name, model_exporter.field_names[i])
 
-    @tag('1')
+    @tag('2')
     def test_with_queryset(self):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(queryset=queryset)
