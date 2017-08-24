@@ -93,6 +93,13 @@ class MysqlDb(object):
         else:
             credentials.dbname = dbname
 
+    def read_sql(self, sql=None):
+        """Returns a dataframe. A simple wrapper for pd.read_sql().
+        """
+        with self.engine.connect() as conn, conn.begin():
+            df = pd.read_sql(sql, conn)
+        return df
+
     def show_databases(self):
         """Returns a dataframe of database names in the schema.
         """

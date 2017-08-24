@@ -9,6 +9,17 @@ class CsvTablesExporterError(Exception):
 
 class CsvTablesExporter(CsvExporter):
 
+    """Export all tables for an app_label.
+
+    Usage:
+        credentials = Credentials(
+            user='user', passwd='passwd', dbname='bhp085',
+            port='5001', host='td.bhp.org.bw')
+        tables_exporter = CsvTablesExporter(app_label='td', credentials=credentials)
+        tables_exporter = CsvTablesExporter(app_label='edc', credentials=credentials)
+
+    """
+
     db_cls = MysqlDb
     excluded_app_labels = ['edc_sync']
     df_prepper_cls = DfPrepper
@@ -26,7 +37,7 @@ class CsvTablesExporter(CsvExporter):
         for table_name in table_names:
             df = self.db.select_table(table_name)
             if self.df_prepper_cls:
-                df = self.df_prepper_cls(dataframe=df).dataframe
+                df = self.df_prepper_cls(dataframe=df, db=self.db).dataframe
             path = super().to_csv(label=table_name, dataframe=df)
             if path:
                 self.exported_paths.append(path)
