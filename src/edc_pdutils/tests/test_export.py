@@ -7,10 +7,10 @@ from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
-from edc_pdutils.mysqldb import Credentials
 from edc_registration.models import RegisteredSubject
 
 from ..csv_exporters import CsvModelExporter, CsvTablesExporter, CsvCrfTablesExporter
+from ..db import Credentials
 from ..model_to_dataframe import ModelToDataframe
 from .models import ListModel, SubjectVisit, Crf, CrfEncrypted
 
@@ -166,17 +166,21 @@ class TestExport(TestCase):
         for path in tables_exporter.exported_paths:
             self.assertNotIn('history', path)
 
-    @tag('1')
-    def test_tables_to_csv_from_app_label_with_columns(self):
-        sys.stdout.write('\n')
-        credentials = Credentials(
-            user='root', passwd='cc3721b', host='localhost', port='3306', dbname='bhp066')
-        tables_exporter = CsvCrfTablesExporter(
-            app_label='bcpp_clinic', credentials=credentials,
-            visit_column='clinic_visit_id')
-        self.assertNotEqual(tables_exporter.exported_paths, [])
-        for path in tables_exporter.exported_paths:
-            with open(path, 'r') as f:
-                csv_reader = csv.DictReader(f, delimiter='|')
-                rows = [row for row in enumerate(csv_reader)]
-            self.assertGreater(len(rows), 0)
+#     @tag('1')
+#     def test_tables_to_csv_from_app_label_with_columns(self):
+#         sys.stdout.write('\n')
+#         credentials = Credentials(
+#             user='root', passwd='cc3721b', host='localhost', port='3306', dbname='bhp066')
+#         tables_exporter = CsvCrfTablesExporter(
+#             app_label='bcpp_clinic', credentials=credentials,
+#             visit_tbl='bcpp_clinic_clinicvisit',
+#             visit_column='clinic_visit_id',
+#             registered_subject_tbl='bhp_registration_registeredsubject',
+#             appointment_tbl='bhp_appointment_appointment',
+#             visit_definition_tbl='bhp_visit_visitdefinition')
+#         self.assertNotEqual(tables_exporter.exported_paths, [])
+#         for path in tables_exporter.exported_paths:
+#             with open(path, 'r') as f:
+#                 csv_reader = csv.DictReader(f, delimiter='|')
+#                 rows = [row for row in enumerate(csv_reader)]
+#             self.assertGreater(len(rows), 0)

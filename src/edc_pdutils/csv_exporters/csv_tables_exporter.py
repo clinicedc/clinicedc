@@ -1,5 +1,5 @@
 from ..df_preppers import DfPrepper
-from ..mysqldb import MysqlDb
+from ..mysql import MysqlDb
 from .csv_exporter import CsvExporter
 
 
@@ -38,8 +38,9 @@ class CsvTablesExporter(CsvExporter):
         for table_name in table_names:
             df = self.db.select_table(table_name)
             if self.df_prepper_cls:
-                df = self.df_prepper_cls(
-                    dataframe=df, original_row_count=len(df.index)).dataframe
+                prepper = self.df_prepper_cls(
+                    dataframe=df, db=self.db, **kwargs)
+                df = prepper.dataframe
             path = super().to_csv(label=table_name, dataframe=df)
             if path:
                 self.exported_paths.append(path)

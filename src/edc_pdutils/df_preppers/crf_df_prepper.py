@@ -1,11 +1,14 @@
 import pandas as pd
 
 from .df_prepper import DfPrepper
+from ..mysql import Dialect
 
 
-class Dialect:
+class CrfDialect(Dialect):
 
-    def select_visit_and_related(self, visit_tbl=None, visit_column=None, **kwargs):
+    def select_visit_and_related(self, visit_tbl=None, visit_column=None,
+                                 appointment_tbl=None, registered_subject_tbl=None,
+                                 visit_definition_tbl=None, **kwargs):
         """Returns an SQL statement that joins visit, appt, and registered_subject.
 
         This is for older EDC versions that use this schema.
@@ -19,18 +22,18 @@ class Dialect:
             'R.screening_age_in_years, R.registration_status, R.registration_datetime, '
             'R.randomization_datetime, V.survival_status, V.last_alive_date, '
             f'V.id as {visit_column} '
-            'from edc_appointment_appointment as A '
+            f'from {appointment_tbl} as A '
             f'LEFT JOIN {visit_tbl} as V on A.id=V.appointment_id '
-            'LEFT JOIN edc_visit_schedule_visitdefinition as VDEF '
+            f'LEFT JOIN {visit_definition_tbl} as VDEF '
             'on A.visit_definition_id=VDEF.id '
-            'LEFT JOIN edc_registration_registeredsubject as R '
+            f'LEFT JOIN {registered_subject_tbl} as R '
             'on A.registered_subject_id=R.id '
         )
 
 
-class CrfDfPrepper:
+class CrfDfPrepper(DfPrepper):
 
-    dialect_cls = Dialect
+    dialect_cls = CrfDialect
     visit_column = 'subject_visit_id'
     visit_tbl = None
 
@@ -41,15 +44,18 @@ class CrfDfPrepper:
         'hostname_created', 'hostname_modified', 'revision']
     visit_definition_tbl = 'edc_visit_schedule_visitdefinition'
     sort_by = ['subject_identifier', 'visit_datetime']
-    default_prepper_cls = DfPrepper
 
-    def __init__(self, dataframe=None, db=None):
+    def __init__(self, visit_column=None, visit_tbl=None, appointment_tbl=None,
+                 registered_subject_tbl=None, visit_definition_tbl=None, **kwargs):
         self._df_visit_and_related = pd.DataFrame()
+        self.visit_column = visit_column or self.visit_column
+        self.visit_tbl = visit_tbl or self.visit_tbl
+        self.appointment_tbl = appointment_tbl or self.appointment_tbl
+        self.registered_subject_tbl = registered_subject_tbl or self.registered_subject_tbl
+        self.visit_definition_tbl = visit_definition_tbl or self.visit_definition_tbl
+        super().__init__(**kwargs)
 
-        original_row_count = len(dataframe.index)
-        self.db = db
-        self.dialect = self.dialect_cls()
-
+    def prepare_dataframe(self, dataframe=None):
         crf_columns = list(dataframe.columns)
         crf_columns.pop(crf_columns.index(self.visit_column))
         columns = list(self.df_visit_and_related.columns)
@@ -64,12 +70,7 @@ class CrfDfPrepper:
         columns = [col for col in columns if col not in self.system_columns]
         columns.extend(self.system_columns)
         dataframe = dataframe[columns]
-
-        prepper = self.default_prepper_cls(
-            dataframe=dataframe,
-            original_row_count=original_row_count,
-            sort_by=self.sort_by)
-        self.dataframe = prepper.dataframe
+        return dataframe
 
     @property
     def select_visit_and_related(self):
@@ -77,7 +78,11 @@ class CrfDfPrepper:
         related fields, .e.g. fields from appointment and registered subject.
         """
         return self.dialect.select_visit_and_related(
-            self.visit_tbl, self.visit_column)
+            visit_column=self.visit_column,
+            visit_tbl=self.visit_tbl,
+            appointment_tbl=self.appointment_tbl,
+            registered_subject_tbl=self.registered_subject_tbl,
+            visit_definition_tbl=self.visit_definition_tbl)
 
     @property
     def df_visit_and_related(self):

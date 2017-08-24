@@ -18,6 +18,7 @@ class CsvExporter:
     delimiter = '|'
     encoding = 'utf-8'
     export_folder = app_config.export_folder
+    csv_date_format = None
 
     def __init__(self, export_folder=None, **kwargs):
         if export_folder:
@@ -42,7 +43,8 @@ class CsvExporter:
                     path_or_buf=path,
                     index=include_index,
                     encoding=self.encoding,
-                    sep=self.delimiter)
+                    sep=self.delimiter,
+                    date_format=self.csv_date_format)
                 sys.stdout.write(f'(*) {label}           \n')
         else:
             sys.stdout.write(f'(?) {label} empty  \n')
