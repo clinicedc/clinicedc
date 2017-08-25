@@ -151,7 +151,7 @@ class TestExport(TestCase):
             user='root', passwd='cc3721b', host='localhost', port='3306', dbname='bhp066')
         tables_exporter = CsvTablesExporter(
             app_label='bcpp_clinic', credentials=credentials)
-        for path in tables_exporter.exported_paths:
+        for path in tables_exporter.exported_paths.values():
             with open(path, 'r') as f:
                 csv_reader = csv.DictReader(f, delimiter='|')
                 rows = [row for row in enumerate(csv_reader)]
