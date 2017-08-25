@@ -1,6 +1,6 @@
 class Dialect:
 
-    def __init__(self, dbname=None, **kwargs):
+    def __init__(self, dbname=None):
         self.dbname = dbname
 
     def show_databases(self):

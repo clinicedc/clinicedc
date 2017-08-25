@@ -9,7 +9,7 @@ class CsvTablesExporterError(Exception):
 
 class CsvTablesExporter(CsvExporter):
 
-    """Export all tables for an app_label.
+    """Export to CSV all tables for an app_label.
 
     Usage:
         credentials = Credentials(
@@ -34,16 +34,16 @@ class CsvTablesExporter(CsvExporter):
             table_names = [
                 tbl for tbl in table_names
                 if not tbl.endswith('history') and not tbl.endswith('_audit')]
-        self.exported_paths = []
+        self.exported_paths = {}
         for table_name in table_names:
             df = self.db.select_table(table_name)
             if self.df_prepper_cls:
-                prepper = self.df_prepper_cls(
+                df_prepper = self.df_prepper_cls(
                     dataframe=df, db=self.db, **kwargs)
-                df = prepper.dataframe
+                df = df_prepper.dataframe
             path = super().to_csv(label=table_name, dataframe=df)
             if path:
-                self.exported_paths.append(path)
+                self.exported_paths.update({table_name: path})
 
     def get_table_names(self, app_label=None, **kwargs):
         df = self.db.show_tables(app_label)

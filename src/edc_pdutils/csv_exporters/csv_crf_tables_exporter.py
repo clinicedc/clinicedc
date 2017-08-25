@@ -13,22 +13,14 @@ class CsvCrfTablesExporterColumnError(Exception):
 class CsvCrfTablesExporter(CsvTablesExporter):
 
     visit_column = None  # column to appear in all tables selected
-    appointment_tbl = 'edc_appointment_appointment'
-    registered_subject_tbl = 'edc_registration_registeredsubject'
     df_prepper_cls = CrfDfPrepper
 
-    def __init__(self, visit_column=None, appointment_tbl=None,
-                 registered_subject_tbl=None, **kwargs):
+    def __init__(self, visit_column=None, **kwargs):
         if visit_column:
             self.visit_column = visit_column
         if not self.visit_column:
             raise CsvCrfTablesExporter('Visit column not specified. Got None.')
-        self.appointment_tbl = appointment_tbl or self.appointment_tbl
-        self.registered_subject_tbl = registered_subject_tbl or self.registered_subject_tbl
-        super().__init__(visit_column=self.visit_column,
-                         appointment_tbl=self.appointment_tbl,
-                         registered_subject_tbl=self.registered_subject_tbl,
-                         **kwargs)
+        super().__init__(visit_column=self.visit_column, **kwargs)
 
     def get_table_names(self, app_label=None, **kwargs):
         """Returns a list of table names of tables for this
