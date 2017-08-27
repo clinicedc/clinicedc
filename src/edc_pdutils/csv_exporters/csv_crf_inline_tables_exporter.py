@@ -18,6 +18,7 @@ class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
         """
         self.exported_paths = {}
         for table_name in self.table_names:
+            print(table_name)
             df_table = self.to_df(
                 table_name=table_name, exclude_system_columns=True, **kwargs)
             for row in self.get_inline_table_names(table_name).itertuples():

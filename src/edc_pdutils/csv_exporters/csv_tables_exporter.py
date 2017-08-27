@@ -22,15 +22,16 @@ class CsvTablesExporter:
 
     db_cls = Database
     excluded_app_labels = ['edc_sync']
+    delimiter = '|'
     exclude_history_tables = False
     df_prepper_cls = DfPrepper
     csv_exporter_cls = CsvExporter
 
-    def __init__(self, app_label=None, table_names=None, credentials=None,
+    def __init__(self, app_label=None, table_names=None,
                  **kwargs):
         self._table_names = None
         self.app_label = app_label
-        self.db = self.db_cls(credentials=credentials, **kwargs)
+        self.db = self.db_cls(**kwargs)
         if table_names:
             for table_name in table_names:
                 if table_name not in self.table_names:
@@ -41,8 +42,12 @@ class CsvTablesExporter:
         if self.exclude_history_tables:
             self._table_names = [
                 tbl for tbl in self.table_names
-                if not tbl.endswith('history') and not tbl.endswith('_audit')]
+                if 'historical' not in tbl and not tbl.endswith('_audit')]
+        print(self, 'hello')
         self.export_tables_to_csv(**kwargs)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}(app_label=\'{self.app_label}\')'
 
     def export_tables_to_csv(self, **kwargs):
         """Exports all tables to CSV.

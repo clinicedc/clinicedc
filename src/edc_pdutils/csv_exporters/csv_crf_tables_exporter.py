@@ -1,5 +1,6 @@
 from ..df_preppers import CrfDfPrepper
 from .csv_tables_exporter import CsvTablesExporter
+from pprint import pprint
 
 
 class CsvExporterNoTables(Exception):
@@ -28,6 +29,10 @@ class CsvCrfTablesExporter(CsvTablesExporter):
                 'Visit column not specified. Got None.')
         super().__init__(visit_column=self.visit_column, **kwargs)
 
+    def __repr__(self):
+        return (f'{self.__class__.__name__}(app_label=\'{self.app_label}\','
+                f'visit_column=\'{self.visit_column}\')')
+
     @property
     def table_names(self):
         """Returns a list of table names for this
@@ -37,4 +42,5 @@ class CsvCrfTablesExporter(CsvTablesExporter):
             df = self.db.show_tables_with_columns(
                 self.app_label, [self.visit_column])
             self._table_names = list(df.table_name)
+            pprint(self._table_names)
         return self._table_names

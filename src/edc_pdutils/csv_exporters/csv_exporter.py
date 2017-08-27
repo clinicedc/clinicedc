@@ -27,9 +27,8 @@ class CsvExporter:
     csv_date_format = None
     sort_by = None
 
-    def __init__(self, data_label=None, sort_by=None):
+    def __init__(self, data_label=None):
         self._filename = None
-        self.sort_by = sort_by or self.sort_by
         if not os.path.exists(self.export_folder):
             raise CsvExporterExportFolder(
                 f'Invalid export folder. Got {self.export_folder}')

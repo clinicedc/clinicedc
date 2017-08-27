@@ -6,6 +6,10 @@ from django.db import connection
 from .dialects import MysqlDialect
 
 
+class DatabaseNameError(Exception):
+    pass
+
+
 class Database:
 
     dialect_cls = MysqlDialect
@@ -14,6 +18,16 @@ class Database:
     def __init__(self, **kwargs):
         self._tables = pd.DataFrame()
         self.database = settings.DATABASES.get('default').get('NAME')
+        if not self.database:
+            filename = settings.DATABASES.get('default').get(
+                'OPTIONS').get('read_default_file')
+            with open(filename, 'r') as f:
+                for line in f:
+                    if 'database' in line:
+                        self.database = line.split('=')[1].strip()
+        if not self.database:
+            raise DatabaseNameError(
+                'Unable to determine the DB name from settings.')
         self.dialect = self.dialect_cls(dbname=self.database)
 
     def read_sql(self, sql, params=None):
