@@ -7,20 +7,18 @@ from .csv_exporter import CsvExporter
 style = color_style()
 
 
-class CsvModelExporter(CsvExporter):
+class CsvModelExporter:
 
-    dataframe_maker_cls = ModelToDataframe
+    df_maker_cls = ModelToDataframe
+    csv_exporter_cls = CsvExporter
 
-    def __init__(self, model=None, queryset=None, decrypt=None, **kwargs):
-        super().__init__(**kwargs)
-        self.dataframe_maker = self.dataframe_maker_cls(
+    def __init__(self, model=None, queryset=None, decrypt=None, sort_by=None, **kwargs):
+        self.model = model or queryset.model._meta.label_lower
+        self.df_maker = self.df_maker_cls(
             model=model, queryset=queryset,
             decrypt=decrypt, **kwargs)
-        self.model = self.dataframe_maker.model
+        self.csv_exporter = self.csv_exporter_cls(
+            data_label=self.model, sort_by=sort_by)
 
-    def to_csv(self, include_index=None, exists_ok=None):
-        return super().to_csv(
-            label=self.model,
-            dataframe=self.dataframe_maker.dataframe,
-            exists_ok=exists_ok,
-            include_index=include_index)
+    def to_csv(self):
+        return self.csv_exporter.to_csv(self.df_maker.dataframe)

@@ -1,16 +1,17 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+from django_crypto_fields.fields.encrypted_char_field import EncryptedCharField
 from edc_appointment.models import Appointment
 from edc_base.model_mixins import BaseUuidModel
+from edc_base.model_mixins.list_model_mixin import ListModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES
-from edc_base.model_mixins.list_model_mixin import ListModelMixin
-from django_crypto_fields.fields.encrypted_char_field import EncryptedCharField
+from edc_visit_tracking.model_mixins import VisitModelFieldsMixin
 
 
-class SubjectVisit(BaseUuidModel):
+class SubjectVisit(VisitModelFieldsMixin, BaseUuidModel):
 
-    appointment = models.ForeignKey(Appointment, null=True)
+    appointment = models.OneToOneField(Appointment, on_delete=models.PROTECT)
 
     subject_identifier = models.CharField(max_length=25)
 
@@ -81,8 +82,6 @@ class ListModel(ListModelMixin):
 
 class Crf(CrfModelMixin, BaseUuidModel):
 
-    subject_visit = models.ForeignKey(SubjectVisit)
-
     char1 = models.CharField(max_length=25, null=True)
 
     date1 = models.DateTimeField(null=True)
@@ -94,8 +93,30 @@ class Crf(CrfModelMixin, BaseUuidModel):
     m2m = models.ManyToManyField(ListModel)
 
 
-class CrfEncrypted(CrfModelMixin, BaseUuidModel):
+class CrfOne(CrfModelMixin, BaseUuidModel):
 
-    subject_visit = models.ForeignKey(SubjectVisit)
+    dte = models.DateTimeField(default=get_utcnow)
+
+
+class CrfTwo(CrfModelMixin, BaseUuidModel):
+
+    dte = models.DateTimeField(default=get_utcnow)
+
+
+class CrfThree(CrfModelMixin, BaseUuidModel):
+
+    UPPERCASE = models.DateTimeField(default=get_utcnow)
+
+
+class CrfInline(BaseUuidModel):
+
+    crf_one = models.ForeignKey(CrfOne)
+
+    crf_two = models.ForeignKey(CrfTwo)
+
+    dte = models.DateTimeField(default=get_utcnow)
+
+
+class CrfEncrypted(CrfModelMixin, BaseUuidModel):
 
     encrypted1 = EncryptedCharField(null=True)

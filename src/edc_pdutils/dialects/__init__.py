@@ -1,2 +1,2 @@
-from .mysqldb import MysqlDb
-from .dialect import Dialect
+from .crf_dialect import CrfDialect
+from .mysql_dialect import MysqlDialect

@@ -14,8 +14,10 @@ class DfPrepper:
     na_value = np.nan
     sort_by = None
 
-    def __init__(self, dataframe=None, db=None, sort_by=None, na_value=None, **kwargs):
+    def __init__(self, dataframe=None, db=None, sort_by=None, na_value=None,
+                 table_name=None, **kwargs):
 
+        self.table_name = table_name
         self.dataframe = dataframe
         original_row_count = len(self.dataframe.index)
         self.na_value = self.na_value if na_value is None else na_value
@@ -38,6 +40,9 @@ class DfPrepper:
             raise DfPrepperUnexpectedRowCount(
                 f'Dataframe count has changed. Expected {original_row_count}. '
                 f'Got {len(self.dataframe.index)} ')
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}(table_name={self.table_name})'
 
     def prepare_dataframe(self, **kwargs):
         pass

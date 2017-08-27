@@ -6,11 +6,16 @@ class CsvExporterNoTables(Exception):
     pass
 
 
-class CsvCrfTablesExporterColumnError(Exception):
+class CsvCrfTablesExporterError(Exception):
     pass
 
 
 class CsvCrfTablesExporter(CsvTablesExporter):
+
+    """A class to export CRF tables for this app_label.
+
+    CRF tables include an FK to the visit model.
+    """
 
     visit_column = None  # column to appear in all tables selected
     df_prepper_cls = CrfDfPrepper
@@ -19,20 +24,17 @@ class CsvCrfTablesExporter(CsvTablesExporter):
         if visit_column:
             self.visit_column = visit_column
         if not self.visit_column:
-            raise CsvCrfTablesExporter('Visit column not specified. Got None.')
+            raise CsvCrfTablesExporterError(
+                'Visit column not specified. Got None.')
         super().__init__(visit_column=self.visit_column, **kwargs)
 
-    def get_table_names(self, app_label=None, **kwargs):
-        """Returns a list of table names of tables for this
+    @property
+    def table_names(self):
+        """Returns a list of table names for this
         app_label that have column `visit_column`.
         """
-        df = self.db.show_tables_with_columns(
-            app_label, [self.visit_column])
-
-        table_names = [
-            tbl for tbl in list(df.table_name)
-            if not any([tbl.startswith(app_label) for app_label in self.excluded_app_labels])]
-        if not table_names:
-            raise CsvExporterNoTables(
-                f'No tables. Got app_label=\'{app_label}\', visit_column=\'{self.visit_column}\'.')
-        return table_names
+        if not self._table_names:
+            df = self.db.show_tables_with_columns(
+                self.app_label, [self.visit_column])
+            self._table_names = list(df.table_name)
+        return self._table_names

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
+    'edc_visit_tracking.apps.AppConfig',
     'edc_export.apps.AppConfig',
     'edc_timepoint.apps.AppConfig',
     'edc_registration.apps.AppConfig',
@@ -86,11 +87,13 @@ WSGI_APPLICATION = 'edc_pdutils.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+        'ENGINE': 'django.db.backends.mysql',
+        'OPTIONS': {
+            'read_default_file': os.path.join(BASE_DIR, 'etc', 'mysql.conf'),
+        },
+        'TEST': {'NAME': 'test_edc', 'CHARSET': 'utf8'},
+    },
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
