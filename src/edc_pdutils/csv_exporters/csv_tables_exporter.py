@@ -43,7 +43,6 @@ class CsvTablesExporter:
             self._table_names = [
                 tbl for tbl in self.table_names
                 if 'historical' not in tbl and not tbl.endswith('_audit')]
-        print(self, 'hello')
         self.export_tables_to_csv(**kwargs)
 
     def __repr__(self):

@@ -1,6 +1,5 @@
 from ..df_preppers import CrfDfPrepper
 from .csv_tables_exporter import CsvTablesExporter
-from pprint import pprint
 
 
 class CsvExporterNoTables(Exception):
@@ -42,5 +41,4 @@ class CsvCrfTablesExporter(CsvTablesExporter):
             df = self.db.show_tables_with_columns(
                 self.app_label, [self.visit_column])
             self._table_names = list(df.table_name)
-            pprint(self._table_names)
         return self._table_names
