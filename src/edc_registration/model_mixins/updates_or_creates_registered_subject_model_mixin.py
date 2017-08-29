@@ -32,10 +32,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
                 f'Field value for \'{self.registration_unique_field}\' is None.')
 
         registration_value = getattr(self, self.registration_unique_field)
-        try:
-            registration_value = self.uuid_to_string(registration_value)
-        except AttributeError:
-            pass
+        registration_value = self.to_string(registration_value)
         try:
             obj = self.registration_model.objects.get(
                 **{self.registered_subject_unique_field: registration_value})
@@ -48,10 +45,16 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
             defaults=self.registration_options)
         return registered_subject, created
 
-    def uuid_to_string(self, value):
-        """Converts UUID to string using .hex.
+    def to_string(self, value):
+        """Returns a string.
+
+        Converts UUID to string using .hex.
         """
-        return str(value.hex)
+        try:
+            value = str(value.hex)
+        except AttributeError:
+            pass
+        return value
 
     @property
     def registration_unique_field(self):
@@ -92,7 +95,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         registration_identifier = registration_options.get(
             'registration_identifier')
         if registration_identifier:
-            registration_options['registration_identifier'] = self.uuid_to_string(
+            registration_options['registration_identifier'] = self.to_string(
                 registration_identifier)
         return registration_options
 
