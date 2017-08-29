@@ -14,11 +14,6 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
     on post_save signal.
     """
 
-    def uuid_to_string(self, value):
-        """Converts UUID to string using .hex.
-        """
-        return str(value.hex)
-
     @property
     def registration_model(self):
         """Returns the RegisteredSubject model, Do not override.
@@ -36,35 +31,38 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
                 f'Cannot update or create RegisteredSubject. '
                 f'Field value for \'{self.registration_unique_field}\' is None.')
 
-        registration_unique_field_value = getattr(
-            self, self.registration_unique_field)
+        registration_value = getattr(self, self.registration_unique_field)
         try:
-            registration_unique_field_value = self.uuid_to_string(
-                registration_unique_field_value)
+            registration_value = self.uuid_to_string(registration_value)
         except AttributeError:
             pass
         try:
             obj = self.registration_model.objects.get(
-                **{self.registered_subject_unique_field: registration_unique_field_value})
+                **{self.registered_subject_unique_field: registration_value})
         except self.registration_model.DoesNotExist:
             pass
         else:
             self.registration_raise_on_illegal_value_change(obj)
         registered_subject, created = self.registration_model.objects.update_or_create(
-            **{self.registered_subject_unique_field: registration_unique_field_value},
+            **{self.registered_subject_unique_field: registration_value},
             defaults=self.registration_options)
         return registered_subject, created
 
+    def uuid_to_string(self, value):
+        """Converts UUID to string using .hex.
+        """
+        return str(value.hex)
+
     @property
     def registration_unique_field(self):
-        """Returns the field on YOUR model that will update
+        """Returns the field attr on YOUR model that will update
         `registered_subject_unique_field`.
         """
         return 'subject_identifier'
 
     @property
     def registered_subject_unique_field(self):
-        """Returns the field on THIS model, registered subject,
+        """Returns the field attr on THIS model, registered subject,
         to be queried against by the value of `registration_unique_field`.
         """
         return self.registration_unique_field
