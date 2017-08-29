@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.db import models
 
 from edc_base.model_mixins import DEFAULT_BASE_FIELDS
+from pprint import pprint
 
 
 class UpdatesOrCreatesRegistrationModelError(Exception):
@@ -30,34 +31,36 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
             raise UpdatesOrCreatesRegistrationModelError(
                 f'Cannot update or create RegisteredSubject. '
                 f'Field value for \'{self.registration_unique_field}\' is None.')
+
+        registration_unique_field_value = getattr(
+            self, self.registration_unique_field)
+        try:
+            registration_unique_field_value = registration_unique_field_value.hex
+        except AttributeError:
+            pass
         try:
             obj = self.registration_model.objects.get(
-                **{self.registered_subject_unique_field:
-                   getattr(self, self.registration_unique_field)})
+                **{self.registered_subject_unique_field: registration_unique_field_value})
         except self.registration_model.DoesNotExist:
             pass
         else:
             self.registration_raise_on_illegal_value_change(obj)
         registered_subject, created = self.registration_model.objects.update_or_create(
-            **{self.registered_subject_unique_field:
-               getattr(self, self.registration_unique_field)},
+            **{self.registered_subject_unique_field: registration_unique_field_value},
             defaults=self.registration_options)
         return registered_subject, created
 
     @property
     def registration_unique_field(self):
-        """Returns the field on your model that will update
-        registration identifier. The field attribute name does not
-        necessarily have to be registration identifier on the
-        model that creates or update registered subject.
+        """Returns the field on YOUR model that will update
+        `registered_subject_unique_field`.
         """
-        return 'registration_identifier'
+        return 'subject_identifier'
 
     @property
     def registered_subject_unique_field(self):
-        """Returns the field on this model, registered subject,
-        to be queried against by the value of
-        `registration_unique_field`.
+        """Returns the field on THIS model, registered subject,
+        to be queried against by the value of `registration_unique_field`.
         """
         return self.registration_unique_field
 
@@ -83,6 +86,10 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
                     registration_options.update({k: v})
                 except AttributeError:
                     pass
+        registration_identifier = registration_options.get(
+            'registration_identifier')
+        if registration_identifier:
+            registration_options['registration_identifier'] = registration_identifier.hex
         return registration_options
 
     class Meta:

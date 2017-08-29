@@ -4,10 +4,9 @@ from django.test import TestCase
 from django.test.utils import tag
 from edc_base.utils import get_utcnow
 
+from ..exceptions import RegisteredSubjectError
 from ..models import RegisteredSubject
 from .models import SubjectModelOne, SubjectModelTwo, SubjectModelThree
-from edc_constants.constants import UUID_PATTERN
-from edc_registration.exceptions import RegisteredSubjectError
 
 
 class TestRegistration(TestCase):
@@ -17,10 +16,11 @@ class TestRegistration(TestCase):
             screening_identifier='12345')
         try:
             RegisteredSubject.objects.get(
-                registration_identifier=obj.registration_identifier)
+                registration_identifier=obj.registration_identifier.hex)
         except ObjectDoesNotExist:
             self.fail('RegisteredSubject was unexpectedly not created')
 
+    @tag('1')
     def test_updates_registered_subject(self):
         SubjectModelOne.objects.create(
             screening_identifier='12345',
@@ -32,7 +32,7 @@ class TestRegistration(TestCase):
         obj.save()
 
         rs = RegisteredSubject.objects.get(
-            registration_identifier=obj.registration_identifier)
+            registration_identifier=obj.registration_identifier.hex)
         self.assertEqual(rs.dob, new_dob)
 
     def test_creates_registered_subject_overridden(self):
@@ -91,26 +91,26 @@ class TestRegistration(TestCase):
         obj = SubjectModelOne.objects.create(
             screening_identifier='12345')
         rs = RegisteredSubject.objects.get(
-            registration_identifier=obj.registration_identifier)
+            registration_identifier=obj.registration_identifier.hex)
         self.assertFalse(rs.subject_identifier_is_set())
 
     def test_masks_if_not_set(self):
         obj = SubjectModelOne.objects.create(
             screening_identifier='12345')
         rs = RegisteredSubject.objects.get(
-            registration_identifier=obj.registration_identifier)
+            registration_identifier=obj.registration_identifier.hex)
         self.assertEqual(str(rs), '<identifier not set>')
         rs.subject_identifier = 'ABCDEF'
         rs.save()
         rs = RegisteredSubject.objects.get(
-            registration_identifier=obj.registration_identifier)
+            registration_identifier=obj.registration_identifier.hex)
         self.assertEqual(str(rs), 'ABCDEF')
 
     def test_cannot_change_subject_identifier(self):
         obj = SubjectModelOne.objects.create(
             screening_identifier='12345')
         rs = RegisteredSubject.objects.get(
-            registration_identifier=obj.registration_identifier)
+            registration_identifier=obj.registration_identifier.hex)
         rs.subject_identifier = 'ABCDEF'
         rs.save()
         rs.subject_identifier = 'WXYZ'

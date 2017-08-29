@@ -19,6 +19,10 @@ class SubjectModelOne(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
     dob = models.DateField(null=True)
 
+    @property
+    def registration_unique_field(self):
+        return 'registration_identifier'
+
 
 class SubjectModelTwo(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
