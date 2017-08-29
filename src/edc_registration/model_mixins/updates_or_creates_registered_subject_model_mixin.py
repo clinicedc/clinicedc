@@ -2,7 +2,6 @@ from django.apps import apps as django_apps
 from django.db import models
 
 from edc_base.model_mixins import DEFAULT_BASE_FIELDS
-from pprint import pprint
 
 
 class UpdatesOrCreatesRegistrationModelError(Exception):
@@ -14,6 +13,11 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
     """A model mixin that creates or updates RegisteredSubject
     on post_save signal.
     """
+
+    def uuid_to_string(self, value):
+        """Converts UUID to string using .hex.
+        """
+        return str(value.hex)
 
     @property
     def registration_model(self):
@@ -35,7 +39,8 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         registration_unique_field_value = getattr(
             self, self.registration_unique_field)
         try:
-            registration_unique_field_value = registration_unique_field_value.hex
+            registration_unique_field_value = self.uuid_to_string(
+                registration_unique_field_value)
         except AttributeError:
             pass
         try:
@@ -89,7 +94,8 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         registration_identifier = registration_options.get(
             'registration_identifier')
         if registration_identifier:
-            registration_options['registration_identifier'] = registration_identifier.hex
+            registration_options['registration_identifier'] = self.uuid_to_string(
+                registration_identifier)
         return registration_options
 
     class Meta:
