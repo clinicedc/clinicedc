@@ -32,24 +32,34 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
                 f'Field value for \'{self.registration_unique_field}\' is None.')
         try:
             obj = self.registration_model.objects.get(
-                **{self.registration_unique_field:
+                **{self.registered_subject_unique_field:
                    getattr(self, self.registration_unique_field)})
         except self.registration_model.DoesNotExist:
             pass
         else:
             self.registration_raise_on_illegal_value_change(obj)
         registered_subject, created = self.registration_model.objects.update_or_create(
-            **{self.registration_unique_field: getattr(self, self.registration_unique_field)},
+            **{self.registered_subject_unique_field:
+               getattr(self, self.registration_unique_field)},
             defaults=self.registration_options)
         return registered_subject, created
 
     @property
     def registration_unique_field(self):
-        """Returns the field that will update registration identifier.
-        The field attribute name does not necessarily have to be registration
-        identifier on the model that creates or update registered subject.
+        """Returns the field on your model that will update
+        registration identifier. The field attribute name does not
+        necessarily have to be registration identifier on the
+        model that creates or update registered subject.
         """
         return 'registration_identifier'
+
+    @property
+    def registered_subject_unique_field(self):
+        """Returns the field on this model, registered subject,
+        to be queried against by the value of
+        `registration_unique_field`.
+        """
+        return self.registration_unique_field
 
     def registration_raise_on_illegal_value_change(self, registered_subject):
         """Raises an exception if a value changes between

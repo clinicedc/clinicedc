@@ -5,7 +5,7 @@ from django.test.utils import tag
 from edc_base.utils import get_utcnow
 
 from ..models import RegisteredSubject
-from .models import SubjectModelOne, SubjectModelTwo
+from .models import SubjectModelOne, SubjectModelTwo, SubjectModelThree
 from edc_constants.constants import UUID_PATTERN
 from edc_registration.exceptions import RegisteredSubjectError
 
@@ -54,6 +54,32 @@ class TestRegistration(TestCase):
 
         new_dob = get_utcnow().date()
         obj = SubjectModelTwo.objects.get(subject_identifier='12345')
+        obj.dob = new_dob
+        obj.save()
+
+        rs = RegisteredSubject.objects.get(
+            subject_identifier=obj.subject_identifier)
+        self.assertEqual(rs.dob, new_dob)
+
+    def test_creates_registered_subject_overridden2(self):
+        """Assert creates RegisteredSubject with registration_unique_field overridden.
+        """
+        obj = SubjectModelThree.objects.create(subject_identifier='12345')
+        try:
+            RegisteredSubject.objects.get(
+                subject_identifier=obj.subject_identifier)
+        except ObjectDoesNotExist:
+            self.fail('RegisteredSubject was unexpectedly not created')
+
+    def test_updates_registered_subject_overridden2(self):
+        """Assert updates RegisteredSubject with registration_unique_field overridden.
+        """
+        SubjectModelThree.objects.create(
+            subject_identifier='12345',
+            dob=get_utcnow() - relativedelta(years=5))
+
+        new_dob = get_utcnow().date()
+        obj = SubjectModelThree.objects.get(subject_identifier='12345')
         obj.dob = new_dob
         obj.save()
 
