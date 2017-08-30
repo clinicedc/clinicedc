@@ -23,11 +23,11 @@ class AppointmentCreator:
         self.visit_code_sequence = visit_code_sequence or 0
         self.facility_name = model_obj.facility_name
 
-    def update_or_create(self):
+    def update_or_create(self, options={}):
         """Returns an appointment instance that is created or
         updated.
         """
-        options = dict(
+        options.update(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
@@ -45,7 +45,6 @@ class AppointmentCreator:
         except ObjectDoesNotExist:
             try:
                 with transaction.atomic():
-                    options.update(self.extra_create_appointment_options)
                     appointment = self.appointment_model.objects.create(
                         **options,
                         timepoint_datetime=self.timepoint_datetime,
@@ -68,9 +67,3 @@ class AppointmentCreator:
     def default_appt_type(self):
         app_config = django_apps.get_app_config('edc_appointment')
         return app_config.default_appt_type
-
-    @property
-    def extra_create_appointment_options(self):
-        """User can add extra options for appointment.objects.create.
-        """
-        return {}
