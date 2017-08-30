@@ -69,6 +69,12 @@ class CreateAppointmentsMixin(models.Model):
             delta = su_delta
         return dt + delta
 
+    @property
+    def extra_create_appointment_options(self):
+        """User can add extra options for appointment.objects.create.
+        """
+        return {}
+
     def update_or_create_appointment(self, visit, available_datetime,
                                      timepoint_datetime):
         """Updates or creates an appointment for this subject
@@ -79,7 +85,8 @@ class CreateAppointmentsMixin(models.Model):
             visit=visit,
             available_datetime=available_datetime,
             timepoint_datetime=timepoint_datetime)
-        appointment = creator.update_or_create()
+        appointment = creator.update_or_create(
+            options=self.extra_create_appointment_options)
         return appointment
 
     def delete_unused_appointments(self):
