@@ -34,6 +34,16 @@ def register_to_site_reference_configs():
     site_reference_configs.register(reference)
 
     reference = ReferenceModelConfig(
+        model='edc_metadata.CrfSix',
+        fields=['f1'])
+    site_reference_configs.register(reference)
+
+    reference = ReferenceModelConfig(
+        model='edc_metadata.CrfSeven',
+        fields=['f1'])
+    site_reference_configs.register(reference)
+
+    reference = ReferenceModelConfig(
         model='edc_metadata.CrfMissingManager',
         fields=['f1'])
     site_reference_configs.register(reference)
