@@ -71,6 +71,10 @@ class Visit:
         return self.title
 
     @property
+    def forms(self):
+        return self.crfs + self.requisitions
+
+    @property
     def timepoint_datetime(self):
         return self.dates.base
 
