@@ -13,7 +13,6 @@ from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 
 
-@tag('1')
 class TestMetadataGetter(TestCase):
 
     def setUp(self):

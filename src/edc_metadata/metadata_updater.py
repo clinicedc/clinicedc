@@ -1,4 +1,10 @@
+from django.core.exceptions import ObjectDoesNotExist
+
 from .target_handler import TargetHandler
+
+
+class MetadataUpdaterError(Exception):
+    pass
 
 
 class MetadataUpdater:
@@ -27,7 +33,12 @@ class MetadataUpdater:
             options.update({
                 'model': target_model,
                 'subject_identifier': self.visit.subject_identifier})
-            metadata_obj = self.target.metadata_model.objects.get(**options)
+            try:
+                metadata_obj = self.target.metadata_model.objects.get(
+                    **options)
+            except ObjectDoesNotExist as e:
+                raise MetadataUpdaterError(
+                    f'{e}.. for target model \'{target_model}\' with options {options}')
             metadata_obj.entry_status = entry_status
             metadata_obj.save()
         return metadata_obj

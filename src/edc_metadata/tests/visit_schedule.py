@@ -4,12 +4,24 @@ from edc_visit_schedule import VisitSchedule, Schedule, Visit
 from edc_visit_schedule import FormsCollection, Crf, Requisition
 
 
-crfs = FormsCollection(
-    Crf(show_order=1, model='edc_metadata.crfone', required=True),
-    Crf(show_order=2, model='edc_metadata.crftwo', required=True),
-    Crf(show_order=3, model='edc_metadata.crfthree', required=True),
-    Crf(show_order=4, model='edc_metadata.crffour', required=True),
-    Crf(show_order=5, model='edc_metadata.crffive', required=True),
+app_label = 'edc_metadata'
+
+crfs0 = FormsCollection(
+    Crf(show_order=1, model=f'{app_label}.crfone', required=True),
+    Crf(show_order=2, model=f'{app_label}.crftwo', required=True),
+    Crf(show_order=3, model=f'{app_label}.crfthree', required=True),
+    Crf(show_order=4, model=f'{app_label}.crffour', required=True),
+    Crf(show_order=5, model=f'{app_label}.crffive', required=True),
+)
+
+crfs1 = FormsCollection(
+    Crf(show_order=1, model=f'{app_label}.crffour', required=True),
+    Crf(show_order=2, model=f'{app_label}.crffive', required=True),
+    Crf(show_order=3, model=f'{app_label}.crfsix', required=True),
+)
+
+crfs2 = FormsCollection(
+    Crf(show_order=1, model=f'{app_label}.crfseven', required=True),
 )
 
 requisitions = FormsCollection(
@@ -33,6 +45,12 @@ requisitions = FormsCollection(
         panel='six', required=True, additional=False),
 )
 
+requisitions3000 = FormsCollection(
+    Requisition(
+        show_order=10, model='edc_metadata.subjectrequisition',
+        panel='seven', required=True, additional=False),
+)
+
 visit0 = Visit(
     code='1000',
     title='Day 1',
@@ -41,7 +59,7 @@ visit0 = Visit(
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     requisitions=requisitions,
-    crfs=crfs)
+    crfs=crfs0)
 
 visit1 = Visit(
     code='2000',
@@ -51,7 +69,17 @@ visit1 = Visit(
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     requisitions=requisitions,
-    crfs=crfs)
+    crfs=crfs1)
+
+visit2 = Visit(
+    code='3000',
+    title='Day 3',
+    timepoint=2,
+    rbase=relativedelta(days=2),
+    rlower=relativedelta(days=0),
+    rupper=relativedelta(days=6),
+    requisitions=requisitions3000,
+    crfs=crfs2)
 
 schedule = Schedule(
     name='schedule',
@@ -60,6 +88,7 @@ schedule = Schedule(
 
 schedule.add_visit(visit0)
 schedule.add_visit(visit1)
+schedule.add_visit(visit2)
 
 visit_schedule = VisitSchedule(
     name='visit_schedule',
