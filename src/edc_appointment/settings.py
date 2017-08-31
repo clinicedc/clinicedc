@@ -133,6 +133,7 @@ STATIC_URL = '/static/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 GIT_DIR = BASE_DIR
+KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 
 if 'test' in sys.argv:
 

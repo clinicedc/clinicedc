@@ -23,11 +23,9 @@ class AppointmentCreator:
         self.visit_code_sequence = visit_code_sequence or 0
         self.facility_name = model_obj.facility_name
 
-    def update_or_create(self):
-        """Returns an appointment instance that is created or
-        updated.
-        """
-        options = dict(
+    @property
+    def options(self):
+        return dict(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
@@ -35,8 +33,13 @@ class AppointmentCreator:
             visit_code_sequence=self.visit_code_sequence,
             timepoint=self.visit.timepoint,
             facility_name=self.facility_name)
+
+    def update_or_create(self):
+        """Returns an appointment instance that is created or
+        updated.
+        """
         try:
-            appointment = self.appointment_model.objects.get(**options)
+            appointment = self.appointment_model.objects.get(**self.options)
             if (appointment.timepoint_datetime
                     - self.available_datetime != timedelta(0, 0, 0)):
                 appointment.appt_datetime = self.available_datetime
@@ -45,9 +48,8 @@ class AppointmentCreator:
         except ObjectDoesNotExist:
             try:
                 with transaction.atomic():
-                    options.update(self.extra_create_appointment_options)
                     appointment = self.appointment_model.objects.create(
-                        **options,
+                        **self.options,
                         timepoint_datetime=self.timepoint_datetime,
                         appt_datetime=self.available_datetime,
                         appt_type=self.default_appt_type)
@@ -56,7 +58,7 @@ class AppointmentCreator:
                     'An \'IntegrityError\' was raised while trying to '
                     'create an appointment for model \'{}\'. Got {}. '
                     'Options were {}'. format(
-                        self._meta.label_lower, str(e), options))
+                        self._meta.label_lower, str(e), self.options))
         return appointment
 
     @property
@@ -68,9 +70,3 @@ class AppointmentCreator:
     def default_appt_type(self):
         app_config = django_apps.get_app_config('edc_appointment')
         return app_config.default_appt_type
-
-    @property
-    def extra_create_appointment_options(self):
-        """User can add extra options for appointment.objects.create.
-        """
-        return {}
