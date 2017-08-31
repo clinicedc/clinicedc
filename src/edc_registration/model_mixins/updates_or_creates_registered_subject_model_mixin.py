@@ -30,26 +30,45 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
             raise UpdatesOrCreatesRegistrationModelError(
                 f'Cannot update or create RegisteredSubject. '
                 f'Field value for \'{self.registration_unique_field}\' is None.')
+
+        registration_value = getattr(self, self.registration_unique_field)
+        registration_value = self.to_string(registration_value)
         try:
             obj = self.registration_model.objects.get(
-                **{self.registration_unique_field:
-                   getattr(self, self.registration_unique_field)})
+                **{self.registered_subject_unique_field: registration_value})
         except self.registration_model.DoesNotExist:
             pass
         else:
             self.registration_raise_on_illegal_value_change(obj)
         registered_subject, created = self.registration_model.objects.update_or_create(
-            **{self.registration_unique_field: getattr(self, self.registration_unique_field)},
+            **{self.registered_subject_unique_field: registration_value},
             defaults=self.registration_options)
         return registered_subject, created
 
+    def to_string(self, value):
+        """Returns a string.
+
+        Converts UUID to string using .hex.
+        """
+        try:
+            value = str(value.hex)
+        except AttributeError:
+            pass
+        return value
+
     @property
     def registration_unique_field(self):
-        """Returns the field that will update registration identifier.
-        The field attribute name does not necessarily have to be registration
-        identifier on the model that creates or update registered subject.
+        """Returns the field attr on YOUR model that will update
+        `registered_subject_unique_field`.
         """
-        return 'registration_identifier'
+        return 'subject_identifier'
+
+    @property
+    def registered_subject_unique_field(self):
+        """Returns the field attr on THIS model, registered subject,
+        to be queried against by the value of `registration_unique_field`.
+        """
+        return self.registration_unique_field
 
     def registration_raise_on_illegal_value_change(self, registered_subject):
         """Raises an exception if a value changes between
@@ -73,6 +92,11 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
                     registration_options.update({k: v})
                 except AttributeError:
                     pass
+        registration_identifier = registration_options.get(
+            'registration_identifier')
+        if registration_identifier:
+            registration_options['registration_identifier'] = self.to_string(
+                registration_identifier)
         return registration_options
 
     class Meta:

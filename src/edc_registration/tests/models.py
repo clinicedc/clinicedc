@@ -19,6 +19,10 @@ class SubjectModelOne(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
     dob = models.DateField(null=True)
 
+    @property
+    def registration_unique_field(self):
+        return 'registration_identifier'
+
 
 class SubjectModelTwo(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
@@ -34,3 +38,25 @@ class SubjectModelTwo(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
     @property
     def registration_unique_field(self):
         return 'subject_identifier'
+
+
+class SubjectModelThree(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
+
+    """Note: registration_unique_field is overridden.
+    """
+
+    subject_identifier = models.CharField(
+        max_length=25,
+        null=True)
+
+    my_identifier = models.UUIDField(default=uuid.uuid4)
+
+    dob = models.DateField(null=True)
+
+    @property
+    def registration_unique_field(self):
+        return 'my_identifier'
+
+    @property
+    def registered_subject_unique_field(self):
+        return 'registration_identifier'
