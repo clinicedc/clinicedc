@@ -30,6 +30,10 @@ class VisitScheduleMethodsModelMixin(models.Model):
     """
 
     @property
+    def visit(self):
+        return self.schedule.visits.get(self.visit_code)
+
+    @property
     def visits(self):
         return self.schedule.visits
 
