@@ -1,7 +1,7 @@
 import pandas as pd
 
 from ..constants import SYSTEM_COLUMNS
-from ..df_preppers import NonCrfDfPrepper
+from ..df_handlers import NonCrfDfHandler
 from .csv_crf_tables_exporter import CsvCrfTablesExporter
 
 
@@ -11,9 +11,9 @@ class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
     """
 
     visit_column = None
-    df_inline_prepper_cls = NonCrfDfPrepper
+    df_inline_handler_cls = NonCrfDfHandler
 
-    def export_tables_to_csv(self, **kwargs):
+    def to_csv(self, **kwargs):
         """Exports all tables to CSV.
         """
         self.exported_paths = {}
@@ -57,11 +57,11 @@ class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
 
     def get_prepped_inline_df(self, table_name=None, df=None, **kwargs):
         """Returns a dataframe after passing the given inline df
-        through the inline df_prepper class.
+        through the inline df_handler class.
         """
-        if self.df_prepper_cls:
-            df_prepper = self.df_inline_prepper_cls(
+        if self.df_handler_cls:
+            df_handler = self.df_inline_handler_cls(
                 dataframe=df, db=self.db,
                 table_name=table_name, **kwargs)
-            df = df_prepper.dataframe
+            df = df_handler.dataframe
         return df

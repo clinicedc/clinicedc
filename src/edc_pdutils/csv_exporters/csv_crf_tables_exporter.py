@@ -1,4 +1,4 @@
-from ..df_preppers import CrfDfPrepper
+from ..df_handlers import CrfDfHandler
 from .csv_tables_exporter import CsvTablesExporter
 
 
@@ -18,7 +18,7 @@ class CsvCrfTablesExporter(CsvTablesExporter):
     """
 
     visit_column = None  # column to appear in all tables selected
-    df_prepper_cls = CrfDfPrepper
+    df_handler_cls = CrfDfHandler
 
     def __init__(self, visit_column=None, **kwargs):
         if visit_column:
@@ -32,13 +32,10 @@ class CsvCrfTablesExporter(CsvTablesExporter):
         return (f'{self.__class__.__name__}(app_label=\'{self.app_label}\','
                 f'visit_column=\'{self.visit_column}\')')
 
-    @property
-    def table_names(self):
+    def get_table_names(self):
         """Returns a list of table names for this
         app_label that have column `visit_column`.
         """
-        if not self._table_names:
-            df = self.db.show_tables_with_columns(
-                self.app_label, [self.visit_column])
-            self._table_names = list(df.table_name)
-        return self._table_names
+        df = self.db.show_tables_with_columns(
+            self.app_label, [self.visit_column])
+        return list(df.table_name)

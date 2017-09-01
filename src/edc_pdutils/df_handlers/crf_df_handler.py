@@ -2,10 +2,10 @@ import pandas as pd
 
 from ..dialects import CrfDialect
 from ..constants import SYSTEM_COLUMNS
-from .df_prepper import DfPrepper
+from .df_handler import DfHandler
 
 
-class CrfDfPrepper(DfPrepper):
+class CrfDfHandler(DfHandler):
 
     crf_dialect_cls = CrfDialect
     visit_column = 'subject_visit_id'

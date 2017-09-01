@@ -1,15 +1,15 @@
 import numpy as np
 
 
-class DfPrepperUnexpectedRowCount(Exception):
+class DfHandlerUnexpectedRowCount(Exception):
     pass
 
 
-class DfPrepperDuplicateColumn(Exception):
+class DfHandlerDuplicateColumn(Exception):
     pass
 
 
-class DfPrepper:
+class DfHandler:
 
     na_value = np.nan
     sort_by = None
@@ -29,7 +29,7 @@ class DfPrepper:
         cols = list(self.dataframe.columns)
         diff = set([x for x in cols if cols.count(x) > 1])
         if len(diff) > 0:
-            raise DfPrepperDuplicateColumn(
+            raise DfHandlerDuplicateColumn(
                 f'Duplicate column detected. Got {list(diff)}')
 
         self.prepare_dataframe()
@@ -37,7 +37,7 @@ class DfPrepper:
 
         # verify size has not changed
         if original_row_count != len(self.dataframe.index):
-            raise DfPrepperUnexpectedRowCount(
+            raise DfHandlerUnexpectedRowCount(
                 f'Dataframe count has changed. Expected {original_row_count}. '
                 f'Got {len(self.dataframe.index)} ')
 

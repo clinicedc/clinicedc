@@ -1,7 +1,7 @@
-from edc_pdutils.df_preppers.crf_df_prepper import CrfDfPrepper
+from edc_pdutils.df_handlers.crf_df_handler import CrfDfHandler
 
 
-class NonCrfDfPrepper(CrfDfPrepper):
+class NonCrfDfHandler(CrfDfHandler):
 
     sort_by = None
 

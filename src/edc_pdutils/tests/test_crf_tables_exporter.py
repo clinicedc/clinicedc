@@ -7,9 +7,8 @@ from django.test import TestCase, tag
 
 from ..csv_exporters import CsvCrfTablesExporter, CsvCrfInlineTablesExporter
 from ..csv_exporters import CsvNonCrfTablesExporter
-from ..df_preppers import CrfDfPrepper, NonCrfDfPrepper
+from ..df_handlers import CrfDfHandler, NonCrfDfHandler
 from .helper import Helper
-from pprint import pprint
 
 app_config = django_apps.get_app_config('edc_pdutils')
 
@@ -37,19 +36,21 @@ class TestExport(TestCase):
 
     def test_crf_tables_to_csv_from_app_label_with_columns(self):
 
-        class MyDfPrepper(CrfDfPrepper):
+        class MyDfHandler(CrfDfHandler):
             visit_tbl = 'edc_pdutils_subjectvisit'
             registered_subject_tbl = 'edc_registration_registeredsubject'
             appointment_tbl = 'edc_appointment_appointment'
 
         class MyCsvCrfTablesExporter(CsvCrfTablesExporter):
             visit_column = 'subject_visit_id'
-            df_prepper_cls = MyDfPrepper
+            df_handler_cls = MyDfHandler
+            app_label = 'edc_pdutils'
 
         sys.stdout.write('\n')
-        tables_exporter = MyCsvCrfTablesExporter(app_label='edc_pdutils')
-        self.assertGreater(len(tables_exporter.exported_paths), 0)
-        for path in tables_exporter.exported_paths.values():
+        exporter = MyCsvCrfTablesExporter()
+        exporter.to_csv()
+        self.assertGreater(len(exporter.exported_paths), 0)
+        for path in exporter.exported_paths.values():
             with open(path, 'r') as f:
                 csv_reader = csv.DictReader(f, delimiter='|')
                 rows = [row for row in enumerate(csv_reader)]
@@ -57,19 +58,21 @@ class TestExport(TestCase):
 
     def test_noncrf_tables_to_csv_from_app_label_with_columns(self):
 
-        class MyDfPrepper(NonCrfDfPrepper):
+        class MyDfHandler(NonCrfDfHandler):
             visit_tbl = 'edc_pdutils_subjectvisit'
             registered_subject_tbl = 'edc_registration_registeredsubject'
             appointment_tbl = 'edc_appointment_appointment'
 
         class MyNonCsvCrfTablesExporter(CsvNonCrfTablesExporter):
             visit_column = 'subject_visit_id'
-            df_prepper_cls = MyDfPrepper
+            df_handler_cls = MyDfHandler
+            app_label = 'edc_pdutils'
 
         sys.stdout.write('\n')
-        tables_exporter = MyNonCsvCrfTablesExporter(app_label='edc_pdutils')
-        self.assertGreater(len(tables_exporter.exported_paths), 0)
-        for path in tables_exporter.exported_paths.values():
+        exporter = MyNonCsvCrfTablesExporter()
+        exporter.to_csv()
+        self.assertGreater(len(exporter.exported_paths), 0)
+        for path in exporter.exported_paths.values():
             with open(path, 'r') as f:
                 csv_reader = csv.DictReader(f, delimiter='|')
                 rows = [row for row in enumerate(csv_reader)]
@@ -77,20 +80,21 @@ class TestExport(TestCase):
 
     def test_export_inlines(self):
 
-        class MyDfPrepper(CrfDfPrepper):
+        class MyDfHandler(CrfDfHandler):
             visit_tbl = 'edc_pdutils_subjectvisit'
             registered_subject_tbl = 'edc_registration_registeredsubject'
             appointment_tbl = 'edc_appointment_appointment'
 
         class MyCsvCrfInlineTablesExporter(CsvCrfInlineTablesExporter):
             visit_column = 'subject_visit_id'
-            df_prepper_cls = MyDfPrepper
+            df_handler_cls = MyDfHandler
+            app_label = 'edc_pdutils'
 
         sys.stdout.write('\n')
-        tables_exporter = MyCsvCrfInlineTablesExporter(
-            app_label='edc_pdutils', visit_column='subject_visit_id')
-        self.assertGreater(len(tables_exporter.exported_paths), 0)
-        for path in tables_exporter.exported_paths.values():
+        exporter = MyCsvCrfInlineTablesExporter()
+        exporter.to_csv()
+        self.assertGreater(len(exporter.exported_paths), 0)
+        for path in exporter.exported_paths.values():
             with open(path, 'r') as f:
                 csv_reader = csv.DictReader(f, delimiter='|')
                 rows = [row for row in enumerate(csv_reader)]
