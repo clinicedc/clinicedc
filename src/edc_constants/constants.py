@@ -1,6 +1,7 @@
 import re
 
 ADDITIONAL = True
+ANONYMOUS = 'anonymous'
 ABNORMAL = 'ABNORMAL'
 AFTERNOON = 'afternoon'
 ALIVE = 'alive'
