@@ -19,7 +19,8 @@ class AppointmentModelWrapper(ModelWrapper):
 
     @property
     def wrapped_visit(self):
-        """Returns a wrapped persistent or non-persistent visit instance."""
+        """Returns a wrapped persistent or non-persistent visit instance.
+        """
         try:
             model_obj = self.object.subjectvisit
         except ObjectDoesNotExist:
