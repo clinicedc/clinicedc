@@ -207,7 +207,8 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         return self.subject_identifier
 
     def subject_identifier_is_set(self):
-        if re.match(UUID_PATTERN, self.subject_identifier):
+        obj = self.__class__.objects.get(pk=self.id)
+        if re.match(UUID_PATTERN, obj.subject_identifier):
             return False
         return True
 
