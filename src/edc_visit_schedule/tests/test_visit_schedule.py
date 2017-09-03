@@ -3,7 +3,8 @@ from django.test import TestCase, tag
 
 from edc_base.utils import get_utcnow
 
-from ..model_mixins import DisenrollmentError, EnrollmentModelError
+from ..disenrollment_validator import DisenrollmentError
+from ..model_mixins import EnrollmentModelError
 from ..validator import ValidatorMetaValueError
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules
