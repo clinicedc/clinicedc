@@ -1,15 +1,11 @@
-import arrow
-from dateutil.relativedelta import relativedelta
-
 from django.apps import apps as django_apps
 from django.db import models
-
 from edc_base.model_validators.date import datetime_not_future
 from edc_base.utils import get_utcnow
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_visit_tracking.managers import CrfModelManager
 
-from ..exceptions import VisitReportDateAllowanceError
+from ..crf_date_validator import CrfDateValidator
 from .model_mixins import ModelMixin
 
 
@@ -23,6 +19,8 @@ class CrfModelMixin(ModelMixin, models.Model):
 
     Uses edc_visit_tracking.AppConfig attributes.
     """
+    crf_date_validator_cls = CrfDateValidator
+
     report_datetime = models.DateTimeField(
         verbose_name="Report Date",
         validators=[
@@ -37,37 +35,12 @@ class CrfModelMixin(ModelMixin, models.Model):
     def __str__(self):
         return str(self.visit)
 
-    def common_clean(self):
-        report_datetime = arrow.Arrow.fromdatetime(
-            self.report_datetime, self.report_datetime.tzinfo).to('utc').datetime
-        datetime_not_before_study_start(report_datetime)
-        datetime_not_future(report_datetime)
-        if report_datetime.date() < self.visit.report_datetime.date():
-            raise VisitReportDateAllowanceError(
-                'Report datetime may not be before the visit report datetime. '
-                f'Got report_datetime={self.report_datetime} ',
-                f'visit.report_datetime={self.visit.report_datetime}. ',
-                'report_datetime')
-        app_config = django_apps.get_app_config('edc_visit_tracking')
-        if app_config.report_datetime_allowance > 0:
-            max_report_datetime = (
-                report_datetime
-                + relativedelta(days=app_config.report_datetime_allowance))
-            if max_report_datetime.date() < self.visit.report_datetime.date():
-                diff = (max_report_datetime.date()
-                        - self.visit.report_datetime.date()).days
-                raise VisitReportDateAllowanceError(
-                    f'Report datetime may not more than {app_config.report_datetime_allowance} '
-                    f'days greater than the visit report datetime. Got {diff} days.'
-                    f'report_datetime={self.report_datetime} ',
-                    f'visit.report_datetime={self.visit.report_datetime}. '
-                    f'See also AppConfig.report_datetime_allowance.',
-                    'report_datetime')
-        super().clean()
-
-    @property
-    def common_clean_exceptions(self):
-        return super().common_clean_exceptions + [VisitReportDateAllowanceError]
+    def save(self, *args, **kwargs):
+        if self.crf_date_validator_cls:
+            self.crf_date_validator_cls(
+                report_datetime=self.report_datetime,
+                visit_report_datetime=self.visit.report_datetime)
+        super().save(*args, **kwargs)
 
     def natural_key(self):
         return (getattr(self, self.visit_model_attr()).natural_key(), )

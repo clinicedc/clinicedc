@@ -1,8 +1,8 @@
-from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
+from edc_constants.constants import ALIVE, YES
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import SCHEDULED
@@ -10,7 +10,6 @@ from ..form_validators import VisitFormValidator
 from .helper import Helper
 from .models import SubjectVisit
 from .visit_schedule import visit_schedule1, visit_schedule2
-from edc_constants.constants import ALIVE, YES
 
 
 class SubjectVisitForm(forms.ModelForm):
@@ -34,7 +33,6 @@ class TestForm(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
 
-    @tag('1')
     def test_form_validator_ok(self):
         self.helper.consent_and_enroll()
         appointment = Appointment.objects.all()[0]

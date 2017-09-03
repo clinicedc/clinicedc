@@ -5,7 +5,6 @@ from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_tracking.model_mixins import PreviousVisitError
 
 from .models import SubjectVisit, CrfOneInline, OtherModel
 from .models import CrfOne, BadCrfOneInline
@@ -107,27 +106,3 @@ class TestVisit(TestCase):
         self.assertEqual(subject_visit.previous_visit.pk, subject_visits[1].pk)
         subject_visit = subject_visits[3]
         self.assertEqual(subject_visit.previous_visit.pk, subject_visits[2].pk)
-
-    def test_requires_previous_visit(self):
-        """Asserts requires previous visit to exist on create.
-        """
-        self.helper.consent_and_enroll()
-        appointments = Appointment.objects.all().order_by('timepoint_datetime')
-        SubjectVisit.objects.create(
-            appointment=appointments[0],
-            report_datetime=get_utcnow() - relativedelta(months=10),
-            reason=SCHEDULED)
-        self.assertRaises(
-            PreviousVisitError, SubjectVisit.objects.create,
-            appointment=appointments[2],
-            report_datetime=get_utcnow() - relativedelta(months=8),
-            reason=SCHEDULED)
-        SubjectVisit.objects.create(
-            appointment=appointments[1],
-            report_datetime=get_utcnow() - relativedelta(months=10),
-            reason=SCHEDULED)
-        self.assertRaises(
-            PreviousVisitError, SubjectVisit.objects.create,
-            appointment=appointments[3],
-            report_datetime=get_utcnow() - relativedelta(months=8),
-            reason=SCHEDULED)
