@@ -1,20 +1,31 @@
 from django.apps import apps as django_apps
 from django.db import models
 
-from edc_metadata_rules.model_mixins import MetadataRulesModelMixin
+from edc_metadata_rules.metadata_rules_evaluator import MetadataRuleEvaluator
 from edc_visit_schedule import site_visit_schedules
 
 from ...constants import KEYED
 from ...metadata import Metadata
 
 
-class CreatesMetadataModelMixin(MetadataRulesModelMixin, models.Model):
+class CreatesMetadataModelMixin(models.Model):
     """A mixin to enable a model to create metadata on save.
 
     Typically this is a Visit model.
     """
 
     metadata_cls = Metadata
+    metadata_rule_evaluator_cls = MetadataRuleEvaluator
+
+    def run_metadata_rules(self, visit=None):
+        """Runs all the rule groups for this app label.
+
+        Gets called in the signal.
+        """
+        visit = visit or self
+        metadata_rule_evaluator = self.metadata_rule_evaluator_cls(
+            visit=visit)
+        metadata_rule_evaluator.evaluate_rules()
 
     @property
     def metadata_query_options(self):

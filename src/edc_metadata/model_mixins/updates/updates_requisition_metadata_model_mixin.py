@@ -18,5 +18,12 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         options.update({'panel_name': self.panel_name})
         return options
 
+    def run_metadata_rules_for_crf(self):
+        """Runs all the rule groups for this app label.
+
+        Gets called in the signal.
+        """
+        self.visit.run_metadata_rules(visit=self.visit)
+
     class Meta:
         abstract = True

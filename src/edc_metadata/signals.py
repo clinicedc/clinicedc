@@ -14,7 +14,6 @@ def metadata_create_on_post_save(sender, instance, raw, created, using,
     For example, when saving the visit model.
     """
     if not raw:
-
         try:
             instance.reference_creator_cls(model_obj=instance)
         except AttributeError:
@@ -32,11 +31,10 @@ def metadata_create_on_post_save(sender, instance, raw, created, using,
 @receiver(post_save, weak=False, dispatch_uid="metadata_update_on_post_save")
 def metadata_update_on_post_save(sender, instance, raw, created, using,
                                  update_fields, **kwargs):
-    """Update the meta data record on post save of a model.
+    """Update the meta data record on post save of a CRF model.
     """
 
     if not raw:
-
         try:
             instance.reference_updater_cls(model_obj=instance)
         except AttributeError:
@@ -45,7 +43,7 @@ def metadata_update_on_post_save(sender, instance, raw, created, using,
         try:
             instance.metadata_update()
             if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
-                instance.visit.run_metadata_rules()
+                instance.run_metadata_rules_for_crf()
         except AttributeError as e:
             if 'metadata_update' not in str(e):
                 raise AttributeError(e) from e
@@ -66,7 +64,7 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs):
     try:
         instance.metadata_reset_on_delete()
         if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
-            instance.visit.run_metadata_rules()
+            instance.run_metadata_rules_for_crf()
     except AttributeError as e:
         if 'metadata_reset_on_delete' not in str(e):
             raise AttributeError(e) from e
