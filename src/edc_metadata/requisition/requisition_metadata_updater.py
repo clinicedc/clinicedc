@@ -35,6 +35,7 @@ class RequisitionMetadataUpdater(MetadataUpdater):
                 raise RequisitionMetadataError(
                     f'Metadata does not exist for {target_model}.{target_panel}. '
                     f'Check your rule. Got {e}. Options={options}.')
-            metadata_obj.entry_status = entry_status
-            metadata_obj.save()
+            if metadata_obj.entry_status != entry_status:
+                metadata_obj.entry_status = entry_status
+                metadata_obj.save()
         return metadata_obj

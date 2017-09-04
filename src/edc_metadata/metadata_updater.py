@@ -39,6 +39,7 @@ class MetadataUpdater:
             except ObjectDoesNotExist as e:
                 raise MetadataUpdaterError(
                     f'{e}.. for target model \'{target_model}\' with options {options}')
-            metadata_obj.entry_status = entry_status
-            metadata_obj.save()
+            if metadata_obj.entry_status != entry_status:
+                metadata_obj.entry_status = entry_status
+                metadata_obj.save()
         return metadata_obj

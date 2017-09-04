@@ -23,9 +23,11 @@ class UpdatesMetadataModelMixin(models.Model):
                     self.metadata_query_options.get('visit_schedule_name'),
                     self.metadata_query_options.get('schedule_name'),
                     self.metadata_query_options.get('visit_code')))
-        obj.entry_status = entry_status or KEYED
-        obj.report_datetime = self.report_datetime
-        obj.save()
+        entry_status = entry_status or KEYED
+        if obj.entry_status != entry_status or obj.report_datetime != self.report_datetime:
+            obj.entry_status = entry_status or KEYED
+            obj.report_datetime = self.report_datetime
+            obj.save()
 
     def metadata_reset_on_delete(self):
         """Sets the metadata instance to its original state.
