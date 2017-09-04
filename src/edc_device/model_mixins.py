@@ -12,9 +12,6 @@ class DeviceModelMixin(models.Model):
     check device permissions.
     """
 
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-
     check_device_permissions = True
 
     device_created = models.CharField(
