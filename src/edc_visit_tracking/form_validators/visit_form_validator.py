@@ -3,12 +3,14 @@ from edc_base.modelform_validators import FormValidator
 from edc_constants.constants import YES, NO, DEAD, OFF_STUDY, UNKNOWN, ALIVE, PARTICIPANT
 
 from ..constants import LOST_VISIT, COMPLETED_PROTOCOL_VISIT, MISSED_VISIT
+from ..model_mixins import PreviousVisitError
+from ..visit_sequence import VisitSequence, VisitSequenceError
 
 
 class VisitFormValidator(FormValidator):
 
     participant_label = 'participant'
-    requires_previous_visit = True
+    visit_sequence_cls = VisitSequence
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -38,23 +40,12 @@ class VisitFormValidator(FormValidator):
         self.required_if(
             MISSED_VISIT, field='reason', field_required='reason_missed')
 
-        self.validate_previous_visit()
-
-    def validate_previous_visit(self):
-        previous_visit_code = self.appointment.visits.previous(
-            self.appointment.visit_code)
-        if self.requires_previous_visit and previous_visit_code:
-            if self.appointment.previous_visit:
-                has_previous_visit = True
-            elif (self.appointment.timepoint == 0
-                  and self.appointment.rbase == 0):
-                has_previous_visit = True
-            else:
-                has_previous_visit = False
-            if not has_previous_visit:
-                raise forms.ValidationError(
-                    'Previous visit report required. Enter report for '
-                    f'\'{previous_visit_code}\' before completing this report.')
+        visit_sequence = self.visit_sequence_cls(
+            appointment=self.appointment)
+        try:
+            visit_sequence.enforce_sequence()
+        except VisitSequenceError as e:
+            raise PreviousVisitError(e)
 
     def validate_presence(self):
         """Raise an exception if 'is_present' does not make sense
