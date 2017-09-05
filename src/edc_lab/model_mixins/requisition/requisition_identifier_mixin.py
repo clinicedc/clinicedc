@@ -60,7 +60,7 @@ class RequisitionIdentifierMixin(models.Model):
         """
         is_uuid = re.match(UUID_PATTERN, self.requisition_identifier)
         if self.is_drawn == YES and is_uuid:
-            return RequisitionIdentifier(self.__class__).identifier
+            return RequisitionIdentifier().identifier
         return self.requisition_identifier
 
     class Meta:
