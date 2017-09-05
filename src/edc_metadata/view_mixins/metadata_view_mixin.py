@@ -18,13 +18,14 @@ class MetaDataViewMixin:
                 appointment=self.appointment)
             context.update(
                 report_datetime=self.appointment.visit.report_datetime,
-                crfs=self.get_model_wrappers(key=CRF, metaforms=crf_metaforms),
-                requisitions=self.get_model_wrappers(
+                crfs=self.get_model_crf_wrapper(
+                    key=CRF, metaforms=crf_metaforms),
+                requisitions=self.get_model_requisition_wrapper(
                     key=REQUISITION, metaforms=requisition_metaforms),
                 NOT_REQUIRED=NOT_REQUIRED)
         return context
 
-    def get_model_wrappers(self, key=None, metaforms=None):
+    def get_model_crf_wrapper(self, key=None, metaforms=None):
         model_wrappers = []
         for metaform in metaforms.objects:
             if not metaform.model_obj:
@@ -34,5 +35,19 @@ class MetaDataViewMixin:
                 model_obj=metaform.model_obj,
                 model=metaform.metadata_obj.model,
                 key=key)
+            model_wrappers.append(metaform.metadata_obj)
+        return model_wrappers
+
+    def get_model_requisition_wrapper(self, key=None, metaforms=None):
+        model_wrappers = []
+        for metaform in metaforms.objects:
+            if not metaform.model_obj:
+                metaform.model_obj = metaform.model_cls(
+                    **{metaform.model_cls.visit_model_attr(): metaform.visit})
+            metaform.metadata_obj.object = self.requisition_model_wrapper_cls(
+                model_obj=metaform.model_obj,
+                model=metaform.metadata_obj.model,
+                key=key,
+                requisition_panel_name=metaform.panel_name)
             model_wrappers.append(metaform.metadata_obj)
         return model_wrappers
