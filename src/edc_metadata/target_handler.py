@@ -3,6 +3,9 @@ from django.apps import apps as django_apps
 from edc_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
+from .constants import CRF
+from .metadata_handler import MetadataHandler
+
 
 class TargetModelNotScheduledForVisit(Exception):
     pass
@@ -29,7 +32,10 @@ class TargetHandler:
     TargetModelNotScheduledForVisit exception will be raised.
     """
 
-    def __init__(self, model=None, visit=None, metadata_category=None, **kwargs):
+    metadata_handler_cls = MetadataHandler
+    metadata_category = CRF
+
+    def __init__(self, model=None, visit=None, **kwargs):
 
         self.model = model
         self.visit = visit  # visit model instance
@@ -43,16 +49,18 @@ class TargetHandler:
             django_apps.get_model(self.model)
         except LookupError as e:
             raise TargetModelLookupError(
-                f'{metadata_category} target model name is invalid. Got {e}')
+                f'{self.metadata_category} target model name is invalid. Got {e}')
 
         self.raise_on_not_scheduled_for_visit()
 
         app_config = django_apps.get_app_config('edc_metadata')
         self.metadata_model = app_config.get_metadata_model(
-            metadata_category)
+            self.metadata_category)
         reference_model = site_reference_configs.get_reference_model(
             self.model)
         self.reference_model_cls = django_apps.get_model(reference_model)
+
+        self.metadata_obj = self.metadata_handler.get_or_create()
 
     def __repr__(self):
         return (f'<{self.__class__.__name__}({self.model}, {self.visit}), '
@@ -76,3 +84,10 @@ class TargetHandler:
             raise TargetModelNotScheduledForVisit(
                 f'Target model {self.model} is not scheduled '
                 f'for visit \'{self.visit.visit_code}\'.')
+
+    @property
+    def metadata_handler(self):
+        return self.metadata_handler_cls(
+            metadata_model=self.metadata_model,
+            model=self.model,
+            visit=self.visit)

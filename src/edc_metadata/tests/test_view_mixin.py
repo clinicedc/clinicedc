@@ -13,15 +13,21 @@ from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 
 
-class DummyModelWrapper:
+class DummyCrfModelWrapper:
+    def __init__(self, **kwargs):
+        self.model_obj = kwargs.get('model_obj')
+        self.model = kwargs.get('model')
+
+
+class DummyRequisitionModelWrapper:
     def __init__(self, **kwargs):
         self.model_obj = kwargs.get('model_obj')
         self.model = kwargs.get('model')
 
 
 class MyView(MetaDataViewMixin, ContextMixin):
-    crf_model_wrapper_cls = DummyModelWrapper
-    requisition_model_wrapper_cls = None
+    crf_model_wrapper_cls = DummyCrfModelWrapper
+    requisition_model_wrapper_cls = DummyRequisitionModelWrapper
 
 
 class TestViewMixin(TestCase):
