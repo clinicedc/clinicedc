@@ -3,47 +3,43 @@ from edc_reference import ReferenceModelConfig, site_reference_configs
 
 def register_to_site_reference_configs():
     site_reference_configs.registry = {}
-    reference = ReferenceModelConfig(
-        model='edc_metadata.SubjectRequisition',
-        fields=['panel_name'])
-    site_reference_configs.register(reference)
 
     reference = ReferenceModelConfig(
-        model='edc_metadata.CrfOne',
+        name='edc_metadata.CrfOne',
         fields=['f1', 'f2', 'f3'])
     site_reference_configs.register(reference)
 
     reference = ReferenceModelConfig(
-        model='edc_metadata.CrfTwo',
+        name='edc_metadata.CrfTwo',
         fields=['f1'])
     site_reference_configs.register(reference)
 
     reference = ReferenceModelConfig(
-        model='edc_metadata.CrfThree',
+        name='edc_metadata.CrfThree',
         fields=['f1'])
     site_reference_configs.register(reference)
 
     reference = ReferenceModelConfig(
-        model='edc_metadata.CrfFour',
+        name='edc_metadata.CrfFour',
         fields=['f1'])
     site_reference_configs.register(reference)
 
     reference = ReferenceModelConfig(
-        model='edc_metadata.CrfFive',
+        name='edc_metadata.CrfFive',
         fields=['f1'])
     site_reference_configs.register(reference)
 
     reference = ReferenceModelConfig(
-        model='edc_metadata.CrfSix',
+        name='edc_metadata.CrfSix',
         fields=['f1'])
     site_reference_configs.register(reference)
 
     reference = ReferenceModelConfig(
-        model='edc_metadata.CrfSeven',
+        name='edc_metadata.CrfSeven',
         fields=['f1'])
     site_reference_configs.register(reference)
 
     reference = ReferenceModelConfig(
-        model='edc_metadata.CrfMissingManager',
+        name='edc_metadata.CrfMissingManager',
         fields=['f1'])
     site_reference_configs.register(reference)

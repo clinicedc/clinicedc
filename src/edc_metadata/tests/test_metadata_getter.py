@@ -1,7 +1,7 @@
 from django.test import TestCase, tag
-
 from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
+from edc_reference.site import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -20,6 +20,8 @@ class TestMetadataGetter(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+        site_reference_configs.register_from_visit_schedule(
+            site_visit_schedules, autodiscover=False)
         self.schedule = site_visit_schedules.get_schedule(
             visit_schedule_name='visit_schedule',
             schedule_name='schedule')

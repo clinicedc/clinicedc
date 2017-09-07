@@ -14,6 +14,7 @@ from ..target_handler import TargetModelNotScheduledForVisit
 from .models import SubjectVisit, Enrollment
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
+from edc_reference.site import site_reference_configs
 
 
 class TestHandlers(TestCase):
@@ -23,6 +24,8 @@ class TestHandlers(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+        site_reference_configs.register_from_visit_schedule(
+            site_visit_schedules, autodiscover=False)
         self.schedule = site_visit_schedules.get_schedule(
             visit_schedule_name='visit_schedule',
             schedule_name='schedule')

@@ -1,7 +1,7 @@
 from django.test import TestCase, tag
 from django.views.generic.base import ContextMixin
-
 from edc_appointment.models import Appointment
+from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -41,6 +41,8 @@ class TestViewMixin(TestCase):
         self.schedule = site_visit_schedules.get_schedule(
             visit_schedule_name='visit_schedule',
             schedule_name='schedule')
+        site_reference_configs.register_from_visit_schedule(
+            site_visit_schedules, autodiscover=False)
         self.subject_identifier = '1111111'
         RegisteredSubject.objects.create(
             subject_identifier=self.subject_identifier)

@@ -1,7 +1,7 @@
 from django.test import TestCase, tag
-
 from edc_appointment.models import Appointment
 from edc_metadata.metadata_updater import MetadataUpdater
+from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
@@ -21,6 +21,8 @@ class TestCreatesDeletesMetadata(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+        site_reference_configs.register_from_visit_schedule(
+            site_visit_schedules, autodiscover=False)
         self.schedule = site_visit_schedules.get_schedule(
             visit_schedule_name='visit_schedule',
             schedule_name='schedule')
@@ -84,6 +86,8 @@ class TestUpdatesMetadata(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+        site_reference_configs.register_from_visit_schedule(
+            site_visit_schedules, autodiscover=False)
         self.schedule = site_visit_schedules.get_schedule(
             visit_schedule_name='visit_schedule',
             schedule_name='schedule')
@@ -126,6 +130,7 @@ class TestUpdatesMetadata(TestCase):
                 model=f'edc_metadata.{model_name}',
                 visit_code=subject_visit.visit_code).count(), 1)
 
+    @tag('1')
     def test_updates_requisition_metadata_as_keyed(self):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED)

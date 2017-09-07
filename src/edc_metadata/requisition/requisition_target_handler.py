@@ -1,8 +1,10 @@
+from django.apps import apps as django_apps
+from edc_reference import get_reference_name, site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
+from ..constants import REQUISITION
 from ..target_handler import TargetHandler
 from .requisition_metadata_handler import RequisitionMetadataHandler
-from ..constants import REQUISITION
 
 
 class TargetPanelNotScheduledForVisit(Exception):
@@ -26,11 +28,17 @@ class RequisitionTargetHandler(TargetHandler):
         super().__init__(**kwargs)
 
     @property
+    def reference_model_cls(self):
+        name = get_reference_name(self.model, self.target_panel)
+        reference_model = site_reference_configs.get_reference_model(
+            name=name)
+        return django_apps.get_model(reference_model)
+
+    @property
     def object(self):
         return self.reference_model_cls.objects.get_requisition_for_visit(
             visit=self.visit,
-            model=self.model,
-            panel_name=self.target_panel)
+            name=get_reference_name(self.model, self.target_panel))
 
     def raise_on_not_scheduled_for_visit(self):
         """Raises an exception if target_panel is not scheduled
