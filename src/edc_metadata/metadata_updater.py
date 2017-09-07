@@ -1,5 +1,5 @@
-from django.core.exceptions import ObjectDoesNotExist
-
+from .constants import KEYED
+from .metadata import Creator
 from .target_handler import TargetHandler
 
 
@@ -14,32 +14,30 @@ class MetadataUpdater:
     """
 
     target_handler = TargetHandler
+    creator_cls = Creator
 
-    def __init__(self, visit=None, metadata_category=None):
-        self.metadata_category = metadata_category
+    def __init__(self, visit=None, target_model=None):
+        self._metadata_obj = None
         self.visit = visit
+        self.target_model = target_model
 
     def __repr__(self):
         return f'{self.__class__.__name__}(visit={self.visit})'
 
-    def update(self, target_model=None, entry_status=None):
-        metadata_obj = None
-        self.target = self.target_handler(
-            model=target_model,
-            visit=self.visit,
-            metadata_category=self.metadata_category)
-        if entry_status and not self.target.object:
-            options = self.visit.metadata_query_options
-            options.update({
-                'model': target_model,
-                'subject_identifier': self.visit.subject_identifier})
-            try:
-                metadata_obj = self.target.metadata_model.objects.get(
-                    **options)
-            except ObjectDoesNotExist as e:
-                raise MetadataUpdaterError(
-                    f'{e}.. for target model \'{target_model}\' with options {options}')
-            if metadata_obj.entry_status != entry_status:
-                metadata_obj.entry_status = entry_status
-                metadata_obj.save()
+    def update(self, entry_status=None):
+
+        if self.target.object:
+            entry_status = KEYED
+
+        metadata_obj = self.target.metadata_obj
+
+        if entry_status and metadata_obj.entry_status != entry_status:
+            metadata_obj.entry_status = entry_status
+            metadata_obj.save()
         return metadata_obj
+
+    @property
+    def target(self):
+        return self.target_handler(
+            model=self.target_model,
+            visit=self.visit)

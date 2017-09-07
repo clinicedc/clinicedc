@@ -50,9 +50,8 @@ class TestMetadataUpdater(TestCase):
             model='edc_metadata.crfone',
             entry_status=REQUIRED)
         metadata_updater = MetadataUpdater(
-            visit=self.subject_visit, metadata_category=CRF)
-        metadata_updater.update(
-            target_model='edc_metadata.crfone', entry_status=NOT_REQUIRED)
+            visit=self.subject_visit, target_model='edc_metadata.crfone')
+        metadata_updater.update(entry_status=NOT_REQUIRED)
         self.assertRaises(
             ObjectDoesNotExist,
             CrfMetadata.objects.get,
@@ -79,18 +78,18 @@ class TestMetadataUpdater(TestCase):
 
     def test_crf_invalid_model(self):
         metadata_updater = MetadataUpdater(
-            visit=self.subject_visit, metadata_category=CRF)
+            visit=self.subject_visit,
+            target_model='edc_metadata.blah')
         self.assertRaises(
             TargetModelLookupError,
             metadata_updater.update,
-            target_model='edc_metadata.blah',
             entry_status=NOT_REQUIRED)
 
     def test_crf_model_not_scheduled(self):
         metadata_updater = MetadataUpdater(
-            visit=self.subject_visit, metadata_category=CRF)
+            visit=self.subject_visit,
+            target_model='edc_metadata.crfseven')
         self.assertRaises(
             TargetModelNotScheduledForVisit,
             metadata_updater.update,
-            target_model='edc_metadata.crfseven',
             entry_status=NOT_REQUIRED)

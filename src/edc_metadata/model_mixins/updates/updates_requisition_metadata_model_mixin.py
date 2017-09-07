@@ -1,6 +1,7 @@
 from ...constants import REQUISITION
-
+from ...requisition import RequisitionMetadataUpdater
 from .updates_metadata_model_mixin import UpdatesMetadataModelMixin
+from edc_metadata.constants import REQUIRED, NOT_REQUIRED
 
 
 class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
@@ -8,9 +9,17 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
     update metadata upon update/delete.
     """
 
+    updater_cls = RequisitionMetadataUpdater
+    metadata_category = REQUISITION
+
     @property
-    def metadata_category(self):
-        return REQUISITION
+    def metadata_updater(self):
+        """Returns an instance of RequisitionMetadataUpdater.
+        """
+        return self.updater_cls(
+            visit=self.visit,
+            target_model=self._meta.label_lower,
+            target_panel=self.panel_name)
 
     @property
     def metadata_query_options(self):
@@ -18,12 +27,14 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         options.update({'panel_name': self.panel_name})
         return options
 
-    def run_metadata_rules_for_crf(self):
-        """Runs all the rule groups for this app label.
-
-        Gets called in the signal.
+    @property
+    def metadata_default_entry_status(self):
+        """Returns a string that represents the configured entry status
+        of the requisition in the visit schedule.
         """
-        self.visit.run_metadata_rules(visit=self.visit)
+        requisition = [r for r in self.metadata_visit_object.requisitions
+                       if r.panel.name == self.panel_name][0]
+        return REQUIRED if requisition.required else NOT_REQUIRED
 
     class Meta:
         abstract = True

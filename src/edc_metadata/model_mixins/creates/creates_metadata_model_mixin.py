@@ -1,7 +1,6 @@
 from django.apps import apps as django_apps
 from django.db import models
-
-from edc_metadata_rules.metadata_rules_evaluator import MetadataRuleEvaluator
+from edc_metadata_rules import MetadataRuleEvaluator
 from edc_visit_schedule import site_visit_schedules
 
 from ...constants import KEYED
@@ -17,10 +16,14 @@ class CreatesMetadataModelMixin(models.Model):
     metadata_cls = Metadata
     metadata_rule_evaluator_cls = MetadataRuleEvaluator
 
-    def run_metadata_rules(self, visit=None):
-        """Runs all the rule groups for this app label.
+    def metadata_create(self, sender=None, instance=None):
+        metadata = self.metadata_cls(visit=self, update_keyed=True)
+        metadata.prepare()
+        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
+            self.run_metadata_rules()
 
-        Gets called in the signal.
+    def run_metadata_rules(self, visit=None):
+        """Runs all the rule groups.
         """
         visit = visit or self
         metadata_rule_evaluator = self.metadata_rule_evaluator_cls(
@@ -44,10 +47,6 @@ class CreatesMetadataModelMixin(models.Model):
         app_config = django_apps.get_app_config('edc_metadata')
         return app_config.get_metadata(
             self.subject_identifier, **self.metadata_query_options)
-
-    def metadata_create(self, sender=None, instance=None):
-        metadata = self.metadata_cls(visit=self, update_keyed=True)
-        return metadata.prepare()
 
     def metadata_delete_for_visit(self, instance=None):
         """Deletes metadata for a visit when the visit instance

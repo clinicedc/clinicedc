@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -7,7 +8,7 @@ class MetadataGetter:
     `metadata_objects`.
     """
 
-    metadata_model_cls = None
+    metadata_model = None
 
     def __init__(self, appointment=None, subject_identifier=None, visit_code=None):
         try:
@@ -22,6 +23,10 @@ class MetadataGetter:
             self.visit_code = visit_code
         self.metadata_objects = self.metadata_model_cls.objects.filter(
             **self.options).order_by('show_order')
+
+    @property
+    def metadata_model_cls(self):
+        return django_apps.get_model(self.metadata_model)
 
     @property
     def options(self):

@@ -3,7 +3,7 @@ from django.db import models
 
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ...constants import REQUIRED, NOT_REQUIRED, KEYED, CRF, REQUISITION
+from ...constants import REQUIRED, NOT_REQUIRED
 
 
 class MetadataError(Exception):
@@ -12,22 +12,30 @@ class MetadataError(Exception):
 
 class UpdatesMetadataModelMixin(models.Model):
 
+    updater_cls = None
+    metadata_category = None
+
     def metadata_update(self, entry_status=None):
-        try:
-            obj = self.metadata_model.objects.get(
-                **self.metadata_query_options)
-        except self.metadata_model.DoesNotExist as e:
-            raise self.metadata_model.DoesNotExist(
-                '{} Is \'{}\' scheduled for \'{}.{}.{}\'?'.format(
-                    str(e), self.metadata_query_options.get('model'),
-                    self.metadata_query_options.get('visit_schedule_name'),
-                    self.metadata_query_options.get('schedule_name'),
-                    self.metadata_query_options.get('visit_code')))
-        entry_status = entry_status or KEYED
-        if obj.entry_status != entry_status or obj.report_datetime != self.report_datetime:
-            obj.entry_status = entry_status or KEYED
-            obj.report_datetime = self.report_datetime
-            obj.save()
+        """Updates metatadata.
+        """
+        self.metadata_updater.update(entry_status=entry_status)
+        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
+            self.run_metadata_rules_for_crf()
+
+    def run_metadata_rules_for_crf(self):
+        """Runs all the rule groups for this app label.
+
+        Gets called in the signal.
+        """
+        self.visit.run_metadata_rules(visit=self.visit)
+
+    @property
+    def metadata_updater(self):
+        """Returns an instance of MetadataUpdater.
+        """
+        return self.updater_cls(
+            visit=self.visit,
+            target_model=self._meta.label_lower)
 
     def metadata_reset_on_delete(self):
         """Sets the metadata instance to its original state.
@@ -37,29 +45,29 @@ class UpdatesMetadataModelMixin(models.Model):
         obj.report_datetime = None
         obj.save()
 
+        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
+            self.run_metadata_rules_for_crf()
+
     @property
     def metadata_default_entry_status(self):
-        """Returns a string that represents the configured entry status
-        of the crf or requisition in the visit schedule.
+        """Returns a string that represents the default entry status
+        of the crf in the visit schedule.
         """
+        try:
+            crf = [c for c in self.metadata_visit_object.crfs
+                   if c.model == self._meta.label_lower][0]
+        except IndexError as e:
+            raise MetadataError(
+                f'{self._meta.label_lower}. Got {e}') from e
+        return REQUIRED if crf.required else NOT_REQUIRED
+
+    @property
+    def metadata_visit_object(self):
         visit_schedule = site_visit_schedules.get_visit_schedule(
             visit_schedule_name=self.visit.visit_schedule_name)
         schedule = visit_schedule.get_schedule(
             schedule_name=self.visit.schedule_name)
-        visit = schedule.visits.get(self.visit.visit_code)
-        if self.metadata_category == REQUISITION:
-            requisition = [r for r in visit.requisitions
-                           if r.panel.name == self.panel_name][0]
-            default_entry_status = REQUIRED if requisition.required else NOT_REQUIRED
-        elif self.metadata_category == CRF:
-            try:
-                crf = [c for c in visit.crfs
-                       if c.model == self._meta.label_lower][0]
-            except IndexError as e:
-                raise MetadataError(
-                    f'{self._meta.label_lower}. Got {e}') from e
-            default_entry_status = REQUIRED if crf.required else NOT_REQUIRED
-        return default_entry_status
+        return schedule.visits.get(self.visit.visit_code)
 
     @property
     def metadata_query_options(self):

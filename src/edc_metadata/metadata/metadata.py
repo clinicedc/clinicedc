@@ -95,6 +95,7 @@ class RequisitionCreator(Base):
                 and self.is_keyed(requisition)):
             metadata_obj.entry_status = KEYED
             metadata_obj.save()
+        return metadata_obj
 
     def is_keyed(self, requisition=None):
         """Returns True if requisition is keyed determined by
@@ -131,9 +132,15 @@ class Creator:
         the visit instance.
         """
         for crf in self.visit.crfs:
-            self.crf_creator.create(crf=crf)
+            self.create_crf(crf=crf)
         for requisition in self.visit.requisitions:
-            self.requisition_creator.create(requisition=requisition)
+            self.create_requisition(requisition=requisition)
+
+    def create_crf(self, crf=None):
+        return self.crf_creator.create(crf=crf)
+
+    def create_requisition(self, requisition=None):
+        return self.requisition_creator.create(requisition=requisition)
 
 
 class Destroyer(Base):

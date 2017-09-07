@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
@@ -20,9 +19,7 @@ def metadata_create_on_post_save(sender, instance, raw, created, using,
             pass
 
         try:
-            if instance.metadata_create(sender=sender, instance=instance):
-                if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
-                    instance.run_metadata_rules()
+            instance.metadata_create(sender=sender, instance=instance)
         except AttributeError as e:
             if 'metadata_create' not in str(e):
                 raise CreatesMetadataError(f'{sender}. Got \'{e}\'. ') from e
@@ -42,8 +39,6 @@ def metadata_update_on_post_save(sender, instance, raw, created, using,
 
         try:
             instance.metadata_update()
-            if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
-                instance.run_metadata_rules_for_crf()
         except AttributeError as e:
             if 'metadata_update' not in str(e):
                 raise AttributeError(e) from e
@@ -63,8 +58,6 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs):
 
     try:
         instance.metadata_reset_on_delete()
-        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
-            instance.run_metadata_rules_for_crf()
     except AttributeError as e:
         if 'metadata_reset_on_delete' not in str(e):
             raise AttributeError(e) from e
