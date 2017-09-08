@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 
-from edc_reference.site import site_reference_configs
+from edc_reference import get_reference_name, site_reference_configs
 from edc_visit_schedule import site_visit_schedules
 
 from ..constants import NOT_REQUIRED, REQUIRED, KEYED
@@ -62,10 +62,10 @@ class CrfCreator(Base):
         See also edc_reference.
         """
         reference_model = site_reference_configs.get_reference_model(
-            crf.model)
+            name=crf.model)
         self.reference_model_cls = django_apps.get_model(reference_model)
         return self.reference_model_cls.objects.filter_crf_for_visit(
-            model=crf.model,
+            name=crf.model,
             visit=self.visit).exists()
 
 
@@ -104,13 +104,12 @@ class RequisitionCreator(Base):
 
         See also edc_reference.
         """
+        name = get_reference_name(requisition.model, requisition.panel.name)
         reference_model = site_reference_configs.get_reference_model(
-            requisition.model)
+            name=name)
         self.reference_model_cls = django_apps.get_model(reference_model)
         return self.reference_model_cls.objects.get_requisition_for_visit(
-            model=requisition.model,
-            visit=self.visit,
-            panel_name=requisition.panel.name)
+            name=name, visit=self.visit)
 
 
 class Creator:

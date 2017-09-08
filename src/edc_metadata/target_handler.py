@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-
 from edc_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -56,10 +55,6 @@ class TargetHandler:
         app_config = django_apps.get_app_config('edc_metadata')
         self.metadata_model = app_config.get_metadata_model(
             self.metadata_category)
-        reference_model = site_reference_configs.get_reference_model(
-            self.model)
-        self.reference_model_cls = django_apps.get_model(reference_model)
-
         self.metadata_obj = self.metadata_handler.get_or_create()
 
     def __repr__(self):
@@ -67,9 +62,15 @@ class TargetHandler:
                 f'{self.metadata_model._meta.label_lower}>')
 
     @property
+    def reference_model_cls(self):
+        reference_model = site_reference_configs.get_reference_model(
+            name=self.model)
+        return django_apps.get_model(reference_model)
+
+    @property
     def object(self):
         return self.reference_model_cls.objects.filter_crf_for_visit(
-            model=self.model, visit=self.visit)
+            name=self.model, visit=self.visit)
 
     def raise_on_not_scheduled_for_visit(self):
         """Raises an exception if model is not scheduled
