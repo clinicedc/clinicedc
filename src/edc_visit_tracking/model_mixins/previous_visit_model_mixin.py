@@ -1,10 +1,7 @@
 from django.db import models
 
+from ..exceptions import PreviousVisitError
 from ..visit_sequence import VisitSequence, VisitSequenceError
-
-
-class PreviousVisitError(Exception):
-    pass
 
 
 class PreviousVisitModelMixin(models.Model):
