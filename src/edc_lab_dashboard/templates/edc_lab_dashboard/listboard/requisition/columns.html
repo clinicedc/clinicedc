@@ -34,10 +34,10 @@
       {{wrapped.object.panel_object.processing_profile.verbose_name|default:'<span class="text text-danger"><i class="fa fa-warning"></i> Processing profile not configured</span>'}}
     </td>
     <td>
-      {{ wrapped.drawn_datetime|date:"Y-m-d H:i" }}
+      {{ wrapped.object.drawn_datetime|date:"Y-m-d H:i" }}
     </td>
     <td>
-      {{ wrapped.requisition_datetime|date:"Y-m-d" }}
+      {{ wrapped.object.requisition_datetime|date:"Y-m-d" }}
     </td>
 
 <!-- end columns -->

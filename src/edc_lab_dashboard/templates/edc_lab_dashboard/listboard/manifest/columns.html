@@ -29,7 +29,7 @@
       {{ wrapped.object.get_status_display }} {% if wrapped.printed %} and printed {% endif %}
     </td>
     <td>
-      {{ wrapped.manifest_datetime|date:"Y-m-d H:i" }}
+      {{ wrapped.object.manifest_datetime|date:"Y-m-d H:i" }}
     </td>
     <td>
       {{ wrapped.user_created }}
