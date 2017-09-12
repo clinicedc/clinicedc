@@ -55,10 +55,9 @@ class AppointmentCreator:
                         appt_type=self.default_appt_type)
             except IntegrityError as e:
                 raise CreateAppointmentError(
-                    'An \'IntegrityError\' was raised while trying to '
-                    'create an appointment for model \'{}\'. Got {}. '
-                    'Options were {}'. format(
-                        self._meta.label_lower, str(e), self.options))
+                    f'An \'IntegrityError\' was raised while trying to '
+                    f'create an appointment for model \'{self.model_obj._meta.label_lower}\'. '
+                    f'Got {e}. Options were {self.options}')
         return appointment
 
     @property
