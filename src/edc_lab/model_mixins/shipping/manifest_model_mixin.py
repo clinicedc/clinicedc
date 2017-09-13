@@ -79,7 +79,7 @@ class ManifestModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.manifest_identifier:
-            identifier = ManifestIdentifier(model=self.__class__)
+            identifier = ManifestIdentifier()
             self.manifest_identifier = identifier.identifier
             app_config = django_apps.get_app_config('edc_lab')
             self.site_code = self.site_code or app_config.site_code
