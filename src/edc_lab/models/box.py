@@ -98,7 +98,7 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if not self.box_identifier:
-            identifier = BoxIdentifier(model=self.__class__)
+            identifier = BoxIdentifier()
             self.box_identifier = identifier.identifier
         if not self.name:
             self.name = self.box_identifier
