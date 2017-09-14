@@ -81,7 +81,7 @@ class ManifestModelMixin(models.Model):
         if not self.manifest_identifier:
             identifier = ManifestIdentifier()
             self.manifest_identifier = identifier.identifier
-            app_config = django_apps.get_app_config('edc_lab')
+            app_config = django_apps.get_app_config('edc_protocol')
             self.site_code = self.site_code or app_config.site_code
             self.site_name = self.site_name or app_config.site_name
         if self.shipped and not self.export_datetime:
