@@ -1,11 +1,10 @@
 from django.apps import apps as django_apps
-
 from edc_constants.constants import YES
 
-from ..identifiers import Prefix, AliquotIdentifier
-from .specimen_processor import SpecimenProcessor
-from .primary_aliquot import PrimaryAliquot
+from ..identifiers import Prefix as IdentifierPrefix
 from .aliquot_creator import AliquotCreator
+from .primary_aliquot import PrimaryAliquot
+from .specimen_processor import SpecimenProcessor
 
 
 class SpecimenNotDrawnError(Exception):
@@ -22,23 +21,15 @@ class Specimen:
     """
 
     aliquot_creator_cls = AliquotCreator
-    aliquot_identifier_cls = AliquotIdentifier
     specimen_processor_cls = SpecimenProcessor
-
     primary_aliquot_cls = PrimaryAliquot
-    identifier_length = 18
-    count_padding = 2
-
-    prefix_cls = Prefix
-    prefix_template = '{protocol_number}{requisition_identifier}'
-    prefix_length = 10
+    identifier_prefix_cls = IdentifierPrefix
 
     def __init__(self, requisition=None, requisition_pk=None,
-                 aliquot_model=None, requisition_model=None, **kwargs):
+                 aliquot_model=None, requisition_model=None):
 
         app_config = django_apps.get_app_config('edc_lab')
-        self.aliquot_model = (aliquot_model or django_apps.get_model(
-            *app_config.aliquot_model.split('.')))
+        self.aliquot_model = aliquot_model or app_config.aliquot_model
 
         if not requisition:
             requisition_model = requisition_model or django_apps.get_model(
@@ -64,35 +55,25 @@ class Specimen:
         """Returns a primary aliquot model instance after
         getting or creating one.
         """
-        options = dict(
-            aliquot_identifier_cls=self.aliquot_identifier_cls,
+        primary_aliquot_obj = self.primary_aliquot_cls(
             aliquot_creator_cls=self.aliquot_creator_cls,
-            aliquot_model=self.aliquot_model,
             aliquot_type=self.aliquot_type,
-            count_padding=self.count_padding,
             identifier_prefix=self.identifier_prefix,
-            identifier_length=self.identifier_length,
             requisition_identifier=self.requisition.requisition_identifier,
             subject_identifier=self.requisition.subject_identifier)
-        primary_aliquot_obj = self.primary_aliquot_cls(**options)
         return primary_aliquot_obj.object
 
     def process(self):
         specimen_processor = self.specimen_processor_cls(
-            aliquot_identifier_cls=self.aliquot_identifier_cls,
             aliquot_creator_cls=self.aliquot_creator_cls,
-            count_padding=self.count_padding,
-            identifier_length=self.identifier_length,
             identifier_prefix=self.identifier_prefix,
             model_obj=self.primary_aliquot,
-            processing_profile=self.requisition.panel_object.processing_profile,
-            subject_identifier=self.requisition.subject_identifier
-        )
+            processing_profile=self.requisition.panel_object.processing_profile)
         return specimen_processor.create()
 
     @property
     def aliquots(self):
-        return self.aliquot_model.objects.filter(
+        return self.aliquot_model_cls.objects.filter(
             identifier_prefix=self.identifier_prefix)
 
     @property
@@ -100,10 +81,10 @@ class Specimen:
         """Returns an identifier prefix string based on the
         requisition_identifier.
         """
-        prefix_obj = self.prefix_cls(
-            length=self.prefix_length,
+        return self.identifier_prefix_cls(
             protocol_number=self.requisition.get_protocol_number(),
-            requisition_identifier=self.requisition.requisition_identifier,
-            template=self.prefix_template,
-        )
-        return str(prefix_obj)
+            requisition_identifier=self.requisition.requisition_identifier)
+
+    @property
+    def aliquot_model_cls(self):
+        return django_apps.get_model(self.aliquot_model)

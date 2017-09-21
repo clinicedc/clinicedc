@@ -11,7 +11,6 @@ from .models import SubjectRequisition, SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 
-@tag('site')
 class TestSiteLab(TestCase):
 
     def test_site_labs(self):
@@ -31,7 +30,6 @@ class TestSiteLab(TestCase):
         self.assertFalse(site_lab.loaded)
 
 
-@tag('site')
 class TestSiteLab2(TestCase):
 
     lab_helper = SiteLabsTestHelper()

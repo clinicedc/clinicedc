@@ -3,13 +3,27 @@ from django.test import TestCase, tag
 from edc_constants.constants import YES, NO
 
 from ..lab import AliquotType, Process, ProcessingProfile
-from ..lab import Specimen, SpecimenNotDrawnError
+from ..lab import Specimen as SpecimenBase, SpecimenNotDrawnError
+from ..lab import SpecimenProcessor
+from ..lab import AliquotCreator as AliquotCreatorBase
+from ..identifiers import AliquotIdentifier as AliquotIdentifierBase
 from ..models import Aliquot
 from .models import SubjectRequisition, SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 
-@tag('specimen')
+class AliquotIdentifier(AliquotIdentifierBase):
+    identifier_length = 18
+
+
+class AliquotCreator(AliquotCreatorBase):
+    aliquot_identifier_cls = AliquotIdentifier
+
+
+class Specimen(SpecimenBase):
+    aliquot_creator_cls = AliquotCreator
+
+
 class TestSpecimen(TestCase):
 
     lab_helper = SiteLabsTestHelper()
@@ -20,6 +34,9 @@ class TestSpecimen(TestCase):
 
         self.subject_visit = SubjectVisit.objects.create(
             subject_identifier='1111111111')
+
+    def test_specimen_processor(self):
+        SpecimenProcessor(aliquot_creator_cls=AliquotCreator)
 
     def test_specimen(self):
         requisition = SubjectRequisition.objects.create(
@@ -57,7 +74,6 @@ class TestSpecimen(TestCase):
             Specimen, requisition=requisition)
 
 
-@tag('specimen')
 class TestSpecimen2(TestCase):
 
     lab_helper = SiteLabsTestHelper()

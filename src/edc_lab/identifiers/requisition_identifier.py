@@ -1,6 +1,6 @@
-from ..exceptions import RequisitionError
-
 from edc_identifier.simple_identifier import SimpleIdentifier
+
+from ..exceptions import RequisitionError
 
 
 class RequisitionIdentifier(SimpleIdentifier):

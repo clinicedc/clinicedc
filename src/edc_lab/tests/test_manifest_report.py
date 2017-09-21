@@ -6,7 +6,6 @@ from ..models import Manifest, Shipper, Consignee, ManifestItem
 from ..reports import ManifestReport, ManifestReportError
 
 
-@tag('manifest')
 class TestManifest(TestCase):
 
     def test_manifest(self):

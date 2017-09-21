@@ -24,6 +24,7 @@ class AppConfig(DjangoAppConfig):
     site_name = None
 
     aliquot_model = 'edc_lab.aliquot'
+
     box_model = 'edc_lab.box'
     box_item_model = 'edc_lab.boxitem'
     try:
