@@ -8,7 +8,7 @@ edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
 
 class ManifestLabel(BaseLabel):
 
-    model = 'manifest_model'
+    model_attr = 'manifest_model'
     template_name = 'manifest'
 
     @property
