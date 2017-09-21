@@ -17,7 +17,7 @@
      {% endif %}
      <span class="label label-success">{{ box.box_type }}</span> 
      <span class="label label-success">{{ box.count}}/{{ box.box_type.total}}</span> 
-     <span class="label label-success">{{ box.box_datetime|date:"Y-m-d" }}</span>
+     <span class="label label-success">{{ box.object.box_datetime|date:"Y-m-d" }}</span>
     {% if box.status == SHIPPED %}
         <span class="label label-default">SHIPPED</span>
     {% endif %} 
