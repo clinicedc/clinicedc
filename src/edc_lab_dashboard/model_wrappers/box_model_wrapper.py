@@ -9,3 +9,7 @@ class BoxModelWrapper(ModelWrapper):
 
     model = edc_lab_app_config.box_model
     next_url_name = app_config.pack_listboard_url_name
+
+    @property
+    def human_readable_identifier(self):
+        return self.object.human_readable_identifier

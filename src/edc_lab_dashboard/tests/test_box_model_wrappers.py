@@ -6,6 +6,7 @@ from edc_lab.models import ManifestItem
 from ..model_wrappers import BoxModelWrapper, ManageBoxItemModelWrapper
 from ..model_wrappers import ManifestItemModelWrapper, ManifestModelWrapper
 from edc_lab.models.box_item import BoxItem
+from pprint import pprint
 # from ..model_wrappers import RequisitionModelWrapper
 
 
@@ -33,6 +34,7 @@ class TestModelWrapper(TestCase):
 
         # attempt to remove namespace
         self.wrapper_cls = BoxModelWrapper
+        self.wrapper_cls.next_url_name = 'edc_lab:pack_listboard_url'
         next_url_name = self.wrapper_cls.next_url_name
         try:
             self.wrapper_cls.next_url_name = next_url_name.split(':')[1]
@@ -54,7 +56,7 @@ class TestModelWrapper(TestCase):
 
     def test_box_model_wrapper_template_attrs(self):
         wrapper = self.wrapper_cls(self.box)
-        attrs = ['position', 'human_readable_identifier',
+        attrs = ['human_readable_identifier',
                  'comment', 'created', 'user_created']
         for attr in attrs:
             with self.subTest(attr=attr):

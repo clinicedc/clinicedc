@@ -1,11 +1,9 @@
 from django.apps import apps as django_apps
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES
-
 from edc_lab.lab import Specimen
 from edc_lab.labels import AliquotLabel
 
@@ -21,6 +19,7 @@ class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
     post_url_name = app_config.receive_listboard_url_name
     valid_form_actions = ['receive', 'receive_and_process']
     label_cls = AliquotLabel
+    specimen_cls = Specimen
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -55,4 +54,4 @@ class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
         """
         for requisition in self.requisition_model.objects.filter(
                 pk__in=self.requisitions, received=True):
-            Specimen(requisition=requisition)
+            self.specimen_cls(requisition=requisition)
