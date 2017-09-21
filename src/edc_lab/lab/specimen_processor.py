@@ -7,8 +7,8 @@ class SpecimenProcessorError(Exception):
 
 
 class SpecimenProcessor:
-    """A class to process a specimen according to its processing
-    profile.
+    """A class to process a specimen into aliquots according
+    to its processing profile.
     """
 
     def __init__(self, model_obj=None, processing_profile=None,

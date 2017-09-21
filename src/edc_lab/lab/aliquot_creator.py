@@ -41,12 +41,21 @@ class AliquotCreator:
         self.is_primary = is_primary
 
     def create(self, count=None, aliquot_type=None):
-        """Returns a newly created aliquot model instance.
+        """Returns a newly created or existing non-primary
+        aliquot model instance.
         """
-        return self._create(
-            aliquot_type=aliquot_type,
-            count=count,
-            parent_identifier=self.parent_identifier)
+        try:
+            aliquot = self.aliquot_model_cls.objects.get(
+                aliquot_type=aliquot_type,
+                count=count,
+                parent_identifier=self.parent_identifier,
+                is_primary=False)
+        except ObjectDoesNotExist:
+            aliquot = self._create(
+                aliquot_type=aliquot_type,
+                count=count,
+                parent_identifier=self.parent_identifier)
+        return aliquot
 
     def create_primary(self, aliquot_type=None):
         """Returns an existing or newly created primary
@@ -62,7 +71,7 @@ class AliquotCreator:
         return aliquot
 
     def _create(self, parent_identifier=None, count=None, aliquot_type=None):
-        """Returns an existing or newly created aliquot.
+        """Returns a newly created aliquot.
         """
         aliquot_identifier_obj = self.aliquot_identifier_cls(
             count=count,

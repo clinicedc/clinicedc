@@ -64,6 +64,9 @@ class Specimen:
         return primary_aliquot_obj.object
 
     def process(self):
+        """Returns a list of aliquots after getting or creating
+        the aliquots according to the processing profile.
+        """
         specimen_processor = self.specimen_processor_cls(
             aliquot_creator_cls=self.aliquot_creator_cls,
             identifier_prefix=self.identifier_prefix,
