@@ -57,6 +57,10 @@ class FormDescriber:
                                  f'\n\n*Rendered on {timestamp}*\n')
         return '\n'.join(self.markdown)
 
+    def to_file(self, path=None, title=None, add_timestamp=None):
+        with open(path, 'w') as f:
+            f.write(self.to_markdown(title=title, add_timestamp=add_timestamp))
+
     def add_foreign_keys(self):
         self.markdown.append(f'\n**Foreign keys:**')
 
