@@ -36,8 +36,8 @@
 						        	{{ crf.object.verbose_name|title }}
 								    {% if crf.object.user_created %}
 									    <p class="text small text-info">
-										    {{ crf.object.user_created }} on {{ crf.object.created|date:"Y-m-d  H:i" }}
-											{% if crf.object.user_modified %} | {{ crf.object.user_modified }} on {{ crf.object.modified|date:"Y-m-d H:i" }}{% endif %}
+										    {{ crf.object.user_created }} on {{ crf.created|date:"Y-m-d  H:i" }}
+											{% if crf.object.user_modified %} | {{ crf.object.user_modified }} on {{ crf.modified|date:"Y-m-d H:i" }}{% endif %}
 										</p>
 									{% endif %}
 						   		{% endif %}
