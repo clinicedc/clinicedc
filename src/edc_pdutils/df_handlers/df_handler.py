@@ -11,6 +11,7 @@ class DfHandlerDuplicateColumn(Exception):
 
 class DfHandler:
 
+    column_handler_cls = None
     na_value = np.nan
     sort_by = None
 
@@ -48,6 +49,11 @@ class DfHandler:
         pass
 
     def finish_dataframe(self, **kwargs):
+
+        if self.column_handler_cls:
+            handler = self.column_handler_cls(self.dataframe)
+            self.dataframe = handler.dataframe
+
         for column in list(self.dataframe.select_dtypes(
                 include=['datetime64[ns, UTC]']).columns):
             self.dataframe[column] = self.dataframe[

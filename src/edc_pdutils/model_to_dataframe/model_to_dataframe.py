@@ -15,11 +15,18 @@ class ModelToDataframe:
 
     value_getter_cls = ValueGetter
     sys_field_names = ['_state', '_user_container_instance', 'using']
+    edc_sys_columns = [
+        'created', 'modified',
+        'user_created', 'user_modified',
+        'hostname_created', 'hostname_modified',
+        'device_created', 'device_modified',
+        'revision']
 
     def __init__(self, model=None, queryset=None, query_filter=None,
-                 add_columns_for=None, decrypt=None):
+                 add_columns_for=None, decrypt=None, drop_sys_columns=None):
         self._columns = None
         self._dataframe = pd.DataFrame()
+        self.drop_sys_columns = drop_sys_columns
         self.decrypt = decrypt
         self.add_columns_for = add_columns_for
         self.query_filter = query_filter or {}
@@ -50,8 +57,8 @@ class ModelToDataframe:
                         data.append(row)
                         self._dataframe = pd.DataFrame(
                             data, columns=self.columns)
-                        sys.stdout.write(
-                            f'    {self.model} {row_count}/{row_count}      \r')
+#                         sys.stdout.write(
+# f'    {self.model} {row_count}/{row_count}      \r')
                 else:
                     queryset = self.queryset.values_list(
                         *self.columns.keys()).filter(**self.query_filter)
@@ -63,6 +70,9 @@ class ModelToDataframe:
                         include=['datetime64[ns, UTC]']).columns):
                     self._dataframe[column] = self._dataframe[
                         column].astype('datetime64[ns]')
+            if self.drop_sys_columns:
+                self._dataframe = self._dataframe.drop(
+                    self.edc_sys_columns, axis=1)
         return self._dataframe
 
     def get_column_value(self, model_obj=None, column_name=None, lookup=None):

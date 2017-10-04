@@ -16,9 +16,6 @@ class CsvTablesExporter:
     """Export to CSV all tables for an app_label.
 
     Usage:
-        credentials = Credentials(
-            user='user', passwd='passwd', dbname='bhp085',
-            port='5001', host='td.bhp.org.bw')
         exporter = CsvTablesExporter(app_label='td')
         exporter.to_csv()
         exporter = CsvTablesExporter(app_label='edc')
@@ -57,10 +54,10 @@ class CsvTablesExporter:
                     raise InvalidTableName(
                         f'{table_name} is not a valid for {self}')
             self.table_names = table_names
-        csv_exporter = self.csv_exporter_cls()
         for table_name in self.table_names:
             df = self.to_df(table_name=table_name, **kwargs)
-            path = csv_exporter.to_csv(dataframe=df, data_label=table_name)
+            exporter = self.csv_exporter_cls(data_label=table_name)
+            path = exporter.to_csv(dataframe=df)
             if path:
                 self.exported_paths.update({table_name: path})
 

@@ -34,13 +34,14 @@ class CsvExporter:
                 f'Invalid export folder. Got {self.export_folder}')
         self.data_label = data_label
 
-    def to_csv(self, dataframe=None, data_label=None):
-        """Returns the full path of the written CSV file or None.
+    def to_csv(self, dataframe=None):
+        """Returns the full path of the written CSV file if the
+        dataframe is exported otherwise None.
 
-        Note: You could also just do dataframe.to_csv(**self.csv_options)
-              to suppress stdout messages.
+        Note: You could also just do:
+            >>> dataframe.to_csv(path_or_buf=path, **self.csv_options)
+            to suppress stdout messages.
         """
-        self.data_label = data_label or self.data_label
         sys.stdout.write(self.data_label + '\r')
         path = None
         if not dataframe.empty:
