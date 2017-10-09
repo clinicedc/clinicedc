@@ -1,2 +1,0 @@
-from .consent_view_mixin import ConsentViewMixin
-from .show_forms_view_mixin import ShowHideViewMixin
