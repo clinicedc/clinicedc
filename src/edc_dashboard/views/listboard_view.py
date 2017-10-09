@@ -69,6 +69,13 @@ class ListboardView(QueryStringViewMixin, ListView):
         return self._search_term
 
     def get_queryset(self):
+        """Return the list of items for this view.
+
+        Completely overrides ListView.get_queryset.
+
+        The return value gets set to self.object_list in get()
+        just before rendering to response.
+        """
         filter_options = self.get_queryset_filter_options(
             self.request, *self.args, **self.kwargs)
         exclude_options = self.get_queryset_exclude_options(
@@ -142,7 +149,7 @@ class ListboardView(QueryStringViewMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = context.get('object_list')
+        queryset = context.get('object_list')  # from ListView
         context_object_name = self.get_context_object_name(queryset)
         wrapped_queryset = self.get_wrapped_queryset(queryset)
         context.update(
