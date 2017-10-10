@@ -23,6 +23,11 @@ class AppConfig(DjangoAppConfig):
             name='clinic',
             days=[MO, TU, WE, TH, FR],
             slots=[100, 100, 100, 100, 100])}
+#     facilities = {
+#         'clinic': Facility(
+#             name='clinic',
+#             days=[MO, TU, WE, TH, FR],
+#             slots=[100, 100, 100, 100, 100])}
 
     visit_reverse_relations = {
         None: 'subjectvisit',

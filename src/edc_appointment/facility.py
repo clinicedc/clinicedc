@@ -4,8 +4,9 @@ from dateutil.relativedelta import relativedelta
 
 import arrow
 from django.apps import apps as django_apps
-from edc_appointment.holidays.holidays import Holidays
 from edc_base.utils import get_utcnow
+
+from .holidays import Holidays
 
 
 class Facility:
@@ -53,7 +54,7 @@ class Facility:
             if r.date() not in holidays:
                 return r
         else:
-            if Holidays().is_holiday(utc_datetime=r):
+            if not self.holiday_cls().is_holiday(utc_datetime=r):
                 return r
         return None
 
