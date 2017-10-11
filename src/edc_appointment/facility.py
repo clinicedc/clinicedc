@@ -1,14 +1,18 @@
-import arrow
-
 from collections import OrderedDict
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from django.apps import apps as django_apps
 
+import arrow
+from django.apps import apps as django_apps
 from edc_base.utils import get_utcnow
+
+from .holidays import Holidays
 
 
 class Facility:
+
+    holiday_cls = Holidays
+
     def __init__(self, name=None, days=None, slots=None, forward_only=None):
         self.name = name
         self.days = days
@@ -41,10 +45,17 @@ class Facility:
 
     def not_holiday(self, r):
         """Returns the arrow object, r,  of a suggested calendar date if not a holiday."""
-        Holiday = django_apps.get_model(*'edc_appointment.holiday'.split('.'))
-        holidays = [obj.day for obj in Holiday.objects.all().order_by('day')]
-        if r.date() not in holidays:
-            return r
+        app_config = django_apps.get_app_config('edc_appointment')
+        if not app_config.file_holidays:
+            Holiday = django_apps.get_model(
+                *'edc_appointment.holiday'.split('.'))
+            holidays = [
+                obj.day for obj in Holiday.objects.all().order_by('day')]
+            if r.date() not in holidays:
+                return r
+        else:
+            if not self.holiday_cls().is_holiday(utc_datetime=r):
+                return r
         return None
 
     def available_datetime(self, suggested_datetime=None, window_delta=None, taken_datetimes=None):
