@@ -24,6 +24,7 @@ class AppConfig(DjangoAppConfig):
     #   visit report_datetime
     #   by more than X days. Set to -1 to ignore
     report_datetime_allowance = 30
+    allow_crf_report_datetime_before_visit = False
 
     # format {app_label: (model_attr, app_label.model_name)}
     # e.g. {'example': ('subject_visit', 'example.subjectvisit')}
@@ -82,6 +83,10 @@ class AppConfig(DjangoAppConfig):
 if settings.APP_NAME == 'edc_visit_tracking':
 
     from edc_metadata.apps import AppConfig as BaseEdcMetadataAppConfig
+    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
 
     class EdcMetadataAppConfig(BaseEdcMetadataAppConfig):
         reason_field = {'edc_visit_tracking.subjectvisit': 'reason'}
+
+    class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
+        country = 'botswana'

@@ -39,7 +39,9 @@ class CrfModelMixin(ModelMixin, models.Model):
         if self.crf_date_validator_cls:
             self.crf_date_validator_cls(
                 report_datetime=self.report_datetime,
-                visit_report_datetime=self.visit.report_datetime)
+                visit_report_datetime=self.visit.report_datetime,
+                created=self.created,
+                modified=self.modified)
         super().save(*args, **kwargs)
 
     def natural_key(self):
