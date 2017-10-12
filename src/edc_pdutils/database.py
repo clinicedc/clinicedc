@@ -1,7 +1,9 @@
 import pandas as pd
+import numpy as np
 
 from django.conf import settings
 from django.db import connection
+from uuid import UUID
 
 from .dialects import MysqlDialect
 
@@ -41,8 +43,12 @@ class Database:
         sql, params = self.dialect.show_databases()
         return self.read_sql(sql, params=params)
 
-    def select_table(self, table_name=None, lowercase_columns=None):
+    def select_table(self, table_name=None, lowercase_columns=None, uuid_columns=None):
         """Returns a dataframe of a table.
+
+        Note: UUID columns are stored as strings (uuid.hex) and need
+        to be converted from string to UUID if to match the
+        rendering of the same column by a Django model class.
         """
         lowercase_columns = lowercase_columns or self.lowercase_columns
         sql, params = self.dialect.select_table(table_name)
@@ -50,6 +56,11 @@ class Database:
         if lowercase_columns:
             columns = {col: col.lower() for col in list(df.columns)}
             df.rename(columns=columns, inplace=True)
+        for col in uuid_columns:
+            df[col] = df.apply(
+                lambda row: str(
+                    UUID(row[col])) if row[col] else np.nan,
+                axis=1)
         return df
 
     def show_tables(self, app_label=None):
