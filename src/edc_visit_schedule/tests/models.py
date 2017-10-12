@@ -17,6 +17,8 @@ class SubjectVisit(VisitScheduleFieldsModelMixin,
 
     report_datetime = models.DateTimeField()
 
+    reason = models.CharField(max_length=25, null=True)
+
 
 class SubjectOffstudy(BaseUuidModel):
 
