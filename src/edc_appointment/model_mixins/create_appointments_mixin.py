@@ -36,7 +36,7 @@ class CreateAppointmentsMixin(models.Model):
         Timepoint datetimes are adjusted according to the available
         days in the facility.
         """
-        app_config = django_apps.get_app_config('edc_appointment')
+        app_config = django_apps.get_app_config('edc_facility')
         appointments = []
         base_appt_datetime = base_appt_datetime or self.report_datetime
         base_appt_datetime = arrow.Arrow.fromdatetime(

@@ -1,33 +1,23 @@
-from dateutil.relativedelta import MO, TU, WE, TH, FR
-import os
 import sys
 
+from dateutil.relativedelta import MO, TU, WE, TH, FR
 from django.apps import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps
+from edc_facility.facility import Facility
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-
-from .facility import Facility
 
 
 class AppConfig(DjangoAppConfig):
+    _holidays = {}
     name = 'edc_appointment'
     verbose_name = "Edc Appointments"
     app_label = 'edc_appointment'
     default_appt_type = 'clinic'
-    country = 'botswana'
-    file_holidays = False
-    holiday_csv_path = os.path.join(settings.BASE_DIR, 'holidays.csv')
     facilities = {
         'clinic': Facility(
             name='clinic',
             days=[MO, TU, WE, TH, FR],
             slots=[100, 100, 100, 100, 100])}
-#     facilities = {
-#         'clinic': Facility(
-#             name='clinic',
-#             days=[MO, TU, WE, TH, FR],
-#             slots=[100, 100, 100, 100, 100])}
 
     visit_reverse_relations = {
         None: 'subjectvisit',
@@ -55,13 +45,13 @@ class AppConfig(DjangoAppConfig):
     def model_name(self):
         return 'appointment'
 
-    def get_facility(self, name):
-        try:
-            facility = self.facilities[name]
-        except KeyError:
-            raise ImproperlyConfigured(
-                'Error creating appointment. Facility {} does not exist.'.format(name))
-        return facility
-
     def visit_model_reverse_attr(self, key=None):
         return self.visit_reverse_relations.get(key, 'subjectvisit')
+
+
+if settings.APP_NAME == 'edc_appointment':
+
+    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
+
+    class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
+        country = 'botswana'
