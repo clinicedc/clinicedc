@@ -14,6 +14,6 @@ class AppConfig(DjangoAppConfig):
     validate_models = True
 
     def ready(self):
-        sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
+        sys.stdout.write(f'Loading {self.verbose_name} ...\n')
         site_visit_schedules.autodiscover()
-        sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
+        sys.stdout.write(f' Done loading {self.verbose_name}.\n')
