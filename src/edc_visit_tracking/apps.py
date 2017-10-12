@@ -33,8 +33,10 @@ class AppConfig(DjangoAppConfig):
     reason_field = {}
 
     def ready(self):
-        sys.stdout.write(f'Loading {self.verbose_name} ...\n')
+
         from .signals import visit_tracking_check_in_progress_on_post_save
+
+        sys.stdout.write(f'Loading {self.verbose_name} ...\n')
         if not self.visit_models:
             sys.stdout.write(style.ERROR(
                 'Warning: Visit models not declared. At least one is required. '
