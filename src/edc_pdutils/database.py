@@ -50,6 +50,7 @@ class Database:
         to be converted from string to UUID if to match the
         rendering of the same column by a Django model class.
         """
+        uuid_columns = uuid_columns or []
         lowercase_columns = lowercase_columns or self.lowercase_columns
         sql, params = self.dialect.select_table(table_name)
         df = self.read_sql(sql, params=params)

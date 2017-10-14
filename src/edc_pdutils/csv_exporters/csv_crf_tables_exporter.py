@@ -26,16 +26,8 @@ class CsvCrfTablesExporter(CsvTablesExporter):
         if not self.visit_column:
             raise CsvCrfTablesExporterError(
                 'Visit column not specified. Got None.')
-        super().__init__(visit_column=self.visit_column, **kwargs)
+        super().__init__(with_columns=[self.visit_column], **kwargs)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}(app_label=\'{self.app_label}\','
                 f'visit_column=\'{self.visit_column}\')')
-
-    def get_table_names(self):
-        """Returns a list of table names for this
-        app_label that have column `visit_column`.
-        """
-        df = self.db.show_tables_with_columns(
-            self.app_label, [self.visit_column])
-        return list(df.table_name)

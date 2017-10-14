@@ -27,14 +27,15 @@ class CsvExporter:
     csv_date_format = None
     sort_by = None
 
-    def __init__(self, data_label=None, sort_by=None):
+    def __init__(self, data_label=None, sort_by=None, export_folder=None):
         self.sort_by = sort_by or self.sort_by
+        self.export_folder = export_folder or self.export_folder
         if not os.path.exists(self.export_folder):
             raise CsvExporterExportFolder(
                 f'Invalid export folder. Got {self.export_folder}')
         self.data_label = data_label
 
-    def to_csv(self, dataframe=None):
+    def to_csv(self, dataframe=None, export_folder=None):
         """Returns the full path of the written CSV file if the
         dataframe is exported otherwise None.
 
@@ -42,15 +43,18 @@ class CsvExporter:
             >>> dataframe.to_csv(path_or_buf=path, **self.csv_options)
             to suppress stdout messages.
         """
-        sys.stdout.write(self.data_label + '\r')
         path = None
+        sys.stdout.write(self.data_label + '\r')
+        if export_folder:
+            self.export_folder = export_folder
         if not dataframe.empty:
             path = self.path
             if self.sort_by:
                 dataframe.sort_values(self.sort_by, inplace=True)
             sys.stdout.write(f'( ) {self.data_label} ...     \r')
             dataframe.to_csv(path_or_buf=path, **self.csv_options)
-            sys.stdout.write(f'(*) {self.data_label}           \n')
+            recs = len(dataframe)
+            sys.stdout.write(f'(*) {self.data_label} {recs}       \n')
         else:
             sys.stdout.write(f'(?) {self.data_label} empty  \n')
         return path

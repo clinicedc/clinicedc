@@ -15,7 +15,7 @@ class CsvNonCrfTablesExporter(CsvCrfTablesExporter):
     """A class to export non-CRF tables for this app_label.
     """
 
-    visit_column = None  # column to NOT appear in any table
+    visit_columns = None  # a list of columns to NOT appear in any table
     crf_dialect_cls = NonCrfDfHandler
 
     def get_table_names(self):
@@ -24,5 +24,5 @@ class CsvNonCrfTablesExporter(CsvCrfTablesExporter):
         """
         df = self.db.show_tables_without_columns(
             app_label=self.app_label,
-            column_names=[self.visit_column])
+            column_names=self.visit_columns)
         return list(df.table_name)

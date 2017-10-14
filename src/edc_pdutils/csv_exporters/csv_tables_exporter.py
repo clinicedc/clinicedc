@@ -1,3 +1,5 @@
+import pandas as pd
+
 from ..database import Database
 from ..df_handlers import DfHandler
 from .csv_exporter import CsvExporter
@@ -45,18 +47,28 @@ class CsvTablesExporter:
     """
 
     app_label = None
-    db_cls = Database
-    excluded_app_labels = ['edc_sync']
-    delimiter = '|'
-    exclude_history_tables = False
-    df_handler_cls = DfHandler
     csv_exporter_cls = CsvExporter
+    db_cls = Database
+    delimiter = '|'
+    df_handler_cls = DfHandler
+    exclude_history_tables = False
+    excluded_app_labels = ['edc_sync']
 
-    def __init__(self, app_label=None, **kwargs):
+    def __init__(self, app_label=None, with_columns=None, without_columns=None,
+                 exclude_history_tables=None, exclude_table_hints=None, **kwargs):
+        self.with_columns = with_columns or []
+        self.without_columns = without_columns or []
+        exclude_table_hints = exclude_table_hints or []
+        self.exclude_history_tables = (
+            self.exclude_history_tables if exclude_history_tables is None else exclude_history_tables)
         self.exported_paths = {}
         self.app_label = app_label or self.app_label
         self.db = self.db_cls(**kwargs)
         self.table_names = self.get_table_names()
+        for hint in (exclude_table_hints):
+            for table_name in self.get_table_names():
+                if hint in table_name:
+                    self.table_names.pop(self.table_names.index(table_name))
         if self.exclude_history_tables:
             self.table_names = [
                 tbl for tbl in self.table_names
@@ -65,7 +77,7 @@ class CsvTablesExporter:
     def __repr__(self):
         return f'{self.__class__.__name__}(app_label=\'{self.app_label}\')'
 
-    def to_csv(self, table_names=None, **kwargs):
+    def to_csv(self, table_names=None, export_folder=None, **kwargs):
         """Exports all tables to CSV.
         """
         self.exported_paths = {}
@@ -77,15 +89,23 @@ class CsvTablesExporter:
             self.table_names = table_names
         for table_name in self.table_names:
             df = self.to_df(table_name=table_name, **kwargs)
-            exporter = self.csv_exporter_cls(data_label=table_name)
-            path = exporter.to_csv(dataframe=df)
+            exporter = self.csv_exporter_cls(
+                data_label=table_name)
+            path = exporter.to_csv(dataframe=df, export_folder=export_folder)
             if path:
                 self.exported_paths.update({table_name: path})
 
     def get_table_names(self):
         """Returns a list of table names for this app_label.
         """
-        df = self.db.show_tables(self.app_label)
+        if self.with_columns:
+            df = self.db.show_tables_with_columns(
+                self.app_label, self.with_columns)
+        elif self.without_columns:
+            df = self.db.show_tables_without_columns(
+                self.app_label, self.without_columns)
+        else:
+            df = self.db.show_tables(self.app_label)
         return list(df.table_name)
 
     def to_df(self, table_name=None, **kwargs):
