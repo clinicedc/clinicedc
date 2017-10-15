@@ -57,8 +57,6 @@ class ModelToDataframe:
                         data.append(row)
                         self._dataframe = pd.DataFrame(
                             data, columns=self.columns)
-#                         sys.stdout.write(
-# f'    {self.model} {row_count}/{row_count}      \r')
                 else:
                     queryset = self.queryset.values_list(
                         *self.columns.keys()).filter(**self.query_filter)

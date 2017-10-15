@@ -13,27 +13,6 @@ class InvalidTableName(Exception):
     pass
 
 
-class TableToDataframe:
-
-    def to_df(self, table_name=None, **kwargs):
-        """Returns a dataframe after passing the raw df
-        through the df_handler class.
-        """
-        df = self.get_raw_df(table_name)
-        if self.df_handler_cls:
-            df_handler = self.df_handler_cls(
-                dataframe=df, db=self.db,
-                table_name=table_name, **kwargs)
-            df = df_handler.dataframe
-        return df
-
-    def get_raw_df(self, table_name=None):
-        """Returns a df for the given table_name
-        from an SQL statement, that is; raw).
-        """
-        return self.db.select_table(table_name=table_name)
-
-
 class CsvTablesExporter:
 
     """Export to CSV all tables for an app_label.

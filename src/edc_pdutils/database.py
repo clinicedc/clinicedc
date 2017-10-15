@@ -19,14 +19,12 @@ class Database:
 
     def __init__(self, **kwargs):
         self._tables = pd.DataFrame()
-        self.database = settings.DATABASES.get('default').get('NAME')
-        if not self.database:
-            filename = settings.DATABASES.get('default').get(
-                'OPTIONS').get('read_default_file')
-            with open(filename, 'r') as f:
-                for line in f:
-                    if 'database' in line:
-                        self.database = line.split('=')[1].strip()
+        filename = settings.DATABASES.get('default').get(
+            'OPTIONS').get('read_default_file')
+        with open(filename, 'r') as f:
+            for line in [line for line in f if '#' not in line]:
+                if 'database' in line:
+                    self.database = line.split('=')[1].strip()
         if not self.database:
             raise DatabaseNameError(
                 'Unable to determine the DB name from settings.')
@@ -43,7 +41,8 @@ class Database:
         sql, params = self.dialect.show_databases()
         return self.read_sql(sql, params=params)
 
-    def select_table(self, table_name=None, lowercase_columns=None, uuid_columns=None):
+    def select_table(self, table_name=None, lowercase_columns=None, uuid_columns=None,
+                     limit=None):
         """Returns a dataframe of a table.
 
         Note: UUID columns are stored as strings (uuid.hex) and need
@@ -53,6 +52,8 @@ class Database:
         uuid_columns = uuid_columns or []
         lowercase_columns = lowercase_columns or self.lowercase_columns
         sql, params = self.dialect.select_table(table_name)
+        if limit:
+            sql = f'{sql} LIMIT {int(limit)}'
         df = self.read_sql(sql, params=params)
         if lowercase_columns:
             columns = {col: col.lower() for col in list(df.columns)}
