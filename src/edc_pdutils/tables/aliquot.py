@@ -1,7 +1,7 @@
 import pandas as pd
 
 from copy import copy
-from edc_base.model_mixins import DEFAULT_BASE_FIELDS
+from edc_base import DEFAULT_BASE_FIELDS
 
 from ..mappings import yes_no
 from .table import Table
