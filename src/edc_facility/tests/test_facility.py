@@ -22,14 +22,14 @@ class TestFacility(TestCase):
         for suggested, available in [(MO, MO), (TU, TU), (WE, WE), (TH, TH), (FR, FR), (SA, MO), (SU, MO)]:
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
-                available.weekday, facility.available_datetime(dt).weekday())
+                available.weekday, facility.available_rdate(dt).weekday())
 
     def test_allowed_weekday_limited(self):
         facility = Facility(name='clinic', days=[TU, TH], slots=[100, 100])
         for suggested, available in [(MO, TU), (TU, TU), (WE, TH), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
-                available.weekday, facility.available_datetime(dt).weekday())
+                available.weekday, facility.available_rdate(dt).datetime.weekday())
 
     def test_allowed_weekday_limited2(self):
         facility = Facility(
@@ -37,34 +37,35 @@ class TestFacility(TestCase):
         for suggested, available in [(MO, TU), (TU, TU), (WE, WE), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
-                available.weekday, facility.available_datetime(dt).weekday())
+                available.weekday, facility.available_rdate(dt).datetime.weekday())
 
-    def test_available_datetime(self):
-        """Asserts finds available_datetime on first clinic day after holiday.
+    def test_available_rdate(self):
+        """Asserts finds available_rdate on first clinic day after holiday.
         """
         facility = Facility(name='clinic', days=[WE], slots=[100])
         suggested_date = get_utcnow() + relativedelta(months=3)
-        available_datetime = facility.available_datetime(suggested_date)
-        self.assertEqual(available_datetime.weekday(), WE.weekday)
+        available_rdate = facility.available_rdate(suggested_date)
+        self.assertEqual(available_rdate.datetime.weekday(), WE.weekday)
 
-    def test_available_datetime_with_holiday(self):
-        """Asserts finds available_datetime on first clinic day after holiday.
+    def test_available_rdate_with_holiday(self):
+        """Asserts finds available_rdate on first clinic day after holiday.
         """
         suggested_date = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         expected_date = Arrow.fromdatetime(datetime(2017, 1, 8)).datetime
         facility = Facility(
             name='clinic', days=[suggested_date.weekday()], slots=[100])
-        available_datetime = facility.available_datetime(suggested_date)
-        self.assertEqual(expected_date, available_datetime)
+        available_rdate = facility.available_rdate(suggested_date)
+        self.assertEqual(expected_date, available_rdate.datetime)
 
     @override_settings(HOLIDAY_FILE=None)
     def test_read_holidays_from_db(self):
-        """Asserts finds available_datetime on first clinic day after holiday.
+        """Asserts finds available_rdate on first clinic day after holiday.
         """
-        Holiday.objects.create(day=date(2017, 1, 1))
         suggested_date = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         expected_date = Arrow.fromdatetime(datetime(2017, 1, 8)).datetime
+        Holiday.objects.create(day=suggested_date)
         facility = Facility(
-            name='clinic', days=[suggested_date.weekday()], slots=[100])
-        available_datetime = facility.available_datetime(suggested_date)
-        self.assertEqual(expected_date, available_datetime)
+            name='clinic', days=[suggested_date.weekday()], slots=[100],
+            holiday_model='edc_facility.holiday')
+        available_rdate = facility.available_rdate(suggested_date)
+        self.assertEqual(expected_date, available_rdate.datetime)

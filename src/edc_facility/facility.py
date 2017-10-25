@@ -26,10 +26,13 @@ class Facility:
         self.config = OrderedDict(zip([str(d) for d in self.days], self.slots))
         self.holidays = self.holiday_cls(**kwargs)
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}(name={self.name}, days={self.days})'
+
     def __str__(self):
-        return '{} {}'.format(
-            self.name.title(),
-            ', '.join([str(day) + '(' + str(slot) + ' slots)' for day, slot in self.config.items()]))
+        description = ', '.join(
+            [str(day) + '(' + str(slot) + ' slots)' for day, slot in self.config.items()])
+        return f'{self.name.title()} {description}'
 
     def slots_per_day(self, day):
         try:
@@ -54,10 +57,13 @@ class Facility:
         """
         return self.holidays.is_holiday(utc_datetime=arr_utc.datetime)
 
-    def available_datetime(self, suggested_datetime=None, forward_delta=None,
-                           reverse_delta=None, taken_datetimes=None):
-        """Returns a datetime closest to the suggested datetime based
-        on the configuration of the facility.
+    def available_datetime(self, **kwargs):
+        return self.available_rdate(**kwargs).datetime
+
+    def available_rdate(self, suggested_datetime=None, forward_delta=None,
+                        reverse_delta=None, taken_datetimes=None):
+        """Returns an arrow object for a datetime equal to or close to the
+        suggested datetime.
 
         To exclude datetimes other than holidays, pass a list of
         datetimes in UTC to `taken_datetimes`."""
@@ -71,18 +77,17 @@ class Facility:
             suggested_rdate = arrow.Arrow.fromdatetime(suggested_datetime)
         else:
             suggested_rdate = arrow.Arrow.fromdatetime(get_utcnow())
-        maximum = self.to_arrow_utc(suggested_rdate.datetime + forward_delta)
         minimum = self.to_arrow_utc(suggested_rdate.datetime + reverse_delta)
-        taken = [self.to_arrow_utc(dt) for dt in taken_datetimes or []]
+        maximum = self.to_arrow_utc(suggested_rdate.datetime + forward_delta)
+        rtaken = [self.to_arrow_utc(dt) for dt in taken_datetimes or []]
         for r in arrow.Arrow.span_range('day', minimum.datetime, maximum.datetime):
             # add back time to arrow object, r
             r = arrow.Arrow.fromdatetime(
                 datetime.combine(r[0].date(), suggested_rdate.time()))
-            # see if available
             if (r.datetime.weekday() in self.weekdays
                     and (suggested_rdate.date() <= r.date() < maximum.date())):
                 if (not self.is_holiday(r)
-                        and r.date() not in [d.date() for d in taken]
+                        and r.date() not in [r.date() for r in rtaken]
                         and self.open_slot_on(r)):
                     available_rdate = r
                     break

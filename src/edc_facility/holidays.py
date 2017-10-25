@@ -50,9 +50,9 @@ class HolidayError(Exception):
 
 class Holidays:
 
-    model = 'edc_facility.holiday'
+    model = None
 
-    def __init__(self, country=None, path=None, model=None):
+    def __init__(self, country=None, path=None, holiday_model=None):
         self._holidays = {}
         self.country = country
         if not self.country:
@@ -60,11 +60,11 @@ class Holidays:
         self.path = path
         if not self.path:
             self.path = settings.HOLIDAY_FILE
-        self.model = model or self.model
+        self.model = holiday_model or self.model
         self.time_zone = settings.TIME_ZONE
 
     def __repr__(self):
-        return f'{self.__class__.__name__}()<country={self.country}, time_zone={self.time_zone}>)'
+        return f'{self.__class__.__name__}(country={self.country}, time_zone={self.time_zone})'
 
     def __iter__(self):
         return iter(self.holidays.items())
