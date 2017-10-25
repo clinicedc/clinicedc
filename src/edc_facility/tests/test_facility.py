@@ -40,8 +40,7 @@ class TestFacility(TestCase):
                 available.weekday, facility.available_datetime(dt).weekday())
 
     def test_available_datetime(self):
-        """Asserts finds available_datetime on first wednesday
-        after suggested_date.
+        """Asserts finds available_datetime on first clinic day after holiday.
         """
         facility = Facility(name='clinic', days=[WE], slots=[100])
         suggested_date = get_utcnow() + relativedelta(months=3)
@@ -49,8 +48,7 @@ class TestFacility(TestCase):
         self.assertEqual(available_datetime.weekday(), WE.weekday)
 
     def test_available_datetime_with_holiday(self):
-        """Asserts finds available_datetime on first wednesday
-        after holiday.
+        """Asserts finds available_datetime on first clinic day after holiday.
         """
         suggested_date = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         expected_date = Arrow.fromdatetime(datetime(2017, 1, 8)).datetime
@@ -61,7 +59,7 @@ class TestFacility(TestCase):
 
     @override_settings(HOLIDAY_FILE=None)
     def test_read_holidays_from_db(self):
-        """Asserts finds available_datetime on first wednesday after holiday.
+        """Asserts finds available_datetime on first clinic day after holiday.
         """
         Holiday.objects.create(day=date(2017, 1, 1))
         suggested_date = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
