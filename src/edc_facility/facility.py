@@ -2,7 +2,7 @@ import arrow
 
 from collections import OrderedDict
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta, weekday
 from edc_base.utils import get_utcnow
 
 from .holidays import Holidays
@@ -13,8 +13,14 @@ class Facility:
     holiday_cls = Holidays
 
     def __init__(self, name=None, days=None, slots=None, forward_only=None, **kwargs):
+        self.days = []
         self.name = name
-        self.days = days
+        for day in days:
+            try:
+                day.weekday
+            except AttributeError:
+                day = weekday(day)
+            self.days.append(day)
         self.slots = slots or [99999 for _ in self.days]
         self.forward_only = True if forward_only is None else forward_only
         self.config = OrderedDict(zip([str(d) for d in self.days], self.slots))
@@ -46,29 +52,38 @@ class Facility:
     def is_holiday(self, arr_utc=None):
         """Returns the arrow object, arr_utc, of a suggested calendar date if not a holiday.
         """
-        if self.holidays.is_holiday(utc_datetime=arr_utc.datetime):
-            return None
-        return arr_utc
+        return self.holidays.is_holiday(utc_datetime=arr_utc.datetime)
 
-    def available_datetime(self, suggested_datetime=None, window_delta=None, taken_datetimes=None):
-        """Returns a datetime closest to the suggested datetime based on the configuration of the facility.
+    def available_datetime(self, suggested_datetime=None, forward_delta=None,
+                           reverse_delta=None, taken_datetimes=None):
+        """Returns a datetime closest to the suggested datetime based
+        on the configuration of the facility.
 
-        To exclude datetimes other than holidays, pass a list of datetimes to `taken_datetimes`."""
-        if suggested_datetime:
-            rdate = arrow.Arrow.fromdatetime(suggested_datetime)
+        To exclude datetimes other than holidays, pass a list of
+        datetimes in UTC to `taken_datetimes`."""
+        available_rdate = None
+        forward_delta = forward_delta or relativedelta(months=1)
+        if not self.forward_only and reverse_delta:
+            reverse_delta = reverse_delta
         else:
-            rdate = arrow.Arrow.fromdatetime(get_utcnow())
-        if not window_delta:
-            window_delta = relativedelta(months=1)
+            reverse_delta = relativedelta(months=0)
+        if suggested_datetime:
+            suggested_rdate = arrow.Arrow.fromdatetime(suggested_datetime)
+        else:
+            suggested_rdate = arrow.Arrow.fromdatetime(get_utcnow())
+        maximum = self.to_arrow_utc(suggested_rdate.datetime + forward_delta)
+        minimum = self.to_arrow_utc(suggested_rdate.datetime + reverse_delta)
         taken = [self.to_arrow_utc(dt) for dt in taken_datetimes or []]
-        maximum = self.to_arrow_utc(rdate.datetime + window_delta)
-        for r in arrow.Arrow.span_range('day', rdate.datetime, maximum.datetime):
+        for r in arrow.Arrow.span_range('day', minimum.datetime, maximum.datetime):
             # add back time to arrow object, r
             r = arrow.Arrow.fromdatetime(
-                datetime.combine(r[0].date(), rdate.time()))
+                datetime.combine(r[0].date(), suggested_rdate.time()))
             # see if available
-            if r.datetime.weekday() in self.weekdays and (rdate.date() <= r.date() < maximum.date()):
-                if (not self.is_holiday(r) and r.date() not in [d.date() for d in taken] and
-                        self.open_slot_on(r)):
-                    return r.datetime
-        return rdate.datetime
+            if (r.datetime.weekday() in self.weekdays
+                    and (suggested_rdate.date() <= r.date() < maximum.date())):
+                if (not self.is_holiday(r)
+                        and r.date() not in [d.date() for d in taken]
+                        and self.open_slot_on(r)):
+                    available_rdate = r
+                    break
+        return available_rdate

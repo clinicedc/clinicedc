@@ -1,33 +1,24 @@
+from arrow.arrow import Arrow
+from datetime import datetime, date
 from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA
-
-from django.apps import apps as django_apps
 from django.test import TestCase, tag
+from django.test.utils import override_settings
 from edc_base.utils import get_utcnow
 
 from ..facility import Facility
 from ..models import Holiday
-# from .helper import Helper
 
 
 class TestFacility(TestCase):
 
-    # helper_cls = Helper
-
     def setUp(self):
-        self.original_holiday_path = django_apps.app_configs['edc_facility'].holiday_path
         self.facility = Facility(
             name='clinic', days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
-#         self.subject_identifier = '111111111'
-#         self.helper = self.helper_cls(
-#             subject_identifier=self.subject_identifier)
-#         self.helper.consent_and_enroll()
-
-    def tearDown(self):
-        django_apps.app_configs['edc_facility'].holiday_path = self.original_holiday_path
 
     def test_allowed_weekday(self):
         facility = Facility(
-            name='clinic', days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
+            name='clinic',
+            days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
         for suggested, available in [(MO, MO), (TU, TU), (WE, WE), (TH, TH), (FR, FR), (SA, MO), (SU, MO)]:
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
@@ -48,49 +39,34 @@ class TestFacility(TestCase):
             self.assertEqual(
                 available.weekday, facility.available_datetime(dt).weekday())
 
-    @tag('me')
     def test_available_datetime(self):
-        """Asserts finds available_datetime on first wednesday after suggested_date."""
+        """Asserts finds available_datetime on first wednesday
+        after suggested_date.
+        """
         facility = Facility(name='clinic', days=[WE], slots=[100])
         suggested_date = get_utcnow() + relativedelta(months=3)
         available_datetime = facility.available_datetime(suggested_date)
         self.assertEqual(available_datetime.weekday(), WE.weekday)
 
     def test_available_datetime_with_holiday(self):
-        """Asserts finds available_datetime on first wednesday after holiday."""
-        facility = Facility(name='clinic', days=[WE], slots=[100])
-        suggested_date = get_utcnow() + relativedelta(months=3)
-        if suggested_date.weekday() == WE.weekday:
-            suggested_date = suggested_date + relativedelta(days=1)
-        available_datetime1 = facility.available_datetime(suggested_date)
-        self.assertEqual(available_datetime1.weekday(), WE.weekday)
-        Holiday.objects.create(day=available_datetime1)
-        available_datetime2 = facility.available_datetime(suggested_date)
-        self.assertEqual(available_datetime2.weekday(), WE.weekday)
-        self.assertGreater(available_datetime2, available_datetime1)
+        """Asserts finds available_datetime on first wednesday
+        after holiday.
+        """
+        suggested_date = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
+        expected_date = Arrow.fromdatetime(datetime(2017, 1, 8)).datetime
+        facility = Facility(
+            name='clinic', days=[suggested_date.weekday()], slots=[100])
+        available_datetime = facility.available_datetime(suggested_date)
+        self.assertEqual(expected_date, available_datetime)
 
+    @override_settings(HOLIDAY_FILE=None)
     def test_read_holidays_from_db(self):
         """Asserts finds available_datetime on first wednesday after holiday.
         """
-        django_apps.app_configs['edc_facility'].holiday_path = None
-        facility = Facility(name='clinic', days=[WE], slots=[100])
-        suggested_date = get_utcnow() + relativedelta(months=3)
-        if suggested_date.weekday() == WE.weekday:
-            suggested_date = suggested_date + relativedelta(days=1)
-        available_datetime1 = facility.available_datetime(suggested_date)
-        self.assertEqual(available_datetime1.weekday(), WE.weekday)
-        Holiday.objects.create(day=available_datetime1)
-        available_datetime2 = facility.available_datetime(suggested_date)
-        self.assertEqual(available_datetime2.weekday(), WE.weekday)
-        self.assertGreater(available_datetime2, available_datetime1)
-
-    def test_read_holidays_from_csv(self):
-        """Asserts finds available_datetime on first wednesday after holiday.
-        """
-        facility = Facility(name='clinic', days=[WE], slots=[100])
-        # app_config = django_apps.get_app_config('edc_facility')
-        suggested_date = get_utcnow() + relativedelta(months=3)
-        available_datetime1 = facility.available_datetime(suggested_date)
-        self.assertEqual(available_datetime1.weekday(), WE.weekday)
-        available_datetime2 = facility.available_datetime(suggested_date)
-        self.assertEqual(available_datetime2.weekday(), WE.weekday)
+        Holiday.objects.create(day=date(2017, 1, 1))
+        suggested_date = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
+        expected_date = Arrow.fromdatetime(datetime(2017, 1, 8)).datetime
+        facility = Facility(
+            name='clinic', days=[suggested_date.weekday()], slots=[100])
+        available_datetime = facility.available_datetime(suggested_date)
+        self.assertEqual(expected_date, available_datetime)

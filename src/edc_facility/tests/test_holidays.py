@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 from ..holidays import Holidays
 
 
-@tag('1')
 class TestHolidays(TestCase):
 
     def setUp(self):
@@ -16,32 +15,40 @@ class TestHolidays(TestCase):
         self.user.userprofile.save()
 
     def test_repr(self):
-        obj = Holidays()
-        self.assertTrue(repr(obj))
+        holidays = Holidays()
+        self.assertTrue(repr(holidays))
 
     def test_holidays(self):
-        holidays = Holidays(country='botswana')
-        self.assertIsNotNone(holidays.holidays)
-        keys = list(holidays.holidays)
-        self.assertGreater(len(keys), 0)
+        for country in [None, 'botswana']:
+            with self.subTest(country=country):
+                holidays = Holidays(country=country)
+                self.assertIsNotNone(holidays.holidays)
+                keys = list(holidays.holidays)
+                self.assertGreater(len(keys), 0)
 
     def test_key_is_formatted_datestring(self):
-        holidays = Holidays(country='botswana')
-        keys = list(holidays.holidays)
-        self.assertGreater(len(keys), 0)
-        self.assertTrue(datetime.strptime(keys[0], '%Y-%m-%d'))
+        for country in [None, 'botswana']:
+            with self.subTest(country=country):
+                holidays = Holidays(country=country)
+                keys = list(holidays.holidays)
+                self.assertGreater(len(keys), 0)
+                self.assertTrue(datetime.strptime(keys[0], '%Y-%m-%d'))
 
     def test_iteration(self):
-        holidays = Holidays(country='botswana')
-        for local_date, label in holidays:
-            self.assertTrue(datetime.strptime(local_date, '%Y-%m-%d'))
-            self.assertIsNotNone(label)
+        for country in [None, 'botswana']:
+            with self.subTest(country=country):
+                holidays = Holidays(country=country)
+                for local_date, label in holidays:
+                    self.assertTrue(datetime.strptime(local_date, '%Y-%m-%d'))
+                    self.assertIsNotNone(label)
 
     def test_is_holiday(self):
         start_datetime = arrow.Arrow.fromdatetime(
             datetime(2017, 9, 30)).datetime
-        obj = Holidays(country='botswana')
-        self.assertTrue(obj.is_holiday(start_datetime))
+        for country in [None, 'botswana']:
+            with self.subTest(country=country):
+                obj = Holidays(country=country)
+                self.assertTrue(obj.is_holiday(start_datetime))
 
     def test_is_not_holiday(self):
         utc_datetime = arrow.Arrow.fromdatetime(
