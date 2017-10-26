@@ -11,6 +11,10 @@ from edc_visit_tracking.model_mixins import VisitModelMixin
 from ..models import Appointment
 
 
+class MyModel(VisitModelMixin, BaseUuidModel):
+    pass
+
+
 class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
                      UpdatesOrCreatesRegistrationModelMixin,
                      BaseUuidModel):

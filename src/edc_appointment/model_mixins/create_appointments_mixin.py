@@ -30,7 +30,7 @@ class CreateAppointmentsMixin(models.Model):
         default='clinic',
         help_text='The facility name is need when scheduling appointments')
 
-    def create_appointments(self, base_appt_datetime=None):
+    def create_appointments(self, base_appt_datetime=None, taken_datetimes=None):
         """Creates appointments when called by post_save signal.
 
         Timepoint datetimes are adjusted according to the available
@@ -38,36 +38,37 @@ class CreateAppointmentsMixin(models.Model):
         """
         app_config = django_apps.get_app_config('edc_facility')
         appointments = []
+        taken_datetimes = taken_datetimes or []
         base_appt_datetime = base_appt_datetime or self.report_datetime
         base_appt_datetime = arrow.Arrow.fromdatetime(
             base_appt_datetime, base_appt_datetime.tzinfo).to('utc').datetime
         facility = app_config.get_facility(self.facility_name)
         timepoint_dates = self.schedule.visits.timepoint_dates(
             dt=base_appt_datetime)
-        taken_datetimes = []
         for visit, timepoint_datetime in timepoint_dates.items():
-            adjusted_timepoint_datetime = self.move_to_facility_day(
-                facility, timepoint_datetime)
-            available_datetime = facility.available_datetime(
-                adjusted_timepoint_datetime, taken_datetimes=taken_datetimes)
+            available_rdate = facility.available_rdate(
+                suggested_datetime=timepoint_datetime,
+                reverse_delta=visit.rlower,
+                forward_delta=visit.rupper,
+                taken_datetimes=taken_datetimes)
             appointment = self.update_or_create_appointment(
-                visit, available_datetime, timepoint_datetime)
+                visit, available_rdate.datetime, timepoint_datetime)
             appointments.append(appointment)
-            taken_datetimes.append(available_datetime)
+            taken_datetimes.append(available_rdate.datetime)
         return appointments
 
-    def move_to_facility_day(self, facility, dt, forward_only=None):
-        """Move a date forward off of a weekend unless app_config
-        includes weekends.
-        """
-        delta = relativedelta(days=0)
-        sa_delta = relativedelta(days=2)
-        su_delta = relativedelta(days=1)
-        if dt.weekday() == SA.weekday and SA not in facility.days:
-            delta = sa_delta
-        if dt.weekday() == SU.weekday and SU not in facility.days:
-            delta = su_delta
-        return dt + delta
+#     def move_to_facility_day(self, facility, dt, forward_only=None):
+#         """Move a date forward off of a weekend unless app_config
+#         includes weekends.
+#         """
+#         delta = relativedelta(days=0)
+#         sa_delta = relativedelta(days=2)
+#         su_delta = relativedelta(days=1)
+#         if dt.weekday() == SA.weekday and SA not in facility.days:
+#             delta = sa_delta
+#         if dt.weekday() == SU.weekday and SU not in facility.days:
+#             delta = su_delta
+#         return dt + delta
 
 #     @property
 #     def extra_create_appointment_options(self):
@@ -75,7 +76,7 @@ class CreateAppointmentsMixin(models.Model):
 #         """
 #         return {}
 
-    def update_or_create_appointment(self, visit, available_datetime,
+    def update_or_create_appointment(self, visit, suggested_datetime,
                                      timepoint_datetime):
         """Updates or creates an appointment for this subject
         for the visit.
@@ -83,7 +84,7 @@ class CreateAppointmentsMixin(models.Model):
         creator = self.appointment_creator_cls(
             model_obj=self,
             visit=visit,
-            available_datetime=available_datetime,
+            suggested_datetime=suggested_datetime,
             timepoint_datetime=timepoint_datetime)
         return creator.update_or_create()
 
