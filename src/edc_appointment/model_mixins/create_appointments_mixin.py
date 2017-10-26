@@ -81,12 +81,12 @@ class CreateAppointmentsMixin(models.Model):
         """Updates or creates an appointment for this subject
         for the visit.
         """
-        creator = self.appointment_creator_cls(
+        appointment_creator = self.appointment_creator_cls(
             model_obj=self,
             visit=visit,
             suggested_datetime=suggested_datetime,
             timepoint_datetime=timepoint_datetime)
-        return creator.update_or_create()
+        return appointment_creator.appointment
 
     def delete_unused_appointments(self):
         appointments = self.appointment_model.objects.filter(

@@ -1,9 +1,12 @@
 from django.test import TestCase, tag
-from edc_appointment.appointment_creator import AppointmentCreator
+from edc_appointment import AppointmentCreator, AppointmentCreatorNaiveDatetime
 from edc_visit_schedule import VisitSchedule, Schedule, Visit
 from dateutil.relativedelta import relativedelta
 from edc_base.utils import get_utcnow
-from edc_appointment.models.appointment import Appointment
+from edc_appointment.models import Appointment
+from datetime import datetime
+from django.utils.timezone import is_naive
+from arrow.arrow import Arrow
 
 
 class TestAppointmentCreator(TestCase):
@@ -59,22 +62,47 @@ class TestAppointmentCreator(TestCase):
 
     @tag('1')
     def test_create(self):
-        appt_datetime = get_utcnow()
+        appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         creator = AppointmentCreator(
             model_obj=self.model_obj,
             visit=self.visit1000,
             suggested_datetime=appt_datetime)
-        creator.update_or_create()
+        appointment = creator.appointment
+        self.assertEqual(
+            Appointment.objects.all()[0], appointment)
         self.assertEqual(
             Appointment.objects.all()[0].appt_datetime, appt_datetime)
 
     @tag('1')
-    def test_create(self):
-        appt_datetime = get_utcnow()
+    def test_create_forward(self):
+        appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         creator = AppointmentCreator(
             model_obj=self.model_obj,
             visit=self.visit1000,
             suggested_datetime=appt_datetime)
-        creator.update_or_create()
+        appointment = creator.appointment
+        self.assertEqual(
+            Appointment.objects.all()[0], appointment)
         self.assertEqual(
             Appointment.objects.all()[0].appt_datetime, appt_datetime)
+
+    @tag('1')
+    def test_raise_on_naive_datetime(self):
+        appt_datetime = datetime(2017, 1, 1)
+        self.assertRaises(
+            AppointmentCreatorNaiveDatetime,
+            AppointmentCreator,
+            model_obj=self.model_obj,
+            visit=self.visit1000,
+            suggested_datetime=appt_datetime)
+
+    @tag('1')
+    def test_raise_on_naive_datetime2(self):
+        appt_datetime = datetime(2017, 1, 1)
+        self.assertRaises(
+            AppointmentCreatorNaiveDatetime,
+            AppointmentCreator,
+            model_obj=self.model_obj,
+            visit=self.visit1000,
+            suggested_datetime=appt_datetime,
+            timepoint_datetime=appt_datetime)

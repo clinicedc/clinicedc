@@ -12,7 +12,7 @@ class AppConfig(DjangoAppConfig):
     _holidays = {}
     name = 'edc_appointment'
     verbose_name = "Edc Appointments"
-    app_label = 'edc_appointment'
+    appointment_model = 'edc_appointment.appointment'
     default_appt_type = 'clinic'
     visit_reverse_relations = {
         None: 'subjectvisit',
@@ -25,18 +25,9 @@ class AppConfig(DjangoAppConfig):
             appointment_post_save,
             delete_appointments_on_post_delete)
 
-        sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
-        sys.stdout.write(
-            ' * using {}.{}.\n'.format(self.app_label, self.model_name))
-        sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
-
-    @property
-    def model(self):
-        return django_apps.get_model(self.app_label, self.model_name)
-
-    @property
-    def model_name(self):
-        return 'appointment'
+        sys.stdout.write(f'Loading {self.verbose_name} ...\n')
+        sys.stdout.write(f' * using {self.appointment_model}.\n')
+        sys.stdout.write(f' Done loading {self.verbose_name}.\n')
 
     def visit_model_reverse_attr(self, key=None):
         return self.visit_reverse_relations.get(key, 'subjectvisit')

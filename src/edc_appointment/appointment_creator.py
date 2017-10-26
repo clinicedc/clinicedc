@@ -3,9 +3,14 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.utils import IntegrityError
+from django.utils.timezone import is_naive
 
 
 class CreateAppointmentError(Exception):
+    pass
+
+
+class AppointmentCreatorNaiveDatetime(Exception):
     pass
 
 
@@ -14,9 +19,22 @@ class AppointmentCreator:
     def __init__(self, suggested_datetime=None, timepoint_datetime=None,
                  model_obj=None, visit=None, visit_code_sequence=None, facility_name=None,
                  subject_identifier=None, visit_schedule_name=None, schedule_name=None,
-                 visit_code=None, visit_timepoint=None):
-        self.suggested_datetime = suggested_datetime
-        self.timepoint_datetime = timepoint_datetime
+                 visit_code=None, visit_timepoint=None, appointment_model=None,
+                 ):
+        self._appointment = None
+        self.appointment_model = appointment_model
+        if suggested_datetime and is_naive(suggested_datetime):
+            raise AppointmentCreatorNaiveDatetime(
+                f'Naive datetime not allowed. See suggested_datetime. '
+                f'Got {suggested_datetime}')
+        else:
+            self.suggested_datetime = suggested_datetime
+        if timepoint_datetime and is_naive(timepoint_datetime):
+            raise AppointmentCreatorNaiveDatetime(
+                f'Naive datetime not allowed. See timepoint_datetime. '
+                f'Got {timepoint_datetime}')
+        else:
+            self.timepoint_datetime = timepoint_datetime
         if model_obj:
             self.subject_identifier = model_obj.subject_identifier
             self.visit_schedule_name = model_obj.visit_schedule.name
@@ -43,7 +61,24 @@ class AppointmentCreator:
         return self.subject_identifier
 
     @property
+    def appointment(self):
+        """Returns a newly created or updated appointment model instance.
+        """
+        if not self._appointment:
+            try:
+                self._appointment = self.appointment_model_cls.objects.get(
+                    **self.options)
+            except ObjectDoesNotExist:
+                self._appointment = self._create()
+            else:
+                self._appointment = self._update(appointment=self._appointment)
+        return self._appointment
+
+    @property
     def options(self):
+        """Returns default options to "get" an existing
+        appointment model instance.
+        """
         return dict(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule_name,
@@ -53,36 +88,39 @@ class AppointmentCreator:
             timepoint=self.visit_timepoint,
             facility_name=self.facility_name)
 
-    def update_or_create(self):
-        """Returns an appointment instance that is created or
-        updated.
+    def _create(self):
+        """Returns a newly created appointment model instance.
         """
         try:
-            appointment = self.appointment_model.objects.get(**self.options)
-            if (appointment.timepoint_datetime
-                    - self.suggested_datetime != timedelta(0, 0, 0)):
-                appointment.appt_datetime = self.suggested_datetime
-                appointment.timepoint_datetime = self.timepoint_datetime
+            with transaction.atomic():
+                appointment = self.appointment_model_cls.objects.create(
+                    **self.options,
+                    timepoint_datetime=self.timepoint_datetime,
+                    appt_datetime=self.suggested_datetime,
+                    appt_type=self.default_appt_type)
+        except IntegrityError as e:
+            raise CreateAppointmentError(
+                f'An \'IntegrityError\' was raised while trying to '
+                f'create an appointment for model \'{self.model_obj._meta.label_lower}\'. '
+                f'Got {e}. Options were {self.options}')
+        return appointment
+
+    def _update(self, appointment=None):
+        """Returns an updated appointment model instance.
+        """
+        if (appointment.timepoint_datetime
+                - self.suggested_datetime != timedelta(0, 0, 0)):
+            appointment.appt_datetime = self.suggested_datetime
+            appointment.timepoint_datetime = self.timepoint_datetime
             appointment.save()
-        except ObjectDoesNotExist:
-            try:
-                with transaction.atomic():
-                    appointment = self.appointment_model.objects.create(
-                        **self.options,
-                        timepoint_datetime=self.timepoint_datetime,
-                        appt_datetime=self.suggested_datetime,
-                        appt_type=self.default_appt_type)
-            except IntegrityError as e:
-                raise CreateAppointmentError(
-                    f'An \'IntegrityError\' was raised while trying to '
-                    f'create an appointment for model \'{self.model_obj._meta.label_lower}\'. '
-                    f'Got {e}. Options were {self.options}')
         return appointment
 
     @property
-    def appointment_model(self):
-        app_config = django_apps.get_app_config('edc_appointment')
-        return app_config.model
+    def appointment_model_cls(self):
+        if not self.appointment_model:
+            app_config = django_apps.get_app_config('edc_appointment')
+            self.appointment_model = app_config.appointment_model
+        return django_apps.get_model(self.appointment_model)
 
     @property
     def default_appt_type(self):
