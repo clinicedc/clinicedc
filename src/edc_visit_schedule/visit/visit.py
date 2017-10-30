@@ -41,12 +41,13 @@ class Visit:
     forms_collection_cls = FormsCollection
     visit_date_cls = VisitDate
 
-    def __init__(self, code=None, timepoint=None, rbase=None,
-                 crfs=None, requisitions=None, crfs_unscheduled=None,
+    def __init__(self, code=None, timepoint=None, rbase=None, rlower=None,
+                 rupper=None, crfs=None, requisitions=None, crfs_unscheduled=None,
                  requisitions_unscheduled=None, title=None,
                  instructions=None, grouping=None, **kwargs):
 
-        self.dates = self.visit_date_cls(**kwargs)
+        self.dates = self.visit_date_cls(
+            rlower=rlower, rupper=rupper, **kwargs)
         self.title = title or f'Visit {code}'
         if not code or isinstance(code, int) or not re.match(self.code_regex, code):
             raise VisitCodeError(f'Invalid visit code. Got \'{code}\'')
@@ -62,6 +63,8 @@ class Visit:
         self.instructions = instructions
         self.timepoint = timepoint
         self.rbase = rbase
+        self.rlower = rlower
+        self.rupper = rupper
         self.grouping = grouping
 
     def __repr__(self):
