@@ -4,7 +4,7 @@ import os
 
 from datetime import datetime
 from django.apps import apps as django_apps
-from django.conf import settings
+from django.conf import settings, Settings
 
 
 class HolidayImportError(Exception):
@@ -50,21 +50,49 @@ class HolidayError(Exception):
 
 class Holidays:
 
-    model = None
+    """A class used by Facility to get holidays for the
+    country of facility.
+    """
+    default_model = 'edc_facility.holiday'
 
-    def __init__(self, country=None, path=None, holiday_model=None):
+    def __init__(self, country=None, path=None, holiday_model=None, facility_name=None):
         self._holidays = {}
         self.country = country
         if not self.country:
-            self.country = settings.COUNTRY
+            try:
+                self.country = settings.COUNTRY
+            except AttributeError:
+                pass
+            if not self.country:
+                raise HolidayError(
+                    f'No country specified for facility {facility_name}. '
+                    f'See settings.COUNTRY')
         self.path = path
         if not self.path:
-            self.path = settings.HOLIDAY_FILE
-        self.model = holiday_model or self.model
+            try:
+                self.path = settings.HOLIDAY_FILE
+            except AttributeError:
+                pass
+        self.model = holiday_model
+        if not self.model:
+            try:
+                self.model = settings.HOLIDAY_MODEL
+            except AttributeError:
+                pass
+            if not self.model:
+                self.model = self.default_model
+
         self.time_zone = settings.TIME_ZONE
+        if not self.holidays:
+            source = (
+                self.path or self.model or 'settings.HOLIDAY_FILE or settings.HOLIDAY_MODEL')
+            raise HolidayError(
+                f'No holidays found for \'{self.country}. See {source}.')
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(country={self.country}, time_zone={self.time_zone})'
+        return (
+            f'{self.__class__.__name__}(country={self.country}, '
+            f'time_zone={self.time_zone}, path={self.path}, model={self.model})')
 
     def __iter__(self):
         return iter(self.holidays.items())
@@ -79,15 +107,14 @@ class Holidays:
                 country=self.country, path=self.path, model=self.model)
         return self._holidays
 
-#     @property
-#     def holidays(self):
-#         app_config = django_apps.get_app_config('edc_facility')
-#         return app_config.holidays
-
     def is_holiday(self, utc_datetime=None):
+        """Returns True if the UTC datetime is a holiday.
+        """
         local_date = self.local_date(utc_datetime=utc_datetime)
         return str(local_date) in self.holidays
 
     def local_date(self, utc_datetime=None):
+        """Returns the localized date from UTC.
+        """
         utc = arrow.Arrow.fromdatetime(utc_datetime)
         return utc.to(self.time_zone).date()
