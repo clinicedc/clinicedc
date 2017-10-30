@@ -4,7 +4,7 @@ import os
 
 from datetime import datetime
 from django.apps import apps as django_apps
-from django.conf import settings, Settings
+from django.conf import settings
 
 
 class HolidayImportError(Exception):
@@ -83,11 +83,6 @@ class Holidays:
                 self.model = self.default_model
 
         self.time_zone = settings.TIME_ZONE
-        if not self.holidays:
-            source = (
-                self.path or self.model or 'settings.HOLIDAY_FILE or settings.HOLIDAY_MODEL')
-            raise HolidayError(
-                f'No holidays found for \'{self.country}. See {source}.')
 
     def __repr__(self):
         return (
@@ -105,6 +100,11 @@ class Holidays:
         if not self._holidays:
             self._holidays = get_holidays(
                 country=self.country, path=self.path, model=self.model)
+            if not self._holidays:
+                source = (
+                    self.path or self.model or 'settings.HOLIDAY_FILE or settings.HOLIDAY_MODEL')
+                raise HolidayError(
+                    f'No holidays found for \'{self.country}. See {source}.')
         return self._holidays
 
     def is_holiday(self, utc_datetime=None):
