@@ -128,6 +128,8 @@ STATIC_URL = '/static/'
 
 COUNTRY = 'botswana'
 HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
+HOLIDAY_MODEL = None  # default = 'edc_facility.holiday'
+
 
 if 'test' in sys.argv:
 
