@@ -1,13 +1,11 @@
-from uuid import UUID
-
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 from django.db import models
-
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
+from uuid import UUID
 
 from ..choices import APPT_TYPE, APPT_STATUS
 from ..constants import NEW_APPT
@@ -127,18 +125,13 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
         return self.schedule.visits.get(self.visit_code).title
 
     @property
-    def visit_model_reverse_attr(self):
-        """Returns the visit attr of the reverse relation.
+    def visit(self):
+        """Returns the related visit model instance.
         """
         app_config = django_apps.get_app_config('edc_appointment')
-        return app_config.visit_model_reverse_attr(
-            key=self._meta.label_lower)
-
-    @property
-    def visit(self):
-        """Returns the visit instance.
-        """
-        return getattr(self, self.visit_model_reverse_attr)
+        config = app_config.get_configuration(self._meta.label_lower)
+        # attr = app_config.related_visit_model_attrs.get(self._meta.label_lower)
+        return getattr(self, config.related_visit_model_attr)
 
     @property
     def next_by_timepoint(self):

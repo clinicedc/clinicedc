@@ -1,12 +1,14 @@
+import os
+
+from django.conf import settings
 from django.test import TestCase, tag
-from edc_appointment import AppointmentCreator, AppointmentCreatorNaiveDatetime
+from edc_appointment import AppointmentCreator
 from edc_visit_schedule import VisitSchedule, Schedule, Visit
-from dateutil.relativedelta import relativedelta
-from edc_base.utils import get_utcnow
+from dateutil.relativedelta import relativedelta, SA, SU
 from edc_appointment.models import Appointment
 from datetime import datetime
-from django.utils.timezone import is_naive
 from arrow.arrow import Arrow
+from django.test.utils import override_settings
 
 
 class TestAppointmentCreator(TestCase):
@@ -35,6 +37,12 @@ class TestAppointmentCreator(TestCase):
                                rlower=relativedelta(days=0),
                                rupper=relativedelta(days=6))
 
+        self.visit1000R = Visit(code='1000',
+                                timepoint=0,
+                                rbase=relativedelta(days=0),
+                                rlower=relativedelta(days=1),
+                                rupper=relativedelta(days=6))
+
         class Meta:
             label_lower = ''
 
@@ -46,21 +54,20 @@ class TestAppointmentCreator(TestCase):
             _meta = Meta()
         self.model_obj = Obj()
 
-    @tag('1')
     def test_init(self):
-        self.assertTrue(AppointmentCreator(model_obj=self.model_obj))
+        self.assertTrue(
+            AppointmentCreator(model_obj=self.model_obj, visit=self.visit1000))
 
-    @tag('1')
     def test_str(self):
-        creator = AppointmentCreator(model_obj=self.model_obj)
+        creator = AppointmentCreator(
+            model_obj=self.model_obj, visit=self.visit1000)
         self.assertEqual(str(creator), self.subject_identifier)
 
-    @tag('1')
     def test_repr(self):
-        creator = AppointmentCreator(model_obj=self.model_obj)
+        creator = AppointmentCreator(
+            model_obj=self.model_obj, visit=self.visit1000)
         self.assertTrue(creator)
 
-    @tag('1')
     def test_create(self):
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         creator = AppointmentCreator(
@@ -71,9 +78,25 @@ class TestAppointmentCreator(TestCase):
         self.assertEqual(
             Appointment.objects.all()[0], appointment)
         self.assertEqual(
+            Appointment.objects.all()[0].appt_datetime, Arrow.fromdatetime(datetime(2017, 1, 3)).datetime)
+
+    @tag('4')
+    @override_settings(
+        HOLIDAY_FILE=os.path.join(settings.BASE_DIR, settings.APP_NAME, 'tests', 'no_holidays.csv'))
+    def test_create_no_holidays(self):
+        for i in range(1, 7):
+            appt_datetime = Arrow.fromdatetime(datetime(2017, 1, i)).datetime
+            if appt_datetime.weekday() not in [SA.weekday, SU.weekday]:
+                break
+        creator = AppointmentCreator(
+            model_obj=self.model_obj,
+            visit=self.visit1000,
+            suggested_datetime=appt_datetime)
+        self.assertEqual(
+            Appointment.objects.all()[0], creator.appointment)
+        self.assertEqual(
             Appointment.objects.all()[0].appt_datetime, appt_datetime)
 
-    @tag('1')
     def test_create_forward(self):
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         creator = AppointmentCreator(
@@ -84,23 +107,34 @@ class TestAppointmentCreator(TestCase):
         self.assertEqual(
             Appointment.objects.all()[0], appointment)
         self.assertEqual(
-            Appointment.objects.all()[0].appt_datetime, appt_datetime)
+            Appointment.objects.all()[0].appt_datetime, Arrow.fromdatetime(datetime(2017, 1, 3)).datetime)
 
     @tag('1')
+    def test_create_reverse(self):
+        appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 4)).datetime
+        creator = AppointmentCreator(
+            model_obj=self.model_obj,
+            visit=self.visit1000R,
+            suggested_datetime=appt_datetime)
+        appointment = creator.appointment
+        self.assertEqual(
+            Appointment.objects.all()[0], appointment)
+        self.assertEqual(
+            Appointment.objects.all()[0].appt_datetime, Arrow.fromdatetime(datetime(2017, 1, 3)).datetime)
+
     def test_raise_on_naive_datetime(self):
         appt_datetime = datetime(2017, 1, 1)
         self.assertRaises(
-            AppointmentCreatorNaiveDatetime,
+            ValueError,
             AppointmentCreator,
             model_obj=self.model_obj,
             visit=self.visit1000,
             suggested_datetime=appt_datetime)
 
-    @tag('1')
     def test_raise_on_naive_datetime2(self):
         appt_datetime = datetime(2017, 1, 1)
         self.assertRaises(
-            AppointmentCreatorNaiveDatetime,
+            ValueError,
             AppointmentCreator,
             model_obj=self.model_obj,
             visit=self.visit1000,

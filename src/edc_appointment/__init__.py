@@ -1,1 +1,1 @@
-from .appointment_creator import AppointmentCreator, AppointmentCreatorNaiveDatetime
+from .appointment_creator import AppointmentCreator
