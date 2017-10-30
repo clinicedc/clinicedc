@@ -12,7 +12,7 @@ class Facility:
 
     holiday_cls = Holidays
 
-    def __init__(self, name=None, days=None, slots=None, forward_only=None, **kwargs):
+    def __init__(self, name=None, days=None, slots=None, **kwargs):
         self.days = []
         self.name = name
         for day in days:
@@ -22,9 +22,8 @@ class Facility:
                 day = weekday(day)
             self.days.append(day)
         self.slots = slots or [99999 for _ in self.days]
-        self.forward_only = True if forward_only is None else forward_only
         self.config = OrderedDict(zip([str(d) for d in self.days], self.slots))
-        self.holidays = self.holiday_cls(**kwargs)
+        self.holidays = self.holiday_cls(facility_name=self.name, **kwargs)
 
     def __repr__(self):
         return f'{self.__class__.__name__}(name={self.name}, days={self.days})'
@@ -69,15 +68,12 @@ class Facility:
         datetimes in UTC to `taken_datetimes`."""
         available_rdate = None
         forward_delta = forward_delta or relativedelta(months=1)
-        if not self.forward_only and reverse_delta:
-            reverse_delta = reverse_delta
-        else:
-            reverse_delta = relativedelta(months=0)
+        reverse_delta = reverse_delta or relativedelta(months=0)
         if suggested_datetime:
             suggested_rdate = arrow.Arrow.fromdatetime(suggested_datetime)
         else:
             suggested_rdate = arrow.Arrow.fromdatetime(get_utcnow())
-        minimum = self.to_arrow_utc(suggested_rdate.datetime + reverse_delta)
+        minimum = self.to_arrow_utc(suggested_rdate.datetime - reverse_delta)
         maximum = self.to_arrow_utc(suggested_rdate.datetime + forward_delta)
         rtaken = [self.to_arrow_utc(dt) for dt in taken_datetimes or []]
         for r in arrow.Arrow.span_range('day', minimum.datetime, maximum.datetime):
@@ -85,7 +81,7 @@ class Facility:
             r = arrow.Arrow.fromdatetime(
                 datetime.combine(r[0].date(), suggested_rdate.time()))
             if (r.datetime.weekday() in self.weekdays
-                    and (suggested_rdate.date() <= r.date() < maximum.date())):
+                    and (minimum.date() <= r.date() < maximum.date())):
                 if (not self.is_holiday(r)
                         and r.date() not in [r.date() for r in rtaken]
                         and self.open_slot_on(r)):
