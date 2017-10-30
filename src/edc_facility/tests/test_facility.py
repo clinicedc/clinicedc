@@ -1,5 +1,5 @@
 from arrow.arrow import Arrow
-from datetime import datetime, date
+from datetime import datetime
 from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA
 from django.test import TestCase, tag
 from django.test.utils import override_settings

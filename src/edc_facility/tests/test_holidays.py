@@ -3,6 +3,7 @@ import arrow
 from datetime import datetime
 from django.test import TestCase, tag
 from django.contrib.auth.models import User
+from django.test.utils import override_settings
 
 from ..holidays import Holidays
 
@@ -17,6 +18,9 @@ class TestHolidays(TestCase):
     def test_repr(self):
         holidays = Holidays()
         self.assertTrue(repr(holidays))
+
+    def test_(self):
+        self.assertTrue(Holidays())
 
     def test_holidays(self):
         for country in [None, 'botswana']:
