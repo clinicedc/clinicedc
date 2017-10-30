@@ -40,11 +40,11 @@ class VisitModelMixin(
         return '{} {}'.format(self.subject_identifier, self.visit_code)
 
     def save(self, *args, **kwargs):
-        if self.__class__.appointment.field.rel.on_delete != PROTECT:
+        if self.__class__.appointment.field.remote_field.on_delete != PROTECT:
             raise ImproperlyConfigured(
                 'OneToOne relation to appointment must set '
                 'on_delete=PROTECT. Got {}'.format(
-                    self.__class__.appointment.field.rel.on_delete.__name__))
+                    self.__class__.appointment.field.remote_field.on_delete.__name__))
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name

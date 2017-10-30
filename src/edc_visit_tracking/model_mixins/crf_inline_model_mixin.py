@@ -48,8 +48,11 @@ class CrfInlineModelMixin(ModelMixin, models.Model):
     def parent_model(self):
         """Return the class of the inline parent model.
         """
-        return getattr(
-            self.__class__, self._meta.crf_inline_parent).field.rel.to
+        field = getattr(self.__class__, self._meta.crf_inline_parent).field
+        try:
+            return field.rel.to
+        except AttributeError:
+            return field.remote_field.model  # django 2.0 +
 
     @property
     def visit(self):
