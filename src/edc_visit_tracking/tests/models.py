@@ -60,7 +60,7 @@ class SubjectVisit(VisitModelMixin, BaseUuidModel):
 
 class CrfOne(CrfModelMixin, BaseUuidModel):
 
-    subject_visit = models.ForeignKey(SubjectVisit)
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
@@ -76,9 +76,9 @@ class OtherModel(BaseUuidModel):
 
 class CrfOneInline(CrfInlineModelMixin, BaseUuidModel):
 
-    crf_one = models.ForeignKey(CrfOne)
+    crf_one = models.ForeignKey(CrfOne, on_delete=PROTECT)
 
-    other_model = models.ForeignKey(OtherModel)
+    other_model = models.ForeignKey(OtherModel, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=10, default='erik')
 
@@ -90,9 +90,9 @@ class BadCrfOneInline(CrfInlineModelMixin, BaseUuidModel):
     """A model class missing _meta.crf_inline_parent.
     """
 
-    crf_one = models.ForeignKey(CrfOne)
+    crf_one = models.ForeignKey(CrfOne, on_delete=PROTECT)
 
-    other_model = models.ForeignKey(OtherModel)
+    other_model = models.ForeignKey(OtherModel, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=10, default='erik')
 
@@ -102,9 +102,9 @@ class BadCrfOneInline(CrfInlineModelMixin, BaseUuidModel):
 
 class BadCrfOneInline2(CrfInlineModelMixin, BaseUuidModel):
 
-    crf_one = models.ForeignKey(CrfOne)
+    crf_one = models.ForeignKey(CrfOne, on_delete=PROTECT)
 
-    other_model = models.ForeignKey(OtherModel)
+    other_model = models.ForeignKey(OtherModel, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=10, default='erik')
 
