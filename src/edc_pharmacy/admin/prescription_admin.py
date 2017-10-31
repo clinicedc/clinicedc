@@ -34,7 +34,6 @@ class PrescriptionAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     inlines = [PrescriptionItemInlineAdmin, DispensedItemInlineAdmin]
 
-    list_display = ['subject_identifier', '__str__', 'prescription_date',
-                    ]
+    list_display = ['subject_identifier', '__str__',
+                    'prescription_date', 'weight_in_kgs']
     search_fields = ['subject_identifier', 'rando_sid']
-    # autocomplete_fields = ['medication', ]
