@@ -1,0 +1,12 @@
+^XA
+^FO90,65^A0N,20,20^FDBOTSWANA HARVARD PARTNERSHIP  SITE: ${site}^FS
+^FO90,90^A0N,20,20^FDPRIVATE BAG BO 320, GABORONE  		TELEPHONE: ${telephone_number}^FS
+^FO90,95^FS
+^FO90,115^A0N,20,20^FDPID: ${patient}  	        	   SID: ${sid}               INITIALS: ${initials}^FS
+^FO90,155^A0N,20,20^FDDrug Name/Strength: ${drug_name} ${concentration}^FS
+^FO90,185^A0N,20,20^FDDosage: ${number_of_tablets} Capsule(s) 	${times_per_day} Time(s) a Day with or  without food^FS
+^FO90,225^A0N,20,20^FDDate of Prep.: ${prepared_datetime}  Prep. By: ${prepared_by}  Qnty Disp: ${total_number_of_tablets} tablets^FS
+^FO90,255^A0N,20,20^FDStorage instructions: ${storage_instructions} ^FS
+^FO90,285^A0N,20,20^FDFOR INVESTIGATIONAL USE ONLY (PROTOCOL NUMBER ${protocol})^FS
+^FO90,315^A0N,20,20^FDExpiry Date:________________ ^FS
+^XZ

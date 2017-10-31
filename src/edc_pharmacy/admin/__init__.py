@@ -1,0 +1,5 @@
+from .dispensed_item_admin import DispensedItemAdmin
+from .dosage_guideline_admin import DosageGuidelineAdmin
+from .medication_admin import MedicationAdmin
+from .prescription_admin import PrescriptionAdmin
+from .prescription_item_admin import PrescriptionItemAdmin
