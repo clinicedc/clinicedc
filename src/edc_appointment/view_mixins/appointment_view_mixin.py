@@ -71,7 +71,9 @@ class AppointmentViewMixin:
 
     @property
     def appointment_model(self):
-        return django_apps.get_app_config('edc_appointment').model
+        return django_apps.get_app_config(
+            'edc_appointment').get_configuration(
+                name='edc_appointment.appointment').model_cls
 
     def empty_appointment(self, **kwargs):
         return self.appointment_model()
