@@ -149,7 +149,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'edc_pharmacy', 'static')
 GIT_DIR = BASE_DIR
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
-EDC_PHARMA_PRESCRIPTION_MODEL = None
 
 KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 LABEL_PRINTER = 'test_label_printer_ambition'

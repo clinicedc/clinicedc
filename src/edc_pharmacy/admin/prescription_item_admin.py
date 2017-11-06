@@ -37,7 +37,6 @@ class PrescriptionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         ('Calculations', {
             'classes': ('collapse',),
             'fields': (
-                'duration',
                 'total',
                 'remaining'
             )}),

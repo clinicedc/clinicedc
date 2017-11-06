@@ -5,8 +5,8 @@ from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_search.model_mixins import SearchSlugManager
 
-from ..search_slug_model_mixin import SearchSlugModelMixin
 from ..choices import PRESCRIPTION_STATUS
+from .search_slug_model_mixin import SearchSlugModelMixin
 
 
 class Manager(SearchSlugManager, models.Manager):

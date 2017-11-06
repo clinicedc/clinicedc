@@ -3,7 +3,7 @@ from edc_appointment.model_mixins import AppointmentModelMixin
 from edc_base.model_mixins import BaseUuidModel
 from edc_search.model_mixins import SearchSlugManager
 
-from ..search_slug_model_mixin import SearchSlugModelMixin
+from .search_slug_model_mixin import SearchSlugModelMixin
 
 
 class Manager(SearchSlugManager, models.Manager):

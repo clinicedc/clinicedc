@@ -9,7 +9,7 @@ class Medication(BaseUuidModel):
     name = models.CharField(
         max_length=35)
 
-    measure = models.DecimalField(
+    strength = models.DecimalField(
         max_digits=6,
         decimal_places=1)
 
@@ -31,10 +31,10 @@ class Medication(BaseUuidModel):
         blank=True)
 
     def __str__(self):
-        return (f'{self.name} {self.measure}{self.get_units_display()}. '
+        return (f'{self.name} {self.strength}{self.get_units_display()}. '
                 f'{self.get_formulation_display()} '
                 f'{self.get_route_display()}')
 
     class Meta:
-        unique_together = ['name', 'measure', 'units', 'formulation']
+        unique_together = ['name', 'strength', 'units', 'formulation']
         verbose_name_plural = 'Medication'

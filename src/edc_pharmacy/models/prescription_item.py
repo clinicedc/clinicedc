@@ -79,8 +79,8 @@ class PrescriptionItem(BaseUuidModel):
         if not self.dose and self.calculate_dose:
             self.dose = self.dosage_guideline.dosage_per_day(
                 weight_in_kgs=self.prescription.weight_in_kgs,
-                measure=self.medication.measure,
-                measure_units=self.medication.units)
+                strength=self.medication.strength,
+                strength_units=self.medication.units)
             self.total = float(self.dose) * float(self.rduration.days)
         self.remaining = self.get_remaining()
         self.as_string = str(self)

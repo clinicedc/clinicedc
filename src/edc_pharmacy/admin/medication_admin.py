@@ -16,7 +16,7 @@ class MedicationAdmin(ModelAdminMixin, admin.ModelAdmin):
         (None, {
             'fields': (
                 'name',
-                'measure',
+                'strength',
                 'units',
                 'formulation',
                 'route',

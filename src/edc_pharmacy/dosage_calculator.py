@@ -32,25 +32,26 @@ class DosageCalculator:
     def __repr(self):
         return f'{self.__class__.__name__}(medication_name=self.medication_name)'
 
-    def dosage_per_day(self, weight_in_kgs=None, measure=None, measure_units=None):
+    def dosage_per_day(self, weight_in_kgs=None, strength=None, strength_units=None):
         """Returns a decimal value or raises an exception.
         """
-        if measure_units != self.dose_units:
+        if strength_units != self.dose_units:
             raise DosageGuidelineError(
                 f'Invalid units. Guideline dose is in '
-                f'\'{self.dose_units}\'. Got {measure_units}.')
+                f'\'{self.dose_units}\'. Got {strength_units}.')
         try:
             self.medication_model_cls.objects.get(
                 name=self.medication_name,
-                measure=measure,
-                units=measure_units)
+                strength=strength,
+                units=strength_units)
         except ObjectDoesNotExist:
             raise DosageGuidelineError(
-                f'Invalid measure for {self.medication_name}. '
-                f'Got {measure}{measure_units}')
+                f'Invalid strength for {self.medication_name}. '
+                f'Got {strength}{strength_units}')
         if self.dosage_per_kg_per_day:
             dosage_per_day = (self.dosage_per_kg_per_day
-                              * weight_in_kgs) / measure
+                              * weight_in_kgs) / strength
         else:
-            dosage_per_day = (self.dose * self.dose_frequency_factor) / measure
+            dosage_per_day = (
+                self.dose * self.dose_frequency_factor) / strength
         return dosage_per_day

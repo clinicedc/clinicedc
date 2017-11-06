@@ -11,7 +11,7 @@ class TestPrescription(TestCase):
         self.subject_identifier = '12345'
         self.medication = Medication.objects.create(
             name='Augmentin',
-            measure=200,
+            strength=200,
             units='mg',
             route=DRUG_ROUTE[2][0],
             formulation=DRUG_FORMULATION[0][0])

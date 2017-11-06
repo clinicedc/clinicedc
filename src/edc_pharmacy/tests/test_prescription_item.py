@@ -12,7 +12,7 @@ class TestPrescription(TestCase):
         self.subject_identifier = '12345'
         self.medication = Medication.objects.create(
             name='Flucytosine',
-            measure=500,
+            strength=500,
             units='mg',
             route='30',
             formulation='12')

@@ -11,13 +11,9 @@ from edc_label.apps import AppConfig as BaseEdcLabelAppConfig
 
 class AppConfig(DjangoAppConfig):
     name = 'edc_pharmacy'
-    prescription_model = None
+    prescription_model = 'edc_pharmacy.prescription'
     worklist_model = 'edc_pharmacy.worklist'
     template_name = None
-    try:
-        prescription_model = settings.EDC_PHARMA_PRESCRIPTION_MODEL
-    except AttributeError:
-        prescription_model = None
 
     @property
     def study_site_name(self):
