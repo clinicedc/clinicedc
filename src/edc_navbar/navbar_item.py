@@ -1,4 +1,3 @@
-import os
 import copy
 
 from django.template.loader import render_to_string
@@ -16,24 +15,21 @@ class NavbarItem:
     """
 
     template_name = 'edc_navbar/navbar_item.html'
-    icon_folder = 'images'  # subfolder or static
 
     def __init__(self, name=None, title=None,
                  label=None, url_name=None, html_id=None,
-                 fa_icon=None, icon=None, icon_width=None, icon_height=None):
+                 glyphicon=None, fa_icon=None, icon=None,
+                 icon_width=None, icon_height=None):
         self.url_name = url_name
         self.name = name
         self.label = label
-        self.title = title or self.label
+        self.title = title
         self.html_id = html_id or label
+        self.glyphicon = glyphicon
         self.fa_icon = fa_icon
         self.icon = icon
         self.icon_height = icon_height
         self.icon_width = icon_width
-        if not label and not fa_icon:
-            raise NavbarItemError(
-                f'Specify a value for label and/or fa_icon. '
-                f'Got None for both. See {repr(self)}')
         if not self.url_name:
             raise NavbarItemError(
                 f'\'url_name\' not specified. See {repr(self)}')
@@ -55,9 +51,6 @@ class NavbarItem:
         """Returns a dictionary of context data.
         """
         context = copy.copy(self.__dict__)
-        if context.get('icon'):
-            icon = context.get('icon')
-            context.update(icon=os.path.join(self.icon_folder, icon))
         context.update(**kwargs)
         if selected_item == self.name:
             context.update(active=True)
