@@ -10,10 +10,8 @@ class NavbarViewMixin(ContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        rendered_navbar = []
         navbar = site_navbars.get_navbar(name=self.navbar_name)
-        for item in navbar:
-            rendered_navbar.append(item.render(
-                selected_item=self.navbar_selected_item))
+        rendered_navbar = navbar.render(
+            selected_item=self.navbar_selected_item)
         context.update(rendered_navbar=rendered_navbar)
         return context

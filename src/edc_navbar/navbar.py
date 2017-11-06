@@ -21,24 +21,9 @@ class Navbar:
     def append_item(self, navbar_item=None):
         self.items.append(navbar_item)
 
-#     def render(self, navbar_item_selected=None):
-#         rendered = []
-#         for navbar_item in self.items:
-#             rendered.append()
-#             active = 'active' if navbar_item_selected == navbar_item.name else ''
-#             rendered = (
-#                 f'<li id="li-topbar-{navbar_item.html_id}"'
-#                 f'class="{active}">'
-#                 f'<a title="{navbar_item.title}"'
-#                 f'href="{navbar_item.reversed_url}">')
-#             if self.fa_icon:
-#                 rendered + f'<i class="fa {{self.fa_icon}} fa-fw"></i>'
-#                     {% if navbar_item.fa_icon %}
-#                        <i class="fa {{navbar_item.fa_icon}} fa-fw"></i>
-#                     {% endif %}
-#                     {% if navbar_item.label %}
-#                        {{ navbar_item.label|title }}
-#                     {% endif %}
-#                 </a>
-#             </li>
-#
+    def render(self, selected_item=None, **kwargs):
+        rendered_items = []
+        for item in self.items:
+            rendered_items.append(item.render(
+                selected_item=selected_item, **kwargs))
+        return rendered_items

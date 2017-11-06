@@ -4,7 +4,6 @@ from django.urls.base import reverse
 from ..navbar import Navbar
 from ..navbar_item import NavbarItem, NavbarItemError
 from ..site_navbars import site_navbars, AlreadyRegistered
-from pprint import pprint
 
 
 class TestNavbar(TestCase):
@@ -27,7 +26,6 @@ class TestNavbar(TestCase):
                        url_name='navbar_two_url'))
         return testnavbar
 
-    @tag('1')
     def test_urls(self):
         reverse('navbar_one_url')
         reverse('navbar_two_url')
@@ -85,3 +83,28 @@ class TestNavbar(TestCase):
     def test_navbar_repr(self):
         navbar = Navbar(name='default')
         self.assertTrue(repr(navbar))
+
+    def test_render_navbar_item_to_string_fa_icon(self):
+        navbar_item_selected = 'navbar_item_one'
+        navbar_item = NavbarItem(
+            name='navbar_item_one',
+            title='Navbar Item One',
+            label='navbar_item_one',
+            url_name='navbar_one_url',
+            fa_icon='fa-user-circle')
+        template_string = navbar_item.render(
+            navbar_item_selected=navbar_item_selected)
+        self.assertIn(navbar_item.fa_icon, template_string)
+
+    def test_render_navbar_item_to_string_icon(self):
+        navbar_item_selected = 'navbar_item_one'
+        navbar_item = NavbarItem(
+            name='navbar_item_one',
+            title='Navbar Item One',
+            label='navbar_item_one',
+            url_name='navbar_one_url',
+            icon='medicine.png')
+        template_string = navbar_item.render(
+            navbar_item_selected=navbar_item_selected)
+        self.assertIn(navbar_item.icon, template_string)
+        self.assertIn(navbar_item.icon_folder, template_string)
