@@ -107,4 +107,3 @@ class TestNavbar(TestCase):
         template_string = navbar_item.render(
             navbar_item_selected=navbar_item_selected)
         self.assertIn(navbar_item.icon, template_string)
-        self.assertIn(navbar_item.icon_folder, template_string)
