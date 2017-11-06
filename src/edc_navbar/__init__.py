@@ -1,4 +1,4 @@
-from .navbar import Navbar
-from edc_navbar.site_navbars import site_navbars, NavbarCollection
-from .navbar_item import NavbarItem, NavbarError
+from .navbar import Navbar, NavbarError
+from .site_navbars import site_navbars
+from .navbar_item import NavbarItem, NavbarItemError
 from .view_mixin import NavbarViewMixin

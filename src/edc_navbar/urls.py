@@ -13,9 +13,15 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
-from django.contrib import admin
+from django.urls import path
+from django.views.generic.base import View
+from django.conf import settings
 
-urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-]
+
+if settings.APP_NAME == 'edc_navbar':
+
+    app_name = 'edc_navbar'
+    urlpatterns = [
+        path(r'one/', View.as_view(), name='navbar_one_url'),
+        path(r'two/', View.as_view(), name='navbar_two_url'),
+    ]

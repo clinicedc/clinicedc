@@ -1,65 +1,70 @@
 import sys
 import copy
 
-from collections import OrderedDict
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
+from django.utils.module_loading import module_has_submodule
 from importlib import import_module
 
-from .navbar_item import NavbarError
-from django.utils.module_loading import module_has_submodule
+from .navbar import NavbarError
 
 
-class NavbarCollection(OrderedDict):
+class AlreadyRegistered(Exception):
+    pass
+
+
+class NavbarCollection:
 
     """A class to contain a dictionary of navbars. See Navbar.
     """
 
     name = 'default'
 
-    def __init__(self, name=None, **kwargs):
-        super().__init__(**kwargs)
-        self.name = name or self.name
+    def __init__(self):
+        self.registry = {}
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(name=\'{self.name}\')'
+        return f'{self.__class__.__name__}()'
 
-    @property
-    def navbars(self):
-        return self
+    def register(self, navbar=None):
+        if navbar.name not in self.registry:
+            self.registry.update({navbar.name: navbar})
+        else:
+            raise AlreadyRegistered(
+                f'Navbar with name {navbar.name} is already registered.')
 
     def context(self, name=None, selected_item=None):
         """Returns the named navbar in the collection as context.
         """
         return dict(
             navbar_item_selected=selected_item,
-            navbar=self._selected_navbar(
+            navbar=self.get_navbar(
                 name=name, selected_item=selected_item),
             navbar_name=name)
 
-    def _selected_navbar(self, name=None, selected_item=None):
+    def get_navbar(self, name=None, selected_item=None):
         """Returns a selected navbar in the collection.
         """
         # does navbar exist?
         try:
-            selected_navbar = self[name]
+            navbar = self.registry[name]
         except KeyError:
             raise NavbarError(
-                f'Navbar \'{name}\' does not exist. Expected one of {list(self.keys())}. See {repr(self)}.')
-        # does navbar have items?
-        if not [item.name for item in selected_navbar]:
-            raise NavbarError(
-                f'Navbar \'{name}\' has no items. Expected \'{selected_item}\'. See {repr(self)}')
-        # does selected item exist?
-        if selected_item:
-            if selected_item not in [navbar_item.name for navbar_item in self.get(name, [])]:
-                navbar_item_names = [
-                    item.name for item in self.get(name, [])]
+                f'Navbar \'{name}\' does not exist. Expected one of '
+                f'{list(self.registry.keys())}. See {repr(self)}.')
+        else:
+            # does navbar have items?
+            if not [item.name for item in navbar]:
                 raise NavbarError(
-                    f'Navbar item name does not exist. Got \'{selected_item}\'. '
-                    f'Expected one of {navbar_item_names}. See navbar \'{name}\'.')
-        selected_navbar = self.get(name)
-        return selected_navbar
+                    f'Navbar \'{navbar.name}\' has no items. Expected \'{selected_item}\'. See {repr(self)}')
+            # does selected item exist?
+            if selected_item:
+                if selected_item not in [navbar_item.name for navbar_item in navbar]:
+                    navbar_item_names = [item.name for item in navbar]
+                    raise NavbarError(
+                        f'Navbar item name does not exist. Got \'{selected_item}\'. '
+                        f'Expected one of {navbar_item_names}. See navbar \'{navbar.name}\'.')
+        return navbar
 
     def autodiscover(self, module_name=None, verbose=True):
         module_name = module_name or 'navbars'
@@ -87,8 +92,8 @@ class NavbarCollection(OrderedDict):
                 pass
             except Exception as e:
                 raise NavbarError(
-                    'An {} was raised when loading navbars. Got '
-                    '{}.'.format(e.__class__.__name__, str(e)))
+                    f'An {e.__class__.__name__} was raised when loading navbars. '
+                    f'Got {e} See {app}.navbars')
 
 
 site_navbars = NavbarCollection()
