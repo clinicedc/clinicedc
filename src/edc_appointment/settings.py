@@ -126,7 +126,7 @@ KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 
 COUNTRY = 'botswana'
 HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
-
+DEFAULT_APPOINTMENT_MODEL = 'edc_appointment.appointment'
 
 if 'test' in sys.argv:
 

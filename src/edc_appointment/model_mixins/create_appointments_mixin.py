@@ -1,7 +1,5 @@
 import arrow
 
-from dateutil.relativedelta import relativedelta, SA, SU
-
 from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import options
@@ -56,25 +54,6 @@ class CreateAppointmentsMixin(models.Model):
             appointments.append(appointment)
             taken_datetimes.append(available_rdate.datetime)
         return appointments
-
-#     def move_to_facility_day(self, facility, dt, forward_only=None):
-#         """Move a date forward off of a weekend unless app_config
-#         includes weekends.
-#         """
-#         delta = relativedelta(days=0)
-#         sa_delta = relativedelta(days=2)
-#         su_delta = relativedelta(days=1)
-#         if dt.weekday() == SA.weekday and SA not in facility.days:
-#             delta = sa_delta
-#         if dt.weekday() == SU.weekday and SU not in facility.days:
-#             delta = su_delta
-#         return dt + delta
-
-#     @property
-#     def extra_create_appointment_options(self):
-#         """User can add extra options for appointment.objects.create.
-#         """
-#         return {}
 
     def update_or_create_appointment(self, visit, suggested_datetime,
                                      timepoint_datetime):

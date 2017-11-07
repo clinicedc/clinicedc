@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 
 from ..constants import (
     NEW_APPT, IN_PROGRESS_APPT, INCOMPLETE_APPT, COMPLETE_APPT)
@@ -15,6 +16,7 @@ class AppointmentViewMixin:
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._appointments = None
+        self.appointment_model = self.appointment_model_wrapper_cls.model
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -30,9 +32,9 @@ class AppointmentViewMixin:
     @property
     def appointment(self):
         try:
-            appointment = self.appointment_model.objects.get(
+            appointment = self.appointment_model_cls.objects.get(
                 id=self.kwargs.get('appointment'))
-        except self.appointment_model.DoesNotExist:
+        except ObjectDoesNotExist:
             appointment = None
         return appointment
 
@@ -48,7 +50,7 @@ class AppointmentViewMixin:
         """Returns a Queryset of all appointments for this subject.
         """
         if not self._appointments:
-            self._appointments = self.appointment_model.objects.filter(
+            self._appointments = self.appointment_model_cls.objects.filter(
                 subject_identifier=self.subject_identifier).order_by(
                     'timepoint_datetime')
         return self._appointments
@@ -70,8 +72,8 @@ class AppointmentViewMixin:
         return appointments
 
     @property
-    def appointment_model(self):
-        return django_apps.get_app_config('edc_appointment').model
+    def appointment_model_cls(self):
+        return django_apps.get_app_config(self.appointment_model).model
 
     def empty_appointment(self, **kwargs):
-        return self.appointment_model()
+        return self.appointment_model_cls()

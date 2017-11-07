@@ -16,14 +16,12 @@ class AppointmentCreator:
     def __init__(self, suggested_datetime=None, timepoint_datetime=None, visit=None,
                  model_obj=None, visit_code_sequence=None, facility=None,
                  subject_identifier=None, visit_schedule_name=None, schedule_name=None,
-                 appointment_model=None, facility_name=None,
-                 default_appt_type=None):
+                 facility_name=None, default_appt_type=None):
         self._appointment = None
         self._appointment_config = None
         self._appointment_model_cls = None
         self._default_appt_type = default_appt_type
         self._facility = facility
-        self.appointment_model = appointment_model
         if model_obj:
             self.subject_identifier = model_obj.subject_identifier
             self.visit_schedule_name = model_obj.visit_schedule.name
@@ -35,6 +33,7 @@ class AppointmentCreator:
             self.schedule_name = schedule_name
             self.facility_name = facility_name
         self.visit = visit
+        self.appointment_model = visit.appointment_model
         self.visit_code_sequence = visit_code_sequence or 0
         if suggested_datetime and is_naive(suggested_datetime):
             raise ValueError(
