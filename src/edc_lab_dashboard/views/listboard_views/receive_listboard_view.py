@@ -11,7 +11,7 @@ app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 class ReceiveListboardView(RequisitionListboardView):
 
-    navbar_item_selected = 'receive'
+    navbar_selected_item = 'receive'
     listboard_url_name = app_config.receive_listboard_url_name
     listboard_template_name = app_config.receive_listboard_template_name
     show_all = True

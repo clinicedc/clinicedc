@@ -4,12 +4,14 @@ from django.views.generic.base import TemplateView
 
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import AppConfigViewMixin
+from edc_navbar import NavbarViewMixin
 
 
-class HomeView(EdcBaseViewMixin, AppConfigViewMixin, TemplateView):
+class HomeView(EdcBaseViewMixin, NavbarViewMixin, AppConfigViewMixin, TemplateView):
 
     template_name = 'edc_lab_dashboard/home.html'
     navbar_name = 'specimens'
+    navbar_selected_item = 'specimens'
     app_config_name = 'edc_lab_dashboard'
 
     def get_context_data(self, **kwargs):

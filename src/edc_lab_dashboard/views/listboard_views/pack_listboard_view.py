@@ -7,7 +7,7 @@ from edc_lab.models import Manifest, Box
 
 from ...model_wrappers import BoxModelWrapper
 from ..listboard_filters import PackListboardViewFilters
-from .base_listboard import BaseListboardView
+from .base_listboard_view import BaseListboardView
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
@@ -21,7 +21,7 @@ class PackListboardView(BaseListboardView):
     model = edc_lab_app_config.box_model
     manifest_model_name = edc_lab_app_config.manifest_model
     model_wrapper_cls = BoxModelWrapper
-    navbar_item_selected = 'pack'
+    navbar_selected_item = 'pack'
     listboard_view_filters = PackListboardViewFilters()
 
     @method_decorator(login_required)

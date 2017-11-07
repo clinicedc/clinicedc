@@ -4,7 +4,7 @@ from django.utils.decorators import method_decorator
 
 from ...model_wrappers import AliquotModelWrapper
 from ..listboard_filters import AliquotListboardViewFilters
-from .base_listboard import BaseListboardView
+from .base_listboard_view import BaseListboardView
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
@@ -12,7 +12,7 @@ edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 class AliquotListboardView(BaseListboardView):
 
-    navbar_item_selected = 'aliquot'
+    navbar_selected_item = 'aliquot'
     model = edc_lab_app_config.aliquot_model
     model_wrapper_cls = AliquotModelWrapper
     listboard_url_name = app_config.aliquot_listboard_url_name

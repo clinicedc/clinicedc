@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
 from ...model_wrappers import ResultModelWrapper
-from .base_listboard import BaseListboardView
+from .base_listboard_view import BaseListboardView
 
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
@@ -13,7 +13,7 @@ edc_lab_app_config = django_apps.get_app_config('edc_lab')
 class ResultListboardView(BaseListboardView):
 
     app_config_name = 'edc_lab_dashboard'
-    navbar_item_selected = 'result'
+    navbar_selected_item = 'result'
 
     listboard_url_name = app_config.result_listboard_url_name
     listboard_template_name = app_config.result_listboard_template_name

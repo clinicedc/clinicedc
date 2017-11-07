@@ -19,7 +19,7 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
     listboard_template_name = app_config.manage_box_listboard_template_name
     listboard_url_name = app_config.manage_box_listboard_url_name
     model_wrapper_cls = ManageBoxItemModelWrapper
-    navbar_item_selected = 'pack'
+    navbar_selected_item = 'pack'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

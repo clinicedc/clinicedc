@@ -8,7 +8,7 @@ from edc_lab.models import Manifest
 
 from ...model_wrappers import ManifestModelWrapper
 from ..listboard_filters import ManifestListboardViewFilters
-from .base_listboard import BaseListboardView
+from .base_listboard_view import BaseListboardView
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
@@ -16,7 +16,7 @@ edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 class ManifestListboardView(BaseListboardView):
 
-    navbar_item_selected = 'manifest'
+    navbar_selected_item = 'manifest'
 
     form_action_url_name = f'edc_lab_dashboard:manifest_url'
     listboard_url_name = app_config.manifest_listboard_url_name
