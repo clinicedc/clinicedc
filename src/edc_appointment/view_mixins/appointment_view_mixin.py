@@ -73,7 +73,7 @@ class AppointmentViewMixin:
 
     @property
     def appointment_model_cls(self):
-        return django_apps.get_app_config(self.appointment_model).model
+        return django_apps.get_model(self.appointment_model)
 
     def empty_appointment(self, **kwargs):
         return self.appointment_model_cls()
