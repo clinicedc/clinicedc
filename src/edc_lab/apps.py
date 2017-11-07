@@ -30,8 +30,8 @@ class AppConfig(DjangoAppConfig):
     try:
         requisition_model = settings.EDC_LAB_REQUISITION_MODEL
     except AttributeError:
-        requisition_model = None
-    result_model = None
+        requisition_model = 'edc_lab.requisition'
+    result_model = 'edc_lab.result'
     manifest_model = 'edc_lab.manifest'
     manifest_item_model = 'edc_lab.manifestitem'
     box_model = 'edc_lab.box'

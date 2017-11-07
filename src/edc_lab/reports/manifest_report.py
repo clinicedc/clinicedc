@@ -2,6 +2,7 @@ import os
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from io import BytesIO
 from reportlab.graphics.barcode import code39
@@ -27,14 +28,9 @@ class ManifestReport(Report):
         app_config = django_apps.get_app_config('edc_lab')
         self.manifest = manifest  # a Manifest model instance
         self.user = user  # a User model instance
-        self.box_model = django_apps.get_model(
-            *app_config.box_model.split('.'))
-        self.box_item_model = django_apps.get_model(
-            *app_config.box_item_model.split('.'))
-        self.aliquot_model = django_apps.get_model(
-            *app_config.aliquot_model.split('.'))
-        self.requisition_model = django_apps.get_model(
-            *app_config.requisition_model.split('.'))
+        self.box_model = django_apps.get_model(app_config.box_model)
+        self.box_item_model = django_apps.get_model(app_config.box_item_model)
+        self.aliquot_model = django_apps.get_model(app_config.aliquot_model)
         self.image_folder = os.path.join(
             settings.STATIC_ROOT, 'bcpp', 'images')
 
@@ -328,20 +324,8 @@ class ManifestReport(Report):
                 Paragraph('DATE', self.styles["line_label_center"]),
             ]]
             for box_item in box.boxitem_set.all().order_by('position'):
-                try:
-                    aliquot = self.aliquot_model.objects.get(
-                        aliquot_identifier=box_item.identifier)
-                except self.aliquot_model.DoesNotExist as e:
-                    raise ManifestReportError(
-                        f'{e} Got Box item \'{box_item.identifier}\'',
-                        code='invalid_aliquot_identifier')
-                try:
-                    requisition = self.requisition_model.objects.get(
-                        requisition_identifier=aliquot.requisition_identifier)
-                except self.requisition_model.DoesNotExist as e:
-                    raise ManifestReportError(
-                        f'{e} Got requisition identifier {aliquot.requisition_identifier}',
-                        code='invalid_requisition_identifier')
+                aliquot = self.get_aliquot(box_item.identifier)
+                panel_object = self.get_panel_object(aliquot)
                 barcode = code39.Standard39(
                     aliquot.aliquot_identifier, barHeight=5 * mm, stop=1)
                 table_data.append([
@@ -354,7 +338,7 @@ class ManifestReport(Report):
                     Paragraph('{} ({}) {}'.format(
                         aliquot.aliquot_type,
                         aliquot.numeric_code,
-                        requisition.panel_object.abbreviation), self.styles['row_data']),
+                        panel_object.abbreviation), self.styles['row_data']),
                     Paragraph(aliquot.aliquot_datetime.strftime(
                         '%Y-%m-%d'), self.styles['row_data']),
                 ])
@@ -365,3 +349,30 @@ class ManifestReport(Report):
                     ('BOX', (0, 0), (-1, -1), 0.25, colors.black)]))
             story.append(t1)
         return story
+
+    def get_aliquot(self, box_item_identifier=None):
+        """Returns the aliquot instance for this box item.
+        """
+        try:
+            aliquot = self.aliquot_model.objects.get(
+                aliquot_identifier=box_item_identifier)
+        except self.aliquot_model.DoesNotExist as e:
+            raise ManifestReportError(
+                f'{e} Got Box item \'{box_item_identifier}\'',
+                code='invalid_aliquot_identifier')
+        return aliquot
+
+    def get_panel_object(self, aliquot=None):
+        """Returns the panel object associated with this
+        aliquot.
+        """
+        app_config = django_apps.get_app_config('edc_lab')
+        requisition_model = django_apps.get_model(app_config.requisition_model)
+        try:
+            requisition = requisition_model.objects.get(
+                requisition_identifier=aliquot.requisition_identifier)
+        except ObjectDoesNotExist as e:
+            raise ManifestReportError(
+                f'{e} Got requisition identifier {aliquot.requisition_identifier}',
+                code='invalid_requisition_identifier')
+        return requisition.panel_object
