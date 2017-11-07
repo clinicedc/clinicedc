@@ -2,9 +2,8 @@ import re
 
 from django.apps import apps as django_apps
 
-from ..visit_schedule import SchedulesCollectionError
 from .models_collection import ModelsCollection
-from .schedules_collection import SchedulesCollection
+from .schedules_collection import SchedulesCollection, SchedulesCollectionError
 
 
 class VisitScheduleError(Exception):
@@ -16,6 +15,10 @@ class VisitScheduleNameError(Exception):
 
 
 class VisitScheduleSiteError(Exception):
+    pass
+
+
+class VisitScheduleAppointmentModelError(Exception):
     pass
 
 
@@ -33,7 +36,9 @@ class VisitSchedule:
     def __init__(self, name=None, verbose_name=None, previous_visit_schedule=None,
                  enrollment_model=None, disenrollment_model=None,
                  visit_model=None, death_report_model=None, offstudy_model=None,
+                 appointment_model=None,
                  **kwargs):
+        self.appointment_model = appointment_model
         self.models = self.models_collection(visit_schedule_name=name)
         self.name = name
         self.schedules = self.schedules_collection(visit_schedule_name=name)
@@ -91,6 +96,10 @@ class VisitSchedule:
             schedule.enrollment_model or self.models.enrollment_model)
         schedule.disenrollment_model = (
             schedule.disenrollment_model or self.models.disenrollment_model)
+        if not schedule.appointment_model:
+            raise VisitScheduleAppointmentModelError(
+                f'Invalid appointment model for schedule {repr(schedule)}. '
+                f'Got {schedule.appointment_model}')
         self.schedules.update({schedule.name: schedule})
         return schedule
 

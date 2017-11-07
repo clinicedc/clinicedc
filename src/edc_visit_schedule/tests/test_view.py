@@ -34,11 +34,13 @@ class TestViewMixin(TestCase):
         self.schedule = Schedule(
             name='schedule',
             enrollment_model='edc_visit_schedule.Enrollment',
-            disenrollment_model='edc_visit_schedule.Disenrollment')
+            disenrollment_model='edc_visit_schedule.Disenrollment',
+            appointment_model='edc_appointment.appointment')
         self.schedule3 = Schedule(
             name='schedule_three',
             enrollment_model='edc_visit_schedule.EnrollmentThree',
-            disenrollment_model='edc_visit_schedule.DisenrollmentThree')
+            disenrollment_model='edc_visit_schedule.DisenrollmentThree',
+            appointment_model='edc_appointment.appointment')
 
         self.visit_schedule.add_schedule(self.schedule)
         self.visit_schedule.add_schedule(self.schedule3)

@@ -44,8 +44,9 @@ class Visit:
     def __init__(self, code=None, timepoint=None, rbase=None, rlower=None,
                  rupper=None, crfs=None, requisitions=None, crfs_unscheduled=None,
                  requisitions_unscheduled=None, title=None,
-                 instructions=None, grouping=None, **kwargs):
+                 instructions=None, grouping=None, appointment_model=None, **kwargs):
 
+        self.appointment_model = appointment_model
         self.dates = self.visit_date_cls(
             rlower=rlower, rupper=rupper, **kwargs)
         self.title = title or f'Visit {code}'

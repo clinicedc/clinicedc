@@ -1,12 +1,12 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
-
+from django.test.utils import override_settings
 from edc_base.utils import get_utcnow
 
 from ..disenrollment_validator import DisenrollmentError
 from ..model_mixins import EnrollmentModelError
 from ..validator import ValidatorMetaValueError
-from ..schedule import Schedule
+from ..schedule import Schedule, ScheduleAppointmentModelError
 from ..site_visit_schedules import site_visit_schedules
 from ..visit import Crf, FormsCollectionError
 from ..visit_schedule import VisitSchedule, VisitScheduleError, ModelsCollectionError
@@ -102,17 +102,20 @@ class TestVisitSchedule2(TestCase):
         self.schedule = Schedule(
             name='schedule',
             enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            disenrollment_model='edc_visit_schedule.disenrollment',
+            appointment_model='edc_appointment.appointment')
 
         self.schedule2 = Schedule(
             name='schedule_two',
             enrollment_model='edc_visit_schedule.enrollmenttwo',
-            disenrollment_model='edc_visit_schedule.disenrollmenttwo')
+            disenrollment_model='edc_visit_schedule.disenrollmenttwo',
+            appointment_model='edc_appointment.appointment')
 
         self.schedule3 = Schedule(
             name='schedule_three',
             enrollment_model='edc_visit_schedule.enrollmentthree',
-            disenrollment_model='edc_visit_schedule.disenrollmentthree')
+            disenrollment_model='edc_visit_schedule.disenrollmentthree',
+            appointment_model='myapp.appointment')
 
     def test_visit_schedule_add_schedule(self):
         try:
@@ -120,7 +123,30 @@ class TestVisitSchedule2(TestCase):
         except AlreadyRegisteredSchedule:
             self.fail('AlreadyRegisteredSchedule unexpectedly raised.')
 
-    @tag('2')
+    @override_settings(DEFAULT_APPOINTMENT_MODEL=None)
+    def test_visit_schedule_add_schedule_without_appointment_model(self):
+        self.assertRaises(
+            ScheduleAppointmentModelError,
+            Schedule,
+            name='schedule_bad',
+            enrollment_model='edc_visit_schedule.enrollment',
+            disenrollment_model='edc_visit_schedule.disenrollment')
+
+    @override_settings(DEFAULT_APPOINTMENT_MODEL='myapp.appointment')
+    def test_visit_schedule_add_schedule_without_appointment_model_and_settings(self):
+        try:
+            Schedule(
+                name='schedule_bad',
+                enrollment_model='edc_visit_schedule.enrollment',
+                disenrollment_model='edc_visit_schedule.disenrollment')
+        except ScheduleAppointmentModelError:
+            self.fail()
+
+    def test_visit_schedule_add_schedule_with_appointment_model(self):
+        self.visit_schedule.add_schedule(self.schedule3)
+        for schedule in self.visit_schedule.schedules.values():
+            self.assertEqual(schedule.appointment_model, 'myapp.appointment')
+
     def test_visit_schedule_cannot_add_to_wrong_visit_schedule(self):
         """Asserts cannot add schedule to wrong model.visit_schedule_name.
         """

@@ -5,9 +5,14 @@ from django.apps import apps as django_apps
 from ..validator import Validator, ValidatorLookupError
 from ..visit import Visit
 from .visit_collection import VisitCollection
+from django.conf import settings
 
 
 class ScheduleModelError(Exception):
+    pass
+
+
+class ScheduleAppointmentModelError(Exception):
     pass
 
 
@@ -35,7 +40,8 @@ class Schedule:
     model_validator_cls = Validator
 
     def __init__(self, name=None, title=None, sequence=None, enrollment_model=None,
-                 disenrollment_model=None, validate=None, **kwargs):
+                 disenrollment_model=None, validate=None, appointment_model=None,
+                 **kwargs):
         self.visits = self.visit_collection_cls()
         if not name or not re.match(r'[a-z0-9\_\-]+$', name):
             raise ScheduleNameError(
@@ -51,6 +57,18 @@ class Schedule:
         if not disenrollment_model:
             raise ScheduleModelError('Invalid disenrollment model. Got None')
         self.disenrollment_model = disenrollment_model.lower()
+        self.appointment_model = appointment_model
+        if not self.appointment_model:
+            try:
+                self.appointment_model = settings.DEFAULT_APPOINTMENT_MODEL
+            except AttributeError:
+                pass
+            if not self.appointment_model:
+                raise ScheduleAppointmentModelError(
+                    f'Invalid appointment model for schedule {repr(self)}. Got None. '
+                    f'Either declare on the Schedule or in '
+                    f'settings.DEFAULT_APPOINTMENT_MODEL.')
+
         if validate:
             self.validate()
 
@@ -81,6 +99,8 @@ class Schedule:
                 raise AlreadyRegisteredVisit(
                     f'Visit already registered. Got visit={visit} ({attr}). '
                     f'See schedule \'{self}\'')
+        if not visit.appointment_model:
+            visit.appointment_model = self.appointment_model
         self.visits.update({visit.code: visit})
         return visit
 

@@ -10,7 +10,6 @@ from ..visit import Visit
 from .models import Enrollment, Disenrollment
 
 
-@tag('schedule')
 class TestSchedule(TestCase):
 
     def test_schedule_name(self):
@@ -157,6 +156,48 @@ class TestSchedule(TestCase):
             rlower=relativedelta(days=0), rupper=relativedelta(days=6))
         self.assertRaises(AlreadyRegisteredVisit,
                           schedule.add_visit, visit=visit)
+
+    @tag('1')
+    def test_add_visits_with_appointment_model(self):
+        schedule = Schedule(
+            name='schedule',
+            enrollment_model='edc_visit_schedule.enrollment',
+            disenrollment_model='edc_visit_schedule.disenrollment',
+            appointment_model='edc_appointment.appointment')
+        for i in range(0, 5):
+            visit = Visit(
+                code=str(i), timepoint=i, rbase=relativedelta(days=i),
+                rlower=relativedelta(days=0), rupper=relativedelta(days=6))
+            schedule.add_visit(visit=visit)
+        for visit in schedule.visits.values():
+            self.assertEqual(visit.appointment_model,
+                             'edc_appointment.appointment')
+
+    @tag('1')
+    def test_add_visits_does_not_overwrite_appointment_model(self):
+        schedule = Schedule(
+            name='schedule',
+            enrollment_model='edc_visit_schedule.enrollment',
+            disenrollment_model='edc_visit_schedule.disenrollment',
+            appointment_model='edc_appointment.appointment')
+        for i in range(0, 5):
+            visit = Visit(
+                code=str(i), timepoint=i, rbase=relativedelta(days=i),
+                rlower=relativedelta(days=0), rupper=relativedelta(days=6))
+            schedule.add_visit(visit=visit)
+        for i in range(5, 10):
+            visit = Visit(
+                code=str(i), timepoint=i, rbase=relativedelta(days=i),
+                rlower=relativedelta(days=0), rupper=relativedelta(days=6),
+                appointment_model='myapp.appointment')
+            schedule.add_visit(visit=visit)
+        for visit in schedule.visits.values():
+            if visit.timepoint < 5:
+                self.assertEqual(visit.appointment_model,
+                                 'edc_appointment.appointment')
+            else:
+                self.assertEqual(visit.appointment_model,
+                                 'myapp.appointment')
 
 
 class TestScheduleWithVisits(TestCase):
