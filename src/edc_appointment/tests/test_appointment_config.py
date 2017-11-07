@@ -4,7 +4,6 @@ from ..models import Appointment
 from .models import SubjectVisit
 
 
-@tag('3')
 class TestAppointmentConfig(TestCase):
 
     def test_appointment_model(self):

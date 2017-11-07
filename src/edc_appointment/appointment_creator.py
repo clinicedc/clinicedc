@@ -3,7 +3,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils.timezone import is_naive
-from edc_appointment.appointment_config import AppointmentConfigError
+
+from .appointment_config import AppointmentConfigError
 
 
 class CreateAppointmentError(Exception):
@@ -99,7 +100,7 @@ class AppointmentCreator:
             visit_code=self.visit.code,
             visit_code_sequence=self.visit_code_sequence,
             timepoint=self.visit.timepoint,
-            facility_name=self.facility_name)
+            facility_name=self.facility.name)
 
     def _create(self):
         """Returns a newly created appointment model instance.

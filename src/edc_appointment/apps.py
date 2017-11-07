@@ -1,9 +1,6 @@
 import sys
 
-from dateutil.relativedelta import MO, TU, WE, TH, FR
 from django.apps import AppConfig as DjangoAppConfig
-from django.conf import settings
-from edc_facility import Facility
 
 from .appointment_config import AppointmentConfig
 
