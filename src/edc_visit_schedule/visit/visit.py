@@ -44,7 +44,8 @@ class Visit:
     def __init__(self, code=None, timepoint=None, rbase=None, rlower=None,
                  rupper=None, crfs=None, requisitions=None, crfs_unscheduled=None,
                  requisitions_unscheduled=None, title=None,
-                 instructions=None, grouping=None, appointment_model=None, **kwargs):
+                 instructions=None, grouping=None, appointment_model=None,
+                 allow_unscheduled=None, **kwargs):
 
         self.appointment_model = appointment_model
         self.dates = self.visit_date_cls(
@@ -60,6 +61,7 @@ class Visit:
             *(requisitions or []), **kwargs).forms
         self.crfs_unscheduled = crfs_unscheduled
         self.requisitions_unscheduled = requisitions_unscheduled
+        self.allow_unscheduled = allow_unscheduled
 
         self.instructions = instructions
         self.timepoint = timepoint
