@@ -1,15 +1,14 @@
+from django.apps import apps as django_apps
+
 from .navbar import Navbar
 from .navbar_item import NavbarItem
 from .site_navbars import site_navbars
-from django.conf import settings
 
-try:
-    default_navbar_name = settings.DEFAULT_NAVBAR
-except AttributeError:
-    default_navbar_name = 'default'
+app_config = django_apps.get_app_config('edc_navbar')
 
-if default_navbar_name == 'default':
-    default_navbar = Navbar(name='default')
+if app_config.register_default_navbar:
+
+    default_navbar = Navbar(name=app_config.default_navbar_name)
 
     default_navbar.append_item(
         NavbarItem(name='home',
