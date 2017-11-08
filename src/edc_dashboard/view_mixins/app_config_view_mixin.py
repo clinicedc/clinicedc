@@ -19,6 +19,7 @@ class AppConfigViewMixin(ContextMixin):
     app_config_name = None  # AppConfig where urls names are defined
     listboard_url_name = None
     dashboard_url_name = None
+    base_template_name = None
 
     def __init__(self, **kwargs):
         self._base_template_name = None
@@ -38,6 +39,15 @@ class AppConfigViewMixin(ContextMixin):
                 self.listboard_url_name = self.app_config.listboard_url_name
             except AttributeError as e:
                 raise AppConfigViewError(f'{e}. {repr(self.app_config)}')
+        if not self.base_template_name:
+            raise AppConfigViewError(
+                f'base_template_name may not be None. See {repr(self)}')
+        if not self.dashboard_url_name:
+            raise AppConfigViewError(
+                f'dashboard_url_name may not be None. See {repr(self)}')
+        if not self.listboard_url_name:
+            raise AppConfigViewError(
+                f'listboard_url_name may not be None. See {repr(self)}')
 
     @property
     def app_config(self):
@@ -50,14 +60,14 @@ class AppConfigViewMixin(ContextMixin):
                 f'{e}. app_config_name=\'{self.app_config_name}\'. See {repr(self)}.')
         return app_config
 
-    @property
-    def base_template_name(self):
-        if not self._base_template_name:
-            try:
-                self._base_template_name = self.app_config.base_template_name
-            except AttributeError as e:
-                raise AppConfigViewError(f'{e}. {repr(self.app_config)}')
-        return self._base_template_name
+#     @property
+#     def base_template_name(self):
+#         if not self._base_template_name:
+#             try:
+#                 self._base_template_name = self.app_config.base_template_name
+#             except AttributeError as e:
+#                 raise AppConfigViewError(f'{e}. {repr(self.app_config)}')
+#         return self._base_template_name
 
     def url_names(self, attrname):
         """Returns a list of <url attr name>, <url name>
