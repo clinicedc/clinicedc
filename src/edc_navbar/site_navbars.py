@@ -70,20 +70,19 @@ class NavbarCollection:
         module_name = module_name or 'navbars'
         writer = sys.stdout.write if verbose else lambda x: x
         style = color_style()
-        writer(' * checking for site {} ...\n'.format(module_name))
+        writer(f' * checking for site {module_name} ...\n')
         for app in django_apps.app_configs:
-            writer(' * searching {}           \r'.format(app))
+            writer(f' * searching {app}           \r')
             try:
                 mod = import_module(app)
                 try:
                     before_import_registry = copy.copy(site_navbars.registry)
-                    import_module('{}.{}'.format(app, module_name))
+                    import_module(f'{app}.{module_name}')
                     writer(
-                        ' * registered navbars \'{}\' from \'{}\'\n'.format(
-                            module_name, app))
+                        f' * registered navbars \'{module_name}\' from \'{app}\'\n')
                 except NavbarError as e:
-                    writer('   - loading {}.navbars ... '.format(app))
-                    writer(style.ERROR('ERROR! {}\n'.format(str(e))))
+                    writer(f'   - loading {app}.navbars ... ')
+                    writer(style.ERROR(f'ERROR! {e}\n'))
                 except ImportError as e:
                     site_navbars.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
@@ -92,7 +91,7 @@ class NavbarCollection:
                 pass
             except Exception as e:
                 raise NavbarError(
-                    f'An {e.__class__.__name__} was raised when loading navbars. '
+                    f'{e.__class__.__name__} was raised when loading navbars. '
                     f'Got {e} See {app}.navbars')
 
 

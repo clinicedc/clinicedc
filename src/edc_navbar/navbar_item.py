@@ -18,24 +18,22 @@ class NavbarItem:
     template_name = 'edc_navbar/navbar_item.html'
 
     def __init__(self, name=None, title=None,
-                 label=None, url_name=None, html_id=None,
+                 label=None, url_name=None, url_namespace=None, html_id=None,
                  glyphicon=None, fa_icon=None, icon=None,
                  icon_width=None, icon_height=None):
-        self.url_name = url_name
+        if url_namespace:
+            self.url_name = f'{url_namespace}:{url_name}'
+        else:
+            self.url_name = url_name
         self.name = name
         try:
             self.label = label.title()
         except AttributeError:
             self.label = None
 
-        self.title = title  # the anchor title
-        if not self.title:
-            try:
-                self.title = slugify(self.label.lower())
-            except AttributeError:
-                self.title = self.name
+        self.title = title or self.label or self.name.title()  # the anchor title
 
-        self.html_id = html_id or self.label or self.name
+        self.html_id = html_id or self.name
         self.glyphicon = glyphicon
         self.fa_icon = fa_icon
         self.icon = icon
@@ -56,7 +54,7 @@ class NavbarItem:
                 f'title={self.title}, url_name={self.url_name})')
 
     def __str__(self):
-        return f'{self.name}, {self.label}'
+        return f'{self.name}, {self.url_name}'
 
     def get_context(self, selected_item=None, **kwargs):
         """Returns a dictionary of context data.
