@@ -1,4 +1,4 @@
-import sys
+from django.conf import settings
 
-if 'test' in sys.argv:
+if settings.APP_NAME == 'edc_consent':
     from .tests.models import *

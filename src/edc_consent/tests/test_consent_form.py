@@ -1,18 +1,16 @@
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
+from django import forms
+from django.test import TestCase, tag
+from edc_constants.constants import NO, MALE, FEMALE
 from faker import Faker
 from model_mommy import mommy
 
-from django import forms
-from django.test import TestCase, tag
-
-from edc_base_test.mixins.dates_test_mixin import DatesTestMixin
-from edc_constants.constants import NO, MALE, FEMALE
-
 from ..consent import Consent
-from ..modelform_mixins.consent_modelform_mixin import ConsentModelFormMixin
+from ..modelform_mixins import ConsentModelFormMixin
 from ..site_consents import site_consents
 from .models import SubjectConsent
+from .dates_test_mixin import DatesTestMixin
 
 
 fake = Faker()

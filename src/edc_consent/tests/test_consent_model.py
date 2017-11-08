@@ -4,10 +4,9 @@ from model_mommy import mommy
 
 from django.test import TestCase, tag
 
-from edc_base_test.mixins.dates_test_mixin import DatesTestMixin
-
 from ..consent import Consent
 from ..site_consents import site_consents
+from .dates_test_mixin import DatesTestMixin
 from .models import SubjectConsent
 
 
@@ -42,7 +41,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             age_max=kwargs.get('age_max', 64),
             age_is_adult=kwargs.get('age_is_adult', 18),
         )
-        model = kwargs.get('model', 'edc_consent.tests.subjectconsent')
+        model = kwargs.get('model', 'edc_consent.subjectconsent')
         consent = Consent(model, **options)
         site_consents.register(consent)
         return consent

@@ -1,18 +1,16 @@
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
-from faker import Faker
-from model_mommy import mommy
-
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
-
 from edc_appointment.models import Appointment
-from edc_base_test.mixins import DatesTestMixin
+from faker import Faker
+from model_mommy import mommy
 
 from ..consent import Consent
 from ..exceptions import NotConsentedError, ConsentPeriodError, ConsentDoesNotExist
 from ..exceptions import ConsentVersionSequenceError, ConsentPeriodOverlapError
 from ..site_consents import site_consents
+from .dates_test_mixin import DatesTestMixin
 
 fake = Faker()
 
@@ -34,7 +32,7 @@ class TestConsent(DatesTestMixin, TestCase):
             age_max=kwargs.get('age_max', 64),
             age_is_adult=kwargs.get('age_is_adult', 18),
         )
-        model = kwargs.get('model', 'edc_consent.tests.subjectconsent')
+        model = kwargs.get('model', 'edc_consent.subjectconsent')
         consent = Consent(model, **options)
         site_consents.register(consent)
         return consent
@@ -49,7 +47,7 @@ class TestConsent(DatesTestMixin, TestCase):
         self.assertRaises(
             ConsentDoesNotExist,
             mommy.make_recipe,
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime)
 
@@ -64,7 +62,7 @@ class TestConsent(DatesTestMixin, TestCase):
         self.assertRaises(
             NotConsentedError,
             mommy.make_recipe,
-            'edc_example.enrollment',
+            'edc_consent.enrollment',
             subject_identifier='12345',
             report_datetime=self.study_open_datetime)
 
@@ -75,13 +73,13 @@ class TestConsent(DatesTestMixin, TestCase):
         self.consent_factory()
         subject_identifier = '12345'
         mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
         )
         mommy.make_recipe(
-            'edc_example.enrollment',
+            'edc_consent.enrollment',
             subject_identifier=subject_identifier,
             report_datetime=self.study_open_datetime,
             schedule_name='schedule1')
@@ -98,14 +96,14 @@ class TestConsent(DatesTestMixin, TestCase):
         self.assertRaises(
             ConsentDoesNotExist,
             mommy.make_recipe,
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             dob=self.dob,
             consent_datetime=self.study_open_datetime)
 
     def test_consent_gets_version(self):
         self.consent_factory(version='1.0')
         consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         self.assertEqual(consent.version, '1.0')
@@ -114,12 +112,12 @@ class TestConsent(DatesTestMixin, TestCase):
         self.consent_factory(version='1.0')
         subject_identifier = '12345'
         mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         enrollment = mommy.make_recipe(
-            'edc_example.enrollment',
+            'edc_consent.enrollment',
             subject_identifier=subject_identifier,
             report_datetime=self.study_open_datetime,
             schedule_name='schedule1')
@@ -129,12 +127,12 @@ class TestConsent(DatesTestMixin, TestCase):
         self.consent_factory(version='1.2')
         subject_identifier = '12345'
         mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         enrollment = mommy.make_recipe(
-            'edc_example.enrollment',
+            'edc_consent.enrollment',
             subject_identifier=subject_identifier,
             report_datetime=self.study_open_datetime,
             schedule_name='schedule1')
@@ -154,7 +152,7 @@ class TestConsent(DatesTestMixin, TestCase):
         subject_identifier = '12345'
         consent_datetime = self.study_open_datetime + timedelta(days=10)
         subject_consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             consent_datetime=consent_datetime,
             dob=self.dob)
@@ -163,14 +161,14 @@ class TestConsent(DatesTestMixin, TestCase):
             subject_consent.subject_identifier, subject_identifier)
         self.assertEqual(subject_consent.consent_datetime, consent_datetime)
         enrollment = mommy.make_recipe(
-            'edc_example.enrollment',
+            'edc_consent.enrollment',
             subject_identifier=subject_identifier,
             schedule_name='schedule1',
             report_datetime=consent_datetime)
         self.assertEqual(enrollment.consent_version, '1.0')
         consent_datetime = self.study_open_datetime + timedelta(days=60)
         subject_consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             consent_datetime=consent_datetime,
             dob=self.dob)
@@ -214,7 +212,7 @@ class TestConsent(DatesTestMixin, TestCase):
         self.assertRaises(
             ConsentVersionSequenceError,
             mommy.make_recipe,
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             dob=self.dob,
             consent_datetime=self.study_open_datetime + timedelta(days=60))
 
@@ -231,12 +229,12 @@ class TestConsent(DatesTestMixin, TestCase):
             version='1.1',
             updates_versions='1.0')
         subject_consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime + timedelta(days=5),
             dob=self.dob)
         self.assertEqual(subject_consent.version, '1.0')
         subject_consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_consent.subject_identifier,
             consent_datetime=self.study_open_datetime + timedelta(days=60),
             first_name=subject_consent.first_name,
@@ -266,7 +264,7 @@ class TestConsent(DatesTestMixin, TestCase):
             version='1.2',
             updates_versions='1.1')
         subject_consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         self.assertEqual(subject_consent.version, '1.0')
@@ -274,7 +272,7 @@ class TestConsent(DatesTestMixin, TestCase):
         self.assertRaises(
             ConsentVersionSequenceError,
             mommy.make_recipe,
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime + timedelta(days=125),
             subject_identifier=subject_consent.subject_identifier,
             first_name=subject_consent.first_name,

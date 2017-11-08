@@ -31,15 +31,14 @@ INSTALLED_APPS = [
     'django_revision.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
     'edc_base.apps.AppConfig',
-    'edc_base_test.apps.AppConfig',
-    'edc_consent.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_metadata.apps.AppConfig',
-    'edc_protocol.apps.AppConfig',
     'edc_registration.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
+    'edc_consent.apps.EdcProtocolAppConfig',
+    'edc_consent.apps.AppConfig',
 ]
 
 

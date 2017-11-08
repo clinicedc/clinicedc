@@ -16,3 +16,12 @@ class SubjectConsent(ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin,
 
     class Meta(ConsentModelMixin.Meta):
         unique_together = ['subject_identifier', 'version']
+
+
+# class Enrollment(EnrollmentModelMixin, CreateAppointmentsMixin,
+# BaseUuidModel):
+class Enrollment(NonUniqueSubjectIdentifierModelMixin, BaseUuidModel):
+    pass
+
+#     class Meta(EnrollmentModelMixin.Meta):
+#         visit_schedule_name = 'visit_schedule1.schedule'
