@@ -12,19 +12,19 @@ if app_config.register_default_navbar:
 
     default_navbar.append_item(
         NavbarItem(name='home',
-                   title='home',
+                   title='Home',
                    glyphicon='glyphicon-home',
                    url_name='home_url'))
 
     default_navbar.append_item(
         NavbarItem(name='administration',
-                   title='administration',
+                   title='Administration',
                    glyphicon='glyphicon-wrench',
                    url_name='administration_url'))
 
     default_navbar.append_item(
         NavbarItem(name='logout',
-                   title='logout',
+                   title='Logout',
                    glyphicon='glyphicon-log-out',
                    url_name='logout_url'))
 
