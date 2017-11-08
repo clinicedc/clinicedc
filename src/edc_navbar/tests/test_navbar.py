@@ -43,8 +43,8 @@ class TestNavbar(TestCase):
             NavbarItemError,
             NavbarItem,
             name='navbar_item_one',
-            title='Navbar Item One',
-            label='navbar_item_one',
+            label='Navbar Item One',
+            title='navbar_item_one',
             url_name=None)
 
     def test_navbar_item_raises_bad_url(self):
@@ -52,8 +52,8 @@ class TestNavbar(TestCase):
             NavbarItemError,
             NavbarItem,
             name='navbar_item_one',
-            title='Navbar Item One',
-            label='navbar_item_one',
+            label='Navbar Item One',
+            title='navbar_item_one',
             url_name='blahblahblah')
 
     def test_navbar_item_ok(self):
@@ -70,8 +70,8 @@ class TestNavbar(TestCase):
         navbar_item_selected = 'navbar_item_one'
         navbar_item = NavbarItem(
             name='navbar_item_one',
-            title='Navbar Item One',
-            label='navbar_item_one',
+            label='Navbar Item One',
+            title='navbar_item_one',
             url_name='navbar_one_url')
         template_string = navbar_item.render(
             navbar_item_selected=navbar_item_selected)
@@ -88,8 +88,8 @@ class TestNavbar(TestCase):
         navbar_item_selected = 'navbar_item_one'
         navbar_item = NavbarItem(
             name='navbar_item_one',
-            title='Navbar Item One',
-            label='navbar_item_one',
+            label='Navbar Item One',
+            title='navbar_item_one',
             url_name='navbar_one_url',
             fa_icon='fa-user-circle')
         template_string = navbar_item.render(
@@ -100,8 +100,8 @@ class TestNavbar(TestCase):
         navbar_item_selected = 'navbar_item_one'
         navbar_item = NavbarItem(
             name='navbar_item_one',
-            title='Navbar Item One',
-            label='navbar_item_one',
+            label='Navbar Item One',
+            title='navbar_item_one',
             url_name='navbar_one_url',
             icon='medicine.png')
         template_string = navbar_item.render(
