@@ -20,4 +20,7 @@ class AppConfig(DjangoAppConfig):
 
     @property
     def default_navbar_name(self):
-        return settings.DEFAULT_NAVBAR_NAME
+        try:
+            return settings.DEFAULT_NAVBAR_NAME
+        except AttributeError:
+            return 'default'
