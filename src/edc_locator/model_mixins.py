@@ -1,10 +1,6 @@
-from datetime import date
-
 from django.db import models
 from django.utils.translation import ugettext as _
-
 from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
-
 from edc_base.model_validators import CellNumber, TelephoneNumber
 from edc_base.utils import get_utcnow
 from edc_constants.choices import YES_NO, YES_NO_DOESNT_WORK
@@ -165,6 +161,9 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     )
 
     objects = LocatorManager()
+
+    def __str__(self):
+        return f'{self.subject_identifier}'
 
     def natural_key(self):
         return (self.subject_identifier, )
