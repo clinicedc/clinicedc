@@ -59,12 +59,12 @@ class TestNavbar(TestCase):
     def test_navbar_item_ok(self):
         navbar_item = NavbarItem(
             name='navbar_item_one',
-            title='Navbar Item One',
-            label='navbar_item_one',
+            label='Navbar Item One',
+            title='navbar_item_one',
             url_name='navbar_one_url')
         self.assertEqual(navbar_item.name, 'navbar_item_one')
-        self.assertEqual(navbar_item.label, 'navbar_item_one')
-        self.assertEqual(navbar_item.title, 'Navbar Item One')
+        self.assertEqual(navbar_item.title, 'navbar_item_one')
+        self.assertEqual(navbar_item.label, 'Navbar Item One')
 
     def test_render_navbar_item_to_string(self):
         navbar_item_selected = 'navbar_item_one'

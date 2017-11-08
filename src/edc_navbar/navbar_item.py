@@ -3,6 +3,7 @@ import copy
 from django.template.loader import render_to_string
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
+from django.utils.text import slugify
 
 
 class NavbarItemError(Exception):
@@ -22,9 +23,19 @@ class NavbarItem:
                  icon_width=None, icon_height=None):
         self.url_name = url_name
         self.name = name
-        self.label = label
-        self.title = title
-        self.html_id = html_id or label
+        try:
+            self.label = label.title()
+        except AttributeError:
+            self.label = None
+
+        self.title = title  # the anchor title
+        if not self.title:
+            try:
+                self.title = slugify(self.label.lower())
+            except AttributeError:
+                self.title = self.name
+
+        self.html_id = html_id or self.label or self.name
         self.glyphicon = glyphicon
         self.fa_icon = fa_icon
         self.icon = icon
