@@ -1,6 +1,10 @@
+from django.views.generic.base import ContextMixin
 
 
-class SubjectIdentifierViewMixin:
+class SubjectIdentifierViewMixin(ContextMixin):
+
+    """Adds the subject_identifier to the context.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

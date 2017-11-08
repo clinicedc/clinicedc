@@ -1,5 +1,16 @@
+from django.views.generic.base import ContextMixin
 
-class SubjectVisitViewMixin:
+
+class SubjectVisitViewMixinError(Exception):
+    pass
+
+
+class SubjectVisitViewMixin(ContextMixin):
+
+    """Mixin to add the subject visit instance to the view.
+
+    Declare together with the edc_appointment.AppointmentViewMixin.
+    """
 
     visit_attr = 'subjectvisit'
 
@@ -12,7 +23,9 @@ class SubjectVisitViewMixin:
         try:
             self.subject_visit = getattr(self.appointment, self.visit_attr)
         except AttributeError as e:
-            if self.visit_attr not in str(e) and 'object' not in str(e):
-                raise
+            raise SubjectVisitViewMixinError(
+                f'Mixin must be declared together with AppointmentViewMixin '
+                f'and visit model must have a OneToOne relation to appointment. '
+                f'Got {e}')
         context.update(subject_visit=self.subject_visit)
         return context
