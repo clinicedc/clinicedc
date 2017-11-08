@@ -13,7 +13,7 @@ from ..model_mixins import ExportTrackingFieldsModelMixin
 
 class SubjectVisit(BaseUuidModel):
 
-    appointment = models.ForeignKey(Appointment, null=True)
+    appointment = models.ForeignKey(Appointment, null=True, on_delete=PROTECT)
 
     subject_identifier = models.CharField(max_length=25)
 
@@ -78,7 +78,7 @@ class ListModel(ListModelMixin):
 
 class Crf(CrfModelMixin, ExportTrackingFieldsModelMixin, BaseUuidModel):
 
-    subject_visit = models.ForeignKey(SubjectVisit)
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     char1 = models.CharField(max_length=25, null=True)
 
@@ -95,7 +95,7 @@ class Crf(CrfModelMixin, ExportTrackingFieldsModelMixin, BaseUuidModel):
 
 class CrfEncrypted(CrfModelMixin, ExportTrackingFieldsModelMixin, BaseUuidModel):
 
-    subject_visit = models.ForeignKey(SubjectVisit)
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     encrypted1 = EncryptedCharField(null=True)
 

@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django_crypto_fields.fields import EncryptedTextField
 from edc_base.model_managers import HistoricalRecords
