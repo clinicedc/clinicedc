@@ -146,7 +146,11 @@ class AppointmentCreator:
                 if len(app_config.configurations) == 1 and not self.appointment_model:
                     self._appointment_config = app_config.configurations[0]
                 else:
-                    raise AppointmentConfigError(e)
+                    config_names = [a.name for a in app_config.configurations]
+                    raise AppointmentConfigError(
+                        f'Error looking up appointment config for {self.appointment_model}. '
+                        f'Got {e}. AppoinmentConfigs exist for {config_names}. '
+                        f'See {app_config.configurations}.')
         return self._appointment_config
 
     @property
