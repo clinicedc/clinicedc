@@ -2,6 +2,7 @@ import random
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from edc_base.utils import get_utcnow
 
 
 class DuplicateIdentifierError(Exception):
@@ -14,21 +15,42 @@ class SimpleIdentifier:
     template = '{device_id}{random_string}'
 
     def __init__(self, template=None, random_string_length=None):
+        self._identifier = None
         edc_device_app_config = django_apps.get_app_config('edc_device')
         self.template = template or self.template
         self.random_string_length = random_string_length or self.random_string_length
-        device_id = edc_device_app_config.device_id
-        self.identifier = self.template.format(
-            device_id=device_id, random_string=self.random_string)
+        self.device_id = edc_device_app_config.device_id
 
     def __str__(self):
         return self.identifier
+
+    @property
+    def identifier(self):
+        if not self._identifier:
+            self._identifier = self.template.format(
+                device_id=self.device_id, random_string=self.random_string)
+        return self._identifier
 
     @property
     def random_string(self):
         return ''.join(
             [random.choice('ABCDEFGHKMNPRTUVWXYZ2346789') for _ in range(
                 self.random_string_length)])
+
+
+class SimpleSequentialIdentifier:
+
+    prefix = None
+
+    def __init__(self):
+        sequence = int(get_utcnow().timestamp())
+        random_number = random.choice(range(1000, 9999))
+        sequence = f'{sequence}{random_number}'
+        chk = int(sequence) % 11
+        self.identifier = f'{self.prefix or ""}{sequence}{chk}'
+
+    def __str__(self):
+        return self.identifier
 
 
 class SimpleUniqueIdentifier:
