@@ -150,7 +150,8 @@ class AppointmentCreator:
                     raise AppointmentConfigError(
                         f'Error looking up appointment config for {self.appointment_model}. '
                         f'Got {e}. AppoinmentConfigs exist for {config_names}. '
-                        f'See {app_config.configurations}.')
+                        f'See {app_config.configurations}. See also the visit schedule '
+                        f'and or settings.DEFAULT_APPOINTMENT_MODEL.')
         return self._appointment_config
 
     @property
