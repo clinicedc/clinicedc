@@ -13,8 +13,8 @@ class SubjectDashboardViewMixin(
         MetaDataViewMixin,
         ConsentViewMixin,
         SubjectLocatorViewMixin,
-        SubjectVisitViewMixin,
         AppointmentViewMixin,
+        SubjectVisitViewMixin,
         VisitScheduleViewMixin,
         ShowHideViewMixin,
         SubjectIdentifierViewMixin):
