@@ -1,10 +1,11 @@
 from django.apps import apps as django_apps
+from django.views.generic.base import ContextMixin
 
 
-class EdcProtocolViewMixin:
+class EdcProtocolViewMixin(ContextMixin):
 
     def get_context_data(self, **kwargs):
-        context = super(EdcProtocolViewMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         app_config = django_apps.get_app_config('edc_protocol')
         context.update({
             'protocol': app_config.protocol,
