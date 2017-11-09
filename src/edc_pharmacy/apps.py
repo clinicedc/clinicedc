@@ -11,6 +11,7 @@ from edc_label.apps import AppConfig as BaseEdcLabelAppConfig
 
 class AppConfig(DjangoAppConfig):
     name = 'edc_pharmacy'
+    verbose_name = 'Pharmacy'
     prescription_model = 'edc_pharmacy.prescription'
     worklist_model = 'edc_pharmacy.worklist'
     template_name = None
