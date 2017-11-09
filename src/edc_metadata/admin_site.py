@@ -5,7 +5,7 @@ class EdcMetaDataAdminSite(AdminSite):
     site_header = 'Edc Metadata'
     site_title = 'Edc Metadata'
     index_title = 'Edc Metadata Administration'
-    site_url = '/admininistration/'
+    site_url = '/administration/'
 
 
 edc_metadata_admin = EdcMetaDataAdminSite(name='edc_metadata_admin')
