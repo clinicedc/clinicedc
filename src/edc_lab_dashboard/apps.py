@@ -4,6 +4,7 @@ from django.apps import AppConfig as DjangoAppConfig
 class AppConfig(DjangoAppConfig):
     name = 'edc_lab_dashboard'
     url_namespace = 'edc_lab_dashboard'
+    include_in_administration_section = False
 
     admin_site_name = 'edc_lab_admin'
     dashboard_name = 'edc_lab_dashboard'
