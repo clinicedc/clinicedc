@@ -1,11 +1,12 @@
-from django.conf.urls import url
+from django.views.generic.base import RedirectView
+from django.urls.conf import path
 
 from .admin_site import edc_registration_admin
-from django.views.generic.base import RedirectView
 
 app_name = 'edc_registration'
 
 urlpatterns = [
-    url(r'^admin/', edc_registration_admin.urls),
-    url(r'', RedirectView.as_view(url='/'), name='home_url'),
+    path('admin/edc_registration/', edc_registration_admin.urls),
+    path('admin/', edc_registration_admin.urls),
+    path('', RedirectView.as_view(url='admin/edc_registration/'), name='home_url'),
 ]
