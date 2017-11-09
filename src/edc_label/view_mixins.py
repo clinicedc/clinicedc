@@ -2,23 +2,27 @@ import json
 
 from django.apps import apps as django_apps
 from django.http.response import HttpResponse
+from django.views.generic.base import ContextMixin
+from django.contrib import messages
 
 from .labeler import Labeler
+from edc_label.print_server import PrintServerSelectPrinterError
 
 app_config = django_apps.get_app_config('edc_label')
 
 
-class EdcLabelViewMixin:
+class EdcLabelViewMixin(ContextMixin):
 
     labeler_cls = Labeler
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.labeler = self.labeler_cls()
+        self.labeler = None
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         if request.is_ajax():
+            self.labeler = self.labeler_cls()
             response_data = {}
             if self.kwargs.get('label_name'):
                 label = self.labeler.print_label(self.kwargs.get('label_name'))
@@ -47,9 +51,14 @@ class EdcLabelViewMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        project_name = context.get('project_name')
+        try:
+            self.labeler = self.labeler_cls()
+        except PrintServerSelectPrinterError as e:
+            messages.error(self.request, str(e))
+            default_cups_server_ip = None
+        else:
+            default_cups_server_ip = self.labeler.default_cups_server_ip
         context.update({
-            'project_name': f'{project_name}: {self.verbose_name}',
-            'default_cups_server_ip': self.labeler.default_cups_server_ip,
+            'default_cups_server_ip': default_cups_server_ip,
         })
         return context

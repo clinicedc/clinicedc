@@ -15,8 +15,14 @@
 
  <div class="container">
 
+          {% if messages %}
+              {% for message in messages %}
+                <div id="alert-print-server-error" class="alert alert-danger"><i class="fa fa-warning fa-lg"></i> {{ message }}</div>
+              {% endfor %}
+          {% endif %}
+
             <div class="col-md-12">
-                  <div id="alert-print-server-wait" class="alert alert-info">Contacting print server @ {{ default_cups_server_ip }} ... please wait<span class="fa fa-refresh fa-spin pull-right"></span></div>
+                  <div id="alert-print-server-wait" class="alert alert-info">Contacting print server @ {{ default_cups_server_ip|default:"printer server unknown!" }} ... please wait<span class="fa fa-refresh fa-spin pull-right"></span></div>
             </div>
             <div id="div-print-server-error" class="col-md-12">
                   <div id="alert-print-server-error" class="alert alert-danger" style="display:none"></div>

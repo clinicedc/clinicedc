@@ -11,6 +11,7 @@ class Labeler:
 
     print_server_error = None
     print_server_cls = PrintServer
+    label_cls = Label
 
     def __init__(self, *args, **kwargs):
         self.printers = {}
@@ -25,5 +26,5 @@ class Labeler:
 
     def print_label(self, template_name, copies=None, context=None):
         copies = 3 if copies is None else copies
-        label = Label(template_name=template_name)
+        label = self.label_cls(template_name=template_name)
         return label.print_label(copies, context=context)
