@@ -33,6 +33,9 @@ class AppConfig(DjangoAppConfig):
             else:
                 sys.stdout.write(
                     f' * reading holidays from {holiday_path}.\n')
+        if not holiday_path:
+            sys.stdout.write(style.ERROR(
+                f'File not found! settings.HOLIDAY_FILE not defined. \n'))
         for facility in self.facilities.values():
             sys.stdout.write(f' * {facility}.\n')
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
