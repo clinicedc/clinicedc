@@ -24,14 +24,24 @@ class AppointmentFormMixin:
                 'Appointments should be updated in sequence. A previous '
                 'appointment needs be updated before continuing. '
                 'See appointment for {}'.format(self.instance.previous.visit_code))
-        elif appt_status in [NEW_APPT, CANCELLED_APPT] and self.crf_metadata_required_exists:
+
+        self.validate_appt_new_or_cancelled(appt_status=appt_status)
+        self.validate_appt_inprogress_or_incomplete(appt_status=appt_status)
+        self.validate_appt_inprogress(appt_status=appt_status)
+        self.validate_appt_new_or_complete(appt_status=appt_status)
+        return cleaned_data
+
+    def validate_appt_new_or_cancelled(self, appt_status=None):
+        if appt_status in [NEW_APPT, CANCELLED_APPT] and self.crf_metadata_required_exists:
             raise forms.ValidationError({
                 'appt_status': 'Invalid. CRF data has already been entered.'})
         elif appt_status in [NEW_APPT, CANCELLED_APPT] and self.requisition_metadata_required_exists:
             raise forms.ValidationError({
                 'appt_status': 'Invalid. requisition data has already been entered.'})
-        elif (appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT]
-              and self.crf_metadata_required_exists):
+
+    def validate_appt_inprogress_or_incomplete(self, appt_status=None):
+        if (appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT]
+                and self.crf_metadata_required_exists):
             raise forms.ValidationError({
                 'appt_status': 'Invalid. Not all required CRFs have been keyed'})
         elif (appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT]
@@ -42,15 +52,19 @@ class AppointmentFormMixin:
               and self.required_additional_forms_exist):
             raise forms.ValidationError({
                 'appt_status': 'Invalid. Not all required \'additional\' forms have been keyed'})
-        elif appt_status == IN_PROGRESS_APPT and self.appointment_in_progress_exists:
+
+    def validate_appt_inprogress(self, appt_status=None):
+        if appt_status == IN_PROGRESS_APPT and self.appointment_in_progress_exists:
             raise forms.ValidationError({
                 'appt_status': 'Invalid. Another appointment in this schedule is in progress.'})
-        elif (appt_status not in [COMPLETE_APPT, NEW_APPT]
-              and self.crf_metadata_exists
-              and self.requisition_metadata_exists
-              and not self.crf_metadata_required_exists
-              and not self.requisition_metadata_required_exists
-              and not self.required_additional_forms_exist):
+
+    def validate_appt_new_or_complete(self, appt_status=None):
+        if (appt_status not in [COMPLETE_APPT, NEW_APPT]
+                and self.crf_metadata_exists
+                and self.requisition_metadata_exists
+                and not self.crf_metadata_required_exists
+                and not self.requisition_metadata_required_exists
+                and not self.required_additional_forms_exist):
             if not self.crf_metadata_required_exists:
                 raise forms.ValidationError({
                     'appt_status': 'Invalid. All required CRFs have been keyed'})
@@ -60,7 +74,6 @@ class AppointmentFormMixin:
             elif not self.required_additional_forms_exist:
                 raise forms.ValidationError({
                     'appt_status': 'Invalid. All required \'additional\' forms have been keyed'})
-        return cleaned_data
 
     @property
     def appointment_in_progress_exists(self):
