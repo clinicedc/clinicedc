@@ -5,7 +5,7 @@ class EdcAppointmentAdminSite(AdminSite):
     site_header = 'Appointments'
     site_title = 'Appointments'
     index_title = 'Appointments Administration'
-    site_url = '/'
+    site_url = '/administration/'
 
 
 edc_appointment_admin = EdcAppointmentAdminSite(
