@@ -47,7 +47,7 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         max_length=25,
         choices=YES_NO,
         verbose_name=("Has the participant given his/her permission for study staff "
-                      "to call her for follow-up purposes during the study?"),
+                      "to call him/her for follow-up purposes during the study?"),
     )
 
     may_sms_follow_up = models.CharField(
@@ -56,7 +56,7 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         null=True,
         blank=False,
         verbose_name=("Has the participant given his/her permission for study staff "
-                      "to SMS her for follow-up purposes during the study?"),
+                      "to SMS him/her for follow-up purposes during the study?"),
     )
 
     subject_cell = EncryptedCharField(
@@ -95,7 +95,7 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         max_length=25,
         choices=YES_NO_DOESNT_WORK,
         verbose_name=("Has the participant given his/her permission for study staff "
-                      "to contact her at work for follow up purposes during the study?"),
+                      "to contact him/her at work for follow up purposes during the study?"),
     )
 
     subject_work_place = EncryptedTextField(
