@@ -62,7 +62,7 @@ class Schedule:
             try:
                 self.appointment_model = settings.DEFAULT_APPOINTMENT_MODEL
             except AttributeError:
-                pass
+                self.appointment_model = 'edc_appointment.appointment'
             if not self.appointment_model:
                 raise ScheduleAppointmentModelError(
                     f'Invalid appointment model for schedule {repr(self)}. Got None. '
