@@ -15,6 +15,10 @@ class SiteProtocolSubjectsError(Exception):
     pass
 
 
+class SiteProtocolNotRegistered(Exception):
+    pass
+
+
 class ProtocolSubjectCollection:
 
     """A class to contain a dictionary of protocol subjects.
@@ -46,7 +50,11 @@ class ProtocolSubjectCollection:
                 f'Subject_type {key} is already registered.')
 
     def get(self, **kwargs):
-        return self.registry.get(self._key(**kwargs))
+        try:
+            return self.registry[self._key(**kwargs)]
+        except KeyError:
+            raise SiteProtocolNotRegistered(
+                f'Subject type not registered. Got {kwargs}')
 
     def _key(self, name=None, model=None):
         return f'{name}.{model}'
