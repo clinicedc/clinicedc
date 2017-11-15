@@ -6,7 +6,7 @@ device = Navbar(name='edc_device')
 if settings.APP_NAME == 'edc_device':
     url_namespace = None
 else:
-    url_namespace = settings.APP_NAME
+    url_namespace = 'edc_device'
 
 device.append_item(
     NavbarItem(name='device',
