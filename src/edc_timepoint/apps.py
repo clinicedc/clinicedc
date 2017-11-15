@@ -1,32 +1,34 @@
 import sys
 
 from django.apps import AppConfig as DjangoAppConfig
+from edc_appointment.constants import COMPLETE_APPT
 
-from edc_timepoint.timepoint import Timepoint
+from .timepoint import Timepoint
+from .timepoint_collection import TimepointCollection
 
 
 class AppConfig(DjangoAppConfig):
     name = 'edc_timepoint'
     verbose_name = 'Edc Timepoint'
-    timepoints = [
-        Timepoint(
-            model='example.examplemodel',
-            datetime_field='report_datetime',
-            status_field='example_status',
-            closed_status='finish'),
-        Timepoint(
-            model='edc_appointment.appointment',
-            datetime_field='report_datetime',
-            status_field='appt_status',
-            closed_status='complete')
-    ]
+
+    timepoints = TimepointCollection(
+        timepoints=[
+            Timepoint(
+                model='edc_appointment.appointment',
+                datetime_field='appt_datetime',
+                status_field='appt_status',
+                closed_status=COMPLETE_APPT),
+            Timepoint(
+                model='edc_appointment.historicalappointment',
+                datetime_field='appt_datetime',
+                status_field='appt_status',
+                closed_status=COMPLETE_APPT)
+        ])
 
     def ready(self):
         from .signals import update_timepoint_on_post_save
-        sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
-        timepoints = {}
-        for timepoint in self.timepoints:
-            sys.stdout.write(' * {} is a timepoint.\n'.format(timepoint))
-            timepoints[str(timepoint)] = timepoint
-        self.timepoints = timepoints  # converted to dict.
-        sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
+
+        sys.stdout.write(f'Loading {self.verbose_name} ...\n')
+        for model in self.timepoints:
+            sys.stdout.write(f' * \'{model}\' is a timepoint model.\n')
+        sys.stdout.write(f' Done loading {self.verbose_name}.\n')
