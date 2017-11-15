@@ -1,7 +1,4 @@
-# import random
-
 from django.test import TestCase, tag
-
 from django.test.utils import override_settings
 
 from ..constants import CENTRAL_SERVER, CLIENT, NODE_SERVER, MIDDLEMAN
