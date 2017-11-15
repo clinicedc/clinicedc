@@ -8,13 +8,13 @@ from faker.providers import BaseProvider
 from random import choice
 
 from ..site_consents import site_consents
-from .models import SubjectConsent
 
 
 class EdcConsentProvider(BaseProvider):
 
-    consent_model = SubjectConsent
+    consent_model = 'edc_consent.subjectconsent'
 
+    @property
     def consent_model_cls(self):
         return django_apps.get_model(self.consent_model)
 
@@ -26,25 +26,25 @@ class EdcConsentProvider(BaseProvider):
 
     def dob_for_consenting_adult(self):
         consent = site_consents.get_consent(
-            consent_model=self.consent_model_cls,
+            consent_model=self.consent_model,
             report_datetime=get_utcnow())
         years = choice(range(consent.age_is_adult, consent.age_max + 1))
         return (get_utcnow() - relativedelta(years=years)).date()
 
     def dob_for_consenting_minor(self):
         consent = site_consents.get_consent(
-            self.consent_model_cls, report_datetime=get_utcnow())
+            self.consent_model, report_datetime=get_utcnow())
         years = choice(range(consent.age_min, consent.age_is_adult + 1) - 1)
         return (get_utcnow() - relativedelta(years=years)).date()
 
     def age_for_consenting_adult(self):
         consent = site_consents.get_consent(
-            consent_model=self.consent_model_cls, report_datetime=get_utcnow())
+            consent_model=self.consent_model, report_datetime=get_utcnow())
         return choice(range(consent.age_is_adult, consent.age_max + 1))
 
     def age_for_consenting_minor(self):
         consent = site_consents.get_consent(
-            consent_model=self.consent_model_cls, report_datetime=get_utcnow())
+            consent_model=self.consent_model, report_datetime=get_utcnow())
         return choice(range(consent.age_min, consent.age_is_adult + 1) - 1)
 
     def yesterday(self):
