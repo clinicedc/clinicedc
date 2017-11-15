@@ -1,7 +1,6 @@
 import re
 
 from django.test import TestCase, tag
-
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
 
 from ..lab import AliquotType, LabProfile, ProcessingProfile
@@ -90,19 +89,6 @@ class TestSiteLab2(TestCase):
             reason_not_drawn=NOT_APPLICABLE)
         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
         self.assertFalse(pattern.match(requisition.requisition_identifier))
-
-#     def test_requisition_identifier4(self):
-#         """Asserts requisition identifier is CLEARED if specimen
-#         changed to not drawn."""
-#         subject_visit = SubjectVisit.objects.create()
-#         requisition = SubjectRequisition.objects.create(
-#             subject_visit=subject_visit,
-#             panel_name=self.panel.name,
-#             is_drawn=YES)
-#         requisition.is_drawn = NO
-#         requisition.save()
-#         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
-#         self.assertFalse(pattern.match(requisition.requisition_identifier))
 
     def test_requisition_identifier5(self):
         """Asserts requisition identifier is set if specimen changed to drawn."""

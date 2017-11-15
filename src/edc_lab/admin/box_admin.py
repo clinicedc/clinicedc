@@ -1,7 +1,5 @@
 from django.contrib import admin
-
-from edc_base.modeladmin_mixins import (
-    audit_fieldset_tuple, audit_fields)
+from edc_base.modeladmin_mixins import audit_fieldset_tuple, audit_fields
 
 from ..admin_site import edc_lab_admin
 from ..forms import BoxForm
