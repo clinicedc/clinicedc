@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_revision.apps.AppConfig',
-    'django_crypto_fields.apps.AppConfig',
+    # 'django_crypto_fields.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
 ]
@@ -124,7 +124,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
-
+DEFAULT_SUBJECT_TYPE = None
 
 if 'test' in sys.argv:
 
