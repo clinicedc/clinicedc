@@ -1,13 +1,12 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import RegexValidator
 from django.db import models
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from uuid import UUID
 
-from ..choices import APPT_TYPE, APPT_STATUS
+from ..choices import APPT_TYPE, APPT_STATUS, APPT_REASON
 from ..constants import NEW_APPT
 from ..managers import AppointmentManager
 
@@ -44,18 +43,6 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
     facility_name = models.CharField(
         max_length=25)
 
-    # TODO: can this be removed? use visit_code_sequence?
-    visit_instance = models.CharField(
-        max_length=1,
-        verbose_name=('Instance'),
-        validators=[RegexValidator(r'[0-9]', 'Must be a number from 0-9')],
-        default='0',
-        null=True,
-        blank=True,
-        db_index=True,
-        help_text=('A decimal to represent an additional report to be '
-                   'included with the original visit report. (NNNN.0)'))
-
     visit_code_sequence = models.IntegerField(
         verbose_name=('Sequence'),
         default=0,
@@ -91,6 +78,7 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
     appt_reason = models.CharField(
         verbose_name=('Reason for appointment'),
         max_length=25,
+        choices=APPT_REASON,
         help_text=('Reason for appointment'),
         blank=True)
 
@@ -122,7 +110,12 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
 
     @property
     def title(self):
-        return self.schedule.visits.get(self.visit_code).title
+        if self.visit_code_sequence > 0:
+            title = (f'{self.schedule.visits.get(self.visit_code).title} '
+                     f'{self.get_appt_reason_display()}')
+        else:
+            title = self.schedule.visits.get(self.visit_code).title
+        return title
 
     @property
     def visit(self):

@@ -1,4 +1,10 @@
 from .constants import IN_PROGRESS_APPT, INCOMPLETE_APPT, COMPLETE_APPT, CANCELLED_APPT, NEW_APPT
+from .constants import SCHEDULED_APPT, UNSCHEDULED_APPT
+
+APPT_REASON = (
+    (SCHEDULED_APPT, 'Routine / Scheduled'),
+    (UNSCHEDULED_APPT, 'Unscheduled'),
+)
 
 APPT_STATUS = (
     (NEW_APPT, 'New'),
@@ -10,8 +16,9 @@ APPT_STATUS = (
 
 APPT_TYPE = (
     ('clinic', 'In clinic'),
-    ('telephone', 'By telephone'),
     ('home', 'At home'),
+    ('hospital', 'In hospital'),
+    ('telephone', 'By telephone'),
 )
 
 INFO_PROVIDER = (
