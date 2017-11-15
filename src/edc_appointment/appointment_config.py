@@ -9,8 +9,9 @@ class AppointmentConfig:
 
     default_appt_type = 'clinic'
 
-    def __init__(self, model=None, related_visit_model=None, appt_type=None):
+    def __init__(self, name=None, model=None, related_visit_model=None, appt_type=None):
         self.model = model
+        self.name = name or self.model
         self.related_visit_model = related_visit_model
         try:
             self.related_visit_model_attr = self.related_visit_model.split('.')[
@@ -18,7 +19,6 @@ class AppointmentConfig:
         except IndexError:
             self.related_visit_model_attr = self.related_visit_model
         self.appt_type = appt_type or self.default_appt_type
-        self.name = self.model
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.model}, {self.related_visit_model})'
