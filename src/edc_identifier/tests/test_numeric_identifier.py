@@ -4,7 +4,6 @@ from ..exceptions import IdentifierError
 from ..numeric_identifier import NumericIdentifier, NumericIdentifierWithModulus
 
 
-@tag('numeric')
 class TestNumericIdentifier(TestCase):
 
     def test_numeric_basic(self):
@@ -91,7 +90,7 @@ class TestNumericIdentifier(TestCase):
     def test_numeric_modulus(self):
         NumericIdentifierWithModulus.separator = '-'
         NumericIdentifierWithModulus.identifier_pattern = r'^[0-9]{4}[0-9]{4}[0-9]{2}$'
-        NumericIdentifierWithModulus.checkdigit_pattern = r'^\-[0-9]{2}$'
+        NumericIdentifierWithModulus.checkdigit_pattern = r'^\-[0-9]{1,2}$'
         NumericIdentifierWithModulus.seed = '1000000010'
         numeric_identifier = NumericIdentifierWithModulus(None)
         self.assertEqual(numeric_identifier.identifier, '1000000011-10')
@@ -100,8 +99,8 @@ class TestNumericIdentifier(TestCase):
     def test_numeric_modulus_with_separator(self):
         NumericIdentifierWithModulus.separator = '-'
         NumericIdentifierWithModulus.identifier_pattern = r'^[0-9]{4}\-[0-9]{4}$'
-        NumericIdentifierWithModulus.checkdigit_pattern = r'^\-[0-9]{2}$'
+        NumericIdentifierWithModulus.checkdigit_pattern = r'^\-[0-9]{1,2}$'
         NumericIdentifierWithModulus.seed = '1000-0000'
         numeric_identifier = NumericIdentifierWithModulus(None)
-        self.assertEqual(numeric_identifier.identifier, '1000-0001-11')
+        self.assertEqual(numeric_identifier.identifier, '1000-0001-7')
         self.assertEqual(next(numeric_identifier), '1000-0002-12')

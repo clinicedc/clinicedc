@@ -2,7 +2,6 @@ from faker import Faker
 
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
-from edc_protocol import SubjectType, Cap
 
 from ..maternal_identifier import MaternalIdentifier
 
@@ -12,18 +11,6 @@ fake = Faker()
 
 @tag('maternal')
 class TestMaternalIdentifier(TestCase):
-
-    def setUp(self):
-        app_config = django_apps.get_app_config('edc_protocol')
-        app_config.subject_types = [
-            SubjectType('subject', 'Research Subjects', Cap(
-                model_name='edc_identifier.enrollment', max_subjects=9999)),
-            SubjectType('subject', 'Research Subjects', Cap(
-                model_name='edc_identifier.enrollmentthree', max_subjects=5))
-        ]
-        app_config.site_code = '10'
-        app_config.site_name = 'test_site'
-        app_config.ready()
 
     def test_create(self):
         maternal_identifier = MaternalIdentifier(

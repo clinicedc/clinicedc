@@ -3,10 +3,8 @@ from django.test import TestCase, tag
 from ..alphanumeric_identifier import AlphanumericIdentifier
 
 
-@tag('alpha')
 class TestIdentifier(TestCase):
 
-    
     def test_checkdigit(self):
         identifier = 'AAA00007'
         alpha_identifier = AlphanumericIdentifier(identifier)
@@ -21,7 +19,6 @@ class TestIdentifier(TestCase):
         alpha_identifier.next()
         self.assertEqual(alpha_identifier.identifier, 'AAA00031')
 
-    
     def test_alphanumeric(self):
         AlphanumericIdentifier.alpha_pattern = r'^[A-Z]{3}$'
         AlphanumericIdentifier.numeric_pattern = r'^[0-9]{4}$'
@@ -34,7 +31,6 @@ class TestIdentifier(TestCase):
         self.assertEqual(next(alpha_id), 'AAA00057')
         self.assertEqual(next(alpha_id), 'AAA00065')
 
-    
     def test_alphanumeric_last(self):
         AlphanumericIdentifier.alpha_pattern = r'^[A-Z]{3}$'
         AlphanumericIdentifier.numeric_pattern = r'^[0-9]{4}$'
@@ -45,7 +41,7 @@ class TestIdentifier(TestCase):
         self.assertEqual(next(alpha_id), 'AAB00047')
         self.assertEqual(next(alpha_id), 'AAB00055')
 
-#     
+#
 #     def test_increment_for_alphanumeric(self):
 #         AlphanumericIdentifier.alpha_pattern = r'^[A-Z]{3}$'
 #         AlphanumericIdentifier.numeric_pattern = r'^[0-9]{4}$'

@@ -1,6 +1,6 @@
 from .infant_identifier import InfantIdentifier
-from .subject_identifier import SubjectIdentifier
 from .models import IdentifierModel
+from .subject_identifier import SubjectIdentifier
 
 
 class MaternalIdentifierError(Exception):
@@ -9,9 +9,9 @@ class MaternalIdentifierError(Exception):
 
 class MaternalIdentifier(SubjectIdentifier):
 
-    def __init__(self, last_name=None, **kwargs):
+    def __init__(self, **kwargs):
         self.infants = []
-        super().__init__(last_name=last_name, **kwargs)
+        super().__init__(**kwargs)
         infant_identifiers = []
         for obj in IdentifierModel.objects.filter(
                 linked_identifier=self.identifier).order_by('linked_identifier'):

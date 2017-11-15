@@ -4,7 +4,6 @@ from ..checkdigit_mixins import LuhnMixin, LuhnOrdMixin
 from ..identifier import Identifier
 
 
-@tag('identifier')
 class TestIdentifier(TestCase):
 
     def test_valid_checkdigit(self):

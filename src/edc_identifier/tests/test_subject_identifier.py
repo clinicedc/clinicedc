@@ -2,34 +2,21 @@ from faker import Faker
 
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
-
-from edc_protocol import SubjectType, Cap, EnrollmentCapError, EnrollmentCapReached
+from edc_protocol import EnrollmentCapReached, EnrollmentCapDoesNotExist
 
 from ..models import IdentifierModel
 from ..research_identifier import IdentifierMissingTemplateValue
 from ..subject_identifier import SubjectIdentifier
 from .models import EnrollmentThree, Enrollment
+from edc_identifier.exceptions import SubjectIdentifierError
 
 
 fake = Faker()
 
 
-@tag('subject')
 class TestSubjectIdentifier(TestCase):
 
-    def setUp(self):
-        app_config = django_apps.get_app_config('edc_protocol')
-        app_config.subject_types = [
-            SubjectType('subject', 'Research Subjects', Cap(
-                model_name='edc_identifier.enrollment', max_subjects=9999)),
-            SubjectType('subject', 'Research Subjects', Cap(
-                model_name='edc_identifier.enrollmentthree', max_subjects=5))
-        ]
-        app_config.site_code = '10'
-        app_config.site_name = 'test_site'
-        app_config.ready()
-
-    def test_raises_on_unknown_cap(self):
+    def test_create(self):
         """Asserts raises exception if cannot find cap.
         """
         try:
@@ -39,12 +26,16 @@ class TestSubjectIdentifier(TestCase):
                 protocol_number='000',
                 device_id='99',
                 site_code='40')
-        except EnrollmentCapError:
-            self.fail('EnrollmentCapError unexpectedly raised')
+        except EnrollmentCapReached:
+            self.fail('EnrollmentCapReached unexpectedly raised')
+
+    def test_raises_on_unknown_cap(self):
+        """Asserts raises exception if cannot find cap.
+        """
         self.assertRaises(
-            EnrollmentCapError,
+            SubjectIdentifierError,
             SubjectIdentifier,
-            identifier_type='subject',
+            identifier_type='subjectblahblah',
             model='edc_identifier.enrollmentblahblahblah',
             protocol_number='000',
             device_id='99',
@@ -61,20 +52,22 @@ class TestSubjectIdentifier(TestCase):
             self.assertEqual(
                 subject_identifier.identifier[8:12], '000' + str(i))
 
+    @tag('1')
     def test_create_missing_args(self):
         """Asserts raises exception for missing identifier_type.
         """
         self.assertRaises(
-            EnrollmentCapError,
+            SubjectIdentifierError,
             SubjectIdentifier,
             identifier_type='',
             model='edc_identifier.enrollment',
             site_code='40')
 
     def test_create_missing_args2(self):
-        """Asserts raises exception for missing model."""
+        """Asserts raises exception for missing model.
+        """
         self.assertRaises(
-            EnrollmentCapError,
+            SubjectIdentifierError,
             SubjectIdentifier,
             identifier_type='subject',
             model='',

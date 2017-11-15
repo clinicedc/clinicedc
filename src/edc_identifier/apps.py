@@ -14,16 +14,16 @@ class AppConfig(DjangoAppConfig):
     def ready(self):
         style = color_style()
         if not self.messages_written:
-            sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
+            sys.stdout.write(f'Loading {self.verbose_name} ...\n')
             if 'test' not in sys.argv:
                 if self.identifier_prefix == '999':
                     sys.stdout.write(style.NOTICE(
                         ' Warning: \'identifier_prefix\' has not been explicitly set. '
                         'Using default \'999\'. See AppConfig.\n'))
             sys.stdout.write(
-                ' * identifier prefix: {}\n'.format(self.identifier_prefix))
+                f' * identifier prefix: {self.identifier_prefix}\n')
             sys.stdout.write(
-                ' * check-digit modulus: {}\n'.format(self.identifier_modulus))
+                f' * check-digit modulus: {self.identifier_modulus}\n')
             sys.stdout.write(
-                ' Done loading {} ...\n'.format(self.verbose_name))
+                f' Done loading {self.verbose_name}\n')
         self.messages_written = True

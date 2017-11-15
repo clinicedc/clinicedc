@@ -1,32 +1,35 @@
 from django.apps import apps as django_apps
-
 from edc_base.utils import get_utcnow
-from edc_protocol.enrollment_cap import EnrollmentCap
+from edc_protocol import site_protocol_subjects, SiteProtocolNotRegistered
 
 from .research_identifier import ResearchIdentifier
+from edc_identifier.exceptions import SubjectIdentifierError
 
 
 class SubjectIdentifier(ResearchIdentifier):
 
     template = '{protocol_number}-{site_code}{device_id}{sequence}'
     label = 'subjectidentifier'
-    enrollment_cap_cls = EnrollmentCap
 
     def __init__(self, create_registration=None,
                  enrollment_cap_by_site_code=None, last_name=None, **kwargs):
         super().__init__(**kwargs)
         self.create_registration = create_registration
         self.last_name = last_name
-        opts = dict(
-            name=self.label,
-            subject_type=self.identifier_type,
-            model=self.model)
-        self.enrollment_cap = self.enrollment_cap_cls(
-            subject_type_name=self.identifier_type,
-            model=self.model)
+        try:
+            subject_type_obj = site_protocol_subjects.get(
+                name=self.identifier_type,
+                model=self.model)
+        except SiteProtocolNotRegistered:
+            raise SubjectIdentifierError(
+                f'Subject type is not registered with site_protocol_subjects. '
+                f'Got {self.identifier_type}.{self.model}')
         if enrollment_cap_by_site_code:
-            opts.update(study_site=self.site_code)
-        _, max_subjects = self.enrollment_cap.fetch_or_raise_on_cap_met()
+            study_site = self.site_code
+        else:
+            study_site = None
+        _, max_subjects = subject_type_obj.fetch_count_or_raise(
+            study_site=study_site)
         self.padding = len(str(max_subjects))
 
     def post_identifier(self):

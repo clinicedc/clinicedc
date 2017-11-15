@@ -2,7 +2,6 @@ from faker import Faker
 
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
-from edc_protocol import SubjectType, Cap
 
 from ..models import IdentifierModel
 from ..maternal_identifier import MaternalIdentifier
@@ -11,23 +10,7 @@ from ..maternal_identifier import MaternalIdentifier
 fake = Faker()
 
 
-class TestIdentifierError(Exception):
-    pass
-
-
-@tag('infant')
 class TestInfantIdentifier(TestCase):
-    def setUp(self):
-        app_config = django_apps.get_app_config('edc_protocol')
-        app_config.subject_types = [
-            SubjectType('subject', 'Research Subjects', Cap(
-                model_name='edc_identifier.enrollment', max_subjects=9999)),
-            SubjectType('subject', 'Research Subjects', Cap(
-                model_name='edc_identifier.enrollmentthree', max_subjects=5))
-        ]
-        app_config.site_code = '10'
-        app_config.site_name = 'test_site'
-        app_config.ready()
 
     def test_create_singleton(self):
         maternal_identifier = MaternalIdentifier(
@@ -200,7 +183,10 @@ class TestInfantIdentifier(TestCase):
             last_name=fake.last_name(),
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        maternal_identifier = MaternalIdentifier(
+            identifier_type='subject',
+            model='edc_identifier.enrollment',
+            identifier='000-40990001-6')
         maternal_identifier.deliver(1, model='edc_identifier.maternallabdel')
         self.assertEqual(
             maternal_identifier.infants[0].identifier, '000-40990001-6-10')
@@ -215,7 +201,10 @@ class TestInfantIdentifier(TestCase):
             last_name=fake.last_name(),
             create_registration=True)
         maternal_identifier.deliver(2, model='edc_identifier.maternallabdel')
-        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        maternal_identifier = MaternalIdentifier(
+            identifier_type='subject',
+            model='edc_identifier.enrollment',
+            identifier='000-40990001-6')
         self.assertEqual(
             maternal_identifier.infants[0].identifier, '000-40990001-6-25')
         self.assertEqual(
@@ -232,7 +221,10 @@ class TestInfantIdentifier(TestCase):
             create_registration=True)
         maternal_identifier.deliver(
             2, model='edc_identifier.maternallabdel', birth_orders='2')
-        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        maternal_identifier = MaternalIdentifier(
+            identifier_type='subject',
+            model='edc_identifier.enrollment',
+            identifier='000-40990001-6')
         self.assertEqual(maternal_identifier.infants[0].identifier, None)
         self.assertEqual(
             maternal_identifier.infants[1].identifier, '000-40990001-6-26')
@@ -249,7 +241,10 @@ class TestInfantIdentifier(TestCase):
             last_name=fake.last_name(),
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        maternal_identifier = MaternalIdentifier(
+            identifier_type='subject',
+            model='edc_identifier.enrollment',
+            identifier='000-40990001-6')
         maternal_identifier.deliver(1, model='edc_identifier.maternallabdel')
         try:
             RegisteredSubject.objects.get(
@@ -269,7 +264,10 @@ class TestInfantIdentifier(TestCase):
             last_name=fake.last_name(),
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        maternal_identifier = MaternalIdentifier(
+            identifier_type='subject',
+            model='edc_identifier.enrollment',
+            identifier='000-40990001-6')
         maternal_identifier.deliver(
             1, model='edc_identifier.maternallabdel', create_registration=False)
         try:
@@ -291,7 +289,10 @@ class TestInfantIdentifier(TestCase):
             last_name=fake.last_name(),
             create_registration=True)
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier = MaternalIdentifier(identifier='000-40990001-6')
+        maternal_identifier = MaternalIdentifier(
+            identifier_type='subject',
+            model='edc_identifier.enrollment',
+            identifier='000-40990001-6')
         maternal_identifier.deliver(
             1, model='edc_identifier.maternallabdel', create_registration=True)
         obj = RegisteredSubject.objects.get(
