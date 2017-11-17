@@ -1,21 +1,19 @@
 from dateutil.relativedelta import relativedelta
-
 from django import forms
 from django.forms.utils import ErrorList
 from django.utils import timezone
-
 from edc_base.modelform_mixins import CommonCleanModelFormMixin
 from edc_base.utils import formatted_age, age
 from edc_constants.constants import YES, NO
+from edc_registration.models import RegisteredSubject
 
 from ..exceptions import SiteConsentError
 from ..site_consents import site_consents
-from edc_registration.models import RegisteredSubject
-from edc_base.templatetags.edc_base_extras import age_in_years
 
 
 class ConsentModelFormMixin(CommonCleanModelFormMixin):
-    """Form for models that are a subclass of BaseConsent."""
+    """Form for models that are a subclass of BaseConsent.
+    """
 
     confirm_identity = forms.CharField(
         label='Confirm identity',

@@ -8,6 +8,7 @@ from django.utils.module_loading import import_module, module_has_submodule
 from .exceptions import (
     SiteConsentError, AlreadyRegistered, ConsentError, ConsentPeriodError,
     ConsentVersionSequenceError, ConsentPeriodOverlapError, ConsentDoesNotExist)
+from edc_consent.constants import DEFAULT_CONSENT_GROUP
 
 
 class SiteConsents:
@@ -102,7 +103,8 @@ class SiteConsents:
         """Return consent object valid for the datetime.
         """
         consents = []
-        # consent_group = consent_group or 'default'
+        app_config = django_apps.get_app_config('edc_consent')
+        consent_group = consent_group or app_config.default_consent_group
         if consent_group:
             registered_consents = (
                 c for c in self.registry if c.group == consent_group)
@@ -117,10 +119,9 @@ class SiteConsents:
                 version=version)
         if not consents:
             raise ConsentDoesNotExist(
-                'No matching consent in site consents. Using consent '
-                'model={}, date={}, consent_group={}, '
-                'version={}. '.format(
-                    consent_model, report_datetime, consent_group, version))
+                f'No matching consent in site consents. Using consent '
+                f'model={consent_model}, date={report_datetime}, '
+                f'consent_group={consent_group}, version={version}. ')
         elif len(list(set([consent.name for consent in consents]))) > 1:
             raise ConsentError(
                 'Multiple consents found, using consent model={}, date={}, '
