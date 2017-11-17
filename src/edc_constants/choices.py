@@ -4,7 +4,7 @@ from .constants import (
     ALIVE, DEAD, DECLINED, DWTA, FEMALE, IND, MALE, NAIVE,
     NEG, NEVER, NO, NOT_APPLICABLE, OMANG, OTHER, POS, REFUSED, UNKNOWN, YES,
     MORNING, AFTERNOON, EVENING, ANYTIME, WEEKDAYS, WEEKENDS,
-    NOT_SURE)
+    NOT_SURE, NORMAL, ABNORMAL)
 
 
 BLANK_CHOICE_DASH = [('', '---------')]
@@ -153,19 +153,19 @@ IDENTITY_TYPE = (
 
 
 NORMAL_ABNORMAL = (
-    ('NORMAL', 'Normal'),
-    ('ABNORMAL', 'Abnormal'),
+    (NORMAL, 'Normal'),
+    (ABNORMAL, 'Abnormal'),
 )
 
 NORMAL_ABNORMAL_NOEXAM = (
-    ('NORMAL', 'Normal'),
-    ('ABNORMAL', 'Abnormal'),
+    (NORMAL, 'Normal'),
+    (ABNORMAL, 'Abnormal'),
     ('NO_EXAM', 'No Exam Performed'),
 )
 
 NORMAL_ABNORMAL_NOTEVALUATED = (
-    ('NORMAL', 'Normal'),
-    ('ABNORMAL', 'Abnormal'),
+    (NORMAL, 'Normal'),
+    (ABNORMAL, 'Abnormal'),
     ('NOT_EVAL', 'Not Evaluated'),
 )
 
