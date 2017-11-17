@@ -93,7 +93,7 @@ class VisitModelAdminMixin:
 
     list_filter = [
         'study_status',
-        'appointment__visit_instance',
+        'appointment__visit_code_sequence',
         'reason',
         'appointment__visit_code',
         'report_datetime',

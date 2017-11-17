@@ -62,7 +62,7 @@ class VisitModelMixin(
     def appointment_zero(self):
         appointment_zero = None
         try:
-            if self.appointment.visit_instance == '0':
+            if self.appointment.visit_code_sequence == 0:
                 appointment_zero = self.appointment
         except AttributeError:
             pass
@@ -70,7 +70,7 @@ class VisitModelMixin(
             try:
                 appointment_zero = self.appointment.__class__.objects.get(
                     subject_identifier=self.appointment.subject_identifier,
-                    visit_instance='0')
+                    visit_code_sequence=0)
             except self.appointment.__class__.DoesNotExist:
                 pass
         return appointment_zero
