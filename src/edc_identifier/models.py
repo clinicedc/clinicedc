@@ -24,7 +24,8 @@ class SubjectIdentifierManager(models.Manager):
 
 
 class IdentifierModelMixin(models.Model):
-    """A model mixin for models that store identifiers as allocated."""
+    """A model mixin for models that store identifiers as allocated.
+    """
 
     identifier = models.CharField(max_length=36, unique=True, editable=False)
     padding = models.IntegerField(default=4, editable=False)
@@ -57,7 +58,8 @@ class IdentifierModelMixin(models.Model):
 
     @property
     def formatted_sequence(self):
-        """Returns a padded sequence segment for the identifier"""
+        """Returns a padded sequence segment for the identifier
+        """
         if self.is_derived:
             return ''
         return str(self.sequence_number).rjust(self.padding, '0')
@@ -70,17 +72,14 @@ class IdentifierHistoryMixin(models.Model):
 
     identifier = models.CharField(
         max_length=50,
-        unique=True
-    )
+        unique=True)
 
     identifier_type = models.CharField(
-        max_length=50,
-    )
+        max_length=50)
 
     identifier_prefix = models.CharField(
         max_length=25,
-        null=True,
-    )
+        null=True)
 
     def natural_key(self):
         return (self.identifier, )
