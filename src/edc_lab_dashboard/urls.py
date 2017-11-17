@@ -1,4 +1,5 @@
-from django.conf.urls import url
+from django.conf import settings
+from django.urls.conf import path, re_path
 
 from .views import (
     HomeView, RequisitionListboardView, AliquotListboardView,
@@ -7,8 +8,6 @@ from .views import (
     ManageBoxListboardView, VerifyBoxListboardView, ManageBoxItemView,
     VerifyBoxItemView, ProcessListboardView, PackView, ManageManifestView,
     ManageManifestListboardView, ManifestView, AliquotView, RequisitionView)
-from django.conf import settings
-from django.urls.conf import path, re_path
 
 
 app_name = 'edc_lab_dashboard'
@@ -41,8 +40,8 @@ urlpatterns = [
     re_path('listboard/box/(?P<action_name>manage)/(?P<box_identifier>[A-Z0-9]+)/$',
             ManageBoxListboardView.as_view(),
             name='manage_box_listboard_url'),
-    path('listboard/box/(?P<action_name>manage)/', ManageBoxListboardView.as_view(),
-         name='manage_box_listboard_url'),
+    re_path('listboard/box/(?P<action_name>manage)/', ManageBoxListboardView.as_view(),
+            name='manage_box_listboard_url'),
 
     re_path('listboard/box/(?P<action_name>verify)/'
             '(?P<box_identifier>[A-Z0-9]+)/'
@@ -88,21 +87,21 @@ urlpatterns = [
         name='result_listboard_url'),
 
     # action urls
-    path('requisition/$', RequisitionView.as_view(), name='requisition_url'),
-    path('requisition/receive/$', ReceiveView.as_view(), name='receive_url'),
-    path('requisition/process/$', ProcessView.as_view(), name='process_url'),
-    path('requisition/pack/$', PackView.as_view(), name='pack_url'),
+    path('requisition/', RequisitionView.as_view(), name='requisition_url'),
+    path('requisition/receive/', ReceiveView.as_view(), name='receive_url'),
+    path('requisition/process/', ProcessView.as_view(), name='process_url'),
+    path('requisition/pack/', PackView.as_view(), name='pack_url'),
 
     re_path('box/(?P<box_identifier>[A-Z0-9]+)/(?P<action_name>manage)/$',
             ManageBoxItemView.as_view(), name='manage_box_item_url'),
-    path('box/(?P<box_identifier>[A-Z0-9]+)/'
-         '(?P<action_name>verify)/'
-         '(?P<position>[0-9]+)/$',
-         VerifyBoxItemView.as_view(), name='verify_box_item_url'),
-    path('manifest/$', ManifestView.as_view(), name='manifest_url'),
-    path('manifest/(?P<manifest_identifier>[A-Z0-9]+)/(?P<action_name>manage)/$',
-         ManageManifestView.as_view(), name='manage_manifest_item_url'),
-    path('aliquot/$', AliquotView.as_view(), name='aliquot_url'),
+    re_path('box/(?P<box_identifier>[A-Z0-9]+)/'
+            '(?P<action_name>verify)/'
+            '(?P<position>[0-9]+)/$',
+            VerifyBoxItemView.as_view(), name='verify_box_item_url'),
+    path('manifest/', ManifestView.as_view(), name='manifest_url'),
+    re_path('manifest/(?P<manifest_identifier>[A-Z0-9]+)/(?P<action_name>manage)/$',
+            ManageManifestView.as_view(), name='manage_manifest_item_url'),
+    path('aliquot/', AliquotView.as_view(), name='aliquot_url'),
 
     path(r'', HomeView.as_view(), name='home_url'),
 ]
