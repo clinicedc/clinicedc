@@ -4,7 +4,7 @@ from .constants import (
     ALIVE, DEAD, DECLINED, DWTA, FEMALE, IND, MALE, NAIVE,
     NEG, NEVER, NO, NOT_APPLICABLE, OMANG, OTHER, POS, REFUSED, UNKNOWN, UNPERFOMED, YES,
     MORNING, AFTERNOON, EVENING, ANYTIME, WEEKDAYS, WEEKENDS,
-    NOT_SURE)
+    NOT_SURE, NORMAL, ABNORMAL)
 
 
 BLANK_CHOICE_DASH = [('', '---------')]
@@ -97,30 +97,6 @@ DEATH_RELATIONSIP_TO_STUDY = (
     ('Definitely related', 'Definitely related')
 )
 
-DRUG_FORMULATION = (
-    ('11', 'Tablet'),
-    ('12', 'Capsule'),
-    ('13', 'Liquid'),
-    ('14', 'Powder'),
-    ('15', 'Suspension'),
-    ('16', 'Gel'),
-    ('17', 'Oil'),
-    ('18', 'Lotion'),
-    ('19', 'Cream'),
-    ('20', 'Patch'),
-    ('99', 'Other'),
-)
-
-DRUG_ROUTE = (
-    ('1', 'Intramuscular'),
-    ('2', 'Intravenous'),
-    ('3', 'Oral'),
-    ('4', 'Topical'),
-    ('5', 'Subcutaneous'),
-    ('6', 'Intravaginal'),
-    ('7', 'Rectal'),
-    ('9', 'Other'),
-)
 
 FEEDING = (
     ('BF', 'Breast Feed'),
@@ -177,19 +153,19 @@ IDENTITY_TYPE = (
 
 
 NORMAL_ABNORMAL = (
-    ('NORMAL', 'Normal'),
-    ('ABNORMAL', 'Abnormal'),
+    (NORMAL, 'Normal'),
+    (ABNORMAL, 'Abnormal'),
 )
 
 NORMAL_ABNORMAL_NOEXAM = (
-    ('NORMAL', 'Normal'),
-    ('ABNORMAL', 'Abnormal'),
+    (NORMAL, 'Normal'),
+    (ABNORMAL, 'Abnormal'),
     ('NO_EXAM', 'No Exam Performed'),
 )
 
 NORMAL_ABNORMAL_NOTEVALUATED = (
-    ('NORMAL', 'Normal'),
-    ('ABNORMAL', 'Abnormal'),
+    (NORMAL, 'Normal'),
+    (ABNORMAL, 'Abnormal'),
     ('NOT_EVAL', 'Not Evaluated'),
 )
 
