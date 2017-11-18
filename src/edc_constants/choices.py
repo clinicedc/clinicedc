@@ -2,7 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from .constants import (
     ALIVE, DEAD, DECLINED, DWTA, FEMALE, IND, MALE, NAIVE,
-    NEG, NEVER, NO, NOT_APPLICABLE, OMANG, OTHER, POS, REFUSED, UNKNOWN, YES,
+    NEG, NEVER, NO, NOT_APPLICABLE, OMANG, OTHER, POS, REFUSED, UNKNOWN, UNPERFOMED, YES,
     MORNING, AFTERNOON, EVENING, ANYTIME, WEEKDAYS, WEEKENDS,
     NOT_SURE)
 
@@ -318,6 +318,13 @@ YES_NO_OPTIONAL = (
     (NO, NO),
     ('Optional', 'Optional'),
 )
+
+YES_NO_UNPERFOMED = (
+    (YES, YES),
+    (NO, NO),
+    (UNPERFOMED, 'Not yet Performed'),
+)
+
 
 YES_NO_REFUSED = (
     (YES, _(YES)),
