@@ -1,10 +1,10 @@
 import re
 
-ADDITIONAL = True
-ANONYMOUS = 'anonymous'
 ABNORMAL = 'ABNORMAL'
+ADDITIONAL = True
 AFTERNOON = 'afternoon'
 ALIVE = 'alive'
+ANONYMOUS = 'anonymous'
 ANYTIME = 'anytime'
 BY_BIRTH = 'BY_BIRTH'
 CLOSED = 'closed'
@@ -63,7 +63,6 @@ SUBJECT = 'subject'
 UNK = 'UNK'
 UNKNOWN = 'unknown'
 UPDATE = 'UPDATE'
-UNPERFOMED = 'Not yet Performed'
 UUID_PATTERN = re.compile(
     '[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}')
 VIEW = 'VIEW'
