@@ -4,13 +4,17 @@ import sys
 
 from datetime import datetime
 from django.core.management.color import color_style
-from edc_base.fieldsets.fieldsets import Fieldsets
-from edc_base.model_mixins.constants import DEFAULT_BASE_FIELDS
+from edc_base.constants import DEFAULT_BASE_FIELDS
+from edc_fieldsets import Fieldsets
 from math import floor
 
 from .markdown_writer import MarkdownWriter
 
 style = color_style()
+
+
+class FormDescriberError(Exception):
+    pass
 
 
 class FormDescriber:
@@ -74,10 +78,9 @@ class FormDescriber:
                 self.conditional_fieldset = None
             else:
                 if self.conditional_fieldset:
-                    self.conditional_fieldset = self.admin_cls.conditional_fieldsets.get(
-                        self.visit_code)
                     fieldsets = Fieldsets(self.admin_cls.fieldsets)
-                    fieldsets.add_fieldset(fieldset=self.conditional_fieldset)
+                    fieldsets.add_fieldsets(
+                        fieldsets=self.conditional_fieldset)
                     self.fieldsets = fieldsets.fieldsets
             if include_hidden_fields:
                 self.add_hidden_fields()
@@ -90,7 +93,7 @@ class FormDescriber:
         verbose_name = self.model_cls._meta.verbose_name
         if self.visit_code and self.conditional_fieldset:
             verbose_name = f'{verbose_name} ({self.visit_code})'
-        return verbose_name
+        return verbose_name.title()
 
     @property
     def anchor(self):
@@ -144,6 +147,8 @@ class FormDescriber:
     def add_field(self, fname=None, number=None):
         number = number or '@'
         field_cls = self.models_fields.get(fname)
+        if not field_cls:
+            raise FormDescriberError(f'Unknown field {fname}')
         self.markdown.append(f'\n**{number}.** {field_cls.verbose_name}')
         if field_cls.help_text:
             self.markdown.append(

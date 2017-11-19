@@ -17,18 +17,19 @@ class FormsReference:
     h3 = '###'
     h4 = '####'
 
-    def __init__(self, schedules=None, admin_site=None, include_hidden_fields=None,
+    def __init__(self, visit_schedules=None, admin_site=None, include_hidden_fields=None,
                  title=None):
         self.toc = []
         self.title = title or 'Forms Reference'
         self._anchors = []
         self._markdown = []
-        self.schedules = schedules
+        self.visit_schedules = visit_schedules
         self.admin_site = admin_site
         self.include_hidden_fields = include_hidden_fields
         self.plans = {}
         self.timestamp = datetime.today().strftime('%Y-%m-%d %H:%M')
-        for visit_schedule in self.schedules:
+        for visit_schedule in self.visit_schedules:
+            self.plans.update({visit_schedule.name: {}})
             for schedule in visit_schedule.schedules.values():
                 for visit_code, visit in schedule.visits.items():
                     crfs = []
@@ -37,9 +38,8 @@ class FormsReference:
                         crfs.append(c.model)
                     for r in visit.requisitions:
                         requisitions.append(r.panel.name)
-            self.plans.update(
-                {visit_schedule.name: {
-                    visit_code: {'crfs': crfs, 'requisitions': requisitions}}})
+                    self.plans[visit_schedule.name].update({
+                        visit_code: {'crfs': crfs, 'requisitions': requisitions}})
 
     def to_file(self, path=None, exists_ok=None):
         markdown_writer = self.markdown_writer_cls(
@@ -87,7 +87,7 @@ class FormsReference:
                             level=self.h4,
                             anchor_prefix=self.anchor_prefix)
                         describer.markdown.append('\n')
-                        anchor = self.get_anchor(describer.anchor)
+                        anchor = f'{self.get_anchor(describer.anchor)}'
                         toc.append(
                             f'{index + 1}. <a href="#{anchor}">{describer.verbose_name}</a>')
                         markdown.extend(describer.markdown)
