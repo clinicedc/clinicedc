@@ -1,5 +1,5 @@
 from django import forms
-from edc_base.modelform_validators import FormValidator
+from edc_form_validators import FormValidator
 from edc_constants.constants import YES, NO, DEAD, OFF_STUDY, UNKNOWN, ALIVE, PARTICIPANT
 
 from ..constants import LOST_VISIT, COMPLETED_PROTOCOL_VISIT, MISSED_VISIT
