@@ -1,5 +1,5 @@
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
-from edc_base.modeladmin_mixins import (
+from edc_model_admin import (
     ModelAdminNextUrlRedirectMixin, ModelAdminFormInstructionsMixin,
     ModelAdminFormAutoNumberMixin, ModelAdminAuditFieldsMixin,
     ModelAdminReadOnlyMixin, ModelAdminInstitutionMixin)
