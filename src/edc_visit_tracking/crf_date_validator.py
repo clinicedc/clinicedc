@@ -56,7 +56,7 @@ class CrfDateValidator:
             raise CrfReportDateIsFuture(e)
 
         # not before the visit report_datetime
-        if (self.allow_report_datetime_before_visit
+        if (not self.allow_report_datetime_before_visit
                 and self.report_datetime.date() < self.visit_report_datetime.date()):
             raise CrfReportDateAllowanceError(
                 'Report datetime may not be before the visit report datetime. '

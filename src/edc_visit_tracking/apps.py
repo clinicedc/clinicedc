@@ -50,6 +50,14 @@ class AppConfig(DjangoAppConfig):
     def visit_model(self, app_label):
         """Return the visit model for this app_label.
         """
+        from warnings import warn
+        warn('edc_visit_tracking app_config method visit_model is Deprecated '
+             'in favor of  visit_model_cls.', DeprecationWarning, stacklevel=2)
+        return self.visit_model_cls(app_label)
+
+    def visit_model_cls(self, app_label):
+        """Return the visit model for this app_label.
+        """
         try:
             visit_model = django_apps.get_model(
                 *self.visit_models[app_label][MODEL_LABEL].split('.'))

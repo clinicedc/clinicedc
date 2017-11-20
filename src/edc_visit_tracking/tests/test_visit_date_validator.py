@@ -2,7 +2,9 @@ from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 
-from ..crf_date_validator import CrfDateValidator, CrfReportDateAllowanceError, CrfReportDateIsFuture
+from ..crf_date_validator import CrfDateValidator
+from ..crf_date_validator import CrfReportDateAllowanceError
+from ..crf_date_validator import CrfReportDateIsFuture
 
 
 class TestVisitDateValidator(TestCase):
@@ -11,6 +13,7 @@ class TestVisitDateValidator(TestCase):
         dt = get_utcnow()
         CrfDateValidator(report_datetime=dt, visit_report_datetime=dt)
 
+    @tag('1')
     def test_raises_if_report_datetime_before_visit(self):
         dt = get_utcnow()
         self.assertRaises(
@@ -25,7 +28,6 @@ class TestVisitDateValidator(TestCase):
             CrfDateValidator,
             report_datetime=dt + relativedelta(years=10), visit_report_datetime=dt)
 
-    @tag('1')
     def test_report_datetime_ok(self):
         class MyCrfDateValidator(CrfDateValidator):
             report_datetime_allowance = 3
@@ -41,7 +43,6 @@ class TestVisitDateValidator(TestCase):
                     self.fail(
                         f'VisitReportDateAllowanceError unexpectedly raised. Got {e}')
 
-    @tag('1')
     def test_raises_if_report_datetime(self):
         class MyCrfDateValidator(CrfDateValidator):
             report_datetime_allowance = 3
