@@ -1,4 +1,8 @@
 local_date,label,country
+<<<<<<< HEAD
+=======
+2017-01-01,Public Holiday,botswana
+>>>>>>> 35b09663b51212873da2687a6982781763189d90
 2017-01-02,Public Holiday,botswana
 2017-04-14,Good Friday,botswana
 2017-04-15,Public Holiday,botswana

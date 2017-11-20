@@ -1,59 +1,64 @@
-from edc_consent.field_mixins.bw import IdentityFieldsMixin
-from edc_offstudy.model_mixins import OffstudyModelMixin
+from edc_appointment.models import Appointment
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from django.db import models
-from edc_appointment.model_mixins.appointment_model_mixin import AppointmentModelMixin
-from edc_appointment.model_mixins.create_appointments_mixin import CreateAppointmentsMixin
+from django.db.models.deletion import PROTECT
+from edc_appointment.model_mixins import CreateAppointmentsMixin
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
-from edc_consent.field_mixins import (
-    CitizenFieldsMixin, PersonalFieldsMixin, ReviewFieldsMixin,
-    VulnerabilityFieldsMixin)
-from edc_consent.model_mixins import ConsentModelMixin, RequiresConsentMixin
-from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
-from edc_visit_schedule.model_mixins import DisenrollmentModelMixin
-from edc_visit_schedule.model_mixins import EnrollmentModelMixin
+from edc_visit_schedule.model_mixins.enrollment_model_mixin import EnrollmentModelMixin
+from edc_visit_tracking.model_mixins.crf_model_mixin import CrfModelMixin
+
+from ..model_mixins import OffstudyModelMixin
 
 
-class SubjectConsent(ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin,
+class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
                      UpdatesOrCreatesRegistrationModelMixin,
-                     IdentityFieldsMixin, ReviewFieldsMixin, PersonalFieldsMixin,
-                     CitizenFieldsMixin, VulnerabilityFieldsMixin, BaseUuidModel):
+                     BaseUuidModel):
 
-    class Meta(ConsentModelMixin.Meta):
-        unique_together = ['subject_identifier', 'version']
+    identity = models.CharField(max_length=50)
+
+    confirm_identity = models.CharField(max_length=50)
+
+    consent_datetime = models.DateTimeField(
+        default=get_utcnow)
+
+    report_datetime = models.DateTimeField(default=get_utcnow)
+
+    @property
+    def registration_unique_field(self):
+        return 'subject_identifier'
+
+
+class SubjectVisit(VisitModelMixin, BaseUuidModel):
+
+    appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
+
+
+class CrfOne(CrfModelMixin, BaseUuidModel):
+
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
+
+    f1 = models.CharField(max_length=50, null=True)
+
+    f2 = models.CharField(max_length=50, null=True)
+
+    f3 = models.CharField(max_length=50, null=True)
 
 
 class Enrollment(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
 
+    subject_identifier = models.CharField(max_length=50)
+
+    report_datetime = models.DateTimeField(default=get_utcnow)
+
     class Meta(EnrollmentModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule1.schedule1'
-
-
-class Disenrollment(DisenrollmentModelMixin, RequiresConsentMixin,
-                    BaseUuidModel):
-
-    class Meta(DisenrollmentModelMixin.Meta):
         visit_schedule_name = 'visit_schedule.schedule'
-        consent_model = 'edc_offstudy.subjectconsent'
-
-
-class Appointment(AppointmentModelMixin, BaseUuidModel):
-
-    class Meta(AppointmentModelMixin.Meta):
-        pass
 
 
 class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
 
     class Meta(OffstudyModelMixin.Meta):
-        verbose_name_plural = "Subject Off-study"
         consent_model = 'edc_offstudy.subjectconsent'
-
-
-class SubjectVisit(models.Model):
-
-    subject_identifier = models.CharField(max_length=25)
-
-    report_datetime = models.DateTimeField(default=get_utcnow)

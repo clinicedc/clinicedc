@@ -16,7 +16,7 @@ import sys
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-
+APP_NAME = 'edc_offstudy'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -43,18 +43,18 @@ INSTALLED_APPS = [
     'simple_history',
     'django_crypto_fields.apps.AppConfig',
     'edc_base.apps.AppConfig',
-    'edc_appointment.apps.AppConfig',
     'edc_device.apps.AppConfig',
-    'edc_registration.apps.AppConfig',
-    'edc_protocol.apps.AppConfig',
     'edc_timepoint.apps.AppConfig',
-    'edc_consent.apps.AppConfig',
+    'edc_protocol.apps.AppConfig',
+    'edc_facility.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
-    'edc_visit_tracking.apps.AppConfig',
+    'edc_lab.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_metadata.apps.AppConfig',
+    'edc_offstudy.apps.EdcVisitTrackingAppConfig',
+    'edc_offstudy.apps.EdcAppointmentAppConfig',
     'edc_offstudy.apps.AppConfig',
-    'edc_facility.apps.AppConfig'
 ]
 
 COUNTRY = 'botswana'
@@ -151,3 +151,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+COUNTRY = 'botswana'
+HOLIDAY_FILE = os.path.join(BASE_DIR, 'tests', 'holidays.csv')
+
+if 'test' in sys.argv:
+
+    class DisableMigrations:
+        def __contains__(self, item):
+            return True
+
+        def __getitem__(self, item):
+            return None
+
+    MIGRATION_MODULES = DisableMigrations()
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
+    DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'
