@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-# import sys
+import sys
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -28,6 +28,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+APP_NAME = 'edc_offstudy'
+
 
 # Application definition
 
@@ -38,31 +40,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'simple_history',
     'django_crypto_fields.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_registration.apps.AppConfig',
-    'edc_offstudy.apps.AppConfig',
+    'edc_protocol.apps.AppConfig',
+    'edc_timepoint.apps.AppConfig',
+    'edc_consent.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
-    'edc_lab.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_metadata.apps.AppConfig',
-    'edc_example.apps.EdcConsentAppConfig',
-    'edc_example.apps.EdcProtocolAppConfig',
-    'edc_example.apps.EdcTimepointAppConfig',
-    'edc_example.apps.AppConfig',
+    'edc_offstudy.apps.AppConfig',
+    'edc_facility.apps.AppConfig'
 ]
 
-# if 'test' in sys.argv:
-#     MIGRATION_MODULES = {
-#         'edc_metadata': None,
-#         'edc_example': None,
-#         'edc_visit_schedule': None,
-#         'edc_appointment': None,
-#         'django_crypto_fields': None,
-#         'edc_identifier': None}
+COUNTRY = 'botswana'
+HOLIDAY_FILE = os.path.join(BASE_DIR, 'tests', 'holidays.csv')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -105,6 +101,19 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+if 'test' in sys.argv:
+
+    class DisableMigrations:
+        def __contains__(self, item):
+            return True
+
+        def __getitem__(self, item):
+            return None
+
+    MIGRATION_MODULES = DisableMigrations()
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
+    DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
