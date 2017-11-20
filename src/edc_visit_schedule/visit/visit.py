@@ -80,6 +80,16 @@ class Visit:
     def forms(self):
         return self.crfs + self.requisitions
 
+    def next_form(self, model=None, panel=None):
+        next_form = None
+        for index, form in enumerate(self.forms):
+            if form.model == model:
+                try:
+                    next_form = self.forms[index + 1]
+                except IndexError:
+                    pass
+        return next_form
+
     @property
     def timepoint_datetime(self):
         return self.dates.base
