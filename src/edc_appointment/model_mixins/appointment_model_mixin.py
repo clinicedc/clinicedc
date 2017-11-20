@@ -54,7 +54,6 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
 
     appt_datetime = models.DateTimeField(
         verbose_name=('Appointment date and time'),
-        help_text='',
         db_index=True)
 
     appt_type = models.CharField(
@@ -78,9 +77,7 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
     appt_reason = models.CharField(
         verbose_name=('Reason for appointment'),
         max_length=25,
-        choices=APPT_REASON,
-        help_text=('Reason for appointment'),
-        blank=True)
+        choices=APPT_REASON)
 
     comment = models.CharField(
         'Comment',
