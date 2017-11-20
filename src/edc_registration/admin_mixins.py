@@ -1,4 +1,4 @@
-from edc_base.modeladmin_mixins import ModelAdminBasicMixin
+from edc_model_admin import ModelAdminBasicMixin
 
 
 class RegisteredSubjectModelAdminMixin(ModelAdminBasicMixin):
