@@ -39,5 +39,4 @@ def missing_subject_identifiers(self, model=None, subject_identifiers=None,
         print(
             f'There are {len(df_missing["identifier"])} subject identifiers '
             f'missing from {model}.')
-        # pprint(list(df_missing['identifier']))
     return df_missing['identifier']

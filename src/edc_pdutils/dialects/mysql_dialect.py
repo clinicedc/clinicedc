@@ -1,7 +1,14 @@
+import sys
+
+
 class MysqlDialect:
+
+    test_db_prefix = 'test_'
 
     def __init__(self, dbname=None):
         self.dbname = dbname
+        if 'test' in sys.argv:
+            self.dbname = f'{self.test_db_prefix}{self.dbname}'
 
     def show_databases(self):
         sql = 'SELECT SCHEMA_NAME AS `database` FROM INFORMATION_SCHEMA.SCHEMATA'

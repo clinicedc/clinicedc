@@ -1,5 +1,5 @@
 from ..df_handlers import NonCrfDfHandler
-from .csv_crf_tables_exporter import CsvCrfTablesExporter
+from .csv_tables_exporter import CsvTablesExporter
 
 
 class CsvExporterNoTables(Exception):
@@ -10,19 +10,16 @@ class CsvNonCrfTablesExporterError(Exception):
     pass
 
 
-class CsvNonCrfTablesExporter(CsvCrfTablesExporter):
+class CsvNonCrfTablesExporter(CsvTablesExporter):
 
     """A class to export non-CRF tables for this app_label.
     """
 
-    visit_columns = None  # a list of columns to NOT appear in any table
+    without_visit_columns = None  # a list of columns to NOT appear in any table
     crf_dialect_cls = NonCrfDfHandler
 
-    def get_table_names(self):
-        """Returns a list of table names of tables for this
-        app_label that DO NOT have column `visit_column`.
-        """
-        df = self.db.show_tables_without_columns(
-            app_label=self.app_label,
-            column_names=self.visit_columns)
-        return list(df.table_name)
+    def __init__(self, without_columns=None, without_visit_columns=None, **kwargs):
+        without_visit_columns = without_visit_columns or self.without_visit_columns or []
+        without_columns = without_columns or []
+        without_columns.extend(without_visit_columns)
+        super().__init__(without_columns=without_columns, **kwargs)

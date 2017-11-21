@@ -30,7 +30,8 @@ class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
                     table_name=row.table_name, df=df)
                 label = row.column_name.replace('_id', '').replace('_', '')
                 csv_exporter = self.csv_exporter_cls(
-                    data_label=f'{row.table_name}_{label}_merged')
+                    data_label=f'{row.table_name}_{label}_merged',
+                    export_folder=self.export_folder)
                 path = csv_exporter.to_csv(dataframe=df)
                 if path:
                     self.exported_paths.update({table_name: path})

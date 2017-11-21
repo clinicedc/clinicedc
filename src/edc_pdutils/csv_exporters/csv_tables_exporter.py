@@ -26,6 +26,7 @@ class CsvTablesExporter:
     """
 
     app_label = None
+    export_folder = None
     csv_exporter_cls = CsvExporter
     db_cls = Database
     delimiter = '|'
@@ -34,7 +35,9 @@ class CsvTablesExporter:
     excluded_app_labels = ['edc_sync']
 
     def __init__(self, app_label=None, with_columns=None, without_columns=None,
-                 exclude_history_tables=None, exclude_table_hints=None, **kwargs):
+                 exclude_history_tables=None, exclude_table_hints=None,
+                 export_folder=None, **kwargs):
+        self.export_folder = export_folder or self.export_folder
         self.with_columns = with_columns or []
         self.without_columns = without_columns or []
         exclude_table_hints = exclude_table_hints or []
@@ -60,6 +63,7 @@ class CsvTablesExporter:
         """Exports all tables to CSV.
         """
         self.exported_paths = {}
+        export_folder = export_folder or self.export_folder
         if table_names:
             for table_name in table_names:
                 if table_name not in self.table_names:
@@ -69,7 +73,8 @@ class CsvTablesExporter:
         for table_name in self.table_names:
             df = self.to_df(table_name=table_name, **kwargs)
             exporter = self.csv_exporter_cls(
-                data_label=table_name)
+                data_label=table_name,
+                export_folder=export_folder)
             path = exporter.to_csv(dataframe=df, export_folder=export_folder)
             if path:
                 self.exported_paths.update({table_name: path})

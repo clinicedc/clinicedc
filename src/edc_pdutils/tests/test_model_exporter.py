@@ -3,6 +3,7 @@ import os
 
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
+from tempfile import mkdtemp
 
 from ..csv_exporters import CsvModelExporter
 from ..model_to_dataframe import ModelToDataframe
@@ -14,25 +15,13 @@ app_config = django_apps.get_app_config('edc_pdutils')
 
 class TestExport(TestCase):
 
-    path = app_config.export_folder
     helper = Helper()
 
     def setUp(self):
+        self.path = mkdtemp()
         for i in range(0, 5):
             self.helper.create_crf(i)
         self.subject_visit = SubjectVisit.objects.all()[0]
-
-    def tearDown(self):
-        """Remove .csv files created in tests.
-        """
-        super().tearDown()
-        if 'edc_pdutils' not in self.path:
-            raise ValueError(f'Invalid path in test. Got {self.path}')
-        files = os.listdir(self.path)
-        for file in files:
-            if '.csv' in file:
-                file = os.path.join(self.path, file)
-                os.remove(file)
 
     def test_none(self):
         Crf.objects.all().delete()
@@ -93,7 +82,9 @@ class TestExport(TestCase):
             subject_visit=self.subject_visit,
             encrypted1=f'encrypted1')
         model_exporter = CsvModelExporter(
-            queryset=CrfEncrypted.objects.all(), add_columns_for='subject_visit')
+            queryset=CrfEncrypted.objects.all(),
+            add_columns_for='subject_visit',
+            export_folder=self.path)
         model_exporter.to_csv()
 
     def test_encrypted_to_csv_from_model(self):
@@ -101,18 +92,24 @@ class TestExport(TestCase):
             subject_visit=self.subject_visit,
             encrypted1=f'encrypted1')
         model_exporter = CsvModelExporter(
-            model='edc_pdutils.CrfEncrypted', add_columns_for='subject_visit')
+            model='edc_pdutils.CrfEncrypted',
+            add_columns_for='subject_visit',
+            export_folder=self.path)
         model_exporter.to_csv()
 
     def test_records_to_csv_from_qs(self):
         model_exporter = CsvModelExporter(
-            queryset=Crf.objects.all(), add_columns_for='subject_visit')
+            queryset=Crf.objects.all(),
+            add_columns_for='subject_visit',
+            export_folder=self.path)
         model_exporter.to_csv()
 
     def test_records_to_csv_from_model(self):
         model_exporter = CsvModelExporter(
-            model='edc_pdutils.crf', add_columns_for='subject_visit',
-            sort_by=['subject_identifier'])
+            model='edc_pdutils.crf',
+            add_columns_for='subject_visit',
+            sort_by=['subject_identifier'],
+            export_folder=self.path)
         path = model_exporter.to_csv()
         with open(path, 'r') as f:
             csv_reader = csv.DictReader(f, delimiter='|')

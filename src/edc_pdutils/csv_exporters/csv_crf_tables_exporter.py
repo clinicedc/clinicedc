@@ -17,17 +17,17 @@ class CsvCrfTablesExporter(CsvTablesExporter):
     CRF tables include an FK to the visit model.
     """
 
-    visit_column = None  # column to appear in all tables selected
+    visit_columns = None  # a list of columns to appear in all tables selected
     df_handler_cls = CrfDfHandler
 
-    def __init__(self, visit_column=None, **kwargs):
-        if visit_column:
-            self.visit_column = visit_column
-        if not self.visit_column:
+    def __init__(self, visit_columns=None, **kwargs):
+        if visit_columns:
+            self.visit_columns = visit_columns
+        if not self.visit_columns:
             raise CsvCrfTablesExporterError(
-                'Visit column not specified. Got None.')
-        super().__init__(with_columns=[self.visit_column], **kwargs)
+                'Visit columns not specified. Got None.')
+        super().__init__(with_columns=self.visit_columns, **kwargs)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}(app_label=\'{self.app_label}\','
-                f'visit_column=\'{self.visit_column}\')')
+                f'visit_columns=\'{self.visit_columns}\')')

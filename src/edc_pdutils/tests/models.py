@@ -110,9 +110,9 @@ class CrfThree(CrfModelMixin, BaseUuidModel):
 
 class CrfInline(BaseUuidModel):
 
-    crf_one = models.ForeignKey(CrfOne)
+    crf_one = models.ForeignKey(CrfOne, on_delete=models.PROTECT)
 
-    crf_two = models.ForeignKey(CrfTwo)
+    crf_two = models.ForeignKey(CrfTwo, on_delete=models.PROTECT)
 
     dte = models.DateTimeField(default=get_utcnow)
 

@@ -4,7 +4,8 @@ import sys
 
 from django.apps import apps as django_apps
 from django.db.models.constants import LOOKUP_SEP
-from edc_export.model_exporter import ValueGetter
+
+from .value_getter import ValueGetter
 
 
 class ModelToDataframe:
@@ -23,7 +24,8 @@ class ModelToDataframe:
         'revision']
 
     def __init__(self, model=None, queryset=None, query_filter=None,
-                 add_columns_for=None, decrypt=None, drop_sys_columns=None):
+                 add_columns_for=None, decrypt=None, drop_sys_columns=None,
+                 **kwargs):
         self._columns = None
         self._dataframe = pd.DataFrame()
         self.drop_sys_columns = drop_sys_columns
@@ -43,7 +45,7 @@ class ModelToDataframe:
         if self._dataframe.empty:
             row_count = self.queryset.count()
             if row_count > 0:
-                if self.has_encrypted_fields and self.decrypt:
+                if self.decrypt and self.has_encrypted_fields:
                     queryset = self.queryset.filter(**self.query_filter)
                     data = []
                     for index, model_obj in enumerate(queryset.order_by('id')):

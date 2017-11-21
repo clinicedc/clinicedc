@@ -1,11 +1,10 @@
 import os
 import sys
 
-from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from edc_base.utils import get_utcnow
 
-app_config = django_apps.get_app_config('edc_pdutils')
+
 style = color_style()
 
 
@@ -21,13 +20,13 @@ class CsvExporter:
 
     delimiter = '|'
     encoding = 'utf-8'
-    export_folder = app_config.export_folder
+    export_folder = None
     include_index = False
     file_exists_ok = False
     csv_date_format = None
     sort_by = None
 
-    def __init__(self, data_label=None, sort_by=None, export_folder=None):
+    def __init__(self, data_label=None, sort_by=None, export_folder=None, **kwargs):
         self.sort_by = sort_by or self.sort_by
         self.export_folder = export_folder or self.export_folder
         if not os.path.exists(self.export_folder):
