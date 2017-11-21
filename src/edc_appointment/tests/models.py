@@ -44,3 +44,5 @@ class EnrollmentTwo(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel
 class SubjectVisit(VisitModelMixin, BaseUuidModel):
 
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
+
+    report_datetime = models.DateTimeField(default=get_utcnow)

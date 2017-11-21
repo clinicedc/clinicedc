@@ -5,10 +5,33 @@ from django.urls.base import reverse
 from edc_model_wrapper import ModelWrapper
 
 
+class AppointmentModelWrapperError(Exception):
+    pass
+
+
 class AppointmentModelWrapper(ModelWrapper):
 
-    model = None
+    def __init__(self, model=None, **kwargs):
+        if self.visit_model_wrapper_cls:
+            declared_model = model or self.model
+            model = django_apps.get_app_config(
+                'edc_appointment').get_configuration(
+                related_visit_model=self.visit_model_wrapper_cls.model).model
+            if declared_model and model != declared_model:
+                raise AppointmentModelWrapperError(
+                    f'Declared model name does not match appointment '
+                    f'model in visit_model_wrapper. Got self.model=\'{declared_model}\' '
+                    f'!= {repr(self.visit_model_wrapper_cls)}.model=\'{model}\'. '
+                    f'Try not explicitly declaring an appointment model if '
+                    f'\'visit_model_wrapper_cls\' is declared. (e.g. leave cls.model = None).')
+
+        super().__init__(model=model, **kwargs)
+
+    # customize to your needs
     visit_model_wrapper_cls = None
+    # model = 'edc_appointment.appointment'
+    next_url_name = 'dashboard_url'
+
     next_url_attrs = ['subject_identifier']
     querystring_attrs = ['subject_identifier']
 
@@ -27,7 +50,7 @@ class AppointmentModelWrapper(ModelWrapper):
             model_obj = self.object.subjectvisit
         except ObjectDoesNotExist:
             visit_model = django_apps.get_model(
-                *self.visit_model_wrapper_cls.model.split('.'))
+                self.visit_model_wrapper_cls.model)
             model_obj = visit_model(
                 appointment=self.object,
                 subject_identifier=self.subject_identifier,)
