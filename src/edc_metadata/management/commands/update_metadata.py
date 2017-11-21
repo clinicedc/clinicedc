@@ -37,10 +37,10 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            '--dry_run',
+            '--dry-run',
             dest='dry_run',
             default=True,
-            help=('Do a dry run. 9Dafault: True)'),
+            help=('Do a dry run. (Default: True)'),
         )
 
     def handle(self, *args, **options):
@@ -68,9 +68,9 @@ class Command(BaseCommand):
                     **{self.fieldname: self.old_value}).count()
                 sys.stdout.write(
                     f'{model_cls._meta.label_lower}. {count} records found.\n')
-            sys.stdout.write(style.WARNING(
+            sys.stdout.write(style.ERROR(
                 'No records have been updated. \n'
-                'Set --dry_run=False to update.\n'))
+                'Set --dry-run=False to update.\n'))
         else:
             sys.stdout.write(style.SUCCESS(
                 'Updating... \n'))
