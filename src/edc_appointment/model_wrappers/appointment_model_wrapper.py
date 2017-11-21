@@ -7,8 +7,10 @@ from edc_model_wrapper import ModelWrapper
 
 class AppointmentModelWrapper(ModelWrapper):
 
-    model = None  # django_apps.get_app_config('edc_appointment').model
+    model = None
     visit_model_wrapper_cls = None
+    next_url_attrs = ['subject_identifier']
+    querystring_attrs = ['subject_identifier']
 
     def get_appt_status_display(self):
         return self.object.get_appt_status_display()
