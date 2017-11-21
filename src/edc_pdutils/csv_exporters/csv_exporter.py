@@ -21,12 +21,16 @@ class CsvExporter:
     delimiter = '|'
     encoding = 'utf-8'
     export_folder = None
-    include_index = False
+    index = False
     file_exists_ok = False
-    csv_date_format = None
+    date_format = None
     sort_by = None
 
-    def __init__(self, data_label=None, sort_by=None, export_folder=None, **kwargs):
+    def __init__(self, data_label=None, sort_by=None, export_folder=None,
+                 delimiter=None, date_format=None, index=None, **kwargs):
+        self.delimiter = delimiter or self.delimiter
+        self.date_format = date_format or self.date_format
+        self.index = index or self.index
         self.sort_by = sort_by or self.sort_by
         self.export_folder = export_folder or self.export_folder
         if not os.path.exists(self.export_folder):
@@ -53,7 +57,8 @@ class CsvExporter:
             sys.stdout.write(f'( ) {self.data_label} ...     \r')
             dataframe.to_csv(path_or_buf=path, **self.csv_options)
             recs = len(dataframe)
-            sys.stdout.write(f'(*) {self.data_label} {recs}       \n')
+            sys.stdout.write(
+                f'({style.SUCCESS("*")}) {self.data_label} {recs}       \n')
         else:
             sys.stdout.write(f'(?) {self.data_label} empty  \n')
         return path
@@ -63,10 +68,10 @@ class CsvExporter:
         """Returns default options for dataframe.to_csv().
         """
         return dict(
-            index=self.include_index,
+            index=self.index,
             encoding=self.encoding,
             sep=self.delimiter,
-            date_format=self.csv_date_format)
+            date_format=self.date_format)
 
     @property
     def path(self):

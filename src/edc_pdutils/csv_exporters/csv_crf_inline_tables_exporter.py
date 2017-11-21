@@ -12,29 +12,38 @@ class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
 
     visit_column = None
     df_inline_handler_cls = NonCrfDfHandler
+    exclude_inline_tables = None
 
-    def to_csv(self, **kwargs):
+    def __init__(self, exclude_inline_tables=None, **kwargs):
+        self.exclude_inline_tables = (
+            exclude_inline_tables or self.exclude_inline_tables or [])
+        super().__init__(**kwargs)
+
+    def to_csv(self, export_folder=None, **kwargs):
         """Exports all tables to CSV.
         """
         self.exported_paths = {}
+        export_folder = export_folder or self.export_folder
         for table_name in self.table_names:
             df_table = self.to_df(
                 table_name=table_name, exclude_system_columns=True, **kwargs)
             for row in self.get_inline_table_names(table_name).itertuples():
-                df_inline = self.to_inline_df(
-                    table_name=row.table_name, **kwargs)
-                df = self.merge_with_inline(
-                    df_table, df_inline, left_on=row.referenced_column_name,
-                    right_on=row.column_name)
-                df = self.get_prepped_inline_df(
-                    table_name=row.table_name, df=df)
-                label = row.column_name.replace('_id', '').replace('_', '')
-                csv_exporter = self.csv_exporter_cls(
-                    data_label=f'{row.table_name}_{label}_merged',
-                    export_folder=self.export_folder)
-                path = csv_exporter.to_csv(dataframe=df)
-                if path:
-                    self.exported_paths.update({table_name: path})
+                if row.table_name not in self.exclude_inline_tables:
+                    df_inline = self.to_inline_df(
+                        table_name=row.table_name, **kwargs)
+                    df = self.merge_with_inline(
+                        df_table, df_inline, left_on=row.referenced_column_name,
+                        right_on=row.column_name)
+                    df = self.get_prepped_inline_df(
+                        table_name=row.table_name, df=df)
+                    label = row.column_name.replace('_id', '').replace('_', '')
+                    csv_exporter = self.csv_exporter_cls(
+                        data_label=f'{row.table_name}_{label}_merged',
+                        export_folder=export_folder,
+                        **kwargs)
+                    path = csv_exporter.to_csv(dataframe=df)
+                    if path:
+                        self.exported_paths.update({table_name: path})
 
     def get_inline_table_names(self, table_name=None):
         return self.db.show_inline_tables(referenced_table_name=table_name)

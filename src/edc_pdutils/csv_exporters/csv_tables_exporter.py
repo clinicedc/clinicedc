@@ -74,8 +74,10 @@ class CsvTablesExporter:
             df = self.to_df(table_name=table_name, **kwargs)
             exporter = self.csv_exporter_cls(
                 data_label=table_name,
-                export_folder=export_folder)
-            path = exporter.to_csv(dataframe=df, export_folder=export_folder)
+                export_folder=export_folder,
+                **kwargs)
+            path = exporter.to_csv(
+                dataframe=df, export_folder=export_folder)
             if path:
                 self.exported_paths.update({table_name: path})
 

@@ -17,6 +17,7 @@ class CrfDfHandler(DfHandler):
     sort_by = ['subject_identifier', 'visit_datetime']
     exclude_export_columns = True
     exclude_system_columns = False
+    exclude_columns = ['form_as_json']
 
     def __init__(self, exclude_system_columns=None, **kwargs):
         self._df_visit_and_related = pd.DataFrame()
@@ -42,11 +43,15 @@ class CrfDfHandler(DfHandler):
         crf_columns.pop(crf_columns.index(self.visit_column))
         columns = list(self.df_visit_and_related.columns)
         columns.extend([c for c in crf_columns if c not in columns])
+        columns = [col for col in columns if col not in self.exclude_columns]
         # "export_" columns
         if self.exclude_export_columns:
             columns = [col for col in columns if not col.startswith('export_')]
-        # "system" columns, move to the end
-        if not self.exclude_system_columns:
+
+        if self.exclude_system_columns:
+            columns = [col for col in columns if col not in self.system_columns]
+        else:
+            # "system" columns, move to the end
             columns = [col for col in columns if col not in self.system_columns]
             columns.extend(self.system_columns)
         return columns
