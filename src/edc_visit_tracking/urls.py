@@ -1,8 +1,9 @@
-from django.contrib import admin
-from django.conf.urls import url
+from django.urls.conf import path
 
-app_name = 'edc_visit_schedule'
+from .admin_site import edc_visit_tracking_admin
+
+app_name = 'edc_visit_tracking'
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    path(r'admin/', edc_visit_tracking_admin.urls),
 ]
