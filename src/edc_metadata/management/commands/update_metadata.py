@@ -1,11 +1,9 @@
-import sys
 import re
-import os
+import sys
 
 from django.core.management.color import color_style
 from django.apps import apps as django_apps
 from django.core.management.base import BaseCommand, CommandError
-from pprint import pprint
 
 style = color_style()
 
@@ -15,10 +13,6 @@ class Command(BaseCommand):
     help = 'Update metadata for changed visit_schedule/schedule names'
     pattern = '^[0-9a-z_]+$'
     fieldnames = ['visit_schedule_name', 'schedule_name']
-    schema_sql = (
-        'SELECT DISTINCT TABLE_NAME '
-        'FROM INFORMATION_SCHEMA.COLUMNS '
-        'WHERE COLUMN_NAME IN (%s) AND TABLE_SCHEMA=%s;')
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -29,14 +23,14 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            '--old_value',
+            '--old-value',
             dest='old_value',
             default=None,
             help=('Old or existing value'),
         )
 
         parser.add_argument(
-            '--new_value',
+            '--new-value',
             dest='new_value',
             default=None,
             help=('New value to replace the old value'),
@@ -54,7 +48,6 @@ class Command(BaseCommand):
         self.fieldname = options.get('field')
         self.new_value = options.get('new_value')
         self.old_value = options.get('old_value')
-        pprint(options)
 
         self.validate_options()
 
