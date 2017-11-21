@@ -11,6 +11,8 @@ class AppointmentModelWrapperError(Exception):
 
 class AppointmentModelWrapper(ModelWrapper):
 
+    dashboard_url_name = None
+
     def __init__(self, model=None, **kwargs):
         if self.visit_model_wrapper_cls:
             declared_model = model or self.model
@@ -29,7 +31,6 @@ class AppointmentModelWrapper(ModelWrapper):
 
     # customize to your needs
     visit_model_wrapper_cls = None
-    # model = 'edc_appointment.appointment'
     next_url_name = 'dashboard_url'
 
     next_url_attrs = ['subject_identifier']

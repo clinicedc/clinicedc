@@ -10,13 +10,16 @@ class AppointmentViewMixin:
     """A view mixin to handle appointments on the dashboard.
     """
 
-    reverse_relation_visit_attr_name = 'subjectvisit'
     appointment_model_wrapper_cls = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._appointments = None
-        self.appointment_model = self.appointment_model_wrapper_cls.model
+        self._wrapped_appointments = None
+        self.appointment_model = django_apps.get_app_config(
+            'edc_appointment').get_configuration(
+            related_visit_model=self.appointment_model_wrapper_cls.visit_model_wrapper_cls.model
+        ).model
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -41,8 +44,7 @@ class AppointmentViewMixin:
     @property
     def appointment_wrapped(self):
         if self.appointment:
-            return self.appointment_model_wrapper_cls(
-                self.appointment)
+            return self.appointment_model_wrapper_cls(model_obj=self.appointment)
         return None
 
     @property
@@ -59,17 +61,18 @@ class AppointmentViewMixin:
     def appointments_wrapped(self):
         """Returns a list of wrapped appointments.
         """
-        appointments = []
-        if self.appointments:
-            appointments = [
-                self.appointment_model_wrapper_cls(obj) for obj in self.appointments]
-            for i in range(0, len(appointments)):
-                if appointments[i].appt_status == IN_PROGRESS_APPT:
-                    appointments[i].disabled = False
-                    for j in range(0, len(appointments)):
-                        if j != i:
-                            appointments[j].disabled = True
-        return appointments
+        if not self._wrapped_appointments:
+            if self.appointments:
+                wrapped = [
+                    self.appointment_model_wrapper_cls(model_obj=obj) for obj in self.appointments]
+                for i in range(0, len(wrapped)):
+                    if wrapped[i].appt_status == IN_PROGRESS_APPT:
+                        wrapped[i].disabled = False
+                        for j in range(0, len(wrapped)):
+                            if j != i:
+                                wrapped[j].disabled = True
+                self._wrapped_appointments = wrapped
+        return self._wrapped_appointments or []
 
     @property
     def appointment_model_cls(self):
