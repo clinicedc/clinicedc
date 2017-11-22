@@ -5,14 +5,19 @@ from ..constants import SYSTEM_COLUMNS
 from .df_handler import DfHandler
 
 
+class CrfDfHandlerError(Exception):
+    pass
+
+
 class CrfDfHandler(DfHandler):
 
     crf_dialect_cls = CrfDialect
-    visit_column = 'subject_visit_id'
     visit_tbl = None
-
+    visit_column = None  # e.g.  'subject_visit_id'
     appointment_tbl = 'edc_appointment_appointment'
     registered_subject_tbl = 'edc_registration_registeredsubject'
+    dialect_select_visit_and_related = 'select_visit_and_related'
+
     system_columns = SYSTEM_COLUMNS
     sort_by = ['subject_identifier', 'visit_datetime']
     exclude_export_columns = True
@@ -29,6 +34,10 @@ class CrfDfHandler(DfHandler):
         """Merges CRF dataframe with df_visit_and_related
         on visit_column.
         """
+        if not self.visit_column:
+            raise CrfDfHandlerError(
+                f'visit column cannot be None. '
+                f'See class attr \'visit_column\' on {repr(self)}')
         self.dataframe = pd.merge(
             left=self.dataframe, right=self.df_visit_and_related,
             how='left', on=self.visit_column,
@@ -62,6 +71,7 @@ class CrfDfHandler(DfHandler):
         SQL statement.
         """
         if self._df_visit_and_related.empty:
-            sql, params = self.crf_dialect.select_visit_and_related
+            sql, params = getattr(
+                self.crf_dialect, self.dialect_select_visit_and_related)
             self._df_visit_and_related = self.db.read_sql(sql, params=params)
         return self._df_visit_and_related

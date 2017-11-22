@@ -16,10 +16,11 @@ class Database:
 
     dialect_cls = MysqlDialect
     lowercase_columns = True
+    DATABASES_NAME = 'default'
 
     def __init__(self, **kwargs):
         self._tables = pd.DataFrame()
-        filename = settings.DATABASES.get('default').get(
+        filename = settings.DATABASES.get(self.DATABASES_NAME).get(
             'OPTIONS').get('read_default_file')
         with open(filename, 'r') as f:
             for line in [line for line in f if '#' not in line]:
@@ -27,7 +28,8 @@ class Database:
                     self.database = line.split('=')[1].strip()
         if not self.database:
             raise DatabaseNameError(
-                'Unable to determine the DB name from settings.')
+                f'Unable to determine the DB name from settings.DATABASES. '
+                f'Got NAME={self.DATABASES_NAME}, read_default_file={filename}.')
         self.dialect = self.dialect_cls(dbname=self.database)
 
     def read_sql(self, sql, params=None):
