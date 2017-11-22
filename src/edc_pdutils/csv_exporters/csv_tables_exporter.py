@@ -37,6 +37,10 @@ class CsvTablesExporter:
     def __init__(self, app_label=None, with_columns=None, without_columns=None,
                  exclude_history_tables=None, exclude_table_hints=None,
                  export_folder=None, **kwargs):
+        self.app_label = app_label or self.app_label
+        if not self.app_label:
+            raise CsvTablesExporterError(
+                f'Missing app_label. Got None. See {repr(self)}')
         self.export_folder = export_folder or self.export_folder
         self.with_columns = with_columns or []
         self.without_columns = without_columns or []
@@ -44,7 +48,6 @@ class CsvTablesExporter:
         self.exclude_history_tables = (
             self.exclude_history_tables if exclude_history_tables is None else exclude_history_tables)
         self.exported_paths = {}
-        self.app_label = app_label or self.app_label
         self.db = self.db_cls(**kwargs)
         self.table_names = self.get_table_names()
         for hint in (exclude_table_hints):
