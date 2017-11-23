@@ -45,8 +45,7 @@ class VisitModelFieldsMixin(models.Model):
 
     info_source = models.CharField(
         verbose_name='What is the main source of this information?',
-        max_length=25,
-        help_text='')
+        max_length=25)
 
     info_source_other = OtherCharField()
 

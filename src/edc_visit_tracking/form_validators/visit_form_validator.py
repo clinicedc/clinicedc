@@ -28,14 +28,9 @@ class VisitFormValidator(FormValidator):
                 'appointment': 'Appointment cannot be blank.'})
 
         self.validate_presence()
-
-        self.required_if(
-            MISSED_VISIT, field='reason', field_required='info_source')
         self.required_if(
             ALIVE, DEAD, field='survival_status', field_required='last_alive_date')
-
         self.validate_visit_reason_and_study_status()
-
         self.required_if(
             MISSED_VISIT, field='reason', field_required='reason_missed')
 
