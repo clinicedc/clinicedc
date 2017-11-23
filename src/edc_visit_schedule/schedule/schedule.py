@@ -33,7 +33,6 @@ class Schedule:
     Contains an ordered dictionary of visit instances and the enrollment
     and disenrollment models used to get on and off the schedule.
     """
-
     name_regex = r'[a-z0-9\_\-]+$'
     visit_cls = Visit
     visit_collection_cls = VisitCollection

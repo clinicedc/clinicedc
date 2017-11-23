@@ -43,6 +43,7 @@ class VisitSchedule:
         self.name = name
         self.schedules = self.schedules_collection(visit_schedule_name=name)
         self.visit_model = visit_model
+        self.offstudy_model = offstudy_model
         self.previous_visit_schedule = previous_visit_schedule
         if not re.match(self.name_regex, name):
             raise VisitScheduleNameError(
@@ -64,6 +65,10 @@ class VisitSchedule:
     @property
     def visit_model_cls(self):
         return django_apps.get_model(self.visit_model)
+
+    @property
+    def offstudy_model_cls(self):
+        return django_apps.get_model(self.offstudy_model)
 
     def get_schedule(self, **kwargs):
         """Returns a schedule instance or raises.
