@@ -50,7 +50,7 @@ class VisitFormValidator(FormValidator):
                 survival_status = self.survival_status
                 raise forms.ValidationError({
                     'survival_status':
-                    f'Survival status cannot be \'{survival_status.lower()}\' '
+                    f'Survival status cannot be \'{survival_status.get_survival_status_display()}\' '
                     f'if {self.participant} is present.'})
             if self.reason in [MISSED_VISIT, LOST_VISIT]:
                 raise forms.ValidationError({
