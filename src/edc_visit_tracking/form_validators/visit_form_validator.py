@@ -3,7 +3,6 @@ from edc_form_validators import FormValidator
 from edc_constants.constants import YES, NO, DEAD, OFF_STUDY, UNKNOWN, ALIVE, PARTICIPANT
 
 from ..constants import LOST_VISIT, COMPLETED_PROTOCOL_VISIT, MISSED_VISIT
-from ..exceptions import PreviousVisitError
 from ..visit_sequence import VisitSequence, VisitSequenceError
 
 
@@ -45,7 +44,7 @@ class VisitFormValidator(FormValidator):
         try:
             visit_sequence.enforce_sequence()
         except VisitSequenceError as e:
-            raise PreviousVisitError(e)
+            raise forms.ValidationError(e)
 
     def validate_presence(self):
         """Raise an exception if 'is_present' does not make sense
