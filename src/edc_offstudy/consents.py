@@ -1,13 +1,12 @@
-import sys
-
-from edc_constants.constants import MALE, FEMALE
-
-from django.apps import apps as django_apps
-from edc_consent.consent import Consent
-from edc_consent.site_consents import site_consents
+from django.conf import settings
 
 
-if 'test' in sys.argv:
+if settings.APP_NAME == 'edc_offstudy':
+
+    from django.apps import apps as django_apps
+    from edc_constants.constants import MALE, FEMALE
+    from edc_consent.consent import Consent
+    from edc_consent.site_consents import site_consents
 
     edc_protocol = django_apps.get_app_config('edc_protocol')
 
