@@ -28,11 +28,10 @@ class VisitDate:
 
     @base.setter
     def base(self, dt=None):
-        if not self._base:
-            self._base = dt
-            window = self._window.get_window(dt=dt)
-            self.lower = window.lower
-            self.upper = window.upper
+        self._base = dt
+        window = self._window.get_window(dt=dt)
+        self.lower = window.lower
+        self.upper = window.upper
 
 
 class Visit:
