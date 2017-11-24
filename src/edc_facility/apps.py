@@ -16,9 +16,14 @@ class AppConfig(DjangoAppConfig):
     _holidays = {}
     name = 'edc_facility'
     verbose_name = "Edc Facility"
-    definitions = {
-        'clinic': dict(days=[MO, TU, WE, TH, FR],
-                       slots=[100, 100, 100, 100, 100])}
+
+    # only set if for edc_facility tests, etc
+    if settings.APP_NAME == 'edc_facility':
+        definitions = {
+            'clinic': dict(days=[MO, TU, WE, TH, FR],
+                           slots=[100, 100, 100, 100, 100])}
+    else:
+        definitions = None
 
     def ready(self):
         sys.stdout.write(f'Loading {self.verbose_name} ...\n')
@@ -44,6 +49,9 @@ class AppConfig(DjangoAppConfig):
     def facilities(self):
         """Returns a dictionary of facilities.
         """
+        if not self.definitions:
+            raise ImproperlyConfigured(
+                f'Facility definitions not defined. See {self.name} app_config.definitions')
         return {k: Facility(name=k, **v)
                 for k, v in self.definitions.items()}
 
@@ -51,9 +59,15 @@ class AppConfig(DjangoAppConfig):
         """Returns a facility instance for this name
         if it exists.
         """
-        try:
-            options = self.definitions[name]
-        except KeyError:
+        facility = self.facilities.get(name)
+        if not facility:
             raise ImproperlyConfigured(
                 f'Facility {name} does not exist. See {self.name} app_config.definitions')
-        return Facility(name=name, **options)
+        return facility
+
+#         try:
+#             options = self.definitions[name]
+#         except KeyError:
+#             raise ImproperlyConfigured(
+#                 f'Facility {name} does not exist. See {self.name} app_config.definitions')
+#         return Facility(name=name, **options)
