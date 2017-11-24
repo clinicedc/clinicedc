@@ -25,17 +25,19 @@ class CreateAppointmentsMixin(models.Model):
     facility_name = models.CharField(
         verbose_name='To which facility is this subject being enrolled?',
         max_length=25,
-        help_text='The facility name is need when scheduling appointments')
+        help_text=('The facility name is need when scheduling appointments '
+                   'if not specified on the edc_visit_schedule.Visit'))
 
     def save(self, *args, **kwargs):
         """Validate facility name.
         """
-        app_config = django_apps.get_app_config('edc_facility')
-        if self.facility_name not in app_config.facilities:
-            facilities = [name for name in app_config.facilities]
-            raise CreateAppointmentError(
-                f'Facility does not exist. Expected one of {facilities}. '
-                f'Got \'{self.facility_name}\'. See edc_facility.AppConfig.')
+        if self.facility_name:
+            app_config = django_apps.get_app_config('edc_facility')
+            if self.facility_name not in app_config.facilities:
+                facilities = [name for name in app_config.facilities]
+                raise CreateAppointmentError(
+                    f'Facility does not exist. Expected one of {facilities}. '
+                    f'Got \'{self.facility_name}\'. See edc_facility.AppConfig.')
         super().save(*args, **kwargs)
 
     def create_appointments(self, base_appt_datetime=None, taken_datetimes=None):
