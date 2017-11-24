@@ -1,6 +1,7 @@
 import sys
 
 from django.apps import AppConfig as DjangoAppConfig
+from django.conf import settings
 
 from .appointment_config import AppointmentConfig
 
@@ -49,3 +50,14 @@ class AppConfig(DjangoAppConfig):
                 f'AppointmentConfig not found. Got {name or related_visit_model}. '
                 f'Expected one of {keys}. See edc_appointment.AppConfig "configurations".')
         return appointment_config
+
+
+if settings.APP_NAME == 'edc_appointment':
+
+    from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
+    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
+
+    class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
+        definitions = {
+            'clinic': dict(days=[MO, TU, WE, TH, FR, SA, SU],
+                           slots=[100, 100, 100, 100, 100])}
