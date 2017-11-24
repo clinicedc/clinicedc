@@ -3,6 +3,7 @@ import arrow
 from datetime import datetime
 from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA
 from decimal import Context
+from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -14,18 +15,26 @@ from .models import SubjectConsent, SubjectVisit, EnrollmentOne, EnrollmentTwo
 from .visit_schedule import visit_schedule1, visit_schedule2
 
 
+@tag('2')
 class TestAppointment(TestCase):
 
     helper_cls = Helper
 
     def setUp(self):
+        self.facility_name = '7-day clinic'
+        django_apps.app_configs['edc_facility'].definitions = {
+            self.facility_name: dict(
+                days=[MO, TU, WE, TH, FR, SA, SU],
+                slots=[100, 100, 100, 100, 100, 100, 100])}
         self.subject_identifier = '12345'
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=arrow.Arrow.fromdatetime(datetime(2017, 1, 7), tzinfo='UTC').datetime)
+            now=arrow.Arrow.fromdatetime(
+                datetime(2017, 1, 7), tzinfo='UTC').datetime,
+            facility_name=self.facility_name)
 
     def test_appointments_creation(self):
         """Assert appointment triggering method creates appointments.
@@ -43,7 +52,8 @@ class TestAppointment(TestCase):
         EnrollmentTwo.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
-            is_eligible=True)
+            is_eligible=True,
+            facility_name=self.facility_name)
         self.assertEqual(Appointment.objects.all().count(), 8)
 
     def test_deletes_appointments(self):
@@ -77,7 +87,8 @@ class TestAppointment(TestCase):
                 report_datetime=(subject_consent.consent_datetime
                                  + relativedelta(weeks=2)
                                  + relativedelta(weekday=day(-1))),
-                is_eligible=True)
+                is_eligible=True,
+                facility_name=self.facility_name)
             appt_datetimes = [
                 obj.appt_datetime for obj in Appointment.objects.filter(
                     subject_identifier=subject_consent.subject_identifier).order_by(
@@ -110,7 +121,8 @@ class TestAppointment(TestCase):
         EnrollmentTwo.objects.create(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
-            is_eligible=True)
+            is_eligible=True,
+            facility_name=self.facility_name)
         enrollment_one = EnrollmentOne.objects.get(
             subject_identifier=self.subject_identifier)
         first_appointment = Appointment.objects.first_appointment(
@@ -135,12 +147,14 @@ class TestAppointment(TestCase):
         EnrollmentTwo.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
-            is_eligible=True)
+            is_eligible=True,
+            facility_name=self.facility_name)
         EnrollmentOne.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=(
                 subject_consent.report_datetime + relativedelta(months=1)),
-            is_eligible=True)
+            is_eligible=True,
+            facility_name=self.facility_name)
 
         first_appointment = Appointment.objects.first_appointment(
             subject_identifier=self.subject_identifier,

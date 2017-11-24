@@ -1,6 +1,7 @@
 import arrow
 
 from django import forms
+from django.apps import apps as django_apps
 
 from edc_base.utils import get_utcnow
 from edc_metadata.constants import REQUIRED
@@ -29,7 +30,16 @@ class AppointmentFormMixin:
         self.validate_appt_inprogress_or_incomplete(appt_status=appt_status)
         self.validate_appt_inprogress(appt_status=appt_status)
         self.validate_appt_new_or_complete(appt_status=appt_status)
+        self.validate_facility_name()
         return cleaned_data
+
+    def validate_facility_name(self):
+        cleaned_data = self.cleaned_data
+        if cleaned_data.get('facility_name'):
+            app_config = django_apps.get_app_config('edc_facility')
+            if cleaned_data.get('facility_name') not in app_config.facilities:
+                raise forms.ValidationError(
+                    f'Facility \'{self.facility_name}\' does not exist.')
 
     def validate_appt_new_or_cancelled(self, appt_status=None):
         if appt_status in [NEW_APPT, CANCELLED_APPT] and self.crf_metadata_required_exists:

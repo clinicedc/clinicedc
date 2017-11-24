@@ -41,7 +41,8 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
             'available datetime for this facility'))
 
     facility_name = models.CharField(
-        max_length=25)
+        max_length=25,
+        help_text='set by model that creates appointments, e.g. Enrollment')
 
     visit_code_sequence = models.IntegerField(
         verbose_name=('Sequence'),

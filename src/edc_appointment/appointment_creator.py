@@ -13,25 +13,22 @@ class CreateAppointmentError(Exception):
 
 class AppointmentCreator:
 
-    def __init__(self, suggested_datetime=None, timepoint_datetime=None, visit=None,
-                 model_obj=None, visit_code_sequence=None, facility=None,
+    def __init__(self, model_obj=None, suggested_datetime=None, timepoint_datetime=None,
+                 visit=None, visit_code_sequence=None, facility=None,
                  subject_identifier=None, visit_schedule_name=None, schedule_name=None,
-                 facility_name=None, default_appt_type=None):
+                 default_appt_type=None):
         self._appointment = None
         self._appointment_config = None
         self._appointment_model_cls = None
         self._default_appt_type = default_appt_type
-        self._facility = facility
         if model_obj:
             self.subject_identifier = model_obj.subject_identifier
             self.visit_schedule_name = model_obj.visit_schedule.name
             self.schedule_name = model_obj.schedule.name
-            self.facility_name = model_obj.facility_name
         else:
             self.subject_identifier = subject_identifier
             self.visit_schedule_name = visit_schedule_name
             self.schedule_name = schedule_name
-            self.facility_name = facility_name
         self.visit = visit
         self.appointment_model = visit.appointment_model
         self.visit_code_sequence = visit_code_sequence or 0
@@ -47,9 +44,7 @@ class AppointmentCreator:
                 f'Got {timepoint_datetime}')
         else:
             self.timepoint_datetime = timepoint_datetime
-        if self.facility_name and self.facility.name != self.facility_name:
-            raise ValueError(f'Facility and facility name are not consistent. '
-                             f'Got {self.facility.name} != {self.facility_name}.')
+        self.facility = facility or model_obj.facility
         self.appointment
 
     def __repr__(self):
@@ -79,15 +74,6 @@ class AppointmentCreator:
         return available_datetime
 
     @property
-    def facility(self):
-        """Returns the facility where the appointment will be scheduled.
-        """
-        if not self._facility:
-            app_config = django_apps.get_app_config('edc_facility')
-            self._facility = app_config.facilities.get(self.facility_name)
-        return self._facility
-
-    @property
     def options(self):
         """Returns default options to "get" an existing
         appointment model instance.
@@ -98,8 +84,7 @@ class AppointmentCreator:
             schedule_name=self.schedule_name,
             visit_code=self.visit.code,
             visit_code_sequence=self.visit_code_sequence,
-            timepoint=self.visit.timepoint,
-            facility_name=self.facility.name)
+            timepoint=self.visit.timepoint)
 
     def _create(self):
         """Returns a newly created appointment model instance.
@@ -107,10 +92,11 @@ class AppointmentCreator:
         try:
             with transaction.atomic():
                 appointment = self.appointment_model_cls.objects.create(
-                    **self.options,
+                    facility_name=self.facility.name,
                     timepoint_datetime=self.timepoint_datetime,
                     appt_datetime=self.appt_rdate.datetime,
-                    appt_type=self.default_appt_type)
+                    appt_type=self.default_appt_type,
+                    **self.options)
         except IntegrityError as e:
             raise CreateAppointmentError(
                 f'An \'IntegrityError\' was raised while trying to '

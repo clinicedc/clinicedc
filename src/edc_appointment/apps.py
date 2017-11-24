@@ -59,5 +59,5 @@ if settings.APP_NAME == 'edc_appointment':
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
         definitions = {
-            'clinic': dict(days=[MO, TU, WE, TH, FR, SA, SU],
-                           slots=[100, 100, 100, 100, 100])}
+            'default': dict(days=[MO, TU, WE, TH, FR, SA, SU],
+                            slots=[100, 100, 100, 100, 100])}
