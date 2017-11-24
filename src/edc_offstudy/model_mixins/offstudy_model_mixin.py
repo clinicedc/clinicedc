@@ -1,15 +1,14 @@
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import options
 from django.utils import timezone
-
 from edc_base.model_fields import OtherCharField
 from edc_base.model_validators import datetime_not_future
+from edc_constants.date_constants import EDC_DATETIME_FORMAT
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_visit_schedule import site_visit_schedules
 from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
-from django.core.exceptions import ObjectDoesNotExist
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model', )
 
@@ -28,7 +27,6 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
                          VisitScheduleMethodsModelMixin, models.Model):
     """Mixin for the Off Study model.
     """
-    dateformat = '%Y-%m-%d %H:%M'
 
     offstudy_datetime = models.DateTimeField(
         verbose_name="Off-study Date",
@@ -52,9 +50,11 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
 
     def save(self, *args, **kwargs):
         if not self.consented_before_offstudy:
+            formatted_date = timezone.localtime(
+                self.offstudy_datetime).strftime(EDC_DATETIME_FORMAT)
             raise OffstudyError(
-                'Offstudy date may not be before the date of consent. Got {}.'.format(
-                    timezone.localtime(self.offstudy_datetime).strftime(self.dateformat)))
+                f'Offstudy date may not be before the date of consent. '
+                f'Got {formatted_date}.')
         app_config = django_apps.get_app_config('edc_visit_tracking')
         visit_model_cls = app_config.visit_model_cls(self._meta.app_label)
         app_config = django_apps.get_app_config('edc_appointment')
@@ -70,9 +70,9 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
         return (self.subject_identifier, )
 
     def __str__(self):
-        return "{0} {1}".format(
-            self.subject_identifier,
-            timezone.localtime(self.offstudy_datetime).strftime(self.dateformat))
+        formatted_date = timezone.localtime(
+            self.offstudy_datetime).strftime(EDC_DATETIME_FORMAT)
+        return f'{self.subject_identifier} {formatted_date}'
 
     @property
     def consented_before_offstudy(self):
@@ -97,10 +97,13 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
             subject_identifier=self.subject_identifier).order_by(
                 'report_datetime').last()
         if last_visit and (last_visit.report_datetime - self.offstudy_datetime).days > 0:
+            formatted_visitdate = timezone.localtime(
+                last_visit.report_datetime).strftime(EDC_DATETIME_FORMAT)
+            formatted_offstudy = timezone.localtime(
+                self.offstudy_datetime).strftime(EDC_DATETIME_FORMAT)
             raise OffstudyError(
-                'Offstudy datetime cannot precede the last visit datetime {}. Got {}'.format(
-                    timezone.localtime(last_visit.report_datetime),
-                    timezone.localtime(self.offstudy_datetime)))
+                f'Offstudy datetime cannot precede the last visit date of '
+                f'{formatted_visitdate}. Got Offstudy date {formatted_offstudy}')
 
     class Meta:
         abstract = True

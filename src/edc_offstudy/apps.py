@@ -2,9 +2,6 @@ import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
-from edc_appointment.appointment_config import AppointmentConfig
-from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
-from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
 
 
 class EdcOffstudyAppConfigError(Exception):
@@ -26,6 +23,13 @@ class AppConfig(DjangoAppConfig):
 
 
 if settings.APP_NAME == 'edc_offstudy':
+
+    from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
+    from edc_appointment.appointment_config import AppointmentConfig
+    from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
+    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
+    from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
+
     class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
         visit_models = {
             'edc_offstudy': ('subject_visit', 'edc_offstudy.subjectvisit')}
@@ -35,3 +39,8 @@ if settings.APP_NAME == 'edc_offstudy':
             AppointmentConfig(
                 model='edc_appointment.appointment',
                 related_visit_model='edc_offstudy.subjectvisit')]
+
+    class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
+        definitions = {
+            'default': dict(days=[MO, TU, WE, TH, FR, SA, SU],
+                            slots=[100, 100, 100, 100, 100])}

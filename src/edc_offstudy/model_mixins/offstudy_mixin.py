@@ -1,57 +1,68 @@
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.db import models
 from django.utils import timezone
-from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
+from edc_constants.constants import EDC_SHORT_DATE_FORMAT
+from edc_constants.date_constants import EDC_SHORT_DATETIME_FORMAT
 
 
 class SubjectOffstudyError(Exception):
     pass
 
 
-class OffstudyMixin(VisitScheduleMethodsModelMixin, models.Model):
+class OffstudyMixin(models.Model):
 
     """A mixin for CRF models to add the ability to determine
-    if the subject is off study.
+    if the subject is off study as of this CRFs report_datetime.
+
+    CRFs by definition include CrfModelMixin in their declaration.
+    See edc_visit_tracking.
     """
+
+    # If True, compares report_datetime and offstudy_datetime as datetimes
+    # If False, compares report_datetime and offstudy_datetime as dates
+    offstudy_compare_dates_as_datetimes = False
 
     def save(self, *args, **kwargs):
         self.is_offstudy_or_raise()
-        super(OffstudyMixin, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @property
-    def offstudy_model(self):
-        # FIXME: if you get an AttributeError, is self.visit_schedule
-        # not going to just raise another. Use the visit schedule methods
-        # mixin? If instance is being saved for the first time???
-        offstudy_model = None
+    def offstudy_model_cls(self):
+        """Returns the off study model class for this CRF's visit schedule.
+        """
         try:
-            offstudy_model = self.visit.visit_schedule.models.get(
-                'offstudy_model')
+            model = self.visit.visit_schedule.offstudy_model
         except AttributeError as e:
             if 'visit' in str(e):
-                try:
-                    offstudy_model = self.visit_schedule.offstudy_model
-                except AttributeError as e:
-                    raise SubjectOffstudyError(str(e))
-            else:
-                raise SubjectOffstudyError(str(e))
-        return django_apps.get_model(*offstudy_model.split('.'))
+                raise ImproperlyConfigured(
+                    f'Model requires method \'visit\'. Got {e}. See {repr(self)}')
+            raise
+        return django_apps.get_model(model)
 
     def is_offstudy_or_raise(self):
-        """Return True if the off-study report exists. """
+        """Return True if an off-study instance was submitted
+        for this subject before this CRF report_datetime.
+        """
+        if self.offstudy_compare_dates_as_datetimes:
+            opts = {'offstudy_datetime__lt': self.report_datetime}
+            date_format = EDC_SHORT_DATETIME_FORMAT
+        else:
+            opts = {'offstudy_datetime__date__lt': self.report_datetime.date()}
+            date_format = EDC_SHORT_DATE_FORMAT
         try:
-            offstudy = self.offstudy_model.objects.get(
-                offstudy_datetime__lte=self.report_datetime,
-                subject_identifier=self.subject_identifier
-            )
+            model_obj = self.offstudy_model_cls.objects.get(
+                subject_identifier=self.subject_identifier, **opts)
+        except ObjectDoesNotExist:
+            model_obj = None
+        else:
+            formatted_date = timezone.localtime(
+                model_obj.offstudy_datetime).strftime(date_format)
             raise SubjectOffstudyError(
-                'Participant was reported off study on \'{0}\'. '
-                'Data reported after this date'
-                ' cannot be captured.'.format(timezone.localtime(
-                    offstudy.offstudy_datetime).strftime('%Y-%m-%d')))
-        except self.offstudy_model.DoesNotExist:
-            offstudy = None
-        return offstudy
+                f'Participant is off study. Participant was reported off '
+                f'study on {formatted_date}. Scheduled data reported after this date '
+                f'may not be captured.')
+        return model_obj
 
     class Meta:
         abstract = True

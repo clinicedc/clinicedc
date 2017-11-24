@@ -2,13 +2,16 @@ from django import forms
 from django.apps import apps as django_apps
 
 
-class OffStudyFormMixin(forms.ModelForm):
+class OffstudyModelFormMixin(forms.ModelForm):
 
-    """Used to edit the off study form and throws an exception
-    if the off study date is invalid."""
+    """Form Mixin for the Offstudy Model.
+
+    Used to edit the off study form and throws an exception
+    if the off study date is invalid.
+    """
 
     def clean(self):
-        cleaned_data = super(OffStudyFormMixin, self).clean()
+        cleaned_data = super().clean()
         self.validate_offstudy_datetime()
         return cleaned_data
 

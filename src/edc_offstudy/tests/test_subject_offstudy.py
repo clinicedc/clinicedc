@@ -33,7 +33,8 @@ class TestOffstudy(TestCase):
             Enrollment.objects.create(
                 subject_identifier=subject_consent.subject_identifier,
                 schedule_name=self.schedule_name,
-                report_datetime=get_utcnow() - relativedelta(weeks=4))
+                report_datetime=get_utcnow() - relativedelta(weeks=4),
+                facility_name='default')
         self.subject_consent = SubjectConsent.objects.get(
             subject_identifier=self.subject_identifier)
         enrollment = Enrollment.objects.get(
