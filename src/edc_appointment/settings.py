@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'edc_protocol.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
-    'edc_facility.apps.AppConfig',
+    'edc_appointment.apps.EdcFacilityAppConfig',
     'edc_appointment.apps.AppConfig',
 ]
 

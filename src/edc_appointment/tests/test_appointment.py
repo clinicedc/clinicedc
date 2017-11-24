@@ -1,3 +1,6 @@
+import arrow
+
+from datetime import datetime
 from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA
 from decimal import Context
 from django.test import TestCase, tag
@@ -17,11 +20,12 @@ class TestAppointment(TestCase):
 
     def setUp(self):
         self.subject_identifier = '12345'
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+        self.helper = self.helper_cls(
+            subject_identifier=self.subject_identifier,
+            now=arrow.Arrow.fromdatetime(datetime(2017, 1, 7), tzinfo='UTC').datetime)
 
     def test_appointments_creation(self):
         """Assert appointment triggering method creates appointments.
@@ -60,7 +64,8 @@ class TestAppointment(TestCase):
             subject_identifier=self.subject_identifier).count(), 1)
 
     def test_appointments_dates_mo(self):
-        """Test appointment datetimes are chronological."""
+        """Test appointment datetimes are chronological.
+        """
         for index in range(0, 7):
             SubjectConsent.objects.create(
                 subject_identifier=f'{self.subject_identifier}-{index}',
