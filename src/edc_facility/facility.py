@@ -8,6 +8,10 @@ from edc_base.utils import get_utcnow
 from .holidays import Holidays
 
 
+class FacilityError(Exception):
+    pass
+
+
 class Facility:
 
     holiday_cls = Holidays
@@ -24,6 +28,8 @@ class Facility:
         self.slots = slots or [99999 for _ in self.days]
         self.config = OrderedDict(zip([str(d) for d in self.days], self.slots))
         self.holidays = self.holiday_cls(facility_name=self.name, **kwargs)
+        if not name:
+            raise FacilityError(f'Name cannot be None. See {repr(self)}')
 
     def __repr__(self):
         return f'{self.__class__.__name__}(name={self.name}, days={self.days})'
@@ -48,11 +54,13 @@ class Facility:
         return True
 
     def to_arrow_utc(self, dt):
-        """Returns timezone-aware datetime as a UTC arrow object."""
+        """Returns timezone-aware datetime as a UTC arrow object.
+        """
         return arrow.Arrow.fromdatetime(dt, dt.tzinfo).to('utc')
 
     def is_holiday(self, arr_utc=None):
-        """Returns the arrow object, arr_utc, of a suggested calendar date if not a holiday.
+        """Returns the arrow object, arr_utc, of a suggested
+        calendar date if not a holiday.
         """
         return self.holidays.is_holiday(utc_datetime=arr_utc.datetime)
 
@@ -61,11 +69,12 @@ class Facility:
 
     def available_rdate(self, suggested_datetime=None, forward_delta=None,
                         reverse_delta=None, taken_datetimes=None):
-        """Returns an arrow object for a datetime equal to or close to the
-        suggested datetime.
+        """Returns an arrow object for a datetime equal to or
+        close to the suggested datetime.
 
         To exclude datetimes other than holidays, pass a list of
-        datetimes in UTC to `taken_datetimes`."""
+        datetimes in UTC to `taken_datetimes`.
+        """
         available_rdate = None
         forward_delta = forward_delta or relativedelta(months=1)
         reverse_delta = reverse_delta or relativedelta(months=0)

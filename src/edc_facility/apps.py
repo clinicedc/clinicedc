@@ -20,8 +20,8 @@ class AppConfig(DjangoAppConfig):
     # only set if for edc_facility tests, etc
     if settings.APP_NAME == 'edc_facility':
         definitions = {
-            'clinic': dict(days=[MO, TU, WE, TH, FR],
-                           slots=[100, 100, 100, 100, 100])}
+            None: dict(days=[MO, TU, WE, TH, FR],
+                       slots=[100, 100, 100, 100, 100])}
     else:
         definitions = None
 
@@ -62,7 +62,8 @@ class AppConfig(DjangoAppConfig):
         facility = self.facilities.get(name)
         if not facility:
             raise ImproperlyConfigured(
-                f'Facility {name} does not exist. See {self.name} app_config.definitions')
+                f'Facility \'{name}\' does not exist. Expected one '
+                f'of {self.facilities}. See {repr(self)}.definitions')
         return facility
 
 #         try:
