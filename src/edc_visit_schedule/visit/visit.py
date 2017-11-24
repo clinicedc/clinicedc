@@ -44,7 +44,7 @@ class Visit:
                  rupper=None, crfs=None, requisitions=None, crfs_unscheduled=None,
                  requisitions_unscheduled=None, title=None,
                  instructions=None, grouping=None, appointment_model=None,
-                 allow_unscheduled=None, **kwargs):
+                 allow_unscheduled=None, facility_name=None, **kwargs):
 
         self.appointment_model = appointment_model
         self.dates = self.visit_date_cls(
@@ -55,6 +55,7 @@ class Visit:
         else:
             self.code = code  # unique
         self.name = self.code
+        self.facility_name = facility_name
         self.crfs = self.forms_collection_cls(*(crfs or []), **kwargs).forms
         self.requisitions = self.forms_collection_cls(
             *(requisitions or []), **kwargs).forms
