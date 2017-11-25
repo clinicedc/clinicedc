@@ -3,7 +3,6 @@ import copy
 from django.template.loader import render_to_string
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
-from django.utils.text import slugify
 
 
 class NavbarItemError(Exception):
@@ -18,14 +17,14 @@ class NavbarItem:
     template_name = 'edc_navbar/navbar_item.html'
 
     def __init__(self, name=None, title=None,
-                 label=None, url_name=None, url_namespace=None, html_id=None,
+                 label=None, url_name=None, html_id=None,
                  glyphicon=None, fa_icon=None, icon=None,
-                 icon_width=None, icon_height=None):
-        if url_namespace:
-            self.url_name = f'{url_namespace}:{url_name}'
+                 icon_width=None, icon_height=None, no_url_namespace=None):
+        self.name = name
+        if no_url_namespace:
+            self.url_name = url_name.split(':')[1]
         else:
             self.url_name = url_name
-        self.name = name
         try:
             self.label = label.title()
         except AttributeError:
