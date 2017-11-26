@@ -1,0 +1,41 @@
+{% extends 'edc_subject_dashboard/dashboard/sidebar/base_sidebar.html' %}
+
+{% load tz %}
+{% load edc_base_extras %}
+
+
+{% block special_forms %}
+
+    {% include 'edc_subject_dashboard/dashboard/sidebar/special_forms.html' %}
+                  
+{% endblock special_forms %}
+
+{% block demographics %}   
+
+    {% include 'edc_subject_dashboard/dashboard/sidebar/demographics.html' %}
+
+{% endblock demographics %}
+
+{% block consent_history %}
+
+	<div class="list-group">
+	  {% if not consents %}
+	    <a class="list-group-item" href="#">Never consented</a>
+	  {% endif %}
+	  {% for obj in consents %}
+	       <a class="list-group-item" href="#">
+	            {{ obj.consent_datetime|date:"Y-m-d" }} Version {{ obj.version }}
+	       </a>
+	  {% endfor %}
+	</div>
+
+{% endblock consent_history %}
+
+
+{% block action_items %}   
+
+    {% include 'edc_subject_dashboard/dashboard/sidebar/action_items.html' %}
+
+{% endblock action_items %}
+
+

@@ -1,8 +1,15 @@
-from django.contrib import admin
+from django.contrib.admin import AdminSite as DjangoAdminSite
 
-from .models import SubjectLocator
+from .models import SubjectConsent, SubjectVisit, Appointment
 
 
-@admin.register(SubjectLocator)
-class SubjectLocatorAdmin(admin.ModelAdmin):
+class AdminSite(DjangoAdminSite):
     pass
+
+
+edc_subject_dashboard_admin = AdminSite(name='edc_subject_dashboard_admin')
+
+edc_subject_dashboard_admin.register(Appointment)
+edc_subject_dashboard_admin.register(SubjectConsent)
+# edc_subject_dashboard_admin.register(SubjectLocator)
+edc_subject_dashboard_admin.register(SubjectVisit)

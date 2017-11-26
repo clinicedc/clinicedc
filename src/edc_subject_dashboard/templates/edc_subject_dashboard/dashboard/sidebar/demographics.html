@@ -1,0 +1,25 @@
+{% load edc_base_extras %}
+
+    <div class="list-group">
+    {% if subject_offstudy %}
+        <a class="list-group-item list-group-item-danger">
+           <i class="fa fa-ban fa-fw" aria-hidden="true"></i>
+               Offstudy {{ subject_offstudy.offstudy_datetime|date:"Y-m-d"}}
+        </a>
+    {% endif %}
+
+    {% for fa_icon, text in demographics_listgroup %}
+        <a class="list-group-item"><i class="fa {{ fa_icon }} fa-fw"></i>{{ text }}</a>      
+    {% endfor %}
+
+        <a class="list-group-item"><i class="fa fa-birthday-cake fa-fw"></i>
+         {{ consent.dob|date:"Y-m-d" }}
+         {% age_in_years consent.object.dob %} yrs
+       </a>
+        <a class="list-group-item"><i class="fa fa-address-card-o fa-fw"></i>
+            {{ consent.identity|default:'?? identity' }}
+        </a>
+        <a class="list-group-item"><i class="fa fa-medkit fa-fw"></i>
+            {{ consent.randomization_arm|default:'?? medication' }}
+        </a>
+    </div>

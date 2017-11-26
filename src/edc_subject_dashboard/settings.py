@@ -40,11 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_revision.apps.AppConfig',
     'simple_history',
-    'edc_timepoint.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_locator.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
-    'edc_appointment.apps.AppConfig',
+    'edc_subject_dashboard.apps.EdcAppointmentAppConfig',
+    'edc_subject_dashboard.apps.EdcTimepointAppConfig',
     'edc_subject_dashboard.apps.AppConfig',
 ]
 
@@ -56,6 +56,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'edc_dashboard.middleware.DashboardMiddleware',
+    'edc_subject_dashboard.middleware.DashboardMiddleware',
 ]
 
 ROOT_URLCONF = 'edc_subject_dashboard.urls'
@@ -127,6 +129,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+DASHBOARD_URL_NAMES = {
+    'subject_listboard_url': 'edc_subject_dashboard:subject_listboard_url',
+    'subject_dashboard_url': 'edc_subject_dashboard:subject_dashboard_url',
+}
+
+DASHBOARD_BASE_TEMPLATES = {
+    'listboard_base_template': 'edc_base/base.html',
+    'dashboard_base_template': 'edc_base/base.html',
+    'subject_listboard_template': 'edc_subject_dashboard/listboard.html',
+    'subject_dashboard_template': 'edc_subject_dashboard/dashboard.html',
+}
+
 
 if 'test' in sys.argv:
 

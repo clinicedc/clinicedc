@@ -1,11 +1,10 @@
 from django.test import TestCase
-from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
 from edc_locator.view_mixins import SubjectLocatorViewMixin, SubjectLocatorViewMixinError
 
 from ..view_mixins import SubjectVisitViewMixin, SubjectVisitViewMixinError
 from ..view_mixins import SubjectIdentifierViewMixin
-from .models import SubjectVisit, TestModel, BadSubjectVisit
+from .models import SubjectVisit, TestModel, BadSubjectVisit, Appointment
 
 
 class DummyModelWrapper:
@@ -13,7 +12,7 @@ class DummyModelWrapper:
         pass
 
 
-class TestMixins(TestCase):
+class TestViewMixins(TestCase):
     def setUp(self):
         self.appointment = Appointment.objects.create(
             visit_code='1000',
