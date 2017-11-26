@@ -5,36 +5,59 @@ from django.apps import apps as django_apps
 from django.db.models import Q
 from django.utils.text import slugify
 from django.views.generic.list import ListView
-from edc_constants.constants import OTHER, YES, NO
+from edc_dashboard.view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
 
 from ..view_mixins import QueryStringViewMixin
 
 
-class ListboardView(QueryStringViewMixin, ListView):
+class ListboardViewError(Exception):
+    pass
 
-    model = None  # label_lower model name
+
+class ListboardView(QueryStringViewMixin, UrlRequestContextMixin, TemplateRequestContextMixin, ListView):
+
+    cleaned_search_term = None
     context_object_name = 'results'
+    empty_queryset_message = 'Nothing to display'
+    listboard_template = None  # an existing key in request.context_data
+    listboard_url = None  # an existing key in request.context_data
+    model = None  # label_lower model name
     model_wrapper_cls = None
     ordering = '-created'
-    pagination_limit = 10
-    paginate_by = 10
     orphans = 3
-    listboard_url_name = None
-    cleaned_search_term = None
     page = None
-    empty_queryset_message = 'Nothing to display'
+    paginate_by = 10
+    pagination_limit = 10
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._search_term = None
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = context.get('object_list')  # from ListView
+        context_object_name = self.get_context_object_name(queryset)
+        wrapped_queryset = self.get_wrapped_queryset(queryset)
+        context.update(
+            empty_queryset_message=self.empty_queryset_message,
+            object_list=wrapped_queryset,
+            search_term=self.search_term,
+            pagination_limit_reached=self.pagination_limit_reached(context),
+            page_range=self.page_range_list(context))
+        if context_object_name is not None:
+            context[context_object_name] = wrapped_queryset
+        context = self.add_url_to_context(
+            new_key='listboard_url_name',
+            existing_key=self.listboard_url,
+            context=context)
+        return context
+
+    def get_template_names(self):
+        return [self.get_template_from_context(self.listboard_template)]
+
     @property
     def model_cls(self):
         return django_apps.get_model(self.model)
-
-    def get_template_names(self):
-        return [django_apps.get_app_config(
-            self.app_config_name).listboard_template_name]
 
     def get_queryset_exclude_options(self, request, *args, **kwargs):
         """Returns exclude options applied to every
@@ -145,22 +168,3 @@ class ListboardView(QueryStringViewMixin, ListView):
                                          1)]
         else:
             return [i for i in range(1, self.pagination_limit + 1)]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        queryset = context.get('object_list')  # from ListView
-        context_object_name = self.get_context_object_name(queryset)
-        wrapped_queryset = self.get_wrapped_queryset(queryset)
-        context.update(
-            OTHER=OTHER,
-            YES=YES,
-            NO=NO,
-            empty_queryset_message=self.empty_queryset_message,
-            listboard_url_name=self.listboard_url_name,
-            object_list=wrapped_queryset,
-            search_term=self.search_term,
-            pagination_limit_reached=self.pagination_limit_reached(context),
-            page_range=self.page_range_list(context))
-        if context_object_name is not None:
-            context[context_object_name] = wrapped_queryset
-        return context

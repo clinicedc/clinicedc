@@ -1,18 +1,18 @@
+import arrow
+
+from datetime import datetime
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
+from edc_base.utils import get_utcnow
+from edc_dashboard.tests.models import SubjectVisit
 from edc_dashboard.view_mixins.listboard.querystring_view_mixin import QueryStringViewMixin
-from pprint import pprint
+from edc_model_wrapper import ModelWrapper
 
+from ..listboard_filter import ListboardFilter, ListboardViewFilters
 from ..view_mixins import ListboardFilterViewMixin
 from ..views import ListboardView
-from edc_base.view_mixins import EdcBaseViewMixin
-from edc_dashboard.tests.models import SubjectVisit
-from edc_base.utils import get_utcnow
-from edc_model_wrapper.wrappers.model_wrapper import ModelWrapper
-from arrow.arrow import Arrow
-from datetime import datetime
-import arrow
+from pprint import pprint
 
 
 class TestViewMixins(TestCase):
@@ -39,7 +39,6 @@ class TestViewMixins(TestCase):
 
     @tag('1')
     def test_listboard_filter_view(self):
-        from ..listboard_filter import ListboardFilter, ListboardViewFilters
 
         class SubjectVisitModelWrapper(ModelWrapper):
             model = 'edc_dashboard.subjectvisit'
@@ -64,9 +63,10 @@ class TestViewMixins(TestCase):
         class MyView(ListboardFilterViewMixin, ListboardView):
 
             model = 'edc_dashboard.subjectvisit'
+            listboard_url = 'listboard_url'
+            listboard_template = 'listboard_template'
             model_wrapper_cls = SubjectVisitModelWrapper
             listboard_view_filters = MyListboardViewFilters()
-            app_config_name = 'edc_dashboard'
 
         start = datetime(2013, 5, 1, 12, 30)
         end = datetime(2013, 5, 10, 17, 15)
@@ -81,7 +81,10 @@ class TestViewMixins(TestCase):
             reason='scheduled')
         request = RequestFactory().get('/?scheduled=scheduled')
         request.user = 'erik'
+        request.url_name_data = {'listboard_url': 'listboard_url'}
+        request.template_data = {'listboard_template': 'listboard.html'}
         template_response = MyView.as_view()(request=request)
         object_list = template_response.__dict__.get(
             'context_data').get('object_list')
-        self.assertEqual([m.object for m in object_list], [subject_visit])
+        self.assertEqual(
+            [wrapper.object.reason for wrapper in object_list], [subject_visit.reason])
