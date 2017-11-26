@@ -1,5 +1,7 @@
 import re
 
+from django.apps import apps as django_apps
+
 from .forms_collection import FormsCollection
 from .window_period import WindowPeriod
 
@@ -89,6 +91,13 @@ class Visit:
                 except IndexError:
                     pass
         return next_form
+
+    @property
+    def facility(self):
+        """Returns a Facility object.
+        """
+        app_config = django_apps.get_app_config('edc_facility')
+        return app_config.get_facility(name=self.facility_name)
 
     @property
     def timepoint_datetime(self):
