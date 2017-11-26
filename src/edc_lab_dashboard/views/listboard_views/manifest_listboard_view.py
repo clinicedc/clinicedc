@@ -18,9 +18,9 @@ class ManifestListboardView(BaseListboardView):
 
     navbar_selected_item = 'manifest'
 
-    form_action_url_name = f'edc_lab_dashboard:manifest_url'
-    listboard_url_name = app_config.manifest_listboard_url_name
-    listboard_template_name = app_config.manifest_listboard_template_name
+    form_action_url = 'manifest_action_url'
+    listboard_url = 'manifest_listboard_url'
+    listboard_template = 'manifest_listboard_template'
     model = edc_lab_app_config.manifest_model
     model_wrapper_cls = ManifestModelWrapper
     listboard_view_filters = ManifestListboardViewFilters()

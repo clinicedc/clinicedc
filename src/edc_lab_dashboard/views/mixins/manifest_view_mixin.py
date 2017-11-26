@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
 from django.utils.html import escape
+from django.views.generic.base import ContextMixin
 
 
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
@@ -10,13 +11,12 @@ class ManifestItemError(Exception):
     pass
 
 
-class ManifestViewMixin:
+class ManifestViewMixin(ContextMixin):
 
-    manifest_model = django_apps.get_model(
-        *edc_lab_app_config.manifest_model.split('.'))
+    manifest_model = django_apps.get_model(edc_lab_app_config.manifest_model)
     manifest_item_model = django_apps.get_model(
-        *edc_lab_app_config.manifest_item_model.split('.'))
-    box_model = django_apps.get_model(*edc_lab_app_config.box_model.split('.'))
+        edc_lab_app_config.manifest_item_model)
+    box_model = django_apps.get_model(edc_lab_app_config.box_model)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

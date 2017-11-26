@@ -8,8 +8,8 @@
     <td>
         <div class="btn-group">
            <a title="Edit box" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fa fa-pencil fa-fw"></i></a>
-           <a role="button" href="{% url manage_box_listboard_url_name box_identifier=wrapped.box_identifier action_name='manage' %}" class="btn btn-default btn-sm">Manage</a>
-           <a role="button" href="{% url verify_box_listboard_url_name box_identifier=wrapped.box_identifier action_name='verify' position=1 %}" class="btn {% if wrapped.verified %}btn-success{% else %}btn-default{% endif %} btn-sm {% if wrapped.object.count == 0 %}disabled{% endif %}">Verify</a>
+           <a role="button" href="{% url manage_box_listboard_url box_identifier=wrapped.box_identifier action_name='manage' %}" class="btn btn-default btn-sm">Manage</a>
+           <a role="button" href="{% url verify_box_listboard_url box_identifier=wrapped.box_identifier action_name='verify' position=1 %}" class="btn {% if wrapped.verified %}btn-success{% else %}btn-default{% endif %} btn-sm {% if wrapped.object.count == 0 %}disabled{% endif %}">Verify</a>
         </div>&nbsp;
     </td>
     <td>

@@ -1,18 +1,14 @@
-from django.apps import apps as django_apps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-
 from edc_lab.labels import AliquotLabel
 
 from .base_action_view import BaseActionView
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
-
 
 class RequisitionView(BaseActionView):
 
-    post_url_name = app_config.requisition_listboard_url_name
+    post_url = 'requisition_listboard_url'
     valid_form_actions = ['print_labels']
     action_name = 'requisition'
     label_cls = AliquotLabel
@@ -38,8 +34,7 @@ class RequisitionView(BaseActionView):
                 messages.error(
                     self.request,
                     'Unable to print labels. Requisition has not been '
-                    'processed. Got {}'.format(
-                        requisition.requisition_identifier))
+                    f'processed. Got {requisition.requisition_identifier}')
 
     @property
     def requisitions(self):

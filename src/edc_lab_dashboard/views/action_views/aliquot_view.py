@@ -1,14 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-
 from edc_lab.labels import AliquotLabel
 
-from .base_action_view import BaseActionView, app_config
+from .base_action_view import BaseActionView
 
 
 class AliquotView(BaseActionView):
 
-    post_url_name = app_config.aliquot_listboard_url_name
+    post_url = 'aliquot_listboard_url'
     valid_form_actions = ['print_labels']
     action_name = 'aliquot'
     label_cls = AliquotLabel

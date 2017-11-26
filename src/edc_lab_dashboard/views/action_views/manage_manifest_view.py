@@ -15,7 +15,7 @@ app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 class ManageManifestView(ManifestViewMixin, BaseActionView):
 
-    post_url_name = app_config.manage_manifest_listboard_url_name
+    post_url = 'manage_manifest_listboard_url'
     valid_form_actions = [
         'add_item', 'remove_selected_items']
 

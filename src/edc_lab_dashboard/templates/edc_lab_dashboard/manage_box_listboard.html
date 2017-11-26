@@ -21,16 +21,16 @@
              <span class="text text-danger"><i class="fa fa-window-close fa-sm"></i></span> &nbsp;Remove selected
         </button>
         {% if box.verified %}
-        <a role="button" class="btn btn-success btn-sm" href="{{ verify_box_listboard_url }}">
+        <a role="button" class="btn btn-success btn-sm" href="{{ verify_box_listboard_url_reversed }}">
              <i class="fa fa-check fa-fw"></i>&nbsp;Verified
         </a>
         {% else %}
-        <a role="button" class="btn btn-default btn-sm" href="{{ verify_box_listboard_url }}">
+        <a role="button" class="btn btn-default btn-sm" href="{{ verify_box_listboard_url_reversed }}">
              Verify box
         </a>
         {% endif %}
         {% if box.status == SHIPPED %}
-        <a role="button" class="btn btn-default btn-sm" href="{% url manifest_listboard_url_name %}?f=shipped">
+        <a role="button" class="btn btn-default btn-sm" href="{% url manifest_listboard_url %}?f=shipped">
              <i class="fa fa-ship fa-fw"></i>
         </a>
         {% endif %}

@@ -1,10 +1,8 @@
-from django.apps import apps as django_apps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
-
 from edc_lab.constants import SHIPPED
 from edc_lab.exceptions import SpecimenError
 
@@ -12,13 +10,9 @@ from ..mixins import BoxViewMixin
 from .base_action_view import BaseActionView
 
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
-
-
 class ManageBoxItemView(BoxViewMixin, BaseActionView):
 
-    post_url_name = app_config.manage_box_listboard_url_name
-    listboard_url_name = app_config.manage_box_listboard_url_name
+    post_url = 'manage_box_listboard_url'
     valid_form_actions = [
         'add_item', 'renumber_items', 'remove_selected_items']
 
@@ -57,7 +51,7 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
             deleted = self.box_item_model.objects.filter(
                 pk__in=self.selected_items,
             ).exclude(box__status=SHIPPED).delete()
-            message = ('{} items have been removed.'.format(deleted[0]))
+            message = (f'{deleted[0]} items have been removed.')
             messages.success(self.request, message)
 
     def renumber_items(self):
@@ -78,9 +72,8 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
                 boxitem.verified_datetime = None
                 boxitem.save()
             self.box.save()
-            message = ('Box {} has been renumber. Be sure to verify '
-                       'the position of each specimen.'.format(
-                           self.box_identifier))
+            message = (f'Box {self.box_identifier} has been renumber. '
+                       'Be sure to verify the position of each specimen.')
             messages.success(self.request, message)
 
     def add_box_item(self, **kwargs):
@@ -107,17 +100,17 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
                     if self.box.verified:
                         self.box.save()
                 else:
+                    href = reverse(
+                        self.listboard_url_name,
+                        kwargs={
+                            'box_identifier': box_item.box.box_identifier,
+                            'action_name': 'manage'})
                     message = mark_safe(
-                        'Item is already packed. See box <a href="{href}" class="alert-link">'
-                        '{box_identifier}</a>'.format(
-                            href=reverse(
-                                self.listboard_url_name,
-                                kwargs={
-                                    'box_identifier': box_item.box.box_identifier,
-                                    'action_name': 'manage'}),
-                            box_identifier=box_item.box.human_readable_identifier))
+                        f'Item is already packed. See box <a href="{href}" class="alert-link">'
+                        f'{box_item.box.human_readable_identifier}</a>')
                     messages.error(self.request, message)
             else:
-                message = 'Duplicate item. {} is already in position {}.'.format(
-                    box_item.human_readable_identifier, box_item.position)
+                message = (
+                    f'Duplicate item. {box_item.human_readable_identifier} '
+                    f'is already in position {box_item.position}.')
                 messages.error(self.request, message)

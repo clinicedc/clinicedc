@@ -5,4 +5,4 @@ from .models_view_mixin import ModelsViewMixin
 from .process_view_mixin import ProcessViewMixin
 from .requisition_view_mixin import RequisitionViewMixin
 from .study_site_name_queryset_view_mixin import StudySiteNameQuerysetViewMixin
-from .urls_view_mixin import UrlsViewMixin
+# from .urls_view_mixin import UrlsViewMixin

@@ -1,18 +1,18 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
 from django.utils.html import escape
-
+from django.views.generic.base import ContextMixin
 from edc_lab.exceptions import SpecimenError
 
 
-class BoxViewMixin:
+class BoxViewMixin(ContextMixin):
 
     box_model = django_apps.get_model(
-        *django_apps.get_app_config('edc_lab').box_model.split('.'))
+        django_apps.get_app_config('edc_lab').box_model)
     box_item_model = django_apps.get_model(
-        *django_apps.get_app_config('edc_lab').box_item_model.split('.'))
+        django_apps.get_app_config('edc_lab').box_item_model)
     aliqout_model = django_apps.get_model(
-        *django_apps.get_app_config('edc_lab').aliquot_model.split('.'))
+        django_apps.get_app_config('edc_lab').aliquot_model)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -11,14 +11,12 @@ from edc_lab.models import Manifest
 
 from .base_action_view import BaseActionView
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class PackView(BaseActionView):
 
-    post_url_name = app_config.pack_listboard_url_name
-    listboard_url_name = app_config.pack_listboard_url_name
+    post_url = 'pack_listboard_url'
     valid_form_actions = [
         'add_selected_to_manifest', 'remove_selected_items', 'print_labels']
     box_model = django_apps.get_model(*edc_lab_app_config.box_model.split('.'))

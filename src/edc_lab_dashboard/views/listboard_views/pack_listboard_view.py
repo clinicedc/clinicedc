@@ -15,9 +15,9 @@ edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 class PackListboardView(BaseListboardView):
 
-    form_action_url_name = f'edc_lab_dashboard:pack_url'
-    listboard_url_name = app_config.pack_listboard_url_name
-    listboard_template_name = app_config.pack_listboard_template_name
+    form_action_url = 'pack_action_url'
+    listboard_url = 'pack_listboard_url'
+    listboard_template = 'pack_listboard_template'
     model = edc_lab_app_config.box_model
     manifest_model_name = edc_lab_app_config.manifest_model
     model_wrapper_cls = BoxModelWrapper

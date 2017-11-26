@@ -1,38 +1,37 @@
 import urllib
 
-from django.apps import apps as django_apps
 from django.contrib import messages
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.text import slugify
 from django.views.generic.base import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_dashboard.view_mixins import AppConfigViewMixin
 from edc_label.label import PrintLabelError
 from edc_label.print_server import PrintServerSelectPrinterError
 
 from ..mixins.models_view_mixin import ModelsViewMixin
+from ...dashboard_templates import dashboard_templates
 
 
 class InvalidPostError(Exception):
     pass
 
 
+class ActionViewError(Exception):
+    pass
+
+
 app_name = 'edc_lab_dashboard'
-app_config = django_apps.get_app_config(app_name)
 
 
-class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
-                     AppConfigViewMixin, TemplateView):
+class BaseActionView(ModelsViewMixin, EdcBaseViewMixin, TemplateView):
 
-    template_name = 'edc_lab_dashboard/home.html'
-    post_url_name = None
-    app_config_name = 'edc_lab_dashboard'
-
-    valid_form_actions = []
-    redirect_querystring = {}
     form_action_selected_items_name = 'selected_items'
     label_cls = None
+    post_url = None  # key exists in request.context_data
+    redirect_querystring = {}
+    template_name = dashboard_templates.get('home_template')
+    valid_form_actions = []
 
     navbar_name = 'specimens'
 
@@ -56,25 +55,23 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin,
         """
         return {}
 
-    @property
-    def post_url(self):
-        """Returns a URL.
-        """
-        return reverse(self.post_url_name, kwargs=self.url_kwargs)
-
     def post(self, request, *args, **kwargs):
         action = slugify(self.request.POST.get('action', '').lower())
         if action not in self.valid_form_actions:
             raise InvalidPostError(
-                'Invalid form action in POST. Got {}'.format(action))
+                f'Invalid form action in POST. Got {action}')
         else:
             self.action = action
         self.process_form_action()
+        try:
+            url_name = request.context_data[self.post_url]
+        except KeyError as e:
+            raise ActionViewError(
+                f'Invalid action \'post_url\'. Got {e}. See {repr(self)}.')
+        url = reverse(url_name, kwargs=self.url_kwargs)
         if self.redirect_querystring:
-            return HttpResponseRedirect(
-                self.post_url + '?'
-                + urllib.parse.urlencode(self.redirect_querystring))
-        return HttpResponseRedirect(self.post_url)
+            url = f'{url}?{urllib.parse.urlencode(self.redirect_querystring)}'
+        return HttpResponseRedirect(url)
 
     def process_form_action(self):
         """Override to conditionally handle the action POST attr.

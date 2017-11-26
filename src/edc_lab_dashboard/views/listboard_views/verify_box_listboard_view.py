@@ -14,9 +14,9 @@ app_config = django_apps.get_app_config('edc_lab_dashboard')
 class VerifyBoxListboardView(BaseBoxItemListboardView):
 
     action_name = 'verify'
-    form_action_url_name = f'edc_lab_dashboard:verify_box_item_url'
-    listboard_template_name = app_config.verify_box_listboard_template_name
-    listboard_url_name = app_config.verify_box_listboard_url_name
+    form_action_url = 'verify_box_item_action_url'
+    listboard_template = 'verify_box_listboard_template'
+    listboard_url = 'verify_box_listboard_url'
     model_wrapper_cls = VerifyBoxItemModelWrapper
     navbar_selected_item = 'pack'
 

@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -11,12 +10,10 @@ from edc_lab.exceptions import SpecimenError
 from ..mixins import BoxViewMixin
 from .base_action_view import BaseActionView
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
-
 
 class VerifyBoxItemView(BoxViewMixin, BaseActionView):
 
-    post_url_name = app_config.verify_box_listboard_url_name
+    post_url = 'verify_box_listboard_url'
     box_item_failed = False
     valid_form_actions = [
         'verify_item', 'reset_box', 'verify_box']

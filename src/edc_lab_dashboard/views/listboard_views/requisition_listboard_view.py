@@ -18,11 +18,11 @@ class RequisitionListboardView(StudySiteNameQuerysetViewMixin, BaseListboardView
 
     model = edc_lab_app_config.requisition_model
     model_wrapper_cls = RequisitionModelWrapper
-    listboard_url_name = app_config.requisition_listboard_url_name
-    listboard_template_name = app_config.requisition_listboard_template_name
+    listboard_url = 'requisition_listboard_url'
+    listboard_template = 'requisition_listboard_template'
     show_all = True
     listboard_view_filters = RequisitionListboardViewFilters()
-    form_action_url_name = f'edc_lab_dashboard:requisition_url'
+    form_action_url = 'requisition_action_url'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

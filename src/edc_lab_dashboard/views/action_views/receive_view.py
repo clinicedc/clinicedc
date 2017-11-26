@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -11,12 +10,9 @@ from ..mixins import RequisitionViewMixin, ProcessViewMixin
 from .base_action_view import BaseActionView
 
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
-
-
 class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
 
-    post_url_name = app_config.receive_listboard_url_name
+    post_url = 'receive_listboard_url'
     valid_form_actions = ['receive', 'receive_and_process']
     label_cls = AliquotLabel
     specimen_cls = Specimen
@@ -45,7 +41,7 @@ class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
                 received=True).update(
                     received=True, received_datetime=get_utcnow())
         if updated:
-            message = ('{} requisitions received.'.format(updated))
+            message = (f'{updated} requisitions received.')
             messages.success(self.request, message)
         return updated
 

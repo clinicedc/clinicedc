@@ -1,21 +1,17 @@
-from django.apps import apps as django_apps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models.deletion import ProtectedError
 from django.utils.decorators import method_decorator
-
 from edc_lab.constants import SHIPPED
 from edc_lab.labels import ManifestLabel
 
 from ..mixins import ManifestViewMixin
 from .base_action_view import BaseActionView
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
-
 
 class ManifestView(ManifestViewMixin, BaseActionView):
 
-    post_url_name = app_config.manifest_listboard_url_name
+    post_url = 'manifest_listboard_url'
     valid_form_actions = [
         'remove_selected_items', 'print_labels', 'ship_selected_items']
     label_cls = ManifestLabel
