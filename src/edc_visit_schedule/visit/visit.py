@@ -96,8 +96,10 @@ class Visit:
     def facility(self):
         """Returns a Facility object.
         """
-        app_config = django_apps.get_app_config('edc_facility')
-        return app_config.get_facility(name=self.facility_name)
+        if self.facility_name:
+            app_config = django_apps.get_app_config('edc_facility')
+            return app_config.get_facility(name=self.facility_name)
+        return None
 
     @property
     def timepoint_datetime(self):
