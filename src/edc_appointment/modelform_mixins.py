@@ -9,7 +9,7 @@ from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
 from .constants import (
     NEW_APPT, INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT,
-    COMPLETE_APPT)
+    COMPLETE_APPT, UNSCHEDULED_APPT)
 
 
 class AppointmentFormMixin:
@@ -31,9 +31,28 @@ class AppointmentFormMixin:
         self.validate_appt_inprogress(appt_status=appt_status)
         self.validate_appt_new_or_complete(appt_status=appt_status)
         self.validate_facility_name()
+        self.validate_appt_reason()
         return cleaned_data
 
+    def validate_appt_reason(self):
+        """Raises if visit_code_sequence is not 0 and appt_reason
+        is not UNSCHEDULED_APPT.
+        """
+        cleaned_data = self.cleaned_data
+        if (cleaned_data.get('appt_reason')
+                and self.instance.visit_code_sequence
+                and cleaned_data.get('appt_reason') != UNSCHEDULED_APPT):
+            raise forms.ValidationError({
+                'appt_reason': f'Expected {UNSCHEDULED_APPT.title()}'})
+        elif (cleaned_data.get('appt_reason')
+                and not self.instance.visit_code_sequence
+                and cleaned_data.get('appt_reason') == UNSCHEDULED_APPT):
+            raise forms.ValidationError({
+                'appt_reason': f'Cannot be {UNSCHEDULED_APPT.title()}'})
+
     def validate_facility_name(self):
+        """Raises if facility_name not found in edc_facility.AppConfig.
+        """
         cleaned_data = self.cleaned_data
         if cleaned_data.get('facility_name'):
             app_config = django_apps.get_app_config('edc_facility')

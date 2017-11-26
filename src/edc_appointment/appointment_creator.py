@@ -11,6 +11,10 @@ class CreateAppointmentError(Exception):
     pass
 
 
+class AppointmentCreatorError(Exception):
+    pass
+
+
 class AppointmentCreator:
 
     def __init__(self, model_obj=None, suggested_datetime=None, timepoint_datetime=None,
@@ -44,7 +48,9 @@ class AppointmentCreator:
                 f'Got {timepoint_datetime}')
         else:
             self.timepoint_datetime = timepoint_datetime
-        self.facility = facility or model_obj.facility
+        self.facility = facility or visit.facility or model_obj.facility
+        if not self.facility:
+            raise AppointmentCreatorError('Facility not defined.')
         self.appointment
 
     def __repr__(self):

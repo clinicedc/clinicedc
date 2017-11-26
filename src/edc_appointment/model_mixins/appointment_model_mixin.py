@@ -25,17 +25,14 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
         null=True,
         decimal_places=1,
         max_digits=6,
-        editable=False,
         help_text='timepoint from schedule')
 
     timepoint_datetime = models.DateTimeField(
         null=True,
-        editable=False,
         help_text='Unadjusted datetime calculated from visit schedule')
 
     appt_close_datetime = models.DateTimeField(
         null=True,
-        editable=False,
         help_text=(
             'timepoint_datetime adjusted according to the nearest '
             'available datetime for this facility'))
@@ -90,8 +87,7 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
     objects = AppointmentManager()
 
     def __str__(self):
-        return '{0}.{1}'.format(
-            self.visit_code, str(self.timepoint).split('.')[-1])
+        return f'{self.visit_code}.{self.visit_code_sequence}'
 
     def natural_key(self):
         return (self.subject_identifier,
@@ -121,7 +117,6 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
         """
         app_config = django_apps.get_app_config('edc_appointment')
         config = app_config.get_configuration(self._meta.label_lower)
-        # attr = app_config.related_visit_model_attrs.get(self._meta.label_lower)
         return getattr(self, config.related_visit_model_attr)
 
     @property
@@ -133,6 +128,35 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
             subject_identifier=self.subject_identifier,
             timepoint_datetime__gt=self.timepoint_datetime
         ).order_by('timepoint_datetime').first()
+
+    @property
+    def last_visit_code_sequence(self):
+        """Returns an integer, or None, that is the visit_code_sequence
+        of the last appointment for this visit code that is not self.
+        (ordered by visit_code_sequence).
+
+        A sequence would be 1000.0, 1000.1, 1000.2, ...
+        """
+        obj = self.__class__.objects.filter(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            visit_code=self.visit_code,
+            visit_code_sequence__gt=self.visit_code_sequence
+        ).order_by('visit_code_sequence').last()
+        if obj:
+            return obj.visit_code_sequence
+        return None
+
+    @property
+    def next_visit_code_sequence(self):
+        """Returns an integer that is the next visit_code_sequence.
+
+        A sequence would be 1000.0, 1000.1, 1000.2, ...
+        """
+        if self.last_visit_code_sequence:
+            return self.last_visit_code_sequence + 1
+        return self.visit_code_sequence + 1
 
     @property
     def previous_by_timepoint(self):
