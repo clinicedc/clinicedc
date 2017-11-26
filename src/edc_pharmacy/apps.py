@@ -3,10 +3,6 @@ import os
 from dateutil.relativedelta import MO, TU, WE, TH, FR, SA, SU
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
-from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
-from edc_base.apps import AppConfig as BaseEdcBaseAppConfig
-from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
-from edc_label.apps import AppConfig as BaseEdcLabelAppConfig
 
 
 class AppConfig(DjangoAppConfig):
@@ -31,6 +27,10 @@ class AppConfig(DjangoAppConfig):
 
 
 if settings.APP_NAME == 'edc_pharmacy':
+    from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
+    from edc_base.apps import AppConfig as BaseEdcBaseAppConfig
+    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
+    from edc_label.apps import AppConfig as BaseEdcLabelAppConfig
 
     class EdcAppointmentAppConfig(BaseEdcAppointmentAppConfig):
         appointment_model = 'edc_pharmacy.appointment'
@@ -38,7 +38,7 @@ if settings.APP_NAME == 'edc_pharmacy':
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
         definitions = {
             'gaborone': dict(
-                name='clinic', days=[MO, TU, WE, TH, FR, SA, SU],
+                days=[MO, TU, WE, TH, FR, SA, SU],
                 slots=[100, 100, 100, 100, 100, 100, 100])}
 
     class EdcBaseAppConfig(BaseEdcBaseAppConfig):
