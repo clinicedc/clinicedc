@@ -16,4 +16,5 @@ class Helper:
         EnrollmentOne.objects.create(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
-            is_eligible=True)
+            is_eligible=True,
+            facility_name='default')

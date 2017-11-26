@@ -94,9 +94,13 @@ if settings.APP_NAME == 'edc_visit_tracking':
 
     from edc_metadata.apps import AppConfig as BaseEdcMetadataAppConfig
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
+    from dateutil.relativedelta import MO, TU, WE, TH, FR
 
     class EdcMetadataAppConfig(BaseEdcMetadataAppConfig):
         reason_field = {'edc_visit_tracking.subjectvisit': 'reason'}
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
         country = 'botswana'
+        definitions = {
+            'default': dict(days=[MO, TU, WE, TH, FR],
+                            slots=[100, 100, 100, 100, 100])}
