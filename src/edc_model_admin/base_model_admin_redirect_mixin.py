@@ -3,7 +3,8 @@ from django.http.response import HttpResponseRedirect
 
 class BaseModelAdminRedirectMixin:
 
-    """Redirect on add, change, or delete."""
+    """Redirect on add, change, or delete.
+    """
 
     def redirect_url(self, request, obj, post_url_continue=None):
         return None

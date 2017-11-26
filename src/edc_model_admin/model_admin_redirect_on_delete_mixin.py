@@ -27,11 +27,16 @@ class ModelAdminRedirectOnDeleteMixin:
         if `post_url_on_delete_name` is not None.
         """
         if self.post_url_on_delete_name:
+            try:
+                # if using Dashboard Middleware
+                url_name_data = request.url_name_data
+            except AttributeError:
+                url_name_data = {}
+            url_name = url_name_data.get(
+                self.post_url_on_delete_name) or self.post_url_on_delete_name
             kwargs = self.post_url_on_delete_kwargs(request, obj)
             try:
-                self.post_url_on_delete = reverse(
-                    self.post_url_on_delete_name,
-                    kwargs=kwargs)
+                self.post_url_on_delete = reverse(url_name, kwargs=kwargs)
             except NoReverseMatch:
                 pass
         obj.delete()
