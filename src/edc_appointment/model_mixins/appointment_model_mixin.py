@@ -116,8 +116,9 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
         """Returns the related visit model instance.
         """
         app_config = django_apps.get_app_config('edc_appointment')
-        config = app_config.get_configuration(self._meta.label_lower)
-        return getattr(self, config.related_visit_model_attr)
+        appointment_config = app_config.get_configuration(
+            name=self._meta.label_lower)
+        return getattr(self, appointment_config.related_visit_model_attr)
 
     @property
     def next_by_timepoint(self):

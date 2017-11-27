@@ -14,8 +14,8 @@ class AppointmentConfig:
         self.name = name or self.model
         self.related_visit_model = related_visit_model
         try:
-            self.related_visit_model_attr = self.related_visit_model.split('.')[
-                1]
+            self.related_visit_model_attr = (
+                self.related_visit_model.split('.')[1])
         except IndexError:
             self.related_visit_model_attr = self.related_visit_model
         self.appt_type = appt_type or self.default_appt_type
