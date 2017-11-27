@@ -24,7 +24,7 @@
 	  {% endif %}
 	  {% for obj in consents %}
 	       <a class="list-group-item" href="#">
-	            {{ obj.consent_datetime|date:"Y-m-d" }} Version {{ obj.version }}
+	            {{ obj.consent_datetime|date:"SHORT_DATE_FORMAT" }} Version {{ obj.version }}
 	       </a>
 	  {% endfor %}
 	</div>

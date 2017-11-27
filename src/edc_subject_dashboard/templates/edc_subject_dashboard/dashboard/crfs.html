@@ -3,7 +3,7 @@
             <div class="panel-heading clearfix">
                 <h6 class="panel-title">
                  <i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>
-                 {{ appointment.visit_code }} {{ appointment.title|lower|title }}: <span class="text text-muted"><small>Report date: {{ appointment.object.visit.report_datetime|localtime|date:"DATETIME_FORMAT" }}</small></span>
+                 {{ appointment.visit_code }} {{ appointment.title|lower|title }}: <span class="text text-muted"><small>Report date: {{ appointment.object.visit.report_datetime|localtime|date:"SHORT_DATETIME_FORMAT" }}</small></span>
                 <span class="pull-right">
 
                     {% block schedule_button %}
@@ -36,8 +36,8 @@
                                     {{ crf.object.verbose_name|title }}
                                     {% if crf.object.user_created %}
                                         <p class="text small text-info">
-                                            {{ crf.object.user_created }} on {{ crf.object.object.created|date:"DATETIME_FORMAT" }}
-                                            {% if crf.object.user_modified %} | {{ crf.object.user_modified }} on {{ crf.object.object.modified|date:"DATETIME_FORMAT" }}{% endif %}
+                                            {{ crf.object.user_created }} on {{ crf.object.object.created|date:"SHORT_DATETIME_FORMAT" }}
+                                            {% if crf.object.user_modified %} | {{ crf.object.user_modified }} on {{ crf.object.object.modified|date:"SHORT_DATETIME_FORMAT" }}{% endif %}
                                         </p>
                                     {% endif %}
                                 {% endif %}

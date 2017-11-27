@@ -4,7 +4,7 @@
     {% if subject_offstudy %}
         <a class="list-group-item list-group-item-danger">
            <i class="fa fa-ban fa-fw" aria-hidden="true"></i>
-               Offstudy {{ subject_offstudy.offstudy_datetime|date:"Y-m-d"}}
+               Offstudy {{ subject_offstudy.offstudy_datetime|date:"SHORT_DATE_FORMAT"}}
         </a>
     {% endif %}
 

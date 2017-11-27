@@ -92,7 +92,7 @@
 				      
 	   		        </td>
 	   		        <td>{{wrapped.object.title}}</td>
-                    <td>{{wrapped.object.appt_datetime|date:"Y-m-d D"| capfirst}}</td>
+                    <td>{{ wrapped.object.appt_datetime|date:"SHORT_DATE_FORMAT" }} {{ wrapped.object.appt_datetime|date:"D"| capfirst }}</td>
                 </tr>
 		  {% endif %}
         {% endfor %}
