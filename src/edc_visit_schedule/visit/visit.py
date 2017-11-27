@@ -4,6 +4,7 @@ from django.apps import apps as django_apps
 
 from .forms_collection import FormsCollection
 from .window_period import WindowPeriod
+from django.forms.forms import Form
 
 
 class VisitCodeError(Exception):
@@ -83,14 +84,34 @@ class Visit:
         return self.crfs + self.requisitions
 
     def next_form(self, model=None, panel=None):
+        """Returns the next required "form" or None.
+        """
         next_form = None
         for index, form in enumerate(self.forms):
-            if form.model == model:
+            if form.model == model and form.required:
                 try:
                     next_form = self.forms[index + 1]
                 except IndexError:
                     pass
         return next_form
+
+    def get_form(self, model=None):
+        for form in self.forms:
+            if form.model == model:
+                return form
+        return None
+
+    def get_crf(self, model=None):
+        for form in self.crfs:
+            if form.model == model:
+                return form
+        return None
+
+    def get_requisition(self, model=None, panel_name=None):
+        for form in self.requisitions:
+            if form.model == model and form.panel.name == panel_name:
+                return form
+        return None
 
     @property
     def facility(self):
