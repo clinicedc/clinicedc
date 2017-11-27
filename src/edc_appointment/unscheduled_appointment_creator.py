@@ -67,6 +67,6 @@ class UnscheduledAppointmentCreator:
                 raise UnscheduledAppointmentError(
                     f'Unable to create unscheduled appointment. An unscheduled '
                     f'appointment cannot be created if the parent appointment '
-                    f'is \'new\' or \'in progress\'. Got appointment \'{self.visit_code}\' is '
-                    f'\'{self._parent_appointment.get_appt_status_display().lower()}\'.')
+                    f'is \'new\' or \'in progress\' and/or if the Visit form . '
+                    f'has not been completed. Got appointment \'{self.visit_code}\'.')
         return self._parent_appointment
