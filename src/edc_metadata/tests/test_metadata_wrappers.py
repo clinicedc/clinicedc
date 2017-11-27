@@ -5,16 +5,16 @@ from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from ..metaforms import RequisitionMetaform, CrfMetaform
-from ..metaforms import MetaformError
-from ..metaforms import CrfMetaforms, RequisitionMetaforms
+from ..metadata_wrappers import RequisitionMetadataWrapper, CrfMetadataWrapper
+from ..metadata_wrappers import MetadataWrapperError
+from ..metadata_wrappers import RequisitionMetadataWrappers, CrfMetadataWrappers
 from ..models import CrfMetadata, RequisitionMetadata
 from .models import Enrollment, SubjectVisit, CrfOne, SubjectRequisition
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 
 
-class TestMetaformObjects(TestCase):
+class TestMetadataWrapperObjects(TestCase):
 
     def setUp(self):
         register_to_site_reference_configs()
@@ -40,46 +40,49 @@ class TestMetaformObjects(TestCase):
             subject_identifier=self.subject_identifier,
             reason=SCHEDULED)
 
-    def test_crf_metaform_none(self):
+    def test_crf_metadata_wrapper_none(self):
         metadata_obj = CrfMetadata.objects.get(
             subject_identifier=self.subject_identifier,
             model='edc_metadata.crfone')
-        crf_metaform = CrfMetaform(
+        crf_metadata_wrapper = CrfMetadataWrapper(
             visit=self.subject_visit,
             metadata_obj=metadata_obj)
-        self.assertEqual(crf_metaform.model_cls, CrfOne)
-        self.assertEqual(crf_metaform.model_obj, None)
-        self.assertEqual(crf_metaform.metadata_obj, metadata_obj)
-        self.assertEqual(crf_metaform.visit, self.subject_visit)
+        self.assertEqual(crf_metadata_wrapper.model_cls, CrfOne)
+        self.assertEqual(crf_metadata_wrapper.model_obj, None)
+        self.assertEqual(crf_metadata_wrapper.metadata_obj, metadata_obj)
+        self.assertEqual(crf_metadata_wrapper.visit, self.subject_visit)
 
-    def test_crf_metaform_exists(self):
+    def test_crf_metadata_wrapper_exists(self):
         model_obj = CrfOne.objects.create(
             subject_visit=self.subject_visit)
         metadata_obj = CrfMetadata.objects.get(
             subject_identifier=self.subject_identifier,
             model='edc_metadata.crfone')
-        crf_metaform = CrfMetaform(
+        crf_metadata_wrapper = CrfMetadataWrapper(
             visit=self.subject_visit,
             metadata_obj=metadata_obj)
-        self.assertEqual(crf_metaform.model_cls, CrfOne)
-        self.assertEqual(crf_metaform.model_obj, model_obj)
-        self.assertEqual(crf_metaform.metadata_obj, metadata_obj)
-        self.assertEqual(crf_metaform.visit, self.subject_visit)
+        self.assertEqual(crf_metadata_wrapper.model_cls, CrfOne)
+        self.assertEqual(crf_metadata_wrapper.model_obj, model_obj)
+        self.assertEqual(crf_metadata_wrapper.metadata_obj, metadata_obj)
+        self.assertEqual(crf_metadata_wrapper.visit, self.subject_visit)
 
-    def test_requisition_metaform_none(self):
+    def test_requisition_metadata_wrapper_none(self):
         metadata_obj = RequisitionMetadata.objects.get(
             subject_identifier=self.subject_identifier,
             model='edc_metadata.subjectrequisition',
             panel_name='one')
-        requisition_metaform = RequisitionMetaform(
+        requisition_metadata_wrapper = RequisitionMetadataWrapper(
             visit=self.subject_visit,
             metadata_obj=metadata_obj)
-        self.assertEqual(requisition_metaform.model_cls, SubjectRequisition)
-        self.assertEqual(requisition_metaform.model_obj, None)
-        self.assertEqual(requisition_metaform.metadata_obj, metadata_obj)
-        self.assertEqual(requisition_metaform.visit, self.subject_visit)
+        self.assertEqual(
+            requisition_metadata_wrapper.model_cls, SubjectRequisition)
+        self.assertEqual(requisition_metadata_wrapper.model_obj, None)
+        self.assertEqual(
+            requisition_metadata_wrapper.metadata_obj, metadata_obj)
+        self.assertEqual(requisition_metadata_wrapper.visit,
+                         self.subject_visit)
 
-    def test_requisition_metaform_exists(self):
+    def test_requisition_metadata_wrapper_exists(self):
         model_obj = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             panel_name='one')
@@ -87,41 +90,45 @@ class TestMetaformObjects(TestCase):
             subject_identifier=self.subject_identifier,
             model='edc_metadata.subjectrequisition',
             panel_name='one')
-        requisition_metaform = RequisitionMetaform(
+        requisition_metadata_wrapper = RequisitionMetadataWrapper(
             visit=self.subject_visit,
             metadata_obj=metadata_obj)
-        self.assertEqual(requisition_metaform.model_cls, SubjectRequisition)
-        self.assertEqual(requisition_metaform.model_obj, model_obj)
-        self.assertEqual(requisition_metaform.metadata_obj, metadata_obj)
-        self.assertEqual(requisition_metaform.visit, self.subject_visit)
+        self.assertEqual(
+            requisition_metadata_wrapper.model_cls, SubjectRequisition)
+        self.assertEqual(requisition_metadata_wrapper.model_obj, model_obj)
+        self.assertEqual(
+            requisition_metadata_wrapper.metadata_obj, metadata_obj)
+        self.assertEqual(requisition_metadata_wrapper.visit,
+                         self.subject_visit)
 
-    def test_crf_metaform_raises_on_invalid_model(self):
+    def test_crf_metadata_wrapper_raises_on_invalid_model(self):
         metadata_obj = CrfMetadata.objects.create(
             subject_identifier=self.subject_identifier,
             model='edc_metadata.blah',
             show_order=9999)
         self.assertRaises(
-            MetaformError,
-            CrfMetaform,
+            MetadataWrapperError,
+            CrfMetadataWrapper,
             visit=self.subject_visit,
             metadata_obj=metadata_obj)
 
-    def test_crf_metaform_raises_on_missing_crf_model_manager(self):
+    def test_crf_metadata_wrapper_raises_on_missing_crf_model_manager(self):
         metadata_obj = CrfMetadata.objects.create(
             subject_identifier=self.subject_identifier,
             model='edc_metadata.crfmissingmanager',
             show_order=9999)
         self.assertRaises(
-            MetaformError,
-            CrfMetaform,
+            MetadataWrapperError,
+            CrfMetadataWrapper,
             visit=self.subject_visit,
             metadata_obj=metadata_obj)
 
     def test_get_crfs(self):
-        crf_metaforms = CrfMetaforms(appointment=self.appointment)
-        self.assertEqual(len(crf_metaforms.objects), 5)
+        crf_metadata_wrappers = CrfMetadataWrappers(
+            appointment=self.appointment)
+        self.assertEqual(len(crf_metadata_wrappers.objects), 5)
 
     def test_get_requisitions(self):
-        requisition_metaforms = RequisitionMetaforms(
+        requisition_metadata_wrappers = RequisitionMetadataWrappers(
             appointment=self.appointment)
-        self.assertEqual(len(requisition_metaforms.objects), 6)
+        self.assertEqual(len(requisition_metadata_wrappers.objects), 6)

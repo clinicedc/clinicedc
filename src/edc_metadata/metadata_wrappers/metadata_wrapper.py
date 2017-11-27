@@ -8,11 +8,11 @@ from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 style = color_style()
 
 
-class MetaformError(Exception):
+class MetadataWrapperError(Exception):
     pass
 
 
-class Metaform:
+class MetadataWrapper:
 
     """A class that gets the corresponding model instance, or not, for the
     given metadata object and sets it to itself along with other
@@ -30,7 +30,7 @@ class Metaform:
             if 'visit_model_attr' not in str(e):
                 raise ImproperlyConfigured(f'{e} See {repr(self.model_cls)}')
             self.delete_invalid_metadata_obj(self.metadata_obj, exception=e)
-            raise MetaformError()
+            raise MetadataWrapperError()
         except ObjectDoesNotExist:
             self.model_obj = None
 
@@ -51,7 +51,7 @@ class Metaform:
             model_cls = django_apps.get_model(self.metadata_obj.model)
         except LookupError as e:
             self.delete_invalid_metadata_obj(self.metadata_obj, exception=e)
-            raise MetaformError()
+            raise MetadataWrapperError()
         return model_cls
 
     def delete_invalid_metadata_obj(self, metadata_obj=None, exception=None):

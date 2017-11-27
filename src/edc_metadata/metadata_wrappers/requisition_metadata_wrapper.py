@@ -1,7 +1,7 @@
-from .metaform import Metaform
+from .metadata_wrapper import MetadataWrapper
 
 
-class RequisitionMetaform(Metaform):
+class RequisitionMetadataWrapper(MetadataWrapper):
 
     label = 'Requisition'
 
