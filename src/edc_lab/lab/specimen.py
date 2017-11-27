@@ -17,7 +17,6 @@ class Specimen:
     given the original requisition.
 
     The primary aliquot will be created if it does not already exist.
-
     """
 
     aliquot_creator_cls = AliquotCreator

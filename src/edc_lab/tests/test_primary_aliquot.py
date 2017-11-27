@@ -1,6 +1,15 @@
 from django.test import TestCase, tag
 
+from ..identifiers import AliquotIdentifier
 from ..lab import PrimaryAliquot, AliquotType, AliquotCreator
+
+
+class MyAliquotIdentifier(AliquotIdentifier):
+    identifier_length = 16
+
+
+class MyAliquotCreator(AliquotCreator):
+    aliquot_identifier_cls = MyAliquotIdentifier
 
 
 class TestPrimaryAliquot(TestCase):
@@ -12,7 +21,7 @@ class TestPrimaryAliquot(TestCase):
             requisition_identifier='ABCDE',
             identifier_prefix='066ABCDE',
             aliquot_type=aliquot_type,
-            aliquot_creator_cls=AliquotCreator)
+            aliquot_creator_cls=MyAliquotCreator)
         self.assertTrue(p.object)
 
     def test_get_primary_aliquot(self):
@@ -25,14 +34,14 @@ class TestPrimaryAliquot(TestCase):
             requisition_identifier='ABCDE',
             identifier_prefix='066ABCDE',
             aliquot_type=aliquot_type,
-            aliquot_creator_cls=AliquotCreator)
+            aliquot_creator_cls=MyAliquotCreator)
         pk = p.object.id
         aliquot_identifier = p.object.aliquot_identifier
         p = PrimaryAliquot(
             requisition_identifier='ABCDE',
             identifier_prefix='066ABCDE',
             aliquot_type=aliquot_type,
-            aliquot_creator_cls=AliquotCreator)
+            aliquot_creator_cls=MyAliquotCreator)
         self.assertEqual(aliquot_identifier, p.object.aliquot_identifier)
         self.assertEqual(pk, p.object.id)
 
@@ -45,11 +54,11 @@ class TestPrimaryAliquot(TestCase):
             requisition_identifier='ABCDE',
             identifier_prefix='066ABCDE',
             aliquot_type=aliquot_type,
-            aliquot_creator_cls=AliquotCreator)
+            aliquot_creator_cls=MyAliquotCreator)
         obj = primary_aliquot.object
         p = PrimaryAliquot(
             identifier_prefix=obj.identifier_prefix,
-            aliquot_creator_cls=AliquotCreator)
+            aliquot_creator_cls=MyAliquotCreator)
         self.assertEqual(obj.aliquot_identifier, p.object.aliquot_identifier)
 
     def test_primary_aliquot_exists2(self):
@@ -61,11 +70,11 @@ class TestPrimaryAliquot(TestCase):
             requisition_identifier='ABCDE',
             identifier_prefix='066ABCDE',
             aliquot_type=aliquot_type,
-            aliquot_creator_cls=AliquotCreator)
+            aliquot_creator_cls=MyAliquotCreator)
         obj = primary_aliquot.object
         p = PrimaryAliquot(
             requisition_identifier=obj.requisition_identifier,
-            aliquot_creator_cls=AliquotCreator)
+            aliquot_creator_cls=MyAliquotCreator)
         self.assertEqual(obj.aliquot_identifier, p.object.aliquot_identifier)
 
     def test_str(self):
@@ -75,5 +84,5 @@ class TestPrimaryAliquot(TestCase):
             requisition_identifier='ABCDE',
             identifier_prefix='066ABCDE',
             aliquot_type=aliquot_type,
-            aliquot_creator_cls=AliquotCreator)
+            aliquot_creator_cls=MyAliquotCreator)
         self.assertTrue(str(primary_aliquot))
