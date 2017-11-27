@@ -1,5 +1,3 @@
-from .aliquot_creator import AliquotCreator
-
 
 class PrimaryAliquotError(Exception):
     pass

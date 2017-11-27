@@ -10,7 +10,7 @@ class AliquotIdentifierCountError(Exception):
 class AliquotIdentifier:
 
     count_padding = 2
-    identifier_length = 16
+    identifier_length = 18
     primary_aliquot_segment = '0000'
     template = '{identifier_prefix}{parent_segment}{numeric_code}{count}'
 
@@ -21,7 +21,7 @@ class AliquotIdentifier:
 
         Keyword args:
             * length: overall length of identifier
-            * identifier_prefix: a prefix as string
+            * identifier_prefix: a prefix as instance of Prefix
             * child_segment: 4 digit segment. `None` if primary.
             * numeric_code: aliquot type numeric code (2 digits segment)
             * count: sequence in aliquoting history relative to primary. (01 for primary)
