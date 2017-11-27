@@ -31,7 +31,9 @@ class TestCreatesDeletesMetadata(TestCase):
             subject_identifier=self.subject_identifier)
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
-        Enrollment.objects.create(subject_identifier=self.subject_identifier)
+        Enrollment.objects.create(
+            subject_identifier=self.subject_identifier,
+            facility_name='7-day-clinic')
         self.appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_code=self.schedule.visits.first.code)
@@ -96,7 +98,9 @@ class TestUpdatesMetadata(TestCase):
             subject_identifier=self.subject_identifier)
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
-        Enrollment.objects.create(subject_identifier=self.subject_identifier)
+        Enrollment.objects.create(
+            subject_identifier=self.subject_identifier,
+            facility_name='7-day-clinic')
         self.appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_code=self.schedule.visits.first.code)

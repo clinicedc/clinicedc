@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'edc_visit_schedule.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_metadata_rules.apps.AppConfig',
+    'edc_metadata.apps.EdcFacilityAppConfig',
     'edc_metadata.apps.EdcVisitTrackingAppConfig',
     'edc_metadata.apps.AppConfig',
 ]
@@ -126,13 +127,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
-KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 
 EDC_SYNC_SERVER_IP = None
 EDC_SYNC_FILES_REMOTE_HOST = None
 EDC_SYNC_FILES_USER = None
 EDC_SYNC_FILES_USB_VOLUME = None
 
+COUNTRY = 'botswana'
+HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
 
 if 'test' in sys.argv:
 

@@ -29,7 +29,9 @@ class TestMetaformObjects(TestCase):
         self.subject_identifier = '1111111'
         RegisteredSubject.objects.create(
             subject_identifier=self.subject_identifier)
-        Enrollment.objects.create(subject_identifier=self.subject_identifier)
+        Enrollment.objects.create(
+            subject_identifier=self.subject_identifier,
+            facility_name='7-day-clinic')
         self.appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_code=self.schedule.visits.first.code)

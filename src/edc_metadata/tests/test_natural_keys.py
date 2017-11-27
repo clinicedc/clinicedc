@@ -50,7 +50,9 @@ class TestNaturalKey(TestCase):
         subject_identifier = fake.credit_card_number()
         self.registered_subject = RegisteredSubject.objects.create(
             subject_identifier=subject_identifier, gender=gender)
-        Enrollment.objects.create(subject_identifier=subject_identifier)
+        Enrollment.objects.create(
+            subject_identifier=subject_identifier,
+            facility_name='7-day-clinic')
         self.appointment = Appointment.objects.get(
             subject_identifier=subject_identifier,
             visit_code=self.schedule.visits.first.code)

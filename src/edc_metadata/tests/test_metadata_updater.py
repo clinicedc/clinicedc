@@ -32,7 +32,9 @@ class TestMetadataUpdater(TestCase):
             subject_identifier=self.subject_identifier)
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
-        Enrollment.objects.create(subject_identifier=self.subject_identifier)
+        Enrollment.objects.create(
+            subject_identifier=self.subject_identifier,
+            facility_name='7-day-clinic')
         for visit in self.schedule.visits.values():
             appointment = Appointment.objects.get(
                 subject_identifier=self.subject_identifier,
