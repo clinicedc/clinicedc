@@ -6,9 +6,11 @@ from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
+from ..constants import REQUIRED
+from ..get_next_required_form import get_next_required_form
 from ..metadata import CrfMetadataGetter
 from ..models import CrfMetadata, RequisitionMetadata
-from .models import Enrollment, SubjectVisit
+from .models import Enrollment, SubjectVisit, CrfOne, CrfTwo
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 
@@ -67,3 +69,27 @@ class TestMetadataGetter(TestCase):
     def test_objects_not_none_from_appointment(self):
         getter = CrfMetadataGetter(appointment=self.appointment)
         self.assertGreater(getter.metadata_objects.count(), 0)
+
+    def test_next_object(self):
+        getter = CrfMetadataGetter(appointment=self.appointment)
+        visit = self.schedule.visits.get(getter.visit_code)
+        objects = []
+        for crf in visit.crfs:
+            obj = getter.next_object(crf.show_order, entry_status=REQUIRED)
+            if obj:
+                objects.append(obj)
+                self.assertIsNotNone(obj)
+                self.assertGreater(obj.show_order, crf.show_order)
+        self.assertEqual(len(objects), len(visit.crfs) - 1)
+
+    def test_next_required_form(self):
+        next_form = get_next_required_form(
+            appointment=self.appointment,
+            model='edc_metadata.crftwo')
+        self.assertEqual(next_form.model, 'edc_metadata.crfthree')
+
+    def test_next_required_form2(self):
+        CrfOne.objects.create(subject_visit=self.subject_visit)
+        crf_two = CrfTwo.objects.create(subject_visit=self.subject_visit)
+        next_form = get_next_required_form(model_obj=crf_two)
+        self.assertEqual(next_form.model, 'edc_metadata.crfthree')

@@ -6,15 +6,15 @@ class MetaDataViewMixin:
 
     crf_model_wrapper_cls = None
     requisition_model_wrapper_cls = None
-    crf_metadata_wrapper_cls = CrfMetadataWrappers
-    requisition_metadata_wrapper_cls = RequisitionMetadataWrappers
+    crf_metadata_wrappers_cls = CrfMetadataWrappers
+    requisition_metadata_wrappers_cls = RequisitionMetadataWrappers
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.appointment:
-            crf_metadata_wrappers = self.crf_metadata_wrapper_cls(
+            crf_metadata_wrappers = self.crf_metadata_wrappers_cls(
                 appointment=self.appointment)
-            requisition_metadata_wrappers = self.requisition_metadata_wrapper_cls(
+            requisition_metadata_wrappers = self.requisition_metadata_wrappers_cls(
                 appointment=self.appointment)
             context.update(
                 report_datetime=self.appointment.visit.report_datetime,
