@@ -97,46 +97,46 @@ class TestUrls(TestCase):
             kwargs=dict(action_name='manage'))
         self.assertEqual('/listboard/manifest/manage/', url)
 
-    def test_manage_box_item_url(self):
+    def test_manage_box_item_form_action_url(self):
         url = reverse(
-            'manage_box_item_url',
+            'manage_box_item_form_action_url',
             kwargs=dict(action_name='manage', box_identifier='ABC123'))
         self.assertEqual('/box/ABC123/manage/', url)
 
-    def test_verify_box_item_url(self):
+    def test_verify_box_item_form_action_url(self):
         url = reverse(
-            'verify_box_item_url',
+            'verify_box_item_form_action_url',
             kwargs=dict(action_name='verify', box_identifier='ABC123', position=22))
         self.assertEqual('/box/ABC123/verify/22/', url)
 
-    def test_manage_manifest_item_url(self):
+    def test_manage_manifest_item_form_action_url(self):
         url = reverse(
-            'manage_manifest_item_url',
+            'manage_manifest_item_form_action_url',
             kwargs=dict(action_name='manage', manifest_identifier='ABC123'))
         self.assertEqual('/manifest/ABC123/manage/', url)
 
-    def test_requisition_url(self):
-        url = reverse('requisition_url')
+    def test_requisition_form_action_url(self):
+        url = reverse('requisition_form_action_url')
         self.assertEqual('/requisition/', url)
 
-    def test_receive_url(self):
-        url = reverse('receive_url')
+    def test_receive_form_action_url(self):
+        url = reverse('receive_form_action_url')
         self.assertEqual('/requisition/receive/', url)
 
     def test_process_url(self):
         url = reverse('process_url')
         self.assertEqual('/requisition/process/', url)
 
-    def test_pack_url(self):
-        url = reverse('pack_url')
+    def test_pack_form_action_url(self):
+        url = reverse('pack_form_action_url')
         self.assertEqual('/requisition/pack/', url)
 
     def test_manifest_url(self):
         url = reverse('manifest_url')
         self.assertEqual('/manifest/', url)
 
-    def test_aliquot_url(self):
-        url = reverse('aliquot_url')
+    def test_aliquot_form_action_url(self):
+        url = reverse('aliquot_form_action_url')
         self.assertEqual('/aliquot/', url)
 
     def test_home_url(self):

@@ -10,7 +10,6 @@ from ...model_wrappers import ManifestModelWrapper
 from ..listboard_filters import ManifestListboardViewFilters
 from .base_listboard_view import BaseListboardView
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
@@ -24,6 +23,7 @@ class ManifestListboardView(BaseListboardView):
     model = edc_lab_app_config.manifest_model
     model_wrapper_cls = ManifestModelWrapper
     listboard_view_filters = ManifestListboardViewFilters()
+    search_form_url = 'manifest_listboard_url'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

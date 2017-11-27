@@ -9,7 +9,7 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_label.label import PrintLabelError
 from edc_label.print_server import PrintServerSelectPrinterError
 
-from ..mixins.models_view_mixin import ModelsViewMixin
+from ...view_mixins import ModelsViewMixin
 from ...dashboard_templates import dashboard_templates
 
 
@@ -24,11 +24,11 @@ class ActionViewError(Exception):
 app_name = 'edc_lab_dashboard'
 
 
-class BaseActionView(ModelsViewMixin, EdcBaseViewMixin, TemplateView):
+class ActionView(ModelsViewMixin, EdcBaseViewMixin, TemplateView):
 
     form_action_selected_items_name = 'selected_items'
     label_cls = None
-    post_url = None  # key exists in request.context_data
+    post_action_url = None  # key exists in request.url_name_data
     redirect_querystring = {}
     template_name = dashboard_templates.get('home_template')
     valid_form_actions = []
@@ -64,10 +64,10 @@ class BaseActionView(ModelsViewMixin, EdcBaseViewMixin, TemplateView):
             self.action = action
         self.process_form_action()
         try:
-            url_name = request.context_data[self.post_url]
+            url_name = request.url_name_data[self.post_action_url]
         except KeyError as e:
             raise ActionViewError(
-                f'Invalid action \'post_url\'. Got {e}. See {repr(self)}.')
+                f'Invalid action \'post_action_url\'. Got {e}. See {repr(self)}.')
         url = reverse(url_name, kwargs=self.url_kwargs)
         if self.redirect_querystring:
             url = f'{url}?{urllib.parse.urlencode(self.redirect_querystring)}'

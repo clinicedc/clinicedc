@@ -7,13 +7,13 @@ from edc_base.utils import get_utcnow
 from edc_lab.constants import SHIPPED
 from edc_lab.exceptions import SpecimenError
 
-from ..mixins import BoxViewMixin
-from .base_action_view import BaseActionView
+from ...view_mixins import BoxViewMixin
+from .action_view import ActionView
 
 
-class VerifyBoxItemView(BoxViewMixin, BaseActionView):
+class VerifyBoxItemView(BoxViewMixin, ActionView):
 
-    post_url = 'verify_box_listboard_url'
+    post_action_url = 'verify_box_listboard_url'
     box_item_failed = False
     valid_form_actions = [
         'verify_item', 'reset_box', 'verify_box']

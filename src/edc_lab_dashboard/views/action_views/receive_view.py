@@ -6,13 +6,13 @@ from edc_constants.constants import YES
 from edc_lab.lab import Specimen
 from edc_lab.labels import AliquotLabel
 
-from ..mixins import RequisitionViewMixin, ProcessViewMixin
-from .base_action_view import BaseActionView
+from ...view_mixins import RequisitionViewMixin, ProcessViewMixin
+from .action_view import ActionView
 
 
-class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
+class ReceiveView(RequisitionViewMixin, ProcessViewMixin, ActionView):
 
-    post_url = 'receive_listboard_url'
+    post_action_url = 'receive_listboard_url'
     valid_form_actions = ['receive', 'receive_and_process']
     label_cls = AliquotLabel
     specimen_cls = Specimen

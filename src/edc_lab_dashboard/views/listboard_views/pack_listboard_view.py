@@ -23,6 +23,7 @@ class PackListboardView(BaseListboardView):
     model_wrapper_cls = BoxModelWrapper
     navbar_selected_item = 'pack'
     listboard_view_filters = PackListboardViewFilters()
+    search_form_url = 'pack_listboard_url'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

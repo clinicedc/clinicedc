@@ -3,12 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from edc_lab.labels import AliquotLabel
 
-from .base_action_view import BaseActionView
+from .action_view import ActionView
 
 
-class RequisitionView(BaseActionView):
+class RequisitionView(ActionView):
 
-    post_url = 'requisition_listboard_url'
+    post_action_url = 'requisition_listboard_url'
     valid_form_actions = ['print_labels']
     action_name = 'requisition'
     label_cls = AliquotLabel
@@ -18,7 +18,9 @@ class RequisitionView(BaseActionView):
         return super().dispatch(*args, **kwargs)
 
     def process_form_action(self):
+        print('hello1')
         if self.action == 'print_labels':
+            print('hello2')
             for requisition in self.requisitions:
                 aliquots = (
                     self.aliquot_model.objects.filter(

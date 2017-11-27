@@ -7,15 +7,15 @@ from django.utils.decorators import method_decorator
 from edc_lab.exceptions import BoxItemError
 from edc_lab.lab import Manifest as ManifestObject
 
-from ..mixins import ManifestViewMixin
-from .base_action_view import BaseActionView
+from ...view_mixins import ManifestViewMixin
+from .action_view import ActionView
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 
-class ManageManifestView(ManifestViewMixin, BaseActionView):
+class ManageManifestView(ManifestViewMixin, ActionView):
 
-    post_url = 'manage_manifest_listboard_url'
+    post_action_url = 'manage_manifest_listboard_url'
     valid_form_actions = [
         'add_item', 'remove_selected_items']
 

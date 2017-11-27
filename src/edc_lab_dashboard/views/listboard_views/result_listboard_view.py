@@ -12,14 +12,13 @@ edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 class ResultListboardView(BaseListboardView):
 
-    app_config_name = 'edc_lab_dashboard'
-    navbar_selected_item = 'result'
-
-    listboard_url = 'result_listboard_url'
+    form_action_url = 'aliquot_action_url'
     listboard_template = 'result_listboard_template'
+    listboard_url = 'result_listboard_url'
     model = edc_lab_app_config.result_model
     model_wrapper_cls = ResultModelWrapper
-    form_action_url = 'aliquot_action_url'
+    navbar_selected_item = 'result'
+    search_form_url = 'result_listboard_url'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

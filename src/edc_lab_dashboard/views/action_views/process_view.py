@@ -2,13 +2,13 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from edc_lab.labels import AliquotLabel
 
-from ..mixins import RequisitionViewMixin, ProcessViewMixin
-from .base_action_view import BaseActionView
+from ...view_mixins import RequisitionViewMixin, ProcessViewMixin
+from .action_view import ActionView
 
 
-class ProcessView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
+class ProcessView(RequisitionViewMixin, ProcessViewMixin, ActionView):
 
-    post_url = 'process_listboard_url'
+    post_action_url = 'process_listboard_url'
     valid_form_actions = ['process']
     action_name = 'process'
     label_cls = AliquotLabel

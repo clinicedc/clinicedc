@@ -5,13 +5,13 @@ from django.utils.decorators import method_decorator
 from edc_lab.constants import SHIPPED
 from edc_lab.labels import ManifestLabel
 
-from ..mixins import ManifestViewMixin
-from .base_action_view import BaseActionView
+from ...view_mixins import ManifestViewMixin
+from .action_view import ActionView
 
 
-class ManifestView(ManifestViewMixin, BaseActionView):
+class ManifestView(ManifestViewMixin, ActionView):
 
-    post_url = 'manifest_listboard_url'
+    post_action_url = 'manifest_listboard_url'
     valid_form_actions = [
         'remove_selected_items', 'print_labels', 'ship_selected_items']
     label_cls = ManifestLabel

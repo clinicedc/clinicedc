@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from .base_action_view import BaseActionView
+from .action_view import ActionView
 
 
-class BoxView(BaseActionView):
+class BoxView(ActionView):
 
     template_name = 'edc_lab_dashboard/home.html'
     navbar_name = 'specimens'

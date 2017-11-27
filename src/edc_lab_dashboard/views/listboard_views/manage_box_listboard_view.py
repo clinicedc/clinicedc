@@ -3,7 +3,6 @@ from copy import copy
 from django.contrib.auth.decorators import login_required
 from django.urls.base import reverse
 from django.utils.decorators import method_decorator
-from edc_lab.constants import SHIPPED
 
 from ...model_wrappers import ManageBoxItemModelWrapper
 from ...dashboard_urls import dashboard_urls
@@ -13,12 +12,13 @@ from .base_box_item_listboard_view import BaseBoxItemListboardView
 class ManageBoxListboardView(BaseBoxItemListboardView):
 
     action_name = 'manage'
-    form_action_url = 'manage_box_item_action_url'
+    form_action_url = 'manage_box_item_form_action_url'
     listboard_url = 'manage_box_listboard_url'
     listboard_template = 'manage_box_listboard_template'
     verify_box_listboard_url = dashboard_urls.get('verify_box_listboard_url')
     model_wrapper_cls = ManageBoxItemModelWrapper
     navbar_selected_item = 'pack'
+    search_form_url = 'manage_box_listboard_url'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

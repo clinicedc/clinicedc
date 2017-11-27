@@ -6,13 +6,13 @@ from django.utils.safestring import mark_safe
 from edc_lab.constants import SHIPPED
 from edc_lab.exceptions import SpecimenError
 
-from ..mixins import BoxViewMixin
-from .base_action_view import BaseActionView
+from ...view_mixins import BoxViewMixin
+from .action_view import ActionView
 
 
-class ManageBoxItemView(BoxViewMixin, BaseActionView):
+class ManageBoxItemView(BoxViewMixin, ActionView):
 
-    post_url = 'manage_box_listboard_url'
+    post_action_url = 'manage_box_listboard_url'
     valid_form_actions = [
         'add_item', 'renumber_items', 'remove_selected_items']
 
@@ -101,7 +101,7 @@ class ManageBoxItemView(BoxViewMixin, BaseActionView):
                         self.box.save()
                 else:
                     href = reverse(
-                        self.listboard_url_name,
+                        self.listboard_url,
                         kwargs={
                             'box_identifier': box_item.box.box_identifier,
                             'action_name': 'manage'})

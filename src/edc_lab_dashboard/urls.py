@@ -87,21 +87,24 @@ urlpatterns = [
         name='result_listboard_url'),
 
     # action urls
-    path('requisition/', RequisitionView.as_view(), name='requisition_url'),
-    path('requisition/receive/', ReceiveView.as_view(), name='receive_url'),
-    path('requisition/process/', ProcessView.as_view(), name='process_url'),
-    path('requisition/pack/', PackView.as_view(), name='pack_url'),
+    path('requisition/', RequisitionView.as_view(),
+         name='requisition_form_action_url'),
+    path('requisition/receive/', ReceiveView.as_view(),
+         name='receive_form_action_url'),
+    path('requisition/process/', ProcessView.as_view(),
+         name='process_form_action_url'),
+    path('requisition/pack/', PackView.as_view(), name='pack_form_action_url'),
 
     re_path('box/(?P<box_identifier>[A-Z0-9]+)/(?P<action_name>manage)/$',
-            ManageBoxItemView.as_view(), name='manage_box_item_url'),
+            ManageBoxItemView.as_view(), name='manage_box_item_form_action_url'),
     re_path('box/(?P<box_identifier>[A-Z0-9]+)/'
             '(?P<action_name>verify)/'
             '(?P<position>[0-9]+)/$',
-            VerifyBoxItemView.as_view(), name='verify_box_item_url'),
+            VerifyBoxItemView.as_view(), name='verify_box_item_form_action_url'),
     path('manifest/', ManifestView.as_view(), name='manifest_url'),
     re_path('manifest/(?P<manifest_identifier>[A-Z0-9]+)/(?P<action_name>manage)/$',
-            ManageManifestView.as_view(), name='manage_manifest_item_url'),
-    path('aliquot/', AliquotView.as_view(), name='aliquot_url'),
+            ManageManifestView.as_view(), name='manage_manifest_item_form_action_url'),
+    path('aliquot/', AliquotView.as_view(), name='aliquot_form_action_url'),
 
     path(r'', HomeView.as_view(), name='home_url'),
 ]

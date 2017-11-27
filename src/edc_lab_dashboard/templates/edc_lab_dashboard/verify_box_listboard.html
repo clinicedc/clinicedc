@@ -18,7 +18,7 @@
 
 {% block results_panel_form %}
     <audio id="play" src="{% static "edc_lab_dashboard/beep-03.mp3" %}"></audio>
-    <form action="{{ form_action_url }}" method="post" id="{{ form_action_name }}" name="{{ form_action_name }}">
+    <form action="{{ form_action_url_reversed }}" method="post" id="{{ form_action_name }}" name="{{ form_action_name }}">
     <div class="form-group form-inline">
         <div class="input-group input-group-sm">
         <input class="form-control" type="text" form="{{ form_action_name }}" id="box_item_identifier" name="box_item_identifier" placeholder="aliquot identifier" autofocus />
@@ -54,5 +54,5 @@
 {% endblock results_header %}
 
 {% block results_body %}
-    {% show_box_rows box listboard_url_name position=position %}
+    {% show_box_rows box listboard_url position=position %}
 {% endblock results_body %}

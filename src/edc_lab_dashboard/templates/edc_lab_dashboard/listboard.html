@@ -17,7 +17,7 @@
 
     {% block panel_back %}{% endblock panel_back %}
     {% block panel_description%}{% endblock panel_description%}
-	<form action="{% if form_action_url %}{{ form_action_url }}{% else %}{% url listboard_url %}{% endif %}" method="post" name="{{ form_action_name }}" id="{{ form_action_name }}">
+	<form action="{% if form_action_url_reversed %}{{ form_action_url_reversed }}{% else %}{% url listboard_url %}{% endif %}" method="post" name="{{ form_action_name }}" id="{{ form_action_name }}">
 	 <div class="form-inline">
 	 <div class="input-group input-group-sm">
 	   

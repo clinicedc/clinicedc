@@ -11,13 +11,13 @@ register = template.Library()
 
 
 @register.inclusion_tag('edc_lab_dashboard/listboard/box/box_cell.html')
-def show_box_rows(box, listboard_url_name, position=None):
+def show_box_rows(box, listboard_url, position=None):
     """Returns rendered HTML of a box as a dictionary of keys headers, rows.
 
     Usage::
 
         {% block results_body %}
-            {% show_box_rows box listboard_url_name position=position %}
+            {% show_box_rows box listboard_url position=position %}
         {% endblock results_body %}
 
     """
@@ -45,7 +45,7 @@ def show_box_rows(box, listboard_url_name, position=None):
                 'position': pos,
                 'box_identifier': box.box_identifier,
                 'action_name': 'verify'}
-            cell['href'] = reverse(listboard_url_name, kwargs=reverse_kwargs)
+            cell['href'] = reverse(listboard_ur, kwargs=reverse_kwargs)
             cell['btn_style'] = btn_style.get(box_item.verified)
             cell['btn_label'] = str(pos).zfill(2)
             cell['btn_title'] = box_item.human_readable_identifier or 'empty'

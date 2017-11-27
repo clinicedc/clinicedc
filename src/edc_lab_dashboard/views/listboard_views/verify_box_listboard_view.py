@@ -19,6 +19,7 @@ class VerifyBoxListboardView(BaseBoxItemListboardView):
     listboard_url = 'verify_box_listboard_url'
     model_wrapper_cls = VerifyBoxItemModelWrapper
     navbar_selected_item = 'pack'
+    search_form_url = 'verify_box_listboard_url'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -27,19 +28,19 @@ class VerifyBoxListboardView(BaseBoxItemListboardView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
-            manage_box_listboard_url=self.manage_box_listboard_url,
+            manage_box_listboard_url_reversed=self.manage_box_listboard_url_reversed,
             position=self.kwargs.get('position'),
             SHIPPED=SHIPPED,
         )
         return context
 
     @property
-    def manage_box_listboard_url(self):
+    def manage_box_listboard_url_reversed(self):
         url_kwargs = copy(self.url_kwargs)
         url_kwargs.pop('position')
         url_kwargs['action_name'] = 'manage'
         return reverse(
-            self.manage_box_listboard_url_name,
+            self.manage_box_listboard_url,
             kwargs=url_kwargs)
 
     @property

@@ -18,7 +18,8 @@ class AliquotListboardView(BaseListboardView):
     listboard_template = 'aliquot_listboard_template'
     show_all = True
     listboard_view_filters = AliquotListboardViewFilters()
-    form_action_url = 'aliquot_url'
+    form_action_url = 'aliquot_form_action_url'
+    search_form_url = 'aliquot_listboard_url'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

@@ -3,7 +3,6 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from edc_constants.constants import YES
 
-# from ...dashboard_templates import dashboard_templates
 from ...dashboard_urls import dashboard_urls
 from .requisition_listboard_view import RequisitionListboardView
 
@@ -12,13 +11,14 @@ app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 class ReceiveListboardView(RequisitionListboardView):
 
-    navbar_selected_item = 'receive'
-    listboard_url = 'receive_listboard_url'
+    action_name = 'receive'
+    form_action_url = 'receive_form_action_url'
     listboard_template = 'receive_listboard_template'
+    listboard_url = 'receive_listboard_url'
+    navbar_selected_item = 'receive'
     process_listboard_url = dashboard_urls.get('process_listboard_url')
     show_all = True
-    form_action_url = 'receive_action_url'
-    action_name = 'receive'
+    search_form_url = 'receive_listboard_url'
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
