@@ -46,7 +46,7 @@ class UrlConfig:
     def listboard_urls(self):
         """Returns url patterns.
 
-        configs = [(listboard_url_name, listboard_view_class, label), (), ...]
+        configs = [(listboard_url, listboard_view_class, label), (), ...]
         """
         urlpatterns = [
             re_path(r'^' + f'{self.label}/'
