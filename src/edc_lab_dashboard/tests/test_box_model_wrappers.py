@@ -1,13 +1,9 @@
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
-from edc_lab.models import Aliquot, Box, BoxType, Manifest, Shipper, Consignee
-from edc_lab.models import ManifestItem
+from edc_lab.models import Aliquot, Box, BoxType
 
-from ..model_wrappers import BoxModelWrapper, ManageBoxItemModelWrapper
-from ..model_wrappers import ManifestItemModelWrapper, ManifestModelWrapper
+from ..model_wrappers import BoxModelWrapper
 from edc_lab.models.box_item import BoxItem
-from pprint import pprint
-# from ..model_wrappers import RequisitionModelWrapper
 
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')

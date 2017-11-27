@@ -7,12 +7,8 @@ from edc_lab.exceptions import SpecimenError
 
 class BoxViewMixin(ContextMixin):
 
-    box_model = django_apps.get_model(
-        django_apps.get_app_config('edc_lab').box_model)
-    box_item_model = django_apps.get_model(
-        django_apps.get_app_config('edc_lab').box_item_model)
-    aliqout_model = django_apps.get_model(
-        django_apps.get_app_config('edc_lab').aliquot_model)
+    """Declare with the ModelsViewMixin.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

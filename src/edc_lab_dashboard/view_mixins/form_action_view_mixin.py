@@ -9,7 +9,7 @@ class FormActionViewMixin(ContextMixin):
     action_name = None
     form_action_name = 'form_action'
     form_action_selected_items_name = 'selected_items'
-    form_action_url = None  # defaults to self.listboard_url
+    form_action_url = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

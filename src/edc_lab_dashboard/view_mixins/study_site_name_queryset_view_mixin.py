@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-
 from edc_device.constants import CLIENT, SERVER
 
 
