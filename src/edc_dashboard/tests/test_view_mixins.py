@@ -65,6 +65,7 @@ class TestViewMixins(TestCase):
             model = 'edc_dashboard.subjectvisit'
             listboard_url = 'listboard_url'
             listboard_template = 'listboard_template'
+            listboard_filter_url = 'listboard_url'
             model_wrapper_cls = SubjectVisitModelWrapper
             listboard_view_filters = MyListboardViewFilters()
 
