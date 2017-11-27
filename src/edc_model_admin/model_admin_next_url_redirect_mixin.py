@@ -24,6 +24,10 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
     value2&arg3=value3&arg4=value4...etc.
     """
 
+    # this func is required if show_save_next=True
+    # use edc_metadata.get_next_required_form
+    get_next_required_form = None
+
     show_save_next = False
     show_cancel = False
     next_querystring_attr = 'next'
@@ -101,13 +105,10 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
 
         This method expects a CRF model with model mixins from edc_visit_tracking
         and edc_visit_schedule.
+
+        Requires edc_metadata. Queries Metadata models.
         """
-        try:
-            next_form = obj.visit.visit.next_form(model=obj._meta.label_lower)
-        except AttributeError as e:
-            raise ModelAdminNextUrlError(
-                f'{e} Model {repr(obj)}. Check model class declaration uses '
-                f'required model mixins from edc_visit_tracking and edc_visit_schedule.')
+        next_form = self.get_next_required_form(model_obj=obj)
         if next_form:
             try:
                 panel_name = next_form.panel.name
