@@ -82,6 +82,9 @@ class SimpleUniqueIdentifier:
             identifier_type=self.identifier_type,
             **{self.identifier_attr: self.identifier})
 
+    def __str__(self):
+        return self.identifier
+
     @property
     def identifier(self):
         if not self._identifier:
