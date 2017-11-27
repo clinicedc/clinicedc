@@ -7,9 +7,9 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..constants import REQUIRED
-from ..get_next_required_form import get_next_required_form
 from ..metadata import CrfMetadataGetter
 from ..models import CrfMetadata, RequisitionMetadata
+from ..next_form_getter import NextFormGetter
 from .models import Enrollment, SubjectVisit, CrfOne, CrfTwo
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
@@ -83,7 +83,8 @@ class TestMetadataGetter(TestCase):
         self.assertEqual(len(objects), len(visit.crfs) - 1)
 
     def test_next_required_form(self):
-        next_form = get_next_required_form(
+        getter = NextFormGetter()
+        next_form = getter.next_form(
             appointment=self.appointment,
             model='edc_metadata.crftwo')
         self.assertEqual(next_form.model, 'edc_metadata.crfthree')
@@ -91,5 +92,6 @@ class TestMetadataGetter(TestCase):
     def test_next_required_form2(self):
         CrfOne.objects.create(subject_visit=self.subject_visit)
         crf_two = CrfTwo.objects.create(subject_visit=self.subject_visit)
-        next_form = get_next_required_form(model_obj=crf_two)
+        getter = NextFormGetter()
+        next_form = getter.next_form(model_obj=crf_two)
         self.assertEqual(next_form.model, 'edc_metadata.crfthree')
