@@ -6,8 +6,6 @@ from django.core.management.color import color_style
 
 from .site_labs import site_labs
 
-app_name = 'edc_lab'
-
 style = color_style()
 
 
@@ -23,18 +21,16 @@ class AppConfig(DjangoAppConfig):
     site_code = None
     site_name = None
 
-    aliquot_model = 'edc_lab.aliquot'
-
-    box_model = 'edc_lab.box'
-    box_item_model = 'edc_lab.boxitem'
     try:
         requisition_model = settings.EDC_LAB_REQUISITION_MODEL
     except AttributeError:
         requisition_model = 'edc_lab.requisition'
-    result_model = 'edc_lab.result'
-    manifest_model = 'edc_lab.manifest'
-    manifest_item_model = 'edc_lab.manifestitem'
+    aliquot_model = 'edc_lab.aliquot'
+    box_item_model = 'edc_lab.boxitem'
     box_model = 'edc_lab.box'
+    manifest_item_model = 'edc_lab.manifestitem'
+    manifest_model = 'edc_lab.manifest'
+    result_model = 'edc_lab.result'
 
     def ready(self):
         from .models.signals import manifest_item_on_post_delete
