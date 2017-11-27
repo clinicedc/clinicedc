@@ -26,7 +26,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
 
     # this func is required if show_save_next=True
     # use edc_metadata.get_next_required_form
-    get_next_required_form = None
+    next_form_getter_cls = None
 
     show_save_next = False
     show_cancel = False
@@ -108,7 +108,10 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
 
         Requires edc_metadata. Queries Metadata models.
         """
-        next_form = self.get_next_required_form(model_obj=obj)
+        panel_name = None
+        redirect_url = self.get_next_redirect_url(request=request)
+        getter = self.next_form_getter_cls()
+        next_form = getter.next_form(model_obj=obj)
         if next_form:
             try:
                 panel_name = next_form.panel.name
