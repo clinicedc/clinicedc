@@ -47,13 +47,20 @@ class ListboardView(QueryStringViewMixin, UrlRequestContextMixin, TemplateReques
         if context_object_name is not None:
             context[context_object_name] = wrapped_queryset
         context = self.add_url_to_context(
-            new_key='listboard_url_name',
+            new_key='listboard_url',
             existing_key=self.listboard_url,
             context=context)
         return context
 
     def get_template_names(self):
         return [self.get_template_from_context(self.listboard_template)]
+
+    @property
+    def url_kwargs(self):
+        """Returns a dictionary of URL options for either the
+        Search form URL and the Form Action.
+        """
+        return {}
 
     @property
     def model_cls(self):

@@ -1,7 +1,7 @@
 
 <!--start searchform-->
 <span class="pull-right">
-	<form  action="{% if search_form_url %}{{ search_form_url }}{% else %}{% url listboard_url_name %}{% endif %}" class="form-inline" id="form-search" method="get" >
+	<form  action="{% if search_form_url_reversed %}{{ search_form_url_reversed }}{% else %}{% url listboard_url %}{% endif %}" class="form-inline" id="form-search" method="get" >
         <div class="form-group" >
             <div class="controls ">
                 <div class="input-group">
@@ -17,7 +17,7 @@
 	                            <ul class="dropdown-menu pull-right" role="menu">
 	                              {% for listboard_filter in listboard_view_filters %}
 	                                <li>
-	                                   <a href="{{ listboard_url }}?{{ listboard_filter.querystring }}">
+	                                   <a href="{% url listboard_url %}?{{ listboard_filter.querystring }}">
 	                                       {{ listboard_filter.label }}{% if f == listboard_filter.name or e == listboard_filter.name %}&nbsp;<i class="fa fa-check fa-fw"></i>{% endif %}
 	                                   </a>
 	                                </li>

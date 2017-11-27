@@ -1,0 +1,24 @@
+{% load tz %}
+{% load edc_base_extras %}
+{% load staticfiles %}
+
+    <td style="white-space: nowrap">
+    <a title="Edit subject's screening form" role="button" 
+       class="btn btn-default btn-sm"
+           href="{{ result.href }}">
+        <i class="fa fa-pencil fa-sm"></i>
+    </a>
+    {% if not result.eligible %}
+        Not Eligible
+    {% elif result.consent %}
+         <a class="btn btn-success btn-sm" role="button"   
+        title="Go to subject's dashboard" href="{% url subject_dashboard_url result.consent.subject_identifier%}">
+        <i class="fa fa-user-circle-o fa-sm"></i> Dashboard</a>
+    {% else %}
+         <a title="Consent to participate"
+            class="btn btn-warning btn-sm"
+                href="{{ result.consent.href }}">
+             Consent (v{{ subject_screening.consent.version }})
+         </a>
+    {% endif %}
+    </td>
