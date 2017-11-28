@@ -28,8 +28,10 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
     # use edc_metadata.get_next_required_form
     next_form_getter_cls = None
 
+    # need to override admin change_form template for these to wrrk
     show_save_next = False
     show_cancel = False
+
     next_querystring_attr = 'next'
 
     def extra_context(self, extra_context=None):
@@ -72,6 +74,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         return super().delete_view(request, object_id, extra_context=extra_context)
 
     def redirect_url(self, request, obj, post_url_continue=None):
+        redirect_url = None
         if self.show_save_next and request.POST.get('_savenext'):
             redirect_url = self.get_savenext_redirect_url(
                 request=request, obj=obj)
@@ -96,8 +99,12 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         try:
             redirect_url = reverse(url_name, kwargs=options)
         except NoReverseMatch as e:
-            raise ModelAdminNextUrlRedirectError(
-                f'{e}. Got url_name={url_name}, kwargs={options}.')
+            msg = f'{e}. Got url_name={url_name}, kwargs={options}.'
+            try:
+                redirect_url = reverse(url_name)  # retry without kwargs
+            except NoReverseMatch:
+                # raise with first exception msg
+                raise ModelAdminNextUrlRedirectError(msg)
         return redirect_url
 
     def get_savenext_redirect_url(self, request=None, obj=None):
