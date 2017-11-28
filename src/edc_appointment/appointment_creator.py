@@ -20,7 +20,7 @@ class AppointmentCreator:
     def __init__(self, model_obj=None, suggested_datetime=None, timepoint_datetime=None,
                  visit=None, visit_code_sequence=None, facility=None,
                  subject_identifier=None, visit_schedule_name=None, schedule_name=None,
-                 default_appt_type=None):
+                 default_appt_type=None, appt_status=None):
         self._appointment = None
         self._appointment_config = None
         self._appointment_model_cls = None
@@ -36,6 +36,7 @@ class AppointmentCreator:
         self.visit = visit
         self.appointment_model = visit.appointment_model
         self.visit_code_sequence = visit_code_sequence or 0
+        self.appt_status = appt_status
         if suggested_datetime and is_naive(suggested_datetime):
             raise ValueError(
                 f'Naive datetime not allowed. {repr(self)}. '
@@ -84,13 +85,16 @@ class AppointmentCreator:
         """Returns default options to "get" an existing
         appointment model instance.
         """
-        return dict(
+        options = dict(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.visit_schedule_name,
             schedule_name=self.schedule_name,
             visit_code=self.visit.code,
             visit_code_sequence=self.visit_code_sequence,
             timepoint=self.visit.timepoint)
+        if self.appt_status:
+            options.update(appt_status=self.appt_status)
+        return options
 
     def _create(self):
         """Returns a newly created appointment model instance.

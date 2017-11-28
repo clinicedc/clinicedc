@@ -66,7 +66,8 @@ for index in range(0, 4):
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
             requisitions=requisitions,
-            crfs=crfs))
+            crfs=crfs,
+            allow_unscheduled=True))
 for visit in visits:
     schedule1.add_visit(visit)
 

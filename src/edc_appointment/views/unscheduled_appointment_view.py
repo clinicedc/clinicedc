@@ -5,6 +5,9 @@ from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
+from ..unscheduled_appointment_creator import AppointmentInProgressError
+from ..unscheduled_appointment_creator import InvalidParentAppointmentMissingVisitError
+from ..unscheduled_appointment_creator import InvalidParentAppointmentStatusError
 from ..unscheduled_appointment_creator import UnscheduledAppointmentCreator
 from ..unscheduled_appointment_creator import UnscheduledAppointmentError
 
@@ -24,7 +27,10 @@ class UnscheduledAppointmentView(View):
     def get(self, request, *args, **kwargs):
         try:
             creator = self.unscheduled_appointment_cls(**kwargs)
-        except (ObjectDoesNotExist, UnscheduledAppointmentError) as e:
+        except (ObjectDoesNotExist, UnscheduledAppointmentError,
+                InvalidParentAppointmentMissingVisitError,
+                InvalidParentAppointmentStatusError,
+                AppointmentInProgressError) as e:
             messages.error(self.request, str(e))
         else:
             messages.success(
