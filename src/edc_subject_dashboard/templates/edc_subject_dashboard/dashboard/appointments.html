@@ -26,10 +26,12 @@
                         {% endif %}
 
                         <!--begin unscheduled appointment -->
-                        {% if wrapped.appt_status == INCOMPLETE_APPT or wrapped.appt_status == COMPLETE_APPT %}
+                        {% if not wrapped.disabled and wrapped.object.visit_code_sequence == 0 %}
+                        	{% if wrapped.appt_status == INCOMPLETE_APPT or wrapped.appt_status == COMPLETE_APPT %}
 		                     <a role="button" class="btn btn-sm btn-default" href="{{ wrapped.unscheduled_appointment_url }}">
 		                        <i class="fa fa-address-book-o fa-lg" data-toggle="tooltip" title="Add continuation / unscheduled appointment" aria-hidden="true"></i>
 		                     </a>
+							{% endif %}
 						{% endif %}
                         <!--end unscheduled appointment -->
 
