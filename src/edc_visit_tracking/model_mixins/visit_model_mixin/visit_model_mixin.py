@@ -37,7 +37,7 @@ class VisitModelMixin(
     history = HistoricalRecords()
 
     def __str__(self):
-        return '{} {}'.format(self.subject_identifier, self.visit_code)
+        return f'{self.subject_identifier} {self.visit_code}'
 
     def save(self, *args, **kwargs):
         if self.__class__.appointment.field.remote_field.on_delete != PROTECT:
@@ -49,14 +49,17 @@ class VisitModelMixin(
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
         self.visit_code = self.appointment.visit_code
+        self.visit_code_sequence = self.appointment.visit_code_sequence
         super().save(*args, **kwargs)
 
     def natural_key(self):
         return (self.subject_identifier,
                 self.visit_schedule_name,
                 self.schedule_name,
-                self.visit_code)
-    # natural_key.dependencies = ['app_label.appointment']
+                self.visit_code,
+                self.visit_code_sequence)
+    # change this if you are using another appointment model
+    natural_key.dependencies = ['edc_appointment.appointment']
 
     @property
     def appointment_zero(self):
@@ -133,9 +136,10 @@ class VisitModelMixin(
         abstract = True
         unique_together = (
             ('subject_identifier', 'visit_schedule_name',
-             'schedule_name', 'visit_code'),
+             'schedule_name', 'visit_code', 'visit_code_sequence'),
             ('subject_identifier', 'visit_schedule_name',
              'schedule_name', 'report_datetime'),
         )
         ordering = (('subject_identifier', 'visit_schedule_name',
-                     'schedule_name', 'visit_code', 'report_datetime', ))
+                     'schedule_name', 'visit_code', 'visit_code_sequence',
+                     'report_datetime', ))

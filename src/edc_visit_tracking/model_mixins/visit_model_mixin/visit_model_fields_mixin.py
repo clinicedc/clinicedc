@@ -9,6 +9,7 @@ from edc_protocol.validators import datetime_not_before_study_start
 
 
 class VisitModelFieldsMixin(models.Model):
+
     report_datetime = models.DateTimeField(
         verbose_name='Visit Date and Time',
         validators=[
