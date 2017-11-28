@@ -6,8 +6,8 @@ class NonCrfDfHandler(CrfDfHandler):
     sort_by = None
 
     def prepare_dataframe(self, **kwargs):
-        self.dataframe = self.dataframe[
-            [col for col in self.columns if col in self.dataframe.columns]]
+        columns = [col for col in self.columns if col in self.dataframe.columns]
+        self.dataframe = self.dataframe.loc[:, columns]
 
     @property
     def columns(self):

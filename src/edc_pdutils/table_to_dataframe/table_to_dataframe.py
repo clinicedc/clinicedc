@@ -16,6 +16,6 @@ class TableToDataframe:
                 table_name=table_name, **kwargs)
             df = df_handler.dataframe
         if columns:
-            self.dataframe = df[columns]
+            self.dataframe = df.loc[:, columns]
         else:
             self.dataframe = df
