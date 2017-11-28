@@ -114,12 +114,13 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
     @property
     def next_by_timepoint(self):
         """Returns the previous appointment or None of all appointments
-        for this subject.
+        for this subject for visit_code_sequence=0.
         """
         return self.__class__.objects.filter(
             subject_identifier=self.subject_identifier,
-            timepoint_datetime__gt=self.timepoint_datetime
-        ).order_by('timepoint_datetime').first()
+            timepoint__gt=self.timepoint,
+            visit_code_sequence=0
+        ).order_by('timepoint').first()
 
     @property
     def last_visit_code_sequence(self):
@@ -152,17 +153,19 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
 
     @property
     def previous_by_timepoint(self):
-        """Returns the next appointment or None of all appointments
-        for this subject.
+        """Returns the previous appointment or None by timepoint
+        for visit_code_sequence=0.
         """
         return self.__class__.objects.filter(
             subject_identifier=self.subject_identifier,
-            timepoint_datetime__lt=self.timepoint_datetime
-        ).order_by('timepoint_datetime').last()
+            timepoint__lt=self.timepoint,
+            visit_code_sequence=0
+        ).order_by('timepoint').last()
 
     @property
     def previous(self):
-        """Returns the previous appointment or None in this schedule.
+        """Returns the previous appointment or None in this schedule
+        for visit_code_sequence=0.
         """
         previous_appt = None
         previous_visit = self.schedule.visits.previous(self.visit_code)
@@ -172,14 +175,16 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
                     subject_identifier=self.subject_identifier,
                     visit_schedule_name=self.visit_schedule_name,
                     schedule_name=self.schedule_name,
-                    visit_code=previous_visit.code)
+                    visit_code=previous_visit.code,
+                    visit_code_sequence=0)
             except ObjectDoesNotExist:
                 pass
         return previous_appt
 
     @property
     def next(self):
-        """Returns the next appointment or None in this schedule.
+        """Returns the next appointment or None in this schedule
+        for visit_code_sequence=0.
         """
         next_appt = None
         next_visit = self.schedule.visits.next(self.visit_code)
@@ -189,7 +194,8 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
                     subject_identifier=self.subject_identifier,
                     visit_schedule_name=self.visit_schedule_name,
                     schedule_name=self.schedule_name,
-                    visit_code=next_visit.code)
+                    visit_code=next_visit.code,
+                    visit_code_sequence=0)
                 next_appt = self.__class__.objects.get(**options)
             except ObjectDoesNotExist:
                 pass
@@ -197,6 +203,8 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
 
     @property
     def facility(self):
+        """Returns the facility instance for this facility name.
+        """
         app_config = django_apps.get_app_config('edc_facility')
         return app_config.get_facility(name=self.facility_name)
 
@@ -210,4 +218,4 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
             ('subject_identifier', 'visit_schedule_name',
              'schedule_name', 'visit_code', 'timepoint', 'visit_code_sequence'),
         )
-        ordering = ('timepoint_datetime',)
+        ordering = ('timepoint', 'visit_code_sequence')

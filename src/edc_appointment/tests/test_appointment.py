@@ -13,6 +13,7 @@ from ..models import Appointment
 from .helper import Helper
 from .models import SubjectConsent, SubjectVisit, EnrollmentOne, EnrollmentTwo
 from .visit_schedule import visit_schedule1, visit_schedule2
+from edc_appointment.constants import INCOMPLETE_APPT, IN_PROGRESS_APPT
 
 
 @tag('2')
@@ -63,15 +64,41 @@ class TestAppointment(TestCase):
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier)
         self.assertEqual(appointments.count(), 4)
+
         SubjectVisit.objects.create(
             appointment=appointments[0],
             report_datetime=appointments[0].appt_datetime,
             reason=SCHEDULED)
+
         Appointment.objects.delete_for_subject_after_date(
             appointments[0].subject_identifier,
             appointments[0].appt_datetime - relativedelta(days=1))
         self.assertEqual(Appointment.objects.filter(
             subject_identifier=self.subject_identifier).count(), 1)
+
+    def test_deletes_appointments_with_unscheduled(self):
+        """Asserts manager method can delete appointments.
+        """
+        self.helper.consent_and_enroll()
+        appointments = Appointment.objects.filter(
+            subject_identifier=self.subject_identifier)
+        self.assertEqual(appointments.count(), 4)
+
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED)
+
+        appointment = appointments[0]
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+        self.helper.add_unscheduled_appointment(appointment)
+
+        Appointment.objects.delete_for_subject_after_date(
+            appointments[0].subject_identifier,
+            appointments[0].appt_datetime - relativedelta(days=1))
+        self.assertEqual(Appointment.objects.filter(
+            subject_identifier=self.subject_identifier).count(), 2)
 
     def test_appointments_dates_mo(self):
         """Test appointment datetimes are chronological.
@@ -167,6 +194,41 @@ class TestAppointment(TestCase):
                 visit_schedule_name='visit_schedule2').order_by('appt_datetime')[0],
             first_appointment)
 
+    def test_first_appointment_with_unscheduled(self):
+        """Asserts first appointment correctly selected if
+        unscheduled visits have been added.
+        """
+        self.helper.consent_and_enroll()
+        subject_consent = SubjectConsent.objects.get(
+            subject_identifier=self.subject_identifier)
+        EnrollmentTwo.objects.create(
+            subject_identifier=subject_consent.subject_identifier,
+            report_datetime=subject_consent.consent_datetime,
+            is_eligible=True,
+            facility_name=self.facility_name)
+        enrollment_one = EnrollmentOne.objects.get(
+            subject_identifier=self.subject_identifier)
+
+        first_appointment = Appointment.objects.first_appointment(
+            subject_identifier=enrollment_one.subject_identifier,
+            visit_schedule_name='visit_schedule1',
+            schedule_name='schedule1')
+
+        # add unscheduled
+        SubjectVisit.objects.create(
+            appointment=first_appointment,
+            report_datetime=first_appointment.appt_datetime,
+            reason=SCHEDULED)
+        first_appointment.appt_status = INCOMPLETE_APPT
+        first_appointment.save()
+        self.helper.add_unscheduled_appointment(first_appointment)
+
+        appointment = Appointment.objects.filter(
+            subject_identifier=enrollment_one.subject_identifier,
+            visit_schedule_name='visit_schedule1',
+            schedule_name='schedule1').order_by('appt_datetime')[0]
+        self.assertEqual(first_appointment, appointment)
+
     def test_next_appointment(self):
         self.helper.consent_and_enroll()
         enrollment = EnrollmentOne.objects.get(
@@ -192,6 +254,43 @@ class TestAppointment(TestCase):
                 subject_identifier=enrollment.subject_identifier).order_by('appt_datetime')[1],
             next_appointment)
 
+    def test_next_appointment_with_unscheduled(self):
+        self.helper.consent_and_enroll()
+        enrollment = EnrollmentOne.objects.get(
+            subject_identifier=self.subject_identifier)
+        first_appointment = Appointment.objects.first_appointment(
+            subject_identifier=enrollment.subject_identifier,
+            visit_schedule_name='visit_schedule1',
+            schedule_name='schedule1')
+
+        # add unscheduled
+        SubjectVisit.objects.create(
+            appointment=first_appointment,
+            report_datetime=first_appointment.appt_datetime,
+            reason=SCHEDULED)
+        first_appointment.appt_status = INCOMPLETE_APPT
+        first_appointment.save()
+        self.helper.add_unscheduled_appointment(first_appointment)
+
+        next_appointment = Appointment.objects.next_appointment(
+            visit_code=first_appointment.visit_code,
+            subject_identifier=enrollment.subject_identifier,
+            visit_schedule_name='visit_schedule1',
+            schedule_name='schedule1')
+        self.assertEqual(
+            Appointment.objects.filter(
+                subject_identifier=enrollment.subject_identifier,
+                visit_code_sequence=0).order_by('timepoint')[1],
+            next_appointment)
+
+        next_appointment = Appointment.objects.next_appointment(
+            appointment=first_appointment)
+        self.assertEqual(
+            Appointment.objects.filter(
+                subject_identifier=enrollment.subject_identifier,
+                visit_code_sequence=0).order_by('timepoint')[1],
+            next_appointment)
+
     def test_next_appointment_after_last_returns_none(self):
         """Assert returns None if next after last appointment.
         """
@@ -201,6 +300,31 @@ class TestAppointment(TestCase):
             subject_identifier=self.subject_identifier,
             visit_schedule_name='visit_schedule1',
             schedule_name='schedule1')
+        self.assertEqual(
+            Appointment.objects.next_appointment(appointment=last_appointment), None)
+
+    def test_next_appointment_after_last_returns_none_with_unscheduled(self):
+        """Assert returns None if next after last appointment.
+        """
+        self.helper.consent_and_enroll()
+
+        last_appointment = Appointment.objects.last_appointment(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name='visit_schedule1',
+            schedule_name='schedule1')
+
+        # add unscheduled
+        for appointment in Appointment.objects.all():
+            appointment.appt_status = IN_PROGRESS_APPT
+            appointment.save()
+            SubjectVisit.objects.create(
+                appointment=appointment,
+                report_datetime=appointment.appt_datetime,
+                reason=SCHEDULED)
+            appointment.appt_status = INCOMPLETE_APPT
+            appointment.save()
+        self.helper.add_unscheduled_appointment(last_appointment)
+
         self.assertEqual(
             Appointment.objects.next_appointment(appointment=last_appointment), None)
 

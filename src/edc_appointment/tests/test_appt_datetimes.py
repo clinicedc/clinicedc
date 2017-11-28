@@ -13,7 +13,6 @@ from .helper import Helper
 from .visit_schedule import visit_schedule1
 
 
-@tag('1')
 class TestApptDatetimes(TestCase):
 
     helper_cls = Helper

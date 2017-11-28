@@ -1,6 +1,7 @@
 from edc_base.utils import get_utcnow
 
 from .models import SubjectConsent, EnrollmentOne
+from ..unscheduled_appointment_creator import UnscheduledAppointmentCreator
 
 
 class Helper:
@@ -20,3 +21,12 @@ class Helper:
             report_datetime=subject_consent.consent_datetime,
             is_eligible=True,
             facility_name=facility_name or self.facility_name)
+
+    def add_unscheduled_appointment(self, appointment=None):
+        creator = UnscheduledAppointmentCreator(
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            facility=appointment.facility)
+        return creator.appointment

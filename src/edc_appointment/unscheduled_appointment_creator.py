@@ -114,6 +114,7 @@ class UnscheduledAppointmentCreator:
                     raise InvalidParentAppointmentStatusError(
                         f'Unable to create unscheduled appointment. An unscheduled '
                         f'appointment cannot be created if the parent appointment '
-                        f'is \'new\' or \'in progress\'. Got appointment \'{self.visit_code}\'.')
+                        f'is \'new\' or \'in progress\'. Got appointment \'{self.visit_code}\' '
+                        f'is {self._parent_appointment.get_appt_status_display().lower()}.')
 
         return self._parent_appointment
