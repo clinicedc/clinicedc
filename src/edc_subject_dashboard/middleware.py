@@ -1,5 +1,7 @@
 from django.conf import settings
 from edc_constants.constants import MALE, FEMALE, OTHER, YES, NO, NOT_APPLICABLE
+from edc_constants.constants import NEW, OPEN, CLOSED
+from edc_action_item import REJECTED, RESOLVED
 
 
 class DashboardMiddleware:
@@ -26,10 +28,16 @@ class DashboardMiddleware:
         response.context_data.update(**request.url_name_data)
         response.context_data.update(**request.template_data)
         response.context_data.update(
-            MALE=MALE,
+            CLOSED=CLOSED,
             FEMALE=FEMALE,
-            OTHER=OTHER,
-            YES=YES,
+            MALE=MALE,
+            NEW=NEW,
             NO=NO,
-            NOT_APPLICABLE=NOT_APPLICABLE)
+            NOT_APPLICABLE=NOT_APPLICABLE,
+            OPEN=OPEN,
+            OTHER=OTHER,
+            REJECTED=REJECTED,
+            RESOLVED=RESOLVED,
+            YES=YES,
+        )
         return response

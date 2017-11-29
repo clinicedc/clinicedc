@@ -1,0 +1,11 @@
+{% if action_items %}
+    <div class="list-group">
+        {% for action_item in action_items %}
+        <a class="list-group-item list-group-item-danger" href="{{ action_item.href }}">
+         <span class="text text-default" data-toggle="tooltip" title="{{ action_item.object.report_datetime|date:'SHORT_DATE_FORMAT' }}: {{ action_item.action_identifier }}">
+            <i class="fa fa-bell fa-1x fa-fw" aria-hidden="true"></i> 
+            <span class="h6">{{ action_item.object.title|truncatechars:25}}</span>
+        </span>
+       </a>
+       {% endfor %}
+    </div>{% endif %}

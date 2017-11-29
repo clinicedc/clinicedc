@@ -18,16 +18,7 @@
 
 {% block consent_history %}
 
-	<div class="list-group">
-	  {% if not consents %}
-	    <a class="list-group-item" href="#">Never consented</a>
-	  {% endif %}
-	  {% for obj in consents %}
-	       <a class="list-group-item" href="#">
-	            {{ obj.consent_datetime|date:"SHORT_DATE_FORMAT" }} Version {{ obj.version }}
-	       </a>
-	  {% endfor %}
-	</div>
+    {% include 'edc_subject_dashboard/dashboard/sidebar/consent_history.html' %}
 
 {% endblock consent_history %}
 

@@ -1,0 +1,21 @@
+{% if consents %}
+<table class="table table-condensed">
+    <thead></thead>
+    <tbody>
+    	{% for consent in consents %}
+	        <tr>
+	        <td class="{% if consent %}success{% else %}warning{% endif %}">
+		        {% with wrapped=consent %}
+		            {% include 'edc_dashboard/controls/change_button.html' %}
+		        {% endwith %}
+			</td>
+	        <td class="{% if consent %}success{% else %}warning{% endif %}">
+	            <span class="h6">{{ consent.verbose_name|title }}&nbsp;v{{ consent.version }}
+	           	<span class="text text-muted">consented {{ consent.object.consent_datetime|date:"SHORT_DATE_FORMAT"}}</span>
+	           </span>
+	        </td>
+	      	</tr>
+      	{% endfor %}
+    </tbody>
+</table>
+{% endif %}

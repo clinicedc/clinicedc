@@ -1,17 +1,6 @@
-<div class="table-responsive small text-default">
     <table class="table table-condensed">
         <thead></thead>
         <tbody>
-	        <tr>
-		        <td class="{% if consent %}success{% else %}warning{% endif %}">
-			        {% with wrapped=consent %}
-			            {% include 'edc_dashboard/controls/change_button.html' %}
-			        {% endwith %}
-				</td>
-		        <td class="{% if consent %}success{% else %}warning{% endif %}">
-		            <h6>{{ consent.verbose_name|title }} v{{ consent.version }} <span class="text text-muted">{{ consent.consent_datetime|date:"SHORT_DATE_FORMAT"}}</span></h6> 
-		        </td>
-	        </tr>
 	        <tr>
 	            {% with wrapped=subject_locator %}
 	                {% include 'edc_dashboard/controls/change_button_as_column.html' %}
@@ -19,4 +8,3 @@
 	        </tr>
 	    </tbody>
     </table>
-</div>

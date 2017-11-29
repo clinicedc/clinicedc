@@ -1,12 +1,21 @@
 
 <div class="panel-group" id="accordion">
 
+
+    {% if action_items %}
+    <div class="panel panel-danger">
+      <div id="action_items" class="panel-collapse collapse in">
+          {% block action_items %}{% endblock action_items %}           
+      </div>           
+    </div>
+    {% endif %}
+
     <div class="panel panel-default">
       <div class="panel-heading">
           <h6 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#demographics">
               <i class="{% if household_member.gender == MALE %}fa fa-male{% else %}fa fa-female{% endif %} fa-lg fa-fw"></i>
-              {{ subject_identifier }}</a>
+              <a data-toggle="collapse" data-parent="#accordion" href="#demographics">{{ subject_identifier }}</a>
+              
           </h6>
       </div>
       <div id="demographics" class="panel-collapse collapse in">
@@ -16,22 +25,24 @@
 
     <div class="panel panel-default">
       <div class="panel-heading">
-          <h6 class="panel-title"><i class="fa fa-list-alt fa-lg fa-fw"></i> 
-              <a data-toggle="collapse" data-parent="#accordion" href="#consent">Special Forms</a>
+          <h6 class="panel-title">
+              <i class="fa fa-list-alt fa-lg fa-fw"></i> 
+              <a data-toggle="collapse" data-parent="#accordion" href="#special_forms">Special Forms</a>
           </h6>
       </div>
-      <div >
+      <div id="special_forms" class="panel-collapse collapse in">
          {% block special_forms %}{% endblock special_forms %}
       </div>           
     </div>
 
     <div class="panel panel-default">
       <div class="panel-heading">
-          <h6 class="panel-title"><i class="fa fa-history fa-lg fa-fw"></i> 
+          <h6 class="panel-title">
+              <i class="fa fa-handshake-o fa-lg fa-fw"></i> 
               <a data-toggle="collapse" data-parent="#accordion" href="#consent_history">Consent History</a>
           </h6>
       </div>
-      <div id="consent_history" class="panel-collapse collapse">
+      <div id="consent_history" class="panel-collapse collapse in">
          {% block consent_history %}{% endblock consent_history %}
       </div>           
     </div>
