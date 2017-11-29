@@ -2,7 +2,6 @@ import arrow
 
 from django import forms
 from django.apps import apps as django_apps
-
 from edc_base.utils import get_utcnow
 from edc_metadata.constants import REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
@@ -167,10 +166,11 @@ class AppointmentFormMixin:
 
     def validate_not_future_appt_datetime(self):
         cleaned_data = self.cleaned_data
-        if cleaned_data.get('appt_status') != NEW_APPT:
-            appt_datetime = cleaned_data.get('appt_datetime')
-            rappt_datetime = arrow.Arrow.fromdatetime(
-                appt_datetime, appt_datetime.tzinfo)
-            if rappt_datetime.to('UTC').date() > get_utcnow().date():
-                raise forms.ValidationError({
-                    'appt_datetime': 'Cannot be a future date.'})
+        if cleaned_data.get('appt_datetime'):
+            if cleaned_data.get('appt_status') != NEW_APPT:
+                appt_datetime = cleaned_data.get('appt_datetime')
+                rappt_datetime = arrow.Arrow.fromdatetime(
+                    appt_datetime, appt_datetime.tzinfo)
+                if rappt_datetime.to('UTC').date() > get_utcnow().date():
+                    raise forms.ValidationError({
+                        'appt_datetime': 'Cannot be a future date.'})
