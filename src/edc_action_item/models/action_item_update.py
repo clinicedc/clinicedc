@@ -1,0 +1,53 @@
+from django.db import models
+from django.db.models.deletion import PROTECT
+from edc_base.model_mixins import BaseUuidModel
+from edc_base.model_managers import HistoricalRecords
+from edc_base.utils import get_utcnow
+
+from .action_item import ActionItem
+
+
+class ActionItemUpdateManager(models.Manager):
+
+    def get_by_natural_key(self, action_identifier):
+        return self.get(action_identifier=action_identifier)
+
+
+class ActionItemUpdate(BaseUuidModel):
+
+    action_item = models.ForeignKey(ActionItem, on_delete=PROTECT)
+
+    report_datetime = models.DateTimeField(
+        default=get_utcnow)
+
+    comment = models.CharField(
+        max_length=25)
+
+    follow_up = models.BooleanField(
+        verbose_name='Requires follow-up?',
+        default=True)
+
+    closed = models.BooleanField(
+        default=False)
+
+    objects = ActionItemUpdateManager()
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.action_item.subject_identifier
+
+    def natural_key(self):
+        return () + self.action.natural_key()
+    natural_key.dependencies = ['edc_action_item.action_item']
+
+    @property
+    def subject_identifier(self):
+        return self.action_item.subject_identifier
+
+    @property
+    def action_identifier(self):
+        return self.action_item.action_identifier
+
+    class Meta:
+        unique_together = ('action_item', 'report_datetime')
