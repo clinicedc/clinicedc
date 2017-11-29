@@ -1,8 +1,10 @@
 import random
+import re
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_base.utils import get_utcnow
+from django.utils import timezone
 
 
 class DuplicateIdentifierError(Exception):
@@ -36,6 +38,19 @@ class SimpleIdentifier:
         return ''.join(
             [random.choice('ABCDEFGHKMNPRTUVWXYZ2346789') for _ in range(
                 self.random_string_length)])
+
+
+class SimpleTimestampIdentifier(SimpleIdentifier):
+
+    @property
+    def identifier(self):
+        if not self._identifier:
+            self._identifier = self.template.format(
+                device_id=self.device_id,
+                timestamp=timezone.localtime().strftime('%Y%m%d%H%M%S'),
+                random_string=self.random_string)
+            self._identifier = '-'.join(re.findall('.{1,4}', self._identifier))
+        return self._identifier
 
 
 class SimpleSequentialIdentifier:
