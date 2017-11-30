@@ -12,10 +12,11 @@ class ActionItemViewMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
-            action_items=self.action_items)
+            open_action_items=self.open_action_items)
         return context
 
-    def action_items(self):
+    @property
+    def open_action_items(self):
         model_cls = django_apps.get_model(self.action_item_model)
         qs = model_cls.objects.filter(
             subject_identifier=self.kwargs.get('subject_identifier')).exclude(

@@ -1,18 +1,17 @@
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.urls.base import reverse
+from django.utils.safestring import mark_safe
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
-from edc_constants.constants import NEW, CLOSED, OPEN
+from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 
 from ..choices import ACTION_STATUS
-from ..constants import RESOLVED, REJECTED
 from ..identifiers import ActionIdentifier
-from django.conf import settings
-from django.urls.base import reverse
-from django.utils.safestring import mark_safe
 
 
 class ActionItemUpdatesRequireFollowup(Exception):
@@ -53,7 +52,8 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     auto_created_comment = models.CharField(
         max_length=25,
-        null=True)
+        null=True,
+        blank=True)
 
     comment = models.TextField(
         max_length=250,
@@ -70,14 +70,14 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.id:
             self.action_identifier = ActionIdentifier().identifier
-
             model_cls = django_apps.get_model(self.subject_identifier_model)
             try:
                 model_cls.objects.get(
                     subject_identifier=self.subject_identifier)
             except ObjectDoesNotExist:
                 raise SubjectDoesNotExist(
-                    f'Subject does not exist. Got {self.subject_identifier}')
+                    f'Invalid subject identifier. Subject does not exist. '
+                    f'Got \'{self.subject_identifier}\'')
         super().save(*args, **kwargs)
 
     @property
