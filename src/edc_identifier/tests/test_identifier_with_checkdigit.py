@@ -28,6 +28,7 @@ class TestIdentifierWithCheckdigit(TestCase):
         self.assertEqual(identifier, identifier_with_checkdigit[:-1])
         self.assertEqual(checkdigit, identifier_with_checkdigit[-1:])
 
+    @tag('3')
     def test_split_checkdigit_two(self):
         """Asserts can split identifier with checkdigit into identifier, checkdigit.
 

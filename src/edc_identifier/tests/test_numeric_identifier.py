@@ -93,8 +93,8 @@ class TestNumericIdentifier(TestCase):
         NumericIdentifierWithModulus.checkdigit_pattern = r'^\-[0-9]{1,2}$'
         NumericIdentifierWithModulus.seed = '1000000010'
         numeric_identifier = NumericIdentifierWithModulus(None)
-        self.assertEqual(numeric_identifier.identifier, '1000000011-10')
-        self.assertEqual(next(numeric_identifier), '1000000012-11')
+        self.assertEqual(numeric_identifier.identifier, '1000000011-6')
+        self.assertEqual(next(numeric_identifier), '1000000012-4')
 
     def test_numeric_modulus_with_separator(self):
         NumericIdentifierWithModulus.separator = '-'

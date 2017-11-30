@@ -1,23 +1,12 @@
-import sys
-
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.db import models
-
 from edc_base.model_mixins import BaseModel, BaseUuidModel
 from edc_base.model_managers import HistoricalRecords
 
-if settings.APP_NAME == 'edc_identifier' and 'makemigrations' not in sys.argv:
-    from .tests.models import Enrollment, EnrollmentThree
+from .managers import SubjectIdentifierManager
 
 
 class IdentifierModelManager(models.Manager):
-
-    def get_by_natural_key(self, identifier):
-        return self.get(identifier=identifier)
-
-
-class SubjectIdentifierManager(models.Manager):
 
     def get_by_natural_key(self, identifier):
         return self.get(identifier=identifier)
