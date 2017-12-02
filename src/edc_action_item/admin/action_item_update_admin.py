@@ -17,8 +17,6 @@ class ActionItemUpdateAdmin(ModelAdminMixin, admin.ModelAdmin):
             'fields': (
                 'action_item',
                 'report_datetime',
-                'follow_up',
-                'closed',
                 'comment',
             )},
          ),
@@ -26,9 +24,9 @@ class ActionItemUpdateAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     list_display = ('subject_identifier',
-                    'action_identifier', 'follow_up', 'closed', 'report_datetime')
+                    'action_identifier', 'report_datetime')
 
-    list_filter = ('report_datetime', 'follow_up', 'closed')
+    list_filter = ('report_datetime', )
 
     search_fields = ('action_item__subject_identifier',
                      'action_item__action_identifier',

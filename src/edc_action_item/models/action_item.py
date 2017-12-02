@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models.deletion import PROTECT
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_base.model_managers import HistoricalRecords
@@ -10,8 +11,9 @@ from edc_base.utils import get_utcnow
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 
-from ..choices import ACTION_STATUS
+from ..choices import ACTION_STATUS, PRIORITY
 from ..identifiers import ActionIdentifier
+from .action_type import ActionType
 
 
 class ActionItemUpdatesRequireFollowup(Exception):
@@ -39,13 +41,40 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     report_datetime = models.DateTimeField(
         default=get_utcnow)
 
-    title = models.CharField(
-        max_length=50)
+    action_type = models.OneToOneField(
+        ActionType, on_delete=PROTECT,
+        related_name='action_type',
+        verbose_name='Action')
+
+    name = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        help_text='Leave blank to use the action type name.')
+
+    priority = models.CharField(
+        max_length=25,
+        choices=PRIORITY,
+        null=True,
+        blank=True,
+        help_text='Leave blank to use default for this action type.')
+
+    parent_action = models.OneToOneField(
+        'self', on_delete=PROTECT,
+        null=True,
+        blank=True)
 
     status = models.CharField(
         max_length=25,
         default=NEW,
         choices=ACTION_STATUS)
+
+    next_action_type = models.OneToOneField(
+        ActionType, on_delete=PROTECT,
+        related_name='next_action_type',
+        verbose_name='Next action',
+        null=True,
+        blank=True)
 
     auto_created = models.BooleanField(
         default=False)
@@ -55,17 +84,12 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         null=True,
         blank=True)
 
-    comment = models.TextField(
-        max_length=250,
-        null=True,
-        blank=True)
-
     objects = ActionItemManager()
 
     history = HistoricalRecords()
 
     def __str__(self):
-        return self.action_identifier
+        return f'{self.action_identifier[-9:]} {self.action_type.name}'
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -78,7 +102,24 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
                 raise SubjectDoesNotExist(
                     f'Invalid subject identifier. Subject does not exist. '
                     f'Got \'{self.subject_identifier}\'')
+        self.priority = self.priority or self.action_type.priority
         super().save(*args, **kwargs)
+
+    @property
+    def last_updated(self):
+        obj = self.actionitemupdate_set.all().order_by('report_datetime').last()
+        if obj:
+            return obj.report_datetime
+        return None
+
+    @property
+    def user_last_updated(self):
+        return self.user_modified or self.user_created
+
+    def identifier(self):
+        """Returns a shortened action identifier.
+        """
+        return self.action_identifier[-9:]
 
     @property
     def dashboard(self):

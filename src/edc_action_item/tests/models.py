@@ -1,5 +1,5 @@
 from django.db import models
-from edc_base.model_mixins.base_uuid_model import BaseUuidModel
+from edc_base.model_mixins import BaseUuidModel
 
 
 class SubjectIdentifierModel(BaseUuidModel):

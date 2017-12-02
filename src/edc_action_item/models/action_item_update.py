@@ -20,15 +20,8 @@ class ActionItemUpdate(BaseUuidModel):
     report_datetime = models.DateTimeField(
         default=get_utcnow)
 
-    comment = models.CharField(
-        max_length=25)
-
-    follow_up = models.BooleanField(
-        verbose_name='Requires follow-up?',
-        default=True)
-
-    closed = models.BooleanField(
-        default=False)
+    comment = models.TextField(
+        max_length=250, null=True, blank=True)
 
     objects = ActionItemUpdateManager()
 

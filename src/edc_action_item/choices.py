@@ -1,12 +1,15 @@
-from edc_constants.constants import NEW, OPEN, CLOSED
+from edc_constants.constants import NEW, OPEN, CLOSED, CANCELLED
 
-from .constants import RESOLVED, REJECTED, FEEDBACK
+from .constants import HIGH_PRIORITY, MEDIUM_PRIORITY, LOW_PRIORITY
 
 ACTION_STATUS = (
     (NEW, 'New'),
     (OPEN, 'Open'),
-    (RESOLVED, 'Resolved'),
     (CLOSED, 'Closed'),
-    (FEEDBACK, 'Feedback'),
-    (REJECTED, 'Rejected'),
+    (CANCELLED, 'Cancelled'),
 )
+
+PRIORITY = (
+    (HIGH_PRIORITY, 'High'),
+    (MEDIUM_PRIORITY, 'Medium'),
+    (LOW_PRIORITY, 'Low'))

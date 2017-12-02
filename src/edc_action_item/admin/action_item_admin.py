@@ -16,8 +16,6 @@ class ActionItemUpdateInline(TabularInlineMixin, TabularInline):
     min_num = 1
     fields = (
         'comment',
-        'follow_up',
-        'closed',
         'report_datetime')
 
     def get_readonly_fields(self, request, obj=None):
@@ -36,9 +34,12 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
                 'action_identifier',
                 'subject_identifier',
                 'report_datetime',
-                'title',
+                'action_type',
+                'name',
+                'priority',
+                'next_action_type',
+                'parent_action',
                 'status',
-                'comment',
                 'auto_created',
                 'auto_created_comment'
             )},
@@ -50,9 +51,10 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     inlines = [ActionItemUpdateInline]
 
-    list_display = ('action_identifier', 'dashboard', 'title', 'status')
+    list_display = ('identifier', 'dashboard',
+                    'action_type', 'priority', 'status')
 
-    list_filter = ('status', 'report_datetime')
+    list_filter = ('status', 'priority', 'report_datetime')
 
     search_fields = ('subject_identifier', 'action_identifier')
 

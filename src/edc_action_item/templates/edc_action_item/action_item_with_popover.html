@@ -1,0 +1,35 @@
+<a class="list-group-item list-group-item-{% if priority == HIGH_PRIORITY %}danger{% else %}default{% endif %}" href="#"
+data-toggle="popover" data-placement="left" data-html="true" data-trigger="focus"
+title="Action Item"
+data-content="
+<div class='list-group'>
+<div class='list-group-item list-group-item-default'><p><small>{{ action_identifier }}</small></p>
+<span class='label label-default'>{{ status }}</span>
+<span class='label label-{% if priority == HIGH_PRIORITY %}danger{% else %}warning{% endif %}'>{{ priority }}</span>
+<h6>{{ display_name }}</h6>
+<p class='text text-muted'>{{ reason|default:'' }}</p>
+<p class='text text-muted'>
+	<small>Opened on {{ report_datetime|date:'SHORT_DATETIME_FORMAT' }}. {{ last_updated_text }}</small>
+</p>
+</div>
+{% if model_url %}
+<a class='list-group-item list-group-item-warning' href='{{ model_url }}'>
+<i class='fa fa-plus fa-fw' aria-hidden='true'></i> {{ model_name }}
+</a>
+{% endif %}
+<a class='list-group-item list-group-item-success' href='{{ href }}'>
+	<i class='fa fa-pencil fa-fw' aria-hidden='true'></i> Action item
+</a>
+{% if parent_action %}
+	<a class='list-group-item list-group-item-default' href='{{ parent_action_href }}'>
+		<i class='fa fa-pencil fa-fw' aria-hidden='true'></i> Parent action item
+	</a>
+{% endif %}
+</div>
+">
+<span class="text text-danger">
+<i class="fa fa-bell fa-1x fa-fw" aria-hidden="true"></i> </span>
+<span class="text text-default">
+<span class="h6">{{ display_name|truncatechars:25}}</span>
+</span>
+</a>

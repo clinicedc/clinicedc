@@ -1,3 +1,3 @@
-RESOLVED = 'resolved'
-FEEDBACK = 'feedback'
-REJECTED = 'rejected'
+HIGH_PRIORITY = 'high'
+LOW_PRIORITY = 'low'
+MEDIUM_PRIORITY = 'medium'

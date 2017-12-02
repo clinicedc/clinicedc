@@ -1,7 +1,6 @@
 from django.apps import apps as django_apps
 from django.views.generic.base import ContextMixin
-from edc_constants.constants import CLOSED
-from edc_action_item.constants import RESOLVED, REJECTED
+from edc_constants.constants import CLOSED, CANCELLED
 
 
 class ActionItemViewMixin(ContextMixin):
@@ -19,6 +18,7 @@ class ActionItemViewMixin(ContextMixin):
     def open_action_items(self):
         model_cls = django_apps.get_model(self.action_item_model)
         qs = model_cls.objects.filter(
-            subject_identifier=self.kwargs.get('subject_identifier')).exclude(
-                status__in=[RESOLVED, CLOSED, REJECTED]).order_by('-report_datetime')
+            subject_identifier=self.kwargs.get('subject_identifier'),
+            action_type__show_on_dashboard=True).exclude(
+                status__in=[CLOSED, CANCELLED]).order_by('-report_datetime')
         return [self.action_item_model_wrapper_cls(model_obj=obj) for obj in qs]
