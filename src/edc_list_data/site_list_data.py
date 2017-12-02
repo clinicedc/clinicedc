@@ -15,6 +15,8 @@ class SiteListDataError(Exception):
 class SiteListData():
 
     """Load list data from any module named "list_data".
+
+    Called in AppConfig or by management command.
     """
 
     def autodiscover(self, module_name=None, verbose=True):
