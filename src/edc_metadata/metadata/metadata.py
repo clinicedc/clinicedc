@@ -117,22 +117,39 @@ class Creator:
     crf_creator_cls = CrfCreator
     requisition_creator_cls = RequisitionCreator
 
-    def __init__(self, **kwargs):
-        self.crf_creator = self.crf_creator_cls(**kwargs)
-        self.requisition_creator = self.requisition_creator_cls(**kwargs)
-        self.visit = kwargs.get('visit')
+    def __init__(self, visit=None, **kwargs):
+        self.crf_creator = self.crf_creator_cls(visit=visit, **kwargs)
+        self.requisition_creator = self.requisition_creator_cls(
+            visit=visit, **kwargs)
+        self.visit = visit
+        try:
+            self.visit_code_sequence = visit.visit_code_sequence
+        except AttributeError:
+            self.visit_code_sequence = 0
         schedule = site_visit_schedules.get_schedule(
             visit_schedule_name=self.visit.visit_schedule_name,
             schedule_name=self.visit.schedule_name)
         self.visit = schedule.visits.get(self.visit.visit_code)
 
+    @property
+    def crfs(self):
+        if self.visit_code_sequence != 0:
+            return self.visit.crfs_unscheduled or self.visit.crfs
+        return self.visit.crfs
+
+    @property
+    def requisitions(self):
+        if self.visit_code_sequence != 0:
+            return self.visit.requisitions_unscheduled or self.visit.requisitions
+        return self.visit.requisitions
+
     def create(self):
         """Creates all CRF and requisition metadata for
         the visit instance.
         """
-        for crf in self.visit.crfs:
+        for crf in self.crfs:
             self.create_crf(crf=crf)
-        for requisition in self.visit.requisitions:
+        for requisition in self.requisitions:
             self.create_requisition(requisition=requisition)
 
     def create_crf(self, crf=None):
