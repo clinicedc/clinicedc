@@ -4,6 +4,7 @@ import sys
 from dateutil.relativedelta import relativedelta
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.management.color import color_style
+from django.conf import settings
 
 style = color_style()
 
@@ -28,6 +29,11 @@ class AppConfig(DjangoAppConfig):
     protocol_title = 'My Protocol of Many Things'
     site_code = None
     site_name = None
+
+    try:
+        email_contacts = settings.EMAIL_CONTACTS
+    except AttributeError:
+        email_contacts = {}
 
     study_open_datetime = arrow.utcnow().floor('hour') - relativedelta(years=1)
     study_close_datetime = arrow.utcnow().ceil('hour')
