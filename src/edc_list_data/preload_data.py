@@ -4,6 +4,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.management.color import color_style
 from django.db.models.deletion import ProtectedError
+from django.db.utils import IntegrityError
 
 style = color_style()
 
@@ -71,7 +72,10 @@ class PreloadData:
                     obj = model.objects.get(
                         **{unique_field: data.get(unique_field)})
                 except ObjectDoesNotExist:
-                    model.objects.create(**data)
+                    try:
+                        model.objects.create(**data)
+                    except IntegrityError:
+                        pass
                 else:
                     for key, value in data.items():
                         setattr(obj, key, value)
