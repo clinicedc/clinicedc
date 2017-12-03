@@ -25,7 +25,8 @@ def action_item_with_popover(action_item_model_wrapper):
     if action_item.action_type.prn_form_action == YES:
         model_cls = django_apps.get_model(action_item.action_type.model)
         model_url = (model_cls().get_absolute_url()
-                     + '?' + action_item_model_wrapper.href.split('?')[1])
+                     + f'?action_identifier={action_item.action_identifier}&'
+                     + action_item_model_wrapper.href.split('?')[1])
     return dict(
         display_name=action_item.action_type.display_name,
         name=action_item.name,
