@@ -1,11 +1,7 @@
 from django.db import models
-
 from edc_base.model_mixins import BaseUuidModel
-
-FILL_ORDER = (
-    ('across', 'Across'),
-    ('down', 'Down'),
-)
+from ..constants import FILL_ACROSS
+from ..choices import FILL_ORDER
 
 
 class BoxTypeManager(models.Manager):
@@ -32,13 +28,13 @@ class BoxType(BaseUuidModel):
 
     fill_order = models.CharField(
         max_length=15,
-        default='across',
+        default=FILL_ACROSS,
         choices=FILL_ORDER)
 
     objects = BoxTypeManager()
 
     def __str__(self):
-        return '{} max={}'.format(self.name, self.total)
+        return f'{self.name} max={self.total}'
 
     def natural_key(self):
         return (self.name, )

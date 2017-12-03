@@ -12,7 +12,7 @@ class BoxForm(forms.ModelForm):
         cleaned_data = super().clean()
         form_validator = FormValidator(cleaned_data=cleaned_data)
         if cleaned_data.get('specimen_types'):
-            pattern = '([1-9][0-9]*[ ]*,[ ]*)*[1-9][0-9]*'
+            pattern = '([0-9][0-9]*[ ]*,[ ]*)*[0-9][0-9]*'
             match = re.match(pattern, cleaned_data.get('specimen_types'))
             if not match:
                 raise forms.ValidationError(

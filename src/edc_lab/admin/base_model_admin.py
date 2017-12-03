@@ -19,3 +19,5 @@ class BaseModelAdmin(ModelAdminFormInstructionsMixin,
     list_per_page = 10
     date_hierarchy = 'modified'
     empty_value_display = '-'
+    view_on_site = False
+    show_cancel = True
