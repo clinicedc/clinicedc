@@ -5,7 +5,7 @@
 
     <div class="btn-group">
     <div class="btn-group">
-    <a class="btn btn-warning" role="button" data-toggle="tooltip"  title="add {{ prn.verbose_name }}"
+    <a id="{{ prn.add_button_id }}" class="btn btn-warning" role="button" data-toggle="tooltip"  title="add {{ prn.verbose_name }}"
       href="{% url prn.add_url_name %}?next={{ prn.dashboard_url_name }},subject_identifier&subject_identifier={{subject_identifier}}">
       <i class="fa fa-plus fa-1x fa-fw" aria-hidden="true"></i>
     </a>

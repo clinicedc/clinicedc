@@ -17,6 +17,7 @@ class Prn:
         self.allow_add = allow_add
         self.fa_icon = fa_icon
         self.model = model
+        self.add_button_id = f"{'_'.join(model.split('.'))}_add"
         self.dashboard_url_name = dashboard_url_name  # next url
         self.show_on_dashboard = (
             True if show_on_dashboard is None else show_on_dashboard)
