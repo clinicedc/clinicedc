@@ -4,7 +4,6 @@ from django.apps import apps as django_apps
 
 from .forms_collection import FormsCollection
 from .window_period import WindowPeriod
-from django.forms.forms import Form
 
 
 class VisitCodeError(Exception):
@@ -12,6 +11,10 @@ class VisitCodeError(Exception):
 
 
 class VisitDateError(Exception):
+    pass
+
+
+class VisitError(Exception):
     pass
 
 
@@ -62,10 +65,17 @@ class Visit:
         self.crfs = self.forms_collection_cls(*(crfs or []), **kwargs).forms
         self.requisitions = self.forms_collection_cls(
             *(requisitions or []), **kwargs).forms
-        self.crfs_unscheduled = crfs_unscheduled
-        self.requisitions_unscheduled = requisitions_unscheduled
         self.allow_unscheduled = allow_unscheduled
-
+        if self.allow_unscheduled:
+            self.crfs_unscheduled = crfs_unscheduled
+            self.requisitions_unscheduled = requisitions_unscheduled
+            if not self.crfs_unscheduled and not self.requisitions_unscheduled:
+                raise VisitError(
+                    'allow_unscheduled is True but no unscheduled crfs '
+                    f'or requisitions have been declared. See {repr(self)}')
+        else:
+            self.crfs_unscheduled = None
+            self.requisitions_unscheduled = None
         self.instructions = instructions
         self.timepoint = timepoint
         self.rbase = rbase
@@ -82,6 +92,10 @@ class Visit:
     @property
     def forms(self):
         return self.crfs + self.requisitions
+
+    @property
+    def unscheduled_forms(self):
+        return self.crfs_unscheduled + self.requisitions_unscheduled
 
     def next_form(self, model=None, panel=None):
         """Returns the next required "form" or None.
