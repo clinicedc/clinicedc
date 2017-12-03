@@ -2,11 +2,9 @@
 <div class="panel-group" id="accordion">
 
 
-    {% if action_items %}
+    {% if open_action_items %}
     <div class="panel panel-danger">
-      <div id="action_items" class="panel-collapse collapse in">
           {% block action_items %}{% endblock action_items %}           
-      </div>           
     </div>
     {% endif %}
 
@@ -14,11 +12,10 @@
       <div class="panel-heading">
           <h6 class="panel-title">
               <i class="{% if household_member.gender == MALE %}fa fa-male{% else %}fa fa-female{% endif %} fa-lg fa-fw"></i>
-              <a data-toggle="collapse" data-parent="#accordion" href="#demographics">{{ subject_identifier }}</a>
-              
+              <a id="demographics-panel-title" data-toggle="collapse" data-parent="#accordion" href="#demographics-panel">{{ subject_identifier }}</a>
           </h6>
       </div>
-      <div id="demographics" class="panel-collapse collapse in">
+      <div id="demographics-panel" class="panel-collapse collapse in">
           {% block demographics %}{% endblock demographics %}           
       </div>           
     </div>
@@ -26,11 +23,25 @@
     <div class="panel panel-default">
       <div class="panel-heading">
           <h6 class="panel-title">
-              <i class="fa fa-list-alt fa-lg fa-fw"></i> 
-              <a data-toggle="collapse" data-parent="#accordion" href="#special_forms">Special Forms</a>
+              
+              <a id="prn-panel-title" data-toggle="collapse" data-parent="#accordion" href="#prn-panel">PRN</a>
+              
           </h6>
       </div>
-      <div id="special_forms" class="panel-collapse collapse in">
+      <div id="prn-panel" class="panel-collapse collapse">
+          {% block prn %}{% endblock prn %}           
+      </div>           
+    </div>
+
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+          <h6 class="panel-title">
+              <i class="fa fa-list-alt fa-lg fa-fw"></i> 
+              <a id="special-forms-panel-title" data-toggle="collapse" data-parent="#accordion" href="#special-forms-panel">Special Forms</a>
+          </h6>
+      </div>
+      <div id="special-forms-panel" class="panel-collapse collapse in">
          {% block special_forms %}{% endblock special_forms %}
       </div>           
     </div>
@@ -39,11 +50,11 @@
       <div class="panel-heading">
           <h6 class="panel-title">
               <i class="fa fa-handshake-o fa-lg fa-fw"></i> 
-              <a data-toggle="collapse" data-parent="#accordion" href="#consent_history">Consent History</a>
+              <a id="consents-panel-title" data-toggle="collapse" data-parent="#accordion" href="#consents-panel">Consents</a>
           </h6>
       </div>
-      <div id="consent_history" class="panel-collapse collapse in">
-         {% block consent_history %}{% endblock consent_history %}
+      <div id="consents-panel" class="panel-collapse collapse in">
+         {% block consents %}{% endblock consents %}
       </div>           
     </div>
 

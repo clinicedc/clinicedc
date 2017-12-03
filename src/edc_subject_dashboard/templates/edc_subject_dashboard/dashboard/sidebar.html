@@ -16,11 +16,17 @@
 
 {% endblock demographics %}
 
-{% block consent_history %}
+{% block prn %}   
 
-    {% include 'edc_subject_dashboard/dashboard/sidebar/consent_history.html' %}
+    {% include 'edc_subject_dashboard/dashboard/sidebar/prn.html' %}
 
-{% endblock consent_history %}
+{% endblock prn %}
+
+{% block consents %}
+
+    {% include 'edc_subject_dashboard/dashboard/sidebar/consents.html' %}
+
+{% endblock consents %}
 
 
 {% block action_items %}   
