@@ -45,7 +45,7 @@ def show_box_rows(box, listboard_url, position=None):
                 'position': pos,
                 'box_identifier': box.box_identifier,
                 'action_name': 'verify'}
-            cell['href'] = reverse(listboard_ur, kwargs=reverse_kwargs)
+            cell['href'] = reverse(listboard_url, kwargs=reverse_kwargs)
             cell['btn_style'] = btn_style.get(box_item.verified)
             cell['btn_label'] = str(pos).zfill(2)
             cell['btn_title'] = box_item.human_readable_identifier or 'empty'

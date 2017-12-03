@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.contrib import messages
 from django.utils.html import escape
 from django.views.generic.base import ContextMixin

@@ -78,9 +78,9 @@ class ManifestViewMixin(ContextMixin):
                         manifest=self.manifest,
                         identifier=self.manifest_item_identifier)
                 except self.manifest_item_model.DoesNotExist:
-                    message = 'Invalid manifest item. Got {}'.format(
-                        self.original_manifest_item_identifier)
-                    messages.error(self.request, message)
+                    messages.error(
+                        self.request,
+                        f'Invalid manifest item. Got {self.original_manifest_item_identifier}')
         return self._manifest_item
 
     def get_manifest_item(self, position):
@@ -90,9 +90,8 @@ class ManifestViewMixin(ContextMixin):
             manifest_item = self.manifest_item_model.objects.get(
                 manifest=self.manifest, position=position)
         except self.manifest_item_model.DoesNotExist:
-            message = 'Invalid position for manifest. Got {}'.format(
-                position)
-            messages.error(self.request, message)
+            messages.error(
+                self.request, f'Invalid position for manifest. Got {position}')
             return None
         return manifest_item
 
@@ -105,7 +104,7 @@ class ManifestViewMixin(ContextMixin):
             self.box_model.objects.get(
                 box_identifier=manifest_item_identifier)
         except self.box_model.DoesNotExist:
-            message = 'Invalid box. Got {}.'.format(
-                self.original_manifest_item_identifier or 'None')
-            messages.error(self.request, message)
+            messages.error(
+                self.request,
+                f'Invalid box. Got {self.original_manifest_item_identifier or "None"}.')
         return manifest_item_identifier
