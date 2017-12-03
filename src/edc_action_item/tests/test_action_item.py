@@ -37,7 +37,8 @@ class TestActionItem(TestCase):
             ActionItem.objects.create)
         obj = ActionItem.objects.create(
             subject_identifier=self.subject_identifier,
-            action_type=self.action_type)
+            action_type=self.action_type,
+            reference_model='edc_action_item.testmodel')
         self.assertTrue(obj.action_identifier.startswith('AC'))
         self.assertEqual(obj.status, NEW)
         self.assertIsNotNone(obj.report_datetime)

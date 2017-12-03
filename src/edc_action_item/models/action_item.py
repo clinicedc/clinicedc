@@ -41,16 +41,45 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     report_datetime = models.DateTimeField(
         default=get_utcnow)
 
-    action_type = models.OneToOneField(
+    action_type = models.ForeignKey(
         ActionType, on_delete=PROTECT,
         related_name='action_type',
         verbose_name='Action')
 
-    name = models.CharField(
+    display_name = models.CharField(
+        verbose_name='Name',
         max_length=50,
         null=True,
         blank=True,
         help_text='Leave blank to use the action type name.')
+
+    name = models.CharField(
+        max_length=50,
+        null=True,
+        editable=False,
+        help_text='Leave blank to use the action type name.')
+
+    reference_identifier = models.CharField(
+        max_length=50,
+        null=True,
+        editable=False,
+        help_text='e.g. tracking identifier from source model')
+
+    reference_model = models.CharField(
+        max_length=50,
+        null=True,
+        editable=False)
+
+    parent_reference_identifier = models.CharField(
+        max_length=50,
+        null=True,
+        editable=False,
+        help_text=('e.g. tracking identifier from source model that opened the item.'))
+
+    parent_model = models.CharField(
+        max_length=50,
+        null=True,
+        editable=False)
 
     priority = models.CharField(
         max_length=25,
@@ -69,12 +98,12 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         default=NEW,
         choices=ACTION_STATUS)
 
-    next_action_type = models.OneToOneField(
+    next_action_type = models.ForeignKey(
         ActionType, on_delete=PROTECT,
-        related_name='next_action_type',
         verbose_name='Next action',
         null=True,
-        blank=True)
+        blank=True,
+        help_text='Leave blank to use default for this action type.')
 
     auto_created = models.BooleanField(
         default=False)
@@ -89,7 +118,8 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return f'{self.action_identifier[-9:]} {self.action_type.name}'
+        return (f'{self.action_identifier[-9:]} {self.action_type.name} '
+                f'({self.get_status_display()})')
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -103,6 +133,8 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
                     f'Invalid subject identifier. Subject does not exist. '
                     f'Got \'{self.subject_identifier}\'')
         self.priority = self.priority or self.action_type.priority
+        self.next_action_type = self.next_action_type or self.action_type.next_action
+        self.reference_model = self.action_type.model
         super().save(*args, **kwargs)
 
     @property

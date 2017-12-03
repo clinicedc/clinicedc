@@ -28,7 +28,7 @@ def action_item_with_popover(action_item_model_wrapper):
                      + '?' + action_item_model_wrapper.href.split('?')[1])
     return dict(
         display_name=action_item.action_type.display_name,
-        reason=action_item.reason,
+        name=action_item.name,
         status=action_item.get_status_display(),
         report_datetime=action_item.report_datetime,
         last_updated_text=text,

@@ -6,16 +6,17 @@ from django.utils.safestring import mark_safe
 
 from ..choices import PRIORITY
 from ..constants import HIGH_PRIORITY
+from django.db.models.deletion import PROTECT
 
 
 class ActionType(BaseUuidModel):
 
     name = models.CharField(
-        max_length=25,
+        max_length=50,
         unique=True)
 
     display_name = models.CharField(
-        max_length=100,
+        max_length=50,
         unique=True)
 
     prn_form_action = models.CharField(
@@ -33,6 +34,12 @@ class ActionType(BaseUuidModel):
         max_length=25,
         choices=PRIORITY,
         default=HIGH_PRIORITY)
+
+    next_action = models.ForeignKey(
+        'self', on_delete=PROTECT,
+        verbose_name='Next action',
+        null=True,
+        blank=True)
 
     show_on_dashboard = models.BooleanField(
         default=True)
