@@ -85,11 +85,13 @@ class SimpleUniqueIdentifier:
     template = '{device_id}{random_string}'
     identifier_cls = SimpleIdentifier
 
-    def __init__(self, model=None, identifier_attr=None, identifier_type=None):
+    def __init__(self, model=None, identifier_attr=None, identifier_type=None,
+                 identifier_prefix=None):
         self._identifier = None
         self.model = model or self.model
         self.identifier_attr = identifier_attr or self.identifier_attr
         self.identifier_type = identifier_type or self.identifier_type
+        self.identifier_prefix = identifier_prefix or ''
         self.identifier_obj = self.identifier_cls(
             template=self.template,
             random_string_length=self.random_string_length)
@@ -119,7 +121,7 @@ class SimpleUniqueIdentifier:
                     raise DuplicateIdentifierError(
                         'Unable prepare a unique identifier, '
                         'all are taken. Increase the length of the random string')
-            self._identifier = identifier
+            self._identifier = f'{self.identifier_prefix}{identifier}'
         return self._identifier
 
     def _get_new_identifier(self):
