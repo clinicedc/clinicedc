@@ -3,22 +3,23 @@ from django.db import models
 from ..simple_identifier import SimpleUniqueIdentifier, SimpleTimestampIdentifier
 
 
-class Identifier(SimpleUniqueIdentifier):
+class TrackingIdentifier(SimpleUniqueIdentifier):
     random_string_length = 2
     template = '{device_id}{timestamp}{random_string}'
     identifier_cls = SimpleTimestampIdentifier
+    make_human_readable = True
 
 
 class TrackingIdentifierModelMixin(models.Model):
 
-    """A model mixin to add a traking identifier.
+    """A model mixin to add a tracking identifier.
     """
 
-    tracking_identifier_cls = Identifier
+    tracking_identifier_cls = TrackingIdentifier
     tracking_identifier_prefix = ''
 
     tracking_identifier = models.CharField(
-        max_length=25,
+        max_length=30,
         unique=True)
 
     def __str__(self):
