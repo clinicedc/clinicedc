@@ -6,26 +6,32 @@
 {% load edc_base_extras %}
 
 {% block main %}
-<div class="container">
+<!-- start listboard main block--><div class="container">
 <div class="col-md-12">
     
 {% block alert %}
     {% include "edc_dashboard/alert_messages.html" %}
 {% endblock alert %}
     
+
 <div class="panel-group">
-<div class="panel {% block listboard_panel_color %}panel-info{% endblock listboard_panel_color %}">
+<div class="panel panel-{{ listboard_panel_style }}">
 <div class="panel-heading">
 
-<i class="{% block listboard_panel_icon %}fa fa-user-plus fa-2x{% endblock listboard_panel_icon %}"></i></i>
+<i class="fa {{ listboard_fa_icon }} fa-2x"></i>
                     
 <!-- begin search form -->
-<span class="pull-right">{% block listboard_search_form %}{% include 'edc_dashboard/search_form.html' %}{% endblock listboard_search_form %}</span>
+<span class="pull-right">
+    {% block listboard_search_form %}
+        {% include 'edc_dashboard/search_form.html' %}
+    {% endblock listboard_search_form %}
+</span>
 <!-- end search form -->
 
 {% block listboard_panel %}
 {% endblock listboard_panel %}
-</div>
+
+</div> <!--end panel heading -->
 
 
 <!-- begin table -->
@@ -40,7 +46,23 @@
 </thead><tbody>
 
 {% block listboard_table_body %}
-    {% include 'edc_dashboard/listboard/results_body.html' %}
+
+    {% for result in results %}
+        <tr> 
+        
+        <td>{{ forloop.counter }}</td>
+        
+        {% block listboard_table_button_column %}
+            {% include 'edc_dashboard/listboard/buttons_column.html' %}
+        {% endblock listboard_table_button_column %}
+    
+        {% block listboard_table_columns %}
+            {% include 'edc_dashboard/listboard/columns.html' %}
+        {% endblock listboard_table_columns %}
+        </tr>                       
+    
+    {% endfor %}
+
 {% endblock listboard_table_body %}
 
 </tbody></table>
@@ -55,11 +77,12 @@
 </table>
 <!-- end spacer rows -->
 
-</div>
-<!-- end table -->
+</div><!-- end table -->
 
 {% include 'edc_dashboard/paginator.html' %}
 
-</div></div></div></div></div>
-
+</div>  <!--end panel -->
+</div> <!--end panel-group -->
+</div><!-- end col-md-12 -->
+</div><!-- end listboard main block -->
 {% endblock main %}

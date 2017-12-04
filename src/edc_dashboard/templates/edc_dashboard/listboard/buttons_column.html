@@ -1,24 +1,33 @@
-{% load tz %}
-{% load edc_base_extras %}
-{% load staticfiles %}
+{% comment %}
 
-    <td style="white-space: nowrap">
+    result: model_wrapper, usually the SubjectConsentModelWrapper
+        Required attributes:
+            subject_identifier
+            version: (consent version)
+            href: (model_wrapper.href)
+
+{% endcomment %}
+
+<td style="white-space: nowrap">
+    <div class="btn-group">
     <a title="Edit subject's screening form" role="button" 
        class="btn btn-default btn-sm"
            href="{{ result.href }}">
         <i class="fa fa-pencil fa-sm"></i>
     </a>
-    {% if not result.eligible %}
-        Not Eligible
-    {% elif result.consent %}
-         <a class="btn btn-success btn-sm" role="button"   
-        title="Go to subject's dashboard" href="{% url subject_dashboard_url result.consent.subject_identifier%}">
+    {% if result.id %}
+
+         <a id="btn-subject-dashboard-{{result.subject_identifier}}" class="btn btn-success btn-sm" role="button"   
+        title="Go to subject's dashboard" href="{% url subject_dashboard_url result.subject_identifier %}">
         <i class="fa fa-user-circle-o fa-sm"></i> Dashboard</a>
     {% else %}
-         <a title="Consent to participate"
+         <a id="btn-consent-add-{{result.subject_identifier}}" title="Consent to participate"
             class="btn btn-warning btn-sm"
-                href="{{ result.consent.href }}">
-             Consent (v{{ subject_screening.consent.version }})
+                href="{{ result.href }}">
+             Consent (v{{ result.version }})
          </a>
     {% endif %}
-    </td>
+    </div>
+</td>
+
+

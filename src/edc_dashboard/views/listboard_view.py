@@ -21,6 +21,12 @@ class ListboardView(QueryStringViewMixin, UrlRequestContextMixin, TemplateReques
     empty_queryset_message = 'Nothing to display'
     listboard_template = None  # an existing key in request.context_data
     listboard_url = None  # an existing key in request.context_data
+
+    # default, info, success, danger, warning, etc. See Bootstrap.
+    listboard_panel_style = 'default'
+
+    listboard_fa_icon = "fa-user-circle-o"
+
     model = None  # label_lower model name
     model_wrapper_cls = None
     ordering = '-created'
@@ -39,6 +45,8 @@ class ListboardView(QueryStringViewMixin, UrlRequestContextMixin, TemplateReques
         context_object_name = self.get_context_object_name(queryset)
         wrapped_queryset = self.get_wrapped_queryset(queryset)
         context.update(
+            listboard_panel_style=self.listboard_panel_style,
+            listboard_fa_icon=self.listboard_fa_icon,
             empty_queryset_message=self.empty_queryset_message,
             object_list=wrapped_queryset,
             search_term=self.search_term,
