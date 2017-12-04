@@ -11,6 +11,7 @@ from edc_base.utils import get_utcnow
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 
+from ..admin_site import edc_action_item_admin
 from ..choices import ACTION_STATUS, PRIORITY
 from ..identifiers import ActionIdentifier
 from .action_type import ActionType
@@ -73,7 +74,8 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     parent_reference_identifier = models.CharField(
         max_length=50,
         null=True,
-        help_text=('e.g. tracking identifier from source model that opened the item.'))
+        blank=True,
+        help_text=('May be left blank. e.g. tracking identifier from source model that opened the item.'))
 
     parent_model = models.CharField(
         max_length=50,
@@ -147,10 +149,26 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     def user_last_updated(self):
         return self.user_modified or self.user_created
 
+    @property
     def identifier(self):
         """Returns a shortened action identifier.
         """
         return self.action_identifier[-9:]
+
+    @property
+    def parent_action(self):
+        """Returns a shortened action identifier.
+        """
+        if self.parent_action_item:
+            url_name = '_'.join(self._meta.label_lower.split('.'))
+            namespace = edc_action_item_admin.name
+            url = reverse(
+                f'{namespace}:{url_name}_changelist')
+            return mark_safe(
+                f'<a data-toggle="tooltip" title="go to parent action item" '
+                f'href="{url}?q={self.parent_action_item.action_identifier}">'
+                f'{self.parent_action_item.identifier}</a>')
+        return None
 
     @property
     def dashboard(self):
