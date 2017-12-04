@@ -36,7 +36,7 @@ class ActionItemHandler:
             else:
                 action_item.status = CLOSED
                 action_item.save(update_fields=['status'])
-                self.create_next(next_action_type=action_item.next_action_type)
+                self.create_next(parent_action_item=action_item)
 
     def create(self):
         """Creates any action items if they do not already exist.
@@ -61,11 +61,11 @@ class ActionItemHandler:
                     reference_identifier=self.model_obj.tracking_identifier,
                     **opts)
 
-    def create_next(self, next_action_type=None):
+    def create_next(self, parent_action_item=None):
         """Creates any next action items if they do not already exist.
         """
         try:
-            next_action_type_name = next_action_type.name
+            next_action_type_name = parent_action_item.next_action_type.name
         except AttributeError:
             next_action_type_name = None
         for action_type_name in self.model_obj.create_next_action_items(
@@ -85,6 +85,7 @@ class ActionItemHandler:
                 action_type=action_type,
                 parent_reference_identifier=self.model_obj.tracking_identifier,
                 parent_model=self.model_obj._meta.label_lower,
+                parent_action_item=parent_action_item,
                 reference_model=action_type.model,
                 reference_identifier=None)
             try:

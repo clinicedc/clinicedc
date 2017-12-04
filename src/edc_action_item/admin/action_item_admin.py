@@ -38,7 +38,8 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
                 'display_name',
                 'priority',
                 'next_action_type',
-                'parent_action',
+                'parent_action_item',
+                'parent_reference_identifier',
                 'status',
                 'auto_created',
                 'auto_created_comment'
@@ -57,12 +58,15 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     list_filter = ('status', 'priority', 'report_datetime', 'name')
 
     search_fields = ('subject_identifier',
-                     'action_identifier', 'name', 'display_name')
+                     'action_identifier', 'name', 'display_name',
+                     'parent_reference_identifier')
 
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)
         fields = fields + ('action_identifier',
                            'auto_created', 'auto_created_comment')
         if obj:
-            fields = fields + ('subject_identifier', 'report_datetime')
+            fields = fields + ('subject_identifier',
+                               'report_datetime',
+                               'parent_reference_identifier')
         return fields

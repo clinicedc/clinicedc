@@ -73,7 +73,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     parent_reference_identifier = models.CharField(
         max_length=50,
         null=True,
-        editable=False,
         help_text=('e.g. tracking identifier from source model that opened the item.'))
 
     parent_model = models.CharField(
@@ -88,7 +87,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         blank=True,
         help_text='Leave blank to use default for this action type.')
 
-    parent_action = models.OneToOneField(
+    parent_action_item = models.ForeignKey(
         'self', on_delete=PROTECT,
         null=True,
         blank=True)
