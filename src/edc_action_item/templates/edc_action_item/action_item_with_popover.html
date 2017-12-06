@@ -9,9 +9,9 @@
  {% endcomment %}
 
 <a id="actionitem-{{action_identifier}}"
+tabindex="{{ tabindex }}"
 class="list-group-item list-group-item-{% if priority == HIGH_PRIORITY %}danger{% else %}default{% endif %}"
-href="#" data-toggle="popover" data-placement="left" data-html="true" data-trigger="focus"
-title="Action Item"
+href="#" data-toggle="popover" data-placement="left" data-html="true" title="Action Item" role="button"
 data-content="
 <div class='list-group'>
 <div class='list-group-item list-group-item-default'><p><small>{{ action_identifier }}</small></p>

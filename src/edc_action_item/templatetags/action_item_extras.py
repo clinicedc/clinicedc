@@ -21,7 +21,7 @@ def action_item_control(subject_identifier, subject_dashboard_url):
 
 
 @register.inclusion_tag('edc_action_item/action_item_with_popover.html')
-def action_item_with_popover(action_item_model_wrapper):
+def action_item_with_popover(action_item_model_wrapper, tabindex):
     action_item = action_item_model_wrapper.object
     date_format = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
     last_updated = action_item.last_updated
@@ -78,6 +78,7 @@ def action_item_with_popover(action_item_model_wrapper):
     return dict(
         display_name=action_item.action_type.display_name,
         name=action_item.name,
+        tabindex=tabindex,
         status=action_item.get_status_display(),
         report_datetime=action_item.report_datetime,
         last_updated_text=text,
