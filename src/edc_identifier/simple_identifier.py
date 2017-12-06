@@ -3,11 +3,15 @@ import re
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from edc_base.utils import get_utcnow
 from django.utils import timezone
+from edc_base.utils import get_utcnow
 
 
 class DuplicateIdentifierError(Exception):
+    pass
+
+
+class IdentifierError(Exception):
     pass
 
 
@@ -55,7 +59,8 @@ class SimpleTimestampIdentifier(SimpleIdentifier):
         if not self._identifier:
             self._identifier = self.template.format(
                 device_id=self.device_id,
-                timestamp=timezone.localtime().strftime('%Y%m%d%H%M%S'),
+                timestamp=timezone.localtime().strftime('%y%m%d%H%M%S%f')[:14],
+                # timestamp=timezone.localtime().strftime('%y%m%d%H%M%S%f'),
                 random_string=self.random_string)
             if self.identifier_prefix:
                 self._identifier = f'{self.identifier_prefix}{self._identifier}'
@@ -103,11 +108,10 @@ class SimpleUniqueIdentifier:
         self.identifier_attr = identifier_attr or self.identifier_attr
         self.identifier_type = identifier_type or self.identifier_type
         self.identifier_prefix = identifier_prefix or self.identifier_prefix
+        if self.identifier_prefix and len(self.identifier_prefix) != 2:
+            raise IdentifierError(
+                f'Expected identifier_prefix of length=2. Got {len(identifier_prefix)}')
         self.make_human_readable = make_human_readable or self.make_human_readable
-        #         self.identifier_obj = self.identifier_cls(
-        #             identifier_prefix=self.identifier_prefix,
-        #             template=self.template,
-        #             random_string_length=self.random_string_length)
         self.model_cls.objects.create(
             identifier_type=self.identifier_type,
             **{self.identifier_attr: self.identifier})
