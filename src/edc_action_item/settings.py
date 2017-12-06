@@ -126,6 +126,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+DASHBOARD_URL_NAMES = {
+    'subject_dashboard_url': 'edc_action_item:subject_dashboard_url',
+}
+
 if 'test' in sys.argv:
 
     class DisableMigrations:

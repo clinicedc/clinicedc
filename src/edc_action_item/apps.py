@@ -1,5 +1,7 @@
 from django.apps import AppConfig as DjangoApponfig
 
+from .site_action_items import site_action_items
+
 
 class AppConfig(DjangoApponfig):
     name = 'edc_action_item'
@@ -7,4 +9,4 @@ class AppConfig(DjangoApponfig):
 
     def ready(self):
         from .signals import action_item_on_post_save, update_or_create_action_item_on_post_save
-        pass
+        site_action_items.autodiscover()

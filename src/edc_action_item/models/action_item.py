@@ -78,7 +78,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         help_text=('May be left blank. e.g. tracking identifier from source model that opened the item.'))
 
     parent_model = models.CharField(
-        max_length=50,
+        max_length=100,
         null=True,
         editable=False)
 
@@ -98,13 +98,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         max_length=25,
         default=NEW,
         choices=ACTION_STATUS)
-
-    next_action_type = models.ForeignKey(
-        ActionType, on_delete=PROTECT,
-        verbose_name='Next action',
-        null=True,
-        blank=True,
-        help_text='Leave blank to use default for this action type.')
 
     auto_created = models.BooleanField(
         default=False)
@@ -134,8 +127,9 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
                     f'Invalid subject identifier. Subject does not exist. '
                     f'Got \'{self.subject_identifier}\'')
         self.priority = self.priority or self.action_type.priority
-        self.next_action_type = self.next_action_type or self.action_type.next_action
         self.reference_model = self.action_type.model
+        self.name = self.name or self.action_type.name
+        self.display_name = self.display_name or self.action_type.display_name
         super().save(*args, **kwargs)
 
     @property
@@ -150,14 +144,21 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         return self.user_modified or self.user_created
 
     @property
+    def parent_object(self):
+        """Returns the parent model instance.
+        """
+        return django_apps.get_model(self.parent_model).objects.get(
+            tracking_identifier=self.parent_reference_identifier)
+
+    @property
     def identifier(self):
         """Returns a shortened action identifier.
         """
         return self.action_identifier[-9:]
 
     @property
-    def parent_action(self):
-        """Returns a shortened action identifier.
+    def parent(self):
+        """Returns a shortened parent tracking identifier.
         """
         if self.parent_action_item:
             url_name = '_'.join(self._meta.label_lower.split('.'))
@@ -168,6 +169,18 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
                 f'<a data-toggle="tooltip" title="go to parent action item" '
                 f'href="{url}?q={self.parent_action_item.action_identifier}">'
                 f'{self.parent_action_item.identifier}</a>')
+        return None
+
+    @property
+    def reference(self):
+        if self.reference_identifier:
+            return self.reference_identifier[-9:]
+        return None
+
+    @property
+    def parent_reference(self):
+        if self.parent_reference_identifier:
+            return self.parent_reference_identifier[-9:]
         return None
 
     @property

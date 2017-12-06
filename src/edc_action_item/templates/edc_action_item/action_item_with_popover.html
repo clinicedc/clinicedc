@@ -1,3 +1,13 @@
+{% comment %}
+
+ 	Renders a single list-item for a listgroup of action items.
+ 	
+ 	The list-item has a popover to display details of the action item.
+
+ 	popover is contained in "data-content" attr
+
+ {% endcomment %}
+
 <a id="actionitem-{{action_identifier}}"
 class="list-group-item list-group-item-{% if priority == HIGH_PRIORITY %}danger{% else %}default{% endif %}"
 href="#" data-toggle="popover" data-placement="left" data-html="true" data-trigger="focus"
@@ -8,29 +18,30 @@ data-content="
 <span class='label label-default'>{{ status }}</span>
 <span class='label label-{% if priority == HIGH_PRIORITY %}danger{% else %}warning{% endif %}'>{{ priority }}</span>
 <h6>{{ display_name }}</h6>
-<p class='text text-muted'>{{ name|default:'' }}</p>
+<p class='text text-muted'>{{ action_item_reason|default:'---'|truncatechars:250 }}</p>
 <p class='text text-muted'>
 	<small>Opened on {{ report_datetime|date:'SHORT_DATETIME_FORMAT' }}. {{ last_updated_text }}</small>
 </p>
 </div>
 {% if model_url %}
-<a id='referencemodel-change-{{action_identifier}}' class='list-group-item list-group-item-warning' href='{{ model_url }}'>
+<a id='referencemodel-change-{{ action_identifier }}' class='list-group-item list-group-item-danger' href='{{ model_url }}'>
 <i class='fa fa-plus fa-fw' aria-hidden='true'></i> {{ model_name }}
 </a>
 {% endif %}
-<a 'actionitem-change-{{action_identifier}}' class='list-group-item list-group-item-success' href='{{ href }}'>
-	<i class='fa fa-pencil fa-fw' aria-hidden='true'></i> Action item
-</a>
-{% if parent_action %}
-	<a 'parent-actionitem-change-{{action_identifier}}' class='list-group-item list-group-item-default' href='{{ parent_action_href }}'>
-		<i class='fa fa-pencil fa-fw' aria-hidden='true'></i> Parent action item
+{% if parent_model_url %}
+	<a 'parent-actionitem-change-{{ parent_action_identifier }}' class='list-group-item list-group-item-default' href='{{ parent_model_url }}'>
+		<i class='fa fa-pencil fa-fw' aria-hidden='true'></i> <small>Previous {{ parent_model_name }}</small>
 	</a>
 {% endif %}
+
+<a 'actionitem-change-{{ action_identifier }}' class='list-group-item list-group-item-default' href='{{ href }}'>
+	<i class='fa fa-pencil fa-fw' aria-hidden='true'></i> <small>Action item</small>
+</a>
 </div>
 ">
 <span class="text text-danger">
 <i class="fa fa-bell fa-1x fa-fw" aria-hidden="true"></i> </span>
 <span class="text text-default">
-<span class="h6">{{ display_name|truncatechars:25}}</span>
+<span class="h6">{{ display_name|truncatechars:22}}</span>
 </span>
 </a>

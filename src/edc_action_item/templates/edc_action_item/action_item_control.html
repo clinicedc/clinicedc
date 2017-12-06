@@ -1,0 +1,10 @@
+
+<div class="list-group-item list-group-item-default" title="Action Item">
+<a id="{{ prn.add_button_id }}" class="btn btn-warning btn-sm" role="button" data-toggle="tooltip"  title="add Action Item"
+  href="{% url 'edc_action_item_admin:edc_action_item_actionitem_add' %}?next={{ subject_dashboard_url }},subject_identifier&subject_identifier={{ subject_identifier }}">
+  <i class="fa fa-plus fa-1x fa-fw" aria-hidden="true"></i></a>
+<a class="btn btn-default btn-sm" data-toggle="tooltip"  title="Go to list of Action Items for {{ subject_identifier}}"
+	href="{% url 'edc_action_item_admin:edc_action_item_actionitem_changelist' %}?q={{ subject_identifier }}">
+    <i class="fa fa-bell fa-1x fa-fw" aria-hidden="true"></i> Action Items
+</a>
+</div>

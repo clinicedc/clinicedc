@@ -1,9 +1,11 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, FieldError,\
+    MultipleObjectsReturned
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .action_item_handler import ActionItemHandler
+from .action import ActionFieldError
+from .action_handler import ActionHandler
 from .models import ActionItem, ActionItemUpdate
 
 
@@ -26,6 +28,10 @@ def action_item_on_post_save(sender, instance, raw, created, update_fields, **kw
                 model_obj = model_cls.objects.filter(
                     subject_identifier=instance.subject_identifier,
                     action_identifier__isnull=True).order_by('created').first()
+            except FieldError:
+                raise ActionFieldError(
+                    f'Unable to update action_identifier. Field action_identifier is missing '
+                    f'on model {repr(model_cls)}. Got {instance.action_identifier}.')
             # update the reference model to link to the action item
             if model_obj:
                 model_obj.action_identifier = instance.action_identifier
@@ -60,12 +66,17 @@ def update_or_create_action_item_on_post_save(sender, instance, raw, created, up
                             reference_identifier=None)
                     except ObjectDoesNotExist:
                         action_item = None
+                    except MultipleObjectsReturned:
+                        action_item = ActionItem.objects.filter(
+                            subject_identifier=instance.subject_identifier,
+                            reference_model=sender._meta.label_lower,
+                            reference_identifier=None).order_by('created').first()
+
                 if action_item:
                     action_item.reference_identifier = instance.tracking_identifier
                     action_item.save(update_fields=['reference_identifier'])
 
                 # create a new action item(s) if required
-                handler = ActionItemHandler(
-                    model_obj=instance, model_cls=sender)
+                handler = ActionHandler(model_obj=instance)
                 handler.create()
                 handler.close()

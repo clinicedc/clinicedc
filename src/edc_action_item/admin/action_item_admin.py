@@ -37,7 +37,6 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
                 'action_type',
                 'display_name',
                 'priority',
-                'next_action_type',
                 'parent_action_item',
                 'parent_reference_identifier',
                 'status',
@@ -53,14 +52,20 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     inlines = [ActionItemUpdateInline]
 
     list_display = ('identifier', 'dashboard',
-                    'action_type', 'priority', 'status', 'parent_action')
+                    'action_type', 'priority', 'status', 'parent',
+                    'reference', 'parent_reference')
 
     list_filter = ('status', 'priority', 'report_datetime', 'name')
 
     search_fields = ('subject_identifier',
                      'action_identifier', 'name', 'display_name',
+                     'reference_identifier',
                      'parent_reference_identifier',
                      'parent_action_item__action_identifier')
+
+    ordering = ('-created', )
+
+    date_hierarchy = 'created'
 
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)

@@ -26,8 +26,6 @@ class ActionTypeAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple
     )
 
-    radio_fields = {'prn_form_action': admin.VERTICAL}
-
     list_display = ('name', 'prn', 'model', 'show_on_dashboard')
 
     list_filter = ('prn_form_action', 'show_on_dashboard')
