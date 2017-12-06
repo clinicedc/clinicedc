@@ -1,7 +1,15 @@
-{% extends 'edc_subject_dashboard/dashboard/sidebar/base_sidebar.html' %}
+{% extends 'edc_subject_dashboard/dashboard/sidebar/sidebar.html' %}
+
+{% comment %}
+
+	Overrides sidebar/sidebar.html
+
+{% endcomment%}
 
 {% load tz %}
 {% load edc_base_extras %}
+{% load edc_prn_extras %}
+{% load action_item_extras %}
 
 
 {% block special_forms %}
@@ -16,9 +24,12 @@
 
 {% endblock demographics %}
 
+
 {% block prn %}   
 
-    {% include 'edc_subject_dashboard/dashboard/sidebar/prn.html' %}
+    {% action_item_control subject_identifier subject_dashboard_url %}
+
+    {% prn_list_items subject_identifier %}
 
 {% endblock prn %}
 
@@ -31,7 +42,17 @@
 
 {% block action_items %}   
 
-    {% include 'edc_subject_dashboard/dashboard/sidebar/action_items.html' %}
+	{% if open_action_items %}
+	    
+	    <div class="list-group">
+	        {% for action_item in open_action_items %}
+
+	            {% action_item_with_popover action_item %}
+
+	       {% endfor %}
+	    </div>
+
+	{% endif %}
 
 {% endblock action_items %}
 

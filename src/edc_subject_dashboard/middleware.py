@@ -2,6 +2,27 @@ from django.conf import settings
 
 
 class DashboardMiddleware:
+
+    """Declare in settings:
+
+    For example:
+
+        DASHBOARD_URL_NAMES = {
+            'subject_models_url': 'subject_models_url',
+            'subject_listboard_url': 'myapp:subject_listboard_url',
+            'subject_dashboard_url': 'myapp:subject_dashboard_url',
+        }
+
+        DASHBOARD_BASE_TEMPLATES = {
+            'listboard_base_template': 'myapp/base.html',
+            'dashboard_base_template': 'myapp/base.html',
+            'subject_listboard_template': 'myapp/listboard.html',
+            'subject_dashboard_template': 'myapp/dashboard.html',
+        }
+
+
+    """
+
     def __init__(self, get_response):
         self.get_response = get_response
 

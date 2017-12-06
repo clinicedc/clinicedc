@@ -1,9 +1,0 @@
-{% load action_item_extras %}
-
-{% if open_action_items %}
-    <div class="list-group">
-        {% for action_item in open_action_items %}
-            {% action_item_with_popover action_item %}
-       {% endfor %}
-    </div>
-{% endif %}
