@@ -12,7 +12,6 @@ from edc_model_wrapper import ModelWrapper
 from ..listboard_filter import ListboardFilter, ListboardViewFilters
 from ..view_mixins import ListboardFilterViewMixin
 from ..views import ListboardView
-from pprint import pprint
 
 
 class TestViewMixins(TestCase):
@@ -20,7 +19,6 @@ class TestViewMixins(TestCase):
         self.request = RequestFactory().get('/')
         self.request.user = 'erik'
 
-    @tag('1')
     def test_querystring_mixin(self):
 
         class MyView(QueryStringViewMixin, ContextMixin, View):
@@ -37,7 +35,6 @@ class TestViewMixins(TestCase):
             with self.subTest(attr=attr):
                 self.assertEqual(attr, view.get_context_data().get(attr), attr)
 
-    @tag('1')
     def test_listboard_filter_view(self):
 
         class SubjectVisitModelWrapper(ModelWrapper):

@@ -1,5 +1,7 @@
 {% extends listboard_base_template %}
 
+{% load edc_dashboard_extras %}
+
 {% load tz %}
 {% load staticfiles %}
 {% load crispy_forms_tags %}
@@ -79,7 +81,7 @@
 
 </div><!-- end table -->
 
-{% include 'edc_dashboard/paginator.html' %}
+{% paginator_row %}
 
 </div>  <!--end panel -->
 </div> <!--end panel-group -->

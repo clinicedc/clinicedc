@@ -8,13 +8,15 @@ from django.views.generic.list import ListView
 from edc_dashboard.view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
 
 from ..view_mixins import QueryStringViewMixin
+from django.core.paginator import Paginator
 
 
 class ListboardViewError(Exception):
     pass
 
 
-class ListboardView(QueryStringViewMixin, UrlRequestContextMixin, TemplateRequestContextMixin, ListView):
+class ListboardView(QueryStringViewMixin, UrlRequestContextMixin,
+                    TemplateRequestContextMixin, ListView):
 
     cleaned_search_term = None
     context_object_name = 'results'
@@ -24,15 +26,17 @@ class ListboardView(QueryStringViewMixin, UrlRequestContextMixin, TemplateReques
 
     # default, info, success, danger, warning, etc. See Bootstrap.
     listboard_panel_style = 'default'
-
     listboard_fa_icon = "fa-user-circle-o"
 
     model = None  # label_lower model name
     model_wrapper_cls = None
     ordering = '-created'
     orphans = 3
+
     page = None
     paginate_by = 10
+    paginator_url = None
+    # paginator_class = Paginator
     pagination_limit = 10
 
     def __init__(self, **kwargs):
@@ -57,6 +61,10 @@ class ListboardView(QueryStringViewMixin, UrlRequestContextMixin, TemplateReques
         context = self.add_url_to_context(
             new_key='listboard_url',
             existing_key=self.listboard_url,
+            context=context)
+        context = self.add_url_to_context(
+            new_key='paginator_url',
+            existing_key=self.paginator_url,
             context=context)
         return context
 

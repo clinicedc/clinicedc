@@ -20,3 +20,13 @@ class SubjectVisit(VisitScheduleFieldsModelMixin,
     def get_search_slug_fields(self):
         fields = ['subject_identifier', 'reason']
         return fields
+
+
+class TestModel(models.Model):
+
+    f1 = models.CharField(
+        max_length=25,
+        null=True)
+
+    class Meta:
+        ordering = ('f1', )
