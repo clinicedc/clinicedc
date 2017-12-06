@@ -12,7 +12,10 @@ register = template.Library()
 
 @register.inclusion_tag('edc_action_item/action_item_control.html')
 def action_item_control(subject_identifier, subject_dashboard_url):
+    action_item_add_url = (
+        'edc_action_item_admin:edc_action_item_actionitem_add')
     return dict(
+        action_item_add_url=action_item_add_url,
         subject_identifier=subject_identifier,
         subject_dashboard_url=subject_dashboard_url)
 
@@ -57,9 +60,16 @@ def action_item_with_popover(action_item_model_wrapper):
             except ObjectDoesNotExist:
                 pass
             else:
-                parent_model_url = (
-                    parent_obj.get_absolute_url()
-                    + f'?' + action_item_model_wrapper.href.split('?')[1])
+                #                 parent_model_url = (
+                #                     parent_obj.get_absolute_url()
+                #                     + f'?' + action_item_model_wrapper.href.split('?')[1])
+
+                parent_model_url = model_cls.action_cls.reference_model_url(
+                    model_obj=parent_obj,
+                    action_item=action_item,
+                    action_identifier=action_item.action_identifier,
+                    **query_dict)
+
                 parent_model_name = (
                     f'{parent_model_cls._meta.verbose_name} {parent_obj.identifier}')
                 action_item_reason = parent_obj.action_item_reason

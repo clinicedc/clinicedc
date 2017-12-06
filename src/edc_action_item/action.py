@@ -98,7 +98,6 @@ class Action:
         action_type_model_cls = django_apps.get_model(
             cls.action_type_model)
         try:
-            print('cls.name', cls.name)
             action_type = action_type_model_cls.objects.get(
                 name=cls.name)
         except ObjectDoesNotExist:
@@ -151,7 +150,7 @@ class Action:
         return True
 
     @classmethod
-    def reference_model_url(cls, action_item=None, **kwargs):
+    def reference_model_url(cls, action_item=None, model_obj=None, **kwargs):
         """Returns a relative add URL with querystring that can
         get back to the subject dashboard on save.
         """
@@ -163,5 +162,8 @@ class Action:
                 value = action_item.parent_object
             kwargs.update({cls.parent_model_fk_attr: str(value.pk)})
         query = unquote(urlencode(kwargs))
-        path = cls.reference_model_cls()().get_absolute_url()
+        if model_obj:
+            path = model_obj.get_absolute_url()
+        else:
+            path = cls.reference_model_cls()().get_absolute_url()
         return '?'.join([path, query])

@@ -181,7 +181,7 @@ class TestActionType(TestCase):
             action_item=action_item)
         self.assertEqual(
             url,
-            f'/admin/edc_action_item/formtwo/add/?')
+            f'/admin/edc_action_item/formtwo/add/?form_one={str(form_one.pk)}')
 
     def test_reference_model_url3(self):
         form_one = FormOne.objects.create(
@@ -196,7 +196,23 @@ class TestActionType(TestCase):
             subject_identifier=self.subject_identifier)
         self.assertEqual(
             url,
-            f'/admin/edc_action_item/formtwo/add/?subject_identifier={self.subject_identifier}')
+            f'/admin/edc_action_item/formtwo/add/?subject_identifier={self.subject_identifier}&form_one={str(form_one.pk)}')
+
+    def test_reference_model_url5(self):
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
+        form_two = FormTwo.objects.create(
+            subject_identifier=self.subject_identifier,
+            form_one=form_one)
+        action_item = ActionItem.objects.get(
+            action_identifier=form_two.action_identifier)
+        url = FormTwoAction(model_obj=form_two).reference_model_url(
+            model_obj=form_two,
+            action_item=action_item,
+            subject_identifier=self.subject_identifier)
+        self.assertEqual(
+            url,
+            f'/admin/edc_action_item/formtwo/{str(form_two.pk)}/change/?subject_identifier={self.subject_identifier}&form_one={str(form_one.pk)}')
 
     def test_popover_templatetag(self):
 

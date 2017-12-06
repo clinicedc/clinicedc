@@ -3,7 +3,6 @@ from edc_constants.constants import CLOSED
 
 from .models import ActionType, ActionItem
 from .site_action_items import site_action_items
-from pprint import pprint
 
 
 class InvalidActionType(Exception):

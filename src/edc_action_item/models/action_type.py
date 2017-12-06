@@ -1,7 +1,5 @@
 from django.db import models
-from django.db.models.deletion import PROTECT
 from django.utils.safestring import mark_safe
-from django.utils.text import slugify
 from edc_base.model_mixins import BaseUuidModel
 
 from ..choices import PRIORITY
