@@ -8,7 +8,6 @@ from django.views.generic.list import ListView
 from edc_dashboard.view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
 
 from ..view_mixins import QueryStringViewMixin
-from django.core.paginator import Paginator
 
 
 class ListboardViewError(Exception):
@@ -31,13 +30,10 @@ class ListboardView(QueryStringViewMixin, UrlRequestContextMixin,
     model = None  # label_lower model name
     model_wrapper_cls = None
     ordering = '-created'
-    orphans = 3
 
-    page = None
+    orphans = 3
     paginate_by = 10
-    paginator_url = None
-    # paginator_class = Paginator
-    pagination_limit = 10
+    paginator_url = None  # defaults to listboard_url
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -53,9 +49,7 @@ class ListboardView(QueryStringViewMixin, UrlRequestContextMixin,
             listboard_fa_icon=self.listboard_fa_icon,
             empty_queryset_message=self.empty_queryset_message,
             object_list=wrapped_queryset,
-            search_term=self.search_term,
-            pagination_limit_reached=self.pagination_limit_reached(context),
-            page_range=self.page_range_list(context))
+            search_term=self.search_term)
         if context_object_name is not None:
             context[context_object_name] = wrapped_queryset
         context = self.add_url_to_context(
@@ -64,7 +58,7 @@ class ListboardView(QueryStringViewMixin, UrlRequestContextMixin,
             context=context)
         context = self.add_url_to_context(
             new_key='paginator_url',
-            existing_key=self.paginator_url,
+            existing_key=self.paginator_url or self.listboard_url,
             context=context)
         return context
 
@@ -157,37 +151,3 @@ class ListboardView(QueryStringViewMixin, UrlRequestContextMixin,
         for obj in queryset:
             object_list.append(self.model_wrapper_cls(obj))
         return object_list
-
-    def pagination_limit_reached(self, context):
-        """Returns a boolean that verifies if pagination limit has been reached
-        """
-        if context.get('paginator').num_pages > self.pagination_limit:
-            return True
-        else:
-            return False
-
-    def is_last_pages(self, context):
-        """Returns a boolean that verifies if current page lies in the range
-        of the last pages to be shown
-        """
-        current_page = int(self.kwargs.get('page'))
-        num_pages = context.get('paginator').num_pages
-        last_pages_range = range(num_pages - self.pagination_limit + 1,
-                                 num_pages + 1)
-        return current_page in last_pages_range
-
-    def page_range_list(self, context):
-        """Returns a list of page numbers that will be shown in the template
-        """
-        if self.kwargs.get('page'):
-            if not self.is_last_pages(context):
-                return [i for i in range(int(self.kwargs.get('page')),
-                                         int(self.kwargs.get('page')) +
-                                         self.pagination_limit)]
-            else:
-                return [i for i in range(context.get('paginator').num_pages -
-                                         self.pagination_limit + 1,
-                                         context.get('paginator').num_pages +
-                                         1)]
-        else:
-            return [i for i in range(1, self.pagination_limit + 1)]
