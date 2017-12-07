@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'edc_base.apps.AppConfig',
-    'edc_list_data.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_device.apps.AppConfig',
