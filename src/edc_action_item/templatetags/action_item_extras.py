@@ -1,11 +1,11 @@
 from django import template
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from edc_base.utils import convert_php_dateformat
 from urllib.parse import urlparse, parse_qsl
 
 from ..constants import HIGH_PRIORITY
-from django.core.exceptions import ObjectDoesNotExist
 
 register = template.Library()
 

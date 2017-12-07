@@ -39,7 +39,8 @@ def action_item_on_post_save(sender, instance, raw, created, update_fields, **kw
 
 
 @receiver(post_save, weak=False, dispatch_uid='update_or_create_action_item_on_post_save')
-def update_or_create_action_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
+def update_or_create_action_item_on_post_save(sender, instance, raw,
+                                              created, update_fields, **kwargs):
     """Updates or creates an action item for a model using
     the ActionItemModelMixin.
     """

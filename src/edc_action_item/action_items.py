@@ -1,7 +1,8 @@
+from django.conf import settings
+
 from .action import Action
 from .constants import MEDIUM_PRIORITY, HIGH_PRIORITY
-from django.conf import settings
-from edc_action_item.site_action_items import site_action_items
+from .site_action_items import site_action_items
 
 
 class ReminderAction(Action):

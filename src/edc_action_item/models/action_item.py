@@ -75,7 +75,8 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         max_length=50,
         null=True,
         blank=True,
-        help_text=('May be left blank. e.g. tracking identifier from source model that opened the item.'))
+        help_text=('May be left blank. e.g. tracking identifier from '
+                   'source model that opened the item.'))
 
     parent_model = models.CharField(
         max_length=100,

@@ -11,7 +11,7 @@ from ..templatetags.action_item_extras import action_item_with_popover
 from .models import FormOne, FormTwo, FormThree, SubjectIdentifierModel
 
 
-class TestActionType(TestCase):
+class TestAction(TestCase):
 
     def setUp(self):
         site_action_items.populated_action_type = False
@@ -25,19 +25,16 @@ class TestActionType(TestCase):
         self.assertIn(FormTwoAction.name, site_action_items.registry)
         self.assertIn(FormThreeAction.name, site_action_items.registry)
 
-    @tag('4')
     def test_populate_action_types(self):
         site_action_items.populate_action_type()
         self.assertEqual(ActionType.objects.all().count(), 5)
 
-    @tag('4')
     def test_populate_action_types_in_handler(self):
         model_obj = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
         ActionHandler(model_obj=model_obj)
         self.assertEqual(ActionType.objects.all().count(), 5)
 
-    @tag('4')
     def test_creates_own_action(self):
         action_type = FormOneAction.action_type()
         obj = FormOne.objects.create(
@@ -48,7 +45,6 @@ class TestActionType(TestCase):
             subject_identifier=self.subject_identifier,
             action_type=action_type).count(), 1)
 
-    @tag('4')
     def test_does_not_duplicate_own_action(self):
         action_type = FormOneAction.action_type()
         self.assertEqual(ActionItem.objects.all().count(), 0)
@@ -65,7 +61,6 @@ class TestActionType(TestCase):
             subject_identifier=self.subject_identifier,
             action_type=action_type).count(), 1)
 
-    @tag('4')
     def test_finds_existing_actions(self):
         """Finds existing actions even in many are created in advance.
         """
@@ -106,7 +101,6 @@ class TestActionType(TestCase):
         self.assertEqual(ActionItem.objects.filter(
             action_type=action_type).count(), 6)
 
-    @tag('4')
     def test_creates_next_actions(self):
         f1_action_type = FormOneAction.action_type()
         f2_action_type = FormTwoAction.action_type()
@@ -196,7 +190,8 @@ class TestActionType(TestCase):
             subject_identifier=self.subject_identifier)
         self.assertEqual(
             url,
-            f'/admin/edc_action_item/formtwo/add/?subject_identifier={self.subject_identifier}&form_one={str(form_one.pk)}')
+            (f'/admin/edc_action_item/formtwo/add/?subject_identifier='
+             f'{self.subject_identifier}&form_one={str(form_one.pk)}'))
 
     def test_reference_model_url5(self):
         form_one = FormOne.objects.create(
@@ -212,7 +207,8 @@ class TestActionType(TestCase):
             subject_identifier=self.subject_identifier)
         self.assertEqual(
             url,
-            f'/admin/edc_action_item/formtwo/{str(form_two.pk)}/change/?subject_identifier={self.subject_identifier}&form_one={str(form_one.pk)}')
+            (f'/admin/edc_action_item/formtwo/{str(form_two.pk)}/change/?'
+             f'subject_identifier={self.subject_identifier}&form_one={str(form_one.pk)}'))
 
     def test_popover_templatetag(self):
 
@@ -232,4 +228,4 @@ class TestActionType(TestCase):
             subject_identifier=self.subject_identifier,
             action_type=action_type)
         wrapper = ActionItemModelWrapper(model_obj=obj)
-        action_item_with_popover(wrapper)
+        action_item_with_popover(wrapper, 0)

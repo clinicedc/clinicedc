@@ -8,10 +8,10 @@ from ..action_handler import ModelMissingActionClass
 from ..action_items import ReminderAction
 from ..forms import ActionItemForm
 from ..models import ActionItem, ActionItemUpdate, SubjectDoesNotExist, ActionType
+from ..site_action_items import site_action_items
 from .models import SubjectIdentifierModel, TestModelWithTrackingIdentifierButNoActionClass
 from .models import TestModel, TestModelWithAction
 from .models import TestModelWithoutMixin
-from edc_action_item.site_action_items import site_action_items
 
 
 class TestActionItem(TestCase):

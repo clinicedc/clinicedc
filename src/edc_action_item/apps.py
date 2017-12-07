@@ -8,5 +8,6 @@ class AppConfig(DjangoApponfig):
     verbose_name = 'Action Items'
 
     def ready(self):
-        from .signals import action_item_on_post_save, update_or_create_action_item_on_post_save
+        from .signals import (action_item_on_post_save,
+                              update_or_create_action_item_on_post_save)
         site_action_items.autodiscover()
