@@ -1,7 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_constants.constants import NEW, OPEN
-from edc_list_data import site_list_data
 
 from ..action import Action, ActionError, ActionFieldError
 from ..action_handler import ModelMissingActionClass
@@ -15,16 +14,6 @@ from .models import TestModelWithoutMixin
 
 
 class TestActionItem(TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        site_list_data.autodiscover()
-
-        super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
 
     def setUp(self):
         site_action_items.populated_action_type = False
