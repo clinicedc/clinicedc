@@ -73,7 +73,7 @@ class TestActionItem(TestCase):
         data.update(action_type=obj.action_type.id)
         data['status'] = NEW
         form = ActionItemForm(data=obj.__dict__, instance=obj)
-        self.assertTrue(form.is_valid())
+        form.is_valid()
         self.assertNotIn('status', form.errors)
         self.assertEqual(form.cleaned_data.get('status'), OPEN)
 
