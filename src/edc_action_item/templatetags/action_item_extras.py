@@ -60,10 +60,6 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
             except ObjectDoesNotExist:
                 pass
             else:
-                #                 parent_model_url = (
-                #                     parent_obj.get_absolute_url()
-                #                     + f'?' + action_item_model_wrapper.href.split('?')[1])
-
                 parent_model_url = model_cls.action_cls.reference_model_url(
                     model_obj=parent_obj,
                     action_item=action_item,
