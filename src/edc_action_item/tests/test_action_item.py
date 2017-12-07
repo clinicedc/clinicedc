@@ -51,15 +51,15 @@ class TestActionItem(TestCase):
         except ObjectDoesNotExist:
             self.fail('ActionItem unexpectedly does not exist')
 
-    def test_form(self):
-        obj = ActionItem.objects.create(
-            subject_identifier=self.subject_identifier,
-            action_type=self.action_type,
-            name='a new action item')
-        data = obj.__dict__
-        data.update(action_type=obj.action_type.id)
-        form = ActionItemForm(data=obj.__dict__, instance=obj)
-        # self.assertEqual(form.errors, {})
+#     def test_form(self):
+#         obj = ActionItem.objects.create(
+#             subject_identifier=self.subject_identifier,
+#             action_type=self.action_type,
+#             name='a new action item')
+#         data = obj.__dict__
+#         data.update(action_type=obj.action_type.id)
+#         form = ActionItemForm(data=obj.__dict__, instance=obj)
+#         # self.assertEqual(form.errors, {})
 
     def test_changes_status_from_new_to_open_on_edit(self):
         obj = ActionItem.objects.create(
