@@ -11,6 +11,8 @@ from ..evaluator import InvalidCombination, InvalidLowerBound, InvalidUnits
 from ..value_reference import ValueReference
 from ..value_reference_group import ValueReferenceGroup, ValueReferenceAlreadyAdded
 from ..value_reference_group import InvalidValueReference
+from edc_reportable.grade_reference import GradeReference
+from pprint import pprint
 
 
 class TestValueReference(TestCase):
@@ -35,16 +37,20 @@ class TestValueReference(TestCase):
             lower=10,
             upper=100,
             units='mg/dL')
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 9, units='mg/dL')
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 10, units='mg/dL')
+        self.assertRaises(
+            ValueBoundryError,
+            ref.in_bounds_or_raise, 9, units='mg/dL')
+        self.assertRaises(
+            ValueBoundryError,
+            ref.in_bounds_or_raise, 10, units='mg/dL')
         self.assertTrue(ref.in_bounds_or_raise(11, units='mg/dL'))
         self.assertTrue(ref.in_bounds_or_raise(99, units='mg/dL'))
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 100, units='mg/dL')
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 101, units='mg/dL')
+        self.assertRaises(
+            ValueBoundryError,
+            ref.in_bounds_or_raise, 100, units='mg/dL')
+        self.assertRaises(
+            ValueBoundryError,
+            ref.in_bounds_or_raise, 101, units='mg/dL')
 
         ref = Evaluator(
             lower=10,
@@ -225,7 +231,7 @@ class TestValueReference(TestCase):
             gender=MALE)
         self.assertRaises(
             InvalidValueReference,
-            grp.add, value_reference=ref)
+            grp.add_normal, value_reference=ref)
 
         ref = ValueReference(
             name='labtest',
@@ -236,7 +242,7 @@ class TestValueReference(TestCase):
             age_upper=99,
             age_units='years',
             gender=MALE)
-        grp.add(value_reference=ref)
+        grp.add_normal(value_reference=ref)
         self.assertFalse(grp.in_bounds(
             value=9,
             units='mg/dL',
@@ -254,7 +260,7 @@ class TestValueReference(TestCase):
             dob=dob))
         self.assertRaises(
             ValueReferenceAlreadyAdded,
-            grp.add, value_reference=ref)
+            grp.add_normal, value_reference=ref)
 
         grp = ValueReferenceGroup(name='labtest')
         ref_male = ValueReference(
@@ -285,9 +291,9 @@ class TestValueReference(TestCase):
             age_upper=99,
             age_units='years',
             gender=FEMALE)
-        grp.add(value_reference=ref_male)
-        grp.add(value_reference=ref_female1)
-        grp.add(value_reference=ref_female2)
+        grp.add_normal(value_reference=ref_male)
+        grp.add_normal(value_reference=ref_female1)
+        grp.add_normal(value_reference=ref_female2)
 
         self.assertFalse(grp.in_bounds(
             value=9, gender=MALE, dob=dob,
@@ -340,3 +346,86 @@ class TestValueReference(TestCase):
             value=7.4, gender=FEMALE, dob=report_datetime.date(),
             report_datetime=report_datetime,
             units='mg/dL'))
+
+    def test_grading(self):
+        dob = get_utcnow() - relativedelta(years=25)
+        report_datetime = utc.localize(datetime(2017, 12, 7))
+        grp = ValueReferenceGroup(name='labtest')
+
+        g2 = GradeReference(
+            name='labtest',
+            grade=2,
+            lower=10,
+            upper=20,
+            units='mg/dL',
+            age_lower=18,
+            age_upper=99,
+            age_units='years',
+            gender=MALE)
+        self.assertTrue(repr(g2))
+
+        g3 = GradeReference(
+            name='labtest',
+            grade=3,
+            lower=20,
+            lower_inclusive=True,
+            upper=30,
+            units='mg/dL',
+            age_lower=18,
+            age_upper=99,
+            age_units='years',
+            gender=MALE)
+
+        g4 = GradeReference(
+            name='labtest',
+            grade=4,
+            lower=30,
+            lower_inclusive=True,
+            upper=40,
+            units='mg/dL',
+            age_lower=18,
+            age_upper=99,
+            age_units='years',
+            gender=MALE)
+
+        grp.add_grading(g2)
+        grp.add_grading(g3)
+        grp.add_grading(g4)
+
+        self.assertFalse(
+            grp.in_bounds_for_grade(
+                value=10, gender=MALE,
+                dob=dob, report_datetime=report_datetime,
+                units='mg/dL'))
+        self.assertTrue(
+            grp.in_bounds_for_grade(
+                value=11, gender=MALE,
+                dob=dob, report_datetime=report_datetime,
+                units='mg/dL'))
+        self.assertEqual(grp.success.get('grading')[0].grade, 2)
+
+        self.assertTrue(
+            grp.in_bounds_for_grade(
+                value=20, gender=MALE,
+                dob=dob, report_datetime=report_datetime,
+                units='mg/dL'))
+        self.assertEqual(grp.success.get('grading')[0].grade, 3)
+        self.assertTrue(
+            grp.in_bounds_for_grade(
+                value=21, gender=MALE,
+                dob=dob, report_datetime=report_datetime,
+                units='mg/dL'))
+        self.assertEqual(grp.success.get('grading')[0].grade, 3)
+
+        self.assertTrue(
+            grp.in_bounds_for_grade(
+                value=30, gender=MALE,
+                dob=dob, report_datetime=report_datetime,
+                units='mg/dL'))
+        self.assertEqual(grp.success.get('grading')[0].grade, 4)
+        self.assertTrue(
+            grp.in_bounds_for_grade(
+                value=31, gender=MALE,
+                dob=dob, report_datetime=report_datetime,
+                units='mg/dL'))
+        self.assertEqual(grp.success.get('grading')[0].grade, 4)
