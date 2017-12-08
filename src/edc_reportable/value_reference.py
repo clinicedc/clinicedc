@@ -9,7 +9,10 @@ class ValueReference:
 
     def __init__(self, name=None, gender=None, **kwargs):
         self.name = name
-        self.gender = gender
+        if isinstance(gender, (list, tuple)):
+            self.gender = ''.join(gender)
+        else:
+            self.gender = gender
         self.evaluator = self.evaluator_cls(name=name, **kwargs)
         self.age_evaluator = self.age_evaluator_cls(**kwargs)
         self.success = {}

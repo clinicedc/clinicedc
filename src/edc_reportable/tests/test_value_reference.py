@@ -13,6 +13,8 @@ from ..value_reference_group import ValueReferenceGroup, ValueReferenceAlreadyAd
 from ..value_reference_group import InvalidValueReference
 from edc_reportable.grade_reference import GradeReference
 from pprint import pprint
+from edc_reportable.reference_collection import ReferenceCollection,\
+    AlreadyRegistered
 
 
 class TestValueReference(TestCase):
@@ -429,3 +431,33 @@ class TestValueReference(TestCase):
                 dob=dob, report_datetime=report_datetime,
                 units='mg/dL'))
         self.assertEqual(grp.success.get('grading')[0].grade, 4)
+
+    def test_collection(self):
+        dob = get_utcnow() - relativedelta(years=25)
+        report_datetime = utc.localize(datetime(2017, 12, 7))
+        reference = ReferenceCollection()
+        neutrophils = ValueReferenceGroup(name='neutrophils')
+        ref = ValueReference(
+            name='neutrophils',
+            lower=2.5,
+            upper=7.5,
+            units='10e9/L',
+            age_lower=18,
+            age_upper=99,
+            age_units='years',
+            gender=[MALE, FEMALE])
+        neutrophils.add_normal(ref)
+        reference.register(neutrophils)
+        self.assertRaises(
+            AlreadyRegistered,
+            reference.register, neutrophils)
+        self.assertTrue(reference.get(
+            'neutrophils').in_bounds(
+                value=3.5, units='10e9/L',
+                gender=MALE, dob=dob, report_datetime=report_datetime))
+        reference.get(
+            'neutrophils').in_bounds(
+                value=3.5, units='10e9/L',
+                gender=MALE, dob=dob, report_datetime=report_datetime)
+        self.assertEqual(reference.get('neutrophils').error,
+                         {'grading': [], 'normal': []})

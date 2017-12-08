@@ -1,6 +1,5 @@
-from edc_base.utils import get_utcnow
-from edc_reportable.evaluator import ValueBoundryError
 from copy import copy
+from edc_base.utils import get_utcnow
 
 
 GRADING = 'grading'
@@ -105,7 +104,7 @@ class ValueReferenceGroup:
             value_references = self.normal_references
         for refs in value_references.values():
             references.extend(
-                [ref for ref in refs if gender == ref.gender])
+                [ref for ref in refs if gender in ref.gender])
         for ref in copy(references):
             if not ref.age_match(dob, report_datetime):
                 index = references.index(ref)
