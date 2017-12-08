@@ -437,7 +437,7 @@ class TestValueReference(TestCase):
         report_datetime = utc.localize(datetime(2017, 12, 7))
         reference = ReferenceCollection()
         neutrophils = ValueReferenceGroup(name='neutrophils')
-        ref = ValueReference(
+        ln = ValueReference(
             name='neutrophils',
             lower=2.5,
             upper=7.5,
@@ -446,7 +446,35 @@ class TestValueReference(TestCase):
             age_upper=99,
             age_units='years',
             gender=[MALE, FEMALE])
-        neutrophils.add_normal(ref)
+
+        g3 = GradeReference(
+            name='neutrophils',
+            grade=3,
+            lower=0.4,
+            lower_inclusive=True,
+            upper=0.59,
+            upper_inclusive=True,
+            units='10e9/L',
+            age_lower=18,
+            age_upper=99,
+            age_units='years',
+            gender=[MALE, FEMALE])
+
+        g4 = GradeReference(
+            name='neutrophils',
+            grade=4,
+            lower=0,
+            upper=0.4,
+            units='10e9/L',
+            age_lower=18,
+            age_upper=99,
+            age_units='years',
+            gender=[MALE, FEMALE])
+
+        neutrophils.add_normal(ln)
+        neutrophils.add_grading(g3)
+        neutrophils.add_grading(g4)
+
         reference.register(neutrophils)
         self.assertRaises(
             AlreadyRegistered,
@@ -455,9 +483,28 @@ class TestValueReference(TestCase):
             'neutrophils').in_bounds(
                 value=3.5, units='10e9/L',
                 gender=MALE, dob=dob, report_datetime=report_datetime))
-        reference.get(
-            'neutrophils').in_bounds(
+
+        neutrophils = reference.get('neutrophils')
+        self.assertTrue(
+            neutrophils.in_bounds(
                 value=3.5, units='10e9/L',
-                gender=MALE, dob=dob, report_datetime=report_datetime)
+                gender=MALE, dob=dob, report_datetime=report_datetime))
         self.assertEqual(reference.get('neutrophils').error,
                          {'grading': [], 'normal': []})
+        self.assertFalse(
+            neutrophils.in_bounds_for_grade(
+                value=3.5, units='10e9/L',
+                gender=MALE, dob=dob, report_datetime=report_datetime))
+        self.assertIsNone(neutrophils.grade)
+
+        self.assertTrue(
+            neutrophils.in_bounds_for_grade(
+                value=.43, units='10e9/L',
+                gender=MALE, dob=dob, report_datetime=report_datetime))
+        self.assertEqual(neutrophils.grade, 3)
+
+        self.assertTrue(
+            neutrophils.in_bounds_for_grade(
+                value=.3, units='10e9/L',
+                gender=MALE, dob=dob, report_datetime=report_datetime))
+        self.assertEqual(neutrophils.grade, 4)
