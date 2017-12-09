@@ -29,8 +29,8 @@ class Evaluator:
             raise InvalidLowerBound(f'Got {lower}.')
         if upper and not re.match('\d+', str(upper)):
             raise InvalidUpperBound(f'Got {upper}.')
-        self.lower = lower
-        self.upper = upper
+        self.lower = None if lower is None else float(lower)
+        self.upper = None if upper is None else float(upper)
 
         if lower and upper:
             if self.lower == self.upper:
@@ -50,16 +50,21 @@ class Evaluator:
             None if not self.upper else '<=' if self.upper_inclusive is True else '<')
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.description()})'
+        return f'{self.__class__.__name__}({self.description(value="VALUE")})'
 
     def __str__(self):
         return self.description(value='VALUE')
 
     def description(self, value=None):
-        return (f'{self.lower or ""}{self.lower_operator or ""}{value or "x"}'
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            value = value or 'value'
+        return (f'{self.lower or ""}{self.lower_operator or ""}{value}'
                 f'{self.upper_operator or ""}{self.upper or ""} in {self.units}')
 
-    def in_bounds_or_raise(self, value, units=None):
+    def in_bounds_or_raise(self, value, units=None, **kwargs):
+        value = float(value)
         if units != self.units:
             raise InvalidUnits(f'Expected {self.units}. See {repr(self)}')
         condition = (

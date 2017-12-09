@@ -17,6 +17,10 @@ class AgeEvaluator(Evaluator):
     def __repr__(self):
         return f'{self.__class__.__name__}({self.description()})'
 
+    def description(self, value=None):
+        value = value or 'AGE'
+        return super().description(value=value)
+
     def in_bounds_or_raise(self, dob=None, report_datetime=None, age_units=None):
         report_datetime = report_datetime or get_utcnow()
         age_units = age_units or 'years'

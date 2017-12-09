@@ -8,13 +8,11 @@ from unittest import TestCase
 from ..age_evaluator import AgeEvaluator
 from ..evaluator import Evaluator, ValueBoundryError, InvalidUpperBound
 from ..evaluator import InvalidCombination, InvalidLowerBound, InvalidUnits
-from ..value_reference import ValueReference
+from ..grade_reference import GradeReference
+from ..normal_reference import NormalReference
+from ..reference_collection import ReferenceCollection, AlreadyRegistered
+from ..value_reference_group import InvalidValueReference, NotEvaluated
 from ..value_reference_group import ValueReferenceGroup, ValueReferenceAlreadyAdded
-from ..value_reference_group import InvalidValueReference
-from edc_reportable.grade_reference import GradeReference
-from pprint import pprint
-from edc_reportable.reference_collection import ReferenceCollection,\
-    AlreadyRegistered
 
 
 class TestValueReference(TestCase):
@@ -128,13 +126,13 @@ class TestValueReference(TestCase):
             InvalidUnits, ref.in_bounds_or_raise, 101, units='blah')
 
         ref = Evaluator(lower=None, upper=100, units='mg/dL')
-        self.assertEqual(ref.description(), 'x<100 in mg/dL')
+        self.assertEqual(ref.description(), 'value<100.0 in mg/dL')
         self.assertRaises(
             InvalidLowerBound, Evaluator, lower='ERIK', upper=100, units='mg/dL')
         self.assertRaises(
             InvalidUpperBound, Evaluator, lower=10, upper='ERIK', units='mg/dL')
         ref = Evaluator(lower=10, upper=None, units='mg/dL')
-        self.assertEqual(ref.description(), '10<x in mg/dL')
+        self.assertEqual(ref.description(), '10.0<value in mg/dL')
 
         for lower in [.1, 1.1, 10.2234]:
             with self.subTest(lower=lower):
@@ -191,7 +189,7 @@ class TestValueReference(TestCase):
         self.assertTrue(24 < getattr(rdelta, 'years') < 26)
         self.assertFalse(25 < getattr(rdelta, 'years') < 26)
         self.assertFalse(24 < getattr(rdelta, 'years') < 25)
-        ref = ValueReference(
+        ref = NormalReference(
             lower=10,
             upper=None,
             units='mg/dL',
@@ -199,7 +197,7 @@ class TestValueReference(TestCase):
             age_upper=26,
             gender=MALE)
         self.assertTrue(ref.age_match(dob, report_datetime))
-        ref = ValueReference(
+        ref = NormalReference(
             lower=10,
             upper=None,
             units='mg/dL',
@@ -207,7 +205,7 @@ class TestValueReference(TestCase):
             age_upper=26,
             gender=MALE)
         self.assertFalse(ref.age_match(dob, report_datetime))
-        ref = ValueReference(
+        ref = NormalReference(
             lower=10,
             upper=None,
             units='mg/dL',
@@ -222,7 +220,7 @@ class TestValueReference(TestCase):
         grp = ValueReferenceGroup(name='labtest')
         self.assertTrue(repr(grp))
 
-        ref = ValueReference(
+        ref = NormalReference(
             name='blahblah',
             lower=10,
             upper=None,
@@ -233,9 +231,9 @@ class TestValueReference(TestCase):
             gender=MALE)
         self.assertRaises(
             InvalidValueReference,
-            grp.add_normal, value_reference=ref)
+            grp.add_normal, ref)
 
-        ref = ValueReference(
+        ref = NormalReference(
             name='labtest',
             lower=10,
             upper=None,
@@ -244,28 +242,28 @@ class TestValueReference(TestCase):
             age_upper=99,
             age_units='years',
             gender=MALE)
-        grp.add_normal(value_reference=ref)
-        self.assertFalse(grp.in_bounds(
+        grp.add_normal(ref)
+        self.assertFalse(grp.get_normal(
             value=9,
             units='mg/dL',
             gender=MALE,
             dob=dob))
-        self.assertFalse(grp.in_bounds(
+        self.assertFalse(grp.get_normal(
             value=10,
             units='mg/dL',
             gender=MALE,
             dob=dob))
-        self.assertTrue(grp.in_bounds(
+        self.assertTrue(grp.get_normal(
             value=11,
             units='mg/dL',
             gender=MALE,
             dob=dob))
         self.assertRaises(
             ValueReferenceAlreadyAdded,
-            grp.add_normal, value_reference=ref)
+            grp.add_normal, ref)
 
         grp = ValueReferenceGroup(name='labtest')
-        ref_male = ValueReference(
+        ref_male = NormalReference(
             name='labtest',
             lower=10,
             upper=None,
@@ -274,7 +272,7 @@ class TestValueReference(TestCase):
             age_upper=99,
             age_units='years',
             gender=MALE)
-        ref_female1 = ValueReference(
+        ref_female1 = NormalReference(
             name='labtest',
             lower=1.7,
             upper=3.5,
@@ -284,7 +282,7 @@ class TestValueReference(TestCase):
             age_upper=99,
             age_units='years',
             gender=FEMALE)
-        ref_female2 = ValueReference(
+        ref_female2 = NormalReference(
             name='labtest',
             lower=7.3,
             upper=None,
@@ -293,61 +291,70 @@ class TestValueReference(TestCase):
             age_upper=99,
             age_units='years',
             gender=FEMALE)
-        grp.add_normal(value_reference=ref_male)
-        grp.add_normal(value_reference=ref_female1)
-        grp.add_normal(value_reference=ref_female2)
+        grp.add_normal(ref_male)
+        grp.add_normal(ref_female1)
+        grp.add_normal(ref_female2)
 
-        self.assertFalse(grp.in_bounds(
+        self.assertFalse(grp.get_normal(
             value=9, gender=MALE, dob=dob,
             report_datetime=report_datetime,
             units='mg/dL'))
-        self.assertFalse(grp.in_bounds(
+        self.assertFalse(grp.get_normal(
             value=10, gender=MALE, dob=dob,
             report_datetime=report_datetime,
             units='mg/dL'))
-        self.assertTrue(grp.in_bounds(
+        self.assertTrue(grp.get_normal(
             value=11, gender=MALE, dob=dob,
             report_datetime=report_datetime,
             units='mg/dL'))
 
-        self.assertFalse(grp.in_bounds(
+        self.assertFalse(grp.get_normal(
             value=1, gender=FEMALE, dob=dob,
             report_datetime=report_datetime,
             units='mg/dL'))
-        self.assertFalse(grp.in_bounds(
+        self.assertFalse(grp.get_normal(
             value=1.7, gender=FEMALE, dob=dob,
             report_datetime=report_datetime,
             units='mg/dL'))
-        self.assertTrue(grp.in_bounds(
+        self.assertTrue(grp.get_normal(
             value=1.8, gender=FEMALE, dob=dob,
             report_datetime=report_datetime,
             units='mg/dL'))
-        self.assertTrue(grp.in_bounds(
+        self.assertTrue(grp.get_normal(
             value=3.4, gender=FEMALE, dob=dob,
             report_datetime=report_datetime,
             units='mg/dL'))
-        self.assertTrue(grp.in_bounds(
+        self.assertTrue(grp.get_normal(
             value=3.5, gender=FEMALE, dob=dob,
             report_datetime=report_datetime,
             units='mg/dL'))
-        self.assertFalse(grp.in_bounds(
+        self.assertFalse(grp.get_normal(
             value=3.6, gender=FEMALE, dob=dob,
             report_datetime=report_datetime,
             units='mg/dL'))
 
-        self.assertFalse(grp.in_bounds(
+        self.assertFalse(grp.get_normal(
             value=7.3, gender=FEMALE, dob=dob,
             report_datetime=report_datetime,
             units='mg/dL'))
-        self.assertTrue(grp.in_bounds(
+        self.assertTrue(grp.get_normal(
             value=7.4, gender=FEMALE, dob=dob,
             report_datetime=report_datetime,
             units='mg/dL'))
 
-        self.assertTrue(grp.in_bounds(
+        self.assertRaises(
+            NotEvaluated,
+            grp.get_normal,
             value=7.4, gender=FEMALE, dob=report_datetime.date(),
             report_datetime=report_datetime,
-            units='mg/dL'))
+            units='mg/dL')
+
+        self.assertRaises(
+            NotEvaluated,
+            grp.get_normal,
+            value=7.4, gender=FEMALE, dob=report_datetime.date(),
+            report_datetime=report_datetime,
+            units='mmol/L')
 
     def test_grading(self):
         dob = get_utcnow() - relativedelta(years=25)
@@ -394,50 +401,72 @@ class TestValueReference(TestCase):
         grp.add_grading(g3)
         grp.add_grading(g4)
 
-        self.assertFalse(
-            grp.in_bounds_for_grade(
-                value=10, gender=MALE,
-                dob=dob, report_datetime=report_datetime,
-                units='mg/dL'))
-        self.assertTrue(
-            grp.in_bounds_for_grade(
-                value=11, gender=MALE,
-                dob=dob, report_datetime=report_datetime,
-                units='mg/dL'))
-        self.assertEqual(grp.success.get('grading')[0].grade, 2)
+        grade = grp.get_grade(
+            value=10, gender=MALE,
+            dob=dob, report_datetime=report_datetime,
+            units='mg/dL')
+        self.assertIsNone(grade)
+        grade = grp.get_grade(
+            value=11, gender=MALE,
+            dob=dob, report_datetime=report_datetime,
+            units='mg/dL')
+        self.assertEqual(grade.grade, 2)
 
-        self.assertTrue(
-            grp.in_bounds_for_grade(
-                value=20, gender=MALE,
-                dob=dob, report_datetime=report_datetime,
-                units='mg/dL'))
-        self.assertEqual(grp.success.get('grading')[0].grade, 3)
-        self.assertTrue(
-            grp.in_bounds_for_grade(
-                value=21, gender=MALE,
-                dob=dob, report_datetime=report_datetime,
-                units='mg/dL'))
-        self.assertEqual(grp.success.get('grading')[0].grade, 3)
+        grade = grp.get_grade(
+            value=20, gender=MALE,
+            dob=dob, report_datetime=report_datetime,
+            units='mg/dL')
+        self.assertEqual(grade.grade, 3)
+        grade = grp.get_grade(
+            value=21, gender=MALE,
+            dob=dob, report_datetime=report_datetime,
+            units='mg/dL')
+        self.assertEqual(grade.grade, 3)
 
-        self.assertTrue(
-            grp.in_bounds_for_grade(
-                value=30, gender=MALE,
-                dob=dob, report_datetime=report_datetime,
-                units='mg/dL'))
-        self.assertEqual(grp.success.get('grading')[0].grade, 4)
-        self.assertTrue(
-            grp.in_bounds_for_grade(
-                value=31, gender=MALE,
-                dob=dob, report_datetime=report_datetime,
-                units='mg/dL'))
-        self.assertEqual(grp.success.get('grading')[0].grade, 4)
+        grade = grp.get_grade(
+            value=30, gender=MALE,
+            dob=dob, report_datetime=report_datetime,
+            units='mg/dL')
+        self.assertEqual(grade.grade, 4)
+        grade = grp.get_grade(
+            value=31, gender=MALE,
+            dob=dob, report_datetime=report_datetime,
+            units='mg/dL')
+        self.assertEqual(grade.grade, 4)
+
+        self.assertRaises(
+            NotEvaluated,
+            grp.get_grade,
+            value=31, gender=MALE,
+            dob=report_datetime.date(), report_datetime=report_datetime,
+            units='mg/dL')
+
+        self.assertRaises(
+            NotEvaluated,
+            grp.get_grade,
+            value=31, gender=MALE,
+            dob=dob, report_datetime=report_datetime,
+            units='mmol/L')
+
+        self.assertRaises(
+            NotEvaluated,
+            grp.get_grade,
+            value=31, gender=FEMALE,
+            dob=dob, report_datetime=report_datetime,
+            units='mmol/L')
+
+        grade = grp.get_grade(
+            value=1, gender=MALE,
+            dob=dob, report_datetime=report_datetime,
+            units='mg/dL')
+        self.assertIsNone(grade)
 
     def test_collection(self):
         dob = get_utcnow() - relativedelta(years=25)
         report_datetime = utc.localize(datetime(2017, 12, 7))
         reference = ReferenceCollection()
         neutrophils = ValueReferenceGroup(name='neutrophils')
-        ln = ValueReference(
+        ln = NormalReference(
             name='neutrophils',
             lower=2.5,
             upper=7.5,
@@ -480,31 +509,26 @@ class TestValueReference(TestCase):
             AlreadyRegistered,
             reference.register, neutrophils)
         self.assertTrue(reference.get(
-            'neutrophils').in_bounds(
+            'neutrophils').get_normal(
                 value=3.5, units='10e9/L',
                 gender=MALE, dob=dob, report_datetime=report_datetime))
 
         neutrophils = reference.get('neutrophils')
         self.assertTrue(
-            neutrophils.in_bounds(
+            neutrophils.get_normal(
                 value=3.5, units='10e9/L',
                 gender=MALE, dob=dob, report_datetime=report_datetime))
-        self.assertEqual(reference.get('neutrophils').error,
-                         {'grading': [], 'normal': []})
-        self.assertFalse(
-            neutrophils.in_bounds_for_grade(
-                value=3.5, units='10e9/L',
-                gender=MALE, dob=dob, report_datetime=report_datetime))
-        self.assertIsNone(neutrophils.grade)
+        grade = neutrophils.get_grade(
+            value=3.5, units='10e9/L',
+            gender=MALE, dob=dob, report_datetime=report_datetime)
+        self.assertIsNone(grade)
 
-        self.assertTrue(
-            neutrophils.in_bounds_for_grade(
-                value=.43, units='10e9/L',
-                gender=MALE, dob=dob, report_datetime=report_datetime))
-        self.assertEqual(neutrophils.grade, 3)
+        grade = neutrophils.get_grade(
+            value=.43, units='10e9/L',
+            gender=MALE, dob=dob, report_datetime=report_datetime)
+        self.assertEqual(grade.grade, 3)
 
-        self.assertTrue(
-            neutrophils.in_bounds_for_grade(
-                value=.3, units='10e9/L',
-                gender=MALE, dob=dob, report_datetime=report_datetime))
-        self.assertEqual(neutrophils.grade, 4)
+        grade = neutrophils.get_grade(
+            value=.3, units='10e9/L',
+            gender=MALE, dob=dob, report_datetime=report_datetime)
+        self.assertEqual(grade.grade, 4)
