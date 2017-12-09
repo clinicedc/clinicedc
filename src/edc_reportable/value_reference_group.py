@@ -105,7 +105,7 @@ class ValueReferenceGroup:
         if not references:
             raise NotEvaluated(
                 f'{self.name} value not evaluated. '
-                f'No reference range found for {kwargs} ')
+                f'No reference range found for {kwargs}. See {repr(self)}.')
         return references
 
     def _get_grading_references(self, **kwargs):
@@ -116,7 +116,7 @@ class ValueReferenceGroup:
         if not references:
             raise NotEvaluated(
                 f'{self.name} value not graded. '
-                f'No reference range found for {kwargs} ')
+                f'No reference range found for {kwargs}. See {repr(self)}.')
         references.sort(key=lambda x: x.grade, reverse=True)
         return references
 

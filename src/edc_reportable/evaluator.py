@@ -53,13 +53,13 @@ class Evaluator:
         return f'{self.__class__.__name__}({self.description(value="VALUE")})'
 
     def __str__(self):
-        return self.description(value='VALUE')
+        return self.description()
 
     def description(self, value=None):
         try:
             value = float(value)
         except (TypeError, ValueError):
-            value = value or 'value'
+            value = value or 'x'
         return (f'{self.lower or ""}{self.lower_operator or ""}{value}'
                 f'{self.upper_operator or ""}{self.upper or ""} in {self.units}')
 
