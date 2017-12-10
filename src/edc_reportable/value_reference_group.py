@@ -68,6 +68,15 @@ class ValueReferenceGroup:
         """
         self._add(grade_reference, self.grading)
 
+    def get_normal_description(self, **kwargs):
+        """Returns a list of descriptions of the normal references
+        for these criteria.
+        """
+        descriptions = []
+        for value_ref in self._get_normal_references(**kwargs):
+            descriptions.append(value_ref.description())
+        return descriptions
+
     def get_normal(self, value=None, **kwargs):
         """Returns a Normal instance or None.
         """
