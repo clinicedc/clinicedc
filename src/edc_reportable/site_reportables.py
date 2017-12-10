@@ -49,7 +49,8 @@ class Reportables:
         pass
 
     def to_csv(self, collection_name=None, path=None):
-        path = path or os.path.expanduser('~/')
+        path = path or '~/'
+        path = os.path.expanduser(path)
         filename1 = os.path.join(path, f'{collection_name}_normal_ranges.csv')
         filename2 = os.path.join(path, f'{collection_name}_grading.csv')
         reference_collection = self.get(collection_name)
