@@ -9,10 +9,6 @@ class ActionError(Exception):
     pass
 
 
-class ActionFieldError(Exception):
-    pass
-
-
 class Action:
 
     _updated_action_type = False

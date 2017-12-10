@@ -1,12 +1,10 @@
-from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist, FieldError,\
-    MultipleObjectsReturned
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .action import ActionFieldError
 from .action_handler import ActionHandler
 from .models import ActionItem, ActionItemUpdate
+from edc_action_item.reference_model_updater import ReferenceModelUpdater
 
 
 @receiver(post_save, weak=False, sender=ActionItem, dispatch_uid='action_item_on_post_save')
@@ -16,26 +14,8 @@ def action_item_on_post_save(sender, instance, raw, created, update_fields, **kw
     """
     if not raw and not update_fields:
         if instance.reference_model:
-            model_cls = django_apps.get_model(
-                instance.reference_model or None)
-            # get reference model instance or the first one without
-            # an action identifier
-            try:
-                model_obj = model_cls.objects.get(
-                    tracking_identifier=instance.reference_identifier,
-                    action_identifier__isnull=False)
-            except ObjectDoesNotExist:
-                model_obj = model_cls.objects.filter(
-                    subject_identifier=instance.subject_identifier,
-                    action_identifier__isnull=True).order_by('created').first()
-            except FieldError:
-                raise ActionFieldError(
-                    f'Unable to update action_identifier. Field action_identifier is missing '
-                    f'on model {repr(model_cls)}. Got {instance.action_identifier}.')
-            # update the reference model to link to the action item
-            if model_obj:
-                model_obj.action_identifier = instance.action_identifier
-                model_obj.save(update_fields=['action_identifier'])
+            updater = ReferenceModelUpdater(action_item=instance)
+            updater.update()
 
 
 @receiver(post_save, weak=False, dispatch_uid='update_or_create_action_item_on_post_save')

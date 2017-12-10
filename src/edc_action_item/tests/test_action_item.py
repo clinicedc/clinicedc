@@ -2,11 +2,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_constants.constants import NEW, OPEN
 
-from ..action import Action, ActionError, ActionFieldError
+from ..action import Action, ActionError
 from ..action_handler import ModelMissingActionClass
 from ..action_items import ReminderAction
 from ..forms import ActionItemForm
 from ..models import ActionItem, ActionItemUpdate, SubjectDoesNotExist, ActionType
+from ..reference_model_updater import ActionItemFieldError
 from ..site_action_items import site_action_items
 from .models import SubjectIdentifierModel, TestModelWithTrackingIdentifierButNoActionClass
 from .models import TestModel, TestModelWithAction
@@ -194,7 +195,7 @@ class TestActionItem(TestCase):
             subject_identifier=self.subject_identifier,
             tracking_identifier='tracking')
         self.assertRaises(
-            ActionFieldError, MyActionWithModel, model_obj=obj)
+            ActionItemFieldError, MyActionWithModel, model_obj=obj)
 
         class MyActionWithCorrectModel(Action):
             name = 'my-action'
