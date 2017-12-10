@@ -57,6 +57,8 @@ class FieldsetsModelAdminMixin(admin.ModelAdmin):
 
     custom_form_labels = {}
 
+    fieldsets_move_to_end = None
+
     def update_form_labels(self, request, form):
         """Returns a form instance after modifying form labels
         referred to in custom_form_labels.
@@ -210,6 +212,7 @@ class FieldsetsModelAdminMixin(admin.ModelAdmin):
                 pass
         fieldsets = self.update_fieldset_for_form(
             fieldsets, request)
+        fieldsets.move_to_end(self.fieldsets_move_to_end)
         return fieldsets.fieldsets
 
     def update_fieldset_for_form(self, fieldsets, request, **kwargs):

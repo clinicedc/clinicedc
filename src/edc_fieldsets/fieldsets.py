@@ -19,6 +19,11 @@ class Fieldsets:
     def fieldsets(self):
         return tuple([(k, v) for k, v in self.fieldsets_asdict.items()])
 
+    def move_to_end(self, sections):
+        if sections:
+            for section in sections:
+                self.fieldsets_asdict.move_to_end(section)
+
     def add_fieldset(self, section=None, fields=None, fieldset=None):
         """Adds a fieldset to the given section/fields or fieldset.
 
