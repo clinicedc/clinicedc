@@ -21,7 +21,7 @@ class ValueReference:
             setattr(self, key, value)
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}({self.name}, {self.description()}')
+        return (f'{self.__class__.__name__}({self.name}, {self.description()})')
 
     def description(self, **kwargs):
         return (f'{self.evaluator.description(**kwargs)} {self.gender}, '

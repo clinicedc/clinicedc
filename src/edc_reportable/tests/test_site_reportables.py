@@ -5,7 +5,7 @@ from edc_constants.constants import MALE
 from tempfile import mkdtemp
 
 from ..site_reportables import site_reportables
-from .references import normal_data, grading_data
+from .reportables import normal_data, grading_data
 
 
 class TestSiteReportables(TestCase):
