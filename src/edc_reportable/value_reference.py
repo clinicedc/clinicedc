@@ -25,7 +25,7 @@ class ValueReference:
 
     def description(self, **kwargs):
         return (f'{self.evaluator.description(**kwargs)} {self.gender}, '
-                f'{self.age_evaluator.description("AGE")}')
+                f'{self.age_evaluator.description()}')
 
     def in_bounds(self, value=None, **kwargs):
         try:

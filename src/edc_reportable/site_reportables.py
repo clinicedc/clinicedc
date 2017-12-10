@@ -3,9 +3,9 @@ import os
 
 from .grade_reference import GradeReference
 from .normal_reference import NormalReference
+from .parsers import unparse
 from .reference_collection import ReferenceCollection
 from .value_reference_group import ValueReferenceGroup, GRADING, NORMAL
-from edc_reportable.parsers import unparse
 
 
 class Reportables:
@@ -48,14 +48,14 @@ class Reportables:
     def read_csv(self, name=None, path=None):
         pass
 
-    def to_csv(self, key=None, path=None):
+    def to_csv(self, collection_name=None, path=None):
         path = path or os.path.expanduser('~/')
-        filename1 = os.path.join(path, f'{key}_normal_ranges.csv')
-        filename2 = os.path.join(path, f'{key}_grading.csv')
-        reference_collection = self.get(key)
+        filename1 = os.path.join(path, f'{collection_name}_normal_ranges.csv')
+        filename2 = os.path.join(path, f'{collection_name}_grading.csv')
+        reference_collection = self.get(collection_name)
         data = reference_collection.as_data()
         try:
-            fieldnames = list(data.get('normal')[0].keys())
+            fieldnames = list(data.get(NORMAL)[0].keys())
         except IndexError:
             pass
         else:
@@ -63,11 +63,11 @@ class Reportables:
             with open(filename1, 'w') as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
-                for dct in data.get('normal'):
+                for dct in data.get(NORMAL):
                     dct.update(description=unparse(**dct))
                     writer.writerow(dct)
         try:
-            fieldnames = list(data.get('grading')[0].keys())
+            fieldnames = list(data.get(GRADING)[0].keys())
         except IndexError:
             pass
         else:
@@ -75,7 +75,7 @@ class Reportables:
             with open(filename2, 'w') as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
-                for dct in data.get('grading'):
+                for dct in data.get(GRADING):
                     dct.update(description=unparse(**dct))
                     writer.writerow(dct)
         return filename1, filename2

@@ -88,7 +88,8 @@ class ValueReferenceGroup:
                 else:
                     raise BoundariesOverlap(
                         f'Previously got {normal}. '
-                        f'Got {value_ref.description(value=value)}')
+                        f'Got {value_ref.description(value=value)}. '
+                        f'Check your definitions.')
         return normal
 
     def get_grade(self, value=None, **kwargs):
@@ -103,7 +104,8 @@ class ValueReferenceGroup:
                 else:
                     raise BoundariesOverlap(
                         f'Previously got {grade}. '
-                        f'Got {grade_ref.description(value=value)}')
+                        f'Got {grade_ref.description(value=value)} ',
+                        f'Check your definitions.')
         return grade
 
     def _get_normal_references(self, **kwargs):

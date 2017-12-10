@@ -16,7 +16,7 @@ class GradeReference(ValueReference):
     grades = [GRADE1, GRADE2, GRADE3, GRADE4, GRADE5]
 
     def __init__(self, grade=None, **kwargs):
-        if grade not in self.grades:
+        if int(grade) not in [int(x) for x in self.grades]:
             raise GradeError(
                 f'Invalid grade. Expected one of {self.grades}. Got {grade}.')
         self.grade = int(grade)

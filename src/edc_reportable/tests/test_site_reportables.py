@@ -20,7 +20,7 @@ class TestSiteReportables(TestCase):
 
     def test_to_csv(self):
         path = mkdtemp()
-        site_reportables.to_csv(key='my_project', path=None)
+        site_reportables.to_csv(collection_name='my_project', path=path)
 
     def test_(self):
         reportables = site_reportables.get('my_project')

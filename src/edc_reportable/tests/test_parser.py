@@ -94,3 +94,19 @@ class TestParser(TestCase):
         self.assertRaises(
             ParserError,
             parse, '=77')
+
+        self.assertRaises(
+            ParserError,
+            parse, '>77')
+
+        self.assertRaises(
+            ParserError,
+            parse, '0.77 >= x > 0.88')
+
+        self.assertRaises(
+            ParserError,
+            parse, '0.77 =< x < 0.88')
+
+        self.assertRaises(
+            ParserError,
+            parse, '0.77 < x < 0.88 < x < 0.88')

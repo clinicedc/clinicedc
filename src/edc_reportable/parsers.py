@@ -8,6 +8,7 @@ class ParserError(Exception):
 
 
 def unparse(**kwargs):
+
     lower = kwargs.get('lower') or ''
     upper = kwargs.get('upper') or ''
     lower_op = (
@@ -29,6 +30,9 @@ def unparse(**kwargs):
 
 
 def parse(phrase=None, **kwargs):
+
+    pattern = '(([\d+\.\d+]|[\.\d+])?(<|<=)?)+x((<|<=)?([\d+\.\d+]|[\.\d+])+)?'
+
     def _parse(string):
         inclusive = True if '=' in string else None
         try:
@@ -37,16 +41,12 @@ def parse(phrase=None, **kwargs):
             value = None
         return value, inclusive
     phrase = phrase.replace(' ', '')
-    match = re.match(
-        '(([\d+\.\d+]|[\.\d+])?(<|<=)?)+x((<|<=)?([\d+\.\d+]|[\.\d+])+)?', phrase)
+    match = re.match(pattern, phrase)
     if not match or match.group() != phrase:
-        raise ParserError(f'Invalid. Got {phrase}.')
-    try:
-        left, right = phrase.replace(' ', '').split('x')
-    except ValueError as e:
         raise ParserError(
-            f'{e}. Got \'{phrase}\'. For example, 11<x<22, '
+            f'Invalid. Got {phrase}. Expected, e.g, 11<x<22, '
             f'11<=x<22, 11<x<=22, 11<x, 11<=x, x<22, x<=22, etc.')
+    left, right = phrase.replace(' ', '').split('x')
     lower, lower_inclusive = _parse(left)
     upper, upper_inclusive = _parse(right)
     ret = OrderedDict(

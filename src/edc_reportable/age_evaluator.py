@@ -9,17 +9,18 @@ class AgeEvaluator(Evaluator):
                  age_lower_inclusive=None, age_upper_inclusive=None, **kwargs):
         kwargs['units'] = age_units or 'years'
         kwargs['lower'] = age_lower or 0
-        kwargs['upper'] = age_upper or 120
+        kwargs['upper'] = age_upper
         kwargs['lower_inclusive'] = age_lower_inclusive
         kwargs['upper_inclusive'] = age_upper_inclusive
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.description()})'
+        return f'{self.__class__.__name__}({self.description(show_as_int=True)})'
 
-    def description(self, value=None):
-        value = value or 'AGE'
-        return super().description(value=value)
+    def description(self, value=None, **kwargs):
+        kwargs['show_as_int'] = True
+        kwargs['placeholder'] = 'AGE'
+        return super().description(value=value, **kwargs)
 
     def in_bounds_or_raise(self, dob=None, report_datetime=None, age_units=None):
         report_datetime = report_datetime or get_utcnow()
