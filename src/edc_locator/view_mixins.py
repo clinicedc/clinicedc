@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
 
@@ -31,7 +32,18 @@ class SubjectLocatorViewMixin(ContextMixin):
         wrapper = self.subject_locator_model_wrapper_cls(
             model_obj=self.subject_locator)
         context.update(subject_locator=wrapper)
+        self.get_subject_locator_or_message()
         return context
+
+    def get_subject_locator_or_message(self):
+        obj = None
+        try:
+            obj = self.subject_locator_model_cls.objects.get(
+                subject_identifier=self.subject_identifier)
+        except ObjectDoesNotExist:
+            messages.warning(self.request, (
+                'Please complete the subject locator form.'))
+        return obj
 
     @property
     def subject_locator_model_cls(self):
