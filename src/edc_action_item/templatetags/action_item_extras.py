@@ -6,6 +6,7 @@ from edc_base.utils import convert_php_dateformat
 from urllib.parse import urlparse, parse_qsl
 
 from ..constants import HIGH_PRIORITY
+from edc_action_item.action import ActionError
 
 register = template.Library()
 
@@ -39,6 +40,9 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
         model_cls = django_apps.get_model(action_item.action_type.model)
         query_dict = dict(
             parse_qsl(urlparse(action_item_model_wrapper.href).query))
+        if not model_cls.action_cls:
+            raise ActionError(
+                f'Model missing an action class. See {repr(model_cls)}')
         model_url = model_cls.action_cls.reference_model_url(
             action_item=action_item,
             action_identifier=action_item.action_identifier,

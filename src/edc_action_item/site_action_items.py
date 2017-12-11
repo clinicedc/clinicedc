@@ -39,6 +39,9 @@ class SiteActionItemCollection:
         else:
             self.registry.update({action_cls.name: action_cls})
 
+    def get(self, name):
+        return self.registry.get(name)
+
     def populate_action_type(self):
         if not self.populated_action_type:
             for action_cls in self.registry.values():
