@@ -7,6 +7,11 @@
   <div class="col-md-9">
   
     <div class="panel-group" id="accordion_schedule">
+
+
+	{% block alert %}
+			{% include 'edc_dashboard/alert_messages.html' %}
+	{% endblock alert %}
         
         {% if not visit_schedules %}
           <div class="alert alert-warning">
@@ -35,10 +40,6 @@
 			  	{% if not appointment %}
 
 					  	{% block appointments %}
-
-							{% block alert %}
-								{% include 'edc_dashboard/alert_messages.html' %}
-							{% endblock alert %}
 
 							{% include "edc_subject_dashboard/dashboard/appointments.html" %}
 
