@@ -44,12 +44,11 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
             action_identifier=action_item.action_identifier,
             **query_dict)
 
-        if not action_item.parent_action_item:
-            parent_model_url = None
-            parent_model_name = None
-            action_item_reason = None
-            parent_action_identifier = None
-        else:
+        parent_model_url = None
+        parent_model_name = None
+        action_item_reason = None
+        parent_action_identifier = None
+        if action_item.parent_action_item:
             # parent action item
             parent_model_cls = django_apps.get_model(
                 action_item.parent_action_item.action_type.model)
