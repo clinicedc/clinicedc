@@ -24,6 +24,13 @@ crfs2 = FormsCollection(
     Crf(show_order=1, model=f'{app_label}.crfseven', required=True),
 )
 
+
+crfs_unscheduled = FormsCollection(
+    Crf(show_order=1, model=f'{app_label}.crftwo', required=True),
+    Crf(show_order=2, model=f'{app_label}.crfthree', required=True),
+    Crf(show_order=3, model=f'{app_label}.crffive', required=True),
+)
+
 requisitions = FormsCollection(
     Requisition(
         show_order=10, model='edc_metadata.subjectrequisition',
@@ -51,6 +58,17 @@ requisitions3000 = FormsCollection(
         panel='seven', required=True, additional=False),
 )
 
+requisitions_unscheduled = FormsCollection(
+    Requisition(
+        show_order=10, model='edc_metadata.subjectrequisition',
+        panel='one', required=True, additional=False),
+    Requisition(
+        show_order=20, model='edc_metadata.subjectrequisition',
+        panel='three', required=True, additional=False),
+    Requisition(
+        show_order=30, model='edc_metadata.subjectrequisition',
+        panel='five', required=True, additional=False))
+
 visit0 = Visit(
     code='1000',
     title='Day 1',
@@ -59,7 +77,10 @@ visit0 = Visit(
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     requisitions=requisitions,
-    crfs=crfs0)
+    crfs=crfs0,
+    crfs_unscheduled=crfs_unscheduled,
+    requisitions_unscheduled=requisitions_unscheduled,
+    allow_unscheduled=True)
 
 visit1 = Visit(
     code='2000',

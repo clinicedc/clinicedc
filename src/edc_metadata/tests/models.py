@@ -11,7 +11,8 @@ from edc_visit_schedule.model_mixins import EnrollmentModelMixin, DisenrollmentM
 from edc_visit_tracking.model_mixins import VisitModelMixin, CrfModelMixin
 
 from ..model_mixins.creates import CreatesMetadataModelMixin
-from ..model_mixins.updates import UpdatesCrfMetadataModelMixin, UpdatesRequisitionMetadataModelMixin
+from ..model_mixins.updates import UpdatesCrfMetadataModelMixin
+from ..model_mixins.updates import UpdatesRequisitionMetadataModelMixin
 
 
 class Enrollment(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
@@ -36,7 +37,8 @@ class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
         pass
 
 
-class SubjectVisit(VisitModelMixin, ReferenceModelMixin, CreatesMetadataModelMixin, BaseUuidModel):
+class SubjectVisit(VisitModelMixin, ReferenceModelMixin,
+                   CreatesMetadataModelMixin, BaseUuidModel):
 
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
@@ -60,7 +62,8 @@ class SubjectRequisition(CrfModelMixin, RequisitionReferenceModelMixin,
     reason_not_drawn = models.CharField(max_length=25, null=True)
 
 
-class CrfOne(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfOne(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin,
+             BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
@@ -71,42 +74,48 @@ class CrfOne(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, B
     f3 = models.CharField(max_length=50, null=True)
 
 
-class CrfTwo(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfTwo(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin,
+             BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfThree(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfThree(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin,
+               BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfFour(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfFour(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin,
+              BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfFive(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfFive(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin,
+              BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class Crfsix(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class Crfsix(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin,
+             BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     f1 = models.CharField(max_length=50, null=True)
 
 
-class CrfSeven(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin, BaseUuidModel):
+class CrfSeven(CrfModelMixin, ReferenceModelMixin, UpdatesCrfMetadataModelMixin,
+               BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 

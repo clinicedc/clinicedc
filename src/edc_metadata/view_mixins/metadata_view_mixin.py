@@ -14,6 +14,7 @@ class MetaDataViewMixin:
         if self.appointment:
             crf_metadata_wrappers = self.crf_metadata_wrappers_cls(
                 appointment=self.appointment)
+
             requisition_metadata_wrappers = self.requisition_metadata_wrappers_cls(
                 appointment=self.appointment)
             context.update(

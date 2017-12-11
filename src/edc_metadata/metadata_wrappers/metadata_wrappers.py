@@ -1,4 +1,4 @@
-from .metadata_wrapper import MetadataWrapperError
+from .metadata_wrapper import DeletedInvalidMetadata
 
 
 class MetadataWrappers:
@@ -22,7 +22,10 @@ class MetadataWrappers:
                         metadata_obj=metadata_obj,
                         visit=self.metadata.visit,
                         **metadata_obj.__dict__)
-                except MetadataWrapperError:
+                except DeletedInvalidMetadata:
                     pass
                 else:
                     self.objects.append(metadata_wrapper)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.objects})'

@@ -36,7 +36,8 @@ class CreatesMetadataModelMixin(models.Model):
         options = dict(
             visit_schedule_name=self.visit_schedule_name,
             schedule_name=self.schedule_name,
-            visit_code=visit.code)
+            visit_code=visit.code,
+            visit_code_sequence=self.visit_code_sequence)
         return options
 
     @property

@@ -63,7 +63,8 @@ class TestMetadataGetter(TestCase):
     def test_objects_not_none_without_appointment(self):
         getter = CrfMetadataGetter(
             subject_identifier=self.subject_identifier,
-            visit_code=self.appointment.visit_code)
+            visit_code=self.appointment.visit_code,
+            visit_code_sequence=self.appointment.visit_code_sequence)
         self.assertGreater(getter.metadata_objects.count(), 0)
 
     def test_objects_not_none_from_appointment(self):

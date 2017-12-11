@@ -1,6 +1,7 @@
 from django.test import TestCase, tag
 from django.views.generic.base import ContextMixin
 from edc_appointment.models import Appointment
+from edc_appointment import UnscheduledAppointmentCreator
 from edc_reference import site_reference_configs
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -11,6 +12,7 @@ from ..view_mixins import MetaDataViewMixin
 from .models import Enrollment, SubjectVisit, CrfOne, CrfThree
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
+from edc_appointment.constants import INCOMPLETE_APPT
 
 
 class DummyCrfModelWrapper:
@@ -95,4 +97,36 @@ class TestViewMixin(TestCase):
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         context_data = view.get_context_data()
+        self.assertEqual(len(context_data.get('requisitions')), 6)
+
+    @tag('1')
+    def test_view_mixin_context_data_crfs_unscheduled(self):
+        self.appointment.appt_status = INCOMPLETE_APPT
+        self.appointment.save()
+        creator = UnscheduledAppointmentCreator(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
+            visit_code=self.appointment.visit_code,
+            facility=self.appointment.facility)
+
+        SubjectVisit.objects.create(
+            appointment=creator.appointment,
+            subject_identifier=self.subject_identifier,
+            reason=SCHEDULED)
+
+        view = MyView()
+        view.appointment = creator.appointment
+        view.subject_identifier = self.subject_identifier
+        view.kwargs = {}
+        context_data = view.get_context_data()
+        self.assertEqual(len(context_data.get('crfs')), 3)
+        self.assertEqual(len(context_data.get('requisitions')), 3)
+
+        view = MyView()
+        view.appointment = self.appointment
+        view.subject_identifier = self.subject_identifier
+        view.kwargs = {}
+        context_data = view.get_context_data()
+        self.assertEqual(len(context_data.get('crfs')), 5)
         self.assertEqual(len(context_data.get('requisitions')), 6)

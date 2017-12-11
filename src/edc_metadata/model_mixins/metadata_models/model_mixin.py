@@ -17,6 +17,8 @@ class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,
 
     visit_code = models.CharField(max_length=25)
 
+    visit_code_sequence = models.IntegerField(default=0)
+
     model = models.CharField(max_length=50)
 
     current_entry_title = models.CharField(
@@ -54,7 +56,8 @@ class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,
 
     def natural_key(self):
         return (self.subject_identifier, self.visit_schedule_name,
-                self.schedule_name, self.visit_code, self.model)
+                self.schedule_name, self.visit_code,
+                self.visit_code_sequence, self.model)
 
     def is_required(self):
         return self.entry_status != NOT_REQUIRED

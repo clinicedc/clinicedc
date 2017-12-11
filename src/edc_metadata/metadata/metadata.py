@@ -122,10 +122,7 @@ class Creator:
         self.requisition_creator = self.requisition_creator_cls(
             visit=visit, **kwargs)
         self.visit = visit
-        try:
-            self.visit_code_sequence = visit.visit_code_sequence
-        except AttributeError:
-            self.visit_code_sequence = 0
+        self.visit_code_sequence = visit.visit_code_sequence
         schedule = site_visit_schedules.get_schedule(
             visit_schedule_name=self.visit.visit_schedule_name,
             schedule_name=self.visit.schedule_name)

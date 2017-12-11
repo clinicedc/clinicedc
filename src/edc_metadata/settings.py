@@ -3,6 +3,7 @@ import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ETC_DIR = os.path.join(BASE_DIR, 'etc')
 APP_NAME = 'edc_metadata'
 
 # Quick-start development settings - unsuitable for production
@@ -34,6 +35,7 @@ INSTALLED_APPS = [
     'edc_offstudy.apps.AppConfig',
     'edc_timepoint.apps.AppConfig',
     'edc_device.apps.AppConfig',
+    'edc_sync.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_reference.apps.AppConfig',
     'edc_registration.apps.AppConfig',
