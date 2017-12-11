@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.core.exceptions import FieldError
 
 
 class PrnError(Exception):
@@ -59,5 +60,11 @@ class Prn:
         if self.show_on_dashboard:
             if subject_identifier:
                 opts = dict(subject_identifier=subject_identifier)
-                count = self.model_cls.objects.filter(**opts).count()
+                try:
+                    count = self.model_cls.objects.filter(**opts).count()
+                except FieldError:
+                    visit_model_attr = self.model_cls.visit_model_attr()
+                    opts = {
+                        f'{visit_model_attr}__subject_identifier': subject_identifier}
+                    count = self.model_cls.objects.filter(**opts).count()
         return True if count and self.show_on_dashboard else False
