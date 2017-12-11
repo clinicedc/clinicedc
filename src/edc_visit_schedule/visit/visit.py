@@ -62,13 +62,24 @@ class Visit:
             self.code = code  # unique
         self.name = self.code
         self.facility_name = facility_name
-        self.crfs = self.forms_collection_cls(*(crfs or []), **kwargs).forms
+        self.crfs = self.forms_collection_cls(
+            *(crfs or []),
+            name=f'crfs for {self.name}',
+            **kwargs).forms
         self.requisitions = self.forms_collection_cls(
-            *(requisitions or []), **kwargs).forms
+            *(requisitions or []),
+            name=f'requisitions for {self.name}',
+            **kwargs).forms
         self.allow_unscheduled = allow_unscheduled
         if self.allow_unscheduled:
-            self.crfs_unscheduled = crfs_unscheduled
-            self.requisitions_unscheduled = requisitions_unscheduled
+            self.crfs_unscheduled = self.forms_collection_cls(
+                *(crfs_unscheduled or []),
+                name=f'crfs crfs_unscheduled for {self.name}',
+                **kwargs).forms
+            self.requisitions_unscheduled = self.forms_collection_cls(
+                *(requisitions_unscheduled or []),
+                name=f'requisitions unscheduled for {self.name}',
+                **kwargs).forms
             if not self.crfs_unscheduled and not self.requisitions_unscheduled:
                 raise VisitError(
                     'allow_unscheduled is True but no unscheduled crfs '
@@ -84,7 +95,7 @@ class Visit:
         self.grouping = grouping
 
     def __repr__(self):
-        return f'Visit({self.code}, {self.timepoint})'
+        return f'{self.__class__.__name__}({self.code}, {self.timepoint})'
 
     def __str__(self):
         return self.title
