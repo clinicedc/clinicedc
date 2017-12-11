@@ -47,7 +47,6 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
             action_item=action_item,
             action_identifier=action_item.action_identifier,
             **query_dict)
-
         parent_model_url = None
         parent_model_name = None
         action_item_reason = None

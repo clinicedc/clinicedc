@@ -47,8 +47,9 @@ class ReferenceModelUpdater:
             reference_model_obj = self.get_first()
         except FieldError:
             raise ActionItemFieldError(
-                f'Unable to update action_identifier. Field action_identifier is missing '
-                f'on model {repr(self.reference_model_cls)}. Got {self.action_item.action_identifier}.')
+                f'Unable to update action_identifier. Field action_identifier '
+                f' is missing on model {repr(self.reference_model_cls)}. '
+                f'Got {self.action_item.action_identifier}.')
         # update the reference model to link to the action item
         if reference_model_obj:
             reference_model_obj.action_identifier = self.action_item.action_identifier
