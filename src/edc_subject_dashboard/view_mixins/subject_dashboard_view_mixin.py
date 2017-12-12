@@ -8,7 +8,7 @@ from edc_offstudy.view_mixins import SubjectOffstudyViewMixin
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 
 from .show_hide_forms_view_mixin import ShowHideViewMixin
-from .subject_identifier_view_mixin import SubjectIdentifierViewMixin
+from .registered_subject_view_mixin import RegisteredSubjectViewMixin
 from .subject_visit_view_mixin import SubjectVisitViewMixin
 from ..model_wrappers import ActionItemModelWrapper
 
@@ -23,6 +23,6 @@ class SubjectDashboardViewMixin(
         SubjectVisitViewMixin,
         VisitScheduleViewMixin,
         ShowHideViewMixin,
-        SubjectIdentifierViewMixin):
+        RegisteredSubjectViewMixin):
 
     action_item_model_wrapper_cls = ActionItemModelWrapper

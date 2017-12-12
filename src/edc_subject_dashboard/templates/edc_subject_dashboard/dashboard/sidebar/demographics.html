@@ -9,11 +9,11 @@
     {% endif %}
 
         <a class="list-group-item"><i class="fa fa-birthday-cake fa-fw"></i>
-         {{ consent.object.dob|date:"SHORT_DATE_FORMAT" }}
-         {% age_in_years consent.object.dob %} yrs
+         {{ dob|date:"SHORT_DATE_FORMAT" }}
+         {% age_in_years dob %} yrs
        </a>
         <a class="list-group-item"><i class="fa fa-address-card-o fa-fw"></i>
-            {{ consent.identity|default:'?? identity' }} {{ consent.initials }}
+            {{ identity|default:'?? identity' }} {{ initials }}
         </a>
 
     {% for fa_icon, text in demographics_listgroup %}
