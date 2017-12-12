@@ -52,7 +52,8 @@ class ActionHandler:
                     name=action_type.name,
                     action_type=action_type,
                     reference_model=action_type.model,
-                    reference_identifier=self.action.tracking_identifier)
+                    reference_identifier=self.action.tracking_identifier,
+                    instructions=self.action.instructions)
 
     def create_next(self):
         """Creates any next action items if they do not already exist.
@@ -69,7 +70,8 @@ class ActionHandler:
                 parent_model=self.action.reference_model(),
                 parent_action_item=self.action.object,
                 reference_model=action_type.model,
-                reference_identifier=None)
+                reference_identifier=None,
+                instructions=self.action.instructions)
             try:
                 ActionItem.objects.get(**opts)
             except ObjectDoesNotExist:

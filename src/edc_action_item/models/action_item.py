@@ -100,6 +100,12 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         default=NEW,
         choices=ACTION_STATUS)
 
+    instructions = models.TextField(
+        null=True,
+        blank=True,
+        editable=False,
+        help_text='populated by action class')
+
     auto_created = models.BooleanField(
         default=False)
 
