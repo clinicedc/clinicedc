@@ -117,7 +117,6 @@ class Action:
         """Returns the action item model instance represented by this
         Action.
         """
-        print('instructions', self.instructions)
         opts = dict(
             reference_identifier=self.tracking_identifier,
             subject_identifier=self.subject_identifier,

@@ -137,7 +137,8 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         self.reference_model = self.action_type.model
         self.name = self.name or self.action_type.name
         self.display_name = self.display_name or self.action_type.display_name
-        self.instructions = self.action.instructions
+        if self.action:
+            self.instructions = self.action.instructions
         super().save(*args, **kwargs)
 
     @property
