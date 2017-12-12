@@ -4,12 +4,13 @@ from .constants import (
     ALIVE, DEAD, DECLINED, DWTA, FEMALE, IND, MALE, NAIVE,
     NEG, NEVER, NO, NOT_APPLICABLE, OMANG, OTHER, POS, REFUSED, UNKNOWN, YES,
     MORNING, AFTERNOON, EVENING, ANYTIME, WEEKDAYS, WEEKENDS,
-    NOT_SURE, NORMAL, ABNORMAL)
+    NOT_SURE, NORMAL, ABNORMAL, NOT_DONE)
 
 
 BLANK_CHOICE_DASH = [('', '---------')]
 
-""" Try to keep this in alphabetical order """
+""" Try to keep these in alphabetical order
+"""
 
 ACU_EST = (
     ('Acute', 'Acute'),
@@ -34,7 +35,7 @@ ALIVE_DEAD_UNKNOWN = (
 )
 
 ART_STATUS = (
-    ('ON', 'Yes, ON ART'),
+    ('ON', 'Yes, on ART'),
     ('STOPPED', 'No, stopped ART'),
     (NAIVE, 'No, have never taken ART'),
 )
@@ -49,8 +50,8 @@ ART_STATUS_UNKNOWN = (
 
 ART_STATUS_CONFIRM = (
     ('OPD', '1. Show OPD/IDCC card'),
-    ('Pills', '2. Show Pills'),
-    ('Pic', '3. Identify Pictorial'),
+    ('Pills', '2. Show pills'),
+    ('Pic', '3. Identify pictorial'),
 )
 
 CONFIRMED_SUSPECTED = (
@@ -78,7 +79,7 @@ DAYS_OF_WEEK = (
     ('Friday', 'Friday'),
     ('Saturday', 'Saturday'),
     ('Sunday', 'Sunday'),
-    ('AnyDay', 'Any Day'),
+    ('AnyDay', 'Any day'),
 )
 
 
@@ -99,8 +100,8 @@ DEATH_RELATIONSIP_TO_STUDY = (
 
 
 FEEDING = (
-    ('BF', 'Breast Feed'),
-    ('FF', 'Formula Feed'),
+    ('BF', 'Breast feed'),
+    ('FF', 'Formula feed'),
 )
 
 GENDER = (
@@ -160,13 +161,13 @@ NORMAL_ABNORMAL = (
 NORMAL_ABNORMAL_NOEXAM = (
     (NORMAL, 'Normal'),
     (ABNORMAL, 'Abnormal'),
-    ('NO_EXAM', 'No Exam Performed'),
+    ('NO_EXAM', 'No exam performed'),
 )
 
 NORMAL_ABNORMAL_NOTEVALUATED = (
     (NORMAL, 'Normal'),
     (ABNORMAL, 'Abnormal'),
-    ('NOT_EVAL', 'Not Evaluated'),
+    ('NOT_EVAL', 'Not evaluated'),
 )
 
 POS_NEG = (
@@ -209,7 +210,7 @@ POS_NEG_IND_UNKNOWN = (
 POS_NEG_ACU = (
     ('Positive', 'Positive'),
     ('Negative', 'Negative'),
-    ('Possible Acute', 'Possible Acute'),
+    ('Possible Acute', 'Possible acute'),
     ('Indeterminate', 'Indeterminate'),
 )
 
@@ -343,7 +344,7 @@ YES_NO_NOT_EVALUATED_NA = (
 YES_NO_NOT_DONE = (
     (YES, YES),
     (NO, NO),
-    ('Not_done', 'Not Done'),
+    (NOT_DONE, 'Not done'),
 )
 
 YES_NO_DOESNT_WORK = (
@@ -368,40 +369,40 @@ YES_NO_UNKNOWN_NA = (
 YES_NO_UNSURE = (
     (YES, YES),
     (NO, NO),
-    (NOT_SURE, 'Not Sure'),
+    (NOT_SURE, 'Not sure'),
 )
 
 YES_NO_UNSURE_DWTA = (
     (YES, YES),
     (NO, NO),
-    (NOT_SURE, 'Not Sure'),
+    (NOT_SURE, 'Not sure'),
     (DWTA, 'Don\'t want to answer')
 )
 
 YES_NO_UNSURE_NA = (
     (YES, YES),
     (NO, NO),
-    (NOT_SURE, 'Not Sure'),
-    (NOT_APPLICABLE, 'Not Applicable'),
+    (NOT_SURE, 'Not sure'),
+    (NOT_APPLICABLE, 'Not applicable'),
 )
 
 YES_NO_DONT_KNOW = (
     (YES, YES),
     (NO, NO),
-    ('Dont_know', 'Do not Know'),
+    ('Dont_know', 'Do not know'),
 )
 
 YES_NO_DONT_KNOW_NA = (
     (YES, YES),
     (NO, NO),
-    ('Dont_know', 'Do not Know'),
+    ('Dont_know', 'Do not know'),
     (NOT_APPLICABLE, 'Not applicable'),
 )
 
 YES_NO_DOESNT_WORK = (
     (YES, YES),
     (NO, NO),
-    ('Doesnt_work', 'Doesnt Work'),
+    ('Doesnt_work', 'Doesn\'t work'),
 )
 
 ARV_DRUG_LIST = (
@@ -433,7 +434,7 @@ ARV_MODIFICATION_REASON = (
     ('Never started', 'Never started'),
     ('Toxicity decreased_resolved', 'Toxicity decreased/resolved'),
     ('Completed PMTCT intervention', 'Completed PMTCT intervention'),
-    ('Completed postpartum tail', 'Completed postpartum "tail"'),
+    ('Completed postpartum tail', 'Completed post-partum "tail"'),
     ('Scheduled dose increase', 'Scheduled dose increase'),
     ('Confirmed infant HIV infection, ending study drug',
      'Confirmed infant HIV infection, ending study drug'),
