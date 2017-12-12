@@ -81,6 +81,7 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
         report_datetime=action_item.report_datetime,
         last_updated_text=text,
         action_identifier=action_item.action_identifier,
+        instructions=action_item.instructions,
         href=action_item_model_wrapper.href,
         model_url=model_url,
         model_name=model_cls._meta.verbose_name,
