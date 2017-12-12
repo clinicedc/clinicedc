@@ -117,6 +117,7 @@ class Action:
         """Returns the action item model instance represented by this
         Action.
         """
+        print('instructions', self.instructions)
         opts = dict(
             reference_identifier=self.tracking_identifier,
             subject_identifier=self.subject_identifier,
@@ -125,7 +126,8 @@ class Action:
         try:
             action_item = self.action_item_model_cls().objects.get(**opts)
         except ObjectDoesNotExist:
-            action_item = self.action_item_model_cls().objects.create(**opts)
+            action_item = self.action_item_model_cls().objects.create(
+                instructions=self.instructions, **opts)
         return action_item
 
     def get_create_actions(self):
@@ -151,7 +153,7 @@ class Action:
         """Returns a relative add URL with querystring that can
         get back to the subject dashboard on save.
         """
-        if cls.parent_model_fk_attr:
+        if cls.parent_model_fk_attr and action_item.parent_object:
             try:
                 value = getattr(action_item.parent_object,
                                 cls.parent_model_fk_attr)

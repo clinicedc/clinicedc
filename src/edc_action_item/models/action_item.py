@@ -15,6 +15,7 @@ from ..admin_site import edc_action_item_admin
 from ..choices import ACTION_STATUS, PRIORITY
 from ..identifiers import ActionIdentifier
 from .action_type import ActionType
+from edc_action_item.site_action_items import site_action_items
 
 
 class ActionItemUpdatesRequireFollowup(Exception):
@@ -103,7 +104,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     instructions = models.TextField(
         null=True,
         blank=True,
-        editable=False,
         help_text='populated by action class')
 
     auto_created = models.BooleanField(
@@ -137,6 +137,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         self.reference_model = self.action_type.model
         self.name = self.name or self.action_type.name
         self.display_name = self.display_name or self.action_type.display_name
+        self.instructions = self.action.instructions
         super().save(*args, **kwargs)
 
     @property
@@ -151,11 +152,17 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         return self.user_modified or self.user_created
 
     @property
+    def action(self):
+        return site_action_items.get(self.name)
+
+    @property
     def parent_object(self):
-        """Returns the parent model instance.
+        """Returns the parent model instance or None.
         """
-        return django_apps.get_model(self.parent_model).objects.get(
-            tracking_identifier=self.parent_reference_identifier)
+        if self.parent_model:
+            return django_apps.get_model(self.parent_model).objects.get(
+                tracking_identifier=self.parent_reference_identifier)
+        return None
 
     @property
     def identifier(self):

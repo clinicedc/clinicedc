@@ -37,6 +37,7 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
                 'action_type',
                 'display_name',
                 'priority',
+                'instructions',
                 'parent_action_item',
                 'parent_reference_identifier',
                 'status',
@@ -69,7 +70,7 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)
-        fields = fields + ('action_identifier',
+        fields = fields + ('action_identifier', 'instructions',
                            'auto_created', 'auto_created_comment')
         if obj:
             fields = fields + ('subject_identifier',
