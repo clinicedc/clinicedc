@@ -63,7 +63,7 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs):
             raise AttributeError(e) from e
     # deletes all for a visit used by CreatesMetadataMixin
     try:
-        instance.metadata_delete_for_visit(instance)
+        instance.metadata_delete_for_visit()
     except AttributeError as e:
         if 'metadata_delete_for_visit' not in str(e):
             raise AttributeError(e) from e

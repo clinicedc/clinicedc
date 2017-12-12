@@ -11,6 +11,10 @@ class CreatesMetadataError(Exception):
     pass
 
 
+class DeleteMetadataError(Exception):
+    pass
+
+
 class Base:
 
     def __init__(self, visit=None, metadata_crf_model=None,
@@ -131,13 +135,13 @@ class Creator:
     @property
     def crfs(self):
         if self.visit_code_sequence != 0:
-            return self.visit.crfs_unscheduled or self.visit.crfs
+            return self.visit.crfs_unscheduled
         return self.visit.crfs
 
     @property
     def requisitions(self):
         if self.visit_code_sequence != 0:
-            return self.visit.requisitions_unscheduled or self.visit.requisitions
+            return self.visit.requisitions_unscheduled
         return self.visit.requisitions
 
     def create(self):
@@ -160,14 +164,16 @@ class Destroyer(Base):
 
     def delete(self):
         """Deletes all CRF and requisition metadata for
-        the visit instance.
+        the visit instance, unless KEYED.
         """
         self.metadata_crf_model.objects.filter(
             subject_identifier=self.visit.subject_identifier,
-            **self.visit.metadata_query_options).delete()
+            **self.visit.metadata_query_options).exclude(
+            entry_status=KEYED).delete()
         self.metadata_requisition_model.objects.filter(
             subject_identifier=self.visit.subject_identifier,
-            **self.visit.metadata_query_options).delete()
+            **self.visit.metadata_query_options).exclude(
+            entry_status=KEYED).delete()
 
 
 class Metadata:

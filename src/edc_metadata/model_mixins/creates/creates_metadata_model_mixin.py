@@ -1,10 +1,10 @@
 from django.apps import apps as django_apps
 from django.db import models
 from edc_metadata_rules import MetadataRuleEvaluator
-from edc_visit_schedule import site_visit_schedules
 
-from ...constants import KEYED
-from ...metadata import Metadata
+from ...constants import KEYED, REQUISITION, CRF
+from ...metadata import Metadata, Destroyer, DeleteMetadataError
+from ...metadata import RequisitionMetadataGetter, CrfMetadataGetter
 
 
 class CreatesMetadataModelMixin(models.Model):
@@ -14,6 +14,7 @@ class CreatesMetadataModelMixin(models.Model):
     """
 
     metadata_cls = Metadata
+    metadata_destroyer_cls = Destroyer
     metadata_rule_evaluator_cls = MetadataRuleEvaluator
 
     def metadata_create(self, sender=None, instance=None):
@@ -45,26 +46,25 @@ class CreatesMetadataModelMixin(models.Model):
         """Returns a dictionary of metadata querysets for each
         metadata category.
         """
-        app_config = django_apps.get_app_config('edc_metadata')
-        return app_config.get_metadata(
-            self.subject_identifier, **self.metadata_query_options)
+        metadata = {}
+        for name, getter_cls in [
+                (CRF, CrfMetadataGetter), (REQUISITION, RequisitionMetadataGetter)]:
+            getter = getter_cls(appointment=self.appointment)
+            metadata[name] = getter.metadata_objects
+        return metadata
 
-    def metadata_delete_for_visit(self, instance=None):
+    def metadata_delete_for_visit(self):
         """Deletes metadata for a visit when the visit instance
         is deleted.
+
+        See signals.
         """
-        metadata_crf_model = django_apps.get_app_config(
-            'edc_metadata').crf_model
-        visit_schedule = site_visit_schedules.get_visit_schedule(
-            visit_schedule_name=self.visit_schedule_name)
-        schedule = visit_schedule.get_schedule(
-            schedule_name=self.schedule_name)
-        visit = schedule.visits.get(self.visit_code)
-        metadata_crf_model.objects.filter(
-            subject_identifier=instance.subject_identifier,
-            visit_schedule_name=visit_schedule.name,
-            schedule_name=schedule.name,
-            visit_code=visit.code).exclude(entry_status=KEYED).delete()
+        for key in [CRF, REQUISITION]:
+            if [obj for obj in self.metadata[key] if obj.entry_status == KEYED]:
+                raise DeleteMetadataError(
+                    f'Metadata cannot be deleted. {key}s have been keyed. Got {repr(self)}.')
+        destroyer = self.metadata_destroyer_cls(visit=self)
+        destroyer.delete()
 
     class Meta:
         abstract = True

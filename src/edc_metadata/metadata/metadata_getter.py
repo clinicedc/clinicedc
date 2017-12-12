@@ -14,16 +14,14 @@ class MetadataGetter:
                  visit_code_sequence=None):
         try:
             self.visit = appointment.visit
-        except (AttributeError, ObjectDoesNotExist):
-            self.visit = None
-        if self.visit:
-            self.subject_identifier = self.visit.subject_identifier
-            self.visit_code = self.visit.visit_code
-            self.visit_code_sequence = self.visit.visit_code_sequence
-        else:
+        except AttributeError:
             self.subject_identifier = subject_identifier
             self.visit_code = visit_code
             self.visit_code_sequence = visit_code_sequence
+        else:
+            self.subject_identifier = self.visit.subject_identifier
+            self.visit_code = self.visit.visit_code
+            self.visit_code_sequence = self.visit.visit_code_sequence
         self.metadata_objects = self.metadata_model_cls.objects.filter(
             **self.options).order_by('show_order')
 

@@ -53,9 +53,12 @@ class UpdatesMetadataModelMixin(models.Model):
         """Returns a string that represents the default entry status
         of the crf in the visit schedule.
         """
+        if self.visit.visit_code_sequence != 0:
+            crfs = self.metadata_visit_object.crfs_unscheduled
+        else:
+            crfs = self.metadata_visit_object.crfs
         try:
-            crf = [c for c in self.metadata_visit_object.crfs
-                   if c.model == self._meta.label_lower][0]
+            crf = [c for c in crfs if c.model == self._meta.label_lower][0]
         except IndexError as e:
             raise MetadataError(
                 f'{self._meta.label_lower}. Got {e}') from e

@@ -12,6 +12,7 @@ from ..models import CrfMetadata, RequisitionMetadata
 from .models import SubjectVisit, Enrollment, CrfOne, CrfTwo, CrfThree, SubjectRequisition
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
+from edc_metadata.metadata.metadata import DeleteMetadataError
 
 
 class TestCreatesDeletesMetadata(TestCase):
@@ -75,10 +76,39 @@ class TestCreatesDeletesMetadata(TestCase):
     def test_deletes_metadata_on_changed_reason(self):
         obj = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED)
+        self.assertGreater(CrfMetadata.objects.all().count(), 0)
+        self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
         obj.reason = MISSED_VISIT
         obj.save()
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
+
+    def test_deletes_metadata_on_delete_visit(self):
+        obj = SubjectVisit.objects.create(
+            appointment=self.appointment, reason=SCHEDULED)
+        self.assertGreater(CrfMetadata.objects.all().count(), 0)
+        self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
+        obj.delete()
+        self.assertEqual(CrfMetadata.objects.all().count(), 0)
+        self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
+
+    def test_raises_metadata_on_delete_visit_for_keyed_crf(self):
+        obj = SubjectVisit.objects.create(
+            appointment=self.appointment, reason=SCHEDULED)
+        self.assertGreater(CrfMetadata.objects.all().count(), 0)
+        CrfMetadata.objects.all().update(entry_status=KEYED)
+        self.assertRaises(
+            DeleteMetadataError,
+            obj.delete)
+
+    def test_raises_metadata_on_delete_visit_for_keyed_requisition(self):
+        obj = SubjectVisit.objects.create(
+            appointment=self.appointment, reason=SCHEDULED)
+        self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
+        RequisitionMetadata.objects.all().update(entry_status=KEYED)
+        self.assertRaises(
+            DeleteMetadataError,
+            obj.delete)
 
 
 class TestUpdatesMetadata(TestCase):

@@ -4,8 +4,9 @@ from django.apps.config import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
-
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
+
+from .constants import REQUISITION, CRF
 
 
 style = color_style()
@@ -51,17 +52,17 @@ class AppConfig(DjangoAppConfig):
         return django_apps.get_model(self.app_label, self.requisition_model_name)
 
     def get_metadata_model(self, category):
-        if category == 'crf':
+        if category == CRF:
             return self.crf_model
-        elif category == 'requisition':
+        elif category == REQUISITION:
             return self.requisition_model
         return None
 
     def get_metadata(self, subject_identifier, **options):
         return {
-            'crf': self.crf_model.objects.filter(
+            CRF: self.crf_model.objects.filter(
                 subject_identifier=subject_identifier, **options),
-            'requisition': self.requisition_model.objects.filter(
+            REQUISITION: self.requisition_model.objects.filter(
                 subject_identifier=subject_identifier, **options)}
 
 
