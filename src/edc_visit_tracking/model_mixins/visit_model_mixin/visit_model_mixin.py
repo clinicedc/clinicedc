@@ -37,7 +37,7 @@ class VisitModelMixin(
     history = HistoricalRecords()
 
     def __str__(self):
-        return f'{self.subject_identifier} {self.visit_code}'
+        return f'{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}'
 
     def save(self, *args, **kwargs):
         if self.__class__.appointment.field.remote_field.on_delete != PROTECT:
