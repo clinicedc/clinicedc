@@ -1,2 +1,5 @@
 from .offstudy_mixin import OffstudyMixin, SubjectOffstudyError
-from .offstudy_model_mixin import OffstudyModelMixin, OffstudyError, OffstudyModelManager
+from .offstudy_model_mixin import OffstudyModelMixin, OffstudyError
+from .offstudy_model_mixin import OffstudyModelManager
+from .validate_offstudy_model_mixin import ValidateOffstudyError
+from .validate_offstudy_model_mixin import ValidateOffstudyModelMixin

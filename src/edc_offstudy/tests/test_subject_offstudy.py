@@ -6,7 +6,7 @@ from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..model_mixins import OffstudyError
+from ..model_mixins import OffstudyError, ValidateOffstudyError
 from .models import Appointment, Enrollment, SubjectConsent, SubjectOffstudy, SubjectVisit
 from .visit_schedule import visit_schedule
 
@@ -93,7 +93,7 @@ class TestOffstudy(TestCase):
             subject_identifier=self.subject_identifier).first()
         self.subject_visit = SubjectVisit.objects.get(appointment=appointment)
         self.assertRaises(
-            OffstudyError,
+            ValidateOffstudyError,
             SubjectOffstudy.objects.create,
             subject_identifier=self.subject_consent.subject_identifier,
             offstudy_datetime=get_utcnow() - relativedelta(weeks=3),
@@ -124,8 +124,8 @@ class TestOffstudy(TestCase):
                 subject_identifier=self.subject_consent.subject_identifier,
                 offstudy_datetime=get_utcnow(),
                 reason=DEAD)
-        except OffstudyError:
-            self.fail('OffstudyError unexpectedly raised')
+        except ValidateOffstudyError:
+            self.fail('ValidateOffstudyError unexpectedly raised')
 
     def test_off_study_date_deletes_unused_appointments(self):
         """Assert deletes any unused appointments after offstudy date."""
