@@ -3,28 +3,32 @@ from django.test import TestCase, tag
 from edc_constants.constants import NEW, OPEN
 
 from ..action import Action, ActionError
-from ..action_handler import ModelMissingActionClass
 from ..action_items import ReminderAction
 from ..forms import ActionItemForm
-from ..models import ActionItem, ActionItemUpdate, SubjectDoesNotExist, ActionType
-from ..reference_model_updater import ActionItemFieldError
+from ..model_mixins import ActionClassNotDefined
+from ..models import ActionItem, ActionItemUpdate, SubjectDoesNotExist, ActionType, ActionTypeError
 from ..site_action_items import site_action_items
 from .models import SubjectIdentifierModel, TestModelWithTrackingIdentifierButNoActionClass
 from .models import TestModel, TestModelWithAction
 from .models import TestModelWithoutMixin
+from uuid import uuid4
+from edc_action_item.tests.action_items import FormZeroAction
 
 
 class TestActionItem(TestCase):
 
     def setUp(self):
-        site_action_items.populated_action_type = False
-        site_action_items.populate_action_type()
         self.subject_identifier_model = ActionItem.subject_identifier_model
         ActionItem.subject_identifier_model = 'edc_action_item.subjectidentifiermodel'
         self.subject_identifier = '12345'
         SubjectIdentifierModel.objects.create(
             subject_identifier=self.subject_identifier)
-        self.action_type = ActionType.objects.all().first()
+        site_action_items.registry = {}
+        site_action_items.register(ReminderAction)
+        site_action_items.register(FormZeroAction)
+        FormZeroAction.action_type()
+        ReminderAction.action_type()
+        self.action_type = ActionType.objects.get(name=FormZeroAction.name)
 
     def tearDown(self):
         ActionItem.subject_identifier_model = self.subject_identifier_model
@@ -52,21 +56,19 @@ class TestActionItem(TestCase):
         except ObjectDoesNotExist:
             self.fail('ActionItem unexpectedly does not exist')
 
-#     def test_form(self):
-#         obj = ActionItem.objects.create(
-#             subject_identifier=self.subject_identifier,
-#             action_type=self.action_type,
-#             name='a new action item')
-#         data = obj.__dict__
-#         data.update(action_type=obj.action_type.id)
-#         form = ActionItemForm(data=obj.__dict__, instance=obj)
-#         # self.assertEqual(form.errors, {})
-
     def test_changes_status_from_new_to_open_on_edit(self):
+
+        class MyAction(Action):
+            name = 'a new action item'
+
+        site_action_items.register(MyAction)
+        MyAction.action_type()
+
+        action_type = ActionType.objects.get(name=MyAction.name)
+
         obj = ActionItem.objects.create(
             subject_identifier=self.subject_identifier,
-            action_type=self.action_type,
-            name='a new action item')
+            action_type=action_type)
         ActionItemUpdate.objects.create(action_item=obj)
         ActionItemUpdate.objects.create(action_item=obj)
         ActionItemUpdate.objects.create(action_item=obj)
@@ -81,40 +83,44 @@ class TestActionItem(TestCase):
     def test_action(self):
 
         class MyNonPrnAction(Action):
-            name = 'prn_action'
+            name = 'prn_action1'
             model = None
 
         # create action
+        site_action_items.register(MyNonPrnAction)
         action = MyNonPrnAction(subject_identifier=self.subject_identifier)
         self.assertIsNotNone(action.object)
 
         # create action but incorrect instantiate with a model instance
         class MyPrnActionMissingModel(Action):
-            name = 'prn_action'
+            name = 'prn_action2'
 
+        site_action_items.register(MyPrnActionMissingModel)
+        model_obj = TestModel(subject_identifier='98765')
         self.assertRaises(
             SubjectDoesNotExist,
-            MyPrnActionMissingModel, model_obj=TestModel())
+            MyPrnActionMissingModel, model_obj=model_obj)
 
         # create instance but instantiate with wrong model type
         class MyPrnActionWrongModel(Action):
-            name = 'prn_action'
-            prn_form_action = True
-            model = 'blah.blah'
+            name = 'prn_action3'
+            model = 'edc_action_item.formone'
 
+        site_action_items.register(MyPrnActionWrongModel)
+        model_obj = TestModel(subject_identifier=self.subject_identifier)
         self.assertRaises(
             ActionError,
-            MyPrnActionWrongModel, model_obj=TestModel())
+            MyPrnActionWrongModel, model_obj=model_obj)
 
         # create instance but declare/instantiate with model class that has not
         # actions
         class MyPrnAction(Action):
-            name = 'prn_action'
-            prn_form_action = True
+            name = 'prn_action4'
             model = 'edc_action_item.TestModelWithTrackingIdentifierButNoActionClass'
 
+        site_action_items.register(MyPrnAction)
         self.assertRaises(
-            ModelMissingActionClass,
+            ActionClassNotDefined,
             TestModelWithTrackingIdentifierButNoActionClass.objects.create,
             subject_identifier=self.subject_identifier)
 
@@ -140,6 +146,7 @@ class TestActionItem(TestCase):
         except ObjectDoesNotExist:
             self.fail('ActionItem unexpectedly does not exist.')
 
+    @tag('9')
     def test_action_type_update_from_action_classes(self):
 
         class MyAction(Action):
@@ -159,9 +166,13 @@ class TestActionItem(TestCase):
             # model = 'edc_action_item.testmodelwithtrackingidentifier'
             next_actions = ['self']
 
+        site_action_items.register(MyAction)
+        site_action_items.register(MyActionWithNextAction)
+        site_action_items.register(MyActionWithNextActionAsSelf)
+        tracking_identifier = str(uuid4())
         my_action = MyAction(
             subject_identifier=self.subject_identifier,
-            tracking_identifier='tracking')
+            tracking_identifier=tracking_identifier)
 
         try:
             action_item = ActionItem.objects.get(
@@ -172,14 +183,10 @@ class TestActionItem(TestCase):
         self.assertEqual(my_action.object, action_item)
         self.assertEqual(my_action.action_identifier,
                          action_item.action_identifier)
-        self.assertEqual('tracking',
+        self.assertEqual(tracking_identifier,
                          action_item.reference_identifier)
         self.assertEqual(my_action.action_type(),
                          action_item.action_type)
-        self.assertEqual(my_action.action_type().name,
-                         action_item.name)
-        self.assertEqual(my_action.action_type().display_name,
-                         action_item.display_name)
         self.assertEqual(my_action.action_type().model,
                          action_item.reference_model)
         self.assertIsNone(action_item.parent_action_item_id)
@@ -187,24 +194,26 @@ class TestActionItem(TestCase):
         self.assertIsNone(action_item.parent_reference_identifier)
 
         class MyActionWithModel(Action):
-            name = 'my-action'
+            name = 'my-action1'
             display_name = 'my action'
             model = 'edc_action_item.TestModelWithoutMixin'
 
+        site_action_items.register(MyActionWithModel)
         obj = TestModelWithoutMixin.objects.create(
             subject_identifier=self.subject_identifier,
-            tracking_identifier='tracking')
+            tracking_identifier=tracking_identifier)
         self.assertRaises(
-            ActionItemFieldError, MyActionWithModel, model_obj=obj)
+            ActionTypeError, MyActionWithModel, model_obj=obj)
 
         class MyActionWithCorrectModel(Action):
-            name = 'my-action'
+            name = 'my-action2'
             display_name = 'my action'
             model = 'edc_action_item.TestModelWithAction'
+        site_action_items.register(MyActionWithCorrectModel)
 
         obj = TestModelWithAction.objects.create(
             subject_identifier=self.subject_identifier,
-            tracking_identifier='tracking')
+            tracking_identifier=tracking_identifier)
         my_action = MyActionWithCorrectModel(model_obj=obj)
 
         self.assertIsNotNone(my_action.model)
@@ -212,3 +221,22 @@ class TestActionItem(TestCase):
                          my_action.model)
         self.assertEqual(my_action.model,
                          my_action.object.reference_model)
+
+    def test_action_type_updates(self):
+
+        class MyAction(Action):
+            name = 'my-action3'
+            display_name = 'my action'
+            model = 'edc_action_item.FormOne'
+        site_action_items.register(MyAction)
+        MyAction(
+            subject_identifier=self.subject_identifier)
+        action_type = ActionType.objects.get(name='my-action3')
+        self.assertEqual(action_type.display_name, 'my action')
+
+        MyAction._updated_action_type = False
+        MyAction.display_name = 'my changed action'
+        MyAction(
+            subject_identifier=self.subject_identifier)
+        action_type = ActionType.objects.get(name='my-action3')
+        self.assertEqual(action_type.display_name, 'my changed action')

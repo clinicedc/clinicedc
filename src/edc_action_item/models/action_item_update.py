@@ -41,6 +41,3 @@ class ActionItemUpdate(BaseUuidModel):
     @property
     def action_identifier(self):
         return self.action_item.action_identifier
-
-    class Meta:
-        unique_together = ('action_item', 'report_datetime')

@@ -12,13 +12,13 @@ class AlreadyRegistered(Exception):
     pass
 
 
-class SitePrnFormsError(Exception):
+class SiteActionError(Exception):
     pass
 
 
 class SiteActionItemCollection:
 
-    populated_action_type = False
+    populated_action_types = False
 
     def __init__(self):
         self.registry = OrderedDict()
@@ -35,18 +35,25 @@ class SiteActionItemCollection:
     def register(self, action_cls=None):
         if action_cls.name in self.registry:
             raise AlreadyRegistered(
-                f'Action class is already registered. Got {action_cls}')
+                f'Action class is already registered. Got name=\'{action_cls.name}\' '
+                f'for {action_cls.__name__}')
         else:
             self.registry.update({action_cls.name: action_cls})
 
     def get(self, name):
+        if name not in self.registry:
+            raise SiteActionError(
+                f'Action type does not exist. Did you register the Action? '
+                f'Expected one of {self.registry}. Got {name}')
+        # force create action type if it does not exist
+        self.registry.get(name).action_type()
         return self.registry.get(name)
 
-    def populate_action_type(self):
-        if not self.populated_action_type:
+    def populate_action_types(self):
+        if not self.populated_action_types:
             for action_cls in self.registry.values():
                 action_cls.action_type()
-        self.populated_action_type = True
+        self.populated_action_typse = True
 
     def autodiscover(self, module_name=None, verbose=True):
         module_name = module_name or 'action_items'
@@ -63,17 +70,17 @@ class SiteActionItemCollection:
                     import_module(f'{app}.{module_name}')
                     writer(
                         f' * registered \'{module_name}\' from \'{app}\'\n')
-                except SitePrnFormsError as e:
+                except SiteActionError as e:
                     writer(f'   - loading {app}.{module_name} ... ')
                     writer(style.ERROR(f'ERROR! {e}\n'))
                 except ImportError as e:
                     site_action_items.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise SitePrnFormsError(str(e))
+                        raise SiteActionError(str(e))
             except ImportError:
                 pass
             except Exception as e:
-                raise SitePrnFormsError(
+                raise SiteActionError(
                     f'{e.__class__.__name__} was raised when loading {module_name}. '
                     f'Got {e} See {app}.{module_name}')
 

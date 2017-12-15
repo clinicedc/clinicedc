@@ -1,20 +1,19 @@
 from django.test import TestCase, tag
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import CLOSED
 from edc_model_wrapper import ModelWrapper
 
-from ..action_handler import ActionHandler
-from ..action_items import FormOneAction, FormTwoAction, FormThreeAction
 from ..models import ActionItem, ActionType
 from ..site_action_items import site_action_items
 from ..templatetags.action_item_extras import action_item_with_popover
-from .models import FormOne, FormTwo, FormThree, SubjectIdentifierModel
+from .action_items import FormOneAction, FormTwoAction, FormThreeAction, FormZeroAction
+from .models import FormZero, FormOne, FormTwo, FormThree, SubjectIdentifierModel
 
 
 class TestAction(TestCase):
 
     def setUp(self):
-        site_action_items.populated_action_type = False
         self.subject_identifier_model = ActionItem.subject_identifier_model
         ActionItem.subject_identifier_model = 'edc_action_item.subjectidentifiermodel'
         self.subject_identifier = '12345'
@@ -25,81 +24,203 @@ class TestAction(TestCase):
         self.assertIn(FormTwoAction.name, site_action_items.registry)
         self.assertIn(FormThreeAction.name, site_action_items.registry)
 
-    def test_populate_action_types(self):
-        site_action_items.populate_action_type()
-        self.assertEqual(ActionType.objects.all().count(), 5)
-
-    def test_populate_action_types_in_handler(self):
-        model_obj = FormOne.objects.create(
+    def test_str(self):
+        action = FormZero.action_cls(
             subject_identifier=self.subject_identifier)
-        ActionHandler(model_obj=model_obj)
-        self.assertEqual(ActionType.objects.all().count(), 5)
+        self.assertTrue(str(action))
 
-    def test_creates_own_action(self):
-        action_type = FormOneAction.action_type()
+    def test_populate_action_types(self):
+        site_action_items.populate_action_types()
+        self.assertGreater(len(site_action_items.registry), 0)
+        self.assertEqual(ActionType.objects.all().count(),
+                         len(site_action_items.registry))
+
+    def test_populate_action_types2(self):
+        site_action_items.populate_action_types()
+        self.assertGreater(len(site_action_items.registry), 0)
+        self.assertEqual(ActionType.objects.all().count(),
+                         len(site_action_items.registry))
+
+    def test_creates_own_action0(self):
+        obj = FormZero.objects.create(
+            subject_identifier=self.subject_identifier)
+        try:
+            obj = ActionItem.objects.get(
+                action_identifier=obj.action_identifier)
+        except ObjectDoesNotExist:
+            self.fail('Action item unexpectedly does not exist')
+        for name in ['submit-form-zero']:
+            with self.subTest(name=name):
+                try:
+                    ActionItem.objects.get(
+                        subject_identifier=self.subject_identifier,
+                        action_type__name=name)
+                except ObjectDoesNotExist:
+                    self.fail('Action item unexpectedly does not exist.')
+        self.assertEqual(ActionItem.objects.filter(
+            subject_identifier=self.subject_identifier).count(), 1)
+
+    def test_check_attrs_for_own_action0(self):
+        obj = FormZero.objects.create(
+            subject_identifier=self.subject_identifier)
+        action_type = FormZero.action_cls.action_type()
+        action_item = ActionItem.objects.get(
+            subject_identifier=self.subject_identifier,
+            action_type__name='submit-form-zero')
+        self.assertEqual(action_item.subject_identifier,
+                         obj.subject_identifier)
+        self.assertEqual(action_item.action_identifier, obj.action_identifier)
+        self.assertEqual(action_item.reference_identifier,
+                         obj.tracking_identifier)
+        self.assertEqual(action_item.reference_model,
+                         obj._meta.label_lower)
+        self.assertIsNone(action_item.parent_reference_identifier)
+        self.assertIsNone(action_item.parent_model)
+        self.assertIsNone(action_item.parent_action_item)
+        self.assertEqual(action_item.action_type, action_type)
+
+    def test_check_attrs_for_form_one_next_action(self):
         obj = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
-        self.assertTrue(
-            ActionItem.objects.filter(action_identifier=obj.action_identifier))
-        self.assertEqual(ActionItem.objects.filter(
+        action_type_two = FormTwo.action_cls.action_type()
+        action_item_one = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
-            action_type=action_type).count(), 1)
+            action_type__name='submit-form-one')
+        action_item_two = ActionItem.objects.get(
+            subject_identifier=self.subject_identifier,
+            action_type__name='submit-form-two')
+        self.assertEqual(action_item_two.subject_identifier,
+                         obj.subject_identifier)
+        self.assertNotEqual(action_item_two.action_identifier,
+                            obj.action_identifier)
+        self.assertNotEqual(action_item_two.reference_identifier,
+                            obj.tracking_identifier)
+        self.assertEqual(action_item_two.reference_model,
+                         FormTwo._meta.label_lower)
+        self.assertEqual(action_item_two.parent_reference_identifier,
+                         obj.tracking_identifier)
+        self.assertEqual(action_item_two.parent_model,
+                         FormOne._meta.label_lower)
+        self.assertEqual(action_item_two.parent_action_item, action_item_one)
+        self.assertEqual(action_item_two.action_type, action_type_two)
 
-    def test_does_not_duplicate_own_action(self):
-        action_type = FormOneAction.action_type()
+    def test_does_not_duplicate_own_action_on_save(self):
+        obj = FormZero.objects.create(
+            subject_identifier=self.subject_identifier)
+        obj.save()
+        for name in ['submit-form-zero']:
+            with self.subTest(name=name):
+                try:
+                    ActionItem.objects.get(
+                        subject_identifier=self.subject_identifier,
+                        action_type__name=name)
+                except ObjectDoesNotExist:
+                    self.fail('Action item unexpectedly does not exist.')
+        self.assertEqual(ActionItem.objects.filter(
+            subject_identifier=self.subject_identifier).count(), 1)
+
+    def test_creates_own_action1(self):
+        obj = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
+        try:
+            obj = ActionItem.objects.get(
+                action_identifier=obj.action_identifier)
+        except ObjectDoesNotExist:
+            self.fail('Action item unexpectedly does not exist')
+        for name in ['submit-form-one', 'submit-form-two', 'submit-form-three']:
+            with self.subTest(name=name):
+                try:
+                    ActionItem.objects.get(
+                        subject_identifier=self.subject_identifier,
+                        action_type__name=name)
+                except ObjectDoesNotExist:
+                    self.fail('Action item unexpectedly does not exist.')
+        self.assertEqual(ActionItem.objects.filter(
+            subject_identifier=self.subject_identifier).count(), 3)
+
+    def test_does_not_duplicate_own_actions_on_save(self):
+        obj = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
+        obj.save()
+        for name in ['submit-form-one', 'submit-form-two', 'submit-form-three']:
+            with self.subTest(name=name):
+                try:
+                    ActionItem.objects.get(
+                        subject_identifier=self.subject_identifier,
+                        action_type__name=name)
+                except ObjectDoesNotExist:
+                    self.fail('Action item unexpectedly does not exist.')
+        self.assertEqual(ActionItem.objects.filter(
+            subject_identifier=self.subject_identifier).count(), 3)
+
+    def test_finds_existing_actions0(self):
+        """Finds existing actions even when one is created in advance.
+        """
+        action_type = FormZeroAction.action_type()
         self.assertEqual(ActionItem.objects.all().count(), 0)
         ActionItem.objects.create(
             subject_identifier=self.subject_identifier,
             action_type=action_type)
-        self.assertEqual(ActionItem.objects.all().count(), 1)
-        obj = FormOne.objects.create(
+        FormZero.objects.create(
+            subject_identifier=self.subject_identifier)
+        obj = FormZero.objects.get(
             subject_identifier=self.subject_identifier)
         self.assertTrue(
-            ActionItem.objects.filter(
-                action_identifier=obj.action_identifier))
-        self.assertEqual(ActionItem.objects.filter(
-            subject_identifier=self.subject_identifier,
-            action_type=action_type).count(), 1)
+            ActionItem.objects.filter(action_identifier=obj.action_identifier))
+        self.assertEqual(ActionItem.objects.all().count(), 1)
+        obj.save()
+        self.assertEqual(ActionItem.objects.all().count(), 1)
 
-    def test_finds_existing_actions(self):
-        """Finds existing actions even in many are created in advance.
+    def test_finds_existing_actions1(self):
+        """Finds existing actions even when many are created in advance.
         """
+        # create 5 action items for FormOne
         action_type = FormOneAction.action_type()
-        FormTwoAction.action_type()
-        FormThreeAction.action_type()
         self.assertEqual(ActionItem.objects.all().count(), 0)
         for _ in range(0, 5):
             ActionItem.objects.create(
                 subject_identifier=self.subject_identifier,
                 action_type=action_type)
         self.assertEqual(ActionItem.objects.filter(
+            subject_identifier=self.subject_identifier).count(), 5)
+        self.assertEqual(ActionItem.objects.filter(
             action_type=action_type).count(), 5)
-
         self.assertEqual(ActionItem.objects.filter(
             action_type=action_type,
             reference_identifier__isnull=True).count(), 5)
 
+        # create FormOne instances and expect them to link to
+        # an exiting action item
         for i in range(0, 5):
             with self.subTest(index=i):
                 obj = FormOne.objects.create(
                     subject_identifier=self.subject_identifier)
+                self.assertIsNotNone(obj.tracking_identifier)
                 self.assertTrue(
-                    ActionItem.objects.filter(action_identifier=obj.action_identifier))
-                self.assertEqual(ActionItem.objects.filter(
-                    action_type=action_type,
-                    reference_identifier__isnull=True).count(), 5 - (i + 1))
+                    ActionItem.objects.get(
+                        action_identifier=obj.action_identifier))
                 self.assertEqual(ActionItem.objects.filter(
                     action_type=action_type).count(), 5)
+                self.assertEqual(ActionItem.objects.filter(
+                    action_type=action_type,
+                    reference_identifier=obj.tracking_identifier).count(), 1)
 
-        obj = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
-        self.assertTrue(
-            ActionItem.objects.filter(action_identifier=obj.action_identifier))
+    def test_finds_existing_actions2(self):
+        action_type = FormOneAction.action_type()
+        self.assertEqual(ActionItem.objects.all().count(), 0)
+        for _ in range(0, 5):
+            ActionItem.objects.create(
+                subject_identifier=self.subject_identifier,
+                action_type=action_type)
+        self.assertEqual(ActionItem.objects.all().count(), 5)
+        for _ in range(0, 5):
+            FormOne.objects.create(
+                subject_identifier=self.subject_identifier)
+        self.assertEqual(ActionItem.objects.filter(
+            action_type=action_type).count(), 5)
         self.assertEqual(ActionItem.objects.filter(
             action_type=action_type,
             reference_identifier__isnull=True).count(), 0)
-        self.assertEqual(ActionItem.objects.filter(
-            action_type=action_type).count(), 6)
 
     def test_creates_next_actions(self):
         f1_action_type = FormOneAction.action_type()
@@ -210,6 +331,7 @@ class TestAction(TestCase):
             (f'/admin/edc_action_item/formtwo/{str(form_two.pk)}/change/?'
              f'subject_identifier={self.subject_identifier}&form_one={str(form_one.pk)}'))
 
+    @tag('1')
     def test_popover_templatetag(self):
 
         class ActionItemModelWrapper(ModelWrapper):
@@ -223,9 +345,30 @@ class TestAction(TestCase):
             def subject_identifier(self):
                 return self.object.subject_identifier
 
-        action_type = FormOneAction.action_type()
-        obj = ActionItem.objects.create(
-            subject_identifier=self.subject_identifier,
-            action_type=action_type)
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
+        obj = ActionItem.objects.get(
+            action_identifier=form_one.action_identifier)
         wrapper = ActionItemModelWrapper(model_obj=obj)
         action_item_with_popover(wrapper, 0)
+        context = action_item_with_popover(wrapper, 0)
+        self.assertIsNone(context.get('parent_action_identifier'))
+        self.assertIsNone(context.get('parent_action_item'))
+
+        form_two = FormTwo.objects.create(
+            subject_identifier=self.subject_identifier,
+            form_one=form_one)
+        obj = ActionItem.objects.get(
+            action_identifier=form_two.action_identifier)
+        wrapper = ActionItemModelWrapper(model_obj=obj)
+        context = action_item_with_popover(wrapper, 0)
+        self.assertEqual(context.get('parent_action_identifier'),
+                         form_one.action_identifier)
+        self.assertEqual(context.get('parent_action_item'),
+                         form_one.action_item)
+
+        context = action_item_with_popover(wrapper, 0)
+        self.assertEqual(context.get('parent_action_identifier'),
+                         form_one.action_identifier)
+        self.assertEqual(context.get('parent_action_item'),
+                         form_one.action_item)

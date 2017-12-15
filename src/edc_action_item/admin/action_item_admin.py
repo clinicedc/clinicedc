@@ -35,7 +35,6 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
                 'subject_identifier',
                 'report_datetime',
                 'action_type',
-                'display_name',
                 'priority',
                 'instructions',
                 'parent_action_item',
@@ -56,15 +55,18 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
                     'action_type', 'priority', 'status', 'parent',
                     'reference', 'parent_reference')
 
-    list_filter = ('status', 'priority', 'report_datetime', 'name')
+    list_filter = ('status', 'priority',
+                   'report_datetime', 'action_type__name')
 
     search_fields = ('subject_identifier',
-                     'action_identifier', 'name', 'display_name',
+                     'action_identifier',
                      'reference_identifier',
                      'parent_reference_identifier',
+                     'action_type__name',
+                     'action_type__display_name',
                      'parent_action_item__action_identifier')
 
-    ordering = ('-created', )
+    ordering = ('action_type__display_name', )
 
     date_hierarchy = 'created'
 
@@ -75,5 +77,15 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
         if obj:
             fields = fields + ('subject_identifier',
                                'report_datetime',
-                               'parent_reference_identifier')
+                               'parent_reference_identifier',
+                               'action_type',
+                               'action_identifier',
+                               'parent_action_item')
         return fields
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'action_type':
+            kwargs["queryset"] = db_field.related_model.objects.filter(
+                create_by_user=True)
+        return super().formfield_for_foreignkey(
+            db_field, request, **kwargs)

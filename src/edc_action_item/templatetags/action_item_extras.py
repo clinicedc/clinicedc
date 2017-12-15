@@ -40,9 +40,6 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
         model_cls = django_apps.get_model(action_item.action_type.model)
         query_dict = dict(
             parse_qsl(urlparse(action_item_model_wrapper.href).query))
-        if not model_cls.action_cls:
-            raise ActionError(
-                f'Model missing an action class. See {repr(model_cls)}')
         model_url = model_cls.action_cls.reference_model_url(
             action_item=action_item,
             action_identifier=action_item.action_identifier,
@@ -75,13 +72,13 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
 
     return dict(
         display_name=action_item.action_type.display_name,
-        name=action_item.name,
+        name=action_item.action_type.name,
         tabindex=tabindex,
         status=action_item.get_status_display(),
         report_datetime=action_item.report_datetime,
         last_updated_text=text,
         action_identifier=action_item.action_identifier,
-        instructions=action_item.instructions,
+        action_instructions=action_item.instructions,
         href=action_item_model_wrapper.href,
         model_url=model_url,
         model_name=model_cls._meta.verbose_name,

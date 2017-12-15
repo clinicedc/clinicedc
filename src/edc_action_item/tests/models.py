@@ -1,27 +1,11 @@
+from django.db.models.deletion import CASCADE
 from django.db import models
 from edc_base.model_mixins import BaseUuidModel
+from edc_identifier.model_mixins import TrackingIdentifierModelMixin
 
 from ..model_mixins import ActionItemModelMixin
-from ..action import Action
-from edc_identifier.model_mixins import TrackingIdentifierModelMixin
-from edc_action_item.action_items import ReminderAction, FormTwoAction,\
-    FormThreeAction, FormOneAction
-from django.db.models.deletion import CASCADE
-
-
-class TestDoNothingPrnAction(Action):
-
-    name = 'test-prn-action'
-    display_name = 'Test Prn Action'
-
-
-class TestPrnAction(Action):
-
-    name = 'test-prn-action'
-    display_name = 'Test Prn Action'
-
-    def creates_action_items(self):
-        return [ReminderAction]
+from .action_items import TestPrnAction, TestDoNothingPrnAction, FormZeroAction
+from .action_items import ReminderAction, FormTwoAction, FormThreeAction, FormOneAction
 
 
 class SubjectIdentifierModel(BaseUuidModel):
@@ -30,9 +14,14 @@ class SubjectIdentifierModel(BaseUuidModel):
         max_length=25)
 
 
-class TestModel(BaseUuidModel):
+class TestModel(ActionItemModelMixin, BaseUuidModel):
+
+    action_cls = None
 
     subject_identifier = models.CharField(
+        max_length=25)
+
+    tracking_identifier = models.CharField(
         max_length=25)
 
 
@@ -87,6 +76,18 @@ class TestModelWithAction(ActionItemModelMixin,
         max_length=25)
 
     action_cls = ReminderAction
+
+
+class FormZero(ActionItemModelMixin,
+               TrackingIdentifierModelMixin,
+               BaseUuidModel):
+
+    tracking_identifier_prefix = 'AA'
+
+    subject_identifier = models.CharField(
+        max_length=25)
+
+    action_cls = FormZeroAction
 
 
 class FormOne(ActionItemModelMixin,

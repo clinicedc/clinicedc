@@ -14,8 +14,8 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from ..admin_site import edc_action_item_admin
 from ..choices import ACTION_STATUS, PRIORITY
 from ..identifiers import ActionIdentifier
+from ..site_action_items import site_action_items
 from .action_type import ActionType
-from edc_action_item.site_action_items import site_action_items
 
 
 class ActionItemUpdatesRequireFollowup(Exception):
@@ -47,19 +47,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         ActionType, on_delete=PROTECT,
         related_name='action_type',
         verbose_name='Action')
-
-    display_name = models.CharField(
-        verbose_name='Name',
-        max_length=50,
-        null=True,
-        blank=True,
-        help_text='Leave blank to use the action type name.')
-
-    name = models.CharField(
-        max_length=50,
-        null=True,
-        editable=False,
-        help_text='Leave blank to use the action type name.')
 
     reference_identifier = models.CharField(
         max_length=50,
@@ -125,27 +112,28 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.id:
             self.action_identifier = ActionIdentifier().identifier
-            model_cls = django_apps.get_model(self.subject_identifier_model)
+            subject_identifier_model_cls = django_apps.get_model(
+                self.subject_identifier_model)
             try:
-                model_cls.objects.get(
+                subject_identifier_model_cls.objects.get(
                     subject_identifier=self.subject_identifier)
             except ObjectDoesNotExist:
                 raise SubjectDoesNotExist(
-                    f'Invalid subject identifier. Subject does not exist. '
-                    f'Got \'{self.subject_identifier}\'')
+                    f'Invalid subject identifier. Subject does not exist '
+                    f'in \'{self.subject_identifier_model}\'. '
+                    f'Got \'{self.subject_identifier}\'.')
         self.priority = self.priority or self.action_type.priority
         self.reference_model = self.action_type.model
-        self.name = self.name or self.action_type.name
-        self.display_name = self.display_name or self.action_type.display_name
-        self.instructions = self.action.instructions
+        if self.action:
+            self.instructions = self.action.instructions
         super().save(*args, **kwargs)
 
     @property
     def last_updated(self):
         obj = self.actionitemupdate_set.all().order_by('report_datetime').last()
         if obj:
-            return obj.report_datetime
-        return None
+            return obj.modified
+        return None if self.status == NEW else self.modified
 
     @property
     def user_last_updated(self):
@@ -153,7 +141,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     @property
     def action(self):
-        return site_action_items.get(self.name)
+        return site_action_items.get(self.action_type.name)
 
     @property
     def parent_object(self):
@@ -207,3 +195,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     def natural_key(self):
         return (self.action_identifier, )
+
+    class Meta:
+        unique_together = ('subject_identifier',
+                           'action_type', 'reference_identifier')
