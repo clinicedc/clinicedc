@@ -1,11 +1,5 @@
 {% extends 'edc_subject_dashboard/dashboard/sidebar/sidebar.html' %}
 
-{% comment %}
-
-	Overrides sidebar/sidebar.html
-
-{% endcomment%}
-
 {% load tz %}
 {% load edc_base_extras %}
 {% load edc_prn_extras %}
@@ -25,13 +19,13 @@
 {% endblock demographics %}
 
 
-{% block prn %}   
+{% block action_items_and_prn %}   
 
     {% action_item_control subject_identifier subject_dashboard_url %}
 
     {% prn_list_items subject_identifier %}
 
-{% endblock prn %}
+{% endblock action_items_and_prn %}
 
 {% block consents %}
 

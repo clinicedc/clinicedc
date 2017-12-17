@@ -30,10 +30,10 @@
                             <td>
                                 {% if crf.entry_status == NOT_REQUIRED %}
                                     <span class="text text-muted small">
-                                     {{ crf.object.verbose_name|title }}
+                                     {{ crf.object.verbose_name }}
                                     </span>
                                 {% else %}
-                                    {{ crf.object.verbose_name|title }}
+                                    {{ crf.object.verbose_name }}
                                     {% if crf.object.user_created %}
                                         <p class="text small text-info">
                                             {{ crf.object.user_created }} on {{ crf.object.object.created|date:"SHORT_DATETIME_FORMAT" }}
