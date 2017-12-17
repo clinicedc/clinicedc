@@ -31,22 +31,23 @@ class Action:
 
     def __init__(self, model_obj=None, subject_identifier=None, tracking_identifier=None):
 
-        if not model_obj:
+        self.model_obj = model_obj
+        if not self.model_obj:
             self.subject_identifier = subject_identifier
             self.tracking_identifier = tracking_identifier or str(uuid4())
         else:
-            self.subject_identifier = model_obj.subject_identifier
-            self.tracking_identifier = model_obj.tracking_identifier
-            if (self.model and model_obj) or (self.model and not model_obj):
-                if model_obj._meta.label_lower != self.model.lower():
+            self.subject_identifier = self.model_obj.subject_identifier
+            self.tracking_identifier = self.model_obj.tracking_identifier
+            if (self.model and self.model_obj) or (self.model and not self.model_obj):
+                if self.model_obj._meta.label_lower != self.model.lower():
                     raise ActionError(
                         f'Invalid model for {repr(self)}. Expected {self.model}. '
-                        f'Got \'{model_obj._meta.label_lower}\'.')
+                        f'Got \'{self.model_obj._meta.label_lower}\'.')
         self.object = self.get_or_create_action_item()
         self.action_identifier = self.object.action_identifier
-        if model_obj:
-            model_obj.action_identifier = self.action_identifier
-            model_obj.save(update_fields=['action_identifier'])
+        if self.model_obj:
+            self.model_obj.action_identifier = self.action_identifier
+            self.model_obj.save(update_fields=['action_identifier'])
             self.close_and_create_next()
 
     def __repr__(self):
