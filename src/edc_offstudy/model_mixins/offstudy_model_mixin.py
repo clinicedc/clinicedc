@@ -4,17 +4,20 @@ from django.db.models import options
 from django.utils import timezone
 from edc_base.model_fields import OtherCharField
 from edc_base.model_validators import datetime_not_future
+from edc_base.utils import get_utcnow
 from edc_constants.date_constants import EDC_DATETIME_FORMAT
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
 
-from .validate_offstudy_model_mixin import ValidateOffstudyModelMixin
+from ..choices import OFF_STUDY_REASONS
+from ..offstudy import Offstudy
 
-options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model', )
+if 'consent_model' not in options.DEFAULT_NAMES:
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model',)
 
 
-class OffstudyError(Exception):
+class OffstudyModelMixinError(Exception):
     pass
 
 
@@ -24,47 +27,47 @@ class OffstudyModelManager(models.Manager):
         return self.get(subject_identifier=subject_identifier)
 
 
-class OffstudyModelMixin(ValidateOffstudyModelMixin, UniqueSubjectIdentifierFieldMixin,
+class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
                          VisitScheduleMethodsModelMixin, models.Model):
-    """Mixin for the Off Study model.
+    """Model mixin for the Off-study model.
     """
 
+    offstudy_cls = Offstudy
+    offstudy_reason_choices = OFF_STUDY_REASONS
+
     offstudy_datetime = models.DateTimeField(
-        verbose_name="Off-study Date",
+        verbose_name="Off-study date and time",
         validators=[
             datetime_not_before_study_start,
-            datetime_not_future])
+            datetime_not_future],
+        default=get_utcnow)
 
-    reason = models.CharField(
+    offstudy_reason = models.CharField(
         verbose_name="Please code the primary reason participant taken off-study",
-        max_length=115)
+        choices=offstudy_reason_choices,
+        max_length=125)
 
-    reason_other = OtherCharField()
-
-    comment = models.TextField(
-        max_length=250,
-        verbose_name="Comment",
-        blank=True,
-        null=True)
+    offstudy_reason_other = OtherCharField()
 
     objects = OffstudyModelManager()
 
     def save(self, *args, **kwargs):
-        if not self.consented_before_offstudy:
-            formatted_date = timezone.localtime(
-                self.offstudy_datetime).strftime(EDC_DATETIME_FORMAT)
-            raise OffstudyError(
-                f'Offstudy date may not be before the date of consent. '
-                f'Got {formatted_date}.')
-        app_config = django_apps.get_app_config('edc_visit_tracking')
-        visit_model_cls = app_config.visit_model_cls(self._meta.app_label)
-        app_config = django_apps.get_app_config('edc_appointment')
-        appointment_model_cls = django_apps.get_model(app_config.get_configuration(
-            related_visit_model=visit_model_cls._meta.label_lower).model)
-        self.offstudy_datetime_after_last_visit_or_raise(
-            visit_model_cls=visit_model_cls)
-        appointment_model_cls.objects.delete_for_subject_after_date(
-            self.subject_identifier, self.offstudy_datetime)
+        try:
+            consent_model = self._meta.consent_model
+        except AttributeError as e:
+            raise OffstudyModelMixinError(
+                f'Missing Meta class option. See {repr(self)}. Got {e}.')
+        else:
+            try:
+                consent_model_cls = django_apps.get_model(consent_model)
+            except (AttributeError, LookupError) as e:
+                raise OffstudyModelMixinError(
+                    f'Invalid consent model. See Meta options '
+                    f'for {repr(self)}. Got {e}.')
+        self.offstudy_cls(
+            consent_model_cls=consent_model_cls,
+            label_lower=self._meta.label_lower,
+            **self.__dict__)
         super().save(*args, **kwargs)
 
     def natural_key(self):

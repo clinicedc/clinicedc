@@ -15,8 +15,9 @@ import os
 import sys
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_NAME = 'edc_offstudy'
+ETC_DIR = os.path.join(BASE_DIR, 'etc')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -25,11 +26,8 @@ SECRET_KEY = 'w^k+nty=&d-)qvc^mn_eo&c7-*^v7-e)f_kk&gbrpiv-d)6x(4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
-
-APP_NAME = 'edc_offstudy'
-
+# AUTO_CREATE_KEYS = True
 
 # Application definition
 
@@ -56,9 +54,6 @@ INSTALLED_APPS = [
     'edc_offstudy.apps.EdcFacilityAppConfig',
     'edc_offstudy.apps.AppConfig',
 ]
-
-COUNTRY = 'botswana'
-HOLIDAY_FILE = os.path.join(BASE_DIR, 'tests', 'holidays.csv')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -102,19 +97,6 @@ DATABASES = {
     }
 }
 
-if 'test' in sys.argv:
-
-    class DisableMigrations:
-        def __contains__(self, item):
-            return True
-
-        def __getitem__(self, item):
-            return None
-
-    MIGRATION_MODULES = DisableMigrations()
-    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
-    DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'
-
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
@@ -152,7 +134,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 COUNTRY = 'botswana'
-HOLIDAY_FILE = os.path.join(BASE_DIR, 'tests', 'holidays.csv')
+HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
+
 
 if 'test' in sys.argv:
 
