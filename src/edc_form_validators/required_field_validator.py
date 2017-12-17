@@ -127,15 +127,17 @@ class RequiredFieldValidator(BaseFormValidator):
     def require_together(self, field=None, field_required=None, required_msg=None):
         """Required b if a. Do not require b if not a.
         """
-        if self.cleaned_data.get(field) and not self.cleaned_data.get(field_required):
+        if (self.cleaned_data.get(field) is not None
+                and self.cleaned_data.get(field_required) is None):
             message = {
                 field_required: required_msg or 'This field is required.'}
             self._errors.update(message)
             self._error_codes.append(REQUIRED_ERROR)
             raise ValidationError(message, code=REQUIRED_ERROR)
-        elif not self.cleaned_data.get(field) and self.cleaned_data.get(field_required):
+        elif (self.cleaned_data.get(field) is None
+                and self.cleaned_data.get(field_required) is not None):
             message = {
-                field_required: required_msg or 'This field not is required.'}
+                field_required: required_msg or 'This field is not required.'}
             self._errors.update(message)
             self._error_codes.append(NOT_REQUIRED_ERROR)
             raise ValidationError(message, code=NOT_REQUIRED_ERROR)
