@@ -2,11 +2,17 @@ from django.apps import apps as django_apps
 from django.views.generic.base import ContextMixin
 from edc_constants.constants import CLOSED, CANCELLED
 
+from ..site_action_items import site_action_items
+
 
 class ActionItemViewMixin(ContextMixin):
 
     action_item_model = 'edc_action_item.actionitem'
     action_item_model_wrapper_cls = None
+
+    def __init__(self, **kwargs):
+        site_action_items.populate_action_types()
+        super().__init__(**kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
