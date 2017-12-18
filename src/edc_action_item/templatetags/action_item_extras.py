@@ -6,7 +6,6 @@ from edc_base.utils import convert_php_dateformat
 from urllib.parse import urlparse, parse_qsl
 
 from ..constants import HIGH_PRIORITY
-from edc_action_item.action import ActionError
 
 register = template.Library()
 
