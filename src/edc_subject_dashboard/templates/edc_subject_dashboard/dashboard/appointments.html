@@ -1,3 +1,4 @@
+{% load edc_offstudy_extras %}
 
 <!-- start appointments -->
 
@@ -97,8 +98,10 @@
                 </tr>
 		  {% endif %}
         {% endfor %}
+
 		</tbody>
 	 </table>
+	 {% offstudy_visit_schedule_row subject_identifier visit_schedule subject_dashboard_url %}
  </div>
 
 <!-- end appointments -->
