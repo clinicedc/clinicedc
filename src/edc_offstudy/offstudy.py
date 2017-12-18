@@ -19,15 +19,17 @@ class Offstudy:
 
     def __init__(self, consent_model_cls=None, subject_identifier=None,
                  offstudy_datetime=None, label_lower=None,
-                 consent_model=None, **kwargs):
-        self.app_label, self.model = label_lower.split('.')
+                 consent_model=None, visit_model_app_label=None, **kwargs):
+        if not visit_model_app_label:
+            visit_model_app_label, _ = label_lower.split('.')
         self.consent_model_cls = (
             consent_model_cls or django_apps.get_model(consent_model))
         self.subject_identifier = subject_identifier
         self.offstudy_datetime = offstudy_datetime
 
         app_config = django_apps.get_app_config('edc_visit_tracking')
-        self.visit_model_cls = app_config.visit_model_cls(self.app_label)
+        self.visit_model_cls = app_config.visit_model_cls(
+            visit_model_app_label)
         app_config = django_apps.get_app_config('edc_appointment')
         appointment_model_cls = django_apps.get_model(app_config.get_configuration(
             related_visit_model=self.visit_model_cls._meta.label_lower).model)

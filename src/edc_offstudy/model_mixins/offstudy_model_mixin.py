@@ -35,6 +35,7 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
 
     offstudy_cls = Offstudy
     offstudy_reason_choices = OFF_STUDY_REASONS
+    offstudy_visit_model_app_label = None
 
     offstudy_datetime = models.DateTimeField(
         verbose_name="Off-study date and time",
@@ -68,6 +69,7 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
         self.offstudy_cls(
             consent_model_cls=consent_model_cls,
             label_lower=self._meta.label_lower,
+            visit_model_app_label=self.offstudy_visit_model_app_label,
             **self.__dict__)
         super().save(*args, **kwargs)
 
