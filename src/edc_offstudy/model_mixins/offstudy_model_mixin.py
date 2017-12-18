@@ -12,6 +12,7 @@ from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
 
 from ..choices import OFF_STUDY_REASONS
 from ..offstudy import Offstudy
+from edc_visit_schedule.model_mixins.visit_schedule_model_mixins import VisitScheduleMetaMixin
 
 if 'consent_model' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model',)
@@ -78,6 +79,6 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
             self.offstudy_datetime).strftime(EDC_DATETIME_FORMAT)
         return f'{self.subject_identifier} {formatted_date}'
 
-    class Meta:
+    class Meta(VisitScheduleMetaMixin.Meta):
         abstract = True
         consent_model = None
