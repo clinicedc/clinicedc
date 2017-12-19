@@ -63,3 +63,19 @@ visit_schedule = VisitSchedule(
     offstudy_model='edc_offstudy.subjectoffstudy')
 
 visit_schedule.add_schedule(schedule)
+
+
+visit_schedule2 = VisitSchedule(
+    name='visit_schedule2',
+    visit_model='edc_offstudy.subjectvisit',
+    offstudy_model='edc_offstudy.subjectoffstudy2')
+
+
+schedule2 = Schedule(
+    name='schedule2',
+    enrollment_model='edc_offstudy.enrollment2',
+    disenrollment_model='edc_offstudy.disenrollment2')
+
+schedule2.add_visit(visit3)
+
+visit_schedule2.add_schedule(schedule2)

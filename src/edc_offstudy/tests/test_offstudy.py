@@ -17,7 +17,8 @@ from .consents import v1_consent
 from .forms import SubjectOffstudyForm, CrfOneForm, NonCrfOneForm
 from .models import Appointment, Enrollment, SubjectConsent, SubjectOffstudy, SubjectVisit
 from .models import BadSubjectOffstudy1, BadSubjectOffstudy2, CrfOne, NonCrfOne, BadNonCrfOne
-from .visit_schedule import visit_schedule
+from .models import Enrollment2, SubjectOffstudy2
+from .visit_schedule import visit_schedule, visit_schedule2
 
 
 class TestOffstudy(TestCase):
@@ -38,6 +39,7 @@ class TestOffstudy(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(visit_schedule2)
 
         self.subject_identifier = '111111111'
         self.subject_identifiers = [
@@ -565,3 +567,88 @@ class TestOffstudy(TestCase):
         form = NonCrfOneForm(data=data)
         form.is_valid()
         self.assertIn('report_datetime', form.errors)
+
+    @tag('1')
+    def test_crf_model_mixin_for_visit_schedule_2(self):
+
+        appointments = [appt for appt in Appointment.objects.filter(
+            subject_identifier=self.subject_identifier).order_by('appt_datetime')]
+
+        appointment = appointments[0]
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            report_datetime=appointment.appt_datetime,
+            study_status=SCHEDULED)
+        crf_one = CrfOne(
+            subject_visit=subject_visit,
+            report_datetime=appointment.appt_datetime)
+        crf_one.save()
+
+        appointment = appointments[1]
+
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            report_datetime=appointment.appt_datetime,
+            study_status=SCHEDULED)
+        SubjectOffstudy.objects.create(
+            offstudy_datetime=appointment.appt_datetime +
+            relativedelta(hours=1),
+            subject_identifier=self.subject_identifier)
+        crf_one = CrfOne(
+            report_datetime=appointment.appt_datetime,
+            subject_visit=subject_visit)
+        crf_one.save()
+
+        appointment = appointments[2]
+        # resave since instance was deleted when SubjectOffstudy model
+        # was created above
+        appointment.save()
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            report_datetime=appointment.appt_datetime,
+            study_status=SCHEDULED)
+        crf_one = CrfOne(
+            subject_visit=subject_visit,
+            report_datetime=appointment.appt_datetime)
+        self.assertRaises(
+            SubjectOffstudyError,
+            crf_one.save)
+
+        appointments = [appt.visit_code for appt in Appointment.objects.filter(
+            subject_identifier=self.subject_identifier).order_by('appt_datetime')]
+        self.assertEqual(appointments, ['1000', '2000', '3000'])
+
+        # enroll to visit_schedule2
+        Enrollment2.objects.create(
+            subject_identifier=self.subject_identifier,
+            schedule_name='schedule2',
+            report_datetime=self.consent_datetime,
+            facility_name='default')
+
+        # show adds the visit 4000 for visit_schedule2
+        appointments = [appt.visit_code for appt in Appointment.objects.filter(
+            subject_identifier=self.subject_identifier).order_by('appt_datetime')]
+        self.assertEqual(appointments, ['1000', '2000', '3000', '4000'])
+        # show adds the visit 4000 for visit_schedule2
+        appointments = [appt.visit_schedule_name for appt in Appointment.objects.filter(
+            subject_identifier=self.subject_identifier).order_by('appt_datetime')]
+        self.assertEqual(
+            appointments, [
+                'visit_schedule', 'visit_schedule', 'visit_schedule', 'visit_schedule2'])
+        # show adding off study 2 removes visit 4000 only
+        SubjectOffstudy2.objects.create(
+            offstudy_datetime=appointment.appt_datetime +
+            relativedelta(hours=1),
+            subject_identifier=self.subject_identifier)
+        appointments = [appt.visit_code for appt in Appointment.objects.filter(
+            subject_identifier=self.subject_identifier).order_by('appt_datetime')]
+        self.assertEqual(appointments, ['1000', '2000', '3000'])

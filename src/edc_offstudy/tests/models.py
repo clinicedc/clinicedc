@@ -79,7 +79,23 @@ class Enrollment(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
         visit_schedule_name = 'visit_schedule.schedule'
 
 
+class Enrollment2(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+
+    subject_identifier = models.CharField(max_length=50)
+
+    report_datetime = models.DateTimeField(default=get_utcnow)
+
+    class Meta(EnrollmentModelMixin.Meta):
+        visit_schedule_name = 'visit_schedule2.schedule2'
+
+
 class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
+
+    class Meta(OffstudyModelMixin.Meta):
+        consent_model = 'edc_offstudy.subjectconsent'
+
+
+class SubjectOffstudy2(OffstudyModelMixin, BaseUuidModel):
 
     class Meta(OffstudyModelMixin.Meta):
         consent_model = 'edc_offstudy.subjectconsent'
