@@ -1,14 +1,14 @@
 from django.test import TestCase, tag
+from uuid import uuid4
 
+from ..enroll_to_schedule import EnrollToSchedule, EnrollToScheduleError
 from ..enrolled_subject import EnrolledSubject
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..visit_schedule import VisitSchedule
-from .models import SubjectVisit, SubjectOffstudy, DeathReport, Disenrollment, DisenrollmentThree
-from .models import Enrollment, EnrollmentTwo, EnrollmentThree, DisenrollmentTwo, EnrollmentFour, DisenrollmentFour
+from .models import EnrollmentTwo, EnrollmentFour, SubjectConsent
 
 
-@tag('enroll')
 class TestEnrolledSubject(TestCase):
 
     def setUp(self):
@@ -57,55 +57,69 @@ class TestEnrolledSubject(TestCase):
         self.visit_schedule_two.add_schedule(self.schedule_two_2)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule_two)
+        self.subject_identifier = '111111'
+        obj = SubjectConsent.objects.create(
+            subject_identifier=self.subject_identifier)
+        self.consent_identifier = obj.consent_identifier
 
-    @tag('3')
     def test_enrolled_subject(self):
         enrolled_subject = EnrolledSubject()
         self.assertFalse(enrolled_subject.enrollments)
 
     def test_enrolled_subject_not_enrolled(self):
-        subject_identifier = '111111'
         enrolled_subject = EnrolledSubject(
-            subject_identifier=subject_identifier)
+            subject_identifier=self.subject_identifier)
         self.assertFalse(enrolled_subject.enrollments)
 
     def test_get_enrollment_not_enrolled(self):
         """Asserts returns an empty list if not enrolled.
         """
-        subject_identifier = '111111'
         enrolled_subject = EnrolledSubject(
-            subject_identifier=subject_identifier)
+            subject_identifier=self.subject_identifier)
         self.assertFalse(enrolled_subject.enrollments)
 
     def test_get_enrollment_enrolled(self):
         """Asserts returns an enrollment instance if enrolled.
         """
-        subject_identifier = '111111'
-        obj = EnrollmentTwo.objects.create(
-            subject_identifier=subject_identifier)
+        enroll_to_schedule = EnrollToSchedule(
+            enrollment_model_cls=EnrollmentTwo,
+            subject_identifier=self.subject_identifier,
+            consent_identifier=uuid4(),
+            eligible=True)
         enrolled_subject = EnrolledSubject(
-            subject_identifier=subject_identifier)
-        self.assertEqual(enrolled_subject.enrollments, [obj])
+            subject_identifier=self.subject_identifier)
+        self.assertEqual(
+            enrolled_subject.enrollments,
+            [enroll_to_schedule.object])
 
     def test_get_enrollment_enrolled_many(self):
         """Asserts returns an empty list if not enrolled.
         """
-        subject_identifier = '111111'
-        obj1 = EnrollmentTwo.objects.create(
-            subject_identifier=subject_identifier)
-        obj2 = EnrollmentFour.objects.create(
-            subject_identifier=subject_identifier)
+        enroll_to_schedule1 = EnrollToSchedule(
+            enrollment_model='edc_visit_schedule.enrollmenttwo',
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier,
+            eligible=True)
+        enroll_to_schedule2 = EnrollToSchedule(
+            enrollment_model='edc_visit_schedule.enrollmentfour',
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier,
+            eligible=True)
         enrolled_subject = EnrolledSubject(
-            subject_identifier=subject_identifier)
-        self.assertEqual(enrolled_subject.enrollments, [obj1, obj2])
+            subject_identifier=self.subject_identifier)
+        self.assertEqual(enrolled_subject.enrollments, [
+            enroll_to_schedule1.object, enroll_to_schedule2.object])
 
     def test_schedules(self):
         """Asserts returns one schedule if one enrollment.
         """
-        subject_identifier = '111111'
-        EnrollmentTwo.objects.create(subject_identifier=subject_identifier)
+        EnrollToSchedule(
+            enrollment_model='edc_visit_schedule.enrollmenttwo',
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier,
+            eligible=True)
         enrolled_subject = EnrolledSubject(
-            subject_identifier=subject_identifier)
+            subject_identifier=self.subject_identifier)
         self.assertEqual(
             [s.name for s in enrolled_subject.schedules.values()],
             ['schedule_two'])
@@ -113,45 +127,115 @@ class TestEnrolledSubject(TestCase):
     def test_schedules_many(self):
         """Asserts returns two schedules if two enrollments.
         """
-        subject_identifier = '111111'
-        EnrollmentTwo.objects.create(subject_identifier=subject_identifier)
-        EnrollmentFour.objects.create(
-            subject_identifier=subject_identifier)
+        EnrollToSchedule(
+            enrollment_model='edc_visit_schedule.enrollmenttwo',
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier,
+            eligible=True)
+        EnrollToSchedule(
+            enrollment_model='edc_visit_schedule.enrollmentfour',
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier,
+            eligible=True)
         enrolled_subject = EnrolledSubject(
-            subject_identifier=subject_identifier)
+            subject_identifier=self.subject_identifier)
         self.assertEqual(
             [s.name for s in enrolled_subject.schedules.values()],
             ['schedule_four', 'schedule_two'])
 
     def test_gets_correct_enrollments_if_many_others(self):
-        subject_identifier = '111111'
-        obj = EnrollmentTwo.objects.create(
-            subject_identifier=subject_identifier)
+        enroll_to_schedule = EnrollToSchedule(
+            enrollment_model='edc_visit_schedule.enrollmenttwo',
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier,
+            eligible=True)
         for i in range(0, 5):
-            EnrollmentFour.objects.create(subject_identifier=str(i))
+            SubjectConsent.objects.create(subject_identifier=str(i))
+            EnrollToSchedule(
+                enrollment_model='edc_visit_schedule.enrollmentfour',
+                subject_identifier=str(i),
+                consent_identifier=uuid4(),
+                eligible=True)
         enrolled_subject = EnrolledSubject(
-            subject_identifier=subject_identifier)
-        self.assertEqual(enrolled_subject.enrollments, [obj])
+            subject_identifier=self.subject_identifier)
+        self.assertEqual(enrolled_subject.enrollments,
+                         [enroll_to_schedule.object])
 
     def test_get_enrollment_enrolled5(self):
         """Asserts returns None for unknown schedule.
         """
-        subject_identifier = '111111'
-        EnrollmentTwo.objects.create(subject_identifier=subject_identifier)
-        EnrollmentFour.objects.create(subject_identifier=subject_identifier)
+        EnrollToSchedule(
+            enrollment_model='edc_visit_schedule.enrollmenttwo',
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier,
+            eligible=True)
+        EnrollToSchedule(
+            enrollment_model='edc_visit_schedule.enrollmentfour',
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier,
+            eligible=True)
         self.assertRaises(
             SiteVisitScheduleError,
             EnrolledSubject,
-            subject_identifier=subject_identifier,
+            subject_identifier=self.subject_identifier,
             visit_schedule_name='blah')
 
     def test_get_enrollment_enrolled6(self):
         """Asserts returns the correct instances for the schedule.
         """
-        subject_identifier = '111111'
-        EnrollmentTwo.objects.create(subject_identifier=subject_identifier)
-        EnrollmentFour.objects.create(subject_identifier=subject_identifier)
+        EnrollToSchedule(
+            enrollment_model='edc_visit_schedule.enrollmenttwo',
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier,
+            eligible=True)
+        EnrollToSchedule(
+            enrollment_model='edc_visit_schedule.enrollmentfour',
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier,
+            eligible=True)
         enrolled_subject = EnrolledSubject(
-            subject_identifier=subject_identifier,
+            subject_identifier=self.subject_identifier,
             schedule_name='schedule_four')
         self.assertEqual(len(enrolled_subject.enrollments), 1)
+
+    def test_raises_if_no_consent(self):
+        """Asserts raises if no consent for this subject.
+        """
+        self.assertRaises(
+            EnrollToScheduleError,
+            EnrollToSchedule,
+            enrollment_model='edc_visit_schedule.enrollmenttwo',
+            subject_identifier='ABCDEF',
+            consent_identifier=uuid4(),
+            eligible=True)
+
+    def test_multpile_consents(self):
+        """Asserts does not raise if more than one consent
+        for this subject
+        """
+
+        subject_identifier = 'ABCDEF'
+        SubjectConsent.objects.create(
+            subject_identifier=subject_identifier,
+            version='1')
+        SubjectConsent.objects.create(
+            subject_identifier=subject_identifier,
+            version='2')
+        try:
+            EnrollToSchedule(
+                enrollment_model='edc_visit_schedule.enrollmenttwo',
+                subject_identifier=subject_identifier,
+                consent_identifier=uuid4(),
+                eligible=True)
+        except EnrollToScheduleError:
+            self.fail('EnrollToScheduleError unexpectedly raised.')
+
+    def test_update(self):
+        """Asserts returns the correct instances for the schedule.
+        """
+        enroll_to_schedule = EnrollToSchedule(
+            enrollment_model='edc_visit_schedule.enrollmenttwo',
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier,
+            eligible=True)
+        enroll_to_schedule.update()

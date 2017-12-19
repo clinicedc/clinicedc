@@ -1,14 +1,16 @@
 from django.db import models
 from edc_base.model_validators import datetime_not_future
 from edc_base.utils import get_utcnow
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
 
 from ..disenrollment_validator import DisenrollmentValidator
 from .base_enrollment_model_mixin import BaseEnrollmentModelMixin
 
 
-class DisenrollmentModelMixin(BaseEnrollmentModelMixin, models.Model):
-    """A model mixin for a schedule's enrollment model.
+class DisenrollmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
+                              BaseEnrollmentModelMixin, models.Model):
+    """A model mixin for a schedule's disenrollment model.
     """
 
     disenrollment_validator_cls = DisenrollmentValidator

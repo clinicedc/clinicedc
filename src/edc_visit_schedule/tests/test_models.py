@@ -1,7 +1,7 @@
 from django.test import TestCase, tag
-
 from edc_base.model_mixins import BaseUuidModel
 from edc_visit_schedule.model_mixins import EnrollmentModelMixin
+from uuid import uuid4
 
 from ..model_mixins import DisenrollmentModelMixin, VisitScheduleMethodsError
 from ..schedule import Schedule
@@ -177,7 +177,9 @@ class TestModels(TestCase):
                      disenrollment_model='edc_visit_schedule.ModelF')
         v.add_schedule(s)
         site_visit_schedules.register(v)
-        obj = ModelE(subject_identifier='11111')
+        obj = ModelE(
+            subject_identifier='11111',
+            consent_identifier=uuid4())
         obj.save()
         self.assertEqual(obj.natural_key(),
                          ('11111', 'visit_schedule_blah', 'schedule_blah'))

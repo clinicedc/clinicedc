@@ -1,7 +1,6 @@
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
-
 from edc_base.utils import get_utcnow
 
 from ..schedule import Schedule, AlreadyRegisteredVisit

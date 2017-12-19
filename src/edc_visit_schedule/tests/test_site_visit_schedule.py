@@ -1,4 +1,5 @@
 from django.test import TestCase, tag
+from uuid import uuid4
 
 from ..model_mixins import EnrollmentModelError
 from ..schedule import Schedule
@@ -9,7 +10,6 @@ from .models import Enrollment, EnrollmentTwo, EnrollmentThree, EnrollmentFour
 from .models import DisenrollmentThree, DisenrollmentFour
 
 
-@tag('site')
 class TestSiteVisitSchedule(TestCase):
 
     def setUp(self):
@@ -212,20 +212,23 @@ class TestSiteVisitSchedule1(TestCase):
             ['visit_schedule', 'visit_schedule_two'])
 
     def test_enrollment(self):
-        obj = Enrollment.objects.create()
+        obj = Enrollment.objects.create(
+            consent_identifier=uuid4())
         self.assertEqual(obj.visit_schedule_name, 'visit_schedule')
         self.assertEqual(obj.schedule_name, 'schedule')
         self.assertIsNotNone(obj.visit_schedule)
         self.assertIsNotNone(obj.schedule)
 
     def test_enrollment_cannot_change_visit_schedule(self):
-        obj = Enrollment.objects.create()
+        obj = Enrollment.objects.create(
+            consent_identifier=uuid4())
         obj.visit_schedule_name = 'blah'
         obj.schedule_name = 'blah'
         self.assertRaises(EnrollmentModelError, obj.save)
 
     def test_enrollment_cannot_change_schedule(self):
-        obj = Enrollment.objects.create()
+        obj = Enrollment.objects.create(
+            consent_identifier=uuid4())
         obj.schedule_name = 'blah'
         self.assertRaises(EnrollmentModelError, obj.save)
 

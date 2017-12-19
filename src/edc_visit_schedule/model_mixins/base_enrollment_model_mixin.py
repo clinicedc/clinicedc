@@ -2,7 +2,6 @@ from django.db import models
 
 from edc_base.utils import get_utcnow, get_uuid
 from edc_base.model_validators import datetime_not_future
-from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
 
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
@@ -17,7 +16,6 @@ class EnrollmentModelError(Exception):
 
 
 class BaseEnrollmentModelMixin(
-        NonUniqueSubjectIdentifierFieldMixin,
         VisitScheduleFieldsModelMixin,
         VisitScheduleMethodsModelMixin, models.Model):
     """A base model mixin shared by the enrollment/disenrollment
@@ -57,7 +55,9 @@ class BaseEnrollmentModelMixin(
                 visit_schedule_name=self.visit_schedule_name)
             visit_schedule.get_schedule(
                 schedule_name=self.schedule_name)
-        except (SiteVisitScheduleError, VisitScheduleError) as e:
+        except SiteVisitScheduleError as e:
+            raise EnrollmentModelError(f'Model {repr(self)} Got {e}') from e
+        except VisitScheduleError as e:
             raise EnrollmentModelError(f'Model {repr(self)} Got {e}') from e
         super().save(*args, **kwargs)
 

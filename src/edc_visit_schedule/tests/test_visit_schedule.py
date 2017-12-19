@@ -2,12 +2,13 @@ from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_base.utils import get_utcnow
+from uuid import uuid4
 
 from ..disenrollment_validator import DisenrollmentError
 from ..model_mixins import EnrollmentModelError
-from ..validator import ValidatorMetaValueError
 from ..schedule import Schedule, ScheduleAppointmentModelError
 from ..site_visit_schedules import site_visit_schedules
+from ..validator import ValidatorMetaValueError
 from ..visit import Crf, FormsCollectionError
 from ..visit_schedule import VisitSchedule, VisitScheduleError, ModelsCollectionError
 from ..visit_schedule import VisitScheduleNameError, AlreadyRegisteredSchedule
@@ -237,6 +238,7 @@ class TestVisitSchedule3(TestCase):
     def test_can_create_disenrollment_with_enrollment(self):
         Enrollment.objects.create(
             subject_identifier='1',
+            consent_identifier=uuid4(),
             report_datetime=get_utcnow())
         try:
             Disenrollment.objects.create(
@@ -254,6 +256,7 @@ class TestVisitSchedule3(TestCase):
     def test_cannot_create_disenrollment_before_enrollment(self):
         Enrollment.objects.create(
             subject_identifier='1',
+            consent_identifier=uuid4(),
             report_datetime=get_utcnow() - relativedelta(months=1))
         self.assertRaises(
             DisenrollmentError,
@@ -264,6 +267,7 @@ class TestVisitSchedule3(TestCase):
     def test_cannot_create_disenrollment_before_last_visit(self):
         Enrollment.objects.create(
             subject_identifier='1',
+            consent_identifier=uuid4(),
             report_datetime=get_utcnow() - relativedelta(months=1))
         SubjectVisit.objects.create(
             subject_identifier='1',
@@ -277,6 +281,7 @@ class TestVisitSchedule3(TestCase):
     def test_can_create_disenrollment_without_last_visit(self):
         Enrollment.objects.create(
             subject_identifier='1',
+            consent_identifier=uuid4(),
             report_datetime=get_utcnow() - relativedelta(months=1))
         try:
             Disenrollment.objects.create(
@@ -290,7 +295,9 @@ class TestVisitSchedule3(TestCase):
         be provided explicitly.
         """
         obj = Enrollment.objects.create(
-            subject_identifier='111111', is_eligible=True)
+            subject_identifier='111111',
+            consent_identifier=uuid4(),
+            is_eligible=True)
         self.assertEqual(obj.visit_schedule_name, self.visit_schedule.name)
         self.assertEqual(obj.schedule_name, self.schedule.name)
 

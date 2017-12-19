@@ -47,19 +47,20 @@ class SiteVisitSchedules:
         self.loaded = True
         if not visit_schedule.schedules:
             raise SiteVisitScheduleError(
-                f'Visit schedule {visit_schedule} has no schedules. Add one before registering.')
+                f'Visit schedule {visit_schedule} has no schedules. '
+                f'Add one before registering.')
         if visit_schedule.name not in self.registry:
             self.registry.update({visit_schedule.name: visit_schedule})
         else:
             raise AlreadyRegisteredVisitSchedule(
-                'Visit Schedule {} is already registered.'.format(
-                    visit_schedule))
+                f'Visit Schedule {visit_schedule} is already registered.')
 
     def get_visit_schedule(self, visit_schedule_name=None, **kwargs):
         """Returns a visit schedule instance or raises.
         """
         if not self.loaded:
-            raise SiteVisitScheduleError('Registry is not loaded.')
+            raise SiteVisitScheduleError(
+                f'Registry is not loaded. See {repr(self)}.')
         visit_schedule = None
         if visit_schedule_name:
             visit_schedule = self.registry.get(
@@ -68,7 +69,7 @@ class SiteVisitSchedules:
                 keys = '\', \''.join(self.registry.keys())
                 raise SiteVisitScheduleError(
                     f'Invalid visit schedule name. Got \'{visit_schedule_name}\'. '
-                    f'Expected one of \'{keys}\'.')
+                    f'Expected one of \'{keys}\'. See {repr(self)}.')
         return visit_schedule
 
     def get_visit_schedules(self, visit_schedule_name=None, **kwargs):
@@ -77,7 +78,8 @@ class SiteVisitSchedules:
         If visit_schedule_name not specified, returns all visit schedules.
         """
         if not self.loaded:
-            raise SiteVisitScheduleError('Registry is not loaded.')
+            raise SiteVisitScheduleError(
+                f'Registry is not loaded. See {repr(self)}.')
         if visit_schedule_name:
             visit_schedule_name = visit_schedule_name.split('.')[0]
             return dict(
@@ -91,7 +93,8 @@ class SiteVisitSchedules:
         model class or meta.visit_schedule_name.
         """
         if not self.loaded:
-            raise SiteVisitScheduleError('Registry is not loaded.')
+            raise SiteVisitScheduleError(
+                f'Registry is not loaded. See {repr(self)}.')
         schedule = None
         if not schedule_name:
             try:
@@ -114,7 +117,8 @@ class SiteVisitSchedules:
         visit_schedule_name.
         """
         if not self.loaded:
-            raise SiteVisitScheduleError('Registry is not loaded.')
+            raise SiteVisitScheduleError(
+                f'Registry is not loaded. See {repr(self)}.')
         visit_schedule = self.get_visit_schedule(
             visit_schedule_name=visit_schedule_name)
         return visit_schedule.get_schedules(schedule_name=schedule_name)
@@ -137,9 +141,10 @@ class SiteVisitSchedules:
             visit_schedule_names = [visit_schedule_names]
         for visit_schedule_name in visit_schedule_names:
             schedule_names.extend(
-                ['{}.{}'.format(visit_schedule_name, schedule_name)
+                [f'{visit_schedule_name}.{schedule_name}'
                  for schedule_name in list(
-                     self.get_visit_schedule(visit_schedule_name=visit_schedule_name).schedules.keys())])
+                     self.get_visit_schedule(
+                         visit_schedule_name=visit_schedule_name).schedules.keys())])
         schedule_names.sort()
         return schedule_names
 

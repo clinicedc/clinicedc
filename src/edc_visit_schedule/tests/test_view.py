@@ -1,6 +1,7 @@
 from django.test import TestCase, tag
 from django.views.generic.base import ContextMixin
 from django.test.client import RequestFactory
+from uuid import uuid4
 
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules
@@ -71,14 +72,16 @@ class TestViewMixin(TestCase):
 
     def test_context_enrolled(self):
         obj = Enrollment.objects.create(
-            subject_identifier=self.subject_identifier)
+            subject_identifier=self.subject_identifier,
+            consent_identifier=uuid4())
         context = self.view.get_context_data()
         self.assertEqual(context.get('visit_schedules'), [self.visit_schedule])
         self.assertEqual(context.get('enrollment_models'), [obj])
 
     def test_context_enrolled_current(self):
         obj = Enrollment.objects.create(
-            subject_identifier=self.subject_identifier)
+            subject_identifier=self.subject_identifier,
+            consent_identifier=uuid4())
         context = self.view_current.get_context_data()
         self.assertEqual(context.get('current_enrollment_model'), obj)
         obj = context.get('current_enrollment_model')
