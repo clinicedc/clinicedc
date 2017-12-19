@@ -86,10 +86,12 @@ class TestAppointmentCreator(TestCase):
         self.assertEqual(
             Appointment.objects.all()[0], appointment)
         self.assertEqual(
-            Appointment.objects.all()[0].appt_datetime, Arrow.fromdatetime(datetime(2017, 1, 3)).datetime)
+            Appointment.objects.all()[0].appt_datetime,
+            Arrow.fromdatetime(datetime(2017, 1, 3)).datetime)
 
     @override_settings(
-        HOLIDAY_FILE=os.path.join(settings.BASE_DIR, settings.APP_NAME, 'tests', 'no_holidays.csv'))
+        HOLIDAY_FILE=os.path.join(
+            settings.BASE_DIR, settings.APP_NAME, 'tests', 'no_holidays.csv'))
     def test_create_no_holidays(self):
         for i in range(1, 7):
             appt_datetime = Arrow.fromdatetime(datetime(2017, 1, i)).datetime
@@ -112,7 +114,8 @@ class TestAppointmentCreator(TestCase):
         self.assertEqual(
             Appointment.objects.all()[0], appointment)
         self.assertEqual(
-            Appointment.objects.all()[0].appt_datetime, Arrow.fromdatetime(datetime(2017, 1, 3)).datetime)
+            Appointment.objects.all()[0].appt_datetime,
+            Arrow.fromdatetime(datetime(2017, 1, 3)).datetime)
 
     def test_create_reverse(self):
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 4)).datetime
@@ -124,7 +127,8 @@ class TestAppointmentCreator(TestCase):
         self.assertEqual(
             Appointment.objects.all()[0], appointment)
         self.assertEqual(
-            Appointment.objects.all()[0].appt_datetime, Arrow.fromdatetime(datetime(2017, 1, 3)).datetime)
+            Appointment.objects.all()[0].appt_datetime,
+            Arrow.fromdatetime(datetime(2017, 1, 3)).datetime)
 
     def test_raise_on_naive_datetime(self):
         appt_datetime = datetime(2017, 1, 1)

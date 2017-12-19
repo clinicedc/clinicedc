@@ -1,4 +1,5 @@
 from django.test import TestCase, tag
+
 from ..appointment_config import AppointmentConfig
 from ..models import Appointment
 from .models import SubjectVisit
