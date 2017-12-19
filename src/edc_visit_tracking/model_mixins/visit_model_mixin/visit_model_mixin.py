@@ -23,7 +23,7 @@ class VisitModelMixin(
     For example:
 
         class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin,
-                           RequiresConsentMixin, BaseUuidModel):
+                           RequiresConsentModelMixin, BaseUuidModel):
 
             appointment = models.OneToOneField('Appointment',
                                                 on_delete=PROTECT)
