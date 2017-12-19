@@ -6,7 +6,8 @@ from django.test import TestCase, tag
 from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..unscheduled_appointment_creator import InvalidParentAppointmentStatusError, InvalidParentAppointmentMissingVisitError
+from ..unscheduled_appointment_creator import InvalidParentAppointmentStatusError
+from ..unscheduled_appointment_creator import InvalidParentAppointmentMissingVisitError
 from ..unscheduled_appointment_creator import UnscheduledAppointmentCreator
 from ..unscheduled_appointment_creator import UnscheduledAppointmentNotAllowed
 from .helper import Helper

@@ -7,7 +7,8 @@ from .views import UnscheduledAppointmentView
 app_name = 'edc_appointment'
 
 urlpatterns = [
-    path('unscheduled_appointment/<subject_identifier>/<visit_schedule_name>/<schedule_name>/<visit_code>/<redirect_url>/',
+    path('unscheduled_appointment/<subject_identifier>/<visit_schedule_name>'
+         '/<schedule_name>/<visit_code>/<redirect_url>/',
          UnscheduledAppointmentView.as_view(), name='unscheduled_appointment_url'),
     path('admin/', edc_appointment_admin.urls),
     path('', RedirectView.as_view(url='admin/edc_appointment/'), name='home_url'),
