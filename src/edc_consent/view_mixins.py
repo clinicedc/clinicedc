@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.views.generic.base import ContextMixin
 from edc_base.utils import get_utcnow, get_uuid
 
-from .exceptions import ConsentDoesNotExist
+from .exceptions import ConsentObjectDoesNotExist
 from .site_consents import site_consents
 
 
@@ -46,7 +46,7 @@ class ConsentViewMixin(ContextMixin):
             consent_object = site_consents.get_consent(
                 report_datetime=self.report_datetime,
                 consent_group=default_consent_group)
-        except ConsentDoesNotExist:
+        except ConsentObjectDoesNotExist:
             consent_object = None
         return consent_object
 

@@ -1,7 +1,7 @@
 from django.db import models
 
+from .exceptions import ConsentObjectDoesNotExist
 from .site_consents import site_consents
-from .exceptions import ConsentDoesNotExist
 
 
 class ObjectConsentManager(models.Manager):
@@ -14,19 +14,21 @@ class ConsentManager(models.Manager):
 
     def first_consent(self, subject_identifier):
         """Returns the first consent in the sytem for this subject_identifier
-        by consent_datetime."""
+        by consent_datetime.
+        """
         return self.filter(subject_identifier=subject_identifier).order_by(
             'consent_datetime').first()
 
     def consent_for_period(self, subject_identifier, report_datetime):
-        """Returns a consent model instance or None."""
+        """Returns a consent model instance or None.
+        """
         subject_consent = None
         try:
             consent = site_consents.get_consent(
                 consent_model=self.model._meta.label_lower,
                 consent_group=self.model._meta.consent_group,
                 report_datetime=report_datetime)
-        except ConsentDoesNotExist:
+        except ConsentObjectDoesNotExist:
             pass
         else:
             try:

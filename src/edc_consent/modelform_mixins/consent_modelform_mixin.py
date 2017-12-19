@@ -7,8 +7,9 @@ from edc_base.utils import formatted_age, age
 from edc_constants.constants import YES, NO
 from edc_registration.models import RegisteredSubject
 
-from ..exceptions import SiteConsentError
-from ..site_consents import site_consents
+from ..consent_helper import ConsentHelper
+from ..exceptions import ConsentObjectDoesNotExist
+from ..site_consents import site_consents, SiteConsentError
 
 
 class ConsentModelFormMixin(CommonCleanModelFormMixin):
@@ -29,6 +30,20 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         self.clean_identity_and_confirm_identity()
         self.clean_identity_with_unique_fields()
         self.clean_with_registered_subject()
+
+        consent_datetime = self.cleaned_data.get(
+            'consent_datetime') or self.instance.consent_datetime
+        if consent_datetime:
+            options = dict(
+                consent_model=self._meta.model._meta.label_lower,
+                consent_group=self._meta.model._meta.consent_group,
+                report_datetime=consent_datetime)
+            consent = site_consents.get_consent(**options)
+            if consent.updates_versions:
+                ConsentHelper(
+                    model_cls=self._meta.model,
+                    update_previous=False,
+                    **self.cleaned_data)
         return cleaned_data
 
     @property
@@ -41,7 +56,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
                 consent_model=self._meta.model._meta.label_lower,
                 consent_group=self._meta.model._meta.consent_group
             )
-        except SiteConsentError as e:
+        except (ConsentObjectDoesNotExist, SiteConsentError) as e:
             raise forms.ValidationError(e)
         return consent_config
 
@@ -58,8 +73,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
             if registered_subject.dob != dob:
                 raise forms.ValidationError({
                     'dob': 'Incorrect date of birth. Based on a previous '
-                    'registration expected {}.'.format(
-                        registered_subject.dob)})
+                    f'registration expected {registered_subject.dob}.'})
 
     def clean_identity_and_confirm_identity(self):
         cleaned_data = self.cleaned_data
@@ -68,8 +82,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         if identity != confirm_identity:
             raise forms.ValidationError({
                 'identity': 'Identity mismatch. Identity must match '
-                'the confirmation field. Got {} != {}'.format(
-                    identity, confirm_identity)})
+                f'the confirmation field. Got {identity} != {confirm_identity}'})
 
     def clean_identity_with_unique_fields(self):
         cleaned_data = self.cleaned_data

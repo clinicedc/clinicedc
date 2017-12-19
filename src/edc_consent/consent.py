@@ -1,6 +1,7 @@
 import arrow
 
 from django.apps import apps as django_apps
+from pprint import pprint
 
 
 class ArrowObject:
@@ -38,23 +39,22 @@ class Consent:
                     if x.strip() != '']
 
     def __repr__(self):
-        return ('{0}(consent_model={1.model_name}, version={1.version}, '
-                '...)'.format(
-                    self.__class__.__name__, self))
+        return (f'{self.__class__.__name__}({self.model_name}, {self.version})')
 
     def __str__(self):
         return self.name
 
     @property
     def name(self):
-        return '{}-{}'.format(self.model_name, self.version)
+        return f'{self.model_name} {self.version}'
 
     @property
     def model(self):
         return django_apps.get_model(*self.model_name.split('.'))
 
     def for_datetime(self, dt):
-        """Returns True of datetime is within start/end dates."""
+        """Returns True of datetime is within start/end dates.
+        """
         dt = arrow.get(dt, dt.tzinfo).to('UTC').datetime
         return self.start <= dt <= self.end
 

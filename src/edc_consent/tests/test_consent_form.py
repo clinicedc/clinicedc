@@ -53,7 +53,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
             age_max=kwargs.get('age_max', 64),
             age_is_adult=kwargs.get('age_is_adult', 18),
         )
-        model = kwargs.get('model', 'edc_consent.tests.subjectconsent')
+        model = kwargs.get('model', 'edc_consent.subjectconsent')
         consent = Consent(model, **options)
         site_consents.register(consent)
         return consent
@@ -62,7 +62,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         """Asserts mommy defaults validate.
         """
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             dob=self.dob,
             consent_datetime=self.study_open_datetime)
         subject_consent.initials = (subject_consent.first_name[0]
@@ -71,17 +71,8 @@ class TestConsentForm(DatesTestMixin, TestCase):
         self.assertTrue(consent_form.is_valid())
 
     def test_base_form_catches_consent_datetime_before_study_open(self):
-        SubjectConsent
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
-            consent_datetime=self.study_open_datetime - relativedelta(days=1),
-            dob=self.dob)
-        data = subject_consent.__dict__
-        data['initials'] = data['first_name'][0] + data['last_name'][0]
-        consent_form = SubjectConsentForm(data=data)
-        self.assertFalse(consent_form.is_valid())
-        subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime + relativedelta(days=1),
             dob=self.dob)
         subject_consent.initials = subject_consent.first_name[
@@ -89,10 +80,18 @@ class TestConsentForm(DatesTestMixin, TestCase):
         consent_form = SubjectConsentForm(data=subject_consent.__dict__)
         self.assertTrue(consent_form.is_valid())
         self.assertIsNone(consent_form.errors.get('consent_datetime'))
+        subject_consent = mommy.prepare_recipe(
+            'edc_consent.subjectconsent',
+            consent_datetime=self.study_open_datetime - relativedelta(days=1),
+            dob=self.dob)
+        data = subject_consent.__dict__
+        data['initials'] = data['first_name'][0] + data['last_name'][0]
+        consent_form = SubjectConsentForm(data=data)
+        self.assertFalse(consent_form.is_valid())
 
     def test_base_form_identity_mismatch(self):
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         subject_consent.confirm_identity = '1'
@@ -103,12 +102,12 @@ class TestConsentForm(DatesTestMixin, TestCase):
 
     def test_base_form_identity_dupl(self):
         mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
             identity='123156788', confirm_identity='123156788')
         consent2 = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
             identity='123156788', confirm_identity='123156788')
@@ -119,7 +118,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         """Asserts form for minor is not valid without guardian name.
         """
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         subject_consent.guardian_name = None
@@ -137,7 +136,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         """Asserts form for minor is valid with guardian name.
         """
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         subject_consent.initials = subject_consent.first_name[
@@ -155,7 +154,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         """Asserts form for adult is valid.
         """
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         subject_consent.initials = subject_consent.first_name[
@@ -173,7 +172,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         specified.
         """
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         subject_consent.initials = subject_consent.first_name[
@@ -189,7 +188,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
 
     def test_base_form_catches_dob_lower(self):
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob + relativedelta(years=25))
         subject_consent.initials = subject_consent.first_name[
@@ -199,7 +198,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
 
     def test_base_form_catches_dob_upper(self):
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob - relativedelta(years=100))
         subject_consent.initials = subject_consent.first_name[
@@ -215,7 +214,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
             version='1.0',
             gender=[MALE])
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
             gender=MALE)
@@ -224,7 +223,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
             0] + subject_consent.last_name[0]
         self.assertTrue(form.is_valid())
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
             gender=FEMALE)
@@ -235,7 +234,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
 
     def test_base_form_catches_is_literate_and_witness(self):
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
             is_literate=NO,
@@ -245,7 +244,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         form = SubjectConsentForm(subject_consent.__dict__)
         self.assertFalse(form.is_valid())
         subject_consent = mommy.prepare_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
             is_literate=NO,

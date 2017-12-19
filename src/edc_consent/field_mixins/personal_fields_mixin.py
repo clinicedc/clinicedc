@@ -47,8 +47,7 @@ class PersonalFieldsMixin(CryptoMixin, models.Model):
         choices=GENDER_UNDETERMINED,
         max_length=1,
         null=True,
-        blank=False,
-    )
+        blank=False)
 
     guardian_name = LastnameField(
         verbose_name=("Guardian\'s Last and first name (minors only)"),
@@ -57,23 +56,10 @@ class PersonalFieldsMixin(CryptoMixin, models.Model):
         null=True,
         help_text=(
             'Required only if subject is a minor. Format is \'LASTNAME, FIRSTNAME\'. '
-            'All uppercase separated by a comma then followe by a space.'),
-    )
+            'All uppercase separated by a comma then followe by a space.'))
 
     subject_type = models.CharField(
-        max_length=25,
-    )
-
-    def additional_filter_options(self):
-        """Additional kwargs to filter the consent when looking
-        for the previous consent in base save.
-        """
-        options = super().additional_filter_options()
-        options.update(
-            {'first_name': self.first_name,
-             'dob': self.dob,
-             'last_name': self.last_name})
-        return options
+        max_length=25)
 
     class Meta:
         abstract = True

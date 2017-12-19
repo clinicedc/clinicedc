@@ -1,11 +1,10 @@
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, MALE, NO
-from edc_visit_tracking.constants import SCHEDULED
 from faker import Faker
 from model_mommy.recipe import Recipe, seq
 
 from .models import SubjectConsent
-from .edc_consent_provider import EdcConsentProvider
+from .tests import EdcConsentProvider
 
 fake = Faker()
 fake.add_provider(EdcConsentProvider)

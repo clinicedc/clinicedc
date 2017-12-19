@@ -5,10 +5,27 @@ from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
 
-from .exceptions import (
-    SiteConsentError, AlreadyRegistered, ConsentError, ConsentPeriodError,
-    ConsentVersionSequenceError, ConsentPeriodOverlapError, ConsentDoesNotExist)
-from edc_consent.constants import DEFAULT_CONSENT_GROUP
+from .exceptions import ConsentObjectDoesNotExist, ConsentVersionSequenceError
+
+
+class ConsentError(Exception):
+    pass
+
+
+class ConsentPeriodError(Exception):
+    pass
+
+
+class ConsentPeriodOverlapError(Exception):
+    pass
+
+
+class AlreadyRegistered(Exception):
+    pass
+
+
+class SiteConsentError(Exception):
+    pass
 
 
 class SiteConsents:
@@ -118,7 +135,7 @@ class SiteConsents:
                 consent_model=consent_model,
                 version=version)
         if not consents:
-            raise ConsentDoesNotExist(
+            raise ConsentObjectDoesNotExist(
                 f'No matching consent in site consents. Using consent '
                 f'model={consent_model}, date={report_datetime}, '
                 f'consent_group={consent_group}, version={version}. ')
@@ -224,20 +241,19 @@ class SiteConsents:
         module_name = module_name or 'consents'
         writer = sys.stdout.write if verbose else lambda x: x
         style = color_style()
-        writer(' * checking for site {} ...\n'.format(module_name))
+        writer(f' * checking for site {module_name} ...\n')
         for app in django_apps.app_configs:
-            writer(' * searching {}           \r'.format(app))
+            writer(f' * searching {app}           \r')
             try:
                 mod = import_module(app)
                 try:
                     before_import_registry = copy.copy(site_consents.registry)
-                    import_module('{}.{}'.format(app, module_name))
+                    import_module(f'{app}.{module_name}')
                     writer(
-                        ' * registered consents \'{}\' from \'{}\'\n'.format(
-                            module_name, app))
+                        f' * registered consents \'{module_name}\' from \'{app}\'\n')
                 except ConsentError as e:
-                    writer('   - loading {}.consents ... '.format(app))
-                    writer(style.ERROR('ERROR! {}\n'.format(str(e))))
+                    writer(f'   - loading {app}.consents ... ')
+                    writer(style.ERROR(f'ERROR! {e}\n'))
                 except ImportError as e:
                     site_consents.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
@@ -246,8 +262,8 @@ class SiteConsents:
                 pass
             except Exception as e:
                 raise SiteConsentError(
-                    'An {} was raised when loading site_consents. Got '
-                    '{}.'.format(e.__class__.__name__, str(e)))
+                    f'An {e.__class__.__name__} was raised when loading '
+                    f'site_consents. Got {e}.')
 
 
 site_consents = SiteConsents()
