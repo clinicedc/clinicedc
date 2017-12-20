@@ -125,6 +125,13 @@ class Schedule:
         except ValidatorLookupError as e:
             raise ScheduleModelError(f'{repr(self)} raised {e}')
 
+    def get_onschedule(self, subject_identifier=None):
+        """Returns the onschedule model instance for this
+        subject_identifier.
+        """
+        onschedule_model_cls = django_apps.get_model(self.onschedule_model)
+        return onschedule_model_cls.objects.get(subject_identifier=subject_identifier)
+
     def put_on_schedule(self, onschedule_datetime=None, **kwargs):
         """Puts a subject onto this schedule.
         """
@@ -153,6 +160,7 @@ class Schedule:
         subject_schedule.take_off_schedule(
             offschedule_model=self.offschedule_model,
             offschedule_datetime=offschedule_datetime)
+        # clear future appointments
         appointment_model_cls = django_apps.get_model(self.appointment_model)
         appointment_model_cls.objects.delete_for_subject_after_date(
             subject_identifier, offschedule_datetime)

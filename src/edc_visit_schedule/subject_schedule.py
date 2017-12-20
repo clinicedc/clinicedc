@@ -28,6 +28,11 @@ class SubjectSchedule:
         self.subject_identifier = subject_identifier
         self.consent_identifier = consent_identifier
 
+    def get_onschedule(self):
+        obj = self.onschedule_model_cls.objects.get(
+            subject_identifier=self.subject_identifier)
+        return obj
+
     def put_on_schedule(self, onschedule_datetime=None):
         """Returns an on-schedule model instance by get or create.
         """
@@ -48,6 +53,9 @@ class SubjectSchedule:
     def take_off_schedule(self, offschedule_model=None, offschedule_model_cls=None,
                           offschedule_datetime=None):
         offschedule_datetime = offschedule_datetime or get_utcnow()
+        obj = self.onschedule_model_cls.objects.get(
+            subject_identifier=self.subject_identifier)
+        consent_identifier = obj.consent_identifier
         if not offschedule_model_cls and offschedule_model:
             offschedule_model_cls = django_apps.get_model(
                 offschedule_model)
@@ -58,7 +66,7 @@ class SubjectSchedule:
             self.consented_or_raise()
             obj = offschedule_model_cls.objects.create(
                 subject_identifier=self.subject_identifier,
-                consent_identifier=self.consent_identifier,
+                consent_identifier=consent_identifier,
                 offschedule_datetime=offschedule_datetime)
         return obj
 

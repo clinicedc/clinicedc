@@ -18,6 +18,13 @@ class OnScheduleModelError(Exception):
     pass
 
 
+class OnScheduleModelManager(models.Manager):
+
+    def get_by_natural_key(self, subject_identifier):
+        return self.get(
+            subject_identifier=subject_identifier)
+
+
 class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin,
                            SubjectScheduleModelMixin, models.Model):
     """A model mixin for a schedule's onschedule model.
@@ -28,6 +35,11 @@ class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin,
             datetime_not_before_study_start,
             datetime_not_future],
         default=get_utcnow)
+
+    objects = OnScheduleModelManager()
+
+    def natural_key(self):
+        return (self.subject_identifier)
 
     def save(self, *args, **kwargs):
         if not self._meta.consent_model:
