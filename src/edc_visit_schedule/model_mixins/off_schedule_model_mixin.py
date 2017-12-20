@@ -34,6 +34,10 @@ class OffScheduleModelMixin(NonUniqueSubjectIdentifierFieldMixin,
             schedule_name=self._meta.visit_schedule_name.split('.')[1])
         super().save(*args, **kwargs)
 
+    @property
+    def report_datetime(self):
+        return self.offschedule_datetime
+
     class Meta:
         abstract = True
         visit_schedule_name = None

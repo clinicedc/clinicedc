@@ -1,4 +1,5 @@
 from django.test import TestCase, tag
+from django.core.exceptions import ObjectDoesNotExist
 from uuid import uuid4
 
 from ..subject_schedule import SubjectSchedule, SubjectScheduleError
@@ -6,7 +7,7 @@ from ..subject_schedule_history import SubjectScheduleHistory
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..visit_schedule import VisitSchedule
-from .models import OnScheduleTwo, SubjectConsent
+from .models import OnScheduleTwo, SubjectConsent, OnSchedule, OffSchedule
 
 
 class TestSubjectSchedule(TestCase):
@@ -59,7 +60,6 @@ class TestSubjectSchedule(TestCase):
             subject_identifier=self.subject_identifier)
         self.consent_identifier = obj.consent_identifier
 
-    @tag('1')
     def test_history(self):
         history = SubjectScheduleHistory()
         self.assertFalse(history.history)
@@ -82,8 +82,7 @@ class TestSubjectSchedule(TestCase):
         subject_schedule = SubjectSchedule(
             onschedule_model_cls=OnScheduleTwo,
             subject_identifier=self.subject_identifier,
-            consent_identifier=uuid4(),
-            eligible=True)
+            consent_identifier=uuid4())
         obj = subject_schedule.put_on_schedule()
         history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
@@ -96,14 +95,12 @@ class TestSubjectSchedule(TestCase):
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
         obj1 = subject_schedule.put_on_schedule()
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onschedulefour',
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
         obj2 = subject_schedule.put_on_schedule()
         history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
@@ -115,8 +112,7 @@ class TestSubjectSchedule(TestCase):
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
         subject_schedule.put_on_schedule()
         history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
@@ -130,14 +126,12 @@ class TestSubjectSchedule(TestCase):
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
         subject_schedule.put_on_schedule()
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onschedulefour',
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
         subject_schedule.put_on_schedule()
         history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
@@ -149,16 +143,14 @@ class TestSubjectSchedule(TestCase):
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
         obj = subject_schedule.put_on_schedule()
         for i in range(0, 5):
             SubjectConsent.objects.create(subject_identifier=str(i))
             SubjectSchedule(
                 onschedule_model='edc_visit_schedule.onschedulefour',
                 subject_identifier=str(i),
-                consent_identifier=uuid4(),
-                eligible=True)
+                consent_identifier=uuid4())
             subject_schedule.put_on_schedule()
         history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
@@ -170,14 +162,12 @@ class TestSubjectSchedule(TestCase):
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
         subject_schedule.put_on_schedule()
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onschedulefour',
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
         subject_schedule.put_on_schedule()
         self.assertRaises(
             SiteVisitScheduleError,
@@ -191,14 +181,12 @@ class TestSubjectSchedule(TestCase):
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
         subject_schedule.put_on_schedule()
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onschedulefour',
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
         subject_schedule.put_on_schedule()
         history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier,
@@ -211,8 +199,7 @@ class TestSubjectSchedule(TestCase):
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier='ABCDEF',
-            consent_identifier=uuid4(),
-            eligible=True)
+            consent_identifier=uuid4())
         self.assertRaises(
             SubjectScheduleError,
             subject_schedule.put_on_schedule)
@@ -232,8 +219,7 @@ class TestSubjectSchedule(TestCase):
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=subject_identifier,
-            consent_identifier=uuid4(),
-            eligible=True)
+            consent_identifier=uuid4())
         try:
             subject_schedule.put_on_schedule()
         except SubjectScheduleError:
@@ -245,16 +231,37 @@ class TestSubjectSchedule(TestCase):
         subject_schedule = SubjectSchedule(
             onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
         subject_schedule.put_on_schedule()
         subject_schedule.resave()
 
-    def test_put_on_schedule_on_schedule(self):
+    def test_put_on_schedule(self):
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            visit_schedule_name='visit_schedule')
+        schedule = visit_schedule.schedules.get('schedule')
+        self.assertRaises(
+            ObjectDoesNotExist,
+            OnSchedule.objects.get,
+            subject_identifier=self.subject_identifier)
+        schedule.put_on_schedule(
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier)
+        try:
+            OnSchedule.objects.get(subject_identifier=self.subject_identifier)
+        except ObjectDoesNotExist:
+            self.fail('ObjectDoesNotExist unexpectedly raised')
+
+    def test_take_off_schedule(self):
         visit_schedule = site_visit_schedules.get_visit_schedule(
             visit_schedule_name='visit_schedule')
         schedule = visit_schedule.schedules.get('schedule')
         schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
-            consent_identifier=self.consent_identifier,
-            eligible=True)
+            consent_identifier=self.consent_identifier)
+        schedule.take_off_schedule(
+            subject_identifier=self.subject_identifier,
+            consent_identifier=self.consent_identifier)
+        try:
+            OffSchedule.objects.get(subject_identifier=self.subject_identifier)
+        except ObjectDoesNotExist:
+            self.fail('ObjectDoesNotExist unexpectedly raised')

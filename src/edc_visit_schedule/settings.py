@@ -40,10 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
+    'edc_appointment.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_timepoint.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
+    'edc_visit_schedule.apps.EdcFacilityAppConfig',
     'edc_visit_schedule.apps.AppConfig',
 ]
 
@@ -129,6 +131,7 @@ STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
 KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 DEFAULT_APPOINTMENT_MODEL = 'edc_appointment.appointment'
+COUNTRY = 'botswana'
 
 if 'test' in sys.argv:
 

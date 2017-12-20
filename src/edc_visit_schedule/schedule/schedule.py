@@ -2,6 +2,7 @@ import re
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from edc_base import get_utcnow
 
 from ..subject_schedule import SubjectSchedule
 from ..validator import Validator, ValidatorLookupError
@@ -69,7 +70,6 @@ class Schedule:
                     f'Invalid appointment model for schedule {repr(self)}. '
                     f'Got None. Either declare on the Schedule or in '
                     f'settings.DEFAULT_APPOINTMENT_MODEL.')
-
         if validate:
             self.validate()
 
@@ -125,12 +125,14 @@ class Schedule:
         except ValidatorLookupError as e:
             raise ScheduleModelError(f'{repr(self)} raised {e}')
 
-    def put_on_schedule(self, **kwargs):
+    def put_on_schedule(self, onschedule_datetime=None, **kwargs):
         """Puts a subject onto this schedule.
         """
+        onschedule_datetime = onschedule_datetime or get_utcnow()
         subject_schedule = self.subject_schedule_cls(
             onschedule_model=self.onschedule_model, **kwargs)
-        subject_schedule.put_on_schedule()
+        subject_schedule.put_on_schedule(
+            onschedule_datetime=onschedule_datetime)
 
     def refresh_schedule(self, **kwargs):
         """Resaves the onschedule model to, for example, refresh
@@ -140,10 +142,17 @@ class Schedule:
             onschedule_model=self.onschedule_model, **kwargs)
         subject_schedule.resave()
 
-    def take_off_schedule(self, **kwargs):
-        """Takes a subject off of this schedule.
+    def take_off_schedule(self, offschedule_datetime=None, subject_identifier=None, **kwargs):
+        """Takes a subject off of this schedule and deletes any
+        appointments with appt_datetime after the offschedule datetime.
         """
+        offschedule_datetime = offschedule_datetime or get_utcnow()
         subject_schedule = self.subject_schedule_cls(
+            subject_identifier=subject_identifier,
             onschedule_model=self.onschedule_model, **kwargs)
         subject_schedule.take_off_schedule(
-            offschedule_model=self.offschedule_model, **kwargs)
+            offschedule_model=self.offschedule_model,
+            offschedule_datetime=offschedule_datetime)
+        appointment_model_cls = django_apps.get_model(self.appointment_model)
+        appointment_model_cls.objects.delete_for_subject_after_date(
+            subject_identifier, offschedule_datetime)

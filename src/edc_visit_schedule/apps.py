@@ -25,7 +25,6 @@ if settings.APP_NAME == 'edc_visit_schedule':
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
-        country = 'botswana'
         definitions = {
             'default': dict(days=[MO, TU, WE, TH, FR],
                             slots=[100, 100, 100, 100, 100])}

@@ -307,8 +307,7 @@ class TestVisitSchedule3(TestCase):
         """
         obj = OnSchedule.objects.create(
             subject_identifier='111111',
-            consent_identifier=uuid4(),
-            is_eligible=True)
+            consent_identifier=uuid4())
         self.assertEqual(obj.visit_schedule_name, self.visit_schedule.name)
         self.assertEqual(obj.schedule_name, self.schedule.name)
 

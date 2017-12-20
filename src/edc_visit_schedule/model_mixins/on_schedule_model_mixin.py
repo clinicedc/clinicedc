@@ -29,10 +29,6 @@ class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin,
             datetime_not_future],
         default=get_utcnow)
 
-    is_eligible = models.BooleanField(
-        default=False,
-        editable=False)
-
     def save(self, *args, **kwargs):
         if not self._meta.consent_model:
             raise OnScheduleModelError(
@@ -43,6 +39,10 @@ class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin,
                 'Visit schedule name attribute not set on Meta. Got '
                 f'\'{self._meta.label_lower}.visit_schedule_name\' = None')
         super().save(*args, **kwargs)
+
+    @property
+    def report_datetime(self):
+        return self.onschedule_datetime
 
     class Meta:
         abstract = True
