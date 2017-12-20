@@ -26,6 +26,8 @@ class SchedulesCollection(OrderedCollection):
                     schedule = item
                 elif item.disenrollment_model == model:
                     schedule = item
+                if schedule:
+                    break
         elif schedule_name:
             schedule = self.get(schedule_name)
         if not schedule:

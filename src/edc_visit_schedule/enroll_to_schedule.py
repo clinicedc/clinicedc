@@ -28,30 +28,37 @@ class EnrollToSchedule:
         self.subject_identifier = subject_identifier
         self.consent_identifier = consent_identifier
         self.eligible = eligible
-        # force create of enrollment model instance
-        self.object
 
-    @property
-    def object(self):
-        if not self._object:
-            try:
-                self._object = self.enrollment_model_cls.objects.get(
-                    subject_identifier=self.subject_identifier,
-                    visit_schedule_name=self.enrollment_model_cls._meta.visit_schedule_name)
-            except ObjectDoesNotExist:
-                self.consented_or_raise()
-                self._object = self.enrollment_model_cls.objects.create(
-                    subject_identifier=self.subject_identifier,
-                    consent_identifier=self.consent_identifier,
-                    is_eligible=self.eligible,
-                    report_datetime=self.report_datetime,
-                    visit_schedule_name=self.enrollment_model_cls._meta.visit_schedule_name)
-        return self._object
+    def enroll(self):
+        """Returns an enrollment model instance by get or create.
+        """
+        try:
+            obj = self.enrollment_model_cls.objects.get(
+                subject_identifier=self.subject_identifier)
+        except ObjectDoesNotExist:
+            self.consented_or_raise()
+            obj = self.enrollment_model_cls.objects.create(
+                subject_identifier=self.subject_identifier,
+                consent_identifier=self.consent_identifier,
+                is_eligible=self.eligible,
+                report_datetime=self.report_datetime)
+        return obj
+
+    def unenroll(self):
+        pass
 
     def update(self):
-        self.object.save()
+        """Resaves the enrollment instance to trigger, for example,
+        appointment creation (if using edc_appointment mixin).
+        """
+        obj = self.enrollment_model_cls.objects.get(
+            subject_identifier=self.subject_identifier)
+        obj.save()
 
     def consented_or_raise(self):
+        """Raises an EnrollToScheduleError exception if one or
+        more consents do not exist.
+        """
         consent_model_cls = django_apps.get_model(
             self.enrollment_model_cls._meta.consent_model)
         try:

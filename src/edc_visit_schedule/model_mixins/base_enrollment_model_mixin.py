@@ -8,7 +8,6 @@ from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..visit_schedule import VisitScheduleError
 from .visit_schedule_model_mixins import VisitScheduleFieldsModelMixin
 from .visit_schedule_model_mixins import VisitScheduleMethodsModelMixin
-from .visit_schedule_model_mixins import VisitScheduleMetaMixin
 
 
 class EnrollmentModelError(Exception):
@@ -29,7 +28,12 @@ class BaseEnrollmentModelMixin(
         default=get_utcnow)
 
     def __str__(self):
-        return self.subject_identifier
+        s = f'{self.subject_identifier}'
+        if self.visit_schedule_name:
+            s = f'{s} {self.visit_schedule_name}'
+            if self.schedule_name:
+                s = f'{s}.{self.schedule_name}'
+        return s
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -66,7 +70,7 @@ class BaseEnrollmentModelMixin(
                 self.visit_schedule_name,
                 self.schedule_name)
 
-    class Meta(VisitScheduleMetaMixin.Meta):
+    class Meta:
         abstract = True
         unique_together = (
             'subject_identifier', 'visit_schedule_name', 'schedule_name')

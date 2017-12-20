@@ -1,11 +1,12 @@
 import re
 
 from django.apps import apps as django_apps
+from django.conf import settings
 
+from ..enroll_to_schedule import EnrollToSchedule
 from ..validator import Validator, ValidatorLookupError
 from ..visit import Visit
 from .visit_collection import VisitCollection
-from django.conf import settings
 
 
 class ScheduleModelError(Exception):
@@ -37,6 +38,7 @@ class Schedule:
     visit_cls = Visit
     visit_collection_cls = VisitCollection
     model_validator_cls = Validator
+    enroll_to_schedule_cls = EnrollToSchedule
 
     def __init__(self, name=None, title=None, sequence=None, enrollment_model=None,
                  disenrollment_model=None, validate=None, appointment_model=None,
@@ -122,3 +124,8 @@ class Schedule:
                 visit_schedule_name=visit_schedule_name).validated_model
         except ValidatorLookupError as e:
             raise ScheduleModelError(f'{repr(self)} raised {e}')
+
+    def enroll(self, **kwargs):
+        enroll_to_schedule = self.enroll_to_schedule_cls(
+            enrollment_model=self.enrollment_model, **kwargs)
+        enroll_to_schedule.enroll()

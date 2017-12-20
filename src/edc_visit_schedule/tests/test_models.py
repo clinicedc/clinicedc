@@ -25,6 +25,7 @@ class ModelD(EnrollmentModelMixin, BaseUuidModel):
 class ModelE(EnrollmentModelMixin, BaseUuidModel):
 
     class Meta(EnrollmentModelMixin.Meta):
+        consent_model = 'edc_visit_schedule.subjectconsent'
         visit_schedule_name = 'visit_schedule_blah.schedule_blah'
 
 

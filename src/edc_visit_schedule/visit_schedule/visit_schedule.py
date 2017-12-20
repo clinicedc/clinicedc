@@ -79,13 +79,20 @@ class VisitSchedule:
             raise VisitScheduleError(e) from e
 
     def get_schedules(self, schedule_name=None, **kwargs):
-        """Returns a dictionary of schedules.
+        """Returns a dictionary of schedules or raises.
         """
         if schedule_name:
             schedules = {
-                schedule_name: self.get_schedule(schedule_name=schedule_name, **kwargs)}
+                k: v for k, v in self.schedules.items() if k == schedule_name}
         else:
             schedules = self.schedules
+        if not schedules:
+            kwargs['schedule_name'] = schedule_name
+            raise VisitScheduleError(
+                f'Not found in Visit Schedule. No valid "schedules" in '
+                f'Visit Schedule \'{self.name}\' '
+                f'exist for this criteria. Valid schedules are {self.schedules}. '
+                f'Got {kwargs}.')
         return schedules
 
     def add_schedule(self, schedule=None):

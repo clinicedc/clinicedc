@@ -1,7 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from pprint import pprint
+from .site_visit_schedules import site_visit_schedules
 
 
 class EnrolledSubject:
@@ -24,9 +23,12 @@ class EnrolledSubject:
             visit_schedule_name=visit_schedule_name)
 
         for visit_schedule in visit_schedules.values():
-            schedules = site_visit_schedules.get_schedules(
-                visit_schedule_name=visit_schedule.name,
-                schedule_name=schedule_name)
+            if schedule_name:
+                schedules = {
+                    k: v for k, v in visit_schedule.schedules.items()
+                    if k == schedule_name}
+            else:
+                schedules = visit_schedule.schedules
             for schedule in schedules.values():
                 try:
                     obj = schedule.enrollment_model_cls.objects.get(
