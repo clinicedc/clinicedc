@@ -3,17 +3,17 @@ from django.core.exceptions import ObjectDoesNotExist
 from .site_visit_schedules import site_visit_schedules
 
 
-class EnrolledSubject:
+class SubjectScheduleHistory:
 
-    """A class that collects all the enrollment model instances
-    for an enrolled subject.
+    """A class that collects all the on-schedule model instances
+    for a subject.
 
-    See `enrollments`
+    See `history`
     """
 
     def __init__(self, subject_identifier=None, visit_schedule_name=None,
                  schedule_name=None, **kwargs):
-        self.enrollments = []
+        self.history = []
         self.visits = []
         self.visit_schedules = {}
         self.schedules = {}
@@ -31,12 +31,12 @@ class EnrolledSubject:
                 schedules = visit_schedule.schedules
             for schedule in schedules.values():
                 try:
-                    obj = schedule.enrollment_model_cls.objects.get(
+                    obj = schedule.onschedule_model_cls.objects.get(
                         subject_identifier=self.subject_identifier)
                 except ObjectDoesNotExist:
                     pass
                 else:
-                    self.enrollments.append(obj)
+                    self.history.append(obj)
                     self.visit_schedules.update(
                         {visit_schedule.name: visit_schedule})
                     self.schedules.update({schedule.name: schedule})
@@ -48,4 +48,4 @@ class EnrolledSubject:
                     else:
                         self.visits.append(visit)
         self.visits.sort(key=lambda x: x.report_datetime)
-        self.enrollments.sort(key=lambda x: x.report_datetime)
+        self.history.sort(key=lambda x: x.onschedule_datetime)

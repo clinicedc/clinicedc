@@ -15,8 +15,8 @@ class TestSchedulesCollection(TestCase):
             def __init__(self, key, seq):
                 self.key = key
                 self.seq = seq
-                self.enrollment_model = 'app_label.enrollment'
-                self.disenrollment_model = 'app_label.disenrollment'
+                self.onschedule_model = 'app_label.onschedule'
+                self.offschedule_model = 'app_label.offschedule'
 
             def validate(self, visit_schedule_name=None):
                 return None
@@ -34,13 +34,13 @@ class TestSchedulesCollection(TestCase):
 
     def test_get_by_model(self):
         """Asserts can get the object using either model,
-        enrollment_model or disenrollment_model
+        onschedule_model or offschedule_model
         """
         self.assertEqual(
-            self.test_collection.get_schedule(model='app_label.enrollment'),
+            self.test_collection.get_schedule(model='app_label.onschedule'),
             self.dummy_schedule)
         self.assertEqual(
-            self.test_collection.get_schedule('app_label.enrollment'),
+            self.test_collection.get_schedule('app_label.onschedule'),
             self.dummy_schedule)
 
     def test_validate(self):

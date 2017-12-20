@@ -3,7 +3,7 @@ import re
 from django.apps import apps as django_apps
 from django.conf import settings
 
-from ..enroll_to_schedule import EnrollToSchedule
+from ..subject_schedule import SubjectSchedule
 from ..validator import Validator, ValidatorLookupError
 from ..visit import Visit
 from .visit_collection import VisitCollection
@@ -31,17 +31,17 @@ class Schedule:
 
     Is contained by a "visit schedule".
 
-    Contains an ordered dictionary of visit instances and the enrollment
-    and disenrollment models used to get on and off the schedule.
+    Contains an ordered dictionary of visit instances and the onschedule
+    and offschedule models used to get on and off the schedule.
     """
     name_regex = r'[a-z0-9\_\-]+$'
     visit_cls = Visit
     visit_collection_cls = VisitCollection
     model_validator_cls = Validator
-    enroll_to_schedule_cls = EnrollToSchedule
+    subject_schedule_cls = SubjectSchedule
 
-    def __init__(self, name=None, title=None, sequence=None, enrollment_model=None,
-                 disenrollment_model=None, validate=None, appointment_model=None,
+    def __init__(self, name=None, title=None, sequence=None, onschedule_model=None,
+                 offschedule_model=None, validate=None, appointment_model=None,
                  **kwargs):
         self.visits = self.visit_collection_cls()
         if not name or not re.match(r'[a-z0-9\_\-]+$', name):
@@ -52,12 +52,12 @@ class Schedule:
             self.name = name
         self.title = title or name
         self.sequence = sequence or name
-        if not enrollment_model:
-            raise ScheduleModelError('Invalid enrollment model. Got None')
-        self.enrollment_model = enrollment_model.lower()
-        if not disenrollment_model:
-            raise ScheduleModelError('Invalid disenrollment model. Got None')
-        self.disenrollment_model = disenrollment_model.lower()
+        if not onschedule_model:
+            raise ScheduleModelError('Invalid onschedule model. Got None')
+        self.onschedule_model = onschedule_model.lower()
+        if not offschedule_model:
+            raise ScheduleModelError('Invalid offschedule model. Got None')
+        self.offschedule_model = offschedule_model.lower()
         self.appointment_model = appointment_model
         if not self.appointment_model:
             try:
@@ -66,8 +66,8 @@ class Schedule:
                 self.appointment_model = 'edc_appointment.appointment'
             if not self.appointment_model:
                 raise ScheduleAppointmentModelError(
-                    f'Invalid appointment model for schedule {repr(self)}. Got None. '
-                    f'Either declare on the Schedule or in '
+                    f'Invalid appointment model for schedule {repr(self)}. '
+                    f'Got None. Either declare on the Schedule or in '
                     f'settings.DEFAULT_APPOINTMENT_MODEL.')
 
         if validate:
@@ -84,12 +84,12 @@ class Schedule:
         return self.name
 
     @property
-    def enrollment_model_cls(self):
-        return django_apps.get_model(self.enrollment_model)
+    def onschedule_model_cls(self):
+        return django_apps.get_model(self.onschedule_model)
 
     @property
-    def disenrollment_model_cls(self):
-        return django_apps.get_model(self.disenrollment_model)
+    def offschedule_model_cls(self):
+        return django_apps.get_model(self.offschedule_model)
 
     def add_visit(self, visit=None, **kwargs):
         """Adds a unique visit to the schedule.
@@ -106,12 +106,12 @@ class Schedule:
         return visit
 
     def validate(self, visit_schedule_name=None):
-        """Raises an exception if enrollment/disenrollment models
+        """Raises an exception if onschedule/offschedule models
         are invalid.
         """
         try:
             self.model_validator_cls(
-                model=self.enrollment_model,
+                model=self.onschedule_model,
                 schedule_name=self.name,
                 visit_schedule_name=visit_schedule_name).validated_model
         except ValidatorLookupError as e:
@@ -119,13 +119,31 @@ class Schedule:
 
         try:
             self.model_validator_cls(
-                model=self.disenrollment_model,
+                model=self.offschedule_model,
                 schedule_name=self.name,
                 visit_schedule_name=visit_schedule_name).validated_model
         except ValidatorLookupError as e:
             raise ScheduleModelError(f'{repr(self)} raised {e}')
 
-    def enroll(self, **kwargs):
-        enroll_to_schedule = self.enroll_to_schedule_cls(
-            enrollment_model=self.enrollment_model, **kwargs)
-        enroll_to_schedule.enroll()
+    def put_on_schedule(self, **kwargs):
+        """Puts a subject onto this schedule.
+        """
+        subject_schedule = self.subject_schedule_cls(
+            onschedule_model=self.onschedule_model, **kwargs)
+        subject_schedule.put_on_schedule()
+
+    def refresh_schedule(self, **kwargs):
+        """Resaves the onschedule model to, for example, refresh
+        appointments.
+        """
+        subject_schedule = self.subject_schedule_cls(
+            onschedule_model=self.onschedule_model, **kwargs)
+        subject_schedule.resave()
+
+    def take_off_schedule(self, **kwargs):
+        """Takes a subject off of this schedule.
+        """
+        subject_schedule = self.subject_schedule_cls(
+            onschedule_model=self.onschedule_model, **kwargs)
+        subject_schedule.take_off_schedule(
+            offschedule_model=self.offschedule_model, **kwargs)

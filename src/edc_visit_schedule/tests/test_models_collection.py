@@ -21,24 +21,24 @@ class TestModelsCollection(TestCase):
         self.assertEqual(
             models.subject_visit, 'edc_visit_schedule.subjectvisit')
 
-    def test_enrollment_model(self):
+    def test_onschedule_model(self):
         models = ModelsCollection()
-        models.update(enrollment_model='edc_visit_schedule.enrollment')
+        models.update(onschedule_model='edc_visit_schedule.onschedule')
         self.assertEqual(
-            models.enrollment_model, 'edc_visit_schedule.enrollment')
+            models.onschedule_model, 'edc_visit_schedule.onschedule')
 
-    def test_disenrollment_model(self):
+    def test_offschedule_model(self):
         models = ModelsCollection()
-        models.update(disenrollment_model='edc_visit_schedule.enrollment')
+        models.update(offschedule_model='edc_visit_schedule.onschedule')
         self.assertEqual(
-            models.disenrollment_model, 'edc_visit_schedule.enrollment')
+            models.offschedule_model, 'edc_visit_schedule.onschedule')
 
     def test_validate(self):
         models = ModelsCollection()
-        models.update(enrollment_model='edc_visit_schedule.enrollment')
+        models.update(onschedule_model='edc_visit_schedule.onschedule')
         models.validate()
 
     def test_validate_bad(self):
         models = ModelsCollection()
-        models.update(enrollment_model='edc_visit_schedule.blah')
+        models.update(onschedule_model='edc_visit_schedule.blah')
         self.assertRaises(ModelsCollectionError, models.validate)

@@ -34,7 +34,7 @@ class VisitSchedule:
     models_collection = ModelsCollection
 
     def __init__(self, name=None, verbose_name=None, previous_visit_schedule=None,
-                 enrollment_model=None, disenrollment_model=None,
+                 onschedule_model=None, offschedule_model=None,
                  visit_model=None, death_report_model=None, offstudy_model=None,
                  appointment_model=None,
                  **kwargs):
@@ -50,8 +50,8 @@ class VisitSchedule:
                 f'Visit schedule name may only contain {self.name_regex_msg}. Got {name}')
         self.title = self.verbose_name = verbose_name or ' '.join(
             [s.capitalize() for s in name.split('_')])
-        self.models.update(enrollment_model=enrollment_model)
-        self.models.update(disenrollment_model=disenrollment_model)
+        self.models.update(onschedule_model=onschedule_model)
+        self.models.update(offschedule_model=offschedule_model)
         self.models.update(visit_model=visit_model)
         self.models.update(death_report_model=death_report_model)
         self.models.update(offstudy_model=offstudy_model)
@@ -98,16 +98,16 @@ class VisitSchedule:
     def add_schedule(self, schedule=None):
         """Adds a schedule, if not already added.
 
-        Note: Meta (visit_schedule_name.schedule_name) on enroll/disenrollment models must
-        match this object's visit_schedule_name.
+        Note: Meta (visit_schedule_name.schedule_name) on onschedule/offschedule
+        models must match this object's visit_schedule_name.
         """
         if schedule.name in self.schedules:
             raise AlreadyRegisteredSchedule(
                 f'Schedule \'{schedule.name}\' is already registered. See \'{self}\'')
-        schedule.enrollment_model = (
-            schedule.enrollment_model or self.models.enrollment_model)
-        schedule.disenrollment_model = (
-            schedule.disenrollment_model or self.models.disenrollment_model)
+        schedule.onschedule_model = (
+            schedule.onschedule_model or self.models.onschedule_model)
+        schedule.offschedule_model = (
+            schedule.offschedule_model or self.models.offschedule_model)
         if not schedule.appointment_model:
             raise VisitScheduleAppointmentModelError(
                 f'Invalid appointment model for schedule {repr(schedule)}. '

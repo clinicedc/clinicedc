@@ -10,11 +10,11 @@ class ModelsCollectionError(Exception):
 class ModelsCollection(OrderedDict):
 
     model_validator_cls = Validator
-    enrollment_model_required_fields = [
-        'report_datetime', 'visit_schedule_name', 'schedule_name']
+    onschedule_model_required_fields = [
+        'onschedule_datetime', 'visit_schedule_name', 'schedule_name']
 
-    enrollment_model = None
-    disenrollment_model = None
+    onschedule_model = None
+    offschedule_model = None
 
     def __init__(self, visit_schedule_name=None, *args, **kwargs):
         self.visit_schedule_name = visit_schedule_name
@@ -38,15 +38,16 @@ class ModelsCollection(OrderedDict):
         """
         for key, model in self.items():
             if model:
-                if key in ['enrollment_model', 'disenrollment_model']:
+                if key in ['onschedule_model', 'offschedule_model']:
                     validator = self.model_validator_cls(
                         model=model,
                         visit_schedule_name=self.visit_schedule_name,
-                        required_fields=self.enrollment_model_required_fields)
+                        required_fields=self.onschedule_model_required_fields)
                 else:
                     validator = self.model_validator_cls(model=model)
                 try:
                     validator.validated_model
                 except ValidatorLookupError as e:
                     raise ModelsCollectionError(
-                        f'{e}. Got {key}={model}. Visit schedule={self.visit_schedule_name}.')
+                        f'{e}. Got {key}={model}. Visit schedule='
+                        f'{self.visit_schedule_name}.')

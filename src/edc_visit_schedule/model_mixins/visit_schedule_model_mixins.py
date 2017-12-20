@@ -2,7 +2,9 @@ from django.db import models
 from django.db.models import options
 
 
-from ..site_visit_schedules import site_visit_schedules, RegistryNotLoaded, SiteVisitScheduleError
+from ..site_visit_schedules import site_visit_schedules, RegistryNotLoaded
+from ..site_visit_schedules import SiteVisitScheduleError
+from ..visit_schedule import VisitScheduleError
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
@@ -128,5 +130,26 @@ class VisitScheduleModelMixin(VisitScheduleFieldsModelMixin,
                    'appointments relative to the base appointment, 0, needed '
                    'to complete data collection for the timepoint. (NNNN.0)'))
 
+    def save(self, *args, **kwargs):
+        # set field attrs
+        self.visit_schedule_name, self.schedule_name = (
+            self._meta.visit_schedule_name.split('.'))
+        # Asserts model's visit schedule/schedule is
+        # registered/added or raises.
+        try:
+            visit_schedule = site_visit_schedules.get_visit_schedule(
+                visit_schedule_name=self.visit_schedule_name)
+        except (SiteVisitScheduleError, VisitScheduleError) as e:
+            raise VisitScheduleError(
+                f'Visit Schedule not found. Model {repr(self)} Got {e}') from e
+        try:
+            visit_schedule.get_schedule(
+                schedule_name=self.schedule_name)
+        except (SiteVisitScheduleError, VisitScheduleError) as e:
+            raise VisitScheduleError(
+                f'Schedule not found. Model {repr(self)} Got {e}') from e
+        super().save(*args, **kwargs)
+
     class Meta:
         abstract = True
+        visit_schedule_name = None

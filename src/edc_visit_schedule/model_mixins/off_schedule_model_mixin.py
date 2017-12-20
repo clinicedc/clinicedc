@@ -1,30 +1,35 @@
 from django.db import models
+from django.db.models import options
 from edc_base.model_validators import datetime_not_future
 from edc_base.utils import get_utcnow
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
 
-from ..disenrollment_validator import DisenrollmentValidator
-from .base_enrollment_model_mixin import BaseEnrollmentModelMixin
+from ..offschedule_validator import OffScheduleValidator
+from .subject_schedule_model_mixin import SubjectScheduleModelMixin
 
 
-class DisenrollmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
-                              BaseEnrollmentModelMixin, models.Model):
-    """A model mixin for a schedule's disenrollment model.
+if 'visit_schedule_name' not in options.DEFAULT_NAMES:
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
+
+
+class OffScheduleModelMixin(NonUniqueSubjectIdentifierFieldMixin,
+                            SubjectScheduleModelMixin, models.Model):
+    """A model mixin for a schedule's offschedule model.
     """
 
-    disenrollment_validator_cls = DisenrollmentValidator
+    offschedule_validator_cls = OffScheduleValidator
 
-    disenrollment_datetime = models.DateTimeField(
+    offschedule_datetime = models.DateTimeField(
         validators=[
             datetime_not_before_study_start,
             datetime_not_future],
         default=get_utcnow)
 
     def save(self, *args, **kwargs):
-        self.disenrollment_validator_cls(
+        self.offschedule_validator_cls(
             subject_identifier=self.subject_identifier,
-            disenrollment_datetime=self.disenrollment_datetime,
+            offschedule_datetime=self.offschedule_datetime,
             visit_schedule_name=self._meta.visit_schedule_name.split('.')[0],
             schedule_name=self._meta.visit_schedule_name.split('.')[1])
         super().save(*args, **kwargs)

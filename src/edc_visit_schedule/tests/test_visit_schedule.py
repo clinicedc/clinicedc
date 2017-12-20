@@ -4,16 +4,17 @@ from django.test.utils import override_settings
 from edc_base.utils import get_utcnow
 from uuid import uuid4
 
-from ..disenrollment_validator import DisenrollmentError
-from ..model_mixins import EnrollmentModelError
+from ..offschedule_validator import OffScheduleError
+from ..model_mixins import OnScheduleModelError
 from ..schedule import Schedule, ScheduleAppointmentModelError
 from ..site_visit_schedules import site_visit_schedules
 from ..validator import ValidatorMetaValueError
 from ..visit import Crf, FormsCollectionError
 from ..visit_schedule import VisitSchedule, VisitScheduleError, ModelsCollectionError
 from ..visit_schedule import VisitScheduleNameError, AlreadyRegisteredSchedule
-from .models import Enrollment, EnrollmentThree, EnrollmentTwo, Disenrollment
-from .models import SubjectVisit
+from .models import OnSchedule, OnScheduleThree, OnScheduleTwo, OffSchedule
+from .models import SubjectVisit, BadMetaModel2, BadMetaModel3
+from ..offschedule_validator import OffScheduleValidator
 
 
 class TestVisitSchedule(TestCase):
@@ -30,8 +31,8 @@ class TestVisitSchedule(TestCase):
             visit_model='edc_visit_schedule.subjectvisit',
             offstudy_model='edc_visit_schedule.deathreport',
             death_report_model='edc_visit_schedule.deathreport',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
 
     def test_visit_schedule_repr(self):
         """Asserts repr evaluates correctly.
@@ -43,8 +44,8 @@ class TestVisitSchedule(TestCase):
             visit_model='edc_visit_schedule.subjectvisit',
             offstudy_model='edc_visit_schedule.deathreport',
             death_report_model='edc_visit_schedule.deathreport',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
         self.assertTrue(v.__repr__())
 
     def test_visit_schedule_validates(self):
@@ -54,35 +55,35 @@ class TestVisitSchedule(TestCase):
             visit_model='edc_visit_schedule.subjectvisit',
             offstudy_model='edc_visit_schedule.subjectoffstudy',
             death_report_model='edc_visit_schedule.deathreport',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
         try:
             visit_schedule.validate()
         except VisitScheduleError as e:
             self.fail(f'VisitScheduleError unepectedly raised {e}')
 
-    def test_visit_schedule_bad_enrollment_model_raises_on_validate(self):
+    def test_visit_schedule_bad_onschedule_model_raises_on_validate(self):
         visit_schedule = VisitSchedule(
             name='visit_schedule',
             verbose_name='Visit Schedule',
             visit_model='edc_visit_schedule.subjectvisit',
             offstudy_model='edc_visit_schedule.subjectoffstudy',
             death_report_model='edc_visit_schedule.deathreport',
-            enrollment_model='blah.blah',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='blah.blah',
+            offschedule_model='edc_visit_schedule.offschedule')
         self.assertRaises(
             ModelsCollectionError,
             visit_schedule.validate)
 
-    def test_visit_schedule_bad_disenrollment_model_raises_on_validate(self):
+    def test_visit_schedule_bad_offschedule_model_raises_on_validate(self):
         visit_schedule = VisitSchedule(
             name='visit_schedule',
             verbose_name='Visit Schedule',
             visit_model='edc_visit_schedule.subjectvisit',
             offstudy_model='edc_visit_schedule.subjectoffstudy',
             death_report_model='edc_visit_schedule.deathreport',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='blah')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='blah')
         self.assertRaises(
             ModelsCollectionError,
             visit_schedule.validate)
@@ -102,20 +103,20 @@ class TestVisitSchedule2(TestCase):
 
         self.schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment',
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule',
             appointment_model='edc_appointment.appointment')
 
         self.schedule2 = Schedule(
             name='schedule_two',
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
-            disenrollment_model='edc_visit_schedule.disenrollmenttwo',
+            onschedule_model='edc_visit_schedule.onscheduletwo',
+            offschedule_model='edc_visit_schedule.offscheduletwo',
             appointment_model='edc_appointment.appointment')
 
         self.schedule3 = Schedule(
             name='schedule_three',
-            enrollment_model='edc_visit_schedule.enrollmentthree',
-            disenrollment_model='edc_visit_schedule.disenrollmentthree',
+            onschedule_model='edc_visit_schedule.onschedulethree',
+            offschedule_model='edc_visit_schedule.offschedulethree',
             appointment_model='myapp.appointment')
 
     def test_visit_schedule_add_schedule(self):
@@ -130,16 +131,16 @@ class TestVisitSchedule2(TestCase):
             ScheduleAppointmentModelError,
             Schedule,
             name='schedule_bad',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
 
     @override_settings(DEFAULT_APPOINTMENT_MODEL='myapp.appointment')
     def test_visit_schedule_add_schedule_without_appointment_model_and_settings(self):
         try:
             Schedule(
                 name='schedule_bad',
-                enrollment_model='edc_visit_schedule.enrollment',
-                disenrollment_model='edc_visit_schedule.disenrollment')
+                onschedule_model='edc_visit_schedule.onschedule',
+                offschedule_model='edc_visit_schedule.offschedule')
         except ScheduleAppointmentModelError:
             self.fail()
 
@@ -175,10 +176,10 @@ class TestVisitSchedule2(TestCase):
         self.visit_schedule.add_schedule(self.schedule)
         self.visit_schedule.add_schedule(self.schedule3)
         schedule = self.visit_schedule.get_schedule(
-            model='edc_visit_schedule.enrollment')
+            model='edc_visit_schedule.onschedule')
         self.assertEqual(schedule.name, 'schedule')
         schedule = self.visit_schedule.get_schedule(
-            model='edc_visit_schedule.enrollmentthree')
+            model='edc_visit_schedule.onschedulethree')
         self.assertEqual(schedule.name, 'schedule_three')
 
     def test_visit_schedule_get_schedules(self):
@@ -223,87 +224,105 @@ class TestVisitSchedule3(TestCase):
             visit_model='edc_visit_schedule.subjectvisit',
             offstudy_model='edc_visit_schedule.subjectoffstudy',
             death_report_model='edc_visit_schedule.deathreport',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
 
         self.schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
 
         self.visit_schedule.add_schedule(self.schedule)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule)
 
-    def test_can_create_disenrollment_with_enrollment(self):
-        Enrollment.objects.create(
+    def test_can_create_offschedule_with_onschedule(self):
+        consent_identifier = uuid4()
+        OnSchedule.objects.create(
             subject_identifier='1',
-            consent_identifier=uuid4(),
-            report_datetime=get_utcnow())
+            consent_identifier=consent_identifier,
+            onschedule_datetime=get_utcnow())
+        OffScheduleValidator(
+            subject_identifier='1',
+            offschedule_datetime=get_utcnow(),
+            visit_schedule_name='visit_schedule',
+            schedule_name='schedule',
+        )
         try:
-            Disenrollment.objects.create(
+            OffSchedule.objects.create(
                 subject_identifier='1',
-                disenrollment_datetime=get_utcnow())
+                consent_identifier=consent_identifier,
+                offschedule_datetime=get_utcnow())
         except Exception as e:
             self.fail(f'Exception unexpectedly raised. Got {e}.')
 
-    def test_cannot_create_disenrollment_without_enrollment(self):
+    def test_cannot_create_offschedule_without_onschedule(self):
         self.assertRaises(
-            DisenrollmentError,
-            Disenrollment.objects.create,
+            OffScheduleError,
+            OffSchedule.objects.create,
             subject_identifier='111111')
 
-    def test_cannot_create_disenrollment_before_enrollment(self):
-        Enrollment.objects.create(
+    def test_cannot_create_offschedule_before_onschedule(self):
+        OnSchedule.objects.create(
             subject_identifier='1',
             consent_identifier=uuid4(),
-            report_datetime=get_utcnow() - relativedelta(months=1))
+            onschedule_datetime=get_utcnow() - relativedelta(months=1))
         self.assertRaises(
-            DisenrollmentError,
-            Disenrollment.objects.create,
+            OffScheduleError,
+            OffSchedule.objects.create,
             subject_identifier='1',
-            disenrollment_datetime=get_utcnow() - relativedelta(months=2))
+            offschedule_datetime=get_utcnow() - relativedelta(months=2))
 
-    def test_cannot_create_disenrollment_before_last_visit(self):
-        Enrollment.objects.create(
+    def test_cannot_create_offschedule_before_last_visit(self):
+        OnSchedule.objects.create(
             subject_identifier='1',
             consent_identifier=uuid4(),
-            report_datetime=get_utcnow() - relativedelta(months=1))
+            onschedule_datetime=get_utcnow() - relativedelta(months=1))
         SubjectVisit.objects.create(
             subject_identifier='1',
             report_datetime=get_utcnow() + relativedelta(months=1))
         self.assertRaises(
-            DisenrollmentError,
-            Disenrollment.objects.create,
+            OffScheduleError,
+            OffSchedule.objects.create,
             subject_identifier='1',
-            disenrollment_datetime=get_utcnow())
+            offschedule_datetime=get_utcnow())
 
-    def test_can_create_disenrollment_without_last_visit(self):
-        Enrollment.objects.create(
+    def test_can_create_offschedule_without_last_visit(self):
+        consent_identifier = uuid4()
+        OnSchedule.objects.create(
             subject_identifier='1',
-            consent_identifier=uuid4(),
-            report_datetime=get_utcnow() - relativedelta(months=1))
+            consent_identifier=consent_identifier,
+            onschedule_datetime=get_utcnow() - relativedelta(months=1))
         try:
-            Disenrollment.objects.create(
+            OffSchedule.objects.create(
                 subject_identifier='1',
-                disenrollment_datetime=get_utcnow())
-        except DisenrollmentError:
-            self.fail('DisenrollmentError unexpectedly raised')
+                consent_identifier=consent_identifier,
+                offschedule_datetime=get_utcnow())
+        except OffScheduleError:
+            self.fail('OffScheduleError unexpectedly raised')
 
-    def test_enrollment_model_knows_schedule_name(self):
+    def test_onschedule_model_knows_schedule_name(self):
         """Assert if schedule name provided on meta, does not need to
         be provided explicitly.
         """
-        obj = Enrollment.objects.create(
+        obj = OnSchedule.objects.create(
             subject_identifier='111111',
             consent_identifier=uuid4(),
             is_eligible=True)
         self.assertEqual(obj.visit_schedule_name, self.visit_schedule.name)
         self.assertEqual(obj.schedule_name, self.schedule.name)
 
-    def test_cannot_enroll_if_visit_schedule_not_registered(self):
-        self.assertRaises(EnrollmentModelError, EnrollmentTwo.objects.create)
+    def test_cannot_put_on_schedule_if_visit_schedule_not_registered(self):
+        self.assertRaises(VisitScheduleError, OnScheduleTwo.objects.create)
 
-    def test_cannot_enroll_if_schedule_not_added(self):
+    def test_cannot_put_on_schedule_if_schedule_not_added(self):
         self.assertRaises(
-            EnrollmentModelError, EnrollmentThree.objects.create)
+            VisitScheduleError, OnScheduleThree.objects.create)
+
+    def test_visit_schedule_name_not_set(self):
+        self.assertRaises(
+            OnScheduleModelError, BadMetaModel2.objects.create)
+
+    def test_consent_model_not_set(self):
+        self.assertRaises(
+            OnScheduleModelError, BadMetaModel3.objects.create)

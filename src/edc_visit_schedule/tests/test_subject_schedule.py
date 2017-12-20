@@ -1,15 +1,15 @@
 from django.test import TestCase, tag
 from uuid import uuid4
 
-from ..enroll_to_schedule import EnrollToSchedule, EnrollToScheduleError
-from ..enrolled_subject import EnrolledSubject
+from ..subject_schedule import SubjectSchedule, SubjectScheduleError
+from ..subject_schedule_history import SubjectScheduleHistory
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..visit_schedule import VisitSchedule
-from .models import EnrollmentTwo, SubjectConsent
+from .models import OnScheduleTwo, SubjectConsent
 
 
-class TestEnrolledSubject(TestCase):
+class TestSubjectSchedule(TestCase):
 
     def setUp(self):
         site_visit_schedules._registry = {}
@@ -19,18 +19,16 @@ class TestEnrolledSubject(TestCase):
             app_label='edc_visit_schedule',
             visit_model='edc_visit_schedule.SubjectVisit',
             offstudy_model='edc_visit_schedule.SubjectOffstudy',
-            death_report_model='edc_visit_schedule.DeathReport',
-            enrollment_model='edc_visit_schedule.Enrollment',
-            disenrollment_model='edc_visit_schedule.Disenrollment')
+            death_report_model='edc_visit_schedule.DeathReport')
 
         self.schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.Enrollment',
-            disenrollment_model='edc_visit_schedule.Disenrollment')
+            onschedule_model='edc_visit_schedule.OnSchedule',
+            offschedule_model='edc_visit_schedule.OffSchedule')
         self.schedule3 = Schedule(
             name='schedule_three',
-            enrollment_model='edc_visit_schedule.EnrollmentThree',
-            disenrollment_model='edc_visit_schedule.DisenrollmentThree')
+            onschedule_model='edc_visit_schedule.OnScheduleThree',
+            offschedule_model='edc_visit_schedule.OffScheduleThree')
 
         self.visit_schedule.add_schedule(self.schedule)
         self.visit_schedule.add_schedule(self.schedule3)
@@ -46,12 +44,12 @@ class TestEnrolledSubject(TestCase):
 
         self.schedule_two_1 = Schedule(
             name='schedule_two',
-            enrollment_model='edc_visit_schedule.EnrollmentTwo',
-            disenrollment_model='edc_visit_schedule.DisenrollmentTwo')
+            onschedule_model='edc_visit_schedule.OnScheduleTwo',
+            offschedule_model='edc_visit_schedule.OffScheduleTwo')
         self.schedule_two_2 = Schedule(
             name='schedule_four',
-            enrollment_model='edc_visit_schedule.EnrollmentFour',
-            disenrollment_model='edc_visit_schedule.DisenrollmentFour')
+            onschedule_model='edc_visit_schedule.OnScheduleFour',
+            offschedule_model='edc_visit_schedule.OffScheduleFour')
 
         self.visit_schedule_two.add_schedule(self.schedule_two_1)
         self.visit_schedule_two.add_schedule(self.schedule_two_2)
@@ -61,162 +59,163 @@ class TestEnrolledSubject(TestCase):
             subject_identifier=self.subject_identifier)
         self.consent_identifier = obj.consent_identifier
 
-    def test_enrolled_subject(self):
-        enrolled_subject = EnrolledSubject()
-        self.assertFalse(enrolled_subject.enrollments)
+    @tag('1')
+    def test_history(self):
+        history = SubjectScheduleHistory()
+        self.assertFalse(history.history)
 
-    def test_enrolled_subject_not_enrolled(self):
-        enrolled_subject = EnrolledSubject(
+    def test_history_not_onschedule(self):
+        history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
-        self.assertFalse(enrolled_subject.enrollments)
+        self.assertFalse(history.history)
 
-    def test_get_enrollment_not_enrolled(self):
-        """Asserts returns an empty list if not enrolled.
+    def test_get_onschedule_but_empty(self):
+        """Asserts returns an empty list if not on-schedule.
         """
-        enrolled_subject = EnrolledSubject(
+        history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
-        self.assertFalse(enrolled_subject.enrollments)
+        self.assertFalse(history.history)
 
-    def test_get_enrollment_enrolled(self):
-        """Asserts returns an enrollment instance if enrolled.
+    def test_get_onschedule(self):
+        """Asserts returns an onschedule instance if on-schedule.
         """
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model_cls=EnrollmentTwo,
+        subject_schedule = SubjectSchedule(
+            onschedule_model_cls=OnScheduleTwo,
             subject_identifier=self.subject_identifier,
             consent_identifier=uuid4(),
             eligible=True)
-        obj = enroll_to_schedule.enroll()
-        enrolled_subject = EnrolledSubject(
+        obj = subject_schedule.put_on_schedule()
+        history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
         self.assertEqual(
-            enrolled_subject.enrollments, [obj])
+            history.history, [obj])
 
-    def test_get_enrollment_enrolled_many(self):
-        """Asserts returns an empty list if not enrolled.
+    def test_get_onschedule_many(self):
+        """Asserts returns an empty list if not on-schedule.
         """
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)
-        obj1 = enroll_to_schedule.enroll()
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmentfour',
+        obj1 = subject_schedule.put_on_schedule()
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onschedulefour',
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)
-        obj2 = enroll_to_schedule.enroll()
-        enrolled_subject = EnrolledSubject(
+        obj2 = subject_schedule.put_on_schedule()
+        history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
-        self.assertEqual(enrolled_subject.enrollments, [obj1, obj2])
+        self.assertEqual(history.history, [obj1, obj2])
 
     def test_schedules(self):
-        """Asserts returns one schedule if one enrollment.
+        """Asserts returns one schedule if one onschedule.
         """
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)
-        enroll_to_schedule.enroll()
-        enrolled_subject = EnrolledSubject(
+        subject_schedule.put_on_schedule()
+        history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
         self.assertEqual(
-            [s.name for s in enrolled_subject.schedules.values()],
+            [s.name for s in history.schedules.values()],
             ['schedule_two'])
 
     def test_schedules_many(self):
-        """Asserts returns two schedules if two enrollments.
+        """Asserts returns two schedules if two onschedule models.
         """
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)
-        enroll_to_schedule.enroll()
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmentfour',
+        subject_schedule.put_on_schedule()
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onschedulefour',
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)
-        enroll_to_schedule.enroll()
-        enrolled_subject = EnrolledSubject(
+        subject_schedule.put_on_schedule()
+        history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
         self.assertEqual(
-            [s.name for s in enrolled_subject.schedules.values()],
+            [s.name for s in history.schedules.values()],
             ['schedule_four', 'schedule_two'])
 
-    def test_gets_correct_enrollments_if_many_others(self):
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
+    def test_gets_correct_history_if_many_others(self):
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)
-        obj = enroll_to_schedule.enroll()
+        obj = subject_schedule.put_on_schedule()
         for i in range(0, 5):
             SubjectConsent.objects.create(subject_identifier=str(i))
-            EnrollToSchedule(
-                enrollment_model='edc_visit_schedule.enrollmentfour',
+            SubjectSchedule(
+                onschedule_model='edc_visit_schedule.onschedulefour',
                 subject_identifier=str(i),
                 consent_identifier=uuid4(),
                 eligible=True)
-            enroll_to_schedule.enroll()
-        enrolled_subject = EnrolledSubject(
+            subject_schedule.put_on_schedule()
+        history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
-        self.assertEqual(enrolled_subject.enrollments, [obj])
+        self.assertEqual(history.history, [obj])
 
-    def test_get_enrollment_enrolled5(self):
+    def test_get_onschedule5(self):
         """Asserts returns None for unknown schedule.
         """
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)
-        enroll_to_schedule.enroll()
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmentfour',
+        subject_schedule.put_on_schedule()
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onschedulefour',
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)
-        enroll_to_schedule.enroll()
+        subject_schedule.put_on_schedule()
         self.assertRaises(
             SiteVisitScheduleError,
-            EnrolledSubject,
+            SubjectScheduleHistory,
             subject_identifier=self.subject_identifier,
             visit_schedule_name='blah')
 
-    def test_get_enrollment_enrolled6(self):
+    def test_get_onschedule6(self):
         """Asserts returns the correct instances for the schedule.
         """
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)
-        enroll_to_schedule.enroll()
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmentfour',
+        subject_schedule.put_on_schedule()
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onschedulefour',
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)
-        enroll_to_schedule.enroll()
-        enrolled_subject = EnrolledSubject(
+        subject_schedule.put_on_schedule()
+        history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier,
             schedule_name='schedule_four')
-        self.assertEqual(len(enrolled_subject.enrollments), 1)
+        self.assertEqual(len(history.history), 1)
 
     def test_raises_if_no_consent(self):
         """Asserts raises if no consent for this subject.
         """
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier='ABCDEF',
             consent_identifier=uuid4(),
             eligible=True)
         self.assertRaises(
-            EnrollToScheduleError,
-            enroll_to_schedule.enroll)
+            SubjectScheduleError,
+            subject_schedule.put_on_schedule)
 
     def test_multpile_consents(self):
         """Asserts does not raise if more than one consent
@@ -230,32 +229,32 @@ class TestEnrolledSubject(TestCase):
         SubjectConsent.objects.create(
             subject_identifier=subject_identifier,
             version='2')
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=subject_identifier,
             consent_identifier=uuid4(),
             eligible=True)
         try:
-            enroll_to_schedule.enroll()
-        except EnrollToScheduleError:
-            self.fail('EnrollToScheduleError unexpectedly raised.')
+            subject_schedule.put_on_schedule()
+        except SubjectScheduleError:
+            self.fail('SubjectScheduleError unexpectedly raised.')
 
-    def test_update(self):
+    def test_resave(self):
         """Asserts returns the correct instances for the schedule.
         """
-        enroll_to_schedule = EnrollToSchedule(
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
+        subject_schedule = SubjectSchedule(
+            onschedule_model='edc_visit_schedule.onscheduletwo',
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)
-        enroll_to_schedule.enroll()
-        enroll_to_schedule.update()
+        subject_schedule.put_on_schedule()
+        subject_schedule.resave()
 
-    def test_enroll_on_schedule(self):
+    def test_put_on_schedule_on_schedule(self):
         visit_schedule = site_visit_schedules.get_visit_schedule(
             visit_schedule_name='visit_schedule')
         schedule = visit_schedule.schedules.get('schedule')
-        schedule.enroll(
+        schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
             consent_identifier=self.consent_identifier,
             eligible=True)

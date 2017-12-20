@@ -15,16 +15,16 @@ class SchedulesCollection(OrderedCollection):
         super().__init__(*args, **kwargs)
 
     def get_schedule(self, model=None, schedule_name=None, **kwargs):
-        """Returns a schedule or raises; by name, by enrollment/disenrollment model
+        """Returns a schedule or raises; by name, by onschedule/offschedule model
         or by model label_lower.
         """
         schedule = None
         if model:
             model = model.lower()
             for item in self.values():
-                if item.enrollment_model == model:
+                if item.onschedule_model == model:
                     schedule = item
-                elif item.disenrollment_model == model:
+                elif item.offschedule_model == model:
                     schedule = item
                 if schedule:
                     break

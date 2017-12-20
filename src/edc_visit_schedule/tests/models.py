@@ -3,7 +3,7 @@ from edc_appointment.model_mixins import CreateAppointmentsMixin
 from edc_base.model_mixins import BaseUuidModel
 from uuid import uuid4
 
-from ..model_mixins import EnrollmentModelMixin, DisenrollmentModelMixin
+from ..model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from ..model_mixins import VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin
 from edc_base.utils import get_utcnow
 
@@ -45,66 +45,80 @@ class DeathReport(BaseUuidModel):
 
 # visit_schedule
 
-class Enrollment(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnSchedule(OnScheduleModelMixin, CreateAppointmentsMixin, BaseUuidModel):
 
-    class Meta(EnrollmentModelMixin.Meta):
+    class Meta(OnScheduleModelMixin.Meta):
         visit_schedule_name = 'visit_schedule.schedule'
         consent_model = 'edc_visit_schedule.subjectconsent'
 
 
-class Disenrollment(DisenrollmentModelMixin, BaseUuidModel):
+class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
 
-    class Meta(DisenrollmentModelMixin.Meta):
+    class Meta(OffScheduleModelMixin.Meta):
         visit_schedule_name = 'visit_schedule.schedule'
         consent_model = 'edc_visit_schedule.subjectconsent'
 
 
-class EnrollmentThree(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnScheduleThree(OnScheduleModelMixin, CreateAppointmentsMixin, BaseUuidModel):
 
-    class Meta(EnrollmentModelMixin.Meta):
+    class Meta(OnScheduleModelMixin.Meta):
         visit_schedule_name = 'visit_schedule.schedule_three'
         consent_model = 'edc_visit_schedule.subjectconsent'
 
 
-class DisenrollmentThree(DisenrollmentModelMixin, BaseUuidModel):
+class OffScheduleThree(OffScheduleModelMixin, BaseUuidModel):
 
-    class Meta(DisenrollmentModelMixin.Meta):
+    class Meta(OffScheduleModelMixin.Meta):
         visit_schedule_name = 'visit_schedule.schedule_three'
         consent_model = 'edc_visit_schedule.subjectconsent'
 
 
 # visit_schedule_two
 
-class EnrollmentTwo(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnScheduleTwo(OnScheduleModelMixin, CreateAppointmentsMixin, BaseUuidModel):
 
-    class Meta(EnrollmentModelMixin.Meta):
+    class Meta(OnScheduleModelMixin.Meta):
         visit_schedule_name = 'visit_schedule_two.schedule_two'
         consent_model = 'edc_visit_schedule.subjectconsent'
 
 
-class DisenrollmentTwo(DisenrollmentModelMixin, BaseUuidModel):
+class OffScheduleTwo(OffScheduleModelMixin, BaseUuidModel):
 
-    class Meta(DisenrollmentModelMixin.Meta):
+    class Meta(OffScheduleModelMixin.Meta):
         visit_schedule_name = 'visit_schedule_two.schedule_two'
         consent_model = 'edc_visit_schedule.subjectconsent'
 
 
-class EnrollmentFour(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnScheduleFour(OnScheduleModelMixin, CreateAppointmentsMixin, BaseUuidModel):
 
-    class Meta(EnrollmentModelMixin.Meta):
+    class Meta(OnScheduleModelMixin.Meta):
         visit_schedule_name = 'visit_schedule_two.schedule_four'
         consent_model = 'edc_visit_schedule.subjectconsent'
 
 
-class DisenrollmentFour(DisenrollmentModelMixin, BaseUuidModel):
+class OffScheduleFour(OffScheduleModelMixin, BaseUuidModel):
 
-    class Meta(DisenrollmentModelMixin.Meta):
+    class Meta(OffScheduleModelMixin.Meta):
         visit_schedule_name = 'visit_schedule_two.schedule_four'
         consent_model = 'edc_visit_schedule.subjectconsent'
 
 
-class BadMetaModel(EnrollmentModelMixin, BaseUuidModel):
+class BadMetaModel(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(DisenrollmentModelMixin.Meta):
+    class Meta(OnScheduleModelMixin.Meta):
         visit_schedule_name = 'bad.dog'
         consent_model = 'edc_visit_schedule.subjectconsent'
+
+
+class BadMetaModel2(OnScheduleModelMixin, BaseUuidModel):
+
+    class Meta(OnScheduleModelMixin.Meta):
+        visit_schedule_name = None
+        consent_model = 'edc_visit_schedule.subjectconsent'
+
+
+class BadMetaModel3(OnScheduleModelMixin, BaseUuidModel):
+
+    class Meta(OnScheduleModelMixin.Meta):
+        visit_schedule_name = 'visit_schedule_two.schedule_four'
+        consent_model = None

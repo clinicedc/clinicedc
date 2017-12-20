@@ -1,49 +1,49 @@
 from django.test import TestCase, tag
 from edc_base.model_mixins import BaseUuidModel
-from edc_visit_schedule.model_mixins import EnrollmentModelMixin
+from edc_visit_schedule.model_mixins import OnScheduleModelMixin
 from uuid import uuid4
 
-from ..model_mixins import DisenrollmentModelMixin, VisitScheduleMethodsError
+from ..model_mixins import OffScheduleModelMixin, VisitScheduleMethodsError
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules
 from ..visit_schedule import VisitSchedule
-from .models import Enrollment
+from .models import OnSchedule
 
 
-class ModelC(EnrollmentModelMixin, BaseUuidModel):
+class ModelC(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(EnrollmentModelMixin.Meta):
+    class Meta(OnScheduleModelMixin.Meta):
         visit_schedule_name = 'blah'
 
 
-class ModelD(EnrollmentModelMixin, BaseUuidModel):
+class ModelD(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(EnrollmentModelMixin.Meta):
+    class Meta(OnScheduleModelMixin.Meta):
         visit_schedule_name = 'blah.blah'
 
 
-class ModelE(EnrollmentModelMixin, BaseUuidModel):
+class ModelE(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(EnrollmentModelMixin.Meta):
+    class Meta(OnScheduleModelMixin.Meta):
         consent_model = 'edc_visit_schedule.subjectconsent'
         visit_schedule_name = 'visit_schedule_blah.schedule_blah'
 
 
-class ModelF(DisenrollmentModelMixin, BaseUuidModel):
+class ModelF(OffScheduleModelMixin, BaseUuidModel):
 
-    class Meta(DisenrollmentModelMixin.Meta):
+    class Meta(OffScheduleModelMixin.Meta):
         visit_schedule_name = 'visit_schedule_blah.schedule_blah'
 
 
-class ModelG(EnrollmentModelMixin, BaseUuidModel):
+class ModelG(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(EnrollmentModelMixin.Meta):
+    class Meta(OnScheduleModelMixin.Meta):
         visit_schedule_name = 'visit_schedule1.schedule1'
 
 
-class ModelG2(DisenrollmentModelMixin, BaseUuidModel):
+class ModelG2(OffScheduleModelMixin, BaseUuidModel):
 
-    class Meta(DisenrollmentModelMixin.Meta):
+    class Meta(OffScheduleModelMixin.Meta):
         visit_schedule_name = 'visit_schedule1.schedule1'
 
 
@@ -57,7 +57,7 @@ class TestModels(TestCase):
     def test_str(self):
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
-        obj = Enrollment(subject_identifier='1111')
+        obj = OnSchedule(subject_identifier='1111')
         self.assertEqual(str(obj), '1111')
 
     def test_visit_schedule(self):
@@ -65,7 +65,7 @@ class TestModels(TestCase):
         """
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
-        obj = Enrollment()
+        obj = OnSchedule()
         try:
             obj.visit_schedule
         except VisitScheduleMethodsError:
@@ -78,7 +78,7 @@ class TestModels(TestCase):
         """
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
-        obj = Enrollment()
+        obj = OnSchedule()
         try:
             obj.schedule
         except VisitScheduleMethodsError:
@@ -91,7 +91,7 @@ class TestModels(TestCase):
         """
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
-        obj = Enrollment()
+        obj = OnSchedule()
         try:
             obj.visits
         except VisitScheduleMethodsError:
@@ -112,8 +112,8 @@ class TestModels(TestCase):
 
         schedule = Schedule(
             name='schedule1',
-            enrollment_model='edc_visit_schedule.ModelG',
-            disenrollment_model='edc_visit_schedule.ModelG2')
+            onschedule_model='edc_visit_schedule.ModelG',
+            offschedule_model='edc_visit_schedule.ModelG2')
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
 
@@ -174,8 +174,8 @@ class TestModels(TestCase):
 
     def test_natural_key(self):
         v = VisitSchedule(name='visit_schedule_blah')
-        s = Schedule(name='schedule_blah', enrollment_model='edc_visit_schedule.ModelE',
-                     disenrollment_model='edc_visit_schedule.ModelF')
+        s = Schedule(name='schedule_blah', onschedule_model='edc_visit_schedule.ModelE',
+                     offschedule_model='edc_visit_schedule.ModelF')
         v.add_schedule(s)
         site_visit_schedules.register(v)
         obj = ModelE(

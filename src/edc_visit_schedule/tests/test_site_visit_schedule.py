@@ -1,13 +1,13 @@
 from django.test import TestCase, tag
 from uuid import uuid4
 
-from ..model_mixins import EnrollmentModelError
+from ..model_mixins import OnScheduleModelError
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..site_visit_schedules import AlreadyRegisteredVisitSchedule
 from ..visit_schedule import VisitSchedule
-from .models import Enrollment, EnrollmentTwo, EnrollmentThree, EnrollmentFour
-from .models import DisenrollmentThree, DisenrollmentFour
+from .models import OnSchedule, OnScheduleTwo, OnScheduleThree, OnScheduleFour
+from .models import OffScheduleThree, OffScheduleFour
 
 
 class TestSiteVisitSchedule(TestCase):
@@ -21,8 +21,8 @@ class TestSiteVisitSchedule(TestCase):
             visit_model='edc_visit_schedule.subjectvisit',
             offstudy_model='edc_visit_schedule.subjectoffstudy',
             death_report_model='edc_visit_schedule.deathreport',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
 
     def test_register_no_schedules(self):
         site_visit_schedules._registry = {}
@@ -34,8 +34,8 @@ class TestSiteVisitSchedule(TestCase):
         site_visit_schedules._registry = {}
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
         self.visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(self.visit_schedule)
         self.assertRaises(
@@ -55,13 +55,13 @@ class TestSiteVisitSchedule1(TestCase):
             visit_model='edc_visit_schedule.subjectvisit',
             offstudy_model='edc_visit_schedule.subjectoffstudy',
             death_report_model='edc_visit_schedule.deathreport',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
 
         self.schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
 
         self.visit_schedule_two = VisitSchedule(
             name='visit_schedule_two',
@@ -70,13 +70,13 @@ class TestSiteVisitSchedule1(TestCase):
             visit_model='edc_visit_schedule.subjectvisit',
             offstudy_model='edc_visit_schedule.subjectoffstudy',
             death_report_model='edc_visit_schedule.deathreport',
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
-            disenrollment_model='edc_visit_schedule.disenrollmenttwo')
+            onschedule_model='edc_visit_schedule.onscheduletwo',
+            offschedule_model='edc_visit_schedule.offscheduletwo')
 
         self.schedule_two = Schedule(
             name='schedule_two',
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
-            disenrollment_model='edc_visit_schedule.disenrollmenttwo')
+            onschedule_model='edc_visit_schedule.onscheduletwo',
+            offschedule_model='edc_visit_schedule.offscheduletwo')
 
         self.visit_schedule.add_schedule(self.schedule)
         self.visit_schedule_two.add_schedule(self.schedule_two)
@@ -148,43 +148,43 @@ class TestSiteVisitSchedule1(TestCase):
     def test_get_schedule_by_bad_model(self):
         self.assertIsNone(site_visit_schedules.get_schedule(model='blah'))
 
-    def test_get_schedule_by_enrollment_model_label(self):
+    def test_get_schedule_by_onschedule_model_label(self):
         self.assertIsNotNone(
-            site_visit_schedules.get_schedule(model='edc_visit_schedule.enrollment'))
+            site_visit_schedules.get_schedule(model='edc_visit_schedule.onschedule'))
         schedule = site_visit_schedules.get_schedule(
-            model='edc_visit_schedule.enrollment')
-        self.assertEqual(schedule.enrollment_model_cls, Enrollment)
+            model='edc_visit_schedule.onschedule')
+        self.assertEqual(schedule.onschedule_model_cls, OnSchedule)
 
-    def test_get_schedule_by_enrollment_model(self):
+    def test_get_schedule_by_onschedule_model(self):
         self.assertIsNotNone(
-            site_visit_schedules.get_schedule(model='edc_visit_schedule.enrollment'))
+            site_visit_schedules.get_schedule(model='edc_visit_schedule.onschedule'))
         schedule = site_visit_schedules.get_schedule(
-            model='edc_visit_schedule.enrollment')
-        self.assertEqual(schedule.enrollment_model_cls, Enrollment)
+            model='edc_visit_schedule.onschedule')
+        self.assertEqual(schedule.onschedule_model_cls, OnSchedule)
 
-    def test_get_schedule_by_enrollmenttwo_model_label(self):
+    def test_get_schedule_by_onscheduletwo_model_label(self):
 
         # in two steps
         visit_schedule = site_visit_schedules.get_visit_schedule(
-            visit_schedule_name=EnrollmentTwo._meta.visit_schedule_name.split('.')[0])
+            visit_schedule_name=OnScheduleTwo._meta.visit_schedule_name.split('.')[0])
         self.assertEqual(
-            visit_schedule.models.enrollment_model, EnrollmentTwo._meta.label_lower)
+            visit_schedule.models.onschedule_model, OnScheduleTwo._meta.label_lower)
 
         schedule = visit_schedule.get_schedule(
-            model=EnrollmentTwo._meta.label_lower)
-        self.assertEqual(schedule.enrollment_model_cls, EnrollmentTwo)
+            model=OnScheduleTwo._meta.label_lower)
+        self.assertEqual(schedule.onschedule_model_cls, OnScheduleTwo)
 
         # in one step
         schedule = site_visit_schedules.get_schedule(
-            model='edc_visit_schedule.enrollmenttwo')
-        self.assertEqual(schedule.enrollment_model_cls, EnrollmentTwo)
+            model='edc_visit_schedule.onscheduletwo')
+        self.assertEqual(schedule.onschedule_model_cls, OnScheduleTwo)
 
-    def test_get_schedule_by_enrollmenttwo_model(self):
+    def test_get_schedule_by_onscheduletwo_model(self):
         self.assertIsNotNone(
-            site_visit_schedules.get_schedule(model='edc_visit_schedule.enrollmenttwo'))
+            site_visit_schedules.get_schedule(model='edc_visit_schedule.onscheduletwo'))
         schedule = site_visit_schedules.get_schedule(
-            model='edc_visit_schedule.enrollmenttwo')
-        self.assertEqual(schedule.enrollment_model_cls, EnrollmentTwo)
+            model='edc_visit_schedule.onscheduletwo')
+        self.assertEqual(schedule.onschedule_model_cls, OnScheduleTwo)
 
     def test_get_schedules(self):
         """Assert site can return list of schedules.
@@ -211,29 +211,15 @@ class TestSiteVisitSchedule1(TestCase):
             site_visit_schedules.get_visit_schedule_names(),
             ['visit_schedule', 'visit_schedule_two'])
 
-    def test_enrollment(self):
-        obj = Enrollment.objects.create(
+    def test_onschedule(self):
+        obj = OnSchedule.objects.create(
             consent_identifier=uuid4())
         self.assertEqual(obj.visit_schedule_name, 'visit_schedule')
         self.assertEqual(obj.schedule_name, 'schedule')
         self.assertIsNotNone(obj.visit_schedule)
         self.assertIsNotNone(obj.schedule)
 
-    def test_enrollment_cannot_change_visit_schedule(self):
-        obj = Enrollment.objects.create(
-            consent_identifier=uuid4())
-        obj.visit_schedule_name = 'blah'
-        obj.schedule_name = 'blah'
-        self.assertRaises(EnrollmentModelError, obj.save)
 
-    def test_enrollment_cannot_change_schedule(self):
-        obj = Enrollment.objects.create(
-            consent_identifier=uuid4())
-        obj.schedule_name = 'blah'
-        self.assertRaises(EnrollmentModelError, obj.save)
-
-
-@tag('site')
 class TestSiteVisitSchedule2(TestCase):
 
     def setUp(self):
@@ -245,8 +231,8 @@ class TestSiteVisitSchedule2(TestCase):
             visit_model='edc_visit_schedule.subjectvisit',
             offstudy_model='edc_visit_schedule.subjectoffstudy',
             death_report_model='edc_visit_schedule.deathreport',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
 
         self.visit_schedule2 = VisitSchedule(
             name='visit_schedule_two',
@@ -255,28 +241,28 @@ class TestSiteVisitSchedule2(TestCase):
             visit_model='edc_visit_schedule.subjectvisit',
             offstudy_model='edc_visit_schedule.subjectoffstudy',
             death_report_model='edc_visit_schedule.deathreport',
-            enrollment_model='edc_visit_schedule.enrollmenttwwo',
-            disenrollment_model='edc_visit_schedule.disenrollmenttwo')
+            onschedule_model='edc_visit_schedule.onscheduletwwo',
+            offschedule_model='edc_visit_schedule.offscheduletwo')
 
         self.schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
 
         self.schedule2 = Schedule(
             name='schedule_two',
-            enrollment_model='edc_visit_schedule.enrollmenttwo',
-            disenrollment_model='edc_visit_schedule.disenrollmenttwo')
+            onschedule_model='edc_visit_schedule.onscheduletwo',
+            offschedule_model='edc_visit_schedule.offscheduletwo')
 
         self.schedule3 = Schedule(
             name='schedule_three',
-            enrollment_model=EnrollmentThree._meta.label_lower,
-            disenrollment_model=DisenrollmentThree._meta.label_lower)
+            onschedule_model=OnScheduleThree._meta.label_lower,
+            offschedule_model=OffScheduleThree._meta.label_lower)
 
         self.schedule4 = Schedule(
             name='schedule_four',
-            enrollment_model=EnrollmentFour._meta.label_lower,
-            disenrollment_model=DisenrollmentFour._meta.label_lower)
+            onschedule_model=OnScheduleFour._meta.label_lower,
+            offschedule_model=OffScheduleFour._meta.label_lower)
 
         self.visit_schedule.add_schedule(self.schedule)
         self.visit_schedule.add_schedule(self.schedule3)

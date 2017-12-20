@@ -2,7 +2,7 @@ from django.test import TestCase, tag
 
 from ..validator import Validator, ValidatorLookupError, ValidatorMetaValueError
 from ..validator import ValidatorModelFieldError, ValidatorMetaAttributeError, ValidatorMetaFormatError
-from .models import Enrollment, Disenrollment, SubjectVisit
+from .models import OnSchedule, OffSchedule, SubjectVisit
 
 
 @tag('validator')
@@ -35,8 +35,8 @@ class TestValidator(TestCase):
 
     def test_get_model_cls(self):
         validator = Validator(
-            visit_schedule_name='visit_schedule_name', model='edc_visit_schedule.enrollment')
-        self.assertEqual(Enrollment, validator._model)
+            visit_schedule_name='visit_schedule_name', model='edc_visit_schedule.onschedule')
+        self.assertEqual(OnSchedule, validator._model)
 
     def test_get_model_cls_raises(self):
         validator = Validator(
@@ -85,15 +85,15 @@ class TestValidator(TestCase):
         """Asserts returns expected model class.
         """
         validator = Validator(
-            visit_schedule_name='visit_schedule', model='edc_visit_schedule.enrollment')
-        self.assertEqual(validator.validated_model, Enrollment)
+            visit_schedule_name='visit_schedule', model='edc_visit_schedule.onschedule')
+        self.assertEqual(validator.validated_model, OnSchedule)
 
     def test_validated_model2(self):
         """Asserts returns expected model class.
         """
         validator = Validator(
-            visit_schedule_name='visit_schedule', model='edc_visit_schedule.disenrollment')
-        self.assertEqual(validator.validated_model, Disenrollment)
+            visit_schedule_name='visit_schedule', model='edc_visit_schedule.offschedule')
+        self.assertEqual(validator.validated_model, OffSchedule)
 
     def test_validated_model_raises_missing_meta(self):
         """Asserts raises if model class is missing meta attr.
@@ -119,16 +119,16 @@ class TestValidator(TestCase):
         """
         validator = Validator(
             visit_schedule_name='visit_schedule',
-            model='edc_visit_schedule.disenrollment',
-            required_fields=['report_datetime'])
-        self.assertEqual(validator.validated_model, Disenrollment)
+            model='edc_visit_schedule.offschedule',
+            required_fields=['offschedule_datetime'])
+        self.assertEqual(validator.validated_model, OffSchedule)
 
     def test_raises_if_missing_required_fields(self):
         """Asserts returns expected model class.
         """
         validator = Validator(
             visit_schedule_name='visit_schedule',
-            model='edc_visit_schedule.disenrollment',
+            model='edc_visit_schedule.offschedule',
             required_fields=['blah'])
         try:
             validator.validated_model
@@ -153,7 +153,7 @@ class TestValidator(TestCase):
         """Asserts raises .
         """
         validator = Validator(
-            schedule_name='schedule', model='edc_visit_schedule.enrollment',
+            schedule_name='schedule', model='edc_visit_schedule.onschedule',
             meta_pattern=r'^[A-Z]+$')
         try:
             validator.validated_model

@@ -6,7 +6,7 @@ from edc_base.utils import get_utcnow
 from ..schedule import Schedule, AlreadyRegisteredVisit
 from ..schedule import ScheduleNameError, ScheduleModelError
 from ..visit import Visit
-from .models import Enrollment, Disenrollment
+from .models import OnSchedule, OffSchedule
 
 
 class TestSchedule(TestCase):
@@ -19,34 +19,34 @@ class TestSchedule(TestCase):
         """
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
         self.assertTrue(schedule.__repr__())
 
     def test_visit_schedule_field_value(self):
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
         self.assertEqual(schedule.field_value, 'schedule')
 
-    def test_schedule_enrollment_model_is_none(self):
+    def test_schedule_onschedule_model_is_none(self):
         self.assertRaises(
             ScheduleModelError,
-            Schedule, name='schedule', enrollment_model=None)
+            Schedule, name='schedule', onschedule_model=None)
 
-    def test_schedule_disenrollment_model_is_none(self):
+    def test_schedule_offschedule_model_is_none(self):
         self.assertRaises(
             ScheduleModelError,
-            Schedule, name='schedule', disenrollment_model=None)
+            Schedule, name='schedule', offschedule_model=None)
 
     def test_schedule_bad_label_lower(self):
         self.assertRaises(
             ScheduleModelError,
             Schedule,
             name='schedule',
-            enrollment_model='x.x',
-            disenrollment_model='edc_visit_schedule.disenrollment',
+            onschedule_model='x.x',
+            offschedule_model='edc_visit_schedule.offschedule',
             validate=True)
 
     def test_schedule_bad_label_lower2(self):
@@ -54,29 +54,29 @@ class TestSchedule(TestCase):
             ScheduleModelError,
             Schedule,
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='x.x',
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='x.x',
             validate=True)
 
-    def test_schedule_enrollment_model_cls(self):
+    def test_schedule_onschedule_model_cls(self):
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
-        self.assertEqual(schedule.enrollment_model_cls, Enrollment)
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
+        self.assertEqual(schedule.onschedule_model_cls, OnSchedule)
 
-    def test_schedule_disenrollment_model_cls(self):
+    def test_schedule_offschedule_model_cls(self):
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
-        self.assertEqual(schedule.disenrollment_model_cls, Disenrollment)
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
+        self.assertEqual(schedule.offschedule_model_cls, OffSchedule)
 
     def test_schedule_ok(self):
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
         try:
             schedule.validate()
         except ScheduleModelError:
@@ -85,8 +85,8 @@ class TestSchedule(TestCase):
     def test_add_visits(self):
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
         for i in range(0, 5):
             visit = Visit(
                 code=str(i), timepoint=i, rbase=relativedelta(days=i),
@@ -99,8 +99,8 @@ class TestSchedule(TestCase):
     def test_add_visits_duplicate_code(self):
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
         visit = Visit(
             code=str(0), title='erik0', timepoint=0, rbase=relativedelta(days=0),
             rlower=relativedelta(days=0), rupper=relativedelta(days=6))
@@ -114,8 +114,8 @@ class TestSchedule(TestCase):
     def test_add_visits_duplicate_title(self):
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
         visit = Visit(
             code=str(0), title='erik', timepoint=0, rbase=relativedelta(days=0),
             rlower=relativedelta(days=0), rupper=relativedelta(days=6))
@@ -129,8 +129,8 @@ class TestSchedule(TestCase):
     def test_add_visits_duplicate_timepoint(self):
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
         visit = Visit(
             code=str(0), timepoint=0, rbase=relativedelta(days=0),
             rlower=relativedelta(days=0), rupper=relativedelta(days=6))
@@ -144,8 +144,8 @@ class TestSchedule(TestCase):
     def test_add_visits_duplicate_rbase(self):
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
         visit = Visit(
             code=str(0), timepoint=0, rbase=relativedelta(days=0),
             rlower=relativedelta(days=0), rupper=relativedelta(days=6))
@@ -160,8 +160,8 @@ class TestSchedule(TestCase):
     def test_add_visits_with_appointment_model(self):
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment',
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule',
             appointment_model='edc_appointment.appointment')
         for i in range(0, 5):
             visit = Visit(
@@ -176,8 +176,8 @@ class TestSchedule(TestCase):
     def test_add_visits_does_not_overwrite_appointment_model(self):
         schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment',
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule',
             appointment_model='edc_appointment.appointment')
         for i in range(0, 5):
             visit = Visit(
@@ -204,8 +204,8 @@ class TestScheduleWithVisits(TestCase):
     def setUp(self):
         self.schedule = Schedule(
             name='schedule',
-            enrollment_model='edc_visit_schedule.enrollment',
-            disenrollment_model='edc_visit_schedule.disenrollment')
+            onschedule_model='edc_visit_schedule.onschedule',
+            offschedule_model='edc_visit_schedule.offschedule')
 
     def test_order(self):
         for i in [3, 5, 1, 0, 2, 4]:
