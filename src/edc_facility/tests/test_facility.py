@@ -19,17 +19,20 @@ class TestFacility(TestCase):
         facility = Facility(
             name='clinic',
             days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
-        for suggested, available in [(MO, MO), (TU, TU), (WE, WE), (TH, TH), (FR, FR), (SA, MO), (SU, MO)]:
+        for suggested, available in [
+                (MO, MO), (TU, TU), (WE, WE), (TH, TH), (FR, FR), (SA, MO), (SU, MO)]:
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
+            rdate = facility.available_rdate(dt, include_holidays=True)
             self.assertEqual(
-                available.weekday, facility.available_rdate(dt).weekday())
+                available.weekday, rdate.weekday())
 
     def test_allowed_weekday_limited(self):
         facility = Facility(name='clinic', days=[TU, TH], slots=[100, 100])
         for suggested, available in [(MO, TU), (TU, TU), (WE, TH), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
-                available.weekday, facility.available_rdate(dt).datetime.weekday())
+                available.weekday,
+                facility.available_rdate(dt, include_holidays=True).datetime.weekday())
 
     def test_allowed_weekday_limited2(self):
         facility = Facility(
@@ -37,7 +40,8 @@ class TestFacility(TestCase):
         for suggested, available in [(MO, TU), (TU, TU), (WE, WE), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
-                available.weekday, facility.available_rdate(dt).datetime.weekday())
+                available.weekday,
+                facility.available_rdate(dt, include_holidays=True).datetime.weekday())
 
     def test_available_rdate(self):
         """Asserts finds available_rdate on first clinic day after holiday.

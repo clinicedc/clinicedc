@@ -4,10 +4,9 @@ import sys
 from dateutil.relativedelta import MO, TU, WE, TH, FR
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.core.management.color import color_style
 
-from .facility import Facility
+from .facility import Facility, FacilityError
 
 style = color_style()
 
@@ -20,8 +19,8 @@ class AppConfig(DjangoAppConfig):
     # only set if for edc_facility tests, etc
     if settings.APP_NAME == 'edc_facility':
         definitions = {
-            None: dict(days=[MO, TU, WE, TH, FR],
-                       slots=[100, 100, 100, 100, 100])}
+            '5-day-clinic': dict(days=[MO, TU, WE, TH, FR],
+                                 slots=[100, 100, 100, 100, 100])}
     else:
         definitions = None
 
@@ -50,7 +49,7 @@ class AppConfig(DjangoAppConfig):
         """Returns a dictionary of facilities.
         """
         if not self.definitions:
-            raise ImproperlyConfigured(
+            raise FacilityError(
                 f'Facility definitions not defined. See {self.name} app_config.definitions')
         return {k: Facility(name=k, **v)
                 for k, v in self.definitions.items()}
@@ -61,14 +60,7 @@ class AppConfig(DjangoAppConfig):
         """
         facility = self.facilities.get(name)
         if not facility:
-            raise ImproperlyConfigured(
+            raise FacilityError(
                 f'Facility \'{name}\' does not exist. Expected one '
                 f'of {self.facilities}. See {repr(self)}.definitions')
         return facility
-
-#         try:
-#             options = self.definitions[name]
-#         except KeyError:
-#             raise ImproperlyConfigured(
-#                 f'Facility {name} does not exist. See {self.name} app_config.definitions')
-#         return Facility(name=name, **options)

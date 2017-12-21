@@ -3,9 +3,11 @@ import arrow
 from collections import OrderedDict
 from datetime import datetime
 from dateutil.relativedelta import relativedelta, weekday
-from edc_base.utils import get_utcnow
+from edc_base.utils import get_utcnow, convert_php_dateformat
 
 from .holidays import Holidays
+from django.conf import settings
+from arrow.arrow import Arrow
 
 
 class FacilityError(Exception):
@@ -14,9 +16,18 @@ class FacilityError(Exception):
 
 class Facility:
 
+    """
+    Note: `best_effort_available_datetime` (Default: False) if True
+        will set available_rdata to the suggested_datetime if no
+        available_rdata can be found. This is not ideal and could
+        lead to a protocol violation but may be helpful for facilities
+        open 1 or 2 days per week where the visit has a very
+        narrow window period (forward_delta, reverse_delta).
+    """
     holiday_cls = Holidays
 
-    def __init__(self, name=None, days=None, slots=None, **kwargs):
+    def __init__(self, name=None, days=None, slots=None,
+                 best_effort_available_datetime=None, **kwargs):
         self.days = []
         self.name = name
         for day in days:
@@ -30,6 +41,7 @@ class Facility:
         self.holidays = self.holiday_cls(facility_name=self.name, **kwargs)
         if not name:
             raise FacilityError(f'Name cannot be None. See {repr(self)}')
+        self.best_effort_available_datetime = best_effort_available_datetime
 
     def __repr__(self):
         return f'{self.__class__.__name__}(name={self.name}, days={self.days})'
@@ -68,7 +80,8 @@ class Facility:
         return self.available_rdate(**kwargs).datetime
 
     def available_rdate(self, suggested_datetime=None, forward_delta=None,
-                        reverse_delta=None, taken_datetimes=None):
+                        reverse_delta=None, taken_datetimes=None,
+                        include_holidays=None):
         """Returns an arrow object for a datetime equal to or
         close to the suggested datetime.
 
@@ -91,9 +104,24 @@ class Facility:
                 datetime.combine(r[0].date(), suggested_rdate.time()))
             if (r.datetime.weekday() in self.weekdays
                     and (minimum.date() <= r.date() < maximum.date())):
-                if (not self.is_holiday(r)
-                        and r.date() not in [r.date() for r in rtaken]
+                if include_holidays:
+                    is_holiday = False
+                else:
+                    is_holiday = self.is_holiday(r)
+                if (not is_holiday and r.date() not in [r.date() for r in rtaken]
                         and self.open_slot_on(r)):
                     available_rdate = r
                     break
+        if not available_rdate:
+            if self.best_effort_available_datetime:
+                available_rdate = Arrow.fromdatetime(
+                    suggested_datetime, tzinfo='UTC')
+            else:
+                formatted_date = suggested_datetime.strftime(
+                    convert_php_dateformat(settings.SHORT_DATE_FORMAT))
+                raise FacilityError(
+                    f'No available appointment dates at facility for period. '
+                    f'Got no available dates within {reverse_delta.days}-'
+                    f'{forward_delta.days} days of {formatted_date}. '
+                    f'Facility is {repr(self)}.')
         return available_rdate
