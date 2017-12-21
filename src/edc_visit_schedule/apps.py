@@ -14,6 +14,7 @@ class AppConfig(DjangoAppConfig):
     validate_models = True
 
     def ready(self):
+        from .signals import offschedule_model_on_post_save
         sys.stdout.write(f'Loading {self.verbose_name} ...\n')
         site_visit_schedules.autodiscover()
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
