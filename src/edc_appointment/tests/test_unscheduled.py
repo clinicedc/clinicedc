@@ -1,22 +1,19 @@
 import arrow
 
 from datetime import datetime
-from django.apps import apps as django_apps
 from django.test import TestCase, tag
-from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
+from edc_base import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..unscheduled_appointment_creator import InvalidParentAppointmentStatusError
+from ..constants import NEW_APPT, INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT
+from ..models import Appointment
 from ..unscheduled_appointment_creator import InvalidParentAppointmentMissingVisitError
+from ..unscheduled_appointment_creator import InvalidParentAppointmentStatusError
 from ..unscheduled_appointment_creator import UnscheduledAppointmentCreator
 from ..unscheduled_appointment_creator import UnscheduledAppointmentNotAllowed
 from .helper import Helper
+from .models import SubjectVisit
 from .visit_schedule import visit_schedule1, visit_schedule2
-from edc_appointment.models.appointment import Appointment
-from edc_appointment.constants import NEW_APPT, INCOMPLETE_APPT,\
-    IN_PROGRESS_APPT, CANCELLED_APPT, COMPLETE_APPT
-from edc_appointment.tests.models import SubjectVisit
-from edc_base.utils import get_utcnow
 
 
 class TestUnscheduledAppointmentCreator(TestCase):
@@ -24,11 +21,6 @@ class TestUnscheduledAppointmentCreator(TestCase):
     helper_cls = Helper
 
     def setUp(self):
-        self.facility_name = '7-day clinic'
-        django_apps.app_configs['edc_facility'].definitions = {
-            self.facility_name: dict(
-                days=[MO, TU, WE, TH, FR, SA, SU],
-                slots=[100, 100, 100, 100, 100, 100, 100])}
         self.subject_identifier = '12345'
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
@@ -36,12 +28,10 @@ class TestUnscheduledAppointmentCreator(TestCase):
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=arrow.Arrow.fromdatetime(
-                datetime(2017, 1, 7), tzinfo='UTC').datetime,
-            facility_name=self.facility_name)
+                datetime(2017, 1, 7), tzinfo='UTC').datetime)
 
-    @tag('1')
     def test_unscheduled_allowed_but_raises_on_appt_status(self):
-        self.helper.consent_and_enroll()
+        self.helper.consent_and_put_onschedule()
         schedule_name = 'schedule1'
         visit = visit_schedule1.schedules.get(schedule_name).visits.first
         appointment = Appointment.objects.get(
@@ -83,7 +73,6 @@ class TestUnscheduledAppointmentCreator(TestCase):
                     schedule_name=schedule_name,
                     visit_code=visit.code)
 
-    @tag('1')
     def test_unscheduled_not_allowed(self):
         self.assertRaises(
             UnscheduledAppointmentNotAllowed,
@@ -93,9 +82,8 @@ class TestUnscheduledAppointmentCreator(TestCase):
             schedule_name='schedule2',
             visit_code='5000')
 
-    @tag('1')
     def test_add_subject_visits(self):
-        self.helper.consent_and_enroll()
+        self.helper.consent_and_put_onschedule()
         schedule_name = 'schedule1'
         for visit in visit_schedule1.schedules.get(schedule_name).visits.values():
             with self.subTest(visit=visit):

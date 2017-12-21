@@ -1,9 +1,8 @@
 import arrow
 
-from copy import copy
+from copy import deepcopy
 from datetime import datetime
 from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA, weekday
-from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_visit_schedule.schedule.visit_collection import VisitCollection
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -28,7 +27,7 @@ class TestApptDatetimes(TestCase):
         """Overwrite facility name on each visit and register
         the modified visit_schedule.
         """
-        visit_schedule = copy(visit_schedule1)
+        visit_schedule = deepcopy(visit_schedule1)
         for schedule_name, schedule in visit_schedule.schedules.items():
             visit_collection = VisitCollection()
             for k, v in schedule.visits.items():
@@ -45,17 +44,12 @@ class TestApptDatetimes(TestCase):
                 self.assertEqual(v.facility_name, facility_name)
 
     def get_appt_datetimes(self, base_appt_datetime=None, subject_identifier=None):
-        facility_name = '7-day clinic'
-        django_apps.app_configs['edc_facility'].definitions = {
-            facility_name: dict(days=[MO, TU, WE, TH, FR, SA, SU],
-                                slots=[100, 100, 100, 100, 100])}
-        self.register_visit_schedule()
+        self.assertIsNotNone(base_appt_datetime)
         now = arrow.Arrow.fromdatetime(
             base_appt_datetime, tzinfo='UTC').datetime
         self.helper = self.helper_cls(
-            subject_identifier=subject_identifier, now=now,
-            facility_name=facility_name)
-        self.helper.consent_and_enroll()
+            subject_identifier=subject_identifier, now=now)
+        self.helper.consent_and_put_onschedule()
         appointments = Appointment.objects.filter(
             subject_identifier=subject_identifier)
         return [obj.appt_datetime for obj in appointments]
@@ -66,18 +60,14 @@ class TestApptDatetimes(TestCase):
 
         default facility (in tests) accepts appointments any day of the week.
         """
-        facility_name = '7-day clinic'
-        django_apps.app_configs['edc_facility'].definitions = {
-            facility_name: dict(days=[MO, TU, WE, TH, FR, SA, SU],
-                                slots=[100, 100, 100, 100, 100])}
-        self.register_visit_schedule(facility_name='7-day clinic')
+        self.register_visit_schedule(facility_name='7-day-clinic')
         for i in range(0, 7):
             subject_identifier = f'12345{i}'
             dt = datetime(2017, 1, 7 + i)
             now = arrow.Arrow.fromdatetime(dt, tzinfo='UTC').datetime
             self.helper = self.helper_cls(
-                subject_identifier=subject_identifier, now=now, facility_name=facility_name)
-            self.helper.consent_and_enroll()
+                subject_identifier=subject_identifier, now=now)
+            self.helper.consent_and_put_onschedule()
             appointments = Appointment.objects.filter(
                 subject_identifier=subject_identifier)
             appt_datetimes = [obj.appt_datetime for obj in appointments]
@@ -89,10 +79,7 @@ class TestApptDatetimes(TestCase):
     def test_appointments_creation_dates2(self):
         """Assert skips SA, SU.
         """
-        django_apps.app_configs['edc_facility'].definitions = {
-            '5-day clinic': dict(days=[MO, TU, WE, TH, FR],
-                                 slots=[100, 100, 100, 100, 100])}
-        self.register_visit_schedule(facility_name='5-day clinic')
+        self.register_visit_schedule(facility_name='5-day-clinic')
         base_appt_datetime = datetime(2017, 1, 7)
         self.assertTrue(weekday(base_appt_datetime.weekday()), SA)
         appt_datetimes = self.get_appt_datetimes(
@@ -143,13 +130,11 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[2].weekday()), FR)
         self.assertTrue(weekday(appt_datetimes[3].weekday()), MO)
 
+    @tag('1')
     def test_appointments_creation_dates3(self):
         """Assert skips FR, SA, SU, MO.
         """
-        django_apps.app_configs['edc_facility'].definitions = {
-            '3-day clinic': dict(days=[TU, WE, TH],
-                                 slots=[100, 100, 100, 100, 100])}
-        self.register_visit_schedule(facility_name='3-day clinic')
+        self.register_visit_schedule(facility_name='3-day-clinic')
         base_appt_datetime = datetime(2017, 1, 7)
         self.assertTrue(weekday(base_appt_datetime.weekday()), SA)
         appt_datetimes = self.get_appt_datetimes(

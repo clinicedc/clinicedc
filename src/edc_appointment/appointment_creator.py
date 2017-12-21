@@ -5,9 +5,15 @@ from django.db.utils import IntegrityError
 from django.utils.timezone import is_naive
 
 from .appointment_config import AppointmentConfigError
+from edc_facility.facility import FacilityError
+from arrow.arrow import Arrow
 
 
 class CreateAppointmentError(Exception):
+    pass
+
+
+class CreateAppointmentDateError(Exception):
     pass
 
 
@@ -17,10 +23,11 @@ class AppointmentCreatorError(Exception):
 
 class AppointmentCreator:
 
-    def __init__(self, model_obj=None, suggested_datetime=None, timepoint_datetime=None,
-                 visit=None, visit_code_sequence=None, facility=None,
+    def __init__(self, model_obj=None, timepoint_datetime=None,
+                 visit=None, visit_code_sequence=None, facility=None, taken_datetimes=None,
                  subject_identifier=None, visit_schedule_name=None, schedule_name=None,
-                 default_appt_type=None, appt_status=None):
+                 default_appt_type=None, appt_status=None, suggested_datetime=None,
+                 best_effort_window=None):
         self._appointment = None
         self._appointment_config = None
         self._appointment_model_cls = None
@@ -33,25 +40,37 @@ class AppointmentCreator:
             self.subject_identifier = subject_identifier
             self.visit_schedule_name = visit_schedule_name
             self.schedule_name = schedule_name
-        self.visit = visit
-        self.appointment_model = visit.appointment_model
-        self.visit_code_sequence = visit_code_sequence or 0
         self.appt_status = appt_status
+        self.appointment_model = visit.appointment_model
+        self.best_effort_window = best_effort_window
+        # already taken appt_datetimes for this subject
+        self.taken_datetimes = taken_datetimes or []
+        self.visit = visit
+        self.visit_code_sequence = visit_code_sequence or 0
+        # timepoint_datetime (required)
+        try:
+            if is_naive(timepoint_datetime):
+                raise ValueError(
+                    f'Naive datetime not allowed. {repr(self)}. '
+                    f'Got {timepoint_datetime}')
+            else:
+                self.timepoint_datetime = timepoint_datetime
+        except AttributeError:
+            raise AppointmentCreatorError(
+                f'Expected \'timepoint_datetime\'. Got None. {repr(self)}.')
+        # suggested_datetime (defaults to timepoint_datetime)
+        # If provided, the rules for window period/rdelta relative
+        # to timepoint_datetime still apply.
         if suggested_datetime and is_naive(suggested_datetime):
             raise ValueError(
                 f'Naive datetime not allowed. {repr(self)}. '
                 f'Got {suggested_datetime}')
         else:
-            self.suggested_datetime = suggested_datetime
-        if timepoint_datetime and is_naive(timepoint_datetime):
-            raise ValueError(
-                f'Naive datetime not allowed. {repr(self)}. '
-                f'Got {timepoint_datetime}')
-        else:
-            self.timepoint_datetime = timepoint_datetime
-        self.facility = facility or visit.facility or model_obj.facility
+            self.suggested_datetime = suggested_datetime or self.timepoint_datetime
+        self.facility = facility or visit.facility
         if not self.facility:
-            raise AppointmentCreatorError('Facility not defined.')
+            raise AppointmentCreatorError(
+                f'facility_name not defined. See {repr(visit)}')
         self.appointment
 
     def __repr__(self):
@@ -124,12 +143,22 @@ class AppointmentCreator:
 
     @property
     def appt_rdate(self):
-        # TODO: no dates available?
-        # if not appt_rdate: ???
-        return self.facility.available_rdate(
-            suggested_datetime=self.suggested_datetime,
-            forward_delta=self.visit.rupper,
-            reverse_delta=self.visit.rlower)
+        """Returns an arrow-object for an available appointment
+        datetime.
+
+        Raises an CreateAppointmentDateError if none.
+        """
+        try:
+            appt_rdate = self.facility.available_rdate(
+                suggested_datetime=self.suggested_datetime,
+                forward_delta=self.visit.rupper,
+                reverse_delta=self.visit.rlower,
+                taken_datetimes=self.taken_datetimes)
+        except FacilityError as e:
+            raise CreateAppointmentDateError(
+                f'{e} Visit={repr(self.visit)}. '
+                f'Try setting \'best_effort_available_datetime=True\' on facility.')
+        return appt_rdate
 
     @property
     def appointment_config(self):

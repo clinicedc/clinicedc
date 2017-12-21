@@ -11,7 +11,7 @@ def create_appointments_on_post_save(sender, instance, raw,
             instance.create_appointments()
         except AttributeError as e:
             if 'create_appointments' not in str(e):
-                raise AttributeError(str(e))
+                raise
 
 
 @receiver(post_save, weak=False, dispatch_uid="appointment_post_save")
@@ -26,7 +26,7 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
                 instance.save(update_fields=['time_point_status'])
         except AttributeError as e:
             if 'time_point_status' not in str(e):
-                raise AttributeError(str(e))
+                raise
 
 
 @receiver(post_delete, weak=False,
