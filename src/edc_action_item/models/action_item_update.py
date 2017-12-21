@@ -10,7 +10,7 @@ from .action_item import ActionItem
 class ActionItemUpdateManager(models.Manager):
 
     def get_by_natural_key(self, action_identifier):
-        return self.get(action_identifier=action_identifier)
+        return self.get(action_item__action_identifier=action_identifier)
 
 
 class ActionItemUpdate(BaseUuidModel):
@@ -31,7 +31,7 @@ class ActionItemUpdate(BaseUuidModel):
         return self.action_item.subject_identifier
 
     def natural_key(self):
-        return () + self.action.natural_key()
+        return self.action_item.natural_key()
     natural_key.dependencies = ['edc_action_item.action_item']
 
     @property

@@ -1,7 +1,7 @@
 from django.test import TestCase, tag
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_constants.constants import CLOSED
+from edc_constants.constants import CLOSED, OPEN
 from edc_model_wrapper import ModelWrapper
 
 from ..models import ActionItem, ActionType
@@ -272,6 +272,18 @@ class TestAction(TestCase):
             subject_identifier=self.subject_identifier,
             action_type=f3_action_type)
         self.assertEqual(obj.status, CLOSED)
+
+    def test_reference_model_delete_resets_action_item(self):
+        obj = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
+        action_item = ActionItem.objects.get(
+            action_identifier=obj.action_identifier)
+        self.assertEqual(action_item.status, CLOSED)
+        obj.delete()
+        action_item = ActionItem.objects.get(
+            action_identifier=obj.action_identifier)
+        self.assertEqual(action_item.status, OPEN)
+        self.assertIsNone(action_item.reference_identifier)
 
     def test_reference_model_url(self):
         obj = FormOne.objects.create(

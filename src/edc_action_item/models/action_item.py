@@ -51,13 +51,11 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     reference_identifier = models.CharField(
         max_length=50,
         null=True,
-        editable=False,
-        help_text='e.g. tracking identifier from source model')
+        help_text='e.g. tracking identifier updated from the reference model')
 
     reference_model = models.CharField(
         max_length=50,
-        null=True,
-        editable=False)
+        null=True)
 
     parent_reference_identifier = models.CharField(
         max_length=50,

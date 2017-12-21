@@ -18,6 +18,7 @@ class Action:
     model = None
     show_on_dashboard = None
     show_link_to_changelist = False
+    admin_site_name = None
     create_by_action = None
     create_by_user = None
     instructions = None
@@ -69,7 +70,7 @@ class Action:
             display_name=cls.display_name,
             model=cls.model,
             show_on_dashboard=(
-                False if cls.show_on_dashboard is None else cls.show_on_dashboard),
+                True if cls.show_on_dashboard is None else cls.show_on_dashboard),
             show_link_to_changelist=(
                 True if cls.show_link_to_changelist is None else cls.show_link_to_changelist),
             create_by_user=True if cls.create_by_user is None else cls.create_by_user,

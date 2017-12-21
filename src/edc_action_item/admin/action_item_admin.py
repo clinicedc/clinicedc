@@ -36,14 +36,19 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
                 'report_datetime',
                 'action_type',
                 'priority',
-                'instructions',
-                'parent_action_item',
-                'parent_reference_identifier',
                 'status',
+                'parent_action_item',
+                'instructions',
+            )}),
+        ('Reference Information', {
+            'classes': ('collapse', ),
+            'fields': (
+                'reference_identifier',
+                'reference_model',
+                'parent_reference_identifier',
                 'auto_created',
-                'auto_created_comment'
-            )},
-         ),
+                'auto_created_comment',
+            )}),
         audit_fieldset_tuple
     )
 
@@ -73,14 +78,15 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)
         fields = fields + ('action_identifier', 'instructions',
-                           'auto_created', 'auto_created_comment')
+                           'auto_created', 'auto_created_comment',
+                           'reference_identifier', 'reference_model',
+                           'parent_reference_identifier',
+                           'parent_action_item',
+                           )
         if obj:
             fields = fields + ('subject_identifier',
                                'report_datetime',
-                               'parent_reference_identifier',
-                               'action_type',
-                               'action_identifier',
-                               'parent_action_item')
+                               'action_type')
         return fields
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

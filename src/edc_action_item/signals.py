@@ -1,5 +1,6 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from edc_constants.constants import OPEN
 
 from .models import ActionItem, ActionItemUpdate
 from .reference_model_updater import ReferenceModelUpdater
@@ -30,3 +31,21 @@ def update_action_item_on_post_save(sender, instance, raw,
             if ('historical' not in instance._meta.label_lower
                     and not isinstance(instance, (ActionItem, ActionItemUpdate))):
                 instance.action_cls(model_obj=instance)
+
+
+@receiver(post_delete, weak=False,
+          dispatch_uid="action_on_post_delete")
+def action_on_post_delete(sender, instance, using, **kwargs):
+    """Re-opens an action item when the action's reference
+    model is deleted.
+    """
+    try:
+        instance.action_cls
+    except AttributeError:
+        pass
+    else:
+        obj = ActionItem.objects.get(
+            action_identifier=instance.action_identifier)
+        obj.status = OPEN
+        obj.reference_identifier = None
+        obj.save()

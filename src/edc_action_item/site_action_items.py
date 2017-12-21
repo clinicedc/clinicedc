@@ -6,6 +6,8 @@ from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
 from importlib import import_module
+from edc_prn.prn import Prn
+from edc_prn.site_prn_forms import site_prn_forms
 
 
 class AlreadyRegistered(Exception):
@@ -39,6 +41,14 @@ class SiteActionItemCollection:
                 f'for {action_cls.__name__}')
         else:
             self.registry.update({action_cls.name: action_cls})
+        if action_cls.show_link_to_changelist:
+            prn = Prn(
+                model=action_cls.model,
+                url_namespace=action_cls.admin_site_name)
+            try:
+                site_prn_forms.register(prn)
+            except AlreadyRegistered:
+                pass
 
     def get(self, name):
         if name not in self.registry:

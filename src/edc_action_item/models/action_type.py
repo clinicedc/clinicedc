@@ -30,10 +30,10 @@ class ActionType(BaseUuidModel):
         default=HIGH_PRIORITY)
 
     show_on_dashboard = models.BooleanField(
-        default=True)
+        default=False)
 
     show_link_to_changelist = models.BooleanField(
-        default=True)
+        default=False)
 
     create_by_action = models.BooleanField(
         default=True,
