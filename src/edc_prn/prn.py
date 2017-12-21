@@ -55,7 +55,7 @@ class Prn:
         except LookupError as e:
             raise PrnError(f'{e}. See {repr(self)}')
 
-    def show_on_subject_dashboard(self, subject_identifier=None, **kwargs):
+    def get_show_on_dashboard(self, subject_identifier=None, **kwargs):
         count = 0
         if self.show_on_dashboard:
             if subject_identifier:
