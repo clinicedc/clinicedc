@@ -52,6 +52,12 @@ class Visit:
                  instructions=None, grouping=None, appointment_model=None,
                  allow_unscheduled=None, facility_name=None, **kwargs):
 
+        self.instructions = instructions
+        self.timepoint = timepoint
+        self.rbase = rbase
+        self.rlower = rlower
+        self.rupper = rupper
+        self.grouping = grouping
         self.appointment_model = appointment_model
         self.dates = self.visit_date_cls(
             rlower=rlower, rupper=rupper, **kwargs)
@@ -70,6 +76,7 @@ class Visit:
             *(requisitions or []),
             name=f'requisitions for {self.name}',
             **kwargs).forms
+
         self.allow_unscheduled = allow_unscheduled
         if self.allow_unscheduled:
             self.crfs_unscheduled = self.forms_collection_cls(
@@ -87,12 +94,6 @@ class Visit:
         else:
             self.crfs_unscheduled = None
             self.requisitions_unscheduled = None
-        self.instructions = instructions
-        self.timepoint = timepoint
-        self.rbase = rbase
-        self.rlower = rlower
-        self.rupper = rupper
-        self.grouping = grouping
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.code}, {self.timepoint})'

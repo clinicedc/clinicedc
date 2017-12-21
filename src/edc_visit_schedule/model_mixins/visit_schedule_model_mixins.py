@@ -14,6 +14,10 @@ class VisitScheduleMethodsError(Exception):
     pass
 
 
+class VisitScheduleModelMixinError(Exception):
+    pass
+
+
 class VisitScheduleMetaMixin(models.Model):
 
     """Adds the \'visit_schedule_name\' Meta class attribute.
@@ -129,26 +133,6 @@ class VisitScheduleModelMixin(VisitScheduleFieldsModelMixin,
         help_text=('An integer to represent the sequence of additional '
                    'appointments relative to the base appointment, 0, needed '
                    'to complete data collection for the timepoint. (NNNN.0)'))
-
-    def save(self, *args, **kwargs):
-        # set field attrs
-        self.visit_schedule_name, self.schedule_name = (
-            self._meta.visit_schedule_name.split('.'))
-        # Asserts model's visit schedule/schedule is
-        # registered/added or raises.
-        try:
-            visit_schedule = site_visit_schedules.get_visit_schedule(
-                visit_schedule_name=self.visit_schedule_name)
-        except (SiteVisitScheduleError, VisitScheduleError) as e:
-            raise VisitScheduleError(
-                f'Visit Schedule not found. Model {repr(self)} Got {e}') from e
-        try:
-            visit_schedule.get_schedule(
-                schedule_name=self.schedule_name)
-        except (SiteVisitScheduleError, VisitScheduleError) as e:
-            raise VisitScheduleError(
-                f'Schedule not found. Model {repr(self)} Got {e}') from e
-        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True

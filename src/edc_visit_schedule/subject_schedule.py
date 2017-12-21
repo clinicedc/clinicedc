@@ -29,12 +29,13 @@ class SubjectSchedule:
         self.consent_identifier = consent_identifier
 
     def get_onschedule(self):
-        obj = self.onschedule_model_cls.objects.get(
+        """Returns the onschedule model instance or raises.
+        """
+        return self.onschedule_model_cls.objects.get(
             subject_identifier=self.subject_identifier)
-        return obj
 
     def put_on_schedule(self, onschedule_datetime=None):
-        """Returns an on-schedule model instance by get or create.
+        """Returns an onschedule model instance by get or create.
         """
         onschedule_datetime = onschedule_datetime or get_utcnow()
         try:
@@ -80,9 +81,21 @@ class SubjectSchedule:
 
     def consented_or_raise(self):
         """Raises an exception if one or more consents do not exist.
+
+        Onschedule models need to have Meta.consent_model set.
         """
-        consent_model_cls = django_apps.get_model(
-            self.onschedule_model_cls._meta.consent_model)
+        try:
+            consent_model = self.onschedule_model_cls._meta.consent_model
+        except AttributeError:
+            raise SubjectScheduleError(
+                'OnSchedule model missing Meta attr consent_model. '
+                f'See {repr(self.onschedule_model_cls)}')
+        else:
+            if not consent_model:
+                raise SubjectScheduleError(
+                    'OnSchedule model Meta attribute \'consent_model\' not set. '
+                    f'Got None. See {repr(self.onschedule_model_cls)}')
+        consent_model_cls = django_apps.get_model(consent_model)
         try:
             consent_model_cls.objects.get(
                 subject_identifier=self.subject_identifier)

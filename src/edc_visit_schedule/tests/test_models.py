@@ -182,5 +182,4 @@ class TestModels(TestCase):
             subject_identifier='11111',
             consent_identifier=uuid4())
         obj.save()
-        self.assertEqual(obj.natural_key(),
-                         ('11111', 'visit_schedule_blah', 'schedule_blah'))
+        self.assertEqual(obj.natural_key(), ('11111', ))

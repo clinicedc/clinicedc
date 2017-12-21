@@ -39,7 +39,7 @@ class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin,
     objects = OnScheduleModelManager()
 
     def natural_key(self):
-        return (self.subject_identifier)
+        return (self.subject_identifier, )
 
     def save(self, *args, **kwargs):
         if not self._meta.consent_model:

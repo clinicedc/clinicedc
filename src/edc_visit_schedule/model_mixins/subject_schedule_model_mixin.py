@@ -3,9 +3,12 @@ from django.db import models
 from edc_base.utils import get_uuid
 
 from .visit_schedule_model_mixins import VisitScheduleModelMixin
+from edc_visit_schedule.site_visit_schedules import SiteVisitScheduleError,\
+    site_visit_schedules
+from edc_visit_schedule.visit_schedule.visit_schedule import VisitScheduleError
 
 
-class EnrollmentModelError(Exception):
+class SubjectScheduleModelError(Exception):
     pass
 
 
@@ -27,12 +30,21 @@ class SubjectScheduleModelMixin(VisitScheduleModelMixin, models.Model):
         if not self.id:
             if not self.subject_identifier:
                 self.subject_identifier = get_uuid()
+        self.visit_schedule_name, self.schedule_name = (
+            self._meta.visit_schedule_name.split('.'))
+        try:
+            visit_schedule = site_visit_schedules.get_visit_schedule(
+                visit_schedule_name=self.visit_schedule_name)
+        except (SiteVisitScheduleError, VisitScheduleError) as e:
+            raise SubjectScheduleModelError(
+                f'Visit Schedule not found. Model {repr(self)} Got {e}') from e
+        try:
+            visit_schedule.get_schedule(
+                schedule_name=self.schedule_name)
+        except (SiteVisitScheduleError, VisitScheduleError) as e:
+            raise SubjectScheduleModelError(
+                f'Schedule not found. Model {repr(self)} Got {e}') from e
         super().save(*args, **kwargs)
-
-    def natural_key(self):
-        return (self.subject_identifier,
-                self.visit_schedule_name,
-                self.schedule_name)
 
     class Meta:
         abstract = True

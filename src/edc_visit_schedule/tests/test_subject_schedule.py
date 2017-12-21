@@ -60,15 +60,18 @@ class TestSubjectSchedule(TestCase):
             subject_identifier=self.subject_identifier)
         self.consent_identifier = obj.consent_identifier
 
+    @tag('1')
     def test_history(self):
         history = SubjectScheduleHistory()
         self.assertFalse(history.history)
 
+    @tag('1')
     def test_history_not_onschedule(self):
         history = SubjectScheduleHistory(
             subject_identifier=self.subject_identifier)
         self.assertFalse(history.history)
 
+    @tag('1')
     def test_get_onschedule_but_empty(self):
         """Asserts returns an empty list if not on-schedule.
         """
@@ -76,6 +79,7 @@ class TestSubjectSchedule(TestCase):
             subject_identifier=self.subject_identifier)
         self.assertFalse(history.history)
 
+    @tag('1')
     def test_get_onschedule(self):
         """Asserts returns an onschedule instance if on-schedule.
         """

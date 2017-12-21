@@ -5,7 +5,7 @@ from edc_base.utils import get_utcnow
 from uuid import uuid4
 
 from ..offschedule_validator import OffScheduleError
-from ..model_mixins import OnScheduleModelError
+from ..model_mixins import OnScheduleModelError, SubjectScheduleModelError
 from ..schedule import Schedule, ScheduleAppointmentModelError
 from ..site_visit_schedules import site_visit_schedules
 from ..validator import ValidatorMetaValueError
@@ -312,11 +312,14 @@ class TestVisitSchedule3(TestCase):
         self.assertEqual(obj.schedule_name, self.schedule.name)
 
     def test_cannot_put_on_schedule_if_visit_schedule_not_registered(self):
-        self.assertRaises(VisitScheduleError, OnScheduleTwo.objects.create)
+        self.assertRaises(
+            SubjectScheduleModelError,
+            OnScheduleTwo.objects.create)
 
     def test_cannot_put_on_schedule_if_schedule_not_added(self):
         self.assertRaises(
-            VisitScheduleError, OnScheduleThree.objects.create)
+            SubjectScheduleModelError,
+            OnScheduleThree.objects.create)
 
     def test_visit_schedule_name_not_set(self):
         self.assertRaises(
