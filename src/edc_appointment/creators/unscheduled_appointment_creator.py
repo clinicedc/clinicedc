@@ -1,9 +1,9 @@
-from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
+from ..constants import COMPLETE_APPT, INCOMPLETE_APPT, NEW_APPT
+from ..constants import CANCELLED_APPT, IN_PROGRESS_APPT
 from .appointment_creator import AppointmentCreator
-from .constants import COMPLETE_APPT, INCOMPLETE_APPT, NEW_APPT, CANCELLED_APPT, IN_PROGRESS_APPT
 
 
 class UnscheduledAppointmentError(Exception):
@@ -42,6 +42,8 @@ class UnscheduledAppointmentCreator:
         self.facility = facility
         self.visit_schedule = site_visit_schedules.get_visit_schedule(
             visit_schedule_name)
+        self.schedule = self.visit_schedule.schedules.get(schedule_name)
+        self.appointment_model_cls = self.schedule.appointment_model_cls
         visit = self.visit_schedule.schedules.get(
             schedule_name).visits.get(visit_code)
         if not visit:
@@ -51,9 +53,11 @@ class UnscheduledAppointmentCreator:
                 f'schedule_name=\'{schedule_name}\','
                 f'visit_code=\'{visit_code}\'' + '}')
         if visit.allow_unscheduled:
+            # force lookup and parent_appointment exceptions
+            self.parent_appointment
             # do not allow if any appointments are IN_PROGRESS
             try:
-                obj = self.parent_appointment.__class__.objects.get(
+                obj = self.appointment_model_cls.objects.get(
                     subject_identifier=self.subject_identifier,
                     visit_schedule_name=self.visit_schedule_name,
                     schedule_name=self.schedule_name,
@@ -92,17 +96,16 @@ class UnscheduledAppointmentCreator:
     @property
     def parent_appointment(self):
         if not self._parent_appointment:
-            visit_model_cls = django_apps.get_model(
-                self.visit_schedule.visit_model)
             options = dict(
-                appointment__subject_identifier=self.subject_identifier,
+                subject_identifier=self.subject_identifier,
                 visit_schedule_name=self.visit_schedule_name,
                 schedule_name=self.schedule_name,
                 visit_code=self.visit_code,
                 visit_code_sequence=0)
+            self._parent_appointment = (
+                self.appointment_model_cls.objects.get(**options))
             try:
-                self._parent_appointment = visit_model_cls.objects.get(
-                    **options).appointment
+                self._parent_appointment.visit
             except ObjectDoesNotExist:
                 raise InvalidParentAppointmentMissingVisitError(
                     f'Unable to create unscheduled appointment. An unscheduled '

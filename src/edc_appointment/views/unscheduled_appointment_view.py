@@ -5,11 +5,11 @@ from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
-from ..unscheduled_appointment_creator import AppointmentInProgressError
-from ..unscheduled_appointment_creator import InvalidParentAppointmentMissingVisitError
-from ..unscheduled_appointment_creator import InvalidParentAppointmentStatusError
-from ..unscheduled_appointment_creator import UnscheduledAppointmentCreator
-from ..unscheduled_appointment_creator import UnscheduledAppointmentError
+from ..creators import AppointmentInProgressError
+from ..creators import InvalidParentAppointmentMissingVisitError
+from ..creators import InvalidParentAppointmentStatusError
+from ..creators import UnscheduledAppointmentCreator
+from ..creators import UnscheduledAppointmentError
 
 
 class UnscheduledAppointmentView(View):

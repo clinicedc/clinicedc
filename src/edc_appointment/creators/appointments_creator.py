@@ -1,27 +1,25 @@
+
 import arrow
 
 from django.apps import apps as django_apps
-from django.db import models
-from django.db.models import options
 from django.db.models.deletion import ProtectedError
 from edc_facility import FacilityError
 
-from ..appointment_creator import AppointmentCreator, CreateAppointmentError
+from .appointment_creator import AppointmentCreator, CreateAppointmentError
 
 
-if 'visit_schedule_name' not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
-
-
-class CreateAppointmentsMixin(models.Model):
-    """ Model Mixin to add fields and methods to an enrollment
-    model to create appointments on post_save.
-
-    Requires model mixins VisitScheduleFieldsModelMixin,
-    VisitScheduleMethodsModelMixin.
-    """
+class AppointmentsCreator:
 
     appointment_creator_cls = AppointmentCreator
+
+    def __init__(self, subject_identifier=None,
+                 visit_schedule=None, schedule=None,
+                 report_datetime=None, appointment_model=None):
+        self.subject_identifier = subject_identifier
+        self.visit_schedule = visit_schedule
+        self.schedule = schedule
+        self.report_datetime = report_datetime
+        self.appointment_model = appointment_model
 
     def create_appointments(self, base_appt_datetime=None, taken_datetimes=None):
         """Creates appointments when called by post_save signal.
@@ -57,7 +55,10 @@ class CreateAppointmentsMixin(models.Model):
         for the visit.
         """
         appointment_creator = self.appointment_creator_cls(
-            model_obj=self, **kwargs)
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
+            appointment_model=self.appointment_model, **kwargs)
         return appointment_creator.appointment
 
     def delete_unused_appointments(self):
@@ -71,7 +72,3 @@ class CreateAppointmentsMixin(models.Model):
             except ProtectedError:
                 pass
         return None
-
-    class Meta:
-        abstract = True
-        visit_schedule_name = None

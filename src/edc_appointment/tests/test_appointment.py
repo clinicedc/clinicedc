@@ -32,7 +32,7 @@ class TestAppointment(TestCase):
     def test_appointments_creation(self):
         """Assert appointment triggering method creates appointments.
         """
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier)
         self.assertEqual(appointments.count(), 4)
@@ -41,17 +41,16 @@ class TestAppointment(TestCase):
         """Asserts first appointment correctly selected if
         both visit_schedule_name and schedule_name provided.
         """
-        subject_consent = self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         OnScheduleTwo.objects.create(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow(),
-            consent_identifier=subject_consent.consent_identifier)
+            onschedule_datetime=get_utcnow())
         self.assertEqual(Appointment.objects.all().count(), 8)
 
     def test_deletes_appointments(self):
         """Asserts manager method can delete appointments.
         """
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier)
         self.assertEqual(appointments.count(), 4)
@@ -70,7 +69,7 @@ class TestAppointment(TestCase):
     def test_deletes_appointments_with_unscheduled(self):
         """Asserts manager method can delete appointments.
         """
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier)
         self.assertEqual(appointments.count(), 4)
@@ -102,7 +101,6 @@ class TestAppointment(TestCase):
             subject_consent = SubjectConsent.objects.all()[day.weekday]
             OnScheduleOne.objects.create(
                 subject_identifier=subject_consent.subject_identifier,
-                consent_identifier=subject_consent.consent_identifier,
                 onschedule_datetime=(subject_consent.consent_datetime
                                      + relativedelta(weeks=2)
                                      + relativedelta(weekday=day(-1))))
@@ -124,7 +122,7 @@ class TestAppointment(TestCase):
         as Decimals and ordered by appt_datetime.
         """
         context = Context(prec=2)
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         self.assertEqual(
             [obj.timepoint for obj in Appointment.objects.all().order_by('appt_datetime')],
             [context.create_decimal(n) for n in range(0, 4)])
@@ -133,13 +131,12 @@ class TestAppointment(TestCase):
         """Asserts first appointment correctly selected if
         both visit_schedule_name and schedule_name provided.
         """
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         subject_consent = SubjectConsent.objects.get(
             subject_identifier=self.subject_identifier)
         OnScheduleTwo.objects.create(
             subject_identifier=subject_consent.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
-            consent_identifier=subject_consent.consent_identifier)
+            onschedule_datetime=subject_consent.consent_datetime)
         onschedule_one = OnScheduleOne.objects.get(
             subject_identifier=self.subject_identifier)
         first_appointment = Appointment.objects.first_appointment(
@@ -163,11 +160,9 @@ class TestAppointment(TestCase):
             consent_datetime=get_utcnow())
         OnScheduleTwo.objects.create(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
-            consent_identifier=subject_consent.consent_identifier)
+            onschedule_datetime=subject_consent.consent_datetime)
         OnScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
-            consent_identifier=subject_consent.consent_identifier,
             onschedule_datetime=(
                 subject_consent.report_datetime + relativedelta(months=1)))
 
@@ -186,12 +181,11 @@ class TestAppointment(TestCase):
         """Asserts first appointment correctly selected if
         unscheduled visits have been added.
         """
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         subject_consent = SubjectConsent.objects.get(
             subject_identifier=self.subject_identifier)
         OnScheduleTwo.objects.create(
             subject_identifier=subject_consent.subject_identifier,
-            consent_identifier=subject_consent.consent_identifier,
             onschedule_datetime=subject_consent.consent_datetime)
         onschedule_one = OnScheduleOne.objects.get(
             subject_identifier=self.subject_identifier)
@@ -217,7 +211,7 @@ class TestAppointment(TestCase):
         self.assertEqual(first_appointment, appointment)
 
     def test_next_appointment(self):
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         onschedule = OnScheduleOne.objects.get(
             subject_identifier=self.subject_identifier)
         first_appointment = Appointment.objects.first_appointment(
@@ -242,7 +236,7 @@ class TestAppointment(TestCase):
             next_appointment)
 
     def test_next_appointment_with_unscheduled(self):
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         onschedule = OnScheduleOne.objects.get(
             subject_identifier=self.subject_identifier)
         first_appointment = Appointment.objects.first_appointment(
@@ -281,7 +275,7 @@ class TestAppointment(TestCase):
     def test_next_appointment_after_last_returns_none(self):
         """Assert returns None if next after last appointment.
         """
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
 
         last_appointment = Appointment.objects.last_appointment(
             subject_identifier=self.subject_identifier,
@@ -293,7 +287,7 @@ class TestAppointment(TestCase):
     def test_next_appointment_after_last_returns_none_with_unscheduled(self):
         """Assert returns None if next after last appointment.
         """
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
 
         last_appointment = Appointment.objects.last_appointment(
             subject_identifier=self.subject_identifier,
@@ -318,7 +312,7 @@ class TestAppointment(TestCase):
     def test_next_appointment_until_none(self):
         """Assert can walk from first to last appointment.
         """
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier,
             visit_schedule_name='visit_schedule1',
@@ -336,7 +330,7 @@ class TestAppointment(TestCase):
     def test_previous_appointment1(self):
         """Assert returns None if relative to first appointment.
         """
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         first_appointment = Appointment.objects.first_appointment(
             subject_identifier=self.subject_identifier,
             visit_schedule_name='visit_schedule1',
@@ -347,7 +341,7 @@ class TestAppointment(TestCase):
     def test_previous_appointment2(self):
         """Assert returns previous appointment.
         """
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         first_appointment = Appointment.objects.first_appointment(
             subject_identifier=self.subject_identifier,
             visit_schedule_name='visit_schedule1',
@@ -360,7 +354,7 @@ class TestAppointment(TestCase):
     def test_next_and_previous_appointment3(self):
         """Assert accepts appointment or indiviual attrs.
         """
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         first_appointment = Appointment.objects.first_appointment(
             subject_identifier=self.subject_identifier,
             visit_schedule_name='visit_schedule1',

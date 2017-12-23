@@ -1,3 +1,1 @@
 from .appointment_model_mixin import AppointmentModelMixin
-from .create_appointments_mixin import CreateAppointmentsMixin
-from .create_appointments_on_eligible import CreateAppointmentsOnEligibleMixin

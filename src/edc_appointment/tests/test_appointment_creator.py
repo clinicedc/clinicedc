@@ -7,10 +7,11 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.test import TestCase, tag
 from django.test.utils import override_settings
-from edc_appointment import AppointmentCreator
-from edc_appointment.models import Appointment
 from edc_visit_schedule import VisitSchedule, Schedule, Visit
 from edc_base.utils import get_utcnow
+
+from ..creators import AppointmentCreator
+from ..models import Appointment
 
 
 class TestAppointmentCreator(TestCase):
@@ -21,17 +22,15 @@ class TestAppointmentCreator(TestCase):
         self.visit_schedule = VisitSchedule(
             name='visit_schedule',
             verbose_name='Visit Schedule',
-            app_label='edc_appointment',
-            visit_model='edc_appointment.subjectvisit',
             offstudy_model='edc_appointment.subjectoffstudy',
-            death_report_model='edc_appointment.deathreport',
-            onschedule_model='edc_appointment.onschedule',
-            offschedule_model='edc_appointment.offschedule')
+            death_report_model='edc_appointment.deathreport')
 
         self.schedule = Schedule(
             name='schedule',
             onschedule_model='edc_appointment.onschedule',
-            offschedule_model='edc_appointment.offschedule')
+            offschedule_model='edc_appointment.offschedule',
+            appointment_model='edc_appointment.appointment',
+            consent_model='edc_appointment.subjectconsent')
 
         self.visit1000 = Visit(code='1000',
                                timepoint=0,
@@ -63,20 +62,26 @@ class TestAppointmentCreator(TestCase):
     def test_init(self):
         self.assertTrue(
             AppointmentCreator(
-                model_obj=self.model_obj,
+                subject_identifier=self.subject_identifier,
+                visit_schedule_name=self.visit_schedule.name,
+                schedule_name=self.schedule.name,
                 visit=self.visit1000,
                 timepoint_datetime=get_utcnow()))
 
     def test_str(self):
         creator = AppointmentCreator(
-            model_obj=self.model_obj,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
             visit=self.visit1000,
             timepoint_datetime=get_utcnow())
         self.assertEqual(str(creator), self.subject_identifier)
 
     def test_repr(self):
         creator = AppointmentCreator(
-            model_obj=self.model_obj,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
             visit=self.visit1000,
             timepoint_datetime=get_utcnow())
         self.assertTrue(creator)
@@ -84,7 +89,9 @@ class TestAppointmentCreator(TestCase):
     def test_create(self):
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         creator = AppointmentCreator(
-            model_obj=self.model_obj,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
             visit=self.visit1000,
             timepoint_datetime=appt_datetime)
         appointment = creator.appointment
@@ -101,7 +108,9 @@ class TestAppointmentCreator(TestCase):
         for i in range(1, 7):
             appt_datetime = Arrow.fromdatetime(datetime(2017, 1, i)).datetime
         creator = AppointmentCreator(
-            model_obj=self.model_obj,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
             visit=self.visit1000,
             timepoint_datetime=appt_datetime)
         self.assertEqual(
@@ -112,7 +121,9 @@ class TestAppointmentCreator(TestCase):
     def test_create_forward(self):
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         creator = AppointmentCreator(
-            model_obj=self.model_obj,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
             visit=self.visit1000,
             timepoint_datetime=appt_datetime)
         appointment = creator.appointment
@@ -123,9 +134,11 @@ class TestAppointmentCreator(TestCase):
             Arrow.fromdatetime(datetime(2017, 1, 3)).datetime)
 
     def test_create_reverse(self):
-        appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 4)).datetime
+        appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 10)).datetime
         creator = AppointmentCreator(
-            model_obj=self.model_obj,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
             visit=self.visit1000R,
             timepoint_datetime=appt_datetime)
         appointment = creator.appointment
@@ -133,14 +146,16 @@ class TestAppointmentCreator(TestCase):
             Appointment.objects.all()[0], appointment)
         self.assertEqual(
             Appointment.objects.all()[0].appt_datetime,
-            Arrow.fromdatetime(datetime(2017, 1, 3)).datetime)
+            Arrow.fromdatetime(datetime(2017, 1, 9)).datetime)
 
     def test_raise_on_naive_datetime(self):
         appt_datetime = datetime(2017, 1, 1)
         self.assertRaises(
             ValueError,
             AppointmentCreator,
-            model_obj=self.model_obj,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
             visit=self.visit1000,
             timepoint_datetime=appt_datetime)
 
@@ -149,7 +164,8 @@ class TestAppointmentCreator(TestCase):
         self.assertRaises(
             ValueError,
             AppointmentCreator,
-            model_obj=self.model_obj,
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
             visit=self.visit1000,
-            suggested_datetime=appt_datetime,
             timepoint_datetime=appt_datetime)

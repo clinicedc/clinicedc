@@ -7,10 +7,10 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import NEW_APPT, INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT
 from ..models import Appointment
-from ..unscheduled_appointment_creator import InvalidParentAppointmentMissingVisitError
-from ..unscheduled_appointment_creator import InvalidParentAppointmentStatusError
-from ..unscheduled_appointment_creator import UnscheduledAppointmentCreator
-from ..unscheduled_appointment_creator import UnscheduledAppointmentNotAllowed
+from ..creators import InvalidParentAppointmentMissingVisitError
+from ..creators import InvalidParentAppointmentStatusError
+from ..creators import UnscheduledAppointmentCreator
+from ..creators import UnscheduledAppointmentNotAllowed
 from .helper import Helper
 from .models import SubjectVisit
 from .visit_schedule import visit_schedule1, visit_schedule2
@@ -31,7 +31,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
                 datetime(2017, 1, 7), tzinfo='UTC').datetime)
 
     def test_unscheduled_allowed_but_raises_on_appt_status(self):
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         schedule_name = 'schedule1'
         visit = visit_schedule1.schedules.get(schedule_name).visits.first
         appointment = Appointment.objects.get(
@@ -83,7 +83,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
             visit_code='5000')
 
     def test_add_subject_visits(self):
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         schedule_name = 'schedule1'
         for visit in visit_schedule1.schedules.get(schedule_name).visits.values():
             with self.subTest(visit=visit):

@@ -1,7 +1,7 @@
 from edc_base.utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..unscheduled_appointment_creator import UnscheduledAppointmentCreator
+from ..creators import UnscheduledAppointmentCreator
 from .models import SubjectConsent
 
 
@@ -11,7 +11,7 @@ class Helper:
         self.subject_identifier = subject_identifier
         self.now = now or get_utcnow()
 
-    def consent_and_put_onschedule(self, subject_identifier=None):
+    def consent_and_put_on_schedule(self, subject_identifier=None):
         subject_identifier = subject_identifier or self.subject_identifier
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=subject_identifier,
@@ -21,7 +21,6 @@ class Helper:
         schedule = visit_schedule.schedules.get('schedule1')
         schedule.put_on_schedule(
             subject_identifier=subject_consent.subject_identifier,
-            consent_identifier=subject_consent.consent_identifier,
             onschedule_datetime=subject_consent.consent_datetime)
         return subject_consent
 

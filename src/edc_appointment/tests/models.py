@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.model_mixins import CreateAppointmentsMixin
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
@@ -32,18 +31,14 @@ class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
         return 'subject_identifier'
 
 
-class OnScheduleOne(OnScheduleModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule1.schedule1'
-        consent_model = 'edc_appointment.subjectconsent'
+    pass
 
 
-class OnScheduleTwo(OnScheduleModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule2.schedule2'
-        consent_model = 'edc_appointment.subjectconsent'
+    pass
 
 
 class SubjectVisit(VisitModelMixin, BaseUuidModel):

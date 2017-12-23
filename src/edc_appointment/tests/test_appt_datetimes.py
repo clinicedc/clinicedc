@@ -49,7 +49,7 @@ class TestApptDatetimes(TestCase):
             base_appt_datetime, tzinfo='UTC').datetime
         self.helper = self.helper_cls(
             subject_identifier=subject_identifier, now=now)
-        self.helper.consent_and_put_onschedule()
+        self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(
             subject_identifier=subject_identifier)
         return [obj.appt_datetime for obj in appointments]
@@ -67,7 +67,7 @@ class TestApptDatetimes(TestCase):
             now = arrow.Arrow.fromdatetime(dt, tzinfo='UTC').datetime
             self.helper = self.helper_cls(
                 subject_identifier=subject_identifier, now=now)
-            self.helper.consent_and_put_onschedule()
+            self.helper.consent_and_put_on_schedule()
             appointments = Appointment.objects.filter(
                 subject_identifier=subject_identifier)
             appt_datetimes = [obj.appt_datetime for obj in appointments]

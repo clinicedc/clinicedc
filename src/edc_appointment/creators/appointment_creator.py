@@ -3,10 +3,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils.timezone import is_naive
-
-from .appointment_config import AppointmentConfigError
 from edc_facility.facility import FacilityError
-from arrow.arrow import Arrow
+
+from ..appointment_config import AppointmentConfigError
 
 
 class CreateAppointmentError(Exception):
@@ -23,26 +22,20 @@ class AppointmentCreatorError(Exception):
 
 class AppointmentCreator:
 
-    def __init__(self, model_obj=None, timepoint_datetime=None,
-                 visit=None, visit_code_sequence=None, facility=None, taken_datetimes=None,
-                 subject_identifier=None, visit_schedule_name=None, schedule_name=None,
-                 default_appt_type=None, appt_status=None, suggested_datetime=None,
-                 best_effort_window=None):
+    def __init__(self, timepoint_datetime=None,
+                 visit=None, visit_code_sequence=None, facility=None, appointment_model=None,
+                 taken_datetimes=None, subject_identifier=None, visit_schedule_name=None,
+                 schedule_name=None, default_appt_type=None, appt_status=None,
+                 suggested_datetime=None):
         self._appointment = None
         self._appointment_config = None
         self._appointment_model_cls = None
         self._default_appt_type = default_appt_type
-        if model_obj:
-            self.subject_identifier = model_obj.subject_identifier
-            self.visit_schedule_name = model_obj.visit_schedule.name
-            self.schedule_name = model_obj.schedule.name
-        else:
-            self.subject_identifier = subject_identifier
-            self.visit_schedule_name = visit_schedule_name
-            self.schedule_name = schedule_name
+        self.subject_identifier = subject_identifier
+        self.visit_schedule_name = visit_schedule_name
+        self.schedule_name = schedule_name
         self.appt_status = appt_status
-        self.appointment_model = visit.appointment_model
-        self.best_effort_window = best_effort_window
+        self.appointment_model = appointment_model
         # already taken appt_datetimes for this subject
         self.taken_datetimes = taken_datetimes or []
         self.visit = visit
@@ -130,7 +123,7 @@ class AppointmentCreator:
             raise CreateAppointmentError(
                 f'An \'IntegrityError\' was raised while trying to '
                 f'create an appointment for subject \'{self.subject_identifier}\'. '
-                f'Got {e}. Options were {self.options}')
+                f'Got {e}. Appointment create options were {self.options}')
         return appointment
 
     def _update(self, appointment=None):
