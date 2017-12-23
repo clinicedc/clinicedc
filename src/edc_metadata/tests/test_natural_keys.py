@@ -12,7 +12,8 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ..sync_models import sync_models
 from .visit_schedule import visit_schedule
-from .models import Enrollment, SubjectVisit
+from .models import SubjectVisit, SubjectConsent
+from edc_base.utils import get_utcnow
 
 fake = Faker()
 
@@ -42,17 +43,20 @@ class TestNaturalKey(TestCase):
         site_visit_schedules.register(visit_schedule)
 
         # note crfs in visit schedule are all set to REQUIRED by default.
-        self.schedule = site_visit_schedules.get_schedule(
-            visit_schedule_name='visit_schedule',
-            schedule_name='schedule')
+        _, self.schedule = site_visit_schedules.get_by_onschedule_model(
+            'edc_metadata.onschedule')
 
     def enroll(self, gender=None):
         subject_identifier = fake.credit_card_number()
-        self.registered_subject = RegisteredSubject.objects.create(
-            subject_identifier=subject_identifier, gender=gender)
-        Enrollment.objects.create(
+        subject_consent = SubjectConsent.objects.create(
             subject_identifier=subject_identifier,
-            facility_name='7-day-clinic')
+            consent_datetime=get_utcnow(),
+            gender=gender)
+        self.registered_subject = RegisteredSubject.objects.get(
+            subject_identifier=subject_identifier)
+        self.schedule.put_on_schedule(
+            subject_identifier=subject_identifier,
+            onschedule_datetime=subject_consent.consent_datetime)
         self.appointment = Appointment.objects.get(
             subject_identifier=subject_identifier,
             visit_code=self.schedule.visits.first.code)

@@ -127,9 +127,9 @@ class Creator:
             visit=visit, **kwargs)
         self.visit = visit
         self.visit_code_sequence = visit.visit_code_sequence
-        schedule = site_visit_schedules.get_schedule(
-            visit_schedule_name=self.visit.visit_schedule_name,
-            schedule_name=self.visit.schedule_name)
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            self.visit.visit_schedule_name)
+        schedule = visit_schedule.schedules.get(self.visit.schedule_name)
         self.visit = schedule.visits.get(self.visit.visit_code)
 
     @property

@@ -80,7 +80,8 @@ visit0 = Visit(
     crfs=crfs0,
     crfs_unscheduled=crfs_unscheduled,
     requisitions_unscheduled=requisitions_unscheduled,
-    allow_unscheduled=True)
+    allow_unscheduled=True,
+    facility_name='5-day-clinic')
 
 visit1 = Visit(
     code='2000',
@@ -90,7 +91,8 @@ visit1 = Visit(
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     requisitions=requisitions,
-    crfs=crfs1)
+    crfs=crfs1,
+    facility_name='5-day-clinic')
 
 visit2 = Visit(
     code='3000',
@@ -100,12 +102,15 @@ visit2 = Visit(
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     requisitions=requisitions3000,
-    crfs=crfs2)
+    crfs=crfs2,
+    facility_name='5-day-clinic')
 
 schedule = Schedule(
     name='schedule',
-    enrollment_model='edc_metadata.enrollment',
-    disenrollment_model='edc_metadata.disenrollment')
+    onschedule_model='edc_metadata.onschedule',
+    offschedule_model='edc_metadata.offschedule',
+    consent_model='edc_metadata.subjectconsent',
+    appointment_model='edc_appointment.appointment')
 
 schedule.add_visit(visit0)
 schedule.add_visit(visit1)
@@ -113,7 +118,7 @@ schedule.add_visit(visit2)
 
 visit_schedule = VisitSchedule(
     name='visit_schedule',
-    visit_model='edc_metadata.subjectvisit',
-    offstudy_model='edc_metadata.subjectoffstudy')
+    offstudy_model='edc_metadata.subjectoffstudy',
+    death_report_model='edc_metadata.deathreport')
 
 visit_schedule.add_schedule(schedule)

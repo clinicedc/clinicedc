@@ -61,9 +61,9 @@ class RequisitionTargetHandler(TargetHandler):
         """Returns a schedule instance from site_visit_schedule
         for this visit.
         """
-        return site_visit_schedules.get_schedule(
-            visit_schedule_name=self.visit.visit_schedule_name,
-            schedule_name=self.visit.schedule_name)
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            self.visit.visit_schedule_name)
+        return visit_schedule.schedules.get(self.visit.schedule_name)
 
     def raise_on_invalid_panel(self):
         """Raises an exception if target_panel is invalid.

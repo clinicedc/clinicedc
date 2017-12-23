@@ -66,8 +66,7 @@ class UpdatesMetadataModelMixin(models.Model):
     def metadata_visit_object(self):
         visit_schedule = site_visit_schedules.get_visit_schedule(
             visit_schedule_name=self.visit.visit_schedule_name)
-        schedule = visit_schedule.get_schedule(
-            schedule_name=self.visit.schedule_name)
+        schedule = visit_schedule.schedules.get(self.visit.schedule_name)
         return schedule.visits.get(self.visit.visit_code)
 
     @property

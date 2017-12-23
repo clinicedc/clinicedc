@@ -1,13 +1,17 @@
+from datetime import date
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.model_mixins import CreateAppointmentsMixin
 from edc_appointment.models import Appointment
+from edc_base import get_utcnow
 from edc_base.model_mixins import BaseUuidModel
-from edc_base.utils import get_utcnow
 from edc_constants.choices import YES_NO
+from edc_constants.constants import MALE
+from edc_identifier.managers import SubjectIdentifierManager
+from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_reference.model_mixins import ReferenceModelMixin, RequisitionReferenceModelMixin
-from edc_visit_schedule.model_mixins import EnrollmentModelMixin, DisenrollmentModelMixin
+from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin, CrfModelMixin
 
 from ..model_mixins.creates import CreatesMetadataModelMixin
@@ -15,26 +19,50 @@ from ..model_mixins.updates import UpdatesCrfMetadataModelMixin
 from ..model_mixins.updates import UpdatesRequisitionMetadataModelMixin
 
 
-class Enrollment(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
 
-    subject_identifier = models.CharField(max_length=50)
-
-    report_datetime = models.DateTimeField(default=get_utcnow)
-
-    class Meta(EnrollmentModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule.schedule'
+    pass
 
 
-class Disenrollment(DisenrollmentModelMixin, BaseUuidModel):
+class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
 
-    class Meta(DisenrollmentModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule.schedule'
+    pass
 
 
 class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
 
     class Meta(OffstudyModelMixin.Meta):
         pass
+
+
+class DeathReport(UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
+
+    objects = SubjectIdentifierManager()
+
+    def natural_key(self):
+        return (self.subject_identifier, )
+
+
+class SubjectConsent(UniqueSubjectIdentifierFieldMixin,
+                     UpdatesOrCreatesRegistrationModelMixin,
+                     BaseUuidModel):
+
+    consent_datetime = models.DateTimeField(default=get_utcnow)
+
+    version = models.CharField(max_length=25, default='1')
+
+    identity = models.CharField(max_length=25, default='111111111')
+
+    confirm_identity = models.CharField(max_length=25, default='111111111')
+
+    dob = models.DateField(default=date(1995, 1, 1))
+
+    gender = models.CharField(max_length=25, default=MALE)
+
+    objects = SubjectIdentifierManager()
+
+    def natural_key(self):
+        return (self.subject_identifier, )
 
 
 class SubjectVisit(VisitModelMixin, ReferenceModelMixin,

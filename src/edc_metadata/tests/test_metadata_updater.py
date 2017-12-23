@@ -1,16 +1,16 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
+from edc_base import get_utcnow
 from edc_metadata import NOT_REQUIRED, REQUIRED
 from edc_reference import site_reference_configs
-from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..metadata_updater import MetadataUpdater
 from ..models import CrfMetadata, RequisitionMetadata
 from ..target_handler import TargetModelLookupError, TargetModelNotScheduledForVisit
-from .models import Enrollment, SubjectVisit
+from .models import SubjectVisit, SubjectConsent
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 
@@ -24,17 +24,17 @@ class TestMetadataUpdater(TestCase):
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
             site_visit_schedules, autodiscover=False)
-        self.schedule = site_visit_schedules.get_schedule(
-            visit_schedule_name='visit_schedule',
-            schedule_name='schedule')
         self.subject_identifier = '1111111'
-        RegisteredSubject.objects.create(
-            subject_identifier=self.subject_identifier)
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
-        Enrollment.objects.create(
+        subject_consent = SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
-            facility_name='7-day-clinic')
+            consent_datetime=get_utcnow())
+        _, self.schedule = site_visit_schedules.get_by_onschedule_model(
+            'edc_metadata.onschedule')
+        self.schedule.put_on_schedule(
+            subject_identifier=self.subject_identifier,
+            onschedule_datetime=subject_consent.consent_datetime)
         for visit in self.schedule.visits.values():
             appointment = Appointment.objects.get(
                 subject_identifier=self.subject_identifier,

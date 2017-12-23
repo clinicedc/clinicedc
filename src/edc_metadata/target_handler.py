@@ -76,9 +76,9 @@ class TargetHandler:
         """Raises an exception if model is not scheduled
         for this visit.
         """
-        schedule = site_visit_schedules.get_schedule(
-            visit_schedule_name=self.visit.visit_schedule_name,
-            schedule_name=self.visit.schedule_name)
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            self.visit.visit_schedule_name)
+        schedule = visit_schedule.schedules.get(self.visit.schedule_name)
         forms = schedule.visits.get(self.visit.visit_code).forms
         models = list(set([form.model for form in forms]))
         if self.model not in models:
