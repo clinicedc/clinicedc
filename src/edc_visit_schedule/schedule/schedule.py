@@ -143,6 +143,10 @@ class Schedule:
     def appointment_model_cls(self):
         return self.subject.appointment_model_cls
 
+    @property
+    def visit_model_cls(self):
+        return self.subject.appointment_model_cls.visit_model_cls()
+
     def validate(self):
         try:
             self.subject.validate()

@@ -83,25 +83,25 @@ class SiteVisitSchedules:
                 visit_schedule_name)
         return visit_schedules or self.registry
 
-    def get_by_onschedule_model(self, model=None):
+    def get_by_onschedule_model(self, onschedule_model=None):
         schedule = None
         for visit_schedule in self.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
-                if schedule.onschedule_model == model:
+                if schedule.onschedule_model == onschedule_model:
                     return visit_schedule, schedule
         raise SiteVisitScheduleError(
             f'Schedule not found. No schedule exists for '
-            f'onschedule_model={model}.')
+            f'onschedule_model={onschedule_model}.')
         return None
 
-    def get_by_offschedule_model(self, model=None):
+    def get_by_offschedule_model(self, offschedule_model=None):
         for visit_schedule in self.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
-                if schedule.offschedule_model == model:
+                if schedule.offschedule_model == offschedule_model:
                     return visit_schedule, schedule
         raise SiteVisitScheduleError(
             f'Schedule not found. No schedule exists for '
-            f'offschedule_model={model}.')
+            f'offschedule_model={offschedule_model}.')
         return None, None
 
     def autodiscover(self, module_name=None, apps=None, verbose=None):
