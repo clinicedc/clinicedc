@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
-from edc_base.utils import get_utcnow
+from edc_base import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import SCHEDULED
@@ -29,7 +29,7 @@ class TestPreviousVisit(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
-        self.helper.consent_and_enroll()
+        self.helper.consent_and_put_on_schedule()
 
     def tearDown(self):
         SubjectVisit.visit_sequence_cls = VisitSequence

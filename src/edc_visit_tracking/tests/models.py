@@ -1,16 +1,15 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.model_mixins import CreateAppointmentsMixin
 from edc_appointment.models import Appointment
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
-from edc_visit_schedule.model_mixins import EnrollmentModelMixin, DisenrollmentModelMixin
 from edc_visit_tracking.model_mixins.crf_inline_model_mixin import CrfInlineModelMixin
 from edc_visit_tracking.model_mixins.crf_model_mixin import CrfModelMixin
 from edc_visit_tracking.model_mixins.visit_model_mixin import VisitModelMixin
+from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
 
 
 class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
@@ -23,22 +22,19 @@ class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
     report_datetime = models.DateTimeField(default=get_utcnow)
 
 
-class EnrollmentOne(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(EnrollmentModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule1.schedule1'
-
-
-class EnrollmentTwo(EnrollmentModelMixin, CreateAppointmentsMixin, BaseUuidModel):
-
-    class Meta(EnrollmentModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule2.schedule2'
+    pass
 
 
-class Disenrollment(DisenrollmentModelMixin, BaseUuidModel):
+class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(DisenrollmentModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule.schedule'
+    pass
+
+
+class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
+
+    pass
 
 
 class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):

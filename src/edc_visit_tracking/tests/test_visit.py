@@ -2,7 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
-from edc_base.utils import get_utcnow
+from edc_base import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
@@ -41,7 +41,7 @@ class TestVisit(TestCase):
     def test_crf_inline_model_attrs(self):
         """Assert inline model can find visit instance from parent.
         """
-        self.helper.consent_and_enroll()
+        self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all().order_by(
             'timepoint_datetime')[0]
         subject_visit = SubjectVisit.objects.create(
@@ -55,7 +55,7 @@ class TestVisit(TestCase):
     def test_crf_inline_model_parent_model(self):
         """Assert inline model cannot find parent, raises exception.
         """
-        self.helper.consent_and_enroll()
+        self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
@@ -71,7 +71,7 @@ class TestVisit(TestCase):
     def test_crf_inline_model_attrs2(self):
         """Assert inline model can find visit instance from parent.
         """
-        self.helper.consent_and_enroll()
+        self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
@@ -87,7 +87,7 @@ class TestVisit(TestCase):
         """Assert model can determine the previous.
         """
 
-        self.helper.consent_and_enroll()
+        self.helper.consent_and_put_on_schedule()
         for index, appointment in enumerate(Appointment.objects.all().order_by(
                 'visit_code')):
             SubjectVisit.objects.create(

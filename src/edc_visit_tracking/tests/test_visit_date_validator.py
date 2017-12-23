@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
-from edc_base.utils import get_utcnow
+from edc_base import get_utcnow
 
 from ..crf_date_validator import CrfDateValidator
 from ..crf_date_validator import CrfReportDateAllowanceError
@@ -13,7 +13,6 @@ class TestVisitDateValidator(TestCase):
         dt = get_utcnow()
         CrfDateValidator(report_datetime=dt, visit_report_datetime=dt)
 
-    @tag('1')
     def test_raises_if_report_datetime_before_visit(self):
         dt = get_utcnow()
         self.assertRaises(

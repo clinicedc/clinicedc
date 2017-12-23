@@ -100,7 +100,6 @@ if settings.APP_NAME == 'edc_visit_tracking':
         reason_field = {'edc_visit_tracking.subjectvisit': 'reason'}
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
-        country = 'botswana'
         definitions = {
             'default': dict(days=[MO, TU, WE, TH, FR],
                             slots=[100, 100, 100, 100, 100])}

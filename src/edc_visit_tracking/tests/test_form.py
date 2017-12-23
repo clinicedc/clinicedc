@@ -34,7 +34,7 @@ class TestForm(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule2)
 
     def test_form_validator_ok(self):
-        self.helper.consent_and_enroll()
+        self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
