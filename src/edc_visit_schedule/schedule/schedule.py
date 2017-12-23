@@ -1,16 +1,15 @@
 import re
 
-from django.apps import apps as django_apps
 from django.conf import settings
-from edc_base import get_utcnow
 
-from ..subject_schedule import SubjectSchedule
-from ..validator import Validator, ValidatorLookupError
+from ..simple_model_validator import SimpleModelValidator
+from ..site_visit_schedules import site_visit_schedules
+from ..subject_schedule import SubjectSchedule, SubjectScheduleError
 from ..visit import Visit
 from .visit_collection import VisitCollection
 
 
-class ScheduleModelError(Exception):
+class ScheduleError(Exception):
     pass
 
 
@@ -38,12 +37,11 @@ class Schedule:
     name_regex = r'[a-z0-9\_\-]+$'
     visit_cls = Visit
     visit_collection_cls = VisitCollection
-    model_validator_cls = Validator
     subject_schedule_cls = SubjectSchedule
 
     def __init__(self, name=None, title=None, sequence=None, onschedule_model=None,
-                 offschedule_model=None, validate=None, appointment_model=None,
-                 **kwargs):
+                 offschedule_model=None, appointment_model=None, consent_model=None):
+        self._subject = None
         self.visits = self.visit_collection_cls()
         if not name or not re.match(r'[a-z0-9\_\-]+$', name):
             raise ScheduleNameError(
@@ -53,43 +51,33 @@ class Schedule:
             self.name = name
         self.title = title or name
         self.sequence = sequence or name
-        if not onschedule_model:
-            raise ScheduleModelError('Invalid onschedule model. Got None')
+
+        SimpleModelValidator(onschedule_model, f'{self.name}.onschedule_model')
+        SimpleModelValidator(
+            offschedule_model, f'{self.name}.offschedule_model')
+        SimpleModelValidator(consent_model, f'{self.name}.consent_model')
         self.onschedule_model = onschedule_model.lower()
-        if not offschedule_model:
-            raise ScheduleModelError('Invalid offschedule model. Got None')
         self.offschedule_model = offschedule_model.lower()
-        self.appointment_model = appointment_model
-        if not self.appointment_model:
+        self.consent_model = consent_model.lower()
+        if not appointment_model:
             try:
-                self.appointment_model = settings.DEFAULT_APPOINTMENT_MODEL
+                appointment_model = settings.DEFAULT_APPOINTMENT_MODEL
             except AttributeError:
-                self.appointment_model = 'edc_appointment.appointment'
-            if not self.appointment_model:
+                appointment_model = 'edc_appointment.appointment'
+            if not appointment_model:
                 raise ScheduleAppointmentModelError(
                     f'Invalid appointment model for schedule {repr(self)}. '
                     f'Got None. Either declare on the Schedule or in '
                     f'settings.DEFAULT_APPOINTMENT_MODEL.')
-        if validate:
-            self.validate()
+        self.appointment_model = appointment_model.lower()
+        SimpleModelValidator(
+            appointment_model, f'{self.name}.appointment_model')
 
     def __repr__(self):
         return f'Schedule({self.name})'
 
     def __str__(self):
         return self.name
-
-    @property
-    def field_value(self):
-        return self.name
-
-    @property
-    def onschedule_model_cls(self):
-        return django_apps.get_model(self.onschedule_model)
-
-    @property
-    def offschedule_model_cls(self):
-        return django_apps.get_model(self.offschedule_model)
 
     def add_visit(self, visit=None, **kwargs):
         """Adds a unique visit to the schedule.
@@ -100,67 +88,63 @@ class Schedule:
                 raise AlreadyRegisteredVisit(
                     f'Visit already registered. Got visit={visit} ({attr}). '
                     f'See schedule \'{self}\'')
-        if not visit.appointment_model:
-            visit.appointment_model = self.appointment_model
         self.visits.update({visit.code: visit})
         return visit
 
-    def validate(self, visit_schedule_name=None):
-        """Raises an exception if onschedule/offschedule models
-        are invalid.
-        """
-        try:
-            self.model_validator_cls(
-                model=self.onschedule_model,
-                schedule_name=self.name,
-                visit_schedule_name=visit_schedule_name).validated_model
-        except ValidatorLookupError as e:
-            raise ScheduleModelError(f'{repr(self)} raised {e}')
+    @property
+    def field_value(self):
+        return self.name
 
-        try:
-            self.model_validator_cls(
-                model=self.offschedule_model,
-                schedule_name=self.name,
-                visit_schedule_name=visit_schedule_name).validated_model
-        except ValidatorLookupError as e:
-            raise ScheduleModelError(f'{repr(self)} raised {e}')
+    @property
+    def subject(self):
+        if not self._subject:
+            visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
+                self.onschedule_model)
+            if schedule.name != self.name:
+                raise ValueError(
+                    f'Site visit schedules return the wrong schedule object. '
+                    f'Expected {repr(self)} for onschedule_model={self.onschedule_model}. '
+                    f'Got {repr(schedule)}.')
+            self._subject = self.subject_schedule_cls(
+                visit_schedule=visit_schedule, schedule=self)
+        return self._subject
 
-    def get_onschedule(self, subject_identifier=None):
-        """Returns the onschedule model instance for this
-        subject_identifier.
+    def put_on_schedule(self, onschedule_model_obj=None,
+                        subject_identifier=None, onschedule_datetime=None):
+        """Wrapper method to puts a subject onto this schedule.
         """
-        onschedule_model_cls = django_apps.get_model(self.onschedule_model)
-        return onschedule_model_cls.objects.get(subject_identifier=subject_identifier)
-
-    def put_on_schedule(self, onschedule_datetime=None, **kwargs):
-        """Puts a subject onto this schedule.
-        """
-        onschedule_datetime = onschedule_datetime or get_utcnow()
-        subject_schedule = self.subject_schedule_cls(
-            onschedule_model=self.onschedule_model, **kwargs)
-        subject_schedule.put_on_schedule(
+        self.subject.put_on_schedule(
+            onschedule_model_obj=onschedule_model_obj,
+            subject_identifier=subject_identifier,
             onschedule_datetime=onschedule_datetime)
 
-    def refresh_schedule(self, **kwargs):
+    def refresh_schedule(self, subject_identifier=None):
         """Resaves the onschedule model to, for example, refresh
         appointments.
         """
-        subject_schedule = self.subject_schedule_cls(
-            onschedule_model=self.onschedule_model, **kwargs)
-        subject_schedule.resave()
+        self.subject.resave(subject_identifier=subject_identifier)
 
-    def take_off_schedule(self, offschedule_datetime=None, subject_identifier=None, **kwargs):
-        """Takes a subject off of this schedule and deletes any
-        appointments with appt_datetime after the offschedule datetime.
-        """
-        offschedule_datetime = offschedule_datetime or get_utcnow()
-        subject_schedule = self.subject_schedule_cls(
+    def take_off_schedule(self, offschedule_model_obj=None,
+                          offschedule_datetime=None, subject_identifier=None):
+        self.subject.take_off_schedule(
+            offschedule_model_obj=offschedule_model_obj,
             subject_identifier=subject_identifier,
-            onschedule_model=self.onschedule_model, **kwargs)
-        subject_schedule.take_off_schedule(
-            offschedule_model=self.offschedule_model,
             offschedule_datetime=offschedule_datetime)
-        # clear future appointments
-        appointment_model_cls = django_apps.get_model(self.appointment_model)
-        appointment_model_cls.objects.delete_for_subject_after_date(
-            subject_identifier, offschedule_datetime)
+
+    @property
+    def onschedule_model_cls(self):
+        return self.subject.onschedule_model_cls
+
+    @property
+    def offschedule_model_cls(self):
+        return self.subject.offschedule_model_cls
+
+    @property
+    def appointment_model_cls(self):
+        return self.subject.appointment_model_cls
+
+    def validate(self):
+        try:
+            self.subject.validate()
+        except SubjectScheduleError as e:
+            raise ScheduleError(e)

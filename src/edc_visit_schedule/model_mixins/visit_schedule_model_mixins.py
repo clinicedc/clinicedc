@@ -2,9 +2,7 @@ from django.db import models
 from django.db.models import options
 
 
-from ..site_visit_schedules import site_visit_schedules, RegistryNotLoaded
-from ..site_visit_schedules import SiteVisitScheduleError
-from ..visit_schedule import VisitScheduleError
+from ..site_visit_schedules import site_visit_schedules
 
 if 'visit_schedule_name' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
@@ -51,15 +49,7 @@ class VisitScheduleMethodsModelMixin(models.Model):
         Declared on Meta like this:
             visit_schedule_name = 'visit_schedule_name.schedule_name'
         """
-        try:
-            _, schedule_name = self._meta.visit_schedule_name.split('.')
-        except ValueError as e:
-            raise VisitScheduleMethodsError(
-                f'{self.__class__.__name__}. Got {e}') from e
-        except AttributeError as e:
-            if 'visit_schedule_name' in str(e):
-                return self.visit_schedule.get_schedule(schedule_name=self.schedule_name)
-        return self.visit_schedule.get_schedule(schedule_name=schedule_name)
+        return self.visit_schedule.schedules.get(self.schedule_name)
 
     @property
     def visit_schedule(self):
@@ -70,21 +60,10 @@ class VisitScheduleMethodsModelMixin(models.Model):
         """
         try:
             visit_schedule_name, _ = self._meta.visit_schedule_name.split('.')
-        except ValueError as e:
-            raise VisitScheduleMethodsError(
-                f'{self.__class__.__name__}. Got {e}') from e
-        except AttributeError as e:
+        except AttributeError:
             visit_schedule_name = self.visit_schedule_name
-        try:
-            visit_schedule = site_visit_schedules.get_visit_schedule(
-                visit_schedule_name=visit_schedule_name)
-        except RegistryNotLoaded as e:
-            raise VisitScheduleMethodsError(
-                f'visit_schedule_name: \'{visit_schedule_name}\'. Got {e}') from e
-        except SiteVisitScheduleError as e:
-            raise VisitScheduleMethodsError(
-                f'visit_schedule_name: \'{visit_schedule_name}\'. Got {e}') from e
-        return visit_schedule
+        return site_visit_schedules.get_visit_schedule(
+            visit_schedule_name=visit_schedule_name)
 
     class Meta:
         abstract = True

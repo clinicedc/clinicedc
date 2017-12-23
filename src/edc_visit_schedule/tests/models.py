@@ -1,15 +1,22 @@
+from datetime import date
 from django.db import models
-from edc_appointment.model_mixins import CreateAppointmentsMixin
+from django.db.models.deletion import PROTECT
+from edc_appointment.models.appointment import Appointment
+from edc_base import get_utcnow
 from edc_base.model_mixins import BaseUuidModel
-from uuid import uuid4
+from edc_visit_tracking.model_mixins import CrfModelMixin
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 
+from ..model_mixins import SubjectScheduleCrfModelMixin
 from ..model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
 from ..model_mixins import VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin
-from edc_base.utils import get_utcnow
 
 
 class SubjectVisit(VisitScheduleFieldsModelMixin,
                    VisitScheduleMethodsModelMixin, BaseUuidModel):
+
+    appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
     subject_identifier = models.CharField(max_length=25, null=True)
 
@@ -18,15 +25,19 @@ class SubjectVisit(VisitScheduleFieldsModelMixin,
     reason = models.CharField(max_length=25, null=True)
 
 
-class SubjectConsent(BaseUuidModel):
+class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
+                     UpdatesOrCreatesRegistrationModelMixin,
+                     BaseUuidModel):
 
-    subject_identifier = models.CharField(max_length=25)
-
-    consent_identifier = models.UUIDField(default=uuid4)
-
-    report_datetime = models.DateTimeField(default=get_utcnow)
+    consent_datetime = models.DateTimeField(default=get_utcnow)
 
     version = models.CharField(max_length=25, default='1')
+
+    identity = models.CharField(max_length=25)
+
+    confirm_identity = models.CharField(max_length=25)
+
+    dob = models.DateField(default=date(1995, 1, 1))
 
 
 class SubjectOffstudy(BaseUuidModel):
@@ -45,80 +56,56 @@ class DeathReport(BaseUuidModel):
 
 # visit_schedule
 
-class OnSchedule(OnScheduleModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule.schedule'
-        consent_model = 'edc_visit_schedule.subjectconsent'
+    pass
 
 
 class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
 
-    class Meta(OffScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule.schedule'
-        consent_model = 'edc_visit_schedule.subjectconsent'
+    pass
 
 
-class OnScheduleThree(OnScheduleModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnScheduleThree(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule.schedule_three'
-        consent_model = 'edc_visit_schedule.subjectconsent'
+    pass
 
 
 class OffScheduleThree(OffScheduleModelMixin, BaseUuidModel):
 
-    class Meta(OffScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule.schedule_three'
-        consent_model = 'edc_visit_schedule.subjectconsent'
+    pass
 
 
 # visit_schedule_two
 
-class OnScheduleTwo(OnScheduleModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule_two.schedule_two'
-        consent_model = 'edc_visit_schedule.subjectconsent'
+    pass
 
 
 class OffScheduleTwo(OffScheduleModelMixin, BaseUuidModel):
 
-    class Meta(OffScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule_two.schedule_two'
-        consent_model = 'edc_visit_schedule.subjectconsent'
+    pass
 
 
-class OnScheduleFour(OnScheduleModelMixin, CreateAppointmentsMixin, BaseUuidModel):
+class OnScheduleFour(OnScheduleModelMixin, BaseUuidModel):
 
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule_two.schedule_four'
-        consent_model = 'edc_visit_schedule.subjectconsent'
+    pass
 
 
 class OffScheduleFour(OffScheduleModelMixin, BaseUuidModel):
 
-    class Meta(OffScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule_two.schedule_four'
-        consent_model = 'edc_visit_schedule.subjectconsent'
+    pass
 
 
-class BadMetaModel(OnScheduleModelMixin, BaseUuidModel):
+class CrfOne(SubjectScheduleCrfModelMixin, CrfModelMixin, BaseUuidModel):
 
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = 'bad.dog'
-        consent_model = 'edc_visit_schedule.subjectconsent'
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
+    report_datetime = models.DateTimeField(default=get_utcnow)
 
-class BadMetaModel2(OnScheduleModelMixin, BaseUuidModel):
+    f1 = models.CharField(max_length=50, null=True, blank=True)
 
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = None
-        consent_model = 'edc_visit_schedule.subjectconsent'
+    f2 = models.CharField(max_length=50, null=True, blank=True)
 
-
-class BadMetaModel3(OnScheduleModelMixin, BaseUuidModel):
-
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule_two.schedule_four'
-        consent_model = None
+    f3 = models.CharField(max_length=50, null=True, blank=True)

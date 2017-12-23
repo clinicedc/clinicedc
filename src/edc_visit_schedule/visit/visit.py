@@ -49,8 +49,8 @@ class Visit:
     def __init__(self, code=None, timepoint=None, rbase=None, rlower=None,
                  rupper=None, crfs=None, requisitions=None, crfs_unscheduled=None,
                  requisitions_unscheduled=None, title=None,
-                 instructions=None, grouping=None, appointment_model=None,
-                 allow_unscheduled=None, facility_name=None, **kwargs):
+                 instructions=None, grouping=None,
+                 allow_unscheduled=None, facility_name=None):
 
         self.instructions = instructions
         self.timepoint = timepoint
@@ -58,9 +58,7 @@ class Visit:
         self.rlower = rlower
         self.rupper = rupper
         self.grouping = grouping
-        self.appointment_model = appointment_model
-        self.dates = self.visit_date_cls(
-            rlower=rlower, rupper=rupper, **kwargs)
+        self.dates = self.visit_date_cls(rlower=rlower, rupper=rupper)
         self.title = title or f'Visit {code}'
         if not code or isinstance(code, int) or not re.match(self.code_regex, code):
             raise VisitCodeError(f'Invalid visit code. Got \'{code}\'')
@@ -69,24 +67,18 @@ class Visit:
         self.name = self.code
         self.facility_name = facility_name
         self.crfs = self.forms_collection_cls(
-            *(crfs or []),
-            name=f'crfs for {self.name}',
-            **kwargs).forms
+            *(crfs or []), name=f'crfs for {self.name}').forms
         self.requisitions = self.forms_collection_cls(
-            *(requisitions or []),
-            name=f'requisitions for {self.name}',
-            **kwargs).forms
+            *(requisitions or []), name=f'requisitions for {self.name}').forms
 
         self.allow_unscheduled = allow_unscheduled
         if self.allow_unscheduled:
             self.crfs_unscheduled = self.forms_collection_cls(
                 *(crfs_unscheduled or []),
-                name=f'crfs crfs_unscheduled for {self.name}',
-                **kwargs).forms
+                name=f'crfs crfs_unscheduled for {self.name}').forms
             self.requisitions_unscheduled = self.forms_collection_cls(
                 *(requisitions_unscheduled or []),
-                name=f'requisitions unscheduled for {self.name}',
-                **kwargs).forms
+                name=f'requisitions unscheduled for {self.name}').forms
             if not self.crfs_unscheduled and not self.requisitions_unscheduled:
                 raise VisitError(
                     'allow_unscheduled is True but no unscheduled crfs '

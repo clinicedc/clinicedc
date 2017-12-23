@@ -1,185 +1,111 @@
+import pytz
+
+from datetime import datetime
 from django.test import TestCase, tag
-from edc_base.model_mixins import BaseUuidModel
-from edc_visit_schedule.model_mixins import OnScheduleModelMixin
-from uuid import uuid4
+from edc_appointment.models import Appointment
+from edc_base import get_utcnow
 
-from ..model_mixins import OffScheduleModelMixin, VisitScheduleMethodsError
-from ..schedule import Schedule
-from ..site_visit_schedules import site_visit_schedules
-from ..visit_schedule import VisitSchedule
-from .models import OnSchedule
-
-
-class ModelC(OnScheduleModelMixin, BaseUuidModel):
-
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = 'blah'
+from ..constants import OFF_SCHEDULE, ON_SCHEDULE
+from ..models import SubjectScheduleHistory
+from ..site_visit_schedules import site_visit_schedules, RegistryNotLoaded
+from .models import OnSchedule, OffSchedule, SubjectVisit, CrfOne
+from .visit_schedule import visit_schedule
 
 
-class ModelD(OnScheduleModelMixin, BaseUuidModel):
-
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = 'blah.blah'
-
-
-class ModelE(OnScheduleModelMixin, BaseUuidModel):
-
-    class Meta(OnScheduleModelMixin.Meta):
-        consent_model = 'edc_visit_schedule.subjectconsent'
-        visit_schedule_name = 'visit_schedule_blah.schedule_blah'
-
-
-class ModelF(OffScheduleModelMixin, BaseUuidModel):
-
-    class Meta(OffScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule_blah.schedule_blah'
-
-
-class ModelG(OnScheduleModelMixin, BaseUuidModel):
-
-    class Meta(OnScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule1.schedule1'
-
-
-class ModelG2(OffScheduleModelMixin, BaseUuidModel):
-
-    class Meta(OffScheduleModelMixin.Meta):
-        visit_schedule_name = 'visit_schedule1.schedule1'
-
-
-@tag('models')
 class TestModels(TestCase):
 
     def setUp(self):
-        site_visit_schedules._registry = {}
-        site_visit_schedules.loaded = False
-
-    def test_str(self):
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
-        obj = OnSchedule(subject_identifier='1111')
-        self.assertEqual(str(obj), '1111')
-
-    def test_visit_schedule(self):
-        """Asserts cannot access without site_visit_schedule loaded.
-        """
-        site_visit_schedules.loaded = False
-        site_visit_schedules._registry = {}
-        obj = OnSchedule()
-        try:
-            obj.visit_schedule
-        except VisitScheduleMethodsError:
-            pass
-        else:
-            self.fail('VisitScheduleSiteError unexpectedly not raised.')
-
-    def test_schedule(self):
-        """Asserts cannot access without site_visit_schedule loaded.
-        """
-        site_visit_schedules.loaded = False
-        site_visit_schedules._registry = {}
-        obj = OnSchedule()
-        try:
-            obj.schedule
-        except VisitScheduleMethodsError:
-            pass
-        else:
-            self.fail('VisitScheduleSiteError unexpectedly not raised.')
-
-    def test_visits(self):
-        """Asserts can access visits for this  site_visit_schedule loaded.
-        """
-        site_visit_schedules.loaded = False
-        site_visit_schedules._registry = {}
-        obj = OnSchedule()
-        try:
-            obj.visits
-        except VisitScheduleMethodsError:
-            pass
-        else:
-            self.fail('VisitScheduleSiteError unexpectedly not raised.')
-
-    def test_model_meta(self):
-        """Asserts accepts apha-numeric pattern.
-        """
-        visit_schedule = VisitSchedule(
-            name='visit_schedule1',
-            verbose_name='Visit Schedule',
-            app_label='edc_visit_schedule',
-            visit_model='edc_visit_schedule.SubjectVisit',
-            offstudy_model='edc_visit_schedule.SubjectOffstudy',
-            death_report_model='edc_visit_schedule.DeathReport')
-
-        schedule = Schedule(
-            name='schedule1',
-            onschedule_model='edc_visit_schedule.ModelG',
-            offschedule_model='edc_visit_schedule.ModelG2')
-        visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
 
-        obj = ModelG()
-        obj.visit_schedule
+    def test_str(self):
+        obj = OnSchedule.objects.create(subject_identifier='1234')
+        self.assertIn('1234', str(obj))
+        self.assertEqual(obj.natural_key(), ('1234', ))
+        self.assertEqual(obj, OnSchedule.objects.get_by_natural_key(
+            subject_identifier='1234'))
 
-    def test_model_bad_meta(self):
-        """Asserts raises if _meta is wrong format.
+    def test_str_offschedule(self):
+        OnSchedule.objects.create(
+            subject_identifier='1234')
+        obj = OffSchedule.objects.create(subject_identifier='1234')
+        self.assertIn('1234', str(obj))
+        self.assertEqual(obj.natural_key(), ('1234', ))
+        self.assertEqual(obj, OffSchedule.objects.get_by_natural_key(
+            subject_identifier='1234'))
+
+    def test_onschedule(self):
+        """Asserts cannot access without site_visit_schedule loaded.
         """
+        site_visit_schedules.loaded = False
+        self.assertRaises(
+            RegistryNotLoaded,
+            OnSchedule.objects.create, subject_identifier='1234')
 
-        site_visit_schedules.loaded = True
-        obj = ModelC()
-        try:
-            obj.visit_schedule
-        except VisitScheduleMethodsError:
-            pass
-        else:
-            self.fail('VisitScheduleModelError unexpectedly not raised')
-
-    def test_model_bad_meta2(self):
-        """Asserts raises if _meta is correct format but
-        not a valid visit_schedule.schedule pair.
+    def test_offschedule_raises(self):
+        """Asserts cannot access without site_visit_schedule loaded.
         """
-        site_visit_schedules.loaded = True
-        obj = ModelD()
-        try:
-            obj.visit_schedule
-        except VisitScheduleMethodsError:
-            pass
-        else:
-            self.fail('VisitScheduleModelError unexpectedly not raised')
+        site_visit_schedules.loaded = False
+        self.assertRaises(
+            RegistryNotLoaded,
+            OffSchedule.objects.create, subject_identifier='1234')
 
-    def test_model_bad_meta3(self):
-        """Asserts schedule raises if _meta is wrong format.
+    @tag('1')
+    def test_on_offschedule(self):
+        OnSchedule.objects.create(
+            subject_identifier='1234',
+            onschedule_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc))
+        history_obj = SubjectScheduleHistory.objects.get(
+            subject_identifier='1234')
+        self.assertEqual(history_obj.schedule_status, ON_SCHEDULE)
+        OffSchedule.objects.create(
+            subject_identifier='1234',
+            offschedule_datetime=get_utcnow())
+        history_obj = SubjectScheduleHistory.objects.get(
+            subject_identifier='1234')
+        self.assertEqual(history_obj.schedule_status, OFF_SCHEDULE)
+
+    @tag('1')
+    def test_history(self):
+        OnSchedule.objects.create(
+            subject_identifier='1234',
+            onschedule_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc))
+        OffSchedule.objects.create(
+            subject_identifier='1234',
+            offschedule_datetime=get_utcnow())
+        obj = SubjectScheduleHistory.objects.get(
+            subject_identifier='1234')
+        self.assertEqual(
+            obj.natural_key(),
+            (obj.subject_identifier, obj.visit_schedule_name, obj.schedule_name))
+        self.assertEqual(
+            SubjectScheduleHistory.objects.get_by_natural_key(
+                obj.subject_identifier, obj.visit_schedule_name, obj.schedule_name),
+            obj)
+
+    def test_crf(self):
+        """Assert can enter a CRF.
         """
-
-        site_visit_schedules.loaded = True
-        obj = ModelC()
-        try:
-            obj.schedule
-        except VisitScheduleMethodsError:
-            pass
-        else:
-            self.fail('VisitScheduleModelError unexpectedly not raised')
-
-    def test_model_bad_meta4(self):
-        """Asserts schedule raises if _meta is correct format but
-        not a valid visit_schedule.schedule pair.
-        """
-        site_visit_schedules.loaded = True
-        obj = ModelD()
-        try:
-            obj.schedule
-        except VisitScheduleMethodsError:
-            pass
-        else:
-            self.fail('VisitScheduleModelError unexpectedly not raised')
+        OnSchedule.objects.create(
+            subject_identifier='1234',
+            onschedule_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc))
+        self.assertEqual(Appointment.objects.all().count(), 4)
+        appointment = Appointment.objects.all().order_by('appt_datetime').first()
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment,
+            report_datetime=appointment.appt_datetime,
+            subject_identifier='1234')
+        CrfOne.objects.create(
+            subject_visit=subject_visit,
+            report_datetime=appointment.appt_datetime)
+        OffSchedule.objects.create(
+            subject_identifier='1234',
+            offschedule_datetime=appointment.appt_datetime)
+        self.assertEqual(Appointment.objects.all().count(), 1)
 
     def test_natural_key(self):
-        v = VisitSchedule(name='visit_schedule_blah')
-        s = Schedule(name='schedule_blah', onschedule_model='edc_visit_schedule.ModelE',
-                     offschedule_model='edc_visit_schedule.ModelF')
-        v.add_schedule(s)
-        site_visit_schedules.register(v)
-        obj = ModelE(
-            subject_identifier='11111',
-            consent_identifier=uuid4())
-        obj.save()
-        self.assertEqual(obj.natural_key(), ('11111', ))
+        obj = OnSchedule.objects.create(subject_identifier='1234')
+        self.assertEqual(obj.natural_key(), ('1234', ))
+        obj = OffSchedule.objects.create(subject_identifier='1234')
+        self.assertEqual(obj.natural_key(), ('1234', ))

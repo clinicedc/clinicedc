@@ -115,14 +115,3 @@ class TestVisit(TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6))
-
-    @tag('1')
-    def test_knows_appointment_model(self):
-        visit = Visit(code='1000',
-                      rbase=relativedelta(days=0),
-                      rlower=relativedelta(days=0),
-                      rupper=relativedelta(days=6),
-                      appointment_model='edc_appointment.appointment')
-        self.assertEqual(
-            visit.appointment_model,
-            'edc_appointment.appointment')

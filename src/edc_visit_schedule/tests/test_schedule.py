@@ -4,7 +4,8 @@ from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 
 from ..schedule import Schedule, AlreadyRegisteredVisit
-from ..schedule import ScheduleNameError, ScheduleModelError
+from ..schedule import ScheduleNameError
+from ..simple_model_validator import InvalidModel
 from ..visit import Visit
 from .models import OnSchedule, OffSchedule
 
@@ -20,73 +21,83 @@ class TestSchedule(TestCase):
         schedule = Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule')
+            offschedule_model='edc_visit_schedule.offschedule',
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
         self.assertTrue(schedule.__repr__())
 
     def test_visit_schedule_field_value(self):
         schedule = Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule')
+            offschedule_model='edc_visit_schedule.offschedule',
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
         self.assertEqual(schedule.field_value, 'schedule')
 
     def test_schedule_onschedule_model_is_none(self):
         self.assertRaises(
-            ScheduleModelError,
+            InvalidModel,
             Schedule, name='schedule', onschedule_model=None)
 
     def test_schedule_offschedule_model_is_none(self):
         self.assertRaises(
-            ScheduleModelError,
+            InvalidModel,
             Schedule, name='schedule', offschedule_model=None)
 
     def test_schedule_bad_label_lower(self):
         self.assertRaises(
-            ScheduleModelError,
+            InvalidModel,
             Schedule,
             name='schedule',
             onschedule_model='x.x',
             offschedule_model='edc_visit_schedule.offschedule',
-            validate=True)
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
 
     def test_schedule_bad_label_lower2(self):
         self.assertRaises(
-            ScheduleModelError,
+            InvalidModel,
             Schedule,
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
             offschedule_model='x.x',
-            validate=True)
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
 
     def test_schedule_onschedule_model_cls(self):
         schedule = Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule')
+            offschedule_model='edc_visit_schedule.offschedule',
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
         self.assertEqual(schedule.onschedule_model_cls, OnSchedule)
 
     def test_schedule_offschedule_model_cls(self):
         schedule = Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule')
+            offschedule_model='edc_visit_schedule.offschedule',
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
         self.assertEqual(schedule.offschedule_model_cls, OffSchedule)
 
     def test_schedule_ok(self):
-        schedule = Schedule(
+        Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule')
-        try:
-            schedule.validate()
-        except ScheduleModelError:
-            self.fail('ScheduleError unexpectedly raised')
+            offschedule_model='edc_visit_schedule.offschedule',
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
 
     def test_add_visits(self):
         schedule = Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule')
+            offschedule_model='edc_visit_schedule.offschedule',
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
         for i in range(0, 5):
             visit = Visit(
                 code=str(i), timepoint=i, rbase=relativedelta(days=i),
@@ -100,7 +111,9 @@ class TestSchedule(TestCase):
         schedule = Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule')
+            offschedule_model='edc_visit_schedule.offschedule',
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
         visit = Visit(
             code=str(0), title='erik0', timepoint=0, rbase=relativedelta(days=0),
             rlower=relativedelta(days=0), rupper=relativedelta(days=6))
@@ -115,7 +128,9 @@ class TestSchedule(TestCase):
         schedule = Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule')
+            offschedule_model='edc_visit_schedule.offschedule',
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
         visit = Visit(
             code=str(0), title='erik', timepoint=0, rbase=relativedelta(days=0),
             rlower=relativedelta(days=0), rupper=relativedelta(days=6))
@@ -130,7 +145,9 @@ class TestSchedule(TestCase):
         schedule = Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule')
+            offschedule_model='edc_visit_schedule.offschedule',
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
         visit = Visit(
             code=str(0), timepoint=0, rbase=relativedelta(days=0),
             rlower=relativedelta(days=0), rupper=relativedelta(days=6))
@@ -145,7 +162,9 @@ class TestSchedule(TestCase):
         schedule = Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule')
+            offschedule_model='edc_visit_schedule.offschedule',
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
         visit = Visit(
             code=str(0), timepoint=0, rbase=relativedelta(days=0),
             rlower=relativedelta(days=0), rupper=relativedelta(days=6))
@@ -156,48 +175,6 @@ class TestSchedule(TestCase):
         self.assertRaises(AlreadyRegisteredVisit,
                           schedule.add_visit, visit=visit)
 
-    @tag('1')
-    def test_add_visits_with_appointment_model(self):
-        schedule = Schedule(
-            name='schedule',
-            onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule',
-            appointment_model='edc_appointment.appointment')
-        for i in range(0, 5):
-            visit = Visit(
-                code=str(i), timepoint=i, rbase=relativedelta(days=i),
-                rlower=relativedelta(days=0), rupper=relativedelta(days=6))
-            schedule.add_visit(visit=visit)
-        for visit in schedule.visits.values():
-            self.assertEqual(visit.appointment_model,
-                             'edc_appointment.appointment')
-
-    @tag('1')
-    def test_add_visits_does_not_overwrite_appointment_model(self):
-        schedule = Schedule(
-            name='schedule',
-            onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule',
-            appointment_model='edc_appointment.appointment')
-        for i in range(0, 5):
-            visit = Visit(
-                code=str(i), timepoint=i, rbase=relativedelta(days=i),
-                rlower=relativedelta(days=0), rupper=relativedelta(days=6))
-            schedule.add_visit(visit=visit)
-        for i in range(5, 10):
-            visit = Visit(
-                code=str(i), timepoint=i, rbase=relativedelta(days=i),
-                rlower=relativedelta(days=0), rupper=relativedelta(days=6),
-                appointment_model='myapp.appointment')
-            schedule.add_visit(visit=visit)
-        for visit in schedule.visits.values():
-            if visit.timepoint < 5:
-                self.assertEqual(visit.appointment_model,
-                                 'edc_appointment.appointment')
-            else:
-                self.assertEqual(visit.appointment_model,
-                                 'myapp.appointment')
-
 
 class TestScheduleWithVisits(TestCase):
 
@@ -205,7 +182,9 @@ class TestScheduleWithVisits(TestCase):
         self.schedule = Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule')
+            offschedule_model='edc_visit_schedule.offschedule',
+            consent_model='edc_visit_schedule.subjectconsent',
+            appointment_model='edc_appointment.appointment')
 
     def test_order(self):
         for i in [3, 5, 1, 0, 2, 4]:

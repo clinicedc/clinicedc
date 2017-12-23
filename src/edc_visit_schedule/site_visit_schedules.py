@@ -5,8 +5,6 @@ from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
 from edc_base.utils import get_utcnow
 
-from .visit_schedule import VisitScheduleError
-
 
 class RegistryNotLoaded(Exception):
     pass
@@ -39,10 +37,6 @@ class SiteVisitSchedules:
                 'declared in settings?.')
         return self._registry
 
-    @property
-    def visit_schedules(self):
-        return self.registry
-
     def register(self, visit_schedule):
         self.loaded = True
         if not visit_schedule.schedules:
@@ -55,98 +49,60 @@ class SiteVisitSchedules:
             raise AlreadyRegisteredVisitSchedule(
                 f'Visit Schedule {visit_schedule} is already registered.')
 
+    @property
+    def visit_schedules(self):
+        return self.registry
+
     def get_visit_schedule(self, visit_schedule_name=None, **kwargs):
         """Returns a visit schedule instance or raises.
         """
-        if not self.loaded:
+        try:
+            visit_schedule_name = visit_schedule_name.split('.')[0]
+        except AttributeError:
+            pass
+        visit_schedule = self.registry.get(visit_schedule_name)
+        if not visit_schedule:
+            visit_schedule_names = '\', \''.join(self.registry.keys())
             raise SiteVisitScheduleError(
-                f'Registry is not loaded. See {repr(self)}.')
-        visit_schedule = None
-        if visit_schedule_name:
-            visit_schedule = self.registry.get(
-                visit_schedule_name.split('.')[0])
-            if not visit_schedule:
-                keys = '\', \''.join(self.registry.keys())
-                raise SiteVisitScheduleError(
-                    f'Invalid visit schedule name. Got \'{visit_schedule_name}\'. '
-                    f'Expected one of \'{keys}\'. See {repr(self)}.')
+                f'Invalid visit schedule name. Got \'{visit_schedule_name}\'. '
+                f'Expected one of \'{visit_schedule_names}\'. See {repr(self)}.')
         return visit_schedule
 
-    def get_visit_schedules(self, visit_schedule_name=None, **kwargs):
+    def get_visit_schedules(self, *visit_schedule_names):
         """Returns a dictionary of visit schedules.
 
         If visit_schedule_name not specified, returns all visit schedules.
         """
-        if not self.loaded:
-            raise SiteVisitScheduleError(
-                f'Registry is not loaded. See {repr(self)}.')
-        if visit_schedule_name:
-            visit_schedule_name = visit_schedule_name.split('.')[0]
-            return dict(
-                visit_schedule_name=self.get_visit_schedule(visit_schedule_name))
-        else:
-            return self.visit_schedules
-
-    def get_schedule(self, model=None, visit_schedule_name=None,
-                     schedule_name=None, **kwargs):
-        """Returns a schedule or None; by name, meta.label_lower,
-        model class or meta.visit_schedule_name.
-        """
-        if not self.loaded:
-            raise SiteVisitScheduleError(
-                f'Registry is not loaded. See {repr(self)}.')
-        schedule = None
-        if not schedule_name:
-            try:
-                schedule_name = visit_schedule_name.split('.')[1]
-            except (KeyError, AttributeError):
-                pass
-        for visit_schedule in self.get_visit_schedules(
-                visit_schedule_name=visit_schedule_name).values():
-            try:
-                schedule = visit_schedule.get_schedule(
-                    model=model, schedule_name=schedule_name)
-            except VisitScheduleError:
-                pass
-            else:
-                break
-        return schedule
-
-    def get_schedules(self, visit_schedule_name=None, schedule_name=None, **kwargs):
-        """Returns a dictionary of schedules for this
-        visit_schedule_name.
-        """
-        if not self.loaded:
-            raise SiteVisitScheduleError(
-                f'Registry is not loaded. See {repr(self)}.')
-        visit_schedule = self.get_visit_schedule(
-            visit_schedule_name=visit_schedule_name)
-        return visit_schedule.get_schedules(schedule_name=schedule_name)
-
-    def get_visit_schedule_names(self):
-        """Returns an ordered list of visit schedule names for
-        this site.
-        """
-        visit_schedule_names = list(self.visit_schedules.keys())
-        visit_schedule_names.sort()
-        return visit_schedule_names
-
-    def get_schedule_names(self, visit_schedule_names=None):
-        """Returns an ordered list of schedule names for a given
-        visit schedule name in visit_schedule_name.schedule_name
-        dot format.
-        """
-        schedule_names = []
-        if not isinstance(visit_schedule_names, (list, tuple)):
-            visit_schedule_names = [visit_schedule_names]
+        visit_schedules = {}
         for visit_schedule_name in visit_schedule_names:
-            schedule_names.extend(
-                [f'{visit_schedule_name}.{schedule_name}'
-                 for schedule_name in list(
-                     self.get_visit_schedule(
-                         visit_schedule_name=visit_schedule_name).schedules.keys())])
-        schedule_names.sort()
-        return schedule_names
+            try:
+                visit_schedule_name = visit_schedule_name.split('.')[0]
+            except AttributeError:
+                pass
+            visit_schedules[visit_schedule_name] = self.get_visit_schedule(
+                visit_schedule_name)
+        return visit_schedules or self.registry
+
+    def get_by_onschedule_model(self, model=None):
+        schedule = None
+        for visit_schedule in self.visit_schedules.values():
+            for schedule in visit_schedule.schedules.values():
+                if schedule.onschedule_model == model:
+                    return visit_schedule, schedule
+        raise SiteVisitScheduleError(
+            f'Schedule not found. No schedule exists for '
+            f'onschedule_model={model}.')
+        return None
+
+    def get_by_offschedule_model(self, model=None):
+        for visit_schedule in self.visit_schedules.values():
+            for schedule in visit_schedule.schedules.values():
+                if schedule.offschedule_model == model:
+                    return visit_schedule, schedule
+        raise SiteVisitScheduleError(
+            f'Schedule not found. No schedule exists for '
+            f'offschedule_model={model}.')
+        return None, None
 
     def autodiscover(self, module_name=None, apps=None, verbose=None):
         """Autodiscovers classes in the visit_schedules.py file of

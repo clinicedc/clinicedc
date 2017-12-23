@@ -1,2 +1,2 @@
-from .schedule import Schedule, ScheduleModelError, ScheduleNameError
+from .schedule import Schedule, ScheduleNameError
 from .schedule import ScheduleAppointmentModelError, AlreadyRegisteredVisit
