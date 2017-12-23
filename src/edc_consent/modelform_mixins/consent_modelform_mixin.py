@@ -2,7 +2,6 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from django.forms.utils import ErrorList
 from django.utils import timezone
-from edc_base.modelform_mixins import CommonCleanModelFormMixin
 from edc_base.utils import formatted_age, age
 from edc_constants.constants import YES, NO
 from edc_registration.models import RegisteredSubject
@@ -12,7 +11,7 @@ from ..exceptions import ConsentObjectDoesNotExist
 from ..site_consents import site_consents, SiteConsentError
 
 
-class ConsentModelFormMixin(CommonCleanModelFormMixin):
+class ConsentModelFormMixin:
     """Form for models that are a subclass of BaseConsent.
     """
 

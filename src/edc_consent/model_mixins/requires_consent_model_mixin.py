@@ -27,6 +27,7 @@ class RequiresConsentModelMixin(models.Model):
             raise ImproperlyConfigured(
                 'Consent model attribute not set. Got '
                 f'\'{self._meta.label_lower}.consent_model\' = None')
+        self.require_consent_or_raise()
         super().save(*args, **kwargs)
 
     def get_consent_object(self):
@@ -36,7 +37,7 @@ class RequiresConsentModelMixin(models.Model):
             report_datetime=self.report_datetime)
         return consent_object
 
-    def common_clean(self):
+    def require_consent_or_raise(self):
         if not self.id or (self.id and self.require_consent_on_change):
             consent_object = self.get_consent_object()
             self.consent_version = consent_object.version
@@ -66,7 +67,6 @@ class RequiresConsentModelMixin(models.Model):
                         version=consent_object.version,
                         report_datetime=self.report_datetime.strftime(
                             '%Y-%m-%d %H:%M%z')))
-        super().common_clean()
 
     class Meta:
         abstract = True
