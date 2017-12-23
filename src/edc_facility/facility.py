@@ -3,11 +3,10 @@ import arrow
 from collections import OrderedDict
 from datetime import datetime
 from dateutil.relativedelta import relativedelta, weekday
+from django.conf import settings
 from edc_base.utils import get_utcnow, convert_php_dateformat
 
 from .holidays import Holidays
-from django.conf import settings
-from arrow.arrow import Arrow
 
 
 class FacilityError(Exception):
@@ -41,7 +40,8 @@ class Facility:
         self.holidays = self.holiday_cls(facility_name=self.name, **kwargs)
         if not name:
             raise FacilityError(f'Name cannot be None. See {repr(self)}')
-        self.best_effort_available_datetime = best_effort_available_datetime
+        self.best_effort_available_datetime = (
+            True if best_effort_available_datetime is None else best_effort_available_datetime)
 
     def __repr__(self):
         return f'{self.__class__.__name__}(name={self.name}, days={self.days})'
@@ -114,8 +114,7 @@ class Facility:
                     break
         if not available_rdate:
             if self.best_effort_available_datetime:
-                available_rdate = Arrow.fromdatetime(
-                    suggested_datetime, tzinfo='UTC')
+                available_rdate = r
             else:
                 formatted_date = suggested_datetime.strftime(
                     convert_php_dateformat(settings.SHORT_DATE_FORMAT))
