@@ -115,6 +115,10 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
             name=cls._meta.label_lower)
         return appointment_config.related_visit_model_attr
 
+    @classmethod
+    def visit_model_cls(cls):
+        return getattr(cls, cls.related_visit_model_attr()).related.related_model
+
     @property
     def next_by_timepoint(self):
         """Returns the previous appointment or None of all appointments
