@@ -15,6 +15,7 @@ import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ETC_DIR = os.path.join(BASE_DIR, 'etc')
 APP_NAME = 'edc_visit_schedule'
 
 # Quick-start development settings - unsuitable for production
@@ -130,9 +131,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-GIT_DIR = BASE_DIR
-KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
-DEFAULT_APPOINTMENT_MODEL = 'edc_appointment.appointment'
 COUNTRY = 'botswana'
 HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
 

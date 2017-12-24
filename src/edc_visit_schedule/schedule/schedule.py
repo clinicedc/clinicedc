@@ -52,26 +52,17 @@ class Schedule:
         self.title = title or name
         self.sequence = sequence or name
 
-        SimpleModelValidator(onschedule_model, f'{self.name}.onschedule_model')
-        SimpleModelValidator(
-            offschedule_model, f'{self.name}.offschedule_model')
-        SimpleModelValidator(consent_model, f'{self.name}.consent_model')
-        self.onschedule_model = onschedule_model.lower()
-        self.offschedule_model = offschedule_model.lower()
-        self.consent_model = consent_model.lower()
-        if not appointment_model:
-            try:
-                appointment_model = settings.DEFAULT_APPOINTMENT_MODEL
-            except AttributeError:
-                appointment_model = 'edc_appointment.appointment'
-            if not appointment_model:
-                raise ScheduleAppointmentModelError(
-                    f'Invalid appointment model for schedule {repr(self)}. '
-                    f'Got None. Either declare on the Schedule or in '
-                    f'settings.DEFAULT_APPOINTMENT_MODEL.')
-        self.appointment_model = appointment_model.lower()
         SimpleModelValidator(
             appointment_model, f'{self.name}.appointment_model')
+        SimpleModelValidator(consent_model, f'{self.name}.consent_model')
+        SimpleModelValidator(
+            offschedule_model, f'{self.name}.offschedule_model')
+        SimpleModelValidator(onschedule_model, f'{self.name}.onschedule_model')
+
+        self.appointment_model = appointment_model.lower()
+        self.consent_model = consent_model.lower()
+        self.offschedule_model = offschedule_model.lower()
+        self.onschedule_model = onschedule_model.lower()
 
     def __repr__(self):
         return f'Schedule({self.name})'
