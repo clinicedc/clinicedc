@@ -9,8 +9,7 @@ from edc_model_admin import (
     ModelAdminFormAutoNumberMixin, ModelAdminRedirectOnDeleteMixin,
     ModelAdminAuditFieldsMixin, ModelAdminReadOnlyMixin,
     audit_fieldset_tuple)
-from edc_visit_schedule.admin import visit_schedule_fieldset_tuple,\
-    visit_schedule_fields
+from edc_visit_schedule.fieldsets import visit_schedule_fieldset_tuple, visit_schedule_fields
 
 from ..forms import AppointmentForm
 
