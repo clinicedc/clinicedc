@@ -1,5 +1,4 @@
 from django.test import TestCase, tag
-from django.views.generic.base import ContextMixin
 from django.test.client import RequestFactory
 
 from ..schedule import Schedule
@@ -9,11 +8,15 @@ from ..visit_schedule import VisitSchedule
 from .models import OnSchedule
 
 
-class TestView(VisitScheduleViewMixin, ContextMixin):
-    pass
+class TestView(VisitScheduleViewMixin):
+
+    kwargs = {}
 
 
-class TestViewCurrent(VisitScheduleViewMixin, ContextMixin):
+class TestViewCurrent(VisitScheduleViewMixin):
+
+    kwargs = {}
+
     def is_current_onschedule_model(self, onschedule_instance, **kwargs):
         return True
 
@@ -47,12 +50,15 @@ class TestViewMixin(TestCase):
 
         self.subject_identifier = '12345'
         self.view = TestView()
+        self.view.kwargs = dict(
+            subject_identifier=self.subject_identifier)
         self.view.subject_identifier = self.subject_identifier
         self.view.request = RequestFactory()
         self.view.request.META = {'HTTP_CLIENT_IP': '1.1.1.1'}
 
-        self.subject_identifier = '12345'
         self.view_current = TestViewCurrent()
+        self.view_current.kwargs = dict(
+            subject_identifier=self.subject_identifier)
         self.view_current.subject_identifier = self.subject_identifier
         self.view_current.request = RequestFactory()
         self.view_current.request.META = {'HTTP_CLIENT_IP': '1.1.1.1'}
@@ -64,14 +70,15 @@ class TestViewMixin(TestCase):
 
     def test_context_not_on_schedule(self):
         context = self.view.get_context_data()
-        self.assertEqual(context.get('visit_schedules'), [])
+        self.assertEqual(context.get('visit_schedules'), {})
         self.assertEqual(context.get('onschedule_models'), [])
 
     def test_context_on_schedule(self):
         obj = OnSchedule.objects.create(
             subject_identifier=self.subject_identifier)
         context = self.view.get_context_data()
-        self.assertEqual(context.get('visit_schedules'), [self.visit_schedule])
+        self.assertEqual(context.get('visit_schedules'), {
+                         self.visit_schedule.name: self.visit_schedule})
         self.assertEqual(context.get('onschedule_models'), [obj])
 
     def test_context_enrolled_current(self):
@@ -80,4 +87,3 @@ class TestViewMixin(TestCase):
         context = self.view_current.get_context_data()
         self.assertEqual(context.get('current_onschedule_model'), obj)
         obj = context.get('current_onschedule_model')
-        self.assertTrue(obj.current)

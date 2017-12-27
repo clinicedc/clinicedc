@@ -1,11 +1,7 @@
 from django.db import models
-from django.db.models import options
 
 
 from ..site_visit_schedules import site_visit_schedules
-
-if 'visit_schedule_name' not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
 
 
 class VisitScheduleMethodsError(Exception):
@@ -14,16 +10,6 @@ class VisitScheduleMethodsError(Exception):
 
 class VisitScheduleModelMixinError(Exception):
     pass
-
-
-class VisitScheduleMetaMixin(models.Model):
-
-    """Adds the \'visit_schedule_name\' Meta class attribute.
-    """
-
-    class Meta:
-        abstract = True
-        visit_schedule_name = None
 
 
 class VisitScheduleMethodsModelMixin(models.Model):
@@ -115,4 +101,3 @@ class VisitScheduleModelMixin(VisitScheduleFieldsModelMixin,
 
     class Meta:
         abstract = True
-        visit_schedule_name = None

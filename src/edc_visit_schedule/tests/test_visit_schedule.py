@@ -1,14 +1,13 @@
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
-from django.test.utils import override_settings
 from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
 from edc_registration.models import RegisteredSubject
 
 from ..constants import ON_SCHEDULE
 from ..models import SubjectScheduleHistory
-from ..schedule import Schedule, ScheduleAppointmentModelError
+from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..subject_schedule import NotOnScheduleError, InvalidOffscheduleDate
 from ..subject_schedule import NotConsentedError, UnknownSubjectError
@@ -92,36 +91,15 @@ class TestVisitSchedule2(TestCase):
         except AlreadyRegisteredSchedule:
             self.fail('AlreadyRegisteredSchedule unexpectedly raised.')
 
-    @override_settings(DEFAULT_APPOINTMENT_MODEL=None)
     def test_visit_schedule_add_schedule_invalid_appointment_model(self):
-        self.assertRaises(
-            ScheduleAppointmentModelError,
-            Schedule,
-            name='schedule_bad',
-            onschedule_model='edc_visit_schedule.onschedule',
-            offschedule_model='edc_visit_schedule.offschedule',
-            consent_model='edc_visit_schedule.subjectconsent')
-
-    @override_settings(DEFAULT_APPOINTMENT_MODEL='edc_base.appointment')
-    def test_visit_schedule_add_schedule_with_invalid_appointment_model_and_settings(self):
         self.assertRaises(
             InvalidModel,
             Schedule,
             name='schedule_bad',
             onschedule_model='edc_visit_schedule.onschedule',
             offschedule_model='edc_visit_schedule.offschedule',
+            appointment_model=None,
             consent_model='edc_visit_schedule.subjectconsent')
-
-    @override_settings(DEFAULT_APPOINTMENT_MODEL='edc_appointment.appointment')
-    def test_visit_schedule_add_schedule_with_appointment_model_from_settings(self):
-        try:
-            Schedule(
-                name='schedule_bad',
-                onschedule_model='edc_visit_schedule.onschedule',
-                offschedule_model='edc_visit_schedule.offschedule',
-                consent_model='edc_visit_schedule.subjectconsent')
-        except (InvalidModel, ScheduleAppointmentModelError) as e:
-            self.fail(f'Exception unexpectedly raised. Got {e}')
 
     def test_visit_schedule_add_schedule_with_appointment_model(self):
         self.visit_schedule.add_schedule(self.schedule3)

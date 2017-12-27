@@ -1,19 +1,14 @@
 import re
 
-from django.conf import settings
-
 from ..simple_model_validator import SimpleModelValidator
 from ..site_visit_schedules import site_visit_schedules
 from ..subject_schedule import SubjectSchedule, SubjectScheduleError
+from ..subject_schedule import NotOnScheduleForDateError, NotOnScheduleError
 from ..visit import Visit
 from .visit_collection import VisitCollection
 
 
 class ScheduleError(Exception):
-    pass
-
-
-class ScheduleAppointmentModelError(Exception):
     pass
 
 
@@ -39,7 +34,7 @@ class Schedule:
     visit_collection_cls = VisitCollection
     subject_schedule_cls = SubjectSchedule
 
-    def __init__(self, name=None, title=None, sequence=None, onschedule_model=None,
+    def __init__(self, name=None, verbose_name=None, sequence=None, onschedule_model=None,
                  offschedule_model=None, appointment_model=None, consent_model=None):
         self._subject = None
         self.visits = self.visit_collection_cls()
@@ -49,7 +44,7 @@ class Schedule:
                 'lower case letters and \'_\'.')
         else:
             self.name = name
-        self.title = title or name
+        self.verbose_name = verbose_name or name
         self.sequence = sequence or name
 
         SimpleModelValidator(
@@ -122,6 +117,15 @@ class Schedule:
             subject_identifier=subject_identifier,
             offschedule_datetime=offschedule_datetime)
 
+    def is_onschedule(self, subject_identifier=None, report_datetime=None):
+        try:
+            self.subject.onschedule_or_raise(
+                subject_identifier=subject_identifier,
+                report_datetime=report_datetime)
+        except (NotOnScheduleError, NotOnScheduleForDateError):
+            return False
+        return True
+
     @property
     def onschedule_model_cls(self):
         return self.subject.onschedule_model_cls
@@ -129,6 +133,10 @@ class Schedule:
     @property
     def offschedule_model_cls(self):
         return self.subject.offschedule_model_cls
+
+    @property
+    def history_model_cls(self):
+        return self.subject.history_model_cls
 
     @property
     def appointment_model_cls(self):

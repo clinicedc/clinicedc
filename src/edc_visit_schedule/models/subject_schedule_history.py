@@ -5,7 +5,6 @@ from edc_protocol.validators import datetime_not_before_study_start
 from edc_base.model_mixins import BaseUuidModel
 
 from ..choices import SCHEDULE_STATUS
-from ..constants import OFF_SCHEDULE, ON_SCHEDULE
 from ..model_mixins import VisitScheduleFieldsModelMixin
 
 

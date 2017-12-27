@@ -51,7 +51,6 @@ class TestModels(TestCase):
             RegistryNotLoaded,
             OffSchedule.objects.create, subject_identifier='1234')
 
-    @tag('1')
     def test_on_offschedule(self):
         OnSchedule.objects.create(
             subject_identifier='1234',
@@ -66,7 +65,6 @@ class TestModels(TestCase):
             subject_identifier='1234')
         self.assertEqual(history_obj.schedule_status, OFF_SCHEDULE)
 
-    @tag('1')
     def test_history(self):
         OnSchedule.objects.create(
             subject_identifier='1234',

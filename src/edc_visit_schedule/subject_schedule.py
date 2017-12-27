@@ -75,31 +75,30 @@ class SubjectSchedule:
             onschedule_datetime = onschedule_model_obj.onschedule_datetime
         else:
             onschedule_datetime = onschedule_datetime or get_utcnow()
-        if not onschedule_model_obj:
-            try:
-                self.onschedule_model_cls.objects.get(
-                    subject_identifier=subject_identifier)
-            except ObjectDoesNotExist:
-                self.registered_or_raise(subject_identifier=subject_identifier)
-                self.consented_or_raise(subject_identifier=subject_identifier)
-                self.onschedule_model_cls.objects.create(
-                    subject_identifier=subject_identifier,
-                    onschedule_datetime=onschedule_datetime)
-        else:
-            try:
-                self.history_model_cls.objects.get(
-                    subject_identifier=subject_identifier,
-                    schedule_name=self.schedule_name,
-                    visit_schedule_name=self.visit_schedule_name)
-            except ObjectDoesNotExist:
-                self.history_model_cls.objects.create(
-                    subject_identifier=subject_identifier,
-                    onschedule_model=self.onschedule_model,
-                    offschedule_model=self.offschedule_model,
-                    schedule_name=self.schedule_name,
-                    visit_schedule_name=self.visit_schedule_name,
-                    onschedule_datetime=onschedule_datetime,
-                    schedule_status=ON_SCHEDULE)
+        try:
+            self.onschedule_model_cls.objects.get(
+                subject_identifier=subject_identifier)
+        except ObjectDoesNotExist:
+            self.registered_or_raise(subject_identifier=subject_identifier)
+            self.consented_or_raise(subject_identifier=subject_identifier)
+            self.onschedule_model_cls.objects.create(
+                subject_identifier=subject_identifier,
+                onschedule_datetime=onschedule_datetime)
+        try:
+            history_obj = self.history_model_cls.objects.get(
+                subject_identifier=subject_identifier,
+                schedule_name=self.schedule_name,
+                visit_schedule_name=self.visit_schedule_name)
+        except ObjectDoesNotExist:
+            history_obj = self.history_model_cls.objects.create(
+                subject_identifier=subject_identifier,
+                onschedule_model=self.onschedule_model,
+                offschedule_model=self.offschedule_model,
+                schedule_name=self.schedule_name,
+                visit_schedule_name=self.visit_schedule_name,
+                onschedule_datetime=onschedule_datetime,
+                schedule_status=ON_SCHEDULE)
+        if history_obj.schedule_status == ON_SCHEDULE:
             # create appointments per schedule
             creator = self.appointments_creator_cls(
                 report_datetime=onschedule_datetime,
@@ -115,31 +114,30 @@ class SubjectSchedule:
         if not offschedule_model_obj:
             offschedule_datetime = offschedule_datetime or get_utcnow()
             try:
-                self.offschedule_model_cls.objects.get(
+                offschedule_model_obj = self.offschedule_model_cls.objects.get(
                     subject_identifier=subject_identifier)
             except ObjectDoesNotExist:
-                self.offschedule_model_cls.objects.create(
+                offschedule_model_obj = self.offschedule_model_cls.objects.create(
                     subject_identifier=subject_identifier,
                     offschedule_datetime=offschedule_datetime)
-        else:
-            subject_identifier = offschedule_model_obj.subject_identifier
-            offschedule_datetime = offschedule_model_obj.offschedule_datetime
-            # get existing history obj or raise
+        subject_identifier = offschedule_model_obj.subject_identifier
+        offschedule_datetime = offschedule_model_obj.offschedule_datetime
+        # get existing history obj or raise
+        try:
+            history_obj = self.history_model_cls.objects.get(
+                subject_identifier=subject_identifier,
+                schedule_name=self.schedule_name,
+                visit_schedule_name=self.visit_schedule_name)
+        except ObjectDoesNotExist:
+            raise NotOnScheduleError(
+                'Failed to take subject off schedule. '
+                f'Subject has not been put on schedule '
+                f'\'{self.visit_schedule_name}.{self.schedule_name}\'. '
+                f'Got \'{subject_identifier}\'.')
+        # get existing history obj but confirm date not before onschedule
+        if history_obj:
             try:
-                history_obj = self.history_model_cls.objects.get(
-                    subject_identifier=subject_identifier,
-                    schedule_name=self.schedule_name,
-                    visit_schedule_name=self.visit_schedule_name,
-                    offschedule_datetime=None)
-            except ObjectDoesNotExist:
-                raise NotOnScheduleError(
-                    'Failed to take subject off schedule. '
-                    f'Subject has not been put on schedule '
-                    f'\'{self.visit_schedule_name}.{self.schedule_name}\'. '
-                    f'Got \'{subject_identifier}\'.')
-            # get existing history obj but confirm date not before onschedule
-            try:
-                history_obj = self.history_model_cls.objects.get(
+                self.history_model_cls.objects.get(
                     subject_identifier=subject_identifier,
                     schedule_name=self.schedule_name,
                     visit_schedule_name=self.visit_schedule_name,
@@ -228,7 +226,7 @@ class SubjectSchedule:
             raise NotOnScheduleError(
                 f'Subject is not been put on schedule {self.schedule_name}. '
                 f'Got {subject_identifier}.')
-        offschedule_datetime = history_obj.offschedule_datetime or report_datetime
+        offschedule_datetime = history_obj.offschedule_datetime or get_utcnow()
         if compare_as_datetimes:
             in_date_range = (history_obj.onschedule_datetime
                              <= report_datetime
