@@ -24,8 +24,8 @@ class ConsentHelper:
         self.subject_identifier = subject_identifier
         self.update_previous = True if update_previous is None else update_previous
 
-        self.consent_object = site_consents.get_consent(
-            consent_model=self.model_cls._meta.label_lower,
+        self.consent_object = site_consents.get_consent_for_period(
+            model=self.model_cls._meta.label_lower,
             consent_group=self.model_cls._meta.consent_group,
             report_datetime=consent_datetime)
 

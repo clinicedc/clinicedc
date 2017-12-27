@@ -26,7 +26,7 @@ class SubjectConsentForm(ConsentModelFormMixin, forms.ModelForm):
 class TestConsentForm(DatesTestMixin, TestCase):
 
     def setUp(self):
-        site_consents.reset_registry()
+        site_consents.registry = {}
         self.consent_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
@@ -124,9 +124,9 @@ class TestConsentForm(DatesTestMixin, TestCase):
         subject_consent.guardian_name = None
         subject_consent.initials = subject_consent.first_name[
             0] + subject_consent.last_name[0]
-        consent = site_consents.get_consent(
+        consent = site_consents.get_consent_for_period(
             report_datetime=subject_consent.consent_datetime,
-            consent_model=subject_consent._meta.label_lower)
+            model=subject_consent._meta.label_lower)
         subject_consent.dob = self.study_open_datetime - \
             relativedelta(years=consent.age_is_adult - 1)
         consent_form = SubjectConsentForm(subject_consent.__dict__)
@@ -142,9 +142,9 @@ class TestConsentForm(DatesTestMixin, TestCase):
         subject_consent.initials = subject_consent.first_name[
             0] + subject_consent.last_name[0]
         subject_consent.guardian_name = 'SPOCK, YOUCOULDNTPRONOUNCEIT'
-        consent = site_consents.get_consent(
+        consent = site_consents.get_consent_for_period(
             report_datetime=subject_consent.consent_datetime,
-            consent_model=subject_consent._meta.label_lower)
+            model=subject_consent._meta.label_lower)
         subject_consent.dob = self.study_open_datetime - \
             relativedelta(years=consent.age_is_adult - 1)
         consent_form = SubjectConsentForm(subject_consent.__dict__)
@@ -159,9 +159,9 @@ class TestConsentForm(DatesTestMixin, TestCase):
             dob=self.dob)
         subject_consent.initials = subject_consent.first_name[
             0] + subject_consent.last_name[0]
-        consent = site_consents.get_consent(
+        consent = site_consents.get_consent_for_period(
             report_datetime=subject_consent.consent_datetime,
-            consent_model=subject_consent._meta.label_lower)
+            model=subject_consent._meta.label_lower)
         subject_consent.dob = self.study_open_datetime - \
             relativedelta(years=consent.age_is_adult)
         consent_form = SubjectConsentForm(subject_consent.__dict__)
@@ -178,9 +178,9 @@ class TestConsentForm(DatesTestMixin, TestCase):
         subject_consent.initials = subject_consent.first_name[
             0] + subject_consent.last_name[0]
         subject_consent.guardian_name = 'SPOCK, YOUCOULDNTPRONOUNCEIT'
-        consent = site_consents.get_consent(
+        consent = site_consents.get_consent_for_period(
             report_datetime=subject_consent.consent_datetime,
-            consent_model=subject_consent._meta.label_lower)
+            model=subject_consent._meta.label_lower)
         subject_consent.dob = self.study_open_datetime - \
             relativedelta(years=consent.age_is_adult)
         consent_form = SubjectConsentForm(subject_consent.__dict__)
@@ -207,7 +207,7 @@ class TestConsentForm(DatesTestMixin, TestCase):
         self.assertFalse(consent_form.is_valid())
 
     def test_base_form_catches_gender_of_consent(self):
-        site_consents.reset_registry()
+        site_consents.registry = {}
         self.consent_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),

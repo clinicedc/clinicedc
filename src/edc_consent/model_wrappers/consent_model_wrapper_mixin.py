@@ -16,7 +16,8 @@ class ConsentModelWrapperMixin:
         """
         default_consent_group = django_apps.get_app_config(
             'edc_consent').default_consent_group
-        consent_object = site_consents.get_consent(
+        consent_object = site_consents.get_consent_for_period(
+            model=self.consent_model_wrapper_cls.model,
             report_datetime=self.object.report_datetime,
             consent_group=default_consent_group)
         return consent_object

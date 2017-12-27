@@ -92,17 +92,16 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         """
         return age(self.dob, self.consent_datetime)
 
+    @property
     def formatted_age_at_consent(self):
         """Returns a string representation.
         """
         return formatted_age(self.dob, self.consent_datetime)
 
-    def get_registration_datetime(self):
-        return self.consent_datetime
-
     class Meta:
         abstract = True
         consent_group = None
         get_latest_by = 'consent_datetime'
-        unique_together = (('first_name', 'dob', 'initials', 'version'), )
+        unique_together = (('first_name', 'dob', 'initials',
+                            'version'), ('subject_identifier', 'version'))
         ordering = ('created', )

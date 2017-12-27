@@ -20,6 +20,6 @@ class HomeView(EdcBaseViewMixin, NavbarViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context.update(
             edc_consent_admin=edc_consent_admin,
-            consents=site_consents.all(),
+            consents=site_consents.consents(),
         )
         return context

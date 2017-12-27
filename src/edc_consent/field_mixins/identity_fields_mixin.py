@@ -1,9 +1,12 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 from django_crypto_fields.fields import IdentityField
 from django_crypto_fields.mixins import CryptoMixin
 
 from edc_base.model_fields import IdentityTypeField
+
+
+class IdentityFieldsMixinError(Exception):
+    pass
 
 
 class IdentityFieldsMixin(CryptoMixin, models.Model):
@@ -21,11 +24,10 @@ class IdentityFieldsMixin(CryptoMixin, models.Model):
 
     def save(self, *args, **kwargs):
         if self.identity != self.confirm_identity:
-            raise ValidationError(
+            raise IdentityFieldsMixinError(
                 '\'Identity\' must match \'confirm_identity\'. '
-                'Catch this error on the form'
-            )
-        super(IdentityFieldsMixin, self).save(*args, **kwargs)
+                'Catch this error on the form')
+        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True

@@ -1,37 +1,47 @@
-import arrow
-
 from django.apps import apps as django_apps
-from pprint import pprint
+from edc_constants.constants import FEMALE, MALE
 
 
-class ArrowObject:
+class InvalidGender(Exception):
+    pass
 
-    def __init__(self, start_dt, end_dt):
-        self.rstart = arrow.Arrow.fromdatetime(
-            start_dt, start_dt.tzinfo).to('utc')
-        self.rend = arrow.Arrow.fromdatetime(end_dt, end_dt.tzinfo).to('utc')
+
+class NaiveDatetimeError(Exception):
+    pass
 
 
 class Consent:
 
-    def __init__(self, model, **kwargs):
+    default_version = '1'
+    default_subject_type = 'subject'
+    default_consent_group = django_apps.get_app_config(
+        'edc_consent').default_consent_group
+
+    def __init__(self, model, group=None, start=None, end=None,
+                 version=None, gender=None, updates_versions=None,
+                 age_min=None, age_max=None, age_is_adult=None,
+                 subject_type=None):
         """A class that represents the general attributes of a consent.
         """
-        self.model_name = model
-        self.group = kwargs.get('group', 'default')
-        self.start = kwargs.get('start')
-        self.start = arrow.Arrow.fromdatetime(
-            self.start, self.start.tzinfo).to('UTC').datetime
-        self.end = kwargs.get('end')
-        self.end = arrow.Arrow.fromdatetime(
-            self.end, self.end.tzinfo).to('UTC').datetime
-        self.updates_versions = kwargs.get('updates_versions', [])
-        self.version = kwargs.get('version', '0')
-        self.gender = kwargs.get('gender', [])
-        self.age_min = kwargs.get('age_min', 0)
-        self.age_max = kwargs.get('age_max', 0)
-        self.age_is_adult = kwargs.get('age_is_adult', 0)
-        self.subject_type = kwargs.get('subject_type', 'subject')
+        if not start.tzinfo:
+            raise NaiveDatetimeError(
+                f'Naive datetime is invalid. Got {start}.')
+        if not end.tzinfo:
+            raise NaiveDatetimeError(
+                f'Naive datetime is invalid. Got {end}.')
+        if MALE not in gender and FEMALE not in gender:
+            raise InvalidGender(f'Invalid gender. Got {gender}.')
+        self.model = model
+        self.group = group or self.default_consent_group
+        self.start = start
+        self.end = end
+        self.updates_versions = updates_versions or []
+        self.version = version or self.default_version
+        self.gender = gender
+        self.age_min = age_min
+        self.age_max = age_max
+        self.age_is_adult = age_is_adult
+        self.subject_type = subject_type or self.default_subject_type
         if self.updates_versions:
             if not isinstance(self.updates_versions, (list, tuple)):
                 self.updates_versions = [
@@ -39,32 +49,16 @@ class Consent:
                     if x.strip() != '']
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}({self.model_name}, {self.version})')
+        return (f'<{self.__class__.__name__}({self.model}, {self.version}) '
+                f'from {self.start} to {self.end}>')
 
     def __str__(self):
-        return self.name
+        return f'{self.model} {self.version}'
 
     @property
     def name(self):
-        return f'{self.model_name} {self.version}'
+        return f'{self.model}-{self.version}'
 
     @property
-    def model(self):
-        return django_apps.get_model(*self.model_name.split('.'))
-
-    def for_datetime(self, dt):
-        """Returns True of datetime is within start/end dates.
-        """
-        dt = arrow.get(dt, dt.tzinfo).to('UTC').datetime
-        return self.start <= dt <= self.end
-
-    def get_absolute_url(self):
-        return self.model().get_absolute_url()
-
-    @property
-    def verbose_name(self):
-        return self.model._meta.verbose_name
-
-    @property
-    def arrow(self):
-        return ArrowObject(self.start, self.end)
+    def model_cls(self):
+        return django_apps.get_model(self.model)

@@ -5,9 +5,8 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 
 from ..field_mixins import ReviewFieldsMixin, PersonalFieldsMixin, CitizenFieldsMixin
-from ..field_mixins import VulnerabilityFieldsMixin
-from ..field_mixins.bw import IdentityFieldsMixin
-from ..model_mixins import ConsentModelMixin, RequiresConsentModelMixin
+from ..field_mixins import VulnerabilityFieldsMixin, IdentityFieldsMixin
+from ..model_mixins import ConsentModelMixin, RequiresConsentNonCrfModelMixin
 
 
 class SubjectConsent(ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin,
@@ -16,7 +15,7 @@ class SubjectConsent(ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin,
                      CitizenFieldsMixin, VulnerabilityFieldsMixin, BaseUuidModel):
 
     class Meta(ConsentModelMixin.Meta):
-        unique_together = ['subject_identifier', 'version']
+        pass
 
 
 class SubjectConsent2(ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin,
@@ -25,13 +24,13 @@ class SubjectConsent2(ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin,
                       CitizenFieldsMixin, VulnerabilityFieldsMixin, BaseUuidModel):
 
     class Meta(ConsentModelMixin.Meta):
-        unique_together = ['subject_identifier', 'version']
+        pass
 
 
-class TestModel(NonUniqueSubjectIdentifierModelMixin, RequiresConsentModelMixin, BaseUuidModel):
+class TestModel(NonUniqueSubjectIdentifierModelMixin,
+                RequiresConsentNonCrfModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
     class Meta:
         consent_model = 'edc_consent.subjectconsent'
-        consent_group = None

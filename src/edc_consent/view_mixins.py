@@ -43,7 +43,7 @@ class ConsentViewMixin(ContextMixin):
         default_consent_group = django_apps.get_app_config(
             'edc_consent').default_consent_group
         try:
-            consent_object = site_consents.get_consent(
+            consent_object = site_consents.get_consent_for_period(
                 report_datetime=self.report_datetime,
                 consent_group=default_consent_group)
         except ConsentObjectDoesNotExist:
@@ -55,7 +55,7 @@ class ConsentViewMixin(ContextMixin):
         """Returns a consent model instance or None for the current period.
         """
         if not self._consent:
-            self._consent = self.consent_object.model.consent.consent_for_period(
+            self._consent = self.consent_object.model_cls.consent.consent_for_period(
                 subject_identifier=self.subject_identifier, report_datetime=self.report_datetime)
         return self._consent
 

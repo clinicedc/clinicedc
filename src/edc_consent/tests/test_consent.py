@@ -1,44 +1,21 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
-from faker import Faker
+from django.test import tag
 from model_mommy import mommy
 
-from ..consent import Consent
-from ..exceptions import NotConsentedError, ConsentObjectDoesNotExist
-from ..site_consents import ConsentPeriodError
-from ..site_consents import ConsentVersionSequenceError, ConsentPeriodOverlapError
-from ..site_consents import site_consents
+from ..consent import NaiveDatetimeError
+from ..consent_object_validator import ConsentPeriodError, ConsentVersionSequenceError
+from ..consent_object_validator import ConsentPeriodOverlapError
+from ..exceptions import NotConsentedError
+from ..site_consents import SiteConsentError
+from .consent_test_case import ConsentTestCase
 from .dates_test_mixin import DatesTestMixin
 from .models import TestModel
 
-fake = Faker()
 
+class TestConsent(DatesTestMixin, ConsentTestCase):
 
-class TestConsent(DatesTestMixin, TestCase):
-
-    def setUp(self):
-        site_consents.reset_registry()
-        self.dob = self.study_open_datetime - relativedelta(years=25)
-
-    def consent_object_factory(self, **kwargs):
-        options = dict(
-            start=kwargs.get('start', self.study_open_datetime),
-            end=kwargs.get('end', self.study_close_datetime),
-            gender=kwargs.get('gender', ['M', 'F']),
-            updates_versions=kwargs.get('updates_versions', []),
-            version=kwargs.get('version', '1'),
-            age_min=kwargs.get('age_min', 16),
-            age_max=kwargs.get('age_max', 64),
-            age_is_adult=kwargs.get('age_is_adult', 18),
-        )
-        model = kwargs.get('model', 'edc_consent.subjectconsent')
-        consent = Consent(model, **options)
-        site_consents.register(consent)
-        return consent
-
-    @tag('1')
     def test_raises_error_if_no_consent(self):
         """Asserts SubjectConsent cannot create a new instance if
         no consents are defined.
@@ -47,13 +24,12 @@ class TestConsent(DatesTestMixin, TestCase):
         """
         subject_identifier = '12345'
         self.assertRaises(
-            ConsentObjectDoesNotExist,
+            SiteConsentError,
             mommy.make_recipe,
             'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime)
 
-    @tag('1')
     def test_raises_error_if_no_consent2(self):
         """Asserts a model using the RequiresConsentMixin cannot create
         a new instance if subject not consented.
@@ -87,15 +63,12 @@ class TestConsent(DatesTestMixin, TestCase):
             self.fail('NotConsentedError unexpectedly raised')
 
     def test_cannot_create_consent_without_consent_by_datetime(self):
-        """Asserts can create a consent model instance if a matching
-        consent in site_consents.
-        """
         self.consent_object_factory(
             start=self.study_open_datetime + relativedelta(days=5),
             end=self.study_close_datetime,
-            version='1.0')
+            version='1')
         self.assertRaises(
-            ConsentObjectDoesNotExist,
+            SiteConsentError,
             mommy.make_recipe,
             'edc_consent.subjectconsent',
             dob=self.dob,
@@ -291,15 +264,13 @@ class TestConsent(DatesTestMixin, TestCase):
 
     def test_consent_periods_cannot_overlap2(self):
         self.consent_object_factory(
-            app_label='edc_consent',
-            model_name='subjectconsent',
+            model='edc_consent.subjectconsent',
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version='1.0')
         self.assertRaises(
             ConsentPeriodOverlapError, self.consent_object_factory,
-            app_label='edc_consent',
-            model_name='subjectconsent',
+            model='edc_consent.subjectconsent',
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version='1.1')
@@ -348,3 +319,37 @@ class TestConsent(DatesTestMixin, TestCase):
             end=self.study_open_datetime + timedelta(days=150),
             version='3.0',
             updates_versions='1.0, 2.0')
+
+    def test_consent_object_naive_datetime_start(self):
+        """Asserts cannot register a consent with a start date
+        before the study open date.
+        """
+        study_open_datetime = django_apps.get_app_config(
+            'edc_protocol').study_open_datetime
+        study_close_datetime = django_apps.get_app_config(
+            'edc_protocol').study_close_datetime
+        d = study_open_datetime
+        dte = datetime(d.year, d.month, d.day, 0, 0, 0, 0)
+        self.assertRaises(
+            NaiveDatetimeError,
+            self.consent_object_factory,
+            start=dte,
+            end=study_close_datetime + relativedelta(days=1),
+            version='1.0')
+
+    def test_consent_object_naive_datetime_end(self):
+        """Asserts cannot register a consent with a start date
+        before the study open date.
+        """
+        study_open_datetime = django_apps.get_app_config(
+            'edc_protocol').study_open_datetime
+        study_close_datetime = django_apps.get_app_config(
+            'edc_protocol').study_close_datetime
+        d = study_close_datetime
+        dte = datetime(d.year, d.month, d.day, 0, 0, 0, 0)
+        self.assertRaises(
+            NaiveDatetimeError,
+            self.consent_object_factory,
+            start=study_open_datetime,
+            end=dte,
+            version='1.0')
