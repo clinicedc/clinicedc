@@ -60,13 +60,14 @@ class Schedule:
         self.onschedule_model = onschedule_model.lower()
 
     def check(self):
-        SimpleModelValidator(
-            self.appointment_model, f'{self.name}.appointment_model')
-        SimpleModelValidator(self.consent_model, f'{self.name}.consent_model')
-        SimpleModelValidator(
-            self.offschedule_model, f'{self.name}.offschedule_model')
-        SimpleModelValidator(
-            self.onschedule_model, f'{self.name}.onschedule_model')
+        warnings = []
+        try:
+            self.subject.check()
+        except SubjectScheduleError as e:
+            warnings.append(
+                f'{e} See schedule \'{self.name}\'.')
+
+        return warnings
 
     def __repr__(self):
         return f'Schedule({self.name})'
@@ -154,9 +155,3 @@ class Schedule:
     @property
     def visit_model_cls(self):
         return self.subject.appointment_model_cls.visit_model_cls()
-
-    def validate(self):
-        try:
-            self.subject.validate()
-        except SubjectScheduleError as e:
-            raise ScheduleError(e)

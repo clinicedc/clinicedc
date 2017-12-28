@@ -11,7 +11,6 @@ from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..subject_schedule import NotOnScheduleError, InvalidOffscheduleDate
 from ..subject_schedule import NotConsentedError, UnknownSubjectError
-from ..simple_model_validator import InvalidModel
 from ..visit import Visit, Crf, FormsCollectionError
 from ..visit_schedule import VisitSchedule, VisitScheduleError
 from ..visit_schedule import VisitScheduleNameError, AlreadyRegisteredSchedule

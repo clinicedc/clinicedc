@@ -147,3 +147,19 @@ class Visit:
     @timepoint_datetime.setter
     def timepoint_datetime(self, dt=None):
         self.dates.base = dt
+
+    def check(self):
+        warnings = []
+        try:
+            for crf in self.crfs:
+                django_apps.get_model(crf.model)
+            for crf in self.crfs_unscheduled:
+                django_apps.get_model(crf.model)
+            for crf in self.requisitions:
+                django_apps.get_model(crf.model)
+            for crf in self.requisitions_unscheduled:
+                django_apps.get_model(crf.model)
+        except LookupError as e:
+            warnings.append(
+                f'{e} Got Visit {self.code} crf.model={crf.model}.')
+        return warnings

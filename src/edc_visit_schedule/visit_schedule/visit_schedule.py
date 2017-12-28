@@ -52,20 +52,6 @@ class VisitSchedule:
     def __str__(self):
         return self.name
 
-    def check(self):
-        warnings = []
-        try:
-            SimpleModelValidator(self.offstudy_model,
-                                 f'{self.name}.offstudy_model')
-        except InvalidModel as e:
-            warnings.append(e)
-        try:
-            SimpleModelValidator(self.death_report_model,
-                                 f'{self.name}.death_report_model')
-        except InvalidModel as e:
-            warnings.append(e)
-        return warnings
-
     @property
     def offstudy_model_cls(self):
         return django_apps.get_model(self.offstudy_model)
@@ -83,9 +69,12 @@ class VisitSchedule:
         self.schedules.update({schedule.name: schedule})
         return schedule
 
-    def validate(self):
+    def check(self):
+        warnings = []
         try:
             self.offstudy_model_cls
             self.death_report_model_cls
         except LookupError as e:
-            raise VisitScheduleError(e)
+            warnings.append(
+                f'{e} See visit schedule \'{self.name}\'.')
+        return warnings

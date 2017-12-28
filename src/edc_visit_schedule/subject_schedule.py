@@ -243,7 +243,7 @@ class SubjectSchedule:
                 f'Subject not on schedule {self.schedule_name} on '
                 f'{formatted_date}. Got {subject_identifier}.')
 
-    def validate(self):
+    def check(self):
         try:
             self.onschedule_model_cls
             self.offschedule_model_cls

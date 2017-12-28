@@ -134,12 +134,22 @@ class SiteVisitSchedules:
             except ImportError:
                 pass
 
-    def validate(self):
+    def check(self):
         if not self.loaded:
             raise SiteVisitScheduleError('Registry is not loaded.')
-        for visit_schedule in self.registry.values():
+        errors = {'visit_schedules': [], 'schedules': [], 'visits': []}
+        for visit_schedule in site_visit_schedules.visit_schedules.values():
+            errors['visit_schedules'].extend(visit_schedule.check())
             for schedule in visit_schedule.schedules.values():
-                schedule.visits.timepoint_dates(dt=get_utcnow())
+                errors['schedules'].extend(schedule.check())
+                for visit in schedule.visits.values():
+                    errors['visits'].extend(visit.check())
+        return errors
+
+#     def validate(self):
+#         for visit_schedule in self.registry.values():
+#             for schedule in visit_schedule.schedules.values():
+#                 schedule.visits.timepoint_dates(dt=get_utcnow())
 
 
 site_visit_schedules = SiteVisitSchedules()

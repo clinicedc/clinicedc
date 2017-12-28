@@ -11,9 +11,9 @@ def visit_schedule_check(app_configs, **kwargs):
             Warning(
                 'No visit schedules have been registered!',
                 id='edc_visit_schedule.001'))
-    for visit_schedule in site_visit_schedules.visit_schedules.values():
-        messages = visit_schedule.check()
-        for message in messages:
+    site_results = site_visit_schedules.check()
+    for key, results in site_results.items():
+        for result in results:
             errors.append(
-                Warning(message, id='edc_visit_schedule.002'))
+                Warning(result, id=f'edc_visit_schedule.{key}'))
     return errors
