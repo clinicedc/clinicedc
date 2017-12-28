@@ -1,15 +1,16 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
-from django.test.utils import tag
+from django.test.utils import tag, override_settings
 from edc_base.utils import get_utcnow
+from edc_base.tests import SiteTestCaseMixin
 
 from ..exceptions import RegisteredSubjectError
 from ..models import RegisteredSubject
 from .models import SubjectModelOne, SubjectModelTwo, SubjectModelThree
 
 
-class TestRegistration(TestCase):
+class TestRegistration(SiteTestCaseMixin, TestCase):
 
     def test_creates_registered_subject(self):
         obj = SubjectModelOne.objects.create(
@@ -20,7 +21,6 @@ class TestRegistration(TestCase):
         except ObjectDoesNotExist:
             self.fail('RegisteredSubject was unexpectedly not created')
 
-    @tag('1')
     def test_updates_registered_subject(self):
         SubjectModelOne.objects.create(
             screening_identifier='12345',
@@ -115,3 +115,19 @@ class TestRegistration(TestCase):
         rs.save()
         rs.subject_identifier = 'WXYZ'
         self.assertRaises(RegisteredSubjectError, rs.save)
+
+    @override_settings(SITE_ID=10)
+    def test_site1(self):
+        obj = SubjectModelOne.objects.create(
+            screening_identifier='12345')
+        rs = RegisteredSubject.objects.get(
+            registration_identifier=obj.to_string(obj.registration_identifier))
+        self.assertEqual(rs.site.pk, 10)
+
+    @override_settings(SITE_ID=20)
+    def test_site2(self):
+        obj = SubjectModelOne.objects.create(
+            screening_identifier='12345')
+        rs = RegisteredSubject.objects.get(
+            registration_identifier=obj.to_string(obj.registration_identifier))
+        self.assertEqual(rs.site.pk, 20)

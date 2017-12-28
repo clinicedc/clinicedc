@@ -1,6 +1,7 @@
 import re
 
 from django.apps import apps as django_apps
+from django.contrib.sites.managers import CurrentSiteManager
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.utils.translation import ugettext as _
@@ -8,6 +9,7 @@ from django_crypto_fields.fields import FirstnameField, LastnameField
 from django_crypto_fields.fields import IdentityField, EncryptedCharField
 
 from edc_base.model_fields import IdentityTypeField, IsDateEstimatedField
+from edc_base.model_mixins import SiteModelMixin
 from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
 from edc_constants.constants import UUID_PATTERN
@@ -26,15 +28,14 @@ YES_NO_UNKNOWN = (
 )
 
 
-class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Model):
+class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin,
+                                  SiteModelMixin, models.Model):
 
     """A model mixin for the RegisteredSubject model (only).
     """
     # may not be available when instance created (e.g. infants prior to birth
     # report)
-    first_name = FirstnameField(
-        null=True,
-    )
+    first_name = FirstnameField(null=True)
 
     # may not be available when instance created (e.g. infants or household
     # subject before consent)
@@ -84,11 +85,6 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         null=True,
         blank=True)
 
-    study_site = models.CharField(
-        max_length=50,
-        null=True,
-        blank=True)
-
     subject_type = models.CharField(
         max_length=25,
         null=True,
@@ -110,8 +106,7 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         max_length=75,
         unique=True,
         default=get_uuid,
-        editable=False,
-    )
+        editable=False)
 
     identity_type = IdentityTypeField(
         null=True,
@@ -172,6 +167,8 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         editable=False)
 
     objects = RegisteredSubjectManager()
+
+    on_site = CurrentSiteManager()
 
     def save(self, *args, **kwargs):
         if self.identity:
