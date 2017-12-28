@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
+from django.utils.safestring import mark_safe
 
 
 class SubjectLocatorViewMixinError(Exception):
@@ -37,12 +38,18 @@ class SubjectLocatorViewMixin(ContextMixin):
 
     def get_subject_locator_or_message(self):
         obj = None
+        subject_identifier = self.kwargs.get('subject_identifier')
         try:
             obj = self.subject_locator_model_cls.objects.get(
-                subject_identifier=self.subject_identifier)
+                subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
-            messages.warning(self.request, (
-                'Please complete the subject locator form.'))
+            add_url = self.subject_locator_model_cls().get_absolute_url()
+            verbose_name = self.subject_locator_model_cls._meta.verbose_name
+            next_querystring = (f'next=subject_dashboard_url,subject_identifier&'
+                                f'subject_identifier={subject_identifier}')
+            messages.warning(self.request, mark_safe(
+                f'Please complete the <a href="{add_url}?{next_querystring}" '
+                f'title="Add {verbose_name}">{verbose_name}</a> form.'))
         return obj
 
     @property
@@ -64,13 +71,8 @@ class SubjectLocatorViewMixin(ContextMixin):
         model_cls = self.subject_locator_model_cls
         try:
             subject_locator = model_cls.objects.get(
-                subject_identifier=self.subject_identifier)
+                subject_identifier=self.kwargs.get('subject_identifier'))
         except ObjectDoesNotExist:
             subject_locator = model_cls(
-                subject_identifier=self.subject_identifier)
-        except AttributeError as e:
-            if 'subject_identifier' in str(e):
-                raise SubjectLocatorViewMixinError(
-                    f'Mixin must be declared together with SubjectIdentifierViewMixin. Got {e}')
-            raise SubjectLocatorViewMixinError(e)
+                subject_identifier=self.kwargs.get('subject_identifier'))
         return subject_locator

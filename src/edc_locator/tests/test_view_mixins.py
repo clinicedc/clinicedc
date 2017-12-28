@@ -1,7 +1,9 @@
 from django.test import TestCase
-from edc_subject_dashboard.view_mixins import SubjectIdentifierViewMixin
 
 from ..view_mixins import SubjectLocatorViewMixin, SubjectLocatorViewMixinError
+from django.http.request import HttpRequest
+from django.contrib.messages.storage.fallback import FallbackStorage
+from pprint import pprint
 
 
 class DummyModelWrapper:
@@ -29,7 +31,7 @@ class TestViewMixins(TestCase):
             SubjectLocatorViewMixinError,
             MySubjectLocatorViewMixin)
 
-    def test_subject_locator_must_be_declared_with_identifier_mixin(self):
+    def test_mixin_messages(self):
 
         class MySubjectLocatorViewMixin(SubjectLocatorViewMixin):
             subject_locator_model_wrapper_cls = DummyModelWrapper
@@ -37,17 +39,23 @@ class TestViewMixins(TestCase):
 
         mixin = MySubjectLocatorViewMixin()
         mixin.kwargs = {'subject_identifier': '12345'}
-        self.assertRaises(
-            SubjectLocatorViewMixinError,
-            mixin.get_context_data)
+        mixin.request = HttpRequest()
+        setattr(mixin.request, 'session', 'session')
+        messages = FallbackStorage(mixin.request)
+        setattr(mixin.request, '_messages', messages)
+        self.assertGreater(len(mixin.request._messages._queued_messages), 0)
 
     def test_subject_locator_ok(self):
 
-        class MySubjectLocatorViewMixin(SubjectIdentifierViewMixin, SubjectLocatorViewMixin):
+        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin):
             subject_locator_model_wrapper_cls = DummyModelWrapper
             subject_locator_model = 'edc_locator.subjectlocator'
 
         mixin = MySubjectLocatorViewMixin()
+        mixin.request = HttpRequest()
+        setattr(mixin.request, 'session', 'session')
+        messages = FallbackStorage(mixin.request)
+        setattr(mixin.request, '_messages', messages)
         # add this manually
         mixin.kwargs = {'subject_identifier': '12345'}
         try:

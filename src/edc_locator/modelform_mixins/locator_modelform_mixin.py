@@ -4,13 +4,39 @@ from django import forms
 from django.conf import settings
 
 from edc_constants.constants import YES
+from edc_form_validators import FormValidatorMixin, FormValidator
 
 
-class LocatorFormMixin(forms.ModelForm):
+class LocatorFormValidator(FormValidator):
+    def clean(self):
+        subject_work_phone = self.cleaned_data['subject_work_phone']
+        if subject_work_phone:
+            cell_pattern = None
+            tel_pattern = None
+            try:
+                cell_pattern = settings.CELLPHONE_REGEX
+                cell = re.match(cell_pattern, subject_work_phone).group()
+            except AttributeError:
+                cell = None
+            try:
+                tel_pattern = settings.TELEPHONE_REGEX
+                tel = re.match(tel_pattern, subject_work_phone).group()
+            except AttributeError:
+                tel = None
+            if cell_pattern or tel_pattern:
+                if not cell and not tel:
+                    raise forms.ValidationError(
+                        'Invalid phone number format. '
+                        'Expected either a valid cell number or a valid telephone number')
+
+
+class LocatorModelFormMixin(FormValidatorMixin, forms.ModelForm):
+
+    form_validator_cls = LocatorFormValidator
 
     def clean(self):
-        cleaned_data = super(LocatorFormMixin, self).clean()
-        self.may_follow_up_requires_contacts()
+        cleaned_data = super(self).clean()
+        self.may_call_requires_contacts()
         self.may_call_work_requires_contacts()
         self.home_visit_permission_requires_address()
         self.may_contact_someone_requires_contacts()
@@ -34,16 +60,19 @@ class LocatorFormMixin(forms.ModelForm):
                 tel = None
             if cell_pattern or tel_pattern:
                 if not cell and not tel:
-                    raise forms.ValidationError('Invalid phone number format. '
-                                                'Expected either a valid cell number or a valid telephone number')
+                    raise forms.ValidationError(
+                        'Invalid phone number format. '
+                        'Expected either a valid cell number or a valid telephone number')
         return subject_work_phone
 
-    def may_follow_up_requires_contacts(self):
+    def may_call_requires_contacts(self):
         cleaned_data = self.cleaned_data
-        if cleaned_data.get('may_follow_up') == YES:
+        self.req
+        if cleaned_data.get('may_call') == YES:
             if not cleaned_data.get('subject_cell') and not cleaned_data.get('subject_phone'):
-                raise forms.ValidationError(
-                    'Participant allows study staff to follow them up, provide a valid phone and/or cell number')
+                raise forms.ValidationError({
+                    'subject_cell':
+                    'provide a valid phone and/or cell number'})
         else:
             for field in [('subject_cell', 'cell number'),
                           ('subject_cell_alt', 'alternative cell number'),
