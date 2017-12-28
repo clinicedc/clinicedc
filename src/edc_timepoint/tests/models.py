@@ -3,7 +3,6 @@ from django.db.models.deletion import PROTECT
 
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
-from edc_appointment.constants import COMPLETE_APPT
 from edc_appointment.models import Appointment
 
 from ..model_mixins import TimepointLookupModelMixin
