@@ -5,7 +5,7 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ETC_DIR = os.path.join(BASE_DIR, 'etc')
 APP_NAME = 'edc_metadata'
-
+SITE_ID = 40
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
     'rest_framework.authtoken',
@@ -36,6 +37,7 @@ INSTALLED_APPS = [
     'edc_timepoint.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_sync.apps.AppConfig',
+    'edc_sync_files.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_reference.apps.AppConfig',
     'edc_registration.apps.AppConfig',

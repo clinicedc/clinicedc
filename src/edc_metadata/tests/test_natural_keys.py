@@ -75,7 +75,6 @@ class TestNaturalKey(TestCase):
 
     def test_sync_test_natural_keys(self):
         self.enroll(MALE)
-        verbose = False
         model_objs = []
         completed_model_objs = {}
         completed_model_lower = []
@@ -90,4 +89,4 @@ class TestNaturalKey(TestCase):
                 completed_model_lower.append(outgoing_transaction.tx_name)
         completed_model_objs.update({'edc_metadata': model_objs})
         self.sync_helper.sync_test_natural_keys(
-            completed_model_objs, verbose=verbose)
+            completed_model_objs)
