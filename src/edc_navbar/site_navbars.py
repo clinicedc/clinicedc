@@ -86,13 +86,9 @@ class NavbarCollection:
                 except ImportError as e:
                     site_navbars.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise NavbarError(str(e))
+                        raise
             except ImportError:
                 pass
-            except Exception as e:
-                raise NavbarError(
-                    f'{e.__class__.__name__} was raised when loading navbars. '
-                    f'Got {e} See {app}.navbars')
 
 
 site_navbars = NavbarCollection()
