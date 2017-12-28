@@ -5,6 +5,7 @@ from faker import Faker
 from model_mommy.recipe import Recipe, seq
 
 from .models import SubjectConsent
+from django.contrib.sites.models import Site
 
 fake = Faker()
 
@@ -31,5 +32,5 @@ subjectconsent = Recipe(
     consent_copy=YES,
     assessment_score=YES,
     consent_signature=YES,
-    study_site='40',
+    site=Site.objects.get_current(),
 )

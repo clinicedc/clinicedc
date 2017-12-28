@@ -15,7 +15,6 @@ class ModelAdminConsentMixin(ModelAdminBasicMixin):
             return (
                 'subject_identifier',
                 'subject_identifier_as_pk',
-                'study_site',
                 'consent_datetime',) + self.readonly_fields
         else:
             return (('subject_identifier', 'subject_identifier_as_pk',)
@@ -33,7 +32,6 @@ class ModelAdminConsentMixin(ModelAdminBasicMixin):
         'is_literate',
         'witness_name',
         'consent_datetime',
-        'study_site',
         'gender',
         'dob',
         'guardian_name',
@@ -75,7 +73,6 @@ class ModelAdminConsentMixin(ModelAdminBasicMixin):
         'is_verified_datetime',
         'language',
         'may_store_samples',
-        'study_site',
         'is_literate',
         'consent_datetime',
         'created',

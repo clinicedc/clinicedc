@@ -28,6 +28,8 @@ class RequiresConsentNonCrfModelMixin(RequiresConsentFieldsMixin):
                 self.consent_model = self.schedule.consent_model
             except AttributeError:
                 self.consent_model = self._meta.consent_model
+        if not self.consent_model:
+            raise ValueError('Invalid consent model. Got None.')
         requires_consent = self.requires_consent_cls(
             model=self._meta.label_lower,
             subject_identifier=self.subject_identifier,

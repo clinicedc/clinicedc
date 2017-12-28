@@ -8,6 +8,7 @@ from ..field_mixins import IdentityFieldsMixinError
 from ..site_consents import site_consents
 from .dates_test_mixin import DatesTestMixin
 from .models import SubjectConsent
+from django.contrib.sites.models import Site
 
 
 class TestConsentModel(DatesTestMixin, TestCase):
@@ -62,7 +63,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             subject_identifier=None,
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
-            study_site='40')
+            site=Site.objects.get_current())
         self.assertIsNotNone(consent.subject_identifier)
         self.assertNotEqual(
             consent.subject_identifier, consent.subject_identifier_as_pk)

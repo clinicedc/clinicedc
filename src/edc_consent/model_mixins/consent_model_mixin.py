@@ -1,9 +1,11 @@
 from uuid import uuid4
 
+from django.contrib.sites.managers import CurrentSiteManager
 from django.db.models import options
 from django.db import models
 from django_crypto_fields.fields import EncryptedTextField
 from edc_base.model_validators import datetime_not_future
+from edc_base.model_mixins import SiteModelMixin
 from edc_base.utils import formatted_age, age
 from edc_protocol.validators import datetime_not_before_study_start
 
@@ -15,7 +17,7 @@ if 'consent_group' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_group', )
 
 
-class ConsentModelMixin(VerificationFieldsMixin, models.Model):
+class ConsentModelMixin(SiteModelMixin, VerificationFieldsMixin, models.Model):
 
     """Mixin for a Consent model class such as SubjectConsent.
 
@@ -37,8 +39,6 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
         editable=False)
 
     updates_versions = models.BooleanField(default=False)
-
-    study_site = models.CharField(max_length=15, null=True)
 
     sid = models.CharField(
         verbose_name='SID',
@@ -68,6 +68,8 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
     objects = ObjectConsentManager()
 
     consent = ConsentManager()
+
+    on_site = CurrentSiteManager()
 
     def __str__(self):
         return (f'{self.subject_identifier} v{self.version}')
