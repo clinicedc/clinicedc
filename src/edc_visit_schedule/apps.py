@@ -3,7 +3,9 @@ import sys
 from django.apps.config import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.management.color import color_style
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from django.core.checks import register
+from .site_visit_schedules import site_visit_schedules
+from .system_checks import visit_schedule_check
 
 style = color_style()
 
@@ -18,6 +20,7 @@ class AppConfig(DjangoAppConfig):
         sys.stdout.write(f'Loading {self.verbose_name} ...\n')
         site_visit_schedules.autodiscover()
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
+        register(visit_schedule_check)
 
 
 if settings.APP_NAME == 'edc_visit_schedule':

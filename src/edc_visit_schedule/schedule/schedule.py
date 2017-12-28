@@ -1,11 +1,18 @@
 import re
 
+from django.core.management.color import color_style
+from django.core import checks
+
+from ..simple_model_validator import InvalidModel
 from ..simple_model_validator import SimpleModelValidator
 from ..site_visit_schedules import site_visit_schedules
-from ..subject_schedule import SubjectSchedule, SubjectScheduleError
 from ..subject_schedule import NotOnScheduleForDateError, NotOnScheduleError
+from ..subject_schedule import SubjectSchedule, SubjectScheduleError
 from ..visit import Visit
 from .visit_collection import VisitCollection
+import sys
+
+style = color_style()
 
 
 class ScheduleError(Exception):
@@ -47,17 +54,19 @@ class Schedule:
         self.verbose_name = verbose_name or name
         self.sequence = sequence or name
 
-        SimpleModelValidator(
-            appointment_model, f'{self.name}.appointment_model')
-        SimpleModelValidator(consent_model, f'{self.name}.consent_model')
-        SimpleModelValidator(
-            offschedule_model, f'{self.name}.offschedule_model')
-        SimpleModelValidator(onschedule_model, f'{self.name}.onschedule_model')
-
         self.appointment_model = appointment_model.lower()
         self.consent_model = consent_model.lower()
         self.offschedule_model = offschedule_model.lower()
         self.onschedule_model = onschedule_model.lower()
+
+    def check(self):
+        SimpleModelValidator(
+            self.appointment_model, f'{self.name}.appointment_model')
+        SimpleModelValidator(self.consent_model, f'{self.name}.consent_model')
+        SimpleModelValidator(
+            self.offschedule_model, f'{self.name}.offschedule_model')
+        SimpleModelValidator(
+            self.onschedule_model, f'{self.name}.onschedule_model')
 
     def __repr__(self):
         return f'Schedule({self.name})'

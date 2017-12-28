@@ -93,7 +93,7 @@ class TestVisitSchedule2(TestCase):
 
     def test_visit_schedule_add_schedule_invalid_appointment_model(self):
         self.assertRaises(
-            InvalidModel,
+            AttributeError,
             Schedule,
             name='schedule_bad',
             onschedule_model='edc_visit_schedule.onschedule',

@@ -4,6 +4,7 @@ from django.apps import apps as django_apps
 
 from ..simple_model_validator import SimpleModelValidator
 from .schedules_collection import SchedulesCollection
+from edc_visit_schedule.simple_model_validator import InvalidModel
 
 
 class VisitScheduleError(Exception):
@@ -44,16 +45,26 @@ class VisitSchedule:
                 f'Visit schedule name may only contain {self.name_regex_msg}. Got {name}')
         self.title = self.verbose_name = verbose_name or ' '.join(
             [s.capitalize() for s in name.split('_')])
-        SimpleModelValidator(self.offstudy_model,
-                             f'{self.name}.offstudy_model')
-        SimpleModelValidator(self.death_report_model,
-                             f'{self.name}.death_report_model')
 
     def __repr__(self):
         return f'{self.__class__.__name__}(\'{self.name}\')'
 
     def __str__(self):
         return self.name
+
+    def check(self):
+        warnings = []
+        try:
+            SimpleModelValidator(self.offstudy_model,
+                                 f'{self.name}.offstudy_model')
+        except InvalidModel as e:
+            warnings.append(e)
+        try:
+            SimpleModelValidator(self.death_report_model,
+                                 f'{self.name}.death_report_model')
+        except InvalidModel as e:
+            warnings.append(e)
+        return warnings
 
     @property
     def offstudy_model_cls(self):

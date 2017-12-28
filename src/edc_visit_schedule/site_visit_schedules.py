@@ -108,6 +108,7 @@ class SiteVisitSchedules:
         """Autodiscovers classes in the visit_schedules.py file of
         any INSTALLED_APP.
         """
+        self.loaded = True
         module_name = module_name or 'visit_schedules'
         verbose = True if verbose is None else verbose
         if verbose:
@@ -126,12 +127,10 @@ class SiteVisitSchedules:
                             f'\'{app}\'\n')
                 except Exception as e:
                     if f'No module named \'{app}.{module_name}\'' not in str(e):
-                        raise SiteVisitScheduleError(
-                            f'In module {app}.{module_name}: Got {e}') from e
+                        raise
                     site_visit_schedules._registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise SiteVisitScheduleError(
-                            f'In module {app}.{module_name}: Got {e}') from e
+                        raise
             except ImportError:
                 pass
 

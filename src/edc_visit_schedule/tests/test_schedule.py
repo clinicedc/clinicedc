@@ -37,33 +37,31 @@ class TestSchedule(TestCase):
 
     def test_schedule_onschedule_model_is_none(self):
         self.assertRaises(
-            InvalidModel,
+            AttributeError,
             Schedule, name='schedule', onschedule_model=None)
 
     def test_schedule_offschedule_model_is_none(self):
         self.assertRaises(
-            InvalidModel,
+            AttributeError,
             Schedule, name='schedule', offschedule_model=None)
 
     def test_schedule_bad_label_lower(self):
-        self.assertRaises(
-            InvalidModel,
-            Schedule,
+        schedule = Schedule(
             name='schedule',
             onschedule_model='x.x',
             offschedule_model='edc_visit_schedule.offschedule',
             consent_model='edc_visit_schedule.subjectconsent',
             appointment_model='edc_appointment.appointment')
+        self.assertRaises(InvalidModel, schedule.check)
 
     def test_schedule_bad_label_lower2(self):
-        self.assertRaises(
-            InvalidModel,
-            Schedule,
+        schedule = Schedule(
             name='schedule',
             onschedule_model='edc_visit_schedule.onschedule',
             offschedule_model='x.x',
             consent_model='edc_visit_schedule.subjectconsent',
             appointment_model='edc_appointment.appointment')
+        self.assertRaises(InvalidModel, schedule.check)
 
     def test_schedule_onschedule_model_cls(self):
         schedule = Schedule(
