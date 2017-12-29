@@ -1,6 +1,7 @@
 from string import Formatter
 
 from django.apps import apps as django_apps
+from django.contrib.sites.models import Site
 
 from .checkdigit_mixins import LuhnMixin
 from .models import IdentifierModel
@@ -19,7 +20,7 @@ class ResearchIdentifier:
     checkdigit = LuhnMixin()
 
     def __init__(self, identifier_type=None, template=None, identifier=None,
-                 device_id=None, protocol_number=None, site_code=None,
+                 device_id=None, protocol_number=None, site=None,
                  model=None):
 
         self._identifier = None
@@ -30,14 +31,14 @@ class ResearchIdentifier:
         self.device_id = device_id or app_config.device_id
         app_config = django_apps.get_app_config('edc_protocol')
         self.protocol_number = protocol_number or app_config.protocol_number
-        self.site_code = site_code or app_config.site_code
+        self.site = site or Site.objects.get_current()
         if identifier:
             # load an existing identifier
             self.identifier_model = IdentifierModel.objects.get(
                 identifier=identifier)
             self._identifier = self.identifier_model.identifier
             self.subject_type = self.identifier_model.subject_type
-            self.site_code = self.identifier_model.study_site
+            self.site = self.identifier_model.site
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.label})'
@@ -62,7 +63,7 @@ class ResearchIdentifier:
                 protocol_number=self.protocol_number,
                 device_id=self.device_id,
                 model=self.model,
-                study_site=self.site_code,
+                site=self.site,
                 subject_type=self.identifier_type)
             self.post_identifier()
         return self._identifier
@@ -78,7 +79,7 @@ class ResearchIdentifier:
         template_opts = {}
         formatter = Formatter()
         keys = [opt[1] for opt in formatter.parse(
-            self.template) if opt[1] != 'sequence']
+            self.template) if opt[1] not in ['sequence']]
         template_opts.update(
             sequence=str(self.sequence_number).rjust(self.padding, '0'))
         for key in keys:
@@ -96,6 +97,10 @@ class ResearchIdentifier:
         return template_opts
 
     @property
+    def site_id(self):
+        return str(self.site.pk)
+
+    @property
     def sequence_number(self):
         """Returns the next sequence number to use.
         """
@@ -103,7 +108,7 @@ class ResearchIdentifier:
             identifier_model = IdentifierModel.objects.filter(
                 name=self.label,
                 device_id=self.device_id,
-                study_site=self.site_code).order_by('-sequence_number').first()
+                site=self.site).order_by('-sequence_number').first()
             sequence_number = identifier_model.sequence_number + 1
         except AttributeError:
             sequence_number = 1

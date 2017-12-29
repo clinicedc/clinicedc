@@ -4,15 +4,17 @@ from edc_protocol import site_protocol_subjects, SiteProtocolNotRegistered
 
 from .research_identifier import ResearchIdentifier
 from edc_identifier.exceptions import SubjectIdentifierError
+from django.contrib.sites.models import Site
 
 
 class SubjectIdentifier(ResearchIdentifier):
 
-    template = '{protocol_number}-{site_code}{device_id}{sequence}'
+    template = '{protocol_number}-{site_id}{device_id}{sequence}'
     label = 'subjectidentifier'
 
     def __init__(self, create_registration=None,
-                 enrollment_cap_by_site_code=None, last_name=None, **kwargs):
+                 enrollment_cap_by_site=None, last_name=None,
+                 site=None, **kwargs):
         super().__init__(**kwargs)
         self.create_registration = create_registration
         self.last_name = last_name
@@ -24,12 +26,8 @@ class SubjectIdentifier(ResearchIdentifier):
             raise SubjectIdentifierError(
                 f'Subject type is not registered with site_protocol_subjects. '
                 f'Got {self.identifier_type}.{self.model}')
-        if enrollment_cap_by_site_code:
-            study_site = self.site_code
-        else:
-            study_site = None
-        _, max_subjects = subject_type_obj.fetch_count_or_raise(
-            study_site=study_site)
+        self.site = site or Site.objects.get_current()
+        _, max_subjects = subject_type_obj.fetch_count_or_raise(site=self.site)
         self.padding = len(str(max_subjects))
 
     def post_identifier(self):
@@ -40,7 +38,7 @@ class SubjectIdentifier(ResearchIdentifier):
             model = django_apps.get_app_config('edc_registration').model
             model.objects.create(
                 subject_identifier=self.identifier,
-                study_site=self.site_code,
+                site=self.site,
                 subject_type=self.identifier_type,
                 last_name=self.last_name,
                 registration_datetime=get_utcnow())

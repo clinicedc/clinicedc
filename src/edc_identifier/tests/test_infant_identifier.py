@@ -4,297 +4,126 @@ from django.apps import apps as django_apps
 from django.test import TestCase, tag
 
 from ..models import IdentifierModel
-from ..maternal_identifier import MaternalIdentifier
-
+from ..subject_identifier import SubjectIdentifier
+from ..infant_identifier import InfantIdentifier
+from django.test.utils import override_settings
+from django.contrib.sites.models import Site
+from edc_registration.models import RegisteredSubject
 
 fake = Faker()
 
 
 class TestInfantIdentifier(TestCase):
 
-    def test_create_singleton(self):
-        maternal_identifier = MaternalIdentifier(
+    def get_maternal_identifier(self):
+        site = Site.objects.get_current()
+        maternal_identifier = SubjectIdentifier(
             identifier_type='subject',
             model='edc_identifier.enrollment',
             protocol_number='000',
+            site=site,
             device_id='99',
-            site_code='40',
             last_name=fake.last_name(),
             create_registration=True)
+        return maternal_identifier
+
+    def test_create_singleton(self):
+        maternal_identifier = self.get_maternal_identifier()
         self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(1, model='edc_identifier.maternallabdel')
+        infant_identifier = InfantIdentifier(
+            maternal_identifier=maternal_identifier,
+            requesting_model='edc_identifier.maternallabdel',
+            birth_order=1,
+            live_infants=1)
         self.assertEqual(
-            maternal_identifier.infants[0].identifier, '000-40990001-6-10')
+            infant_identifier.identifier, '000-40990001-6-10')
 
     def test_create_twins(self):
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(2, model='edc_identifier.maternallabdel')
+        maternal_identifier = self.get_maternal_identifier()
+        infant_identifier1 = InfantIdentifier(
+            maternal_identifier=maternal_identifier,
+            requesting_model='edc_identifier.maternallabdel',
+            birth_order=1,
+            live_infants=2)
+        infant_identifier2 = InfantIdentifier(
+            maternal_identifier=maternal_identifier,
+            requesting_model='edc_identifier.maternallabdel',
+            birth_order=2,
+            live_infants=2)
         self.assertEqual(
-            maternal_identifier.infants[0].identifier, '000-40990001-6-25')
+            infant_identifier1.identifier, '000-40990001-6-25')
         self.assertEqual(
-            maternal_identifier.infants[1].identifier, '000-40990001-6-26')
+            infant_identifier2.identifier, '000-40990001-6-26')
 
+    @override_settings(SITE_ID=20)
     def test_create_triplets(self):
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(3, model='edc_identifier.maternallabdel')
-        self.assertEqual(
-            maternal_identifier.infants[0].identifier, '000-40990001-6-36')
-        self.assertEqual(
-            maternal_identifier.infants[1].identifier, '000-40990001-6-37')
-        self.assertEqual(
-            maternal_identifier.infants[2].identifier, '000-40990001-6-38')
+        Site.objects.create(pk=20)
+        maternal_identifier = self.get_maternal_identifier()
 
-    def test_create_triplets_only_registered_2nd_born_as_list(self):
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(
-            3, model='edc_identifier.maternallabdel', birth_orders=[2])
-        self.assertEqual(maternal_identifier.infants[0].identifier, None)
-        self.assertEqual(
-            maternal_identifier.infants[1].identifier, '000-40990001-6-37')
-        self.assertEqual(maternal_identifier.infants[2].identifier, None)
-        self.assertEqual(len(maternal_identifier.infants), 3)
+        infant_identifier1 = InfantIdentifier(
+            maternal_identifier=maternal_identifier,
+            requesting_model='edc_identifier.maternallabdel',
+            birth_order=1,
+            live_infants=3)
+        infant_identifier2 = InfantIdentifier(
+            maternal_identifier=maternal_identifier,
+            requesting_model='edc_identifier.maternallabdel',
+            birth_order=2,
+            live_infants=3)
+        infant_identifier3 = InfantIdentifier(
+            maternal_identifier=maternal_identifier,
+            requesting_model='edc_identifier.maternallabdel',
+            birth_order=3,
+            live_infants=3)
 
-    def test_create_triplets_only_registered_2nd_born(self):
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(
-            3, model='edc_identifier.maternallabdel', birth_orders='2')
-        self.assertEqual(maternal_identifier.infants[0].identifier, None)
         self.assertEqual(
-            maternal_identifier.infants[1].identifier, '000-40990001-6-37')
-        self.assertEqual(maternal_identifier.infants[2].identifier, None)
-        self.assertEqual(len(maternal_identifier.infants), 3)
+            infant_identifier1.identifier, '000-20990001-8-36')
+        self.assertEqual(
+            infant_identifier2.identifier, '000-20990001-8-37')
+        self.assertEqual(
+            infant_identifier3.identifier, '000-20990001-8-38')
 
-    def test_create_triplets_only_registered_1st_born(self):
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(
-            3, model='edc_identifier.maternallabdel', birth_orders='1')
-        self.assertEqual(
-            maternal_identifier.infants[0].identifier, '000-40990001-6-36')
-        self.assertEqual(maternal_identifier.infants[1].identifier, None)
-        self.assertEqual(maternal_identifier.infants[2].identifier, None)
-        self.assertEqual(len(maternal_identifier.infants), 3)
-
-    def test_create_triplets_only_registered_all_explicitly(self):
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(
-            3, model='edc_identifier.maternallabdel', birth_orders='1,2,3')
-        self.assertEqual(
-            maternal_identifier.infants[0].identifier, '000-40990001-6-36')
-        self.assertEqual(
-            maternal_identifier.infants[1].identifier, '000-40990001-6-37')
-        self.assertEqual(
-            maternal_identifier.infants[2].identifier, '000-40990001-6-38')
-        self.assertEqual(len(maternal_identifier.infants), 3)
-
-    def test_create_triplets_only_registered_all_by_default(self):
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier.deliver(
-            3, model='edc_identifier.maternallabdel', birth_orders=None)
-        self.assertEqual(
-            maternal_identifier.infants[0].identifier, '000-40990001-6-36')
-        self.assertEqual(
-            maternal_identifier.infants[1].identifier, '000-40990001-6-37')
-        self.assertEqual(
-            maternal_identifier.infants[2].identifier, '000-40990001-6-38')
-        self.assertEqual(len(maternal_identifier.infants), 3)
-
-    def test_update_identifiermodel(self):
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        maternal_identifier.deliver(3, model='edc_identifier.maternallabdel')
-        self.assertEqual(len(maternal_identifier.infants), 3)
-        self.assertEqual(IdentifierModel.objects.filter(
-            name='infantidentifier').count(), 3)
         self.assertEqual(
             IdentifierModel.objects.filter(
                 subject_type='infant',
                 model='edc_identifier.maternallabdel',
                 protocol_number='000',
-                study_site='40').count(), 3)
+                site=Site.objects.get_current()).count(), 3)
 
-    def test_load_maternal_identifier_and_singleton(self):
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            identifier='000-40990001-6')
-        maternal_identifier.deliver(1, model='edc_identifier.maternallabdel')
-        self.assertEqual(
-            maternal_identifier.infants[0].identifier, '000-40990001-6-10')
-
-    def test_load_maternal_identifier_and_twins(self):
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        maternal_identifier.deliver(2, model='edc_identifier.maternallabdel')
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            identifier='000-40990001-6')
-        self.assertEqual(
-            maternal_identifier.infants[0].identifier, '000-40990001-6-25')
-        self.assertEqual(
-            maternal_identifier.infants[1].identifier, '000-40990001-6-26')
-
-    def test_load_maternal_identifier_and_twins_2nd_registered(self):
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        maternal_identifier.deliver(
-            2, model='edc_identifier.maternallabdel', birth_orders='2')
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            identifier='000-40990001-6')
-        self.assertEqual(maternal_identifier.infants[0].identifier, None)
-        self.assertEqual(
-            maternal_identifier.infants[1].identifier, '000-40990001-6-26')
-
-    def test_creates_registered_subject(self):
-        RegisteredSubject = django_apps.get_app_config(
-            'edc_registration').model
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            identifier='000-40990001-6')
-        maternal_identifier.deliver(1, model='edc_identifier.maternallabdel')
         try:
             RegisteredSubject.objects.get(
-                subject_identifier='000-40990001-6-10')
+                subject_identifier=infant_identifier1.identifier)
         except RegisteredSubject.DoesNotExist:
             self.fail('RegisteredSubject.DoesNotExist unexpectedly raised')
 
-    def test_does_not_create_registered_subject(self):
-        RegisteredSubject = django_apps.get_app_config(
-            'edc_registration').model
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            identifier='000-40990001-6')
-        maternal_identifier.deliver(
-            1, model='edc_identifier.maternallabdel', create_registration=False)
         try:
             RegisteredSubject.objects.get(
-                subject_identifier='000-40990001-6-10')
-            self.fail('RegisteredSubject.DoesNotExist unexpectedly raised')
+                subject_identifier=infant_identifier2.identifier)
         except RegisteredSubject.DoesNotExist:
-            pass
+            self.fail('RegisteredSubject.DoesNotExist unexpectedly raised')
 
-    def test_creates_registered_subject_with_user_created(self):
-        RegisteredSubject = django_apps.get_app_config(
-            'edc_registration').model
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            protocol_number='000',
-            device_id='99',
-            site_code='40',
-            last_name=fake.last_name(),
-            create_registration=True)
-        self.assertEqual(maternal_identifier.identifier, '000-40990001-6')
-        maternal_identifier = MaternalIdentifier(
-            identifier_type='subject',
-            model='edc_identifier.enrollment',
-            identifier='000-40990001-6')
-        maternal_identifier.deliver(
-            1, model='edc_identifier.maternallabdel', create_registration=True)
-        obj = RegisteredSubject.objects.get(
-            subject_identifier='000-40990001-6-10')
-        self.assertIsNotNone(obj.user_created)
+        try:
+            RegisteredSubject.objects.get(
+                subject_identifier=infant_identifier3.identifier)
+        except RegisteredSubject.DoesNotExist:
+            self.fail('RegisteredSubject.DoesNotExist unexpectedly raised')
+
+    def test_create_triplets_only_registered_2nd_born(self):
+        maternal_identifier = self.get_maternal_identifier()
+        infant_identifier = InfantIdentifier(
+            maternal_identifier=maternal_identifier,
+            requesting_model='edc_identifier.maternallabdel',
+            birth_order=2,
+            live_infants=3)
+        self.assertEqual(
+            infant_identifier.identifier, '000-40990001-6-37')
+
+    def test_create_triplets_only_registered_1st_born(self):
+        maternal_identifier = self.get_maternal_identifier()
+        infant_identifier = InfantIdentifier(
+            maternal_identifier=maternal_identifier,
+            requesting_model='edc_identifier.maternallabdel',
+            birth_order=1,
+            live_infants=3)
+        self.assertEqual(
+            infant_identifier.identifier, '000-40990001-6-36')

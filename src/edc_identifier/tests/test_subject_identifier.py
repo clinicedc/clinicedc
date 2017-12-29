@@ -2,13 +2,14 @@ from faker import Faker
 
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
-from edc_protocol import EnrollmentCapReached, EnrollmentCapDoesNotExist
+from edc_identifier.exceptions import SubjectIdentifierError
+from edc_protocol import EnrollmentCapReached
 
 from ..models import IdentifierModel
 from ..research_identifier import IdentifierMissingTemplateValue
 from ..subject_identifier import SubjectIdentifier
 from .models import EnrollmentThree, Enrollment
-from edc_identifier.exceptions import SubjectIdentifierError
+from django.contrib.sites.models import Site
 
 
 fake = Faker()
@@ -24,8 +25,7 @@ class TestSubjectIdentifier(TestCase):
                 identifier_type='subject',
                 model='edc_identifier.enrollment',
                 protocol_number='000',
-                device_id='99',
-                site_code='40')
+                device_id='99')
         except EnrollmentCapReached:
             self.fail('EnrollmentCapReached unexpectedly raised')
 
@@ -38,21 +38,18 @@ class TestSubjectIdentifier(TestCase):
             identifier_type='subjectblahblah',
             model='edc_identifier.enrollmentblahblahblah',
             protocol_number='000',
-            device_id='99',
-            site_code='40')
+            device_id='99')
 
     def test_increments(self):
         """Asserts identifier sequence increments correctly.
         """
         opts = dict(identifier_type='subject',
-                    model='edc_identifier.enrollment',
-                    site_code='40')
+                    model='edc_identifier.enrollment')
         for i in range(1, 10):
             subject_identifier = SubjectIdentifier(**opts)
             self.assertEqual(
                 subject_identifier.identifier[8:12], '000' + str(i))
 
-    @tag('1')
     def test_create_missing_args(self):
         """Asserts raises exception for missing identifier_type.
         """
@@ -60,8 +57,7 @@ class TestSubjectIdentifier(TestCase):
             SubjectIdentifierError,
             SubjectIdentifier,
             identifier_type='',
-            model='edc_identifier.enrollment',
-            site_code='40')
+            model='edc_identifier.enrollment')
 
     def test_create_missing_args2(self):
         """Asserts raises exception for missing model.
@@ -70,8 +66,7 @@ class TestSubjectIdentifier(TestCase):
             SubjectIdentifierError,
             SubjectIdentifier,
             identifier_type='subject',
-            model='',
-            site_code='40')
+            model='')
 
     def test_create_missing_args3(self):
         """Asserts raises exception for missing site_code.
@@ -82,7 +77,7 @@ class TestSubjectIdentifier(TestCase):
         identifier = SubjectIdentifier(
             identifier_type='subject',
             model='edc_identifier.enrollment',
-            site_code='')
+            site=1)  # incorrectly not a model instance
         try:
             identifier.identifier
         except IdentifierMissingTemplateValue:
@@ -97,8 +92,7 @@ class TestSubjectIdentifier(TestCase):
             identifier_type='subject',
             model='edc_identifier.enrollment',
             protocol_number='000',
-            device_id='99',
-            site_code='40')
+            device_id='99')
         self.assertEqual('000-40990001-6', subject_identifier.identifier)
 
     def test_create2(self):
@@ -106,11 +100,9 @@ class TestSubjectIdentifier(TestCase):
         subject_identifier = SubjectIdentifier(
             identifier_type='subject',
             model='edc_identifier.enrollment',
-            protocol_number='000',
-            site_code='40')
+            protocol_number='000')
         self.assertEqual('000-40140001-5', subject_identifier.identifier)
 
-    @tag('2')
     def test_create_hits_cap(self):
         """Asserts raises exception if attempt to exceed cap.
         """
@@ -119,8 +111,7 @@ class TestSubjectIdentifier(TestCase):
                 identifier_type='subject',
                 model='edc_identifier.enrollmentthree',
                 protocol_number='000',
-                device_id='99',
-                site_code='40')
+                device_id='99')
             EnrollmentThree.objects.create(
                 subject_identifier=identifier.identifier)
             self.assertIsNotNone(identifier.identifier)
@@ -131,8 +122,7 @@ class TestSubjectIdentifier(TestCase):
             identifier_type='subject',
             model='edc_identifier.enrollmentthree',
             protocol_number='000',
-            device_id='99',
-            site_code='40')
+            device_id='99')
 
     def test_create_hits_cap_with_other_models(self):
         """Asserts raises exception if attempt to exceed cap.
@@ -142,8 +132,7 @@ class TestSubjectIdentifier(TestCase):
                 identifier_type='subject',
                 model='edc_identifier.enrollment',
                 protocol_number='000',
-                device_id='99',
-                site_code='40')
+                device_id='99')
             Enrollment.objects.create(
                 subject_identifier=identifier.identifier)
             self.assertIsNotNone(identifier.identifier)
@@ -152,8 +141,7 @@ class TestSubjectIdentifier(TestCase):
                 identifier_type='subject',
                 model='edc_identifier.enrollmentthree',
                 protocol_number='000',
-                device_id='99',
-                site_code='40')
+                device_id='99')
             EnrollmentThree.objects.create(
                 subject_identifier=identifier.identifier)
             self.assertIsNotNone(identifier.identifier)
@@ -165,8 +153,7 @@ class TestSubjectIdentifier(TestCase):
             identifier_type='subject',
             model='edc_identifier.enrollmentthree',
             protocol_number='000',
-            device_id='99',
-            site_code='40')
+            device_id='99')
 
     def test_updates_identifier_model(self):
         """Asserts updates Identifier model with all attributes.
@@ -176,8 +163,7 @@ class TestSubjectIdentifier(TestCase):
                 identifier_type='subject',
                 model='edc_identifier.enrollmentthree',
                 protocol_number='000',
-                device_id='99',
-                site_code='40')
+                device_id='99')
             EnrollmentThree.objects.create(
                 subject_identifier=identifier.identifier)
             self.assertIsNotNone(identifier.identifier)
@@ -187,5 +173,4 @@ class TestSubjectIdentifier(TestCase):
                 subject_type='subject',
                 model='edc_identifier.enrollmentthree',
                 protocol_number='000',
-                device_id='99',
-                study_site='40').count(), 5)
+                device_id='99').count(), 5)

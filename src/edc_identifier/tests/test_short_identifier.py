@@ -11,7 +11,6 @@ from ..short_identifier import ShortIdentifier, ShortIdentifierPrefixError
 fake = Faker()
 
 
-@tag('short_identifier')
 class TestShortIdentifier(TestCase):
 
     def test_short_identifier(self):

@@ -101,7 +101,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         subject_identifier = SubjectIdentifier(
             identifier_type='subject',
             model=self._meta.label_lower,
-            site_code=self.study_site,
+            site_code=self.site.pk,
             create_registration=False)
         return subject_identifier.identifier
 

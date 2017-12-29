@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.db import models
-from edc_base.model_mixins import BaseModel, BaseUuidModel
+from edc_base.model_mixins import BaseModel, BaseUuidModel, SiteModelMixin
 from edc_base.model_managers import HistoricalRecords
 
 from .managers import SubjectIdentifierManager
@@ -106,7 +106,7 @@ class Sequence(BaseModel):
         ordering = ['id', ]
 
 
-class IdentifierModel(BaseUuidModel):
+class IdentifierModel(SiteModelMixin, BaseUuidModel):
 
     name = models.CharField(max_length=50)
 
@@ -124,12 +124,10 @@ class IdentifierModel(BaseUuidModel):
 
     subject_type = models.CharField(max_length=25, null=True)
 
-    study_site = models.CharField(max_length=25)
-
     objects = IdentifierModelManager()
 
     def __str__(self):
-        return '{} {}'.format(self.identifier, self.name)
+        return f'{self.identifier} {self.name}'
 
     def natural_key(self):
         return (self.identifier, )
