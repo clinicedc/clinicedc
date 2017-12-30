@@ -5,6 +5,7 @@ from django.contrib.sites.models import Site
 
 from .checkdigit_mixins import LuhnMixin
 from .models import IdentifierModel
+from edc_identifier.exceptions import IdentifierError
 
 
 class IdentifierMissingTemplateValue(Exception):
@@ -18,14 +19,19 @@ class ResearchIdentifier:
     template = None
     padding = 5
     checkdigit = LuhnMixin()
+    identifier_model_cls = IdentifierModel
 
-    def __init__(self, identifier_type=None, template=None, identifier=None,
+    def __init__(self, identifier_type=None, template=None,
                  device_id=None, protocol_number=None, site=None,
-                 model=None):
+                 requesting_model=None, identifier=None):
 
         self._identifier = None
-        self.model = model
+        self.requesting_model = requesting_model
+        if not self.requesting_model:
+            raise IdentifierError('Invalid requesting_model. Got None')
         self.identifier_type = identifier_type or self.identifier_type
+        if not self.identifier_type:
+            raise IdentifierError('Invalid identifier_type. Got None')
         self.template = template or self.template
         app_config = django_apps.get_app_config('edc_device')
         self.device_id = device_id or app_config.device_id
@@ -34,11 +40,12 @@ class ResearchIdentifier:
         self.site = site or Site.objects.get_current()
         if identifier:
             # load an existing identifier
-            self.identifier_model = IdentifierModel.objects.get(
+            self.identifier_model = self.identifier_model_cls.objects.get(
                 identifier=identifier)
             self._identifier = self.identifier_model.identifier
             self.subject_type = self.identifier_model.subject_type
             self.site = self.identifier_model.site
+        self.identifier
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.label})'
@@ -52,21 +59,25 @@ class ResearchIdentifier:
         the IdentifierModel.
         """
         if not self._identifier:
+            self.pre_identifier()
             self._identifier = self.template.format(**self.template_opts)
             check_digit = self.checkdigit.calculate_checkdigit(
                 ''.join(self._identifier.split('-')))
             self._identifier = f'{self._identifier}-{check_digit}'
-            self.identifier_model = IdentifierModel.objects.create(
+            self.identifier_model = self.identifier_model_cls.objects.create(
                 name=self.label,
                 sequence_number=self.sequence_number,
                 identifier=self._identifier,
                 protocol_number=self.protocol_number,
                 device_id=self.device_id,
-                model=self.model,
+                model=self.requesting_model,
                 site=self.site,
-                subject_type=self.identifier_type)
+                identifier_type=self.identifier_type)
             self.post_identifier()
         return self._identifier
+
+    def pre_identifier(self):
+        pass
 
     def post_identifier(self):
         pass

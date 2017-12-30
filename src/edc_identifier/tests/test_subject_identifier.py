@@ -2,14 +2,14 @@ from faker import Faker
 
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
-from edc_identifier.exceptions import SubjectIdentifierError
-from edc_protocol import EnrollmentCapReached
+from edc_identifier.exceptions import SubjectIdentifierError, IdentifierError
 
 from ..models import IdentifierModel
 from ..research_identifier import IdentifierMissingTemplateValue
 from ..subject_identifier import SubjectIdentifier
 from .models import EnrollmentThree, Enrollment
 from django.contrib.sites.models import Site
+from unittest.case import skip
 
 
 fake = Faker()
@@ -20,15 +20,14 @@ class TestSubjectIdentifier(TestCase):
     def test_create(self):
         """Asserts raises exception if cannot find cap.
         """
-        try:
-            SubjectIdentifier(
-                identifier_type='subject',
-                model='edc_identifier.enrollment',
-                protocol_number='000',
-                device_id='99')
-        except EnrollmentCapReached:
-            self.fail('EnrollmentCapReached unexpectedly raised')
+        subject_identifier = SubjectIdentifier(
+            identifier_type='subject',
+            requesting_model='edc_identifier.enrollment',
+            protocol_number='000',
+            device_id='99')
+        self.assertTrue(subject_identifier.identifier)
 
+    @skip('enrollment cap not implemented')
     def test_raises_on_unknown_cap(self):
         """Asserts raises exception if cannot find cap.
         """
@@ -36,7 +35,7 @@ class TestSubjectIdentifier(TestCase):
             SubjectIdentifierError,
             SubjectIdentifier,
             identifier_type='subjectblahblah',
-            model='edc_identifier.enrollmentblahblahblah',
+            requesting_model='edc_identifier.enrollmentblahblahblah',
             protocol_number='000',
             device_id='99')
 
@@ -44,7 +43,7 @@ class TestSubjectIdentifier(TestCase):
         """Asserts identifier sequence increments correctly.
         """
         opts = dict(identifier_type='subject',
-                    model='edc_identifier.enrollment')
+                    requesting_model='edc_identifier.enrollment')
         for i in range(1, 10):
             subject_identifier = SubjectIdentifier(**opts)
             self.assertEqual(
@@ -54,19 +53,19 @@ class TestSubjectIdentifier(TestCase):
         """Asserts raises exception for missing identifier_type.
         """
         self.assertRaises(
-            SubjectIdentifierError,
+            IdentifierError,
             SubjectIdentifier,
             identifier_type='',
-            model='edc_identifier.enrollment')
+            requesting_model='edc_identifier.enrollment')
 
     def test_create_missing_args2(self):
         """Asserts raises exception for missing model.
         """
         self.assertRaises(
-            SubjectIdentifierError,
+            IdentifierError,
             SubjectIdentifier,
             identifier_type='subject',
-            model='')
+            requesting_model='')
 
     def test_create_missing_args3(self):
         """Asserts raises exception for missing site_code.
@@ -74,23 +73,19 @@ class TestSubjectIdentifier(TestCase):
         app_config = django_apps.get_app_config('edc_protocol')
         app_config.site_code = None
         app_config.ready()
-        identifier = SubjectIdentifier(
+        self.assertRaises(
+            IdentifierMissingTemplateValue,
+            SubjectIdentifier,
             identifier_type='subject',
-            model='edc_identifier.enrollment',
+            requesting_model='edc_identifier.enrollment',
             site=1)  # incorrectly not a model instance
-        try:
-            identifier.identifier
-        except IdentifierMissingTemplateValue:
-            pass
-        else:
-            self.fail('IdentifierMissingTemplateValue unexpectedly not raised.')
 
     def test_create1(self):
         """Asserts exact first identifier given parameters.
         """
         subject_identifier = SubjectIdentifier(
             identifier_type='subject',
-            model='edc_identifier.enrollment',
+            requesting_model='edc_identifier.enrollment',
             protocol_number='000',
             device_id='99')
         self.assertEqual('000-40990001-6', subject_identifier.identifier)
@@ -99,17 +94,18 @@ class TestSubjectIdentifier(TestCase):
         """Asserts exact first identifier required parameters and those fetched from edc-example.AppConfig."""
         subject_identifier = SubjectIdentifier(
             identifier_type='subject',
-            model='edc_identifier.enrollment',
+            requesting_model='edc_identifier.enrollment',
             protocol_number='000')
         self.assertEqual('000-40140001-5', subject_identifier.identifier)
 
+    @skip('enrollment cap not implemented')
     def test_create_hits_cap(self):
         """Asserts raises exception if attempt to exceed cap.
         """
         for _ in range(1, 6):
             identifier = SubjectIdentifier(
                 identifier_type='subject',
-                model='edc_identifier.enrollmentthree',
+                requesting_model='edc_identifier.enrollmentthree',
                 protocol_number='000',
                 device_id='99')
             EnrollmentThree.objects.create(
@@ -120,17 +116,18 @@ class TestSubjectIdentifier(TestCase):
             EnrollmentCapReached,
             SubjectIdentifier,
             identifier_type='subject',
-            model='edc_identifier.enrollmentthree',
+            requesting_model='edc_identifier.enrollmentthree',
             protocol_number='000',
             device_id='99')
 
+    @skip('enrollment cap not implemented')
     def test_create_hits_cap_with_other_models(self):
         """Asserts raises exception if attempt to exceed cap.
         """
         for _ in range(0, 10):
             identifier = SubjectIdentifier(
                 identifier_type='subject',
-                model='edc_identifier.enrollment',
+                requesting_model='edc_identifier.enrollment',
                 protocol_number='000',
                 device_id='99')
             Enrollment.objects.create(
@@ -139,7 +136,7 @@ class TestSubjectIdentifier(TestCase):
         for _ in range(0, 5):
             identifier = SubjectIdentifier(
                 identifier_type='subject',
-                model='edc_identifier.enrollmentthree',
+                requesting_model='edc_identifier.enrollmentthree',
                 protocol_number='000',
                 device_id='99')
             EnrollmentThree.objects.create(
@@ -151,7 +148,7 @@ class TestSubjectIdentifier(TestCase):
             EnrollmentCapReached,
             SubjectIdentifier,
             identifier_type='subject',
-            model='edc_identifier.enrollmentthree',
+            requesting_model='edc_identifier.enrollmentthree',
             protocol_number='000',
             device_id='99')
 
@@ -161,7 +158,7 @@ class TestSubjectIdentifier(TestCase):
         for _ in range(0, 5):
             identifier = SubjectIdentifier(
                 identifier_type='subject',
-                model='edc_identifier.enrollmentthree',
+                requesting_model='edc_identifier.enrollmentthree',
                 protocol_number='000',
                 device_id='99')
             EnrollmentThree.objects.create(
@@ -170,7 +167,7 @@ class TestSubjectIdentifier(TestCase):
         self.assertEqual(IdentifierModel.objects.all().count(), 5)
         self.assertEqual(
             IdentifierModel.objects.filter(
-                subject_type='subject',
+                identifier_type='subject',
                 model='edc_identifier.enrollmentthree',
                 protocol_number='000',
                 device_id='99').count(), 5)

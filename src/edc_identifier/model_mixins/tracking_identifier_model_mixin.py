@@ -1,5 +1,6 @@
 from django.db import models
 
+from ..managers import TrackingIdentifierManager
 from ..simple_identifier import SimpleUniqueIdentifier, SimpleTimestampIdentifier
 
 
@@ -21,6 +22,8 @@ class TrackingIdentifierModelMixin(models.Model):
     tracking_identifier = models.CharField(
         max_length=30,
         unique=True)
+
+    objects = TrackingIdentifierManager()
 
     def __str__(self):
         return f'{self.tracking_identifier[-9:]}'

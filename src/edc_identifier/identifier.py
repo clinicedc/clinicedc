@@ -2,13 +2,14 @@ import re
 
 from .exceptions import IdentifierError
 
-from .models import IdentifierHistory
+from .models import IdentifierModel
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Identifier:
 
     name = 'identifier'
-    history_model = IdentifierHistory
+    identifier_model_cls = IdentifierModel
     identifier_pattern = '^\d+$'
     prefix_pattern = None
     prefix = None
@@ -44,15 +45,13 @@ class Identifier:
         return self.__next__()
 
     def next_identifier(self):
-        """Sets the next identifier and updates the history.
+        """Sets the next identifier and updates the identifier model.
         """
-        while True:
-            identifier = self.remove_separator(self.identifier)
-            identifier = self.increment(identifier)
-            self.identifier = self.insert_separator(identifier)
-            self.validate_identifier_pattern(self.identifier)
-            if self.update_history():
-                break
+        identifier = self.remove_separator(self.identifier)
+        identifier = self.increment(identifier)
+        self.identifier = self.insert_separator(identifier)
+        self.validate_identifier_pattern(self.identifier)
+        self.update_identifier_model()
 
     def increment(self, identifier):
         return str(int(identifier or 0) + 1)
@@ -76,27 +75,26 @@ class Identifier:
             return None
         return re.match(self.prefix_pattern[:-1], self.identifier).group()
 
-    def update_history(self):
-        """Attempts to update history and returns True (or instance)
+    def update_identifier_model(self):
+        """Attempts to update identifier_model and returns True (or instance)
         if successful else False if identifier already exists.
         """
-        if self.history_model:
-            try:
-                self.history_model.objects.get(identifier=self.identifier)
-                return False
-            except self.history_model.DoesNotExist:
-                return self.history_model.objects.create(
-                    identifier=self.identifier,
-                    identifier_type=self.name,
-                    identifier_prefix=self.identifier_prefix)
+        try:
+            self.identifier_model_cls.objects.get(identifier=self.identifier)
+            return False
+        except ObjectDoesNotExist:
+            return self.identifier_model_cls.objects.create(
+                identifier=self.identifier,
+                identifier_type=self.name,
+                identifier_prefix=self.identifier_prefix)
         return True
 
     @property
     def last_identifier(self):
-        """Returns the last identifier in the history model.
+        """Returns the last identifier in the identifier model.
         """
         try:
-            instance = self.history_model.objects.filter(
+            instance = self.identifier_model_cls.objects.filter(
                 identifier_type=self.name
             ).last()
             return instance.identifier

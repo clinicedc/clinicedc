@@ -95,7 +95,7 @@ class SimpleUniqueIdentifier:
     random_string_length = 5
     identifier_type = 'simple_identifier'
     identifier_attr = 'identifier'
-    model = 'edc_identifier.identifierhistory'
+    model = 'edc_identifier.identifiermodel'
     template = '{device_id}{random_string}'
     identifier_prefix = None
     identifier_cls = SimpleIdentifier
@@ -114,6 +114,7 @@ class SimpleUniqueIdentifier:
         self.make_human_readable = make_human_readable or self.make_human_readable
         self.model_cls.objects.create(
             identifier_type=self.identifier_type,
+            sequence_number=1,
             **{self.identifier_attr: self.identifier})
 
     def __str__(self):

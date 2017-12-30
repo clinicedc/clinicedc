@@ -19,12 +19,11 @@ class TestInfantIdentifier(TestCase):
         site = Site.objects.get_current()
         maternal_identifier = SubjectIdentifier(
             identifier_type='subject',
-            model='edc_identifier.enrollment',
+            requesting_model='edc_identifier.enrollment',
             protocol_number='000',
             site=site,
             device_id='99',
-            last_name=fake.last_name(),
-            create_registration=True)
+            last_name=fake.last_name())
         return maternal_identifier
 
     def test_create_singleton(self):
@@ -85,7 +84,7 @@ class TestInfantIdentifier(TestCase):
 
         self.assertEqual(
             IdentifierModel.objects.filter(
-                subject_type='infant',
+                identifier_type='infant',
                 model='edc_identifier.maternallabdel',
                 protocol_number='000',
                 site=Site.objects.get_current()).count(), 3)

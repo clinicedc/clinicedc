@@ -1,10 +1,10 @@
 from django.apps import apps as django_apps
-
-from edc_identifier.models import IdentifierModel
-from edc_base import get_utcnow
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.sites.models import Site
+from django.core.exceptions import ObjectDoesNotExist
+from edc_base import get_utcnow
 from edc_registration.models import RegisteredSubject
+
+from .models import IdentifierModel
 
 edc_device_app_config = django_apps.get_app_config('edc_device')
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
@@ -103,7 +103,7 @@ class InfantIdentifier:
                 device_id=edc_device_app_config.device_id,
                 model=self.requesting_model,
                 site=Site.objects.get_current(),
-                subject_type=self.subject_type)
+                identifier_type=self.subject_type)
             # update RegisteredSubject
             RegisteredSubject.objects.create(
                 subject_identifier=identifier,
