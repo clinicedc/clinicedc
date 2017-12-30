@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from edc_base import get_utcnow, convert_php_dateformat
+from edc_base.model_mixins import SiteModelMixin
 from edc_base.model_validators.date import datetime_not_future
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
@@ -15,7 +16,7 @@ class OnScheduleModelManager(models.Manager):
         return self.get(subject_identifier=subject_identifier)
 
 
-class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
+class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model):
     """A model mixin for a schedule's onschedule model.
     """
     onschedule_datetime = models.DateTimeField(

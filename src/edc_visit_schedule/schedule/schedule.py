@@ -1,16 +1,12 @@
 import re
 
 from django.core.management.color import color_style
-from django.core import checks
 
-from ..simple_model_validator import InvalidModel
-from ..simple_model_validator import SimpleModelValidator
-from ..site_visit_schedules import site_visit_schedules
+from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..subject_schedule import NotOnScheduleForDateError, NotOnScheduleError
 from ..subject_schedule import SubjectSchedule, SubjectScheduleError
 from ..visit import Visit
 from .visit_collection import VisitCollection
-import sys
 
 style = color_style()
 
@@ -63,10 +59,9 @@ class Schedule:
         warnings = []
         try:
             self.subject.check()
-        except SubjectScheduleError as e:
+        except (SiteVisitScheduleError, SubjectScheduleError) as e:
             warnings.append(
                 f'{e} See schedule \'{self.name}\'.')
-
         return warnings
 
     def __repr__(self):
@@ -154,4 +149,4 @@ class Schedule:
 
     @property
     def visit_model_cls(self):
-        return self.subject.appointment_model_cls.visit_model_cls()
+        return self.subject.visit_model_cls

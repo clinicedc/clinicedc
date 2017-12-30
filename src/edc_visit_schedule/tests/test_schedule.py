@@ -52,7 +52,8 @@ class TestSchedule(TestCase):
             offschedule_model='edc_visit_schedule.offschedule',
             consent_model='edc_visit_schedule.subjectconsent',
             appointment_model='edc_appointment.appointment')
-        self.assertRaises(InvalidModel, schedule.check)
+        errors = schedule.check()
+        self.assertIsNotNone(errors)
 
     def test_schedule_bad_label_lower2(self):
         schedule = Schedule(
@@ -61,7 +62,8 @@ class TestSchedule(TestCase):
             offschedule_model='x.x',
             consent_model='edc_visit_schedule.subjectconsent',
             appointment_model='edc_appointment.appointment')
-        self.assertRaises(InvalidModel, schedule.check)
+        errors = schedule.check()
+        self.assertIsNotNone(errors)
 
     def test_schedule_onschedule_model_cls(self):
         schedule = Schedule(

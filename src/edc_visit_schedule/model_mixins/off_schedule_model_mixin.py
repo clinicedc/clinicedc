@@ -1,5 +1,7 @@
+from django.contrib.sites.managers import CurrentSiteManager
 from django.db import models
 from django.utils import timezone
+from edc_base.model_mixins import SiteModelMixin
 from edc_base.model_validators import datetime_not_future
 from edc_base.utils import get_utcnow
 from edc_constants.date_constants import EDC_DATETIME_FORMAT
@@ -15,7 +17,7 @@ class OffScheduleModelManager(models.Manager):
         return self.get(subject_identifier=subject_identifier)
 
 
-class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
+class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model):
     """Model mixin for a schedule's OffSchedule model.
     """
 
@@ -27,6 +29,8 @@ class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         default=get_utcnow)
 
     objects = OffScheduleModelManager()
+
+    on_site = CurrentSiteManager()
 
     def natural_key(self):
         return (self.subject_identifier, )

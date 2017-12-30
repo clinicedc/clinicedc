@@ -47,10 +47,9 @@ class TestVisitSchedule(TestCase):
             verbose_name='Visit Schedule',
             offstudy_model='edc_visit_schedule.subjectoffstudy',
             death_report_model='edc_visit_schedule.deathreport')
-        try:
-            visit_schedule.validate()
-        except VisitScheduleError as e:
-            self.fail(f'VisitScheduleError unepectedly raised {e}')
+        errors = visit_schedule.check()
+        if errors:
+            self.fail(f'visit_schedule.check() unexpectedly failed')
 
 
 class TestVisitSchedule2(TestCase):

@@ -68,6 +68,10 @@ class SubjectSchedule:
     def appointment_model_cls(self):
         return django_apps.get_model(self.appointment_model)
 
+    @property
+    def visit_model_cls(self):
+        return self.appointment_model_cls.visit_model_cls()
+
     def put_on_schedule(self, onschedule_model_obj=None, subject_identifier=None,
                         onschedule_datetime=None):
         if onschedule_model_obj:
