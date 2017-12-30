@@ -84,8 +84,8 @@ class Visit:
                     'allow_unscheduled is True but no unscheduled crfs '
                     f'or requisitions have been declared. See {repr(self)}')
         else:
-            self.crfs_unscheduled = None
-            self.requisitions_unscheduled = None
+            self.crfs_unscheduled = []
+            self.requisitions_unscheduled = []
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.code}, {self.timepoint})'
@@ -153,9 +153,9 @@ class Visit:
         try:
             for crf in self.crfs:
                 django_apps.get_model(crf.model)
-            for crf in self.crfs_unscheduled:
-                django_apps.get_model(crf.model)
             for crf in self.requisitions:
+                django_apps.get_model(crf.model)
+            for crf in self.crfs_unscheduled:
                 django_apps.get_model(crf.model)
             for crf in self.requisitions_unscheduled:
                 django_apps.get_model(crf.model)
