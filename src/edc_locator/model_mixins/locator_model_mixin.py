@@ -1,10 +1,15 @@
 from django.db import models
 from edc_base import get_utcnow
-from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 
 from .subject_contact_fields_mixin import SubjectContactFieldsMixin
 from .subject_indirect_contact_fields_mixin import SubjectIndirectContactFieldsMixin
+
+
+class LocatorManager(models.Manager):
+
+    def get_by_natural_key(self, subject_identifier):
+        return self.get(subject_identifier=subject_identifier)
 
 
 class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin,
@@ -18,7 +23,7 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin,
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    objects = SubjectIdentifierManager()
+    objects = LocatorManager()
 
     def __str__(self):
         return self.subject_identifier
