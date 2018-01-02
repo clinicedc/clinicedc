@@ -41,10 +41,6 @@ class SiteListData():
                             raise SiteListDataError(e)
                 except ImportError:
                     pass
-                except Exception as e:
-                    raise SiteListDataError(
-                        f'{e.__class__.__name__} was raised when loading {module_name}. '
-                        f'Got {e} See {app}.{module_name}')
 
 
 site_list_data = SiteListData()
