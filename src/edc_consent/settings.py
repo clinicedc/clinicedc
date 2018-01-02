@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'edc_timepoint.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
+    'edc_action_item.apps.AppConfig',
+    'edc_locator.apps.AppConfig',
     'edc_metadata.apps.AppConfig',
     'edc_registration.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',

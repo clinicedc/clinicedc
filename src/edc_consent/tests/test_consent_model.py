@@ -144,7 +144,6 @@ class TestConsentModel(DatesTestMixin, TestCase):
             dob=self.dob)
         self.assertEqual(consent.version, '3.0')
 
-    @tag('1')
     def test_manager(self):
         for i in range(1, 3):
             mommy.make_recipe(

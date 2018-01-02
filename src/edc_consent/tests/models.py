@@ -6,7 +6,7 @@ from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 
 from ..field_mixins import ReviewFieldsMixin, PersonalFieldsMixin, CitizenFieldsMixin
 from ..field_mixins import VulnerabilityFieldsMixin, IdentityFieldsMixin
-from ..model_mixins import ConsentModelMixin, RequiresConsentNonCrfModelMixin
+from ..model_mixins import ConsentModelMixin, RequiresConsentFieldsModelMixin
 
 
 class SubjectConsent(ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin,
@@ -27,10 +27,12 @@ class SubjectConsent2(ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin,
         pass
 
 
-class TestModel(NonUniqueSubjectIdentifierModelMixin,
-                RequiresConsentNonCrfModelMixin, BaseUuidModel):
+class TestModel(NonUniqueSubjectIdentifierModelMixin, RequiresConsentFieldsModelMixin,
+                BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    class Meta:
-        consent_model = 'edc_consent.subjectconsent'
+
+class CrfOne(NonUniqueSubjectIdentifierModelMixin, BaseUuidModel):
+
+    report_datetime = models.DateTimeField(default=get_utcnow)

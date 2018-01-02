@@ -13,6 +13,7 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         from .site_consents import site_consents
+        from .signals import requires_consent_on_pre_save
 
         sys.stdout.write(f'Loading {self.verbose_name} ...\n')
         site_consents.autodiscover()

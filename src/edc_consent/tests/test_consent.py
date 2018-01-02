@@ -2,6 +2,8 @@ from datetime import timedelta, datetime
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import tag
+from edc_registration.models import RegisteredSubject
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_mommy import mommy
 
 from ..consent import NaiveDatetimeError
@@ -11,10 +13,16 @@ from ..exceptions import NotConsentedError
 from ..site_consents import SiteConsentError
 from .consent_test_case import ConsentTestCase
 from .dates_test_mixin import DatesTestMixin
-from .models import TestModel
+from .models import CrfOne
+from .visit_schedules import visit_schedule
 
 
 class TestConsent(DatesTestMixin, ConsentTestCase):
+
+    def setUp(self):
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+        super().setUp()
 
     def test_raises_error_if_no_consent(self):
         """Asserts SubjectConsent cannot create a new instance if
@@ -35,12 +43,10 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
         a new instance if subject not consented.
         """
         self.consent_object_factory()
-        RegisteredSubject = django_apps.get_app_config(
-            'edc_registration').model
         RegisteredSubject.objects.create(subject_identifier='12345')
         self.assertRaises(
             NotConsentedError,
-            TestModel.objects.create,
+            CrfOne.objects.create,
             subject_identifier='12345',
             report_datetime=self.study_open_datetime)
 
@@ -56,7 +62,7 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
         try:
-            TestModel.objects.create(
+            CrfOne.objects.create(
                 subject_identifier=subject_identifier,
                 report_datetime=self.study_open_datetime)
         except NotConsentedError:
@@ -90,10 +96,10 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
-        test_model = TestModel.objects.create(
+        crf_one = CrfOne.objects.create(
             subject_identifier=subject_identifier,
             report_datetime=self.study_open_datetime)
-        self.assertEqual(test_model.consent_version, '1.0')
+        self.assertEqual(crf_one.consent_version, '1.0')
 
     def test_model_consent_version_no_change(self):
         self.consent_object_factory(version='1.2')
@@ -103,12 +109,12 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
-        test_model = TestModel.objects.create(
+        crf_one = CrfOne.objects.create(
             subject_identifier=subject_identifier,
             report_datetime=self.study_open_datetime)
-        self.assertEqual(test_model.consent_version, '1.2')
-        test_model.save()
-        self.assertEqual(test_model.consent_version, '1.2')
+        self.assertEqual(crf_one.consent_version, '1.2')
+        crf_one.save()
+        self.assertEqual(crf_one.consent_version, '1.2')
 
     def test_model_consent_version_changes_with_report_datetime(self):
         self.consent_object_factory(
@@ -130,19 +136,19 @@ class TestConsent(DatesTestMixin, ConsentTestCase):
         self.assertEqual(
             subject_consent.subject_identifier, subject_identifier)
         self.assertEqual(subject_consent.consent_datetime, consent_datetime)
-        test_model = TestModel.objects.create(
+        crf_one = CrfOne.objects.create(
             subject_identifier=subject_identifier,
             report_datetime=consent_datetime)
-        self.assertEqual(test_model.consent_version, '1.0')
+        self.assertEqual(crf_one.consent_version, '1.0')
         consent_datetime = self.study_open_datetime + timedelta(days=60)
         subject_consent = mommy.make_recipe(
             'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             consent_datetime=consent_datetime,
             dob=self.dob)
-        test_model.report_datetime = consent_datetime
-        test_model.save()
-        self.assertEqual(test_model.consent_version, '1.1')
+        crf_one.report_datetime = consent_datetime
+        crf_one.save()
+        self.assertEqual(crf_one.consent_version, '1.1')
 
     def test_consent_update_needs_previous_version(self):
         """Asserts that a consent type updates a previous consent."""
