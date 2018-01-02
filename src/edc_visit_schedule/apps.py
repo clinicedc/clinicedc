@@ -25,7 +25,7 @@ class AppConfig(DjangoAppConfig):
 
 if settings.APP_NAME == 'edc_visit_schedule':
 
-    from dateutil.relativedelta import MO, TU, WE, TH, FR
+    from dateutil.relativedelta import MO, TU, WE, TH, FR, SA, SU
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
     from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
     from edc_appointment.appointment_config import AppointmentConfig
@@ -39,8 +39,8 @@ if settings.APP_NAME == 'edc_visit_schedule':
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
         definitions = {
-            'default': dict(days=[MO, TU, WE, TH, FR],
-                            slots=[100, 100, 100, 100, 100],
+            'default': dict(days=[MO, TU, WE, TH, FR, SA, SU],
+                            slots=[100, 100, 100, 100, 100, 100, 100],
                             best_effort_available_datetime=True)}
 
     class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):

@@ -16,9 +16,15 @@ from ..visit_schedule import VisitSchedule, VisitScheduleError
 from ..visit_schedule import VisitScheduleNameError, AlreadyRegisteredSchedule
 from .models import OnSchedule, OnScheduleThree, OffSchedule
 from .models import SubjectVisit, SubjectConsent
+from edc_base.tests.site_test_case_mixin import SiteTestCaseMixin
+from edc_facility.import_holidays import import_holidays
 
 
-class TestVisitSchedule(TestCase):
+class TestVisitSchedule(SiteTestCaseMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        import_holidays()
 
     def test_visit_schedule_name(self):
         """Asserts raises on invalid name.
@@ -52,10 +58,10 @@ class TestVisitSchedule(TestCase):
             self.fail(f'visit_schedule.check() unexpectedly failed')
 
 
-class TestVisitSchedule2(TestCase):
+class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
-
+        import_holidays()
         self.visit_schedule = VisitSchedule(
             name='visit_schedule',
             verbose_name='Visit Schedule',
@@ -127,9 +133,10 @@ class TestVisitSchedule2(TestCase):
             self.schedule.add_visit, code='1000', timepoint=0, crfs=crfs)
 
 
-class TestVisitSchedule3(TestCase):
+class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
+        import_holidays()
         self.visit_schedule = VisitSchedule(
             name='visit_schedule',
             verbose_name='Visit Schedule',

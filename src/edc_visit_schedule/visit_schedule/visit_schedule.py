@@ -34,11 +34,13 @@ class VisitSchedule:
     schedules_collection = SchedulesCollection
 
     def __init__(self, name=None, verbose_name=None, previous_visit_schedule=None,
-                 death_report_model=None, offstudy_model=None):
+                 death_report_model=None, offstudy_model=None, locator_model=None):
+        self._all_post_consent_models = None
         self.name = name
         self.schedules = self.schedules_collection(visit_schedule_name=name)
         self.offstudy_model = offstudy_model
         self.death_report_model = death_report_model
+        self.locator_model = locator_model
         self.previous_visit_schedule = previous_visit_schedule
         if not re.match(self.name_regex, name):
             raise VisitScheduleNameError(
@@ -57,6 +59,10 @@ class VisitSchedule:
         return django_apps.get_model(self.offstudy_model)
 
     @property
+    def locator_model_cls(self):
+        return django_apps.get_model(self.locator_model)
+
+    @property
     def death_report_model_cls(self):
         return django_apps.get_model(self.death_report_model)
 
@@ -67,6 +73,7 @@ class VisitSchedule:
             raise AlreadyRegisteredSchedule(
                 f'Schedule \'{schedule.name}\' is already registered. See \'{self}\'')
         self.schedules.update({schedule.name: schedule})
+        self._all_post_consent_models = None
         return schedule
 
     def check(self):
@@ -78,3 +85,26 @@ class VisitSchedule:
             warnings.append(
                 f'{e} See visit schedule \'{self.name}\'.')
         return warnings
+
+    @property
+    def all_post_consent_models(self):
+        if not self._all_post_consent_models:
+            models = {}
+            models.update(
+                {self.offstudy_model: None})
+            models.update(
+                {self.death_report_model: None})
+            models.update(
+                {self.locator_model: None})
+            for schedule in self.schedules.values():
+                models.update(
+                    {schedule.onschedule_model: schedule.consent_model})
+                models.update(
+                    {schedule.offschedule_model: schedule.consent_model})
+                for visit in schedule.visits.values():
+                    for crf in visit.forms:
+                        models.update({crf.model: schedule.consent_model})
+                    for crf in visit.unscheduled_forms:
+                        models.update({crf.model: schedule.consent_model})
+            self._all_post_consent_models = models
+        return self._all_post_consent_models

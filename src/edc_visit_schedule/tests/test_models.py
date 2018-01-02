@@ -4,6 +4,8 @@ from datetime import datetime
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_base import get_utcnow
+from edc_base.tests import SiteTestCaseMixin
+from edc_facility.import_holidays import import_holidays
 
 from ..constants import OFF_SCHEDULE, ON_SCHEDULE
 from ..models import SubjectScheduleHistory
@@ -12,9 +14,10 @@ from .models import OnSchedule, OffSchedule, SubjectVisit, CrfOne
 from .visit_schedule import visit_schedule
 
 
-class TestModels(TestCase):
+class TestModels(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
+        import_holidays()
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)

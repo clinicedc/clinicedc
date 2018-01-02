@@ -3,7 +3,6 @@ import sys
 
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
-from edc_base.utils import get_utcnow
 
 
 class RegistryNotLoaded(Exception):
@@ -27,6 +26,7 @@ class SiteVisitSchedules:
 
     def __init__(self):
         self._registry = {}
+        self._all_post_consent_models = None
         self.loaded = False
 
     @property
@@ -48,6 +48,7 @@ class SiteVisitSchedules:
         else:
             raise AlreadyRegisteredVisitSchedule(
                 f'Visit Schedule {visit_schedule} is already registered.')
+        self._all_post_consent_models = None
 
     @property
     def visit_schedules(self):
@@ -134,6 +135,17 @@ class SiteVisitSchedules:
             except ImportError:
                 pass
 
+    @property
+    def all_post_consent_models(self):
+        """Returns a list of models that require consent before save.
+        """
+        if not self._all_post_consent_models:
+            models = {}
+            for visit_schedule in self.visit_schedules.values():
+                models.update(**visit_schedule.all_post_consent_models)
+            self._all_post_consent_models = models
+        return self._all_post_consent_models
+
     def check(self):
         if not self.loaded:
             raise SiteVisitScheduleError('Registry is not loaded.')
@@ -145,11 +157,6 @@ class SiteVisitSchedules:
                 for visit in schedule.visits.values():
                     errors['visits'].extend(visit.check())
         return errors
-
-#     def validate(self):
-#         for visit_schedule in self.registry.values():
-#             for schedule in visit_schedule.schedules.values():
-#                 schedule.visits.timepoint_dates(dt=get_utcnow())
 
 
 site_visit_schedules = SiteVisitSchedules()
