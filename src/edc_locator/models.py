@@ -1,3 +1,5 @@
+import sys
+
 from django.conf import settings
 from edc_action_item.model_mixins import ActionItemModelMixin
 from edc_base.model_mixins import BaseUuidModel
@@ -10,7 +12,7 @@ from .model_mixins import LocatorModelMixin, LocatorManager
 from .action_items import SubjectLocatorAction
 from django.contrib.sites.managers import CurrentSiteManager
 
-if settings.APP_NAME == 'edc_locator':
+if settings.APP_NAME == 'edc_locator' and 'makemigrations' not in sys.argv:
     from .tests import models
 
 
