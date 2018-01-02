@@ -9,7 +9,7 @@ from django_crypto_fields.fields import FirstnameField, LastnameField
 from django_crypto_fields.fields import IdentityField, EncryptedCharField
 
 from edc_base.model_fields import IdentityTypeField, IsDateEstimatedField
-from edc_base.model_mixins import SiteModelMixin
+from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
 from edc_constants.constants import UUID_PATTERN
@@ -138,6 +138,10 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin,
     registration_status = models.CharField(
         verbose_name="Registration status",
         max_length=25,
+        null=True,
+        blank=True)
+
+    consent_datetime = models.DateTimeField(
         null=True,
         blank=True)
 
