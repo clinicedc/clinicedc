@@ -6,6 +6,7 @@ from django.test.utils import override_settings
 from edc_base.utils import get_utcnow
 
 from ..facility import Facility
+from ..import_holidays import import_holidays
 from ..models import Holiday
 
 
@@ -14,6 +15,7 @@ class TestFacility(TestCase):
     def setUp(self):
         self.facility = Facility(
             name='clinic', days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
+        import_holidays()
 
     def test_allowed_weekday(self):
         facility = Facility(
@@ -67,9 +69,8 @@ class TestFacility(TestCase):
         """
         suggested_date = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
         expected_date = Arrow.fromdatetime(datetime(2017, 1, 8)).datetime
-        Holiday.objects.create(day=suggested_date)
+        Holiday.objects.create(local_date=suggested_date)
         facility = Facility(
-            name='clinic', days=[suggested_date.weekday()], slots=[100],
-            holiday_model='edc_facility.holiday')
+            name='clinic', days=[suggested_date.weekday()], slots=[100])
         available_rdate = facility.available_rdate(suggested_date)
         self.assertEqual(expected_date, available_rdate.datetime)

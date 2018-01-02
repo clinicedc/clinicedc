@@ -1,12 +1,14 @@
-import os
 import sys
 
 from dateutil.relativedelta import MO, TU, WE, TH, FR
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
+from django.core.checks.registry import register
 from django.core.management.color import color_style
 
 from .facility import Facility, FacilityError
+from .system_checks import holiday_check
+from .import_holidays import import_holidays
 
 style = color_style()
 
@@ -25,21 +27,8 @@ class AppConfig(DjangoAppConfig):
         definitions = None
 
     def ready(self):
+        register(holiday_check)
         sys.stdout.write(f'Loading {self.verbose_name} ...\n')
-        try:
-            holiday_path = settings.HOLIDAY_FILE
-        except AttributeError:
-            holiday_path = None
-        else:
-            if not os.path.exists(holiday_path):
-                sys.stdout.write(style.ERROR(
-                    f'File not found! settings.HOLIDAY_FILE=\'{holiday_path}\'. \n'))
-            else:
-                sys.stdout.write(
-                    f' * reading holidays from {holiday_path}.\n')
-        if not holiday_path:
-            sys.stdout.write(style.ERROR(
-                f'File not found! settings.HOLIDAY_FILE not defined. \n'))
         for facility in self.facilities.values():
             sys.stdout.write(f' * {facility}.\n')
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
