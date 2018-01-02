@@ -7,14 +7,20 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.test import TestCase, tag
 from django.test.utils import override_settings
-from edc_visit_schedule import VisitSchedule, Schedule, Visit
 from edc_base.utils import get_utcnow
+from edc_facility.import_holidays import import_holidays
+from edc_visit_schedule import VisitSchedule, Schedule, Visit
 
 from ..creators import AppointmentCreator
 from ..models import Appointment
 
 
 class TestAppointmentCreator(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        import_holidays()
+        return super().setUpClass()
 
     def setUp(self):
         Appointment.objects.all().delete()

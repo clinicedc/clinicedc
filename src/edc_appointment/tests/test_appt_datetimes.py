@@ -4,6 +4,7 @@ from copy import deepcopy
 from datetime import datetime
 from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA, weekday
 from django.test import TestCase, tag
+from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.schedule.visit_collection import VisitCollection
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -19,6 +20,11 @@ class TestApptDatetimes(TestCase):
     """Note: visit schedule has appointments on days 0, 1, 2, 3, etc.
     Default facility accepts appointments any day of the week.
     """
+
+    @classmethod
+    def setUpClass(cls):
+        import_holidays()
+        return super().setUpClass()
 
     def setUp(self):
         site_visit_schedules._registry = {}
@@ -130,7 +136,6 @@ class TestApptDatetimes(TestCase):
         self.assertTrue(weekday(appt_datetimes[2].weekday()), FR)
         self.assertTrue(weekday(appt_datetimes[3].weekday()), MO)
 
-    @tag('1')
     def test_appointments_creation_dates3(self):
         """Assert skips FR, SA, SU, MO.
         """
