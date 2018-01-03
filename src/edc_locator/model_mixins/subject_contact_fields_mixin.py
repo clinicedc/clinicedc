@@ -18,7 +18,7 @@ class SubjectContactFieldsMixin(models.Model):
         max_length=25,
         choices=YES_NO,
         verbose_name=mark_safe(
-            'Has the participant given permission for study'
+            'Has the participant given permission for study '
             'staff <b>to make home visits</b> for follow-up purposes?'))
 
     may_sms = models.CharField(

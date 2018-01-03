@@ -16,9 +16,8 @@ subject_contacts_fieldset = (
 
 
 indirect_contacts_fieldset = (
-    ('Indirect Contact Information', {
+    ('Other Contact Information', {
         'fields': (
-            'subject_work_phone',
             'indirect_contact_name',
             'indirect_contact_relation',
             'indirect_contact_physical_address',
