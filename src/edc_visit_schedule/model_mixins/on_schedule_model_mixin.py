@@ -16,6 +16,10 @@ class OnScheduleModelMixin(ScheduleModelMixin):
             datetime_not_future],
         default=get_utcnow)
 
+    def save(self, *args, **kwargs):
+        self.report_datetime = self.onschedule_datetime
+        super().save(*args, **kwargs)
+
     def put_on_schedule(self):
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             self._meta.label_lower)

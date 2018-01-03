@@ -18,6 +18,10 @@ class OffScheduleModelMixin(ScheduleModelMixin):
             datetime_not_future],
         default=get_utcnow)
 
+    def save(self, *args, **kwargs):
+        self.report_datetime = self.offschedule_datetime
+        super().save(*args, **kwargs)
+
     def take_off_schedule(self):
         _, schedule = site_visit_schedules.get_by_offschedule_model(
             self._meta.label_lower)

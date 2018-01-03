@@ -26,10 +26,6 @@ class ScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, mode
                 convert_php_dateformat(settings.SHORT_DATE_FORMAT))
         return f'{self.subject_identifier} {formatted_date}'
 
-    def save(self, *args, **kwargs):
-        self.report_datetime = self.onschedule_datetime
-        super().save(*args, **kwargs)
-
     def natural_key(self):
         return (self.subject_identifier, )
 
