@@ -1,23 +1,13 @@
-from django.contrib.sites.managers import CurrentSiteManager
 from django.db import models
-from django.utils import timezone
-from edc_base.sites.site_model_mixin import SiteModelMixin
+from edc_base import get_utcnow
 from edc_base.model_validators import datetime_not_future
-from edc_base.utils import get_utcnow
-from edc_constants.date_constants import EDC_DATETIME_FORMAT
-from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
 
 from ..site_visit_schedules import site_visit_schedules
+from .schedule_model_mixin import ScheduleModelMixin
 
 
-class OffScheduleModelManager(models.Manager):
-
-    def get_by_natural_key(self, subject_identifier):
-        return self.get(subject_identifier=subject_identifier)
-
-
-class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model):
+class OffScheduleModelMixin(ScheduleModelMixin):
     """Model mixin for a schedule's OffSchedule model.
     """
 
@@ -27,18 +17,6 @@ class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, m
             datetime_not_before_study_start,
             datetime_not_future],
         default=get_utcnow)
-
-    objects = OffScheduleModelManager()
-
-    on_site = CurrentSiteManager()
-
-    def natural_key(self):
-        return (self.subject_identifier, )
-
-    def __str__(self):
-        formatted_date = timezone.localtime(
-            self.offschedule_datetime).strftime(EDC_DATETIME_FORMAT)
-        return f'{self.subject_identifier} {formatted_date}'
 
     def take_off_schedule(self):
         _, schedule = site_visit_schedules.get_by_offschedule_model(

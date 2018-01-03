@@ -1,5 +1,5 @@
-from .off_schedule_model_mixin import OffScheduleModelMixin, OffScheduleModelManager
-from .on_schedule_model_mixin import OnScheduleModelManager, OnScheduleModelMixin
+from .off_schedule_model_mixin import OffScheduleModelMixin
+from .on_schedule_model_mixin import OnScheduleModelMixin
 from .subject_schedule_crf_model_mixin import SubjectScheduleCrfModelMixin
 from .visit_schedule_model_mixins import VisitScheduleFieldsModelMixin
 from .visit_schedule_model_mixins import VisitScheduleMethodsModelMixin
