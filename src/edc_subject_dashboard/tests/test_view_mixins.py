@@ -3,7 +3,6 @@ from edc_base.utils import get_utcnow
 from edc_locator.view_mixins import SubjectLocatorViewMixin, SubjectLocatorViewMixinError
 
 from ..view_mixins import SubjectVisitViewMixin, SubjectVisitViewMixinError
-from ..view_mixins import SubjectIdentifierViewMixin
 from .models import SubjectVisit, TestModel, BadSubjectVisit, Appointment
 
 
@@ -81,7 +80,7 @@ class TestViewMixins(TestCase):
 
     def test_subject_locator_ok(self):
 
-        class MySubjectLocatorViewMixin(SubjectIdentifierViewMixin, SubjectLocatorViewMixin):
+        class MySubjectLocatorViewMixin(SubjectLocatorViewMixin):
             subject_locator_model_wrapper_cls = DummyModelWrapper
             subject_locator_model = 'edc_subject_dashboard.subjectlocator'
 

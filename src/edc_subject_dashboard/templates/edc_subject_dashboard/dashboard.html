@@ -1,5 +1,6 @@
 {% extends dashboard_base_template %}
 {% load staticfiles %}
+{% load edc_visit_schedule_extras %}
 
 {% block main %}
 <div id="subject_dashboard" class="container">
@@ -7,7 +8,6 @@
   <div class="col-md-9">
   
     <div class="panel-group" id="accordion_schedule">
-
 
 	{% block alert %}
 			{% include 'edc_dashboard/alert_messages.html' %}
@@ -25,46 +25,61 @@
               </div>
           </div>
         {% endif %}
-        
-	    {% for visit_schedule in visit_schedules %}
-          <div id="subject_dashboard_for_{{ visit_schedule.name }}" class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
-		      <div class="panel-heading">
-		          <h6 class="panel-title"><i class="fa fa-calendar fa-lg fa-fw"></i> 
-		              <a data-toggle="collapse" data-parent="#accordion_schedule" aria-hidden="true"
-		                 href="#dashboard_appointments_for_{{ visit_schedule.name }}">{{ visit_schedule.verbose_name }}
-		              </a>
-		          </h6>
-		      </div>
-		      <div id="subject_dashboard_appointments_for_{{ visit_schedule.name }}" class="panel-collapse collapse {% if current_enrollment_model.visit_schedule_name ==  visit_schedule.name %}in{% endif %}">
 
-			  	{% if not appointment %}
-
-					  	{% block appointments %}
-
-							{% include "edc_subject_dashboard/dashboard/appointments.html" %}
-
-					  	{% endblock appointments %}
-
-                {% else %}
-
-		            {% block crfs %}
+        {% if appointment %}
+			<div id="subject_dashboard_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
+				class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
+			<div class="panel-heading">
+			  <h6 class="panel-title"><i class="fa fa-calendar fa-lg fa-fw"></i> 
+			      <a data-toggle="collapse" data-parent="#accordion_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}" aria-hidden="true"
+			         href="#subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}">
+			         {{ current_visit_schedule.verbose_name }}: {{ current_schedule.verbose_name }}
+			      </a>
+			  </h6>
+			</div>
+			<div id="subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
+				class="panel-collapse collapse in">
+				    {% block crfs %}
 						{% if crfs %}
 					  		{% include "edc_subject_dashboard/dashboard/crfs.html" %}
 					    {% endif %}
-		            {% endblock crfs %}
-	        
+				    {% endblock crfs %}
+
 					{% block requisitions %}
 					  {% if requisitions %}
 					  	{% include "edc_subject_dashboard/dashboard/requisitions.html" %}
 					  {% endif %}    
 					{% endblock requisitions %}
-		        
-		        {% endif %}
+			</div>
+				{% subject_schedule_row subject_identifier current_visit_schedule current_schedule subject_dashboard_url %}
+	     	</div>
+        {% else %}
+		    {% for visit_schedule in visit_schedules.values %}
+		    	{% for schedule in visit_schedule.schedules.values %}
+					<div id="subject_dashboard_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}"
+						class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
+					<div class="panel-heading">
+					  <h6 class="panel-title"><i class="fa fa-calendar fa-lg fa-fw"></i> 
+					      <a data-toggle="collapse" data-parent="#accordion_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}" aria-hidden="true"
+					         href="#subject_dashboard_appointments_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}">
+					         {{ visit_schedule.verbose_name }}: {{ schedule.verbose_name }}
+					      </a>
+					  </h6>
+					</div>
 
-			  </div>
-	       </div>
+					<div id="subject_dashboard_appointments_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}"
+						class="panel-collapse collapse {% if current_visit_schedule.name == visit_schedule.name and current_schedule.name == schedule.name %}in{% endif %}">
 
-	    {% endfor %}
+					{% block appointments %}
+						{% include "edc_subject_dashboard/dashboard/appointments.html" %}
+					{% endblock appointments %}
+
+					</div>
+						{% subject_schedule_row subject_identifier visit_schedule schedule subject_dashboard_url %}
+			     	</div>
+			    {% endfor %}
+		    {% endfor %}
+	    {% endif %}
     </div>	
   
  </div>
