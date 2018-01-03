@@ -31,3 +31,6 @@ class SubjectLocator(LocatorModelMixin, RequiresConsentFieldsModelMixin,
     history = HistoricalRecords()
 
     on_site = CurrentSiteManager()
+
+    class Meta:
+        verbose_name = 'Subject Locator'
