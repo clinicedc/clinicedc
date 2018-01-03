@@ -15,6 +15,7 @@ visit_schedule.append_item(
                title='Subject History',
                label='Subject History',
                fa_icon='fa-history',
-               url_name='edc_visit_schedule:edc_visit_schedule_admin:index'))
+               url_name=('edc_visit_schedule:edc_visit_schedule_admin:'
+                         'edc_visit_schedule_subjectschedulehistory_changelist')))
 
 site_navbars.register(visit_schedule)

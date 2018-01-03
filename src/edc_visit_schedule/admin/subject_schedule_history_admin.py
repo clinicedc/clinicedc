@@ -1,9 +1,9 @@
 from django.contrib import admin
+from edc_model_admin import audit_fieldset_tuple
 
 from ..admin_site import edc_visit_schedule_admin
-from ..models import SubjectScheduleHistory
 from ..forms import SubjectScheduleHistoryForm
-from edc_model_admin.model_admin_audit_fields_mixin import audit_fieldset_tuple
+from ..models import SubjectScheduleHistory
 
 
 @admin.register(SubjectScheduleHistory, site=edc_visit_schedule_admin)
