@@ -68,16 +68,5 @@ class SubjectContactFieldsMixin(models.Model):
         blank=True,
         null=True)
 
-    subject_work_place = EncryptedTextField(
-        verbose_name='Name and location of work place',
-        max_length=250,
-        blank=True,
-        null=True)
-
-    subject_work_phone = EncryptedCharField(
-        verbose_name='Work contact number ',
-        blank=True,
-        null=True)
-
     class Meta:
         abstract = True

@@ -8,6 +8,7 @@ from edc_form_validators import FormValidatorMixin, FormValidator
 
 
 class LocatorFormValidator(FormValidator):
+
     def clean(self):
         subject_work_phone = self.cleaned_data['subject_work_phone']
         if subject_work_phone:
@@ -35,7 +36,7 @@ class LocatorModelFormMixin(FormValidatorMixin, forms.ModelForm):
     form_validator_cls = LocatorFormValidator
 
     def clean(self):
-        cleaned_data = super(self).clean()
+        cleaned_data = super().clean()
         self.may_call_requires_contacts()
         self.may_call_work_requires_contacts()
         self.home_visit_permission_requires_address()
@@ -67,7 +68,6 @@ class LocatorModelFormMixin(FormValidatorMixin, forms.ModelForm):
 
     def may_call_requires_contacts(self):
         cleaned_data = self.cleaned_data
-        self.req
         if cleaned_data.get('may_call') == YES:
             if not cleaned_data.get('subject_cell') and not cleaned_data.get('subject_phone'):
                 raise forms.ValidationError({

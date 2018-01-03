@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
 from django.utils.safestring import mark_safe
+from edc_action_item.models.action_item import ActionItem
+from edc_locator.action_items import SUBJECT_LOCATOR_ACTION
 
 
 class SubjectLocatorViewMixinError(Exception):
@@ -43,13 +45,27 @@ class SubjectLocatorViewMixin(ContextMixin):
             obj = self.subject_locator_model_cls.objects.get(
                 subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
-            add_url = self.subject_locator_model_cls().get_absolute_url()
-            verbose_name = self.subject_locator_model_cls._meta.verbose_name
-            next_querystring = (f'next=subject_dashboard_url,subject_identifier&'
-                                f'subject_identifier={subject_identifier}')
-            messages.warning(self.request, mark_safe(
-                f'Please complete the <a href="{add_url}?{next_querystring}" '
-                f'title="Add {verbose_name}">{verbose_name}</a> form.'))
+            action_item_model_cls = (
+                self.subject_locator_model_cls.action_cls.action_item_model_cls())
+            try:
+                action_item_model_cls.objects.get(
+                    subject_identifier=subject_identifier,
+                    action_type__name=SUBJECT_LOCATOR_ACTION)
+            except ObjectDoesNotExist:
+                self.subject_locator_model_cls.action_cls(
+                    subject_identifier=subject_identifier)
+#             try:
+#                 ActionItem.objects.get(
+#                     subject_identifier=subject_identifier,
+#                     name=action_name)
+#             except ObjectDoesNotExist:
+#                 add_url = self.subject_locator_model_cls().get_absolute_url()
+#                 verbose_name = self.subject_locator_model_cls._meta.verbose_name
+#                 next_querystring = (f'next=subject_dashboard_url,subject_identifier&'
+#                                     f'subject_identifier={subject_identifier}')
+#                 messages.warning(self.request, mark_safe(
+#                     f'Please complete the <a href="{add_url}?{next_querystring}" '
+#                     f'title="Add {verbose_name}">{verbose_name}</a> form.'))
         return obj
 
     @property

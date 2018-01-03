@@ -9,15 +9,22 @@ subject_contacts_fieldset = (
             'subject_cell',
             'subject_cell_alt',
             'subject_phone',
-            'subject_phone_alt',
+            'subject_phone_alt')})
+)
+
+
+subject_contacts_fieldset = (
+    ('Subject\'s Work Contacts', {
+        'fields': (
+            'may_call_work',
             'subject_work_place',
             'subject_work_phone')})
 )
 
-
 indirect_contacts_fieldset = (
     ('Other Contact Information', {
         'fields': (
+            'may_contact_indirectly',
             'indirect_contact_name',
             'indirect_contact_relation',
             'indirect_contact_physical_address',

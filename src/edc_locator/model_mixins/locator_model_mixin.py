@@ -2,8 +2,10 @@ from django.db import models
 from edc_base import get_utcnow
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 
+from .locator_methods_model_mixin import LocatorMethodsModelMixin
 from .subject_contact_fields_mixin import SubjectContactFieldsMixin
 from .subject_indirect_contact_fields_mixin import SubjectIndirectContactFieldsMixin
+from .subject_work_fields_mixin import SubjectWorkFieldsMixin
 
 
 class LocatorManager(models.Manager):
@@ -15,6 +17,8 @@ class LocatorManager(models.Manager):
 class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin,
                         SubjectContactFieldsMixin,
                         SubjectIndirectContactFieldsMixin,
+                        SubjectWorkFieldsMixin,
+                        LocatorMethodsModelMixin,
                         models.Model):
 
     """A model completed by the user to that captures participant
