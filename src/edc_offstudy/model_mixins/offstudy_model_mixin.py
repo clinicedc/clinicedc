@@ -9,13 +9,16 @@ from edc_constants.date_constants import EDC_DATETIME_FORMAT
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
+from edc_visit_schedule.model_mixins import VisitScheduleFieldsModelMixin
 
 from ..choices import OFF_STUDY_REASONS
 from ..offstudy import Offstudy
-from edc_visit_schedule.model_mixins.visit_schedule_model_mixins import VisitScheduleMetaMixin
 
 if 'consent_model' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model',)
+
+if 'visit_schedule_name' not in options.DEFAULT_NAMES:
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
 
 
 class OffstudyModelMixinError(Exception):
@@ -29,8 +32,17 @@ class OffstudyModelManager(models.Manager):
 
 
 class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
+                         VisitScheduleFieldsModelMixin,
                          VisitScheduleMethodsModelMixin, models.Model):
     """Model mixin for the Off-study model.
+
+    Override in admin like this:
+
+        def formfield_for_choice_field(self, db_field, request, **kwargs):
+            if db_field.name == "offstudy_reason":
+                kwargs['choices'] = OFF_STUDY_REASONS
+            return super().formfield_for_choice_field(db_field, request, **kwargs)
+
     """
 
     offstudy_cls = Offstudy
@@ -81,6 +93,7 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
             self.offstudy_datetime).strftime(EDC_DATETIME_FORMAT)
         return f'{self.subject_identifier} {formatted_date}'
 
-    class Meta(VisitScheduleMetaMixin.Meta):
+    class Meta:
         abstract = True
         consent_model = None
+        visit_schedule_name = None

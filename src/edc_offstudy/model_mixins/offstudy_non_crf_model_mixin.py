@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.db import models
-from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin, VisitScheduleMetaMixin
+from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
 
 from ..offstudy_non_crf import OffstudyNonCrf
 
@@ -51,5 +51,5 @@ class OffstudyNonCrfModelMixin(VisitScheduleMethodsModelMixin, models.Model):
     def schedule(self):
         raise NotImplementedError()
 
-    class Meta(VisitScheduleMetaMixin.Meta):
+    class Meta:
         abstract = True
