@@ -64,13 +64,14 @@ class SiteConsents:
         if not registered_consents:
             raise SiteConsentError(
                 f'No matching registered consent object in site consents. '
-                f'Got consent_model={model}, consent_group={consent_group}.')
+                f'Got consent_model={model}, consent_group={consent_group}. '
+                f'Expected one of {self.consents}.')
         registered_consents = [
             c for c in registered_consents if c.start <= report_datetime <= c.end]
         if not registered_consents:
             raise SiteConsentError(
                 f'Date does not fall within the period of any registered consent '
-                f'object. Got {report_datetime}. Expected one of {self.consents}')
+                f'object. Got {report_datetime}. Expected one of {self.consents}.')
         return registered_consents[0]
 
     def get_consent(self, model=None, report_datetime=None,

@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.views.generic.base import ContextMixin
 from edc_base.utils import get_utcnow, get_uuid
 
@@ -7,6 +6,9 @@ from .site_consents import site_consents
 
 
 class ConsentViewMixin(ContextMixin):
+
+    """Declare with edc_appointment view mixin to get `appointment`.
+    """
 
     consent_model_wrapper_cls = None
 
@@ -32,20 +34,18 @@ class ConsentViewMixin(ContextMixin):
             try:
                 report_datetime = self.appointment.appt_datetime
             except AttributeError:
-                report_datetime = get_utcnow()
-        return report_datetime
+                pass
+        return report_datetime or get_utcnow()
 
     @property
     def consent_object(self):
-        """Returns a consent object or None from site_consents for
-        the current reporting period.
+        """Returns a consent_config object or None
+        from site_consents for the current reporting period.
         """
-        default_consent_group = django_apps.get_app_config(
-            'edc_consent').default_consent_group
         try:
             consent_object = site_consents.get_consent_for_period(
-                report_datetime=self.report_datetime,
-                consent_group=default_consent_group)
+                model=self.consent_model_wrapper_cls.model,
+                report_datetime=self.report_datetime)
         except ConsentObjectDoesNotExist:
             consent_object = None
         return consent_object
@@ -56,7 +56,8 @@ class ConsentViewMixin(ContextMixin):
         """
         if not self._consent:
             self._consent = self.consent_object.model_cls.consent.consent_for_period(
-                subject_identifier=self.subject_identifier, report_datetime=self.report_datetime)
+                subject_identifier=self.subject_identifier,
+                report_datetime=self.report_datetime)
         return self._consent
 
     @property
@@ -75,7 +76,7 @@ class ConsentViewMixin(ContextMixin):
 
         Override to include additional attrs to instantiate.
         """
-        return self.consent_object.model(
+        return self.consent_object.model_cls(
             subject_identifier=self.subject_identifier,
             consent_identifier=get_uuid(),
             version=self.consent_object.version)
@@ -85,7 +86,7 @@ class ConsentViewMixin(ContextMixin):
         """Returns a Queryset of consents for this subject.
         """
         if not self._consents:
-            self._consents = self.consent_object.model.objects.filter(
+            self._consents = self.consent_object.model_cls.objects.filter(
                 subject_identifier=self.subject_identifier).order_by('version')
         return self._consents
 
