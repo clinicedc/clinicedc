@@ -13,7 +13,7 @@ subject_contacts_fieldset = (
 )
 
 
-subject_contacts_fieldset = (
+work_contacts_fieldset = (
     ('Subject\'s Work Contacts', {
         'fields': (
             'may_call_work',

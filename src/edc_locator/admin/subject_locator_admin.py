@@ -3,7 +3,8 @@ from django.contrib import admin
 from edc_model_admin import audit_fieldset_tuple
 
 from ..admin_site import edc_locator_admin
-from ..fieldsets import subject_contacts_fieldset, indirect_contacts_fieldset
+from ..fieldsets import subject_contacts_fieldset
+from ..fieldsets import indirect_contacts_fieldset, work_contacts_fieldset
 from ..forms import SubjectLocatorForm
 from ..models import SubjectLocator
 from .modeladmin_mixins import ModelAdminMixin
@@ -20,6 +21,7 @@ class SubjectLocatorAdmin(ModelAdminMixin, admin.ModelAdmin):
                 'subject_identifier',
             )}),
         subject_contacts_fieldset,
+        work_contacts_fieldset,
         indirect_contacts_fieldset,
         audit_fieldset_tuple,
     )
