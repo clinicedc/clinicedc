@@ -30,34 +30,19 @@ class ProtocolSubjectCollection:
     def __repr__(self):
         return f'{self.__class__.__name__}()'
 
-    def __len__(self):
-        return len(self.registry.values())
-
-    def __iter__(self):
-        return iter(self.registry.values())
-
     def register(self, subject_type=None):
-        name = subject_type.name
-        model = subject_type.model
-        key = self._key(name=name, model=model)
-        if str(subject_type) != key:
-            raise TypeError(
-                f'{repr(subject_type)}. Got {subject_type.name} != {key}.')
-        if key not in self.registry:
-            self.registry.update({key: subject_type})
+        if subject_type.name not in self.registry:
+            self.registry.update({subject_type.name: subject_type})
         else:
             raise AlreadyRegistered(
-                f'Subject_type {key} is already registered.')
+                f'Subject_type {subject_type.name} is already registered.')
 
-    def get(self, **kwargs):
-        try:
-            return self.registry[self._key(**kwargs)]
-        except KeyError:
-            raise SiteProtocolNotRegistered(
-                f'Subject type not registered. Got {kwargs}')
+    @property
+    def subject_types(self):
+        return self.registry
 
-    def _key(self, name=None, model=None):
-        return f'{name}.{model}'
+    def get(self, subject_type=None):
+        return self.registry.get(subject_type)
 
     def autodiscover(self, module_name=None, verbose=True):
         module_name = module_name or 'protocol_subjects'
@@ -83,10 +68,6 @@ class ProtocolSubjectCollection:
                         raise SiteProtocolSubjectsError(str(e))
             except ImportError:
                 pass
-            except Exception as e:
-                raise SiteProtocolSubjectsError(
-                    f'{e.__class__.__name__} was raised when loading {module_name}. '
-                    f'Got {e} See {app}.{module_name}')
 
 
 site_protocol_subjects = ProtocolSubjectCollection()

@@ -23,25 +23,16 @@ class EnrollmentCapModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            subject_type_obj = site_protocol_subjects.get(
-                name=self.get_enrollment_subject_type(),
-                model=self._meta.label_lower)
-            if not subject_type_obj:
-                key = site_protocol_subjects._key(
-                    name=self.get_enrollment_subject_type(),
-                    model=self._meta.label_lower)
-                raise InvalidSubjectType(
-                    f'Invalid subject type. Got \'{key}\'. See site_protocol_subjects.')
-            self.cap_count, self.cap = subject_type_obj.fetch_count_or_raise(
-                study_site=self.get_enrollment_study_site())
+            site_protocol_subjects.raise_on_max_subjects(
+                model=self._meta.label_lower, **self.__dict__)
         super().save(*args, **kwargs)
 
-    def get_enrollment_study_site(self):
+    def get_enrollment_site(self):
         try:
-            study_site = self.study_site
+            return self.site
         except AttributeError:
-            study_site = None  # will default to ALL_SITES
-        return study_site
+            return None  # will default to ALL_SITES
+        return None
 
     def get_enrollment_subject_type(self):
         try:
