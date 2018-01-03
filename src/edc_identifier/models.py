@@ -22,7 +22,7 @@ class IdentifierModelManager(models.Manager):
 
 class IdentifierModel(SiteModelMixin, BaseUuidModel):
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
 
     sequence_number = models.IntegerField(default=1)
 
@@ -30,13 +30,13 @@ class IdentifierModel(SiteModelMixin, BaseUuidModel):
 
     linked_identifier = models.CharField(max_length=50, null=True)
 
-    device_id = models.IntegerField(default=99)
+    device_id = models.IntegerField()
 
-    protocol_number = models.CharField(max_length=3)
+    protocol_number = models.CharField(max_length=25)
 
-    model = models.CharField(max_length=50, null=True)
+    model = models.CharField(max_length=100, null=True)
 
-    identifier_type = models.CharField(max_length=25, null=True)
+    identifier_type = models.CharField(max_length=100, null=True)
 
     identifier_prefix = models.CharField(max_length=25, null=True)
 
