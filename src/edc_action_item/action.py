@@ -77,9 +77,9 @@ class Action:
             create_by_action=True if cls.create_by_action is None else cls.create_by_action,
             instructions=cls.instructions)
 
-    @property
-    def action_item_model_cls(self):
-        return django_apps.get_model(self.action_item_model)
+    @classmethod
+    def action_item_model_cls(cls):
+        return django_apps.get_model(cls.action_item_model)
 
     @classmethod
     def reference_model(cls):
@@ -120,19 +120,19 @@ class Action:
             subject_identifier=self.subject_identifier,
             action_type=self.action_type())
         try:
-            action_item = self.action_item_model_cls.objects.get(
+            action_item = self.action_item_model_cls().objects.get(
                 reference_identifier=self.tracking_identifier, **opts)
         except ObjectDoesNotExist:
-            action_item = self.action_item_model_cls.objects.filter(
+            action_item = self.action_item_model_cls().objects.filter(
                 reference_identifier__isnull=True,
                 **opts).order_by('created').first()
             if action_item:
                 action_item.reference_identifier = self.tracking_identifier
                 action_item.save()
-                action_item = self.action_item_model_cls.objects.get(
+                action_item = self.action_item_model_cls().objects.get(
                     pk=action_item.pk)
             else:
-                action_item = self.action_item_model_cls.objects.create(
+                action_item = self.action_item_model_cls().objects.create(
                     reference_identifier=self.tracking_identifier,
                     instructions=self.instructions, **opts)
         return action_item
@@ -172,9 +172,9 @@ class Action:
                 reference_identifier=None,
                 instructions=self.instructions)
             try:
-                self.action_item_model_cls.objects.get(**opts)
+                self.action_item_model_cls().objects.get(**opts)
             except ObjectDoesNotExist:
-                self.action_item_model_cls.objects.create(**opts)
+                self.action_item_model_cls().objects.create(**opts)
 
     @classmethod
     def reference_model_url(cls, action_item=None, model_obj=None, **kwargs):
