@@ -25,12 +25,13 @@ class SimpleIdentifier:
     template = '{device_id}{random_string}'
     identifier_prefix = None
 
-    def __init__(self, template=None, random_string_length=None, identifier_prefix=None):
+    def __init__(self, template=None, random_string_length=None, identifier_prefix=None,
+                 device_id=None):
         self._identifier = None
-        edc_device_app_config = django_apps.get_app_config('edc_device')
         self.template = template or self.template
         self.random_string_length = random_string_length or self.random_string_length
-        self.device_id = edc_device_app_config.device_id
+        self.device_id = device_id or django_apps.get_app_config(
+            'edc_device').device_id
         self.identifier_prefix = identifier_prefix or self.identifier_prefix
 
     def __str__(self):
@@ -112,9 +113,11 @@ class SimpleUniqueIdentifier:
             raise IdentifierError(
                 f'Expected identifier_prefix of length=2. Got {len(identifier_prefix)}')
         self.make_human_readable = make_human_readable or self.make_human_readable
+        self.device_id = django_apps.get_app_config('edc_device').device_id
         self.model_cls.objects.create(
             identifier_type=self.identifier_type,
             sequence_number=1,
+            device_id=self.device_id,
             **{self.identifier_attr: self.identifier})
 
     def __str__(self):
@@ -150,7 +153,8 @@ class SimpleUniqueIdentifier:
         identifier_obj = self.identifier_cls(
             template=self.template,
             identifier_prefix=self.identifier_prefix,
-            random_string_length=self.random_string_length)
+            random_string_length=self.random_string_length,
+            device_id=self.device_id)
         return identifier_obj.identifier
 
     @property
