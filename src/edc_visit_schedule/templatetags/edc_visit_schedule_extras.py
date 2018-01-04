@@ -31,6 +31,8 @@ def subject_schedule_row(subject_identifier, visit_schedule, schedule, subject_d
             onschedule_datetime=onschedule_model_obj.onschedule_datetime,
             href=mark_safe(href))
     else:
+        onschedule_model_obj = schedule.onschedule_model_cls.objects.get(
+            subject_identifier=subject_identifier)
         offschedule_model_obj = schedule.offschedule_model_cls.objects.get(
             subject_identifier=subject_identifier)
         options = dict(subject_identifier=subject_identifier)
@@ -40,7 +42,7 @@ def subject_schedule_row(subject_identifier, visit_schedule, schedule, subject_d
         href = '&'.join([href, query])
         context = dict(
             offschedule_datetime=history_obj.offschedule_datetime,
-            onschedule_datetime=None,
+            onschedule_datetime=onschedule_model_obj.onschedule_datetime,
             href=mark_safe(href))
     context.update(
         visit_schedule=visit_schedule,
