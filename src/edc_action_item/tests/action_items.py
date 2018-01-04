@@ -53,9 +53,19 @@ class FormZeroAction(Action):
     priority = HIGH_PRIORITY
 
 
+class SingletonAction(Action):
+    name = 'singleton'
+    display_name = 'Singleton'
+    model = 'edc_action_item.formzero'
+    show_on_dashboard = True
+    priority = HIGH_PRIORITY
+    singleton = True
+
+
 site_action_items.register(FormZeroAction)
 site_action_items.register(FormOneAction)
 site_action_items.register(FormTwoAction)
 site_action_items.register(FormThreeAction)
 site_action_items.register(TestDoNothingPrnAction)
 site_action_items.register(TestPrnAction)
+site_action_items.register(SingletonAction)

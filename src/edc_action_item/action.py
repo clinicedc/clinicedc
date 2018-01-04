@@ -5,9 +5,16 @@ from urllib.parse import urlencode, unquote
 from uuid import uuid4
 
 
+class SingletonActionItemError(Exception):
+    pass
+
+
+class ActionItemDeleteError(Exception):
+    pass
+
+
 def create_action_item(action_cls=None, subject_identifier=None,
-                       tracking_identifier=None,
-                       singleton=None):
+                       tracking_identifier=None):
     def create():
         return action_cls.action_item_model_cls().objects.create(
             subject_identifier=subject_identifier,
@@ -21,8 +28,13 @@ def create_action_item(action_cls=None, subject_identifier=None,
     except ObjectDoesNotExist:
         obj = create()
     else:
-        if not singleton:
+        if action_cls.singleton:
+            raise SingletonActionItemError(
+                f'Unable to create action item. '
+                f'{repr(action_cls)} is a singleton class.')
+        else:
             obj = create()
+
     return obj
 
 
@@ -33,7 +45,10 @@ def delete_action_item(action_cls=None, subject_identifier=None):
             action_type=action_cls.action_type(),
             status=NEW)
     except ObjectDoesNotExist:
-        pass
+        raise ActionItemDeleteError(
+            'Unable to delete action item. '
+            f'Action item {action_cls.name} does not exist for '
+            f'{subject_identifier}.')
     except MultipleObjectsReturned:
         action_cls.action_item_model_cls().objects.filter(
             subject_identifier=subject_identifier,
