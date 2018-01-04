@@ -64,6 +64,7 @@ class Action:
     instructions = None
     priority = None
     help_text = None
+    singleton = False
 
     parent_model_fk_attr = None
     action_item_model = 'edc_action_item.actionitem'
@@ -156,25 +157,35 @@ class Action:
         """Returns the action item model instance represented by this
         Action.
         """
+        def get_or_create():
+            try:
+                action_item = self.action_item_model_cls().objects.get(
+                    reference_identifier=self.tracking_identifier, **opts)
+            except ObjectDoesNotExist:
+                action_item = self.action_item_model_cls().objects.filter(
+                    reference_identifier__isnull=True,
+                    **opts).order_by('created').first()
+                if action_item:
+                    action_item.reference_identifier = self.tracking_identifier
+                    action_item.save()
+                    action_item = self.action_item_model_cls().objects.get(
+                        pk=action_item.pk)
+                else:
+                    action_item = self.action_item_model_cls().objects.create(
+                        reference_identifier=self.tracking_identifier,
+                        instructions=self.instructions, **opts)
+            return action_item
+
         opts = dict(
             subject_identifier=self.subject_identifier,
             action_type=self.action_type())
-        try:
-            action_item = self.action_item_model_cls().objects.get(
-                reference_identifier=self.tracking_identifier, **opts)
-        except ObjectDoesNotExist:
-            action_item = self.action_item_model_cls().objects.filter(
-                reference_identifier__isnull=True,
-                **opts).order_by('created').first()
-            if action_item:
-                action_item.reference_identifier = self.tracking_identifier
-                action_item.save()
-                action_item = self.action_item_model_cls().objects.get(
-                    pk=action_item.pk)
-            else:
-                action_item = self.action_item_model_cls().objects.create(
-                    reference_identifier=self.tracking_identifier,
-                    instructions=self.instructions, **opts)
+        if self.singleton:
+            try:
+                action_item = self.action_item_model_cls().objects.get(**opts)
+            except ObjectDoesNotExist:
+                action_item = get_or_create()
+        else:
+            action_item = get_or_create()
         return action_item
 
     def get_next_actions(self):
