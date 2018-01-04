@@ -59,6 +59,16 @@ class SiteActionItemCollection:
         self.registry.get(name).action_type()
         return self.registry.get(name)
 
+    def get_show_link_to_add_actions(self):
+        class Wrapper:
+            def __init__(self, action_cls=None):
+                self.name = action_cls.name
+                self.display_name = action_cls.display_name
+                self.action_type_id = str(action_cls.action_type().pk)
+        names = [v.name for v in self.registry.values()
+                 if v.show_link_to_add]
+        return [Wrapper(action_cls=self.get(name)) for name in names]
+
     def populate_action_types(self):
         if not self.populated_action_types:
             for action_cls in self.registry.values():

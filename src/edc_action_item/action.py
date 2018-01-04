@@ -18,6 +18,7 @@ class Action:
     model = None
     show_on_dashboard = None
     show_link_to_changelist = False
+    show_link_to_add = False
     admin_site_name = None
     create_by_action = None
     create_by_user = None

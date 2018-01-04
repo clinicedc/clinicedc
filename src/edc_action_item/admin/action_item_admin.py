@@ -8,6 +8,7 @@ from ..forms import ActionItemForm
 from ..models import ActionItem
 from ..models import ActionItemUpdate
 from .modeladmin_mixins import ModelAdminMixin
+from django.conf import settings
 
 
 class ActionItemUpdateInline(TabularInlineMixin, TabularInline):
@@ -27,6 +28,11 @@ class ActionItemUpdateInline(TabularInlineMixin, TabularInline):
 class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     form = ActionItemForm
+
+    save_on_top = True
+
+    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get(
+        'subject_dashboard_url')
 
     fieldsets = (
         (None, {
@@ -95,3 +101,6 @@ class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
                 create_by_user=True)
         return super().formfield_for_foreignkey(
             db_field, request, **kwargs)
+
+    def post_url_on_delete_kwargs(self, request, obj):
+        return dict(subject_identifier=obj.subject_identifier)

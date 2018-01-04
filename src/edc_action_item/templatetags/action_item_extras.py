@@ -6,6 +6,7 @@ from edc_base.utils import convert_php_dateformat
 from urllib.parse import urlparse, parse_qsl
 
 from ..constants import HIGH_PRIORITY
+from ..site_action_items import site_action_items
 
 register = template.Library()
 
@@ -14,10 +15,12 @@ register = template.Library()
 def action_item_control(subject_identifier, subject_dashboard_url):
     action_item_add_url = (
         'edc_action_item_admin:edc_action_item_actionitem_add')
+    show_link_to_add_actions = site_action_items.get_show_link_to_add_actions()
     return dict(
         action_item_add_url=action_item_add_url,
         subject_identifier=subject_identifier,
-        subject_dashboard_url=subject_dashboard_url)
+        subject_dashboard_url=subject_dashboard_url,
+        show_link_to_add_actions=show_link_to_add_actions)
 
 
 @register.inclusion_tag('edc_action_item/action_item_with_popover.html')
