@@ -1,8 +1,47 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
-from edc_constants.constants import CLOSED
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from edc_constants.constants import CLOSED, NEW
 from urllib.parse import urlencode, unquote
 from uuid import uuid4
+
+
+def create_action_item(action_cls=None, subject_identifier=None,
+                       tracking_identifier=None,
+                       singleton=None):
+    def create():
+        return action_cls.action_item_model_cls().objects.create(
+            subject_identifier=subject_identifier,
+            action_type=action_cls.action_type(),
+            reference_identifier=tracking_identifier,
+            instructions=action_cls.instructions)
+    try:
+        obj = action_cls.action_item_model_cls().objects.get(
+            subject_identifier=subject_identifier,
+            action_type=action_cls.action_type())
+    except ObjectDoesNotExist:
+        obj = create()
+    else:
+        if not singleton:
+            obj = create()
+    return obj
+
+
+def delete_action_item(action_cls=None, subject_identifier=None):
+    try:
+        obj = action_cls.action_item_model_cls().objects.get(
+            subject_identifier=subject_identifier,
+            action_type=action_cls.action_type(),
+            status=NEW)
+    except ObjectDoesNotExist:
+        pass
+    except MultipleObjectsReturned:
+        action_cls.action_item_model_cls().objects.filter(
+            subject_identifier=subject_identifier,
+            action_type=action_cls.action_type(),
+            status=NEW).delete()
+    else:
+        obj.delete()
+    return None
 
 
 class ActionError(Exception):
