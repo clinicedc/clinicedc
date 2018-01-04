@@ -35,7 +35,8 @@ class FullNameValidator:
         if not re.match(self.regex, value):
             raise ValidationError(
                 'Invalid format. Format is \'LASTNAME, FIRSTNAME\'. '
-                'All uppercase separated by a comma')
+                'All uppercase separated by a comma. Note the space '
+                'following the comma.')
 
     def __eq__(self, other):
         return self.regex == other.regex
@@ -44,15 +45,12 @@ class FullNameValidator:
 def dob_not_future(value):
     now = get_utcnow().date()
     if now < value:
-        raise ValidationError(
-            'Date of birth cannot be a future date. '
-            'You entered {}.'.format(value))
+        raise ValidationError('Date of birth cannot be a future date.')
 
 
 def eligible_if_yes(value):
     if value != YES:
-        raise ValidationError(
-            'Participant is NOT ELIGIBLE. Registration cannot continue.')
+        raise ValidationError('Participant is not eligible.')
 
 
 def eligible_if_yes_or_declined(value):
@@ -63,49 +61,42 @@ def eligible_if_yes_or_declined(value):
 
 def eligible_if_no(value):
     if value != NO:
-        raise ValidationError(
-            'Participant is NOT ELIGIBLE. Registration cannot continue.')
+        raise ValidationError('Participant is not eligible.')
 
 
 def eligible_if_unknown(value):
     if value != UNKNOWN:
-        raise ValidationError(
-            'Participant is NOT ELIGIBLE. Registration cannot continue.')
+        raise ValidationError('Participant is not eligible.')
 
 
 def eligible_if_female(value):
     if value != 'F':
         raise ValidationError(
-            'If gender not Female, Participant is NOT ELIGIBLE and '
-            'registration cannot continue.')
+            'Expected \'Female\', Participant is not eligible.')
 
 
 def eligible_if_male(value):
     if value != MALE:
         raise ValidationError(
-            'If gender not Male, Participant is NOT ELIGIBLE and '
-            'registration cannot continue.')
+            'Expected \'Male\', Participant is not eligible.')
 
 
 def eligible_if_negative(value):
     if value != NEG:
         raise ValidationError(
             'Participant must be HIV Negative.'
-            'Participant is NOT ELIGIBLE and registration cannot continue.'
-        )
+            'Participant is not eligible.')
 
 
 def eligible_if_positive(value):
     if value != POS:
         raise ValidationError(
             'Participant must be HIV Positive.'
-            'Participant is NOT ELIGIBLE and registration cannot continue.'
-        )
+            'Participant is not eligible.')
 
 
 def eligible_not_positive(value):
     if value == POS:
         raise ValidationError(
             'Participant must be HIV Negative / Unknown.'
-            'Participant is NOT ELIGIBLE and registration cannot continue.'
-        )
+            'Participant is not eligible.')

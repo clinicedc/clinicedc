@@ -8,39 +8,34 @@ from edc_base.model_fields import IsDateEstimatedField
 from edc_constants.choices import GENDER_UNDETERMINED
 
 from ..validators import FullNameValidator
+from django.utils.safestring import mark_safe
 
 
 class PersonalFieldsMixin(CryptoMixin, models.Model):
 
     first_name = FirstnameField(
-        null=True,
-    )
+        null=True, blank=False)
 
     last_name = LastnameField(
         verbose_name="Last name",
-        null=True,
-    )
+        null=True, blank=False)
 
     initials = EncryptedCharField(
         validators=[RegexValidator(
             regex=r'^[A-Z]{2,3}$',
             message=('Ensure initials consist of letters '
-                     'only in upper case, no spaces.')), ],
-        null=True,
-    )
+                     'only in upper case, no spaces.'))],
+        null=True, blank=False)
 
     dob = models.DateField(
         verbose_name="Date of birth",
         null=True,
-        blank=False,
-        help_text="Format is YYYY-MM-DD",
-    )
+        blank=False)
 
     is_dob_estimated = IsDateEstimatedField(
         verbose_name="Is date of birth estimated?",
         null=True,
-        blank=False,
-    )
+        blank=False)
 
     gender = models.CharField(
         verbose_name="Gender",
@@ -50,13 +45,14 @@ class PersonalFieldsMixin(CryptoMixin, models.Model):
         blank=False)
 
     guardian_name = LastnameField(
-        verbose_name=("Guardian\'s Last and first name (minors only)"),
+        verbose_name=('Guardian\'s last and first name'),
         validators=[FullNameValidator()],
         blank=True,
         null=True,
-        help_text=(
-            'Required only if subject is a minor. Format is \'LASTNAME, FIRSTNAME\'. '
-            'All uppercase separated by a comma then followe by a space.'))
+        help_text=mark_safe(
+            'Required only if participant is a minor.<BR>'
+            'Format is \'LASTNAME, FIRSTNAME\'. '
+            'All uppercase separated by a comma.'))
 
     subject_type = models.CharField(
         max_length=25)

@@ -32,6 +32,10 @@ class ConsentModelMixin(SiteModelMixin, VerificationFieldsMixin, models.Model):
             datetime_not_before_study_start,
             datetime_not_future])
 
+    report_datetime = models.DateTimeField(
+        null=True,
+        editable=False)
+
     version = models.CharField(
         verbose_name='Consent version',
         max_length=10,
@@ -45,6 +49,7 @@ class ConsentModelMixin(SiteModelMixin, VerificationFieldsMixin, models.Model):
         max_length=15,
         null=True,
         blank=True,
+        editable=False,
         help_text='Used for randomization against a prepared rando-list.')
 
     comment = EncryptedTextField(
@@ -78,15 +83,12 @@ class ConsentModelMixin(SiteModelMixin, VerificationFieldsMixin, models.Model):
         return (self.subject_identifier_as_pk, )
 
     def save(self, *args, **kwargs):
+        self.report_datetime = self.consent_datetime
         consent_helper = self.consent_helper_cls(
             model_cls=self.__class__, update_previous=True, **self.__dict__)
         self.version = consent_helper.version
         self.updates_versions = True if consent_helper.updates_versions else False
         super().save(*args, **kwargs)
-
-    @property
-    def report_datetime(self):
-        return self.consent_datetime
 
     @property
     def age_at_consent(self):
@@ -104,6 +106,7 @@ class ConsentModelMixin(SiteModelMixin, VerificationFieldsMixin, models.Model):
         abstract = True
         consent_group = None
         get_latest_by = 'consent_datetime'
-        unique_together = (('first_name', 'dob', 'initials',
-                            'version'), ('subject_identifier', 'version'))
+        unique_together = (
+            ('first_name', 'dob', 'initials',
+             'version'), ('subject_identifier', 'version'))
         ordering = ('created', )
