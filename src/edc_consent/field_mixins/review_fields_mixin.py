@@ -37,7 +37,8 @@ class ReviewFieldsMixin(models.Model):
         help_text='If no, participant is not eligible.')
 
     consent_signature = models.CharField(
-        verbose_name=('The participant has signed the consent form?'),
+        verbose_name=(
+            'I have verified that the participant has signed the consent form'),
         max_length=3,
         choices=YES_NO,
         validators=[eligible_if_yes, ],

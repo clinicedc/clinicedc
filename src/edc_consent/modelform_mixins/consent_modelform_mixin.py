@@ -219,7 +219,7 @@ class ConsentModelFormMixin:
         consent_reviewed = self.cleaned_data.get('consent_reviewed')
         if consent_reviewed != YES:
             raise forms.ValidationError(
-                'Consent has not been reviewed with the Subject.',
+                'Complete this part of the informed consent process before continuing.',
                 code='invalid')
         return consent_reviewed
 
@@ -227,8 +227,7 @@ class ConsentModelFormMixin:
         study_questions = self.cleaned_data.get('study_questions')
         if study_questions != YES:
             raise forms.ValidationError(
-                'Subject\'s questions related to the consent have not '
-                'been answer or discussed.',
+                'Complete this part of the informed consent process before continuing.',
                 code='invalid')
         return study_questions
 
@@ -236,8 +235,7 @@ class ConsentModelFormMixin:
         assessment_score = self.cleaned_data.get('assessment_score')
         if assessment_score != YES:
             raise forms.ValidationError(
-                'The scored assessment of the subject\'s understanding '
-                'of the consent should at least be passing.',
+                'Complete this part of the informed consent process before continuing.',
                 code='invalid')
         return assessment_score
 
@@ -245,7 +243,7 @@ class ConsentModelFormMixin:
         consent_copy = self.cleaned_data.get('consent_copy')
         if consent_copy == NO:
             raise forms.ValidationError(
-                'The subject has not been given a copy of the consent.',
+                'Complete this part of the informed consent process before continuing.',
                 code='invalid')
         return consent_copy
 
@@ -253,12 +251,13 @@ class ConsentModelFormMixin:
         consent_signature = self.cleaned_data.get('consent_signature')
         if consent_signature != YES:
             raise forms.ValidationError(
-                'The subject has not signed the consent.',
+                'Complete this part of the informed consent process before continuing.',
                 code='invalid')
         return consent_signature
 
     def clean_gender_of_consent(self):
-        """Validates gender is a gender of consent."""
+        """Validates gender is a gender of consent.
+        """
         gender = self.cleaned_data.get("gender")
         if gender not in self.consent_config.gender:
             raise forms.ValidationError(
