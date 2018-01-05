@@ -85,6 +85,9 @@ class SiteVisitSchedules:
         return visit_schedules or self.registry
 
     def get_by_onschedule_model(self, onschedule_model=None):
+        """Returns a tuple of visit_schedule, schedule
+        for the given onschedule model.
+        """
         schedule = None
         for visit_schedule in self.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
@@ -96,6 +99,9 @@ class SiteVisitSchedules:
         return None
 
     def get_by_offschedule_model(self, offschedule_model=None):
+        """Returns a tuple of visit_schedule, schedule
+        for the given offschedule model.
+        """
         for visit_schedule in self.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
                 if schedule.offschedule_model == offschedule_model:

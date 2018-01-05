@@ -12,6 +12,7 @@ from ..models import SubjectScheduleHistory
 from ..site_visit_schedules import site_visit_schedules, RegistryNotLoaded
 from .models import OnSchedule, OffSchedule, SubjectVisit, CrfOne
 from .visit_schedule import visit_schedule
+from pprint import pprint
 
 
 class TestModels(SiteTestCaseMixin, TestCase):
@@ -104,6 +105,52 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier='1234',
             offschedule_datetime=appointment.appt_datetime)
         self.assertEqual(Appointment.objects.all().count(), 1)
+
+    @tag('1')
+    def test_onschedules_manager(self):
+        """Assert can enter a CRF.
+        """
+
+        onschedule = OnSchedule.objects.create(
+            subject_identifier='1234',
+            onschedule_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc))
+
+        history = SubjectScheduleHistory.objects.onschedules(
+            subject_identifier='1234')
+        self.assertEqual([onschedule], [obj for obj in history])
+
+        onschedules = SubjectScheduleHistory.objects.onschedules(
+            subject_identifier='1234', report_datetime=get_utcnow())
+        self.assertEqual([onschedule], [obj for obj in onschedules])
+
+        onschedules = SubjectScheduleHistory.objects.onschedules(
+            subject_identifier='1234',
+            report_datetime=datetime(2017, 11, 30, 0, 0, 0, 0, pytz.utc))
+        self.assertEqual(0, len(onschedules))
+
+        # add offschedule
+        OffSchedule.objects.create(
+            subject_identifier='1234',
+            offschedule_datetime=datetime(2017, 12, 15, 0, 0, 0, 0, pytz.utc))
+
+        onschedules = SubjectScheduleHistory.objects.onschedules(
+            subject_identifier='1234',
+            report_datetime=datetime(2017, 11, 30, 0, 0, 0, 0, pytz.utc))
+        self.assertEqual(0, len(onschedules))
+
+        onschedules = SubjectScheduleHistory.objects.onschedules(
+            subject_identifier='1234',
+            report_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc))
+        self.assertEqual([onschedule], [obj for obj in onschedules])
+
+        onschedules = SubjectScheduleHistory.objects.onschedules(
+            subject_identifier='1234',
+            report_datetime=datetime(2017, 12, 2, 0, 0, 0, 0, pytz.utc))
+        self.assertEqual([onschedule], [obj for obj in onschedules])
+        onschedules = SubjectScheduleHistory.objects.onschedules(
+            subject_identifier='1234',
+            report_datetime=datetime(2018, 1, 1, 0, 0, 0, 0, pytz.utc))
+        self.assertEqual(0, len(onschedules))
 
     def test_natural_key(self):
         obj = OnSchedule.objects.create(subject_identifier='1234')
