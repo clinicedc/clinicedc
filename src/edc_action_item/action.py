@@ -271,6 +271,7 @@ class Action:
         """
         next_actions = next_actions or []
         required = True if required is None else required
+        self.delete_if_new(action_cls)
         try:
             self.action_item_model_cls().objects.get(
                 subject_identifier=self.model_obj.subject_identifier,
