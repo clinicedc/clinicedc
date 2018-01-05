@@ -1,5 +1,4 @@
 import re
-from numpy import place
 
 
 class InvalidUnits(Exception):
