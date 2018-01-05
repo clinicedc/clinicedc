@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from edc_constants.constants import CLOSED, NEW
+from edc_constants.constants import CLOSED, NEW, OPEN
 from urllib.parse import urlencode, unquote
 from uuid import uuid4
 
@@ -221,6 +221,9 @@ class Action:
             self.object.status = CLOSED
             self.object.save(update_fields=['status'])
             self.create_next()
+        else:
+            self.object.status = OPEN
+            self.object.save(update_fields=['status'])
 
     def create_next(self):
         """Creates any next action items if they do not already exist.
