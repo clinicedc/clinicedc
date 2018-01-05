@@ -77,6 +77,7 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
         action_identifier=action_item.action_identifier,
         action_instructions=action_item.instructions,
         action_item_reason=action_item_reason,
+        action_item_color=model_cls.action_cls.color_style,
         display_name=action_item.action_type.display_name,
         href=action_item_model_wrapper.href,
         last_updated_text=text,

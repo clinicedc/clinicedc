@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.options import TabularInline
 from edc_model_admin import audit_fieldset_tuple
@@ -8,7 +9,6 @@ from ..forms import ActionItemForm
 from ..models import ActionItem
 from ..models import ActionItemUpdate
 from .modeladmin_mixins import ModelAdminMixin
-from django.conf import settings
 
 
 class ActionItemUpdateInline(TabularInlineMixin, TabularInline):

@@ -10,7 +10,7 @@
 
 <a id="actionitem-{{action_identifier}}"
 tabindex="{{ tabindex }}"
-class="list-group-item list-group-item-{% if priority == HIGH_PRIORITY %}danger{% else %}default{% endif %}"
+class="list-group-item list-group-item-{{ action_item_color }}"
 href="#" data-toggle="popover" data-placement="left" data-html="true" title="Action Item" role="button"
 data-content="
 <div class='list-group'>
@@ -25,7 +25,7 @@ data-content="
 </p>
 </div>
 {% if model_url %}
-<a id='referencemodel-change-{{ action_identifier }}' class='list-group-item list-group-item-danger' href='{{ model_url }}'>
+<a id='referencemodel-change-{{ action_identifier }}' class='list-group-item list-group-item-{{ action_item_color }}' href='{{ model_url }}'>
 <i class='fa fa-plus fa-fw pull-left' aria-hidden='true'></i> {{ model_name }}
 </a>
 {% endif %}
@@ -40,9 +40,9 @@ data-content="
 </a>
 </div>
 ">
-<span class="text text-danger">
+<span class="text text-{{ action_item_color }}">
 <i class="fa fa-bell fa-1x fa-fw" aria-hidden="true"></i> </span>
-<span class="text text-default">
+<span class="text text-{{ action_item_color }}">
 <small>{{ display_name }}</small>
 </span>
 </a>

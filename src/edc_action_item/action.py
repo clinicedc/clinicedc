@@ -80,6 +80,7 @@ class Action:
     priority = None
     help_text = None
     singleton = False
+    color_style = 'danger'
 
     parent_model_fk_attr = None
     action_item_model = 'edc_action_item.actionitem'
@@ -260,3 +261,29 @@ class Action:
         else:
             path = cls.reference_model_cls()().get_absolute_url()
         return '?'.join([path, query])
+
+    def append_to_next_if_required(self, next_actions=None,
+                                   action_cls=None, required=None):
+        """Returns next actions where action_cls is
+        appended if required.
+
+        Will not create if the next action item already exists.
+        """
+        next_actions = next_actions or []
+        required = True if required is None else required
+        try:
+            self.action_item_model_cls().objects.get(
+                subject_identifier=self.model_obj.subject_identifier,
+                parent_reference_identifier=self.model_obj.tracking_identifier,
+                reference_model=action_cls.model)
+        except ObjectDoesNotExist:
+            if required:
+                next_actions.append(action_cls)
+        return next_actions
+
+    def delete_if_new(self, action_cls=None):
+        return self.action_item_model_cls().objects.filter(
+            subject_identifier=self.model_obj.subject_identifier,
+            parent_reference_identifier=self.model_obj.tracking_identifier,
+            reference_model=action_cls.model,
+            status=NEW).delete()

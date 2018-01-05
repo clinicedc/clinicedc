@@ -59,6 +59,14 @@ class SiteActionItemCollection:
         self.registry.get(name).action_type()
         return self.registry.get(name)
 
+    def get_by_model(self, model=None):
+        """Returns the action_cls linked to this model.
+        """
+        for action_cls in self.registry.values():
+            if action_cls.model == model:
+                return self.registry.get(action_cls.name)
+        return None
+
     def get_show_link_to_add_actions(self):
         class Wrapper:
             def __init__(self, action_cls=None):
