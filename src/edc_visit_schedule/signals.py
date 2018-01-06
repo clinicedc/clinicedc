@@ -32,7 +32,8 @@ def offschedule_model_on_post_delete(instance, **kwargs):
     else:
         if schedule.offschedule_model == instance._meta.label_lower:
             history_obj = schedule.history_model_cls.objects.get(
-                subject_identifier=instance.subject_identifier)
+                subject_identifier=instance.subject_identifier,
+                onschedule_model=schedule.onschedule_model)
             history_obj.offschedule_datetime = None
             history_obj.schedule_status = ON_SCHEDULE
             history_obj.save()
