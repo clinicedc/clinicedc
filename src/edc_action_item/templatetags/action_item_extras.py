@@ -25,6 +25,7 @@ def action_item_control(subject_identifier, subject_dashboard_url):
 
 @register.inclusion_tag('edc_action_item/action_item_with_popover.html')
 def action_item_with_popover(action_item_model_wrapper, tabindex):
+    strike_thru = None
     action_item = action_item_model_wrapper.object
     date_format = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
     last_updated = action_item.last_updated
@@ -42,35 +43,41 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
         model_cls = django_apps.get_model(action_item.action_type.model)
         query_dict = dict(
             parse_qsl(urlparse(action_item_model_wrapper.href).query))
-        model_url = model_cls.action_cls.reference_model_url(
-            action_item=action_item,
-            action_identifier=action_item.action_identifier,
-            **query_dict)
         parent_model_url = None
         parent_model_name = None
         action_item_reason = None
         parent_action_identifier = None
-        if action_item.parent_action_item:
-            # parent action item
-            parent_model_cls = django_apps.get_model(
-                action_item.parent_action_item.action_type.model)
-            # parent reference model and url
-            try:
-                parent_obj = parent_model_cls.objects.get(
-                    tracking_identifier=action_item.parent_reference_identifier)
-            except ObjectDoesNotExist:
-                pass
-            else:
-                parent_model_url = model_cls.action_cls.reference_model_url(
-                    model_obj=parent_obj,
-                    action_item=action_item,
-                    action_identifier=action_item.action_identifier,
-                    **query_dict)
+        try:
+            model_url = model_cls.action_cls.reference_model_url(
+                action_item=action_item,
+                action_identifier=action_item.action_identifier,
+                **query_dict)
+        except ObjectDoesNotExist:
+            # object wont exist if an action item was deleted
+            # that was created by another action item.
+            strike_thru = True
+        else:
+            if action_item.parent_action_item:
+                # parent action item
+                parent_model_cls = django_apps.get_model(
+                    action_item.parent_action_item.action_type.model)
+                # parent reference model and url
+                try:
+                    parent_obj = parent_model_cls.objects.get(
+                        tracking_identifier=action_item.parent_reference_identifier)
+                except ObjectDoesNotExist:
+                    pass
+                else:
+                    parent_model_url = model_cls.action_cls.reference_model_url(
+                        model_obj=parent_obj,
+                        action_item=action_item,
+                        action_identifier=action_item.action_identifier,
+                        **query_dict)
 
-                parent_model_name = (
-                    f'{parent_model_cls._meta.verbose_name} {parent_obj.identifier}')
-                action_item_reason = parent_obj.action_item_reason
-            parent_action_identifier = action_item.parent_action_item.action_identifier
+                    parent_model_name = (
+                        f'{parent_model_cls._meta.verbose_name} {parent_obj.identifier}')
+                    action_item_reason = parent_obj.action_item_reason
+                parent_action_identifier = action_item.parent_action_item.action_identifier
 
     return dict(
         HIGH_PRIORITY=HIGH_PRIORITY,
@@ -92,4 +99,4 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
         report_datetime=action_item.report_datetime,
         status=action_item.get_status_display(),
         tabindex=tabindex,
-    )
+        strike_thru=strike_thru)

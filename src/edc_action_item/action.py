@@ -255,7 +255,7 @@ class Action:
             try:
                 value = getattr(action_item.parent_object,
                                 cls.parent_model_fk_attr)
-            except AttributeError:
+            except (ObjectDoesNotExist, AttributeError):
                 value = action_item.parent_object
             kwargs.update({cls.parent_model_fk_attr: str(value.pk)})
         query = unquote(urlencode(kwargs))
