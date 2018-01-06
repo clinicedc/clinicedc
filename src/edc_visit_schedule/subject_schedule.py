@@ -5,6 +5,7 @@ from edc_appointment.creators import AppointmentsCreator
 from edc_base.utils import get_utcnow, convert_php_dateformat
 
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
+from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
 
 
 class SubjectScheduleError(Exception):
@@ -179,6 +180,15 @@ class SubjectSchedule:
             history_obj.offschedule_datetime = offschedule_datetime
             history_obj.schedule_status = OFF_SCHEDULE
             history_obj.save()
+
+            # update in_progress appointment
+            for obj in self.appointment_model_cls.objects.filter(
+                    subject_identifier=subject_identifier,
+                    schedule_name=self.schedule_name,
+                    visit_schedule_name=self.visit_schedule_name,
+                    appt_status=IN_PROGRESS_APPT):
+                obj.appt_status = COMPLETE_APPT
+                obj.save()
 
             # clear future appointments
             self.appointment_model_cls.objects.delete_for_subject_after_date(
