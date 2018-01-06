@@ -1,1 +1,1 @@
-from .subject_locator_form import SubjectLocatorForm
+from .subject_locator_form import SubjectLocatorForm, SubjectLocatorFormValidator

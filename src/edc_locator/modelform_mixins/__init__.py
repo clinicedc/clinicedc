@@ -1,1 +1,0 @@
-from .locator_modelform_mixin import LocatorModelFormMixin

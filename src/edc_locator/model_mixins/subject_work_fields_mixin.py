@@ -1,6 +1,6 @@
 from django.db import models
 from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
-from edc_base.model_validators import TelephoneNumber
+from edc_base.model_validators import TelephoneNumber, CellNumber
 from edc_constants.choices import YES_NO
 from django.utils.safestring import mark_safe
 
@@ -17,12 +17,18 @@ class SubjectWorkFieldsMixin(models.Model):
     subject_work_place = EncryptedTextField(
         verbose_name='Name and location of work place',
         max_length=250,
-        validators=[TelephoneNumber, ],
         blank=True,
         null=True)
 
     subject_work_phone = EncryptedCharField(
-        verbose_name='Work contact number',
+        verbose_name='Work contact telephone',
+        validators=[TelephoneNumber, ],
+        blank=True,
+        null=True)
+
+    subject_work_cell = EncryptedCharField(
+        verbose_name='Work contact cell number',
+        validators=[CellNumber, ],
         blank=True,
         null=True)
 

@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.http.request import HttpRequest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from unittest.case import skip
+from edc_registration.models import RegisteredSubject
 
 from ..view_mixins import SubjectLocatorViewMixin, SubjectLocatorViewMixinError
 
@@ -12,6 +13,11 @@ class DummyModelWrapper:
 
 
 class TestViewMixins(TestCase):
+
+    def setUp(self):
+        self.subject_identifier = '12345'
+        RegisteredSubject.objects.create(
+            subject_identifier=self.subject_identifier)
 
     def test_subject_locator_raises_on_bad_model(self):
 
@@ -39,7 +45,7 @@ class TestViewMixins(TestCase):
             subject_locator_model = 'edc_locator.subjectlocator'
 
         mixin = MySubjectLocatorViewMixin()
-        mixin.kwargs = {'subject_identifier': '12345'}
+        mixin.kwargs = {'subject_identifier': self.subject_identifier}
         mixin.request = HttpRequest()
         setattr(mixin.request, 'session', 'session')
         messages = FallbackStorage(mixin.request)
@@ -58,7 +64,7 @@ class TestViewMixins(TestCase):
         messages = FallbackStorage(mixin.request)
         setattr(mixin.request, '_messages', messages)
         # add this manually
-        mixin.kwargs = {'subject_identifier': '12345'}
+        mixin.kwargs = {'subject_identifier': self.subject_identifier}
         try:
             mixin.get_context_data()
         except SubjectLocatorViewMixinError as e:

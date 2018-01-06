@@ -18,7 +18,8 @@ work_contacts_fieldset = (
         'fields': (
             'may_call_work',
             'subject_work_place',
-            'subject_work_phone')})
+            'subject_work_phone',
+            'subject_work_cell')})
 )
 
 indirect_contacts_fieldset = (
