@@ -152,4 +152,4 @@ class RequiredFieldValidator(BaseFormValidator):
                 f'At least one valid response for field \'{field}\' must be provided.')
         elif not field_required:
             raise InvalidModelFormFieldValidator(
-                f'The required field cannot be None.')
+                f'"field_required" cannot be None.')
