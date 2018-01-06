@@ -2,9 +2,7 @@ import re
 
 from django.apps import apps as django_apps
 
-from ..simple_model_validator import SimpleModelValidator
 from .schedules_collection import SchedulesCollection
-from edc_visit_schedule.simple_model_validator import InvalidModel
 
 
 class VisitScheduleError(Exception):
