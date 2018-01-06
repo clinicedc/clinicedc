@@ -3,6 +3,7 @@
 {% load edc_visit_schedule_extras %}
 
 {% block main %}
+
 <div id="subject_dashboard" class="container">
 
   <div class="col-md-9">
@@ -10,7 +11,7 @@
     <div class="panel-group" id="accordion_schedule">
 
 	{% block alert %}
-			{% include 'edc_dashboard/alert_messages.html' %}
+		{% include 'edc_dashboard/alert_messages.html' %}
 	{% endblock alert %}
         
         {% if not visit_schedules %}
@@ -80,9 +81,9 @@
 			    {% endfor %}
 		    {% endfor %}
 	    {% endif %}
-    </div>	
+    </div> <!-- panel-group -->
   
- </div>
+ </div> <!-- col-md-9 -->
 
   <div class="col-md-3">
 
@@ -97,7 +98,7 @@
 	    {% include 'edc_subject_dashboard/dashboard/sidebar.html' %}
 
     {% endblock side_bar %}
-  </div>
 
-</div>
+</div> <!-- col-md-3 -->
+</div> <!-- container -->
 {% endblock main %}

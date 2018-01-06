@@ -21,5 +21,7 @@ class RegisteredSubjectViewMixin(ContextMixin):
             gender=obj.gender,
             dob=obj.dob,
             initials=obj.initials,
-            identity=obj.identity)
+            identity=obj.identity,
+            firstname=obj.first_name,
+            lastname=obj.last_name)
         return context

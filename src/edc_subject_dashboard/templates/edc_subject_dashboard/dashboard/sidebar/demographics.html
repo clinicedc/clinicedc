@@ -1,22 +1,11 @@
 {% load edc_base_extras %}
 
 <div class="list-group">
-{% if subject_offstudy %}
-    <a class="list-group-item list-group-item-danger">
-       <i class="fa fa-ban fa-fw" aria-hidden="true"></i>
-           Offstudy {{ subject_offstudy.offstudy_datetime|date:"SHORT_DATE_FORMAT"}}
-    </a>
-{% endif %}
-
-    <a class="list-group-item"><i class="fa fa-birthday-cake fa-fw"></i>
-     {{ dob|date:"SHORT_DATE_FORMAT" }}
-     {% age_in_years dob %} yrs
-   </a>
-    <a class="list-group-item"><i class="fa fa-address-card-o fa-fw"></i>
-        {{ identity|default:'?? identity' }} {{ initials }}
-    </a>
-
-{% for fa_icon, text in demographics_listgroup %}
-    <a class="list-group-item"><i class="fa {{ fa_icon }} fa-fw"></i> <small>{{ text }}</small></a>      
-{% endfor %}
+<a class="list-group-item"><i class="fa fa-birthday-cake fa-fw"></i>
+{{ dob|date:"SHORT_DATE_FORMAT" }}
+{% age_in_years dob %} yrs
+</a>
+<a class="list-group-item"><i class="fa fa-address-card-o fa-fw"></i>
+{{ identity|default:'?? identity' }} <span data-toggle="tooltip" data-placement="right" title="{{ firstname }} {{ lastname }}" class="text text-default">{{ initials }}<sup><i class="fa fa-asterisk fa-fw"></i></sup></span>
+</a>
 </div>
