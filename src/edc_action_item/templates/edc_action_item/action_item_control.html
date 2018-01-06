@@ -1,16 +1,20 @@
 
 <div class="list-group-item list-group-item-default" title="Action Item">
+
 <a id="show_link_to_add_actions"
 class="btn btn-warning btn-sm"
 href="#" data-toggle="popover" data-placement="left" data-html="true" title="Add New Action Item" role="button"
-data-content="<div class='list-group'>
+data-content="
+<div class='list-group'>
 {% for show_link_to_add_action in show_link_to_add_actions %}
 <a id='show-link-to-add-{{ show_link_to_add_action.name }}' class='list-group-item list-group-item-warning'
 href='{% url action_item_add_url %}?next={{ subject_dashboard_url }},subject_identifier&subject_identifier={{ subject_identifier }}&action_type={{show_link_to_add_action.action_type_id}}'>
-<i class='fa fa-plus fa-fw pull-left' aria-hidden='true'></i> {{ show_link_to_add_action.display_name }}</a>	
+<i class='fa fa-plus fa-fw pull-left' aria-hidden='true'></i> {{ show_link_to_add_action.display_name }}
+</a>	
 {% endfor %}
 </div>">
-<i class="fa fa-plus fa-1x fa-fw" aria-hidden="true"></i></a>
+<i class="fa fa-plus fa-1x fa-fw" aria-hidden="true"></i>
+</a>
 <a class="btn btn-default btn-sm" data-toggle="tooltip"  title="Go to list of Action Items for {{ subject_identifier}}"
 	href="{% url 'edc_action_item_admin:edc_action_item_actionitem_changelist' %}?q={{ subject_identifier }}">
     <i class="fa fa-bell fa-1x fa-fw" aria-hidden="true"></i> Action Items
