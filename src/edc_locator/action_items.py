@@ -12,6 +12,7 @@ class SubjectLocatorAction(Action):
     show_link_to_changelist = True
     admin_site_name = 'edc_locator_admin'
     priority = HIGH_PRIORITY
+    singleton = True
 
 
 site_action_items.register(SubjectLocatorAction)
