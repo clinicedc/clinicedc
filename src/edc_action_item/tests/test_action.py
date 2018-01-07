@@ -12,6 +12,7 @@ from ..templatetags.action_item_extras import action_item_with_popover
 from .action_items import FormOneAction, FormTwoAction, FormThreeAction, FormZeroAction
 from .action_items import SingletonAction
 from .models import FormZero, FormOne, FormTwo, FormThree, SubjectIdentifierModel
+from pprint import pprint
 
 
 class TestAction(TestCase):
@@ -386,6 +387,37 @@ class TestAction(TestCase):
                          form_one.action_identifier)
         self.assertEqual(context.get('parent_action_item'),
                          form_one.action_item)
+
+    @tag('1')
+    def test_popover_templatetag_action_url_if_reference_model_exists(self):
+        """Asserts returns a change url if reference model
+        exists.
+        """
+        class ActionItemModelWrapper(ModelWrapper):
+
+            model = 'edc_action_item.actionitem'
+            next_url_attrs = ['subject_identifier']
+            next_url_name = settings.DASHBOARD_URL_NAMES.get(
+                'subject_dashboard_url')
+
+            @property
+            def subject_identifier(self):
+                return self.object.subject_identifier
+
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
+        obj = ActionItem.objects.get(
+            action_identifier=form_one.action_identifier)
+        self.assertTrue(obj.status == CLOSED)
+        obj.status = OPEN
+        obj.save()
+        wrapper = ActionItemModelWrapper(model_obj=obj)
+        action_item_with_popover(wrapper, 0)
+        context = action_item_with_popover(wrapper, 0)
+        url = context.get('model_url')
+        self.assertTrue(
+            url.startswith(
+                f'/admin/edc_action_item/formone/{str(form_one.pk)}/change/'), msg=url)
 
     def test_create(self):
         create_action_item(

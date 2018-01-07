@@ -15,8 +15,8 @@ href="#" data-toggle="popover" data-placement="left" data-html="true" title="Act
 data-content="
 <div class='list-group'>
 <div class='list-group-item list-group-item-default'><p><small>{{ action_identifier }}</small></p>
-<span class='label label-default'>{{ status }}</span>
-<span class='label label-{% if priority == HIGH_PRIORITY %}danger{% else %}warning{% endif %}'>{{ priority }}</span>
+<span class='label label-{% if status == OPEN %}info{% else %}default{% endif %}'>{{ status }}</span>
+<span class='label label-{% if priority == HIGH_PRIORITY %}danger{% else %}warning{% endif %}'>{{ priority|title }}</span>
 <h6>{{ display_name }}</h6>
 <p class='text text-muted'>{{ action_item_reason|default:'---'|truncatechars:250 }}</p>
 {% if action_instructions %}<p class='text text-muted'><small>{{ action_instructions|truncatechars:250 }}</small></p>{% endif %}
@@ -26,7 +26,7 @@ data-content="
 </div>
 {% if model_url %}
 <a id='referencemodel-change-{{ action_identifier }}' class='list-group-item list-group-item-{{ action_item_color }}' href='{{ model_url }}'>
-<i class='fa fa-plus fa-fw pull-left' aria-hidden='true'></i> {{ model_name }}
+{% if reference_model_obj %}<i class='fa fa-pencil fa-fw pull-left' aria-hidden='true'></i>{% else %}<i class='fa fa-plus fa-fw pull-left' aria-hidden='true'></i>{% endif %} {{ model_name }}
 </a>
 {% endif %}
 {% if parent_model_url %}
