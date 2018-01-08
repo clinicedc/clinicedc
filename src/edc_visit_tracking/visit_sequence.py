@@ -14,8 +14,11 @@ class VisitSequence:
 
     def __init__(self, appointment=None):
         self.appointment = appointment
-        self.model_cls = self.appointment.visit.__class__
         self.appointment_model_cls = self.appointment.__class__
+        self.model_cls = getattr(
+            self.appointment_model_cls,
+            self.appointment_model_cls.related_visit_model_attr()
+        ).related.related_model
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.visit_code = self.appointment.visit_code
