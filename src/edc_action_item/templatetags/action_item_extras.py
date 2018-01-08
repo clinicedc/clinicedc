@@ -78,6 +78,14 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
                 except ObjectDoesNotExist:
                     pass
                 else:
+                    try:
+                        subject_visit = parent_obj.visit
+                    except (AttributeError, ObjectDoesNotExist):
+                        pass
+                    else:
+                        # parent model is a CRF, add visit to querystring
+                        query_dict.update({
+                            parent_obj.visit_model_attr(): str(subject_visit.pk)})
                     parent_model_url = reference_model_cls.action_cls.reference_model_url(
                         model_obj=parent_obj,
                         action_item=action_item,
