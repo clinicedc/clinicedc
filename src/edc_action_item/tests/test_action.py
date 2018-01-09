@@ -12,7 +12,6 @@ from ..templatetags.action_item_extras import action_item_with_popover
 from .action_items import FormOneAction, FormTwoAction, FormThreeAction, FormZeroAction
 from .action_items import SingletonAction
 from .models import FormZero, FormOne, FormTwo, FormThree, SubjectIdentifierModel
-from pprint import pprint
 
 
 class TestAction(TestCase):

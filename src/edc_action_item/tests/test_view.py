@@ -1,18 +1,11 @@
 from django.test import TestCase, tag
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
-from edc_constants.constants import CLOSED, OPEN
+from django.urls.base import reverse
 from edc_model_wrapper import ModelWrapper
 
 from ..models import ActionItem, ActionType
-from ..site_action_items import site_action_items
-from ..templatetags.action_item_extras import action_item_with_popover
-from .action_items import FormOneAction, FormTwoAction, FormThreeAction, FormZeroAction
-from .models import FormZero, FormOne, FormTwo, FormThree, SubjectIdentifierModel
-from edc_action_item.view_mixins.action_item_view_mixin import ActionItemViewMixin
-from pprint import pprint
-from edc_action_item.templatetags.action_item_extras import action_item_control
-from django.urls.base import reverse
+from ..templatetags.action_item_extras import add_action_item_popover
+from ..view_mixins import ActionItemViewMixin
+from .models import SubjectIdentifierModel
 
 
 class MyModelWrapper(ModelWrapper):
@@ -54,6 +47,6 @@ class TestAction(TestCase):
                          ActionItem.objects.all().count())
 
     def test_templatetag(self):
-        context = action_item_control(
+        context = add_action_item_popover(
             self.subject_identifier, 'subject_dashboard_url')
         reverse(context.get('action_item_add_url'))

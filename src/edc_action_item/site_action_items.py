@@ -24,6 +24,10 @@ class SiteActionItemCollection:
 
     def __init__(self):
         self.registry = OrderedDict()
+        prn = Prn(
+            model='edc_action_item.actionitem',
+            url_namespace='edc_action_item_admin')
+        site_prn_forms.register(prn)
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'

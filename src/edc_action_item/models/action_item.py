@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.deletion import PROTECT
@@ -183,17 +182,11 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
             return self.parent_reference_identifier[-9:]
         return None
 
-    @property
-    def dashboard(self):
-        url = reverse(settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url"),
-                      kwargs=dict(subject_identifier=self.subject_identifier))
-        return mark_safe(
-            f'<a data-toggle="tooltip" title="go to subject dashboard" '
-            f'href="{url}">{self.subject_identifier}</a>')
-
     def natural_key(self):
         return (self.action_identifier, )
 
     class Meta:
+        verbose_name = 'Action Item'
+        verbose_name_plural = 'Action Items'
         unique_together = ('subject_identifier',
                            'action_type', 'reference_identifier')

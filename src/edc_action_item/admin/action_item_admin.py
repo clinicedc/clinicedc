@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.admin.options import TabularInline
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.inlines import TabularInlineMixin
+from edc_subject_dashboard import ModelAdminSubjectDashboardMixin
 
 from ..admin_site import edc_action_item_admin
 from ..forms import ActionItemForm
@@ -25,14 +26,16 @@ class ActionItemUpdateInline(TabularInlineMixin, TabularInline):
 
 
 @admin.register(ActionItem, site=edc_action_item_admin)
-class ActionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
+class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
 
     form = ActionItemForm
 
     save_on_top = True
 
+    subject_dashboard_url = 'subject_dashboard_url'
+
     post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get(
-        'subject_dashboard_url')
+        subject_dashboard_url)
 
     fieldsets = (
         (None, {

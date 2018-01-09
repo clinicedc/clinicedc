@@ -13,8 +13,8 @@ from ..site_action_items import site_action_items
 register = template.Library()
 
 
-@register.inclusion_tag('edc_action_item/action_item_control.html')
-def action_item_control(subject_identifier, subject_dashboard_url):
+@register.inclusion_tag('edc_action_item/add_action_item_popover.html')
+def add_action_item_popover(subject_identifier, subject_dashboard_url):
     action_item_add_url = (
         'edc_action_item_admin:edc_action_item_actionitem_add')
     show_link_to_add_actions = site_action_items.get_show_link_to_add_actions()
