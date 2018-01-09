@@ -3,6 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_base import get_utcnow
+from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
@@ -17,6 +18,7 @@ class TestVisit(TestCase):
     helper_cls = Helper
 
     def setUp(self):
+        import_holidays()
         self.subject_identifier = '12345'
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier)
