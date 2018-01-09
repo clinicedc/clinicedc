@@ -12,13 +12,26 @@
 {% endblock demographics %}
 
 
-{% block action_items_and_prn %}   
+{% block prn_forms %}   
 
-    {% action_item_control subject_identifier subject_dashboard_url %}
+	<div class="list-group list-group-default">
+
+    {% add_action_item_popover subject_identifier subject_dashboard_url %}
+    
+    {% if appointment %}
+    	{% toggle_prn_crf_popover appointment.object subject_dashboard_url %}
+    	{% toggle_prn_requisition_popover appointment.object subject_dashboard_url %}
+    {% endif %}
+    
+	</div>
+{% endblock prn_forms %}
+
+{% block prn_lists %}   
 
     {% prn_list_items subject_identifier %}
 
-{% endblock action_items_and_prn %}
+{% endblock prn_lists %}
+
 
 {% block consents %}
 

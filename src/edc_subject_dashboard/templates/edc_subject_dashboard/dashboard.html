@@ -34,7 +34,7 @@
 			  <h6 class="panel-title"><i class="fa fa-calendar fa-lg fa-fw"></i> 
 			      <a data-toggle="collapse" data-parent="#accordion_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}" aria-hidden="true"
 			         href="#subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}">
-			         {{ current_visit_schedule.verbose_name }}: {{ current_schedule.verbose_name }}
+			         {{ current_visit_schedule.verbose_name }}: {{ current_schedule.verbose_name }} <span class="caret"></span>
 			      </a>
 			  </h6>
 			</div>
@@ -63,7 +63,7 @@
 					  <h6 class="panel-title"><i class="fa fa-calendar fa-lg fa-fw"></i> 
 					      <a data-toggle="collapse" data-parent="#accordion_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}" aria-hidden="true"
 					         href="#subject_dashboard_appointments_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}">
-					         {{ visit_schedule.verbose_name }}: {{ schedule.verbose_name }}
+					         {{ visit_schedule.verbose_name }}: {{ schedule.verbose_name }} <span class="caret"></span>
 					      </a>
 					  </h6>
 					</div>

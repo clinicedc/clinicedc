@@ -1,6 +1,7 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 
+from .modeladmin_mixins import ModelAdminSubjectDashboardMixin
 from .model_wrappers import CrfModelWrapper, AppointmentModelWrapper, AppointmentModelWrapperError
 from .model_wrappers import SubjectVisitModelWrapper
 

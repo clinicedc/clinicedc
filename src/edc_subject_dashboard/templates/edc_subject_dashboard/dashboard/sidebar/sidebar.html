@@ -12,7 +12,7 @@
       <div class="panel-heading">
           <h6 class="panel-title">
               <i class="{% if gender == MALE %}fa fa-male{% else %}fa fa-female{% endif %} fa-lg fa-fw"></i>
-              <a id="demographics-panel-title" data-toggle="collapse" data-parent="#accordion" href="#demographics-panel">{{ subject_identifier }}</a>
+              <a id="demographics-panel-title" data-toggle="collapse" data-parent="#accordion" href="#demographics-panel">{{ subject_identifier }} <span class="caret"></span></a>
           </h6>
       </div>
       <div id="demographics-panel" class="panel-collapse collapse in">
@@ -23,13 +23,22 @@
     <div class="panel panel-default">
       <div class="panel-heading">
           <h6 class="panel-title">
-              
-              <a id="prn-panel-title" data-toggle="collapse" data-parent="#accordion" href="#prn-panel">Actions and PRN Forms</a>
-              
+              <a id="prn-forms-panel-title" data-toggle="collapse" data-parent="#accordion" href="#prn-forms-panel">PRN Forms <span class="caret"></span></a>
           </h6>
       </div>
-      <div id="prn-panel" class="panel-collapse collapse">
-          {% block action_items_and_prn %}{% endblock action_items_and_prn %}           
+      <div id="prn-forms-panel" class="panel-collapse collapse">
+          {% block prn_forms %}{% endblock prn_forms %}           
+      </div>           
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+          <h6 class="panel-title">
+              <a id="prn-lists-panel-title" data-toggle="collapse" data-parent="#accordion" href="#prn-lists-panel">PRN Lists <span class="caret"></span></a>
+          </h6>
+      </div>
+      <div id="prn-lists-panel" class="panel-collapse collapse">
+          {% block prn_lists %}{% endblock prn_lists %}           
       </div>           
     </div>
 
@@ -37,7 +46,7 @@
       <div class="panel-heading">
           <h6 class="panel-title">
               <i class="fa fa-handshake-o fa-lg fa-fw"></i> 
-              <a id="consents-panel-title" data-toggle="collapse" data-parent="#accordion" href="#consents-panel">Consents</a>
+              <a id="consents-panel-title" data-toggle="collapse" data-parent="#accordion" href="#consents-panel">Consents <span class="caret"></span></a>
           </h6>
       </div>
       <div id="consents-panel" class="panel-collapse collapse in">
