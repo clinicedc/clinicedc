@@ -19,7 +19,7 @@
 
          <a id="btn-subject-dashboard-{{result.subject_identifier}}" class="btn btn-success btn-sm" role="button"   
         title="Go to subject's dashboard" href="{% url subject_dashboard_url result.subject_identifier %}">
-        <i class="fa fa-user-circle-o fa-sm"></i> Dashboard</a>
+        <i class="fa fa-user-circle-o fa-sm"></i> Dashboard  <i class="fa fa-mail-forward"></i></a>
     {% else %}
          <a id="btn-consent-add-{{result.subject_identifier}}" title="Consent to participate"
             class="btn btn-warning btn-sm"
