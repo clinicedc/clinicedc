@@ -41,7 +41,7 @@ class FormLabel:
         return True if appointment else False
 
 
-class FieldsetsModelAdminMixin(admin.ModelAdmin):
+class FieldsetsModelAdminMixin:
 
     """A class that helps modify fieldsets for subject models
 
@@ -175,10 +175,16 @@ class FieldsetsModelAdminMixin(admin.ModelAdmin):
                 conditional_fieldsets = {
                     '1000': ...}
         """
+        visit_code = None
         try:
-            return self.get_instance(request).visit_code
+            model_obj = self.get_instance(request)
         except AttributeError:
-            return None
+            pass
+        else:
+            visit_code = model_obj.visit_code
+            if model_obj.visit_code_sequence != 0:
+                visit_code = f'{visit_code}.{model_obj.visit_code_sequence}'
+        return visit_code
 
     def get_fieldsets(self, request, obj=None):
         """Returns fieldsets after modifications declared in
