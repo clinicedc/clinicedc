@@ -6,7 +6,7 @@ from ..site_prn_forms import site_prn_forms
 register = template.Library()
 
 
-@register.inclusion_tag('edc_prn/prn_list_items.html')
+@register.inclusion_tag('edc_prn/list_prns.html')
 def prn_list_items(subject_identifier, **kwargs):
     prn_forms = []
     for prn in site_prn_forms:
@@ -15,8 +15,8 @@ def prn_list_items(subject_identifier, **kwargs):
     return dict(prn_forms=prn_forms, subject_identifier=subject_identifier)
 
 
-@register.inclusion_tag('edc_prn/toggle_prn_popover.html')
-def toggle_prn_crf_popover(appointment, subject_dashboard_url):
+@register.inclusion_tag('edc_prn/add_prn_popover.html')
+def add_prn_crf_popover(appointment, subject_dashboard_url):
     prn_forms = []
     if appointment.visit.visit_code_sequence != 0:
         crfs_prn = appointment.visits.get(
@@ -41,8 +41,8 @@ def toggle_prn_crf_popover(appointment, subject_dashboard_url):
         subject_dashboard_url=subject_dashboard_url)
 
 
-@register.inclusion_tag('edc_prn/toggle_prn_popover.html')
-def toggle_prn_requisition_popover(appointment, subject_dashboard_url):
+@register.inclusion_tag('edc_prn/add_prn_popover.html')
+def add_prn_requisition_popover(appointment, subject_dashboard_url):
     prn_forms = []
     if appointment.visit.visit_code_sequence != 0:
         requisitions_prn = appointment.visits.get(
