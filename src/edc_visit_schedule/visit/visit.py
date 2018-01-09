@@ -47,8 +47,10 @@ class Visit:
     visit_date_cls = VisitDate
 
     def __init__(self, code=None, timepoint=None, rbase=None, rlower=None,
-                 rupper=None, crfs=None, requisitions=None, crfs_unscheduled=None,
-                 requisitions_unscheduled=None, title=None,
+                 rupper=None, crfs=None, requisitions=None,
+                 crfs_unscheduled=None, requisitions_unscheduled=None,
+                 crfs_prn=None, requisitions_prn=None,
+                 title=None,
                  instructions=None, grouping=None,
                  allow_unscheduled=None, facility_name=None):
 
@@ -86,6 +88,12 @@ class Visit:
         else:
             self.crfs_unscheduled = []
             self.requisitions_unscheduled = []
+        self.crfs_prn = self.forms_collection_cls(
+            *(crfs_prn or []),
+            name=f'crfs PRN for {self.name}').forms
+        self.requisitions_prn = self.forms_collection_cls(
+            *(requisitions_prn or []),
+            name=f'requisitions PRN for {self.name}').forms
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.code}, {self.timepoint})'
@@ -100,6 +108,10 @@ class Visit:
     @property
     def unscheduled_forms(self):
         return self.crfs_unscheduled + self.requisitions_unscheduled
+
+    @property
+    def prn_forms(self):
+        return self.crfs_prn + self.requisitions_prn
 
     def next_form(self, model=None, panel=None):
         """Returns the next required "form" or None.

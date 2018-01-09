@@ -1,3 +1,4 @@
+from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 
@@ -6,9 +7,7 @@ from ..site_visit_schedules import site_visit_schedules
 from ..system_checks import visit_schedule_check
 from ..visit_schedule import VisitSchedule
 from ..visit import Visit
-from pprint import pprint
-from dateutil.relativedelta import relativedelta
-from edc_visit_schedule.visit.crf import Crf
+from ..visit.crf import Crf
 
 
 class TestSystemChecks(TestCase):

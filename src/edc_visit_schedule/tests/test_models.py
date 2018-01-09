@@ -12,7 +12,6 @@ from ..models import SubjectScheduleHistory
 from ..site_visit_schedules import site_visit_schedules, RegistryNotLoaded
 from .models import OnSchedule, OffSchedule, SubjectVisit, CrfOne
 from .visit_schedule import visit_schedule
-from pprint import pprint
 
 
 class TestModels(SiteTestCaseMixin, TestCase):

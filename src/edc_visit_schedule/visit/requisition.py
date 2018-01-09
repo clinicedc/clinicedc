@@ -36,6 +36,10 @@ class Requisition(Crf):
         required = 'Required' if self.required else ''
         return f'{self.panel.name} {required}'
 
+    @property
+    def verbose_name(self):
+        return self.panel.name
+
     def validate(self):
         """Raises an exception if a Requisition model lookup fails
         or if a panel is referred to that is not known to any
