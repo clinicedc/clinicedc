@@ -6,9 +6,7 @@ from django.core.management.color import color_style
 from django.apps import apps as django_apps
 from django.utils.module_loading import module_has_submodule
 from importlib import import_module
-from django.conf import settings
-
-from .prn import Prn
+from copy import deepcopy
 
 
 class AlreadyRegistered(Exception):
@@ -39,6 +37,13 @@ class PrnFormsCollection:
                 f'Prn form {prn.model} is already registered.')
         else:
             self.registry.update({prn.model: prn})
+        self.reorder_registry()
+
+    def reorder_registry(self):
+        keys = [k for k in self.registry]
+        keys.sort()
+        registry = deepcopy(self.registry)
+        self.registry = {k: registry.get(k) for k in keys}
 
     def autodiscover(self, module_name=None, verbose=True):
         module_name = module_name or 'prn_forms'

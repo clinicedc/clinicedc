@@ -21,8 +21,8 @@
 
   {% else %}
     <a class="list-group-item" href="{% url prn.changelist_url_name %}?q={{ subject_identifier }}"
-      data-toggle="tooltip"  title="View list of {{ prn.verbose_name_plural }} for {{ subject_identifier }}">
-        {{ prn.verbose_name_plural }}
+      title="Click to view list">
+        <small>{{ prn.verbose_name_plural }}  <i class="fa fa-mail-forward"></i></small>
     </a>
   {% endif %}
 
