@@ -5,7 +5,6 @@ from django.utils.safestring import mark_safe
 
 from edc_lab.constants import SHIPPED
 from edc_lab.models import BoxItem
-from django.templatetags.i18n import BlockTranslateNode
 
 register = template.Library()
 
