@@ -40,18 +40,23 @@ class RequisitionTargetHandler(TargetHandler):
             visit=self.visit,
             name=get_reference_name(self.model, self.target_panel))
 
+    @property
+    def target_panels(self):
+        """Returns a list of panels for this visit.
+        """
+        if self.visit.visit_code_sequence != 0:
+            forms = (self.visit.visit.requisitions_unscheduled
+                     + self.visit.visit.requisitions_prn)
+        else:
+            forms = self.visit.visit.requisitions + self.visit.visit.requisitions_prn
+        return list(set([form.panel.name for form in forms]))
+
     def raise_on_not_scheduled_for_visit(self):
         """Raises an exception if target_panel is not scheduled
-        for this visit.
-
-        Overridden.
+        for this visit or is invalid.
         """
-
         self.raise_on_invalid_panel()
-
-        requisitions = self.schedule.visits.get(
-            self.visit.visit_code).requisitions
-        if self.target_panel not in [r.panel.name for r in requisitions]:
+        if self.target_panel not in self.target_panels:
             raise TargetPanelNotScheduledForVisit(
                 f'Target panel {self.target_panel} is not scheduled '
                 f'for visit \'{self.visit.visit_code}\'.')
@@ -66,14 +71,16 @@ class RequisitionTargetHandler(TargetHandler):
         return visit_schedule.schedules.get(self.visit.schedule_name)
 
     def raise_on_invalid_panel(self):
-        """Raises an exception if target_panel is invalid.
+        """Raises an exception if target_panel is not found in any visit
+        for this schedule.
         """
         panel_names = []
         for visit in self.schedule.visits.values():
-            panel_names.extend([r.panel.name for r in visit.requisitions])
+            panel_names.extend([r.panel.name for r in visit.all_requisitions])
         if self.target_panel not in panel_names:
             raise InvalidTargetPanel(
-                f'{self.target_panel} is not a valid panel name.')
+                f'Invalid panel. {self.target_panel} is not a valid '
+                f'panel for any visit in schedule {repr(self.schedule)}. ')
 
     @property
     def metadata_handler(self):
