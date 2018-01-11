@@ -17,7 +17,7 @@
     </a>
     {% if result.id %}
 
-         <a id="btn-subject-dashboard-{{result.subject_identifier}}" class="btn btn-success btn-sm" role="button"   
+         <a id="btn-subject-dashboard-{{result.subject_identifier}}" class="btn btn-primary btn-sm" role="button"   
         title="Go to subject's dashboard" href="{% url subject_dashboard_url result.subject_identifier %}">
         <i class="fa fa-user-circle-o fa-sm"></i> Dashboard  <i class="fa fa-mail-forward"></i></a>
     {% else %}

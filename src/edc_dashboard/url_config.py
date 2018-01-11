@@ -25,6 +25,11 @@ class UrlConfig:
                     self.view_class.as_view(), name=self.url_name),
             re_path(r'^' + f'{self.label}/'
                     f'(?P<{self.identifier_label}>{self.identifier_pattern})/'
+                    f'(?P<appointment>{UUID_PATTERN.pattern})/'
+                    f'(?P<reason>\w+)/',
+                    self.view_class.as_view(), name=self.url_name),
+            re_path(r'^' + f'{self.label}/'
+                    f'(?P<{self.identifier_label}>{self.identifier_pattern})/'
                     f'(?P<appointment>{UUID_PATTERN.pattern})/',
                     self.view_class.as_view(), name=self.url_name),
             re_path(r'^' + f'{self.label}/'
@@ -34,9 +39,6 @@ class UrlConfig:
             re_path(r'^' + f'{self.label}/'
                     f'(?P<{self.identifier_label}>{UUID_PATTERN.pattern})/',
                     self.view_class.as_view(), name=self.url_name),
-            #             re_path(r'^' + f'{self.label}/'
-            #                     f'(?P<{self.identifier_label}>{UUID_PATTERN2.pattern})/',
-            # self.view_class.as_view(), name=self.url_name),
             re_path(r'^' + f'{self.label}/'
                     f'(?P<{self.identifier_label}>{self.identifier_pattern})/',
                     self.view_class.as_view(), name=self.url_name)]
