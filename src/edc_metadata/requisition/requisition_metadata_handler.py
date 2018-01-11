@@ -16,7 +16,7 @@ class RequisitionMetadataHandler(MetadataHandler):
         this requisition.
         """
         requisition_object = [
-            r for r in self.creator.visit.requisitions
+            r for r in self.creator.visit.all_requisitions
             if r.panel.name == self.panel][0]
         return self.creator.create_requisition(requisition_object)
 
