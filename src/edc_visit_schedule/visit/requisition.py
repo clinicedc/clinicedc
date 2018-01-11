@@ -30,7 +30,7 @@ class Requisition(Crf):
             self.panel = panel
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.show_order}, {self.panel})'
+        return f'{self.__class__.__name__}({self.show_order}, {self.panel.name})'
 
     def __str__(self):
         required = 'Required' if self.required else ''
