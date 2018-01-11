@@ -54,6 +54,24 @@ class Visit:
                  instructions=None, grouping=None,
                  allow_unscheduled=None, facility_name=None):
 
+        self.crfs = ()
+        if crfs:
+            self.crfs = crfs.forms
+        self.crfs_unscheduled = ()
+        if crfs_unscheduled:
+            self.crfs_unscheduled = crfs_unscheduled.forms
+        self.crfs_prn = ()
+        if crfs_prn:
+            self.crfs_prn = crfs_prn.forms
+        self.requisitions = ()
+        if requisitions:
+            self.requisitions = requisitions.forms
+        self.requisitions_unscheduled = ()
+        if requisitions_unscheduled:
+            self.requisitions_unscheduled = requisitions_unscheduled.forms
+        self.requisitions_prn = ()
+        if requisitions_prn:
+            self.requisitions_prn = requisitions_prn.forms
         self.instructions = instructions
         self.timepoint = timepoint
         self.rbase = rbase
@@ -68,32 +86,7 @@ class Visit:
             self.code = code  # unique
         self.name = self.code
         self.facility_name = facility_name
-        self.crfs = self.forms_collection_cls(
-            *(crfs or []), name=f'crfs for {self.name}').forms
-        self.requisitions = self.forms_collection_cls(
-            *(requisitions or []), name=f'requisitions for {self.name}').forms
-
         self.allow_unscheduled = allow_unscheduled
-        if self.allow_unscheduled:
-            self.crfs_unscheduled = self.forms_collection_cls(
-                *(crfs_unscheduled or []),
-                name=f'crfs crfs_unscheduled for {self.name}').forms
-            self.requisitions_unscheduled = self.forms_collection_cls(
-                *(requisitions_unscheduled or []),
-                name=f'requisitions unscheduled for {self.name}').forms
-            if not self.crfs_unscheduled and not self.requisitions_unscheduled:
-                raise VisitError(
-                    'allow_unscheduled is True but no unscheduled crfs '
-                    f'or requisitions have been declared. See {repr(self)}')
-        else:
-            self.crfs_unscheduled = []
-            self.requisitions_unscheduled = []
-        self.crfs_prn = self.forms_collection_cls(
-            *(crfs_prn or []),
-            name=f'crfs PRN for {self.name}').forms
-        self.requisitions_prn = self.forms_collection_cls(
-            *(requisitions_prn or []),
-            name=f'requisitions PRN for {self.name}').forms
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.code}, {self.timepoint})'
@@ -103,15 +96,29 @@ class Visit:
 
     @property
     def forms(self):
+        """Returns a list of scheduled forms.
+        """
         return self.crfs + self.requisitions
 
     @property
     def unscheduled_forms(self):
+        """Returns a list of unscheduled forms.
+        """
         return self.crfs_unscheduled + self.requisitions_unscheduled
 
     @property
     def prn_forms(self):
+        """Returns a list of PRN forms.
+        """
         return self.crfs_prn + self.requisitions_prn
+
+    @property
+    def all_crfs(self):
+        return self.crfs + self.crfs_unscheduled + self.crfs_prn
+
+    @property
+    def all_requisitions(self):
+        return self.requisitions + self.requisitions_unscheduled + self.requisitions_prn
 
     def next_form(self, model=None, panel=None):
         """Returns the next required "form" or None.
