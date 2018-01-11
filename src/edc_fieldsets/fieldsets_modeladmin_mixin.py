@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.utils.safestring import mark_safe
@@ -119,11 +118,12 @@ class FieldsetsModelAdminMixin:
         return self.update_form_labels(request, form)
 
     def get_previous_appointment(self, request):
-        appointment = self.get_appointment(request)
         try:
-            return appointment.previous_by_timepoint
-        except AttributeError:
+            appointment = self.get_appointment(request)
+        except ObjectDoesNotExist:
             return None
+        else:
+            return appointment.previous_by_timepoint
 
     def get_previous_instance(self, request, instance=None, **kwargs):
         """Returns a model instance that is the first occurrence of a previous
@@ -151,11 +151,8 @@ class FieldsetsModelAdminMixin:
         """Returns the appointment instance for this request or None.
         """
         appointment_model_cls = django_apps.get_model(self.appointment_model)
-        try:
-            return appointment_model_cls.objects.get(
-                pk=request.GET.get('appointment'))
-        except ObjectDoesNotExist:
-            return None
+        return appointment_model_cls.objects.get(
+            pk=request.GET.get('appointment'))
 
     def get_instance(self, request):
         """Returns the instance that provides the key
@@ -175,15 +172,10 @@ class FieldsetsModelAdminMixin:
                 conditional_fieldsets = {
                     '1000': ...}
         """
-        visit_code = None
-        try:
-            model_obj = self.get_instance(request)
-        except AttributeError:
-            pass
-        else:
-            visit_code = model_obj.visit_code
-            if model_obj.visit_code_sequence != 0:
-                visit_code = f'{visit_code}.{model_obj.visit_code_sequence}'
+        model_obj = self.get_instance(request)
+        visit_code = model_obj.visit_code
+        if model_obj.visit_code_sequence != 0:
+            visit_code = f'{visit_code}.{model_obj.visit_code_sequence}'
         return visit_code
 
     def get_fieldsets(self, request, obj=None):
