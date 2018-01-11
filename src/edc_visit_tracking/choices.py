@@ -1,7 +1,7 @@
 from .constants import (
     MISSED_VISIT, SCHEDULED, UNSCHEDULED, LOST_VISIT, DEFERRED_VISIT,
     COMPLETED_PROTOCOL_VISIT, CHART)
-from edc_constants.constants import OTHER
+from edc_constants.constants import OTHER, NOT_APPLICABLE
 
 VISIT_REASON = (
     (SCHEDULED, 'Scheduled visit/contact'),
@@ -22,3 +22,16 @@ VISIT_INFO_SOURCE = (
     (CHART, '5. Hospital chart or other medical record'),
     (OTHER, '9. Other'),
 )
+
+# these defaults are not intended for production
+VISIT_REASON_UNSCHEDULED = (
+    ('patient_unwell_outpatient', 'Patient unwell (outpatient)'),
+    ('patient_hospitalised', 'Patient hospitalised'),
+    (OTHER, 'Other'),
+    (NOT_APPLICABLE, 'Not applicable'))
+
+# these defaults are not intended for production
+VISIT_REASON_MISSED = (
+    ('timepoint', 'Missed timepoint'),
+    (OTHER, 'Other'),
+    (NOT_APPLICABLE, 'Not applicable'))
