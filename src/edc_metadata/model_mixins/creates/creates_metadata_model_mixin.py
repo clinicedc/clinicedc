@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.db import models
 from edc_metadata_rules import MetadataRuleEvaluator
 
@@ -18,13 +17,17 @@ class CreatesMetadataModelMixin(models.Model):
     metadata_rule_evaluator_cls = MetadataRuleEvaluator
 
     def metadata_create(self, sender=None, instance=None):
+        """Created metadata, called by post_save signal.
+        """
         metadata = self.metadata_cls(visit=self, update_keyed=True)
         metadata.prepare()
-        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
-            self.run_metadata_rules()
 
     def run_metadata_rules(self, visit=None):
         """Runs all the rule groups.
+
+        Initially called by post_save signal.
+
+        Also called by post_save signal after metadata is updated.
         """
         visit = visit or self
         metadata_rule_evaluator = self.metadata_rule_evaluator_cls(
