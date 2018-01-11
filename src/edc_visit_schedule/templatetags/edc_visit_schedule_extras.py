@@ -8,8 +8,8 @@ from ..models import SubjectScheduleHistory
 register = template.Library()
 
 
-@register.inclusion_tag('edc_visit_schedule/subject_schedule_row.html')
-def subject_schedule_row(subject_identifier, visit_schedule, schedule, subject_dashboard_url):
+@register.inclusion_tag('edc_visit_schedule/subject_schedule_footer_row.html')
+def subject_schedule_footer_row(subject_identifier, visit_schedule, schedule, subject_dashboard_url):
 
     context = {}
     try:
