@@ -4,7 +4,6 @@ from edc_appointment.constants import IN_PROGRESS_APPT
 
 from ..constants import CRF, NOT_REQUIRED, REQUISITION, REQUIRED, KEYED
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
-from pprint import pprint
 
 
 class MetaDataViewMixin:
@@ -14,10 +13,11 @@ class MetaDataViewMixin:
     crf_metadata_wrappers_cls = CrfMetadataWrappers
     requisition_metadata_wrappers_cls = RequisitionMetadataWrappers
 
-    show_status = [REQUIRED, KEYED]
+    metadata_show_status = [REQUIRED, KEYED]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update(metadata_show_status=self.metadata_show_status)
         if self.appointment:
             if self.appointment.appt_status != IN_PROGRESS_APPT:
                 self.message_user(mark_safe(
@@ -29,10 +29,14 @@ class MetaDataViewMixin:
                 appointment=self.appointment)
             context.update(
                 report_datetime=self.appointment.visit.report_datetime,
-                crfs=self.get_model_crf_wrapper(
-                    key=CRF, metadata_wrappers=crf_metadata_wrappers),
-                requisitions=self.get_model_requisition_wrapper(
-                    key=REQUISITION, metadata_wrappers=requisition_metadata_wrappers),
+                crfs=[
+                    crf for crf in self.get_model_crf_wrapper(
+                        key=CRF, metadata_wrappers=crf_metadata_wrappers)
+                    if crf.entry_status in self.metadata_show_status],
+                requisitions=[
+                    requisition for requisition in self.get_model_requisition_wrapper(
+                        key=REQUISITION, metadata_wrappers=requisition_metadata_wrappers)
+                    if requisition.entry_status in self.metadata_show_status],
                 NOT_REQUIRED=NOT_REQUIRED)
         return context
 
