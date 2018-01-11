@@ -1,6 +1,7 @@
 {% extends dashboard_base_template %}
 {% load staticfiles %}
 {% load edc_visit_schedule_extras %}
+{% load edc_subject_dashboard_extras %}
 
 {% block main %}
 
@@ -30,29 +31,32 @@
         {% if appointment %}
 			<div id="subject_dashboard_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
 				class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
-			<div class="panel-heading">
-			  <h6 class="panel-title"><i class="fa fa-calendar fa-lg fa-fw"></i> 
+			<div class="panel-heading clearfix">
+			  <i class="fa fa-calendar fa-lg fa-fw"></i> 
 			      <a data-toggle="collapse" data-parent="#accordion_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}" aria-hidden="true"
 			         href="#subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}">
-			         {{ current_visit_schedule.verbose_name }}: {{ current_schedule.verbose_name }} <span class="caret"></span>
+			         {{ current_visit_schedule.verbose_name }} <i class="fa fa-caret-right"></i> {{ current_schedule.verbose_name }} <i class="fa fa-caret-right"></i> {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }} <span class="caret"></span>
 			      </a>
-			  </h6>
+	            {% block schedule_button %}
+	            <span class="pull-right"><span class="text test-muted">
+	                <a href="{% url subject_dashboard_url subject_identifier=subject_identifier %}"
+	                   role="button" class="btn btn-sm btn-primary">
+	                    <i class="fa fa-reply fa-fw" aria-hidden="true"></i> <i class="fa fa-calendar fa-fw"></i> Schedule
+	                </a>
+	            </span></span>
+	            {% endblock schedule_button %}
 			</div>
 			<div id="subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
 				class="panel-collapse collapse in">
 				    {% block crfs %}
-						{% if crfs %}
-					  		{% include "edc_subject_dashboard/dashboard/crfs.html" %}
-					    {% endif %}
+				  		{% include "edc_subject_dashboard/dashboard/crfs.html" %}
 				    {% endblock crfs %}
 
 					{% block requisitions %}
-					  {% if requisitions %}
 					  	{% include "edc_subject_dashboard/dashboard/requisitions.html" %}
-					  {% endif %}    
 					{% endblock requisitions %}
 			</div>
-				{% subject_schedule_row subject_identifier current_visit_schedule current_schedule subject_dashboard_url %}
+				{% subject_schedule_footer_row subject_identifier current_visit_schedule current_schedule subject_dashboard_url %}
 	     	</div>
         {% else %}
 		    {% for visit_schedule in visit_schedules.values %}
@@ -60,12 +64,17 @@
 					<div id="subject_dashboard_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}"
 						class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
 					<div class="panel-heading">
-					  <h6 class="panel-title"><i class="fa fa-calendar fa-lg fa-fw"></i> 
+					  <i class="fa fa-calendar fa-lg fa-fw"></i> 
 					      <a data-toggle="collapse" data-parent="#accordion_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}" aria-hidden="true"
 					         href="#subject_dashboard_appointments_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}">
-					         {{ visit_schedule.verbose_name }}: {{ schedule.verbose_name }} <span class="caret"></span>
+					         {{ visit_schedule.verbose_name }} <i class="fa fa-caret-right"></i> {{ schedule.verbose_name }} <span class="caret"></span>
 					      </a>
-					  </h6>
+
+					      <span class="text text-default pull-right"><small>
+					  	    {% appointment_in_progress subject_identifier visit_schedule schedule %}
+					  	  </small></span>
+
+					  
 					</div>
 
 					<div id="subject_dashboard_appointments_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}"
@@ -76,7 +85,7 @@
 					{% endblock appointments %}
 
 					</div>
-						{% subject_schedule_row subject_identifier visit_schedule schedule subject_dashboard_url %}
+						{% subject_schedule_footer_row subject_identifier visit_schedule schedule subject_dashboard_url %}
 			     	</div>
 			    {% endfor %}
 		    {% endfor %}

@@ -1,3 +1,4 @@
+{% load edc_subject_dashboard_extras %}
 <!-- start appointments -->
 
 <div id="apointments_list" class="table table-responsive">
@@ -41,15 +42,11 @@
 		                        <a id="visit_report_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default" href="{{ visit.href }}">
 		                            <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Visit Report
 		                        </a>
-				      			<a id="forms_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-warning" href="{{ wrapped.forms_url }}">
-				      				<i class="fa fa-list-alt fa-sm" aria-hidden="true"></i> Forms <i class="fa fa-mail-forward"></i>
-				      			</a>
-				      	     {% else %}
-					       		<a id="start_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-warning" href="{{ visit.href }}"
-					       		   data-toggle="tooltip" title="Click to update the visit report">
-					       			<i class="fa fa-plus fa-sm" aria-hidden="true"></i> Start</a>
-				      	     {% endif %}
-				      {% endwith %}
+		                     {% endif %}
+
+		                     {% forms_button wrapper=wrapped visit=visit %}
+
+				      	{% endwith %}
 				      {% else %}
 						    {% comment%}
 						        This link goes to change the appointment instance

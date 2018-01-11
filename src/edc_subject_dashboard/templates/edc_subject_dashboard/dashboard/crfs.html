@@ -1,29 +1,21 @@
-    <div class="panel panel-default">
+{% load tz %}
+    <div class="panel panel-success">
             
-            <div class="panel-heading clearfix">
-                <h6 class="panel-title">
-                 <i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>
-                 {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }}: <span class="text text-muted"><small>Report date: {{ appointment.object.visit.report_datetime|localtime|date:"SHORT_DATETIME_FORMAT" }}</small></span>
-                <span class="pull-right">
-
-                    {% block schedule_button %}
-                        <a href="{% url subject_dashboard_url subject_identifier=subject_identifier %}"
-                           role="button" class="btn btn-sm btn-primary">
-                            <i class="fa fa-reply fa-fw" aria-hidden="true"></i> <i class="fa fa-calendar fa-fw"></i> Schedule
-                        </a>
-                    {% endblock schedule_button %}
-                </h6>
-                </span>
+            <div class="panel-heading">
+                 <span class="text text-muted">
+                    <i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> CRFs</span>
+                    <label class="small pull-right" title="visit report datetime">{{ appointment.object.visit.report_datetime|localtime|date:"SHORT_DATETIME_FORMAT" }}</label>
             </div>
 
             <div class="table table-responsive">
             <table class="table table-striped table-hover table-condensed">
                 <tbody>
+
                     {% for crf in crfs %}
                         <tr>
                             <td>
                             <span class="{% if crf.entry_status == NOT_REQUIRED %}text text-muted small{% endif %}">
-                                  {{ forloop.counter }}
+                              {{ forloop.counter }}
                             </span>
                             </td>
                             <td>
@@ -42,7 +34,7 @@
                                 {% endif %}
                             </td>                
                             <td>
-                              <span class="pull-right">
+                              <span class="btn-group pull-right">
                               {% if crf.entry_status != NOT_REQUIRED %}
                                 <a role="button" class="btn btn-sm {% if crf.object.id %}btn-success{% else %}{% if crf.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
                                         href="{{ crf.object.href }}">
@@ -63,6 +55,24 @@
                             </td>
                         </tr>
                     {% endfor %}
+                    {% if not crfs %}
+                        <tr>
+                            <td colspan="3">
+                            <span class="text text-muted small">
+                                  There are no required CRFs for this visit. See also the PRN CRFs.
+                            </span>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    {% if appointment.object.visit.visit.crfs_prn %}
+                        <tr><td colspan="3">
+                        <span class="text text-default small pull-right">
+                        PRN CRFs are available.
+                        </span>
+                        </td></tr>
+                    {% endif %}
+
+
                 </tbody>
             </table>
         </div>
