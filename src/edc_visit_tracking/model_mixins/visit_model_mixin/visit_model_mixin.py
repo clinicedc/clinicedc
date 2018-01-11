@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
 from edc_base.model_managers.historical_records import HistoricalRecords
+from edc_constants.constants import YES, NO
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
@@ -13,6 +14,7 @@ from ...constants import FOLLOW_UP_REASONS, REQUIRED_REASONS, NO_FOLLOW_UP_REASO
 from ...managers import VisitModelManager
 from ..previous_visit_model_mixin import PreviousVisitModelMixin
 from .visit_model_fields_mixin import VisitModelFieldsMixin
+from edc_visit_tracking.constants import MISSED_VISIT
 
 
 class VisitModelMixin(
@@ -50,6 +52,7 @@ class VisitModelMixin(
         self.schedule_name = self.appointment.schedule_name
         self.visit_code = self.appointment.visit_code
         self.visit_code_sequence = self.appointment.visit_code_sequence
+        self.require_crfs = NO if self.reason == MISSED_VISIT else YES
         super().save(*args, **kwargs)
 
     def natural_key(self):
