@@ -47,8 +47,6 @@ class UpdatesMetadataModelMixin(models.Model):
             obj.entry_status = self.metadata_default_entry_status or REQUIRED
             obj.report_datetime = None
             obj.save()
-        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
-            self.run_metadata_rules_for_crf()
 
     @property
     def metadata_default_entry_status(self):
