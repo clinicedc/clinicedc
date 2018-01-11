@@ -32,10 +32,11 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         """Returns a string that represents the configured entry status
         of the requisition in the visit schedule.
         """
+        requisitions_prn = self.metadata_visit_object.requisitions_prn
         if self.visit.visit_code_sequence != 0:
-            requisitions = self.metadata_visit_object.requisitions_unscheduled
+            requisitions = self.metadata_visit_object.requisitions_unscheduled + requisitions_prn
         else:
-            requisitions = self.metadata_visit_object.requisitions
+            requisitions = self.metadata_visit_object.requisitions + requisitions_prn
         requisition = [r for r in requisitions
                        if r.panel.name == self.panel_name][0]
         return REQUIRED if requisition.required else NOT_REQUIRED
