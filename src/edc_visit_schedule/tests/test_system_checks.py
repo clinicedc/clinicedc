@@ -6,7 +6,7 @@ from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules
 from ..system_checks import visit_schedule_check
 from ..visit_schedule import VisitSchedule
-from ..visit import Visit
+from ..visit import Visit, FormsCollection
 from ..visit.crf import Crf
 
 
@@ -96,7 +96,7 @@ class TestSystemChecks(TestCase):
             offschedule_model='edc_visit_schedule.offschedule',
             appointment_model='edc_appointment.appointment',
             consent_model='edc_visit_schedule.subjectconsent')
-        crfs = (
+        crfs = FormsCollection(
             Crf(show_order=10, model='blah.CrfOne'),
             Crf(show_order=20, model='blah.CrfTwo'),
             Crf(show_order=30, model='blah.CrfThree'))

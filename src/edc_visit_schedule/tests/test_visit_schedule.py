@@ -11,8 +11,8 @@ from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..subject_schedule import NotOnScheduleError, InvalidOffscheduleDate
 from ..subject_schedule import NotConsentedError, UnknownSubjectError
-from ..visit import Visit, Crf, FormsCollectionError
-from ..visit_schedule import VisitSchedule, VisitScheduleError
+from ..visit import Visit, Crf, FormsCollectionError, FormsCollection
+from ..visit_schedule import VisitSchedule
 from ..visit_schedule import VisitScheduleNameError, AlreadyRegisteredSchedule
 from .models import OnSchedule, OnScheduleThree, OffSchedule
 from .models import SubjectVisit, SubjectConsent
@@ -123,14 +123,13 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
         self.assertIn(self.schedule3, self.visit_schedule.schedules.values())
 
     def test_crfs_unique_show_order(self):
-        crfs = (
+        self.assertRaises(
+            FormsCollectionError,
+            FormsCollection,
             Crf(show_order=10, model='edc_example.CrfOne'),
             Crf(show_order=20, model='edc_example.CrfTwo'),
             Crf(show_order=20, model='edc_example.CrfThree'),
         )
-        self.assertRaises(
-            FormsCollectionError,
-            self.schedule.add_visit, code='1000', timepoint=0, crfs=crfs)
 
 
 class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
