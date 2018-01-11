@@ -19,8 +19,6 @@ class UpdatesMetadataModelMixin(models.Model):
         """Updates metatadata.
         """
         self.metadata_updater.update(entry_status=entry_status)
-        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
-            self.run_metadata_rules_for_crf()
 
     def run_metadata_rules_for_crf(self):
         """Runs all the rule groups for this app label.
@@ -39,10 +37,16 @@ class UpdatesMetadataModelMixin(models.Model):
         """Sets the metadata instance to its original state.
         """
         obj = self.metadata_model.objects.get(**self.metadata_query_options)
-        obj.entry_status = self.metadata_default_entry_status or REQUIRED
-        obj.report_datetime = None
-        obj.save()
-
+        try:
+            obj.entry_status = self.metadata_default_entry_status
+        except IndexError:
+            # means crf is not listed in visit schedule, so remove it.
+            # for example, this is a PRN form
+            obj.delete()
+        else:
+            obj.entry_status = self.metadata_default_entry_status or REQUIRED
+            obj.report_datetime = None
+            obj.save()
         if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
             self.run_metadata_rules_for_crf()
 
@@ -51,15 +55,12 @@ class UpdatesMetadataModelMixin(models.Model):
         """Returns a string that represents the default entry status
         of the crf in the visit schedule.
         """
+        crfs_prn = self.metadata_visit_object.crfs_prn
         if self.visit.visit_code_sequence != 0:
-            crfs = self.metadata_visit_object.crfs_unscheduled
+            crfs = self.metadata_visit_object.crfs_unscheduled + crfs_prn
         else:
-            crfs = self.metadata_visit_object.crfs
-        try:
-            crf = [c for c in crfs if c.model == self._meta.label_lower][0]
-        except IndexError as e:
-            raise MetadataError(
-                f'{self._meta.label_lower}. Got {e}') from e
+            crfs = self.metadata_visit_object.crfs + crfs_prn
+        crf = [c for c in crfs if c.model == self._meta.label_lower][0]
         return REQUIRED if crf.required else NOT_REQUIRED
 
     @property
