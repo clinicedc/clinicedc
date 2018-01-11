@@ -1,10 +1,11 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 
 from edc_reference import get_reference_name, site_reference_configs
 from edc_visit_schedule import site_visit_schedules
 
 from ..constants import NOT_REQUIRED, REQUIRED, KEYED
+from edc_reference.site import SiteReferenceConfigError
 
 
 class CreatesMetadataError(Exception):
@@ -21,7 +22,7 @@ class Base:
                  metadata_requisition_model=None, **kwargs):
         self.reference_model_cls = None
         app_config = django_apps.get_app_config('edc_metadata')
-        self.visit = visit
+        self.visit = visit  # visit model instance
         self.metadata_crf_model = metadata_crf_model or app_config.crf_model
         self.metadata_requisition_model = (
             metadata_requisition_model or app_config.requisition_model)
@@ -42,7 +43,7 @@ class CrfCreator(Base):
         self.update_keyed = update_keyed
 
     def create(self, crf=None):
-        """Creates metadata for a CRF.
+        """Creates metadata for a CRF, if is does not exist.
         """
         options = self.visit.metadata_query_options
         options.update(
@@ -50,7 +51,7 @@ class CrfCreator(Base):
              'model': crf.model})
         try:
             metadata_obj = self.metadata_crf_model.objects.get(**options)
-        except self.metadata_crf_model.DoesNotExist:
+        except ObjectDoesNotExist:
             metadata_obj = self.metadata_crf_model.objects.create(
                 entry_status=REQUIRED if crf.required else NOT_REQUIRED,
                 show_order=crf.show_order, **options)
@@ -90,7 +91,7 @@ class RequisitionCreator(Base):
         try:
             metadata_obj = self.metadata_requisition_model.objects.get(
                 **options)
-        except self.metadata_requisition_model.DoesNotExist:
+        except ObjectDoesNotExist:
             metadata_obj = self.metadata_requisition_model.objects.create(
                 entry_status=REQUIRED if requisition.required else NOT_REQUIRED,
                 show_order=requisition.show_order,
@@ -122,15 +123,17 @@ class Creator:
     requisition_creator_cls = RequisitionCreator
 
     def __init__(self, visit=None, **kwargs):
+        """param visit is a visit model instance but the
+        instance attr is not.
+        """
         self.crf_creator = self.crf_creator_cls(visit=visit, **kwargs)
         self.requisition_creator = self.requisition_creator_cls(
             visit=visit, **kwargs)
-        self.visit = visit
         self.visit_code_sequence = visit.visit_code_sequence
         visit_schedule = site_visit_schedules.get_visit_schedule(
-            self.visit.visit_schedule_name)
-        schedule = visit_schedule.schedules.get(self.visit.schedule_name)
-        self.visit = schedule.visits.get(self.visit.visit_code)
+            visit.visit_schedule_name)
+        schedule = visit_schedule.schedules.get(visit.schedule_name)
+        self.visit = schedule.visits.get(visit.visit_code)
 
     @property
     def crfs(self):
@@ -145,8 +148,8 @@ class Creator:
         return self.visit.requisitions
 
     def create(self):
-        """Creates all CRF and requisition metadata for
-        the visit instance.
+        """Creates metadata for all CRFs and requisitions for
+        the scheduled or unscheduled visit instance.
         """
         for crf in self.crfs:
             self.create_crf(crf=crf)

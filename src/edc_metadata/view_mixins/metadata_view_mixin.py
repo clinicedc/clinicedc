@@ -1,5 +1,10 @@
-from ..constants import CRF, NOT_REQUIRED, REQUISITION
+from django.contrib import messages
+from django.utils.safestring import mark_safe
+from edc_appointment.constants import IN_PROGRESS_APPT
+
+from ..constants import CRF, NOT_REQUIRED, REQUISITION, REQUIRED, KEYED
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
+from pprint import pprint
 
 
 class MetaDataViewMixin:
@@ -9,12 +14,17 @@ class MetaDataViewMixin:
     crf_metadata_wrappers_cls = CrfMetadataWrappers
     requisition_metadata_wrappers_cls = RequisitionMetadataWrappers
 
+    show_status = [REQUIRED, KEYED]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.appointment:
+            if self.appointment.appt_status != IN_PROGRESS_APPT:
+                self.message_user(mark_safe(
+                    f'Wait!. Another user has switch the current appointment! '
+                    f'<BR>Appointment {self.appointment} is no longer "in progress".'))
             crf_metadata_wrappers = self.crf_metadata_wrappers_cls(
                 appointment=self.appointment)
-
             requisition_metadata_wrappers = self.requisition_metadata_wrappers_cls(
                 appointment=self.appointment)
             context.update(
@@ -25,6 +35,9 @@ class MetaDataViewMixin:
                     key=REQUISITION, metadata_wrappers=requisition_metadata_wrappers),
                 NOT_REQUIRED=NOT_REQUIRED)
         return context
+
+    def message_user(self, message=None):
+        messages.error(self.request, message=message)
 
     def get_model_crf_wrapper(self, key=None, metadata_wrappers=None):
         model_wrappers = []
