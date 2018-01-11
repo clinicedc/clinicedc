@@ -12,17 +12,20 @@ from ..models import CrfMetadata, RequisitionMetadata
 from .models import SubjectConsent, SubjectVisit, CrfOne, SubjectRequisition
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
+from edc_facility.import_holidays import import_holidays
 
 
 class TestMetadataWrapperObjects(TestCase):
 
     def setUp(self):
+        import_holidays()
         register_to_site_reference_configs()
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            site_visit_schedules, autodiscover=False)
+            visit_models={
+                'edc_appointment.appointment': 'edc_metadata.subjectvisit'})
         self.subject_identifier = '1111111'
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,

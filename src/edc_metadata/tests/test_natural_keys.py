@@ -14,6 +14,7 @@ from ..sync_models import sync_models
 from .visit_schedule import visit_schedule
 from .models import SubjectVisit, SubjectConsent
 from edc_base.utils import get_utcnow
+from edc_facility.import_holidays import import_holidays
 
 fake = Faker()
 
@@ -37,7 +38,7 @@ class TestNaturalKey(TestCase):
     ]
 
     def setUp(self):
-
+        import_holidays()
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)

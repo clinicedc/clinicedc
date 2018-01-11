@@ -1,9 +1,11 @@
+from django.http.request import HttpRequest
 from django.test import TestCase, tag
 from django.views.generic.base import ContextMixin
-from edc_appointment.models import Appointment
-from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.constants import INCOMPLETE_APPT
+from edc_appointment.creators import UnscheduledAppointmentCreator
+from edc_appointment.models import Appointment
 from edc_base import get_utcnow
+from edc_facility.import_holidays import import_holidays
 from edc_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -35,13 +37,15 @@ class MyView(MetaDataViewMixin, ContextMixin):
 class TestViewMixin(TestCase):
 
     def setUp(self):
+        import_holidays()
         register_to_site_reference_configs()
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            site_visit_schedules, autodiscover=False)
+            visit_models={
+                'edc_appointment.appointment': 'edc_metadata.subjectvisit'})
         self.subject_identifier = '1111111'
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
@@ -99,7 +103,6 @@ class TestViewMixin(TestCase):
         context_data = view.get_context_data()
         self.assertEqual(len(context_data.get('requisitions')), 6)
 
-    @tag('1')
     def test_view_mixin_context_data_crfs_unscheduled(self):
         self.appointment.appt_status = INCOMPLETE_APPT
         self.appointment.save()
@@ -127,6 +130,8 @@ class TestViewMixin(TestCase):
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
+        view.request = HttpRequest()
+        view.message_user = lambda x: x
         context_data = view.get_context_data()
         self.assertEqual(len(context_data.get('crfs')), 5)
         self.assertEqual(len(context_data.get('requisitions')), 6)

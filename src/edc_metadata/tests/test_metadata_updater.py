@@ -13,17 +13,20 @@ from ..target_handler import TargetModelLookupError, TargetModelNotScheduledForV
 from .models import SubjectVisit, SubjectConsent
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
+from edc_facility.import_holidays import import_holidays
 
 
 class TestMetadataUpdater(TestCase):
 
     def setUp(self):
+        import_holidays()
         register_to_site_reference_configs()
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            site_visit_schedules, autodiscover=False)
+            visit_models={
+                'edc_appointment.appointment': 'edc_metadata.subjectvisit'})
         self.subject_identifier = '1111111'
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
