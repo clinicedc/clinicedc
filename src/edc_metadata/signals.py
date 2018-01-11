@@ -68,6 +68,9 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs):
     except AttributeError as e:
         if 'metadata_reset_on_delete' not in str(e):
             raise AttributeError(e) from e
+    else:
+        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
+            instance.run_metadata_rules_for_crf()
     # deletes all for a visit used by CreatesMetadataMixin
     try:
         instance.metadata_delete_for_visit()
