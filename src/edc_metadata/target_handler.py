@@ -38,6 +38,8 @@ class TargetHandler:
 
         self.model = model
         self.visit = visit  # visit model instance
+        self.metadata_model = django_apps.get_app_config(
+            'edc_metadata').get_metadata_model(self.metadata_category)
 
         if self.model == self.visit._meta.label_lower:
             raise TargetModelConflict(
@@ -52,10 +54,7 @@ class TargetHandler:
 
         self.raise_on_not_scheduled_for_visit()
 
-        app_config = django_apps.get_app_config('edc_metadata')
-        self.metadata_model = app_config.get_metadata_model(
-            self.metadata_category)
-        self.metadata_obj = self.metadata_handler.get_or_create()
+        self.metadata_obj = self.metadata_handler.metadata_obj
 
     def __repr__(self):
         return (f'<{self.__class__.__name__}({self.model}, {self.visit}), '
@@ -69,22 +68,13 @@ class TargetHandler:
 
     @property
     def object(self):
+        """Returns a reference model instance for the "target".
+
+        Recall the CRF/Requisition is not queried directly but rather
+        represented by a model instance from edc_reference.
+        """
         return self.reference_model_cls.objects.filter_crf_for_visit(
             name=self.model, visit=self.visit)
-
-    def raise_on_not_scheduled_for_visit(self):
-        """Raises an exception if model is not scheduled
-        for this visit.
-        """
-        visit_schedule = site_visit_schedules.get_visit_schedule(
-            self.visit.visit_schedule_name)
-        schedule = visit_schedule.schedules.get(self.visit.schedule_name)
-        forms = schedule.visits.get(self.visit.visit_code).forms
-        models = list(set([form.model for form in forms]))
-        if self.model not in models:
-            raise TargetModelNotScheduledForVisit(
-                f'Target model {self.model} is not scheduled '
-                f'for visit \'{self.visit.visit_code}\'.')
 
     @property
     def metadata_handler(self):
@@ -92,3 +82,26 @@ class TargetHandler:
             metadata_model=self.metadata_model,
             model=self.model,
             visit=self.visit)
+
+    @property
+    def models(self):
+        """Returns a list of models for this visit.
+        """
+        if self.visit.visit_code_sequence != 0:
+            forms = (self.visit.visit.unscheduled_forms
+                     + self.visit.visit.prn_forms)
+        else:
+            forms = self.visit.visit.forms + self.visit.visit.prn_forms
+        return list(set([form.model for form in forms]))
+
+    def raise_on_not_scheduled_for_visit(self):
+        """Raises an exception if model is not scheduled
+        for this visit.
+
+        PRN forms are added to the list of scheduled forms
+        for the conditional eval.
+        """
+        if self.model not in self.models:
+            raise TargetModelNotScheduledForVisit(
+                f'Target model {self.model} is not scheduled '
+                f'for visit \'{self.visit.visit_code}\'.')
