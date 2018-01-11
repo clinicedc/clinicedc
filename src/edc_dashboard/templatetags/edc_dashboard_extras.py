@@ -31,21 +31,18 @@ class UrlMaker:
         return url
 
 
-def page_numbers(n, numpages, display=None):
+def page_numbers(page, numpages, display=None):
     """Returns a list of x integers (display) relative to the value of n
     where n > 0 and the length of the list cannot exceed count.
     """
-    display = display or 10
-    half = int(display / 2)
-    if numpages - half <= n:
-        numlist = [x for x in range(numpages - display, numpages)]
-    elif n <= half:
-        numlist = [x for x in range(0, display)]
-    else:
-        numlist = [x for x in range(
-            n - half, numpages - (numpages - n) + half)]
-    numlist = [x + 1 for x in numlist]
-    return numlist
+    page_numbers = None
+    if page and numpages:
+        min_n = page - 5
+        min_n = 1 if min_n <= 0 else min_n
+        max_n = min_n + 9
+        max_n = numpages if max_n >= numpages else max_n
+        page_numbers = [x for x in range(min_n, max_n + 1)]
+    return page_numbers or []
 
 
 @register.inclusion_tag('edc_dashboard/paginator/paginator_row.html', takes_context=True)

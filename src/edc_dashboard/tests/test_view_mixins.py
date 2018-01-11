@@ -12,7 +12,6 @@ from edc_model_wrapper import ModelWrapper
 from ..listboard_filter import ListboardFilter, ListboardViewFilters
 from ..view_mixins import ListboardFilterViewMixin
 from ..views import ListboardView
-from pprint import pprint
 
 
 class TestViewMixins(TestCase):
