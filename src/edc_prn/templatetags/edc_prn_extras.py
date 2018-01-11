@@ -1,5 +1,7 @@
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
+from edc_metadata.models import CrfMetadata, RequisitionMetadata
+from edc_metadata.constants import REQUIRED, KEYED
 
 from ..site_prn_forms import site_prn_forms
 
@@ -26,8 +28,14 @@ def add_prn_crf_popover(appointment, subject_dashboard_url):
 
     for crf in crfs_prn:
         try:
-            crf.model_cls.objects.get(
-                **{crf.model_cls.visit_model_attr(): appointment.visit})
+            CrfMetadata.objects.get(
+                subject_identifier=appointment.subject_identifier,
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+                visit_code=appointment.visit_code,
+                visit_code_sequence=appointment.visit_code_sequence,
+                model=crf.model,
+                entry_status__in=[REQUIRED, KEYED])
         except ObjectDoesNotExist:
             crf.add_url = crf.model_cls().get_absolute_url()
             crf.visit_model_attr = crf.model_cls.visit_model_attr()
@@ -52,9 +60,15 @@ def add_prn_requisition_popover(appointment, subject_dashboard_url):
             appointment.visit_code).requisitions_prn
     for requisition in requisitions_prn:
         try:
-            requisition.model_cls.objects.get(
-                **{requisition.model_cls.visit_model_attr(): appointment.visit,
-                   'panel_name': requisition.panel.name})
+            RequisitionMetadata.objects.get(
+                subject_identifier=appointment.subject_identifier,
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+                visit_code=appointment.visit_code,
+                visit_code_sequence=appointment.visit_code_sequence,
+                model=requisition.model,
+                panel_name=requisition.panel.name,
+                entry_status__in=[REQUIRED, KEYED])
         except ObjectDoesNotExist:
             requisition.add_url = requisition.model_cls().get_absolute_url()
             requisition.visit_model_attr = requisition.model_cls.visit_model_attr()
