@@ -27,7 +27,6 @@ class RequisitionAdminMixin:
     ]
 
     search_fields = [
-        'subject_identifier',
-        'specimen_identifier',
         'requisition_identifier',
+        'subject_identifier',
         'panel_name']

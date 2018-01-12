@@ -115,7 +115,6 @@ class RequisitionModelMixin(PanelModelMixin, models.Model):
             'protocol': '',  # edc_base_app_config.protocol_number
             'requisition_identifier': self.requisition_identifier,
             'site': self.study_site,
-            'specimen_identifier': self.specimen_identifier,
             'subject_identifier': self.subject_identifier,
             'visit': self.get_visit().appointment.visit_code,
         })

@@ -2,6 +2,10 @@ from django import forms
 from django.apps import apps as django_apps
 from edc_constants.constants import YES, NO
 from edc_form_validators import FormValidator
+from arrow.arrow import Arrow
+from edc_base.utils import convert_php_dateformat
+from django.conf import settings
+from django.utils import timezone
 
 
 class RequisitionFormMixin:
@@ -48,6 +52,8 @@ class RequisitionFormMixin:
                 'Requisition may not be changed. The specimen has '
                 'already been received.')
 
+        self.validate_requisition_datetime()
+
         form_validator = FormValidator(
             cleaned_data=cleaned_data,
             instance=self.instance)
@@ -63,3 +69,27 @@ class RequisitionFormMixin:
             YES, field='is_drawn', field_required='estimated_volume')
 
         return cleaned_data
+
+    def validate_assay_datetime(self, assay_datetime, requisition, field):
+        if assay_datetime:
+            assay_datetime = Arrow.fromdatetime(
+                assay_datetime, assay_datetime.tzinfo).to('utc').datetime
+            if assay_datetime < requisition.requisition_datetime:
+                formatted = timezone.localtime(requisition.requisition_datetime).strftime(
+                    convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
+                raise forms.ValidationError({
+                    field: (f'Invalid. Cannot be before date of '
+                            f'requisition {formatted}.')})
+
+    def validate_requisition_datetime(self):
+        requisition_datetime = self.cleaned_data.get('requisition_datetime')
+        subject_visit = self.cleaned_data.get('subject_visit')
+        if requisition_datetime:
+            requisition_datetime = Arrow.fromdatetime(
+                requisition_datetime, requisition_datetime.tzinfo).to('utc').datetime
+            if requisition_datetime < subject_visit.report_datetime:
+                formatted = timezone.localtime(subject_visit.report_datetime).strftime(
+                    convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
+                raise forms.ValidationError({
+                    'requisition_datetime':
+                    f'Invalid. Cannot be before date of visit {formatted}.'})
