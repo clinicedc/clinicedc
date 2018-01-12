@@ -1,3 +1,4 @@
+{% load edc_lab_extras %}
 
 <!-- begin columns -->
 
@@ -16,16 +17,10 @@
       </span>
     </td>
     <td>
-      {% if wrapped.received %}
-        <span class="text text-success"><i class="fa fa-check-circle fa-lg" title="Received"></i></span>
-      {% else %}
-        <span class="text text-danger"><i class="fa fa-times-circle fa-lg" title="Not received"></i></span>
-      {% endif %}
-      {% if wrapped.processed %}
-        <span class="text text-success"><i class="fa fa-check-circle fa-lg" title="Processed"></i></span>
-      {% else %}
-        <span class="text text-danger"><i class="fa fa-times-circle fa-lg" title="Not processed"></i></span>
-      {% endif %}
+      {{ wrapped.object.visit_code }}
+    </td>
+    <td>
+      {% status_column wrapped 'received' 'processed' %}
     </td>
     <td>
       {{ wrapped.object.panel_object.verbose_name }}

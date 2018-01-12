@@ -5,6 +5,7 @@ from django.utils.safestring import mark_safe
 
 from edc_lab.constants import SHIPPED
 from edc_lab.models import BoxItem
+from pprint import pprint
 
 register = template.Library()
 
@@ -77,3 +78,15 @@ def shipped(box_item):
     return '' if not box_item.status == SHIPPED else mark_safe(
         '&nbsp;<span title="shipped" class="text text-success">'
         '<i class="fa fa-ship fa-fw"></i></span>')
+
+
+@register.inclusion_tag('edc_lab_dashboard/listboard/tags/status_column.html')
+def status_column(model_wrapper, *attrs):
+    options = {}
+    for attr in attrs:
+        try:
+            options.update({attr: True if getattr(
+                model_wrapper, attr) else False})
+        except AttributeError:
+            pass
+    return dict(options=options)
