@@ -10,11 +10,13 @@ class RequiredFieldValidator(BaseFormValidator):
     def required_if(self, *responses, field=None, field_required=None,
                     required_msg=None, not_required_msg=None,
                     optional_if_dwta=None, optional_if_na=None,
+                    inverse=None,
                     code=None, **kwargs):
         """Raises an exception or returns False.
 
         if field in responses then field_required is required.
         """
+        inverse = True if inverse is None else inverse
         self._inspect_params(
             *responses, field=field, field_required=field_required)
         if field in self.cleaned_data:
@@ -32,9 +34,9 @@ class RequiredFieldValidator(BaseFormValidator):
                 self._errors.update(message)
                 self._error_codes.append(REQUIRED_ERROR)
                 raise ValidationError(message, code=REQUIRED_ERROR)
-            elif (self.cleaned_data.get(field) not in responses
-                    and (self.cleaned_data.get(field_required)
-                         and self.cleaned_data.get(field_required) != NOT_APPLICABLE)):
+            elif inverse and (self.cleaned_data.get(field) not in responses
+                              and (self.cleaned_data.get(field_required)
+                                   and self.cleaned_data.get(field_required) != NOT_APPLICABLE)):
                 message = {
                     field_required: not_required_msg or 'This field is not required.'}
                 self._errors.update(message)
@@ -44,7 +46,8 @@ class RequiredFieldValidator(BaseFormValidator):
 
     def required_if_true(self, condition, field_required=None,
                          required_msg=None, not_required_msg=None,
-                         code=None, **kwargs):
+                         code=None, inverse=None, **kwargs):
+        inverse = True if inverse is None else inverse
         if not field_required:
             raise InvalidModelFormFieldValidator(
                 f'The required field cannot be None.')
@@ -56,8 +59,8 @@ class RequiredFieldValidator(BaseFormValidator):
                 self._errors.update(message)
                 self._error_codes.append(REQUIRED_ERROR)
                 raise ValidationError(message, code=REQUIRED_ERROR)
-            elif (not condition and self.cleaned_data.get(field_required)
-                    and self.cleaned_data.get(field_required) != NOT_APPLICABLE):
+            elif inverse and (not condition and self.cleaned_data.get(field_required)
+                              and self.cleaned_data.get(field_required) != NOT_APPLICABLE):
                 message = {
                     field_required: not_required_msg or 'This field is not required.'}
                 self._errors.update(message)

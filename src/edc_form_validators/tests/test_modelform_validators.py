@@ -168,7 +168,7 @@ class TestRequiredFieldValidator2(TestCase):
         except (ModelFormFieldValidatorError, InvalidModelFormFieldValidator) as e:
             self.fail(f'Exception unexpectedly raised. Got {e}')
 
-    def test_required(self):
+    def test_not_required(self):
         """Asserts field_two required if not YES.
         """
         form_validator = FormValidator(cleaned_data=dict(field_one=NO))
@@ -177,6 +177,71 @@ class TestRequiredFieldValidator2(TestCase):
                 YES, field='field_one', field_required='field_two')
         except (ModelFormFieldValidatorError, InvalidModelFormFieldValidator) as e:
             self.fail(f'Exception unexpectedly raised. Got {e}')
+
+    def test_required_if_specifying_inverse(self):
+
+        class MyFormValidator1(FormValidator):
+            def clean(self):
+                self.required_if(
+                    YES, field='field_one', field_required='field_two',
+                    inverse=True)
+        form_validator = MyFormValidator1(
+            cleaned_data=dict(field_one=YES, field_two=None))
+        self.assertRaises(forms.ValidationError, form_validator.clean)
+        form_validator = MyFormValidator1(
+            cleaned_data=dict(field_one=None, field_two='blah'))
+        self.assertRaises(forms.ValidationError, form_validator.clean)
+
+        class MyFormValidator2(FormValidator):
+            def clean(self):
+                self.required_if(
+                    YES, field='field_one', field_required='field_two',
+                    inverse=False)
+        form_validator = MyFormValidator2(
+            cleaned_data=dict(field_one=YES, field_two=None))
+        self.assertRaises(forms.ValidationError, form_validator.clean)
+        form_validator = MyFormValidator2(
+            cleaned_data=dict(field_one=None, field_two='blah'))
+        try:
+            form_validator.clean()
+        except forms.ValidationError:
+            self.fail('ValidationError unexpectedly raised')
+
+    def test_not_required_inverse_is_true(self):
+        class MyFormValidator1(FormValidator):
+            def clean(self):
+                self.not_required_if(
+                    YES, field='field_one', field_required='field_two',
+                    inverse=True)
+        form_validator = MyFormValidator1(
+            cleaned_data=dict(field_one=YES, field_two=None))
+        try:
+            form_validator.clean()
+        except forms.ValidationError:
+            self.fail('ValidationError unexpectedly raised')
+
+        form_validator = MyFormValidator1(
+            cleaned_data=dict(field_one=YES, field_two='blah'))
+        self.assertRaises(forms.ValidationError, form_validator.clean)
+
+        class MyFormValidator2(FormValidator):
+            def clean(self):
+                self.not_required_if(
+                    YES, field='field_one', field_required='field_two',
+                    inverse=False)
+        form_validator = MyFormValidator1(
+            cleaned_data=dict(field_one=YES, field_two=None))
+        try:
+            form_validator.clean()
+        except forms.ValidationError:
+            self.fail('ValidationError unexpectedly raised')
+
+        form_validator = MyFormValidator1(
+            cleaned_data=dict(field_one=NO, field_two='blah'))
+        try:
+            form_validator.clean()
+        except forms.ValidationError:
+            self.fail('ValidationError unexpectedly raised')
 
 
 class TestApplicableFieldValidator(TestCase):
