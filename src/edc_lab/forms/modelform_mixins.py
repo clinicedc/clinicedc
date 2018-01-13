@@ -1,11 +1,11 @@
+from arrow.arrow import Arrow
 from django import forms
 from django.apps import apps as django_apps
-from edc_constants.constants import YES, NO
-from edc_form_validators import FormValidator
-from arrow.arrow import Arrow
-from edc_base.utils import convert_php_dateformat
 from django.conf import settings
 from django.utils import timezone
+from edc_base.utils import convert_php_dateformat
+from edc_constants.constants import YES, NO
+from edc_form_validators import FormValidator
 
 
 class RequisitionFormMixin:
@@ -59,6 +59,7 @@ class RequisitionFormMixin:
             instance=self.instance)
         form_validator.applicable_if(
             NO, field='is_drawn', field_applicable='reason_not_drawn')
+        form_validator.validate_other_specify(field='reason_not_drawn')
         form_validator.required_if(
             YES, field='is_drawn', field_required='drawn_datetime')
         form_validator.applicable_if(

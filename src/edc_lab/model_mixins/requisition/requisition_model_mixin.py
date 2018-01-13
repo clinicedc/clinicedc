@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from edc_base.model_fields import InitialsField
+from edc_base.model_fields.custom_fields import OtherCharField
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NOT_APPLICABLE
 
@@ -34,6 +35,8 @@ class RequisitionModelMixin(PanelModelMixin, models.Model):
         max_length=25,
         default=NOT_APPLICABLE,
         choices=REASON_NOT_DRAWN)
+
+    reason_not_drawn_other = OtherCharField()
 
     study_site = models.CharField(
         max_length=10,
