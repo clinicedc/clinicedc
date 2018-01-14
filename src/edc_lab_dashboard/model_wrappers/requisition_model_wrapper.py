@@ -10,9 +10,8 @@ class RequisitionModelWrapper(ModelWrapper):
 
     model = edc_lab_app_config.requisition_model
     next_url_name = dashboard_urls.get('requisition_listboard_url')
-    # querystring_attrs = ['subject_visit']
     next_url_attrs = ['appointment', 'subject_identifier']
-    querystring_attrs = ['subject_visit', 'panel_name']
+    querystring_attrs = ['subject_visit', 'panel']
 
     @property
     def subject_visit(self):
@@ -27,5 +26,5 @@ class RequisitionModelWrapper(ModelWrapper):
         return self.object.subject_visit.subject_identifier
 
     @property
-    def panel_name(self):
-        return self.object.panel_name
+    def panel(self):
+        return str(self.object.panel.id)
