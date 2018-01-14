@@ -5,8 +5,8 @@ from django.utils import timezone
 from edc_base.utils import get_utcnow
 from edc_constants.constants import OPEN, CLOSED, OTHER
 
-from ...constants import TESTING, STORAGE
-from ...identifiers import ManifestIdentifier
+from ....constants import TESTING, STORAGE
+from ....identifiers import ManifestIdentifier
 
 STATUS = (
     (OPEN, 'Open'),

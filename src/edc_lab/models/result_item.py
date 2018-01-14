@@ -3,7 +3,7 @@ from django.db.models.deletion import PROTECT
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.model_managers import HistoricalRecords
 
-from ..model_mixins import ResultItemModelMixin
+from .model_mixins import ResultItemModelMixin
 from .result import Result
 
 

@@ -1,5 +1,6 @@
 from django.db import models
 from edc_base.model_mixins import BaseUuidModel
+
 from ..constants import FILL_ACROSS
 from ..choices import FILL_ORDER
 

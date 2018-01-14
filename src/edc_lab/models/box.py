@@ -9,8 +9,8 @@ from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..constants import VERIFIED, PACKED, SHIPPED, TESTING, STORAGE
 from ..identifiers import BoxIdentifier
-from ..model_mixins.shipping import VerifyBoxModelMixin
 from .box_type import BoxType
+from .model_mixins.shipping import VerifyBoxModelMixin
 
 
 BOX_DIMENSIONS = (

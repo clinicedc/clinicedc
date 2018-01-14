@@ -41,7 +41,7 @@ class TestSpecimen(TestCase):
     def test_specimen(self):
         requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             protocol_number='999',
             is_drawn=YES)
         Specimen(requisition=requisition)
@@ -49,7 +49,7 @@ class TestSpecimen(TestCase):
     def test_specimen_repr(self):
         requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             protocol_number='999',
             is_drawn=YES)
         specimen = Specimen(requisition=requisition)
@@ -58,7 +58,7 @@ class TestSpecimen(TestCase):
     def test_specimen_from_pk(self):
         requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             protocol_number='999',
             is_drawn=YES)
         Specimen(requisition_pk=requisition.pk)
@@ -66,7 +66,7 @@ class TestSpecimen(TestCase):
     def test_specimen_not_drawn(self):
         requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             protocol_number='999',
             is_drawn=NO)
         self.assertRaises(
@@ -86,7 +86,7 @@ class TestSpecimen2(TestCase):
             subject_identifier='1111111111')
         self.requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             protocol_number='999',
             is_drawn=YES)
         self.specimen = Specimen(requisition=self.requisition)

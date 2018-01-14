@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-from ...choices import (
+from ....choices import (
     ALIQUOT_STATUS, SPECIMEN_MEASURE_UNITS, SPECIMEN_MEDIUM,
     ALIQUOT_CONDITIONS)
 

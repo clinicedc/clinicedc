@@ -17,10 +17,10 @@ class TestSiteLab(TestCase):
         self.assertFalse(site_lab.loaded)
 
     def test_site_labs_register(self):
-        lab_profile = LabProfile(name='lab_profile')
+        lab_profile = LabProfile(
+            name='lab_profile', requisition_model='edc_lab.subjectrequisition')
         site_lab = SiteLabs()
-        site_lab.register(
-            lab_profile, requisition_model='edc_lab.subjectrequisition')
+        site_lab.register(lab_profile)
         self.assertTrue(site_lab.loaded)
 
     def test_site_labs_register_none(self):
@@ -64,7 +64,7 @@ class TestSiteLab2(TestCase):
         subject_visit = SubjectVisit.objects.create()
         SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name=self.panel.name)
+            panel=self.panel.panel_model_obj)
 
     def test_requisition_identifier2(self):
         """Asserts requisition identifier is set on requisition.
@@ -72,7 +72,7 @@ class TestSiteLab2(TestCase):
         subject_visit = SubjectVisit.objects.create()
         requisition = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             is_drawn=YES)
         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
         self.assertTrue(pattern.match(requisition.requisition_identifier))
@@ -84,7 +84,7 @@ class TestSiteLab2(TestCase):
         subject_visit = SubjectVisit.objects.create()
         requisition = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             is_drawn=NO,
             reason_not_drawn=NOT_APPLICABLE)
         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
@@ -95,7 +95,7 @@ class TestSiteLab2(TestCase):
         subject_visit = SubjectVisit.objects.create()
         requisition = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             is_drawn=NO)
         requisition.is_drawn = YES
         requisition.save()
@@ -107,7 +107,7 @@ class TestSiteLab2(TestCase):
         subject_visit = SubjectVisit.objects.create()
         requisition = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             is_drawn=YES)
         requisition_identifier = requisition.requisition_identifier
         requisition.is_drawn = YES

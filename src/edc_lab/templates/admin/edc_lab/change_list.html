@@ -1,0 +1,12 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block object-tools-items %}
+
+	{% if cl.opts.label_lower != 'edc_lab.panel' %}
+		{{ block.super }}
+	{% else %}
+		<h5>Note: Panels are configured in the "site_labs" configuration</h5>
+	{% endif %}
+
+{% endblock object-tools-items %}

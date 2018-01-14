@@ -23,7 +23,6 @@ class RequisitionFormMixin:
             self.fields['item_count'].initial = self.default_item_count
             self.fields[
                 'estimated_volume'].initial = self.default_estimated_volume
-        self.fields['panel_name'].widget.attrs['readonly'] = True
         if self.fields.get('specimen_type'):
             self.fields['specimen_type'].widget.attrs['readonly'] = True
 

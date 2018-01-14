@@ -5,7 +5,7 @@ from django.db import models
 from edc_base.utils import get_uuid
 from edc_constants.constants import YES, UUID_PATTERN
 
-from ...identifiers import RequisitionIdentifier
+from ....identifiers import RequisitionIdentifier
 
 human_readable_pattern = '^[0-9A-Z]{3}\-[0-9A-Z]{4}$'
 

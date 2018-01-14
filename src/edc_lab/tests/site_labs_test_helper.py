@@ -1,6 +1,5 @@
 from ..lab import AliquotType, RequisitionPanel, Process, ProcessingProfile, LabProfile
 from ..site_labs import site_labs
-from .models import SubjectRequisition
 
 
 class SiteLabsTestHelper:
@@ -36,10 +35,8 @@ class SiteLabsTestHelper:
         # lab profile
         self.lab_profile = LabProfile(
             name='lab_profile',
-            requisition_model=SubjectRequisition)
+            requisition_model=self.requisition_model)
         self.lab_profile.add_panel(self.panel)
 
         # register with site
-        site_labs.register(
-            lab_profile=self.lab_profile,
-            requisition_model=self.requisition_model)
+        site_labs.register(lab_profile=self.lab_profile)

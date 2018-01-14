@@ -6,7 +6,7 @@ from edc_base.model_fields.custom_fields import OtherCharField
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NOT_APPLICABLE
 
-from ...choices import ITEM_TYPE, REASON_NOT_DRAWN
+from ....choices import ITEM_TYPE, REASON_NOT_DRAWN
 from ..panel_model_mixin import PanelModelMixin
 
 
@@ -21,7 +21,8 @@ class RequisitionModelMixin(PanelModelMixin, models.Model):
         null=True,
         blank=True,
         help_text=(
-            'If not drawn, leave blank. Same as date and time of finger prick in case on DBS.'))
+            'If not drawn, leave blank. Same as date and time of '
+            'finger prick in case on DBS.'))
 
     is_drawn = models.CharField(
         verbose_name='Was a specimen drawn?',
@@ -114,7 +115,7 @@ class RequisitionModelMixin(PanelModelMixin, models.Model):
             'initials': self.registered_subject.initials,
             'item_count': self.item_count,
             'may_store_samples': may_store_samples,
-            'panel': self.panel_name[0:21],
+            'panel': self.panel.verbose_name[0:21],
             'protocol': '',  # edc_base_app_config.protocol_number
             'requisition_identifier': self.requisition_identifier,
             'site': self.study_site,

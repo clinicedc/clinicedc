@@ -3,8 +3,8 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..managers import AliquotManager
-from ..model_mixins import AliquotModelMixin, AliquotIdentifierModelMixin
-from ..model_mixins import AliquotTypeModelMixin, AliquotShippingMixin
+from .model_mixins import AliquotModelMixin, AliquotIdentifierModelMixin
+from .model_mixins import AliquotTypeModelMixin, AliquotShippingMixin
 
 
 class Manager(AliquotManager, SearchSlugManager):

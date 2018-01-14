@@ -13,5 +13,6 @@ from .manifest_admin import ManifestAdmin
 from .manifest_item_admin import ManifestItemAdmin
 from .modeladmin_mixins import RequisitionAdminMixin
 from .order_admin import OrderAdmin
+from .panel_admin import PanelAdmin
 from .result_admin import ResultAdmin, ResultItemAdmin
 from .shipper_admin import ShipperAdmin

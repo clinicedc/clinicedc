@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
+from edc_constants.constants import YES
+from uuid import UUID
 
 
 class RequisitionAdminMixin:
@@ -12,21 +15,37 @@ class RequisitionAdminMixin:
     }
 
     list_display = [
-        'requisition_identifier',
+        'requisition',
+        'subject_identifier',
+        'visit_code',
+        'panel',
         'requisition_datetime',
-        'panel_name',
         'hostname_created']
 
     list_filter = [
-        'panel_name',
         'requisition_datetime',
         'study_site',
-        'user_created',
-        'hostname_created',
-        'user_modified',
+        'is_drawn',
+        'panel',
     ]
 
     search_fields = [
         'requisition_identifier',
         'subject_identifier',
-        'panel_name']
+        'panel__display_name']
+
+    def visit_code(self, obj=None):
+        return f'{obj.visit.visit_code}.{obj.visit.visit_code_sequence}'
+
+    def requisition(self, obj=None):
+        if obj.is_drawn == YES:
+            return obj.requisition_identifier
+        return mark_safe('<span style="color:red;">not drawn</span>')
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        print(db_field.name)
+        if db_field.name == 'panel':
+            kwargs["queryset"] = db_field.related_model.objects.filter(
+                pk=UUID(request.GET.get('panel')) or None)
+        return super().formfield_for_foreignkey(
+            db_field, request, **kwargs)

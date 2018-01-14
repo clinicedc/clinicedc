@@ -106,7 +106,7 @@ class TestForms2(TestCase):
     def test_requisition_form_packed_cannot_change(self):
         obj = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name='panel',
+            panel=self.lab_helper.panel.panel_model_obj,
             packed=True,
             processed=True,
             received=True)
@@ -118,7 +118,7 @@ class TestForms2(TestCase):
     def test_requisition_form_processed_can_change_if_no_aliquots(self):
         obj = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name='panel',
+            panel=self.lab_helper.panel.panel_model_obj,
             packed=True,
             processed=True,
             received=True)
@@ -130,7 +130,7 @@ class TestForms2(TestCase):
     def test_requisition_form_processed_cannot_change_if_aliquots(self):
         obj = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name='panel',
+            panel=self.lab_helper.panel.panel_model_obj,
             packed=True,
             processed=True,
             received=True)
@@ -146,7 +146,7 @@ class TestForms2(TestCase):
     def test_requisition_form_received_cannot_change(self):
         obj = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name='panel',
+            panel=self.lab_helper.panel.panel_model_obj,
             packed=True,
             processed=True,
             received=True)
@@ -158,7 +158,7 @@ class TestForms2(TestCase):
     def test_requisition_form_received_cannot_be_set_by_form(self):
         obj = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name='panel',
+            panel=self.lab_helper.panel.panel_model_obj,
             received=False)
         data = {'received': True}
         form = self.form_cls(data=data, instance=obj)
@@ -168,7 +168,7 @@ class TestForms2(TestCase):
     def test_requisition_form_cannot_be_changed_if_received(self):
         obj = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name='panel',
+            panel=self.lab_helper.panel.panel_model_obj,
             received=True)
         data = {'received': True}
         form = self.form_cls(data=data, instance=obj)
