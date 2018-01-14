@@ -3,6 +3,7 @@ import sys
 
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
+from pprint import pprint
 
 
 class RegistryNotLoaded(Exception):
@@ -130,7 +131,7 @@ class SiteVisitSchedules:
                     import_module(f'{app}.{module_name}')
                     if verbose:
                         sys.stdout.write(
-                            ' * registered visit schedule from application '
+                            ' * registered visit schedule from '
                             f'\'{app}\'\n')
                 except Exception as e:
                     if f'No module named \'{app}.{module_name}\'' not in str(e):
@@ -138,7 +139,7 @@ class SiteVisitSchedules:
                     site_visit_schedules._registry = before_import_registry
                     if module_has_submodule(mod, module_name):
                         raise
-            except ImportError:
+            except ModuleNotFoundError:
                 pass
 
     @property
