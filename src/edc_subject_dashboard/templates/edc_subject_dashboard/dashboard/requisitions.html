@@ -15,10 +15,10 @@
 				    		<td>
 	                            {% if requisition.entry_status == NOT_REQUIRED %}
 	                                <span class="text text-muted small">
-	                                 {{ requisition.panel_name }}
+                                	{{ requisition.object.panel_display_name }}
 	                                </span>
                                 {% else %}
-                                    {{ requisition.panel_name }}
+                                	{{ requisition.object.panel_display_name }}
                                     {% if requisition.object.user_created %}
                                         <p class="text small text-default">
                                             {{ requisition.object.user_created }} on {{ requisition.object.object.created|date:"SHORT_DATETIME_FORMAT" }}
@@ -28,25 +28,32 @@
                                 {% endif %}
 				    		</td>
 						    <td>
-				    			{% if requisition.object.is_drawn == YES and requisition.object.requisition_identifier %}
-				    				<span class="btn btn-sm btn-default">{{ requisition.object.requisition_identifier|human }}</span>
-				    			{% elif requisition.object.is_drawn == NO %}
-				    			    <span class="btn btn-sm btn-danger">NOT DRAWN</span>
+				    			{% if requisition.entry_status == KEYED %}
+					    			{% if requisition.object.is_drawn == YES and requisition.object.requisition_identifier %}
+					    				<span class="text text-default"><strong>{{ requisition.object.requisition_identifier|human }}</strong></span>
+
+					    			{% elif requisition.object.reason_not_drawn == NOT_REQUIRED %}
+					    				<span class="text text-info small"><i class="fa fa-info-circle"></i> no longer required</span>
+					    			{% elif requisition.object.is_drawn == NO %}
+					    				<span class="text text-danger small"><i class="fa fa-warning"></i> not drawn</span>
+					    			{% else %}
+					    				<span class="text text-danger small"><i class="fa fa-warning"></i> ERROR</span>
+					    			{% endif %}
 				    			{% endif %}
 
 								<span class="btn-group pull-right">
 	                            {% if requisition.entry_status != NOT_REQUIRED %}
-	    							<a role="button" class="btn btn-sm {% if requisition.object.id %}btn-success{% else %}{% if requisition.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
+	    							<a role="button" class="btn btn-sm {% if requisition.entry_status == KEYED %}btn-success{% else %}{% if requisition.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
 											href="{{ requisition.object.href }}">
-											{% if requisition.object.id %}
+											{% if requisition.entry_status == KEYED %}
 												<span class="fa fa-pencil fa-fw"></span> Edit
 											{% else %}
 												<span class="fa fa-plus fa-fw"></span> Add
 											{% endif %}
 		       						</a> 
 				     		        <a role="button" class="btn btn-sm btn-default" 
-							        	{% if requisition.entry_status == NOT_REQUIRED or not requisition.object %} disabled {% endif %} 
-							        		href="{{ requisition.object.get_absolute_url }}?edc_readonly=1&edc_readonly_{{ requisition.object.next_url }}&&{{ requisition.object.querystring }}">View</a>
+							        	{% if requisition.entry_status != KEYED %} disabled {% endif %} 
+							        		href="{{ requisition.object.get_absolute_url }}?edc_readonly=1&edc_readonly_{{ requisition.object.next_url }}&{{ requisition.object.querystring }}">View</a>
 					    	        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
 	                              {% else%}
 	                                <span class="text text-muted small">not required</span>
