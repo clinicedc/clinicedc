@@ -172,10 +172,14 @@ class FieldsetsModelAdminMixin:
                 conditional_fieldsets = {
                     '1000': ...}
         """
-        model_obj = self.get_instance(request)
-        visit_code = model_obj.visit_code
-        if model_obj.visit_code_sequence != 0:
-            visit_code = f'{visit_code}.{model_obj.visit_code_sequence}'
+        try:
+            model_obj = self.get_instance(request)
+        except ObjectDoesNotExist:
+            visit_code = None
+        else:
+            visit_code = model_obj.visit_code
+            if model_obj.visit_code_sequence != 0:
+                visit_code = f'{visit_code}.{model_obj.visit_code_sequence}'
         return visit_code
 
     def get_fieldsets(self, request, obj=None):
