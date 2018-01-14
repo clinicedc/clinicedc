@@ -1,11 +1,10 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 
-from edc_reference import get_reference_name, site_reference_configs
+from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
 
 from ..constants import NOT_REQUIRED, REQUIRED, KEYED
-from edc_reference.site import SiteReferenceConfigError
 
 
 class CreatesMetadataError(Exception):
@@ -109,7 +108,7 @@ class RequisitionCreator(Base):
 
         See also edc_reference.
         """
-        name = get_reference_name(requisition.model, requisition.panel.name)
+        name = f'{requisition.model}.{requisition.panel.name}'
         reference_model = site_reference_configs.get_reference_model(
             name=name)
         self.reference_model_cls = django_apps.get_model(reference_model)

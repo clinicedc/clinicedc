@@ -1,6 +1,5 @@
 from django.apps import apps as django_apps
 from edc_reference import site_reference_configs
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .constants import CRF
 from .metadata_handler import MetadataHandler

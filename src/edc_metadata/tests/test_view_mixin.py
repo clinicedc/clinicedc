@@ -6,6 +6,7 @@ from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_base import get_utcnow
 from edc_facility.import_holidays import import_holidays
+from edc_lab.models.panel import Panel
 from edc_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -39,6 +40,8 @@ class TestViewMixin(TestCase):
     def setUp(self):
         import_holidays()
         register_to_site_reference_configs()
+        for name in ['one', 'two', 'three', 'four', 'five', 'six']:
+            Panel.objects.create(name=name)
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False

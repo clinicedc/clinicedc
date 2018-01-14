@@ -19,7 +19,7 @@ class NextFormGetter:
             model = model_obj._meta.label_lower
             visit = model_obj.visit.visit
             try:
-                panel_name = model_obj.panel_name
+                panel_name = model_obj.panel.name
             except AttributeError:
                 panel_name = None
         else:

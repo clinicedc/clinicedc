@@ -12,5 +12,5 @@ class RequisitionMetadataWrapper(MetadataWrapper):
     @property
     def options(self):
         options = super().options
-        options.update(panel_name=self.panel_name)
+        options.update(panel__name=self.panel_name)
         return options

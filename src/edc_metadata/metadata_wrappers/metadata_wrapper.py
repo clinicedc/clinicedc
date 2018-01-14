@@ -59,7 +59,8 @@ class MetadataWrapper:
 
     @property
     def model_cls(self):
-        """Returns a model class or raises.
+        """Returns a model class or raises for the model that
+        the metadata model instance represents.
         """
         try:
             model_cls = django_apps.get_model(self.metadata_obj.model)

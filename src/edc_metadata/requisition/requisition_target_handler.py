@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from edc_reference import get_reference_name, site_reference_configs
+from edc_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import REQUISITION
@@ -21,15 +21,12 @@ class RequisitionTargetHandler(TargetHandler):
     metadata_category = REQUISITION
 
     def __init__(self, target_panel=None, **kwargs):
-        try:
-            self.target_panel = target_panel.name
-        except AttributeError:
-            self.target_panel = target_panel
+        self.target_panel = target_panel
         super().__init__(**kwargs)
 
     @property
     def reference_model_cls(self):
-        name = get_reference_name(self.model, self.target_panel)
+        name = f'{self.model}.{self.target_panel.name}'
         reference_model = site_reference_configs.get_reference_model(
             name=name)
         return django_apps.get_model(reference_model)
@@ -38,10 +35,10 @@ class RequisitionTargetHandler(TargetHandler):
     def object(self):
         return self.reference_model_cls.objects.get_requisition_for_visit(
             visit=self.visit,
-            name=get_reference_name(self.model, self.target_panel))
+            name=f'{self.model}.{self.target_panel.name}')
 
     @property
-    def target_panels(self):
+    def target_panel_names(self):
         """Returns a list of panels for this visit.
         """
         if self.visit.visit_code_sequence != 0:
@@ -56,9 +53,9 @@ class RequisitionTargetHandler(TargetHandler):
         for this visit or is invalid.
         """
         self.raise_on_invalid_panel()
-        if self.target_panel not in self.target_panels:
+        if self.target_panel.name not in self.target_panel_names:
             raise TargetPanelNotScheduledForVisit(
-                f'Target panel {self.target_panel} is not scheduled '
+                f'Target panel {self.target_panel.name} is not scheduled '
                 f'for visit \'{self.visit.visit_code}\'.')
 
     @property
@@ -77,9 +74,9 @@ class RequisitionTargetHandler(TargetHandler):
         panel_names = []
         for visit in self.schedule.visits.values():
             panel_names.extend([r.panel.name for r in visit.all_requisitions])
-        if self.target_panel not in panel_names:
+        if self.target_panel.name not in panel_names:
             raise InvalidTargetPanel(
-                f'Invalid panel. {self.target_panel} is not a valid '
+                f'Invalid panel. {self.target_panel.name} is not a valid '
                 f'panel for any visit in schedule {repr(self.schedule)}. ')
 
     @property

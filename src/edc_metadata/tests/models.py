@@ -8,6 +8,7 @@ from edc_constants.choices import YES_NO
 from edc_constants.constants import MALE
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_lab.models.model_mixins import PanelModelMixin
 from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_reference.model_mixins import ReferenceModelMixin, RequisitionReferenceModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
@@ -76,12 +77,11 @@ class SubjectVisit(VisitModelMixin, ReferenceModelMixin,
 
 
 class SubjectRequisition(CrfModelMixin, RequisitionReferenceModelMixin,
+                         PanelModelMixin,
                          UpdatesRequisitionMetadataModelMixin,
                          BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
-
-    panel_name = models.CharField(max_length=25)
 
     requisition_datetime = models.DateTimeField(null=True)
 

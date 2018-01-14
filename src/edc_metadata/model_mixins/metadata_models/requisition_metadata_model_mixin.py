@@ -3,7 +3,7 @@ from django.db import models
 from .model_mixin import ModelMixin
 
 
-class RequisitionModelMixin(ModelMixin):
+class RequisitionMetadataModelMixin(ModelMixin):
 
     panel_name = models.CharField(max_length=50, null=True)
 

@@ -14,6 +14,7 @@ from .models import SubjectVisit, SubjectConsent, CrfOne, CrfTwo, CrfThree, Subj
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 from edc_facility.import_holidays import import_holidays
+from edc_lab.models.panel import Panel
 
 
 class TestCreatesDeletesMetadata(TestCase):
@@ -117,6 +118,8 @@ class TestCreatesDeletesMetadata(TestCase):
 class TestUpdatesMetadata(TestCase):
 
     def setUp(self):
+        self.panel_one = Panel.objects.create(name='one')
+        self.panel_two = Panel.objects.create(name='two')
         import_holidays()
         register_to_site_reference_configs()
         site_visit_schedules._registry = {}
@@ -174,16 +177,16 @@ class TestUpdatesMetadata(TestCase):
             appointment=self.appointment, reason=SCHEDULED)
         SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name='one')
+            panel=self.panel_one)
         self.assertEqual(RequisitionMetadata.objects.filter(
             entry_status=KEYED,
             model='edc_metadata.subjectrequisition',
-            panel_name='one',
+            panel_name=self.panel_one.name,
             visit_code=subject_visit.visit_code).count(), 1)
         self.assertEqual(RequisitionMetadata.objects.filter(
             entry_status=REQUIRED,
             model='edc_metadata.subjectrequisition',
-            panel_name='two',
+            panel_name=self.panel_two.name,
             visit_code=subject_visit.visit_code).count(), 1)
 
     def test_resets_crf_metadata_on_delete(self):
@@ -209,17 +212,17 @@ class TestUpdatesMetadata(TestCase):
             appointment=self.appointment, reason=SCHEDULED)
         obj = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name='one')
+            panel=self.panel_one)
         obj.delete()
         self.assertEqual(RequisitionMetadata.objects.filter(
             entry_status=REQUIRED,
             model='edc_metadata.subjectrequisition',
-            panel_name='one',
+            panel_name=self.panel_one.name,
             visit_code=subject_visit.visit_code).count(), 1)
         self.assertEqual(RequisitionMetadata.objects.filter(
             entry_status=REQUIRED,
             model='edc_metadata.subjectrequisition',
-            panel_name='two',
+            panel_name=self.panel_two.name,
             visit_code=subject_visit.visit_code).count(), 1)
 
     def test_resets_requisition_metadata_on_delete2(self):
@@ -227,17 +230,17 @@ class TestUpdatesMetadata(TestCase):
             appointment=self.appointment, reason=SCHEDULED)
         obj = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name='two')
+            panel=self.panel_two)
         obj.delete()
         self.assertEqual(RequisitionMetadata.objects.filter(
             entry_status=REQUIRED,
             model='edc_metadata.subjectrequisition',
-            panel_name='one',
+            panel_name=self.panel_one.name,
             visit_code=subject_visit.visit_code).count(), 1)
         self.assertEqual(RequisitionMetadata.objects.filter(
             entry_status=REQUIRED,
             model='edc_metadata.subjectrequisition',
-            panel_name='two',
+            panel_name=self.panel_two.name,
             visit_code=subject_visit.visit_code).count(), 1)
 
     def test_get_metadata_for_subject_visit(self):

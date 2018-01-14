@@ -13,12 +13,14 @@ from .models import SubjectConsent, SubjectVisit, CrfOne, SubjectRequisition
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 from edc_facility.import_holidays import import_holidays
+from edc_lab.models.panel import Panel
 
 
 class TestMetadataWrapperObjects(TestCase):
 
     def setUp(self):
         import_holidays()
+        self.panel_one = Panel.objects.create(name='one')
         register_to_site_reference_configs()
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
@@ -73,7 +75,7 @@ class TestMetadataWrapperObjects(TestCase):
         metadata_obj = RequisitionMetadata.objects.get(
             subject_identifier=self.subject_identifier,
             model='edc_metadata.subjectrequisition',
-            panel_name='one')
+            panel_name=self.panel_one.name)
         requisition_metadata_wrapper = RequisitionMetadataWrapper(
             visit=self.subject_visit,
             metadata_obj=metadata_obj)
@@ -88,11 +90,11 @@ class TestMetadataWrapperObjects(TestCase):
     def test_requisition_metadata_wrapper_exists(self):
         model_obj = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name='one')
+            panel=self.panel_one)
         metadata_obj = RequisitionMetadata.objects.get(
             subject_identifier=self.subject_identifier,
             model='edc_metadata.subjectrequisition',
-            panel_name='one')
+            panel_name=self.panel_one.name)
         requisition_metadata_wrapper = RequisitionMetadataWrapper(
             visit=self.subject_visit,
             metadata_obj=metadata_obj)

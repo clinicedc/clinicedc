@@ -52,7 +52,6 @@ class TestMetadataUpdater(TestCase):
         self.subject_visit = SubjectVisit.objects.get(
             appointment=self.appointment)
 
-    @tag('2')
     def test_crf_updates_ok(self):
         CrfMetadata.objects.get(
             visit_code=self.subject_visit.visit_code,

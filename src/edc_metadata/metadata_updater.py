@@ -26,7 +26,6 @@ class MetadataUpdater:
 
         if self.target.object:
             entry_status = KEYED
-
         metadata_obj = self.target.metadata_obj
         if entry_status and metadata_obj.entry_status != entry_status:
             metadata_obj.entry_status = entry_status

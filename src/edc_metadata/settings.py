@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'edc_protocol.apps.AppConfig',
     'edc_reference.apps.AppConfig',
     'edc_registration.apps.AppConfig',
+    'edc_lab.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_metadata_rules.apps.AppConfig',
@@ -138,6 +139,11 @@ EDC_SYNC_FILES_USB_VOLUME = None
 
 COUNTRY = 'botswana'
 HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
+
+DASHBOARD_URL_NAMES = {
+    'subject_listboard_url': 'edc_subject_dashboard:subject_listboard_url',
+    'subject_dashboard_url': 'edc_subject_dashboard:subject_dashboard_url',
+}
 
 if 'test' in sys.argv:
 
