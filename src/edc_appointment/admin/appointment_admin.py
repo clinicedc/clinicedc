@@ -77,13 +77,10 @@ class AppointmentAdmin(ModelAdminFormInstructionsMixin, ModelAdminNextUrlRedirec
                    'visit_code_sequence', 'facility_name'))
 
     def view_on_site(self, obj):
-        dashboard_url_name = settings.DASHBOARD_URL_NAMES.get(
-            self.dashboard_url_name)
         try:
             url = reverse(
-                dashboard_url_name, kwargs=dict(
+                self.dashboard_url_name, kwargs=dict(
                     subject_identifier=obj.subject_identifier))
-        except NoReverseMatch as e:
-            print(e)
+        except NoReverseMatch:
             url = super().view_on_site(obj)
         return url
