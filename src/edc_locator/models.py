@@ -26,11 +26,11 @@ class SubjectLocator(LocatorModelMixin, RequiresConsentFieldsModelMixin,
 
     tracking_identifier_prefix = 'SL'
 
+    on_site = CurrentSiteManager()
+
     objects = LocatorManager()
 
     history = HistoricalRecords()
-
-    on_site = CurrentSiteManager()
 
     class Meta:
         verbose_name = 'Subject Locator'

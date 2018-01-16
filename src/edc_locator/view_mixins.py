@@ -1,9 +1,6 @@
 from django.apps import apps as django_apps
-from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
-from django.utils.safestring import mark_safe
-from edc_action_item.models.action_item import ActionItem
 from edc_locator.action_items import SUBJECT_LOCATOR_ACTION
 
 
