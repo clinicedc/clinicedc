@@ -21,6 +21,31 @@
               {% endfor %}
           {% endif %}
 
+    <form action="{% url 'edc_label:change_session_printer' clinic_label_printer_attr %}" method="post">
+        {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ clinic_label_printer_attr }}">Your clinic label printer:</label>
+            <select class="form-control" id="{{ clinic_label_printer_attr }}" name="{{ clinic_label_printer_attr }}" onchange="submit();">
+            {% for printer_name in printers %}
+               <option {% if printer_name == clinic_label_printer %}selected{% endif %} >{{ printer_name }}</option>
+            {% endfor %}
+          </select>
+      </div>
+    </form>
+
+
+    <form action="{% url 'edc_label:change_session_printer' lab_label_printer_attr %}" method="post">
+        {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ lab_label_printer_attr }}">Your lab label printer:</label>
+            <select class="form-control" id="{{ lab_label_printer_attr }}" name="{{ lab_label_printer_attr }}" onchange="submit();">
+            {% for printer_name in printers %}
+               <option {% if printer_name == lab_label_printer %}selected{% endif %} >{{ printer_name }}</option>
+            {% endfor %}
+          </select>
+      </div>
+    </form>
+
             <div class="col-md-12">
                   <div id="alert-print-server-wait" class="alert alert-info">Contacting print server @ {{ default_cups_server_ip|default:"printer server unknown!" }} ... please wait<span class="fa fa-refresh fa-spin pull-right"></span></div>
             </div>

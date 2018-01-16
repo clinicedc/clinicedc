@@ -49,8 +49,9 @@ class PrintServer:
     printer_cls = Printer
     cups_server_ip = app_config.default_cups_server_ip
     printer_name = app_config.default_printer_name
+    session_printer_attr = 'session_label_printer'
 
-    def __init__(self, cups_server_ip=None, printer_name=None):
+    def __init__(self, cups_server_ip=None, printer_name=None, request=None):
         self._selected_printer = None
         self.conn = None
         self.error_message = None
@@ -63,7 +64,11 @@ class PrintServer:
             sys.stdout.flush()
             self.error_message = self.connection_err_msg.format(
                 self.ip_address, str(e))
-        self.selected_printer = printer_name or self.printer_name
+        try:
+            session_printer = request.session.get(self.session_printer_attr)
+        except AttributeError:
+            session_printer = None
+        self.printer_name = session_printer or printer_name or self.printer_name
 
     def __str__(self):
         return self.name
@@ -96,18 +101,16 @@ class PrintServer:
 
     @property
     def selected_printer(self):
-        return self._selected_printer
-
-    @selected_printer.setter
-    def selected_printer(self, printer_name=None):
         """Select a printer by printer_name from those available on
         the CUPS server.
         """
-        properties = self.get_printer_properties(printer_name)
-        self._selected_printer = self.printer_cls(
-            printer_name=printer_name,
-            print_server=self,
-            printer_data=properties)
+        if not self._selected_printer:
+            properties = self.get_printer_properties(self.printer_name)
+            self._selected_printer = self.printer_cls(
+                printer_name=self.printer_name,
+                print_server=self,
+                printer_data=properties)
+        return self._selected_printer
 
     def get_printer_properties(self, printer_name=None):
         """Return a dictionary of one printer by label from

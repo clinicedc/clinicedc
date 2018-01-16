@@ -13,10 +13,10 @@ class Labeler:
     print_server_cls = PrintServer
     label_cls = Label
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, request=None):
         self.printers = {}
         self.label_templates = app_config.label_templates
-        self.print_server = self.print_server_cls()
+        self.print_server = self.print_server_cls(request=request)
         for printer in self.print_server.printers.items():
             printer = str(printer[0])
             printer_properties = {
