@@ -1,5 +1,6 @@
 from edc_constants.constants import MALE, FEMALE, OTHER, YES, NO, NOT_APPLICABLE
 from edc_constants.constants import NEW, OPEN, CLOSED
+from django.conf import settings
 
 
 class DashboardMiddleware:
