@@ -14,11 +14,11 @@ class ScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, mode
     """
     report_datetime = models.DateTimeField(editable=False)
 
+    on_site = CurrentSiteManager()
+
     objects = SubjectIdentifierManager()
 
     history = HistoricalRecords()
-
-    on_site = CurrentSiteManager()
 
     def __str__(self):
         formatted_date = timezone.localtime(
@@ -28,6 +28,7 @@ class ScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, mode
 
     def natural_key(self):
         return (self.subject_identifier, )
+    natural_key.dependencies = ['sites.Site']
 
     class Meta:
         abstract = True
