@@ -18,8 +18,7 @@ class ModelAdminAuditFieldsMixin:
         else:
             obj.user_modified = request.user.username
             obj.modified = get_utcnow()
-        super(ModelAdminAuditFieldsMixin, self).save_model(
-            request, obj, form, change)
+        super().save_model(request, obj, form, change)
 
     def get_list_filter(self, request):
         columns = ['created', 'modified', 'user_created',
