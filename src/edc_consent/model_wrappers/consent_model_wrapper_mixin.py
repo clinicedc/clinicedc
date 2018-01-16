@@ -1,8 +1,8 @@
 from django.apps import apps as django_apps
-
-from ..site_consents import site_consents
 from django.core.exceptions import ObjectDoesNotExist
 from edc_base.utils import get_uuid
+
+from ..site_consents import site_consents
 
 
 class ConsentModelWrapperMixin:
@@ -23,20 +23,26 @@ class ConsentModelWrapperMixin:
         return consent_object
 
     @property
+    def consent_model_obj(self):
+        """Returns a consent model instance or None.
+        """
+        try:
+            return self.object.subjectconsent_set.get(**self.consent_options)
+        except ObjectDoesNotExist:
+            return None
+
+    @property
     def consent(self):
         """Returns a wrapped saved or unsaved consent.
         """
-        try:
-            consent = self.object.subjectconsent_set.get(
-                **self.consent_options)
-        except ObjectDoesNotExist:
-            consent = self.consent_object.model(**self.create_consent_options)
-        return self.consent_model_wrapper_cls(model_obj=consent)
+        model_obj = self.consent_model_obj or self.consent_object.model_cls(
+            **self.create_consent_options)
+        return self.consent_model_wrapper_cls(model_obj=model_obj)
 
     @property
     def create_consent_options(self):
         """Returns a dictionary of options to create a new
-        consent model instance.
+        unpersisted consent model instance.
         """
         options = dict(
             subject_identifier=self.object.subject_identifier,

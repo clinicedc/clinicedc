@@ -3,6 +3,7 @@ from edc_base.utils import get_utcnow, get_uuid
 
 from .exceptions import ConsentObjectDoesNotExist
 from .site_consents import site_consents
+from pprint import pprint
 
 
 class ConsentViewMixin(ContextMixin):
@@ -54,21 +55,16 @@ class ConsentViewMixin(ContextMixin):
     def consent(self):
         """Returns a consent model instance or None for the current period.
         """
-        if not self._consent:
-            self._consent = self.consent_object.model_cls.consent.consent_for_period(
-                subject_identifier=self.subject_identifier,
-                report_datetime=self.report_datetime)
-        return self._consent
+        return self.consent_object.model_cls.consent.consent_for_period(
+            subject_identifier=self.subject_identifier,
+            report_datetime=self.report_datetime)
 
     @property
     def consent_wrapped(self):
         """Returns a wrapped consent, either saved or not,
         for the current period.
         """
-        if self.consent:
-            return self.consent_model_wrapper_cls(self.consent)
-        else:
-            return self.consent_model_wrapper_cls(self.empty_consent)
+        return self.consent_model_wrapper_cls(self.consent or self.empty_consent)
 
     @property
     def empty_consent(self):
@@ -85,16 +81,11 @@ class ConsentViewMixin(ContextMixin):
     def consents(self):
         """Returns a Queryset of consents for this subject.
         """
-        if not self._consents:
-            self._consents = self.consent_object.model_cls.objects.filter(
-                subject_identifier=self.subject_identifier).order_by('version')
-        return self._consents
+        return self.consent_object.model_cls.objects.filter(
+            subject_identifier=self.subject_identifier).order_by('version')
 
     @property
     def consents_wrapped(self):
-        """Returns a list of wrapped consents.
+        """Returns a generator of wrapped consents.
         """
-        if self.consents:
-            return [
-                self.consent_model_wrapper_cls(obj) for obj in self.consents]
-        return []
+        return (self.consent_model_wrapper_cls(obj) for obj in self.consents)

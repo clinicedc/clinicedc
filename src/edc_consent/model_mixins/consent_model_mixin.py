@@ -5,7 +5,6 @@ from django.db.models import options
 from django.db import models
 from django_crypto_fields.fields import EncryptedTextField
 from edc_base.model_validators import datetime_not_future
-from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_base.utils import formatted_age, age
 from edc_protocol.validators import datetime_not_before_study_start
 
@@ -17,7 +16,7 @@ if 'consent_group' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_group', )
 
 
-class ConsentModelMixin(SiteModelMixin, VerificationFieldsMixin, models.Model):
+class ConsentModelMixin(VerificationFieldsMixin, models.Model):
 
     """Mixin for a Consent model class such as SubjectConsent.
 
