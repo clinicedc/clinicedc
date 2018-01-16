@@ -1,9 +1,6 @@
-import re
-
 from django import forms
-from django.conf import settings
-from edc_form_validators.form_validator import FormValidator
 from edc_constants.constants import YES, NO
+from edc_form_validators.form_validator import FormValidator
 
 
 class SubjectLocatorFormValidator(FormValidator):

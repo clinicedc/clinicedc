@@ -1,8 +1,8 @@
 from django.db import models
+from django.utils.safestring import mark_safe
 from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
 from edc_base.model_validators import TelephoneNumber, CellNumber
 from edc_constants.choices import YES_NO
-from django.utils.safestring import mark_safe
 
 
 class SubjectWorkFieldsMixin(models.Model):
