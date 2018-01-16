@@ -1,7 +1,6 @@
 import re
 
 from django.apps import apps as django_apps
-from django.contrib.sites.managers import CurrentSiteManager
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.utils.translation import ugettext as _
@@ -9,14 +8,12 @@ from django_crypto_fields.fields import FirstnameField, LastnameField
 from django_crypto_fields.fields import IdentityField, EncryptedCharField
 
 from edc_base.model_fields import IdentityTypeField, IsDateEstimatedField
-from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
 from edc_constants.constants import UUID_PATTERN
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 
 from ..exceptions import RegisteredSubjectError
-from ..managers import RegisteredSubjectManager
 
 
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
@@ -29,7 +26,7 @@ YES_NO_UNKNOWN = (
 
 
 class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin,
-                                  SiteModelMixin, models.Model):
+                                  models.Model):
 
     """A model mixin for the RegisteredSubject model (only).
     """
@@ -169,10 +166,6 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin,
         max_length=150,
         null=True,
         editable=False)
-
-    objects = RegisteredSubjectManager()
-
-    on_site = CurrentSiteManager()
 
     def save(self, *args, **kwargs):
         if self.identity:
