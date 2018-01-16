@@ -6,6 +6,8 @@ from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
+from edc_base.sites.managers import CurrentSiteManager
+from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
@@ -31,7 +33,7 @@ class ActionItemManager(models.Manager):
         return self.get(action_identifier=action_identifier)
 
 
-class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
+class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidModel):
 
     subject_identifier_model = 'edc_registration.registeredsubject'
 
@@ -97,6 +99,8 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         max_length=25,
         null=True,
         blank=True)
+
+    on_site = CurrentSiteManager()
 
     objects = ActionItemManager()
 
@@ -184,6 +188,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     def natural_key(self):
         return (self.action_identifier, )
+    natural_key.dependencies = ['sites.Site']
 
     class Meta:
         verbose_name = 'Action Item'
