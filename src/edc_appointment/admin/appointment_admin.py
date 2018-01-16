@@ -4,6 +4,7 @@ from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+from edc_base.sites.admin import ModelAdminSiteMixin
 from edc_model_admin import (
     ModelAdminFormInstructionsMixin, ModelAdminNextUrlRedirectMixin,
     ModelAdminFormAutoNumberMixin, ModelAdminRedirectOnDeleteMixin,
@@ -11,17 +12,21 @@ from edc_model_admin import (
     audit_fieldset_tuple)
 from edc_visit_schedule.fieldsets import visit_schedule_fieldset_tuple, visit_schedule_fields
 
+from ..admin_site import edc_appointment_admin
 from ..forms import AppointmentForm
+from ..models import Appointment
 
 
-# @admin.register(Appointment, site=edc_appointment_admin)
+@admin.register(Appointment, site=edc_appointment_admin)
 class AppointmentAdmin(ModelAdminFormInstructionsMixin, ModelAdminNextUrlRedirectMixin,
                        ModelAdminFormAutoNumberMixin, ModelAdminRevisionMixin,
                        ModelAdminAuditFieldsMixin, ModelAdminRedirectOnDeleteMixin,
-                       ModelAdminReadOnlyMixin, admin.ModelAdmin):
+                       ModelAdminReadOnlyMixin, ModelAdminSiteMixin, admin.ModelAdmin):
 
-    post_url_on_delete_name = 'subject_dashboard_url'
-    dashboard_url_name = 'subject_dashboard_url'
+    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get(
+        'subject_dashboard_url')
+    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get(
+        'subject_dashboard_url')
 
     form = AppointmentForm
     date_hierarchy = 'appt_datetime'
