@@ -32,5 +32,9 @@ class SubjectLocator(LocatorModelMixin, RequiresConsentFieldsModelMixin,
 
     history = HistoricalRecords()
 
+    def natural_key(self):
+        return (self.subject_identifier, )
+    natural_key.dependencies = ['sites.Site']
+
     class Meta:
         verbose_name = 'Subject Locator'
