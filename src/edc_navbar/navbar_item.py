@@ -42,11 +42,11 @@ class NavbarItem:
             raise NavbarItemError(
                 f'\'url_name\' not specified. See {repr(self)}')
         else:
-            try:
-                self.reversed_url = reverse(self.url_name)
-            except NoReverseMatch:
-                raise NavbarItemError(
-                    f'Invalid url name \'{self.url_name}\'. See {repr(self)} ')
+            # try:
+            self.reversed_url = reverse(self.url_name)
+            # except NoReverseMatch:
+            #    raise NavbarItemError(
+            #       f'Invalid url name \'{self.url_name}\'. See {repr(self)} ')
 
     def __repr__(self):
         return (f'{self.__class__.__name__}(name={self.name}, '

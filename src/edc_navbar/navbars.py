@@ -26,6 +26,6 @@ if app_config.register_default_navbar:
         NavbarItem(name='logout',
                    title='Logout',
                    glyphicon='glyphicon-log-out',
-                   url_name='logout_url'))
+                   url_name='logout'))
 
     site_navbars.register(default_navbar)
