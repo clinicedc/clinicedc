@@ -102,23 +102,28 @@ class EdcLabelViewMixin(ContextMixin):
     def printers(self):
         if not self._printers:
             cups_printers = {}
+            ip_address = None
             if self.print_server:
                 if self.print_server == 'localhost':
-                    ip_address = None
+                    try:
+                        conn = cups.Connection()
+                    except RuntimeError:
+                        conn = None
                 else:
                     try:
                         ip_address = socket.gethostbyname(self.print_server)
-                    except TypeError:
+                    except (TypeError, socket.gaierror):
                         ip_address = self.print_server
-                if ip_address:
-                    conn = cups.Connection(ip_address)
-                else:
-                    conn = cups.Connection()
-                try:
-                    cups_printers = conn.getPrinters()
-                except RuntimeError:
-                    messages.error(
-                        self.request, 'Unable to contact print server')
+                    try:
+                        conn = cups.Connection(ip_address)
+                    except RuntimeError:
+                        conn = None
+                if conn:
+                    try:
+                        cups_printers = conn.getPrinters()
+                    except (RuntimeError, cups.IPPError):
+                        messages.error(
+                            self.request, 'Unable to contact print server')
             for name, cups_properties in cups_printers.items():
                 printer_properties = PrinterProperties(
                     name=name,
