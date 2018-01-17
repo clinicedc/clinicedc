@@ -43,9 +43,9 @@ class RequisitionAdminMixin:
         return mark_safe('<span style="color:red;">not drawn</span>')
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        print(db_field.name)
         if db_field.name == 'panel':
-            kwargs["queryset"] = db_field.related_model.objects.filter(
-                pk=UUID(request.GET.get('panel')) or None)
+            pk = (UUID(request.GET.get('panel'))
+                  if request.GET.get('panel') else None)
+            kwargs["queryset"] = db_field.related_model.objects.filter(pk=pk)
         return super().formfield_for_foreignkey(
             db_field, request, **kwargs)
