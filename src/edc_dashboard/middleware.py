@@ -1,6 +1,6 @@
+from django.conf import settings
 from edc_constants.constants import MALE, FEMALE, OTHER, YES, NO, NOT_APPLICABLE
 from edc_constants.constants import NEW, OPEN, CLOSED
-from django.conf import settings
 
 
 class DashboardMiddleware:
@@ -20,6 +20,10 @@ class DashboardMiddleware:
         return response
 
     def process_template_response(self, request, response):
+        try:
+            reviewer_site_id = settings.REVIEWER_SITE_ID
+        except AttributeError:
+            reviewer_site_id = None
         response.context_data.update(
             OPEN=OPEN,
             CLOSED=CLOSED,
@@ -29,5 +33,6 @@ class DashboardMiddleware:
             NO=NO,
             NOT_APPLICABLE=NOT_APPLICABLE,
             OTHER=OTHER,
-            YES=YES)
+            YES=YES,
+            reviewer_site_id=reviewer_site_id)
         return response

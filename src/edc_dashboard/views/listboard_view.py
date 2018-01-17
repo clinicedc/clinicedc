@@ -5,6 +5,7 @@ from django.apps import apps as django_apps
 from django.db.models import Q
 from django.utils.text import slugify
 from django.views.generic.list import ListView
+from edc_base.sites import SiteQuerysetViewMixin
 from edc_dashboard.view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
 
 from ..view_mixins import QueryStringViewMixin
@@ -14,8 +15,8 @@ class ListboardViewError(Exception):
     pass
 
 
-class ListboardView(QueryStringViewMixin, UrlRequestContextMixin,
-                    TemplateRequestContextMixin, ListView):
+class Base(QueryStringViewMixin, UrlRequestContextMixin,
+           TemplateRequestContextMixin, ListView):
 
     cleaned_search_term = None
     context_object_name = 'results'
@@ -151,3 +152,7 @@ class ListboardView(QueryStringViewMixin, UrlRequestContextMixin,
         for obj in queryset:
             object_list.append(self.model_wrapper_cls(obj))
         return object_list
+
+
+class ListboardView(SiteQuerysetViewMixin, Base):
+    pass
