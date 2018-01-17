@@ -20,13 +20,7 @@ def prn_list_items(subject_identifier, **kwargs):
 @register.inclusion_tag('edc_prn/add_prn_popover.html')
 def add_prn_crf_popover(appointment, subject_dashboard_url):
     prn_forms = []
-    if appointment.visit.visit_code_sequence != 0:
-        crfs_prn = appointment.visits.get(
-            appointment.visit_code).crfs_unscheduled
-    else:
-        crfs_prn = appointment.visits.get(appointment.visit_code).crfs_prn
-
-    for crf in crfs_prn:
+    for crf in appointment.visits.get(appointment.visit_code).crfs_prn:
         try:
             CrfMetadata.objects.get(
                 subject_identifier=appointment.subject_identifier,
@@ -52,13 +46,8 @@ def add_prn_crf_popover(appointment, subject_dashboard_url):
 @register.inclusion_tag('edc_prn/add_prn_popover.html')
 def add_prn_requisition_popover(appointment, subject_dashboard_url):
     prn_forms = []
-    if appointment.visit.visit_code_sequence != 0:
-        requisitions_prn = appointment.visits.get(
-            appointment.visit_code).requisitions_unscheduled
-    else:
-        requisitions_prn = appointment.visits.get(
-            appointment.visit_code).requisitions_prn
-    for requisition in requisitions_prn:
+    for requisition in appointment.visits.get(
+            appointment.visit_code).requisitions_prn:
         try:
             RequisitionMetadata.objects.get(
                 subject_identifier=appointment.subject_identifier,
