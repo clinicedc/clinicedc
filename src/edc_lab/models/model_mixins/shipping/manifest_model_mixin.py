@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.db import models
 from django.utils import timezone
 
+from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.constants import OPEN, CLOSED, OTHER
 
@@ -20,7 +21,7 @@ MANIFEST_CATEGORY = (
 )
 
 
-class ManifestModelMixin(models.Model):
+class ManifestModelMixin(SiteModelMixin, models.Model):
 
     manifest_identifier = models.CharField(
         verbose_name='Manifest Identifier',
@@ -93,6 +94,7 @@ class ManifestModelMixin(models.Model):
 
     def natural_key(self):
         return (self.manifest_identifier, )
+    natural_key.dependencies = ['sites.Site']
 
     @property
     def human_readable_identifier(self):

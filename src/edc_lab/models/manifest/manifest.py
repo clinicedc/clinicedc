@@ -3,6 +3,7 @@ from django.db.models.deletion import PROTECT
 
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
+from edc_base.sites import CurrentSiteManager
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ...managers import ManifestManager
@@ -33,6 +34,8 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
         Shipper,
         verbose_name='Shipper/Exporter',
         on_delete=PROTECT)
+
+    on_site = CurrentSiteManager()
 
     objects = Manager()
 

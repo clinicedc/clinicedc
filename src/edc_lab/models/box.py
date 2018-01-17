@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
+from edc_base.sites import CurrentSiteManager, SiteModelMixin
 from edc_constants.constants import OTHER, OPEN
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
@@ -42,7 +43,7 @@ class BoxManager(SearchSlugManager, models.Manager):
             box_identifier=box_identifier, box_type__name=name)
 
 
-class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
+class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidModel):
 
     search_slug_fields = [
         'box_identifier', 'human_readable_identifier', 'name']
@@ -92,6 +93,8 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
         null=True,
         blank=True)
 
+    on_site = CurrentSiteManager()
+
     objects = BoxManager()
 
     history = HistoricalRecords()
@@ -110,7 +113,7 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, BaseUuidModel):
 
     def natural_key(self):
         return (self.box_identifier,) + self.box_type.natural_key()
-    natural_key.dependencies = ['edc_lab.boxtype']
+    natural_key.dependencies = ['edc_lab.boxtype', 'sites.Site']
 
     @property
     def count(self):

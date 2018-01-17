@@ -1,12 +1,13 @@
 from django.db import models
 from django.utils import timezone
+from edc_base.sites.site_model_mixin import SiteModelMixin
 
 from ....choices import (
     ALIQUOT_STATUS, SPECIMEN_MEASURE_UNITS, SPECIMEN_MEDIUM,
     ALIQUOT_CONDITIONS)
 
 
-class AliquotModelMixin (models.Model):
+class AliquotModelMixin (SiteModelMixin, models.Model):
 
     aliquot_datetime = models.DateTimeField(
         verbose_name="Date and time aliquot created",
@@ -68,6 +69,7 @@ class AliquotModelMixin (models.Model):
 
     def natural_key(self):
         return (self.aliquot_identifier, )
+    natural_key.dependencies = ['sites.Site']
 
     class Meta:
         abstract = True

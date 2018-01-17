@@ -90,7 +90,8 @@ class RequisitionModelMixin(PanelModelMixin, SiteModelMixin, models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.requisition_identifier,)
+        return (self.requisition_identifier, )
+    natural_key.dependencies = ['sites.Site']
 
     def label_context(self, extra_context=None):
         context = {}
