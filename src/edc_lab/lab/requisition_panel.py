@@ -73,6 +73,13 @@ class RequisitionPanel:
         return self._panel_model_obj
 
     @property
+    def pk(self):
+        """Returns the PK as a UUID() fo the underlying
+        panel model instance.
+        """
+        return self.panel_model_obj.pk
+
+    @property
     def requisition_model_cls(self):
         """Returns the requisition model associated with this
         panel by it's lab profile.
