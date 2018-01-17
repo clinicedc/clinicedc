@@ -1,6 +1,5 @@
 from edc_base.model_mixins import BaseUuidModel
-from edc_base.sites.managers import CurrentSiteManager
-from edc_base.sites.site_model_mixin import SiteModelMixin
+from edc_base.sites import CurrentSiteManager, SiteModelMixin
 
 from .managers import CrfMetadataManager, RequisitionMetadataManager
 from .model_mixins.metadata_models import CrfModelMixin, RequisitionMetadataModelMixin
