@@ -1,10 +1,10 @@
 from uuid import uuid4
 
-from django.contrib.sites.managers import CurrentSiteManager
-from django.db.models import options
 from django.db import models
+from django.db.models import options
 from django_crypto_fields.fields import EncryptedTextField
 from edc_base.model_validators import datetime_not_future
+from edc_base.sites import CurrentSiteManager
 from edc_base.utils import formatted_age, age
 from edc_protocol.validators import datetime_not_before_study_start
 
