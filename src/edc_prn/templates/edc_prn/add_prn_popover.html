@@ -9,7 +9,7 @@ data-content="
 {% for prn_form in prn_forms %}
 <a id='show-link-to-add-{{ prn_form.model }}' class='list-group-item list-group-item-warning'
 title='click to add'
-href='{{ prn_form.add_url }}?next={{ subject_dashboard_url }},appointment,subject_identifier&subject_identifier={{ subject_identifier }}&appointment={{ appointment_pk }}&{{ prn_form.visit_model_attr }}={{ prn_form.subject_visit }}&panel_name={{ prn_form.panel.name }}'>
+href='{{ prn_form.add_url }}?next={{ subject_dashboard_url }},appointment,subject_identifier&subject_identifier={{ subject_identifier }}&appointment={{ appointment_pk }}&{{ prn_form.visit_model_attr }}={{ prn_form.subject_visit }}&panel={{ prn_form.panel.pk }}'>
 <span class='text text-default text-nowrap small'><i class='fa fa-plus fa-1x fa-fw' aria-hidden='true'></i> {{ prn_form.verbose_name }}</span>
 </a>	
 {% endfor %}
