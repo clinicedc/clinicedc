@@ -47,15 +47,12 @@ class PrintServer:
     connection_err_msg = 'Unable to connect to CUPS server {}. Got \'{}\''
     printer_err_msg = 'Printer \'{}\' not found on \'{}\'.'
     printer_cls = Printer
-    cups_server_ip = app_config.default_cups_server_ip
-    printer_name = app_config.default_printer_name
-    session_printer_attr = 'session_label_printer'
 
     def __init__(self, cups_server_ip=None, printer_name=None, request=None):
         self._selected_printer = None
         self.conn = None
         self.error_message = None
-        self.ip_address = cups_server_ip or self.cups_server_ip
+        self.ip_address = cups_server_ip
         self.name = self.ip_address or 'localhost'
         try:
             self.conn = self.connect()
@@ -64,11 +61,7 @@ class PrintServer:
             sys.stdout.flush()
             self.error_message = self.connection_err_msg.format(
                 self.ip_address, str(e))
-        try:
-            session_printer = request.session.get(self.session_printer_attr)
-        except AttributeError:
-            session_printer = None
-        self.printer_name = session_printer or printer_name or self.printer_name
+        self.printer_name = printer_name
 
     def __str__(self):
         return self.name

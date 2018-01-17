@@ -23,6 +23,8 @@ app_name = 'edc_label'
 urlpatterns = [
     re_path('printer/change/(?P<printer_type>\w+)/',
             ChangePrinterView.as_view(), name='change_session_printer'),
+    path('print_server/change/',
+         ChangePrinterView.as_view(), name='change_session_print_server'),
     re_path(r'print/(?P<label_name>\w+)/'
             '(?P<copies>\d+)/(?P<app_label>\w+)/'
             '(?P<model_name>\w+)/'

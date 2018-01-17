@@ -1,4 +1,5 @@
 import os
+import socket
 import sys
 
 from django.apps import AppConfig as DjangoAppConfig
@@ -17,7 +18,14 @@ class AppConfig(DjangoAppConfig):
 
     verbose_name = 'Edc Label'
     # IP address of the CUPS server, if localhost leave as None
-    default_cups_server_ip = None
+    try:
+        default_cups_server_ip = settings.CUPS_SERVER_IP
+    except AttributeError:
+        default_cups_server_ip = None
+    try:
+        default_cups_server_fqdn = settings.CUPS_SERVER_FQDN
+    except AttributeError:
+        default_cups_server_fqdn = None
     # CUPS name of the default printer
     try:
         default_printer_name = settings.LABEL_PRINTER
@@ -41,3 +49,16 @@ class AppConfig(DjangoAppConfig):
                 self.label_templates.update({label_name: filename})
                 sys.stdout.write(f' * {filename}\n')
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
+
+    @property
+    def default_cups_server(self):
+        try:
+            default_cups_server = socket.gethostbyname(
+                self.default_cups_server_fqdn)
+        except TypeError:
+            try:
+                default_cups_server = socket.gethostbyname(
+                    self.default_cups_server_ip)
+            except TypeError:
+                default_cups_server = None
+        return default_cups_server

@@ -15,74 +15,103 @@
 
  <div class="container">
 
+    <div class="panel-group">
           {% if messages %}
               {% for message in messages %}
                 <div id="alert-print-server-error" class="alert alert-danger"><i class="fa fa-warning fa-lg"></i> {{ message }}</div>
               {% endfor %}
           {% endif %}
 
-    <form action="{% url 'edc_label:change_session_printer' clinic_label_printer_attr %}" method="post">
-        {% csrf_token %}
-      <div class="form-group">
-        <label for="{{ clinic_label_printer_attr }}">Your clinic label printer:</label>
-            <select class="form-control" id="{{ clinic_label_printer_attr }}" name="{{ clinic_label_printer_attr }}" onchange="submit();">
-            {% for printer_name in printers %}
-               <option {% if printer_name == clinic_label_printer %}selected{% endif %} >{{ printer_name }}</option>
-            {% endfor %}
-          </select>
+    <div class="panel panel-success">
+      <div class="panel-heading"><h4>Your print server</h4></div>      
+      <div class="panel-body">  
+      <form action="{% url 'edc_label:change_session_print_server' %}" method="post">
+          {% csrf_token %}
+        <div class="form-group">
+              <select class="form-control" id="print_server" name="print_server" onchange="submit();">
+              <option {% if not print_server %}selected{% endif %} value="--">select one</option>
+              {% for print_server in print_servers.keys %}
+                 <option {% if print_server == selected_print_server %}selected{% endif %}>{{ print_server }}</option>
+              {% endfor %}
+            </select>
+        </div>
+      </form>
       </div>
-    </form>
+      
+      {% if not printers %}
 
+        <div id="alert-print-server-error" class="alert alert-danger"><i class="fa fa-warning fa-lg"></i> No printers found</div>
+      
+      {% else %}
+    </div>
 
-    <form action="{% url 'edc_label:change_session_printer' lab_label_printer_attr %}" method="post">
-        {% csrf_token %}
-      <div class="form-group">
-        <label for="{{ lab_label_printer_attr }}">Your lab label printer:</label>
-            <select class="form-control" id="{{ lab_label_printer_attr }}" name="{{ lab_label_printer_attr }}" onchange="submit();">
-            {% for printer_name in printers %}
-               <option {% if printer_name == lab_label_printer %}selected{% endif %} >{{ printer_name }}</option>
-            {% endfor %}
-          </select>
+    <div class="panel panel-success">
+      <div class="panel-heading"><h4>Your clinic label printer</h4></div>      
+      <div class="panel-body">  
+      <form action="{% url 'edc_label:change_session_printer' 'clinic_label_printer' %}" method="post">
+          {% csrf_token %}
+        <div class="form-group">
+              <select class="form-control" id="clinic_label_printer" name="clinic_label_printer" onchange="submit();">
+              <option {% if not selected_clinic_label_printer %}selected{% endif %} value="--">select one</option>
+              {% for printer in printers.values %}
+                 <option {% if printer.name == selected_clinic_label_printer.name %}selected{% endif %} value="{{ printer.name }}">{{ printer.printer_info|default:printer.name }} ({{ printer.printer_make_and_model }}) {{ printer.printer_location }}</option>
+              {% endfor %}
+            </select>
+        </div>
+      </form>
       </div>
-    </form>
+      <div class="panel-footer">
+      {% if selected_clinic_label_printer %}
 
-            <div class="col-md-12">
-                  <div id="alert-print-server-wait" class="alert alert-info">Contacting print server @ {{ default_cups_server_ip|default:"printer server unknown!" }} ... please wait<span class="fa fa-refresh fa-spin pull-right"></span></div>
-            </div>
-            <div id="div-print-server-error" class="col-md-12">
-                  <div id="alert-print-server-error" class="alert alert-danger" style="display:none"></div>
-            </div>
-            <div id="div-print-error" class="col-md-12">
-                  <div id="alert-print-error" class="alert alert-danger" style="display:none"></div>
-            </div>
-            <div id="div-print-success" class="col-md-12">
-                  <div id="alert-print-success" class="alert alert-success" style="display:none"></div>
-            </div>
-    <div id="div-home-left" class="col-md-6">
-    
-          <div class="panel panel-default">
-            <div class="panel-heading">Label Templates</div>
-                <div class="panel-body">
-                  <table id="tbl-label-templates" class="table table-striped table_responsive">
-                  <thead><th>Name</th><th>Label</th><th>File</th><th></th></thead>
-                  </table>
-                </div>
-          </div>
+          <ul class="list-group">
+            <li class="list-group-item">{{selected_clinic_label_printer.name}}</li>
+            <li class="list-group-item">{{selected_clinic_label_printer.device_uri}}</li>
+            <li class="list-group-item">{{selected_clinic_label_printer.printer_uri_supported}}</li>
+          </ul>
+      {% if selected_clinic_label_printer.printer_state_message %}
+        <div id="alert-clinic-label-printer" class="alert alert-info"><i class="fa fa-info fa-lg"></i> {{ selected_clinic_label_printer.printer_state_message }}</div>
+      {% endif %}
+      {% endif %}
+      </div>
+    </div>
+  
 
-    </div><!--div-home-left -->
+    <div class="panel panel-success">
+      <div class="panel-heading"><h4>Your lab label printer</h4></div>
+      <div class="panel-body">  
+      <form action="{% url 'edc_label:change_session_printer' 'lab_label_printer' %}" method="post">
+          {% csrf_token %}
+        <div class="form-group">
+          
+              <select class="form-control" id="lab_label_printer" name="lab_label_printer" onchange="submit();">
+              <option {% if not selected_lab_label_printer %}selected{% endif %} value="--">select one</option>
+              {% for printer in printers.values %}
+                 <option {% if printer.name == selected_lab_label_printer.name  %}selected{% endif %} value="{{ printer.name }}">{{ printer.printer_info|default:printer.name }} ({{ printer.printer_make_and_model }}) {{ printer.printer_location }}</option>
+              {% endfor %}
+            </select>
+        </div>
+      </form>
+      </div>
+      <div class="panel-footer">
 
-    <div id="div-home-right" class="col-md-6">
+      {% if selected_lab_label_printer %}
+        
+          <ul class="list-group">
+            <li class="list-group-item">{{selected_lab_label_printer.name}}</li>
+            <li class="list-group-item">{{selected_lab_label_printer.device_uri}}</li>
+            <li class="list-group-item">{{selected_lab_label_printer.printer_uri_supported}}</li>
+          </ul>
 
-          <div class="panel panel-warning">
-            <div id="div-printers-panel" class="panel-heading">Printers@{{ default_cups_server_ip }}</div>
-                <div class="panel-body">
-                <table id="tbl-printers" class="table table-striped table_responsive">
-                <thead><th>Name</th><th>Make</th><th>Location</th><th>Shared</th><th>Status</th></thead>
-                </table>
-                </div>
-          </div>
+        {% if selected_lab_label_printer.printer_state_message %}
+          <div id="alert-lab-label-printer" class="alert alert-info"><i class="fa fa-info fa-lg"></i> {{ selected_lab_label_printer.printer_state_message }}</div>
+        {% endif %}
 
-    </div><!--div-home-right -->
+      {% endif %}
+    </div>
+  </div>
 
+    {% endif %}
+
+  </div>
 </div> <!-- container -->
 {% endblock main %}
