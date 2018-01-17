@@ -1,5 +1,6 @@
 from faker import Faker
 
+from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 
@@ -13,6 +14,11 @@ fake = Faker()
 
 class TestShortIdentifier(TestCase):
 
+    def setUp(self):
+        edc_device_app_config = django_apps.get_app_config('edc_device')
+        self.device_id = edc_device_app_config.device_id
+
+    @tag('1')
     def test_short_identifier(self):
         short_identifier = ShortIdentifier(
             prefix_pattern='^[0-9]{2}$', prefix=22)
@@ -85,7 +91,8 @@ class TestShortIdentifier(TestCase):
         IdentifierModel.objects.create(
             identifier='22KVTB4',
             identifier_type=ShortIdentifier.name,
-            identifier_prefix=prefix)
+            identifier_prefix=prefix,
+            device_id=self.device_id)
 
         short_identifier = ShortIdentifier(
             prefix_pattern='^[0-9]{2}$',
@@ -101,7 +108,8 @@ class TestShortIdentifier(TestCase):
         IdentifierModel.objects.create(
             identifier='22KVTB4',
             identifier_type=ShortIdentifier.name,
-            identifier_prefix=prefix)
+            identifier_prefix=prefix,
+            device_id=self.device_id)
 
         short_identifier = ShortIdentifier(
             prefix_pattern=prefix_pattern,

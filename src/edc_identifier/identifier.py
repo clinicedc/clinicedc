@@ -1,9 +1,10 @@
 import re
 
-from .exceptions import IdentifierError
-
-from .models import IdentifierModel
+from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+
+from .exceptions import IdentifierError
+from .models import IdentifierModel
 
 
 class Identifier:
@@ -23,6 +24,8 @@ class Identifier:
             seed = ''.join(self.seed)
         except TypeError:
             seed = self.seed
+        edc_device_app_config = django_apps.get_app_config('edc_device')
+        self.device_id = edc_device_app_config.device_id
         self.identifier = last_identifier or self.last_identifier or f'{self.prefix}{seed}'
         self.prefix_pattern = f'^{self.prefix}$'
         self.identifier_pattern = (
@@ -86,7 +89,8 @@ class Identifier:
             return self.identifier_model_cls.objects.create(
                 identifier=self.identifier,
                 identifier_type=self.name,
-                identifier_prefix=self.identifier_prefix)
+                identifier_prefix=self.identifier_prefix,
+                device_id=self.device_id)
         return True
 
     @property

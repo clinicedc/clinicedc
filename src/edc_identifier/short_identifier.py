@@ -1,6 +1,7 @@
 import random
 import re
 
+from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
 from .checkdigit_mixins import LuhnOrdMixin
@@ -71,6 +72,10 @@ class ShortIdentifier:
                 f'Prefix does not match prefix pattern. '
                 f'Got \'{self.prefix}\' does not match '
                 f'pattern \'{self.prefix_pattern}\'.')
+
+        edc_device_app_config = django_apps.get_app_config('edc_device')
+        self.device_id = edc_device_app_config.device_id
+
         self.identifier = self.get_identifier()
 
     def __str__(self):
@@ -105,8 +110,10 @@ class ShortIdentifier:
                         'Unable prepare a unique requisition identifier, '
                         'all are taken. Increase the length of the random string. '
                         f'tries={tries}, max_tries={max_tries}.')
+
         self.identifier_model_cls.objects.create(
             identifier=identifier,
             identifier_type=self.name,
-            identifier_prefix=self.prefix)
+            identifier_prefix=self.prefix,
+            device_id=self.device_id)
         return identifier

@@ -1,7 +1,5 @@
 from django.apps import apps as django_apps
 from edc_base.utils import get_utcnow
-from edc_identifier.exceptions import SubjectIdentifierError
-from edc_protocol import site_protocol_subjects, SiteProtocolNotRegistered
 
 from .research_identifier import ResearchIdentifier
 
@@ -18,16 +16,6 @@ class SubjectIdentifier(ResearchIdentifier):
 
     def pre_identifier(self):
         pass
-#         try:
-#             subject_type_obj = site_protocol_subjects.get(
-#                 name=self.identifier_type,
-#                 model=self.requesting_model)
-#         except SiteProtocolNotRegistered:
-#             raise SubjectIdentifierError(
-#                 f'Subject type is not registered with site_protocol_subjects. '
-#                 f'Got {self.identifier_type}.{self.model}')
-#         _, max_subjects = subject_type_obj.fetch_count_or_raise(site=self.site)
-#         self.padding = len(str(max_subjects))
 
     def post_identifier(self):
         """Creates a registered subject instance for this

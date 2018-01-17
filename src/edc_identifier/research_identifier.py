@@ -1,11 +1,10 @@
-from string import Formatter
-
 from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
+from string import Formatter
 
 from .checkdigit_mixins import LuhnMixin
+from .exceptions import IdentifierError
 from .models import IdentifierModel
-from edc_identifier.exceptions import IdentifierError
 
 
 class IdentifierMissingTemplateValue(Exception):
