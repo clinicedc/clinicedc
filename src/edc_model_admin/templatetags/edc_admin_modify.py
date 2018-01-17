@@ -6,6 +6,11 @@ register = template.Library()
 
 @register.inclusion_tag('edc_submit_line.html', takes_context=True)
 def edc_submit_row(context):
+    request = context.get('request')
+    if int(request.site.id) == int(context.get('reviewer_site_id')):
+        context['show_save'] = False
+        context['show_delete'] = False
+        context['show_save_next'] = False
     return django_submit_row(context)
 
 
