@@ -27,8 +27,6 @@ class AppConfig(DjangoAppConfig):
     protocol_number = '000'  # 3 digits, used for identifiers
     protocol_name = 'My Protocol'
     protocol_title = 'My Protocol of Many Things'
-    site_code = None
-    site_name = None
 
     try:
         email_contacts = settings.EMAIL_CONTACTS
@@ -40,21 +38,10 @@ class AppConfig(DjangoAppConfig):
     messages_written = False
 
     def ready(self):
-        from .site_protocol_subjects import site_protocol_subjects
+        # from .site_protocol_subjects import site_protocol_subjects
 
         sys.stdout.write(f'Loading {self.verbose_name} ...\n')
         sys.stdout.write(f' * {self.protocol}: {self.protocol_name}.\n')
-        if not self.site_name:
-            sys.stdout.write(style.ERROR(
-                ' ERROR. You need to define a site name! \n'))
-        else:
-            sys.stdout.write(f' * site_name: {self.site_name}.\n')
-        if not self.site_code:
-            sys.stdout.write(style.ERROR(
-                ' ERROR. You need to define a site code! \n'))
-        else:
-            sys.stdout.write(f' * site_code: {self.site_code}.\n')
-
         self.rstudy_open = arrow.Arrow.fromdatetime(
             self.study_open_datetime,
             self.study_open_datetime.tzinfo).to('utc').floor('hour')
@@ -70,7 +57,7 @@ class AppConfig(DjangoAppConfig):
         close_date = self.study_close_datetime.strftime('%Y-%m-%d %Z')
         sys.stdout.write(f' * Expected study closing date: {close_date}\n')
 
-        site_protocol_subjects.autodiscover()
+        # site_protocol_subjects.autodiscover()
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
         sys.stdout.flush()
         self.messages_written = True

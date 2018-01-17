@@ -36,26 +36,5 @@
 
     </div>
 
-    <div class="col-md-12">
-    
-          <div class="panel panel-default">
-            <div class="panel-heading">Enrollment Caps</div>
-                <div class="panel-body">
-                    <ul class="list-group">
-                    {% for name, cap in enrollment_caps.items %}
-                        <li class="list-group-item list-group-item-info">{{ name }}</li>
-                        <li class="list-group-item list-group-item">Subject: {{ cap.subject_type_name }}</li>
-                        <li class="list-group-item list-group-item">Model: {{ cap.model_name }}</li>
-                        <li class="list-group-item list-group-item">Max: {{ cap.max_subjects }}</li>
-                        <li class="list-group-item list-group-item">Site: {{ cap.study_site }}</li>
-                        
-                    {% endfor %}
-                    </ul>
-                </div>
-          </div>
-
-    </div>
-
-
 </div> <!-- container -->
 {% endblock main %}
