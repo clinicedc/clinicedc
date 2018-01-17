@@ -1,11 +1,10 @@
 import sys
 
 from django.conf import settings
-from django.contrib.sites.managers import CurrentSiteManager
 from edc_action_item.model_mixins import ActionItemModelMixin
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
-from edc_base.sites.site_model_mixin import SiteModelMixin
+from edc_base.sites import CurrentSiteManager, SiteModelMixin
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_identifier.model_mixins import TrackingIdentifierModelMixin
 
