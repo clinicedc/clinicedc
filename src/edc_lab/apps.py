@@ -28,9 +28,6 @@ class AppConfig(DjangoAppConfig):
     lab_tel = '+267 3902671 ext 2003'
     lab_fax = '+267 3901284'
 
-    site_code = None
-    site_name = None
-
     try:
         requisition_model = settings.EDC_LAB_REQUISITION_MODEL
     except AttributeError:
@@ -45,13 +42,6 @@ class AppConfig(DjangoAppConfig):
     def ready(self):
         from .models.signals import manifest_item_on_post_delete
         post_migrate.connect(update_panels_on_post_migrate, sender=self)
-
         sys.stdout.write(f'Loading {self.verbose_name} ...\n')
         site_labs.autodiscover()
-        if not self.site_code:
-            sys.stdout.write(style.NOTICE(
-                f' * site code not defined. See AppConfig.\n'))
-        if not self.site_name:
-            sys.stdout.write(style.NOTICE(
-                f' * site name not defined. See AppConfig.\n'))
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')

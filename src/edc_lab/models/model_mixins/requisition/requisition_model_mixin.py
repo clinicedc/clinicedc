@@ -3,6 +3,7 @@ from django.utils import timezone
 
 from edc_base.model_fields import InitialsField
 from edc_base.model_fields.custom_fields import OtherCharField
+from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES, NOT_APPLICABLE
 
@@ -10,7 +11,7 @@ from ....choices import ITEM_TYPE, REASON_NOT_DRAWN
 from ..panel_model_mixin import PanelModelMixin
 
 
-class RequisitionModelMixin(PanelModelMixin, models.Model):
+class RequisitionModelMixin(PanelModelMixin, SiteModelMixin, models.Model):
 
     requisition_datetime = models.DateTimeField(
         default=timezone.now,
@@ -38,16 +39,6 @@ class RequisitionModelMixin(PanelModelMixin, models.Model):
         choices=REASON_NOT_DRAWN)
 
     reason_not_drawn_other = OtherCharField()
-
-    study_site = models.CharField(
-        max_length=10,
-        null=True,
-        blank=True)
-
-    study_site_name = models.CharField(
-        max_length=25,
-        null=True,
-        blank=True)
 
     protocol_number = models.CharField(
         max_length=10,

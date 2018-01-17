@@ -24,7 +24,7 @@ class RequisitionAdminMixin:
 
     list_filter = [
         'requisition_datetime',
-        'study_site',
+        'site',
         'is_drawn',
         'panel',
     ]

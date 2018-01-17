@@ -43,7 +43,7 @@ class AliquotLabel(BaseLabel):
             'primary': '<P>' if self.aliquot.is_primary else '',
             'barcode_value': self.aliquot.aliquot_identifier,
             'protocol': edc_protocol_app_config.protocol,
-            'site': self.requisition.study_site,
+            'site': str(self.requisition.site.id),
             'clinician_initials': self.requisition.user_created[0:2].upper(),
             'drawn_datetime': self.requisition.drawn_datetime.strftime(
                 '%Y-%m-%d %H:%M'),
