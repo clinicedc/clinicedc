@@ -2,11 +2,8 @@ import cups
 import socket
 
 from django.apps import apps as django_apps
-from edc_base.models import UserProfile
 
 from .printer import Printer
-
-app_config = django_apps.get_app_config('edc_label')
 
 
 class PrinterError(Exception):
@@ -21,6 +18,7 @@ class PrintersMixin:
 
     @property
     def user_profile(self):
+        UserProfile = django_apps.get_model('edc_base.userprofile')
         return UserProfile.objects.get(user=self.request.user)
 
     @property

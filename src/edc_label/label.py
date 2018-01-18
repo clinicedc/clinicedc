@@ -1,11 +1,7 @@
-from django.apps import apps as django_apps
 from django.utils import timezone
 
 from .label_template import LabelTemplate
 from .job_result import JobResult
-
-
-app_config = django_apps.get_app_config('edc_label')
 
 
 class PrintLabelError(Exception):

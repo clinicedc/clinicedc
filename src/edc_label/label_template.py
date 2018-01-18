@@ -1,10 +1,7 @@
 import os
 
-from string import Template
 from django.apps import apps as django_apps
-
-
-app_config = django_apps.get_app_config('edc_label')
+from string import Template
 
 
 class LabelTemplateError(Exception):
@@ -14,10 +11,11 @@ class LabelTemplateError(Exception):
 class LabelTemplate:
 
     template_name = None
-    template_folder = app_config.template_folder
-    label_templates = app_config.label_templates
 
     def __init__(self, template_name=None):
+        app_config = django_apps.get_app_config('edc_label')
+        self.template_folder = app_config.template_folder
+        self.label_templates = app_config.label_templates
         self.template_name = template_name or self.template_name
         try:
             path = os.path.join(

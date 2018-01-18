@@ -1,3 +1,5 @@
+from django.contrib import messages
+
 
 class JobResult:
     def __init__(self, name=None, job_ids=None, copies=None, printer=None):
@@ -15,3 +17,14 @@ class JobResult:
     def message(self):
         return (f'Sent {self.print_count}/{self.copies} {self.name} labels '
                 f'to printer \'{self.printer.printer_info}\'. {self.job_ids}')
+
+
+def add_job_results_to_messages(request=None, job_results=None):
+    if job_results:
+        messages.success(
+            request,
+            JobResult(
+                name=job_results[0].name,
+                job_ids=sum([j.job_ids for j in job_results], []),
+                copies=sum([j.print_count for j in job_results]),
+                printer=job_results[0].printer).message)
