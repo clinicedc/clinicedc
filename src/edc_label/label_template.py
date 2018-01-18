@@ -25,12 +25,13 @@ class LabelTemplate:
                 self.label_templates.get(template_name))
         except TypeError:
             raise LabelTemplateError(
-                f'Invalid template name or path. Got {template_name}')
+                f'Invalid template name or path. '
+                f'Got {self}.')
         with open(path, 'r') as f:
             self.template = f.read()
 
     def __str__(self):
-        return self.template_name
+        return f'{self.template_folder}/{self.template_name}.'
 
     def render(self, context):
         return Template(self.template).safe_substitute(context)
