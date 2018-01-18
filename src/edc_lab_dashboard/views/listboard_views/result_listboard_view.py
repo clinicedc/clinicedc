@@ -1,6 +1,4 @@
 from django.apps import apps as django_apps
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 
 from ...model_wrappers import ResultModelWrapper
 from .base_listboard_view import BaseListboardView
@@ -19,7 +17,3 @@ class ResultListboardView(BaseListboardView):
     model_wrapper_cls = ResultModelWrapper
     navbar_selected_item = 'result'
     search_form_url = 'result_listboard_url'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)

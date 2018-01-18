@@ -1,42 +1,43 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
+from django.views.generic.base import TemplateView
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.labels import AliquotLabel
+from edc_label import add_job_results_to_messages
 
+from ...view_mixins import ModelsViewMixin
 from .action_view import ActionView
 
 
-class RequisitionView(ActionView):
+class RequisitionView(EdcBaseViewMixin, ModelsViewMixin, ActionView, TemplateView):
 
     post_action_url = 'requisition_listboard_url'
     valid_form_actions = ['print_labels']
     action_name = 'requisition'
     label_cls = AliquotLabel
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def process_form_action(self):
-        print('hello1')
+    def process_form_action(self, request=None):
         if self.action == 'print_labels':
-            print('hello2')
+            job_results = []
             for requisition in self.requisitions:
                 aliquots = (
                     self.aliquot_model.objects.filter(
                         requisition_identifier=requisition.requisition_identifier)
                     .order_by('count'))
                 if aliquots:
-                    self.print_labels(
-                        pks=[obj.pk for obj in aliquots if obj.is_primary])
-                    self.print_labels(
-                        pks=[obj.pk for obj in aliquots if not obj.is_primary])
+                    job_results.extend(self.print_labels(
+                        pks=[obj.pk for obj in aliquots if obj.is_primary],
+                        request=request))
+
+                    job_results.extend(self.print_labels(
+                        pks=[obj.pk for obj in aliquots if not obj.is_primary],
+                        request=request))
             for requisition in self.requisition_model.objects.filter(
                     processed=False, pk__in=self.selected_items):
                 messages.error(
                     self.request,
                     'Unable to print labels. Requisition has not been '
                     f'processed. Got {requisition.requisition_identifier}')
+            add_job_results_to_messages(request, job_results)
 
     @property
     def requisitions(self):

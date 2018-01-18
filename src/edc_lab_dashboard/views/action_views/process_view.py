@@ -1,22 +1,19 @@
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
+from django.views.generic.base import TemplateView
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.labels import AliquotLabel
 
-from ...view_mixins import RequisitionViewMixin, ProcessViewMixin
+from ...view_mixins import RequisitionViewMixin, ProcessViewMixin, ModelsViewMixin
 from .action_view import ActionView
 
 
-class ProcessView(RequisitionViewMixin, ProcessViewMixin, ActionView):
+class ProcessView(EdcBaseViewMixin, ModelsViewMixin, RequisitionViewMixin,
+                  ProcessViewMixin, ActionView, TemplateView):
 
     post_action_url = 'process_listboard_url'
     valid_form_actions = ['process']
     action_name = 'process'
     label_cls = AliquotLabel
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def process_form_action(self):
+    def process_form_action(self, request=None):
         if self.action == 'process':
-            self.process()
+            self.process(request)

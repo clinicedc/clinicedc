@@ -1,11 +1,10 @@
 from django.apps import apps as django_apps
-from django.views.generic.base import ContextMixin
 
 
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
-class ModelsViewMixin(ContextMixin):
+class ModelsViewMixin:
 
     @property
     def aliquot_model(self):

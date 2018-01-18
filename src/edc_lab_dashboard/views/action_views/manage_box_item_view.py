@@ -1,24 +1,21 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
+from django.views.generic.base import TemplateView
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.constants import SHIPPED
 from edc_lab.exceptions import SpecimenError
 
-from ...view_mixins import BoxViewMixin
+from ...view_mixins import BoxViewMixin, ModelsViewMixin
 from .action_view import ActionView
 
 
-class ManageBoxItemView(BoxViewMixin, ActionView):
+class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin,
+                        ModelsViewMixin, ActionView, TemplateView):
 
     post_action_url = 'manage_box_listboard_url'
     valid_form_actions = [
         'add_item', 'renumber_items', 'remove_selected_items']
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     @property
     def url_kwargs(self):
@@ -26,7 +23,7 @@ class ManageBoxItemView(BoxViewMixin, ActionView):
             'action_name': self.kwargs.get('action_name'),
             'box_identifier': self.box_identifier}
 
-    def process_form_action(self):
+    def process_form_action(self, request=None):
         if self.action == 'add_item':
             try:
                 if self.box_item_identifier:

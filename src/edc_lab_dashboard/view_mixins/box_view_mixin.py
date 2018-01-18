@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import escape
 from django.views.generic.base import ContextMixin
 from edc_lab.exceptions import SpecimenError
@@ -23,7 +24,8 @@ class BoxViewMixin(ContextMixin):
         context.update({
             'box_identifier': self.original_box_identifier,
             'box_item_identifier': self.original_box_item_identifier,
-            'box': self.box
+            'box': self.box,
+            'paginator_url_kwargs': self.url_kwargs,
         })
         return context
 
@@ -93,9 +95,9 @@ class BoxViewMixin(ContextMixin):
         box_item_identifier = ''.join(
             self.original_box_item_identifier.split('-'))
         try:
-            obj = self.aliqout_model.objects.get(
+            obj = self.aliquot_model.objects.get(
                 aliquot_identifier=box_item_identifier)
-        except self.aliqout_model.DoesNotExist:
+        except ObjectDoesNotExist:
             message = 'Invalid aliquot identifier. Got {}.'.format(
                 self.original_box_item_identifier or 'None')
             messages.error(self.request, message)

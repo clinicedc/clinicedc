@@ -4,12 +4,9 @@ from django.contrib import messages
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.text import slugify
-from django.views.generic.base import TemplateView
-from edc_base.view_mixins import EdcBaseViewMixin
 from edc_label.label import PrintLabelError
 from edc_label.print_server import PrintServerSelectPrinterError
 
-from ...view_mixins import ModelsViewMixin
 from ...dashboard_templates import dashboard_templates
 
 
@@ -24,7 +21,7 @@ class ActionViewError(Exception):
 app_name = 'edc_lab_dashboard'
 
 
-class ActionView(ModelsViewMixin, EdcBaseViewMixin, TemplateView):
+class ActionView:
 
     form_action_selected_items_name = 'selected_items'
     label_cls = None
@@ -62,7 +59,7 @@ class ActionView(ModelsViewMixin, EdcBaseViewMixin, TemplateView):
                 f'Invalid form action in POST. Got {action}')
         else:
             self.action = action
-        self.process_form_action()
+        self.process_form_action(request=request)
         try:
             url_name = request.url_name_data[self.post_action_url]
         except KeyError as e:
@@ -73,19 +70,21 @@ class ActionView(ModelsViewMixin, EdcBaseViewMixin, TemplateView):
             url = f'{url}?{urllib.parse.urlencode(self.redirect_querystring)}'
         return HttpResponseRedirect(url)
 
-    def process_form_action(self):
+    def process_form_action(self, request=None):
         """Override to conditionally handle the action POST attr.
         """
         pass
 
-    def print_labels(self, pks=None):
+    def print_labels(self, pks=None, request=None):
         """Print labels for each selected item.
 
         See also: edc_lab AppConfig
         """
+        job_results = []
         for pk in pks:
             try:
-                label = self.label_cls(pk=pk, children_count=len(pks))
+                label = self.label_cls(
+                    pk=pk, children_count=len(pks), request=request)
             except PrintServerSelectPrinterError as e:
                 messages.error(
                     self.request,
@@ -93,11 +92,9 @@ class ActionView(ModelsViewMixin, EdcBaseViewMixin, TemplateView):
                 break
             else:
                 try:
-                    result = label.print_label()
+                    job_result = label.print_label()
                 except PrintLabelError as e:
                     messages.error(self.request, str(e))
                 else:
-                    messages.success(
-                        self.request,
-                        f'Printed {result.print_count}/{result.copies} {result.name} to '
-                        f'{result.printer}. JobID {result.jobid}')
+                    job_results.append(job_result)
+        return job_results

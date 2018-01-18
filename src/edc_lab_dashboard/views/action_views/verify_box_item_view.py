@@ -1,26 +1,21 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-
+from django.views.generic.base import TemplateView
 from edc_base.utils import get_utcnow
-
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.constants import SHIPPED
 from edc_lab.exceptions import SpecimenError
 
-from ...view_mixins import BoxViewMixin
+from ...view_mixins import BoxViewMixin, ModelsViewMixin
 from .action_view import ActionView
 
 
-class VerifyBoxItemView(BoxViewMixin, ActionView):
+class VerifyBoxItemView(EdcBaseViewMixin, ModelsViewMixin, BoxViewMixin,
+                        ActionView, TemplateView):
 
     post_action_url = 'verify_box_listboard_url'
     box_item_failed = False
     valid_form_actions = [
         'verify_item', 'reset_box', 'verify_box']
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     @property
     def url_kwargs(self):
@@ -29,7 +24,7 @@ class VerifyBoxItemView(BoxViewMixin, ActionView):
             'box_identifier': self.box_identifier,
             'position': self.kwargs.get('position', '1')}
 
-    def process_form_action(self):
+    def process_form_action(self, request=None):
         if self.action == 'verify_item':
             try:
                 if self.box_item_identifier:

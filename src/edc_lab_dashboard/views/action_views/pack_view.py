@@ -1,20 +1,20 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db.models.deletion import ProtectedError
-from django.utils.decorators import method_decorator
-
+from django.views.generic.base import TemplateView
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.constants import PACKED
 from edc_lab.labels import BoxLabel
 from edc_lab.lab import Manifest as ManifestObject
 from edc_lab.models import Manifest
 
+from ...view_mixins import ModelsViewMixin
 from .action_view import ActionView
 
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
-class PackView(ActionView):
+class PackView(EdcBaseViewMixin, ModelsViewMixin, ActionView, TemplateView):
 
     post_action_url = 'pack_listboard_url'
     valid_form_actions = [
@@ -26,18 +26,14 @@ class PackView(ActionView):
         super().__init__(**kwargs)
         self._selected_manifest = None
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def process_form_action(self):
+    def process_form_action(self, request=None):
         if self.action == 'remove_selected_items':
             self.remove_selected_items()
         elif self.action == 'add_selected_to_manifest':
             if self.selected_manifest:
                 self.add_selected_to_manifest()
         elif self.action == 'print_labels':
-            self.print_labels(pks=self.selected_items)
+            self.print_labels(pks=self.selected_items, request=request)
 
     @property
     def selected_manifest(self):

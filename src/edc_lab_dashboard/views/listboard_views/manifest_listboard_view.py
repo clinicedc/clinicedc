@@ -1,7 +1,5 @@
 from django.apps import apps as django_apps
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.utils.decorators import method_decorator
 from edc_lab.constants import SHIPPED
 from edc_lab.reports import ManifestReport
 from edc_lab.models import Manifest
@@ -24,10 +22,6 @@ class ManifestListboardView(BaseListboardView):
     model_wrapper_cls = ManifestModelWrapper
     listboard_view_filters = ManifestListboardViewFilters()
     search_form_url = 'manifest_listboard_url'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

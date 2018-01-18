@@ -1,30 +1,27 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db.models.deletion import ProtectedError
-from django.utils.decorators import method_decorator
+from django.views.generic.base import TemplateView
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.constants import SHIPPED
 from edc_lab.labels import ManifestLabel
 
-from ...view_mixins import ManifestViewMixin
+from ...view_mixins import ManifestViewMixin, ModelsViewMixin
 from .action_view import ActionView
 
 
-class ManifestView(ManifestViewMixin, ActionView):
+class ManifestView(EdcBaseViewMixin, ModelsViewMixin, ManifestViewMixin,
+                   ActionView, TemplateView):
 
     post_action_url = 'manifest_listboard_url'
     valid_form_actions = [
         'remove_selected_items', 'print_labels', 'ship_selected_items']
     label_cls = ManifestLabel
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def process_form_action(self):
+    def process_form_action(self, request=None):
         if self.action == 'remove_selected_items':
             self.remove_selected_items()
         elif self.action == 'print_labels':
-            self.print_labels(pks=self.selected_items)
+            self.print_labels(pks=self.selected_items, request=request)
         elif self.action == 'ship_selected_items':
             self.ship_selected_items()
 

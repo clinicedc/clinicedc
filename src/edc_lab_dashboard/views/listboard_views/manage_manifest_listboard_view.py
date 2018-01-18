@@ -1,6 +1,4 @@
 from django.apps import apps as django_apps
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 from edc_lab.constants import SHIPPED
 
 from ...model_wrappers import ManifestItemModelWrapper
@@ -21,10 +19,6 @@ class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
 
     model = edc_lab_app_config.manifest_item_model
     model_wrapper_cls = ManifestItemModelWrapper
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

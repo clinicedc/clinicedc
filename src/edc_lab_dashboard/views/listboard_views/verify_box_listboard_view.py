@@ -1,8 +1,6 @@
 from copy import copy
 from django.apps import apps as django_apps
-from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from django.utils.decorators import method_decorator
 from edc_lab.constants import SHIPPED
 
 from ...model_wrappers import VerifyBoxItemModelWrapper
@@ -20,10 +18,7 @@ class VerifyBoxListboardView(BaseBoxItemListboardView):
     model_wrapper_cls = VerifyBoxItemModelWrapper
     navbar_selected_item = 'pack'
     search_form_url = 'verify_box_listboard_url'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    manage_box_listboard_url = 'edc_lab_dashboard:manage_box_listboard_url'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

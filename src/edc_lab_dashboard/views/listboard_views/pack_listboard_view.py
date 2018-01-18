@@ -1,6 +1,4 @@
 from django.apps import apps as django_apps
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 from edc_constants.constants import OPEN
 from edc_lab.constants import SHIPPED
 from edc_lab.models import Manifest, Box
@@ -24,10 +22,6 @@ class PackListboardView(BaseListboardView):
     navbar_selected_item = 'pack'
     listboard_view_filters = PackListboardViewFilters()
     search_form_url = 'pack_listboard_url'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     @property
     def open_manifests(self):

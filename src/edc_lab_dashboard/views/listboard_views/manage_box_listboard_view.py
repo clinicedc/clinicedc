@@ -1,8 +1,6 @@
 from copy import copy
 
-from django.contrib.auth.decorators import login_required
 from django.urls.base import reverse
-from django.utils.decorators import method_decorator
 
 from ...model_wrappers import ManageBoxItemModelWrapper
 from ...dashboard_urls import dashboard_urls
@@ -19,10 +17,6 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
     model_wrapper_cls = ManageBoxItemModelWrapper
     navbar_selected_item = 'pack'
     search_form_url = 'manage_box_listboard_url'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     @property
     def url_kwargs(self):
