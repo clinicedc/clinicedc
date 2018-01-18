@@ -17,7 +17,7 @@ class ManifestLabel(BaseLabel):
             'barcode_value': self.object.manifest_identifier,
             'manifest_identifier': self.object.human_readable_identifier,
             'protocol': edc_protocol_app_config.protocol,
-            'site': edc_protocol_app_config.site_code,
+            'site': str(self.object.site.id),
             'manifest_datetime': self.object.manifest_datetime.strftime('%Y-%m-%d %H:%M'),
             'category': self.object.get_category_display().upper(),
-            'site_name': edc_protocol_app_config.site_name.upper()}
+            'site_name': str(self.object.site.name)}

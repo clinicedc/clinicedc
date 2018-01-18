@@ -13,8 +13,8 @@ class AliquotLabel(BaseLabel):
     model_attr = 'aliquot_model'
     template_name = 'aliquot'
 
-    def __init__(self, pk=None, children_count=None):
-        super().__init__(pk=pk)
+    def __init__(self, pk=None, children_count=None, request=None):
+        super().__init__(pk=pk, request=request)
         self._registered_subject = None
         self._requisition = None
         self.children_count = children_count
@@ -44,10 +44,11 @@ class AliquotLabel(BaseLabel):
             'barcode_value': self.aliquot.aliquot_identifier,
             'protocol': edc_protocol_app_config.protocol,
             'site': str(self.requisition.site.id),
+            'site_name': str(self.requisition.site.name),
             'clinician_initials': self.requisition.user_created[0:2].upper(),
             'drawn_datetime': self.requisition.drawn_datetime.strftime(
                 '%Y-%m-%d %H:%M'),
-            'subject_identifier': self.aliquot.subject_identifier,
+            'subject_identifier': self.registered_subject.subject_identifier,
             'gender': self.registered_subject.gender,
             'dob': self.registered_subject.dob,
             'initials': self.registered_subject.initials,
