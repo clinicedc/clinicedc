@@ -1,6 +1,7 @@
 from django import template
 from django.urls.base import reverse
 from urllib.parse import urljoin, parse_qsl, urlencode, unquote
+from pprint import pprint
 
 
 register = template.Library()
@@ -63,7 +64,8 @@ def paginator_row(context):
     search_term = context.get('search_term')
 
     show = page_obj.has_other_pages()
-    paginator_url = reverse(paginator_url)
+    paginator_url = reverse(
+        paginator_url, kwargs=context.get('paginator_url_kwargs'))
     if querystring:
         if '?' in querystring:
             querystring = querystring.split('?')[1]
