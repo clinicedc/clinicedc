@@ -22,10 +22,15 @@ class Printer:
         self.print_server = print_server_func
         self.print_server_name = print_server_name
         self.print_server_ip = print_server_ip
-        cups_properties = print_server_func().getPrinters().get(name)
-        for k, v in cups_properties.items():
-            k = k.replace('-', '_')
-            setattr(self, k, v)
+        cups_connection = print_server_func()
+        try:
+            cups_properties = cups_connection.getPrinters().get(name)
+        except cups.IPPError:
+            pass
+        else:
+            for k, v in cups_properties.items():
+                k = k.replace('-', '_')
+                setattr(self, k, v)
 
     def __str__(self):
         return f'{self.printer_info or self.name} ({self.printer_make_and_model})'

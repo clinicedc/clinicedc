@@ -17,20 +17,6 @@ class AppConfig(DjangoAppConfig):
     name = 'edc_label'
 
     verbose_name = 'Edc Label'
-    # IP address of the CUPS server, if localhost leave as None
-    try:
-        default_cups_server_ip = settings.CUPS_SERVER_IP
-    except AttributeError:
-        default_cups_server_ip = None
-    try:
-        default_cups_server_fqdn = settings.CUPS_SERVER_FQDN
-    except AttributeError:
-        default_cups_server_fqdn = None
-    # CUPS name of the default printer
-    try:
-        default_printer_name = settings.LABEL_PRINTER
-    except AttributeError:
-        default_printer_name = 'label_printer'
     # full path to static templates folder
     template_folder = os.path.join(
         settings.STATIC_ROOT, 'edc_label', 'label_templates')
