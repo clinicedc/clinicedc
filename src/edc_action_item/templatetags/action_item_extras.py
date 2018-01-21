@@ -73,29 +73,29 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
                     action_item.parent_action_item.action_type.model)
                 # parent reference model and url
                 try:
-                    parent_obj = parent_model_cls.objects.get(
+                    parent_model_obj = parent_model_cls.objects.get(
                         tracking_identifier=action_item.parent_reference_identifier)
                 except ObjectDoesNotExist:
                     pass
                 else:
                     try:
-                        subject_visit = parent_obj.visit
+                        subject_visit = parent_model_obj.visit
                     except (AttributeError, ObjectDoesNotExist):
                         pass
                     else:
                         # parent model is a CRF, add visit to querystring
                         query_dict.update({
-                            parent_obj.visit_model_attr(): str(subject_visit.pk),
+                            parent_model_obj.visit_model_attr(): str(subject_visit.pk),
                             'appointment': str(subject_visit.appointment.pk)})
                     parent_model_url = reference_model_cls.action_cls.reference_model_url(
-                        model_obj=parent_obj,
+                        model_obj=parent_model_obj,
                         action_item=action_item,
                         action_identifier=action_item.action_identifier,
                         **query_dict)
 
                     parent_model_name = (
-                        f'{parent_model_cls._meta.verbose_name} {parent_obj.identifier}')
-                    action_item_reason = parent_obj.action_item_reason
+                        f'{parent_model_cls._meta.verbose_name} {parent_model_obj.identifier}')
+                    action_item_reason = parent_model_obj.action_item_reason
                 parent_action_identifier = action_item.parent_action_item.action_identifier
 
     open_display = [c[1] for c in ACTION_STATUS if c[0] == OPEN][0]

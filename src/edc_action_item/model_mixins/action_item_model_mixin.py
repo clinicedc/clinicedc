@@ -11,12 +11,11 @@ class ActionClassNotDefined(Exception):
 class ActionItemModelMixin(models.Model):
 
     action_cls = None
+    subject_dashboard_url = 'subject_dashboard_url'
 
     action_identifier = models.CharField(
         max_length=25,
         null=True)
-
-    subject_dashboard_url = 'subject_dashboard_url'
 
     def save(self, *args, **kwargs):
         if not self.action_cls:
