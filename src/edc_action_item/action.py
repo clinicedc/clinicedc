@@ -3,7 +3,6 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from edc_constants.constants import CLOSED, NEW, OPEN
 from urllib.parse import urlencode, unquote
 from uuid import uuid4
-from pprint import pprint
 
 
 class SingletonActionItemError(Exception):
@@ -292,6 +291,4 @@ class Action:
             parent_reference_identifier=self.model_obj.tracking_identifier,
             reference_model=action_cls.model,
             status=NEW)
-        print(action_cls)
-        pprint(opts)
         return self.action_item_model_cls().objects.filter(**opts).delete()
