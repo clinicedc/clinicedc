@@ -1,3 +1,4 @@
+import cups
 import urllib
 
 from django.contrib import messages
@@ -5,7 +6,6 @@ from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.text import slugify
 from edc_label.label import PrintLabelError
-from edc_label.print_server import PrintServerSelectPrinterError
 
 from ...dashboard_templates import dashboard_templates
 
@@ -82,19 +82,12 @@ class ActionView:
         """
         job_results = []
         for pk in pks:
+            label = self.label_cls(
+                pk=pk, children_count=len(pks), request=request)
             try:
-                label = self.label_cls(
-                    pk=pk, children_count=len(pks), request=request)
-            except PrintServerSelectPrinterError as e:
-                messages.error(
-                    self.request,
-                    str(e), extra_tags='PrintServerSelectPrinterError')
-                break
+                job_result = label.print_label()
+            except (PrintLabelError, cups.IPPError) as e:
+                messages.error(self.request, str(e))
             else:
-                try:
-                    job_result = label.print_label()
-                except PrintLabelError as e:
-                    messages.error(self.request, str(e))
-                else:
-                    job_results.append(job_result)
+                job_results.append(job_result)
         return job_results
