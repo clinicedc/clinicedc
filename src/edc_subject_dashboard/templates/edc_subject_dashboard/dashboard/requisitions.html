@@ -11,16 +11,19 @@
 
 					{% for requisition in requisitions %}
 				    	<tr>
-				    		<td><span class="text text-muted {% if requisition.entry_status == NOT_REQUIRED %}small{% endif %}">{{ forloop.counter }}</span></td>
+				    		<td>
+	                            <span class="text{% if requisition.entry_status == NOT_REQUIRED %} text-muted small{% endif %}">
+	                              {{ forloop.counter }}.&nbsp;
+	                            </span>
 				    		<td>
 	                            {% if requisition.entry_status == NOT_REQUIRED %}
 	                                <span class="text text-muted small">
                                 	{{ requisition.object.panel_display_name }}
 	                                </span>
                                 {% else %}
-                                	{{ requisition.object.panel_display_name }}
+                                	<span class="text text-default">{{ requisition.object.panel_display_name }}</span>
                                     {% if requisition.object.user_created %}
-                                        <p class="text small text-default">
+                                        <p class="text text-default small">
                                             {{ requisition.object.user_created }} on {{ requisition.object.object.created|date:"SHORT_DATETIME_FORMAT" }}
                                             {% if requisition.object.user_modified %} | {{ requisition.object.user_modified }} on {{ requisition.object.object.modified|date:"SHORT_DATETIME_FORMAT" }}{% endif %}
                                         </p>
