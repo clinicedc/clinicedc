@@ -17,16 +17,14 @@
                             <span class="{% if crf.entry_status == NOT_REQUIRED %}text text-muted small{% endif %}">
                               {{ forloop.counter }}.&nbsp;
                             </span>
-                            </td>
-                            <td>
                                 {% if crf.entry_status == NOT_REQUIRED %}
                                     <span class="text text-muted small">
                                      {{ crf.object.verbose_name }}
                                     </span>
                                 {% else %}
-                                    {{ crf.object.verbose_name }}
+                                    {{ crf.object.verbose_name }}</p>
                                     {% if crf.object.user_created %}
-                                        <p class="text small text-info">
+                                        <p class="text small text-default">
                                             {{ crf.object.user_created }} on {{ crf.object.object.created|date:"SHORT_DATETIME_FORMAT" }}
                                             {% if crf.object.user_modified %} | {{ crf.object.user_modified }} on {{ crf.object.object.modified|date:"SHORT_DATETIME_FORMAT" }}{% endif %}
                                         </p>
