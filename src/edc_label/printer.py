@@ -39,7 +39,9 @@ class Printer:
         return f'{self.__class__}(name={self.name})'
 
     def stream_print(self, zpl_data=None):
-        zpl_data = zpl_data.encode('utf8')
+        """Returns a job_id after sending zpl_data
+        to the printer.
+        """
         cups_connection = self.print_server()
         job_id = cups_connection.createJob(self.name, '', {})
         cups_connection.startDocument(
@@ -48,8 +50,9 @@ class Printer:
         cups_connection.finishDocument(self.name)
         return job_id
 
-    def print_to_file(self, zpl_data=None):
-        """Returns a job_id after printing to file.
+    def print_file(self, zpl_data=None):
+        """Returns a job_id after sending zpl_data
+        to the printer (uses printFile).
         """
         job_id = None
         _, temp = tempfile.mkstemp()
@@ -57,6 +60,7 @@ class Printer:
         try:
             with open(temp, 'w') as f:
                 f.write(zpl_data)
+            #  note: "raw" attr is to prevent CUPS from rendering
             args = (self.name, temp, 'edc_label', {'raw': temp})
             try:
                 job_id = cups_connection.printFile(*args)

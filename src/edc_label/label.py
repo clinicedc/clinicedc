@@ -34,17 +34,18 @@ class Label:
         job_ids = []
         copies = copies or 1
         timestamp = timezone.now().strftime('%Y-%m-%d %H:%M')
+        zpl_data = []
         for i in range(copies, 0, -1):
             context.update({
                 'label_count': i,
                 'label_count_total': copies,
                 'timestamp': timestamp})
-            #  note: "raw" attr is to prevent CUPS from rendering
-            job_id = self.printer.stream_print(
-                zpl_data=self.label_template.render(context))
-            if not job_id:
-                raise PrintLabelError('Print job failed.')
-            job_ids.append(job_id)
+            zpl_data.append(self.label_template.render(context).encode('utf8'))
+        zpl_data = b''.join(zpl_data)
+        job_id = self.printer.stream_print(zpl_data=zpl_data)
+        if not job_id:
+            raise PrintLabelError('Print job failed.')
+        job_ids.append(job_id)
         return self.job_result_cls(
             name=self.label_template_name, copies=copies, job_ids=job_ids,
             printer=self.printer)
