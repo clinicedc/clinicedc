@@ -7,6 +7,7 @@ from edc_lab.constants import PACKED
 from edc_lab.labels import BoxLabel
 from edc_lab.lab import Manifest as ManifestObject
 from edc_lab.models import Manifest
+from edc_label import add_job_results_to_messages
 
 from ...view_mixins import ModelsViewMixin
 from .action_view import ActionView
@@ -33,7 +34,10 @@ class PackView(EdcBaseViewMixin, ModelsViewMixin, ActionView, TemplateView):
             if self.selected_manifest:
                 self.add_selected_to_manifest()
         elif self.action == 'print_labels':
-            self.print_labels(pks=self.selected_items, request=request)
+            job_result = self.print_labels(
+                pks=self.selected_items, request=request)
+            if job_result:
+                add_job_results_to_messages(request, [job_result])
 
     @property
     def selected_manifest(self):

@@ -24,20 +24,22 @@ class RequisitionView(EdcBaseViewMixin, ModelsViewMixin, ActionView, TemplateVie
                         requisition_identifier=requisition.requisition_identifier)
                     .order_by('count'))
                 if aliquots:
-                    job_results.extend(self.print_labels(
-                        pks=[obj.pk for obj in aliquots if obj.is_primary],
-                        request=request))
-
-                    job_results.extend(self.print_labels(
-                        pks=[obj.pk for obj in aliquots if not obj.is_primary],
-                        request=request))
+                    pks = [obj.pk for obj in aliquots if obj.is_primary]
+                    if pks:
+                        job_results.append(self.print_labels(
+                            pks=pks, request=request))
+                    pks = [obj.pk for obj in aliquots if not obj.is_primary]
+                    if pks:
+                        job_results.append(self.print_labels(
+                            pks=pks, request=request))
             for requisition in self.requisition_model.objects.filter(
                     processed=False, pk__in=self.selected_items):
                 messages.error(
                     self.request,
                     'Unable to print labels. Requisition has not been '
                     f'processed. Got {requisition.requisition_identifier}')
-            add_job_results_to_messages(request, job_results)
+            if job_results:
+                add_job_results_to_messages(request, job_results)
 
     @property
     def requisitions(self):

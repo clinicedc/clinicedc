@@ -4,6 +4,7 @@ from django.views.generic.base import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.constants import SHIPPED
 from edc_lab.labels import ManifestLabel
+from edc_label import add_job_results_to_messages
 
 from ...view_mixins import ManifestViewMixin, ModelsViewMixin
 from .action_view import ActionView
@@ -21,7 +22,10 @@ class ManifestView(EdcBaseViewMixin, ModelsViewMixin, ManifestViewMixin,
         if self.action == 'remove_selected_items':
             self.remove_selected_items()
         elif self.action == 'print_labels':
-            self.print_labels(pks=self.selected_items, request=request)
+            job_result = self.print_labels(
+                pks=self.selected_items, request=request)
+            if job_result:
+                add_job_results_to_messages(request, [job_result])
         elif self.action == 'ship_selected_items':
             self.ship_selected_items()
 

@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.text import slugify
-from edc_label.label import PrintLabelError
+from edc_label import JobResult, PrintersMixin, PrinterError
 
 from ...dashboard_templates import dashboard_templates
 
@@ -21,10 +21,11 @@ class ActionViewError(Exception):
 app_name = 'edc_lab_dashboard'
 
 
-class ActionView:
+class ActionView(PrintersMixin):
 
     form_action_selected_items_name = 'selected_items'
     label_cls = None
+    job_result_cls = JobResult
     post_action_url = None  # key exists in request.url_name_data
     redirect_querystring = {}
     template_name = dashboard_templates.get('home_template')
@@ -75,19 +76,34 @@ class ActionView:
         """
         pass
 
-    def print_labels(self, pks=None, request=None):
-        """Print labels for each selected item.
+    @property
+    def printer(self):
+        printer = self.lab_label_printer
+        if not printer:
+            messages.error(
+                self.request,
+                'Your "lab" label printer is not configured. '
+                'See Edc Label in Administration.')
+            raise PrinterError('lab_label_printer not set. Got None')
+        return printer
 
-        See also: edc_lab AppConfig
+    def print_labels(self, pks=None, request=None):
+        """Returns a job_result object or None after printing.
         """
-        job_results = []
-        for pk in pks:
-            label = self.label_cls(
-                pk=pk, children_count=len(pks), request=request)
-            try:
-                job_result = label.print_label()
-            except (PrintLabelError, cups.IPPError) as e:
-                messages.error(self.request, str(e))
-            else:
-                job_results.append(job_result)
-        return job_results
+        zpl_data = b''
+        try:
+            printer = self.printer
+        except PrinterError:
+            printer = None
+            job_id = None
+            job_result = None
+        else:
+            for pk in pks:
+                label = self.label_cls(
+                    pk=pk, children_count=len(pks), request=request)
+                zpl_data += label.render_as_zpl_data()
+            job_id = printer.stream_print(zpl_data=zpl_data)
+            job_result = self.job_result_cls(
+                name=self.label_cls.label_template_name, copies=1, job_ids=[job_id],
+                printer=printer)
+        return job_result
