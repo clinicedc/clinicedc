@@ -4,7 +4,6 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import messages
 from django.views.generic.base import ContextMixin
-from pprint import pprint
 
 from ..printers_mixin import PrintersMixin, PrinterError, PrintServerError
 

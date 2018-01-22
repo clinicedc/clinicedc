@@ -16,19 +16,26 @@
       </form>
       {% if selected_printer %}
           <form action="{% url 'edc_label:print_label' %}" method="post"> 
-            {% print_button printer=selected_printer button_label="Test Print Aliquot Label" label_template_name="aliquot" %}
             {% print_button printer=selected_printer button_label="Test Print Requisition Label" label_template_name="requisition" %}
+            {% print_button printer=selected_printer button_label="Test Print Aliquot Label" label_template_name="aliquot" %}
+            {% print_button printer=selected_printer button_label="Test Print Box Label" label_template_name="box" %}
+            {% print_button printer=selected_printer button_label="Test Print Manifest Label" label_template_name="manifest" %}
           </form>
       {% endif %}
       </div>
-      <div class="panel-footer">
       {% if selected_printer %}
+          <span class="text small">
           <ul class="list-group">
-            <li class="list-group-item">{{selected_printer.name}}</li>
+            <li class="list-group-item">Name: {{selected_printer.name}}</li>
+            <li class="list-group-item">Description: {{selected_printer.printer_info }}</li>
+            <li class="list-group-item">Location: {{selected_printer.printer_location|default:'Unknown'}}</li>
+            <li class="list-group-item">Shared: {{selected_printer.printer_is_shared}}</li>
+            {% if selected_printer.printer_state_reasons %}
+              <li class="list-group-item">Status: {{ selected_printer.printer_state_reasons }}</li>
+            {% endif %}
             <li class="list-group-item">{{selected_printer.device_uri}}</li>
             <li class="list-group-item">{{selected_printer.printer_uri_supported}}</li>
-          </ul>
+          </ul></span>
       {% endif %}
-      </div>
     </div>
     <!--end printer_config -->

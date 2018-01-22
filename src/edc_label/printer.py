@@ -1,6 +1,8 @@
 import cups
-import tempfile
 import os
+import tempfile
+
+from uuid import uuid4
 
 
 class PrinterError(Exception):
@@ -31,6 +33,10 @@ class Printer:
             for k, v in cups_properties.items():
                 k = k.replace('-', '_')
                 setattr(self, k, v)
+        self.printer_state_reasons = [
+            r for r in self.printer_state_reasons if r != 'none']
+        if self.printer_state_reasons:
+            self.printer_state_reasons = ', '.join(self.printer_state_reasons)
 
     def __str__(self):
         return f'{self.printer_info or self.name} ({self.printer_make_and_model})'
@@ -43,11 +49,15 @@ class Printer:
         to the printer.
         """
         cups_connection = self.print_server()
-        job_id = cups_connection.createJob(self.name, '', {})
-        cups_connection.startDocument(
-            self.name, job_id, '', cups.CUPS_FORMAT_RAW, 1)
-        cups_connection.writeRequestData(zpl_data, len(zpl_data))
-        cups_connection.finishDocument(self.name)
+        try:
+            job_id = cups_connection.createJob(self.name, '', {})
+            cups_connection.startDocument(
+                self.name, job_id, str(uuid4()), cups.CUPS_FORMAT_RAW, 1)
+            cups_connection.writeRequestData(zpl_data, len(zpl_data))
+            cups_connection.finishDocument(self.name)
+        except cups.IPPError as e:
+            raise PrinterError(
+                f'Failed to print. Tried printing to \'{self.name}\'. Got \'{e}\'.')
         return job_id
 
     def print_file(self, zpl_data=None):

@@ -23,7 +23,11 @@ class LabelTemplate:
                 self.label_templates.get(template_name))
         except TypeError:
             raise LabelTemplateError(
-                f'Invalid template name or path. '
+                f'Invalid template folder or name. '
+                f'Got {self}.')
+        if not os.path.exists(path):
+            raise LabelTemplateError(
+                f'Invalid template path. '
                 f'Got {self}.')
         with open(path, 'r') as f:
             self.template = f.read()

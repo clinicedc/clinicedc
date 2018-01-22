@@ -36,15 +36,15 @@ class AppConfig(DjangoAppConfig):
                 sys.stdout.write(f' * {filename}\n')
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
 
-    @property
-    def default_cups_server(self):
-        try:
-            default_cups_server = socket.gethostbyname(
-                self.default_cups_server_fqdn)
-        except TypeError:
-            try:
-                default_cups_server = socket.gethostbyname(
-                    self.default_cups_server_ip)
-            except TypeError:
-                default_cups_server = None
-        return default_cups_server
+#     @property
+#     def default_cups_server(self):
+#         try:
+#             default_cups_server = socket.gethostbyname(
+#                 self.default_cups_server_fqdn)
+#         except TypeError:
+#             try:
+#                 default_cups_server = socket.gethostbyname(
+#                     self.default_cups_server_ip)
+#             except TypeError:
+#                 default_cups_server = None
+#         return default_cups_server
