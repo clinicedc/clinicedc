@@ -14,6 +14,7 @@ import sys
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_NAME = 'edc_lab'
+ETC_DIR = os.path.join(BASE_DIR, 'etc')
 SITE_ID = '40'
 REVIEWER_SITE_ID = 1
 
@@ -133,10 +134,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-GIT_DIR = BASE_DIR
-KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
-ETC_DIR = os.path.join(BASE_DIR, 'etc')
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
 EDC_LAB_REQUISITION_MODEL = 'edc_lab.subjectrequisition'
 
 if 'test' in sys.argv:

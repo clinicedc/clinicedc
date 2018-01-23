@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 
 from edc_base.model_mixins import BaseUuidModel
+from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
 from ..model_mixins.shipping import VerifyModelMixin
@@ -17,7 +18,7 @@ class ManifestItemManager(SearchSlugManager, models.Manager):
             box_identifier=box_identifier)
 
 
-class ManifestItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
+class ManifestItem(SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
     def get_search_slug_fields(self):
         return ['identifier', 'human_readable_identifier']
