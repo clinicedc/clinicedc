@@ -10,7 +10,7 @@ edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 class ResultListboardView(BaseListboardView):
 
-    form_action_url = 'aliquot_action_url'
+    form_action_url = 'aliquot_form_action_url'
     listboard_template = 'result_listboard_template'
     listboard_url = 'result_listboard_url'
     model = edc_lab_app_config.result_model

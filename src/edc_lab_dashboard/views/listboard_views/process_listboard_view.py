@@ -13,7 +13,7 @@ class ProcessListboardView(RequisitionListboardView):
 
     action_name = 'process'
     empty_queryset_message = 'All specimens have been process'
-    form_action_url = 'process_action_url'
+    form_action_url = 'process_form_action_url'
     listboard_template = 'process_listboard_template'
     listboard_url = 'process_listboard_url'
     navbar_selected_item = 'process'

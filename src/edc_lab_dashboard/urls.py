@@ -101,7 +101,7 @@ urlpatterns = [
             '(?P<action_name>verify)/'
             '(?P<position>[0-9]+)/$',
             VerifyBoxItemView.as_view(), name='verify_box_item_form_action_url'),
-    path('manifest/', ManifestView.as_view(), name='manifest_url'),
+    path('manifest/', ManifestView.as_view(), name='manifest_form_action_url'),
     re_path('manifest/(?P<manifest_identifier>[A-Z0-9]+)/(?P<action_name>manage)/$',
             ManageManifestView.as_view(), name='manage_manifest_item_form_action_url'),
     path('aliquot/', AliquotView.as_view(), name='aliquot_form_action_url'),

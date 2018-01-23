@@ -3,7 +3,6 @@ from copy import copy
 from django.urls.base import reverse
 
 from ...model_wrappers import ManageBoxItemModelWrapper
-from ...dashboard_urls import dashboard_urls
 from .base_box_item_listboard_view import BaseBoxItemListboardView
 
 
@@ -13,7 +12,7 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
     form_action_url = 'manage_box_item_form_action_url'
     listboard_url = 'manage_box_listboard_url'
     listboard_template = 'manage_box_listboard_template'
-    verify_box_listboard_url = dashboard_urls.get('verify_box_listboard_url')
+    verify_box_listboard_url = 'verify_box_listboard_url'
     model_wrapper_cls = ManageBoxItemModelWrapper
     navbar_selected_item = 'pack'
     search_form_url = 'manage_box_listboard_url'
@@ -31,6 +30,6 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
         url_kwargs['action_name'] = 'verify'
         context.update(
             verify_box_listboard_url_reversed=reverse(
-                self.verify_box_listboard_url,
+                self.request.url_name_data[self.verify_box_listboard_url],
                 kwargs=url_kwargs))
         return context

@@ -1,8 +1,6 @@
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
-from django.urls import reverse
 from django.utils.safestring import mark_safe
-
 from edc_lab.constants import SHIPPED
 from edc_lab.models import BoxItem
 
@@ -59,12 +57,12 @@ def show_box_rows(box, listboard_url, position=None):
 def verified(box_item):
     """Returns a safe HTML check mark string if a Box item has been verified.
     """
-    if not box_item.verified:
-        verified = False
-    elif box_item.verified == 1:
-        verified = True
-    elif box_item.verified == -1:
-        verified = False
+    verified = False
+    if box_item.verified:
+        if int(box_item.verified) == 1:
+            verified = True
+        elif int(box_item.verified) == -1:
+            verified = False
     return '' if not verified else mark_safe(
         '&nbsp;<span title="verified" alt="verified" class="text text-success">'
         '<i class="fa fa-check fa-fw"></i></span>')

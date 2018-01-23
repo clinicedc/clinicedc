@@ -1,7 +1,6 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
-from django.views.generic.base import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.exceptions import BoxItemError
 from edc_lab.lab import Manifest as ManifestObject
@@ -13,7 +12,7 @@ app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 
 class ManageManifestView(EdcBaseViewMixin, ModelsViewMixin, ManifestViewMixin,
-                         ActionView, TemplateView):
+                         ActionView):
 
     post_action_url = 'manage_manifest_listboard_url'
     valid_form_actions = [

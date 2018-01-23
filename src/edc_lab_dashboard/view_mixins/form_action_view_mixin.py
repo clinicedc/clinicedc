@@ -4,6 +4,10 @@ from django.urls.base import reverse
 from ..dashboard_urls import dashboard_urls
 
 
+class FormActionViewError(Exception):
+    pass
+
+
 class FormActionViewMixin(ContextMixin):
 
     action_name = None
@@ -26,7 +30,10 @@ class FormActionViewMixin(ContextMixin):
 
     @property
     def form_action_url_reversed(self):
-        return reverse(
-            dashboard_urls.get(self.form_action_url) or dashboard_urls.get(
-                self.listboard_url),
-            kwargs=self.form_action_url_kwargs)
+        try:
+            form_action_url = dashboard_urls[self.form_action_url]
+        except KeyError:
+            raise FormActionViewError(
+                f'\'form_action_url\' not defined in dashboard_urls. '
+                f'See {repr(self)}. Got {self.form_action_url}')
+        return reverse(form_action_url, kwargs=self.form_action_url_kwargs)

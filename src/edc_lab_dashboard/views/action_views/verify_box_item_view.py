@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.views.generic.base import TemplateView
 from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.constants import SHIPPED
@@ -10,7 +9,7 @@ from .action_view import ActionView
 
 
 class VerifyBoxItemView(EdcBaseViewMixin, ModelsViewMixin, BoxViewMixin,
-                        ActionView, TemplateView):
+                        ActionView):
 
     post_action_url = 'verify_box_listboard_url'
     box_item_failed = False

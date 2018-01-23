@@ -1,10 +1,10 @@
-import cups
 import urllib
 
 from django.contrib import messages
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.text import slugify
+from django.views.generic.base import TemplateView
 from edc_label import JobResult, PrintersMixin, PrinterError
 
 from ...dashboard_templates import dashboard_templates
@@ -21,7 +21,7 @@ class ActionViewError(Exception):
 app_name = 'edc_lab_dashboard'
 
 
-class ActionView(PrintersMixin):
+class ActionView(PrintersMixin, TemplateView):
 
     form_action_selected_items_name = 'selected_items'
     label_cls = None

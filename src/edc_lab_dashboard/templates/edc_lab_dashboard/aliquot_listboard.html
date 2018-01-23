@@ -7,10 +7,6 @@
     </button>
 {% endblock panel_action_buttons %}
 
-{% block panel_action_hidden %}                   
-    {% csrf_token %}
-{% endblock panel_action_hidden %}
-
 {% block results_header %}
     {% include 'edc_lab_dashboard/listboard/aliquot/results_header.html' %}
 {% endblock results_header %}

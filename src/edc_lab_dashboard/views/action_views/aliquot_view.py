@@ -1,14 +1,13 @@
-from django.views.generic.base import TemplateView
+from django.contrib import messages
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.labels import AliquotLabel
 from edc_label import add_job_results_to_messages
 
 from ...view_mixins import ModelsViewMixin
 from .action_view import ActionView
-from django.contrib import messages
 
 
-class AliquotView(EdcBaseViewMixin, ModelsViewMixin, ActionView, TemplateView):
+class AliquotView(EdcBaseViewMixin, ModelsViewMixin, ActionView):
 
     post_action_url = 'aliquot_listboard_url'
     valid_form_actions = ['print_labels']
@@ -17,10 +16,14 @@ class AliquotView(EdcBaseViewMixin, ModelsViewMixin, ActionView, TemplateView):
 
     def process_form_action(self, request=None):
         if self.action == 'print_labels':
-            job_result = self.print_labels(
-                pks=self.selected_items, request=request)
-            if job_result:
-                add_job_results_to_messages(request, [job_result])
+            if not self.selected_items:
+                message = ('Nothing to do. No items have been selected.')
+                messages.warning(request, message)
             else:
-                messages.error(
-                    request, f'Failed to print. Selected items were {self.selected_items}.')
+                job_result = self.print_labels(
+                    pks=self.selected_items, request=request)
+                if job_result:
+                    add_job_results_to_messages(request, [job_result])
+                else:
+                    messages.error(
+                        request, f'Failed to print. Selected items were {self.selected_items}.')

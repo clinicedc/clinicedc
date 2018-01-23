@@ -15,19 +15,20 @@ class ManifestListboardView(BaseListboardView):
 
     navbar_selected_item = 'manifest'
 
-    form_action_url = 'manifest_action_url'
+    form_action_url = 'manifest_form_action_url'
     listboard_url = 'manifest_listboard_url'
     listboard_template = 'manifest_listboard_template'
     model = edc_lab_app_config.manifest_model
     model_wrapper_cls = ManifestModelWrapper
     listboard_view_filters = ManifestListboardViewFilters()
     search_form_url = 'manifest_listboard_url'
+    print_manifest_url = 'print_manifest_url'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
             new_manifest=ManifestModelWrapper(Manifest()),
-            print_manifest_url_name=f'edc_lab_dashboard:print_manifest_url',
+            print_manifest_url_name=self.request.url_name_data[self.print_manifest_url],
             SHIPPED=SHIPPED,
         )
         return context

@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.views.generic.base import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.constants import SHIPPED
 from edc_lab.exceptions import SpecimenError
@@ -11,7 +10,7 @@ from .action_view import ActionView
 
 
 class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin,
-                        ModelsViewMixin, ActionView, TemplateView):
+                        ModelsViewMixin, ActionView):
 
     post_action_url = 'manage_box_listboard_url'
     valid_form_actions = [

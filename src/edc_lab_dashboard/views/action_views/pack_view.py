@@ -1,7 +1,6 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
-from django.views.generic.base import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.constants import PACKED
 from edc_lab.labels import BoxLabel
@@ -15,7 +14,7 @@ from .action_view import ActionView
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
-class PackView(EdcBaseViewMixin, ModelsViewMixin, ActionView, TemplateView):
+class PackView(EdcBaseViewMixin, ModelsViewMixin, ActionView):
 
     post_action_url = 'pack_listboard_url'
     valid_form_actions = [
@@ -28,16 +27,20 @@ class PackView(EdcBaseViewMixin, ModelsViewMixin, ActionView, TemplateView):
         self._selected_manifest = None
 
     def process_form_action(self, request=None):
-        if self.action == 'remove_selected_items':
-            self.remove_selected_items()
-        elif self.action == 'add_selected_to_manifest':
-            if self.selected_manifest:
-                self.add_selected_to_manifest()
-        elif self.action == 'print_labels':
-            job_result = self.print_labels(
-                pks=self.selected_items, request=request)
-            if job_result:
-                add_job_results_to_messages(request, [job_result])
+        if not self.selected_items:
+            message = ('Nothing to do. No items have been selected.')
+            messages.warning(request, message)
+        else:
+            if self.action == 'remove_selected_items':
+                self.remove_selected_items()
+            elif self.action == 'add_selected_to_manifest':
+                if self.selected_manifest:
+                    self.add_selected_to_manifest()
+            elif self.action == 'print_labels':
+                job_result = self.print_labels(
+                    pks=self.selected_items, request=request)
+                if job_result:
+                    add_job_results_to_messages(request, [job_result])
 
     @property
     def selected_manifest(self):
