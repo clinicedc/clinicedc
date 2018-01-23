@@ -107,7 +107,7 @@ class ManifestReport(Report):
 
         data = [
             [Paragraph(
-                ' '.join(self.manifest.site_name.split('_')).upper(),
+                ' '.join(self.manifest.site.name.split('_')).upper(),
                 self.styles["line_data_large"])],
             [Paragraph('SITE NAME', self.styles["line_label"])],
             [Paragraph(

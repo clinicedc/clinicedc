@@ -13,18 +13,14 @@ class TestManifest(TestCase):
         shipper = Shipper.objects.create(name='shipper')
         Manifest.objects.create(
             consignee=consignee,
-            shipper=shipper,
-            site_code='site_code',
-            site_name='site_name')
+            shipper=shipper)
 
     def test_manifest_with_items(self):
         consignee = Consignee.objects.create(name='consignee')
         shipper = Shipper.objects.create(name='shipper')
         manifest = Manifest.objects.create(
             consignee=consignee,
-            shipper=shipper,
-            site_code='site_code',
-            site_name='site_name')
+            shipper=shipper)
         ManifestItem.objects.create(
             manifest=manifest,
             identifier='aaaaaaaaaaaa')
@@ -34,9 +30,7 @@ class TestManifest(TestCase):
         shipper = Shipper.objects.create(name='shipper')
         manifest = Manifest.objects.create(
             consignee=consignee,
-            shipper=shipper,
-            site_code='site_code',
-            site_name='site_name')
+            shipper=shipper)
         manifest_item = ManifestItem.objects.create(
             manifest=manifest,
             identifier='aaaaaaaaaaaabb')
@@ -54,19 +48,17 @@ class TestManifestReport(TestCase):
         shipper = Shipper.objects.create(name='shipper')
         self.manifest = Manifest.objects.create(
             consignee=consignee,
-            shipper=shipper,
-            site_code='site_code',
-            site_name='site_name')
+            shipper=shipper)
 
     def test_report(self):
-        self.assertEqual(self.manifest.site_name, 'site_name')
+        self.assertEqual(self.manifest.site.name, 'example.com')
         report = ManifestReport(manifest=self.manifest, user=self.user)
         report.render()
 
     def test_report_shipped(self):
         self.manifest.shipped = True
         self.manifest.save()
-        self.assertEqual(self.manifest.site_name, 'site_name')
+        self.assertEqual(self.manifest.site.name, 'example.com')
         report = ManifestReport(manifest=self.manifest, user=self.user)
         report.render()
 
@@ -77,7 +69,7 @@ class TestManifestReport(TestCase):
             ManifestItem.objects.create(
                 manifest=self.manifest,
                 identifier=f'{self.manifest.manifest_identifier}{i}')
-        self.assertEqual(self.manifest.site_name, 'site_name')
+        self.assertEqual(self.manifest.site.name, 'example.com')
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render)
         try:
@@ -105,6 +97,7 @@ class TestManifestReport(TestCase):
             identifier=box.box_identifier,
             position=0)
 
+    @tag('1')
     def test_report_invalid_invalid_aliquot_identifier(self):
         self.manifest.shipped = True
         self.manifest.save()
@@ -119,7 +112,7 @@ class TestManifestReport(TestCase):
                 position=i)
         ManifestItem.objects.create(
             manifest=self.manifest, identifier=box.box_identifier)
-        self.assertEqual(self.manifest.site_name, 'site_name')
+        self.assertEqual(self.manifest.site.name, 'example.com')
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render)
         try:
@@ -144,7 +137,7 @@ class TestManifestReport(TestCase):
                 position=index)
         ManifestItem.objects.create(
             manifest=self.manifest, identifier=box.box_identifier)
-        self.assertEqual(self.manifest.site_name, 'site_name')
+        self.assertEqual(self.manifest.site.name, 'example.com')
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render)
         try:

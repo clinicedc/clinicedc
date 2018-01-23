@@ -26,8 +26,7 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
         ('Site', {
             'classes': ('collapse',),
             'fields': (
-                'site_name',
-                'site_code',
+                'site',
             )}),
         ('Shipping', {
             'classes': ('collapse',),
@@ -40,7 +39,7 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         return (super().get_readonly_fields(request, obj=obj)
                 + audit_fields
-                + ('site_name', 'site_code'))
+                + ('site', ))
 
     list_display = (
         'manifest_identifier', 'manifest_datetime', 'shipper', 'consignee')

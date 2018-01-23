@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.db import models
 from django.utils import timezone
 
@@ -60,12 +59,6 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
         null=True,
         blank=True)
 
-    site_code = models.CharField(
-        max_length=25)
-
-    site_name = models.CharField(
-        max_length=25)
-
     comment = models.TextField(
         verbose_name='Comment',
         null=True)
@@ -82,9 +75,6 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
         if not self.manifest_identifier:
             identifier = ManifestIdentifier()
             self.manifest_identifier = identifier.identifier
-            app_config = django_apps.get_app_config('edc_protocol')
-            self.site_code = self.site_code or app_config.site_code
-            self.site_name = self.site_name or app_config.site_name
         if self.shipped and not self.export_datetime:
             self.export_datetime = get_utcnow()
         elif not self.shipped:
