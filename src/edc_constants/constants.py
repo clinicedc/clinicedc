@@ -1,12 +1,16 @@
 import re
 
-ADDITIONAL = True
-ANONYMOUS = 'anonymous'
+from .date_constants import EDC_DATE_FORMAT, EDC_DATETIME_FORMAT
+from .date_constants import EDC_SHORT_DATE_FORMAT, EDC_SHORT_DATETIME_FORMAT
+
 ABNORMAL = 'ABNORMAL'
+ADDITIONAL = True
 AFTERNOON = 'afternoon'
 ALIVE = 'alive'
+ANONYMOUS = 'anonymous'
 ANYTIME = 'anytime'
 BY_BIRTH = 'BY_BIRTH'
+CANCELLED = 'cancelled'
 CLOSED = 'closed'
 COMPLETE = 'COMPLETE'
 CONSENTED = 'consented'
@@ -26,6 +30,7 @@ HIDE_FORM = 'NOT_REQUIRED'
 INCOMPLETE = 'INCOMPLETE'
 IND = 'IND'
 INSERT = 'INSERT'
+LOST_TO_FOLLOWUP = 'LTFU'
 MALE = 'M'
 MORNING = 'morning'
 NAIVE = 'NAIVE'
@@ -37,6 +42,7 @@ NONE = 'none'
 NORMAL = 'NORMAL'
 NOT_ADDITIONAL = False
 NOT_APPLICABLE = 'N/A'
+NOT_DONE = 'not_done'
 NOT_EVALUATED = 'Not evaluated'
 NOT_SURE = 'not_sure'
 OFF_STUDY = 'off study'
