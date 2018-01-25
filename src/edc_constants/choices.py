@@ -351,6 +351,13 @@ YES_NO_NA_DWTA = (
     (NOT_APPLICABLE, 'Not applicable'),
 )
 
+YES_NO_NA_DWTA_DNK = (
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (DWTA, _('Don\'t want to answer')),
+    ('cant_remember', 'Cannot remember'),
+)
+
 YES_NO_NOT_EVALUATED = (
     (YES, YES),
     (NO, NO),
