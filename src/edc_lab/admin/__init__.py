@@ -8,7 +8,9 @@ from .fieldsets import (
     requisition_identifier_fields,
     requisition_status_fields,
     requisition_status_fieldset,
-    requisition_identifier_fieldset)
+    requisition_identifier_fieldset,
+    requisition_verify_fields,
+    requisition_verify_fieldset)
 from .manifest_admin import ManifestAdmin
 from .manifest_item_admin import ManifestItemAdmin
 from .modeladmin_mixins import RequisitionAdminMixin

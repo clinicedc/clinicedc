@@ -40,6 +40,8 @@ class RequisitionAdminMixin:
     def requisition(self, obj=None):
         if obj.is_drawn == YES:
             return obj.requisition_identifier
+        elif not obj.is_drawn:
+            return mark_safe(f'<span style="color:red;">{obj.requisition_identifier}</span>')
         return mark_safe('<span style="color:red;">not drawn</span>')
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

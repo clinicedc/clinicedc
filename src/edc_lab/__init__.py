@@ -1,3 +1,4 @@
+from .aliquot_types import pl, bc, serum, wb
 from .form_validators import CrfRequisitionFormValidatorMixin
 from .identifiers import AliquotIdentifier, AliquotIdentifierCountError, AliquotIdentifierLengthError
 from .identifiers import RequisitionIdentifier, ManifestIdentifier, BoxIdentifier

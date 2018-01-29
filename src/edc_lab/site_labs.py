@@ -4,7 +4,6 @@ import sys
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
 from django.core.exceptions import ObjectDoesNotExist
-from pprint import pprint
 
 
 class AlreadyRegistered(Exception):
@@ -27,6 +26,7 @@ class SiteLabs:
         self._registry = {}
         self.loaded = False
         self.migrated = False
+        self.aliquot_types = {}
 
     def __repr__(self):
         return f'{self.__class__.__name__}(loaded={self.loaded})'
@@ -57,6 +57,7 @@ class SiteLabs:
                 self.registry.update({lab_profile.name: lab_profile})
                 self.registry.update(
                     {lab_profile.requisition_model: lab_profile})
+                self.aliquot_types.update(**lab_profile.aliquot_types)
                 if self.migrated:
                     panel_model_cls = django_apps.get_model(self.panel_model)
                     self.update_panel_model(panel_model_cls=panel_model_cls)

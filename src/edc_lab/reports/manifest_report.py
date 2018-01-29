@@ -4,15 +4,13 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
+from edc_reports import NumberedCanvas, Report
 from io import BytesIO
 from reportlab.graphics.barcode import code39
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm, cm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-
-from .numbered_canvas import NumberedCanvas
-from .report import Report
 
 
 class ManifestReportError(Exception):
@@ -36,13 +34,13 @@ class ManifestReport(Report):
 
     @property
     def contact_name(self):
-        return '{} {}'.format(
-            self.user.first_name, self.user.last_name)
+        return f'{self.user.first_name} {self.user.last_name}'
 
     @property
     def shipper_data(self):
         data = self.manifest.shipper.__dict__
-        data.update(contact_name=self.contact_name)
+        if self.contact_name.strip():
+            data.update(contact_name=self.contact_name)
         return data
 
     @property
@@ -53,6 +51,7 @@ class ManifestReport(Report):
     def formatted_address(self, **kwargs):
         data = {
             'contact_name': None,
+            'name': None,
             'address': None,
             'city': None,
             'state': None,
@@ -62,6 +61,7 @@ class ManifestReport(Report):
         data.update(**kwargs)
         data_list = [v for v in [
             data.get('contact_name'),
+            data.get('name'),
             data.get('address'),
             data.get('city') if not data.get('state') else '{} {}'.format(
                 data.get('city'), data.get('state')),
@@ -96,6 +96,12 @@ class ManifestReport(Report):
 
     def render(self, **kwargs):
         response = HttpResponse(content_type='application/pdf')
+        if self.manifest.shipped:
+            filename = f'{self.manifest.manifest_identifier}.pdf'
+        else:
+            filename = f'manifest_preview.pdf'
+        response['Content-Disposition'] = (
+            f'attachment; filename="{filename}.pdf"')
         buffer = BytesIO()
 
         doc = SimpleDocTemplate(
@@ -265,6 +271,7 @@ class ManifestReport(Report):
 
         doc.build(story, canvasmaker=NumberedCanvas)
         pdf = buffer.getvalue()
+        buffer.close()
         response.write(pdf)
         return response
 
