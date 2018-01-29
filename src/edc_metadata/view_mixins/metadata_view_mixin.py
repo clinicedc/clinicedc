@@ -1,19 +1,20 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
+from django.views.generic.base import ContextMixin
 from edc_appointment.constants import IN_PROGRESS_APPT
 from edc_visit_schedule.model_wrappers import RequisitionModelWrapper, CrfModelWrapper
 
 from ..constants import CRF, NOT_REQUIRED, REQUISITION, REQUIRED, KEYED
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
-from django.core.exceptions import ObjectDoesNotExist
 
 
 class MetaDataViewError(Exception):
     pass
 
 
-class MetaDataViewMixin:
+class MetaDataViewMixin(ContextMixin):
 
     crf_model_wrapper_cls = CrfModelWrapper
     requisition_model_wrapper_cls = RequisitionModelWrapper
