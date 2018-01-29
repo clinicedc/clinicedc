@@ -64,7 +64,7 @@ class TestSearchSlug(TestCase):
     def test_too_long(self):
         obj = TestModel.objects.create(f1='x' * 300)
         obj.save()
-        self.assertIsNotNone(obj._search_slug_warning)
+        self.assertIsNotNone(obj.search_slug_warning)
         self.assertEqual(len(obj.slug), 250)
         obj = TestModel.objects.all()[0]
         obj.save()

@@ -1,4 +1,5 @@
 import sys
+
 from django.utils.text import slugify
 from django.core.management.color import color_style
 
@@ -21,6 +22,6 @@ class SearchSlug:
         slugs = [slugify(item or '') for item in values]
         slug = f'{sep.join(slugs)}'
         if len(slug) > 250:
-            self.warning = f'Search slug string exceeds 250 chars. See {repr(obj)}\n'
+            self.warning = f'Warning! Search slug string exceeds 250 chars. See {repr(obj)}\n'
             sys.stdout.write(style.WARNING(self.warning))
         self.slug = slug[:250]

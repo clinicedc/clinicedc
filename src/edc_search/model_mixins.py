@@ -8,31 +8,39 @@ class SearchSlugDuplicateFields(Exception):
 
 
 class SearchSlugUpdater:
+
+    search_slug_cls = SearchSlug
+    sep = '|'
+
     def __init__(self, fields, model_obj=None):
         if len(fields) > len(list(set(fields))):
             raise SearchSlugDuplicateFields(
                 f'Duplicate search slug fields detected. Got {fields}. '
                 f'See {repr(self)}')
-        search_slug = SearchSlug(
-            obj=model_obj, fields=fields, sep='|')
+        search_slug = self.search_slug_cls(
+            obj=model_obj, fields=fields, sep=self.sep)
         self.warning = search_slug.warning
         self.slug = search_slug.slug
 
 
 class SearchSlugManager(models.Manager):
 
+    search_slug_updater_cls = SearchSlugUpdater
+    search_slug_field_name = 'slug'
+
     def update_search_slugs(self):
         for obj in self.all():
-            updater = SearchSlugUpdater(
+            updater = self.search_slug_updater_cls(
                 fields=obj.get_search_slug_fields(),
                 model_obj=obj)
-            obj.slug = updater.slug
-            obj.save_base(update_fields=['slug'])
+            setattr(obj, self.search_slug_field_name, updater.slug)
+            obj.save_base(update_fields=[self.search_slug_field_name])
 
 
 class SearchSlugModelMixin(models.Model):
 
-    _search_slug_warning = None
+    search_slug_warning = None
+    search_slug_updater_cls = SearchSlugUpdater
 
     def get_search_slug_fields(self):
         return []
@@ -46,11 +54,11 @@ class SearchSlugModelMixin(models.Model):
         help_text='a field used for quick search')
 
     def save(self, *args, **kwargs):
-        updater = SearchSlugUpdater(
+        updater = self.search_slug_updater_cls(
             fields=self.get_search_slug_fields(), model_obj=self)
-        self._search_slug_warning = updater.warning
+        self.search_slug_warning = updater.warning
         self.slug = updater.slug
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
