@@ -31,10 +31,17 @@ class DashboardMiddleware:
         return response
 
     def process_view(self, request, *args):
+        url_name_data = {
+            'print_clinic_manifest_url': 'edc_subject_dashboard:print_clinic_manifest_url',
+            'print_requisition_labels_url': 'edc_subject_dashboard:print_requisition_labels_url',
+            'verify_requisition_label_url': 'edc_subject_dashboard:verify_requisition_label_url',
+        }
         try:
-            url_name_data = settings.DASHBOARD_URL_NAMES
+            settings.DASHBOARD_URL_NAMES
         except AttributeError:
-            url_name_data = {}
+            pass
+        else:
+            url_name_data.update(**settings.DASHBOARD_URL_NAMES)
         try:
             template_data = settings.DASHBOARD_BASE_TEMPLATES
         except AttributeError:

@@ -7,6 +7,17 @@ from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 
 from .registered_subject_view_mixin import RegisteredSubjectViewMixin
 from .subject_visit_view_mixin import SubjectVisitViewMixin
+from django.views.generic.base import ContextMixin
+from pprint import pprint
+
+
+class VerifyRequisitionMixin(ContextMixin):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        scanning = self.kwargs.get('scanning')
+        context.update(scanning=scanning)
+        return context
 
 
 class SubjectDashboardViewMixin(
@@ -17,6 +28,7 @@ class SubjectDashboardViewMixin(
         ActionItemViewMixin,
         SubjectVisitViewMixin,
         VisitScheduleViewMixin,
-        RegisteredSubjectViewMixin):
+        RegisteredSubjectViewMixin,
+        VerifyRequisitionMixin):
 
     pass

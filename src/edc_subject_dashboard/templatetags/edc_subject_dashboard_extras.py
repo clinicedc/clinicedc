@@ -65,3 +65,15 @@ def appointment_in_progress(subject_identifier=None, visit_schedule=None,
     else:
         visit_code = appointment.visit_code
     return dict(visit_code=visit_code)
+
+
+@register.inclusion_tag(
+    'edc_subject_dashboard/requisition_panel_actions.html',
+    takes_context=True)
+def requisition_panel_actions(context):
+    appointment = context.get('appointment')
+    scanning = context.get('scanning')
+    autofocus = 'autofocus' if scanning else ''
+    context['appointment'] = str(appointment.object.pk)
+    context['autofocus'] = autofocus
+    return context

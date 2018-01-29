@@ -6,15 +6,11 @@
 {% block main %}
 
 <div id="subject_dashboard" class="container">
-
+  <div class="row">
   <div class="col-md-9">
   
     <div class="panel-group" id="accordion_schedule">
 
-	{% block alert %}
-		{% include 'edc_dashboard/alert_messages.html' %}
-	{% endblock alert %}
-        
         {% if not visit_schedules %}
           <div class="alert alert-warning">
               <i class="fa fa-warning fa-lg fa-fw"></i> Subject is not enrolled to any schedules.
@@ -109,5 +105,6 @@
     {% endblock side_bar %}
 
 </div> <!-- col-md-3 -->
+</div> <!-- row -->
 </div> <!-- container -->
 {% endblock main %}
