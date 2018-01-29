@@ -43,6 +43,7 @@ specimens.append_item(
     NavbarItem(name='specimens',
                title='specimens',
                fa_icon='fa-flask',
-               url_name=f'edc_lab_dashboard:home_url'))
+               url_name='#',
+               active=True))
 
 site_navbars.register(specimens)

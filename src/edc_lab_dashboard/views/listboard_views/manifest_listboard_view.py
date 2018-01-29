@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-from django.contrib.auth.models import User
 from edc_lab.constants import SHIPPED
 from edc_lab.reports import ManifestReport
 from edc_lab.models import Manifest
@@ -29,8 +28,7 @@ class ManifestListboardView(BaseListboardView):
         context.update(
             new_manifest=ManifestModelWrapper(Manifest()),
             print_manifest_url_name=self.request.url_name_data[self.print_manifest_url],
-            SHIPPED=SHIPPED,
-        )
+            SHIPPED=SHIPPED)
         return context
 
     def get(self, request, *args, **kwargs):
@@ -45,7 +43,6 @@ class ManifestListboardView(BaseListboardView):
             manifest_identifier=self.request.GET.get('pdf'))
 
     def print_manifest(self):
-        user = User.objects.get(username=self.request.user)
         manifest_report = ManifestReport(
-            manifest=self.manifest, user=user)
+            manifest=self.manifest, user=self.request.user)
         return manifest_report.render()

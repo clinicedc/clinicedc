@@ -45,6 +45,7 @@ class ActionView(PrintersMixin, TemplateView):
         if not self._selected_items:
             self._selected_items = self.request.POST.getlist(
                 self.form_action_selected_items_name) or []
+            self._selected_items = [x for x in self._selected_items if x]
         return self._selected_items
 
     @property
