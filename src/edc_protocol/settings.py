@@ -16,6 +16,8 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_NAME = 'edc_protocol'
+ETC_DIR = os.path.join(BASE_DIR, 'etc')
+SITE_ID = 40
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -38,8 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_revision.apps.AppConfig',
-    'django_crypto_fields.apps.AppConfig',
+    # 'django_crypto_fields.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
 ]
@@ -124,7 +127,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
-
+DEFAULT_SUBJECT_TYPE = None
 
 if 'test' in sys.argv:
 
