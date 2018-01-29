@@ -12,11 +12,12 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-# import sys
+import sys
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+APP_NAME = 'edc_offstudy'
+ETC_DIR = os.path.join(BASE_DIR, 'etc')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -25,9 +26,8 @@ SECRET_KEY = 'w^k+nty=&d-)qvc^mn_eo&c7-*^v7-e)f_kk&gbrpiv-d)6x(4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
-
+# AUTO_CREATE_KEYS = True
 
 # Application definition
 
@@ -38,31 +38,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'simple_history',
     'django_crypto_fields.apps.AppConfig',
     'edc_base.apps.AppConfig',
-    'edc_appointment.apps.AppConfig',
     'edc_device.apps.AppConfig',
+    'edc_timepoint.apps.AppConfig',
+    'edc_protocol.apps.AppConfig',
     'edc_registration.apps.AppConfig',
-    'edc_offstudy.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
-    'edc_visit_tracking.apps.AppConfig',
     'edc_lab.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_metadata.apps.AppConfig',
-    'edc_example.apps.EdcConsentAppConfig',
-    'edc_example.apps.EdcProtocolAppConfig',
-    'edc_example.apps.EdcTimepointAppConfig',
-    'edc_example.apps.AppConfig',
+    'edc_offstudy.apps.EdcVisitTrackingAppConfig',
+    'edc_offstudy.apps.EdcAppointmentAppConfig',
+    'edc_offstudy.apps.EdcFacilityAppConfig',
+    'edc_offstudy.apps.AppConfig',
 ]
-
-# if 'test' in sys.argv:
-#     MIGRATION_MODULES = {
-#         'edc_metadata': None,
-#         'edc_example': None,
-#         'edc_visit_schedule': None,
-#         'edc_appointment': None,
-#         'django_crypto_fields': None,
-#         'edc_identifier': None}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -142,3 +133,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+COUNTRY = 'botswana'
+HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
+
+
+if 'test' in sys.argv:
+
+    class DisableMigrations:
+        def __contains__(self, item):
+            return True
+
+        def __getitem__(self, item):
+            return None
+
+    MIGRATION_MODULES = DisableMigrations()
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
+    DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'
