@@ -7,32 +7,32 @@ from edc_constants.constants import NOT_APPLICABLE
 class CitizenFieldsMixin(models.Model):
 
     citizen = models.CharField(
-        verbose_name='Are you a Botswana citizen? ',
+        verbose_name='Is the participant a Botswana citizen? ',
         max_length=3,
         choices=YES_NO,
     )
 
     legal_marriage = models.CharField(
         verbose_name=(
-            'If not a citizen, are you legally married to a Botswana Citizen?'),
+            'If not a citizen, is the participant legally married to a Botswana citizen?'),
         max_length=3,
         choices=YES_NO_NA,
         default=NOT_APPLICABLE,
         null=True,
         blank=False,
-        help_text='If \'NO\' participant will not be enrolled.',
+        help_text='If \'No\', participant may not be consented.',
     )
 
     marriage_certificate = models.CharField(
         verbose_name=(
             '[Interviewer] Has the participant produced the marriage '
-            'certificate, as proof? '),
+            'certificate as proof? '),
         max_length=3,
         choices=YES_NO_NA,
         default=NOT_APPLICABLE,
         null=True,
         blank=False,
-        help_text='If \'NO\' participant will not be enrolled.',
+        help_text='If \'No\', participant may not be consented.',
     )
 
     marriage_certificate_no = models.CharField(

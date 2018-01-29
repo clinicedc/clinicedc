@@ -1,21 +1,19 @@
 from dateutil.relativedelta import relativedelta
-
 from django import forms
 from django.forms.utils import ErrorList
 from django.utils import timezone
-
-from edc_base.modelform_mixins import CommonCleanModelFormMixin
 from edc_base.utils import formatted_age, age
 from edc_constants.constants import YES, NO
-
-from ..exceptions import SiteConsentError
-from ..site_consents import site_consents
 from edc_registration.models import RegisteredSubject
-from edc_base.templatetags.edc_base_extras import age_in_years
+
+from ..consent_helper import ConsentHelper
+from ..exceptions import ConsentObjectDoesNotExist
+from ..site_consents import site_consents, SiteConsentError
 
 
-class ConsentModelFormMixin(CommonCleanModelFormMixin):
-    """Form for models that are a subclass of BaseConsent."""
+class ConsentModelFormMixin:
+    """Form for models that are a subclass of BaseConsent.
+    """
 
     confirm_identity = forms.CharField(
         label='Confirm identity',
@@ -31,6 +29,20 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         self.clean_identity_and_confirm_identity()
         self.clean_identity_with_unique_fields()
         self.clean_with_registered_subject()
+
+        consent_datetime = self.cleaned_data.get(
+            'consent_datetime') or self.instance.consent_datetime
+        if consent_datetime:
+            options = dict(
+                consent_model=self._meta.model._meta.label_lower,
+                consent_group=self._meta.model._meta.consent_group,
+                report_datetime=consent_datetime)
+            consent = site_consents.get_consent(**options)
+            if consent.updates_versions:
+                ConsentHelper(
+                    model_cls=self._meta.model,
+                    update_previous=False,
+                    **self.cleaned_data)
         return cleaned_data
 
     @property
@@ -43,7 +55,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
                 consent_model=self._meta.model._meta.label_lower,
                 consent_group=self._meta.model._meta.consent_group
             )
-        except SiteConsentError as e:
+        except (ConsentObjectDoesNotExist, SiteConsentError) as e:
             raise forms.ValidationError(e)
         return consent_config
 
@@ -60,8 +72,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
             if registered_subject.dob != dob:
                 raise forms.ValidationError({
                     'dob': 'Incorrect date of birth. Based on a previous '
-                    'registration expected {}.'.format(
-                        registered_subject.dob)})
+                    f'registration expected {registered_subject.dob}.'})
 
     def clean_identity_and_confirm_identity(self):
         cleaned_data = self.cleaned_data
@@ -70,8 +81,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         if identity != confirm_identity:
             raise forms.ValidationError({
                 'identity': 'Identity mismatch. Identity must match '
-                'the confirmation field. Got {} != {}'.format(
-                    identity, confirm_identity)})
+                f'the confirmation field. Got {identity} != {confirm_identity}'})
 
     def clean_identity_with_unique_fields(self):
         cleaned_data = self.cleaned_data
@@ -209,7 +219,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         consent_reviewed = self.cleaned_data.get('consent_reviewed')
         if consent_reviewed != YES:
             raise forms.ValidationError(
-                'Consent has not been reviewed with the Subject.',
+                'Complete this part of the informed consent process before continuing.',
                 code='invalid')
         return consent_reviewed
 
@@ -217,8 +227,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         study_questions = self.cleaned_data.get('study_questions')
         if study_questions != YES:
             raise forms.ValidationError(
-                'Subject\'s questions related to the consent have not '
-                'been answer or discussed.',
+                'Complete this part of the informed consent process before continuing.',
                 code='invalid')
         return study_questions
 
@@ -226,8 +235,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         assessment_score = self.cleaned_data.get('assessment_score')
         if assessment_score != YES:
             raise forms.ValidationError(
-                'The scored assessment of the subject\'s understanding '
-                'of the consent should at least be passing.',
+                'Complete this part of the informed consent process before continuing.',
                 code='invalid')
         return assessment_score
 
@@ -235,7 +243,7 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         consent_copy = self.cleaned_data.get('consent_copy')
         if consent_copy == NO:
             raise forms.ValidationError(
-                'The subject has not been given a copy of the consent.',
+                'Complete this part of the informed consent process before continuing.',
                 code='invalid')
         return consent_copy
 
@@ -243,12 +251,13 @@ class ConsentModelFormMixin(CommonCleanModelFormMixin):
         consent_signature = self.cleaned_data.get('consent_signature')
         if consent_signature != YES:
             raise forms.ValidationError(
-                'The subject has not signed the consent.',
+                'Complete this part of the informed consent process before continuing.',
                 code='invalid')
         return consent_signature
 
     def clean_gender_of_consent(self):
-        """Validates gender is a gender of consent."""
+        """Validates gender is a gender of consent.
+        """
         gender = self.cleaned_data.get("gender")
         if gender not in self.consent_config.gender:
             raise forms.ValidationError(

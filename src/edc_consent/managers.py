@@ -1,7 +1,7 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
-from .site_consents import site_consents
-from .exceptions import ConsentDoesNotExist
+from .site_consents import site_consents, SiteConsentError
 
 
 class ObjectConsentManager(models.Manager):
@@ -12,26 +12,28 @@ class ObjectConsentManager(models.Manager):
 
 class ConsentManager(models.Manager):
 
-    def first_consent(self, subject_identifier):
-        """Returns the first consent in the sytem for this subject_identifier
-        by consent_datetime."""
+    def first_consent(self, subject_identifier=None):
+        """Returns the first consent by consent_datetime.
+        """
         return self.filter(subject_identifier=subject_identifier).order_by(
             'consent_datetime').first()
 
-    def consent_for_period(self, subject_identifier, report_datetime):
-        """Returns a consent model instance or None."""
-        subject_consent = None
+    def consent_for_period(self, subject_identifier=None, report_datetime=None):
+        """Returns a consent model instance or None.
+        """
+        model_obj = None
         try:
-            consent = site_consents.get_consent(
-                consent_model=self.model._meta.label_lower,
+            consent_object = site_consents.get_consent_for_period(
+                model=self.model._meta.label_lower,
                 consent_group=self.model._meta.consent_group,
                 report_datetime=report_datetime)
-        except ConsentDoesNotExist:
+        except SiteConsentError:
             pass
         else:
             try:
-                subject_consent = self.get(
-                    subject_identifier=subject_identifier, version=consent.version)
-            except self.model.DoesNotExist:
+                model_obj = self.get(
+                    subject_identifier=subject_identifier,
+                    version=consent_object.version)
+            except ObjectDoesNotExist:
                 pass
-        return subject_consent
+        return model_obj

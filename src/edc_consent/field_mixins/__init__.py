@@ -1,5 +1,5 @@
 from .citizen_fields_mixin import CitizenFieldsMixin
-from .identity_fields_mixin import IdentityFieldsMixin
+from .identity_fields_mixin import IdentityFieldsMixin, IdentityFieldsMixinError
 from .personal_fields_mixin import PersonalFieldsMixin
 from .review_fields_mixin import ReviewFieldsMixin
 from .sample_collection_fields_mixin import SampleCollectionFieldsMixin

@@ -1,4 +1,6 @@
 import sys
 
-if 'test' in sys.argv:
+from django.conf import settings
+
+if settings.APP_NAME == 'edc_consent' and 'makemigrations' not in sys.argv:
     from .tests.models import *

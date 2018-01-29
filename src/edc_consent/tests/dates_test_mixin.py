@@ -1,8 +1,8 @@
 import copy
 import sys
 
+from copy import deepcopy
 from dateutil.relativedelta import relativedelta
-
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 
@@ -23,6 +23,7 @@ class DatesTestMixin:
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.site_consents_registry = {}
         style = color_style()
         sys.stdout.write(
             style.NOTICE(
@@ -70,7 +71,7 @@ class DatesTestMixin:
                 sys.stdout.write(style.NOTICE(
                     ' * {}: {} - {}\n'.format(test_consent.name, test_consent.start, test_consent.end)))
                 testconsents.append(test_consent)
-            site_consents.backup_registry()
+            cls.site_consents_registry = deepcopy(site_consents.registry)
             for test_consent in testconsents:
                 site_consents.register(test_consent)
 
@@ -83,7 +84,7 @@ class DatesTestMixin:
         study_close_datetime = django_apps.app_configs['edc_protocol']._original_study_close_datetime
         django_apps.app_configs['edc_protocol'].study_open_datetime = study_open_datetime
         django_apps.app_configs['edc_protocol'].study_close_datetime = study_close_datetime
-        site_consents.restore_registry()
+        site_consents.registry = cls.site_consents_registry
         sys.stdout.write(style.NOTICE('\n * restored original values\n'))
 
     def get_utcnow(self):

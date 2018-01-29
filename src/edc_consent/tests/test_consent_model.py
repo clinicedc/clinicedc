@@ -1,21 +1,20 @@
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
+from django.test import TestCase, tag
 from model_mommy import mommy
 
-from django.test import TestCase, tag
-
-from edc_base_test.mixins.dates_test_mixin import DatesTestMixin
-
 from ..consent import Consent
+from ..field_mixins import IdentityFieldsMixinError
 from ..site_consents import site_consents
+from .dates_test_mixin import DatesTestMixin
 from .models import SubjectConsent
+from django.contrib.sites.models import Site
 
 
-@tag('m')
 class TestConsentModel(DatesTestMixin, TestCase):
 
     def setUp(self):
-        site_consents.reset_registry()
+        site_consents.registry = {}
         self.consent_factory(
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
@@ -42,14 +41,14 @@ class TestConsentModel(DatesTestMixin, TestCase):
             age_max=kwargs.get('age_max', 64),
             age_is_adult=kwargs.get('age_is_adult', 18),
         )
-        model = kwargs.get('model', 'edc_consent.tests.subjectconsent')
+        model = kwargs.get('model', 'edc_consent.subjectconsent')
         consent = Consent(model, **options)
         site_consents.register(consent)
         return consent
 
     def test_encryption(self):
         subject_consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             first_name='ERIK',
             consent_datetime=self.study_open_datetime,
             dob=self.dob)
@@ -60,11 +59,11 @@ class TestConsentModel(DatesTestMixin, TestCase):
         subject_identifier_as_pk.
         """
         consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=None,
             consent_datetime=self.study_open_datetime,
             dob=self.dob,
-            study_site='40')
+            site=Site.objects.get_current())
         self.assertIsNotNone(consent.subject_identifier)
         self.assertNotEqual(
             consent.subject_identifier, consent.subject_identifier_as_pk)
@@ -77,7 +76,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
         subject_identifier = '123456789'
         identity = '987654321'
         mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -87,7 +86,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             '123456789', self.study_open_datetime + timedelta(days=1))
         self.assertEqual(subject_consent.version, '1.0')
         mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -101,7 +100,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
         subject_identifier = '123456789'
         identity = '987654321'
         consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -109,7 +108,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             dob=self.dob)
         self.assertEqual(consent.version, '1.0')
         consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -117,7 +116,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
             dob=self.dob)
         self.assertEqual(consent.version, '2.0')
         consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -129,7 +128,7 @@ class TestConsentModel(DatesTestMixin, TestCase):
         subject_identifier = '123456789'
         identity = '987654321'
         consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -137,10 +136,59 @@ class TestConsentModel(DatesTestMixin, TestCase):
             dob=self.dob)
         self.assertEqual(consent.version, '1.0')
         consent = mommy.make_recipe(
-            'edc_consent.tests.subjectconsent',
+            'edc_consent.subjectconsent',
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=101),
             dob=self.dob)
         self.assertEqual(consent.version, '3.0')
+
+    def test_manager(self):
+        for i in range(1, 3):
+            mommy.make_recipe(
+                'edc_consent.subjectconsent',
+                subject_identifier=str(i),
+                consent_datetime=self.study_open_datetime + relativedelta(days=i))
+
+        first = SubjectConsent.objects.get(subject_identifier='1')
+        self.assertEqual(
+            first,
+            SubjectConsent.consent.first_consent(subject_identifier='1'))
+
+        SubjectConsent.consent.consent_for_period(
+            subject_identifier='1',
+            report_datetime=self.study_open_datetime + relativedelta(days=1))
+        self.assertEqual(
+            first,
+            SubjectConsent.consent.first_consent(subject_identifier='1'))
+
+        self.assertIsNone(
+            SubjectConsent.consent.consent_for_period(
+                subject_identifier='A',
+                report_datetime=self.study_open_datetime - relativedelta(days=1)))
+
+        self.assertIsNone(
+            SubjectConsent.consent.consent_for_period(
+                subject_identifier='A',
+                report_datetime=self.study_open_datetime + relativedelta(days=1)))
+
+    def test_model_str_repr_etc(self):
+        obj = mommy.make_recipe(
+            'edc_consent.subjectconsent',
+            subject_identifier='12345',
+            consent_datetime=self.study_open_datetime + relativedelta(days=1))
+        self.assertTrue(str(obj))
+        self.assertTrue(repr(obj))
+        self.assertTrue(obj.age_at_consent)
+        self.assertTrue(obj.formatted_age_at_consent)
+        self.assertEqual(obj.report_datetime, obj.consent_datetime)
+
+        self.assertRaises(
+            IdentityFieldsMixinError,
+            mommy.make_recipe,
+            'edc_consent.subjectconsent',
+            subject_identifier='12345',
+            consent_datetime=self.study_open_datetime + relativedelta(days=1),
+            identity='123456789',
+            confirm_identity='987654321',)
