@@ -1,6 +1,5 @@
 from django import forms
-
-from edc_base.modelform_validators import FormValidator
+from edc_form_validators import FormValidator
 
 from ..models import Manifest
 

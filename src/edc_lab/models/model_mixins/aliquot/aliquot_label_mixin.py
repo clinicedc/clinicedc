@@ -20,7 +20,7 @@ class AliquotLabelMixin:
             'clinician_initials': self.requisition.clinician_initials,
             'drawn_datetime': self.requisition.drawn_datetime,
             'primary': primary,
-            'site': self.requisition.study_site,
+            'site': str(self.requisition.site.id),
         })
         if extra_context:
             label_context.update(extra_context)

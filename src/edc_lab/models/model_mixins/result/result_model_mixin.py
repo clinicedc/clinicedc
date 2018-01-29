@@ -1,10 +1,11 @@
 from django.db import models
 from django.utils import timezone
+from edc_base.sites.site_model_mixin import SiteModelMixin
 
 from ..panel_model_mixin import PanelModelMixin
 
 
-class ResultModelMixin(PanelModelMixin, models.Model):
+class ResultModelMixin(PanelModelMixin, SiteModelMixin, models.Model):
 
     report_datetime = models.DateTimeField(
         null=True)

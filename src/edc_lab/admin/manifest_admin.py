@@ -1,7 +1,5 @@
 from django.contrib import admin
-
-from edc_base.modeladmin_mixins import (
-    audit_fieldset_tuple, audit_fields)
+from edc_model_admin import audit_fieldset_tuple, audit_fields
 
 from ..admin_site import edc_lab_admin
 from ..forms import ManifestForm
@@ -28,8 +26,7 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
         ('Site', {
             'classes': ('collapse',),
             'fields': (
-                'site_name',
-                'site_code',
+                'site',
             )}),
         ('Shipping', {
             'classes': ('collapse',),
@@ -42,7 +39,7 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         return (super().get_readonly_fields(request, obj=obj)
                 + audit_fields
-                + ('site_name', 'site_code'))
+                + ('site', ))
 
     list_display = (
         'manifest_identifier', 'manifest_datetime', 'shipper', 'consignee')

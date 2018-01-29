@@ -1,12 +1,12 @@
-from django.apps import apps as django_apps
 from django.db import models
 from django.utils import timezone
 
+from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.constants import OPEN, CLOSED, OTHER
 
-from ...constants import TESTING, STORAGE
-from ...identifiers import ManifestIdentifier
+from ....constants import TESTING, STORAGE
+from ....identifiers import ManifestIdentifier
 
 STATUS = (
     (OPEN, 'Open'),
@@ -20,7 +20,7 @@ MANIFEST_CATEGORY = (
 )
 
 
-class ManifestModelMixin(models.Model):
+class ManifestModelMixin(SiteModelMixin, models.Model):
 
     manifest_identifier = models.CharField(
         verbose_name='Manifest Identifier',
@@ -59,12 +59,6 @@ class ManifestModelMixin(models.Model):
         null=True,
         blank=True)
 
-    site_code = models.CharField(
-        max_length=25)
-
-    site_name = models.CharField(
-        max_length=25)
-
     comment = models.TextField(
         verbose_name='Comment',
         null=True)
@@ -81,9 +75,6 @@ class ManifestModelMixin(models.Model):
         if not self.manifest_identifier:
             identifier = ManifestIdentifier()
             self.manifest_identifier = identifier.identifier
-            app_config = django_apps.get_app_config('edc_protocol')
-            self.site_code = self.site_code or app_config.site_code
-            self.site_name = self.site_name or app_config.site_name
         if self.shipped and not self.export_datetime:
             self.export_datetime = get_utcnow()
         elif not self.shipped:
@@ -93,6 +84,7 @@ class ManifestModelMixin(models.Model):
 
     def natural_key(self):
         return (self.manifest_identifier, )
+    natural_key.dependencies = ['sites.Site']
 
     @property
     def human_readable_identifier(self):

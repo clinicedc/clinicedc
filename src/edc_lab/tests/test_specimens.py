@@ -3,13 +3,27 @@ from django.test import TestCase, tag
 from edc_constants.constants import YES, NO
 
 from ..lab import AliquotType, Process, ProcessingProfile
-from ..lab import Specimen, SpecimenNotDrawnError
+from ..lab import Specimen as SpecimenBase, SpecimenNotDrawnError
+from ..lab import SpecimenProcessor
+from ..lab import AliquotCreator as AliquotCreatorBase
+from ..identifiers import AliquotIdentifier as AliquotIdentifierBase
 from ..models import Aliquot
 from .models import SubjectRequisition, SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 
-@tag('specimen')
+class AliquotIdentifier(AliquotIdentifierBase):
+    identifier_length = 18
+
+
+class AliquotCreator(AliquotCreatorBase):
+    aliquot_identifier_cls = AliquotIdentifier
+
+
+class Specimen(SpecimenBase):
+    aliquot_creator_cls = AliquotCreator
+
+
 class TestSpecimen(TestCase):
 
     lab_helper = SiteLabsTestHelper()
@@ -21,10 +35,13 @@ class TestSpecimen(TestCase):
         self.subject_visit = SubjectVisit.objects.create(
             subject_identifier='1111111111')
 
+    def test_specimen_processor(self):
+        SpecimenProcessor(aliquot_creator_cls=AliquotCreator)
+
     def test_specimen(self):
         requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             protocol_number='999',
             is_drawn=YES)
         Specimen(requisition=requisition)
@@ -32,7 +49,7 @@ class TestSpecimen(TestCase):
     def test_specimen_repr(self):
         requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             protocol_number='999',
             is_drawn=YES)
         specimen = Specimen(requisition=requisition)
@@ -41,7 +58,7 @@ class TestSpecimen(TestCase):
     def test_specimen_from_pk(self):
         requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             protocol_number='999',
             is_drawn=YES)
         Specimen(requisition_pk=requisition.pk)
@@ -49,7 +66,7 @@ class TestSpecimen(TestCase):
     def test_specimen_not_drawn(self):
         requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             protocol_number='999',
             is_drawn=NO)
         self.assertRaises(
@@ -57,7 +74,6 @@ class TestSpecimen(TestCase):
             Specimen, requisition=requisition)
 
 
-@tag('specimen')
 class TestSpecimen2(TestCase):
 
     lab_helper = SiteLabsTestHelper()
@@ -70,7 +86,7 @@ class TestSpecimen2(TestCase):
             subject_identifier='1111111111')
         self.requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             protocol_number='999',
             is_drawn=YES)
         self.specimen = Specimen(requisition=self.requisition)

@@ -1,5 +1,7 @@
 from edc_constants.constants import PENDING, PARTIAL, COMPLETE, NOT_APPLICABLE, OTHER
 
+from .constants import FILL_ACROSS, FILL_DOWN
+
 ABS_CALC = (
     ('absolute', 'Absolute'),
     ('calculated', 'Calculated'),
@@ -20,6 +22,10 @@ ALIQUOT_CONDITIONS = (
     ('70', 'Technical problem at lab, unable to test'),
 )
 
+FILL_ORDER = (
+    (FILL_ACROSS, 'Across'),
+    (FILL_DOWN, 'Down'),
+)
 
 MODIFY_ACTIONS = (
     ('INSERT', 'Insert'),
@@ -96,10 +102,11 @@ PRIORITY = (
 
 REASON_NOT_DRAWN = (
     (NOT_APPLICABLE, 'Not applicable'),
-    ('collection_failed', 'Tried, but unable obtaining sample from patient'),
+    ('collection_failed', 'Tried, but unable to obtain sample from patient'),
     ('absent', 'Patient did not attend visit'),
     ('refused', 'Patient refused'),
     ('no_supplies', 'No supplies'),
+    (OTHER, 'Other'),
 )
 
 ITEM_TYPE = (

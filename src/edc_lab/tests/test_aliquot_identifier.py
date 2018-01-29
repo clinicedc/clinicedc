@@ -4,7 +4,6 @@ from ..identifiers import AliquotIdentifier, Prefix, PrefixKeyError, PrefixLengt
 from ..identifiers import AliquotIdentifierLengthError, AliquotIdentifierCountError
 
 
-@tag('prefix')
 class TestAliquotPrefix(TestCase):
 
     def test_prefix(self):
@@ -31,95 +30,114 @@ class TestAliquotPrefix(TestCase):
             opt1='opt1')
 
 
-@tag('identifier')
 class TestAliquotIdentifier(TestCase):
     def test_valid_length(self):
-        AliquotIdentifier(
+
+        class MyAliquotIdentifier(AliquotIdentifier):
+            identifier_length = 0
+
+        self.assertRaises(
+            AliquotIdentifierLengthError,
+            MyAliquotIdentifier,
             identifier_prefix='1234567890',
-            numeric_code='22',
-            count_padding=2,
-            identifier_length=18)
+            numeric_code='22')
 
     def test_length_raises(self):
         """Asserts raises exception for invalid identifier length.
         """
+
+        class MyAliquotIdentifier(AliquotIdentifier):
+            identifier_length = 0
+
         self.assertRaises(
             AliquotIdentifierLengthError,
-            AliquotIdentifier,
-            identifier_prefix='1234567890',
-            count_padding=2,
-            identifier_length=0)
+            MyAliquotIdentifier,
+            identifier_prefix='1234567890')
 
     def test_numeric_code(self):
-        identifier = AliquotIdentifier(
+
+        class MyAliquotIdentifier(AliquotIdentifier):
+            identifier_length = 16
+
+        identifier = MyAliquotIdentifier(
             identifier_prefix='XXXXXXXX',
-            numeric_code='02',
-            count_padding=2,
-            identifier_length=16)
+            numeric_code='02')
         self.assertIn('02', str(identifier))
 
     def test_primary(self):
-        identifier = AliquotIdentifier(
+
+        class MyAliquotIdentifier(AliquotIdentifier):
+            identifier_length = 16
+
+        identifier = MyAliquotIdentifier(
             identifier_prefix='XXXXXXXX',
-            numeric_code='11',
-            count_padding=2,
-            identifier_length=16)
+            numeric_code='11')
         self.assertIn('0000', str(identifier))
         self.assertTrue(identifier.is_primary)
 
     def test_not_primary_needs_count(self):
         """Asserts need a count if not a primary aliquot.
         """
+        class MyAliquotIdentifier(AliquotIdentifier):
+            identifier_length = 16
+
         self.assertRaises(
             AliquotIdentifierCountError,
-            AliquotIdentifier,
+            MyAliquotIdentifier,
             parent_segment='0201',
             identifier_prefix='XXXXXXXX',
-            numeric_code='11',
-            count_padding=2,
-            identifier_length=16)
+            numeric_code='11')
 
     def test_not_primary_parent_segment(self):
-        identifier = AliquotIdentifier(
+
+        class MyAliquotIdentifier(AliquotIdentifier):
+            identifier_length = 16
+
+        identifier = MyAliquotIdentifier(
             parent_segment='0201',
             identifier_prefix='XXXXXXXX',
             numeric_code='11',
-            count=2,
-            count_padding=2,
-            identifier_length=16)
+            count=2)
         self.assertIn('0201', str(identifier))
         self.assertFalse(identifier.is_primary)
 
     def test_not_primary_parent_segment2(self):
-        identifier = AliquotIdentifier(
+
+        class MyAliquotIdentifier(AliquotIdentifier):
+            identifier_length = 16
+
+        identifier = MyAliquotIdentifier(
             parent_segment='0201',
             identifier_prefix='XXXXXXXX',
             numeric_code='11',
-            count=2,
-            count_padding=2,
-            identifier_length=16)
+            count=2)
         self.assertIn('1102', str(identifier))
         self.assertFalse(identifier.is_primary)
 
     def test_large_count_raises_length_error(self):
+
+        class MyAliquotIdentifier(AliquotIdentifier):
+            identifier_length = 16
+
         self.assertRaises(
             AliquotIdentifierLengthError,
-            AliquotIdentifier,
+            MyAliquotIdentifier,
             parent_segment='0201',
             identifier_prefix='XXXXXXXX',
             numeric_code='11',
-            count=222,
-            count_padding=2,
-            identifier_length=16)
+            count=222)
 
     def test_large_count_valid(self):
+
+        class MyAliquotIdentifier(AliquotIdentifier):
+            identifier_length = 17
+
         try:
-            AliquotIdentifier(
+            MyAliquotIdentifier(
                 parent_segment='0201',
                 identifier_prefix='XXXXXXXX',
                 numeric_code='11',
                 count=222,
-                count_padding=2,
-                identifier_length=17)
+            )
         except AliquotIdentifierLengthError:
             self.fail('AliquotIdentifierLengthError unexpectedly raised.')

@@ -60,7 +60,7 @@ class Manifest:
                         'Item is already in a manifest. See <a href="{href}" class="alert-link">'
                         '{manifest_identifier}</a>'.format(
                             href=reverse(
-                                self.listboard_url_name,
+                                self.listboard_url,
                                 kwargs={
                                     'manifest_identifier':
                                     manifest_item.manifest.manifest_identifier}),

@@ -25,14 +25,17 @@ class Names:
 
 class RequisitionPanel:
 
-    """A container class of processing profile instances.
+    """A panel class that contains processing profile instances.
     """
 
     names_cls = Names
-    model = None  # set by lab profile
+    requisition_model = None  # set by lab profile.add_panel
+    lab_profile_name = None  # set by lab profile.add_panel
+    panel_model = 'edc_lab.panel'
 
     def __init__(self, name=None, aliquot_type=None, processing_profile=None,
                  verbose_name=None, abbreviation=None, **kwargs):
+        self._panel_model_obj = None
         self.aliquot_type = aliquot_type
         self.verbose_name = None
         self.name = name
@@ -57,16 +60,38 @@ class RequisitionPanel:
         return self.verbose_name or self.name
 
     @property
-    def model_cls(self):
+    def panel_model_cls(self):
+        return django_apps.get_model(self.panel_model)
+
+    @property
+    def panel_model_obj(self):
+        """Returns the underlying panel model instance.
+        """
+        if not self._panel_model_obj:
+            self._panel_model_obj = self.panel_model_cls.objects.get(
+                name=self.name, lab_profile_name=self.lab_profile_name)
+        return self._panel_model_obj
+
+    @property
+    def pk(self):
+        """Returns the PK as a UUID() fo the underlying
+        panel model instance.
+        """
+        return self.panel_model_obj.pk
+
+    @property
+    def requisition_model_cls(self):
+        """Returns the requisition model associated with this
+        panel by it's lab profile.
+        """
         try:
-            model = django_apps.get_model(*self.model.split('.'))
-        except (ValueError, LookupError) as e:
-            raise RequisitionPanelModelError(e) from e
-        except AttributeError as e:
-            if 'NoneType' in str(e):
-                raise RequisitionPanelModelError(e) from e
-            model = self.model
-        return model
+            requisition_model_cls = django_apps.get_model(
+                self.requisition_model)
+        except (ValueError, AttributeError, LookupError):
+            raise RequisitionPanelModelError(
+                f'Invalid requisition model. Got {self.requisition_model}. '
+                f'See {repr(self)} or the lab profile {self.lab_profile_name}.')
+        return requisition_model_cls
 
     @property
     def numeric_code(self):

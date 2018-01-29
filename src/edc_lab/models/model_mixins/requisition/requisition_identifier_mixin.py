@@ -5,7 +5,7 @@ from django.db import models
 from edc_base.utils import get_uuid
 from edc_constants.constants import YES, UUID_PATTERN
 
-from ...identifiers import RequisitionIdentifier
+from ....identifiers import RequisitionIdentifier
 
 human_readable_pattern = '^[0-9A-Z]{3}\-[0-9A-Z]{4}$'
 
@@ -15,7 +15,6 @@ class RequisitionIdentifierMixin(models.Model):
     requisition_identifier = models.CharField(
         verbose_name='Requisition Id',
         max_length=50,
-        editable=False,
         unique=True)
 
     identifier_prefix = models.CharField(
@@ -33,8 +32,8 @@ class RequisitionIdentifierMixin(models.Model):
     def save(self, *args, **kwargs):
         if not self.requisition_identifier:
             self.requisition_identifier = get_uuid()
-        self.requisition_identifier = self.get_requisition_identifier()
         self.protocol_number = self.get_protocol_number()
+        self.requisition_identifier = self.get_requisition_identifier()
         super().save(*args, **kwargs)
 
     @property
@@ -59,8 +58,11 @@ class RequisitionIdentifierMixin(models.Model):
         is_drawn == YES and not already a requisition identifier.
         """
         is_uuid = re.match(UUID_PATTERN, self.requisition_identifier)
-        if self.is_drawn == YES and is_uuid:
-            return RequisitionIdentifier().identifier
+        if (self.is_drawn == YES or not self.is_drawn) and is_uuid:
+            return RequisitionIdentifier(
+                protocol_number=self.protocol_number,
+                subject_identifier=self.subject_identifier,
+                source_model=self._meta.label_lower).identifier
         return self.requisition_identifier
 
     class Meta:

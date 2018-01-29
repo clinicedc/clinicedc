@@ -7,9 +7,9 @@ from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
-from ..model_mixins.shipping import VerifyModelMixin
 from ..patterns import aliquot_pattern
 from .box import Box
+from .model_mixins.shipping import VerifyModelMixin
 
 
 class BoxItemManager(SearchSlugManager, models.Manager):

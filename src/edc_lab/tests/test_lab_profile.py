@@ -4,10 +4,8 @@ from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel
 from ..lab import PanelAlreadyRegistered, ProcessingProfileInvalidDerivative
 from ..lab import RequisitionPanelError, Process, InvalidProcessingProfile
 from ..lab import RequisitionPanelModelError
-from ..site_labs import site_labs
 
 
-@tag('profile')
 class TestBuildProfile(TestCase):
 
     def setUp(self):
@@ -17,11 +15,13 @@ class TestBuildProfile(TestCase):
             name='buffy_coat', numeric_code='12', alpha_code='BC')
 
     def test_repr(self):
-        obj = LabProfile(name='profile')
+        obj = LabProfile(
+            name='profile', requisition_model='edc_lab.subjectrequisition')
         self.assertTrue(repr(obj))
 
     def test_str(self):
-        obj = LabProfile(name='profile')
+        obj = LabProfile(
+            name='profile', requisition_model='edc_lab.subjectrequisition')
         self.assertTrue(str(obj))
 
     def test_processing_bad(self):
@@ -62,14 +62,14 @@ class TestBuildProfile(TestCase):
 
     def test_panel_raises_on_invalid_model(self):
         a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
-        for model in [None, 'edc_lab.blah', 'blah']:
-            with self.subTest(model=model):
-                req = RequisitionPanel(
+        for requisition_model in [None, 'edc_lab.blah', 'blah']:
+            with self.subTest(requisition_model=requisition_model):
+                panel = RequisitionPanel(
                     name='Viral Load',
                     aliquot_type=a)
-                req.model = model
+                panel.requisition_model = requisition_model
                 try:
-                    req.model_cls
+                    panel.requisition_model_cls
                 except RequisitionPanelModelError:
                     pass
                 else:
@@ -120,7 +120,8 @@ class TestBuildProfile(TestCase):
             name='Viral Load',
             aliquot_type=a,
             processing_profile=processing_profile)
-        lab_profile = LabProfile(name='profile')
+        lab_profile = LabProfile(
+            name='profile', requisition_model='edc_lab.subjectrequisition')
         lab_profile.add_panel(panel=panel)
 
     def test_add_panel(self):
@@ -135,44 +136,9 @@ class TestBuildProfile(TestCase):
             name='Viral Load',
             aliquot_type=a,
             processing_profile=processing_profile)
-        lab_profile = LabProfile(name='profile')
+        lab_profile = LabProfile(
+            name='profile', requisition_model='edc_lab.subjectrequisition')
         lab_profile.add_panel(panel=panel)
         self.assertRaises(
             PanelAlreadyRegistered,
             lab_profile.add_panel, panel=panel)
-
-
-class TestRequisitionModel(TestCase):
-
-    def setUp(self):
-        a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
-        b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
-        a.add_derivatives(b)
-        process = Process(aliquot_type=b, aliquot_count=3)
-        processing_profile = ProcessingProfile(
-            name='process', aliquot_type=a)
-        processing_profile.add_processes(process)
-        panel = RequisitionPanel(
-            name='Viral Load',
-            aliquot_type=a,
-            processing_profile=processing_profile)
-        self.lab_profile = LabProfile(name='profile')
-        self.lab_profile.add_panel(panel=panel)
-        site_labs._registry = {}
-        site_labs.loaded = False
-        site_labs.register(
-            lab_profile=self.lab_profile,
-            requisition_model='edc_lab.subjectrequisition')
-
-    def test_(self):
-        obj = site_labs.get(lab_profile_name='profile')
-        self.assertEqual(obj, self.lab_profile)
-
-    def test_lab_profile_model(self):
-        obj = site_labs.get(lab_profile_name='profile')
-        self.assertEqual('edc_lab.subjectrequisition',
-                         obj.requisition_model)
-
-    def test_panel_model(self):
-        for panel in site_labs.get(lab_profile_name='profile').panels.values():
-            self.assertEqual(panel.model, 'edc_lab.subjectrequisition')

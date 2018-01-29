@@ -2,16 +2,15 @@ import os
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
+from edc_reports import NumberedCanvas, Report
 from io import BytesIO
 from reportlab.graphics.barcode import code39
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm, cm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-
-from .numbered_canvas import NumberedCanvas
-from .report import Report
 
 
 class ManifestReportError(Exception):
@@ -27,26 +26,21 @@ class ManifestReport(Report):
         app_config = django_apps.get_app_config('edc_lab')
         self.manifest = manifest  # a Manifest model instance
         self.user = user  # a User model instance
-        self.box_model = django_apps.get_model(
-            *app_config.box_model.split('.'))
-        self.box_item_model = django_apps.get_model(
-            *app_config.box_item_model.split('.'))
-        self.aliquot_model = django_apps.get_model(
-            *app_config.aliquot_model.split('.'))
-        self.requisition_model = django_apps.get_model(
-            *app_config.requisition_model.split('.'))
+        self.box_model = django_apps.get_model(app_config.box_model)
+        self.box_item_model = django_apps.get_model(app_config.box_item_model)
+        self.aliquot_model = django_apps.get_model(app_config.aliquot_model)
         self.image_folder = os.path.join(
             settings.STATIC_ROOT, 'bcpp', 'images')
 
     @property
     def contact_name(self):
-        return '{} {}'.format(
-            self.user.first_name, self.user.last_name)
+        return f'{self.user.first_name} {self.user.last_name}'
 
     @property
     def shipper_data(self):
         data = self.manifest.shipper.__dict__
-        data.update(contact_name=self.contact_name)
+        if self.contact_name.strip():
+            data.update(contact_name=self.contact_name)
         return data
 
     @property
@@ -57,6 +51,7 @@ class ManifestReport(Report):
     def formatted_address(self, **kwargs):
         data = {
             'contact_name': None,
+            'name': None,
             'address': None,
             'city': None,
             'state': None,
@@ -66,6 +61,7 @@ class ManifestReport(Report):
         data.update(**kwargs)
         data_list = [v for v in [
             data.get('contact_name'),
+            data.get('name'),
             data.get('address'),
             data.get('city') if not data.get('state') else '{} {}'.format(
                 data.get('city'), data.get('state')),
@@ -100,6 +96,12 @@ class ManifestReport(Report):
 
     def render(self, **kwargs):
         response = HttpResponse(content_type='application/pdf')
+        if self.manifest.shipped:
+            filename = f'{self.manifest.manifest_identifier}.pdf'
+        else:
+            filename = f'manifest_preview.pdf'
+        response['Content-Disposition'] = (
+            f'attachment; filename="{filename}.pdf"')
         buffer = BytesIO()
 
         doc = SimpleDocTemplate(
@@ -111,7 +113,7 @@ class ManifestReport(Report):
 
         data = [
             [Paragraph(
-                ' '.join(self.manifest.site_name.split('_')).upper(),
+                ' '.join(self.manifest.site.name.split('_')).upper(),
                 self.styles["line_data_large"])],
             [Paragraph('SITE NAME', self.styles["line_label"])],
             [Paragraph(
@@ -269,6 +271,7 @@ class ManifestReport(Report):
 
         doc.build(story, canvasmaker=NumberedCanvas)
         pdf = buffer.getvalue()
+        buffer.close()
         response.write(pdf)
         return response
 
@@ -328,20 +331,8 @@ class ManifestReport(Report):
                 Paragraph('DATE', self.styles["line_label_center"]),
             ]]
             for box_item in box.boxitem_set.all().order_by('position'):
-                try:
-                    aliquot = self.aliquot_model.objects.get(
-                        aliquot_identifier=box_item.identifier)
-                except self.aliquot_model.DoesNotExist as e:
-                    raise ManifestReportError(
-                        f'{e} Got Box item \'{box_item.identifier}\'',
-                        code='invalid_aliquot_identifier')
-                try:
-                    requisition = self.requisition_model.objects.get(
-                        requisition_identifier=aliquot.requisition_identifier)
-                except self.requisition_model.DoesNotExist as e:
-                    raise ManifestReportError(
-                        f'{e} Got requisition identifier {aliquot.requisition_identifier}',
-                        code='invalid_requisition_identifier')
+                aliquot = self.get_aliquot(box_item.identifier)
+                panel_object = self.get_panel_object(aliquot)
                 barcode = code39.Standard39(
                     aliquot.aliquot_identifier, barHeight=5 * mm, stop=1)
                 table_data.append([
@@ -354,7 +345,7 @@ class ManifestReport(Report):
                     Paragraph('{} ({}) {}'.format(
                         aliquot.aliquot_type,
                         aliquot.numeric_code,
-                        requisition.panel_object.abbreviation), self.styles['row_data']),
+                        panel_object.abbreviation), self.styles['row_data']),
                     Paragraph(aliquot.aliquot_datetime.strftime(
                         '%Y-%m-%d'), self.styles['row_data']),
                 ])
@@ -365,3 +356,30 @@ class ManifestReport(Report):
                     ('BOX', (0, 0), (-1, -1), 0.25, colors.black)]))
             story.append(t1)
         return story
+
+    def get_aliquot(self, box_item_identifier=None):
+        """Returns the aliquot instance for this box item.
+        """
+        try:
+            aliquot = self.aliquot_model.objects.get(
+                aliquot_identifier=box_item_identifier)
+        except self.aliquot_model.DoesNotExist as e:
+            raise ManifestReportError(
+                f'{e} Got Box item \'{box_item_identifier}\'',
+                code='invalid_aliquot_identifier')
+        return aliquot
+
+    def get_panel_object(self, aliquot=None):
+        """Returns the panel object associated with this
+        aliquot.
+        """
+        app_config = django_apps.get_app_config('edc_lab')
+        requisition_model = django_apps.get_model(app_config.requisition_model)
+        try:
+            requisition = requisition_model.objects.get(
+                requisition_identifier=aliquot.requisition_identifier)
+        except ObjectDoesNotExist as e:
+            raise ManifestReportError(
+                f'{e} Got requisition identifier {aliquot.requisition_identifier}',
+                code='invalid_requisition_identifier')
+        return requisition.panel_object

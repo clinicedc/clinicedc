@@ -1,13 +1,11 @@
-__all__ = ['SubjectVisit', 'SubjectRequisition']
-
 from django.db import models
-
+from django.db.models.deletion import PROTECT
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_lab.model_mixins.requisition import RequisitionModelMixin
-from edc_lab.model_mixins.requisition import RequisitionStatusMixin
-from edc_lab.model_mixins.requisition import RequisitionIdentifierMixin
+
+from ..models import RequisitionIdentifierMixin, RequisitionModelMixin
+from ..models import RequisitionStatusMixin
 
 
 class SubjectVisit(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
@@ -20,7 +18,7 @@ class SubjectRequisition(RequisitionModelMixin,
                          RequisitionIdentifierMixin,
                          BaseUuidModel):
 
-    subject_visit = models.ForeignKey(SubjectVisit)
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     @property
     def visit(self):

@@ -1,6 +1,5 @@
 from django.contrib import admin
-
-from edc_base.modeladmin_mixins import AddressModelAdminMixin
+from edc_model_admin import AddressModelAdminMixin
 
 from ..admin_site import edc_lab_admin
 from ..models import Consignee

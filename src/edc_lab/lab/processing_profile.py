@@ -12,7 +12,7 @@ class Process:
     aliquots from the processing of a source aliquot.
     """
 
-    def __init__(self, aliquot_type=None, aliquot_count=None, **kwargs):
+    def __init__(self, aliquot_type=None, aliquot_count=None):
         self.aliquot_type = aliquot_type
         self.aliquot_count = aliquot_count
         self.name = f'{self.aliquot_type.name} x {self.aliquot_count}'
@@ -37,7 +37,7 @@ class ProcessingProfile:
 
     process_cls = Process
 
-    def __init__(self, name=None, aliquot_type=None, verbose_name=None, **kwargs):
+    def __init__(self, name=None, aliquot_type=None, verbose_name=None):
         self.aliquot_type = aliquot_type
         self.name = name
         self.processes = {}

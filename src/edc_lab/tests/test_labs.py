@@ -130,7 +130,7 @@
 #         self.assertEqual(app_config.aliquot_model.objects.filter(
 #             aliquot_identifier__startswith=specimen.primary_aliquot.aliquot_identifier[0:14]).count(), 1)
 #
-#     @tag('1')
+#     
 #     def test_aliquots_identifier_sequence(self):
 #         """Asserts aliquot class can create child aliquots from
 #         itself with the correct sequence numbers.

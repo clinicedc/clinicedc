@@ -1,7 +1,6 @@
 import re
 
 from django.test import TestCase, tag
-
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
 
 from ..lab import AliquotType, LabProfile, ProcessingProfile
@@ -11,7 +10,6 @@ from .models import SubjectRequisition, SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 
-@tag('site')
 class TestSiteLab(TestCase):
 
     def test_site_labs(self):
@@ -19,10 +17,10 @@ class TestSiteLab(TestCase):
         self.assertFalse(site_lab.loaded)
 
     def test_site_labs_register(self):
-        lab_profile = LabProfile(name='lab_profile')
+        lab_profile = LabProfile(
+            name='lab_profile', requisition_model='edc_lab.subjectrequisition')
         site_lab = SiteLabs()
-        site_lab.register(
-            lab_profile, requisition_model='edc_lab.subjectrequisition')
+        site_lab.register(lab_profile)
         self.assertTrue(site_lab.loaded)
 
     def test_site_labs_register_none(self):
@@ -31,7 +29,6 @@ class TestSiteLab(TestCase):
         self.assertFalse(site_lab.loaded)
 
 
-@tag('site')
 class TestSiteLab2(TestCase):
 
     lab_helper = SiteLabsTestHelper()
@@ -67,7 +64,7 @@ class TestSiteLab2(TestCase):
         subject_visit = SubjectVisit.objects.create()
         SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name=self.panel.name)
+            panel=self.panel.panel_model_obj)
 
     def test_requisition_identifier2(self):
         """Asserts requisition identifier is set on requisition.
@@ -75,7 +72,7 @@ class TestSiteLab2(TestCase):
         subject_visit = SubjectVisit.objects.create()
         requisition = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             is_drawn=YES)
         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
         self.assertTrue(pattern.match(requisition.requisition_identifier))
@@ -87,31 +84,18 @@ class TestSiteLab2(TestCase):
         subject_visit = SubjectVisit.objects.create()
         requisition = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             is_drawn=NO,
             reason_not_drawn=NOT_APPLICABLE)
         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
         self.assertFalse(pattern.match(requisition.requisition_identifier))
-
-#     def test_requisition_identifier4(self):
-#         """Asserts requisition identifier is CLEARED if specimen
-#         changed to not drawn."""
-#         subject_visit = SubjectVisit.objects.create()
-#         requisition = SubjectRequisition.objects.create(
-#             subject_visit=subject_visit,
-#             panel_name=self.panel.name,
-#             is_drawn=YES)
-#         requisition.is_drawn = NO
-#         requisition.save()
-#         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
-#         self.assertFalse(pattern.match(requisition.requisition_identifier))
 
     def test_requisition_identifier5(self):
         """Asserts requisition identifier is set if specimen changed to drawn."""
         subject_visit = SubjectVisit.objects.create()
         requisition = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             is_drawn=NO)
         requisition.is_drawn = YES
         requisition.save()
@@ -123,7 +107,7 @@ class TestSiteLab2(TestCase):
         subject_visit = SubjectVisit.objects.create()
         requisition = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
-            panel_name=self.panel.name,
+            panel=self.panel.panel_model_obj,
             is_drawn=YES)
         requisition_identifier = requisition.requisition_identifier
         requisition.is_drawn = YES

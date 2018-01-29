@@ -1,4 +1,6 @@
 CONDITION_OK = 'OK'
+FILL_ACROSS = 'across'
+FILL_DOWN = 'down'
 PACKED = 'packed'
 SHIPPED = 'shipped'
 STORAGE = 'storage'
