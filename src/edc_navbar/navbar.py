@@ -11,6 +11,7 @@ class Navbar:
     def __init__(self, name=None, navbar_items=None):
         self.name = name
         self.items = navbar_items or []
+        self.rendered_items = []
 
     def __repr__(self):
         return f'{self.__class__.__name__}(name={self.name}, items=\'{self.items}\')'
@@ -22,8 +23,7 @@ class Navbar:
         self.items.append(navbar_item)
 
     def render(self, selected_item=None, **kwargs):
-        rendered_items = []
+        self.rendered_items = []
         for item in self.items:
-            rendered_items.append(item.render(
+            self.rendered_items.append(item.render(
                 selected_item=selected_item, **kwargs))
-        return rendered_items

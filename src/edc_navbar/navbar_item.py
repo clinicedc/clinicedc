@@ -2,7 +2,6 @@ import copy
 
 from django.template.loader import render_to_string
 from django.urls.base import reverse
-from django.urls.exceptions import NoReverseMatch
 
 
 class NavbarItemError(Exception):
@@ -19,7 +18,8 @@ class NavbarItem:
     def __init__(self, name=None, title=None,
                  label=None, url_name=None, html_id=None,
                  glyphicon=None, fa_icon=None, icon=None,
-                 icon_width=None, icon_height=None, no_url_namespace=None):
+                 icon_width=None, icon_height=None, no_url_namespace=None,
+                 active=None):
         self.name = name
         if no_url_namespace:
             self.url_name = url_name.split(':')[1]
@@ -32,6 +32,7 @@ class NavbarItem:
 
         self.title = title or self.label or self.name.title()  # the anchor title
 
+        self.active = active
         self.html_id = html_id or self.name
         self.glyphicon = glyphicon
         self.fa_icon = fa_icon
@@ -41,12 +42,10 @@ class NavbarItem:
         if not self.url_name:
             raise NavbarItemError(
                 f'\'url_name\' not specified. See {repr(self)}')
+        elif self.url_name == '#':
+            self.reversed_url = '#'
         else:
-            # try:
             self.reversed_url = reverse(self.url_name)
-            # except NoReverseMatch:
-            #    raise NavbarItemError(
-            #       f'Invalid url name \'{self.url_name}\'. See {repr(self)} ')
 
     def __repr__(self):
         return (f'{self.__class__.__name__}(name={self.name}, '
@@ -60,7 +59,7 @@ class NavbarItem:
         """
         context = copy.copy(self.__dict__)
         context.update(**kwargs)
-        if selected_item == self.name:
+        if selected_item == self.name or self.active:
             context.update(active=True)
         return context
 
