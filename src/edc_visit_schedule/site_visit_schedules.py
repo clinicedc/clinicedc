@@ -3,10 +3,7 @@ import sys
 
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
-
-from edc_base.utils import get_utcnow
-
-from .visit_schedule import VisitScheduleError
+from pprint import pprint
 
 
 class RegistryNotLoaded(Exception):
@@ -30,6 +27,7 @@ class SiteVisitSchedules:
 
     def __init__(self):
         self._registry = {}
+        self._all_post_consent_models = None
         self.loaded = False
 
     @property
@@ -40,114 +38,85 @@ class SiteVisitSchedules:
                 'declared in settings?.')
         return self._registry
 
-    @property
-    def visit_schedules(self):
-        return self.registry
-
     def register(self, visit_schedule):
         self.loaded = True
         if not visit_schedule.schedules:
             raise SiteVisitScheduleError(
-                f'Visit schedule {visit_schedule} has no schedules. Add one before registering.')
+                f'Visit schedule {visit_schedule} has no schedules. '
+                f'Add one before registering.')
         if visit_schedule.name not in self.registry:
             self.registry.update({visit_schedule.name: visit_schedule})
         else:
             raise AlreadyRegisteredVisitSchedule(
-                'Visit Schedule {} is already registered.'.format(
-                    visit_schedule))
+                f'Visit Schedule {visit_schedule} is already registered.')
+        self._all_post_consent_models = None
+
+    @property
+    def visit_schedules(self):
+        return self.registry
 
     def get_visit_schedule(self, visit_schedule_name=None, **kwargs):
         """Returns a visit schedule instance or raises.
         """
-        if not self.loaded:
-            raise SiteVisitScheduleError('Registry is not loaded.')
-        visit_schedule = None
-        if visit_schedule_name:
-            visit_schedule = self.registry.get(
-                visit_schedule_name.split('.')[0])
-            if not visit_schedule:
-                keys = '\', \''.join(self.registry.keys())
-                raise SiteVisitScheduleError(
-                    f'Invalid visit schedule name. Got \'{visit_schedule_name}\'. '
-                    f'Expected one of \'{keys}\'.')
+        try:
+            visit_schedule_name = visit_schedule_name.split('.')[0]
+        except AttributeError:
+            pass
+        visit_schedule = self.registry.get(visit_schedule_name)
+        if not visit_schedule:
+            visit_schedule_names = '\', \''.join(self.registry.keys())
+            raise SiteVisitScheduleError(
+                f'Invalid visit schedule name. Got \'{visit_schedule_name}\'. '
+                f'Expected one of \'{visit_schedule_names}\'. See {repr(self)}.')
         return visit_schedule
 
-    def get_visit_schedules(self, visit_schedule_name=None, **kwargs):
+    def get_visit_schedules(self, *visit_schedule_names):
         """Returns a dictionary of visit schedules.
 
         If visit_schedule_name not specified, returns all visit schedules.
         """
-        if not self.loaded:
-            raise SiteVisitScheduleError('Registry is not loaded.')
-        if visit_schedule_name:
-            visit_schedule_name = visit_schedule_name.split('.')[0]
-            return dict(
-                visit_schedule_name=self.get_visit_schedule(visit_schedule_name))
-        else:
-            return self.visit_schedules
-
-    def get_schedule(self, model=None, visit_schedule_name=None,
-                     schedule_name=None, **kwargs):
-        """Returns a schedule or None; by name, meta.label_lower,
-        model class or meta.visit_schedule_name.
-        """
-        if not self.loaded:
-            raise SiteVisitScheduleError('Registry is not loaded.')
-        schedule = None
-        if not schedule_name:
-            try:
-                schedule_name = visit_schedule_name.split('.')[1]
-            except (KeyError, AttributeError):
-                pass
-        for visit_schedule in self.get_visit_schedules(
-                visit_schedule_name=visit_schedule_name).values():
-            try:
-                schedule = visit_schedule.get_schedule(
-                    model=model, schedule_name=schedule_name)
-            except VisitScheduleError:
-                pass
-            else:
-                break
-        return schedule
-
-    def get_schedules(self, visit_schedule_name=None, schedule_name=None, **kwargs):
-        """Returns a dictionary of schedules for this
-        visit_schedule_name.
-        """
-        if not self.loaded:
-            raise SiteVisitScheduleError('Registry is not loaded.')
-        visit_schedule = self.get_visit_schedule(
-            visit_schedule_name=visit_schedule_name)
-        return visit_schedule.get_schedules(schedule_name=schedule_name)
-
-    def get_visit_schedule_names(self):
-        """Returns an ordered list of visit schedule names for
-        this site.
-        """
-        visit_schedule_names = list(self.visit_schedules.keys())
-        visit_schedule_names.sort()
-        return visit_schedule_names
-
-    def get_schedule_names(self, visit_schedule_names=None):
-        """Returns an ordered list of schedule names for a given
-        visit schedule name in visit_schedule_name.schedule_name
-        dot format.
-        """
-        schedule_names = []
-        if not isinstance(visit_schedule_names, (list, tuple)):
-            visit_schedule_names = [visit_schedule_names]
+        visit_schedules = {}
         for visit_schedule_name in visit_schedule_names:
-            schedule_names.extend(
-                ['{}.{}'.format(visit_schedule_name, schedule_name)
-                 for schedule_name in list(
-                     self.get_visit_schedule(visit_schedule_name=visit_schedule_name).schedules.keys())])
-        schedule_names.sort()
-        return schedule_names
+            try:
+                visit_schedule_name = visit_schedule_name.split('.')[0]
+            except AttributeError:
+                pass
+            visit_schedules[visit_schedule_name] = self.get_visit_schedule(
+                visit_schedule_name)
+        return visit_schedules or self.registry
+
+    def get_by_onschedule_model(self, onschedule_model=None):
+        """Returns a tuple of visit_schedule, schedule
+        for the given onschedule model.
+        """
+        schedule = None
+        for visit_schedule in self.visit_schedules.values():
+            for schedule in visit_schedule.schedules.values():
+                if schedule.onschedule_model == onschedule_model:
+                    return visit_schedule, schedule
+        raise SiteVisitScheduleError(
+            f'Schedule not found. No schedule exists for '
+            f'onschedule_model={onschedule_model}.')
+        return None
+
+    def get_by_offschedule_model(self, offschedule_model=None):
+        """Returns a tuple of visit_schedule, schedule
+        for the given offschedule model.
+        """
+        for visit_schedule in self.visit_schedules.values():
+            for schedule in visit_schedule.schedules.values():
+                if schedule.offschedule_model == offschedule_model:
+                    return visit_schedule, schedule
+        raise SiteVisitScheduleError(
+            f'Schedule not found. No schedule exists for '
+            f'offschedule_model={offschedule_model}.')
+        return None, None
 
     def autodiscover(self, module_name=None, apps=None, verbose=None):
         """Autodiscovers classes in the visit_schedules.py file of
         any INSTALLED_APP.
         """
+        self.loaded = True
         module_name = module_name or 'visit_schedules'
         verbose = True if verbose is None else verbose
         if verbose:
@@ -162,25 +131,39 @@ class SiteVisitSchedules:
                     import_module(f'{app}.{module_name}')
                     if verbose:
                         sys.stdout.write(
-                            ' * registered visit schedule from application '
+                            ' * registered visit schedule from '
                             f'\'{app}\'\n')
                 except Exception as e:
                     if f'No module named \'{app}.{module_name}\'' not in str(e):
-                        raise SiteVisitScheduleError(
-                            f'In module {app}.{module_name}: Got {e}') from e
+                        raise
                     site_visit_schedules._registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise SiteVisitScheduleError(
-                            f'In module {app}.{module_name}: Got {e}') from e
-            except ImportError:
+                        raise
+            except ModuleNotFoundError:
                 pass
 
-    def validate(self):
+    @property
+    def all_post_consent_models(self):
+        """Returns a list of models that require consent before save.
+        """
+        if not self._all_post_consent_models:
+            models = {}
+            for visit_schedule in self.visit_schedules.values():
+                models.update(**visit_schedule.all_post_consent_models)
+            self._all_post_consent_models = models
+        return self._all_post_consent_models
+
+    def check(self):
         if not self.loaded:
             raise SiteVisitScheduleError('Registry is not loaded.')
-        for visit_schedule in self.registry.values():
+        errors = {'visit_schedules': [], 'schedules': [], 'visits': []}
+        for visit_schedule in site_visit_schedules.visit_schedules.values():
+            errors['visit_schedules'].extend(visit_schedule.check())
             for schedule in visit_schedule.schedules.values():
-                schedule.visits.timepoint_dates(dt=get_utcnow())
+                errors['schedules'].extend(schedule.check())
+                for visit in schedule.visits.values():
+                    errors['visits'].extend(visit.check())
+        return errors
 
 
 site_visit_schedules = SiteVisitSchedules()

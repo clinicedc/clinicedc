@@ -1,0 +1,1 @@
+from .subject_schedule_history_admin import SubjectScheduleHistoryAdmin

@@ -1,13 +1,17 @@
 import re
 
-from django.apps import apps as django_apps
+from django.core.management.color import color_style
 
-from ..validator import Validator, ValidatorLookupError
+from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
+from ..subject_schedule import NotOnScheduleForDateError, NotOnScheduleError
+from ..subject_schedule import SubjectSchedule, SubjectScheduleError
 from ..visit import Visit
 from .visit_collection import VisitCollection
 
+style = color_style()
 
-class ScheduleModelError(Exception):
+
+class ScheduleError(Exception):
     pass
 
 
@@ -25,17 +29,17 @@ class Schedule:
 
     Is contained by a "visit schedule".
 
-    Contains an ordered dictionary of visit instances and the enrollment
-    and disenrollment models used to get on and off the schedule.
+    Contains an ordered dictionary of visit instances and the onschedule
+    and offschedule models used to get on and off the schedule.
     """
-
     name_regex = r'[a-z0-9\_\-]+$'
     visit_cls = Visit
     visit_collection_cls = VisitCollection
-    model_validator_cls = Validator
+    subject_schedule_cls = SubjectSchedule
 
-    def __init__(self, name=None, title=None, sequence=None, enrollment_model=None,
-                 disenrollment_model=None, validate=None, **kwargs):
+    def __init__(self, name=None, verbose_name=None, sequence=None, onschedule_model=None,
+                 offschedule_model=None, appointment_model=None, consent_model=None):
+        self._subject = None
         self.visits = self.visit_collection_cls()
         if not name or not re.match(r'[a-z0-9\_\-]+$', name):
             raise ScheduleNameError(
@@ -43,34 +47,28 @@ class Schedule:
                 'lower case letters and \'_\'.')
         else:
             self.name = name
-        self.title = title or name
+        self.verbose_name = verbose_name or name
         self.sequence = sequence or name
-        if not enrollment_model:
-            raise ScheduleModelError('Invalid enrollment model. Got None')
-        self.enrollment_model = enrollment_model.lower()
-        if not disenrollment_model:
-            raise ScheduleModelError('Invalid disenrollment model. Got None')
-        self.disenrollment_model = disenrollment_model.lower()
-        if validate:
-            self.validate()
+
+        self.appointment_model = appointment_model.lower()
+        self.consent_model = consent_model.lower()
+        self.offschedule_model = offschedule_model.lower()
+        self.onschedule_model = onschedule_model.lower()
+
+    def check(self):
+        warnings = []
+        try:
+            self.subject.check()
+        except (SiteVisitScheduleError, SubjectScheduleError) as e:
+            warnings.append(
+                f'{e} See schedule \'{self.name}\'.')
+        return warnings
 
     def __repr__(self):
         return f'Schedule({self.name})'
 
     def __str__(self):
         return self.name
-
-    @property
-    def field_value(self):
-        return self.name
-
-    @property
-    def enrollment_model_cls(self):
-        return django_apps.get_model(self.enrollment_model)
-
-    @property
-    def disenrollment_model_cls(self):
-        return django_apps.get_model(self.disenrollment_model)
 
     def add_visit(self, visit=None, **kwargs):
         """Adds a unique visit to the schedule.
@@ -84,22 +82,71 @@ class Schedule:
         self.visits.update({visit.code: visit})
         return visit
 
-    def validate(self, visit_schedule_name=None):
-        """Raises an exception if enrollment/disenrollment models
-        are invalid.
-        """
-        try:
-            self.model_validator_cls(
-                model=self.enrollment_model,
-                schedule_name=self.name,
-                visit_schedule_name=visit_schedule_name).validated_model
-        except ValidatorLookupError as e:
-            raise ScheduleModelError(f'{repr(self)} raised {e}')
+    @property
+    def field_value(self):
+        return self.name
 
+    @property
+    def subject(self):
+        if not self._subject:
+            visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
+                self.onschedule_model)
+            if schedule.name != self.name:
+                raise ValueError(
+                    f'Site visit schedules return the wrong schedule object. '
+                    f'Expected {repr(self)} for onschedule_model={self.onschedule_model}. '
+                    f'Got {repr(schedule)}.')
+            self._subject = self.subject_schedule_cls(
+                visit_schedule=visit_schedule, schedule=self)
+        return self._subject
+
+    def put_on_schedule(self, onschedule_model_obj=None,
+                        subject_identifier=None, onschedule_datetime=None):
+        """Wrapper method to puts a subject onto this schedule.
+        """
+        self.subject.put_on_schedule(
+            onschedule_model_obj=onschedule_model_obj,
+            subject_identifier=subject_identifier,
+            onschedule_datetime=onschedule_datetime)
+
+    def refresh_schedule(self, subject_identifier=None):
+        """Resaves the onschedule model to, for example, refresh
+        appointments.
+        """
+        self.subject.resave(subject_identifier=subject_identifier)
+
+    def take_off_schedule(self, offschedule_model_obj=None,
+                          offschedule_datetime=None, subject_identifier=None):
+        self.subject.take_off_schedule(
+            offschedule_model_obj=offschedule_model_obj,
+            subject_identifier=subject_identifier,
+            offschedule_datetime=offschedule_datetime)
+
+    def is_onschedule(self, subject_identifier=None, report_datetime=None):
         try:
-            self.model_validator_cls(
-                model=self.disenrollment_model,
-                schedule_name=self.name,
-                visit_schedule_name=visit_schedule_name).validated_model
-        except ValidatorLookupError as e:
-            raise ScheduleModelError(f'{repr(self)} raised {e}')
+            self.subject.onschedule_or_raise(
+                subject_identifier=subject_identifier,
+                report_datetime=report_datetime)
+        except (NotOnScheduleError, NotOnScheduleForDateError):
+            return False
+        return True
+
+    @property
+    def onschedule_model_cls(self):
+        return self.subject.onschedule_model_cls
+
+    @property
+    def offschedule_model_cls(self):
+        return self.subject.offschedule_model_cls
+
+    @property
+    def history_model_cls(self):
+        return self.subject.history_model_cls
+
+    @property
+    def appointment_model_cls(self):
+        return self.subject.appointment_model_cls
+
+    @property
+    def visit_model_cls(self):
+        return self.subject.visit_model_cls

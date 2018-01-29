@@ -8,51 +8,51 @@
     
     <div class="panel-group" id="accordion">
     
-    {% for visit_schedule in visit_schedules.values%}
+    {% for visit_schedule in visit_schedules.values %}
         <div class="panel panel-info">
           <div class="panel-heading">
               <h6 class="panel-title">
                   <a data-toggle="collapse" data-parent="#accordion" href="#{{visit_schedule.name}}">
-                  {{visit_schedule.verbose_name}}
+                  {{ visit_schedule.verbose_name }}
                   </a>
               </h6>
           </div>
-          <div id="{{visit_schedule.name}}" class="panel-collapse collapse">
+          <div id="{{ visit_schedule.name }}" class="panel-collapse collapse">
 
             <div class="panel-group" id="accordion1">
 
-		    {% for schedule in visit_schedule.schedules.values%}
+		    {% for schedule in visit_schedule.schedules.values %}
 		    <div class="panel panel-default">
 		      <div class="panel-heading">
 		          <h6 class="panel-title">
-		              <a data-toggle="collapse" data-parent="#accordion1" href="#{{schedule.name}}">
-		              Schedule {{schedule.title}}
+		              <a data-toggle="collapse" data-parent="#accordion1" href="#{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}">
+		              Schedule {{ schedule.title }}
 		              </a>
 		          </h6>
 		      </div>
-		      <div id="{{schedule.name}}" class="panel-collapse collapse in">
+		      <div id="{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}" class="panel-collapse collapse in">
       
                   <div class="panel-group" id="accordion2">
 		      
-		            {% for visit in schedule.visits %}
+		            {% for visit in schedule.visits.values %}
 	
 		            <div class="panel panel-default">
 		              <div class="panel-heading">
 			          <h6 class="panel-title">
-			              <a data-toggle="collapse" data-parent="#accordion2" href="#{{visit.code}}">
-			              Visit {{visit.code}}
+			              <a data-toggle="collapse" data-parent="#accordion2" href="#{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}-{{ visit|slugify }}">
+			              Visit {{ visit.title }}
 			              </a>
 			          </h6>
 			          </div>
-			          <div id="{{visit.code}}" class="panel-collapse collapse">
+			          <div id="{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}-{{ visit|slugify }}" class="panel-collapse collapse">
 			               <div class="table table-responsive">
 			               <table class="table table-hover">
 			               <thead></thead>
 			               <tbody>
 				          {% for crf in visit.crfs %}
 				            <tr>
-			                  <td>{{crf.show_order}}</td>
-                              <td>{{crf.model}}</td>
+			                  <td>{{ crf.show_order }}</td>
+                              <td>{{ crf.verbose_name }}</td>
                               <td>{% if crf.required %}Required{% endif %}</td>
 			                 </tr>
 				          {% endfor %}

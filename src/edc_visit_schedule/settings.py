@@ -15,6 +15,7 @@ import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ETC_DIR = os.path.join(BASE_DIR, 'etc')
 APP_NAME = 'edc_visit_schedule'
 
 # Quick-start development settings - unsuitable for production
@@ -28,6 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SITE_ID = 40
 
 # Application definition
 
@@ -38,11 +40,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
+    'edc_timepoint.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
+    'edc_visit_schedule.apps.EdcAppointmentAppConfig',
+    'edc_visit_schedule.apps.EdcVisitTrackingAppConfig',
+    'edc_visit_schedule.apps.EdcFacilityAppConfig',
     'edc_visit_schedule.apps.AppConfig',
 ]
 
@@ -125,9 +133,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-GIT_DIR = BASE_DIR
-KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
+COUNTRY = 'botswana'
+HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
 
+DASHBOARD_URL_NAMES = {
+    'subject_listboard_url': 'edc_subject_dashboard:subject_listboard_url',
+    'subject_dashboard_url': 'edc_subject_dashboard:subject_dashboard_url',
+}
 
 if 'test' in sys.argv:
 

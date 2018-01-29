@@ -1,5 +1,7 @@
 import re
 
+from django.apps import apps as django_apps
+
 from .forms_collection import FormsCollection
 from .window_period import WindowPeriod
 
@@ -9,6 +11,10 @@ class VisitCodeError(Exception):
 
 
 class VisitDateError(Exception):
+    pass
+
+
+class VisitError(Exception):
     pass
 
 
@@ -28,11 +34,10 @@ class VisitDate:
 
     @base.setter
     def base(self, dt=None):
-        if not self._base:
-            self._base = dt
-            window = self._window.get_window(dt=dt)
-            self.lower = window.lower
-            self.upper = window.upper
+        self._base = dt
+        window = self._window.get_window(dt=dt)
+        self.lower = window.lower
+        self.upper = window.upper
 
 
 class Visit:
@@ -41,38 +46,118 @@ class Visit:
     forms_collection_cls = FormsCollection
     visit_date_cls = VisitDate
 
-    def __init__(self, code=None, timepoint=None, rbase=None,
-                 crfs=None, requisitions=None, crfs_unscheduled=None,
-                 requisitions_unscheduled=None, title=None,
-                 instructions=None, grouping=None, **kwargs):
+    def __init__(self, code=None, timepoint=None, rbase=None, rlower=None,
+                 rupper=None, crfs=None, requisitions=None,
+                 crfs_unscheduled=None, requisitions_unscheduled=None,
+                 crfs_prn=None, requisitions_prn=None,
+                 title=None,
+                 instructions=None, grouping=None,
+                 allow_unscheduled=None, facility_name=None):
 
-        self.dates = self.visit_date_cls(**kwargs)
+        self.crfs = ()
+        if crfs:
+            self.crfs = crfs.forms
+        self.crfs_unscheduled = ()
+        if crfs_unscheduled:
+            self.crfs_unscheduled = crfs_unscheduled.forms
+        self.crfs_prn = ()
+        if crfs_prn:
+            self.crfs_prn = crfs_prn.forms
+        self.requisitions = ()
+        if requisitions:
+            self.requisitions = requisitions.forms
+        self.requisitions_unscheduled = ()
+        if requisitions_unscheduled:
+            self.requisitions_unscheduled = requisitions_unscheduled.forms
+        self.requisitions_prn = ()
+        if requisitions_prn:
+            self.requisitions_prn = requisitions_prn.forms
+        self.instructions = instructions
+        self.timepoint = timepoint
+        self.rbase = rbase
+        self.rlower = rlower
+        self.rupper = rupper
+        self.grouping = grouping
+        self.dates = self.visit_date_cls(rlower=rlower, rupper=rupper)
         self.title = title or f'Visit {code}'
         if not code or isinstance(code, int) or not re.match(self.code_regex, code):
             raise VisitCodeError(f'Invalid visit code. Got \'{code}\'')
         else:
             self.code = code  # unique
         self.name = self.code
-        self.crfs = self.forms_collection_cls(*(crfs or []), **kwargs).forms
-        self.requisitions = self.forms_collection_cls(
-            *(requisitions or []), **kwargs).forms
-        self.crfs_unscheduled = crfs_unscheduled
-        self.requisitions_unscheduled = requisitions_unscheduled
-
-        self.instructions = instructions
-        self.timepoint = timepoint
-        self.rbase = rbase
-        self.grouping = grouping
+        self.facility_name = facility_name
+        self.allow_unscheduled = allow_unscheduled
 
     def __repr__(self):
-        return f'Visit({self.code}, {self.timepoint})'
+        return f'{self.__class__.__name__}({self.code}, {self.timepoint})'
 
     def __str__(self):
         return self.title
 
     @property
     def forms(self):
+        """Returns a list of scheduled forms.
+        """
         return self.crfs + self.requisitions
+
+    @property
+    def unscheduled_forms(self):
+        """Returns a list of unscheduled forms.
+        """
+        return self.crfs_unscheduled + self.requisitions_unscheduled
+
+    @property
+    def prn_forms(self):
+        """Returns a list of PRN forms.
+        """
+        return self.crfs_prn + self.requisitions_prn
+
+    @property
+    def all_crfs(self):
+        return self.crfs + self.crfs_unscheduled + self.crfs_prn
+
+    @property
+    def all_requisitions(self):
+        return self.requisitions + self.requisitions_unscheduled + self.requisitions_prn
+
+    def next_form(self, model=None, panel=None):
+        """Returns the next required "form" or None.
+        """
+        next_form = None
+        for index, form in enumerate(self.forms):
+            if form.model == model and form.required:
+                try:
+                    next_form = self.forms[index + 1]
+                except IndexError:
+                    pass
+        return next_form
+
+    def get_form(self, model=None):
+        for form in self.forms:
+            if form.model == model:
+                return form
+        return None
+
+    def get_crf(self, model=None):
+        for form in self.crfs:
+            if form.model == model:
+                return form
+        return None
+
+    def get_requisition(self, model=None, panel_name=None):
+        for form in self.requisitions:
+            if form.model == model and form.panel.name == panel_name:
+                return form
+        return None
+
+    @property
+    def facility(self):
+        """Returns a Facility object.
+        """
+        if self.facility_name:
+            app_config = django_apps.get_app_config('edc_facility')
+            return app_config.get_facility(name=self.facility_name)
+        return None
 
     @property
     def timepoint_datetime(self):
@@ -81,3 +166,19 @@ class Visit:
     @timepoint_datetime.setter
     def timepoint_datetime(self, dt=None):
         self.dates.base = dt
+
+    def check(self):
+        warnings = []
+        try:
+            for crf in self.crfs:
+                django_apps.get_model(crf.model)
+            for crf in self.requisitions:
+                django_apps.get_model(crf.model)
+            for crf in self.crfs_unscheduled:
+                django_apps.get_model(crf.model)
+            for crf in self.requisitions_unscheduled:
+                django_apps.get_model(crf.model)
+        except LookupError as e:
+            warnings.append(
+                f'{e} Got Visit {self.code} crf.model={crf.model}.')
+        return warnings

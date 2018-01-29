@@ -29,3 +29,11 @@ class Crf:
             django_apps.get_model(*self.model.split('.'))
         except LookupError as e:
             raise CrfLookupError(e) from e
+
+    @property
+    def model_cls(self):
+        return django_apps.get_model(self.model)
+
+    @property
+    def verbose_name(self):
+        return self.model_cls._meta.verbose_name
