@@ -15,7 +15,8 @@ class VisitTrackingModelFormMixin:
             try:
                 CrfDateValidator(
                     report_datetime=cleaned_data.get('report_datetime'),
-                    visit_report_datetime=cleaned_data.get(self.visit_attr).report_datetime)
+                    visit_report_datetime=cleaned_data.get(
+                        self._meta.model.visit_model_attr()).report_datetime)
             except (CrfReportDateAllowanceError, CrfReportDateBeforeStudyStart,
                     CrfReportDateIsFuture) as e:
                 raise forms.ValidationError(e)

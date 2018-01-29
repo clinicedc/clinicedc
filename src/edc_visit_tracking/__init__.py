@@ -1,1 +1,1 @@
-from .exceptions import PreviousVisitError, VisitTrackingError
+from .exceptions import VisitTrackingError

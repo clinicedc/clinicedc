@@ -25,7 +25,7 @@ class CrfModelMixin(ModelMixin, models.Model):
         verbose_name="Report Date",
         validators=[
             datetime_not_before_study_start,
-            datetime_not_future, ],
+            datetime_not_future],
         default=get_utcnow,
         help_text=('If reporting today, use today\'s date/time, otherwise use '
                    'the date/time this information was reported.'))
@@ -39,7 +39,9 @@ class CrfModelMixin(ModelMixin, models.Model):
         if self.crf_date_validator_cls:
             self.crf_date_validator_cls(
                 report_datetime=self.report_datetime,
-                visit_report_datetime=self.visit.report_datetime)
+                visit_report_datetime=self.visit.report_datetime,
+                created=self.created,
+                modified=self.modified)
         super().save(*args, **kwargs)
 
     def natural_key(self):

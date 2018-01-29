@@ -1,7 +1,8 @@
 from model_mommy import mommy
 
 from django.apps import apps as django_apps
-from edc_protocol.tests import get_utcnow
+from django.core.exceptions import ObjectDoesNotExist
+from edc_base import get_utcnow
 
 from ..constants import SCHEDULED
 
@@ -16,15 +17,20 @@ class VisitTestHelperError(Exception):
 
 class VisitTestHelper:
 
+    appointment_model = 'edc_appointment.appointment'
+
+    @property
+    def appointment_model_cls(self):
+        return django_apps.get_model(self.appointment_model)
+
     def add_visit(self, model_label=None, visit_code=None, reason=None,
                   subject_identifier=None):
         """Adds (or gets) and returns a visit for give model and code.
         """
-        Appointment = django_apps.get_app_config('edc_appointment').model
         reason = reason or SCHEDULED
         model = django_apps.get_model(*model_label.split('.'))
         try:
-            appointment = Appointment.objects.get(
+            appointment = self.appointment_model_cls.objects.get(
                 subject_identifier=subject_identifier, visit_code=visit_code)
             if appointment.appt_datetime > get_utcnow():
                 raise VisitTestHelperFutureDate(
@@ -42,7 +48,7 @@ class VisitTestHelper:
                     appointment=appointment,
                     report_datetime=appointment.appt_datetime,
                     reason=reason)
-        except Appointment.DoesNotExist as e:
+        except ObjectDoesNotExist as e:
             raise VisitTestHelperError(
                 f'{e} {model_label}, {visit_code}. Did you complete the enrollment form?')
         return visit

@@ -3,12 +3,15 @@ from edc_base.model_fields import OtherCharField
 from edc_base.model_validators import datetime_not_future, date_not_future
 from edc_base.utils import get_utcnow
 from edc_constants.choices import YES_NO, ALIVE_DEAD_UNKNOWN
-from edc_constants.constants import YES, ALIVE
+from edc_constants.constants import YES, ALIVE, NOT_APPLICABLE
 from edc_protocol.validators import date_not_before_study_start
 from edc_protocol.validators import datetime_not_before_study_start
 
+from ...choices import VISIT_REASON_UNSCHEDULED
+
 
 class VisitModelFieldsMixin(models.Model):
+
     report_datetime = models.DateTimeField(
         verbose_name='Visit Date and Time',
         validators=[
@@ -19,17 +22,38 @@ class VisitModelFieldsMixin(models.Model):
 
     reason = models.CharField(
         verbose_name='What is the reason for this visit?',
+        max_length=25)
+
+    reason_unscheduled = models.CharField(
+        verbose_name=(
+            'If \'Unscheduled\' above, provide reason for '
+            'the unscheduled visit'),
         max_length=25,
-        help_text=(
-            '<Override the field class for this model '
-            'field attribute in ModelForm>'))
+        choices=VISIT_REASON_UNSCHEDULED,
+        default=NOT_APPLICABLE)
+
+    reason_unscheduled_other = OtherCharField(
+        verbose_name='If "Other" reason for unscheduled visit, specify',
+        max_length=25,
+        blank=True,
+        null=True)
+
+    reason_missed = models.CharField(
+        verbose_name='If \'Missed\' above, provide the reason the scheduled visit was missed',
+        max_length=35,
+        blank=True,
+        null=True)
+
+    reason_missed_other = OtherCharField(
+        verbose_name='If "Other" reason for missed visit, specify',
+        max_length=25,
+        blank=True,
+        null=True)
 
     study_status = models.CharField(
         verbose_name='What is the participant\'s current study status',
         max_length=50,
-        help_text=(
-            '<Override the field class for this model field '
-            'attribute in ModelForm>'))
+        null=True)
 
     require_crfs = models.CharField(
         max_length=10,
@@ -37,18 +61,13 @@ class VisitModelFieldsMixin(models.Model):
         choices=YES_NO,
         default=YES)
 
-    reason_missed = models.CharField(
-        verbose_name='If \'missed\' above, Reason scheduled visit was missed',
-        max_length=35,
-        blank=True,
-        null=True)
-
     info_source = models.CharField(
         verbose_name='What is the main source of this information?',
-        max_length=25,
-        help_text='')
+        max_length=25)
 
-    info_source_other = OtherCharField()
+    info_source_other = OtherCharField(
+        verbose_name='If "Other" source of information, specify',
+    )
 
     survival_status = models.CharField(
         max_length=10,

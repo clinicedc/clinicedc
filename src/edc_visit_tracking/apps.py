@@ -24,6 +24,7 @@ class AppConfig(DjangoAppConfig):
     #   visit report_datetime
     #   by more than X days. Set to -1 to ignore
     report_datetime_allowance = 30
+    allow_crf_report_datetime_before_visit = False
 
     # format {app_label: (model_attr, app_label.model_name)}
     # e.g. {'example': ('subject_visit', 'example.subjectvisit')}
@@ -32,8 +33,10 @@ class AppConfig(DjangoAppConfig):
     reason_field = {}
 
     def ready(self):
-        sys.stdout.write(f'Loading {self.verbose_name} ...\n')
+
         from .signals import visit_tracking_check_in_progress_on_post_save
+
+        sys.stdout.write(f'Loading {self.verbose_name} ...\n')
         if not self.visit_models:
             sys.stdout.write(style.ERROR(
                 'Warning: Visit models not declared. At least one is required. '
@@ -45,6 +48,14 @@ class AppConfig(DjangoAppConfig):
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
 
     def visit_model(self, app_label):
+        """Return the visit model for this app_label.
+        """
+        from warnings import warn
+        warn('edc_visit_tracking app_config method visit_model is Deprecated '
+             'in favor of  visit_model_cls.', DeprecationWarning, stacklevel=2)
+        return self.visit_model_cls(app_label)
+
+    def visit_model_cls(self, app_label):
         """Return the visit model for this app_label.
         """
         try:
@@ -82,6 +93,13 @@ class AppConfig(DjangoAppConfig):
 if settings.APP_NAME == 'edc_visit_tracking':
 
     from edc_metadata.apps import AppConfig as BaseEdcMetadataAppConfig
+    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
+    from dateutil.relativedelta import MO, TU, WE, TH, FR
 
     class EdcMetadataAppConfig(BaseEdcMetadataAppConfig):
         reason_field = {'edc_visit_tracking.subjectvisit': 'reason'}
+
+    class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
+        definitions = {
+            'default': dict(days=[MO, TU, WE, TH, FR],
+                            slots=[100, 100, 100, 100, 100])}

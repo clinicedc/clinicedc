@@ -4,13 +4,17 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
+from edc_base.model_managers.historical_records import HistoricalRecords
+from edc_constants.constants import YES, NO
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
 from ...choices import VISIT_REASON
 from ...constants import FOLLOW_UP_REASONS, REQUIRED_REASONS, NO_FOLLOW_UP_REASONS
+from ...managers import VisitModelManager
 from ..previous_visit_model_mixin import PreviousVisitModelMixin
 from .visit_model_fields_mixin import VisitModelFieldsMixin
+from edc_visit_tracking.constants import MISSED_VISIT
 
 
 class VisitModelMixin(
@@ -21,7 +25,7 @@ class VisitModelMixin(
     For example:
 
         class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin,
-                           RequiresConsentMixin, BaseUuidModel):
+                           RequiresConsentModelMixin, BaseUuidModel):
 
             appointment = models.OneToOneField('Appointment',
                                                 on_delete=PROTECT)
@@ -30,33 +34,41 @@ class VisitModelMixin(
             app_label = 'my_app'
     """
 
+    objects = VisitModelManager()
+
+    history = HistoricalRecords()
+
     def __str__(self):
-        return '{} {}'.format(self.subject_identifier, self.visit_code)
+        return f'{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}'
 
     def save(self, *args, **kwargs):
-        if self.__class__.appointment.field.rel.on_delete != PROTECT:
+        if self.__class__.appointment.field.remote_field.on_delete != PROTECT:
             raise ImproperlyConfigured(
                 'OneToOne relation to appointment must set '
                 'on_delete=PROTECT. Got {}'.format(
-                    self.__class__.appointment.field.rel.on_delete.__name__))
+                    self.__class__.appointment.field.remote_field.on_delete.__name__))
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
         self.visit_code = self.appointment.visit_code
+        self.visit_code_sequence = self.appointment.visit_code_sequence
+        self.require_crfs = NO if self.reason == MISSED_VISIT else YES
         super().save(*args, **kwargs)
 
     def natural_key(self):
         return (self.subject_identifier,
                 self.visit_schedule_name,
                 self.schedule_name,
-                self.visit_code)
-    # natural_key.dependencies = ['app_label.appointment']
+                self.visit_code,
+                self.visit_code_sequence)
+    # change this if you are using another appointment model
+    natural_key.dependencies = ['edc_appointment.appointment']
 
     @property
     def appointment_zero(self):
         appointment_zero = None
         try:
-            if self.appointment.visit_instance == '0':
+            if self.appointment.visit_code_sequence == 0:
                 appointment_zero = self.appointment
         except AttributeError:
             pass
@@ -64,7 +76,7 @@ class VisitModelMixin(
             try:
                 appointment_zero = self.appointment.__class__.objects.get(
                     subject_identifier=self.appointment.subject_identifier,
-                    visit_instance='0')
+                    visit_code_sequence=0)
             except self.appointment.__class__.DoesNotExist:
                 pass
         return appointment_zero
@@ -127,9 +139,10 @@ class VisitModelMixin(
         abstract = True
         unique_together = (
             ('subject_identifier', 'visit_schedule_name',
-             'schedule_name', 'visit_code'),
+             'schedule_name', 'visit_code', 'visit_code_sequence'),
             ('subject_identifier', 'visit_schedule_name',
              'schedule_name', 'report_datetime'),
         )
         ordering = (('subject_identifier', 'visit_schedule_name',
-                     'schedule_name', 'visit_code', 'report_datetime', ))
+                     'schedule_name', 'visit_code', 'visit_code_sequence',
+                     'report_datetime', ))

@@ -7,9 +7,10 @@ class CrfModelManager(models.Manager):
     """
 
     def get_by_natural_key(self, subject_identifier, visit_schedule_name,
-                           schedule_name, visit_code):
+                           schedule_name, visit_code, visit_code_sequence):
         instance = self.model.visit_model().objects.get_by_natural_key(
-            subject_identifier, visit_schedule_name, schedule_name, visit_code)
+            subject_identifier, visit_schedule_name, schedule_name,
+            visit_code, visit_code_sequence)
         return self.get(**{self.model.visit_model_attr(): instance})
 
     def get_for_visit(self, visit, **kwargs):
@@ -35,15 +36,17 @@ class CrfModelManager(models.Manager):
 
 
 class VisitModelManager(models.Manager):
-    """A manager class for visit models."""
+    """A manager class for visit models.
+    """
 
     def get_by_natural_key(self, subject_identifier, visit_schedule_name,
-                           schedule_name, visit_code):
+                           schedule_name, visit_code, visit_code_sequence):
         return self.get(
             subject_identifier=subject_identifier,
             visit_schedule_name=visit_schedule_name,
             schedule_name=schedule_name,
-            visit_code=visit_code)
+            visit_code=visit_code,
+            visit_code_sequence=visit_code_sequence)
 
     def last_visit(self, subject_identifier=None, visit_schedule_names=None,
                    schedule_names=None):

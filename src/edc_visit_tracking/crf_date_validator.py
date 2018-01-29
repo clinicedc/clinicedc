@@ -22,9 +22,13 @@ class CrfReportDateIsFuture(Exception):
 class CrfDateValidator:
 
     report_datetime_allowance = None
+    allow_report_datetime_before_visit = False
 
     def __init__(self, report_datetime=None, visit_report_datetime=None,
-                 report_datetime_allowance=None):
+                 report_datetime_allowance=None, allow_report_datetime_before_visit=None,
+                 created=None, modified=None, subject_identifier=None):
+        self.allow_report_datetime_before_visit = (
+            allow_report_datetime_before_visit or self.allow_report_datetime_before_visit)
         self.report_datetime_allowance = (
             report_datetime_allowance or self.report_datetime_allowance)
         if not self.report_datetime_allowance:
@@ -34,6 +38,9 @@ class CrfDateValidator:
             report_datetime, report_datetime.tzinfo).to('utc').datetime
         self.visit_report_datetime = arrow.Arrow.fromdatetime(
             visit_report_datetime, visit_report_datetime.tzinfo).to('utc').datetime
+        self.created = created
+        self.modified = modified
+        self.subject_identifier = subject_identifier
         self.validate()
 
     def validate(self):
@@ -49,11 +56,13 @@ class CrfDateValidator:
             raise CrfReportDateIsFuture(e)
 
         # not before the visit report_datetime
-        if self.report_datetime.date() < self.visit_report_datetime.date():
+        if (not self.allow_report_datetime_before_visit
+                and self.report_datetime.date() < self.visit_report_datetime.date()):
             raise CrfReportDateAllowanceError(
                 'Report datetime may not be before the visit report datetime. '
                 f'Got report_datetime={self.report_datetime} ',
-                f'visit.report_datetime={self.visit_report_datetime}. ',
+                f'visit.report_datetime={self.visit_report_datetime}. '
+                f'{self.created} {self.modified} {self.subject_identifier}',
                 'report_datetime')
 
         # not more than x days greater than the visit report_datetime
