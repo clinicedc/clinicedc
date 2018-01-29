@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 
-from edc_reference import get_reference_name, site_reference_configs
+from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
 
 from ..constants import NOT_REQUIRED, REQUIRED, KEYED
@@ -11,13 +11,17 @@ class CreatesMetadataError(Exception):
     pass
 
 
+class DeleteMetadataError(Exception):
+    pass
+
+
 class Base:
 
     def __init__(self, visit=None, metadata_crf_model=None,
                  metadata_requisition_model=None, **kwargs):
         self.reference_model_cls = None
         app_config = django_apps.get_app_config('edc_metadata')
-        self.visit = visit
+        self.visit = visit  # visit model instance
         self.metadata_crf_model = metadata_crf_model or app_config.crf_model
         self.metadata_requisition_model = (
             metadata_requisition_model or app_config.requisition_model)
@@ -38,7 +42,7 @@ class CrfCreator(Base):
         self.update_keyed = update_keyed
 
     def create(self, crf=None):
-        """Creates metadata for a CRF.
+        """Creates metadata for a CRF, if is does not exist.
         """
         options = self.visit.metadata_query_options
         options.update(
@@ -46,7 +50,7 @@ class CrfCreator(Base):
              'model': crf.model})
         try:
             metadata_obj = self.metadata_crf_model.objects.get(**options)
-        except self.metadata_crf_model.DoesNotExist:
+        except ObjectDoesNotExist:
             metadata_obj = self.metadata_crf_model.objects.create(
                 entry_status=REQUIRED if crf.required else NOT_REQUIRED,
                 show_order=crf.show_order, **options)
@@ -86,7 +90,7 @@ class RequisitionCreator(Base):
         try:
             metadata_obj = self.metadata_requisition_model.objects.get(
                 **options)
-        except self.metadata_requisition_model.DoesNotExist:
+        except ObjectDoesNotExist:
             metadata_obj = self.metadata_requisition_model.objects.create(
                 entry_status=REQUIRED if requisition.required else NOT_REQUIRED,
                 show_order=requisition.show_order,
@@ -104,7 +108,7 @@ class RequisitionCreator(Base):
 
         See also edc_reference.
         """
-        name = get_reference_name(requisition.model, requisition.panel.name)
+        name = f'{requisition.model}.{requisition.panel.name}'
         reference_model = site_reference_configs.get_reference_model(
             name=name)
         self.reference_model_cls = django_apps.get_model(reference_model)
@@ -117,22 +121,38 @@ class Creator:
     crf_creator_cls = CrfCreator
     requisition_creator_cls = RequisitionCreator
 
-    def __init__(self, **kwargs):
-        self.crf_creator = self.crf_creator_cls(**kwargs)
-        self.requisition_creator = self.requisition_creator_cls(**kwargs)
-        self.visit = kwargs.get('visit')
-        schedule = site_visit_schedules.get_schedule(
-            visit_schedule_name=self.visit.visit_schedule_name,
-            schedule_name=self.visit.schedule_name)
-        self.visit = schedule.visits.get(self.visit.visit_code)
+    def __init__(self, visit=None, **kwargs):
+        """param visit is a visit model instance but the
+        instance attr is not.
+        """
+        self.crf_creator = self.crf_creator_cls(visit=visit, **kwargs)
+        self.requisition_creator = self.requisition_creator_cls(
+            visit=visit, **kwargs)
+        self.visit_code_sequence = visit.visit_code_sequence
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            visit.visit_schedule_name)
+        schedule = visit_schedule.schedules.get(visit.schedule_name)
+        self.visit = schedule.visits.get(visit.visit_code)
+
+    @property
+    def crfs(self):
+        if self.visit_code_sequence != 0:
+            return self.visit.crfs_unscheduled
+        return self.visit.crfs
+
+    @property
+    def requisitions(self):
+        if self.visit_code_sequence != 0:
+            return self.visit.requisitions_unscheduled
+        return self.visit.requisitions
 
     def create(self):
-        """Creates all CRF and requisition metadata for
-        the visit instance.
+        """Creates metadata for all CRFs and requisitions for
+        the scheduled or unscheduled visit instance.
         """
-        for crf in self.visit.crfs:
+        for crf in self.crfs:
             self.create_crf(crf=crf)
-        for requisition in self.visit.requisitions:
+        for requisition in self.requisitions:
             self.create_requisition(requisition=requisition)
 
     def create_crf(self, crf=None):
@@ -146,14 +166,16 @@ class Destroyer(Base):
 
     def delete(self):
         """Deletes all CRF and requisition metadata for
-        the visit instance.
+        the visit instance, unless KEYED.
         """
         self.metadata_crf_model.objects.filter(
             subject_identifier=self.visit.subject_identifier,
-            **self.visit.metadata_query_options).delete()
+            **self.visit.metadata_query_options).exclude(
+            entry_status=KEYED).delete()
         self.metadata_requisition_model.objects.filter(
             subject_identifier=self.visit.subject_identifier,
-            **self.visit.metadata_query_options).delete()
+            **self.visit.metadata_query_options).exclude(
+            entry_status=KEYED).delete()
 
 
 class Metadata:

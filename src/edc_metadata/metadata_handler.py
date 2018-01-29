@@ -7,6 +7,10 @@ class MetadataHandlerError(Exception):
     pass
 
 
+class MetadataObjectDoesNotExist(Exception):
+    pass
+
+
 class MetadataHandler:
 
     """A class to get or create a CRF metadata model instance.
@@ -15,12 +19,15 @@ class MetadataHandler:
     creator_cls = Creator
 
     def __init__(self, metadata_model=None, visit=None, model=None):
+        """param visit is a visit model instance.
+        """
         self.metadata_model = metadata_model
         self.model = model
-        self.visit = visit
+        self.visit = visit  # visit model instance
         self.creator = self.creator_cls(visit=self.visit, update_keyed=True)
 
-    def get_or_create(self):
+    @property
+    def metadata_obj(self):
         """Returns a metadata model instance.
         """
         try:
@@ -34,7 +41,7 @@ class MetadataHandler:
         """Returns a new metadata model instance for this CRF.
         """
         crf_object = [
-            crf for crf in self.creator.visit.crfs if crf.model == self.model][0]
+            crf for crf in self.creator.visit.all_crfs if crf.model == self.model][0]
         return self.creator.create_crf(crf_object)
 
     @property

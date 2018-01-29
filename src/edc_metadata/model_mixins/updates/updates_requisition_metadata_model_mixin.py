@@ -1,7 +1,6 @@
-from ...constants import REQUISITION
+from ...constants import REQUISITION, REQUIRED, NOT_REQUIRED
 from ...requisition import RequisitionMetadataUpdater
 from .updates_metadata_model_mixin import UpdatesMetadataModelMixin
-from edc_metadata.constants import REQUIRED, NOT_REQUIRED
 
 
 class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
@@ -16,15 +15,16 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
     def metadata_updater(self):
         """Returns an instance of RequisitionMetadataUpdater.
         """
-        return self.updater_cls(
+        opts = dict(
             visit=self.visit,
             target_model=self._meta.label_lower,
-            target_panel=self.panel_name)
+            target_panel=self.panel)
+        return self.updater_cls(**opts)
 
     @property
     def metadata_query_options(self):
         options = super().metadata_query_options
-        options.update({'panel_name': self.panel_name})
+        options.update({'panel_name': self.panel.name})
         return options
 
     @property
@@ -32,8 +32,13 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         """Returns a string that represents the configured entry status
         of the requisition in the visit schedule.
         """
-        requisition = [r for r in self.metadata_visit_object.requisitions
-                       if r.panel.name == self.panel_name][0]
+        requisitions_prn = self.metadata_visit_object.requisitions_prn
+        if self.visit.visit_code_sequence != 0:
+            requisitions = self.metadata_visit_object.requisitions_unscheduled + requisitions_prn
+        else:
+            requisitions = self.metadata_visit_object.requisitions + requisitions_prn
+        requisition = [r for r in requisitions
+                       if r.panel.name == self.panel.name][0]
         return REQUIRED if requisition.required else NOT_REQUIRED
 
     class Meta:

@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
 
 
 class MetadataGetter:
@@ -10,17 +9,18 @@ class MetadataGetter:
 
     metadata_model = None
 
-    def __init__(self, appointment=None, subject_identifier=None, visit_code=None):
+    def __init__(self, appointment=None, subject_identifier=None, visit_code=None,
+                 visit_code_sequence=None):
         try:
             self.visit = appointment.visit
-        except (AttributeError, ObjectDoesNotExist):
-            self.visit = None
-        if self.visit:
-            self.subject_identifier = self.visit.subject_identifier
-            self.visit_code = self.visit.visit_code
-        else:
+        except AttributeError:
             self.subject_identifier = subject_identifier
             self.visit_code = visit_code
+            self.visit_code_sequence = visit_code_sequence
+        else:
+            self.subject_identifier = self.visit.subject_identifier
+            self.visit_code = self.visit.visit_code
+            self.visit_code_sequence = self.visit.visit_code_sequence
         self.metadata_objects = self.metadata_model_cls.objects.filter(
             **self.options).order_by('show_order')
 
@@ -30,6 +30,17 @@ class MetadataGetter:
 
     @property
     def options(self):
+        """Returns a dictionary of query options.
+        """
         return dict(
             subject_identifier=self.subject_identifier,
-            visit_code=self.visit_code)
+            visit_code=self.visit_code,
+            visit_code_sequence=self.visit_code_sequence)
+
+    def next_object(self, show_order=None, entry_status=None):
+        """Returns the next model instance based on the show order.
+        """
+        opts = {'show_order__gt': show_order}
+        if entry_status:
+            opts.update(entry_status=entry_status)
+        return self.metadata_objects.filter(**opts).order_by('show_order').first()

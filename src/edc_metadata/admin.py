@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .admin_site import edc_metadata_admin
-from .modeladmin_mixins import CrfMetaDataAdminMixin
+from .modeladmin_mixins import CrfMetaDataAdminMixin, RequisitionMetaDataAdminMixin
 from .models import CrfMetadata, RequisitionMetadata
 
 
@@ -12,5 +12,5 @@ class CrfMetadataAdmin(CrfMetaDataAdminMixin, admin.ModelAdmin):
 
 
 @admin.register(RequisitionMetadata, site=edc_metadata_admin)
-class RequisitionMetadataAdmin(admin.ModelAdmin):
+class RequisitionMetadataAdmin(RequisitionMetaDataAdminMixin, admin.ModelAdmin):
     pass

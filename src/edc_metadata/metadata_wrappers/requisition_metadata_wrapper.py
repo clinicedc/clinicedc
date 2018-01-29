@@ -1,7 +1,7 @@
-from .metaform import Metaform
+from .metadata_wrapper import MetadataWrapper
 
 
-class RequisitionMetaform(Metaform):
+class RequisitionMetadataWrapper(MetadataWrapper):
 
     label = 'Requisition'
 
@@ -12,5 +12,5 @@ class RequisitionMetaform(Metaform):
     @property
     def options(self):
         options = super().options
-        options.update(panel_name=self.panel_name)
+        options.update(panel__name=self.panel_name)
         return options

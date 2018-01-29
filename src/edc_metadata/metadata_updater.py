@@ -1,5 +1,4 @@
 from .constants import KEYED
-from .metadata import Creator
 from .target_handler import TargetHandler
 
 
@@ -14,7 +13,6 @@ class MetadataUpdater:
     """
 
     target_handler = TargetHandler
-    creator_cls = Creator
 
     def __init__(self, visit=None, target_model=None):
         self._metadata_obj = None
@@ -28,9 +26,7 @@ class MetadataUpdater:
 
         if self.target.object:
             entry_status = KEYED
-
         metadata_obj = self.target.metadata_obj
-
         if entry_status and metadata_obj.entry_status != entry_status:
             metadata_obj.entry_status = entry_status
             metadata_obj.save()

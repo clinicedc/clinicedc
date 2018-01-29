@@ -1,6 +1,5 @@
 from django.apps import apps as django_apps
 from django.db import models
-
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...constants import REQUIRED, NOT_REQUIRED
@@ -19,13 +18,9 @@ class UpdatesMetadataModelMixin(models.Model):
         """Updates metatadata.
         """
         self.metadata_updater.update(entry_status=entry_status)
-        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
-            self.run_metadata_rules_for_crf()
 
     def run_metadata_rules_for_crf(self):
         """Runs all the rule groups for this app label.
-
-        Gets called in the signal.
         """
         self.visit.run_metadata_rules(visit=self.visit)
 
@@ -41,32 +36,35 @@ class UpdatesMetadataModelMixin(models.Model):
         """Sets the metadata instance to its original state.
         """
         obj = self.metadata_model.objects.get(**self.metadata_query_options)
-        obj.entry_status = self.metadata_default_entry_status or REQUIRED
-        obj.report_datetime = None
-        obj.save()
-
-        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
-            self.run_metadata_rules_for_crf()
+        try:
+            obj.entry_status = self.metadata_default_entry_status
+        except IndexError:
+            # means crf is not listed in visit schedule, so remove it.
+            # for example, this is a PRN form
+            obj.delete()
+        else:
+            obj.entry_status = self.metadata_default_entry_status or REQUIRED
+            obj.report_datetime = None
+            obj.save()
 
     @property
     def metadata_default_entry_status(self):
         """Returns a string that represents the default entry status
         of the crf in the visit schedule.
         """
-        try:
-            crf = [c for c in self.metadata_visit_object.crfs
-                   if c.model == self._meta.label_lower][0]
-        except IndexError as e:
-            raise MetadataError(
-                f'{self._meta.label_lower}. Got {e}') from e
+        crfs_prn = self.metadata_visit_object.crfs_prn
+        if self.visit.visit_code_sequence != 0:
+            crfs = self.metadata_visit_object.crfs_unscheduled + crfs_prn
+        else:
+            crfs = self.metadata_visit_object.crfs + crfs_prn
+        crf = [c for c in crfs if c.model == self._meta.label_lower][0]
         return REQUIRED if crf.required else NOT_REQUIRED
 
     @property
     def metadata_visit_object(self):
         visit_schedule = site_visit_schedules.get_visit_schedule(
             visit_schedule_name=self.visit.visit_schedule_name)
-        schedule = visit_schedule.get_schedule(
-            schedule_name=self.visit.schedule_name)
+        schedule = visit_schedule.schedules.get(self.visit.schedule_name)
         return schedule.visits.get(self.visit.visit_code)
 
     @property

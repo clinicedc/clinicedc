@@ -4,8 +4,9 @@ from django.apps.config import AppConfig as DjangoAppConfig
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
-
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED, MISSED_VISIT
+
+from .constants import REQUISITION, CRF
 
 
 style = color_style()
@@ -29,43 +30,55 @@ class AppConfig(DjangoAppConfig):
             metadata_reset_on_post_delete,
         )
 
-        sys.stdout.write('Loading {} ...\n'.format(self.verbose_name))
+        sys.stdout.write(f'Loading {self.verbose_name} ...\n')
         if self.app_label == self.name:
             sys.stdout.write(
-                ' * using default metadata models from \'{}\'\n'.format(self.app_label))
+                f' * using default metadata models from \'{self.app_label}\'\n')
         else:
             sys.stdout.write(
-                ' * using custom metadata models from \'{}\'\n'.format(self.app_label))
-        sys.stdout.write(' Done loading {}.\n'.format(self.verbose_name))
+                f' * using custom metadata models from \'{self.app_label}\'\n')
+        sys.stdout.write(f' Done loading {self.verbose_name}.\n')
 
     @property
     def crf_model(self):
-        """Returns the meta data model used by Crfs."""
+        """Returns the meta data model used by Crfs.
+        """
         return django_apps.get_model(self.app_label, self.crf_model_name)
 
     @property
     def requisition_model(self):
-        """Returns the meta data model used by Requisitions."""
+        """Returns the meta data model used by Requisitions.
+        """
         return django_apps.get_model(self.app_label, self.requisition_model_name)
 
     def get_metadata_model(self, category):
-        if category == 'crf':
+        if category == CRF:
             return self.crf_model
-        elif category == 'requisition':
+        elif category == REQUISITION:
             return self.requisition_model
         return None
 
     def get_metadata(self, subject_identifier, **options):
         return {
-            'crf': self.crf_model.objects.filter(
+            CRF: self.crf_model.objects.filter(
                 subject_identifier=subject_identifier, **options),
-            'requisition': self.requisition_model.objects.filter(
+            REQUISITION: self.requisition_model.objects.filter(
                 subject_identifier=subject_identifier, **options)}
 
 
 if settings.APP_NAME == 'edc_metadata':
+
+    from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
+    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
     from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
 
     class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
         visit_models = {
             'edc_metadata': ('subject_visit', 'edc_metadata.subjectvisit')}
+
+    class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
+        definitions = {
+            '7-day-clinic': dict(days=[MO, TU, WE, TH, FR, SA, SU],
+                                 slots=[100, 100, 100, 100, 100, 100, 100]),
+            '5-day-clinic': dict(days=[MO, TU, WE, TH, FR],
+                                 slots=[100, 100, 100, 100, 100])}
