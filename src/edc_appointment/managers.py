@@ -29,30 +29,30 @@ class AppointmentManager(models.Manager):
         schedule_name = kwargs.get('schedule_name')
         subject_identifier = kwargs.get('subject_identifier')
         visit_schedule_name = kwargs.get('visit_schedule_name')
+        options = dict(visit_code_sequence=0)
         try:
-            options = dict(
+            options.update(
                 subject_identifier=appointment.subject_identifier,
                 visit_schedule_name=appointment.visit_schedule_name,
                 schedule_name=appointment.schedule_name)
         except AttributeError:
-            options = dict(subject_identifier=subject_identifier)
+            options.update(subject_identifier=subject_identifier)
             try:
-                visit_schedule_name, schedule_name = visit_schedule_name.split(
-                    '.')
+                visit_schedule_name, schedule_name = (
+                    visit_schedule_name.split('.'))
                 options.update(
-                    dict(visit_schedule_name=visit_schedule_name,
-                         schedule_name=schedule_name))
+                    visit_schedule_name=visit_schedule_name,
+                    schedule_name=schedule_name)
             except ValueError:
-                options.update(dict(visit_schedule_name=visit_schedule_name))
+                options.update(visit_schedule_name=visit_schedule_name)
             except AttributeError:
                 pass
             if schedule_name and not visit_schedule_name:
                 raise TypeError(
-                    'Expected visit_schedule_name for schedule_name \'{}\'. '
-                    'Got {}'.format(
-                        schedule_name, visit_schedule_name))
+                    f'Expected visit_schedule_name for schedule_name '
+                    f'\'{schedule_name}\'. Got {visit_schedule_name}')
             elif schedule_name:
-                options.update(dict(schedule_name=schedule_name))
+                options.update(schedule_name=schedule_name)
         return options
 
     def get_visit_code(self, action, schedule, **kwargs):
@@ -85,6 +85,8 @@ class AppointmentManager(models.Manager):
     def first_appointment(self, **kwargs):
         """Returns the first appointment instance for the given criteria.
 
+        For visit_code_sequence=0.
+
         For example:
             first_appointment = (Appointment.objects.
                 first_appointment(appointment=appointment))
@@ -97,19 +99,21 @@ class AppointmentManager(models.Manager):
         options = self.get_query_options(**kwargs)
         try:
             first_appointment = self.filter(
-                **options).order_by('appt_datetime')[0]
+                **options).order_by('timepoint')[0]
         except IndexError:
             first_appointment = None
         return first_appointment
 
     def last_appointment(self, **kwargs):
         """Returns the last appointment relative to the criteria.
+
+        For visit_code_sequence=0.
         """
         options = self.get_query_options(**kwargs)
         try:
             last_appointment = [
                 obj for obj in self.filter(**options).order_by(
-                    'appt_datetime')][-1]
+                    'timepoint')][-1]
         except IndexError:
             last_appointment = None
         return last_appointment
@@ -117,6 +121,8 @@ class AppointmentManager(models.Manager):
     def next_appointment(self, **kwargs):
         """Returns the next appointment relative to the criteria or
         None if there is no next.
+
+        For visit_code_sequence=0.
 
         Next is the next visit in a schedule, so schedule_name is required.
 
@@ -141,7 +147,7 @@ class AppointmentManager(models.Manager):
             visit_code=self.get_visit_code('next', schedule, **kwargs))
         try:
             next_appointment = self.filter(
-                **options).order_by('appt_datetime')[0]
+                **options).order_by('timepoint')[0]
         except IndexError:
             next_appointment = None
         return next_appointment
@@ -149,6 +155,8 @@ class AppointmentManager(models.Manager):
     def previous_appointment(self, **kwargs):
         """Returns the previous appointment relative to the criteria
         or None if there is no previous.
+
+        For visit_code_sequence=0.
         """
         options = self.get_query_options(**kwargs)
         schedule = site_visit_schedules.get_visit_schedule(
@@ -181,12 +189,11 @@ class AppointmentManager(models.Manager):
                 ', '.join(valid_ops), op))
         options = {
             'subject_identifier': subject_identifier,
-            'appt_datetime__{}'.format(op): dt}
+            f'appt_datetime__{op}': dt}
         if schedule_name and not visit_schedule_name:
             raise TypeError(
-                'Expected visit_schedule_name for schedule_name \'{}\'. '
-                'Got {}'.format(
-                    schedule_name, visit_schedule_name))
+                f'Expected visit_schedule_name for schedule_name '
+                f'\'{schedule_name}\'. Got {visit_schedule_name}')
         if visit_schedule_name:
             try:
                 visit_schedule_name, schedule_name = visit_schedule_name.split(
@@ -196,7 +203,7 @@ class AppointmentManager(models.Manager):
                     options.update(dict(schedule_name=schedule_name))
             options.update(dict(visit_schedule_name=visit_schedule_name))
         deleted = 0
-        appointments = self.filter(**options).order_by('-appt_datetime')
+        appointments = self.filter(**options).order_by('-timepoint')
         for appointment in appointments:
             try:
                 appointment.delete()
