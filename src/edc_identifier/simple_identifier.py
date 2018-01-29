@@ -103,7 +103,9 @@ class SimpleUniqueIdentifier:
     make_human_readable = None
 
     def __init__(self, model=None, identifier_attr=None, identifier_type=None,
-                 identifier_prefix=None, make_human_readable=None):
+                 identifier_prefix=None, make_human_readable=None,
+                 linked_identifier=None, protocol_number=None,
+                 source_model=None, subject_identifier=None):
         self._identifier = None
         self.model = model or self.model
         self.identifier_attr = identifier_attr or self.identifier_attr
@@ -118,6 +120,10 @@ class SimpleUniqueIdentifier:
             identifier_type=self.identifier_type,
             sequence_number=1,
             device_id=self.device_id,
+            linked_identifier=linked_identifier,
+            protocol_number=protocol_number,
+            model=source_model,
+            subject_identifier=subject_identifier,
             **{self.identifier_attr: self.identifier})
 
     def __str__(self):

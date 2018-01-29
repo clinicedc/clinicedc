@@ -24,6 +24,8 @@ class IdentifierModel(SiteModelMixin, BaseUuidModel):
 
     name = models.CharField(max_length=100)
 
+    subject_identifier = models.CharField(max_length=50, null=True)
+
     sequence_number = models.IntegerField(default=1)
 
     identifier = models.CharField(max_length=50, unique=True)
@@ -32,7 +34,7 @@ class IdentifierModel(SiteModelMixin, BaseUuidModel):
 
     device_id = models.IntegerField()
 
-    protocol_number = models.CharField(max_length=25)
+    protocol_number = models.CharField(max_length=25, null=True)
 
     model = models.CharField(max_length=100, null=True)
 

@@ -15,6 +15,7 @@ class IdentifierModelAdmin(admin.ModelAdmin):
                 'identifier',
                 'protocol_number',
                 'name',
+                'subject_identifier',
                 'site',
                 'model',
                 'sequence_number',
@@ -26,16 +27,18 @@ class IdentifierModelAdmin(admin.ModelAdmin):
     )
 
     list_display = (
-        'identifier', 'name', 'identifier_type', 'site', 'linked_identifier', 'created',
+        'identifier', 'subject_identifier', 'identifier_type', 'site',
+        'linked_identifier', 'created',
         'user_created', 'hostname_created')
     list_filter = ('identifier_type', 'name', 'site',
                    'device_id', 'created', 'user_created')
-    search_fields = ('identifier', )
+    search_fields = ('identifier', 'subject_identifier', 'linked_identifier')
 
     def get_readonly_fields(self, request, obj=None):
         return (
             'identifier',
             'protocol_number',
+            'subject_identifier',
             'name',
             'site',
             'model',
