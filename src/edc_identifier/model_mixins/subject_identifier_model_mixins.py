@@ -1,15 +1,13 @@
 import re
 
 from uuid import uuid4
-
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
-
 from edc_constants.constants import UUID_PATTERN
 
-from .exceptions import IdentifierError
-from .subject_identifier import SubjectIdentifier
+from ..exceptions import IdentifierError
+from ..subject_identifier import SubjectIdentifier
 
 
 class NonUniqueSubjectIdentifierFieldMixin(models.Model):
@@ -102,9 +100,8 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         """
         subject_identifier = SubjectIdentifier(
             identifier_type='subject',
-            model=self._meta.label_lower,
-            site_code=self.study_site,
-            create_registration=False)
+            requesting_model=self._meta.label_lower,
+            site=self.site)
         return subject_identifier.identifier
 
     @property

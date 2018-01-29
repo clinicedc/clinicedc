@@ -1,0 +1,19 @@
+from django.db import models
+
+
+class SubjectIdentifierManager(models.Manager):
+
+    def get_by_natural_key(self, subject_identifier):
+        return self.get(subject_identifier=subject_identifier)
+
+
+class IdentifierManager(models.Manager):
+
+    def get_by_natural_key(self, identifier):
+        return self.get(identifier=identifier)
+
+
+class TrackingIdentifierManager(models.Manager):
+
+    def get_by_natural_key(self, tracking_identifier):
+        return self.get(tracking_identifier=tracking_identifier)

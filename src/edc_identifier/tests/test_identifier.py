@@ -4,23 +4,17 @@ from ..checkdigit_mixins import LuhnMixin, LuhnOrdMixin
 from ..identifier import Identifier
 
 
-@tag('identifier')
 class TestIdentifier(TestCase):
 
+    @tag('1')
     def test_valid_checkdigit(self):
         mixin = LuhnMixin()
         checkdigit = mixin.calculate_checkdigit('98765')
-        self.assertTrue(mixin.is_valid_checkdigit('98765', checkdigit))
+        self.assertEqual(checkdigit, '1')
         checkdigit = mixin.calculate_checkdigit('98766')
-        self.assertTrue(mixin.is_valid_checkdigit('98766', checkdigit))
+        self.assertEqual(checkdigit, '9')
         checkdigit = mixin.calculate_checkdigit('98767')
-        self.assertTrue(mixin.is_valid_checkdigit('98767', checkdigit))
-
-    def test_luhn_mixin(self):
-        mixin = LuhnMixin()
-        self.assertEqual('1', mixin.calculate_checkdigit('98765'))
-        self.assertEqual('9', mixin.calculate_checkdigit('98766'))
-        self.assertEqual('7', mixin.calculate_checkdigit('98767'))
+        self.assertEqual(checkdigit, '7')
 
     def test_luhn_ord_mixin(self):
         mixin = LuhnOrdMixin()

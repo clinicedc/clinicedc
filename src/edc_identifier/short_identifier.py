@@ -2,8 +2,10 @@ import random
 import re
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 
 from .checkdigit_mixins import LuhnOrdMixin
+from .models import IdentifierModel
 
 
 class ShortIdentifierError(Exception):
@@ -29,7 +31,7 @@ class ShortIdentifier:
     random_string_pattern = r'[A-Z0-9]+'  # alhpanumeric
     random_string_length = 5
     prefix_pattern = '^[0-9]{2}$'
-    history_model = 'edc_identifier.identifierhistory'
+    identifier_model_cls = IdentifierModel
 
     prefix = None
     seed = None
@@ -38,24 +40,14 @@ class ShortIdentifier:
 
     def __init__(self, name=None, prefix_pattern=None, prefix=None,
                  template=None, random_string_length=None,
-                 random_string_pattern=None, history_model=None):
+                 random_string_pattern=None):
         self._last_random_string = None
         self.name = name or self.name
-
         self.template = template or self.template
         self.random_string_length = random_string_length or self.random_string_length
         self.random_string_pattern = random_string_pattern or self.random_string_pattern
         self.random_string_pattern = re.compile(self.random_string_pattern)
-
-        if history_model:
-            self.history_model = django_apps.get_model(
-                *history_model.split('.'))
-        else:
-            self.history_model = django_apps.get_model(
-                *self.history_model.split('.'))
-
         self.prefix_pattern = prefix_pattern or self.prefix_pattern
-
         self.prefix = prefix or self.prefix or ''
         self.prefix = str(self.prefix)
         if self.prefix and not self.prefix_pattern:
@@ -80,6 +72,10 @@ class ShortIdentifier:
                 f'Prefix does not match prefix pattern. '
                 f'Got \'{self.prefix}\' does not match '
                 f'pattern \'{self.prefix_pattern}\'.')
+
+        edc_device_app_config = django_apps.get_app_config('edc_device')
+        self.device_id = edc_device_app_config.device_id
+
         self.identifier = self.get_identifier()
 
     def __str__(self):
@@ -102,10 +98,10 @@ class ShortIdentifier:
                 random_string=random_string,
                 prefix=self.prefix)
             try:
-                self.history_model.objects.get(
+                self.identifier_model_cls.objects.get(
                     identifier=identifier,
                     identifier_type=self.name)
-            except self.history_model.DoesNotExist:
+            except ObjectDoesNotExist:
                 pass
             else:
                 identifier = None
@@ -114,8 +110,10 @@ class ShortIdentifier:
                         'Unable prepare a unique requisition identifier, '
                         'all are taken. Increase the length of the random string. '
                         f'tries={tries}, max_tries={max_tries}.')
-        self.history_model.objects.create(
+
+        self.identifier_model_cls.objects.create(
             identifier=identifier,
             identifier_type=self.name,
-            identifier_prefix=self.prefix)
+            identifier_prefix=self.prefix,
+            device_id=self.device_id)
         return identifier

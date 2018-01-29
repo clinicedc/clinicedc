@@ -1,9 +1,10 @@
 from faker import Faker
 
+from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 
-from ..models import IdentifierHistory
+from ..models import IdentifierModel
 from ..short_identifier import DuplicateIdentifierError, ShortIdentifierPrefixPatternError
 from ..short_identifier import ShortIdentifier, ShortIdentifierPrefixError
 
@@ -11,9 +12,13 @@ from ..short_identifier import ShortIdentifier, ShortIdentifierPrefixError
 fake = Faker()
 
 
-@tag('short_identifier')
 class TestShortIdentifier(TestCase):
 
+    def setUp(self):
+        edc_device_app_config = django_apps.get_app_config('edc_device')
+        self.device_id = edc_device_app_config.device_id
+
+    @tag('1')
     def test_short_identifier(self):
         short_identifier = ShortIdentifier(
             prefix_pattern='^[0-9]{2}$', prefix=22)
@@ -55,10 +60,9 @@ class TestShortIdentifier(TestCase):
             ShortIdentifier,
             prefix_pattern='^[0-9]{2}$', prefix='AA')
 
-    def test_short_identifier_history_model(self):
+    def test_short_identifier_identifier_model(self):
         short_identifier = ShortIdentifier(
-            prefix_pattern='^[0-9]{2}$', prefix=22,
-            history_model='edc_identifier.identifierhistory')
+            prefix_pattern='^[0-9]{2}$', prefix=22)
         self.assertEqual(str(short_identifier), short_identifier.identifier)
 
     def test_short_identifier_longer_than_default(self):
@@ -76,7 +80,7 @@ class TestShortIdentifier(TestCase):
         short_identifier = ShortIdentifier(
             prefix_pattern='^[0-9]{2}$', prefix=22)
         try:
-            IdentifierHistory.objects.get(
+            IdentifierModel.objects.get(
                 identifier=short_identifier.identifier),
         except ObjectDoesNotExist:
             self.fail('ObjectDoesNotExist unexpectedly raised')
@@ -84,10 +88,11 @@ class TestShortIdentifier(TestCase):
     def test_short_identifier_with_last1(self):
 
         prefix = '22'
-        IdentifierHistory.objects.create(
+        IdentifierModel.objects.create(
             identifier='22KVTB4',
             identifier_type=ShortIdentifier.name,
-            identifier_prefix=prefix)
+            identifier_prefix=prefix,
+            device_id=self.device_id)
 
         short_identifier = ShortIdentifier(
             prefix_pattern='^[0-9]{2}$',
@@ -100,10 +105,11 @@ class TestShortIdentifier(TestCase):
         random_string_length = 5
         prefix_pattern = '^[0-9]{2}$'
 
-        IdentifierHistory.objects.create(
+        IdentifierModel.objects.create(
             identifier='22KVTB4',
             identifier_type=ShortIdentifier.name,
-            identifier_prefix=prefix)
+            identifier_prefix=prefix,
+            device_id=self.device_id)
 
         short_identifier = ShortIdentifier(
             prefix_pattern=prefix_pattern,
