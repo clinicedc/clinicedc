@@ -26,6 +26,12 @@ class UrlConfig:
             re_path(r'^' + f'{self.label}/'
                     f'(?P<{self.identifier_label}>{self.identifier_pattern})/'
                     f'(?P<appointment>{UUID_PATTERN.pattern})/'
+                    f'(?P<scanning>\d)/'
+                    f'(?P<error>\d)/',
+                    self.view_class.as_view(), name=self.url_name),
+            re_path(r'^' + f'{self.label}/'
+                    f'(?P<{self.identifier_label}>{self.identifier_pattern})/'
+                    f'(?P<appointment>{UUID_PATTERN.pattern})/'
                     f'(?P<reason>\w+)/',
                     self.view_class.as_view(), name=self.url_name),
             re_path(r'^' + f'{self.label}/'
