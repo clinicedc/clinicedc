@@ -1,4 +1,4 @@
-from edc_base.modeladmin_mixins import ModelAdminBasicMixin
+from edc_model_admin import ModelAdminBasicMixin
 
 
 class RegisteredSubjectModelAdminMixin(ModelAdminBasicMixin):
@@ -13,7 +13,7 @@ class RegisteredSubjectModelAdminMixin(ModelAdminBasicMixin):
         'subject_type',
         'sid',
         'registration_status',
-        'study_site',
+        'site',
         'user_created',
         'created',
     )
@@ -28,4 +28,4 @@ class RegisteredSubjectModelAdminMixin(ModelAdminBasicMixin):
 
     mixin_list_filter = ('subject_type', 'registration_status', 'screening_datetime',
                          'registration_datetime', 'gender',
-                         'study_site', 'hostname_created')
+                         'site', 'hostname_created')

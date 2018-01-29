@@ -14,7 +14,6 @@ from edc_constants.constants import UUID_PATTERN
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 
 from ..exceptions import RegisteredSubjectError
-from ..managers import RegisteredSubjectManager
 
 
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
@@ -26,15 +25,14 @@ YES_NO_UNKNOWN = (
 )
 
 
-class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Model):
+class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin,
+                                  models.Model):
 
     """A model mixin for the RegisteredSubject model (only).
     """
     # may not be available when instance created (e.g. infants prior to birth
     # report)
-    first_name = FirstnameField(
-        null=True,
-    )
+    first_name = FirstnameField(null=True)
 
     # may not be available when instance created (e.g. infants or household
     # subject before consent)
@@ -84,11 +82,6 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         null=True,
         blank=True)
 
-    study_site = models.CharField(
-        max_length=50,
-        null=True,
-        blank=True)
-
     subject_type = models.CharField(
         max_length=25,
         null=True,
@@ -110,8 +103,7 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         max_length=75,
         unique=True,
         default=get_uuid,
-        editable=False,
-    )
+        editable=False)
 
     identity_type = IdentityTypeField(
         null=True,
@@ -146,6 +138,10 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         null=True,
         blank=True)
 
+    consent_datetime = models.DateTimeField(
+        null=True,
+        blank=True)
+
     comment = models.TextField(
         verbose_name='Comment',
         max_length=250,
@@ -170,8 +166,6 @@ class RegisteredSubjectModelMixin(UniqueSubjectIdentifierModelMixin, models.Mode
         max_length=150,
         null=True,
         editable=False)
-
-    objects = RegisteredSubjectManager()
 
     def save(self, *args, **kwargs):
         if self.identity:

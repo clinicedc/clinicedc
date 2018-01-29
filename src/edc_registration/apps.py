@@ -25,28 +25,16 @@ class AppConfig(DjangoAppConfig):
 
 if 'edc_registration' in settings.APP_NAME:
 
-    from edc_protocol.apps import AppConfig as BaseEdcProtocolAppConfig, SubjectType, Cap
+    from edc_protocol.apps import AppConfig as BaseEdcProtocolAppConfig
 
     class EdcProtocolAppConfig(BaseEdcProtocolAppConfig):
-        protocol = 'BHP091'
-        protocol_number = '091'
-        protocol_name = 'Edc Registration'
+        protocol = 'BHP092'
+        protocol_name = 'Ambition'
+        protocol_number = '092'
         protocol_title = ''
-        subject_types = [
-            SubjectType('subject', 'Research Subject',
-                        Cap(
-                            model_name='edc_registration.subjectconsent',
-                            max_subjects=9999)),
-        ]
+        site_code = '40'
+        site_name = 'Gaborone'
         study_open_datetime = datetime(
             2016, 12, 31, 0, 0, 0, tzinfo=gettz('UTC'))
         study_close_datetime = datetime(
-            2019, 12, 31, 0, 0, 0, tzinfo=gettz('UTC'))
-
-        @property
-        def site_name(self):
-            return 'Test_Community'
-
-        @property
-        def site_code(self):
-            return '01'
+            2019, 12, 31, 23, 59, 59, tzinfo=gettz('UTC'))
