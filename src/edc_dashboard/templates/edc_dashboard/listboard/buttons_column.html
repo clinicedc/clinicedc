@@ -1,0 +1,33 @@
+{% comment %}
+
+    result: model_wrapper, usually the SubjectConsentModelWrapper
+        Required attributes:
+            subject_identifier
+            version: (consent version)
+            href: (model_wrapper.href)
+
+{% endcomment %}
+
+<td style="white-space: nowrap">
+    <div class="btn-group">
+    <a title="Edit subject's screening form" role="button" 
+       class="btn btn-default btn-sm"
+           href="{{ result.href }}">
+        <i class="fa fa-pencil fa-sm"></i>
+    </a>
+    {% if result.id %}
+
+         <a id="btn-subject-dashboard-{{result.subject_identifier}}" class="btn btn-primary btn-sm" role="button"   
+        title="Go to subject's dashboard" href="{% url subject_dashboard_url result.subject_identifier %}">
+        <i class="fa fa-user-circle-o fa-sm"></i> Dashboard  <i class="fa fa-mail-forward"></i></a>
+    {% else %}
+         <a id="btn-consent-add-{{result.subject_identifier}}" title="Consent to participate"
+            class="btn btn-warning btn-sm"
+                href="{{ result.href }}">
+             Consent (v{{ result.version }})
+         </a>
+    {% endif %}
+    </div>
+</td>
+
+

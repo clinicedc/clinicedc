@@ -1,9 +1,13 @@
 from ...listboard_filter import ListboardViewFilters
+from django.views.generic.base import ContextMixin
 
 
-class ListboardFilterViewMixin:
+class ListboardFilterViewMixin(ContextMixin):
 
     listboard_view_filters = ListboardViewFilters()
+    # listboard_filter_url defaults to self.listboard_url,
+    # if self.listboard_url declared through another mixin.
+    listboard_filter_url = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -12,8 +16,13 @@ class ListboardFilterViewMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        try:
+            listboard_url = self.listboard_url
+        except AttributeError:
+            listboard_url = None
         context.update(
-            listboard_view_filters=self.listboard_view_filters.filters)
+            listboard_view_filters=self.listboard_view_filters.filters,
+            listboard_filter_url=self.request.url_name_data[self.listboard_filter_url or listboard_url])
         return context
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
