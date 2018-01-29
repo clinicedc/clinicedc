@@ -1,45 +1,48 @@
-from django.apps import apps as django_apps
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.labels import AliquotLabel
+from edc_label import add_job_results_to_messages
 
-from .base_action_view import BaseActionView
+from ...view_mixins import ModelsViewMixin
+from .action_view import ActionView
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
 
+class RequisitionView(EdcBaseViewMixin, ModelsViewMixin, ActionView):
 
-class RequisitionView(BaseActionView):
-
-    post_url_name = app_config.requisition_listboard_url_name
+    post_action_url = 'requisition_listboard_url'
     valid_form_actions = ['print_labels']
     action_name = 'requisition'
     label_cls = AliquotLabel
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def process_form_action(self):
+    def process_form_action(self, request=None):
         if self.action == 'print_labels':
-            for requisition in self.requisitions:
-                aliquots = (
-                    self.aliquot_model.objects.filter(
-                        requisition_identifier=requisition.requisition_identifier)
-                    .order_by('count'))
-                if aliquots:
-                    self.print_labels(
-                        pks=[obj.pk for obj in aliquots if obj.is_primary])
-                    self.print_labels(
-                        pks=[obj.pk for obj in aliquots if not obj.is_primary])
-            for requisition in self.requisition_model.objects.filter(
-                    processed=False, pk__in=self.selected_items):
-                messages.error(
-                    self.request,
-                    'Unable to print labels. Requisition has not been '
-                    'processed. Got {}'.format(
-                        requisition.requisition_identifier))
+            if not self.selected_items:
+                message = ('Nothing to do. No items have been selected.')
+                messages.warning(request, message)
+            else:
+                job_results = []
+                for requisition in self.requisitions:
+                    aliquots = (
+                        self.aliquot_model.objects.filter(
+                            requisition_identifier=requisition.requisition_identifier)
+                        .order_by('count'))
+                    if aliquots:
+                        pks = [obj.pk for obj in aliquots if obj.is_primary]
+                        if pks:
+                            job_results.append(self.print_labels(
+                                pks=pks, request=request))
+                        pks = [obj.pk for obj in aliquots if not obj.is_primary]
+                        if pks:
+                            job_results.append(self.print_labels(
+                                pks=pks, request=request))
+                for requisition in self.requisition_model.objects.filter(
+                        processed=False, pk__in=self.selected_items):
+                    messages.error(
+                        self.request,
+                        'Unable to print labels. Requisition has not been '
+                        f'processed. Got {requisition.requisition_identifier}')
+                if job_results:
+                    add_job_results_to_messages(request, job_results)
 
     @property
     def requisitions(self):

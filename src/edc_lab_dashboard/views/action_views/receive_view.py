@@ -1,32 +1,23 @@
-from django.apps import apps as django_apps
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.utils.decorators import method_decorator
-
 from edc_base.utils import get_utcnow
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_constants.constants import YES
-
 from edc_lab.lab import Specimen
 from edc_lab.labels import AliquotLabel
 
-from ..mixins import RequisitionViewMixin, ProcessViewMixin
-from .base_action_view import BaseActionView
+from ...view_mixins import RequisitionViewMixin, ProcessViewMixin, ModelsViewMixin
+from .action_view import ActionView
 
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
+class ReceiveView(EdcBaseViewMixin, ModelsViewMixin, RequisitionViewMixin,
+                  ProcessViewMixin, ActionView):
 
-
-class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
-
-    post_url_name = app_config.receive_listboard_url_name
+    post_action_url = 'receive_listboard_url'
     valid_form_actions = ['receive', 'receive_and_process']
     label_cls = AliquotLabel
+    specimen_cls = Specimen
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def process_form_action(self):
+    def process_form_action(self, request=None):
         if not self.selected_items:
             message = ('Nothing to do. No items selected.')
             messages.warning(self.request, message)
@@ -36,7 +27,7 @@ class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
         elif self.action == 'receive_and_process':
             self.receive()
             self.create_specimens()
-            self.process()
+            self.process(request)
 
     def receive(self):
         """Updates selected requisitions as received.
@@ -46,7 +37,7 @@ class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
                 received=True).update(
                     received=True, received_datetime=get_utcnow())
         if updated:
-            message = ('{} requisitions received.'.format(updated))
+            message = (f'{updated} requisitions received.')
             messages.success(self.request, message)
         return updated
 
@@ -55,4 +46,4 @@ class ReceiveView(RequisitionViewMixin, ProcessViewMixin, BaseActionView):
         """
         for requisition in self.requisition_model.objects.filter(
                 pk__in=self.requisitions, received=True):
-            Specimen(requisition=requisition)
+            self.specimen_cls(requisition=requisition)

@@ -1,16 +1,30 @@
 from django.apps import apps as django_apps
 from edc_model_wrapper import ModelWrapper
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
+from ..dashboard_urls import dashboard_urls
+
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class RequisitionModelWrapper(ModelWrapper):
 
     model = edc_lab_app_config.requisition_model
-    next_url_name = app_config.requisition_listboard_url_name
-    querystring_attrs = ['subject_visit']
+    next_url_name = dashboard_urls.get('requisition_listboard_url')
+    next_url_attrs = ['appointment', 'subject_identifier']
+    querystring_attrs = ['subject_visit', 'panel']
 
     @property
     def subject_visit(self):
-        return self.object.subject_visit.id
+        return str(self.object.subject_visit.id)
+
+    @property
+    def appointment(self):
+        return str(self.object.subject_visit.appointment.id)
+
+    @property
+    def subject_identifier(self):
+        return self.object.subject_visit.subject_identifier
+
+    @property
+    def panel(self):
+        return str(self.object.panel.id)

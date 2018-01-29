@@ -1,12 +1,10 @@
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_lab.models import Aliquot, Box, BoxType, Manifest, Shipper, Consignee
-from edc_lab.models import ManifestItem
+from edc_lab.models import ManifestItem, BoxItem
 
 from ..model_wrappers import BoxModelWrapper, ManageBoxItemModelWrapper
 from ..model_wrappers import ManifestItemModelWrapper, ManifestModelWrapper
-from edc_lab.models.box_item import BoxItem
-# from ..model_wrappers import RequisitionModelWrapper
 
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
@@ -33,6 +31,8 @@ class TestModelWrapper(TestCase):
 
     def test_box_model_wrapper(self):
         wrapper_cls = BoxModelWrapper
+        # usually this will come from app_config
+        wrapper_cls.next_url_name = 'edc_lab:pack_listboard_url'
         next_url_name = wrapper_cls.next_url_name
         wrapper_cls.next_url_name = next_url_name.split(':')[1]
         box_type = BoxType.objects.create(across=9, down=9, total=81)
@@ -46,6 +46,8 @@ class TestModelWrapper(TestCase):
 
     def test_manage_box_item_model_wrapper(self):
         wrapper_cls = ManageBoxItemModelWrapper
+        # usually this will come from app_config
+        wrapper_cls.next_url_name = 'edc_lab:manage_box_listboard_url'
         next_url_name = wrapper_cls.next_url_name
         wrapper_cls.next_url_name = next_url_name.split(':')[1]
         box_type = BoxType.objects.create(across=9, down=9, total=81)
@@ -62,6 +64,8 @@ class TestModelWrapper(TestCase):
 
     def test_manifest_item_model_wrapper(self):
         wrapper_cls = ManifestItemModelWrapper
+        # usually this will come from app_config
+        wrapper_cls.next_url_name = 'edc_lab:manage_manifest_listboard_url'
         next_url_name = wrapper_cls.next_url_name
         wrapper_cls.next_url_name = next_url_name.split(':')[1]
         manifest = Manifest.objects.create(

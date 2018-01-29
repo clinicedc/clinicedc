@@ -1,8 +1,10 @@
 import os
 import sys
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_NAME = 'edc_lab_dashboard'
+ETC_DIR = os.path.join(BASE_DIR, 'etc')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -14,6 +16,8 @@ SECRET_KEY = '+*^_g-upf#9zfs=u(!k%9cvj_nog0&)u5*+bf12*tqu!30o874'
 DEBUG = True
 
 ALLOWED_HOSTS = []
+SITE_ID = 10
+REVIEWER_SITE_ID = 1
 
 
 # Application definition
@@ -25,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
     'edc_base.apps.AppConfig',
@@ -43,10 +48,12 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.sites.middleware.CurrentSiteMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+    'edc_dashboard.middleware.DashboardMiddleware',
+    'edc_lab_dashboard.middleware.DashboardMiddleware']
 
 ROOT_URLCONF = 'edc_lab_dashboard.urls'
 

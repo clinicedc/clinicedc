@@ -1,29 +1,20 @@
-from django.apps import apps as django_apps
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-
 from edc_base.utils import get_utcnow
-
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.constants import SHIPPED
 from edc_lab.exceptions import SpecimenError
 
-from ..mixins import BoxViewMixin
-from .base_action_view import BaseActionView
-
-app_config = django_apps.get_app_config('edc_lab_dashboard')
+from ...view_mixins import BoxViewMixin, ModelsViewMixin
+from .action_view import ActionView
 
 
-class VerifyBoxItemView(BoxViewMixin, BaseActionView):
+class VerifyBoxItemView(EdcBaseViewMixin, ModelsViewMixin, BoxViewMixin,
+                        ActionView):
 
-    post_url_name = app_config.verify_box_listboard_url_name
+    post_action_url = 'verify_box_listboard_url'
     box_item_failed = False
     valid_form_actions = [
         'verify_item', 'reset_box', 'verify_box']
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     @property
     def url_kwargs(self):
@@ -32,7 +23,7 @@ class VerifyBoxItemView(BoxViewMixin, BaseActionView):
             'box_identifier': self.box_identifier,
             'position': self.kwargs.get('position', '1')}
 
-    def process_form_action(self):
+    def process_form_action(self, request=None):
         if self.action == 'verify_item':
             try:
                 if self.box_item_identifier:

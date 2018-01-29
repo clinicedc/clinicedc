@@ -1,27 +1,22 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db.models.deletion import ProtectedError
-from django.utils.decorators import method_decorator
-
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.exceptions import BoxItemError
 from edc_lab.lab import Manifest as ManifestObject
 
-from ..mixins import ManifestViewMixin
-from .base_action_view import BaseActionView
+from ...view_mixins import ManifestViewMixin, ModelsViewMixin
+from .action_view import ActionView
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 
-class ManageManifestView(ManifestViewMixin, BaseActionView):
+class ManageManifestView(EdcBaseViewMixin, ModelsViewMixin, ManifestViewMixin,
+                         ActionView):
 
-    post_url_name = app_config.manage_manifest_listboard_url_name
+    post_action_url = 'manage_manifest_listboard_url'
     valid_form_actions = [
         'add_item', 'remove_selected_items']
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     @property
     def url_kwargs(self):
@@ -29,7 +24,7 @@ class ManageManifestView(ManifestViewMixin, BaseActionView):
             'action_name': self.kwargs.get('action_name'),
             'manifest_identifier': self.manifest_identifier}
 
-    def process_form_action(self):
+    def process_form_action(self, request=None):
         if self.action == 'add_item':
             try:
                 if self.manifest and self.manifest_item_identifier:

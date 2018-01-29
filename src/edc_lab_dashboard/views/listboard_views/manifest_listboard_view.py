@@ -1,41 +1,34 @@
 from django.apps import apps as django_apps
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.utils.decorators import method_decorator
 from edc_lab.constants import SHIPPED
 from edc_lab.reports import ManifestReport
 from edc_lab.models import Manifest
 
 from ...model_wrappers import ManifestModelWrapper
 from ..listboard_filters import ManifestListboardViewFilters
-from .base_listboard import BaseListboardView
+from .base_listboard_view import BaseListboardView
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class ManifestListboardView(BaseListboardView):
 
-    navbar_item_selected = 'manifest'
+    navbar_selected_item = 'manifest'
 
-    form_action_url_name = f'edc_lab_dashboard:manifest_url'
-    listboard_url_name = app_config.manifest_listboard_url_name
-    listboard_template_name = app_config.manifest_listboard_template_name
+    form_action_url = 'manifest_form_action_url'
+    listboard_url = 'manifest_listboard_url'
+    listboard_template = 'manifest_listboard_template'
     model = edc_lab_app_config.manifest_model
     model_wrapper_cls = ManifestModelWrapper
     listboard_view_filters = ManifestListboardViewFilters()
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    search_form_url = 'manifest_listboard_url'
+    print_manifest_url = 'print_manifest_url'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
             new_manifest=ManifestModelWrapper(Manifest()),
-            print_manifest_url_name=f'edc_lab_dashboard:print_manifest_url',
-            SHIPPED=SHIPPED,
-        )
+            print_manifest_url_name=self.request.url_name_data[self.print_manifest_url],
+            SHIPPED=SHIPPED)
         return context
 
     def get(self, request, *args, **kwargs):
@@ -50,7 +43,6 @@ class ManifestListboardView(BaseListboardView):
             manifest_identifier=self.request.GET.get('pdf'))
 
     def print_manifest(self):
-        user = User.objects.get(username=self.request.user)
         manifest_report = ManifestReport(
-            manifest=self.manifest, user=user)
+            manifest=self.manifest, user=self.request.user)
         return manifest_report.render()

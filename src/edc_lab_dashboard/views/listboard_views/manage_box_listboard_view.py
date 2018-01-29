@@ -1,29 +1,21 @@
 from copy import copy
 
-from django.apps import apps as django_apps
-from django.contrib.auth.decorators import login_required
 from django.urls.base import reverse
-from django.utils.decorators import method_decorator
-from edc_lab.constants import SHIPPED
 
 from ...model_wrappers import ManageBoxItemModelWrapper
 from .base_box_item_listboard_view import BaseBoxItemListboardView
-
-app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 
 class ManageBoxListboardView(BaseBoxItemListboardView):
 
     action_name = 'manage'
-    form_action_url_name = f'edc_lab_dashboard:manage_box_item_url'
-    listboard_template_name = app_config.manage_box_listboard_template_name
-    listboard_url_name = app_config.manage_box_listboard_url_name
+    form_action_url = 'manage_box_item_form_action_url'
+    listboard_url = 'manage_box_listboard_url'
+    listboard_template = 'manage_box_listboard_template'
+    verify_box_listboard_url = 'verify_box_listboard_url'
     model_wrapper_cls = ManageBoxItemModelWrapper
-    navbar_item_selected = 'pack'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    navbar_selected_item = 'pack'
+    search_form_url = 'manage_box_listboard_url'
 
     @property
     def url_kwargs(self):
@@ -37,8 +29,7 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
         url_kwargs['position'] = 1
         url_kwargs['action_name'] = 'verify'
         context.update(
-            SHIPPED=SHIPPED,
-            verify_box_listboard_url=reverse(
-                self.verify_box_listboard_url_name,
+            verify_box_listboard_url_reversed=reverse(
+                self.request.url_name_data[self.verify_box_listboard_url],
                 kwargs=url_kwargs))
         return context

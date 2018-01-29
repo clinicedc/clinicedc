@@ -2,49 +2,14 @@
 
 {% load staticfiles %}
 {% load tz %}
-{% load crispy_forms_tags %}
-
-
-{% block alert %}
-
-    {% if messages %}
-        {% for message in messages %}
-            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
-            <div class="alert alert-danger alert-dismissable fade in">
-            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>           
-              <i class="fa fa-hand-stop-o fa-lg"></i> {{ message }}
-            </div>
-            {% endif %}
-            {% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
-            <div class="alert alert-warning alert-dismissable fade in">
-            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>           
-              <i class="fa fa-hand-stop-o fa-lg"></i> {{ message }}
-            </div>
-            {% endif %}
-            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-            <div class="alert alert-success alert-dismissable fade in">
-            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>           
-              <i class="fa fa-thumbs-o-up fa-lg"></i> {{ message }}
-            </div>
-            {% endif %}
-            {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
-            <div class="alert alert-info alert-dismissable fade in">
-            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>           
-              <i class="fa fa-hand-stop-o fa-lg"></i> {{ message }}
-            </div>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-
-{% endblock alert %}
-
+{% load edc_dashboard_extras %}
 
 <!-- begin panel_action_form -->
 {% block panel_action_form %}
 
     {% block panel_back %}{% endblock panel_back %}
     {% block panel_description%}{% endblock panel_description%}
-	<form action="{% if form_action_url %}{{ form_action_url }}{% else %}{% url listboard_url_name %}{% endif %}" method="post" name="{{ form_action_name }}" id="{{ form_action_name }}">
+	<form action="{% if form_action_url_reversed %}{{ form_action_url_reversed }}{% else %}{% url listboard_url %}{% endif %}" method="post" name="{{ form_action_name }}" id="{{ form_action_name }}">
 	 <div class="form-inline">
 	 <div class="input-group input-group-sm">
 	   
@@ -101,7 +66,7 @@
           </tbody>
         </table>
 
-        {% include 'edc_dashboard/paginator.html' %}
+        {% paginator_row %}
 
       </div>
   </div>

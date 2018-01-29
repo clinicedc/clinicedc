@@ -1,28 +1,49 @@
-from edc_base import NavbarItem
+from edc_navbar import NavbarItem, site_navbars, Navbar
 
-navbar_items = []
-config = [
-    ('edc_lab_dashboard', 'requisition', 'Requisitions', None,
-     'requisition_listboard_url_name'),
-    ('edc_lab_dashboard', 'receive', 'Receive', None,
-     'receive_listboard_url_name'),
-    ('edc_lab_dashboard', 'process', 'Process', None,
-     'process_listboard_url_name'),
-    ('edc_lab_dashboard', 'pack', 'Pack', None,
-     'pack_listboard_url_name'),
-    ('edc_lab_dashboard', 'manifest', 'Manifests', None,
-     'manifest_listboard_url_name'),
-    ('edc_lab_dashboard', 'aliquot', 'Aliquots', None,
-     'aliquot_listboard_url_name'),
-    ('edc_lab_dashboard', 'result', 'Results', None,
-     'result_listboard_url_name'),
-    ('edc_lab_dashboard', 'home', '', 'fa-flask', 'home_url_name')
-]
-for app_config_name, name, label, fa_icon, app_config_attr in config:
-    navbar_item = NavbarItem(
-        app_config_name=app_config_name,
-        name=name,
-        label=label,
-        fa_icon=fa_icon,
-        app_config_attr=app_config_attr)
-    navbar_items.append(navbar_item)
+from .dashboard_urls import dashboard_urls
+
+specimens = Navbar(name='specimens')
+
+specimens.append_item(
+    NavbarItem(name='requisition',
+               label='Requisition',
+               url_name=dashboard_urls.get('requisition_listboard_url')))
+
+specimens.append_item(
+    NavbarItem(name='receive',
+               label='Receive',
+               url_name=dashboard_urls.get('receive_listboard_url')))
+
+specimens.append_item(
+    NavbarItem(name='process',
+               label='Process',
+               url_name=dashboard_urls.get('process_listboard_url')))
+
+specimens.append_item(
+    NavbarItem(name='pack',
+               label='Pack',
+               url_name=dashboard_urls.get('pack_listboard_url')))
+
+specimens.append_item(
+    NavbarItem(name='manifest',
+               label='Manifest',
+               url_name=dashboard_urls.get('manifest_listboard_url')))
+
+specimens.append_item(
+    NavbarItem(name='aliquot',
+               label='Aliquot',
+               url_name=dashboard_urls.get('aliquot_listboard_url')))
+
+specimens.append_item(
+    NavbarItem(name='result',
+               label='Result',
+               url_name=dashboard_urls.get('result_listboard_url')))
+
+specimens.append_item(
+    NavbarItem(name='specimens',
+               title='specimens',
+               fa_icon='fa-flask',
+               url_name='#',
+               active=True))
+
+site_navbars.register(specimens)

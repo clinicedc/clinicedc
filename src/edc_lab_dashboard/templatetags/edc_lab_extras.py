@@ -1,23 +1,20 @@
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
-from django.urls import reverse
 from django.utils.safestring import mark_safe
-
 from edc_lab.constants import SHIPPED
 from edc_lab.models import BoxItem
-from django.templatetags.i18n import BlockTranslateNode
 
 register = template.Library()
 
 
 @register.inclusion_tag('edc_lab_dashboard/listboard/box/box_cell.html')
-def show_box_rows(box, listboard_url_name, position=None):
+def show_box_rows(box, listboard_url, position=None):
     """Returns rendered HTML of a box as a dictionary of keys headers, rows.
 
     Usage::
 
         {% block results_body %}
-            {% show_box_rows box listboard_url_name position=position %}
+            {% show_box_rows box listboard_url position=position %}
         {% endblock results_body %}
 
     """
@@ -45,7 +42,7 @@ def show_box_rows(box, listboard_url_name, position=None):
                 'position': pos,
                 'box_identifier': box.box_identifier,
                 'action_name': 'verify'}
-            cell['href'] = reverse(listboard_url_name, kwargs=reverse_kwargs)
+            # cell['href'] = reverse(listboard_url, kwargs=reverse_kwargs)
             cell['btn_style'] = btn_style.get(box_item.verified)
             cell['btn_label'] = str(pos).zfill(2)
             cell['btn_title'] = box_item.human_readable_identifier or 'empty'
@@ -60,12 +57,12 @@ def show_box_rows(box, listboard_url_name, position=None):
 def verified(box_item):
     """Returns a safe HTML check mark string if a Box item has been verified.
     """
-    if not box_item.verified:
-        verified = False
-    elif box_item.verified == 1:
-        verified = True
-    elif box_item.verified == -1:
-        verified = False
+    verified = False
+    if box_item.verified:
+        if int(box_item.verified) == 1:
+            verified = True
+        elif int(box_item.verified) == -1:
+            verified = False
     return '' if not verified else mark_safe(
         '&nbsp;<span title="verified" alt="verified" class="text text-success">'
         '<i class="fa fa-check fa-fw"></i></span>')
@@ -78,3 +75,15 @@ def shipped(box_item):
     return '' if not box_item.status == SHIPPED else mark_safe(
         '&nbsp;<span title="shipped" class="text text-success">'
         '<i class="fa fa-ship fa-fw"></i></span>')
+
+
+@register.inclusion_tag('edc_lab_dashboard/listboard/tags/status_column.html')
+def status_column(model_wrapper, *attrs):
+    options = {}
+    for attr in attrs:
+        try:
+            options.update({attr: True if getattr(
+                model_wrapper, attr) else False})
+        except AttributeError:
+            pass
+    return dict(options=options)

@@ -1,7 +1,6 @@
-{% extends base_template_name %}
+{% extends edc_lab_base_template %}
 {% load staticfiles %}
 {% load tz %}
-{% load crispy_forms_tags %}
 
 
 {% block extra-css %}
@@ -11,48 +10,34 @@
 
 
 {% block main %}
-<div class="container">
-   <div class="row">
-      <div class="col-md-12">
+  <!-- start lab listboard -->
+  <div class="panel-group">
+    <div class="panel panel-success">
+      <div class="panel-heading clearfix">
 
-        {% block alert %}
-        {% endblock alert %}
+             <div class="col-sm-8">   
+             {% block panel_action_form %}
+             {% endblock panel_action_form %}
+             </div>
 
-        <div class="panel-group">
-
-
-          <div class="panel panel-success">
-            <div class="panel-heading clearfix">
-
-                   <div class="col-sm-8">   
-                   {% block panel_action_form %}
-                   {% endblock panel_action_form %}
-                   </div>
-
-                   <div class="col-sm-4">   
-                    {% block search_form %}
-                        {% include 'edc_dashboard/search_form.html' %}
-                    {% endblock search_form %}
-                   </div>
+             <div class="col-sm-4">   
+              {% block search_form %}
+                  {% include 'edc_dashboard/search_form.html' %}
+              {% endblock search_form %}
+             </div>
 
 
 
-            </div>
-          </div>
-
-
-          <div class="panel-body">
-
-            {% block results_table %}
-            {% endblock results_table %}
-
-          </div>
-
-
-        </div>
       </div>
-      
-   </div>
-</div> 
+    </div>
 
+
+    <div class="panel-body">
+
+      {% block results_table %}
+      {% endblock results_table %}
+
+    </div>
+  </div>
+<!-- end lab listboard -->
 {% endblock main %}

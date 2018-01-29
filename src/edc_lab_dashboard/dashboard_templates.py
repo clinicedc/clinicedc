@@ -1,0 +1,26 @@
+
+"""To customize any of the values below,
+use settings.LAB_DASHBOARD_BASE_TEMPLATES.
+"""
+from django.conf import settings
+
+dashboard_templates = dict(
+    home_template='edc_lab_dashboard/home.html',
+    edc_lab_base_template='edc_base/base.html',
+    aliquot_listboard_template='edc_lab_dashboard/aliquot_listboard.html',
+    manage_box_listboard_template='edc_lab_dashboard/manage_box_listboard.html',
+    manage_manifest_listboard_template='edc_lab_dashboard/manage_manifest_listboard.html',
+    manifest_listboard_template='edc_lab_dashboard/manifest_listboard.html',
+    pack_listboard_template='edc_lab_dashboard/pack_listboard.html',
+    process_listboard_template='edc_lab_dashboard/process_listboard.html',
+    receive_listboard_template='edc_lab_dashboard/receive_listboard.html',
+    requisition_listboard_template='edc_lab_dashboard/requisition_listboard.html',
+    result_listboard_template='edc_lab_dashboard/result_listboard.html',
+    verify_box_listboard_template='edc_lab_dashboard/verify_box_listboard.html',
+)
+
+try:
+    dashboard_templates.update(
+        **settings.LAB_DASHBOARD_BASE_TEMPLATES)
+except AttributeError:
+    pass

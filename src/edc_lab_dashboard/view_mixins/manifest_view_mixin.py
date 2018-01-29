@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
 from django.utils.html import escape
+from django.views.generic.base import ContextMixin
 
 
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
@@ -10,13 +11,12 @@ class ManifestItemError(Exception):
     pass
 
 
-class ManifestViewMixin:
+class ManifestViewMixin(ContextMixin):
 
-    manifest_model = django_apps.get_model(
-        *edc_lab_app_config.manifest_model.split('.'))
+    manifest_model = django_apps.get_model(edc_lab_app_config.manifest_model)
     manifest_item_model = django_apps.get_model(
-        *edc_lab_app_config.manifest_item_model.split('.'))
-    box_model = django_apps.get_model(*edc_lab_app_config.box_model.split('.'))
+        edc_lab_app_config.manifest_item_model)
+    box_model = django_apps.get_model(edc_lab_app_config.box_model)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -78,9 +78,9 @@ class ManifestViewMixin:
                         manifest=self.manifest,
                         identifier=self.manifest_item_identifier)
                 except self.manifest_item_model.DoesNotExist:
-                    message = 'Invalid manifest item. Got {}'.format(
-                        self.original_manifest_item_identifier)
-                    messages.error(self.request, message)
+                    messages.error(
+                        self.request,
+                        f'Invalid manifest item. Got {self.original_manifest_item_identifier}')
         return self._manifest_item
 
     def get_manifest_item(self, position):
@@ -90,9 +90,8 @@ class ManifestViewMixin:
             manifest_item = self.manifest_item_model.objects.get(
                 manifest=self.manifest, position=position)
         except self.manifest_item_model.DoesNotExist:
-            message = 'Invalid position for manifest. Got {}'.format(
-                position)
-            messages.error(self.request, message)
+            messages.error(
+                self.request, f'Invalid position for manifest. Got {position}')
             return None
         return manifest_item
 
@@ -105,7 +104,7 @@ class ManifestViewMixin:
             self.box_model.objects.get(
                 box_identifier=manifest_item_identifier)
         except self.box_model.DoesNotExist:
-            message = 'Invalid box. Got {}.'.format(
-                self.original_manifest_item_identifier or 'None')
-            messages.error(self.request, message)
+            messages.error(
+                self.request,
+                f'Invalid box. Got {self.original_manifest_item_identifier or "None"}.')
         return manifest_item_identifier

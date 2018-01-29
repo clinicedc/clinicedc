@@ -1,18 +1,14 @@
-from django.apps import apps as django_apps
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import escape
-
+from django.views.generic.base import ContextMixin
 from edc_lab.exceptions import SpecimenError
 
 
-class BoxViewMixin:
+class BoxViewMixin(ContextMixin):
 
-    box_model = django_apps.get_model(
-        *django_apps.get_app_config('edc_lab').box_model.split('.'))
-    box_item_model = django_apps.get_model(
-        *django_apps.get_app_config('edc_lab').box_item_model.split('.'))
-    aliqout_model = django_apps.get_model(
-        *django_apps.get_app_config('edc_lab').aliquot_model.split('.'))
+    """Declare with the ModelsViewMixin.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -28,7 +24,8 @@ class BoxViewMixin:
         context.update({
             'box_identifier': self.original_box_identifier,
             'box_item_identifier': self.original_box_item_identifier,
-            'box': self.box
+            'box': self.box,
+            'paginator_url_kwargs': self.url_kwargs,
         })
         return context
 
@@ -98,9 +95,9 @@ class BoxViewMixin:
         box_item_identifier = ''.join(
             self.original_box_item_identifier.split('-'))
         try:
-            obj = self.aliqout_model.objects.get(
+            obj = self.aliquot_model.objects.get(
                 aliquot_identifier=box_item_identifier)
-        except self.aliqout_model.DoesNotExist:
+        except ObjectDoesNotExist:
             message = 'Invalid aliquot identifier. Got {}.'.format(
                 self.original_box_item_identifier or 'None')
             messages.error(self.request, message)

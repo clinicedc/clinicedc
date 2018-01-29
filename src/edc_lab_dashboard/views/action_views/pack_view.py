@@ -1,24 +1,22 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db.models.deletion import ProtectedError
-from django.utils.decorators import method_decorator
-
+from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab.constants import PACKED
 from edc_lab.labels import BoxLabel
 from edc_lab.lab import Manifest as ManifestObject
 from edc_lab.models import Manifest
+from edc_label import add_job_results_to_messages
 
-from .base_action_view import BaseActionView
+from ...view_mixins import ModelsViewMixin
+from .action_view import ActionView
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
-class PackView(BaseActionView):
+class PackView(EdcBaseViewMixin, ModelsViewMixin, ActionView):
 
-    post_url_name = app_config.pack_listboard_url_name
-    listboard_url_name = app_config.pack_listboard_url_name
+    post_action_url = 'pack_listboard_url'
     valid_form_actions = [
         'add_selected_to_manifest', 'remove_selected_items', 'print_labels']
     box_model = django_apps.get_model(*edc_lab_app_config.box_model.split('.'))
@@ -28,18 +26,21 @@ class PackView(BaseActionView):
         super().__init__(**kwargs)
         self._selected_manifest = None
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def process_form_action(self):
-        if self.action == 'remove_selected_items':
-            self.remove_selected_items()
-        elif self.action == 'add_selected_to_manifest':
-            if self.selected_manifest:
-                self.add_selected_to_manifest()
-        elif self.action == 'print_labels':
-            self.print_labels(pks=self.selected_items)
+    def process_form_action(self, request=None):
+        if not self.selected_items:
+            message = ('Nothing to do. No items have been selected.')
+            messages.warning(request, message)
+        else:
+            if self.action == 'remove_selected_items':
+                self.remove_selected_items()
+            elif self.action == 'add_selected_to_manifest':
+                if self.selected_manifest:
+                    self.add_selected_to_manifest()
+            elif self.action == 'print_labels':
+                job_result = self.print_labels(
+                    pks=self.selected_items, request=request)
+                if job_result:
+                    add_job_results_to_messages(request, [job_result])
 
     @property
     def selected_manifest(self):

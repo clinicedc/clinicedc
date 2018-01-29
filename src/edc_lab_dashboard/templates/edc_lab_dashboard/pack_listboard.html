@@ -12,7 +12,7 @@
 
 {% block results_panel_form %}
 
-    <form action="{{ form_action_url }}" method="post" id="{{ form_action_name }}" name="{{ form_action_name }}">
+    <form action="{{ form_action_url_reversed }}" method="post" id="{{ form_action_name }}" name="{{ form_action_name }}">
     <div class="form-group form-group-sm form-inline">
        {% if open_manifests %}
         <div class="btn-group">
@@ -27,7 +27,7 @@
                  <i class="fa fa-plus fa-sm"></i> &nbsp;Add selected boxes to manifest
             </button>
       {% else %}
-        <a href="{% url manifest_listboard_url_name %}" role="submit" class="btn btn-default btn-sm">
+        <a href="{% url manifest_listboard_url %}" role="submit" class="btn btn-default btn-sm">
              Open a manifest
         </a>
       {% endif %}

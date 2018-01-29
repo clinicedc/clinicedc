@@ -2,15 +2,15 @@ from django.apps import apps as django_apps
 from edc_model_wrapper import ModelWrapper
 from edc_lab.models import BoxItem, ManifestItem
 
+from ..dashboard_urls import dashboard_urls
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class AliquotModelWrapper(ModelWrapper):
 
     model = edc_lab_app_config.aliquot_model
-    next_url_name = app_config.aliquot_listboard_url_name
+    next_url_name = dashboard_urls.get('aliquot_listboard_url')
 
     @property
     def human_readable_identifier(self):
