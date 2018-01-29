@@ -1,0 +1,30 @@
+{% extends 'admin/change_form.html' %}
+
+{% load edc_base_extras edc_admin_modify %}
+{% load staticfiles %}
+
+{% block extrastyle %}{{ block.super }}
+
+  <link rel="stylesheet" type="text/css" href="{% static "edc_base/css/font-awesome/css/font-awesome.min.css" %}">
+
+{% endblock %}
+
+
+{% block field_sets %}
+
+  {% instructions %}
+
+  {% additional_instructions %}
+
+  {{ block.super }}
+
+{% endblock field_sets %}
+
+
+{% block submit_buttons_bottom %}
+
+  {% edc_submit_row %}
+
+  {% revision_row %}
+
+{% endblock submit_buttons_bottom %}
