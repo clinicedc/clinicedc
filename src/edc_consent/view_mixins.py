@@ -3,7 +3,6 @@ from edc_base.utils import get_utcnow, get_uuid
 
 from .exceptions import ConsentObjectDoesNotExist
 from .site_consents import site_consents
-from pprint import pprint
 
 
 class ConsentViewMixin(ContextMixin):
