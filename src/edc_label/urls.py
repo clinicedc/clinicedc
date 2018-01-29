@@ -13,28 +13,34 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
+from django.conf import settings
+from django.urls import re_path, include, path
 from django.contrib import admin
-
-from edc_base.views import LoginView, LogoutView
-
-from edc_label.views import HomeView
+from edc_label.views import HomeView, ChangePrinterView, PrintLabelView
 
 app_name = 'edc_label'
 
 urlpatterns = [
-    url(r'login', LoginView.as_view(), name='login_url'),
-    url(r'logout', LogoutView.as_view(
-        pattern_name='login_url'), name='logout_url'),
-    url(r'^print/(?P<label_name>\w+)/'
-        '(?P<copies>\d+)/(?P<app_label>\w+)/'
-        '(?P<model_name>\w+)/'
-        '(?P<pk>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})/$',
-        HomeView.as_view(
-        ), name='print-test-label'),
-    url(r'^print/(?P<label_name>\w+)/$',
-        HomeView.as_view(), name='print-test-label'),
-    url(r'^edc_base/', include('edc_base.urls', namespace='edc-base')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^', HomeView.as_view(), name='home_url'),
+    re_path('printer/change/(?P<printer_type>\w+)/',
+            ChangePrinterView.as_view(), name='change_session_printer'),
+    re_path('print/label/(?P<printer_name>\w+)/(?P<label_template_name>)\w+/',
+            PrintLabelView.as_view(), name='print_label'),
+    path('print/label/', PrintLabelView.as_view(), name='print_label'),
+    path('print_server/change/',
+         ChangePrinterView.as_view(), name='change_session_print_server'),
+    re_path(r'print/(?P<label_name>\w+)/'
+            '(?P<copies>\d+)/(?P<app_label>\w+)/'
+            '(?P<model_name>\w+)/'
+            '(?P<pk>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})/$',
+            HomeView.as_view(), name='print-test-label'),
+    re_path(r'print/(?P<label_name>\w+)/$',
+            HomeView.as_view(), name='print-test-label'),
+    path('', HomeView.as_view(), name='home_url'),
 ]
+
+if settings.APP_NAME == 'edc_label':
+    url_patterns = urlpatterns + [
+        path('accounts/', include('edc_base.auth.urls')),
+        path(r'admin/', admin.site.urls),
+        path(r'edc_base/', include('edc_base.urls', namespace='edc-base')),
+    ]

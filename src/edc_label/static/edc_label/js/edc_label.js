@@ -17,6 +17,7 @@ function edcLabelReady() {
 	post.fail( function( jqXHR, textStatus, errorThrown ) {});
 }
 
+function changeSessionPrinter( data ) {}
 
 function updatePage( data ) {
 	var print_server = JSON.parse( data.print_server );

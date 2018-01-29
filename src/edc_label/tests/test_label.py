@@ -8,6 +8,9 @@ from ..label_template import LabelTemplate, LabelTemplateError
 from ..labeler import Labeler
 from ..print_server import PrintServer, Printer, PrintServerSelectPrinterError
 from pprint import pprint
+from edc_label.print_server import PrinterError
+from django.urls.base import reverse
+from django.test.client import RequestFactory
 
 
 class DummyPrintServer(PrintServer):
@@ -135,25 +138,13 @@ class TestLabels(TestCase):
         rendered = label_template.render(context)
         self.assertIn('Test1 Label', rendered)
 
-#     def test_label_no_server(self):
-#         """Assert handles printer not found.
-#         """
-#         DummyPrintServer.test_no_server = True
-#         print_server = DummyPrintServer(printer_name='dummy_printer')
-#         self.assertIn(
-#             'Unable to connect to CUPS', print_server.error_message)
-
-#     def test_label_no_printer(self):
-#         """Assert handles printer not selected.
-#         """
-#         DummyPrintServer.test_no_printer = True
-#         Label.print_server_cls = PrintServer
-#         context = {'name': 'Test Label'}
-#         label = Label(
-#             template_name='requisition', printer_name='home_label_printer')
-#         self.assertRaises(
-#             PrintLabelError,
-#             label.print_label, copies=1, context=context)
+    def test_label_no_server(self):
+        """Assert handles printer not found.
+        """
+        DummyPrintServer.test_no_server = True
+        self.assertRaises(
+            PrinterError,
+            DummyPrintServer, printer_name='dummy_printer')
 
     def test_labeler(self):
         labeler = Labeler()
@@ -164,3 +155,21 @@ class TestLabels(TestCase):
         labeler = Labeler()
         labeler.print_label(template_name='requisition',
                             copies=1, context=context)
+
+    @tag('1')
+    def test_session_printer(self):
+        context = {'name': 'Test Label'}
+        self.client.get(reverse('home_url'))
+        session = self.client.session
+        session['session_label_printer'] = 'home_label_printer'
+        request = RequestFactory()
+        request.session = session
+        labeler = Labeler(request=request)
+        labeler.print_label(template_name='requisition',
+                            copies=1, context=context)
+        session['session_label_printer'] = 'blah'
+        request = RequestFactory()
+        request.session = session
+        self.assertRaises(
+            PrintServerSelectPrinterError,
+            Labeler, request=request)

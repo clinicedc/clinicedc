@@ -1,0 +1,1 @@
+from .edc_label_view_mixin import EdcLabelViewMixin
