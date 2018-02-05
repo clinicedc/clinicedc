@@ -1,1 +1,1 @@
-from .clinic_manifest_report import ClinicManifestReport
+from .requisition_report import RequisitionReport

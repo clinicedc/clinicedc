@@ -11,7 +11,7 @@ from edc_lab.models.model_mixins import RequisitionModelMixin
 from edc_label.printers_mixin import PrintersMixin
 
 
-class VerifyRequisitionLabelView(LoginRequiredMixin, PrintersMixin, ProcessFormView):
+class RequisitionVerifyActionsView(LoginRequiredMixin, PrintersMixin, ProcessFormView):
 
     success_url = settings.DASHBOARD_URL_NAMES.get('subject_dashboard_url')
 

@@ -32,9 +32,8 @@ class DashboardMiddleware:
 
     def process_view(self, request, *args):
         url_name_data = {
-            'print_clinic_manifest_url': 'edc_subject_dashboard:print_clinic_manifest_url',
-            'print_requisition_labels_url': 'edc_subject_dashboard:print_requisition_labels_url',
-            'verify_requisition_label_url': 'edc_subject_dashboard:verify_requisition_label_url',
+            'requisition_print_actions_url': 'edc_subject_dashboard:requisition_print_actions_url',
+            'requisition_verify_actions_url': 'edc_subject_dashboard:requisition_verify_actions_url',
         }
         try:
             settings.DASHBOARD_URL_NAMES
