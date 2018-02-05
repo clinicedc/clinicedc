@@ -262,13 +262,14 @@ class RequisitionReport(Report):
                     Paragraph('RECV\'D', self.styles["line_label_center"])])
             barcode = code39.Standard39(
                 requisition.requisition_identifier, barHeight=10 * mm, stop=1)
-            for count in range(1, requisition.item_count + 1):
+            item_count = requisition.item_count or 1
+            for count in range(1, item_count + 1):
                 table_data.append([
                     barcode,
                     Paragraph(str(index + 1), self.styles['row_data']),
                     Paragraph(
                         f'{requisition.human_readable_identifier} '
-                        f'({count}/{requisition.item_count or 1})', self.styles['row_data']),
+                        f'({count}/{item_count})', self.styles['row_data']),
                     Paragraph(
                         requisition.subject_identifier or '?', self.styles['row_data']),
                     Paragraph(f'{requisition.panel_object.verbose_name} <br />'
