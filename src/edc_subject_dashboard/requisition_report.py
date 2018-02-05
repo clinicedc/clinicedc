@@ -84,9 +84,6 @@ class RequisitionReport(Report):
         ] if v]
         return '<br />'.join(data_list)
 
-    def specimen_count(self):
-        return sum([r.item_count for r in self.requisitions])
-
     @property
     def description(self):
         return ('Please process the following specimens according to the '
@@ -137,8 +134,7 @@ class RequisitionReport(Report):
                     self.formatted_address(**self.shipper_data),
                     self.styles["line_data_large"]),
                  Paragraph(
-                    self.formatted_address(
-                        **self.consignee_data),
+                    self.formatted_address(**self.consignee_data),
                     self.styles["line_data_large"]),
                  ]
                 ]
@@ -272,9 +268,9 @@ class RequisitionReport(Report):
                     Paragraph(str(index + 1), self.styles['row_data']),
                     Paragraph(
                         f'{requisition.human_readable_identifier} '
-                        f'({count}/{requisition.item_count})', self.styles['row_data']),
+                        f'({count}/{requisition.item_count or 1})', self.styles['row_data']),
                     Paragraph(
-                        requisition.subject_identifier, self.styles['row_data']),
+                        requisition.subject_identifier or '?', self.styles['row_data']),
                     Paragraph(f'{requisition.panel_object.verbose_name} <br />'
                               f'({requisition.panel_object.abbreviation})',
                               self.styles['row_data']),
