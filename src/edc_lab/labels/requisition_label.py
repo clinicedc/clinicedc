@@ -1,7 +1,6 @@
 from django.apps import apps as django_apps
 from edc_label import Label
 from edc_registration.models import RegisteredSubject
-from pprint import pprint
 
 
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
@@ -25,7 +24,7 @@ class RequisitionLabel(Label):
     def label_context(self):
         formatted_date = (self.requisition.drawn_datetime
                           or self.requisition.created).strftime("%Y-%m-%d %H:%M")
-        printed = 'PRINTED: ' if not self.requisition.drawn_datetime else ''
+        printed = 'PRINTED: ' if not self.requisition.drawn_datetime else 'DRAWN: '
         return {
             'requisition_identifier': self.requisition.requisition_identifier,
             'item': self.item,
