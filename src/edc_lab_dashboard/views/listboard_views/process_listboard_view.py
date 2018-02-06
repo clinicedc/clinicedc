@@ -21,7 +21,11 @@ class ProcessListboardView(RequisitionListboardView):
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
-        options.update({'is_drawn': YES, 'received': True, 'processed': False})
+        options.update(
+            is_drawn=YES,
+            clinic_verified=YES,
+            received=True,
+            processed=False)
         return options
 
     @property
