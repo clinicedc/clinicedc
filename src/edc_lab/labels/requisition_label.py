@@ -1,6 +1,8 @@
 from django.apps import apps as django_apps
 from edc_label import Label
 from edc_registration.models import RegisteredSubject
+from arrow.arrow import Arrow
+from django.conf import settings
 
 
 edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
@@ -22,8 +24,10 @@ class RequisitionLabel(Label):
 
     @property
     def label_context(self):
-        formatted_date = (self.requisition.drawn_datetime
-                          or self.requisition.created).strftime("%Y-%m-%d %H:%M")
+        utc = Arrow.fromdatetime(
+            self.requisition.drawn_datetime or self.requisition.created)
+        dte = utc.to(settings.TIME_ZONE).datetime
+        formatted_date = dte.strftime("%Y-%m-%d %H:%M")
         printed = 'PRINTED: ' if not self.requisition.drawn_datetime else 'DRAWN: '
         return {
             'requisition_identifier': self.requisition.requisition_identifier,
