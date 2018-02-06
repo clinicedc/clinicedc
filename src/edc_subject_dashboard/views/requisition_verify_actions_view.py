@@ -7,6 +7,7 @@ from django.views.generic.edit import ProcessFormView
 from edc_appointment.models.appointment import Appointment
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, NO
+from edc_lab.constants import TUBE
 from edc_lab.models.model_mixins import RequisitionModelMixin
 from edc_label.printers_mixin import PrintersMixin
 
@@ -52,6 +53,8 @@ class RequisitionVerifyActionsView(LoginRequiredMixin, PrintersMixin, ProcessFor
                 requisition.clinic_verified = YES
                 requisition.clinic_verified_datetime = get_utcnow()
                 requisition.is_drawn = requisition.is_drawn or YES
+                requisition.item_count = requisition.item_count or 1
+                requisition.item_type = requisition.item_type or TUBE
                 requisition.drawn_datetime = requisition.drawn_datetime or get_utcnow()
                 requisition.save()
         success_url = reverse(self.success_url, kwargs=dict(
