@@ -21,7 +21,7 @@
 				    	<tr>
 				    		<td>
 								<span class="text{% if requisition.entry_status == NOT_REQUIRED %} text-muted small{% endif %}">
-								  <input type="checkbox" name="selected_panel_names" id="selected_panel_names" value="{{ requisition.panel_name }}" form="form_print_requisition_labels" {% if requisition.entry_status == NOT_REQUIRED %}disabled{% endif %}>
+								  <input type="checkbox" name="selected_panel_names" id="selected_panel_names" value="{{ requisition.panel_name }}" form="form_requisition_print_actions" {% if requisition.entry_status == NOT_REQUIRED %}disabled{% endif %}>
 	                              {{ forloop.counter }}.&nbsp;
 	                        	</span>
 	                            {% if requisition.entry_status == NOT_REQUIRED %}

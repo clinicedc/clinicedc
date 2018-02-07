@@ -2,6 +2,8 @@ from django import template
 from edc_appointment.models.appointment import Appointment
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from edc_appointment.constants import IN_PROGRESS_APPT
+from edc_lab.models.manifest.consignee import Consignee
+from collections import namedtuple
 
 
 register = template.Library()
@@ -76,4 +78,16 @@ def requisition_panel_actions(context):
     autofocus = 'autofocus' if scanning else ''
     context['appointment'] = str(appointment.object.pk)
     context['autofocus'] = autofocus
+    return context
+
+
+@register.inclusion_tag(
+    'edc_subject_dashboard/print_requisition_popover.html',
+    takes_context=True)
+def print_requisition_popover(context):
+    C = namedtuple('Consignee', 'pk name')
+    consignees = []
+    for consignee in Consignee.objects.all():
+        consignees.append(C(str(consignee.pk), consignee.name))
+    context['consignees'] = consignees
     return context

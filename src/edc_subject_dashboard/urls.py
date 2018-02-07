@@ -2,20 +2,17 @@ from django.contrib import admin
 from django.urls.conf import path
 from django.conf import settings
 
-from .views import PrintRequisitionLabelsView, VerifyRequisitionLabelView, PrintClinicManifestView
+from .views import RequisitionPrintActionsView, RequisitionVerifyActionsView
 
 app_name = 'edc_subject_dashboard'
 
 urlpatterns = [
-    path(r'print_requisition_labels/',
-         PrintRequisitionLabelsView.as_view(),
-         name='print_requisition_labels_url'),
-    path(r'verify_requisition_label/',
-         VerifyRequisitionLabelView.as_view(),
-         name='verify_requisition_label_url'),
-    path(r'print_clinic_manifest/',
-         PrintClinicManifestView.as_view(),
-         name='print_clinic_manifest_url'),
+    path(r'requisition_print_actions/',
+         RequisitionPrintActionsView.as_view(),
+         name='requisition_print_actions_url'),
+    path(r'requisition_verify_actions/',
+         RequisitionVerifyActionsView.as_view(),
+         name='requisition_verify_actions_url'),
 ]
 
 if settings.APP_NAME == 'edc_subject_dashboard':
