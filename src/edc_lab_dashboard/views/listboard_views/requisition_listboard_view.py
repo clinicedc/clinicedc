@@ -22,5 +22,5 @@ class RequisitionListboardView(BaseListboardView):
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
-        options.update(is_drawn=YES)
+        options.update(is_drawn=YES, clinic_verified=YES)
         return options
