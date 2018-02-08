@@ -12,6 +12,7 @@ class RequisitionLabels:
     def __init__(self, requisition_metadata=None, panel_names=None,
                  appointment=None, user=None):
         zpl_datas = []
+        self.requisitions_not_printed = []
         self.appointment = appointment
         for metadata in requisition_metadata.filter(
                 panel_name__in=panel_names):
@@ -26,6 +27,8 @@ class RequisitionLabels:
                     label = self.label_cls(
                         requisition=requisition, user=user, item=item)
                     zpl_datas.append(label.render_as_zpl_data(copies=1))
+            else:
+                self.requisitions_not_printed.append(requisition)
         self.zpl_data = b''.join(zpl_datas)
 
     def get_or_create_requisition(self, panel=None, user=None):
