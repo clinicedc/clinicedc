@@ -7,7 +7,7 @@ from edc_constants.constants import YES, ALIVE, NOT_APPLICABLE
 from edc_protocol.validators import date_not_before_study_start
 from edc_protocol.validators import datetime_not_before_study_start
 
-from ...choices import VISIT_REASON_UNSCHEDULED
+from ...choices import VISIT_REASON_UNSCHEDULED, VISIT_REASON_MISSED
 
 
 class VisitModelFieldsMixin(models.Model):
@@ -41,6 +41,7 @@ class VisitModelFieldsMixin(models.Model):
     reason_missed = models.CharField(
         verbose_name='If \'Missed\' above, provide the reason the scheduled visit was missed',
         max_length=35,
+        VISIT_REASON_MISSED
         blank=True,
         null=True)
 
