@@ -91,7 +91,7 @@ class TestNavbar(TestCase):
             label='Navbar Item One',
             title='navbar_item_one',
             url_name='navbar_one_url',
-            fa_icon='fa-user-circle')
+            fa_icon='far fa-user-circle')
         template_string = navbar_item.render(
             navbar_item_selected=navbar_item_selected)
         self.assertIn(navbar_item.fa_icon, template_string)

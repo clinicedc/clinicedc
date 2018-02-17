@@ -36,6 +36,8 @@ class NavbarItem:
         self.html_id = html_id or self.name
         self.glyphicon = glyphicon
         self.fa_icon = fa_icon
+        if self.fa_icon and self.fa_icon.startswith('fa-'):
+            self.fa_icon = f'fa {self.fa_icon}'
         self.icon = icon
         self.icon_height = icon_height
         self.icon_width = icon_width
