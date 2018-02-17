@@ -5,7 +5,7 @@
  role="button"
     class="btn btn-{% if wrapped %}{{ change_color|default:'success' }}{% else %}{{ add_color|default:'warning' }}{% endif %}"
         href="{{ wrapped.href }}">
-        <i class="fa {% if wrapped %}fa-pencil{% else %}fa-plus{% endif %} fa-fw"></i>
+        <i class="fa {% if wrapped %}fa-pencil-alt{% else %}fa-plus{% endif %} fa-fw"></i>
 </a> {{ label }}
 
 <!-- end change button -->

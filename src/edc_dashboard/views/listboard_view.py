@@ -26,7 +26,7 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
 
     # default, info, success, danger, warning, etc. See Bootstrap.
     listboard_panel_style = 'default'
-    listboard_fa_icon = "fa-user-circle-o"
+    listboard_fa_icon = "far fa-user-circle"
 
     model = None  # label_lower model name
     model_wrapper_cls = None
@@ -45,6 +45,8 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         queryset = context.get('object_list')  # from ListView
         context_object_name = self.get_context_object_name(queryset)
         wrapped_queryset = self.get_wrapped_queryset(queryset)
+        if self.listboard_fa_icon and self.listboard_fa_icon.startswith('fa-'):
+            self.listboard_fa_icon = f'fa {self.listboard_fa_icon}'
         context.update(
             listboard_panel_style=self.listboard_panel_style,
             listboard_fa_icon=self.listboard_fa_icon,
