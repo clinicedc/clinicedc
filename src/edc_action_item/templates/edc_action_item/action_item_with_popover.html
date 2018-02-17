@@ -28,22 +28,22 @@ data-content="
 <a id='referencemodel-change-{{ action_identifier }}' class='list-group-item list-group-item-{{ action_item_color }}'
 	title='click to {% if reference_model_obj %}edit{% else %}add{% endif %}'
 	href='{{ model_url }}'>
-	<span class='text text-default text-nowrap small'>{% if reference_model_obj %}<i class='fa fa-pencil fa-fw' aria-hidden='true'></i>{% else %}<i class='fa fa-plus fa-fw' aria-hidden='true'></i>{% endif %} {{ model_name }}</span>
+	<span class='text text-default text-nowrap small'>{% if reference_model_obj %}<i class='fa fa-pencil-alt fa-fw' aria-hidden='true'></i>{% else %}<i class='fa fa-plus fa-fw' aria-hidden='true'></i>{% endif %} {{ model_name }}</span>
 </a>
 {% endif %}
 
 {% if parent_model_url %}
 	<a 'parent-actionitem-change-{{ parent_action_identifier }}'
 		class='list-group-item list-group-item-default' href='{{ parent_model_url }}' title='click to edit'>
-		<span class='text text-default text-nowrap small'><i class='fa fa-pencil fa-fw' aria-hidden='true'></i> Previous {{ parent_model_name }}</span>
+		<span class='text text-default text-nowrap small'><i class='fa fa-pencil-alt fa-fw' aria-hidden='true'></i> Previous {{ parent_model_name }}</span>
 	</a>
 {% endif %}
 
 <a 'actionitem-change-{{ action_identifier }}' class='list-group-item list-group-item-default' href='{{ href }}' title='click to edit'>
-	<span class='text text-default text-nowrap small'><i class='fa fa-pencil fa-fw' aria-hidden='true'></i> Action item</span>
+	<span class='text text-default text-nowrap small'><i class='fa fa-pencil-alt fa-fw' aria-hidden='true'></i> Action item</span>
 </a>
 </div>
-<p><a title='close' class='btn btn-sm btn-primary pull-right'><i class='fa fa-close fa-fw' aria-hidden='true'></i></a><br></p>
+<p><a title='close' class='btn btn-sm btn-primary pull-right'><i class='fa fa-times fa-fw' aria-hidden='true'></i></a><br></p>
 
 ">
 <i class="fa fa-caret-left" aria-hidden="true"></i>
