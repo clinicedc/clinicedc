@@ -14,6 +14,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm, cm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from django.contrib import messages
 
 
 class RequisitionReport(Report):
@@ -22,6 +23,7 @@ class RequisitionReport(Report):
                  consignee=None, request=None, **kwargs):
         super().__init__(**kwargs)
         self._requisitions = []
+        self.request = request
         self.selected_panel_names = selected_panel_names
         self.site = request.site
         self.appointment = appointment
@@ -243,6 +245,9 @@ class RequisitionReport(Report):
         pdf = buffer.getvalue()
         buffer.close()
         response.write(pdf)
+        messages.success(
+            self.request,
+            f'Report exported as a PDF. See downloads. Filename {filename}.')
         return response
 
     def append_requisition_items_story(self, story):

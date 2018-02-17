@@ -13,11 +13,11 @@
 
         {% if not visit_schedules %}
           <div class="alert alert-warning">
-              <i class="fa fa-warning fa-lg fa-fw"></i> Subject is not enrolled to any schedules.
+              <i class="far fa-hand-paper fa-lg fa-fw"></i> Subject is not enrolled to any schedules.
           </div>
           <div class="panel panel-default">
               <div class="panel-heading">
-                  <h6 class="panel-title"><i class="fa fa-calendar fa-lg fa-fw"></i> 
+                  <h6 class="panel-title"><i class="far fa-calendar fa-lg fa-fw"></i> 
                       <a href="#">Schedules</a>
                   </h6>
               </div>
@@ -28,7 +28,7 @@
 			<div id="subject_dashboard_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
 				class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
 			<div class="panel-heading clearfix">
-			  <i class="fa fa-calendar fa-lg fa-fw"></i> 
+			  <i class="far fa-calendar fa-lg fa-fw"></i> 
 			      <a data-toggle="collapse" data-parent="#accordion_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}" aria-hidden="true"
 			         href="#subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}">
 			         {{ current_visit_schedule.verbose_name }} <i class="fa fa-caret-right"></i> {{ current_schedule.verbose_name }} <i class="fa fa-caret-right"></i> {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }} <span class="caret"></span>
@@ -37,7 +37,7 @@
 	            <span class="pull-right"><span class="text test-muted">
 	                <a href="{% url subject_dashboard_url subject_identifier=subject_identifier %}"
 	                   role="button" class="btn btn-sm btn-primary">
-	                    <i class="fa fa-reply fa-fw" aria-hidden="true"></i> <i class="fa fa-calendar fa-fw"></i> Schedule
+	                    <i class="fa fa-reply fa-fw" aria-hidden="true"></i> <i class="far fa-calendar fa-fw"></i> Schedule
 	                </a>
 	            </span></span>
 	            {% endblock schedule_button %}
@@ -60,7 +60,7 @@
 					<div id="subject_dashboard_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}"
 						class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
 					<div class="panel-heading">
-					  <i class="fa fa-calendar fa-lg fa-fw"></i> 
+					  <i class="far fa-calendar fa-lg fa-fw"></i> 
 					      <a data-toggle="collapse" data-parent="#accordion_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}" aria-hidden="true"
 					         href="#subject_dashboard_appointments_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}">
 					         {{ visit_schedule.verbose_name }} <i class="fa fa-caret-right"></i> {{ schedule.verbose_name }} <span class="caret"></span>

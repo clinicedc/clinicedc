@@ -18,15 +18,15 @@ def forms_button(wrapper=None, visit=None, **kwargs):
     if visit_pk:
         btn_color = 'btn-primary'
         title = ''
-        fa_icon = 'fa-list-alt'
+        fa_icon = 'fa fa-list-alt'
         href = wrapper.forms_url
         label = "Forms"
-        label_fa_icon = 'fa-mail-forward'
+        label_fa_icon = 'fa fa-share'
         visit_pk = str(visit_pk)
     else:
         btn_color = 'btn-warning'
         title = 'Click to update the visit report'
-        fa_icon = 'fa-plus'
+        fa_icon = 'fa fa-plus'
         href = visit.href
         label = "Start"
         label_fa_icon = None

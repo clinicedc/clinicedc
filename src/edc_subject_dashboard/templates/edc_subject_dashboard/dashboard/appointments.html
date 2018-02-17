@@ -7,21 +7,21 @@
         {% for wrapped in appointments %}
             {% if wrapped.visit_schedule_name == visit_schedule.name and wrapped.schedule_name == schedule.name  %}
                 <tr>
-					<td><i class="fa fa-calendar-o fa-sm fa-fw"></i> {{wrapped.visit_code}}{% if wrapped.visit_code_sequence %}.{{wrapped.visit_code_sequence}}{% endif %}</td>
+					<td><i class="far fa-calendar fa-sm fa-fw"></i> {{wrapped.visit_code}}{% if wrapped.visit_code_sequence %}.{{wrapped.visit_code_sequence}}{% endif %}</td>
 					<td>
                         {% if wrapped.appt_status == NEW_APPT %}
-                          <i class="fa fa-star-o fa-fw" aria-hidden="true" data-toggle="tooltip" title="New"></i>
+                          <i class="far fa-star fa-fw" aria-hidden="true" data-toggle="tooltip" title="New"></i>
                         {% elif wrapped.appt_status == IN_PROGRESS_APPT%}
 						  <i class="fa fa-spinner fa-fw" aria-hidden="true" data-toggle="tooltip" title="In progress"></i>
                         {% elif wrapped.appt_status == INCOMPLETE_APPT %}
-                          <i class="fa fa-star-half-o fa-fw" aria-hidden="true" data-toggle="tooltip" title="Incomplete"></i>
+                          <i class="fa fa-star-half fa-fw" aria-hidden="true" data-toggle="tooltip" title="Incomplete"></i>
 						{% elif wrapped.appt_status == COMPLETE_APPT %}
                           <i class="fa fa-star fa-fw" aria-hidden="true" data-toggle="tooltip" title="Complete"></i>
 						{% endif %}
                         {% if wrapped.appt_status != COMPLETE_APPT %}
 						<a id="appointment_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default {% if wrapped.appt_status != IN_PROGRESS_APPT %}disabled{% endif %}"
 						    href="{{ wrapped.href }}">
-						        <i class="fa fa-pencil fa-fw" aria-hidden="true"></i> Appt
+						        <i class="fa fa-pencil-alt fa-fw" aria-hidden="true"></i> Appt
 						</a>
                         {% endif %}
 
@@ -29,7 +29,7 @@
                         {% if not wrapped.disabled and wrapped.object.visit_code_sequence == 0 %}
                         	{% if wrapped.appt_status == INCOMPLETE_APPT or wrapped.appt_status == COMPLETE_APPT %}
 		                     <a id="uscheduled_appt_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default" href="{{ wrapped.unscheduled_appointment_url }}">
-		                        <i class="fa fa-address-book-o fa-lg" data-toggle="tooltip" title="Add continuation / unscheduled appointment" aria-hidden="true"></i>
+		                        <i class="far fa-address-book fa-lg" data-toggle="tooltip" title="Add continuation / unscheduled appointment" aria-hidden="true"></i>
 		                     </a>
 							{% endif %}
 						{% endif %}
@@ -40,7 +40,7 @@
 				        {% with wrapped.wrapped_visit as visit %}
 				      	     {% if visit.id %}
 		                        <a id="visit_report_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default" href="{{ visit.href }}">
-		                            <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Visit Report
+		                            <i class="fa fa-pencil-alt fa-sm" aria-hidden="true"></i> Visit Report
 		                        </a>
 		                     {% endif %}
 
@@ -83,7 +83,7 @@
 				      {% endif %}
                       {% if wrapped.appt_status == COMPLETE_APPT %}
                                 <a id="review_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default" href="{{ wrapped.wrapped_visit.href }}">
-                                    <i class="fa fa-pencil fa-sm" aria-hidden="true"></i> Review
+                                    <i class="fa fa-pencil-alt fa-sm" aria-hidden="true"></i> Review
                                 </a>
                       {% endif %}
 				      
