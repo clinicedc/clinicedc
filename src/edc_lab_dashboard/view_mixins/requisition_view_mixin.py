@@ -7,6 +7,7 @@ class RequisitionViewMixin:
 
     @property
     def selected_items(self):
+        print(self.request.POST.get('requisition_identifiers'))
         if not self._selected_items:
             for pk in self.request.POST.getlist(
                     self.form_action_selected_items_name):

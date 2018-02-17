@@ -42,7 +42,7 @@ specimens.append_item(
 specimens.append_item(
     NavbarItem(name='specimens',
                title='specimens',
-               fa_icon='fa-flask',
+               fa_icon='fa fa-flask',
                url_name='#',
                active=True))
 
