@@ -1,6 +1,7 @@
 import arrow
 
 from datetime import datetime
+from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
@@ -12,6 +13,7 @@ from edc_model_wrapper import ModelWrapper
 from ..listboard_filter import ListboardFilter, ListboardViewFilters
 from ..view_mixins import ListboardFilterViewMixin
 from ..views import ListboardView
+from pprint import pprint
 
 
 class TestViewMixins(TestCase):
@@ -79,10 +81,12 @@ class TestViewMixins(TestCase):
             reason='scheduled')
         request = RequestFactory().get('/?scheduled=scheduled')
         request.user = 'erik'
+        request.site = Site.objects.get_current()
         request.url_name_data = {'listboard_url': 'listboard_url'}
         request.template_data = {'listboard_template': 'listboard.html'}
         template_response = MyView.as_view()(request=request)
         object_list = template_response.__dict__.get(
             'context_data').get('object_list')
         self.assertEqual(
-            [wrapper.object.reason for wrapper in object_list], [subject_visit.reason])
+            [wrapper.object.reason for wrapper in object_list
+             if wrapper.object.pk == subject_visit.pk], [subject_visit.reason])

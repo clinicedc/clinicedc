@@ -128,7 +128,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 GIT_DIR = BASE_DIR
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+DASHBOARD_URL_NAMES = {
+    'subject_listboard_url': 'edc_subject_dashboard:subject_listboard_url',
+    'subject_dashboard_url': 'edc_subject_dashboard:subject_dashboard_url',
+}
 
 if 'test' in sys.argv:
 

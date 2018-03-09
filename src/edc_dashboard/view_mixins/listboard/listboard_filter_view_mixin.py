@@ -22,7 +22,8 @@ class ListboardFilterViewMixin(ContextMixin):
             listboard_url = None
         context.update(
             listboard_view_filters=self.listboard_view_filters.filters,
-            listboard_filter_url=self.request.url_name_data[self.listboard_filter_url or listboard_url])
+            listboard_filter_url=self.request.url_name_data[
+                self.listboard_filter_url or listboard_url])
         return context
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
