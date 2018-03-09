@@ -1,8 +1,21 @@
 from dateutil.relativedelta import relativedelta
 
 from edc_visit_schedule import VisitSchedule, Schedule, Visit
-from edc_visit_schedule import FormsCollection, Crf, Requisition
+from edc_visit_schedule import FormsCollection, Crf, Requisition, Panel
 
+
+panel_one = Panel(
+    name='one', requisition_model='edc_metadata.subjectrequisition')
+panel_two = Panel(
+    name='two', requisition_model='edc_metadata.subjectrequisition')
+panel_three = Panel(
+    name='three', requisition_model='edc_metadata.subjectrequisition')
+panel_four = Panel(
+    name='four', requisition_model='edc_metadata.subjectrequisition')
+panel_five = Panel(
+    name='five', requisition_model='edc_metadata.subjectrequisition')
+panel_six = Panel(
+    name='six', requisition_model='edc_metadata.subjectrequisition')
 
 crfs = FormsCollection(
     Crf(show_order=1, model='edc_metadata.crfone', required=True),
@@ -14,23 +27,23 @@ crfs = FormsCollection(
 
 requisitions = FormsCollection(
     Requisition(
-        show_order=10, model='edc_metadata.subjectrequisition',
-        panel='one', required=True, additional=False),
+        show_order=10,
+        panel=panel_one, required=True, additional=False),
     Requisition(
-        show_order=20, model='edc_metadata.subjectrequisition',
-        panel='two', required=True, additional=False),
+        show_order=20,
+        panel=panel_two, required=True, additional=False),
     Requisition(
-        show_order=30, model='edc_metadata.subjectrequisition',
-        panel='three', required=True, additional=False),
+        show_order=30,
+        panel=panel_three, required=True, additional=False),
     Requisition(
-        show_order=40, model='edc_metadata.subjectrequisition',
-        panel='four', required=True, additional=False),
+        show_order=40,
+        panel=panel_four, required=True, additional=False),
     Requisition(
-        show_order=50, model='edc_metadata.subjectrequisition',
-        panel='five', required=True, additional=False),
+        show_order=50,
+        panel=panel_five, required=True, additional=False),
     Requisition(
-        show_order=60, model='edc_metadata.subjectrequisition',
-        panel='six', required=True, additional=False),
+        show_order=60,
+        panel=panel_six, required=True, additional=False),
 )
 
 
