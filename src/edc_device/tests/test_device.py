@@ -130,4 +130,3 @@ class TestDevice(TestCase):
 #                         nodes=['98'], middlemen=['95'])
 #                 except (DeviceIdError, DeviceRoleError) as e:
 #                     pass
-#                     # print(e.message, e.code)

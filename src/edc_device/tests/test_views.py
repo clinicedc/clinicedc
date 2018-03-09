@@ -13,6 +13,7 @@ class TestView(EdcDeviceViewMixin, ContextMixin):
     pass
 
 
+@override_settings(DEBUG=False, LIVE_SYSTEM=True)
 class TestHomeView(TestCase):
 
     def setUp(self):
