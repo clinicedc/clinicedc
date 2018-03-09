@@ -14,7 +14,8 @@ class CitizenFieldsMixin(models.Model):
 
     legal_marriage = models.CharField(
         verbose_name=(
-            'If not a citizen, is the participant legally married to a Botswana citizen?'),
+            'If not a citizen, is the participant '
+            'legally married to a Botswana citizen?'),
         max_length=3,
         choices=YES_NO_NA,
         default=NOT_APPLICABLE,

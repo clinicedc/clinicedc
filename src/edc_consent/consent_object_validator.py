@@ -67,7 +67,8 @@ class ConsentObjectValidator:
                 raise ConsentPeriodError(
                     f'Invalid consent. Consent period for {new_consent.name} '
                     'must be within study opening/closing dates of '
-                    f'{formatted_study_open_datetime} - {formatted_study_close_datetime}. '
+                    f'{formatted_study_open_datetime} - '
+                    f'{formatted_study_close_datetime}. '
                     f'Got {dt_label}={formatted_dt}.')
 
     def check_updates_versions(self, new_consent=None):
