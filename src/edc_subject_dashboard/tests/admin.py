@@ -1,6 +1,7 @@
 from django.contrib.admin import AdminSite as DjangoAdminSite
+from edc_locator.models import SubjectLocator
 
-from .models import SubjectLocator, SubjectConsent, SubjectVisit, Appointment
+from .models import SubjectConsent, SubjectVisit, Appointment
 
 
 class AdminSite(DjangoAdminSite):

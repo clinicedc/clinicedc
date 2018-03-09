@@ -25,6 +25,7 @@ SECRET_KEY = '3tcabq_e@ihw3c=bl9k(%)du2eibjo*o%-$74_-%k3n^8rz_o*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+SITE_ID = '10'
 
 ALLOWED_HOSTS = []
 
@@ -38,10 +39,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
     'simple_history',
+    'edc_action_item.apps.AppConfig',
     'edc_device.apps.AppConfig',
+    'edc_lab.apps.AppConfig',
     'edc_locator.apps.AppConfig',
+    'edc_protocol.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_subject_dashboard.apps.EdcAppointmentAppConfig',
     'edc_subject_dashboard.apps.EdcTimepointAppConfig',
