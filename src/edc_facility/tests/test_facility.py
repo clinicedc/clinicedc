@@ -14,7 +14,8 @@ class TestFacility(TestCase):
 
     def setUp(self):
         self.facility = Facility(
-            name='clinic', days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100])
+            name='clinic', days=[MO, TU, WE, TH, FR],
+            slots=[100, 100, 100, 100, 100])
         import_holidays()
 
     def test_allowed_weekday(self):
@@ -30,7 +31,8 @@ class TestFacility(TestCase):
 
     def test_allowed_weekday_limited(self):
         facility = Facility(name='clinic', days=[TU, TH], slots=[100, 100])
-        for suggested, available in [(MO, TU), (TU, TU), (WE, TH), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
+        for suggested, available in [
+                (MO, TU), (TU, TU), (WE, TH), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
                 available.weekday,
@@ -39,7 +41,8 @@ class TestFacility(TestCase):
     def test_allowed_weekday_limited2(self):
         facility = Facility(
             name='clinic', days=[TU, WE, TH], slots=[100, 100, 100])
-        for suggested, available in [(MO, TU), (TU, TU), (WE, WE), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
+        for suggested, available in [
+                (MO, TU), (TU, TU), (WE, WE), (TH, TH), (FR, TU), (SA, TU), (SU, TU)]:
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
                 available.weekday,
