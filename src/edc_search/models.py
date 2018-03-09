@@ -1,4 +1,4 @@
 from django.conf import settings
 
 if settings.APP_NAME in 'edc_search':
-    from .tests.models import *
+    from .tests import models
