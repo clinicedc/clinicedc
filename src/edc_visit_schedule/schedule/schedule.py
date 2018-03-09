@@ -88,6 +88,11 @@ class Schedule:
 
     @property
     def subject(self):
+        """Returns a SubjectSchedule instance.
+
+        Note: SubjectSchedule puts a subject on to a schedule or takes a subject
+        off of a schedule.
+        """
         if not self._subject:
             visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
                 self.onschedule_model)

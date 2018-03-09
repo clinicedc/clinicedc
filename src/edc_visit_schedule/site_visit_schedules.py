@@ -3,7 +3,6 @@ import sys
 
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
-from pprint import pprint
 
 
 class RegistryNotLoaded(Exception):

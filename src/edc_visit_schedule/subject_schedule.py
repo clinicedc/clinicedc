@@ -75,6 +75,12 @@ class SubjectSchedule:
 
     def put_on_schedule(self, onschedule_model_obj=None, subject_identifier=None,
                         onschedule_datetime=None):
+        """Puts a subject on-schedule.
+
+        A person is put on schedule by creating an instance
+        of the onschedule_model, if it does not already exist,
+        and updating the history_obj.
+        """
         if onschedule_model_obj:
             subject_identifier = onschedule_model_obj.subject_identifier
             onschedule_datetime = onschedule_model_obj.onschedule_datetime
@@ -115,6 +121,12 @@ class SubjectSchedule:
 
     def take_off_schedule(self, offschedule_model_obj=None, subject_identifier=None,
                           offschedule_datetime=None):
+        """Takes a subject off-schedule.
+
+        A person is taken off-schedule by creating an instance
+        of the offschedule_model, if it does not already exist,
+        and updating the history_obj.
+        """
         # create offschedule_model_obj if it does not exist
         if not offschedule_model_obj:
             offschedule_datetime = offschedule_datetime or get_utcnow()
