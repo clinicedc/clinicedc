@@ -3,6 +3,7 @@ from django.test import TestCase, tag
 from edc_lab.models import Aliquot, Box, BoxType, BoxItem
 
 from ..model_wrappers import AliquotModelWrapper
+from copy import copy
 
 
 app_config = django_apps.get_app_config('edc_lab_dashboard')
@@ -71,8 +72,11 @@ class TestModelWrapper(TestCase):
         self.assertFalse(wrapper.shipped)
 
     def test_aliquot_wrapper_attrs3(self):
-        wrapper = self.wrapper_cls(self.aliquot)
+        aliquot = copy(self.aliquot)
+        wrapper = self.wrapper_cls(aliquot)
         self.box_item.delete()
         self.assertIsNone(wrapper.box_item)
-        wrapper = self.wrapper_cls(self.aliquot)
+
+        aliquot = copy(self.aliquot)
+        wrapper = self.wrapper_cls(aliquot)
         self.assertIsNone(wrapper.box_item)

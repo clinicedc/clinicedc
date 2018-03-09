@@ -124,7 +124,7 @@ class TestUrls(TestCase):
         self.assertEqual('/requisition/receive/', url)
 
     def test_process_url(self):
-        url = reverse('process_url')
+        url = reverse('process_form_action_url')
         self.assertEqual('/requisition/process/', url)
 
     def test_pack_form_action_url(self):
@@ -132,7 +132,7 @@ class TestUrls(TestCase):
         self.assertEqual('/requisition/pack/', url)
 
     def test_manifest_url(self):
-        url = reverse('manifest_url')
+        url = reverse('manifest_form_action_url')
         self.assertEqual('/manifest/', url)
 
     def test_aliquot_form_action_url(self):
@@ -141,4 +141,4 @@ class TestUrls(TestCase):
 
     def test_home_url(self):
         url = reverse('home_url')
-        self.assertEqual('/%2F', url)
+        self.assertEqual('/', url)

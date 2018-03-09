@@ -14,7 +14,8 @@ app_name = 'edc_lab_dashboard'
 
 urlpatterns = [
     # listboard urls
-    re_path('listboard/requisition/(?P<page>[0-9]+)/$', RequisitionListboardView.as_view(),
+    re_path('listboard/requisition/(?P<page>[0-9]+)/$',
+            RequisitionListboardView.as_view(),
             name='requisition_listboard_url'),
     path('listboard/requisition/', RequisitionListboardView.as_view(),
          name='requisition_listboard_url'),
@@ -34,7 +35,8 @@ urlpatterns = [
     path('listboard/pack/', PackListboardView.as_view(),
          name='pack_listboard_url'),
 
-    re_path('listboard/box/(?P<action_name>manage)/(?P<box_identifier>[A-Z0-9]+)/(?P<page>[0-9]+)/$',
+    re_path('listboard/box/(?P<action_name>manage)/'
+            '(?P<box_identifier>[A-Z0-9]+)/(?P<page>[0-9]+)/$',
             ManageBoxListboardView.as_view(),
             name='manage_box_listboard_url'),
     re_path('listboard/box/(?P<action_name>manage)/(?P<box_identifier>[A-Z0-9]+)/$',
@@ -64,7 +66,8 @@ urlpatterns = [
          name='aliquot_listboard_url'),
 
 
-    re_path('listboard/manifest/(?P<action_name>manage)/(?P<manifest_identifier>[A-Z0-9]+)/(?P<page>[0-9]+)/$',
+    re_path('listboard/manifest/(?P<action_name>manage)/'
+            '(?P<manifest_identifier>[A-Z0-9]+)/(?P<page>[0-9]+)/$',
             ManageManifestListboardView.as_view(),
             name='manage_manifest_listboard_url'),
     re_path('listboard/manifest/(?P<action_name>manage)/(?P<manifest_identifier>[A-Z0-9]+)/$',
