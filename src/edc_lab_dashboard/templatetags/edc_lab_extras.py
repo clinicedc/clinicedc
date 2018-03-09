@@ -28,7 +28,6 @@ def show_box_rows(box, listboard_url, position=None):
     header = range(1, box.box_type.across + 1)
     for i in range(1, box.box_type.down + 1):
         row = {}
-        reverse_kwargs = {}
         row['position'] = i
         row['cells'] = []
         for _ in range(1, box.box_type.across + 1):
@@ -38,11 +37,6 @@ def show_box_rows(box, listboard_url, position=None):
                 box_item = box.boxitem_set.get(position=pos)
             except ObjectDoesNotExist:
                 box_item = BoxItem(box=box)
-            reverse_kwargs = {
-                'position': pos,
-                'box_identifier': box.box_identifier,
-                'action_name': 'verify'}
-            # cell['href'] = reverse(listboard_url, kwargs=reverse_kwargs)
             cell['btn_style'] = btn_style.get(box_item.verified)
             cell['btn_label'] = str(pos).zfill(2)
             cell['btn_title'] = box_item.human_readable_identifier or 'empty'
