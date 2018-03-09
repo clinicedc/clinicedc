@@ -17,7 +17,8 @@ class FormsReference:
     h3 = '###'
     h4 = '####'
 
-    def __init__(self, visit_schedules=None, admin_site=None, include_hidden_fields=None,
+    def __init__(self, visit_schedules=None, admin_site=None,
+                 include_hidden_fields=None,
                  title=None):
         self.toc = []
         self.title = title or 'Forms Reference'
@@ -75,7 +76,8 @@ class FormsReference:
                 for visit_code, documents in plan.items():
                     markdown.append(f'{self.h3} {visit_code}\n')
                     toc.append(
-                        f'\n<a href="#{self.anchor_prefix}-{visit_code.lower()}">**{visit_code}.**</a>')
+                        f'\n<a href="#{self.anchor_prefix}-{visit_code.lower()}">'
+                        f'**{visit_code}.**</a>')
                     for index, model in enumerate(documents.get('crfs')):
                         sys.stdout.write(f'{model}\n')
                         model_cls = django_apps.get_model(model)
@@ -89,7 +91,8 @@ class FormsReference:
                         describer.markdown.append('\n')
                         anchor = f'{self.get_anchor(describer.anchor)}'
                         toc.append(
-                            f'{index + 1}. <a href="#{anchor}">{describer.verbose_name}</a>')
+                            f'{index + 1}. <a href="#{anchor}">'
+                            f'{describer.verbose_name}</a>')
                         markdown.extend(describer.markdown)
                     markdown.append(f'{self.h4} Requisitions\n')
                     for panel_name in documents.get('requisitions'):
