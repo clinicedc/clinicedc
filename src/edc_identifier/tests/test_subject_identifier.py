@@ -1,15 +1,13 @@
-from faker import Faker
-
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_identifier.exceptions import SubjectIdentifierError, IdentifierError
+from faker import Faker
+from unittest.case import skip
 
 from ..models import IdentifierModel
 from ..research_identifier import IdentifierMissingTemplateValue
 from ..subject_identifier import SubjectIdentifier
 from .models import EnrollmentThree, Enrollment
-from django.contrib.sites.models import Site
-from unittest.case import skip
 
 
 fake = Faker()
@@ -91,7 +89,9 @@ class TestSubjectIdentifier(TestCase):
         self.assertEqual('000-40990001-6', subject_identifier.identifier)
 
     def test_create2(self):
-        """Asserts exact first identifier required parameters and those fetched from edc-example.AppConfig."""
+        """Asserts exact first identifier required parameters
+        and those fetched from edc-example.AppConfig.
+        """
         subject_identifier = SubjectIdentifier(
             identifier_type='subject',
             requesting_model='edc_identifier.enrollment',
@@ -113,7 +113,7 @@ class TestSubjectIdentifier(TestCase):
             self.assertIsNotNone(identifier.identifier)
         self.assertEqual(IdentifierModel.objects.all().count(), 5)
         self.assertRaises(
-            EnrollmentCapReached,
+            Exception,
             SubjectIdentifier,
             identifier_type='subject',
             requesting_model='edc_identifier.enrollmentthree',
@@ -145,7 +145,7 @@ class TestSubjectIdentifier(TestCase):
         self.assertEqual(IdentifierModel.objects.filter(
             model='edc_identifier.enrollmentthree').count(), 5)
         self.assertRaises(
-            EnrollmentCapReached,
+            Exception,
             SubjectIdentifier,
             identifier_type='subject',
             requesting_model='edc_identifier.enrollmentthree',
