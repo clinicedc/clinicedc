@@ -24,11 +24,11 @@ data-content="
 	<small>Opened on {{ report_datetime|date:'SHORT_DATETIME_FORMAT' }}. {{ last_updated_text }}</small>
 </p>
 </div>
-{% if model_url %}
+{% if reference_model_url %}
 <a id='referencemodel-change-{{ action_identifier }}' class='list-group-item list-group-item-{{ action_item_color }}'
 	title='click to {% if reference_model_obj %}edit{% else %}add{% endif %}'
-	href='{{ model_url }}'>
-	<span class='text text-default text-nowrap small'>{% if reference_model_obj %}<i class='fa fa-pencil-alt fa-fw' aria-hidden='true'></i>{% else %}<i class='fa fa-plus fa-fw' aria-hidden='true'></i>{% endif %} {{ model_name }}</span>
+	href='{{ reference_model_url }}'>
+	<span class='text text-default text-nowrap small'>{% if reference_model_obj %}<i class='fa fa-pencil-alt fa-fw' aria-hidden='true'></i>{% else %}<i class='fa fa-plus fa-fw' aria-hidden='true'></i>{% endif %} {{ reference_model_name }}</span>
 </a>
 {% endif %}
 

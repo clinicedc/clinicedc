@@ -1,1 +1,1 @@
-from .action_item_model_mixin import ActionItemModelMixin, ActionClassNotDefined
+from .action_model_mixin import ActionModelMixin, ActionClassNotDefined

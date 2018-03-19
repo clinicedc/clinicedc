@@ -6,7 +6,5 @@ class AppConfig(DjangoApponfig):
     verbose_name = 'Action Items'
 
     def ready(self):
-        from .signals import (action_item_on_post_save,
-                              update_action_item_on_post_save,
-                              action_on_post_delete)
+        from .signals import action_on_post_delete
         pass

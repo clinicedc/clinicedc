@@ -1,22 +1,21 @@
 from django.test import TestCase, tag
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_constants.constants import CLOSED, OPEN
-from edc_model_wrapper import ModelWrapper
+from edc_constants.constants import CLOSED, OPEN, NEW
+from uuid import uuid4
 
-from ..action import create_action_item, delete_action_item
+from ..action import Action, create_action_item, delete_action_item
 from ..action import ActionItemDeleteError, SingletonActionItemError
 from ..models import ActionItem, ActionType
 from ..site_action_items import site_action_items
-from ..templatetags.action_item_extras import action_item_with_popover
 from .action_items import FormOneAction, FormTwoAction, FormThreeAction, FormZeroAction
-from .action_items import SingletonAction
+from .action_items import SingletonAction, register_actions
 from .models import FormZero, FormOne, FormTwo, FormThree, SubjectIdentifierModel
 
 
 class TestAction(TestCase):
 
     def setUp(self):
+        register_actions()
         self.subject_identifier_model = ActionItem.subject_identifier_model
         ActionItem.subject_identifier_model = 'edc_action_item.subjectidentifiermodel'
         self.subject_identifier = '12345'
@@ -27,8 +26,11 @@ class TestAction(TestCase):
         self.assertIn(FormTwoAction.name, site_action_items.registry)
         self.assertIn(FormThreeAction.name, site_action_items.registry)
 
+    def tearDown(self):
+        ActionItem.subject_identifier_model = self.subject_identifier_model
+
     def test_str(self):
-        action = FormZero.action_cls(
+        action = FormZeroAction(
             subject_identifier=self.subject_identifier)
         self.assertTrue(str(action))
 
@@ -38,7 +40,6 @@ class TestAction(TestCase):
         self.assertEqual(ActionType.objects.all().count(),
                          len(site_action_items.registry))
 
-    def test_populate_action_types2(self):
         site_action_items.populate_action_types()
         self.assertGreater(len(site_action_items.registry), 0)
         self.assertEqual(ActionType.objects.all().count(),
@@ -78,7 +79,7 @@ class TestAction(TestCase):
         self.assertEqual(action_item.reference_model,
                          obj._meta.label_lower)
         self.assertIsNone(action_item.parent_reference_identifier)
-        self.assertIsNone(action_item.parent_model)
+        self.assertIsNone(action_item.parent_reference_model)
         self.assertIsNone(action_item.parent_action_item)
         self.assertEqual(action_item.action_type, action_type)
 
@@ -102,7 +103,7 @@ class TestAction(TestCase):
                          FormTwo._meta.label_lower)
         self.assertEqual(action_item_two.parent_reference_identifier,
                          obj.tracking_identifier)
-        self.assertEqual(action_item_two.parent_model,
+        self.assertEqual(action_item_two.parent_reference_model,
                          FormOne._meta.label_lower)
         self.assertEqual(action_item_two.parent_action_item, action_item_one)
         self.assertEqual(action_item_two.action_type, action_type_two)
@@ -252,28 +253,50 @@ class TestAction(TestCase):
             subject_identifier=self.subject_identifier)
 
     def test_action_is_closed_if_model_creates_action(self):
+
+        # form_one next_actions = [FormTwoAction, FormThreeAction]
+        form_one_obj = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
+
+        # next_actions = ['self']
+        FormTwo.objects.create(
+            subject_identifier=self.subject_identifier,
+            parent_tracking_identifier=form_one_obj.tracking_identifier,
+            form_one=form_one_obj)
+        self.assertEqual(ActionItem.objects.all().count(), 4)
+
+        # next_actions = [FormZeroAction]
+        # should find the existing and NEW FormThreeAction
+        # instead of creating one,.
+        FormThree.objects.create(
+            subject_identifier=self.subject_identifier,
+            parent_tracking_identifier=form_one_obj.tracking_identifier)
+        self.assertEqual(ActionItem.objects.all().count(), 5)
+
+        # 3 (1 for each model) are closed
+        self.assertEqual(ActionItem.objects.filter(status=CLOSED).count(), 3)
+        # next_actions are NEW
+        self.assertEqual(ActionItem.objects.filter(status=NEW).count(), 2)
+
         f1_action_type = FormOneAction.action_type()
         f2_action_type = FormTwoAction.action_type()
         f3_action_type = FormThreeAction.action_type()
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
-        FormTwo.objects.create(
-            subject_identifier=self.subject_identifier,
-            form_one=form_one)
-        FormThree.objects.create(
-            subject_identifier=self.subject_identifier)
+
         obj = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             action_type=f1_action_type)
         self.assertEqual(obj.status, CLOSED)
+
         obj = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             action_type=f2_action_type,
             status=CLOSED)
         self.assertEqual(obj.status, CLOSED)
+
         obj = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
-            action_type=f3_action_type)
+            action_type=f3_action_type,
+            status=CLOSED)
         self.assertEqual(obj.status, CLOSED)
 
     def test_reference_model_delete_resets_action_item(self):
@@ -293,7 +316,7 @@ class TestAction(TestCase):
             subject_identifier=self.subject_identifier)
         action_item = ActionItem.objects.get(
             action_identifier=obj.action_identifier)
-        url = FormOneAction(model_obj=obj).reference_model_url(
+        url = FormOneAction(reference_model_obj=obj).reference_model_url(
             action_item=action_item)
         self.assertEqual(
             url,
@@ -307,7 +330,7 @@ class TestAction(TestCase):
             form_one=form_one)
         action_item = ActionItem.objects.get(
             action_identifier=obj.action_identifier)
-        url = FormTwoAction(model_obj=obj).reference_model_url(
+        url = FormTwoAction(reference_model_obj=obj).reference_model_url(
             action_item=action_item)
         self.assertEqual(
             url,
@@ -321,7 +344,7 @@ class TestAction(TestCase):
             form_one=form_one)
         action_item = ActionItem.objects.get(
             action_identifier=obj.action_identifier)
-        url = FormTwoAction(model_obj=obj).reference_model_url(
+        url = FormTwoAction(reference_model_obj=obj).reference_model_url(
             action_item=action_item,
             subject_identifier=self.subject_identifier)
         self.assertEqual(
@@ -337,8 +360,8 @@ class TestAction(TestCase):
             form_one=form_one)
         action_item = ActionItem.objects.get(
             action_identifier=form_two.action_identifier)
-        url = FormTwoAction(model_obj=form_two).reference_model_url(
-            model_obj=form_two,
+        url = FormTwoAction(reference_model_obj=form_two).reference_model_url(
+            reference_model_obj=form_two,
             action_item=action_item,
             subject_identifier=self.subject_identifier)
         self.assertEqual(
@@ -346,81 +369,9 @@ class TestAction(TestCase):
             (f'/admin/edc_action_item/formtwo/{str(form_two.pk)}/change/?'
              f'subject_identifier={self.subject_identifier}&form_one={str(form_one.pk)}'))
 
-    def test_popover_templatetag(self):
-
-        class ActionItemModelWrapper(ModelWrapper):
-
-            model = 'edc_action_item.actionitem'
-            next_url_attrs = ['subject_identifier']
-            next_url_name = settings.DASHBOARD_URL_NAMES.get(
-                'subject_dashboard_url')
-
-            @property
-            def subject_identifier(self):
-                return self.object.subject_identifier
-
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
-        obj = ActionItem.objects.get(
-            action_identifier=form_one.action_identifier)
-        wrapper = ActionItemModelWrapper(model_obj=obj)
-        action_item_with_popover(wrapper, 0)
-        context = action_item_with_popover(wrapper, 0)
-        self.assertIsNone(context.get('parent_action_identifier'))
-        self.assertIsNone(context.get('parent_action_item'))
-
-        form_two = FormTwo.objects.create(
-            subject_identifier=self.subject_identifier,
-            form_one=form_one)
-        obj = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier)
-        wrapper = ActionItemModelWrapper(model_obj=obj)
-        context = action_item_with_popover(wrapper, 0)
-        self.assertEqual(context.get('parent_action_identifier'),
-                         form_one.action_identifier)
-        self.assertEqual(context.get('parent_action_item'),
-                         form_one.action_item)
-
-        context = action_item_with_popover(wrapper, 0)
-        self.assertEqual(context.get('parent_action_identifier'),
-                         form_one.action_identifier)
-        self.assertEqual(context.get('parent_action_item'),
-                         form_one.action_item)
-
-    @tag('1')
-    def test_popover_templatetag_action_url_if_reference_model_exists(self):
-        """Asserts returns a change url if reference model
-        exists.
-        """
-        class ActionItemModelWrapper(ModelWrapper):
-
-            model = 'edc_action_item.actionitem'
-            next_url_attrs = ['subject_identifier']
-            next_url_name = settings.DASHBOARD_URL_NAMES.get(
-                'subject_dashboard_url')
-
-            @property
-            def subject_identifier(self):
-                return self.object.subject_identifier
-
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
-        obj = ActionItem.objects.get(
-            action_identifier=form_one.action_identifier)
-        self.assertTrue(obj.status == CLOSED)
-        obj.status = OPEN
-        obj.save()
-        wrapper = ActionItemModelWrapper(model_obj=obj)
-        action_item_with_popover(wrapper, 0)
-        context = action_item_with_popover(wrapper, 0)
-        url = context.get('model_url')
-        self.assertTrue(
-            url.startswith(
-                f'/admin/edc_action_item/formone/{str(form_one.pk)}/change/'), msg=url)
-
     def test_create(self):
         create_action_item(
-            action_cls=SingletonAction,
+            SingletonAction,
             subject_identifier=self.subject_identifier)
         try:
             ActionItem.objects.get(subject_identifier=self.subject_identifier)
@@ -462,3 +413,30 @@ class TestAction(TestCase):
             delete_action_item,
             action_cls=SingletonAction,
             subject_identifier=self.subject_identifier)
+
+    def test_append_to_next_if_required(self):
+
+        def some_condition():
+            return True
+
+        class MyAction1(Action):
+            name = uuid4()
+            reference_model = 'edc_action_item.formone'
+
+        class MyAction2(Action):
+            name = uuid4()
+            reference_model = 'edc_action_item.formone'
+
+            def get_next_actions(self):
+                next_actions = []
+                next_actions = self.append_to_next_if_required(
+                    next_actions=next_actions,
+                    action_cls=MyAction1,
+                    required=some_condition())
+                return next_actions
+
+        site_action_items.register(MyAction1)
+        site_action_items.register(MyAction2)
+
+        action_cls = MyAction2(subject_identifier=self.subject_identifier)
+        self.assertEqual(action_cls.get_next_actions(), [MyAction1])
