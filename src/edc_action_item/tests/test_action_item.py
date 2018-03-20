@@ -59,7 +59,8 @@ class TestActionItem(TestCase):
             action_identifier=form_two.action_identifier)
 
         self.assertEqual(
-            action_item_two.action_cls, site_action_items.get(action_item_two.action_type.name))
+            action_item_two.action_cls,
+            site_action_items.get(action_item_two.action_type.name))
         self.assertTrue(action_item_two.parent)
         self.assertTrue(action_item_two.identifier)
         self.assertTrue(str(action_item_two))

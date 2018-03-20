@@ -1,10 +1,10 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from urllib.parse import urlencode, unquote
 from edc_constants.constants import CLOSED, NEW, OPEN
+from urllib.parse import urlencode, unquote
 
 from ..site_action_items import site_action_items
-from .action_item_getter import ActionItemGetter, ActionItemObjectDoesNotExist
+from .action_item_getter import ActionItemGetter
 
 
 class ActionError(Exception):
@@ -85,19 +85,24 @@ class Action:
 
     @classmethod
     def action_item_model_cls(cls):
+        """Returns the ActionItem model class.
+        """
         return cls.action_item_getter.model_cls()
 
     @classmethod
     def reference_model_cls(cls):
+        """Returns the reference model class.
+        """
         return django_apps.get_model(cls.reference_model)
 
     @classmethod
     def parent_reference_model_cls(cls):
-        if cls.parent_reference_model_fk_attr:
-            fk = getattr(cls.reference_model_cls(),
-                         cls.parent_reference_model_fk_attr)
-            return fk.field.related_model
-        return None
+        """Returns the parent reference model class
+        or raises if there is no FK.
+        """
+        fk = getattr(cls.reference_model_cls(),
+                     cls.parent_reference_model_fk_attr)
+        return fk.field.related_model
 
     @classmethod
     def action_registered_or_raise(cls):
@@ -201,10 +206,13 @@ class Action:
 
     def append_to_next_if_required(self, next_actions=None,
                                    action_cls=None, required=None):
-        """Returns next actions where action_cls is
+        """Returns next actions where the given action_cls is
         appended if required.
 
-        Will not create if the next action item already exists.
+        `required` can be anything that evaluates to a boolean.
+
+        Will not append if the ActionItem for the next action
+        already exists.
         """
         next_actions = next_actions or []
         required = True if required is None else required
@@ -220,6 +228,12 @@ class Action:
         return next_actions
 
     def delete_if_new(self, action_cls=None):
+        """Deletes the action item instance where status
+        is NEW, use with caution.
+
+        Since some actions are created by an event, this method
+        could mess up the state.
+        """
         opts = dict(
             subject_identifier=self.subject_identifier,
             parent_reference_identifier=self.reference_identifier,

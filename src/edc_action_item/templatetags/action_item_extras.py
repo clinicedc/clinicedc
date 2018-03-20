@@ -87,11 +87,12 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
                     query_dict.update({
                         parent_reference_model_obj.visit_model_attr(): str(subject_visit.pk),
                         'appointment': str(subject_visit.appointment.pk)})
-                parent_reference_model_url = reference_model_cls.action_cls.reference_model_url(
-                    reference_model_obj=parent_reference_model_obj,
-                    action_item=action_item,
-                    action_identifier=action_item.action_identifier,
-                    **query_dict)
+                parent_reference_model_url = (
+                    reference_model_cls.action_cls.reference_model_url(
+                        reference_model_obj=parent_reference_model_obj,
+                        action_item=action_item,
+                        action_identifier=action_item.action_identifier,
+                        **query_dict))
 
                 parent_reference_model_name = (
                     f'{parent_reference_model_cls._meta.verbose_name} '

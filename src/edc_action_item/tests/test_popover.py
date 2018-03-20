@@ -102,6 +102,7 @@ class TestPopover(TestCase):
                 f'/admin/edc_action_item/formone/{str(form_one.pk)}/change/'),
             msg=reference_model_url)
 
+    @tag('1')
     def test_popover_templatetag2(self):
 
         class ActionItemModelWrapper(ModelWrapper):

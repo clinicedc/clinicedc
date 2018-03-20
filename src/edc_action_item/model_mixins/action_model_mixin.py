@@ -4,6 +4,7 @@ from django.db import models
 from ..models import ActionItem
 from edc_action_item.action.action_item_getter import ActionItemGetter
 from edc_identifier.model_mixins.tracking_identifier_model_mixin import TrackingIdentifier
+from pprint import pprint
 
 
 class ActionClassNotDefined(Exception):
@@ -49,16 +50,19 @@ class ActionModelMixin(models.Model):
                 self, self.action_cls.parent_reference_model_fk_attr).tracking_identifier
 
         if self.action_identifier:
-            action_item = ActionItemGetter(
+            ActionItemGetter(
                 self.action_cls, action_identifier=self.action_identifier)
         else:
-            action_item = ActionItemGetter(
+            getter = ActionItemGetter(
                 self.action_cls,
                 subject_identifier=self.subject_identifier,
                 reference_identifier=self.tracking_identifier,
                 parent_reference_identifier=self.parent_tracking_identifier,
                 allow_create=True)
-            self.action_identifier = action_item.action_identifier
+            self.action_identifier = getter.model_obj.action_identifier
+            if not getter.model_obj.reference_identifier:
+                raise TypeError()
+                pprint(getter.model_obj.__dict__)
 
         super().save(*args, **kwargs)
 
