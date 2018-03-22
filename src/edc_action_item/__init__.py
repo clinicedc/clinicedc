@@ -1,4 +1,4 @@
-from .action import Action, create_action_item, delete_action_item
+from .action import Action, delete_action_item
 from .action import SingletonActionItemError, ActionItemDeleteError
 from .constants import HIGH_PRIORITY
 from .fieldsets import action_fieldset

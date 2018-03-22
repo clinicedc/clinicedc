@@ -3,12 +3,11 @@ from edc_constants.constants import CLOSED, NEW
 from uuid import uuid4
 
 from ..action import ActionItemGetter, ActionItemObjectDoesNotExist
-from ..action import ParentReferenceModelDoesNotExist, ActionItemGetterError
+from ..action import ActionItemGetterError, RelatedReferenceModelDoesNotExist
 from ..models import ActionItem, ActionType
 from ..site_action_items import site_action_items
-from .action_items import FormZeroAction, FormTwoAction, FormThreeAction, register_actions
+from .action_items import FormZeroAction, FormThreeAction, register_actions
 from .models import SubjectIdentifierModel, FormOne, FormTwo
-from pprint import pprint
 
 
 class TestActionItemGetter(TestCase):
@@ -54,7 +53,7 @@ class TestActionItemGetter(TestCase):
             getter.model_obj.action_identifier,
             obj.action_identifier)
 
-    def test_raises_if_fk_attr_but_no_parent_reference_model1(self):
+    def test_raises_if_fk_attr_but_no_related_reference_model1(self):
         # parent
         form_one_obj = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
@@ -62,12 +61,12 @@ class TestActionItemGetter(TestCase):
 
         FormOne.objects.all().delete()
         # FormTwo finds 'submit-form-two' action item
-        self.assertRaises(ParentReferenceModelDoesNotExist,
+        self.assertRaises(RelatedReferenceModelDoesNotExist,
                           FormTwo.objects.create,
                           subject_identifier=self.subject_identifier,
                           form_one=form_one_obj)
 
-    def test_raises_if_fk_attr_but_no_parent_reference_model2(self):
+    def test_raises_if_fk_attr_but_no_related_reference_model2(self):
         # parent
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
@@ -82,7 +81,7 @@ class TestActionItemGetter(TestCase):
         form_one.save()
 
         self.assertRaises(
-            ParentReferenceModelDoesNotExist,
+            RelatedReferenceModelDoesNotExist,
             form_two.action_cls, action_identifier=form_two.action_identifier)
 
     def test_get_bad_action_identifier(self):
@@ -104,13 +103,16 @@ class TestActionItemGetter(TestCase):
 
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier,
+            parent_tracking_identifier=form_one.tracking_identifier,
             form_one=form_one)
+
         # gets the correct action
         getter = ActionItemGetter(
             form_two.action_cls,
             subject_identifier=form_two.subject_identifier,
             reference_identifier=None,
-            parent_reference_identifier=form_one.tracking_identifier)
+            parent_reference_identifier=form_one.tracking_identifier,
+            related_reference_identifier=form_one.tracking_identifier)
         self.assertEqual(getter.model_obj.reference_identifier,
                          form_two.tracking_identifier)
 
@@ -130,12 +132,17 @@ class TestActionItemGetter(TestCase):
         # FormTwo finds 'submit-form-two' action item
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier,
+            related_tracking_identifier=form_one.tracking_identifier,
+            parent_tracking_identifier=form_one.tracking_identifier,
             form_one=form_one)
+
         getter = ActionItemGetter(
             form_two.action_cls,
             subject_identifier=form_two.subject_identifier,
             reference_identifier=form_two.tracking_identifier,
-            parent_reference_identifier=form_one.tracking_identifier)
+            parent_reference_identifier=form_one.tracking_identifier,
+            related_reference_identifier=form_one.tracking_identifier)
+
         self.assertEqual(getter.model_obj.reference_identifier,
                          form_two.tracking_identifier)
 
@@ -208,7 +215,8 @@ class TestActionItemGetter(TestCase):
     def test_getter_parent_action_and_next(self):
         """
         Note: form_one creates new form two, form three actions.
-        form-two creates a new form-two action."""
+        form-two creates a new form-two action.
+        """
 
         # parent
         form_one_obj = FormOne.objects.create(

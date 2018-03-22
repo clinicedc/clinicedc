@@ -57,6 +57,18 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
         null=True,
         help_text='e.g. tracking identifier updated from the reference model')
 
+    related_reference_model = models.CharField(
+        max_length=100,
+        null=True,
+        editable=False)
+
+    related_reference_identifier = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        help_text=('May be left blank. e.g. tracking identifier from '
+                   'source model that opened the item.'))
+
     parent_reference_model = models.CharField(
         max_length=100,
         null=True,
@@ -126,7 +138,8 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
                     f'in \'{self.subject_identifier_model}\'. '
                     f'Got \'{self.subject_identifier}\'.')
             self.priority = self.priority or self.action_type.priority
-            self.reference_model = self.action_type.model
+            self.reference_model = self.action_type.reference_model
+            self.related_reference_model = self.action_type.related_reference_model
             self.instructions = self.action_type.instructions
         super().save(*args, **kwargs)
 
@@ -152,9 +165,26 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
     def parent_reference_model_obj(self):
         """Returns the parent reference model instance or None.
         """
-        if self.parent_reference_model:
-            return django_apps.get_model(self.parent_reference_model).objects.get(
-                tracking_identifier=self.parent_reference_identifier)
+        try:
+            reference_model = self.parent_action_item.reference_model
+        except AttributeError:
+            pass
+        else:
+            return django_apps.get_model(reference_model).objects.get(
+                tracking_identifier=self.parent_action_item.reference_identifier)
+        return None
+
+    @property
+    def related_reference_model_obj(self):
+        """Returns the related reference model instance or None.
+        """
+        try:
+            reference_model = self.related_reference_model
+        except AttributeError:
+            pass
+        else:
+            return django_apps.get_model(reference_model).objects.get(
+                tracking_identifier=self.related_reference_identifier)
         return None
 
     @property
@@ -194,8 +224,26 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
         parent model reference which in most cases is the
         parent reference model's tracking identifier.
         """
-        if self.parent_reference_identifier:
-            return self.parent_reference_identifier[-9:]
+        try:
+            reference_identifier = self.parent_action_item.reference_identifier
+        except AttributeError:
+            reference_identifier = None
+        if reference_identifier:
+            return reference_identifier[-9:]
+        return None
+
+    @property
+    def related_reference(self):
+        """Returns a shortened reference_identifier of the
+        parent model reference which in most cases is the
+        parent reference model's tracking identifier.
+        """
+        try:
+            reference_identifier = self._related_reference_identifier
+        except AttributeError:
+            reference_identifier = None
+        if reference_identifier:
+            return reference_identifier[-9:]
         return None
 
     class Meta:

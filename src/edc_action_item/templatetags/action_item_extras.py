@@ -9,6 +9,7 @@ from urllib.parse import urlparse, parse_qsl
 from ..constants import HIGH_PRIORITY
 from ..choices import ACTION_STATUS
 from ..site_action_items import site_action_items
+from pprint import pprint
 
 register = template.Library()
 
@@ -48,13 +49,14 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
     action_item_reason = None
     parent_action_identifier = None
     # reference_model and url
+    action_cls = site_action_items.get(reference_model_cls.action_name)
     try:
         reference_model_obj = reference_model_cls.objects.get(
             action_identifier=action_item.action_identifier)
     except ObjectDoesNotExist:
         reference_model_obj = None
     try:
-        reference_model_url = reference_model_cls.action_cls.reference_model_url(
+        reference_model_url = action_cls.reference_model_url(
             action_item=action_item,
             action_identifier=action_item.action_identifier,
             reference_model_obj=reference_model_obj,
@@ -74,7 +76,7 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
             # parent reference model and url
             try:
                 parent_reference_model_obj = parent_reference_model_cls.objects.get(
-                    tracking_identifier=action_item.parent_reference_identifier)
+                    tracking_identifier=action_item.parent_action_item.reference_identifier)
             except ObjectDoesNotExist:
                 pass
             else:
@@ -88,7 +90,7 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
                         parent_reference_model_obj.visit_model_attr(): str(subject_visit.pk),
                         'appointment': str(subject_visit.appointment.pk)})
                 parent_reference_model_url = (
-                    reference_model_cls.action_cls.reference_model_url(
+                    action_cls.reference_model_url(
                         reference_model_obj=parent_reference_model_obj,
                         action_item=action_item,
                         action_identifier=action_item.action_identifier,
@@ -122,7 +124,7 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
         reference_model_name=reference_model_cls._meta.verbose_name,
         reference_model_url=reference_model_url,
         reference_model_obj=reference_model_obj,
-        action_item_color=reference_model_cls.action_cls.color_style,
+        action_item_color=action_cls.color_style,
 
         parent_model_name=parent_reference_model_name,
         parent_model_url=parent_reference_model_url,

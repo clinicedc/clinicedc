@@ -39,7 +39,8 @@ class FormTwoAction(Action):
     reference_model = 'edc_action_item.formtwo'
     show_on_dashboard = True
     priority = HIGH_PRIORITY
-    parent_reference_model_fk_attr = 'form_one'
+    related_reference_model = 'edc_action_item.formone'
+    related_reference_model_fk_attr = 'form_one'
     next_actions = ['self']
 
 
@@ -59,7 +60,8 @@ class FollowupAction(Action):
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     next_actions = ['self']
-    parent_reference_model_fk_attr = 'initial'
+    related_reference_model_fk_attr = 'initial'
+    related_reference_model = 'edc_action_item.initial'
 
 
 class InitialAction(Action):

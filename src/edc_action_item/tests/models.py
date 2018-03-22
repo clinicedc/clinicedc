@@ -3,9 +3,6 @@ from django.db.models.deletion import CASCADE
 from edc_base.model_mixins import BaseUuidModel
 
 from ..model_mixins import ActionModelMixin
-from .action_items import TestPrnAction, TestDoNothingPrnAction, FormZeroAction
-from .action_items import FormTwoAction, InitialAction, FollowupAction
-from .action_items import FormThreeAction, FormOneAction
 
 
 class SubjectIdentifierModel(BaseUuidModel):
@@ -16,7 +13,7 @@ class SubjectIdentifierModel(BaseUuidModel):
 
 class TestModel(ActionModelMixin, BaseUuidModel):
 
-    action_cls = None
+    action_name = None
 
     tracking_identifier = models.CharField(
         max_length=25)
@@ -25,7 +22,7 @@ class TestModel(ActionModelMixin, BaseUuidModel):
 class TestModelWithTrackingIdentifierButNoActionClass(ActionModelMixin,
                                                       BaseUuidModel):
 
-    action_cls = None
+    action_name = None
 
     tracking_identifier = models.CharField(
         max_length=25)
@@ -43,7 +40,7 @@ class TestModelWithoutMixin(BaseUuidModel):
 class TestModelWithActionWithoutTrackingIdentifier(ActionModelMixin,
                                                    BaseUuidModel):
 
-    action_cls = TestPrnAction
+    action_name = 'test-prn-action'
 
 
 class TestModelWithActionDoesNotCreateAction(ActionModelMixin,
@@ -51,28 +48,28 @@ class TestModelWithActionDoesNotCreateAction(ActionModelMixin,
 
     tracking_identifier_prefix = 'AA'
 
-    action_cls = TestDoNothingPrnAction
+    action_name = 'test-nothing-prn-action'
 
 
 class TestModelWithAction(ActionModelMixin, BaseUuidModel):
 
     tracking_identifier_prefix = 'AA'
 
-    action_cls = FormZeroAction
+    action_name = 'submit-form-zero'
 
 
 class FormZero(ActionModelMixin, BaseUuidModel):
 
     tracking_identifier_prefix = 'AA'
 
-    action_cls = FormZeroAction
+    action_name = 'submit-form-zero'
 
 
 class FormOne(ActionModelMixin, BaseUuidModel):
 
     tracking_identifier_prefix = 'AA'
 
-    action_cls = FormOneAction
+    action_name = 'submit-form-one'
 
 
 class FormTwo(ActionModelMixin, BaseUuidModel):
@@ -81,21 +78,21 @@ class FormTwo(ActionModelMixin, BaseUuidModel):
 
     form_one = models.ForeignKey(FormOne, on_delete=CASCADE)
 
-    action_cls = FormTwoAction
+    action_name = 'submit-form-two'
 
 
 class FormThree(ActionModelMixin, BaseUuidModel):
 
     tracking_identifier_prefix = 'CC'
 
-    action_cls = FormThreeAction
+    action_name = 'submit-form-three'
 
 
 class Initial(ActionModelMixin, BaseUuidModel):
 
     tracking_identifier_prefix = 'II'
 
-    action_cls = InitialAction
+    action_name = 'submit-initial'
 
 
 class Followup(ActionModelMixin, BaseUuidModel):
@@ -104,4 +101,4 @@ class Followup(ActionModelMixin, BaseUuidModel):
 
     initial = models.ForeignKey(Initial, on_delete=CASCADE)
 
-    action_cls = FollowupAction
+    action_name = 'submit-followup'

@@ -44,7 +44,6 @@ class TestActionItem(TestCase):
             SubjectDoesNotExist,
             ActionItem.objects.create)
 
-    @tag('1')
     def test_attrs(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
@@ -166,17 +165,18 @@ class TestActionItem(TestCase):
 
         class MyAction(Action):
             name = 'my-action3'
-            display_name = 'my action'
+            display_name = 'original display_name'
             reference_model = 'edc_action_item.FormOne'
         site_action_items.register(MyAction)
         MyAction(
             subject_identifier=self.subject_identifier)
         action_type = ActionType.objects.get(name='my-action3')
-        self.assertEqual(action_type.display_name, 'my action')
+        self.assertEqual(action_type.display_name, 'original display_name')
 
         MyAction._updated_action_type = False
-        MyAction.display_name = 'my changed action'
+        MyAction.display_name = 'changed display_name'
+
         MyAction(
             subject_identifier=self.subject_identifier)
         action_type = ActionType.objects.get(name='my-action3')
-        self.assertEqual(action_type.display_name, 'my changed action')
+        self.assertEqual(action_type.display_name, 'changed display_name')

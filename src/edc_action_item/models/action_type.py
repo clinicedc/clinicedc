@@ -25,6 +25,12 @@ class ActionType(BaseUuidModel):
         blank=True,
         help_text='reference model')
 
+    related_reference_model = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text='origin reference model')
+
     priority = models.CharField(
         max_length=25,
         choices=PRIORITY,

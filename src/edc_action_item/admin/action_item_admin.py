@@ -54,6 +54,7 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
             'fields': (
                 'reference_identifier',
                 'reference_model',
+                'related_reference_identifier',
                 'parent_reference_identifier',
                 'auto_created',
                 'auto_created_comment',
@@ -67,7 +68,7 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
 
     list_display = ('identifier', 'dashboard',
                     'action_type', 'priority', 'status', 'parent',
-                    'reference', 'parent_reference')
+                    'reference', 'related_reference', 'parent_reference')
 
     list_filter = ('status', 'priority',
                    'report_datetime', 'action_type__name')
@@ -75,6 +76,7 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
     search_fields = ('subject_identifier',
                      'action_identifier',
                      'reference_identifier',
+                     'related_reference_identifier',
                      'parent_reference_identifier',
                      'action_type__name',
                      'action_type__display_name',
@@ -89,6 +91,7 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
         fields = fields + ('action_identifier', 'instructions',
                            'auto_created', 'auto_created_comment',
                            'reference_identifier', 'reference_model',
+                           'related_reference_identifier',
                            'parent_reference_identifier',
                            'parent_action_item',
                            )

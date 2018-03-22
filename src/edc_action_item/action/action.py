@@ -29,7 +29,8 @@ class Action:
     help_text = None
     instructions = None
     name = None
-    parent_reference_model_fk_attr = None
+    related_reference_model = None
+    related_reference_model_fk_attr = None
     priority = None
     reference_model = None
     show_link_to_add = False
@@ -42,7 +43,7 @@ class Action:
 
     def __init__(self, subject_identifier=None, action_identifier=None,
                  reference_identifier=None, parent_reference_identifier=None,
-                 reference_model_obj=None):
+                 related_reference_identifier=None, reference_model_obj=None):
 
         self.action_item_obj = None
 
@@ -57,16 +58,19 @@ class Action:
             self.subject_identifier = reference_model_obj.subject_identifier
             self.reference_identifier = reference_model_obj.tracking_identifier
             self.parent_reference_identifier = reference_model_obj.parent_tracking_identifier
+            self.related_reference_identifier = reference_model_obj.related_tracking_identifier
         else:
             self.action_identifier = action_identifier
             self.subject_identifier = subject_identifier
             self.reference_identifier = reference_identifier
             self.parent_reference_identifier = parent_reference_identifier
+            self.related_reference_identifier = related_reference_identifier
 
         getter = self.action_item_getter(
             self, action_identifier=self.action_identifier,
             subject_identifier=self.subject_identifier,
             reference_identifier=self.reference_identifier,
+            related_reference_identifier=self.related_reference_identifier,
             parent_reference_identifier=self.parent_reference_identifier,
             allow_create=True)
         self.action_item_obj = getter.model_obj
@@ -83,6 +87,11 @@ class Action:
     def __str__(self):
         return self.name
 
+    @property
+    def reference_model_obj(self):
+        return self.reference_model_cls().objects.get(
+            tracking_identifier=self.reference_identifier)
+
     @classmethod
     def action_item_model_cls(cls):
         """Returns the ActionItem model class.
@@ -96,12 +105,12 @@ class Action:
         return django_apps.get_model(cls.reference_model)
 
     @classmethod
-    def parent_reference_model_cls(cls):
+    def related_reference_model_cls(cls):
         """Returns the parent reference model class
         or raises if there is no FK.
         """
         fk = getattr(cls.reference_model_cls(),
-                     cls.parent_reference_model_fk_attr)
+                     cls.related_reference_model_fk_attr)
         return fk.field.related_model
 
     @classmethod
@@ -118,11 +127,17 @@ class Action:
     def as_dict(cls):
         """Returns select class attrs as a dictionary.
         """
+        dct = {k: v for k, v in cls.__dict__.items() if not k.startswith('_')}
         try:
-            cls.reference_model = cls.reference_model.lower()
+            dct.update(reference_model=cls.reference_model.lower())
         except AttributeError:
             pass
-        return dict(
+        try:
+            dct.update(
+                related_reference_model=cls.related_reference_model.lower())
+        except AttributeError:
+            pass
+        dct.update(
             name=cls.name,
             display_name=cls.display_name,
             model=cls.reference_model,
@@ -133,6 +148,7 @@ class Action:
             create_by_user=True if cls.create_by_user is None else cls.create_by_user,
             create_by_action=True if cls.create_by_action is None else cls.create_by_action,
             instructions=cls.instructions)
+        return dct
 
     @classmethod
     def action_type(cls):
@@ -142,21 +158,25 @@ class Action:
 
         If model instance exists, updates.
         """
-        action_type_model_cls = django_apps.get_model(
-            cls.action_type_model)
+        opts = {}
+        action_type_model_cls = django_apps.get_model(cls.action_type_model)
+        fields = [
+            f.name for f in action_type_model_cls._meta.fields if f.name != 'name']
+        for attr, value in cls.as_dict().items():
+            if attr in fields:
+                opts.update({attr: value})
         try:
-            action_type = action_type_model_cls.objects.get(
-                name=cls.name)
+            action_type = action_type_model_cls.objects.get(name=cls.name)
         except ObjectDoesNotExist:
             action_type = action_type_model_cls.objects.create(
-                **cls.as_dict())
+                name=cls.name, **opts)
         else:
             if not cls._updated_action_type:
-                for attr, value in cls.as_dict().items():
-                    if attr != 'name':
-                        setattr(action_type, attr, value)
+                for k, v in opts.items():
+                    setattr(action_type, k, v)
                 action_type.save()
-        cls._updated_action_type = True
+                action_type = action_type_model_cls.objects.get(name=cls.name)
+                cls._updated_action_type = True
         return action_type
 
     def get_next_actions(self):
@@ -180,6 +200,8 @@ class Action:
         self.action_item_obj.reference_identifier = self.reference_identifier
         self.action_item_obj.status = status
         self.action_item_obj.save()
+        self.action_item_obj = self.action_item_model_cls().objects.get(
+            action_identifier=self.action_identifier)
         if status == CLOSED:
             self.create_next()
 
@@ -195,13 +217,24 @@ class Action:
                 subject_identifier=self.subject_identifier,
                 action_type=action_type,
                 parent_action_item=self.action_item_obj,
-                reference_model=action_type.model,
                 parent_reference_identifier=self.action_item_obj.reference_identifier,
                 parent_reference_model=self.action_type().reference_model,
+                reference_model=action_type.model,
                 instructions=self.instructions)
             try:
                 self.action_item_model_cls().objects.get(**opts)
             except ObjectDoesNotExist:
+                if (self.action_type().related_reference_model
+                        and (self.action_type().reference_model ==
+                             self.action_type().related_reference_model)):
+                    related_reference_identifier = self.action_item_obj.reference_identifier
+                else:
+                    related_reference_identifier = (
+                        self.action_item_obj.related_reference_identifier
+                        or self.action_item_obj.reference_identifier)
+                opts.update(
+                    related_reference_identifier=related_reference_identifier,
+                    related_reference_model=self.action_type().related_reference_model)
                 self.action_item_model_cls().objects.create(**opts)
 
     def append_to_next_if_required(self, next_actions=None,
@@ -246,14 +279,14 @@ class Action:
         """Returns a relative add URL with querystring that can
         get back to the subject dashboard on save.
         """
-        if cls.parent_reference_model_fk_attr and action_item.parent_reference_model_obj:
+        if cls.related_reference_model_fk_attr and action_item.related_reference_model_obj:
+            obj = action_item.related_reference_model_obj
             try:
-                value = getattr(action_item.parent_object,
-                                cls.parent_reference_model_fk_attr)
+                value = getattr(obj, cls.related_reference_model_fk_attr)
             except (ObjectDoesNotExist, AttributeError):
-                value = action_item.parent_reference_model_obj
+                value = obj
             kwargs.update({
-                cls.parent_reference_model_fk_attr: str(value.pk)})
+                cls.related_reference_model_fk_attr: str(value.pk)})
         query = unquote(urlencode(kwargs))
         if reference_model_obj:
             path = reference_model_obj.get_absolute_url()

@@ -24,15 +24,20 @@ class ParentReferenceModelDoesNotExist(Exception):
     pass
 
 
+class RelatedReferenceModelDoesNotExist(Exception):
+    pass
+
+
 class ActionItemGetter:
 
     model = 'edc_action_item.actionitem'
 
     def __init__(self, action_cls,
                  action_identifier=None,
-                 subject_identifier=None,
-                 reference_identifier=None,
+                 related_reference_identifier=None,
                  parent_reference_identifier=None,
+                 reference_identifier=None,
+                 subject_identifier=None,
                  allow_create=None):
 
         self._model_options = None
@@ -41,6 +46,7 @@ class ActionItemGetter:
         self.action_identifier = action_identifier
         self.allow_create = allow_create
         self.parent_reference_identifier = parent_reference_identifier
+        self.related_reference_identifier = related_reference_identifier
         self.reference_identifier = reference_identifier
         self.subject_identifier = subject_identifier
 
@@ -50,19 +56,42 @@ class ActionItemGetter:
                 f'Subject identifier cannot be None if '
                 f'action_identifier not provided. See {self.action_cls}.')
 
-        # if fk_attr, parent_reference model instance must exist
-        if self.action_cls.parent_reference_model_fk_attr:
+        # if fk_attr, related reference model instance must exist
+        if self.action_cls.related_reference_model_fk_attr:
             try:
-                self.action_cls.parent_reference_model_cls().objects.get(
+                self.action_cls.related_reference_model_cls().objects.get(
                     subject_identifier=self.subject_identifier,
-                    tracking_identifier=parent_reference_identifier or uuid4())
+                    tracking_identifier=self.related_reference_identifier or uuid4())
             except ObjectDoesNotExist as e:
-                raise ParentReferenceModelDoesNotExist(
-                    f'Actions parent reference model does not exist. '
+                raise RelatedReferenceModelDoesNotExist(
+                    f'Actions "related" reference model instance does not exist. '
                     f'{repr(action_cls)} fk is '
-                    f'{self.action_cls.parent_reference_model_fk_attr}'
-                    f'tracking identifier=\'{parent_reference_identifier}\'. '
+                    f'\'{self.action_cls.related_reference_model_fk_attr}\' where '
+                    f'related tracking identifier=\'{self.related_reference_identifier}\'. '
                     f'Got {e}.')
+        elif self.related_reference_identifier:
+            try:
+                self.action_cls.related_reference_model_cls().objects.get(
+                    subject_identifier=self.subject_identifier,
+                    tracking_identifier=self.related_reference_identifier or uuid4())
+            except ObjectDoesNotExist as e:
+                raise RelatedReferenceModelDoesNotExist(
+                    f'Actions "related" reference model does not exist. '
+                    f'{repr(action_cls)} with {self.related_reference_model}. '
+                    f'tracking identifier=\'{self.related_reference_identifier}\'. '
+                    f'Got {e}.')
+
+#         if self.parent_reference_identifier:
+#             try:
+#                 self.action_cls.parent_reference_model_cls.objects.get(
+#                     subject_identifier=self.subject_identifier,
+#                     tracking_identifier=self.parent_reference_identifier or uuid4())
+#             except ObjectDoesNotExist as e:
+#                 raise ParentReferenceModelDoesNotExist(
+#                     f'Actions "parent" reference model does not exist. '
+#                     f'{repr(action_cls)} with {self.parent_reference_model}. '
+#                     f'tracking identifier=\'{self.parent_reference_identifier}\'. '
+#                     f'Got {e}.')
 
         if not self.model_obj:
             raise ActionItemObjectDoesNotExist(
@@ -91,17 +120,23 @@ class ActionItemGetter:
         if not self._model_obj:
             if self.action_identifier:
                 self._model_obj = self._get_by_action_identifier_only()
+            elif (self.action_cls.related_reference_model_fk_attr
+                  and self.related_reference_identifier
+                  and self.parent_reference_identifier):
+                self._model_obj = self._get_by_reference_identifiers()
             else:
                 self._model_obj = self._get_by_subject_identifier_with_options()
             if not self._model_obj:
-                if not self.action_cls.parent_reference_model_fk_attr:
+                if not self.action_cls.related_reference_model_fk_attr:
                     self._model_obj = self._create_model_obj()
                 else:
+                    # if has fk_attr, action item should have been created
+                    # by a parent.
                     raise ActionItemObjectDoesNotExist(
                         'Expected ActionItem to exist for action class with FK attr. '
                         f'Got {self.action_cls} '
-                        f'where {self.action_cls.parent_reference_model_fk_attr}='
-                        f'{self.parent_reference_identifier} (tracking identifier).')
+                        f'where {self.action_cls.related_reference_model_fk_attr}='
+                        f'{self.related_reference_identifier} (tracking identifier).')
         return self._model_obj
 
     def _get_by_action_identifier_only(self):
@@ -117,26 +152,43 @@ class ActionItemGetter:
             raise ActionItemObjectDoesNotExist(e)
         return model_obj
 
+    def _get_by_reference_identifiers(self):
+        try:
+            model_obj = self.model_cls().objects.get(
+                action_type__name=self.action_cls.name,
+                parent_reference_identifier=self.parent_reference_identifier,
+                related_reference_identifier=self.related_reference_identifier)
+        except ObjectDoesNotExist as e:
+            raise ActionItemObjectDoesNotExist(e)
+        return model_obj
+
     def _get_by_subject_identifier_with_options(self):
         """Returns an ActionItem model instance by attempting
         to get by subject_identifier and additional model options.
 
         This will be tried if action_identifier is None.
         """
+        opts = dict(
+            subject_identifier=self.subject_identifier,
+            action_type=self.action_cls.action_type())
+        if self.reference_identifier:
+            opts.update(
+                reference_identifier=self.reference_identifier)
+        if self.parent_reference_identifier:
+            opts.update(
+                parent_reference_identifier=self.parent_reference_identifier)
 
         try:
-            model_obj = self.model_cls().objects.get(**self.model_options)
+            model_obj = self.model_cls().objects.get(**opts)
         except ObjectDoesNotExist:
 
             # attempt to get a NEW ActionItem
             # where reference_identifier to None
-            opts = deepcopy(self.model_options)
             try:
                 del opts['reference_identifier']
             except KeyError:
                 pass
             opts.update(reference_identifier__isnull=True)
-
             try:
                 model_obj = self.model_cls().objects.get(**opts)
             except ObjectDoesNotExist:
@@ -159,21 +211,6 @@ class ActionItemGetter:
                 subject_identifier=self.subject_identifier,
                 action_type=self.action_cls.action_type(),
                 reference_identifier=self.reference_identifier,
+                related_reference_identifier=self.related_reference_identifier,
                 parent_reference_identifier=self.parent_reference_identifier)
         return model_obj
-
-    @property
-    def model_options(self):
-        """Returns a dictionary of options to query the ActionItem.
-        """
-        if not self._model_options:
-            self._model_options = dict(
-                subject_identifier=self.subject_identifier,
-                action_type=self.action_cls.action_type())
-            if self.reference_identifier:
-                self._model_options.update(
-                    reference_identifier=self.reference_identifier)
-            if self.parent_reference_identifier:
-                self._model_options.update(
-                    parent_reference_identifier=self.parent_reference_identifier)
-        return self._model_options

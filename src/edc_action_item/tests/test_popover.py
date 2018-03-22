@@ -9,7 +9,6 @@ from ..templatetags.action_item_extras import action_item_with_popover
 from .action_items import FormOneAction, FormTwoAction, FormThreeAction
 from .action_items import register_actions
 from .models import FormOne, FormTwo, SubjectIdentifierModel, Initial, Followup
-from pprint import pprint
 
 
 class TestPopover(TestCase):
@@ -102,7 +101,6 @@ class TestPopover(TestCase):
                 f'/admin/edc_action_item/formone/{str(form_one.pk)}/change/'),
             msg=reference_model_url)
 
-    @tag('1')
     def test_popover_templatetag2(self):
 
         class ActionItemModelWrapper(ModelWrapper):
@@ -120,10 +118,8 @@ class TestPopover(TestCase):
             subject_identifier=self.subject_identifier)
         Initial.objects.create(
             subject_identifier=self.subject_identifier)
-
         initial_obj = Initial.objects.create(
             subject_identifier=self.subject_identifier)
-
         initial_action_item_obj = ActionItem.objects.get(
             action_identifier=initial_obj.action_identifier)
 
@@ -148,8 +144,6 @@ class TestPopover(TestCase):
         self.assertTrue(followup_action_obj.status == NEW)
 
         # assert followup "add" url points to initial model obj fk
-        followup_action_obj.status = OPEN
-        followup_action_obj.save()
         wrapper = ActionItemModelWrapper(model_obj=followup_action_obj)
         action_item_with_popover(wrapper, 0)
         context = action_item_with_popover(wrapper, 0)
@@ -160,6 +154,7 @@ class TestPopover(TestCase):
         # add a followup model instance
         followup_obj = Followup.objects.create(
             subject_identifier=initial_obj.subject_identifier,
+            parent_tracking_identifier=initial_obj.tracking_identifier,
             initial=initial_obj)
 
         # assert followup_obj has action identifier and tracking identifier
@@ -219,3 +214,46 @@ class TestPopover(TestCase):
         context = action_item_with_popover(wrapper, 0)
         reference_model_url = context.get('reference_model_url')
         self.assertIn(f'initial={str(initial_obj2.pk)}', reference_model_url)
+
+    def test_popover_templatetag4(self):
+
+        class ActionItemModelWrapper(ModelWrapper):
+
+            model = 'edc_action_item.actionitem'
+            next_url_attrs = ['subject_identifier']
+            next_url_name = settings.DASHBOARD_URL_NAMES.get(
+                'subject_dashboard_url')
+
+            @property
+            def subject_identifier(self):
+                return self.object.subject_identifier
+
+        Initial.objects.create(
+            subject_identifier=self.subject_identifier)
+
+        initial_obj1 = Initial.objects.create(
+            subject_identifier=self.subject_identifier)
+
+        initial_obj2 = Initial.objects.create(
+            subject_identifier=self.subject_identifier)
+
+        followup_obj1 = Followup.objects.create(
+            subject_identifier=initial_obj1.subject_identifier,
+            parent_tracking_identifier=initial_obj1.tracking_identifier,
+            initial=initial_obj1)
+
+        followup_action_obj1 = ActionItem.objects.get(
+            subject_identifier=initial_obj1.subject_identifier,
+            related_reference_identifier=initial_obj1.tracking_identifier,
+            parent_reference_identifier=initial_obj1.tracking_identifier)
+
+        followup_action_obj2 = ActionItem.objects.get(
+            subject_identifier=initial_obj1.subject_identifier,
+            related_reference_identifier=initial_obj1.tracking_identifier,
+            parent_reference_identifier=followup_obj1.tracking_identifier)
+
+        wrapper = ActionItemModelWrapper(model_obj=followup_action_obj2)
+        action_item_with_popover(wrapper, 0)
+        context = action_item_with_popover(wrapper, 0)
+        reference_model_url = context.get('reference_model_url')
+        self.assertIn(f'initial={str(initial_obj1.pk)}', reference_model_url)
