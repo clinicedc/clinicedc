@@ -4,7 +4,6 @@ import os
 from datetime import datetime
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.db.utils import IntegrityError
 
 
 class HolidayImportError(Exception):
@@ -24,6 +23,7 @@ def import_holidays():
     except TypeError:
         raise HolidayImportError(f'Invalid path. Got {path}.')
     model_cls.objects.all().delete()
+    objs = []
     with open(path, 'r') as f:
         reader = csv.DictReader(
             f, fieldnames=['local_date', 'label', 'country'])
@@ -37,10 +37,9 @@ def import_holidays():
                 raise HolidayImportError(
                     f'Invalid format when importing from '
                     f'{path}. Got \'{e}\'')
-            try:
-                model_cls.objects.create(
+            else:
+                objs.append(model_cls(
                     country=row['country'],
                     local_date=local_date,
-                    name=row['label'])
-            except IntegrityError as e:
-                raise HolidayImportError(f'{e}. Got {row}')
+                    name=row['label']))
+        model_cls.objects.bulk_create(objs)
