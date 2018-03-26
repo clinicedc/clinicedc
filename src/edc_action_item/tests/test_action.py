@@ -330,8 +330,7 @@ class TestAction(TestCase):
         url = FormOneAction(reference_model_obj=obj).reference_model_url(
             action_item=action_item)
         self.assertEqual(
-            url,
-            f'/admin/edc_action_item/formone/add/')
+            url, f'/admin/edc_action_item/formone/add/')
 
     def test_reference_model_url2(self):
         form_one = FormOne.objects.create(
