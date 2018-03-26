@@ -73,7 +73,7 @@ class Action:
             related_reference_identifier=self.related_reference_identifier,
             parent_reference_identifier=self.parent_reference_identifier,
             allow_create=True)
-        self.action_item_obj = getter.model_obj
+        self.action_item_obj = getter.action_item
 
         if not self.action_identifier:
             self.action_identifier = self.action_item_obj.action_identifier
@@ -96,7 +96,7 @@ class Action:
     def action_item_model_cls(cls):
         """Returns the ActionItem model class.
         """
-        return cls.action_item_getter.model_cls()
+        return cls.action_item_getter.action_item_model_cls()
 
     @classmethod
     def reference_model_cls(cls):
@@ -292,4 +292,6 @@ class Action:
             path = reference_model_obj.get_absolute_url()
         else:
             path = cls.reference_model_cls()().get_absolute_url()
-        return '?'.join([path, query])
+        if query:
+            return '?'.join([path, query])
+        return path

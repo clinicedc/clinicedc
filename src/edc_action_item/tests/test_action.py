@@ -4,7 +4,7 @@ from edc_constants.constants import CLOSED, OPEN, NEW
 from uuid import uuid4
 
 from ..action import Action, delete_action_item
-from ..action import ActionItemDeleteError, SingletonActionItemError
+from ..action import ActionItemDeleteError
 from ..models import ActionItem, ActionType
 from ..site_action_items import site_action_items
 from .action_items import FormOneAction, FormTwoAction, FormThreeAction, FormZeroAction
@@ -331,7 +331,7 @@ class TestAction(TestCase):
             action_item=action_item)
         self.assertEqual(
             url,
-            f'/admin/edc_action_item/formone/add/?')
+            f'/admin/edc_action_item/formone/add/')
 
     def test_reference_model_url2(self):
         form_one = FormOne.objects.create(
@@ -380,50 +380,58 @@ class TestAction(TestCase):
             (f'/admin/edc_action_item/formtwo/{str(form_two.pk)}/change/?'
              f'subject_identifier={self.subject_identifier}&form_one={str(form_one.pk)}'))
 
-#     def test_create(self):
-#         create_action_item(
-#             SingletonAction,
-#             subject_identifier=self.subject_identifier)
-#         try:
-#             ActionItem.objects.get(subject_identifier=self.subject_identifier)
-#         except ObjectDoesNotExist:
-#             self.fail('ObjectDoesNotExist unexpectedly raised.')
-#         self.assertRaises(
-#             SingletonActionItemError,
-#             create_action_item,
-#             action_cls=SingletonAction,
-#             subject_identifier=self.subject_identifier)
+    def test_create_singleton(self):
 
-#     def test_delete(self):
-#         create_action_item(
-#             action_cls=SingletonAction,
-#             subject_identifier=self.subject_identifier)
-#         delete_action_item(
-#             action_cls=SingletonAction,
-#             subject_identifier=self.subject_identifier)
-#         self.assertRaises(
-#             ObjectDoesNotExist,
-#             ActionItem.objects.get,
-#             subject_identifier=self.subject_identifier)
-#
-#     def test_cannot_delete_if_not_new(self):
-#         action_item = create_action_item(
-#             action_cls=SingletonAction,
-#             subject_identifier=self.subject_identifier)
-#         action_item.status = CLOSED
-#         action_item.save()
-#         self.assertRaises(
-#             ActionItemDeleteError,
-#             delete_action_item,
-#             action_cls=SingletonAction,
-#             subject_identifier=self.subject_identifier)
-#         action_item.status = OPEN
-#         action_item.save()
-#         self.assertRaises(
-#             ActionItemDeleteError,
-#             delete_action_item,
-#             action_cls=SingletonAction,
-#             subject_identifier=self.subject_identifier)
+        action1 = SingletonAction(
+            subject_identifier=self.subject_identifier)
+
+        try:
+            ActionItem.objects.get(subject_identifier=self.subject_identifier)
+        except ObjectDoesNotExist:
+            self.fail('ObjectDoesNotExist unexpectedly raised.')
+
+        action2 = SingletonAction(
+            subject_identifier=self.subject_identifier)
+
+        try:
+            ActionItem.objects.get(
+                subject_identifier=self.subject_identifier)
+        except ObjectDoesNotExist:
+            self.fail('ObjectDoesNotExist unexpectedly raised.')
+
+        self.assertEqual(action1.action_identifier, action2.action_identifier)
+
+    def test_delete(self):
+        SingletonAction(
+            subject_identifier=self.subject_identifier)
+        delete_action_item(
+            action_cls=SingletonAction,
+            subject_identifier=self.subject_identifier)
+        self.assertRaises(
+            ObjectDoesNotExist,
+            ActionItem.objects.get,
+            subject_identifier=self.subject_identifier)
+
+    def test_cannot_delete_if_not_new(self):
+        action = SingletonAction(
+            subject_identifier=self.subject_identifier)
+
+        action_item = action.action_item_obj
+
+        action_item.status = CLOSED
+        action_item.save()
+        self.assertRaises(
+            ActionItemDeleteError,
+            delete_action_item,
+            action_cls=SingletonAction,
+            subject_identifier=self.subject_identifier)
+        action_item.status = OPEN
+        action_item.save()
+        self.assertRaises(
+            ActionItemDeleteError,
+            delete_action_item,
+            action_cls=SingletonAction,
+            subject_identifier=self.subject_identifier)
 
     def test_append_to_next_if_required(self):
 

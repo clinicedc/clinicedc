@@ -38,7 +38,7 @@ class TestActionItemGetter(TestCase):
             FormZeroAction,
             action_identifier=obj.action_identifier)
         self.assertEqual(
-            getter.model_obj.action_identifier,
+            getter.action_item.action_identifier,
             obj.action_identifier)
 
     def test_getter_finds_available_action_item(self):
@@ -50,7 +50,7 @@ class TestActionItemGetter(TestCase):
             FormZeroAction,
             subject_identifier=obj.subject_identifier)
         self.assertEqual(
-            getter.model_obj.action_identifier,
+            getter.action_item.action_identifier,
             obj.action_identifier)
 
     def test_raises_if_fk_attr_but_no_related_reference_model1(self):
@@ -113,7 +113,7 @@ class TestActionItemGetter(TestCase):
             reference_identifier=None,
             parent_reference_identifier=form_one.tracking_identifier,
             related_reference_identifier=form_one.tracking_identifier)
-        self.assertEqual(getter.model_obj.reference_identifier,
+        self.assertEqual(getter.action_item.reference_identifier,
                          form_two.tracking_identifier)
 
         # attempt new instance with same parent twice used above
@@ -143,7 +143,7 @@ class TestActionItemGetter(TestCase):
             parent_reference_identifier=form_one.tracking_identifier,
             related_reference_identifier=form_one.tracking_identifier)
 
-        self.assertEqual(getter.model_obj.reference_identifier,
+        self.assertEqual(getter.action_item.reference_identifier,
                          form_two.tracking_identifier)
 
     def test_no_action_identifier_and_no_subject_raises(self):
@@ -210,7 +210,7 @@ class TestActionItemGetter(TestCase):
             parent_reference_identifier=form_one_obj.tracking_identifier)
 
         self.assertEqual(
-            getter.model_obj.parent_reference_identifier, form_one_obj.tracking_identifier)
+            getter.action_item.parent_reference_identifier, form_one_obj.tracking_identifier)
 
     def test_getter_parent_action_and_next(self):
         """
