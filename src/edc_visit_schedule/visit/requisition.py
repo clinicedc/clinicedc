@@ -31,9 +31,9 @@ class Requisition(Crf):
         model = panel.requisition_model
         if not model:
             raise RequisitionError(
-                f'Invalid requisition model. Got None. See {repr(panel)}. '
+                f'Invalid requisition model. Got model=\'{model}\'. See {repr(panel)}. '
                 f'Was the panel referred to by this schedule\'s requisition '
-                'registered with site_labs?')
+                f'registered with site_labs?')
         super().__init__(required=required, model=model, **kwargs)
 
     def __repr__(self):
