@@ -2,7 +2,7 @@ import os
 import sys
 
 from django.core.management.color import color_style
-from edc_base.utils import get_utcnow
+from edc_base import get_utcnow
 
 
 style = color_style()
