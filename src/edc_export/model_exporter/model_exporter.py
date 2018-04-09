@@ -5,10 +5,10 @@ import uuid
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import get_utcnow
+from edc_pdutils.model_to_dataframe import ValueGetter
 
 from .file_history_updater import FileHistoryUpdater
 from .object_history_helpers import ObjectHistoryHelper
-from .value_getter import ValueGetter
 
 app_config = django_apps.get_app_config('edc_export')
 

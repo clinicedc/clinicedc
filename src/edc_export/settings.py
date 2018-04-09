@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
@@ -131,6 +132,11 @@ STATIC_URL = '/static/'
 KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 GIT_DIR = BASE_DIR
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+DASHBOARD_URL_NAMES = {
+    'subject_dashboard_url': 'edc_export:subject_dashboard_url',
+}
+
 
 if 'test' in sys.argv:
 

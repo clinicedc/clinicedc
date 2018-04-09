@@ -6,9 +6,10 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
+from edc_pdutils.model_to_dataframe import ValueGetterInvalidLookup
 
 from ..constants import EXPORTED, UPDATE, INSERT
-from ..model_exporter import ModelExporter, ValueGetterInvalidLookup
+from ..model_exporter import ModelExporter
 from ..models import ObjectHistory, FileHistory
 from .models import Crf, SubjectVisit, ListModel, CrfEncrypted
 

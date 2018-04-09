@@ -5,8 +5,8 @@ from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 
 from ..models import Plan
+from ..model_exporter.plan_exporter import PlanExporter
 from .models import ListModel, SubjectVisit, Crf
-from edc_export.model_exporter.plan_exporter import PlanExporter
 
 
 app_config = django_apps.get_app_config('edc_export')
@@ -32,7 +32,8 @@ class TestPlan(TestCase):
             uuid1=uuid.uuid4())
 
     def test_plan(self):
+        plan_name = 'test_plan'
         Plan.objects.create(
-            name='test_plan',
+            name=plan_name,
             model='edc_export.crf')
-        PlanExporter()
+        PlanExporter(plan_name=plan_name)
