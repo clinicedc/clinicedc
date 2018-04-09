@@ -16,6 +16,7 @@ import sys
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_NAME = 'edc_pdutils'
+SITE_ID = 10
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_extensions',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
@@ -135,6 +137,10 @@ STATIC_URL = '/static/'
 KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 GIT_DIR = BASE_DIR
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+DASHBOARD_URL_NAMES = {
+    'subject_dashboard_url': 'edc_pdutils:subject_dashboard_url',
+}
 
 if 'test' in sys.argv:
 
