@@ -23,14 +23,14 @@ class ActionModelMixin(models.Model):
 
     action_identifier = models.CharField(
         max_length=25,
-        unique=True)
+        null=True)
 
     subject_identifier = models.CharField(
         max_length=50)
 
     tracking_identifier = models.CharField(
         max_length=30,
-        unique=True)
+        null=True)
 
     related_tracking_identifier = models.CharField(
         max_length=30,
