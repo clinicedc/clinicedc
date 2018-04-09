@@ -1,7 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from uuid import uuid4
-from ambition_dashboard.patterns import subject_identifier
 from edc_action_item.action.utils import SingletonActionItemError
 
 
@@ -50,7 +49,6 @@ class ActionItemGetter:
         self.related_reference_identifier = related_reference_identifier
         self.reference_identifier = reference_identifier
         self.subject_identifier = subject_identifier
-
         # subject identifier is required if no action_identifier.
         if not action_identifier and not self.subject_identifier:
             raise ActionItemGetterError(
@@ -200,7 +198,8 @@ class ActionItemGetter:
                 except KeyError:
                     pass
                 opts.update(parent_reference_identifier__isnull=True)
-                action_item = self.action_item_model_cls().objects.filter(**opts).first()
+                action_item = self.action_item_model_cls().objects.filter(
+                    **opts).first()
         return action_item
 
     @property
