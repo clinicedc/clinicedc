@@ -234,7 +234,7 @@ class TestPopover(TestCase):
         initial_obj1 = Initial.objects.create(
             subject_identifier=self.subject_identifier)
 
-        initial_obj2 = Initial.objects.create(
+        Initial.objects.create(
             subject_identifier=self.subject_identifier)
 
         followup_obj1 = Followup.objects.create(
@@ -242,7 +242,7 @@ class TestPopover(TestCase):
             parent_tracking_identifier=initial_obj1.tracking_identifier,
             initial=initial_obj1)
 
-        followup_action_obj1 = ActionItem.objects.get(
+        ActionItem.objects.get(
             subject_identifier=initial_obj1.subject_identifier,
             related_reference_identifier=initial_obj1.tracking_identifier,
             parent_reference_identifier=initial_obj1.tracking_identifier)
