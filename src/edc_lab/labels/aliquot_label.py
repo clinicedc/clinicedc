@@ -1,7 +1,5 @@
 from django.apps import apps as django_apps
 
-from edc_registration.models import RegisteredSubject
-
 from .base_label import BaseLabel
 
 
@@ -12,6 +10,7 @@ class AliquotLabel(BaseLabel):
 
     model_attr = 'aliquot_model'
     template_name = 'aliquot'
+    registered_subject_model = 'edc_registration.registeredsubject'
 
     def __init__(self, pk=None, children_count=None, request=None):
         super().__init__(pk=pk, request=request)
@@ -29,7 +28,8 @@ class AliquotLabel(BaseLabel):
     @property
     def registered_subject(self):
         if not self._registered_subject:
-            self._registered_subject = RegisteredSubject.objects.get(
+            model_cls = django_apps.get_model(self.registered_subject_model)
+            self._registered_subject = model_cls.objects.get(
                 subject_identifier=self.requisition.subject_identifier)
         return self._registered_subject
 

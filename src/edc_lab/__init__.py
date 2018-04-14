@@ -4,3 +4,4 @@ from .identifiers import AliquotIdentifier, AliquotIdentifierCountError, Aliquot
 from .identifiers import RequisitionIdentifier, ManifestIdentifier, BoxIdentifier
 from .lab import ProcessingProfile, Specimen, LabProfile, Process
 from .lab import SpecimenProcessor, AliquotType, RequisitionPanel
+from .lab_printers_mixin import LabPrintersMixin
