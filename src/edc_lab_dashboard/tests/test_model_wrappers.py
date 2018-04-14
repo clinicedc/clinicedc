@@ -81,7 +81,9 @@ class TestModelWrapper(TestCase):
             manifest=manifest)
         wrapper = wrapper_cls(obj)
         self.assertEqual(
-            wrapper.href, f'/admin/edc_lab/manifestitem/{obj.id}/change/?next=manage_manifest_listboard_url&')
+            wrapper.href,
+            f'/admin/edc_lab/manifestitem/{obj.id}/change/?'
+            f'next=manage_manifest_listboard_url&')
 
     def test_manifest_model_wrapper(self):
         wrapper_cls = ManifestModelWrapper
@@ -93,5 +95,7 @@ class TestModelWrapper(TestCase):
             shipper=Shipper.objects.create(name='name'))
         wrapper = wrapper_cls(obj)
         self.assertEqual(
-            wrapper.href, f'/admin/edc_lab/manifest/{obj.id}/change/?next=manifest_listboard_url&')
+            wrapper.href,
+            f'/admin/edc_lab/manifest/{obj.id}/change/?'
+            f'next=manifest_listboard_url&')
         self.assertEqual(wrapper.reverse(), '/listboard/manifest/')

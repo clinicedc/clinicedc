@@ -38,7 +38,8 @@ class TestModelWrapper(TestCase):
     def test_aliquot_model_wrapper(self):
         wrapper = self.wrapper_cls(self.aliquot)
         self.assertEqual(
-            wrapper.href, f'/admin/edc_lab/aliquot/{self.aliquot.id}/change/?next=aliquot_listboard_url&')
+            wrapper.href,
+            f'/admin/edc_lab/aliquot/{self.aliquot.id}/change/?next=aliquot_listboard_url&')
         self.assertEqual(wrapper.reverse(), '/listboard/aliquot/')
 
     def test_aliquot_wrapper_attrs(self):

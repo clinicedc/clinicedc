@@ -23,7 +23,8 @@ dashboard_urls = dict(
 
     aliquot_form_action_url=f'edc_lab_dashboard:aliquot_form_action_url',
     manage_box_item_form_action_url=f'edc_lab_dashboard:manage_box_item_form_action_url',
-    manage_manifest_item_form_action_url=f'edc_lab_dashboard:manage_manifest_item_form_action_url',
+    manage_manifest_item_form_action_url=(
+        f'edc_lab_dashboard:manage_manifest_item_form_action_url'),
     manifest_form_action_url=f'edc_lab_dashboard:manifest_form_action_url',
     pack_form_action_url=f'edc_lab_dashboard:pack_form_action_url',
     process_form_action_url=f'edc_lab_dashboard:process_form_action_url',

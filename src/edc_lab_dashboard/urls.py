@@ -73,7 +73,8 @@ urlpatterns = [
     re_path('listboard/manifest/(?P<action_name>manage)/(?P<manifest_identifier>[A-Z0-9]+)/$',
             ManageManifestListboardView.as_view(),
             name='manage_manifest_listboard_url'),
-    re_path('listboard/manifest/(?P<action_name>manage)/$', ManageManifestListboardView.as_view(),
+    re_path('listboard/manifest/(?P<action_name>manage)/$',
+            ManageManifestListboardView.as_view(),
             name='manage_manifest_listboard_url'),
 
 
