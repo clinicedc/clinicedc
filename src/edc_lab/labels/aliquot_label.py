@@ -3,9 +3,6 @@ from django.apps import apps as django_apps
 from .base_label import BaseLabel
 
 
-edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
-
-
 class AliquotLabel(BaseLabel):
 
     model_attr = 'aliquot_model'
@@ -35,6 +32,7 @@ class AliquotLabel(BaseLabel):
 
     @property
     def label_context(self):
+        edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
         return {
             'aliquot_identifier': self.model_obj.human_readable_identifier,
             'aliquot_count': 1 if self.model_obj.is_primary else self.model_obj.count,

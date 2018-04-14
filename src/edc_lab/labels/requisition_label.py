@@ -4,9 +4,6 @@ from django.conf import settings
 from edc_label import Label
 
 
-edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
-
-
 class RequisitionLabel(Label):
 
     label_template_name = 'requisition'
@@ -31,6 +28,7 @@ class RequisitionLabel(Label):
 
     @property
     def label_context(self):
+        edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
         utc = Arrow.fromdatetime(
             self.requisition.drawn_datetime or self.requisition.created)
         dte = utc.to(settings.TIME_ZONE).datetime

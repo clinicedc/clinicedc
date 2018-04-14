@@ -1,7 +1,8 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from edc_lab.identifiers.aliquot_identifier import AliquotIdentifier
+
+from ..identifiers import AliquotIdentifier
 
 
 class AliquotCreatorError(Exception):
