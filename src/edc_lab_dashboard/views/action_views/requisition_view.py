@@ -1,6 +1,6 @@
 from django.contrib import messages
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab.labels import AliquotLabel
+from edc_lab import AliquotLabel
 from edc_label import add_job_results_to_messages
 
 from ...view_mixins import ModelsViewMixin

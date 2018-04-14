@@ -2,8 +2,7 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab.exceptions import BoxItemError
-from edc_lab.lab import Manifest as ManifestObject
+from edc_lab import BoxItemError, Manifest as ManifestObject
 
 from ...view_mixins import ManifestViewMixin, ModelsViewMixin
 from .action_view import ActionView

@@ -2,8 +2,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab.constants import SHIPPED
-from edc_lab.exceptions import SpecimenError
+from edc_lab import SHIPPED, SpecimenError
 
 from ...view_mixins import BoxViewMixin, ModelsViewMixin
 from .action_view import ActionView

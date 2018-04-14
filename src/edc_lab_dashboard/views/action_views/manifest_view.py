@@ -1,8 +1,7 @@
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab.constants import SHIPPED
-from edc_lab.labels import ManifestLabel
+from edc_lab import SHIPPED, ManifestLabel
 from edc_label import add_job_results_to_messages
 
 from ...view_mixins import ManifestViewMixin, ModelsViewMixin

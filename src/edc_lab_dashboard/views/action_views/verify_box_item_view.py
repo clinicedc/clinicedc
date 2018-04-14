@@ -1,8 +1,7 @@
 from django.contrib import messages
 from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab.constants import SHIPPED
-from edc_lab.exceptions import SpecimenError
+from edc_lab import SHIPPED, SpecimenError
 
 from ...view_mixins import BoxViewMixin, ModelsViewMixin
 from .action_view import ActionView
