@@ -11,7 +11,8 @@ from .metadata_form_validator_mixin import MetaDataFormValidatorMixin
 
 
 class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
-    """Note, the appointment is only changed, never added, through this form.
+    """Note, the appointment is only changed, never added,
+    through this form.
     """
 
     appointment_model = 'edc_appointment.appointment'
@@ -33,7 +34,8 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
 
     @property
     def required_additional_forms_exist(self):
-        """Returns True if any additional required forms are yet to be keyed.
+        """Returns True if any additional required forms are
+        yet to be keyed.
         """
         return False
 
@@ -106,17 +108,20 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
         elif (appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT]
               and self.requisition_metadata_required_exists):
             raise forms.ValidationError({
-                'appt_status': 'Invalid. Not all required requisitions have been keyed'})
+                'appt_status':
+                'Invalid. Not all required requisitions have been keyed'})
         elif (appt_status not in [INCOMPLETE_APPT, IN_PROGRESS_APPT]
               and self.required_additional_forms_exist):
             raise forms.ValidationError({
-                'appt_status': 'Invalid. Not all required \'additional\' forms have been keyed'})
+                'appt_status':
+                'Invalid. Not all required \'additional\' forms have been keyed'})
 
     def validate_appt_inprogress(self):
         appt_status = self.cleaned_data.get('appt_status')
         if appt_status == IN_PROGRESS_APPT and self.appointment_in_progress_exists:
             raise forms.ValidationError({
-                'appt_status': 'Invalid. Another appointment in this schedule is in progress.'})
+                'appt_status':
+                'Invalid. Another appointment in this schedule is in progress.'})
 
     def validate_appt_new_or_complete(self):
         appt_status = self.cleaned_data.get('appt_status')
@@ -131,21 +136,24 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
                     'appt_status': 'Invalid. All required CRFs have been keyed'})
             elif not self.requisition_metadata_required_exists:
                 raise forms.ValidationError({
-                    'appt_status': 'Invalid. All required requisitions have been keyed'})
+                    'appt_status':
+                    'Invalid. All required requisitions have been keyed'})
             elif not self.required_additional_forms_exist:
                 raise forms.ValidationError({
-                    'appt_status': 'Invalid. All required \'additional\' forms have been keyed'})
+                    'appt_status':
+                    'Invalid. All required \'additional\' forms have been keyed'})
 
     @property
     def appointment_in_progress_exists(self):
-        """Returns True if another appointment in this schedule is currently
-        set to "in_progress".
+        """Returns True if another appointment in this schedule
+        is currently set to "in_progress".
         """
         return self.appointment_model_cls.objects.filter(
             subject_identifier=self.instance.subject_identifier,
             visit_schedule_name=self.instance.visit_schedule_name,
             schedule_name=self.instance.schedule_name,
-            appt_status=IN_PROGRESS_APPT).exclude(id=self.instance.id).exists()
+            appt_status=IN_PROGRESS_APPT).exclude(
+                id=self.instance.id).exists()
 
     def validate_facility_name(self):
         """Raises if facility_name not found in edc_facility.AppConfig.

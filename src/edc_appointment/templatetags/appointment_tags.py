@@ -48,24 +48,27 @@ class ContinuationAppointmentAnchor(template.Node):
                 url = reverse(view)
             except NoReverseMatch as e:
                 raise ContinuationAppointmentUrlError(
-                    'ContinuationAppointmentUrl Tag: NoReverseMatch while rendering reverse '
-                    f'for {self.appointment._meta.module_name}. Is model registered in admin? '
-                    f'Got {e}.')
+                    'ContinuationAppointmentUrl Tag: NoReverseMatch while '
+                    'rendering reverse for {self.appointment._meta.module_name}. '
+                    f'Is model registered in admin? Got {e}.')
             else:
                 # TODO: resolve error when using extra_url_context...give back
                 # variable name ???
+                visit_code_sequence = str(
+                    int(self.appointment.visit_code_sequence) + 1)
                 rev_url = (
                     f'{url}?next=dashboard_url&dashboard_type={self.dashboard_type}'
                     f'&registered_subject={self.appointment.registered_subject.pk}'
                     f'&visit_definition={self.appointment.visit_definition.pk}'
-                    f'&visit_code_sequence={str(int(self.appointment.visit_code_sequence) + 1)}')
+                    f'&visit_code_sequence={visit_code_sequence}')
                 anchor = f'<A href="{rev_url}">continuation</A>'
         return anchor
 
 
 @register.tag(name='continuation_appointment_anchor')
 def continuation_appointment_anchor(parser, token):
-    """Compilation function for renderer ContinuationAppointmentUrl"""
+    """Compilation function for renderer ContinuationAppointmentUrl.
+    """
     try:
         _, appointment, dashboard_type, extra_url_context = token.split_contents()
     except ValueError:
@@ -76,7 +79,8 @@ def continuation_appointment_anchor(parser, token):
 
 @register.filter(name='appt_type')
 def appt_type(value):
-    """Filters appointment.appt_type."""
+    """Filters appointment.appt_type.
+    """
     if value == 'clinic':
         retval = 'Clin'
     elif value == 'telephone':
