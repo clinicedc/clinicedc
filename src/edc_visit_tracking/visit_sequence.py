@@ -57,7 +57,8 @@ class VisitSequence:
                 except MultipleObjectsReturned:
                     previous_appointment = self.appointment_model_cls.objects.filter(
                         subject_identifier=self.subject_identifier,
-                        visit_code=self.previous_visit_code).order_by('-visit_code_sequence')[0]
+                        visit_code=self.previous_visit_code).order_by(
+                            '-visit_code_sequence')[0]
                     previous_visit = self.model_cls.objects.get(
                         appointment=previous_appointment)
         return previous_visit

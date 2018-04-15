@@ -5,14 +5,17 @@ from edc_constants.constants import YES
 
 
 class CaretakerFieldsMixin(models.Model):
-    """A fields mixin for visit models where information on the the participant is offered by
-    another person, as in the case of infant and mother.
+    """A fields mixin for visit models where information
+    on the the participant is offered by another person,
+    as in the case of infant and mother.
 
-    One the ModelForm, override the default form to customize the choices and labels.
+    One the ModelForm, override the default form to customize
+    the choices and labels.
 
     """
     information_provider = models.CharField(
-        verbose_name="Please indicate who provided most of the information for this participant's visit",
+        verbose_name=('Please indicate who provided most of the '
+                      'information for this participant\'s visit'),
         max_length=20)
 
     information_provider_other = models.CharField(
