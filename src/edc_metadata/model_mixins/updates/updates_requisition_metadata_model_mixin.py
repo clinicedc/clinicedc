@@ -34,7 +34,8 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         """
         requisitions_prn = self.metadata_visit_object.requisitions_prn
         if self.visit.visit_code_sequence != 0:
-            requisitions = self.metadata_visit_object.requisitions_unscheduled + requisitions_prn
+            requisitions = (
+                self.metadata_visit_object.requisitions_unscheduled + requisitions_prn)
         else:
             requisitions = self.metadata_visit_object.requisitions + requisitions_prn
         requisition = [r for r in requisitions
