@@ -1,6 +1,7 @@
 from django.test import TestCase, tag
 from django.core.exceptions import ObjectDoesNotExist
 from edc_base import get_utcnow
+from edc_base.tests import SiteTestCaseMixin
 
 from ..models import SubjectScheduleHistory
 from ..schedule import Schedule
@@ -10,7 +11,7 @@ from ..visit_schedule import VisitSchedule
 from .models import SubjectConsent, OnSchedule, OffSchedule
 
 
-class TestSubjectSchedule(TestCase):
+class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
         site_visit_schedules._registry = {}

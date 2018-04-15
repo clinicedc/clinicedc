@@ -137,8 +137,10 @@ class SubjectSchedule:
                 offschedule_model_obj = self.offschedule_model_cls.objects.create(
                     subject_identifier=subject_identifier,
                     offschedule_datetime=offschedule_datetime)
+
         subject_identifier = offschedule_model_obj.subject_identifier
         offschedule_datetime = offschedule_model_obj.offschedule_datetime
+
         # get existing history obj or raise
         try:
             history_obj = self.history_model_cls.objects.get(
@@ -151,60 +153,79 @@ class SubjectSchedule:
                 f'Subject has not been put on schedule '
                 f'\'{self.visit_schedule_name}.{self.schedule_name}\'. '
                 f'Got \'{subject_identifier}\'.')
-        # get existing history obj but confirm date not before onschedule
-        if history_obj:
-            try:
-                self.history_model_cls.objects.get(
-                    subject_identifier=subject_identifier,
-                    schedule_name=self.schedule_name,
-                    visit_schedule_name=self.visit_schedule_name,
-                    onschedule_datetime__lte=offschedule_datetime)
-            except ObjectDoesNotExist:
-                raise InvalidOffscheduleDate(
-                    'Failed to take subject off schedule. '
-                    'Offschedule date cannot precede onschedule date. '
-                    f'Subject was put on schedule {self.visit_schedule_name}.'
-                    f'{self.schedule_name} on {history_obj.onschedule_datetime}. '
-                    f'Got {offschedule_datetime}.')
-            # confirm date not before last visit
-            related_visit_model_attr = self.appointment_model_cls.related_visit_model_attr()
-            try:
-                appointments = self.appointment_model_cls.objects.get(
-                    subject_identifier=subject_identifier,
-                    schedule_name=self.schedule_name,
-                    visit_schedule_name=self.visit_schedule_name,
-                    **{f'{related_visit_model_attr}__report_datetime__gt':
-                       offschedule_datetime})
-            except ObjectDoesNotExist:
-                appointments = None
-            except MultipleObjectsReturned:
-                appointments = self.appointment_model_cls.objects.filter(
-                    subject_identifier=subject_identifier,
-                    schedule_name=self.schedule_name,
-                    visit_schedule_name=self.visit_schedule_name,
-                    **{f'{related_visit_model_attr}__report_datetime__gt': offschedule_datetime})
-            if appointments:
-                raise InvalidOffscheduleDate(
-                    f'Failed to take subject off schedule. '
-                    f'Visits exist after proposed offschedule date. '
-                    f'Got \'{offschedule_datetime}\'.')
-            # update history object
-            history_obj.offschedule_datetime = offschedule_datetime
-            history_obj.schedule_status = OFF_SCHEDULE
-            history_obj.save()
 
-            # update in_progress appointment
-            for obj in self.appointment_model_cls.objects.filter(
-                    subject_identifier=subject_identifier,
-                    schedule_name=self.schedule_name,
-                    visit_schedule_name=self.visit_schedule_name,
-                    appt_status=IN_PROGRESS_APPT):
-                obj.appt_status = COMPLETE_APPT
-                obj.save()
+        if history_obj:
+            self._update_history_or_raise(
+                history_obj=history_obj,
+                subject_identifier=subject_identifier,
+                offschedule_datetime=offschedule_datetime)
+
+            self._update_in_progress_appointment(
+                subject_identifier=subject_identifier)
 
             # clear future appointments
             self.appointment_model_cls.objects.delete_for_subject_after_date(
                 subject_identifier, offschedule_datetime)
+
+    def _update_history_or_raise(self, history_obj=None, subject_identifier=None,
+                                 offschedule_datetime=None):
+        """Updates the history model instance.
+
+        Raises an error if the offschedule_datetime is before the
+        onschedule_datetime or before the last visit.
+        """
+        try:
+            self.history_model_cls.objects.get(
+                subject_identifier=subject_identifier,
+                schedule_name=self.schedule_name,
+                visit_schedule_name=self.visit_schedule_name,
+                onschedule_datetime__lte=offschedule_datetime)
+        except ObjectDoesNotExist:
+            raise InvalidOffscheduleDate(
+                'Failed to take subject off schedule. '
+                'Offschedule date cannot precede onschedule date. '
+                f'Subject was put on schedule {self.visit_schedule_name}.'
+                f'{self.schedule_name} on {history_obj.onschedule_datetime}. '
+                f'Got {offschedule_datetime}.')
+        # confirm date not before last visit
+        related_visit_model_attr = self.appointment_model_cls.related_visit_model_attr()
+        try:
+            appointments = self.appointment_model_cls.objects.get(
+                subject_identifier=subject_identifier,
+                schedule_name=self.schedule_name,
+                visit_schedule_name=self.visit_schedule_name,
+                **{f'{related_visit_model_attr}__report_datetime__gt':
+                   offschedule_datetime})
+        except ObjectDoesNotExist:
+            appointments = None
+        except MultipleObjectsReturned:
+            appointments = self.appointment_model_cls.objects.filter(
+                subject_identifier=subject_identifier,
+                schedule_name=self.schedule_name,
+                visit_schedule_name=self.visit_schedule_name,
+                **{f'{related_visit_model_attr}__report_datetime__gt':
+                   offschedule_datetime})
+        if appointments:
+            raise InvalidOffscheduleDate(
+                f'Failed to take subject off schedule. '
+                f'Visits exist after proposed offschedule date. '
+                f'Got \'{offschedule_datetime}\'.')
+        # update history object
+        history_obj.offschedule_datetime = offschedule_datetime
+        history_obj.schedule_status = OFF_SCHEDULE
+        history_obj.save()
+
+    def _update_in_progress_appointment(self, subject_identifier=None):
+        """Updates the "in_progress" appointment and clears
+        future appointments.
+        """
+        for obj in self.appointment_model_cls.objects.filter(
+                subject_identifier=subject_identifier,
+                schedule_name=self.schedule_name,
+                visit_schedule_name=self.visit_schedule_name,
+                appt_status=IN_PROGRESS_APPT):
+            obj.appt_status = COMPLETE_APPT
+            obj.save()
 
     def resave(self, subject_identifier=None):
         """Resaves the onschedule model instance to trigger, for example,
