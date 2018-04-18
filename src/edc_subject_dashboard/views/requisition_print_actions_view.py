@@ -38,7 +38,8 @@ class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessForm
     def post(self, request, *args, **kwargs):
         response = None
         if self.selected_panel_names:
-            if self.request.POST.get('submit') in [self.print_all_button, self.print_selected_button]:
+            if self.request.POST.get('submit') in [
+                    self.print_all_button, self.print_selected_button]:
                 self.print_labels_action()
             elif self.request.POST.get('submit_print_requisition'):
                 self.consignee = Consignee.objects.get(
@@ -158,5 +159,6 @@ class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessForm
             else:
                 if issubclass(model_cls, RequisitionModelMixin):
                     verified_requisitions.extend(
-                        list(getattr(self.appointment.visit, k).filter(clinic_verified=YES)))
+                        list(getattr(self.appointment.visit, k).filter(
+                            clinic_verified=YES)))
         return verified_requisitions

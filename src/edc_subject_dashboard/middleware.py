@@ -32,8 +32,10 @@ class DashboardMiddleware:
 
     def process_view(self, request, *args):
         url_name_data = {
-            'requisition_print_actions_url': 'edc_subject_dashboard:requisition_print_actions_url',
-            'requisition_verify_actions_url': 'edc_subject_dashboard:requisition_verify_actions_url',
+            'requisition_print_actions_url':
+            'edc_subject_dashboard:requisition_print_actions_url',
+            'requisition_verify_actions_url':
+            'edc_subject_dashboard:requisition_verify_actions_url',
         }
         try:
             settings.DASHBOARD_URL_NAMES
