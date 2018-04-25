@@ -1,4 +1,3 @@
-from django import forms
 from django.apps import apps as django_apps
 from django.db import models
 from edc_base.model_validators.date import datetime_not_future
@@ -7,8 +6,6 @@ from edc_protocol.validators import datetime_not_before_study_start
 from edc_visit_tracking.managers import CrfModelManager
 
 from ..crf_date_validator import CrfDateValidator
-from ..crf_date_validator import CrfReportDateAllowanceError, CrfReportDateBeforeStudyStart
-from ..crf_date_validator import CrfReportDateIsFuture
 from .model_mixins import ModelMixin
 
 
@@ -40,15 +37,11 @@ class CrfModelMixin(ModelMixin, models.Model):
 
     def save(self, *args, **kwargs):
         if self.crf_date_validator_cls:
-            try:
-                self.crf_date_validator_cls(
-                    report_datetime=self.report_datetime,
-                    visit_report_datetime=self.visit.report_datetime,
-                    created=self.created,
-                    modified=self.modified)
-            except (CrfReportDateAllowanceError, CrfReportDateBeforeStudyStart,
-                    CrfReportDateIsFuture) as e:
-                raise forms.ValidationError(e)
+            self.crf_date_validator_cls(
+                report_datetime=self.report_datetime,
+                visit_report_datetime=self.visit.report_datetime,
+                created=self.created,
+                modified=self.modified)
         super().save(*args, **kwargs)
 
     def natural_key(self):
