@@ -61,7 +61,7 @@ class TestSpecimen(TestCase):
             panel=self.panel.panel_model_obj,
             protocol_number='999',
             is_drawn=YES)
-        Specimen(requisition_pk=requisition.pk)
+        Specimen(requisition=requisition)
 
     def test_specimen_not_drawn(self):
         requisition = SubjectRequisition.objects.create(

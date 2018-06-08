@@ -11,6 +11,8 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm, cm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from edc_lab.site_labs import site_labs
+from pprint import pprint
 
 
 class ManifestReportError(Exception):
@@ -373,13 +375,16 @@ class ManifestReport(Report):
         """Returns the panel object associated with this
         aliquot.
         """
-        app_config = django_apps.get_app_config('edc_lab')
-        requisition_model = django_apps.get_model(app_config.requisition_model)
-        try:
-            requisition = requisition_model.objects.get(
-                requisition_identifier=aliquot.requisition_identifier)
-        except ObjectDoesNotExist as e:
+        requisition = None
+        for requisition_model in site_labs.requisition_models:
+            model_cls = django_apps.get_model(requisition_model)
+            try:
+                requisition = model_cls.objects.get(
+                    requisition_identifier=aliquot.requisition_identifier)
+            except ObjectDoesNotExist:
+                pass
+        if not requisition:
             raise ManifestReportError(
-                f'{e} Got requisition identifier {aliquot.requisition_identifier}',
+                f'Invalid requisition identifier. Got {aliquot.requisition_identifier}',
                 code='invalid_requisition_identifier')
         return requisition.panel_object

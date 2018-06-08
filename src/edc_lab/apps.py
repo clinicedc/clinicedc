@@ -27,11 +27,6 @@ class AppConfig(DjangoAppConfig):
     lab_address = 'Private Bag BO 320, Gaborone, Botswana'
     lab_tel = '+267 3902671 ext 2003'
     lab_fax = '+267 3901284'
-
-    try:
-        requisition_model = settings.EDC_LAB_REQUISITION_MODEL
-    except AttributeError:
-        requisition_model = 'edc_lab.requisition'
     aliquot_model = 'edc_lab.aliquot'
     box_item_model = 'edc_lab.boxitem'
     box_model = 'edc_lab.box'

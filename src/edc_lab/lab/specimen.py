@@ -24,19 +24,12 @@ class Specimen:
     primary_aliquot_cls = PrimaryAliquot
     identifier_prefix_cls = IdentifierPrefix
 
-    def __init__(self, requisition=None, requisition_pk=None,
-                 aliquot_model=None, requisition_model=None):
+    def __init__(self, requisition=None, aliquot_model=None, requisition_model=None):
 
         app_config = django_apps.get_app_config('edc_lab')
         self.aliquot_model = aliquot_model or app_config.aliquot_model
 
-        if not requisition:
-            requisition_model = requisition_model or django_apps.get_model(
-                *app_config.requisition_model.split('.'))
-            self.requisition = requisition_model.objects.get(
-                pk=requisition_pk)
-        else:
-            self.requisition = requisition
+        self.requisition = requisition
 
         if not self.requisition.is_drawn == YES:
             raise SpecimenNotDrawnError(

@@ -27,6 +27,7 @@ class SiteLabs:
         self.loaded = False
         self.migrated = False
         self.aliquot_types = {}
+        self.requisition_models = {}
 
     def __repr__(self):
         return f'{self.__class__.__name__}(loaded={self.loaded})'
@@ -57,6 +58,8 @@ class SiteLabs:
                 self.registry.update(
                     {lab_profile.requisition_model: lab_profile})
                 self.aliquot_types.update(**lab_profile.aliquot_types)
+                self.requisition_models.update(
+                    {lab_profile.requisition_model: lab_profile.requisition_model})
                 if self.migrated:
                     panel_model_cls = django_apps.get_model(self.panel_model)
                     self.update_panel_model(panel_model_cls=panel_model_cls)

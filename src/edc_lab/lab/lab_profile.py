@@ -21,8 +21,6 @@ class LabProfile:
             raise LabProfileRequisitionModelError(
                 'Invalid requisition model. Got None')
         self.requisition_model = requisition_model
-#         for panel in self.panels.values():
-#             panel.requisition_model = self.requisition_model
 
     def __repr__(self):
         return f'{self.__class__.__name__}(name={self.name})'

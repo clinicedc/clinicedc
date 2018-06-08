@@ -134,7 +134,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-EDC_LAB_REQUISITION_MODEL = 'edc_lab.subjectrequisition'
 
 if 'test' in sys.argv:
 
