@@ -48,7 +48,6 @@ class SiteLabs:
         """Registers a lab profile instance using the label_lower (model)
         as the key.
 
-            requisition_model: label_lower string
             lab_profile: instance of LabProfile
         """
         if lab_profile:
