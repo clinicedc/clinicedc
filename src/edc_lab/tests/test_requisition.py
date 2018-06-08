@@ -3,8 +3,8 @@ import re
 from django.test import TestCase, tag
 
 from ..identifiers import RequisitionIdentifier
-from ..site_labs import site_labs
 from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel, Process
+from ..site_labs import site_labs
 
 
 class TestRequisition(TestCase):
@@ -21,6 +21,8 @@ class TestRequisition(TestCase):
 class TestRequisitionModel(TestCase):
 
     def setUp(self):
+
+        self.requisition_model = 'edc_lab.subjectrequisition'
         a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
         b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
         a.add_derivatives(b)
@@ -30,10 +32,9 @@ class TestRequisitionModel(TestCase):
         processing_profile.add_processes(process)
         panel = RequisitionPanel(
             name='Viral Load',
-            aliquot_type=a,
             processing_profile=processing_profile)
         self.lab_profile = LabProfile(
-            name='profile', requisition_model='edc_lab.subjectrequisition')
+            name='profile', requisition_model=self.requisition_model)
         self.lab_profile.add_panel(panel=panel)
         site_labs._registry = {}
         site_labs.loaded = False
@@ -45,10 +46,8 @@ class TestRequisitionModel(TestCase):
 
     def test_lab_profile_model(self):
         obj = site_labs.get(lab_profile_name='profile')
-        self.assertEqual('edc_lab.subjectrequisition',
-                         obj.requisition_model)
+        self.assertEqual(self.requisition_model, obj.requisition_model)
 
     def test_panel_model(self):
         for panel in site_labs.get(lab_profile_name='profile').panels.values():
-            self.assertEqual(panel.requisition_model,
-                             'edc_lab.subjectrequisition')
+            self.assertEqual(panel.requisition_model, self.requisition_model)

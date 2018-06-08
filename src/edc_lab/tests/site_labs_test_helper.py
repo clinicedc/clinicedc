@@ -29,7 +29,6 @@ class SiteLabsTestHelper:
         # create a panel
         self.panel = RequisitionPanel(
             name='panel',
-            aliquot_type=a,
             processing_profile=processing_profile)
 
         # lab profile

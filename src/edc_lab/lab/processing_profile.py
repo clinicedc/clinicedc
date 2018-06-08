@@ -61,6 +61,6 @@ class ProcessingProfile:
                     f'from \'{self.aliquot_type}\'.')
             if process.name in self.processes:
                 raise ProcessingProfileAlreadyAdded(
-                    f'Process {process.name} has already been added '
-                    f'to this procesing profile.')
+                    f'Process \'{process.name}\' has already been added '
+                    f'to this processing profile (\'{self.name}\').')
             self.processes.update({process.name: process})

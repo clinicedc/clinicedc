@@ -10,8 +10,6 @@ class LabProfileRequisitionModelError(Exception):
 class LabProfile:
 
     """A container class for panels.
-
-    Added panels must have a matching requisition_model.
     """
 
     def __init__(self, name=None, requisition_model=None):
@@ -23,8 +21,8 @@ class LabProfile:
             raise LabProfileRequisitionModelError(
                 'Invalid requisition model. Got None')
         self.requisition_model = requisition_model
-        for panel in self.panels.values():
-            panel.requisition_model = self.requisition_model
+#         for panel in self.panels.values():
+#             panel.requisition_model = self.requisition_model
 
     def __repr__(self):
         return f'{self.__class__.__name__}(name={self.name})'
