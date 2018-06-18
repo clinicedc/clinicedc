@@ -1,7 +1,6 @@
 import sys
 
 from django.apps import AppConfig as DjangoAppConfig
-from django.conf import settings
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 
