@@ -1,4 +1,4 @@
-from django.urls.conf import path
+from django.urls import path
 from django.views.generic.base import RedirectView
 
 from .admin_site import edc_metadata_admin
