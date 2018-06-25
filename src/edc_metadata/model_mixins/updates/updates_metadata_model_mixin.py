@@ -20,9 +20,9 @@ class UpdatesMetadataModelMixin(models.Model):
         self.metadata_updater.update(entry_status=entry_status)
 
     def run_metadata_rules_for_crf(self):
-        """Runs all the rule groups for this app label.
+        """Runs all the metadata rules.
         """
-        self.visit.run_metadata_rules(visit=self.visit)
+        self.visit.run_metadata_rules()
 
     @property
     def metadata_updater(self):
@@ -39,7 +39,8 @@ class UpdatesMetadataModelMixin(models.Model):
         try:
             obj.entry_status = self.metadata_default_entry_status
         except IndexError:
-            # means crf is not listed in visit schedule, so remove it.
+            # if IndexError, implies CRF is not listed in
+            # the visit schedule, so remove it.
             # for example, this is a PRN form
             obj.delete()
         else:
@@ -50,7 +51,7 @@ class UpdatesMetadataModelMixin(models.Model):
     @property
     def metadata_default_entry_status(self):
         """Returns a string that represents the default entry status
-        of the crf in the visit schedule.
+        of the CRF in the visit schedule.
         """
         crfs_prn = self.metadata_visit_object.crfs_prn
         if self.visit.visit_code_sequence != 0:

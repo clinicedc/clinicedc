@@ -1,11 +1,19 @@
 from django.db import models
 
+from edc_base.model_mixins import BaseUuidModel
+from edc_base.sites import CurrentSiteManager, SiteModelMixin
+
+from .managers import RequisitionMetadataManager
 from .model_mixin import ModelMixin
 
 
-class RequisitionMetadataModelMixin(ModelMixin):
+class RequisitionMetadata(ModelMixin, SiteModelMixin, BaseUuidModel):
 
     panel_name = models.CharField(max_length=50, null=True)
+
+    on_site = CurrentSiteManager()
+
+    objects = RequisitionMetadataManager()
 
     def __str__(self):
         return (f'RequisitionMeta {self.model}.{self.visit_code}.'
@@ -20,9 +28,10 @@ class RequisitionMetadataModelMixin(ModelMixin):
         return (self.panel_name, self.model, self.subject_identifier,
                 self.visit_schedule_name, self.schedule_name, self.visit_code,
                 self.visit_code_sequence)
+    natural_key.dependencies = ['sites.Site']
 
-    class Meta(ModelMixin.Meta):
-        abstract = True
+    class Meta:
+        app_label = 'edc_metadata'
         verbose_name = "Requisition Metadata"
         verbose_name_plural = "Requisition Metadata"
         unique_together = (('subject_identifier', 'visit_schedule_name',
