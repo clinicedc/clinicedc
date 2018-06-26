@@ -12,6 +12,8 @@ from .consent_test_case import ConsentTestCase
 from .dates_test_mixin import DatesTestMixin
 from .visit_schedules import visit_schedule
 from .models import CrfOne
+from pprint import pprint
+from edc_action_item.models.action_item import ActionItem
 
 
 class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
@@ -56,6 +58,7 @@ class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
         except NotConsentedError:
             self.fail('NotConsentedError unexpectedly raised')
 
+    @tag('1')
     def test_requires_consent(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
@@ -86,6 +89,11 @@ class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
             SubjectLocator.objects.create,
             subject_identifier='12345',
             report_datetime=self.study_open_datetime - relativedelta(months=1))
+
+        # delete singleton action item
+        # created for the subject locator
+        ActionItem.objects.all().delete()
+
         try:
             SubjectLocator.objects.create(
                 subject_identifier='12345',
