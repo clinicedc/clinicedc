@@ -6,12 +6,11 @@ from django.db import models, transaction
 from django.utils.translation import ugettext as _
 from django_crypto_fields.fields import FirstnameField, LastnameField
 from django_crypto_fields.fields import IdentityField, EncryptedCharField
-
-from edc_base.model_fields import IdentityTypeField, IsDateEstimatedField
 from edc_base.utils import get_uuid
 from edc_constants.choices import YES, NO, GENDER
 from edc_constants.constants import UUID_PATTERN
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
+from edc_model_fields.fields import IdentityTypeField, IsDateEstimatedField
 
 from ..exceptions import RegisteredSubjectError
 
