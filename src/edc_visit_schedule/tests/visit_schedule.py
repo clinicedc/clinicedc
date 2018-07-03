@@ -65,7 +65,8 @@ schedule.add_visit(visit3)
 visit_schedule = VisitSchedule(
     name='visit_schedule',
     offstudy_model='edc_visit_schedule.subjectoffstudy',
-    death_report_model='edc_visit_schedule.deathreport')
+    death_report_model='edc_visit_schedule.deathreport',
+    visit_model='edc_visit_schedule.subjectvisit')
 
 visit_schedule.add_schedule(schedule)
 
@@ -73,7 +74,8 @@ visit_schedule.add_schedule(schedule)
 visit_schedule2 = VisitSchedule(
     name='visit_schedule2',
     offstudy_model='edc_visit_schedule.subjectoffstudy2',
-    death_report_model='edc_visit_schedule.deathreport')
+    death_report_model='edc_visit_schedule.deathreport',
+    visit_model='edc_visit_schedule.subjectvisit')
 
 
 schedule2 = Schedule(
