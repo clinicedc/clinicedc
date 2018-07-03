@@ -155,3 +155,7 @@ class Schedule:
     @property
     def visit_model_cls(self):
         return self.subject.visit_model_cls
+
+    @property
+    def consent_model_cls(self):
+        return self.subject.consent_model_cls
