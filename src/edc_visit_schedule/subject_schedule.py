@@ -1,11 +1,11 @@
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
 from edc_appointment.creators import AppointmentsCreator
 from edc_base.utils import get_utcnow, convert_php_dateformat
 
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
-from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
 
 
 class SubjectScheduleError(Exception):
@@ -72,6 +72,10 @@ class SubjectSchedule:
     @property
     def visit_model_cls(self):
         return self.appointment_model_cls.visit_model_cls()
+
+    @property
+    def consent_model_cls(self):
+        return django_apps.get_model(self.consent_model)
 
     def put_on_schedule(self, onschedule_model_obj=None, subject_identifier=None,
                         onschedule_datetime=None):
@@ -250,9 +254,8 @@ class SubjectSchedule:
     def consented_or_raise(self, subject_identifier=None):
         """Raises an exception if one or more consents do not exist.
         """
-        consent_model_cls = django_apps.get_model(self.consent_model)
         try:
-            consent_model_cls.objects.get(
+            self.consent_model_cls.objects.get(
                 subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             raise NotConsentedError(
