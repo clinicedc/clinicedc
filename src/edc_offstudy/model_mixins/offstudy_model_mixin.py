@@ -1,27 +1,24 @@
-from django.apps import apps as django_apps
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import options
 from django.utils import timezone
-from edc_base.model_fields import OtherCharField
 from edc_base.model_validators import datetime_not_future
 from edc_base.utils import get_utcnow
 from edc_constants.date_constants import EDC_DATETIME_FORMAT
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_model_fields.fields import OtherCharField
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
-from edc_visit_schedule.model_mixins import VisitScheduleFieldsModelMixin
 
 from ..choices import OFF_STUDY_REASONS
 from ..offstudy import Offstudy
 
-if 'consent_model' not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model',)
+# if 'consent_model' not in options.DEFAULT_NAMES:
+#     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model',)
+#
+# MISSING_META_CONSENT_MODEL = 'missing_meta_consent_model'
+# LOOKUP_ERROR = 'lookup_error'
 
-if 'visit_schedule_name' not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('visit_schedule_name',)
 
-
-class OffstudyModelMixinError(Exception):
+class OffstudyModelMixinError(ValidationError):
     pass
 
 
@@ -31,9 +28,7 @@ class OffstudyModelManager(models.Manager):
         return self.get(subject_identifier=subject_identifier)
 
 
-class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
-                         VisitScheduleFieldsModelMixin,
-                         VisitScheduleMethodsModelMixin, models.Model):
+class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     """Model mixin for the Off-study model.
 
     Override in admin like this:
@@ -47,7 +42,6 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
 
     offstudy_cls = Offstudy
     offstudy_reason_choices = OFF_STUDY_REASONS
-    offstudy_visit_model_app_label = None
 
     offstudy_datetime = models.DateTimeField(
         verbose_name="Off-study date and time",
@@ -66,24 +60,14 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
     objects = OffstudyModelManager()
 
     def save(self, *args, **kwargs):
-        try:
-            consent_model = self._meta.consent_model
-        except AttributeError as e:
-            raise OffstudyModelMixinError(
-                f'Missing Meta class option. See {repr(self)}. Got {e}.')
-        else:
-            try:
-                consent_model_cls = django_apps.get_model(consent_model)
-            except (AttributeError, LookupError) as e:
-                raise OffstudyModelMixinError(
-                    f'Invalid consent model. See Meta options '
-                    f'for {repr(self)}. Got {e}.')
         self.offstudy_cls(
-            consent_model_cls=consent_model_cls,
-            label_lower=self._meta.label_lower,
-            visit_model_app_label=self.offstudy_visit_model_app_label,
+            offstudy_model=self._meta.label_lower,
             **self.__dict__)
         super().save(*args, **kwargs)
+
+    @property
+    def report_datetime(self):
+        return self.offstudy_datetime
 
     def natural_key(self):
         return (self.subject_identifier, )
@@ -95,5 +79,3 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin,
 
     class Meta:
         abstract = True
-        consent_model = None
-        visit_schedule_name = None

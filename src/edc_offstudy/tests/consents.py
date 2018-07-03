@@ -5,7 +5,7 @@ from edc_consent.consent import Consent
 edc_protocol = django_apps.get_app_config('edc_protocol')
 
 v1_consent = Consent(
-    'edc_offstudy.subjectconsent',
+    'edc_appointment.subjectconsent',
     version='1',
     start=edc_protocol.study_open_datetime,
     end=edc_protocol.study_close_datetime,
