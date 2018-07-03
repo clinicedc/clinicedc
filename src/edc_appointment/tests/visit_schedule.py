@@ -1,21 +1,27 @@
 from dateutil.relativedelta import relativedelta
 
 from edc_visit_schedule import VisitSchedule, Schedule, Visit
-from edc_visit_schedule import FormsCollection, Crf, Requisition, Panel
+from edc_visit_schedule import FormsCollection, Crf, Requisition
+from edc_visit_schedule.tests.dummy_panel import DummyPanel
 
 
-panel_one = Panel(
-    name='one', requisition_model='edc_metadata.subjectrequisition')
-panel_two = Panel(
-    name='two', requisition_model='edc_metadata.subjectrequisition')
-panel_three = Panel(
-    name='three', requisition_model='edc_metadata.subjectrequisition')
-panel_four = Panel(
-    name='four', requisition_model='edc_metadata.subjectrequisition')
-panel_five = Panel(
-    name='five', requisition_model='edc_metadata.subjectrequisition')
-panel_six = Panel(
-    name='six', requisition_model='edc_metadata.subjectrequisition')
+class MockPanel(DummyPanel):
+    """`requisition_model` is normally set when the lab profile
+    is set up.
+    """
+
+    def __init__(self, name):
+        super().__init__(
+            requisition_model='edc_appointment.subjectrequisition',
+            name=name)
+
+
+panel_one = MockPanel(name='one')
+panel_two = MockPanel(name='two')
+panel_three = MockPanel(name='three')
+panel_four = MockPanel(name='four')
+panel_five = MockPanel(name='five')
+panel_six = MockPanel(name='six')
 
 crfs = FormsCollection(
     Crf(show_order=1, model='edc_metadata.crfone', required=True),

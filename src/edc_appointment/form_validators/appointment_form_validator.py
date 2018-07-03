@@ -4,10 +4,10 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_base import get_utcnow
 from edc_form_validators.form_validator import FormValidator
+from edc_metadata.form_validators import MetaDataFormValidatorMixin
 
 from ..constants import NEW_APPT, IN_PROGRESS_APPT, CANCELLED_APPT
 from ..constants import UNSCHEDULED_APPT, INCOMPLETE_APPT, COMPLETE_APPT
-from .metadata_form_validator_mixin import MetaDataFormValidatorMixin
 
 
 class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):

@@ -1,3 +1,3 @@
-from edc_sync.site_sync_models import site_sync_models
+from django_offline.site_offline_models import site_offline_models
 
-site_sync_models.register_for_app('edc_appointment')
+site_offline_models.register_for_app('edc_appointment')
