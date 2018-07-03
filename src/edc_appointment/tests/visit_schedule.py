@@ -63,12 +63,14 @@ crfs_unscheduled = FormsCollection(
 visit_schedule1 = VisitSchedule(
     name='visit_schedule1',
     offstudy_model='edc_appointment.subjectoffstudy',
-    death_report_model='edc_appointment.deathreport')
+    death_report_model='edc_appointment.deathreport',
+    locator_model='edc_appointment.subjectlocator')
 
 visit_schedule2 = VisitSchedule(
     name='visit_schedule2',
-    offstudy_model='edc_appointment.subjectoffstudy',
-    death_report_model='edc_appointment.deathreport')
+    offstudy_model='edc_appointment.subjectoffstudy2',
+    death_report_model='edc_appointment.deathreport',
+    locator_model='edc_appointment.subjectlocator')
 
 schedule1 = Schedule(
     name='schedule1',
