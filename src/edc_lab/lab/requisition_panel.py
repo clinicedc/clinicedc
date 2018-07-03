@@ -37,7 +37,8 @@ class RequisitionPanel:
     panel_model = 'edc_lab.panel'
 
     def __init__(self, name=None, processing_profile=None,
-                 verbose_name=None, abbreviation=None):
+                 verbose_name=None, abbreviation=None,
+                 site_ids=None):
         self._panel_model_obj = None
         self.name = name
         self.processing_profile = processing_profile
@@ -45,6 +46,7 @@ class RequisitionPanel:
             name=name, alpha_code=self.processing_profile.aliquot_type.alpha_code)
         self.abbreviation = abbreviation or panel_attrs.abbreviation
         self.verbose_name = verbose_name or panel_attrs.verbose_name
+        self.site_ids = site_ids
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.name}, {self.aliquot_type})'

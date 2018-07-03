@@ -1,6 +1,8 @@
 import re
 
+from ambition_sites.get_site_id import get_site_id
 from django.test import TestCase, tag
+from django.test.utils import override_settings
 
 from ..identifiers import RequisitionIdentifier
 from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel, Process
@@ -51,3 +53,18 @@ class TestRequisitionModel(TestCase):
     def test_panel_model(self):
         for panel in site_labs.get(lab_profile_name='profile').panels.values():
             self.assertEqual(panel.requisition_model, self.requisition_model)
+
+    @tag('1')
+    @override_settings(SITE_ID=get_site_id('blantrye'))
+    def test_panel_siteids(self):
+        print('hello')
+        lab_profile = site_labs.get(lab_profile_name='profile')
+
+        self.assertEqual(
+            len(lab_profile.panels.values()), 12)
+
+    @tag('1')
+    @override_settings(SITE_ID=get_site_id('gaborone'))
+    def test_panel_siteids2(self):
+        self.assertEqual(
+            len(site_labs.get(lab_profile_name='profile').panels.values()), 9)

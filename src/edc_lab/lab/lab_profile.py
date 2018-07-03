@@ -1,3 +1,5 @@
+from django.conf import settings
+
 
 class PanelAlreadyRegistered(Exception):
     pass
@@ -9,7 +11,7 @@ class LabProfileRequisitionModelError(Exception):
 
 class LabProfile:
 
-    """A container class for panels.
+    """A container class for aliquot types, panels and processing.
     """
 
     def __init__(self, name=None, requisition_model=None):
@@ -28,9 +30,14 @@ class LabProfile:
     def __str__(self):
         return self.name
 
-    def add_panel(self, panel=None):
+    def add_panel(self, panel=None, site_id=None):
         """Adds a panel instance to the profile.
+
+        If site_id specified, will only add if site_id matches
+        the current site_id.
         """
+        if site_id and site_id != settings.SITE_ID:
+            return None
         panel.requisition_model = self.requisition_model
         panel.lab_profile_name = self.name
         if panel.name in self.panels:

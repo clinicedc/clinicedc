@@ -5,7 +5,6 @@ from ..lab import AliquotCreator, AliquotCreatorError
 from ..models import Aliquot
 
 
-@tag('aliquot')
 class TestAliquot(TestCase):
 
     def test_aliquot_model_constraint(self):

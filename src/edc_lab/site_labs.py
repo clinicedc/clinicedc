@@ -41,12 +41,14 @@ class SiteLabs:
         return self._registry
 
     def get(self, lab_profile_name):
+        """Returns a LabProfile instance.
+        """
         if not self.loaded:
             raise RegistryNotLoaded(self)
         return self._registry.get(lab_profile_name)
 
     def register(self, lab_profile=None):
-        """Registers a lab profile instance using the label_lower (model)
+        """Registers a LabProfile instance using the label_lower (model)
         as the key.
 
             lab_profile: instance of LabProfile

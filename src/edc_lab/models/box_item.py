@@ -2,7 +2,6 @@ import re
 
 from django.db import models
 from django.db.models.deletion import PROTECT
-
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
