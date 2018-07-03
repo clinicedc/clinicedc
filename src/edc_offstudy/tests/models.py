@@ -1,37 +1,13 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.models import Appointment
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_visit_tracking.model_mixins import VisitModelMixin
 from edc_visit_tracking.model_mixins.crf_model_mixin import CrfModelMixin
-from edc_appointment.tests.models import OnScheduleOne, OnScheduleTwo, SubjectConsent
-from edc_appointment.tests.models import SubjectVisit, SubjectOffstudy, SubjectOffstudy2
+from edc_appointment.tests.models import SubjectVisit
 
 from ..model_mixins import OffstudyModelMixin, OffstudyCrfModelMixin, OffstudyNonCrfModelMixin
 
-
-# class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
-#                      UpdatesOrCreatesRegistrationModelMixin,
-#                      BaseUuidModel):
-#
-#     identity = models.CharField(max_length=50)
-#
-#     confirm_identity = models.CharField(max_length=50)
-#
-#     consent_datetime = models.DateTimeField(
-#         default=get_utcnow)
-#
-#     report_datetime = models.DateTimeField(default=get_utcnow)
-#
-#     dob = models.DateField()
-#
-#     @property
-#     def registration_unique_field(self):
-#         return 'subject_identifier'
-#
-#
 
 class CrfOne(OffstudyCrfModelMixin, CrfModelMixin, BaseUuidModel):
 
@@ -52,7 +28,7 @@ class NonCrfOne(NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin,
     report_datetime = models.DateTimeField(default=get_utcnow)
 
     class Meta(OffstudyNonCrfModelMixin.Meta):
-        offstudy_model = 'edc_appointment.subjectoffstudy'
+        offstudy_model = 'edc_offstudy.subjectoffstudy'
 
 
 class BadNonCrfOne(NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin,
@@ -67,4 +43,9 @@ class BadNonCrfOne(NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixi
 
 
 class BadSubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
+    pass
+
+
+class SubjectOffstudy2(OffstudyModelMixin, BaseUuidModel):
+
     pass

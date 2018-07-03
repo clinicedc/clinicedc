@@ -1,6 +1,11 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_appointment.constants import IN_PROGRESS_APPT
+from edc_appointment.models import Appointment
+from edc_appointment.tests.visit_schedule import visit_schedule1, visit_schedule2
+from edc_appointment.tests.models import OnScheduleOne, SubjectConsent, SubjectVisit
+from edc_appointment.tests.models import OnScheduleTwo
+
 from edc_base import get_utcnow, get_dob
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import DEAD
@@ -11,16 +16,14 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules,\
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..model_mixins import OffstudyNonCrfModelMixinError
+from ..models import SubjectOffstudy
 from ..offstudy import OFFSTUDY_DATETIME_BEFORE_DOB, INVALID_DOB
 from ..offstudy import Offstudy, OffstudyError, NOT_CONSENTED
 from ..offstudy import SUBJECT_NOT_REGISTERED, INVALID_OFFSTUDY_DATETIME_CONSENT
 from ..offstudy_crf import SubjectOffstudyError
 from .consents import v1_consent
 from .forms import SubjectOffstudyForm, CrfOneForm, NonCrfOneForm
-from .models import Appointment, OnScheduleOne, SubjectConsent, SubjectOffstudy, SubjectVisit
-from .models import BadSubjectOffstudy, CrfOne, NonCrfOne, BadNonCrfOne
-from .models import OnScheduleTwo, SubjectOffstudy2
-from .visit_schedule import visit_schedule1, visit_schedule2
+from .models import BadSubjectOffstudy, CrfOne, NonCrfOne, BadNonCrfOne, SubjectOffstudy2
 
 
 class TestOffstudy(TestCase):
@@ -69,7 +72,7 @@ class TestOffstudy(TestCase):
                 subject_identifier=self.subject_identifier,
                 offstudy_datetime=get_utcnow(),
                 consent_model='edc_appointment.subjectconsent',
-                offstudy_model='edc_appointment.subjectoffstudy')
+                offstudy_model='edc_offstudy.subjectoffstudy')
         except OffstudyError:
             self.fail('OffstudyError unexpectedly raised.')
 
@@ -79,7 +82,7 @@ class TestOffstudy(TestCase):
                 subject_identifier=self.subject_identifier,
                 offstudy_datetime=self.consent_datetime,
                 consent_model='edc_appointment.subjectconsent',
-                offstudy_model='edc_appointment.subjectoffstudy')
+                offstudy_model='edc_offstudy.subjectoffstudy')
         except OffstudyError:
             self.fail('OffstudyError unexpectedly raised.')
 
@@ -92,7 +95,7 @@ class TestOffstudy(TestCase):
             offstudy_datetime=self.consent_datetime -
             relativedelta(days=1),
             consent_model='edc_appointment.subjectconsent',
-            offstudy_model='edc_appointment.subjectoffstudy')
+            offstudy_model='edc_offstudy.subjectoffstudy')
 
     def test_offstudy_cls_subject_not_registered(self):
         subject_identifier = '12345'
@@ -102,7 +105,7 @@ class TestOffstudy(TestCase):
                 offstudy_datetime=self.consent_datetime -
                 relativedelta(days=1),
                 consent_model='edc_appointment.subjectconsent',
-                offstudy_model='edc_appointment.subjectoffstudy')
+                offstudy_model='edc_offstudy.subjectoffstudy')
         self.assertEqual(
             cm.exception.code,
             SUBJECT_NOT_REGISTERED)
@@ -117,7 +120,7 @@ class TestOffstudy(TestCase):
                 offstudy_datetime=self.consent_datetime -
                 relativedelta(days=1),
                 consent_model='edc_appointment.subjectconsent',
-                offstudy_model='edc_appointment.subjectoffstudy')
+                offstudy_model='edc_offstudy.subjectoffstudy')
         self.assertEqual(
             cm.exception.code,
             INVALID_DOB)
@@ -133,7 +136,7 @@ class TestOffstudy(TestCase):
                 offstudy_datetime=self.consent_datetime -
                 relativedelta(days=1),
                 consent_model='edc_appointment.subjectconsent',
-                offstudy_model='edc_appointment.subjectoffstudy')
+                offstudy_model='edc_offstudy.subjectoffstudy')
         self.assertEqual(
             cm.exception.code,
             OFFSTUDY_DATETIME_BEFORE_DOB)
@@ -149,10 +152,9 @@ class TestOffstudy(TestCase):
                 offstudy_datetime=self.consent_datetime -
                 relativedelta(days=1),
                 consent_model='edc_appointment.subjectconsent',
-                offstudy_model='edc_appointment.subjectoffstudy')
+                offstudy_model='edc_offstudy.subjectoffstudy')
         self.assertEqual(cm.exception.code, NOT_CONSENTED)
 
-    @tag('1')
     def test_offstudy_cls_offstudy_datetime_before_consent(self):
         with self.assertRaises(OffstudyError) as cm:
             Offstudy(
@@ -160,10 +162,9 @@ class TestOffstudy(TestCase):
                 offstudy_datetime=self.consent_datetime -
                 relativedelta(days=1),
                 # consent_model='edc_appointment.subjectconsent',
-                offstudy_model='edc_appointment.subjectoffstudy')
+                offstudy_model='edc_offstudy.subjectoffstudy')
         self.assertEqual(cm.exception.code, INVALID_OFFSTUDY_DATETIME_CONSENT)
 
-    @tag('1')
     def test_offstudy_with_model_mixin(self):
         off_study = BadSubjectOffstudy()
         self.assertRaises(SiteVisitScheduleError, off_study.save)

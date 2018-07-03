@@ -11,12 +11,6 @@ from edc_protocol.validators import datetime_not_before_study_start
 from ..choices import OFF_STUDY_REASONS
 from ..offstudy import Offstudy
 
-# if 'consent_model' not in options.DEFAULT_NAMES:
-#     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('consent_model',)
-#
-# MISSING_META_CONSENT_MODEL = 'missing_meta_consent_model'
-# LOOKUP_ERROR = 'lookup_error'
-
 
 class OffstudyModelMixinError(ValidationError):
     pass
