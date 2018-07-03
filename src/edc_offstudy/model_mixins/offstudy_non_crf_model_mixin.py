@@ -42,7 +42,7 @@ class OffstudyNonCrfModelMixin(VisitScheduleMethodsModelMixin, models.Model):
                 code=MISSING_META_OFFSTUDY_MODEL)
         if not offstudy_model:
             raise OffstudyNonCrfModelMixinError(
-                f'meta.offstudy_model not defined. See {repr(self)}. Got {e}.',
+                f'meta.offstudy_model not defined. See {repr(self)}.',
                 code=META_OFFSTUDY_MODEL)
         self.offstudy_cls(
             offstudy_model=offstudy_model,
