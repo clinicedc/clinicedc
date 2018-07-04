@@ -28,11 +28,6 @@ if settings.APP_NAME == 'edc_offstudy':
     from edc_appointment.appointment_config import AppointmentConfig
     from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
-    from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
-
-    class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
-        visit_models = {
-            'edc_offstudy': ('subject_visit', 'edc_appointment.subjectvisit')}
 
     class EdcAppointmentAppConfig(BaseEdcAppointmentAppConfig):
         configurations = [

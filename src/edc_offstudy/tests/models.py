@@ -3,7 +3,7 @@ from django.db.models.deletion import PROTECT
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_visit_tracking.model_mixins.crf_model_mixin import CrfModelMixin
+from edc_visit_tracking.model_mixins import CrfModelMixin
 from edc_appointment.tests.models import SubjectVisit
 
 from ..model_mixins import OffstudyModelMixin, OffstudyCrfModelMixin, OffstudyNonCrfModelMixin
