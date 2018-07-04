@@ -105,7 +105,6 @@ class TestModels(SiteTestCaseMixin, TestCase):
             offschedule_datetime=appointment.appt_datetime)
         self.assertEqual(Appointment.objects.all().count(), 1)
 
-    @tag('1')
     def test_onschedules_manager(self):
         """Assert can enter a CRF.
         """

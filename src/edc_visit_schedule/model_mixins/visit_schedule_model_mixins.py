@@ -21,10 +21,17 @@ class VisitScheduleMethodsModelMixin(models.Model):
 
     @property
     def visit(self):
+        """Returns the visit object from the schedule object
+        for this visit code.
+
+        Note: This is not a model instance.
+        """
         return self.schedule.visits.get(self.visit_code)
 
     @property
     def visits(self):
+        """Returns all visit objects from the schedule object.
+        """
         return self.schedule.visits
 
     @property
