@@ -29,11 +29,8 @@ class VisitModelMixin(
         class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin,
                            RequiresConsentModelMixin, BaseUuidModel):
 
-            appointment = models.OneToOneField('Appointment',
-                                                on_delete=PROTECT)
-
-        class Meta(VisitModelMixin.Meta):
-            app_label = 'my_app'
+            class Meta(VisitModelMixin.Meta):
+                app_label = 'my_app'
     """
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
