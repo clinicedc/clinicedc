@@ -10,11 +10,10 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
 from ...choices import VISIT_REASON
-from ...constants import FOLLOW_UP_REASONS, REQUIRED_REASONS, NO_FOLLOW_UP_REASONS
+from ...constants import FOLLOW_UP_REASONS, REQUIRED_REASONS, NO_FOLLOW_UP_REASONS, MISSED_VISIT
 from ...managers import VisitModelManager
 from ..previous_visit_model_mixin import PreviousVisitModelMixin
 from .visit_model_fields_mixin import VisitModelFieldsMixin
-from edc_visit_tracking.constants import MISSED_VISIT
 
 
 class VisitModelMixin(

@@ -26,7 +26,7 @@ class CrfModelAdminMixin:
 
     @property
     def visit_model(self):
-        return self.model.visit_model()
+        return self.model.visit_model_cls()
 
     @property
     def visit_model_attr(self):
@@ -35,8 +35,7 @@ class CrfModelAdminMixin:
     def extend_search_fields(self):
         self.search_fields = list(self.search_fields)
         self.search_fields.extend([
-            '{}__appointment__subject_identifier'.format(
-                self.visit_model_attr)])
+            f'{self.visit_model_attr}__appointment__subject_identifier'])
         self.search_fields = tuple(set(self.search_fields))
 
     def extend_list_filter(self):

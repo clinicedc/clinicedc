@@ -5,7 +5,8 @@ from edc_base.model_managers import ListModelManager, HistoricalRecords
 from edc_base.model_mixins import ListModelMixin
 
 from ..managers import CrfModelManager, VisitModelManager
-from ..model_mixins import CrfModelMixin, VisitModelMixin
+from ..model_mixins import VisitModelMixin
+from ..model_mixins.crfs import CrfModelMixin
 
 
 class ManagerTestCase:
