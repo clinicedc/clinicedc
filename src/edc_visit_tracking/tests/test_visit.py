@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_base import get_utcnow
@@ -11,8 +11,6 @@ from .models import SubjectVisit, CrfOneInline, OtherModel
 from .models import CrfOne, BadCrfOneInline
 from .helper import Helper
 from .visit_schedule import visit_schedule1, visit_schedule2
-from pprint import pprint
-from edc_visit_tracking.model_mixins.visit_model_mixin.visit_model_mixin import VisitModelMixin
 
 
 class TestVisit(TestCase):
@@ -28,7 +26,6 @@ class TestVisit(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
 
-    @tag('1')
     def test_methods(self):
         self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all().order_by(

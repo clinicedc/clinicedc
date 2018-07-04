@@ -12,7 +12,6 @@ from ..modelform_mixins import VisitTrackingModelFormMixin
 from .helper import Helper
 from .models import SubjectVisit, CrfOne
 from .visit_schedule import visit_schedule1, visit_schedule2
-from pprint import pprint
 
 
 class SubjectVisitForm(forms.ModelForm):
