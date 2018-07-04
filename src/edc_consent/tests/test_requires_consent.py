@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.test import tag
+from edc_action_item.models.action_item import ActionItem
 from edc_base.utils import get_utcnow
 from edc_locator.models import SubjectLocator
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -12,8 +13,6 @@ from .consent_test_case import ConsentTestCase
 from .dates_test_mixin import DatesTestMixin
 from .visit_schedules import visit_schedule
 from .models import CrfOne
-from pprint import pprint
-from edc_action_item.models.action_item import ActionItem
 
 
 class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
