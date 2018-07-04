@@ -8,8 +8,6 @@ from ..constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT, FEEDBACK
 from ..timepoint import TimepointClosed
 from ..timepoint_collection import TimepointConfigError
 
-app_config = django_apps.get_app_config('edc_timepoint')
-
 
 class UnableToCloseTimepoint(Exception):
     pass
@@ -17,7 +15,8 @@ class UnableToCloseTimepoint(Exception):
 
 class TimepointModelMixin(models.Model):
 
-    """Makes a model serve as a marker for a timepoint, e.g. Appointment.
+    """Makes a model serve as a marker for a timepoint,
+    e.g. Appointment.
     """
 
     enabled_as_timepoint = True
@@ -39,13 +38,16 @@ class TimepointModelMixin(models.Model):
     def save(self, *args, **kwargs):
         if self.enabled_as_timepoint:
             if (kwargs.get('update_fields') != ['timepoint_status'] and
-                    kwargs.get('update_fields') != ['timepoint_opened_datetime', 'timepoint_status'] and
-                    kwargs.get('update_fields') != ['timepoint_closed_datetime', 'timepoint_status']):
+                    kwargs.get('update_fields') != [
+                        'timepoint_opened_datetime', 'timepoint_status'] and
+                    kwargs.get('update_fields') != [
+                        'timepoint_closed_datetime', 'timepoint_status']):
                 self.timepoint_open_or_raise()
         super().save(*args, **kwargs)
 
     def timepoint_open_or_raise(self, timepoint=None):
         if not timepoint:
+            app_config = django_apps.get_app_config('edc_timepoint')
             try:
                 timepoint = app_config.timepoints.get(self._meta.label_lower)
             except KeyError:
@@ -68,6 +70,7 @@ class TimepointModelMixin(models.Model):
         Updates the timepoint specific fields when the status field
         changes to closed.
         """
+        app_config = django_apps.get_app_config('edc_timepoint')
         timepoint = app_config.timepoints.get(self._meta.label_lower)
         status = getattr(self, timepoint.status_field)
         if status == timepoint.closed_status:
@@ -89,7 +92,7 @@ class TimepointModelMixin(models.Model):
             self.save(
                 update_fields=['timepoint_closed_datetime', 'timepoint_status'])
 
-    def timepoint(self):
+    def formatted_timepoint(self):
         """Formats and returns the status for the change_list.
         """
         if self.timepoint_status == OPEN_TIMEPOINT:
@@ -98,7 +101,6 @@ class TimepointModelMixin(models.Model):
             return '<span style="color:red;">Closed</span>'
         elif self.timepoint_status == FEEDBACK:
             return '<span style="color:orange;">Feedback</span>'
-    # timepoint.allow_tags = True
 
     class Meta:
         abstract = True

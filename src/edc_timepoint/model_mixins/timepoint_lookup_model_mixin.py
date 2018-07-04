@@ -9,7 +9,8 @@ class TimepointLookupModelMixin(models.Model):
     """Makes a model lookup the timepoint model instance on `save`
     and check if it is a closed before allowing a create or update.
 
-    Note: the timepoint model uses the TimepointModelMixin, e.g. Appointment
+    Note: the timepoint model uses the TimepointModelMixin,
+    e.g. Appointment
     """
 
     timepoint_lookup_cls = TimepointLookup

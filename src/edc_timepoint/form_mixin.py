@@ -1,7 +1,8 @@
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
-from edc_timepoint.constants import CLOSED_TIMEPOINT
+
+from .constants import CLOSED_TIMEPOINT
 
 
 class TimepointFormMixin:
@@ -13,9 +14,11 @@ class TimepointFormMixin:
             app_config.timepoints[self._meta.model._meta.label_lower]
         except KeyError:
             raise ImproperlyConfigured(
-                'ModelForm uses a model that is not a timepoint. Got {}.'.format(self._meta.model._meta.label_lower))
+                'ModelForm uses a model that is not a timepoint. '
+                f'Got {self._meta.model._meta.label_lower}.')
         timepoint_status = cleaned_data.get('timepoint_status')
         if timepoint_status == CLOSED_TIMEPOINT:
             raise forms.ValidationError(
-                'This \'{}\' record is closed for data entry. See Timpoint.'.format(self._meta.verbose_name))
+                f'This \'{self._meta.verbose_name}\' record is closed '
+                'for data entry. See Timpoint.')
         return cleaned_data
