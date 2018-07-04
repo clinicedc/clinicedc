@@ -5,6 +5,7 @@ from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 
 from .site_labs import site_labs
+from django.conf import settings
 
 style = color_style()
 
@@ -39,3 +40,19 @@ class AppConfig(DjangoAppConfig):
         sys.stdout.write(f'Loading {self.verbose_name} ...\n')
         site_labs.autodiscover()
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
+
+
+# if settings.APP_NAME == 'edc_lab':
+#
+#     from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
+#     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
+#
+#     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
+#         definitions = {
+#             '7-day-clinic': dict(days=[MO, TU, WE, TH, FR, SA, SU],
+#                                  slots=[100, 100, 100, 100, 100, 100, 100]),
+#             '5-day-clinic': dict(days=[MO, TU, WE, TH, FR],
+#                                  slots=[100, 100, 100, 100, 100]),
+#             '3-day-clinic': dict(days=[TU, WE, TH],
+#                                  slots=[100, 100, 100],
+#                                  best_effort_available_datetime=True)}

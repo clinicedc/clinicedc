@@ -5,7 +5,7 @@ from edc_constants.constants import OTHER, YES, NO, NOT_APPLICABLE
 
 from ..forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
 from ..models import Aliquot
-from .models import SubjectRequisition, SubjectVisit
+from .models import SubjectRequisition, SimpleSubjectVisit as SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 
