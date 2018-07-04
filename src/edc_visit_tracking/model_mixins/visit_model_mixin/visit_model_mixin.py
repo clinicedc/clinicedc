@@ -42,11 +42,6 @@ class VisitModelMixin(
         return f'{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}'
 
     def save(self, *args, **kwargs):
-        if self.__class__.appointment.field.remote_field.on_delete != PROTECT:
-            raise ImproperlyConfigured(
-                'OneToOne relation to appointment must set '
-                'on_delete=PROTECT. Got {}'.format(
-                    self.__class__.appointment.field.remote_field.on_delete.__name__))
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
@@ -61,7 +56,6 @@ class VisitModelMixin(
                 self.schedule_name,
                 self.visit_code,
                 self.visit_code_sequence)
-    # change this if you are using another appointment model
     natural_key.dependencies = ['edc_appointment.appointment']
 
     @property
