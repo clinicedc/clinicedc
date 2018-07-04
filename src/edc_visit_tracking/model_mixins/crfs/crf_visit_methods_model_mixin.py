@@ -48,7 +48,6 @@ class CrfVisitMethodsModelMixin(models.Model):
             except (AttributeError, AssertionError):
                 pass
             else:
-                print(name)
                 if issubclass(field.related_model, (VisitModelMixin, )):
                     visit_model_attr = name
         return visit_model_attr
