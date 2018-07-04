@@ -10,11 +10,11 @@ import django_crypto_fields.fields.identity_field
 import django_crypto_fields.fields.lastname_field
 import django_extensions.db.fields
 import django_revision.revision_field
-import edc_base.model_fields.date_estimated
-import edc_base.model_fields.custom_fields
-import edc_base.model_fields.hostname_modification_field
-import edc_base.model_fields.userfield
-import edc_base.model_fields.uuid_auto_field
+import edc_model_fields.fields.date_estimated
+import edc_model_fields.fields
+import edc_model_fields.fields.hostname_modification_field
+import edc_model_fields.fields.userfield
+import edc_model_fields.fields.uuid_auto_field
 import edc_base.utils
 
 
@@ -33,17 +33,17 @@ class Migration(migrations.Migration):
                     auto_now_add=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(
                     auto_now=True, verbose_name='modified')),
-                ('user_created', edc_base.model_fields.userfield.UserField(
+                ('user_created', edc_model_fields.fields.userfield.UserField(
                     blank=True, editable=False, max_length=50, verbose_name='user created')),
-                ('user_modified', edc_base.model_fields.userfield.UserField(
+                ('user_modified', edc_model_fields.fields.userfield.UserField(
                     blank=True, editable=False, max_length=50, verbose_name='user modified')),
                 ('hostname_created', models.CharField(default='mac2-2.local', editable=False,
                                                       help_text='System field. (modified on create only)', max_length=50)),
-                ('hostname_modified', edc_base.model_fields.hostname_modification_field.HostnameModificationField(
+                ('hostname_modified', edc_model_fields.fields.hostname_modification_field.HostnameModificationField(
                     blank=True, editable=False, help_text='System field. (modified on every save)', max_length=50)),
                 ('revision', django_revision.revision_field.RevisionField(blank=True, editable=False,
                                                                           help_text='System field. Git repository tag:branch:commit.', max_length=75, null=True, verbose_name='Revision')),
-                ('id', edc_base.model_fields.uuid_auto_field.UUIDAutoField(blank=True, editable=False,
+                ('id', edc_model_fields.fields.uuid_auto_field.UUIDAutoField(blank=True, editable=False,
                                                                            help_text='System auto field. UUID primary key.', primary_key=True, serialize=False)),
                 ('subject_identifier', models.CharField(
                     editable=False, max_length=50, unique=True, verbose_name='Subject Identifier')),
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
                  django.core.validators.RegexValidator(message='Ensure initials consist of letters only in upper case, no spaces.', regex='^[A-Z]{2,3}$')])),
                 ('dob', models.DateField(
                     help_text='Format is YYYY-MM-DD', null=True, verbose_name='Date of birth')),
-                ('is_dob_estimated', edc_base.model_fields.date_estimated.IsDateEstimatedField(choices=[('-', 'No'), ('D', 'Yes, estimated the Day'), ('MD', 'Yes, estimated Month and Day'), (
+                ('is_dob_estimated', edc_model_fields.fields.date_estimated.IsDateEstimatedField(choices=[('-', 'No'), ('D', 'Yes, estimated the Day'), ('MD', 'Yes, estimated Month and Day'), (
                     'YMD', 'Yes, estimated Year, Month and Day')], help_text='If the exact date is not known, please indicate which part of the date is estimated.', max_length=25, null=True, verbose_name='Is date of birth estimated?')),
                 ('gender', models.CharField(choices=[
                  ('M', 'Male'), ('F', 'Female')], max_length=1, null=True, verbose_name='Gender')),
@@ -77,7 +77,7 @@ class Migration(migrations.Migration):
                     blank=True, help_text=' (Encryption: RSA local)', max_length=71, null=True)),
                 ('identity_or_pk', models.CharField(default=edc_base.utils.get_uuid,
                                                     editable=False, max_length=50, unique=True, verbose_name='identity or pk')),
-                ('identity_type', edc_base.model_fields.custom_fields.IdentityTypeField(blank=True, choices=[('OMANG', 'Omang'), ('DRIVERS', "Driver's License"), (
+                ('identity_type', edc_model_fields.fields.IdentityTypeField(blank=True, choices=[('OMANG', 'Omang'), ('DRIVERS', "Driver's License"), (
                     'PASSPORT', 'Passport'), ('OMANG_RCPT', 'Omang Receipt'), ('OTHER', 'Other')], max_length=15, null=True, verbose_name='What type of identity number is this?')),
                 ('screening_identifier', models.CharField(
                     blank=True, max_length=36, null=True)),
