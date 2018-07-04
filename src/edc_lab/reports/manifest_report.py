@@ -149,7 +149,8 @@ class ManifestReport(Report):
         data = [
             [Paragraph('MANIFEST NO.', self.styles["line_label"]),
              Paragraph(
-                 self.manifest.human_readable_identifier if self.manifest.shipped else 'PREVIEW',
+                 (self.manifest.human_readable_identifier
+                  if self.manifest.shipped else 'PREVIEW'),
                  self.styles["line_data_largest"]),
              barcode,
              ]]
@@ -182,8 +183,10 @@ class ManifestReport(Report):
         ]))
         story.append(t)
 
-        data = [[Paragraph('SHIPPER/EXPORTER (complete name and address)', self.styles["line_label"]),
-                 Paragraph('CONSIGNEE (complete name and address)', self.styles["line_label"])],
+        data = [[Paragraph('SHIPPER/EXPORTER (complete name and address)',
+                           self.styles["line_label"]),
+                 Paragraph('CONSIGNEE (complete name and address)',
+                           self.styles["line_label"])],
                 [Paragraph(
                     self.formatted_address(**self.shipper_data),
                     self.styles["line_data_large"]),
@@ -236,8 +239,9 @@ class ManifestReport(Report):
 
         story.append(Spacer(0.1 * cm, .5 * cm))
 
-        story.append(Table([[Paragraph('I DECLARE THE INFORMATION CONTAINED IN THIS '
-                                       'MANIFEST TO BE TRUE AND CORRECT', self.styles["line_label"])]]))
+        story.append(Table([[
+            Paragraph('I DECLARE THE INFORMATION CONTAINED IN THIS '
+                      'MANIFEST TO BE TRUE AND CORRECT', self.styles["line_label"])]]))
 
         story.append(Spacer(0.1 * cm, .5 * cm))
 
@@ -308,7 +312,8 @@ class ManifestReport(Report):
                     box.get_category_display().upper(), self.styles["line_data_large"]),
                 Paragraph(box.specimen_types, self.styles["line_data_large"]),
                 Paragraph(
-                    '{}/{}'.format(str(box.count), str(box.box_type.total)), self.styles["line_data_large"]),
+                    f'{str(box.count)}/{str(box.box_type.total)}',
+                    self.styles["line_data_large"]),
                 Paragraph(box.box_datetime.strftime(
                     '%Y-%m-%d'), self.styles["line_data_large"]),
                 barcode])

@@ -32,8 +32,8 @@ class Manifest:
         return django_apps.get_model(*self.app_config.manifest_item_model.split('.'))
 
     def add_box(self, box=None, manifest_item_identifier=None):
-        """Add a box to the manifest, if possible, and add success or error messages
-        to the django message framework.
+        """Add a box to the manifest, if possible, and add success
+        or error messages to the django message framework.
         """
         added = 0
         if not box:
@@ -56,15 +56,16 @@ class Manifest:
                     manifest_item.save()
                     added = 1
                 else:
+                    href = reverse(
+                        self.listboard_url,
+                        kwargs={
+                            'manifest_identifier':
+                            manifest_item.manifest.manifest_identifier})
+                    manifest_identifier = manifest_item.manifest.human_readable_identifier
                     message = mark_safe(
-                        'Item is already in a manifest. See <a href="{href}" class="alert-link">'
-                        '{manifest_identifier}</a>'.format(
-                            href=reverse(
-                                self.listboard_url,
-                                kwargs={
-                                    'manifest_identifier':
-                                    manifest_item.manifest.manifest_identifier}),
-                            manifest_identifier=manifest_item.manifest.human_readable_identifier))
+                        'Item is already in a manifest. See '
+                        f'<a href="{href}" class="alert-link">'
+                        f'{manifest_identifier}</a>')
                     messages.error(self.request, message)
             else:
                 message = 'Duplicate item. Got {}.'.format(

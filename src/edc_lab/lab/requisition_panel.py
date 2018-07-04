@@ -81,7 +81,8 @@ class RequisitionPanel:
                 self.requisition_model)
         except (LookupError, ValueError, AttributeError) as e:
             raise RequisitionPanelLookupError(
-                f'Invalid requisition model. requisition model=\'{self.requisition_model}\'. '
+                f'Invalid requisition model. requisition model='
+                f'\'{self.requisition_model}\'. '
                 f'See {repr(self)} or the lab profile {self.lab_profile_name}.'
                 f'Got {e}')
         return requisition_model_cls
@@ -94,5 +95,6 @@ class RequisitionPanel:
     def alpha_code(self):
         return self.aliquot_type.alpha_code
 
-# TODO: panel should have some relation to the interface, e.g. a mapping of test_code to test_code on interface
+# TODO: panel should have some relation to the interface,
+# e.g. a mapping of test_code to test_code on interface
 #       for example CD4% = cd4_perc or VL = AUVL, VL = PMH

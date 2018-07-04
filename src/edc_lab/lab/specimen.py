@@ -39,7 +39,8 @@ class Specimen:
 
         if not self.requisition.identifier_prefix:
             self.requisition.identifier_prefix = self.primary_aliquot.identifier_prefix
-            self.requisition.primary_aliquot_identifier = self.primary_aliquot.aliquot_identifier
+            self.requisition.primary_aliquot_identifier = (
+                self.primary_aliquot.aliquot_identifier)
             self.requisition.save()
 
     @property
