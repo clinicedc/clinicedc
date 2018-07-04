@@ -4,6 +4,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
+from edc_appointment.models import Appointment
 from edc_base.model_managers.historical_records import HistoricalRecords
 from edc_constants.constants import YES, NO
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
@@ -34,6 +35,7 @@ class VisitModelMixin(
         class Meta(VisitModelMixin.Meta):
             app_label = 'my_app'
     """
+    appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
     objects = VisitModelManager()
 
