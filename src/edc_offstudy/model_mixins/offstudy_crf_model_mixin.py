@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from django.db import models
 
