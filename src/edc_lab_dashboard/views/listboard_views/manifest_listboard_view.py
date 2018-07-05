@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from edc_lab.constants import SHIPPED
 from edc_lab.reports import ManifestReport
 from edc_lab.models import Manifest
@@ -6,8 +5,6 @@ from edc_lab.models import Manifest
 from ...model_wrappers import ManifestModelWrapper
 from ..listboard_filters import ManifestListboardViewFilters
 from .base_listboard_view import BaseListboardView
-
-edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class ManifestListboardView(BaseListboardView):
@@ -17,7 +14,7 @@ class ManifestListboardView(BaseListboardView):
     form_action_url = 'manifest_form_action_url'
     listboard_url = 'manifest_listboard_url'
     listboard_template = 'manifest_listboard_template'
-    model = edc_lab_app_config.manifest_model
+    listboard_model = Manifest
     model_wrapper_cls = ManifestModelWrapper
     listboard_view_filters = ManifestListboardViewFilters()
     search_form_url = 'manifest_listboard_url'

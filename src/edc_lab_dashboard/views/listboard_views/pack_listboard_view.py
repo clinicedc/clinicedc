@@ -16,8 +16,7 @@ class PackListboardView(BaseListboardView):
     form_action_url = 'pack_form_action_url'
     listboard_url = 'pack_listboard_url'
     listboard_template = 'pack_listboard_template'
-    model = edc_lab_app_config.box_model
-    manifest_model_name = edc_lab_app_config.manifest_model
+    listboard_model = Box
     model_wrapper_cls = BoxModelWrapper
     navbar_selected_item = 'pack'
     listboard_view_filters = PackListboardViewFilters()

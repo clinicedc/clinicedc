@@ -16,9 +16,6 @@ class ActionViewError(Exception):
     pass
 
 
-app_name = 'edc_lab_dashboard'
-
-
 class ActionView(TemplateView):
 
     """A view for lab "actions" such as receive, process,

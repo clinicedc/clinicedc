@@ -1,17 +1,15 @@
-from django.apps import apps as django_apps
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab import BoxItemError, Manifest as ManifestObject
+from edc_lab.models import ManifestItem, Box
 
-from ...view_mixins import ManifestViewMixin, ModelsViewMixin
+from ...view_mixins import ManifestViewMixin
 from .action_view import ActionView
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
 
-
-class ManageManifestView(EdcBaseViewMixin, ModelsViewMixin, ManifestViewMixin,
-                         ActionView):
+class ManageManifestView(EdcBaseViewMixin, ManifestViewMixin, ActionView):
 
     post_action_url = 'manage_manifest_listboard_url'
     valid_form_actions = [
@@ -39,7 +37,7 @@ class ManageManifestView(EdcBaseViewMixin, ModelsViewMixin, ManifestViewMixin,
         if not self.selected_items:
             message = ('Nothing to do. No items have been selected.')
             messages.warning(self.request, message)
-        elif self.manifest_item_model.objects.filter(
+        elif ManifestItem.objects.filter(
                 pk__in=self.selected_items,
                 manifest__shipped=True).exists():
             message = (
@@ -47,7 +45,7 @@ class ManageManifestView(EdcBaseViewMixin, ModelsViewMixin, ManifestViewMixin,
             messages.error(self.request, message)
         else:
             try:
-                deleted = self.manifest_item_model.objects.filter(
+                deleted = ManifestItem.objects.filter(
                     pk__in=self.selected_items,
                     manifest__shipped=False).delete()
                 message = ('{} items have been removed.'.format(deleted[0]))
@@ -68,7 +66,7 @@ class ManageManifestView(EdcBaseViewMixin, ModelsViewMixin, ManifestViewMixin,
     @property
     def box(self):
         try:
-            return self.box_model.objects.get(
+            return Box.objects.get(
                 box_identifier=self.manifest_item_identifier)
-        except self.box_model.DoesNotExist:
+        except ObjectDoesNotExist:
             return None

@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from edc_lab.models import Aliquot, Box, BoxItem
 
 
 edc_lab_app_config = django_apps.get_app_config('edc_lab')
@@ -7,16 +8,12 @@ edc_lab_app_config = django_apps.get_app_config('edc_lab')
 class ModelsViewMixin:
 
     @property
-    def aliquot_model(self):
-        return django_apps.get_model(edc_lab_app_config.aliquot_model)
-
-    @property
     def box_model(self):
-        return django_apps.get_model(edc_lab_app_config.box_model)
+        return Box
 
     @property
     def box_item_model(self):
-        return django_apps.get_model(edc_lab_app_config.box_item_model)
+        return BoxItem
 
     @property
     def manifest_model(self):

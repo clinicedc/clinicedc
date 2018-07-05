@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import escape
 from django.views.generic.base import ContextMixin
 from edc_lab.exceptions import SpecimenError
+from edc_lab.models import Aliquot, Box
 
 
 class BoxViewMixin(ContextMixin):
@@ -54,9 +55,9 @@ class BoxViewMixin(ContextMixin):
         if not self._box:
             if self.box_identifier:
                 try:
-                    self._box = self.box_model.objects.get(
+                    self._box = Box.objects.get(
                         box_identifier=self.box_identifier)
-                except self.box_model.DoesNotExist:
+                except ObjectDoesNotExist:
                     self._box = None
         return self._box
 
@@ -95,7 +96,7 @@ class BoxViewMixin(ContextMixin):
         box_item_identifier = ''.join(
             self.original_box_item_identifier.split('-'))
         try:
-            obj = self.aliquot_model.objects.get(
+            obj = Aliquot.objects.get(
                 aliquot_identifier=box_item_identifier)
         except ObjectDoesNotExist:
             message = 'Invalid aliquot identifier. Got {}.'.format(

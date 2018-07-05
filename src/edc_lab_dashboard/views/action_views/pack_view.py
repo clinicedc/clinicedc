@@ -1,25 +1,20 @@
-from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab import PACKED, BoxLabel, Manifest as ManifestObject
+from edc_lab.models import Manifest, Box
 from edc_label import add_job_results_to_messages
 
-from ...view_mixins import ModelsViewMixin
 from .action_view import ActionView
 
-edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
-
-class PackView(EdcBaseViewMixin, ModelsViewMixin, ActionView):
+class PackView(EdcBaseViewMixin, ActionView):
 
     post_action_url = 'pack_listboard_url'
     valid_form_actions = [
         'add_selected_to_manifest', 'remove_selected_items', 'print_labels']
-    box_model = django_apps.get_model(*edc_lab_app_config.box_model.split('.'))
     label_cls = BoxLabel
-    manifest_model = 'edc_lab.manifest'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -45,9 +40,8 @@ class PackView(EdcBaseViewMixin, ModelsViewMixin, ActionView):
     def selected_manifest(self):
         if not self._selected_manifest:
             if self.request.POST.get('selected_manifest'):
-                model_cls = django_apps.get_model(self.manifest_model)
                 try:
-                    self._selected_manifest = model_cls.objects.get(
+                    self._selected_manifest = Manifest.objects.get(
                         pk=self.request.POST.get('selected_manifest'))
                 except ObjectDoesNotExist:
                     pass
@@ -69,7 +63,7 @@ class PackView(EdcBaseViewMixin, ModelsViewMixin, ActionView):
             try:
                 added = 0
                 for selected_item in self.selected_items:
-                    box = self.box_model.objects.get(pk=selected_item)
+                    box = Box.objects.get(pk=selected_item)
                     if manifest_object.add_box(
                             box=box,
                             manifest_item_identifier=box.box_identifier):
@@ -96,7 +90,7 @@ class PackView(EdcBaseViewMixin, ModelsViewMixin, ActionView):
             messages.warning(self.request, message)
         else:
             try:
-                deleted = self.box_model.objects.filter(
+                deleted = Box.objects.filter(
                     pk__in=self.selected_items).delete()
                 message = ('{} items have been removed.'.format(deleted[0]))
                 messages.success(self.request, message)

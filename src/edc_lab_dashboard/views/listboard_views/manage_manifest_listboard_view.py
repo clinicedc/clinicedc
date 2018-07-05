@@ -1,11 +1,9 @@
-from django.apps import apps as django_apps
 from edc_lab.constants import SHIPPED
+from edc_lab.models import ManifestItem
 
 from ...model_wrappers import ManifestItemModelWrapper
 from ...view_mixins import ManifestViewMixin
 from .base_listboard_view import BaseListboardView
-
-edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
@@ -17,7 +15,7 @@ class ManageManifestListboardView(ManifestViewMixin, BaseListboardView):
     listboard_template = 'manage_manifest_listboard_template'
     search_form_url = 'manage_manifest_listboard_url'
 
-    model = edc_lab_app_config.manifest_item_model
+    listboard_model = ManifestItem
     model_wrapper_cls = ManifestItemModelWrapper
 
     def get_context_data(self, **kwargs):

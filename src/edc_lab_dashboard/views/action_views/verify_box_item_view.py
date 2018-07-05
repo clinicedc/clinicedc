@@ -3,12 +3,11 @@ from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab import SHIPPED, SpecimenError
 
-from ...view_mixins import BoxViewMixin, ModelsViewMixin
+from ...view_mixins import BoxViewMixin
 from .action_view import ActionView
 
 
-class VerifyBoxItemView(EdcBaseViewMixin, ModelsViewMixin, BoxViewMixin,
-                        ActionView):
+class VerifyBoxItemView(EdcBaseViewMixin, BoxViewMixin, ActionView):
 
     post_action_url = 'verify_box_listboard_url'
     box_item_failed = False

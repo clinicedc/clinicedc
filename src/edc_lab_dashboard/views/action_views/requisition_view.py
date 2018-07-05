@@ -1,13 +1,13 @@
 from django.contrib import messages
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab import AliquotLabel
+from edc_lab.models import Aliquot
 from edc_label import add_job_results_to_messages
 
-from ...view_mixins import ModelsViewMixin
 from .action_view import ActionView
 
 
-class RequisitionView(EdcBaseViewMixin, ModelsViewMixin, ActionView):
+class RequisitionView(EdcBaseViewMixin, ActionView):
 
     post_action_url = 'requisition_listboard_url'
     valid_form_actions = ['print_labels']
@@ -23,7 +23,7 @@ class RequisitionView(EdcBaseViewMixin, ModelsViewMixin, ActionView):
                 job_results = []
                 for requisition in self.requisitions:
                     aliquots = (
-                        self.aliquot_model.objects.filter(
+                        Aliquot.objects.filter(
                             requisition_identifier=requisition.requisition_identifier)
                         .order_by('count'))
                     if aliquots:

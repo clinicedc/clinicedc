@@ -1,14 +1,12 @@
-from django.apps import apps as django_apps
 from edc_model_wrapper import ModelWrapper
+from edc_lab.models import Box, ManifestItem
 
 from ..dashboard_urls import dashboard_urls
-
-edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class ManifestItemModelWrapper(ModelWrapper):
 
-    model = edc_lab_app_config.manifest_item_model
+    model_cls = ManifestItem
     next_url_name = dashboard_urls.get('manage_manifest_listboard_url')
     action_name = 'manage'
 
@@ -22,8 +20,4 @@ class ManifestItemModelWrapper(ModelWrapper):
 
     @property
     def box(self):
-        return self.box_model.objects.get(box_identifier=self.object.identifier)
-
-    @property
-    def box_model(self):
-        return django_apps.get_model(edc_lab_app_config.box_model)
+        return Box.objects.get(box_identifier=self.object.identifier)

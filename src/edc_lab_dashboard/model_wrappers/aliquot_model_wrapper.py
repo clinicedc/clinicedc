@@ -1,15 +1,12 @@
-from django.apps import apps as django_apps
+from edc_lab.models import Aliquot, BoxItem, ManifestItem
 from edc_model_wrapper import ModelWrapper
-from edc_lab.models import BoxItem, ManifestItem
 
 from ..dashboard_urls import dashboard_urls
-
-edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class AliquotModelWrapper(ModelWrapper):
 
-    model = edc_lab_app_config.aliquot_model
+    model_cls = Aliquot
     next_url_name = dashboard_urls.get('aliquot_listboard_url')
 
     @property

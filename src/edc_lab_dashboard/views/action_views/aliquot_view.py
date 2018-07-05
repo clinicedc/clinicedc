@@ -3,11 +3,10 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab import AliquotLabel, LabPrintersMixin
 from edc_label import add_job_results_to_messages
 
-from ...view_mixins import ModelsViewMixin
 from .action_view import ActionView
 
 
-class AliquotView(EdcBaseViewMixin, ModelsViewMixin, LabPrintersMixin, ActionView):
+class AliquotView(EdcBaseViewMixin, LabPrintersMixin, ActionView):
 
     post_action_url = 'aliquot_listboard_url'
     valid_form_actions = ['print_labels']
