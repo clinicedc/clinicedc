@@ -20,14 +20,12 @@ class Specimen:
     """
 
     aliquot_creator_cls = AliquotCreator
-    specimen_processor_cls = SpecimenProcessor
-    primary_aliquot_cls = PrimaryAliquot
+    aliquot_model = 'edc_lab.aliquot'
     identifier_prefix_cls = IdentifierPrefix
+    primary_aliquot_cls = PrimaryAliquot
+    specimen_processor_cls = SpecimenProcessor
 
-    def __init__(self, requisition=None, aliquot_model=None, requisition_model=None):
-
-        app_config = django_apps.get_app_config('edc_lab')
-        self.aliquot_model = aliquot_model or app_config.aliquot_model
+    def __init__(self, requisition=None):
 
         self.requisition = requisition
 
@@ -69,7 +67,8 @@ class Specimen:
 
     @property
     def aliquots(self):
-        return self.aliquot_model_cls.objects.filter(
+        aliquot_model_cls = django_apps.get_model(self.aliquot_model)
+        return aliquot_model_cls.objects.filter(
             identifier_prefix=self.identifier_prefix)
 
     @property
@@ -80,7 +79,3 @@ class Specimen:
         return self.identifier_prefix_cls(
             protocol_number=self.requisition.get_protocol_number(),
             requisition_identifier=self.requisition.requisition_identifier)
-
-    @property
-    def aliquot_model_cls(self):
-        return django_apps.get_model(self.aliquot_model)

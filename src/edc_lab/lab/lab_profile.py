@@ -1,4 +1,4 @@
-from django.conf import settings
+from django.apps import apps as django_apps
 
 
 class PanelAlreadyRegistered(Exception):
@@ -13,6 +13,7 @@ class LabProfile:
 
     """A container class for aliquot types, panels and processing.
     """
+    site_model = 'sites.site'
 
     def __init__(self, name=None, requisition_model=None):
         self.aliquot_types = {}
@@ -36,8 +37,10 @@ class LabProfile:
         If site_id specified, will only add if site_id matches
         the current site_id.
         """
-        if site_id and site_id != settings.SITE_ID:
+        Site = django_apps.get_model(self.site_model)
+        if site_id and site_id != Site.objects.get_current():
             return None
+
         panel.requisition_model = self.requisition_model
         panel.lab_profile_name = self.name
         if panel.name in self.panels:

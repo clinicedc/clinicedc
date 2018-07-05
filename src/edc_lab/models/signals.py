@@ -1,9 +1,8 @@
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
-from edc_lab.constants import VERIFIED
-from edc_lab.models import BoxItem
-
+from ..constants import VERIFIED
+from ..models import BoxItem
 from .box import Box
 from .manifest import ManifestItem
 

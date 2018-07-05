@@ -11,8 +11,9 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm, cm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from edc_lab.site_labs import site_labs
-from pprint import pprint
+
+from ..models import Box, BoxItem, Aliquot
+from ..site_labs import site_labs
 
 
 class ManifestReportError(Exception):
@@ -25,12 +26,12 @@ class ManifestReport(Report):
 
     def __init__(self, manifest=None, user=None, **kwargs):
         super().__init__(**kwargs)
-        app_config = django_apps.get_app_config('edc_lab')
+        # app_config = django_apps.get_app_config('edc_lab')
         self.manifest = manifest  # a Manifest model instance
         self.user = user  # a User model instance
-        self.box_model = django_apps.get_model(app_config.box_model)
-        self.box_item_model = django_apps.get_model(app_config.box_item_model)
-        self.aliquot_model = django_apps.get_model(app_config.aliquot_model)
+        self.box_model = Box
+        self.box_item_model = BoxItem
+        self.aliquot_model = Aliquot
         self.image_folder = os.path.join(
             settings.STATIC_ROOT, 'bcpp', 'images')
 

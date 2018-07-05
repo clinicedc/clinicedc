@@ -1,11 +1,18 @@
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
+
+from ..site_labs import site_labs
 
 from .base_label import BaseLabel
 
 
+class AliquotLabelError(Exception):
+    pass
+
+
 class AliquotLabel(BaseLabel):
 
-    model_attr = 'aliquot_model'
+    model = 'edc_lab.aliquot'
     template_name = 'aliquot'
     registered_subject_model = 'edc_registration.registeredsubject'
 
@@ -18,21 +25,28 @@ class AliquotLabel(BaseLabel):
     @property
     def requisition(self):
         if not self._requisition:
-            self._requisition = self.requisition_model_cls.objects.get(
-                requisition_identifier=self.model_obj.requisition_identifier)
+            for model in site_labs.requisition_models:
+                model_cls = django_apps.get_model(model)
+                try:
+                    self._requisition = model_cls.objects.get(
+                        requisition_identifier=self.model_obj.requisition_identifier)
+                except ObjectDoesNotExist:
+                    pass
+                else:
+                    break
+            if not self._requisition:
+                raise AliquotLabelError(
+                    'Requisition does not exist. '
+                    f'requisition_identifier={self.model_obj.requisition_identifier}. '
+                    f'Tried models {site_labs.requisition_models}')
         return self._requisition
-
-    @property
-    def registered_subject(self):
-        if not self._registered_subject:
-            model_cls = django_apps.get_model(self.registered_subject_model)
-            self._registered_subject = model_cls.objects.get(
-                subject_identifier=self.requisition.subject_identifier)
-        return self._registered_subject
 
     @property
     def label_context(self):
         edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
+        registered_subject = django_apps.get_model(
+            self.registered_subject_model).objects.get(
+            subject_identifier=self.requisition.subject_identifier)
         return {
             'aliquot_identifier': self.model_obj.human_readable_identifier,
             'aliquot_count': 1 if self.model_obj.is_primary else self.model_obj.count,
@@ -45,9 +59,9 @@ class AliquotLabel(BaseLabel):
             'clinician_initials': self.requisition.user_created[0:2].upper(),
             'drawn_datetime': self.requisition.drawn_datetime.strftime(
                 '%Y-%m-%d %H:%M'),
-            'subject_identifier': self.registered_subject.subject_identifier,
-            'gender': self.registered_subject.gender,
-            'dob': self.registered_subject.dob,
-            'initials': self.registered_subject.initials,
+            'subject_identifier': registered_subject.subject_identifier,
+            'gender': registered_subject.gender,
+            'dob': registered_subject.dob.strftime('%Y-%m-%d'),
+            'initials': registered_subject.initials,
             'alpha_code': self.model_obj.alpha_code,
             'panel': self.requisition.panel_object.abbreviation}

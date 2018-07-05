@@ -5,7 +5,7 @@ from .base_label import BaseLabel
 
 class BoxLabel(BaseLabel):
 
-    model_attr = 'box_model'
+    model = 'edc_lab.box'
     template_name = 'box'
 
     @property

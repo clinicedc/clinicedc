@@ -29,11 +29,12 @@ class ProcessingProfile:
 
     """A container of process instances.
 
-    Given a source aliquot, all processes in the profile will be "performed"
-    to result in new aliquots of types and counts as per the processes.
+    Given a source aliquot, all processes in the profile
+    will be "performed" to result in new aliquots of types
+    and counts as per the processes.
 
-    Only processes that produce aliquot types that match a `derivative`
-    of the profiles aliquot type are accepted.
+    Only processes that produce aliquot types that match
+    a `derivative` of the profiles aliquot type are accepted.
     """
 
     process_cls = Process

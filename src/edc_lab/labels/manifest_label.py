@@ -5,7 +5,7 @@ from .base_label import BaseLabel
 
 class ManifestLabel(BaseLabel):
 
-    model_attr = 'manifest_model'
+    model = 'edc_lab.manifest'
     template_name = 'manifest'
 
     @property

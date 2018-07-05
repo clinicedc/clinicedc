@@ -18,14 +18,13 @@ class AliquotCreator:
     """
 
     aliquot_identifier_cls = AliquotIdentifier
-    aliquot_model = None
+    aliquot_model = 'edc_lab.aliquot'
 
     def __init__(self, parent_identifier=None, identifier_prefix=None,
                  requisition_identifier=None, subject_identifier=None,
                  is_primary=None):
-        app_config = django_apps.get_app_config('edc_lab')
-        self.aliquot_model_cls = django_apps.get_model(
-            self.aliquot_model or app_config.aliquot_model)
+        edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
+        self.aliquot_model_cls = django_apps.get_model(self.aliquot_model)
         self.requisition_identifier = requisition_identifier
         self.subject_identifier = subject_identifier
         if not parent_identifier and not is_primary:
@@ -34,7 +33,9 @@ class AliquotCreator:
                 f'Got is_primary={is_primary}.')
         else:
             self.parent_identifier = parent_identifier
-        self.identifier_prefix = identifier_prefix
+        self.identifier_prefix = (
+            identifier_prefix
+            or f'{edc_protocol_app_config.protocol_number}{self.requisition_identifier}')
         if is_primary:
             self.parent_segment = None
         else:
