@@ -2,12 +2,9 @@ from django.db import models
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
-from edc_visit_schedule.model_mixins import VisitScheduleFieldsModelMixin
-from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
 
 
-class SubjectVisit(SiteModelMixin, VisitScheduleFieldsModelMixin,
-                   VisitScheduleMethodsModelMixin,
+class SubjectVisit(SiteModelMixin,
                    SearchSlugModelMixin, BaseUuidModel):
 
     subject_identifier = models.CharField(max_length=25, null=True)
