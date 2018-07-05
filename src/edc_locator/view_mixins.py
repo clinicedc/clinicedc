@@ -45,7 +45,8 @@ class SubjectLocatorViewMixin(ContextMixin):
             obj = self.subject_locator_model_cls.objects.get(
                 subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
-            action_cls = site_action_items.get(self.subject_locator_model_cls.action_name)
+            action_cls = site_action_items.get(
+                self.subject_locator_model_cls.action_name)
             action_item_model_cls = action_cls.action_item_model_cls()
             try:
                 action_item_model_cls.objects.get(
@@ -54,18 +55,6 @@ class SubjectLocatorViewMixin(ContextMixin):
             except ObjectDoesNotExist:
                 action_cls(
                     subject_identifier=subject_identifier)
-#             try:
-#                 ActionItem.objects.get(
-#                     subject_identifier=subject_identifier,
-#                     name=action_name)
-#             except ObjectDoesNotExist:
-#                 add_url = self.subject_locator_model_cls().get_absolute_url()
-#                 verbose_name = self.subject_locator_model_cls._meta.verbose_name
-#                 next_querystring = (f'next=subject_dashboard_url,subject_identifier&'
-#                                     f'subject_identifier={subject_identifier}')
-#                 messages.warning(self.request, mark_safe(
-#                     f'Please complete the <a href="{add_url}?{next_querystring}" '
-#                     f'title="Add {verbose_name}">{verbose_name}</a> form.'))
         return obj
 
     @property
