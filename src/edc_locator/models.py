@@ -1,7 +1,7 @@
 import sys
 
 from django.conf import settings
-from edc_action_item.model_mixins import ActionModelMixin
+from edc_action_item.models import ActionModelMixin
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.sites import CurrentSiteManager, SiteModelMixin
