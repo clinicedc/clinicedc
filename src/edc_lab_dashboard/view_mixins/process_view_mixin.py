@@ -1,8 +1,10 @@
 from edc_lab.lab import Specimen as SpecimenObject
 from edc_label import add_job_results_to_messages
 
+from .requisition_model_view_mixin import RequisitionModelViewMixin
 
-class ProcessViewMixin:
+
+class ProcessViewMixin(RequisitionModelViewMixin):
 
     def process(self, request=None):
         """Creates aliquots according to the lab_profile.

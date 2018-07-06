@@ -5,9 +5,10 @@ from edc_lab.models import Aliquot
 from edc_label import add_job_results_to_messages
 
 from .action_view import ActionView
+from ...view_mixins import RequisitionModelViewMixin
 
 
-class RequisitionView(EdcBaseViewMixin, ActionView):
+class RequisitionView(EdcBaseViewMixin, RequisitionModelViewMixin, ActionView):
 
     post_action_url = 'requisition_listboard_url'
     valid_form_actions = ['print_labels']

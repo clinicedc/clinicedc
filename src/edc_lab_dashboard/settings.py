@@ -126,7 +126,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 GIT_DIR = BASE_DIR
-KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
+
+LAB_DASHBOARD_REQUISITION_MODEL = 'edc_lab.subjectrequisition'
 
 if 'test' in sys.argv:
 

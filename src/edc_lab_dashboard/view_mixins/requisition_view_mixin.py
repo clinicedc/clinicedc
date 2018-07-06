@@ -2,8 +2,10 @@ import re
 
 from edc_constants.constants import UUID_PATTERN
 
+from .requisition_model_view_mixin import RequisitionModelViewMixin
 
-class RequisitionViewMixin:
+
+class RequisitionViewMixin(RequisitionModelViewMixin):
 
     @property
     def selected_items(self):

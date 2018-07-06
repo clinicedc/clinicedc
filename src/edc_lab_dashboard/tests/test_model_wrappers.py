@@ -1,14 +1,11 @@
 from django.apps import apps as django_apps
+from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from edc_lab.models import Aliquot, Box, BoxType, Manifest, Shipper, Consignee
 from edc_lab.models import ManifestItem, BoxItem
 
 from ..model_wrappers import BoxModelWrapper, ManageBoxItemModelWrapper
 from ..model_wrappers import ManifestItemModelWrapper, ManifestModelWrapper
-from django.contrib.sites.models import Site
-
-
-app_config = django_apps.get_app_config('edc_lab_dashboard')
 
 
 class TestModelWrapper(TestCase):
