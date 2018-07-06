@@ -8,11 +8,12 @@ class CrfLookupError(Exception):
 class Crf:
 
     def __init__(self, show_order=None, model=None, required=None,
-                 additional=None):
+                 additional=None, site_ids=None):
         self.additional = additional
         self.model = model
         self.required = True if required is None else required
         self.show_order = show_order
+        self.site_ids = site_ids or []
 
     def __repr__(self):
         return (f'{self.__class__.__name__}({self.show_order}, '

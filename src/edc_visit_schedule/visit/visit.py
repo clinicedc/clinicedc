@@ -2,7 +2,6 @@ import re
 
 from django.apps import apps as django_apps
 
-from .forms_collection import FormsCollection
 from .window_period import WindowPeriod
 
 
@@ -43,7 +42,6 @@ class VisitDate:
 class Visit:
 
     code_regex = r'^([A-Z0-9])+$'
-    forms_collection_cls = FormsCollection
     visit_date_cls = VisitDate
 
     def __init__(self, code=None, timepoint=None, rbase=None, rlower=None,
