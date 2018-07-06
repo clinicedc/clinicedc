@@ -1,5 +1,4 @@
 from django.conf import settings
-from pprint import pprint
 
 
 class FormsCollectionError(Exception):
@@ -12,7 +11,8 @@ class FormsCollection:
         self._forms = None
         self.name = name
         forms = [] if not forms or forms == (None,) else list(forms)
-        pprint(forms)
+
+        # exclude any flagged for a site that is not the current
         forms = [
             f for f in forms if not f.site_ids or settings.SITE_ID in f.site_ids]
 
