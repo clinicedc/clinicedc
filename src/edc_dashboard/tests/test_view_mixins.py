@@ -13,7 +13,6 @@ from edc_model_wrapper import ModelWrapper
 from ..listboard_filter import ListboardFilter, ListboardViewFilters
 from ..view_mixins import ListboardFilterViewMixin
 from ..views import ListboardView
-from pprint import pprint
 
 
 class TestViewMixins(TestCase):
@@ -61,7 +60,7 @@ class TestViewMixins(TestCase):
 
         class MyView(ListboardFilterViewMixin, ListboardView):
 
-            model = 'edc_dashboard.subjectvisit'
+            listboard_model = 'edc_dashboard.subjectvisit'
             listboard_url = 'listboard_url'
             listboard_template = 'listboard_template'
             listboard_filter_url = 'listboard_url'

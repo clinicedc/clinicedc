@@ -1,12 +1,12 @@
-from ...listboard_filter import ListboardViewFilters
 from django.views.generic.base import ContextMixin
+
+from ...listboard_filter import ListboardViewFilters
 
 
 class ListboardFilterViewMixin(ContextMixin):
 
     listboard_view_filters = ListboardViewFilters()
     # listboard_filter_url defaults to self.listboard_url,
-    # if self.listboard_url declared through another mixin.
     listboard_filter_url = None
 
     def __init__(self, **kwargs):
