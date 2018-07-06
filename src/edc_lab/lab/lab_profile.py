@@ -1,5 +1,3 @@
-from django.conf import settings
-
 
 class PanelAlreadyRegistered(Exception):
     pass
@@ -31,18 +29,12 @@ class LabProfile:
     def __str__(self):
         return self.name
 
-    def add_panel(self, panel=None, site_id=None):
+    def add_panel(self, panel=None):
         """Adds a panel instance to the profile.
 
         If site_id specified, will only add if site_id matches
         the current site_id.
         """
-        # model not ready yet ...
-        # Site = django_apps.get_model(self.site_model)
-        # so use settings
-        if site_id and site_id != settings.SITE_ID:
-            return None
-
         panel.requisition_model = self.requisition_model
         panel.lab_profile_name = self.name
         if panel.name in self.panels:
