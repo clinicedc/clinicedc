@@ -1,4 +1,4 @@
-from django.apps import apps as django_apps
+from django.conf import settings
 
 
 class PanelAlreadyRegistered(Exception):
@@ -37,8 +37,10 @@ class LabProfile:
         If site_id specified, will only add if site_id matches
         the current site_id.
         """
-        Site = django_apps.get_model(self.site_model)
-        if site_id and site_id != Site.objects.get_current():
+        # model not ready yet ...
+        # Site = django_apps.get_model(self.site_model)
+        # so use settings
+        if site_id and site_id != settings.SITE_ID:
             return None
 
         panel.requisition_model = self.requisition_model
