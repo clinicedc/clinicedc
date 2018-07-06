@@ -84,10 +84,14 @@ class SiteActionItemCollection:
         return [Wrapper(action_cls=self.get(name)) for name in names]
 
     def populate_action_types(self):
+        """Populates the ActionType model.
+
+        Called by view.
+        """
         if not self.populated_action_types:
             for action_cls in self.registry.values():
                 action_cls.action_type()
-        self.populated_action_typse = True
+        self.populated_action_types = True
 
     def autodiscover(self, module_name=None, verbose=True):
         module_name = module_name or 'action_items'

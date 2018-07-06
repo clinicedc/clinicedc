@@ -1,4 +1,4 @@
-from .action import Action, ActionError
+from .action import Action, ActionError, REFERENCE_MODEL_ERROR_CODE
 from .action_item_getter import ActionItemObjectDoesNotExist, ActionItemGetter
 from .action_item_getter import ParentReferenceModelDoesNotExist, ActionItemGetterError
 from .action_item_getter import RelatedReferenceModelDoesNotExist

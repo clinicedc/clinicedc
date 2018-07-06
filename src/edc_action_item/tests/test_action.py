@@ -10,6 +10,7 @@ from ..site_action_items import site_action_items
 from .action_items import FormOneAction, FormTwoAction, FormThreeAction, FormZeroAction
 from .action_items import SingletonAction, register_actions
 from .models import FormZero, FormOne, FormTwo, FormThree, SubjectIdentifierModel
+from pprint import pprint
 
 
 class TestAction(TestCase):
@@ -35,10 +36,12 @@ class TestAction(TestCase):
         self.assertTrue(str(action))
 
     def test_populate_action_types(self):
+        self.assertFalse(site_action_items.populated_action_types)
         site_action_items.populate_action_types()
         self.assertGreater(len(site_action_items.registry), 0)
         self.assertEqual(ActionType.objects.all().count(),
                          len(site_action_items.registry))
+        self.assertTrue(site_action_items.populated_action_types)
 
         site_action_items.populate_action_types()
         self.assertGreater(len(site_action_items.registry), 0)
@@ -64,7 +67,10 @@ class TestAction(TestCase):
         self.assertEqual(ActionItem.objects.filter(
             subject_identifier=self.subject_identifier).count(), 1)
 
+    @tag('1')
     def test_check_attrs_for_own_action0(self):
+        """Test when model creates action.
+        """
         obj = FormZero.objects.create(
             subject_identifier=self.subject_identifier)
         action_type = site_action_items.get(FormZero.action_name).action_type()
@@ -84,6 +90,26 @@ class TestAction(TestCase):
         self.assertIsNone(action_item.parent_reference_model)
         self.assertIsNone(action_item.parent_action_item)
         self.assertEqual(action_item.action_type, action_type)
+
+    @tag('1')
+    def test_check_attrs_for_own_action1(self):
+        """Test when action creates model.
+        """
+        obj = FormZero.objects.create(
+            subject_identifier=self.subject_identifier)
+        action = FormZeroAction(action_identifier=obj.action_identifier)
+        self.assertEqual(action.subject_identifier,
+                         obj.subject_identifier)
+        self.assertEqual(action.action_identifier, obj.action_identifier)
+        self.assertEqual(action.reference_identifier,
+                         obj.tracking_identifier)
+        self.assertEqual(action.reference_model,
+                         obj._meta.label_lower)
+        self.assertIsNone(action.related_reference_identifier)
+        self.assertIsNone(action.related_reference_model)
+        self.assertIsNone(action.parent_reference_identifier)
+        action_type = site_action_items.get(FormZero.action_name).action_type()
+        self.assertEqual(action.action_type(), action_type)
 
     def test_check_attrs_for_form_one_next_action(self):
         obj = FormOne.objects.create(
@@ -327,7 +353,7 @@ class TestAction(TestCase):
             subject_identifier=self.subject_identifier)
         action_item = ActionItem.objects.get(
             action_identifier=obj.action_identifier)
-        url = FormOneAction(reference_model_obj=obj).reference_model_url(
+        url = FormOneAction(action_identifier=obj.action_identifier).reference_model_url(
             action_item=action_item)
         self.assertEqual(
             url, f'/admin/edc_action_item/formone/add/')
@@ -340,7 +366,7 @@ class TestAction(TestCase):
             form_one=form_one)
         action_item = ActionItem.objects.get(
             action_identifier=obj.action_identifier)
-        url = FormTwoAction(reference_model_obj=obj).reference_model_url(
+        url = FormTwoAction(action_identifier=obj.action_identifier).reference_model_url(
             action_item=action_item)
         self.assertEqual(
             url,
@@ -354,7 +380,7 @@ class TestAction(TestCase):
             form_one=form_one)
         action_item = ActionItem.objects.get(
             action_identifier=obj.action_identifier)
-        url = FormTwoAction(reference_model_obj=obj).reference_model_url(
+        url = FormTwoAction(action_identifier=obj.action_identifier).reference_model_url(
             action_item=action_item,
             subject_identifier=self.subject_identifier)
         self.assertEqual(
@@ -370,7 +396,7 @@ class TestAction(TestCase):
             form_one=form_one)
         action_item = ActionItem.objects.get(
             action_identifier=form_two.action_identifier)
-        url = FormTwoAction(reference_model_obj=form_two).reference_model_url(
+        url = FormTwoAction(action_identifier=form_two.action_identifier).reference_model_url(
             reference_model_obj=form_two,
             action_item=action_item,
             subject_identifier=self.subject_identifier)

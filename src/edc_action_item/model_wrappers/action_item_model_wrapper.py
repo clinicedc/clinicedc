@@ -1,10 +1,12 @@
 from edc_model_wrapper import ModelWrapper
 from django.conf import settings
 
+from ..models import ActionItem
+
 
 class ActionItemModelWrapper(ModelWrapper):
 
-    model = 'edc_action_item.actionitem'
+    model_cls = ActionItem
     next_url_attrs = ['subject_identifier']
     next_url_name = settings.DASHBOARD_URL_NAMES.get('subject_dashboard_url')
 

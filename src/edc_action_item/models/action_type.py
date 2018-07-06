@@ -19,7 +19,7 @@ class ActionType(BaseUuidModel):
     display_name = models.CharField(
         max_length=100)
 
-    model = models.CharField(
+    reference_model = models.CharField(
         max_length=100,
         null=True,
         blank=True,
@@ -64,9 +64,9 @@ class ActionType(BaseUuidModel):
             return django_apps.get_model(self.reference_model)
         return None
 
-    @property
-    def reference_model(self):
-        return self.model
+#     @property
+#     def reference_model(self):
+#         return self.model
 
     def save(self, *args, **kwargs):
         self.display_name = self.display_name or self.name

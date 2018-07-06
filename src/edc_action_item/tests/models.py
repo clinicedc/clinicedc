@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models.deletion import CASCADE
 from edc_base.model_mixins import BaseUuidModel
 
-from ..model_mixins import ActionModelMixin
+from ..models import ActionModelMixin
 
 
 class SubjectIdentifierModel(BaseUuidModel):
@@ -102,3 +102,10 @@ class Followup(ActionModelMixin, BaseUuidModel):
     initial = models.ForeignKey(Initial, on_delete=CASCADE)
 
     action_name = 'submit-followup'
+
+
+class MyAction(ActionModelMixin, BaseUuidModel):
+
+    tracking_identifier_prefix = 'MA'
+
+    action_name = 'my-action'

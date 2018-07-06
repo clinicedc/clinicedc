@@ -9,7 +9,6 @@ from urllib.parse import urlparse, parse_qsl
 from ..constants import HIGH_PRIORITY
 from ..choices import ACTION_STATUS
 from ..site_action_items import site_action_items
-from pprint import pprint
 
 register = template.Library()
 
@@ -42,7 +41,7 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
         last_updated_text = 'This action item has not been updated.'
 
     # this reference model and url
-    reference_model_cls = django_apps.get_model(action_item.action_type.model)
+    reference_model_cls = django_apps.get_model(action_item.action_type.reference_model)
     query_dict = dict(parse_qsl(urlparse(href).query))
     parent_reference_model_url = None
     parent_reference_model_name = None
@@ -71,7 +70,7 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
 
             # parent action item
             parent_reference_model_cls = django_apps.get_model(
-                action_item.parent_action_item.action_type.model)
+                action_item.parent_action_item.action_type.reference_model)
 
             # parent reference model and url
             try:

@@ -1,13 +1,16 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured,\
+    ValidationError
 from edc_constants.constants import CLOSED, NEW, OPEN
 from urllib.parse import urlencode, unquote
 
 from ..site_action_items import site_action_items
 from .action_item_getter import ActionItemGetter
 
+REFERENCE_MODEL_ERROR_CODE = 'reference_model'
 
-class ActionError(Exception):
+
+class ActionError(ValidationError):
     pass
 
 
@@ -43,28 +46,38 @@ class Action:
 
     def __init__(self, subject_identifier=None, action_identifier=None,
                  reference_identifier=None, parent_reference_identifier=None,
-                 related_reference_identifier=None, reference_model_obj=None):
+                 related_reference_identifier=None):
 
         self.action_item_obj = None
 
         self.action_registered_or_raise()
 
-        if reference_model_obj:
-            if reference_model_obj._meta.label_lower != self.reference_model.lower():
+        if not self.reference_model:
+            raise ImproperlyConfigured(
+                f'Reference model not declared. See {repr(self)}')
+
+        try:
+            reference_model_obj = self.reference_model_cls().objects.get(
+                action_identifier=action_identifier)
+        except ObjectDoesNotExist:
+            if action_identifier:
                 raise ActionError(
-                    f'Invalid model for {repr(self)}. Expected {self.reference_model}. '
-                    f'Got \'{reference_model_obj._meta.label_lower}\'.')
-            self.action_identifier = reference_model_obj.action_identifier
-            self.subject_identifier = reference_model_obj.subject_identifier
-            self.reference_identifier = reference_model_obj.tracking_identifier
-            self.parent_reference_identifier = reference_model_obj.parent_tracking_identifier
-            self.related_reference_identifier = reference_model_obj.related_tracking_identifier
-        else:
+                    'Reference model instance not found. '
+                    f'Got action_identifier=\'{action_identifier}\' for reference_model '
+                    f'\'{self.reference_model}\'. See {repr(self)}',
+                    code=REFERENCE_MODEL_ERROR_CODE)
+            reference_model_obj = None
             self.action_identifier = action_identifier
             self.subject_identifier = subject_identifier
             self.reference_identifier = reference_identifier
             self.parent_reference_identifier = parent_reference_identifier
             self.related_reference_identifier = related_reference_identifier
+        else:
+            self.action_identifier = reference_model_obj.action_identifier
+            self.subject_identifier = reference_model_obj.subject_identifier
+            self.reference_identifier = reference_model_obj.tracking_identifier
+            self.parent_reference_identifier = reference_model_obj.parent_tracking_identifier
+            self.related_reference_identifier = reference_model_obj.related_tracking_identifier
 
         getter = self.action_item_getter(
             self, action_identifier=self.action_identifier,
@@ -120,7 +133,7 @@ class Action:
         registered_cls = site_action_items.get(cls.name)
         if registered_cls is not cls:
             raise ActionError(
-                f'Inconsistent name or class. Got {registered_cls} for {cls.name}.')
+                f'Inconsistent action name or class. Got {registered_cls} for {cls.name}.')
         return True
 
     @classmethod
@@ -140,7 +153,6 @@ class Action:
         dct.update(
             name=cls.name,
             display_name=cls.display_name,
-            model=cls.reference_model,
             show_on_dashboard=(
                 True if cls.show_on_dashboard is None else cls.show_on_dashboard),
             show_link_to_changelist=(
@@ -154,7 +166,7 @@ class Action:
     def action_type(cls):
         """Returns a model instance of ActionType.
 
-        Gets or creates the model instance on first pass.
+        Gets or creates the ActionType on first pass.
 
         If model instance exists, updates.
         """
@@ -219,7 +231,7 @@ class Action:
                 parent_action_item=self.action_item_obj,
                 parent_reference_identifier=self.action_item_obj.reference_identifier,
                 parent_reference_model=self.action_type().reference_model,
-                reference_model=action_type.model,
+                reference_model=action_type.reference_model,
                 instructions=self.instructions)
             try:
                 self.action_item_model_cls().objects.get(**opts)

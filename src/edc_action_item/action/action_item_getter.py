@@ -49,6 +49,7 @@ class ActionItemGetter:
         self.related_reference_identifier = related_reference_identifier
         self.reference_identifier = reference_identifier
         self.subject_identifier = subject_identifier
+
         # subject identifier is required if no action_identifier.
         if not action_identifier and not self.subject_identifier:
             raise ActionItemGetterError(
@@ -79,18 +80,6 @@ class ActionItemGetter:
                     f'{repr(action_cls)} with {self.related_reference_model}. '
                     f'tracking identifier=\'{self.related_reference_identifier}\'. '
                     f'Got {e}.')
-
-#         if self.parent_reference_identifier:
-#             try:
-#                 self.action_cls.parent_reference_model_cls.objects.get(
-#                     subject_identifier=self.subject_identifier,
-#                     tracking_identifier=self.parent_reference_identifier or uuid4())
-#             except ObjectDoesNotExist as e:
-#                 raise ParentReferenceModelDoesNotExist(
-#                     f'Actions "parent" reference model does not exist. '
-#                     f'{repr(action_cls)} with {self.parent_reference_model}. '
-#                     f'tracking identifier=\'{self.parent_reference_identifier}\'. '
-#                     f'Got {e}.')
 
         if not self.action_item:
             raise ActionItemObjectDoesNotExist(
@@ -204,6 +193,8 @@ class ActionItemGetter:
 
     @property
     def singleton_action_item(self):
+        """Returns the "singleton" action item, if it exists.
+        """
         action_item = None
         if self.action_cls.singleton:
             try:
@@ -215,7 +206,10 @@ class ActionItemGetter:
         return action_item
 
     def _create_action_item(self):
-        """Returns a new ActionItem instance, if allowed, or None.
+        """Returns a newly created ActionItem instance, if allowed, or None.
+
+        A new ActionItem is not allowed if the parent is a
+        singleton.
         """
         action_item = None
         if self.allow_create:

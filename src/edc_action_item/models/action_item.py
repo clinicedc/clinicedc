@@ -79,7 +79,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
         null=True,
         blank=True,
         help_text=('May be left blank. e.g. tracking identifier from '
-                   'source model that opened the item.'))
+                   'reference model that opened the item.'))
 
     priority = models.CharField(
         max_length=25,
@@ -122,9 +122,11 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
                 f'({self.get_status_display()})')
 
     def save(self, *args, **kwargs):
-        """See also signals."""
+        """See also signals.
+        """
         if not self.id:
-            # a new action item always has a unique action identifier
+            # a new persisted action item always has
+            # a unique action identifier
             self.action_identifier = ActionIdentifier().identifier
             # subject_identifier
             subject_identifier_model_cls = django_apps.get_model(

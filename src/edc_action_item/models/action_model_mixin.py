@@ -1,9 +1,9 @@
+from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_identifier.model_mixins import TrackingIdentifier
 
 from ..action import ActionItemGetter
-from ..models import ActionItem
 from ..site_action_items import site_action_items
 
 
@@ -14,6 +14,8 @@ class ActionClassNotDefined(Exception):
 class ActionModelMixin(models.Model):
 
     action_name = None
+
+    action_item_model = 'edc_action_item.actionitem'
 
     subject_dashboard_url = 'subject_dashboard_url'
 
@@ -78,6 +80,7 @@ class ActionModelMixin(models.Model):
         """Returns the ActionItem instance associated with
         this model or None.
         """
+        ActionItem = django_apps.get_model(self.action_item_model)
         try:
             action_item = ActionItem.objects.get(
                 action_identifier=self.action_identifier)

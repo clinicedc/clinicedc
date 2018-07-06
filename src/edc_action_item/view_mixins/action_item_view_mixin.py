@@ -1,14 +1,13 @@
-from django.apps import apps as django_apps
 from django.views.generic.base import ContextMixin
 from edc_constants.constants import CLOSED, CANCELLED
 
 from ..model_wrappers import ActionItemModelWrapper
+from ..models import ActionItem
 from ..site_action_items import site_action_items
 
 
 class ActionItemViewMixin(ContextMixin):
 
-    action_item_model = 'edc_action_item.actionitem'
     action_item_model_wrapper_cls = ActionItemModelWrapper
 
     def __init__(self, **kwargs):
@@ -23,8 +22,10 @@ class ActionItemViewMixin(ContextMixin):
 
     @property
     def open_action_items(self):
-        model_cls = django_apps.get_model(self.action_item_model)
-        qs = model_cls.objects.filter(
+        """Returns a list of wrapped ActionItem instances
+        where status is not OPEN.
+        """
+        qs = ActionItem.objects.filter(
             subject_identifier=self.kwargs.get('subject_identifier'),
             action_type__show_on_dashboard=True).exclude(
                 status__in=[CLOSED, CANCELLED]).order_by('-report_datetime')
