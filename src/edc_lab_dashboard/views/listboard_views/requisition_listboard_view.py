@@ -1,3 +1,4 @@
+from django.conf import settings
 from edc_constants.constants import YES
 
 from ...model_wrappers import RequisitionModelWrapper
@@ -7,7 +8,7 @@ from .base_listboard_view import BaseListboardView
 
 class RequisitionListboardView(BaseListboardView):
 
-    listboard_model = ''
+    listboard_model = settings.LAB_DASHBOARD_REQUISITION_MODEL
 
     form_action_url = 'requisition_form_action_url'
     listboard_template = 'requisition_listboard_template'
