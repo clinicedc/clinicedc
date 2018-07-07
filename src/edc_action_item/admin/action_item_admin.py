@@ -52,7 +52,6 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
         ('Reference Information', {
             'classes': ('collapse', ),
             'fields': (
-                'reference_identifier',
                 'reference_model',
                 'related_reference_identifier',
                 'parent_reference_identifier',
@@ -75,7 +74,6 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
 
     search_fields = ('subject_identifier',
                      'action_identifier',
-                     'reference_identifier',
                      'related_reference_identifier',
                      'parent_reference_identifier',
                      'action_type__name',
@@ -90,7 +88,7 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
         fields = super().get_readonly_fields(request, obj=obj)
         fields = fields + ('action_identifier', 'instructions',
                            'auto_created', 'auto_created_comment',
-                           'reference_identifier', 'reference_model',
+                           'reference_model',
                            'related_reference_identifier',
                            'parent_reference_identifier',
                            'parent_action_item',
