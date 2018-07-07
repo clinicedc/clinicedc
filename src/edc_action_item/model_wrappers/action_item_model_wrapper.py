@@ -1,5 +1,5 @@
-from edc_model_wrapper import ModelWrapper
 from django.conf import settings
+from edc_model_wrapper import ModelWrapper
 
 from ..models import ActionItem
 
