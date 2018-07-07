@@ -5,9 +5,9 @@ from collections import OrderedDict
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
-from importlib import import_module
 from edc_prn.prn import Prn
 from edc_prn.site_prn_forms import site_prn_forms
+from importlib import import_module
 
 
 class AlreadyRegistered(Exception):
