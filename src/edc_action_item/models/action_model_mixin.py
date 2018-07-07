@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from edc_constants.constants import OPEN
 from edc_identifier.model_mixins import TrackingIdentifier
 
 from ..action import ActionItemGetter
@@ -23,27 +24,30 @@ class ActionModelMixin(models.Model):
 
     tracking_identifier_prefix = ''
 
-    action_identifier = models.CharField(
-        max_length=25,
+    tracking_identifier = models.CharField(
+        max_length=30,
         null=True)
 
     subject_identifier = models.CharField(
         max_length=50)
 
-    tracking_identifier = models.CharField(
+    action_identifier = models.CharField(
+        max_length=25,
+        null=True)
+
+    parent_reference_identifier = models.CharField(
         max_length=30,
         null=True)
 
-    related_tracking_identifier = models.CharField(
+    related_reference_identifier = models.CharField(
         max_length=30,
         null=True)
 
-    parent_tracking_identifier = models.CharField(
-        max_length=30,
-        null=True)
+    def __str__(self):
+        return f'{self.action_identifier[-9:]}'
 
     def save(self, *args, **kwargs):
-        if not self.action_cls:
+        if not self.action_cls():
             raise ActionClassNotDefined(
                 f'Action class name not defined. See {repr(self)}')
 
@@ -52,28 +56,44 @@ class ActionModelMixin(models.Model):
                 identifier_prefix=self.tracking_identifier_prefix,
                 identifier_type=self._meta.label_lower).identifier
 
-        if (not self.related_tracking_identifier
-                and self.action_cls.related_reference_model_fk_attr):
-            self.related_tracking_identifier = getattr(
-                self, self.action_cls.related_reference_model_fk_attr).tracking_identifier
+        if (not self.related_reference_identifier
+                and self.action_cls().related_reference_fk_attr):
+            self.related_reference_identifier = getattr(
+                self, self.action_cls().related_reference_fk_attr).action_identifier
 
         if self.action_identifier:
+            # get the existing ActionItem linked to this model
             ActionItemGetter(
-                self.action_cls, action_identifier=self.action_identifier)
-        else:
-            getter = ActionItemGetter(
-                self.action_cls,
+                self.action_cls(),
                 subject_identifier=self.subject_identifier,
-                reference_identifier=self.tracking_identifier,
-                related_reference_identifier=self.related_tracking_identifier,
-                parent_reference_identifier=self.parent_tracking_identifier,
-                allow_create=True)
+                action_identifier=self.action_identifier,
+                parent_reference_identifier=self.parent_reference_identifier,
+                related_reference_identifier=self.related_reference_identifier,
+                allow_create=False)
+        else:
+            # get an existing unlinked ActionItem or create a new one
+            allow_create = (
+                False if self.related_reference_identifier
+                or self.parent_reference_identifier else True)
+            getter = ActionItemGetter(
+                self.action_cls(),
+                subject_identifier=self.subject_identifier,
+                parent_reference_identifier=self.parent_reference_identifier,
+                related_reference_identifier=self.related_reference_identifier,
+                allow_create=allow_create)
+
+            # link to this model
             self.action_identifier = getter.action_identifier
+            self.parent_reference_identifier = getter.action_item.parent_reference_identifier
+            getter.action_item.linked_to_reference = True
+            getter.action_item.status = OPEN
+            getter.action_item.save()
+        # also see signals.py
         super().save(*args, **kwargs)
 
-    @property
-    def action_cls(self):
-        return site_action_items.get(self.action_name)
+    @classmethod
+    def action_cls(cls):
+        return site_action_items.get(cls.action_name)
 
     @property
     def action_item(self):
