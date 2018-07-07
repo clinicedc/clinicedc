@@ -32,8 +32,9 @@ class Action:
     help_text = None
     instructions = None
     name = None
+    parent_reference_model = None
     related_reference_model = None
-    related_reference_model_fk_attr = None
+    related_reference_fk_attr = None
     priority = None
     reference_model = None
     show_link_to_add = False
@@ -45,7 +46,7 @@ class Action:
     next_actions = None  # a list of Action classes which may include 'self'
 
     def __init__(self, subject_identifier=None, action_identifier=None,
-                 reference_identifier=None, parent_reference_identifier=None,
+                 parent_reference_identifier=None,
                  related_reference_identifier=None):
 
         self.action_item_obj = None
@@ -57,7 +58,7 @@ class Action:
                 f'Reference model not declared. See {repr(self)}')
 
         try:
-            reference_model_obj = self.reference_model_cls().objects.get(
+            reference_obj = self.reference_model_cls().objects.get(
                 action_identifier=action_identifier)
         except ObjectDoesNotExist:
             if action_identifier:
@@ -66,32 +67,30 @@ class Action:
                     f'Got action_identifier=\'{action_identifier}\' for reference_model '
                     f'\'{self.reference_model}\'. See {repr(self)}',
                     code=REFERENCE_MODEL_ERROR_CODE)
-            reference_model_obj = None
+            reference_obj = None
             self.action_identifier = action_identifier
             self.subject_identifier = subject_identifier
-            self.reference_identifier = reference_identifier
             self.parent_reference_identifier = parent_reference_identifier
             self.related_reference_identifier = related_reference_identifier
         else:
-            self.action_identifier = reference_model_obj.action_identifier
-            self.subject_identifier = reference_model_obj.subject_identifier
-            self.reference_identifier = reference_model_obj.tracking_identifier
-            self.parent_reference_identifier = reference_model_obj.parent_tracking_identifier
-            self.related_reference_identifier = reference_model_obj.related_tracking_identifier
+            self.action_identifier = reference_obj.action_identifier
+            self.subject_identifier = reference_obj.subject_identifier
+            self.parent_reference_identifier = reference_obj.parent_reference_identifier
+            self.related_reference_identifier = reference_obj.related_reference_identifier
 
         getter = self.action_item_getter(
             self, action_identifier=self.action_identifier,
             subject_identifier=self.subject_identifier,
-            reference_identifier=self.reference_identifier,
             related_reference_identifier=self.related_reference_identifier,
             parent_reference_identifier=self.parent_reference_identifier,
             allow_create=True)
         self.action_item_obj = getter.action_item
+        self.linked_to_reference = self.action_item_obj.linked_to_reference
 
         if not self.action_identifier:
             self.action_identifier = self.action_item_obj.action_identifier
 
-        if reference_model_obj:
+        if reference_obj:
             self.close_and_create_next()
 
     def __repr__(self):
@@ -101,9 +100,9 @@ class Action:
         return self.name
 
     @property
-    def reference_model_obj(self):
+    def reference_obj(self):
         return self.reference_model_cls().objects.get(
-            tracking_identifier=self.reference_identifier)
+            action_identifier=self.action_identifier)
 
     @classmethod
     def action_item_model_cls(cls):
@@ -119,12 +118,9 @@ class Action:
 
     @classmethod
     def related_reference_model_cls(cls):
-        """Returns the parent reference model class
-        or raises if there is no FK.
+        """Returns the related reference model class
         """
-        fk = getattr(cls.reference_model_cls(),
-                     cls.related_reference_model_fk_attr)
-        return fk.field.related_model
+        return django_apps.get_model(cls.related_reference_model)
 
     @classmethod
     def action_registered_or_raise(cls):
@@ -207,9 +203,7 @@ class Action:
         """Attempt to close the action item and
         create new ones, if required.
         """
-
         status = CLOSED if self.close_action_item_on_save() else OPEN
-        self.action_item_obj.reference_identifier = self.reference_identifier
         self.action_item_obj.status = status
         self.action_item_obj.save()
         self.action_item_obj = self.action_item_model_cls().objects.get(
@@ -224,29 +218,25 @@ class Action:
         for action_cls in next_actions:
             action_cls = self.__class__ if action_cls == 'self' else action_cls
             action_type = action_cls.action_type()
+            if action_type.related_reference_model:
+                related_reference_identifier = (
+                    self.action_item_obj.related_reference_identifier
+                    or self.action_item_obj.action_identifier)
+            else:
+                related_reference_identifier = None
             opts = dict(
-                reference_identifier=None,
                 subject_identifier=self.subject_identifier,
                 action_type=action_type,
                 parent_action_item=self.action_item_obj,
-                parent_reference_identifier=self.action_item_obj.reference_identifier,
+                parent_reference_identifier=self.action_item_obj.action_identifier,
                 parent_reference_model=self.action_type().reference_model,
+                related_reference_identifier=related_reference_identifier,
+                related_reference_model=action_type.related_reference_model,
                 reference_model=action_type.reference_model,
                 instructions=self.instructions)
             try:
                 self.action_item_model_cls().objects.get(**opts)
             except ObjectDoesNotExist:
-                if (self.action_type().related_reference_model
-                        and (self.action_type().reference_model ==
-                             self.action_type().related_reference_model)):
-                    related_reference_identifier = self.action_item_obj.reference_identifier
-                else:
-                    related_reference_identifier = (
-                        self.action_item_obj.related_reference_identifier
-                        or self.action_item_obj.reference_identifier)
-                opts.update(
-                    related_reference_identifier=related_reference_identifier,
-                    related_reference_model=self.action_type().related_reference_model)
                 self.action_item_model_cls().objects.create(**opts)
 
     def append_to_next_if_required(self, next_actions=None,
@@ -265,7 +255,7 @@ class Action:
         try:
             self.action_item_model_cls().objects.get(
                 subject_identifier=self.subject_identifier,
-                parent_reference_identifier=self.reference_identifier,
+                parent_reference_identifier=self.action_identifier,
                 reference_model=action_cls.reference_model)
         except ObjectDoesNotExist:
             if required:
@@ -281,27 +271,24 @@ class Action:
         """
         opts = dict(
             subject_identifier=self.subject_identifier,
-            parent_reference_identifier=self.reference_identifier,
+            parent_reference_identifier=self.action_identifier,
             reference_model=action_cls.reference_model,
             status=NEW)
         return self.action_item_model_cls().objects.filter(**opts).delete()
 
     @classmethod
-    def reference_model_url(cls, action_item=None, reference_model_obj=None, **kwargs):
+    def reference_url(cls, action_item=None, reference_obj=None, **kwargs):
         """Returns a relative add URL with querystring that can
         get back to the subject dashboard on save.
         """
-        if cls.related_reference_model_fk_attr and action_item.related_reference_model_obj:
-            obj = action_item.related_reference_model_obj
-            try:
-                value = getattr(obj, cls.related_reference_model_fk_attr)
-            except (ObjectDoesNotExist, AttributeError):
-                value = obj
+        if cls.related_reference_fk_attr:
+            obj = cls.related_reference_model_cls().objects.get(
+                action_identifier=action_item.related_reference_identifier)
             kwargs.update({
-                cls.related_reference_model_fk_attr: str(value.pk)})
+                cls.related_reference_fk_attr: str(obj.pk)})
         query = unquote(urlencode(kwargs))
-        if reference_model_obj:
-            path = reference_model_obj.get_absolute_url()
+        if reference_obj:
+            path = reference_obj.get_absolute_url()
         else:
             path = cls.reference_model_cls()().get_absolute_url()
         if query:
