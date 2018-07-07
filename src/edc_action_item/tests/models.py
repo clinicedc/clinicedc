@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.deletion import CASCADE
+from django.db.models.deletion import CASCADE, PROTECT
 from edc_base.model_mixins import BaseUuidModel
 
 from ..models import ActionModelMixin
@@ -76,7 +76,7 @@ class FormTwo(ActionModelMixin, BaseUuidModel):
 
     tracking_identifier_prefix = 'BB'
 
-    form_one = models.ForeignKey(FormOne, on_delete=CASCADE)
+    form_one = models.ForeignKey(FormOne, on_delete=PROTECT)
 
     action_name = 'submit-form-two'
 

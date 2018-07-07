@@ -1,16 +1,14 @@
 from django.test import TestCase, tag
 from django.core.exceptions import ObjectDoesNotExist
-from edc_constants.constants import CLOSED, OPEN, NEW
+from edc_constants.constants import CLOSED, NEW
 from uuid import uuid4
 
-from ..action import Action, delete_action_item
-from ..action import ActionItemDeleteError
+from ..action import Action
 from ..models import ActionItem, ActionType
 from ..site_action_items import site_action_items
 from .action_items import FormOneAction, FormTwoAction, FormThreeAction, FormZeroAction
 from .action_items import SingletonAction, register_actions
 from .models import FormZero, FormOne, FormTwo, FormThree, SubjectIdentifierModel
-from pprint import pprint
 
 
 class TestAction(TestCase):
@@ -49,11 +47,13 @@ class TestAction(TestCase):
                          len(site_action_items.registry))
 
     def test_creates_own_action0(self):
-        obj = FormZero.objects.create(
+        """Asserts a form creates it's action item.
+        """
+        form_zero = FormZero.objects.create(
             subject_identifier=self.subject_identifier)
         try:
-            obj = ActionItem.objects.get(
-                action_identifier=obj.action_identifier)
+            ActionItem.objects.get(
+                action_identifier=form_zero.action_identifier)
         except ObjectDoesNotExist:
             self.fail('Action item unexpectedly does not exist')
         for name in ['submit-form-zero']:
@@ -67,7 +67,6 @@ class TestAction(TestCase):
         self.assertEqual(ActionItem.objects.filter(
             subject_identifier=self.subject_identifier).count(), 1)
 
-    @tag('1')
     def test_check_attrs_for_own_action0(self):
         """Test when model creates action.
         """
@@ -79,11 +78,13 @@ class TestAction(TestCase):
             action_type__name='submit-form-zero')
         self.assertEqual(action_item.subject_identifier,
                          obj.subject_identifier)
-        self.assertEqual(action_item.action_identifier, obj.action_identifier)
-        self.assertEqual(action_item.reference_identifier,
-                         obj.tracking_identifier)
+        self.assertEqual(action_item.action_identifier,
+                         obj.action_identifier)
+        self.assertEqual(action_item.action_identifier,
+                         obj.action_identifier)
         self.assertEqual(action_item.reference_model,
                          obj._meta.label_lower)
+        self.assertTrue(action_item.linked_to_reference)
         self.assertIsNone(action_item.related_reference_identifier)
         self.assertIsNone(action_item.related_reference_model)
         self.assertIsNone(action_item.parent_reference_identifier)
@@ -91,7 +92,6 @@ class TestAction(TestCase):
         self.assertIsNone(action_item.parent_action_item)
         self.assertEqual(action_item.action_type, action_type)
 
-    @tag('1')
     def test_check_attrs_for_own_action1(self):
         """Test when action creates model.
         """
@@ -101,10 +101,11 @@ class TestAction(TestCase):
         self.assertEqual(action.subject_identifier,
                          obj.subject_identifier)
         self.assertEqual(action.action_identifier, obj.action_identifier)
-        self.assertEqual(action.reference_identifier,
-                         obj.tracking_identifier)
+        self.assertEqual(action.action_identifier,
+                         obj.action_identifier)
         self.assertEqual(action.reference_model,
                          obj._meta.label_lower)
+        self.assertTrue(action.linked_to_reference)
         self.assertIsNone(action.related_reference_identifier)
         self.assertIsNone(action.related_reference_model)
         self.assertIsNone(action.parent_reference_identifier)
@@ -128,16 +129,16 @@ class TestAction(TestCase):
                          obj.subject_identifier)
         self.assertNotEqual(action_item_two.action_identifier,
                             obj.action_identifier)
-        self.assertNotEqual(action_item_two.reference_identifier,
-                            obj.tracking_identifier)
+        self.assertNotEqual(action_item_two.action_identifier,
+                            obj.action_identifier)
         self.assertEqual(action_item_two.reference_model,
                          FormTwo._meta.label_lower)
         self.assertEqual(action_item_two.related_reference_identifier,
-                         obj.tracking_identifier)
+                         obj.action_identifier)
         self.assertEqual(action_item_two.related_reference_model,
                          FormOne._meta.label_lower)
         self.assertEqual(action_item_two.parent_reference_identifier,
-                         obj.tracking_identifier)
+                         obj.action_identifier)
         self.assertEqual(action_item_two.parent_reference_model,
                          FormOne._meta.label_lower)
         self.assertEqual(action_item_two.parent_action_item, action_item_one)
@@ -177,6 +178,7 @@ class TestAction(TestCase):
         self.assertEqual(ActionItem.objects.filter(
             subject_identifier=self.subject_identifier).count(), 3)
 
+    @tag('2')
     def test_does_not_duplicate_own_actions_on_save(self):
         obj = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
@@ -228,7 +230,8 @@ class TestAction(TestCase):
             action_type=action_type).count(), 5)
         self.assertEqual(ActionItem.objects.filter(
             action_type=action_type,
-            reference_identifier__isnull=True).count(), 5)
+            action_identifier__isnull=False,
+            linked_to_reference=False).count(), 5)
 
         # create FormOne instances and expect them to link to
         # an exiting action item
@@ -236,7 +239,6 @@ class TestAction(TestCase):
             with self.subTest(index=i):
                 obj = FormOne.objects.create(
                     subject_identifier=self.subject_identifier)
-                self.assertIsNotNone(obj.tracking_identifier)
                 self.assertTrue(
                     ActionItem.objects.get(
                         action_identifier=obj.action_identifier))
@@ -244,7 +246,7 @@ class TestAction(TestCase):
                     action_type=action_type).count(), 5)
                 self.assertEqual(ActionItem.objects.filter(
                     action_type=action_type,
-                    reference_identifier=obj.tracking_identifier).count(), 1)
+                    action_identifier=obj.action_identifier).count(), 1)
 
     def test_finds_existing_actions2(self):
         action_type = FormOneAction.action_type()
@@ -261,7 +263,7 @@ class TestAction(TestCase):
             action_type=action_type).count(), 5)
         self.assertEqual(ActionItem.objects.filter(
             action_type=action_type,
-            reference_identifier__isnull=True).count(), 0)
+            action_identifier__isnull=True).count(), 0)
 
     def test_creates_next_actions(self):
         f1_action_type = FormOneAction.action_type()
@@ -298,7 +300,7 @@ class TestAction(TestCase):
         # next_actions = ['self']
         FormTwo.objects.create(
             subject_identifier=self.subject_identifier,
-            parent_tracking_identifier=form_one_obj.tracking_identifier,
+            parent_reference_identifier=form_one_obj.action_identifier,
             form_one=form_one_obj)
         self.assertEqual(ActionItem.objects.all().count(), 4)
 
@@ -307,7 +309,7 @@ class TestAction(TestCase):
         # instead of creating one,.
         FormThree.objects.create(
             subject_identifier=self.subject_identifier,
-            parent_tracking_identifier=form_one_obj.tracking_identifier)
+            parent_reference_identifier=form_one_obj.action_identifier)
         self.assertEqual(ActionItem.objects.all().count(), 5)
 
         # 3 (1 for each model) are closed
@@ -336,29 +338,17 @@ class TestAction(TestCase):
             status=CLOSED)
         self.assertEqual(obj.status, CLOSED)
 
-    def test_reference_model_delete_resets_action_item(self):
+    def test_reference_url(self):
         obj = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
         action_item = ActionItem.objects.get(
             action_identifier=obj.action_identifier)
-        self.assertEqual(action_item.status, CLOSED)
-        obj.delete()
-        action_item = ActionItem.objects.get(
-            action_identifier=obj.action_identifier)
-        self.assertEqual(action_item.status, OPEN)
-        self.assertIsNone(action_item.reference_identifier)
-
-    def test_reference_model_url(self):
-        obj = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
-        action_item = ActionItem.objects.get(
-            action_identifier=obj.action_identifier)
-        url = FormOneAction(action_identifier=obj.action_identifier).reference_model_url(
+        url = FormOneAction(action_identifier=obj.action_identifier).reference_url(
             action_item=action_item)
         self.assertEqual(
             url, f'/admin/edc_action_item/formone/add/')
 
-    def test_reference_model_url2(self):
+    def test_reference_url2(self):
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
         obj = FormTwo.objects.create(
@@ -366,13 +356,13 @@ class TestAction(TestCase):
             form_one=form_one)
         action_item = ActionItem.objects.get(
             action_identifier=obj.action_identifier)
-        url = FormTwoAction(action_identifier=obj.action_identifier).reference_model_url(
+        url = FormTwoAction(action_identifier=obj.action_identifier).reference_url(
             action_item=action_item)
         self.assertEqual(
             url,
             f'/admin/edc_action_item/formtwo/add/?form_one={str(form_one.pk)}')
 
-    def test_reference_model_url3(self):
+    def test_reference_url3(self):
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
         obj = FormTwo.objects.create(
@@ -380,7 +370,7 @@ class TestAction(TestCase):
             form_one=form_one)
         action_item = ActionItem.objects.get(
             action_identifier=obj.action_identifier)
-        url = FormTwoAction(action_identifier=obj.action_identifier).reference_model_url(
+        url = FormTwoAction(action_identifier=obj.action_identifier).reference_url(
             action_item=action_item,
             subject_identifier=self.subject_identifier)
         self.assertEqual(
@@ -388,7 +378,7 @@ class TestAction(TestCase):
             (f'/admin/edc_action_item/formtwo/add/?subject_identifier='
              f'{self.subject_identifier}&form_one={str(form_one.pk)}'))
 
-    def test_reference_model_url5(self):
+    def test_reference_url5(self):
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
         form_two = FormTwo.objects.create(
@@ -396,8 +386,8 @@ class TestAction(TestCase):
             form_one=form_one)
         action_item = ActionItem.objects.get(
             action_identifier=form_two.action_identifier)
-        url = FormTwoAction(action_identifier=form_two.action_identifier).reference_model_url(
-            reference_model_obj=form_two,
+        url = FormTwoAction(action_identifier=form_two.action_identifier).reference_url(
+            reference_obj=form_two,
             action_item=action_item,
             subject_identifier=self.subject_identifier)
         self.assertEqual(
@@ -425,38 +415,6 @@ class TestAction(TestCase):
             self.fail('ObjectDoesNotExist unexpectedly raised.')
 
         self.assertEqual(action1.action_identifier, action2.action_identifier)
-
-    def test_delete(self):
-        SingletonAction(
-            subject_identifier=self.subject_identifier)
-        delete_action_item(
-            action_cls=SingletonAction,
-            subject_identifier=self.subject_identifier)
-        self.assertRaises(
-            ObjectDoesNotExist,
-            ActionItem.objects.get,
-            subject_identifier=self.subject_identifier)
-
-    def test_cannot_delete_if_not_new(self):
-        action = SingletonAction(
-            subject_identifier=self.subject_identifier)
-
-        action_item = action.action_item_obj
-
-        action_item.status = CLOSED
-        action_item.save()
-        self.assertRaises(
-            ActionItemDeleteError,
-            delete_action_item,
-            action_cls=SingletonAction,
-            subject_identifier=self.subject_identifier)
-        action_item.status = OPEN
-        action_item.save()
-        self.assertRaises(
-            ActionItemDeleteError,
-            delete_action_item,
-            action_cls=SingletonAction,
-            subject_identifier=self.subject_identifier)
 
     def test_append_to_next_if_required(self):
 
