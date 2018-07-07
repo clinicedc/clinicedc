@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from edc_constants.constants import OPEN
+from edc_constants.constants import NEW
 
 from .models import ActionItem
 
@@ -21,7 +21,7 @@ def update_or_create_action_item_on_post_save(sender, instance, raw,
         else:
             if ('historical' not in instance._meta.label_lower
                     and not isinstance(instance, ActionItem)):
-                instance.action_cls(
+                instance.action_cls()(
                     action_identifier=instance.action_identifier)
 
 
@@ -33,12 +33,12 @@ def action_on_post_delete(sender, instance, using, **kwargs):
     """
     if not isinstance(instance, ActionItem):
         try:
-            instance.action_cls
+            instance.action_cls()
         except AttributeError:
             pass
         else:
             obj = ActionItem.objects.get(
                 action_identifier=instance.action_identifier)
-            obj.status = OPEN
-            obj.reference_identifier = None
+            obj.status = NEW
+            obj.linked_to_reference = False
             obj.save()
