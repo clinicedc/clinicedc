@@ -6,9 +6,9 @@ from django.db import migrations, models
 import django.utils.timezone
 import django_extensions.db.fields
 import django_revision.revision_field
-import edc_base.model_fields.hostname_modification_field
-import edc_base.model_fields.userfield
-import edc_base.model_fields.uuid_auto_field
+import edc_model_fields.fields.hostname_modification_field
+import edc_model_fields.fields.userfield
+import edc_model_fields.fields.uuid_auto_field
 
 
 class Migration(migrations.Migration):
@@ -34,12 +34,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('user_created', edc_base.model_fields.userfield.UserField(editable=False, max_length=50, verbose_name='user created')),
-                ('user_modified', edc_base.model_fields.userfield.UserField(editable=False, max_length=50, verbose_name='user modified')),
+                ('user_created', edc_model_fields.fields.userfield.UserField(editable=False, max_length=50, verbose_name='user created')),
+                ('user_modified', edc_model_fields.fields.userfield.UserField(editable=False, max_length=50, verbose_name='user modified')),
                 ('hostname_created', models.CharField(default='One-2.local', editable=False, help_text='System field. (modified on create only)', max_length=50)),
-                ('hostname_modified', edc_base.model_fields.hostname_modification_field.HostnameModificationField(editable=False, help_text='System field. (modified on every save)', max_length=50)),
+                ('hostname_modified', edc_model_fields.fields.hostname_modification_field.HostnameModificationField(editable=False, help_text='System field. (modified on every save)', max_length=50)),
                 ('revision', django_revision.revision_field.RevisionField(blank=True, editable=False, help_text='System field. Git repository tag:branch:commit.', max_length=75, null=True, verbose_name='Revision')),
-                ('id', edc_base.model_fields.uuid_auto_field.UUIDAutoField(editable=False, help_text='System field. UUID primary key.', primary_key=True, serialize=False)),
+                ('id', edc_model_fields.fields.uuid_auto_field.UUIDAutoField(editable=False, help_text='System field. UUID primary key.', primary_key=True, serialize=False)),
                 ('identifier', models.CharField(db_index=True, max_length=25)),
                 ('identifier_string', models.CharField(db_index=True, max_length=50)),
                 ('root_number', models.IntegerField(db_index=True)),
@@ -57,10 +57,10 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('user_created', edc_base.model_fields.userfield.UserField(editable=False, max_length=50, verbose_name='user created')),
-                ('user_modified', edc_base.model_fields.userfield.UserField(editable=False, max_length=50, verbose_name='user modified')),
+                ('user_created', edc_model_fields.fields.userfield.UserField(editable=False, max_length=50, verbose_name='user created')),
+                ('user_modified', edc_model_fields.fields.userfield.UserField(editable=False, max_length=50, verbose_name='user modified')),
                 ('hostname_created', models.CharField(default='One-2.local', editable=False, help_text='System field. (modified on create only)', max_length=50)),
-                ('hostname_modified', edc_base.model_fields.hostname_modification_field.HostnameModificationField(editable=False, help_text='System field. (modified on every save)', max_length=50)),
+                ('hostname_modified', edc_model_fields.fields.hostname_modification_field.HostnameModificationField(editable=False, help_text='System field. (modified on every save)', max_length=50)),
                 ('revision', django_revision.revision_field.RevisionField(blank=True, editable=False, help_text='System field. Git repository tag:branch:commit.', max_length=75, null=True, verbose_name='Revision')),
                 ('device_id', models.IntegerField(default=99)),
             ],
@@ -73,12 +73,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('user_created', edc_base.model_fields.userfield.UserField(editable=False, max_length=50, verbose_name='user created')),
-                ('user_modified', edc_base.model_fields.userfield.UserField(editable=False, max_length=50, verbose_name='user modified')),
+                ('user_created', edc_model_fields.fields.userfield.UserField(editable=False, max_length=50, verbose_name='user created')),
+                ('user_modified', edc_model_fields.fields.userfield.UserField(editable=False, max_length=50, verbose_name='user modified')),
                 ('hostname_created', models.CharField(default='One-2.local', editable=False, help_text='System field. (modified on create only)', max_length=50)),
-                ('hostname_modified', edc_base.model_fields.hostname_modification_field.HostnameModificationField(editable=False, help_text='System field. (modified on every save)', max_length=50)),
+                ('hostname_modified', edc_model_fields.fields.hostname_modification_field.HostnameModificationField(editable=False, help_text='System field. (modified on every save)', max_length=50)),
                 ('revision', django_revision.revision_field.RevisionField(blank=True, editable=False, help_text='System field. Git repository tag:branch:commit.', max_length=75, null=True, verbose_name='Revision')),
-                ('id', edc_base.model_fields.uuid_auto_field.UUIDAutoField(editable=False, help_text='System field. UUID primary key.', primary_key=True, serialize=False)),
+                ('id', edc_model_fields.fields.uuid_auto_field.UUIDAutoField(editable=False, help_text='System field. UUID primary key.', primary_key=True, serialize=False)),
                 ('identifier', models.CharField(editable=False, max_length=36, unique=True)),
                 ('padding', models.IntegerField(default=4, editable=False)),
                 ('sequence_number', models.IntegerField()),
