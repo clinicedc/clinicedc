@@ -9,6 +9,7 @@ from django.core.management.color import color_style
 from .facility import Facility, FacilityError
 from .system_checks import holiday_check
 from .import_holidays import import_holidays
+from pprint import pprint
 
 style = color_style()
 
