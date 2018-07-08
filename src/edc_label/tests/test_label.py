@@ -30,7 +30,6 @@ class DummyCupsConnection:
 
 class TestLabels(TestCase):
 
-    @tag('1')
     def test_dummy(self):
         connection = DummyCupsConnection()
         connection.getPrinters().get('test_printer')
