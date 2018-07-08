@@ -19,8 +19,11 @@ class Printer:
     * Adds extra properties and methods.
     """
 
-    def __init__(self, name=None, print_server_func=None, print_server_ip=None, print_server_name=None):
+    def __init__(self, name=None, print_server_func=None, print_server_ip=None,
+                 print_server_name=None):
         self.name = name
+        self.printer_info = None
+        self.printer_make_and_model = None
         self.print_server = print_server_func
         self.print_server_name = print_server_name
         self.print_server_ip = print_server_ip

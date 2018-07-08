@@ -13,7 +13,8 @@ def print_button(button_label=None, printer=None, label_template_name=None, **kw
 
 
 @register.inclusion_tag('edc_label/printer_config.html')
-def printer_config(heading=None, printer_type=None, selected_printer=None, printers=None, **kwargs):
+def printer_config(heading=None, printer_type=None, selected_printer=None,
+                   printers=None, **kwargs):
 
     return dict(
         heading=heading,
