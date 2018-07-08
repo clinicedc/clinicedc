@@ -1,17 +1,18 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+from django_crypto_fields.fields.encrypted_char_field import EncryptedCharField
 from edc_appointment.models import Appointment
 from edc_base.model_mixins import BaseUuidModel
+from edc_base.model_mixins.list_model_mixin import ListModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES
-from edc_base.model_mixins.list_model_mixin import ListModelMixin
-from django_crypto_fields.fields.encrypted_char_field import EncryptedCharField
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ..managers import ExportHistoryManager
 from ..model_mixins import ExportTrackingFieldsModelMixin
 
 
-class SubjectVisit(BaseUuidModel):
+class SubjectVisit(VisitModelMixin, BaseUuidModel):
 
     appointment = models.ForeignKey(Appointment, null=True, on_delete=PROTECT)
 
