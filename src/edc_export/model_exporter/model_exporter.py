@@ -5,7 +5,7 @@ import uuid
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_base.utils import get_utcnow
-from edc_pdutils.model_to_dataframe import ValueGetter
+from edc_pdutils import ValueGetter
 
 from .file_history_updater import FileHistoryUpdater
 from .object_history_helpers import ObjectHistoryHelper

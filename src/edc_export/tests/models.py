@@ -6,13 +6,12 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_base.model_mixins.list_model_mixin import ListModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES
-from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ..managers import ExportHistoryManager
 from ..model_mixins import ExportTrackingFieldsModelMixin
 
 
-class SubjectVisit(VisitModelMixin, BaseUuidModel):
+class SubjectVisit(BaseUuidModel):
 
     appointment = models.ForeignKey(Appointment, null=True, on_delete=PROTECT)
 
