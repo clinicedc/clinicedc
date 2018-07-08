@@ -8,7 +8,6 @@ from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 from .registered_subject_view_mixin import RegisteredSubjectViewMixin
 from .subject_visit_view_mixin import SubjectVisitViewMixin
 from django.views.generic.base import ContextMixin
-from pprint import pprint
 
 
 class VerifyRequisitionMixin(ContextMixin):

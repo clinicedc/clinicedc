@@ -4,6 +4,7 @@ from edc_appointment.model_mixins import AppointmentModelMixin
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
 from edc_base.model_mixins.url_mixin import UrlMixin
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
 class Appointment(AppointmentModelMixin, BaseUuidModel):
@@ -18,7 +19,7 @@ class SubjectConsent(models.Model):
     consent_datetime = models.DateTimeField(default=get_utcnow)
 
 
-class SubjectVisit(UrlMixin, models.Model):
+class SubjectVisit(VisitModelMixin, UrlMixin, BaseUuidModel):
 
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
