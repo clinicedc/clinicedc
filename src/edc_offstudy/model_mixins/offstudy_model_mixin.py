@@ -53,23 +53,23 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     objects = OffstudyModelManager()
 
+    def __str__(self):
+        formatted_date = timezone.localtime(
+            self.offstudy_datetime).strftime(EDC_DATETIME_FORMAT)
+        return f'{self.subject_identifier} {formatted_date}'
+
     def save(self, *args, **kwargs):
         self.offstudy_cls(
             offstudy_model=self._meta.label_lower,
             **self.__dict__)
         super().save(*args, **kwargs)
 
-    @property
-    def report_datetime(self):
-        return self.offstudy_datetime
-
     def natural_key(self):
         return (self.subject_identifier, )
 
-    def __str__(self):
-        formatted_date = timezone.localtime(
-            self.offstudy_datetime).strftime(EDC_DATETIME_FORMAT)
-        return f'{self.subject_identifier} {formatted_date}'
+    @property
+    def report_datetime(self):
+        return self.offstudy_datetime
 
     class Meta:
         abstract = True
