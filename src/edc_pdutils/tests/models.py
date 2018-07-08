@@ -6,10 +6,9 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_base.model_mixins.list_model_mixin import ListModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES
-from edc_visit_tracking.model_mixins import VisitModelFieldsMixin
 
 
-class SubjectVisit(VisitModelFieldsMixin, BaseUuidModel):
+class SubjectVisit(BaseUuidModel):
 
     appointment = models.OneToOneField(Appointment, on_delete=models.PROTECT)
 
@@ -18,6 +17,12 @@ class SubjectVisit(VisitModelFieldsMixin, BaseUuidModel):
     report_datetime = models.DateTimeField(default=get_utcnow)
 
     visit_code = models.CharField(max_length=25, default='T0')
+
+    reason = models.CharField(max_length=25, null=True)
+
+    survival_status = models.CharField(max_length=25, null=True)
+
+    last_alive_date = models.DateTimeField(null=True)
 
     class Meta:
         ordering = ['report_datetime']

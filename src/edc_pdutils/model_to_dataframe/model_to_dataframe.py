@@ -27,6 +27,7 @@ class ModelToDataframe:
                  add_columns_for=None, decrypt=None, drop_sys_columns=None,
                  **kwargs):
         self._columns = None
+        self._encrypted_columns = None
         self._dataframe = pd.DataFrame()
         self.drop_sys_columns = drop_sys_columns
         self.decrypt = decrypt
@@ -46,6 +47,8 @@ class ModelToDataframe:
             row_count = self.queryset.count()
             if row_count > 0:
                 if self.decrypt and self.has_encrypted_fields:
+                    sys.stdout.write(
+                        f'   PII will be decrypted! ... \n')
                     queryset = self.queryset.filter(**self.query_filter)
                     data = []
                     for index, model_obj in enumerate(queryset.order_by('id')):
@@ -60,10 +63,12 @@ class ModelToDataframe:
                         self._dataframe = pd.DataFrame(
                             data, columns=self.columns)
                 else:
+                    columns = [
+                        col for col in self.columns if col not in self.encrypted_columns]
                     queryset = self.queryset.values_list(
-                        *self.columns.keys()).filter(**self.query_filter)
+                        *columns).filter(**self.query_filter)
                     self._dataframe = pd.DataFrame(
-                        list(queryset), columns=self.columns.keys())
+                        list(queryset), columns=columns)
                 self._dataframe.rename(columns=self.columns, inplace=True)
                 self._dataframe.fillna(value=np.nan, inplace=True)
                 for column in list(self._dataframe.select_dtypes(
@@ -97,6 +102,19 @@ class ModelToDataframe:
             if hasattr(field, 'field_cryptor'):
                 return True
         return False
+
+    @property
+    def encrypted_columns(self):
+        """Return a list of column names that use encryption.
+        """
+        if not self._encrypted_columns:
+            self._encrypted_columns = ['identity_or_pk']
+            for field in self.model_cls._meta.fields:
+                if hasattr(field, 'field_cryptor'):
+                    self._encrypted_columns.append(field.name)
+            self._encrypted_columns = list(set(self._encrypted_columns))
+            self._encrypted_columns.sort()
+        return self._encrypted_columns
 
     @property
     def columns(self):

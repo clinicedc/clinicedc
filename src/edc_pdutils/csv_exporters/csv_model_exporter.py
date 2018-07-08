@@ -16,8 +16,7 @@ class CsvModelExporter:
                  **kwargs):
         self.model = model or queryset.model._meta.label_lower
         self.df_maker = self.df_maker_cls(
-            model=model, queryset=queryset,
-            decrypt=decrypt, **kwargs)
+            model=model, queryset=queryset, decrypt=decrypt, **kwargs)
         self.csv_exporter = self.csv_exporter_cls(
             data_label=self.model, sort_by=sort_by, **kwargs)
 

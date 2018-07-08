@@ -45,7 +45,6 @@ class TestExport(TestCase):
                 rows = [row for row in enumerate(csv_reader)]
             self.assertGreater(len(rows), 0)
 
-    @tag('1')
     def test_export_inlines(self):
 
         class MyDfHandler(CrfDfHandler):

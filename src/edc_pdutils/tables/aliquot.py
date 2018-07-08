@@ -20,7 +20,8 @@ class Aliquot(Table):
         self.requisition_columns = requisition_columns or self.requisition_columns
         self.dataframe['aliquot_datetime'] = self.helper.to_local_datetime(
             self.dataframe['aliquot_datetime'])
-        self.dataframe['aliquot_date'] = self.dataframe['aliquot_datetime'].dt.normalize()
+        self.dataframe['aliquot_date'] = (
+            self.dataframe['aliquot_datetime'].dt.normalize())
 
         # drop sys and other unwanted columns
         base_cols = copy(DEFAULT_BASE_FIELDS)
@@ -37,7 +38,8 @@ class Aliquot(Table):
         self.dataframe['parent_identifier'] = self.dataframe.apply(
             lambda row: self.fix_parent_identifier(row['parent_identifier']), axis=1)
         self.dataframe = pd.merge(
-            self.dataframe, df_requisition[self.requisition_columns], on='requisition_identifier', how='left')
+            self.dataframe, df_requisition[self.requisition_columns],
+            on='requisition_identifier', how='left')
         self.dataframe = self.dataframe[self.reordered_columns]
 
     @property
