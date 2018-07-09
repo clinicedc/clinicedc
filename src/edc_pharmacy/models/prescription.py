@@ -10,7 +10,11 @@ from .search_slug_model_mixin import SearchSlugModelMixin
 
 
 class Manager(SearchSlugManager, models.Manager):
-    pass
+
+    def get_by_natural_key(self, subject_identifier, report_datetime):
+        return self.get(
+            subject_identifier=subject_identifier,
+            report_datetime=report_datetime)
 
 
 class Prescription(NonUniqueSubjectIdentifierFieldMixin, SearchSlugModelMixin, BaseUuidModel):
@@ -48,6 +52,9 @@ class Prescription(NonUniqueSubjectIdentifierFieldMixin, SearchSlugModelMixin, B
         items = ', '.join(
             [str(obj) for obj in self.prescriptionitem_set.all()])
         return f'{items}'
+
+    def natural_key(self):
+        return (self.subject_identifier, self.report_datetime)
 
     @property
     def prescription_date(self):
