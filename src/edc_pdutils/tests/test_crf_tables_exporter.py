@@ -21,6 +21,7 @@ class TestExport(TestCase):
         for i in range(0, 5):
             self.helper.create_crf(i)
 
+    @tag('1')
     def test_crf_tables_to_csv_from_app_label_with_columns(self):
 
         class MyCrfDfHandler(CrfDfHandler):
