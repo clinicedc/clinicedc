@@ -1,7 +1,8 @@
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 
-from ..model_admin_next_url_redirect_mixin import ModelAdminNextUrlRedirectMixin, ModelAdminNextUrlRedirectError
+from ..model_admin_next_url_redirect_mixin import ModelAdminNextUrlRedirectMixin
+from ..model_admin_next_url_redirect_mixin import ModelAdminNextUrlRedirectError
 from .models import TestModel
 
 
