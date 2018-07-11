@@ -1,5 +1,4 @@
 
-
 class ModelAdminFormInstructionsMixin:
     """Add instructions to the add view context.
 
