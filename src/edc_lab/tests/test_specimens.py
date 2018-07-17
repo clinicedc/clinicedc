@@ -1,4 +1,6 @@
+from django.contrib.sites.models import Site
 from django.test import TestCase, tag
+from edc_base.sites.utils import add_or_update_django_sites
 from edc_constants.constants import YES, NO
 
 from ..lab import AliquotType, Process, ProcessingProfile
@@ -26,6 +28,15 @@ class Specimen(SpecimenBase):
 class TestSpecimen(TestCase):
 
     lab_helper = SiteLabsTestHelper()
+
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=((10, 'test_site', 'Test Site'), ), fqdn='clinicedc.org')
+        return super().setUpClass()
+
+    def tearDown(self):
+        super().tearDown()
 
     def setUp(self):
         subject_identifier = '1111111111'
@@ -77,11 +88,21 @@ class TestSpecimen2(TestCase):
 
     lab_helper = SiteLabsTestHelper()
 
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=((10, 'test_site', 'Test Site'), ), fqdn='clinicedc.org')
+        return super().setUpClass()
+
+    def tearDown(self):
+        super().tearDown()
+
     def setUp(self):
         self.lab_helper.setup_site_labs()
         self.panel = self.lab_helper.panel
         self.profile_aliquot_count = self.lab_helper.profile_aliquot_count
         subject_identifier = '1111111111'
+        Site.objects.get_current()
         self.subject_visit = SubjectVisit.objects.create(
             subject_identifier=subject_identifier)
         self.requisition = SubjectRequisition.objects.create(

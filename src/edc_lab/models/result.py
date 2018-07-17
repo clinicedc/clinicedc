@@ -28,4 +28,4 @@ class Result(ResultModelMixin, BaseUuidModel):
 
     def natural_key(self):
         return (self.report_datetime, self.order.order_identifier,)
-    natural_key.dependencies = ['edc_lab.order', 'sites.Site']
+    natural_key.dependencies = ['edc_lab.order', 'edc_lab.panel', 'sites.Site']

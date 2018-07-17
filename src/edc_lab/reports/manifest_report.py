@@ -26,7 +26,6 @@ class ManifestReport(Report):
 
     def __init__(self, manifest=None, user=None, **kwargs):
         super().__init__(**kwargs)
-        # app_config = django_apps.get_app_config('edc_lab')
         self.manifest = manifest  # a Manifest model instance
         self.user = user  # a User model instance
         self.box_model = Box
@@ -300,7 +299,7 @@ class ManifestReport(Report):
             try:
                 box = self.box_model.objects.get(
                     box_identifier=manifest_item.identifier)
-            except self.box_model.DoesNotExist as e:
+            except ObjectDoesNotExist as e:
                 raise ManifestReportError(
                     f'{e} Got Manifest item \'{manifest_item.identifier}\'.',
                     code='unboxed_item') from e
@@ -371,7 +370,7 @@ class ManifestReport(Report):
         try:
             aliquot = self.aliquot_model.objects.get(
                 aliquot_identifier=box_item_identifier)
-        except self.aliquot_model.DoesNotExist as e:
+        except ObjectDoesNotExist as e:
             raise ManifestReportError(
                 f'{e} Got Box item \'{box_item_identifier}\'',
                 code='invalid_aliquot_identifier')

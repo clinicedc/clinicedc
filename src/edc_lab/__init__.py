@@ -1,6 +1,5 @@
 from .aliquot_types import pl, bc, serum, wb
 from .constants import SHIPPED, PACKED
-from .exceptions import SpecimenError, BoxItemError
 from .form_validators import CrfRequisitionFormValidatorMixin
 from .identifiers import AliquotIdentifier, AliquotIdentifierCountError
 from .identifiers import AliquotIdentifierLengthError

@@ -11,11 +11,10 @@ from .manifest import Manifest
 
 class ManifestItemManager(SearchSlugManager, models.Manager):
 
-    def get_by_natural_key(self, position, identifier, box_identifier):
+    def get_by_natural_key(self, identifier, manifest_identifier):
         return self.get(
-            position=position,
             identifier=identifier,
-            box_identifier=box_identifier)
+            manifest_identifier=manifest_identifier)
 
 
 class ManifestItem(SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
@@ -37,7 +36,7 @@ class ManifestItem(SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseU
 
     def natural_key(self):
         return (self.identifier, ) + self.manifest.natural_key()
-    natural_key.dependencies = ['edc_lab.manifest']
+    natural_key.dependencies = ['edc_lab.manifest', 'sites.Site']
 
     @property
     def human_readable_identifier(self):

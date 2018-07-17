@@ -1,6 +1,7 @@
 import re
 
 from django.test import TestCase, tag
+from edc_base.sites.utils import add_or_update_django_sites
 
 from ..identifiers import RequisitionIdentifier
 from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel, Process
@@ -8,6 +9,15 @@ from ..site_labs import site_labs
 
 
 class TestRequisition(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=((10, 'test_site', 'Test Site'), ), fqdn='clinicedc.org')
+        return super().setUpClass()
+
+    def tearDown(self):
+        super().tearDown()
 
     def test_requisition_identifier(self):
         """Asserts requisition identifier class creates identifier
@@ -20,8 +30,16 @@ class TestRequisition(TestCase):
 
 class TestRequisitionModel(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=((10, 'test_site', 'Test Site'), ), fqdn='clinicedc.org')
+        return super().setUpClass()
 
+    def tearDown(self):
+        super().tearDown()
+
+    def setUp(self):
         self.requisition_model = 'edc_lab.subjectrequisition'
         a = AliquotType(name='aliquot_a', numeric_code='55', alpha_code='AA')
         b = AliquotType(name='aliquot_b', numeric_code='66', alpha_code='BB')
