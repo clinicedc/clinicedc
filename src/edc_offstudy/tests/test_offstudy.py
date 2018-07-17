@@ -1,3 +1,5 @@
+import pytest
+
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_appointment.constants import IN_PROGRESS_APPT
@@ -24,6 +26,8 @@ from ..offstudy_crf import SubjectOffstudyError
 from .consents import v1_consent
 from .forms import SubjectOffstudyForm, CrfOneForm, NonCrfOneForm
 from .models import BadSubjectOffstudy, CrfOne, NonCrfOne, BadNonCrfOne, SubjectOffstudy2
+
+pytestmark = pytest.mark.django_db
 
 
 class TestOffstudy(TestCase):
