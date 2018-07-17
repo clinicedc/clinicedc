@@ -32,7 +32,7 @@ class ActionItemUpdate(BaseUuidModel):
 
     def natural_key(self):
         return self.action_item.natural_key()
-    natural_key.dependencies = ['edc_action_item.action_item']
+    natural_key.dependencies = ['edc_action_item.actionitem']
 
     @property
     def subject_identifier(self):
