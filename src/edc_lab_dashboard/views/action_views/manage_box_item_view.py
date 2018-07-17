@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab import SHIPPED, SpecimenError
+from edc_lab import SHIPPED
 from edc_lab.models import BoxItem
 
 from ...view_mixins import BoxViewMixin
@@ -24,11 +24,8 @@ class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin, ActionView):
 
     def process_form_action(self, request=None):
         if self.action == 'add_item':
-            try:
-                if self.box_item_identifier:
-                    self.add_box_item()
-            except SpecimenError:
-                pass
+            if self.box_item_identifier:
+                self.add_box_item()
         elif self.action == 'renumber_items':
             self.renumber_items()
         elif self.action == 'remove_selected_items':
@@ -83,7 +80,7 @@ class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin, ActionView):
                 box_item = BoxItem.objects.get(
                     box__box_identifier=self.box_identifier,
                     identifier=self.box_item_identifier)
-            except BoxItem.DoesNotExist:
+            except ObjectDoesNotExist:
                 try:
                     box_item = BoxItem.objects.get(
                         identifier=self.box_item_identifier)

@@ -2,11 +2,15 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab import BoxItemError, Manifest as ManifestObject
+from edc_lab import Manifest as ManifestObject
 from edc_lab.models import ManifestItem, Box
 
 from ...view_mixins import ManifestViewMixin
 from .action_view import ActionView
+
+
+class ManageManifestViewError(Exception):
+    pass
 
 
 class ManageManifestView(EdcBaseViewMixin, ManifestViewMixin, ActionView):
@@ -23,11 +27,8 @@ class ManageManifestView(EdcBaseViewMixin, ManifestViewMixin, ActionView):
 
     def process_form_action(self, request=None):
         if self.action == 'add_item':
-            try:
-                if self.manifest and self.manifest_item_identifier:
-                    self.add_item()
-            except BoxItemError:
-                pass
+            if self.manifest and self.manifest_item_identifier:
+                self.add_item()
         elif self.action == 'remove_selected_items':
             self.remove_selected_items()
 

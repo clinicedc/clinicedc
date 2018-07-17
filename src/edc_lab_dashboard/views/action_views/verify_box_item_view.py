@@ -1,7 +1,7 @@
 from django.contrib import messages
 from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab import SHIPPED, SpecimenError
+from edc_lab import SHIPPED
 
 from ...view_mixins import BoxViewMixin
 from .action_view import ActionView
@@ -23,11 +23,8 @@ class VerifyBoxItemView(EdcBaseViewMixin, BoxViewMixin, ActionView):
 
     def process_form_action(self, request=None):
         if self.action == 'verify_item':
-            try:
-                if self.box_item_identifier:
-                    self.verify_item()
-            except SpecimenError:
-                pass
+            if self.box_item_identifier:
+                self.verify_item()
         elif self.action == 'reset_box':
             self.unverify_box()
         elif self.action == 'verify_box':
