@@ -9,6 +9,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            import_holidays()
+            import_holidays(verbose=True)
         except HolidayImportError as e:
             raise CommandError(e)

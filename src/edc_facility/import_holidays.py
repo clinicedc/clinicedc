@@ -1,9 +1,11 @@
 import csv
 import os
+import sys
 
 from datetime import datetime
 from django.apps import apps as django_apps
 from django.conf import settings
+from tqdm import tqdm
 
 
 class HolidayImportError(Exception):
@@ -14,7 +16,7 @@ class HolidayFileNotFoundError(Exception):
     pass
 
 
-def import_holidays():
+def import_holidays(verbose=None):
     model_cls = django_apps.get_model('edc_facility.holiday')
     path = settings.HOLIDAY_FILE
     try:
@@ -22,12 +24,24 @@ def import_holidays():
             raise HolidayFileNotFoundError(path)
     except TypeError:
         raise HolidayImportError(f'Invalid path. Got {path}.')
+    if verbose:
+        sys.stdout.write(
+            f'\nImporting holidays from \'{path}\' into {model_cls._meta.label_lower}\n')
     model_cls.objects.all().delete()
+
+    with open(path, 'r') as f:
+        reader = csv.DictReader(
+            f, fieldnames=['local_date', 'label', 'country'])
+        recs = [row['local_date'] for row in reader]
+    if len(recs) != len(list(set(recs))):
+        raise HolidayImportError(
+            'Invalid file. Duplicate dates detected')
+
     objs = []
     with open(path, 'r') as f:
         reader = csv.DictReader(
             f, fieldnames=['local_date', 'label', 'country'])
-        for index, row in enumerate(reader):
+        for index, row in tqdm(enumerate(reader), total=len(recs)):
             if index == 0:
                 continue
             try:
@@ -43,3 +57,5 @@ def import_holidays():
                     local_date=local_date,
                     name=row['label']))
         model_cls.objects.bulk_create(objs)
+    if verbose:
+        sys.stdout.write(f'Done.\n')
