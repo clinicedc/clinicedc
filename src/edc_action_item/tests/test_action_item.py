@@ -11,6 +11,7 @@ from .action_items import FormZeroAction, FormOneAction, FormTwoAction
 from .models import SubjectIdentifierModel
 from .models import TestModelWithAction
 from .models import FormOne, FormTwo
+import uuid
 
 
 class TestActionItem(TestCase):
