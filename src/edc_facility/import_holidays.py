@@ -26,9 +26,21 @@ def import_holidays(verbose=None):
         raise HolidayImportError(f'Invalid path. Got {path}.')
     if verbose:
         sys.stdout.write(
-            f'\nImporting holidays from \'{path}\' into {model_cls._meta.label_lower}\n')
+            f'\nImporting holidays from \'{path}\' '
+            f'into {model_cls._meta.label_lower}\n')
     model_cls.objects.all().delete()
 
+    recs = check_for_duplicates_in_file(path)
+
+    import_file(path, recs, model_cls)
+
+    if verbose:
+        sys.stdout.write(f'Done.\n')
+
+
+def check_for_duplicates_in_file(path):
+    """Returns a list of records.
+    """
     with open(path, 'r') as f:
         reader = csv.DictReader(
             f, fieldnames=['local_date', 'label', 'country'])
@@ -36,7 +48,10 @@ def import_holidays(verbose=None):
     if len(recs) != len(list(set(recs))):
         raise HolidayImportError(
             'Invalid file. Duplicate dates detected')
+    return recs
 
+
+def import_file(path, recs, model_cls):
     objs = []
     with open(path, 'r') as f:
         reader = csv.DictReader(
@@ -57,5 +72,3 @@ def import_holidays(verbose=None):
                     local_date=local_date,
                     name=row['label']))
         model_cls.objects.bulk_create(objs)
-    if verbose:
-        sys.stdout.write(f'Done.\n')
