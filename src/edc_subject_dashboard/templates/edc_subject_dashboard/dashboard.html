@@ -31,13 +31,13 @@
 			  <i class="far fa-calendar fa-lg fa-fw"></i> 
 			      <a data-toggle="collapse" data-parent="#accordion_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}" aria-hidden="true"
 			         href="#subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}">
-			         {{ current_visit_schedule.verbose_name }} <i class="fa fa-caret-right"></i> {{ current_schedule.verbose_name }} <i class="fa fa-caret-right"></i> {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }} <span class="caret"></span>
+			         {{ current_visit_schedule.verbose_name }} <i class="fas fa-caret-right"></i> {{ current_schedule.verbose_name }} <i class="fas fa-caret-right"></i> {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }} <span class="caret"></span>
 			      </a>
 	            {% block schedule_button %}
 	            <span class="pull-right"><span class="text test-muted">
 	                <a href="{% url subject_dashboard_url subject_identifier=subject_identifier %}"
 	                   role="button" class="btn btn-sm btn-primary">
-	                    <i class="fa fa-reply fa-fw" aria-hidden="true"></i> <i class="far fa-calendar fa-fw"></i> Schedule
+	                    <i class="fas fa-reply fa-fw" aria-hidden="true"></i> <i class="far fa-calendar fa-fw"></i> Schedule
 	                </a>
 	            </span></span>
 	            {% endblock schedule_button %}
@@ -63,7 +63,7 @@
 					  <i class="far fa-calendar fa-lg fa-fw"></i> 
 					      <a data-toggle="collapse" data-parent="#accordion_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}" aria-hidden="true"
 					         href="#subject_dashboard_appointments_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}">
-					         {{ visit_schedule.verbose_name }} <i class="fa fa-caret-right"></i> {{ schedule.verbose_name }} <span class="caret"></span>
+					         {{ visit_schedule.verbose_name }} <i class="fas fa-caret-right"></i> {{ schedule.verbose_name }} <span class="caret"></span>
 					      </a>
 
 					      <span class="text text-default pull-right"><small>
