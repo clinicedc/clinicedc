@@ -59,7 +59,7 @@ def verified(box_item):
             verified = False
     return '' if not verified else mark_safe(
         '&nbsp;<span title="verified" alt="verified" class="text text-success">'
-        '<i class="fa fa-check fa-fw"></i></span>')
+        '<i class="fas fa-check fa-fw"></i></span>')
 
 
 @register.filter(is_safe=True)
@@ -68,7 +68,7 @@ def shipped(box_item):
     """
     return '' if not box_item.status == SHIPPED else mark_safe(
         '&nbsp;<span title="shipped" class="text text-success">'
-        '<i class="fa fa-ship fa-fw"></i></span>')
+        '<i class="fas fa-ship fa-fw"></i></span>')
 
 
 @register.inclusion_tag('edc_lab_dashboard/listboard/tags/status_column.html')

@@ -24,22 +24,22 @@
         <input class="form-control" type="text" form="{{ form_action_name }}" id="box_item_identifier" name="box_item_identifier" placeholder="aliquot identifier" autofocus />
         <div class="input-group-btn">
             <button title="check item"  type="submit" class="btn btn-default btn-sm" id="action" name="action" value="verify_item" form="{{ form_action_name }}">
-                 <i class="fa fa-check fa-sm"></i> {{ position }}
+                 <i class="fas fa-check fa-sm"></i> {{ position }}
             </button>
         </div>
         </div>
 		<button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="reset_box" form="{{ form_action_name }}">
-		     <i class="fa fa-undo fa-sm"></i> &nbsp;Undo All
+		     <i class="fas fa-undo fa-sm"></i> &nbsp;Undo All
 		</button>
         <a role="button" class="btn btn-default btn-sm" href="{{ manage_box_listboard_url_reversed }}">
             Manage box
         </a>
         {% if box.verified %}
-            <span class="text lead"><span class="label label-success"><i class="fa fa-check fa-fw"></i>&nbsp;Verified</span></span>
+            <span class="text lead"><span class="label label-success"><i class="fas fa-check fa-fw"></i>&nbsp;Verified</span></span>
         {% endif %}
         {% if box.status == SHIPPED %}
         <a role="button" class="btn btn-default btn-sm" href="{% url manifest_listboard_url %}?f=shipped">
-             <i class="fa fa-ship fa-fw"></i>
+             <i class="fas fa-ship fa-fw"></i>
         </a>
         {% endif %}
     </div>

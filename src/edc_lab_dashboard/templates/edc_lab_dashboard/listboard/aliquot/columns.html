@@ -6,14 +6,14 @@
     </td>
     <td>
         <div class="btn-group">
-           <a title="Edit {% if wrapped.is_primary %}primary {% endif %}aliquot" role="button" href="{{ wrapped.href }}" class="btn {% if wrapped.is_primary %}btn-info{% else %}btn-default{% endif %} btn-sm"><i class="fa fa-pencil-alt fa-fw"></i></a>
+           <a title="Edit {% if wrapped.is_primary %}primary {% endif %}aliquot" role="button" href="{{ wrapped.href }}" class="btn {% if wrapped.is_primary %}btn-info{% else %}btn-default{% endif %} btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
           {% if wrapped.box_item %}
              <a title="Box {{ wrapped.box_item.box.box_identifier }} ({{ wrapped.box_item.box.get_category_display }})" href="{% url manage_box_listboard_url box_identifier=wrapped.box_item.box.box_identifier action_name='manage' %}" role="button" class="btn btn-default btn-sm">
-                <i class="fa fa-archive fa-fw"></i>
+                <i class="fas fa-archive fa-fw"></i>
             </a>
           {% endif %}
           {% if wrapped.manifest_item.manifest %}
-             <a title="{{ wrapped.manifest_item.manifest.manifest_identifier }}" href="{% url manage_manifest_listboard_url action_name='manage' manifest_identifier=wrapped.manifest_item.manifest.manifest_identifier %}" role="button" class="btn btn-default btn-sm"><i class="fa fa-ship fa-fw"></i></a>
+             <a title="{{ wrapped.manifest_item.manifest.manifest_identifier }}" href="{% url manage_manifest_listboard_url action_name='manage' manifest_identifier=wrapped.manifest_item.manifest.manifest_identifier %}" role="button" class="btn btn-default btn-sm"><i class="fas fa-ship fa-fw"></i></a>
           {% endif %}
         </div>&nbsp;
       <span class="text text-identifier">
@@ -33,14 +33,14 @@
     </td>
     <td>
       {% if wrapped.box_item %}
-        <span class="text text-success"><i class="fa fa-check-circle fa-fw" title="Packed"></i></span>
+        <span class="text text-success"><i class="fas fa-check-circle fa-fw" title="Packed"></i></span>
       {% else %}
-        <span class="text text-danger"><i class="fa fa-times-circle fa-fw" title="Not packed"></i></span>
+        <span class="text text-danger"><i class="fas fa-times-circle fa-fw" title="Not packed"></i></span>
       {% endif %}
       {% if wrapped.shipped %}
-        <span class="text text-success"><i class="fa fa-check-circle fa-fw" title="Shipped"></i></span>
+        <span class="text text-success"><i class="fas fa-check-circle fa-fw" title="Shipped"></i></span>
       {% else %}
-        <span class="text text-danger"><i class="fa fa-times-circle fa-fw" title="Not shipped"></i></span>
+        <span class="text text-danger"><i class="fas fa-times-circle fa-fw" title="Not shipped"></i></span>
       {% endif %}
     </td>
     <td>
