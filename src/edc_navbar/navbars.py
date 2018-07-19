@@ -13,19 +13,19 @@ if app_config.register_default_navbar:
     default_navbar.append_item(
         NavbarItem(name='home',
                    title='Home',
-                   glyphicon='glyphicon-home',
+                   fa_icon='fas fa-home',
                    url_name='home_url'))
 
     default_navbar.append_item(
         NavbarItem(name='administration',
                    title='Administration',
-                   glyphicon='glyphicon-wrench',
+                   fa_icon='fas fa-cog',
                    url_name='administration_url'))
 
     default_navbar.append_item(
         NavbarItem(name='logout',
                    title='Logout',
-                   glyphicon='glyphicon-log-out',
+                   fa_icon='fas fa-sign-out-alt',
                    url_name='logout'))
 
     site_navbars.register(default_navbar)
