@@ -28,32 +28,32 @@ data-content="
 <a id='referencemodel-change-{{ action_identifier }}' class='list-group-item list-group-item-{{ action_item_color }}'
 	title='click to {% if reference_obj %}edit{% else %}add{% endif %}'
 	href='{{ reference_url }}'>
-	<span class='text text-default text-nowrap small'>{% if reference_obj %}<i class='fa fa-pencil-alt fa-fw' aria-hidden='true'></i>{% else %}<i class='fa fa-plus fa-fw' aria-hidden='true'></i>{% endif %} {{ reference_model_name }}</span>
+	<span class='text text-default text-nowrap small'>{% if reference_obj %}<i class='fas fa-pencil-alt fa-fw' aria-hidden='true'></i>{% else %}<i class='fas fa-plus fa-fw' aria-hidden='true'></i>{% endif %} {{ reference_model_name }}</span>
 </a>
 {% endif %}
 
 {% if parent_reference_url %}
 	<a 'parent-reference-change-{{ parent_reference_identifier }}'
 		class='list-group-item list-group-item-default' href='{{ parent_reference_url }}' title='click to edit'>
-		<span class='text text-default small'><i class='fa fa-pencil-alt fa-fw' aria-hidden='true'></i> Previous {{ parent_reference_model_name }}</span>
+		<span class='text text-default small'><i class='fas fa-pencil-alt fa-fw' aria-hidden='true'></i> Previous {{ parent_reference_model_name }}</span>
 	</a>
 {% endif %}
 
 {% if related_reference_url %}
 	<a 'related-reference-change-{{ related_reference_identifier }}'
 		class='list-group-item list-group-item-default' href='{{ related_reference_url }}' title='click to edit'>
-		<span class='text text-default small'><i class='fa fa-pencil-alt fa-fw' aria-hidden='true'></i> Related {{ related_reference_model_name }}</span>
+		<span class='text text-default small'><i class='fas fa-pencil-alt fa-fw' aria-hidden='true'></i> Related {{ related_reference_model_name }}</span>
 	</a>
 {% endif %}
 
 <a 'actionitem-change-{{ action_identifier }}' class='list-group-item list-group-item-default' href='{{ href }}' title='click to edit'>
-	<span class='text text-default text-nowrap small'><i class='fa fa-pencil-alt fa-fw' aria-hidden='true'></i> Action item</span>
+	<span class='text text-default text-nowrap small'><i class='fas fa-pencil-alt fa-fw' aria-hidden='true'></i> Action item</span>
 </a>
 </div>
-<p><a title='close' class='btn btn-sm btn-primary pull-right'><i class='fa fa-times fa-fw' aria-hidden='true'></i></a><br></p>
+<p><a title='close' class='btn btn-sm btn-primary pull-right'><i class='fas fa-times fa-fw' aria-hidden='true'></i></a><br></p>
 
 ">
-<i class="fa fa-caret-left" aria-hidden="true"></i>
+<i class="fas fa-caret-left" aria-hidden="true"></i>
 <span class="text text-{{ action_item_color }}" title="Click to see more ...">
 <small>{% if strike_thru %}<strike>{% endif %}{{ display_name }}{% if strike_thru %}</strike>{% endif %}</small>
 </span>
