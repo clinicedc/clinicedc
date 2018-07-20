@@ -87,7 +87,7 @@ class TestFieldsets(TestCase):
             fs.fieldsets[1][1]['fields'], ('field1', 'field2', 'field3'))
 
     def test_adds_fieldset_section_with_fieldset(self):
-        """Asserts adds fields to a new section.\
+        """Asserts adds fields to a new section.
         """
         fieldsets = Fieldsets(self.fieldsets)
         fieldset = Fieldset(
@@ -111,7 +111,8 @@ class TestFieldsets(TestCase):
             fs.fieldsets[0][1]['fields'][pos + 1:][0:3], fields)
 
     def test_insert_fields_after_bad_section(self):
-        """Asserts raises if section does not exist."""
+        """Asserts raises if section does not exist.
+        """
         fs = Fieldsets(self.fieldsets)
         fields = ('field1', 'field2', 'field3')
         self.assertRaises(
