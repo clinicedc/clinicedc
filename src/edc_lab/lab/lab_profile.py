@@ -9,10 +9,9 @@ class LabProfileRequisitionModelError(Exception):
 
 class LabProfile:
 
-    """A container class for panels.
-
-    Added panels must have a matching requisition_model.
+    """A container class for aliquot types, panels and processing.
     """
+    site_model = 'sites.site'
 
     def __init__(self, name=None, requisition_model=None):
         self.aliquot_types = {}
@@ -23,8 +22,6 @@ class LabProfile:
             raise LabProfileRequisitionModelError(
                 'Invalid requisition model. Got None')
         self.requisition_model = requisition_model
-        for panel in self.panels.values():
-            panel.requisition_model = self.requisition_model
 
     def __repr__(self):
         return f'{self.__class__.__name__}(name={self.name})'
@@ -34,6 +31,9 @@ class LabProfile:
 
     def add_panel(self, panel=None):
         """Adds a panel instance to the profile.
+
+        If site_id specified, will only add if site_id matches
+        the current site_id.
         """
         panel.requisition_model = self.requisition_model
         panel.lab_profile_name = self.name

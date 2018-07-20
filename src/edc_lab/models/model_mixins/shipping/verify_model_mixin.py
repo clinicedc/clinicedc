@@ -1,5 +1,4 @@
 from django.db import models
-
 from edc_base.utils import get_utcnow
 from edc_constants.constants import OPEN
 

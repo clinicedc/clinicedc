@@ -15,7 +15,7 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_NAME = 'edc_lab'
 ETC_DIR = os.path.join(BASE_DIR, 'etc')
-SITE_ID = '40'
+SITE_ID = 10
 REVIEWER_SITE_ID = 1
 
 # Quick-start development settings - unsuitable for production
@@ -43,13 +43,22 @@ INSTALLED_APPS = [
     'django_js_reverse',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
+    'django_offline.apps.AppConfig',
+    'django_offline_files.apps.AppConfig',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'edc_appointment.apps.AppConfig',
+    'edc_action_item.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_label.apps.AppConfig',
+    'edc_locator.apps.AppConfig',
+    'edc_metadata.apps.AppConfig',
     'edc_registration.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_search.apps.AppConfig',
+    'edc_timepoint.apps.AppConfig',
     'edc_lab.apps.AppConfig',
 ]
 
@@ -62,6 +71,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'edc_dashboard.middleware.DashboardMiddleware',
+    'edc_subject_dashboard.middleware.DashboardMiddleware',
 ]
 
 ROOT_URLCONF = 'edc_lab.urls'
@@ -134,7 +145,18 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-EDC_LAB_REQUISITION_MODEL = 'edc_lab.subjectrequisition'
+
+
+DASHBOARD_URL_NAMES = {
+    'subject_listboard_url': 'edc_subject_dashboard:subject_listboard_url',
+    'subject_dashboard_url': 'edc_subject_dashboard:subject_dashboard_url',
+}
+
+# django_offline / django_offline files
+DJANGO_OFFLINE_SERVER_IP = None
+DJANGO_OFFLINE_FILES_REMOTE_HOST = None
+DJANGO_OFFLINE_FILES_USER = None
+DJANGO_OFFLINE_FILES_USB_VOLUME = None
 
 if 'test' in sys.argv:
 

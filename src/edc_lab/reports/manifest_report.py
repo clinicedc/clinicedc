@@ -12,6 +12,9 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm, cm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
+from ..models import Box, BoxItem, Aliquot
+from ..site_labs import site_labs
+
 
 class ManifestReportError(Exception):
     def __init__(self, message, code=None):
@@ -23,12 +26,11 @@ class ManifestReport(Report):
 
     def __init__(self, manifest=None, user=None, **kwargs):
         super().__init__(**kwargs)
-        app_config = django_apps.get_app_config('edc_lab')
         self.manifest = manifest  # a Manifest model instance
         self.user = user  # a User model instance
-        self.box_model = django_apps.get_model(app_config.box_model)
-        self.box_item_model = django_apps.get_model(app_config.box_item_model)
-        self.aliquot_model = django_apps.get_model(app_config.aliquot_model)
+        self.box_model = Box
+        self.box_item_model = BoxItem
+        self.aliquot_model = Aliquot
         self.image_folder = os.path.join(
             settings.STATIC_ROOT, 'bcpp', 'images')
 
@@ -147,7 +149,8 @@ class ManifestReport(Report):
         data = [
             [Paragraph('MANIFEST NO.', self.styles["line_label"]),
              Paragraph(
-                 self.manifest.human_readable_identifier if self.manifest.shipped else 'PREVIEW',
+                 (self.manifest.human_readable_identifier
+                  if self.manifest.shipped else 'PREVIEW'),
                  self.styles["line_data_largest"]),
              barcode,
              ]]
@@ -180,8 +183,10 @@ class ManifestReport(Report):
         ]))
         story.append(t)
 
-        data = [[Paragraph('SHIPPER/EXPORTER (complete name and address)', self.styles["line_label"]),
-                 Paragraph('CONSIGNEE (complete name and address)', self.styles["line_label"])],
+        data = [[Paragraph('SHIPPER/EXPORTER (complete name and address)',
+                           self.styles["line_label"]),
+                 Paragraph('CONSIGNEE (complete name and address)',
+                           self.styles["line_label"])],
                 [Paragraph(
                     self.formatted_address(**self.shipper_data),
                     self.styles["line_data_large"]),
@@ -234,8 +239,9 @@ class ManifestReport(Report):
 
         story.append(Spacer(0.1 * cm, .5 * cm))
 
-        story.append(Table([[Paragraph('I DECLARE THE INFORMATION CONTAINED IN THIS '
-                                       'MANIFEST TO BE TRUE AND CORRECT', self.styles["line_label"])]]))
+        story.append(Table([[
+            Paragraph('I DECLARE THE INFORMATION CONTAINED IN THIS '
+                      'MANIFEST TO BE TRUE AND CORRECT', self.styles["line_label"])]]))
 
         story.append(Spacer(0.1 * cm, .5 * cm))
 
@@ -293,7 +299,7 @@ class ManifestReport(Report):
             try:
                 box = self.box_model.objects.get(
                     box_identifier=manifest_item.identifier)
-            except self.box_model.DoesNotExist as e:
+            except ObjectDoesNotExist as e:
                 raise ManifestReportError(
                     f'{e} Got Manifest item \'{manifest_item.identifier}\'.',
                     code='unboxed_item') from e
@@ -306,7 +312,8 @@ class ManifestReport(Report):
                     box.get_category_display().upper(), self.styles["line_data_large"]),
                 Paragraph(box.specimen_types, self.styles["line_data_large"]),
                 Paragraph(
-                    '{}/{}'.format(str(box.count), str(box.box_type.total)), self.styles["line_data_large"]),
+                    f'{str(box.count)}/{str(box.box_type.total)}',
+                    self.styles["line_data_large"]),
                 Paragraph(box.box_datetime.strftime(
                     '%Y-%m-%d'), self.styles["line_data_large"]),
                 barcode])
@@ -363,7 +370,7 @@ class ManifestReport(Report):
         try:
             aliquot = self.aliquot_model.objects.get(
                 aliquot_identifier=box_item_identifier)
-        except self.aliquot_model.DoesNotExist as e:
+        except ObjectDoesNotExist as e:
             raise ManifestReportError(
                 f'{e} Got Box item \'{box_item_identifier}\'',
                 code='invalid_aliquot_identifier')
@@ -373,13 +380,16 @@ class ManifestReport(Report):
         """Returns the panel object associated with this
         aliquot.
         """
-        app_config = django_apps.get_app_config('edc_lab')
-        requisition_model = django_apps.get_model(app_config.requisition_model)
-        try:
-            requisition = requisition_model.objects.get(
-                requisition_identifier=aliquot.requisition_identifier)
-        except ObjectDoesNotExist as e:
+        requisition = None
+        for requisition_model in site_labs.requisition_models:
+            model_cls = django_apps.get_model(requisition_model)
+            try:
+                requisition = model_cls.objects.get(
+                    requisition_identifier=aliquot.requisition_identifier)
+            except ObjectDoesNotExist:
+                pass
+        if not requisition:
             raise ManifestReportError(
-                f'{e} Got requisition identifier {aliquot.requisition_identifier}',
+                f'Invalid requisition identifier. Got {aliquot.requisition_identifier}',
                 code='invalid_requisition_identifier')
         return requisition.panel_object

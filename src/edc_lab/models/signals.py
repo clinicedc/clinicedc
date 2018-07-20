@@ -1,9 +1,9 @@
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+from django.core.exceptions import ObjectDoesNotExist
 
-from edc_lab.constants import VERIFIED
-from edc_lab.models import BoxItem
-
+from ..constants import VERIFIED
+from ..models import BoxItem
 from .box import Box
 from .manifest import ManifestItem
 
@@ -13,7 +13,7 @@ from .manifest import ManifestItem
 def manifest_item_on_post_delete(sender, instance, using, **kwargs):
     try:
         box = Box.objects.get(box_identifier=instance.identifier)
-    except Box.DoesNotExist:
+    except ObjectDoesNotExist:
         pass
     else:
         box.status = VERIFIED

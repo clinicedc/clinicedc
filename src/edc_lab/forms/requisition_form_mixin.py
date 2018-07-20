@@ -1,17 +1,17 @@
 from arrow.arrow import Arrow
 from django import forms
-from django.apps import apps as django_apps
 from django.conf import settings
 from django.utils import timezone
 from edc_base.utils import convert_php_dateformat
 from edc_constants.constants import YES, NO
 from edc_form_validators import FormValidator
 
+from ..models import Aliquot
+
 
 class RequisitionFormMixin:
 
-    aliquot_model = django_apps.get_model(
-        *django_apps.get_app_config('edc_lab').aliquot_model.split('.'))
+    aliquot_model = Aliquot
     default_item_type = 'tube'
     default_item_count = 1
     default_estimated_volume = 5.0

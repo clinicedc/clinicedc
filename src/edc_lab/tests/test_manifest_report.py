@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase, tag
+from edc_base.sites.utils import add_or_update_django_sites
 
 from ..models import Box, BoxItem, BoxType, Aliquot
 from ..models import Manifest, Shipper, Consignee, ManifestItem
@@ -7,6 +8,15 @@ from ..reports import ManifestReport, ManifestReportError
 
 
 class TestManifest(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=((10, 'example.com', 'Test Site'), ), fqdn='example.com')
+        return super().setUpClass()
+
+    def tearDown(self):
+        super().tearDown()
 
     def test_manifest(self):
         consignee = Consignee.objects.create(name='consignee')
@@ -97,7 +107,6 @@ class TestManifestReport(TestCase):
             identifier=box.box_identifier,
             position=0)
 
-    @tag('1')
     def test_report_invalid_invalid_aliquot_identifier(self):
         self.manifest.shipped = True
         self.manifest.save()

@@ -18,15 +18,20 @@ class SiteLabsRequisitionModelError(Exception):
     pass
 
 
+class SiteLabsLabProfileError(Exception):
+    pass
+
+
 class SiteLabs:
 
     panel_model = 'edc_lab.panel'
 
     def __init__(self):
         self._registry = {}
+        self.aliquot_types = {}
         self.loaded = False
         self.migrated = False
-        self.aliquot_types = {}
+        self.requisition_models = {}
 
     def __repr__(self):
         return f'{self.__class__.__name__}(loaded={self.loaded})'
@@ -40,15 +45,16 @@ class SiteLabs:
         return self._registry
 
     def get(self, lab_profile_name):
+        """Returns a LabProfile instance.
+        """
         if not self.loaded:
             raise RegistryNotLoaded(self)
         return self._registry.get(lab_profile_name)
 
     def register(self, lab_profile=None):
-        """Registers a lab profile instance using the label_lower (model)
+        """Registers a LabProfile instance using the label_lower (model)
         as the key.
 
-            requisition_model: label_lower string
             lab_profile: instance of LabProfile
         """
         if lab_profile:
@@ -58,6 +64,8 @@ class SiteLabs:
                 self.registry.update(
                     {lab_profile.requisition_model: lab_profile})
                 self.aliquot_types.update(**lab_profile.aliquot_types)
+                self.requisition_models.update(
+                    {lab_profile.requisition_model: lab_profile.requisition_model})
                 if self.migrated:
                     panel_model_cls = django_apps.get_model(self.panel_model)
                     self.update_panel_model(panel_model_cls=panel_model_cls)
@@ -65,11 +73,43 @@ class SiteLabs:
                 raise AlreadyRegistered(
                     f'Lab profile {lab_profile} is already registered.')
 
+    @property
+    def lab_profiles(self):
+        return {l.name: l for l in self._registry.values()}
+
+    @property
+    def panel_model_cls(self):
+        return django_apps.get_model(self.panel_model)
+
+    def check_lab_profile_name_on_panels(self, panel_model_cls=None):
+        """Checks if for panels referencing non-existent lab_profiles
+        """
+        panel_model_cls = panel_model_cls or self.panel_model_cls
+        for panel in panel_model_cls.objects.all().order_by('lab_profile_name'):
+            if panel.lab_profile_name not in self.lab_profiles:
+                raise SiteLabsLabProfileError(
+                    f'Existing panel refers to an unknown lab_profile name. '
+                    f'Got \'{panel.lab_profile_name}\'. '
+                    f'Resolve the \'lab_profile_name\' on model Panel '
+                    f'before attempting to creating new Panel model instances.')
+
     def update_panel_model(self, panel_model_cls=None, **kwargs):
         """Updates or creates panel mode instances.
 
         Initially called in the post_migrate signal.
         """
+        panel_model_cls = panel_model_cls or self.panel_model_cls
+
+        self.check_lab_profile_name_on_panels(panel_model_cls=panel_model_cls)
+
+        for panel in panel_model_cls.objects.all().order_by('lab_profile_name'):
+            if panel.lab_profile_name not in self.lab_profiles:
+                raise SiteLabsLabProfileError(
+                    f'Existing panel refers to an unknown lab_profile name. '
+                    f'Got \'{panel.lab_profile_name}\'. '
+                    f'Resolve the \'lab_profile_name\' on model Panel '
+                    f'before attempting to creating new Panel model instances.')
+
         for lab_profile in self.registry.values():
             for panel in lab_profile.panels.values():
                 try:

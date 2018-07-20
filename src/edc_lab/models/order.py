@@ -40,5 +40,5 @@ class Order(SiteModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     def natural_key(self):
-        return (self.report_datetime, self.aliquot.aliquot_identifier,)
+        return (self.report_datetime, ) + self.aliquot.natural_key()
     natural_key.dependencies = ['edc_lab.aliquot', 'sites.Site']

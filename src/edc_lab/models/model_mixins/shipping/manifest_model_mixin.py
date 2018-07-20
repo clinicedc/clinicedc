@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-
 from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.constants import OPEN, CLOSED, OTHER

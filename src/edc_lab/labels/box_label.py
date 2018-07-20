@@ -2,16 +2,15 @@ from django.apps import apps as django_apps
 
 from .base_label import BaseLabel
 
-edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
-
 
 class BoxLabel(BaseLabel):
 
-    model_attr = 'box_model'
+    model = 'edc_lab.box'
     template_name = 'box'
 
     @property
     def label_context(self):
+        edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
         return {
             'barcode_value': self.model_obj.box_identifier,
             'box_identifier': self.model_obj.human_readable_identifier,

@@ -1,29 +1,34 @@
-from django.apps import apps as django_apps
-from edc_label import Label
-from edc_registration.models import RegisteredSubject
 from arrow.arrow import Arrow
+from django.apps import apps as django_apps
 from django.conf import settings
-
-
-edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
+from edc_label import Label
 
 
 class RequisitionLabel(Label):
 
     label_template_name = 'requisition'
+    registered_subject_model = 'edc_registration.registeredsubject'
 
     def __init__(self, requisition=None, item=None, user=None, label_template_name=None):
+        self._registered_subject = None
         self.label_template_name = label_template_name or self.label_template_name
         super().__init__(label_template_name=self.label_template_name)
         self.item = item or 1
         self.requisition = requisition
         self.user = user
-        self.registered_subject = RegisteredSubject.objects.get(
-            subject_identifier=self.requisition.subject_identifier)
         self.label_name = self.requisition.human_readable_identifier
 
     @property
+    def registered_subject(self):
+        if not self._registered_subject:
+            model_cls = django_apps.get_model(self.registered_subject_model)
+            self._registered_subject = model_cls.objects.get(
+                subject_identifier=self.requisition.subject_identifier)
+        return self._registered_subject
+
+    @property
     def label_context(self):
+        edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
         utc = Arrow.fromdatetime(
             self.requisition.drawn_datetime or self.requisition.created)
         dte = utc.to(settings.TIME_ZONE).datetime

@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.utils import timezone
-
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.sites import CurrentSiteManager, SiteModelMixin
@@ -38,9 +37,8 @@ human_readable_pattern = '^[A-Z]{3}\-[0-9]{4}\-[0-9]{2}$'
 
 class BoxManager(SearchSlugManager, models.Manager):
 
-    def get_by_natural_key(self, box_identifier, name):
-        return self.get(
-            box_identifier=box_identifier, box_type__name=name)
+    def get_by_natural_key(self, box_identifier):
+        return self.get(box_identifier=box_identifier)
 
 
 class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidModel):
@@ -112,7 +110,7 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidMod
         return self.name
 
     def natural_key(self):
-        return (self.box_identifier,) + self.box_type.natural_key()
+        return (self.box_identifier,)
     natural_key.dependencies = ['edc_lab.boxtype', 'sites.Site']
 
     @property

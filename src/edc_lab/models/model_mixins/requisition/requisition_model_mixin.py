@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from edc_base.model_fields import InitialsField
-from edc_base.model_fields.custom_fields import OtherCharField
+from edc_model_fields.fields import OtherCharField, InitialsField
 from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import NOT_APPLICABLE

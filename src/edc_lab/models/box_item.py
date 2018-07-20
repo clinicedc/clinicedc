@@ -2,7 +2,6 @@ import re
 
 from django.db import models
 from django.db.models.deletion import PROTECT
-
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
@@ -14,12 +13,11 @@ from .model_mixins.shipping import VerifyModelMixin
 
 class BoxItemManager(SearchSlugManager, models.Manager):
 
-    def get_by_natural_key(self, position, identifier, box_identifier, name):
+    def get_by_natural_key(self, position, identifier, box_identifier):
         return self.get(
             position=position,
             identifier=identifier,
-            box_identifier=box_identifier,
-            box__box_type__name=name)
+            box_identifier=box_identifier)
 
 
 class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
@@ -42,7 +40,7 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
     def natural_key(self):
         return (self.position, self.identifier) + self.box.natural_key()
-    natural_key.dependencies = ['edc_lab.box']
+    natural_key.dependencies = ['edc_lab.box', 'edc_lab.boxtype', 'sites.Site']
 
     @property
     def human_readable_identifier(self):

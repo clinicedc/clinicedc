@@ -20,23 +20,14 @@ class Specimen:
     """
 
     aliquot_creator_cls = AliquotCreator
-    specimen_processor_cls = SpecimenProcessor
-    primary_aliquot_cls = PrimaryAliquot
+    aliquot_model = 'edc_lab.aliquot'
     identifier_prefix_cls = IdentifierPrefix
+    primary_aliquot_cls = PrimaryAliquot
+    specimen_processor_cls = SpecimenProcessor
 
-    def __init__(self, requisition=None, requisition_pk=None,
-                 aliquot_model=None, requisition_model=None):
+    def __init__(self, requisition=None):
 
-        app_config = django_apps.get_app_config('edc_lab')
-        self.aliquot_model = aliquot_model or app_config.aliquot_model
-
-        if not requisition:
-            requisition_model = requisition_model or django_apps.get_model(
-                *app_config.requisition_model.split('.'))
-            self.requisition = requisition_model.objects.get(
-                pk=requisition_pk)
-        else:
-            self.requisition = requisition
+        self.requisition = requisition
 
         if not self.requisition.is_drawn == YES:
             raise SpecimenNotDrawnError(
@@ -46,7 +37,8 @@ class Specimen:
 
         if not self.requisition.identifier_prefix:
             self.requisition.identifier_prefix = self.primary_aliquot.identifier_prefix
-            self.requisition.primary_aliquot_identifier = self.primary_aliquot.aliquot_identifier
+            self.requisition.primary_aliquot_identifier = (
+                self.primary_aliquot.aliquot_identifier)
             self.requisition.save()
 
     @property
@@ -75,7 +67,8 @@ class Specimen:
 
     @property
     def aliquots(self):
-        return self.aliquot_model_cls.objects.filter(
+        aliquot_model_cls = django_apps.get_model(self.aliquot_model)
+        return aliquot_model_cls.objects.filter(
             identifier_prefix=self.identifier_prefix)
 
     @property
@@ -86,7 +79,3 @@ class Specimen:
         return self.identifier_prefix_cls(
             protocol_number=self.requisition.get_protocol_number(),
             requisition_identifier=self.requisition.requisition_identifier)
-
-    @property
-    def aliquot_model_cls(self):
-        return django_apps.get_model(self.aliquot_model)

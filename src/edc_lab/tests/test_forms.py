@@ -1,15 +1,24 @@
 from django import forms
 from django.test import TestCase, tag
-
+from edc_base.sites.utils import add_or_update_django_sites
 from edc_constants.constants import OTHER, YES, NO, NOT_APPLICABLE
 
 from ..forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
 from ..models import Aliquot
-from .models import SubjectRequisition, SubjectVisit
+from .models import SubjectRequisition, SimpleSubjectVisit as SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 
 class TestForms(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=((10, 'test_site', 'Test Site'), ), fqdn='clinicedc.org')
+        return super().setUpClass()
+
+    def tearDown(self):
+        super().tearDown()
 
     def test_box_form_specimen_types1(self):
         data = {'specimen_types': '12, 13'}

@@ -3,7 +3,6 @@ from django.test import TestCase, tag
 from ..lab import AliquotType, AliquotTypeNumericCodeError, AliquotTypeAlphaCodeError
 
 
-@tag('aliquot_type')
 class TestAliquotType(TestCase):
 
     def setUp(self):

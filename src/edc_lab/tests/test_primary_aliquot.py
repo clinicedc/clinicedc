@@ -1,4 +1,5 @@
 from django.test import TestCase, tag
+from edc_base.sites.utils import add_or_update_django_sites
 
 from ..identifiers import AliquotIdentifier
 from ..lab import PrimaryAliquot, AliquotType, AliquotCreator
@@ -13,6 +14,15 @@ class MyAliquotCreator(AliquotCreator):
 
 
 class TestPrimaryAliquot(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=((10, 'test_site', 'Test Site'), ), fqdn='clinicedc.org')
+        return super().setUpClass()
+
+    def tearDown(self):
+        super().tearDown()
 
     def test_create_new_primary_aliquot(self):
         aliquot_type = AliquotType(

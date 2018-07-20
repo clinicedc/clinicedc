@@ -1,16 +1,26 @@
 import re
 
 from django.test import TestCase, tag
+from edc_base.sites.utils import add_or_update_django_sites
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
 
 from ..lab import AliquotType, LabProfile, ProcessingProfile
 from ..lab import Process, ProcessingProfileAlreadyAdded
 from ..site_labs import SiteLabs, site_labs
-from .models import SubjectRequisition, SubjectVisit
+from .models import SubjectRequisition, SimpleSubjectVisit as SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 
 class TestSiteLab(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        add_or_update_django_sites(
+            sites=((10, 'test_site', 'Test Site'), ), fqdn='clinicedc.org')
+        return super().setUpClass()
+
+    def tearDown(self):
+        super().tearDown()
 
     def test_site_labs(self):
         site_lab = SiteLabs()
@@ -91,7 +101,9 @@ class TestSiteLab2(TestCase):
         self.assertFalse(pattern.match(requisition.requisition_identifier))
 
     def test_requisition_identifier5(self):
-        """Asserts requisition identifier is set if specimen changed to drawn."""
+        """Asserts requisition identifier is set if specimen
+        changed to drawn.
+        """
         subject_visit = SubjectVisit.objects.create()
         requisition = SubjectRequisition.objects.create(
             subject_visit=subject_visit,
@@ -103,7 +115,8 @@ class TestSiteLab2(TestCase):
         self.assertTrue(pattern.match(requisition.requisition_identifier))
 
     def test_requisition_identifier6(self):
-        """Asserts requisition identifier is unchanged on save/resave."""
+        """Asserts requisition identifier is unchanged on save/resave.
+        """
         subject_visit = SubjectVisit.objects.create()
         requisition = SubjectRequisition.objects.create(
             subject_visit=subject_visit,

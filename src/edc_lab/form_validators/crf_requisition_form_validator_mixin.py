@@ -7,7 +7,27 @@ from edc_base.utils import convert_php_dateformat
 
 class CrfRequisitionFormValidatorMixin:
 
+    """An edc_form_validators.FormValidator mixin.
+
+    Used with a CRF that refers to a requisition or requisitions.
+
+    Call in FormValidator.clean.
+
+    For test 'xxx' expects the field trio of 'xxx_requisition' and
+    'xxx_assay_datetime', 'xxx_panel'
+
+        self.required_if_true(
+            self.cleaned_data.get('cd4') is not None,
+            field_required='cd4_requisition')
+        self.validate_requisition(
+            'cd4_requisition', 'cd4_assay_datetime', cd4_panel)
+
+    See also: ambition_validators.form_validators.blood_result
+    """
+
     def validate_requisition(self, requisition_field, assay_datetime_field, *panels):
+        """Validates that the requisition model instance exists.
+        """
         requisition = self.cleaned_data.get(requisition_field)
         if requisition and requisition.panel_object not in panels:
             raise forms.ValidationError(

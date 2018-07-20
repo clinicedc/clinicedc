@@ -40,7 +40,10 @@ class PanelModelMixin(models.Model):
         lab_profile_object = site_labs.get(self.panel.lab_profile_name)
         if not lab_profile_object:
             raise LabProfileError(
-                f'Undefined lab profile name. Got {self.panel.lab_profile_name}.')
+                f'Undefined lab profile name detected from panel {self.panel}. '
+                f'Expected one of {site_labs.lab_profiles}. '
+                f'Got \'{self.panel.lab_profile_name}\'. '
+                'See stored values in panel model.')
         return lab_profile_object
 
     class Meta:
