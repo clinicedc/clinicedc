@@ -43,8 +43,8 @@ INSTALLED_APPS = [
     'django_js_reverse',
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
-    'django_offline.apps.AppConfig',
-    'django_offline_files.apps.AppConfig',
+    'django_collect_offline.apps.AppConfig',
+    'django_collect_offline_files.apps.AppConfig',
     'rest_framework',
     'rest_framework.authtoken',
     'edc_appointment.apps.AppConfig',
@@ -152,11 +152,11 @@ DASHBOARD_URL_NAMES = {
     'subject_dashboard_url': 'edc_subject_dashboard:subject_dashboard_url',
 }
 
-# django_offline / django_offline files
-DJANGO_OFFLINE_SERVER_IP = None
-DJANGO_OFFLINE_FILES_REMOTE_HOST = None
-DJANGO_OFFLINE_FILES_USER = None
-DJANGO_OFFLINE_FILES_USB_VOLUME = None
+# django_collect_offline / django_collect_offline files
+DJANGO_COLLECT_OFFLINE_SERVER_IP = None
+DJANGO_COLLECT_OFFLINE_FILES_REMOTE_HOST = None
+DJANGO_COLLECT_OFFLINE_FILES_USER = None
+DJANGO_COLLECT_OFFLINE_FILES_USB_VOLUME = None
 
 if 'test' in sys.argv:
 
