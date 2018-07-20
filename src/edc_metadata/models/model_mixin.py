@@ -4,7 +4,7 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleFieldsModelMixin
 
-from ...choices import ENTRY_STATUS, REQUIRED, NOT_REQUIRED
+from ..choices import ENTRY_STATUS, REQUIRED, NOT_REQUIRED
 
 
 class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,

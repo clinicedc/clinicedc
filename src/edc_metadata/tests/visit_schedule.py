@@ -2,13 +2,17 @@ from dateutil.relativedelta import relativedelta
 
 from edc_visit_schedule import VisitSchedule, Schedule, Visit
 from edc_visit_schedule import FormsCollection, Crf, Requisition
-from edc_visit_schedule.visit.requisition import Panel as BasePanel
+from edc_visit_schedule.tests import DummyPanel
 
 
 app_label = 'edc_metadata'
 
 
-class Panel(BasePanel):
+class MockPanel(DummyPanel):
+    """`requisition_model` is normally set when the lab profile
+    is set up.
+    """
+
     def __init__(self, name):
         super().__init__(
             requisition_model='edc_metadata.subjectrequisition',
@@ -43,40 +47,40 @@ crfs_unscheduled = FormsCollection(
 requisitions = FormsCollection(
     Requisition(
         show_order=10,
-        panel=Panel('one'), required=True, additional=False),
+        panel=MockPanel('one'), required=True, additional=False),
     Requisition(
         show_order=20,
-        panel=Panel('two'), required=True, additional=False),
+        panel=MockPanel('two'), required=True, additional=False),
     Requisition(
         show_order=30,
-        panel=Panel('three'), required=True, additional=False),
+        panel=MockPanel('three'), required=True, additional=False),
     Requisition(
         show_order=40,
-        panel=Panel('four'), required=True, additional=False),
+        panel=MockPanel('four'), required=True, additional=False),
     Requisition(
         show_order=50,
-        panel=Panel('five'), required=True, additional=False),
+        panel=MockPanel('five'), required=True, additional=False),
     Requisition(
         show_order=60,
-        panel=Panel('six'), required=True, additional=False),
+        panel=MockPanel('six'), required=True, additional=False),
 )
 
 requisitions3000 = FormsCollection(
     Requisition(
         show_order=10,
-        panel=Panel('seven'), required=True, additional=False),
+        panel=MockPanel('seven'), required=True, additional=False),
 )
 
 requisitions_unscheduled = FormsCollection(
     Requisition(
         show_order=10,
-        panel=Panel('one'), required=True, additional=False),
+        panel=MockPanel('one'), required=True, additional=False),
     Requisition(
         show_order=20,
-        panel=Panel('three'), required=True, additional=False),
+        panel=MockPanel('three'), required=True, additional=False),
     Requisition(
         show_order=30,
-        panel=Panel('five'), required=True, additional=False))
+        panel=MockPanel('five'), required=True, additional=False))
 
 visit0 = Visit(
     code='1000',

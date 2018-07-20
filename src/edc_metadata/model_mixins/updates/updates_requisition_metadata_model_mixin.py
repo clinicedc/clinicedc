@@ -4,8 +4,8 @@ from .updates_metadata_model_mixin import UpdatesMetadataModelMixin
 
 
 class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
-    """A mixin used on Requisition models to enable them to
-    update metadata upon update/delete.
+    """A model mixin used on Requisition models to enable them to
+    update metadata upon save and delete.
     """
 
     updater_cls = RequisitionMetadataUpdater
@@ -29,14 +29,17 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
 
     @property
     def metadata_default_entry_status(self):
-        """Returns a string that represents the configured entry status
-        of the requisition in the visit schedule.
+        """Returns a string that represents the configured
+        entry status of the requisition in the visit schedule.
         """
         requisitions_prn = self.metadata_visit_object.requisitions_prn
         if self.visit.visit_code_sequence != 0:
-            requisitions = self.metadata_visit_object.requisitions_unscheduled + requisitions_prn
+            requisitions = (
+                self.metadata_visit_object.requisitions_unscheduled
+                + requisitions_prn)
         else:
-            requisitions = self.metadata_visit_object.requisitions + requisitions_prn
+            requisitions = (self.metadata_visit_object.requisitions
+                            + requisitions_prn)
         requisition = [r for r in requisitions
                        if r.panel.name == self.panel.name][0]
         return REQUIRED if requisition.required else NOT_REQUIRED

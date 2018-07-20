@@ -6,7 +6,7 @@ from django.dispatch import receiver
 @receiver(post_save, weak=False, dispatch_uid="metadata_create_on_post_save")
 def metadata_create_on_post_save(sender, instance, raw, created, using,
                                  update_fields, **kwargs):
-    """Create all meta data on post save of model using
+    """Creates all meta data on post save of model using
     CreatesMetaDataModelMixin.
 
     For example, when saving the visit model.
@@ -18,7 +18,7 @@ def metadata_create_on_post_save(sender, instance, raw, created, using,
             pass
 
         try:
-            instance.metadata_create(sender=sender, instance=instance)
+            instance.metadata_create()
         except AttributeError as e:
             if 'metadata_create' not in str(e):
                 raise
@@ -30,7 +30,9 @@ def metadata_create_on_post_save(sender, instance, raw, created, using,
 @receiver(post_save, weak=False, dispatch_uid="metadata_update_on_post_save")
 def metadata_update_on_post_save(sender, instance, raw, created, using,
                                  update_fields, **kwargs):
-    """Update the meta data record on post save of a CRF model.
+    """Updates the metadata record on post save of a CRF model.
+
+    Does not create metadata.
     """
 
     if not raw and not update_fields:

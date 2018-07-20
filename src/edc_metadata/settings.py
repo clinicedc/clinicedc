@@ -36,8 +36,8 @@ INSTALLED_APPS = [
     'edc_offstudy.apps.AppConfig',
     'edc_timepoint.apps.AppConfig',
     'edc_device.apps.AppConfig',
-    'edc_sync.apps.AppConfig',
-    'edc_sync_files.apps.AppConfig',
+    'django_collect_offline.apps.AppConfig',
+    'django_collect_offline_files.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_reference.apps.AppConfig',
     'edc_registration.apps.AppConfig',
@@ -133,9 +133,9 @@ STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
 
 EDC_SYNC_SERVER_IP = None
-EDC_SYNC_FILES_REMOTE_HOST = None
-EDC_SYNC_FILES_USER = None
-EDC_SYNC_FILES_USB_VOLUME = None
+DJANGO_COLLECT_OFFLINE_FILES_REMOTE_HOST = None
+DJANGO_COLLECT_OFFLINE_FILES_USER = None
+DJANGO_COLLECT_OFFLINE_FILES_USB_VOLUME = None
 
 COUNTRY = 'botswana'
 HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')

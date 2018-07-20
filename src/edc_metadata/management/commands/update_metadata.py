@@ -61,7 +61,8 @@ class Command(BaseCommand):
             sys.stdout.write(style.WARNING(
                 'This is a dry run. No records will be updated. \n'))
             sys.stdout.write(
-                f'These models need to updated with the new value for field \'{self.fieldname}\'.\n'
+                f'These models need to updated with the new '
+                f'value for field \'{self.fieldname}\'.\n'
                 f'Old value=\'{self.old_value}\', New value=\'{self.new_value}\'.\n')
             for name, model_cls in self.models.items():
                 count = model_cls.objects.filter(

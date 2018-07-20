@@ -15,9 +15,9 @@ style = color_style()
 class AppConfig(DjangoAppConfig):
     name = 'edc_metadata'
     verbose_name = 'Edc Metadata'
-    app_label = 'edc_metadata'
-    crf_model_name = 'crfmetadata'
-    requisition_model_name = 'requisitionmetadata'
+    # app_label = 'edc_metadata'
+    crf_model = 'edc_metadata.crfmetadata'
+    requisition_model = 'edc_metadata.requisitionmetadata'
 
     reason_field = {'edc_metadata.subjectvisit': 'reason'}
     create_on_reasons = [SCHEDULED, UNSCHEDULED]
@@ -31,38 +31,36 @@ class AppConfig(DjangoAppConfig):
         )
 
         sys.stdout.write(f'Loading {self.verbose_name} ...\n')
-        if self.app_label == self.name:
-            sys.stdout.write(
-                f' * using default metadata models from \'{self.app_label}\'\n')
-        else:
-            sys.stdout.write(
-                f' * using custom metadata models from \'{self.app_label}\'\n')
+        sys.stdout.write(
+            f' * using crf metadata model \'{self.crf_model}\'\n')
+        sys.stdout.write(
+            f' * using requisition metadata model \'{self.requisition_model}\'\n')
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
 
     @property
-    def crf_model(self):
+    def crf_model_cls(self):
         """Returns the meta data model used by Crfs.
         """
-        return django_apps.get_model(self.app_label, self.crf_model_name)
+        return django_apps.get_model(self.crf_model)
 
     @property
-    def requisition_model(self):
+    def requisition_model_cls(self):
         """Returns the meta data model used by Requisitions.
         """
-        return django_apps.get_model(self.app_label, self.requisition_model_name)
+        return django_apps.get_model(self.requisition_model)
 
     def get_metadata_model(self, category):
         if category == CRF:
-            return self.crf_model
+            return self.crf_model_cls
         elif category == REQUISITION:
-            return self.requisition_model
+            return self.requisition_model_cls
         return None
 
     def get_metadata(self, subject_identifier, **options):
         return {
-            CRF: self.crf_model.objects.filter(
+            CRF: self.crf_model_cls.objects.filter(
                 subject_identifier=subject_identifier, **options),
-            REQUISITION: self.requisition_model.objects.filter(
+            REQUISITION: self.requisition_model_cls.objects.filter(
                 subject_identifier=subject_identifier, **options)}
 
 
