@@ -1,7 +1,7 @@
 from django.test import TestCase, tag
 from django.test.utils import override_settings
-from django_offline.models import OutgoingTransaction
-from django_offline.tests import OfflineTestHelper
+from django_collect_offline.models import OutgoingTransaction
+from django_collect_offline.tests import OfflineTestHelper
 from edc_base.sites.utils import add_or_update_django_sites
 from edc_base.tests import SiteTestCaseMixin
 from model_mommy import mommy
