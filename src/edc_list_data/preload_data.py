@@ -26,11 +26,14 @@ class PreloadData:
     def load_list_data(self):
         """Loads data into a list model.
 
-        List models have short_name, name where short_name is the unique field.
+        List models have short_name, name where short_name
+        is the unique field.
 
         Format:
-            {model_name1: [(short_name1, name), (short_name2, name),...],
-             model_name1: [(short_name1, name), (short_name2, name),...],
+            {model_name1: [(short_name1, name),
+             (short_name2, name),...],
+             model_name1: [(short_name1, name),
+             (short_name2, name),...],
             ...}
         """
         for model_name in self.list_data.keys():
@@ -56,8 +59,11 @@ class PreloadData:
         Must have a unique field
 
         Format:
-            {app_label.model1: [{field_name1: value, field_name2: value ...},...],
-             (app_label.model2, unique_field_name): [{field_name1: value, unique_field_name: value ...}, ...],
+            {app_label.model1: [{field_name1: value,
+                                 field_name2: value ...},...],
+             (app_label.model2, unique_field_name):
+               [{field_name1: value,
+                 unique_field_name: value ...}, ...],
              ...}
         """
         for model_name, datas in self.model_data.items():
@@ -96,7 +102,7 @@ class PreloadData:
             for field, values in data.items():
                 try:
                     obj = model.objects.get(**{field: values[1]})
-                except model.DoesNotExist as e:
+                except model.DoesNotExist:
                     try:
                         obj = model.objects.get(**{field: values[0]})
                     except model.DoesNotExist as e:
@@ -109,7 +115,7 @@ class PreloadData:
                 else:
                     try:
                         obj = model.objects.get(**{field: values[0]})
-                    except model.DoesNotExist as e:
+                    except model.DoesNotExist:
                         pass
                     else:
                         try:
