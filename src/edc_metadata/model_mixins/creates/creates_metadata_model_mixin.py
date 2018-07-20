@@ -34,7 +34,8 @@ class CreatesMetadataModelMixin(models.Model):
 
     @property
     def metadata_query_options(self):
-        """Returns a dictionary of options to 
+        """Returns a dictionary of query options needed select
+        the visit model instance
         """
         visit = self.visits.get(self.visit_code)
         options = dict(

@@ -2,8 +2,8 @@ from faker import Faker
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 
-from django_offline.models import OutgoingTransaction
-from django_offline.tests import OfflineTestHelper
+from django_collect_offline.models import OutgoingTransaction
+from django_collect_offline.tests import OfflineTestHelper
 from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
 from edc_constants.constants import MALE
