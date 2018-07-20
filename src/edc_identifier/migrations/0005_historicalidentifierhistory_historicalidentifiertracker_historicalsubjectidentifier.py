@@ -8,9 +8,9 @@ import django.db.models.deletion
 import django.utils.timezone
 import django_extensions.db.fields
 import django_revision.revision_field
-import edc_base.model_fields.hostname_modification_field
-import edc_base.model_fields.userfield
-import edc_base.model_fields.uuid_auto_field
+import edc_model_fields.fields.hostname_modification_field
+import edc_model_fields.fields.userfield
+import edc_model_fields.fields.uuid_auto_field
 
 
 class Migration(migrations.Migration):
@@ -45,12 +45,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('user_created', edc_base.model_fields.userfield.UserField(editable=False, max_length=50, verbose_name='user created')),
-                ('user_modified', edc_base.model_fields.userfield.UserField(editable=False, max_length=50, verbose_name='user modified')),
+                ('user_created', edc_model_fields.fields.userfield.UserField(editable=False, max_length=50, verbose_name='user created')),
+                ('user_modified', edc_model_fields.fields.userfield.UserField(editable=False, max_length=50, verbose_name='user modified')),
                 ('hostname_created', models.CharField(default='mac2-2.local', editable=False, help_text='System field. (modified on create only)', max_length=50)),
-                ('hostname_modified', edc_base.model_fields.hostname_modification_field.HostnameModificationField(editable=False, help_text='System field. (modified on every save)', max_length=50)),
+                ('hostname_modified', edc_model_fields.fields.hostname_modification_field.HostnameModificationField(editable=False, help_text='System field. (modified on every save)', max_length=50)),
                 ('revision', django_revision.revision_field.RevisionField(blank=True, editable=False, help_text='System field. Git repository tag:branch:commit.', max_length=75, null=True, verbose_name='Revision')),
-                ('id', edc_base.model_fields.uuid_auto_field.UUIDAutoField(blank=True, db_index=True, editable=False, help_text='System auto field. UUID primary key.')),
+                ('id', edc_model_fields.fields.uuid_auto_field.UUIDAutoField(blank=True, db_index=True, editable=False, help_text='System auto field. UUID primary key.')),
                 ('identifier', models.CharField(db_index=True, max_length=25)),
                 ('identifier_string', models.CharField(db_index=True, max_length=50)),
                 ('root_number', models.IntegerField(db_index=True)),
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
                 ('device_id', models.CharField(blank=True, max_length=10, null=True)),
                 ('history_date', models.DateTimeField()),
                 ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_id', edc_base.model_fields.uuid_auto_field.UUIDAutoField(primary_key=True, serialize=False)),
+                ('history_id', edc_model_fields.fields.uuid_auto_field.UUIDAutoField(primary_key=True, serialize=False)),
                 ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -73,12 +73,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('user_created', edc_base.model_fields.userfield.UserField(editable=False, max_length=50, verbose_name='user created')),
-                ('user_modified', edc_base.model_fields.userfield.UserField(editable=False, max_length=50, verbose_name='user modified')),
+                ('user_created', edc_model_fields.fields.userfield.UserField(editable=False, max_length=50, verbose_name='user created')),
+                ('user_modified', edc_model_fields.fields.userfield.UserField(editable=False, max_length=50, verbose_name='user modified')),
                 ('hostname_created', models.CharField(default='mac2-2.local', editable=False, help_text='System field. (modified on create only)', max_length=50)),
-                ('hostname_modified', edc_base.model_fields.hostname_modification_field.HostnameModificationField(editable=False, help_text='System field. (modified on every save)', max_length=50)),
+                ('hostname_modified', edc_model_fields.fields.hostname_modification_field.HostnameModificationField(editable=False, help_text='System field. (modified on every save)', max_length=50)),
                 ('revision', django_revision.revision_field.RevisionField(blank=True, editable=False, help_text='System field. Git repository tag:branch:commit.', max_length=75, null=True, verbose_name='Revision')),
-                ('id', edc_base.model_fields.uuid_auto_field.UUIDAutoField(blank=True, db_index=True, editable=False, help_text='System auto field. UUID primary key.')),
+                ('id', edc_model_fields.fields.uuid_auto_field.UUIDAutoField(blank=True, db_index=True, editable=False, help_text='System auto field. UUID primary key.')),
                 ('identifier', models.CharField(db_index=True, editable=False, max_length=36)),
                 ('padding', models.IntegerField(default=4, editable=False)),
                 ('sequence_number', models.IntegerField()),
@@ -88,7 +88,7 @@ class Migration(migrations.Migration):
                 ('sequence_model_name', models.CharField(default='sequence', editable=False, max_length=50)),
                 ('history_date', models.DateTimeField()),
                 ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_id', edc_base.model_fields.uuid_auto_field.UUIDAutoField(primary_key=True, serialize=False)),
+                ('history_id', edc_model_fields.fields.uuid_auto_field.UUIDAutoField(primary_key=True, serialize=False)),
                 ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
             ],
             options={
