@@ -11,7 +11,7 @@ class Identifier:
 
     name = 'identifier'
     identifier_model_cls = IdentifierModel
-    identifier_pattern = '^\d+$'
+    identifier_pattern = '^\d+$'  # noqa
     prefix_pattern = None
     prefix = None
     seed = ['0']
