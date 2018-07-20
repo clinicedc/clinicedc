@@ -15,7 +15,8 @@ class ApplicableFieldValidator(BaseFormValidator):
         return self.not_applicable(
             *responses, field=field, field_applicable=field_applicable)
 
-    def not_applicable_only_if(self, *responses, field=None, field_applicable=None, cleaned_data=None):
+    def not_applicable_only_if(self, *responses, field=None,
+                               field_applicable=None, cleaned_data=None):
 
         cleaned_data = self.cleaned_data
         if (cleaned_data.get(field) in responses
@@ -70,15 +71,18 @@ class ApplicableFieldValidator(BaseFormValidator):
         return False
 
     def applicable_if_true(self, condition, field_applicable=None,
-                           applicable_msg=None, not_applicable_msg=None, **kwargs):
+                           applicable_msg=None, not_applicable_msg=None,
+                           **kwargs):
         cleaned_data = self.cleaned_data
         if field_applicable in cleaned_data:
-            if (condition and self.cleaned_data.get(field_applicable) == NOT_APPLICABLE):
+            if (condition
+                    and self.cleaned_data.get(field_applicable) == NOT_APPLICABLE):
                 message = {field_applicable: 'This field is applicable'}
                 self._errors.update(message)
                 self._error_codes.append(APPLICABLE_ERROR)
                 raise ValidationError(message, code=APPLICABLE_ERROR)
-            elif (not condition and self.cleaned_data.get(field_applicable) != NOT_APPLICABLE):
+            elif (not condition
+                  and self.cleaned_data.get(field_applicable) != NOT_APPLICABLE):
                 message = {field_applicable: 'This field is not applicable'}
                 self._errors.update(message)
                 self._error_codes.append(NOT_APPLICABLE_ERROR)

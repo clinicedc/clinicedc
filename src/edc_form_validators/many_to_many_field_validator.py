@@ -1,7 +1,8 @@
 from django.forms import ValidationError
 from edc_constants.constants import NOT_APPLICABLE
 
-from .base_form_validator import BaseFormValidator, NOT_APPLICABLE_ERROR, APPLICABLE_ERROR
+from .base_form_validator import BaseFormValidator
+from .base_form_validator import NOT_APPLICABLE_ERROR, APPLICABLE_ERROR
 from .base_form_validator import NOT_REQUIRED_ERROR, REQUIRED_ERROR, INVALID_ERROR
 
 
@@ -60,7 +61,8 @@ class ManyToManyFieldValidator(BaseFormValidator):
                 if selection in selected:
                     message = {
                         m2m_field:
-                        f'Invalid combination. \'{selected.get(selection)}\' may not be combined '
+                        f'Invalid combination. \'{selected.get(selection)}\' '
+                        f'may not be combined '
                         f'with other selections'}
                     self._errors.update(message)
                     self._error_codes.append(INVALID_ERROR)
