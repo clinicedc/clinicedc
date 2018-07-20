@@ -13,7 +13,8 @@ class ConsentHelper:
 
     def __init__(self, model_cls=None, update_previous=None, subject_identifier=None,
                  identity=None, first_name=None, consent_datetime=None, dob=None,
-                 last_name=None, subject_identifier_as_pk=None, subject_identifier_aka=None,
+                 last_name=None, subject_identifier_as_pk=None,
+                 subject_identifier_aka=None,
                  **kwargs):
         self._previous_consent = None
         self.model_cls = model_cls

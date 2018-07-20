@@ -60,7 +60,8 @@ class SiteConsents:
         consent_group = consent_group or app_config.default_consent_group
         registered_consents = self.registry.values()
         registered_consents = [
-            c for c in registered_consents if c.group == consent_group and c.model == model]
+            c for c in registered_consents
+            if c.group == consent_group and c.model == model]
         if not registered_consents:
             raise SiteConsentError(
                 f'No matching registered consent object in site consents. '
@@ -86,7 +87,8 @@ class SiteConsents:
                 c for c in registered_consents if c.group == consent_group]
         if not registered_consents:
             raise ConsentObjectDoesNotExist(
-                f'No matching consent in site consents. Got consent_group={consent_group}.')
+                f'No matching consent in site consents. '
+                f'Got consent_group={consent_group}.')
         if version:
             registered_consents = [
                 c for c in registered_consents if c.version == version]

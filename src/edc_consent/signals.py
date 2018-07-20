@@ -33,4 +33,5 @@ def requires_consent_on_pre_save(instance, raw, **kwargs):
                     raise NotConsentedError(
                         f'Subject is not registered. Unable to save '
                         f'{instance._meta.label_lower}. '
-                        f'Got {instance.subject_identifier} on {instance.report_datetime}.')
+                        f'Got {instance.subject_identifier} on '
+                        f'{instance.report_datetime}.')

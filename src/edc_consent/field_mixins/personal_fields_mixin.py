@@ -1,14 +1,13 @@
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils.safestring import mark_safe
 from django_crypto_fields.fields import (
     FirstnameField, LastnameField, EncryptedCharField)
 from django_crypto_fields.mixins import CryptoMixin
-
-from edc_base.model_fields import IsDateEstimatedField
 from edc_constants.choices import GENDER_UNDETERMINED
+from edc_model_fields.fields import IsDateEstimatedField
 
 from ..validators import FullNameValidator
-from django.utils.safestring import mark_safe
 
 
 class PersonalFieldsMixin(CryptoMixin, models.Model):

@@ -7,9 +7,11 @@ from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from ..field_mixins import ReviewFieldsMixin, PersonalFieldsMixin, CitizenFieldsMixin
 from ..field_mixins import VulnerabilityFieldsMixin, IdentityFieldsMixin
 from ..model_mixins import ConsentModelMixin, RequiresConsentFieldsModelMixin
+from edc_base.sites.site_model_mixin import SiteModelMixin
 
 
-class SubjectConsent(ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin,
+class SubjectConsent(ConsentModelMixin, SiteModelMixin,
+                     NonUniqueSubjectIdentifierModelMixin,
                      UpdatesOrCreatesRegistrationModelMixin,
                      IdentityFieldsMixin, ReviewFieldsMixin, PersonalFieldsMixin,
                      CitizenFieldsMixin, VulnerabilityFieldsMixin, BaseUuidModel):
@@ -18,7 +20,8 @@ class SubjectConsent(ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin,
         pass
 
 
-class SubjectConsent2(ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin,
+class SubjectConsent2(ConsentModelMixin, SiteModelMixin,
+                      NonUniqueSubjectIdentifierModelMixin,
                       UpdatesOrCreatesRegistrationModelMixin,
                       IdentityFieldsMixin, ReviewFieldsMixin, PersonalFieldsMixin,
                       CitizenFieldsMixin, VulnerabilityFieldsMixin, BaseUuidModel):

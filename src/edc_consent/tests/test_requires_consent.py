@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.test import tag
+from edc_action_item.models.action_item import ActionItem
 from edc_base.utils import get_utcnow
 from edc_locator.models import SubjectLocator
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -56,6 +57,7 @@ class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
         except NotConsentedError:
             self.fail('NotConsentedError unexpectedly raised')
 
+    @tag('1')
     def test_requires_consent(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
@@ -86,6 +88,11 @@ class TestRequiresConsent(DatesTestMixin, ConsentTestCase):
             SubjectLocator.objects.create,
             subject_identifier='12345',
             report_datetime=self.study_open_datetime - relativedelta(months=1))
+
+        # delete singleton action item
+        # created for the subject locator
+        ActionItem.objects.all().delete()
+
         try:
             SubjectLocator.objects.create(
                 subject_identifier='12345',
