@@ -1,3 +1,4 @@
+
 class FormAsJSONModelAdminMixin:
 
     """Use with FormAsJSONModelformMixin, FormAsJSONModelMixin.

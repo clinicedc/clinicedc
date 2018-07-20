@@ -55,7 +55,8 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             redirect_url = self.get_next_redirect_url(request=request)
             return HttpResponseRedirect(redirect_url)
         extra_context = self.extra_context(extra_context)
-        return super().add_view(request, form_url=form_url, extra_context=extra_context)
+        return super().add_view(
+            request, form_url=form_url, extra_context=extra_context)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """Redirect before save on "cancel", otherwise return
@@ -65,7 +66,8 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             redirect_url = self.get_next_redirect_url(request=request)
             return HttpResponseRedirect(redirect_url)
         extra_context = self.extra_context(extra_context)
-        return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
+        return super().change_view(
+            request, object_id, form_url=form_url, extra_context=extra_context)
 
     def render_delete_form(self, request, context):
         return super().render_delete_form(request, context)
@@ -108,10 +110,11 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         return redirect_url
 
     def get_savenext_redirect_url(self, request=None, obj=None):
-        """Returns a redirect_url for the next form in the visit schedule.
+        """Returns a redirect_url for the next form in
+        the visit schedule.
 
-        This method expects a CRF model with model mixins from edc_visit_tracking
-        and edc_visit_schedule.
+        This method expects a CRF model with model mixins
+        from edc_visit_tracking and edc_visit_schedule.
 
         Requires edc_metadata. Queries Metadata models.
         """
@@ -144,7 +147,8 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             options.update(panel_name=panel_name)
         options.update({obj.visit_model_attr(): str(obj.visit.id)})
         querystring = urlencode(options)
-        return f'{redirect_url}?{self.next_querystring_attr}={next_querystring}&{querystring}'
+        return (f'{redirect_url}?{self.next_querystring_attr}='
+                f'{next_querystring}&{querystring}')
 
     def get_next_options(self, request=None):
         """Returns the key/value pairs from the "next" querystring
