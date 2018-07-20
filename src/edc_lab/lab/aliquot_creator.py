@@ -65,8 +65,8 @@ class AliquotCreator:
         """
         try:
             aliquot = self.aliquot_model_cls.objects.get(
-                Q(identifier_prefix=self.identifier_prefix) |
-                Q(requisition_identifier=self.requisition_identifier),
+                Q(identifier_prefix=self.identifier_prefix)
+                | Q(requisition_identifier=self.requisition_identifier),
                 is_primary=True)
         except ObjectDoesNotExist:
             aliquot = self._create(count=1, aliquot_type=aliquot_type)
