@@ -8,28 +8,6 @@ from ..base_form_validator import ModelFormFieldValidatorError, InvalidModelForm
 from ..form_validator_mixin import FormValidatorMixin
 from .models import TestModel
 
-# class TestModelForms(TestCase):
-#
-#     def test_readonly_fields(self):
-#         """Asserts required fields can be set to readonly not required
-#         at the ModelForm level.
-#         """
-#
-#         form = TestModelForm1(data={'f1': '1', 'f2': '2'})
-#         self.assertFalse(form.is_valid())
-#
-#         class TestModelForm2(ReadonlyFieldsFormMixin, forms.ModelForm):
-#
-#             def get_readonly_fields(self):
-#                 return ['f3', 'f4', 'f5']
-#
-#             class Meta:
-#                 model = TestModel
-#                 fields = '__all__'
-#
-#         form = TestModelForm2(data={'f1': '1', 'f2': '2'})
-#         self.assertTrue(form.is_valid())
-
 
 class TestFieldValidator(TestCase):
 
@@ -263,8 +241,8 @@ class TestApplicableFieldValidator(TestCase):
         are YES.
         """
         form_validator = FormValidator(
-            cleaned_data=dict(field_one=('test_con1' == YES and
-                                         'test_con2' == YES),
+            cleaned_data=dict(field_one=('test_con1' == YES
+                                         and 'test_con2' == YES),
                               field_two=NOT_APPLICABLE))
         self.assertRaises(
             forms.ValidationError,
