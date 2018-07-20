@@ -1,8 +1,9 @@
 from django.db import models
 from edc_base.utils import get_utcnow
+from edc_base.model_mixins import BaseUuidModel
 
 
-class SubjectVisit(models.Model):
+class SubjectVisit(BaseUuidModel):
 
     subject_identifier = models.CharField(max_length=25)
 

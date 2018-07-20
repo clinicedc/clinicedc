@@ -29,6 +29,7 @@ class ModelAdminMixin(ModelAdminNextUrlRedirectMixin, ModelAdminFormInstructions
     def redirect_url(self, request, obj, post_url_continue=None):
         if obj:
             return reverse(settings.DASHBOARD_URL_NAMES.get(
-                self.subject_dashboard_url), kwargs=dict(subject_identifier=obj.subject_identifier))
+                self.subject_dashboard_url),
+                kwargs=dict(subject_identifier=obj.subject_identifier))
         else:
             return super().redirect_url(request, obj, post_url_continue)
