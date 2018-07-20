@@ -1,16 +1,15 @@
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab.constants import SHIPPED
-from edc_lab.labels import ManifestLabel
+from edc_lab import SHIPPED, ManifestLabel
 from edc_label import add_job_results_to_messages
+from edc_lab.models import Box, Aliquot, Manifest
 
-from ...view_mixins import ManifestViewMixin, ModelsViewMixin
+from ...view_mixins import ManifestViewMixin
 from .action_view import ActionView
 
 
-class ManifestView(EdcBaseViewMixin, ModelsViewMixin, ManifestViewMixin,
-                   ActionView):
+class ManifestView(EdcBaseViewMixin, ManifestViewMixin, ActionView):
 
     post_action_url = 'manifest_listboard_url'
     valid_form_actions = [
@@ -36,7 +35,7 @@ class ManifestView(EdcBaseViewMixin, ModelsViewMixin, ManifestViewMixin,
         """Deletes the selected items, if allowed.
         """
         try:
-            deleted = self.manifest_model.objects.filter(
+            deleted = Manifest.objects.filter(
                 pk__in=self.selected_items,
                 shipped=False).delete()
             message = (
@@ -49,18 +48,22 @@ class ManifestView(EdcBaseViewMixin, ModelsViewMixin, ManifestViewMixin,
     def ship_selected_items(self):
         """Flags selected items as shipped.
         """
-        for manifest in self.manifest_model.objects.filter(pk__in=self.selected_items):
+        for manifest in Manifest.objects.filter(
+                pk__in=self.selected_items):
             if manifest.shipped:
                 message = (
-                    f'Manifest has already been shipped. Got {self.manifest.manifest_identifier}.')
+                    f'Manifest has already been shipped. '
+                    f'Got {self.manifest.manifest_identifier}.')
                 messages.error(self.request, message)
             else:
-                boxes = self.box_model.objects.filter(
-                    box_identifier__in=[obj.identifier for obj in manifest.manifestitem_set.all()])
+                boxes = Box.objects.filter(
+                    box_identifier__in=[
+                        obj.identifier for obj in manifest.manifestitem_set.all()])
                 boxes.update(status=SHIPPED)
                 for box in boxes:
-                    aliquots = self.aliquot_model.objects.filter(
-                        aliquot_identifier__in=[obj.identifier for obj in box.boxitem_set.all()])
+                    aliquots = Aliquot.objects.filter(
+                        aliquot_identifier__in=[
+                            obj.identifier for obj in box.boxitem_set.all()])
                     aliquots.update(shipped=True)
                 manifest.shipped = True
                 manifest.save()

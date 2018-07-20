@@ -1,3 +1,4 @@
+from copy import copy
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_lab.models import Aliquot, Box, BoxType, BoxItem
@@ -37,7 +38,8 @@ class TestModelWrapper(TestCase):
     def test_aliquot_model_wrapper(self):
         wrapper = self.wrapper_cls(self.aliquot)
         self.assertEqual(
-            wrapper.href, f'/admin/edc_lab/aliquot/{self.aliquot.id}/change/?next=aliquot_listboard_url&')
+            wrapper.href,
+            f'/admin/edc_lab/aliquot/{self.aliquot.id}/change/?next=aliquot_listboard_url&')
         self.assertEqual(wrapper.reverse(), '/listboard/aliquot/')
 
     def test_aliquot_wrapper_attrs(self):
@@ -71,8 +73,11 @@ class TestModelWrapper(TestCase):
         self.assertFalse(wrapper.shipped)
 
     def test_aliquot_wrapper_attrs3(self):
-        wrapper = self.wrapper_cls(self.aliquot)
+        aliquot = copy(self.aliquot)
+        wrapper = self.wrapper_cls(aliquot)
         self.box_item.delete()
         self.assertIsNone(wrapper.box_item)
-        wrapper = self.wrapper_cls(self.aliquot)
+
+        aliquot = copy(self.aliquot)
+        wrapper = self.wrapper_cls(aliquot)
         self.assertIsNone(wrapper.box_item)

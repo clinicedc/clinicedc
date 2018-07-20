@@ -1,12 +1,10 @@
-from django.apps import apps as django_apps
+from edc_lab.models import Result
 from edc_model_wrapper import ModelWrapper
 
 from ..dashboard_urls import dashboard_urls
 
-edc_lab_app_config = django_apps.get_app_config('edc_lab')
-
 
 class ResultModelWrapper(ModelWrapper):
 
-    model = edc_lab_app_config.result_model
+    model_cls = Result
     next_url_name = dashboard_urls.get('result_listboard_url')

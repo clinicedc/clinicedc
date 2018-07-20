@@ -1,16 +1,16 @@
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab.constants import SHIPPED
-from edc_lab.exceptions import SpecimenError
+from edc_lab import SHIPPED
+from edc_lab.models import BoxItem
 
-from ...view_mixins import BoxViewMixin, ModelsViewMixin
+from ...view_mixins import BoxViewMixin
 from .action_view import ActionView
 
 
-class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin,
-                        ModelsViewMixin, ActionView):
+class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin, ActionView):
 
     post_action_url = 'manage_box_listboard_url'
     valid_form_actions = [
@@ -24,11 +24,8 @@ class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin,
 
     def process_form_action(self, request=None):
         if self.action == 'add_item':
-            try:
-                if self.box_item_identifier:
-                    self.add_box_item()
-            except SpecimenError:
-                pass
+            if self.box_item_identifier:
+                self.add_box_item()
         elif self.action == 'renumber_items':
             self.renumber_items()
         elif self.action == 'remove_selected_items':
@@ -44,7 +41,7 @@ class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin,
             message = ('Unable to remove. Box has already been shipped.')
             messages.error(self.request, message)
         else:
-            deleted = self.box_item_model.objects.filter(
+            deleted = BoxItem.objects.filter(
                 pk__in=self.selected_items,
             ).exclude(box__status=SHIPPED).delete()
             message = (f'{deleted[0]} items have been removed.')
@@ -80,15 +77,15 @@ class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin,
             messages.error(self.request, message)
         else:
             try:
-                box_item = self.box_item_model.objects.get(
+                box_item = BoxItem.objects.get(
                     box__box_identifier=self.box_identifier,
                     identifier=self.box_item_identifier)
-            except self.box_item_model.DoesNotExist:
+            except ObjectDoesNotExist:
                 try:
-                    box_item = self.box_item_model.objects.get(
+                    box_item = BoxItem.objects.get(
                         identifier=self.box_item_identifier)
-                except self.box_item_model.DoesNotExist:
-                    box_item = self.box_item_model(
+                except ObjectDoesNotExist:
+                    box_item = BoxItem(
                         box=self.box,
                         identifier=self.box_item_identifier,
                         position=self.box.next_position)

@@ -1,16 +1,14 @@
-from django.apps import apps as django_apps
+from edc_lab.models import BoxItem
 
 from ...view_mixins import BoxViewMixin
 from .base_listboard_view import BaseListboardView
-
-edc_lab_app_config = django_apps.get_app_config('edc_lab')
 
 
 class BaseBoxItemListboardView(BoxViewMixin, BaseListboardView):
 
     navbar_selected_item = 'pack'
     ordering = ('-position', )
-    model = edc_lab_app_config.box_item_model
+    listboard_model = BoxItem
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         return {'box': self.box}

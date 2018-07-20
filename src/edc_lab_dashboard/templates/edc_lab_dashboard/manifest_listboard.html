@@ -5,14 +5,14 @@
              
     <a href="{{ new_manifest.href }}" role="button" class="btn btn-sm btn-default" />New manifest</a>
     <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="remove_selected_items" form="{{ form_action_name }}">
-         <span class="text text-danger"><i class="fa fa-window-close fa-sm"></i></span> &nbsp;Remove selected
+         <span class="text text-danger"><i class="fas fa-window-close fa-sm"></i></span> &nbsp;Remove selected
     </button>
 
         <button class="btn btn-sm btn-default" type="submit" id="action" name="action" form="{{ form_action_name }}" value="print_labels">
-           <i class="fa fa-barcode fa-sm"></i> Print labels
+           <i class="fas fa-barcode fa-sm"></i> Print labels
         </button>
         <button class="btn btn-sm btn-default" type="submit" id="action" name="action" form="{{ form_action_name }}" value="ship_selected_items">
-           <i class="fa fa-ship fa-sm"></i> Ship selected
+           <i class="fas fa-ship fa-sm"></i> Ship selected
         </button>
 
 {% endblock panel_action_buttons %}

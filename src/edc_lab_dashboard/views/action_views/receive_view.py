@@ -2,14 +2,13 @@ from django.contrib import messages
 from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_constants.constants import YES
-from edc_lab.lab import Specimen
-from edc_lab.labels import AliquotLabel
+from edc_lab import Specimen, AliquotLabel
 
-from ...view_mixins import RequisitionViewMixin, ProcessViewMixin, ModelsViewMixin
+from ...view_mixins import RequisitionViewMixin, ProcessViewMixin
 from .action_view import ActionView
 
 
-class ReceiveView(EdcBaseViewMixin, ModelsViewMixin, RequisitionViewMixin,
+class ReceiveView(EdcBaseViewMixin, RequisitionViewMixin,
                   ProcessViewMixin, ActionView):
 
     post_action_url = 'receive_listboard_url'

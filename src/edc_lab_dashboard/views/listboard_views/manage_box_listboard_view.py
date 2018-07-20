@@ -4,6 +4,7 @@ from django.urls.base import reverse
 
 from ...model_wrappers import ManageBoxItemModelWrapper
 from .base_box_item_listboard_view import BaseBoxItemListboardView
+from edc_lab.models import BoxItem
 
 
 class ManageBoxListboardView(BaseBoxItemListboardView):
@@ -13,6 +14,7 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
     listboard_url = 'manage_box_listboard_url'
     listboard_template = 'manage_box_listboard_template'
     verify_box_listboard_url = 'verify_box_listboard_url'
+    listboard_model = BoxItem
     model_wrapper_cls = ManageBoxItemModelWrapper
     navbar_selected_item = 'pack'
     search_form_url = 'manage_box_listboard_url'

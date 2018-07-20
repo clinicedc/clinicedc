@@ -1,5 +1,5 @@
 {% extends edc_lab_base_template %}
-{% load staticfiles %}
+{% load static %}
 
 {% block main %}
 
@@ -29,16 +29,16 @@
 <div class="container bg-3 text-center">
     <h4 class="text text-muted">Receive specimens against requisitions.</h4>
         <h3>
-            <a href="{% url receive_listboard_url %}" class="btn btn-default btn-lg"><i class="fa fa-inbox fa-lg"></i> Receive</a>
+            <a href="{% url receive_listboard_url %}" class="btn btn-default btn-lg"><i class="fas fa-inbox fa-lg"></i> Receive</a>
         </h3>
     <h4 class="text text-muted">Process received specimens.</h4>
     <h3>
         <a href="{% url process_listboard_url %}" class="btn btn-default btn-lg">
-           <i class="fa fa-gears fa-lg"></i> Process</a>
+           <i class="fas fa-gears fa-lg"></i> Process</a>
     </h3>
     <h4 class="text text-muted">Pack labelled specimens for shipping.</h4>
         <h3>
-        <a href="{% url pack_listboard_url %}" class="btn btn-default btn-lg"><i class="fa fa-shopping-bag fa-lg"></i> Pack</a>
+        <a href="{% url pack_listboard_url %}" class="btn btn-default btn-lg"><i class="fas fa-shopping-bag fa-lg"></i> Pack</a>
     </h3>
 </div>
 

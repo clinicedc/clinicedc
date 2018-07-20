@@ -1,13 +1,12 @@
-from django.apps import apps as django_apps
+from edc_lab.models import Box
 from edc_model_wrapper import ModelWrapper
-from ..dashboard_urls import dashboard_urls
 
-edc_lab_app_config = django_apps.get_app_config('edc_lab')
+from ..dashboard_urls import dashboard_urls
 
 
 class BoxModelWrapper(ModelWrapper):
 
-    model = edc_lab_app_config.box_model
+    model_cls = Box
     next_url_name = dashboard_urls.get('pack_listboard_url')
 
     @property

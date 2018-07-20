@@ -2,9 +2,8 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.utils.html import escape
 from django.views.generic.base import ContextMixin
-
-
-edc_lab_app_config = django_apps.get_app_config('edc_lab')
+from edc_lab.models import Box, Manifest, ManifestItem
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class ManifestItemError(Exception):
@@ -12,11 +11,6 @@ class ManifestItemError(Exception):
 
 
 class ManifestViewMixin(ContextMixin):
-
-    manifest_model = django_apps.get_model(edc_lab_app_config.manifest_model)
-    manifest_item_model = django_apps.get_model(
-        edc_lab_app_config.manifest_item_model)
-    box_model = django_apps.get_model(edc_lab_app_config.box_model)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -61,9 +55,9 @@ class ManifestViewMixin(ContextMixin):
         if not self._manifest:
             if self.manifest_identifier:
                 try:
-                    self._manifest = self.manifest_model.objects.get(
+                    self._manifest = Manifest.objects.get(
                         manifest_identifier=self.manifest_identifier)
-                except self.manifest_model.DoesNotExist:
+                except ObjectDoesNotExist:
                     self._manifest = None
         return self._manifest
 
@@ -74,10 +68,10 @@ class ManifestViewMixin(ContextMixin):
         if not self._manifest_item:
             if self.manifest_item_identifier:
                 try:
-                    self._manifest_item = self.manifest_item_model.objects.get(
+                    self._manifest_item = ManifestItem.objects.get(
                         manifest=self.manifest,
                         identifier=self.manifest_item_identifier)
-                except self.manifest_item_model.DoesNotExist:
+                except ObjectDoesNotExist:
                     messages.error(
                         self.request,
                         f'Invalid manifest item. Got {self.original_manifest_item_identifier}')
@@ -87,9 +81,9 @@ class ManifestViewMixin(ContextMixin):
         """Returns a manifest item model instance for the given position.
         """
         try:
-            manifest_item = self.manifest_item_model.objects.get(
+            manifest_item = ManifestItem.objects.get(
                 manifest=self.manifest, position=position)
-        except self.manifest_item_model.DoesNotExist:
+        except ObjectDoesNotExist:
             messages.error(
                 self.request, f'Invalid position for manifest. Got {position}')
             return None
@@ -101,9 +95,8 @@ class ManifestViewMixin(ContextMixin):
         manifest_item_identifier = ''.join(
             self.original_manifest_item_identifier.split('-'))
         try:
-            self.box_model.objects.get(
-                box_identifier=manifest_item_identifier)
-        except self.box_model.DoesNotExist:
+            Box.objects.get(box_identifier=manifest_item_identifier)
+        except ObjectDoesNotExist:
             messages.error(
                 self.request,
                 f'Invalid box. Got {self.original_manifest_item_identifier or "None"}.')

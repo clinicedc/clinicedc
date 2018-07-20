@@ -44,7 +44,8 @@ class TestModelWrapper(TestCase):
     def test_box_model_wrapper_href(self):
         wrapper = self.wrapper_cls(self.box)
         self.assertEqual(
-            wrapper.href, f'/admin/edc_lab/box/{self.box.id}/change/?next=pack_listboard_url&')
+            wrapper.href,
+            f'/admin/edc_lab/box/{self.box.id}/change/?next=pack_listboard_url&')
 
     def test_box_model_wrapper_reverse(self):
         wrapper = self.wrapper_cls(self.box)
