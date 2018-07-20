@@ -1,13 +1,8 @@
-import cups
-
-from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import messages
 from django.views.generic.base import ContextMixin
 
-from ..printers_mixin import PrintersMixin, PrinterError, PrintServerError
-
-app_config = django_apps.get_app_config('edc_label')
+from .printers_mixin import PrintersMixin, PrinterError, PrintServerError
 
 
 class EdcLabelViewMixin(PrintersMixin, ContextMixin):
