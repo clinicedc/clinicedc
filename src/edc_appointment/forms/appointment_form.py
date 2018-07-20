@@ -2,12 +2,13 @@ from django import forms
 from edc_base.sites.forms import SiteModelFormMixin
 from edc_form_validators import FormValidatorMixin
 
+from ..form_validators import AppointmentFormValidator
 from ..models import Appointment
-from .appointment_form_validator import AppointmentFormValidator
 
 
 class AppointmentForm(SiteModelFormMixin, FormValidatorMixin, forms.ModelForm):
-    """Note, the appointment is only changed, never added, through this form.
+    """Note, the appointment is only changed, never added,
+    through this form.
     """
 
     form_validator_cls = AppointmentFormValidator

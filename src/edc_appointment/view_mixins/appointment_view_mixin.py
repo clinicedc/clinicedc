@@ -19,7 +19,8 @@ class AppointmentViewMixin(ContextMixin):
         self._wrapped_appointments = None
         self.appointment_model = django_apps.get_app_config(
             'edc_appointment').get_configuration(
-            related_visit_model=self.appointment_model_wrapper_cls.visit_model_wrapper_cls.model
+            related_visit_model=(
+                self.appointment_model_wrapper_cls.visit_model_wrapper_cls.model)
         ).model
 
     def get_context_data(self, **kwargs):
@@ -65,7 +66,8 @@ class AppointmentViewMixin(ContextMixin):
         if not self._wrapped_appointments:
             if self.appointments:
                 wrapped = [
-                    self.appointment_model_wrapper_cls(model_obj=obj) for obj in self.appointments]
+                    self.appointment_model_wrapper_cls(model_obj=obj)
+                    for obj in self.appointments]
                 for i in range(0, len(wrapped)):
                     if wrapped[i].appt_status == IN_PROGRESS_APPT:
                         wrapped[i].disabled = False

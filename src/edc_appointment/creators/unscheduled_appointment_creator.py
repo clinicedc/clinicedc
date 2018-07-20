@@ -31,8 +31,8 @@ class UnscheduledAppointmentCreator:
     appointment_creator_cls = AppointmentCreator
 
     def __init__(self, subject_identifier=None,
-                 visit_schedule_name=None, schedule_name=None, visit_code=None, facility=None,
-                 **kwargs):
+                 visit_schedule_name=None, schedule_name=None,
+                 visit_code=None, facility=None, **kwargs):
         self._parent_appointment = None
         self.appointment = None
         self.subject_identifier = subject_identifier
@@ -110,14 +110,16 @@ class UnscheduledAppointmentCreator:
                 raise InvalidParentAppointmentMissingVisitError(
                     f'Unable to create unscheduled appointment. An unscheduled '
                     f'appointment cannot be created if the parent appointment '
-                    f'visit form has not been completed. Got appointment \'{self.visit_code}\'.')
+                    f'visit form has not been completed. '
+                    f'Got appointment \'{self.visit_code}\'.')
             else:
                 if self._parent_appointment.appt_status not in [
                         COMPLETE_APPT, INCOMPLETE_APPT]:
                     raise InvalidParentAppointmentStatusError(
                         f'Unable to create unscheduled appointment. An unscheduled '
                         f'appointment cannot be created if the parent appointment '
-                        f'is \'new\' or \'in progress\'. Got appointment \'{self.visit_code}\' '
-                        f'is {self._parent_appointment.get_appt_status_display().lower()}.')
+                        f'is \'new\' or \'in progress\'. Got appointment '
+                        f'\'{self.visit_code}\' is '
+                        f'{self._parent_appointment.get_appt_status_display().lower()}.')
 
         return self._parent_appointment

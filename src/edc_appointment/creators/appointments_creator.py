@@ -1,4 +1,3 @@
-
 import arrow
 
 from django.apps import apps as django_apps
@@ -9,6 +8,13 @@ from .appointment_creator import AppointmentCreator, CreateAppointmentError
 
 
 class AppointmentsCreator:
+
+    """Note: Appointments are created using this class by
+    the visit schedule.
+
+    See also: edc_visit_schedule SubjectSchedule
+
+    """
 
     appointment_creator_cls = AppointmentCreator
 

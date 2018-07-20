@@ -159,7 +159,8 @@ class AppointmentCreator:
             app_config = django_apps.get_app_config('edc_appointment')
             try:
                 self._appointment_config = [
-                    a for a in app_config.configurations if a.name == self.appointment_model][0]
+                    a for a in app_config.configurations
+                    if a.name == self.appointment_model][0]
             except IndexError as e:
                 if len(app_config.configurations) == 1 and not self.appointment_model:
                     self._appointment_config = app_config.configurations[0]

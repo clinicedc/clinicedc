@@ -2,7 +2,7 @@
 
 import _socket
 from django.db import migrations, models
-import edc_base.model_fields.userfield
+import edc_model_fields.fields.userfield
 
 
 class Migration(migrations.Migration):
@@ -63,12 +63,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='appointment',
             name='user_created',
-            field=edc_base.model_fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user created'),
+            field=edc_model_fields.fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user created'),
         ),
         migrations.AlterField(
             model_name='appointment',
             name='user_modified',
-            field=edc_base.model_fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user modified'),
+            field=edc_model_fields.fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user modified'),
         ),
         migrations.AlterField(
             model_name='historicalappointment',
@@ -88,12 +88,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='historicalappointment',
             name='user_created',
-            field=edc_base.model_fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user created'),
+            field=edc_model_fields.fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user created'),
         ),
         migrations.AlterField(
             model_name='historicalappointment',
             name='user_modified',
-            field=edc_base.model_fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user modified'),
+            field=edc_model_fields.fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user modified'),
         ),
         migrations.RemoveField(
             model_name='appointment',
