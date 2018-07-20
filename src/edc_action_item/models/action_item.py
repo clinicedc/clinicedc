@@ -48,26 +48,41 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
         related_name='action_type',
         verbose_name='Action')
 
-    reference_identifier = models.CharField(
-        max_length=50,
-        null=True,
-        help_text='e.g. tracking identifier updated from the reference model')
-
     reference_model = models.CharField(
         max_length=50,
         null=True)
+
+#     # is this needed?
+#     reference_identifier = models.CharField(
+#         max_length=50,
+#         null=True,
+#         help_text='e.g. action identifier updated from the reference model')
+
+    linked_to_reference = models.BooleanField(default=False, editable=False)
+
+    related_reference_model = models.CharField(
+        max_length=100,
+        null=True,
+        editable=False)
+
+    related_reference_identifier = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        help_text=('May be left blank. e.g. action identifier from '
+                   'source model that opened the item.'))
+
+    parent_reference_model = models.CharField(
+        max_length=100,
+        null=True,
+        editable=False)
 
     parent_reference_identifier = models.CharField(
         max_length=50,
         null=True,
         blank=True,
-        help_text=('May be left blank. e.g. tracking identifier from '
-                   'source model that opened the item.'))
-
-    parent_model = models.CharField(
-        max_length=100,
-        null=True,
-        editable=False)
+        help_text=('May be left blank. e.g. action identifier from '
+                   'reference model that opened the item (parent).'))
 
     priority = models.CharField(
         max_length=25,
@@ -110,8 +125,13 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
                 f'({self.get_status_display()})')
 
     def save(self, *args, **kwargs):
+        """See also signals.
+        """
         if not self.id:
+            # a new persisted action item always has
+            # a unique action identifier
             self.action_identifier = ActionIdentifier().identifier
+            # subject_identifier
             subject_identifier_model_cls = django_apps.get_model(
                 self.subject_identifier_model)
             try:
@@ -122,35 +142,57 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
                     f'Invalid subject identifier. Subject does not exist '
                     f'in \'{self.subject_identifier_model}\'. '
                     f'Got \'{self.subject_identifier}\'.')
-        self.priority = self.priority or self.action_type.priority
-        self.reference_model = self.action_type.model
-        if self.action:
-            self.instructions = self.action.instructions
+            self.priority = self.priority or self.action_type.priority
+            self.reference_model = self.action_type.reference_model
+            self.related_reference_model = self.action_type.related_reference_model
+            self.instructions = self.action_type.instructions
         super().save(*args, **kwargs)
+
+    def natural_key(self):
+        return (self.action_identifier, )
+    natural_key.dependencies = ['sites.Site']
 
     @property
     def last_updated(self):
-        obj = self.actionitemupdate_set.all().order_by('report_datetime').last()
-        if obj:
-            return obj.modified
         return None if self.status == NEW else self.modified
 
     @property
     def user_last_updated(self):
-        return self.user_modified or self.user_created
+        return None if self.status == NEW else self.user_modified or self.user_created
 
     @property
-    def action(self):
+    def action_cls(self):
+        """Returns the action_cls.
+        """
         return site_action_items.get(self.action_type.name)
 
     @property
-    def parent_object(self):
-        """Returns the parent model instance or None.
+    def reference_model_cls(self):
+        return django_apps.get_model(self.reference_model)
+
+#     @property
+#     def reference_obj(self):
+#         return self.reference_model_cls.objects.get(
+#             action_identifier=self.action_identifier)
+
+    @property
+    def parent_reference_model_cls(self):
+        return django_apps.get_model(self.parent_reference_model)
+
+    @property
+    def parent_reference_obj(self):
+        """Returns the parent reference model instance.
         """
-        if self.parent_model:
-            return django_apps.get_model(self.parent_model).objects.get(
-                tracking_identifier=self.parent_reference_identifier)
-        return None
+        return self.parent_reference_model_cls.objects.get(
+            action_identifier=self.parent_reference_identifier)
+
+    @property
+    def related_reference_obj(self):
+        """Returns the related reference model instance
+        or raises ObjectDoesNotExist.
+        """
+        return django_apps.get_model(self.related_reference_model).objects.get(
+            action_identifier=self.related_reference_identifier)
 
     @property
     def identifier(self):
@@ -160,7 +202,8 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
 
     @property
     def parent(self):
-        """Returns a shortened parent tracking identifier.
+        """Returns a url to the parent action item
+        for display in admin.
         """
         if self.parent_action_item:
             url_name = '_'.join(self._meta.label_lower.split('.'))
@@ -175,22 +218,43 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
 
     @property
     def reference(self):
-        if self.reference_identifier:
-            return self.reference_identifier[-9:]
+        """Returns a shortened action_identifier which in
+        most cases is the reference model's action identifier.
+        """
+        if self.action_identifier:
+            return self.action_identifier[-9:]
         return None
 
     @property
     def parent_reference(self):
-        if self.parent_reference_identifier:
-            return self.parent_reference_identifier[-9:]
+        """Returns a shortened parent_reference_identifier of the
+        parent model reference which in most cases is the
+        parent reference model's action identifier.
+        """
+        try:
+            parent_reference = self.parent_action_item.action_identifier
+        except AttributeError:
+            parent_reference = None
+        if parent_reference:
+            return parent_reference[-9:]
         return None
 
-    def natural_key(self):
-        return (self.action_identifier, )
-    natural_key.dependencies = ['sites.Site']
+    @property
+    def related_reference(self):
+        """Returns a shortened related_reference_identifier of the
+        parent model reference which in most cases is the
+        parent reference model's action identifier.
+        """
+        try:
+            related_reference = self._related_reference_identifier
+        except AttributeError:
+            related_reference = None
+        if related_reference:
+            return related_reference[-9:]
+        return None
 
     class Meta:
         verbose_name = 'Action Item'
         verbose_name_plural = 'Action Items'
         unique_together = ('subject_identifier',
-                           'action_type', 'reference_identifier')
+                           'action_type', 'action_identifier')

@@ -1,11 +1,8 @@
-from django.db.models.deletion import CASCADE
 from django.db import models
+from django.db.models.deletion import CASCADE, PROTECT
 from edc_base.model_mixins import BaseUuidModel
-from edc_identifier.model_mixins import TrackingIdentifierModelMixin
 
-from ..model_mixins import ActionItemModelMixin
-from .action_items import TestPrnAction, TestDoNothingPrnAction, FormZeroAction
-from .action_items import ReminderAction, FormTwoAction, FormThreeAction, FormOneAction
+from ..models import ActionModelMixin
 
 
 class SubjectIdentifierModel(BaseUuidModel):
@@ -14,23 +11,18 @@ class SubjectIdentifierModel(BaseUuidModel):
         max_length=25)
 
 
-class TestModel(ActionItemModelMixin, BaseUuidModel):
+class TestModel(ActionModelMixin, BaseUuidModel):
 
-    action_cls = None
-
-    subject_identifier = models.CharField(
-        max_length=25)
+    action_name = None
 
     tracking_identifier = models.CharField(
         max_length=25)
 
 
-class TestModelWithTrackingIdentifierButNoActionClass(ActionItemModelMixin, BaseUuidModel):
+class TestModelWithTrackingIdentifierButNoActionClass(ActionModelMixin,
+                                                      BaseUuidModel):
 
-    action_cls = None
-
-    subject_identifier = models.CharField(
-        max_length=25)
+    action_name = None
 
     tracking_identifier = models.CharField(
         max_length=25)
@@ -45,84 +37,75 @@ class TestModelWithoutMixin(BaseUuidModel):
         max_length=25)
 
 
-class TestModelWithActionWithoutTrackingIdentifier(ActionItemModelMixin,
+class TestModelWithActionWithoutTrackingIdentifier(ActionModelMixin,
                                                    BaseUuidModel):
 
-    subject_identifier = models.CharField(
-        max_length=25)
-
-    action_cls = TestPrnAction
+    action_name = 'test-prn-action'
 
 
-class TestModelWithActionDoesNotCreateAction(ActionItemModelMixin,
-                                             TrackingIdentifierModelMixin,
+class TestModelWithActionDoesNotCreateAction(ActionModelMixin,
                                              BaseUuidModel):
 
     tracking_identifier_prefix = 'AA'
 
-    subject_identifier = models.CharField(
-        max_length=25)
-
-    action_cls = TestDoNothingPrnAction
+    action_name = 'test-nothing-prn-action'
 
 
-class TestModelWithAction(ActionItemModelMixin,
-                          TrackingIdentifierModelMixin,
-                          BaseUuidModel):
+class TestModelWithAction(ActionModelMixin, BaseUuidModel):
 
     tracking_identifier_prefix = 'AA'
 
-    subject_identifier = models.CharField(
-        max_length=25)
-
-    action_cls = ReminderAction
+    action_name = 'submit-form-zero'
 
 
-class FormZero(ActionItemModelMixin,
-               TrackingIdentifierModelMixin,
-               BaseUuidModel):
+class FormZero(ActionModelMixin, BaseUuidModel):
 
     tracking_identifier_prefix = 'AA'
 
-    subject_identifier = models.CharField(
-        max_length=25)
-
-    action_cls = FormZeroAction
+    action_name = 'submit-form-zero'
 
 
-class FormOne(ActionItemModelMixin,
-              TrackingIdentifierModelMixin,
-              BaseUuidModel):
+class FormOne(ActionModelMixin, BaseUuidModel):
 
     tracking_identifier_prefix = 'AA'
 
-    subject_identifier = models.CharField(
-        max_length=25)
-
-    action_cls = FormOneAction
+    action_name = 'submit-form-one'
 
 
-class FormTwo(ActionItemModelMixin,
-              TrackingIdentifierModelMixin,
-              BaseUuidModel):
+class FormTwo(ActionModelMixin, BaseUuidModel):
 
     tracking_identifier_prefix = 'BB'
 
-    subject_identifier = models.CharField(
-        max_length=25)
+    form_one = models.ForeignKey(FormOne, on_delete=PROTECT)
 
-    form_one = models.ForeignKey(FormOne, on_delete=CASCADE)
-
-    action_cls = FormTwoAction
+    action_name = 'submit-form-two'
 
 
-class FormThree(ActionItemModelMixin,
-                TrackingIdentifierModelMixin,
-                BaseUuidModel):
+class FormThree(ActionModelMixin, BaseUuidModel):
 
     tracking_identifier_prefix = 'CC'
 
-    subject_identifier = models.CharField(
-        max_length=25)
+    action_name = 'submit-form-three'
 
-    action_cls = FormThreeAction
+
+class Initial(ActionModelMixin, BaseUuidModel):
+
+    tracking_identifier_prefix = 'II'
+
+    action_name = 'submit-initial'
+
+
+class Followup(ActionModelMixin, BaseUuidModel):
+
+    tracking_identifier_prefix = 'FF'
+
+    initial = models.ForeignKey(Initial, on_delete=CASCADE)
+
+    action_name = 'submit-followup'
+
+
+class MyAction(ActionModelMixin, BaseUuidModel):
+
+    tracking_identifier_prefix = 'MA'
+
+    action_name = 'my-action'

@@ -19,10 +19,17 @@ class ActionType(BaseUuidModel):
     display_name = models.CharField(
         max_length=100)
 
-    model = models.CharField(
+    reference_model = models.CharField(
         max_length=100,
         null=True,
-        blank=True)
+        blank=True,
+        help_text='reference model')
+
+    related_reference_model = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text='origin reference model')
 
     priority = models.CharField(
         max_length=25,
@@ -51,19 +58,28 @@ class ActionType(BaseUuidModel):
     def __str__(self):
         return self.display_name
 
+    @property
+    def reference_model_cls(self):
+        if self.reference_model:
+            return django_apps.get_model(self.reference_model)
+        return None
+
+#     @property
+#     def reference_model(self):
+#         return self.model
+
     def save(self, *args, **kwargs):
         self.display_name = self.display_name or self.name
-        if self.model:
-            model_cls = django_apps.get_model(self.model)
+        if self.reference_model:
             try:
-                if not model_cls.action_cls:
+                if not self.reference_model_cls.action_cls:
                     raise ActionTypeError(
-                        f'Model missing an action class. See {repr(model_cls)}')
+                        f'Model missing an action class. See {repr(self.reference_model_cls)}')
             except AttributeError as e:
                 if 'action_cls' in str(e):
                     raise ActionTypeError(
                         f'Model not configured for Actions. Are you using the model mixin? '
-                        f'See {repr(model_cls)}. Got {e}')
+                        f'See {repr(self.reference_model_cls)}. Got {e}')
                 else:
                     raise
         super().save(*args, **kwargs)

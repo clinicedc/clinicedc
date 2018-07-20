@@ -5,9 +5,9 @@ from collections import OrderedDict
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
-from importlib import import_module
 from edc_prn.prn import Prn
 from edc_prn.site_prn_forms import site_prn_forms
+from importlib import import_module
 
 
 class AlreadyRegistered(Exception):
@@ -47,7 +47,7 @@ class SiteActionItemCollection:
             self.registry.update({action_cls.name: action_cls})
         if action_cls.show_link_to_changelist:
             prn = Prn(
-                model=action_cls.model,
+                model=action_cls.reference_model,
                 url_namespace=action_cls.admin_site_name)
             try:
                 site_prn_forms.register(prn)
@@ -55,20 +55,22 @@ class SiteActionItemCollection:
                 pass
 
     def get(self, name):
+        """Returns an action class.
+        """
         if name not in self.registry:
             raise SiteActionError(
-                f'Action type does not exist. Did you register the Action? '
-                f'Expected one of {self.registry}. Got {name}')
+                f'Action does not exist. Did you register the Action? '
+                f'Expected one of {self.registry}. Got {name}.')
         # force create action type if it does not exist
         self.registry.get(name).action_type()
         return self.registry.get(name)
 
     def get_by_model(self, model=None):
-        """Returns the action_cls linked to this model.
+        """Returns the action_cls linked to this reference model.
         """
         for action_cls in self.registry.values():
-            if action_cls.model == model:
-                return self.registry.get(action_cls.name)
+            if action_cls.reference_model == model:
+                return self.get(action_cls.name)
         return None
 
     def get_show_link_to_add_actions(self):
@@ -82,10 +84,14 @@ class SiteActionItemCollection:
         return [Wrapper(action_cls=self.get(name)) for name in names]
 
     def populate_action_types(self):
+        """Populates the ActionType model.
+
+        Called by view.
+        """
         if not self.populated_action_types:
             for action_cls in self.registry.values():
                 action_cls.action_type()
-        self.populated_action_typse = True
+        self.populated_action_types = True
 
     def autodiscover(self, module_name=None, verbose=True):
         module_name = module_name or 'action_items'
