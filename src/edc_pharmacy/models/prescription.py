@@ -17,7 +17,8 @@ class Manager(SearchSlugManager, models.Manager):
             report_datetime=report_datetime)
 
 
-class Prescription(NonUniqueSubjectIdentifierFieldMixin, SearchSlugModelMixin, BaseUuidModel):
+class Prescription(NonUniqueSubjectIdentifierFieldMixin,
+                   SearchSlugModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(
         default=get_utcnow)

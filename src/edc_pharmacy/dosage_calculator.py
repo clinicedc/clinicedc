@@ -10,8 +10,8 @@ class DosageCalculator:
 
     medication_model = 'edc_pharmacy.medication'
 
-    def __init__(self, medication_name=None, dose=None, dose_units=None, dose_per_kg=None,
-                 dose_frequency_factor=None, **kwargs):
+    def __init__(self, medication_name=None, dose=None, dose_units=None,
+                 dose_per_kg=None, dose_frequency_factor=None, **kwargs):
         self.medication_name = medication_name
         self.dose = dose
         self.dose_per_kg = dose_per_kg

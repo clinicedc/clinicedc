@@ -151,11 +151,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'edc_pharmacy', 'static')
 GIT_DIR = BASE_DIR
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
+# KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 LABEL_PRINTER = 'test_label_printer_ambition'
 
 COUNTRY = 'botswana'
-HOLIDAY_FILE = os.path.join(BASE_DIR, 'holidays.csv')
+HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
 
 if 'test' in sys.argv:
 
