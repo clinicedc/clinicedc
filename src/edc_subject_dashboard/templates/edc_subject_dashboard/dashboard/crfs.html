@@ -3,7 +3,7 @@
             
             <div class="panel-heading">
                  <span class="text text-muted">
-                    <i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> CRFs</span>
+                    <i class="fas fa-list-alt fa-fw" aria-hidden="true"></i> CRFs</span>
                     <label class="small pull-right" title="visit report datetime">{{ appointment.object.visit.report_datetime|localtime|date:"SHORT_DATETIME_FORMAT" }}</label>
             </div>
 
@@ -37,9 +37,9 @@
                                 <a role="button" class="btn btn-sm {% if crf.object.id %}btn-success{% else %}{% if crf.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
                                         href="{{ crf.object.href }}">
                                         {% if crf.object.id %}
-                                            <span class="glyphicon glyphicon-pencil"></span> Change
+                                            <span class="fas fa-pen"></span> Change
                                         {% else %}
-                                            <span class="glyphicon glyphicon-plus"></span> Add
+                                            <span class="fas fa-plus"></span> Add
                                         {% endif %}
                                 </a>
                                 <a role="button" class="btn btn-sm btn-default" 

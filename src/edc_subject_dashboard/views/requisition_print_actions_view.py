@@ -32,25 +32,26 @@ class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessForm
         self._appointment = None
         self._selected_panel_names = []
         self._requisition_metadata = None
+        self._requisition_model_cls = None
         super().__init__(**kwargs)
 
     def post(self, request, *args, **kwargs):
-
+        response = None
         if self.selected_panel_names:
-
-            if self.request.POST.get('submit') in [self.print_all_button, self.print_selected_button]:
+            if self.request.POST.get('submit') in [
+                    self.print_all_button, self.print_selected_button]:
                 self.print_labels_action()
             elif self.request.POST.get('submit_print_requisition'):
                 self.consignee = Consignee.objects.get(
                     pk=self.request.POST.get('submit_print_requisition'))
                 response = self.render_manifest_to_response_action()
-                return response
-
-        subject_identifier = request.POST.get('subject_identifier')
-        success_url = reverse(self.success_url, kwargs=dict(
-            subject_identifier=subject_identifier,
-            appointment=str(self.appointment.pk)))
-        return HttpResponseRedirect(redirect_to=f'{success_url}')
+        if not response:
+            subject_identifier = request.POST.get('subject_identifier')
+            success_url = reverse(self.success_url, kwargs=dict(
+                subject_identifier=subject_identifier,
+                appointment=str(self.appointment.pk)))
+            response = HttpResponseRedirect(redirect_to=f'{success_url}')
+        return response
 
     def print_labels_action(self):
 
@@ -76,12 +77,19 @@ class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessForm
                 f'Some selected labels were not printed. See {panels}.')
 
     def render_manifest_to_response_action(self):
-        requisition_report = self.requisition_report_cls(
-            appointment=self.appointment,
-            selected_panel_names=self.selected_panel_names,
-            consignee=self.consignee,
-            request=self.request)
-        return requisition_report.render()
+        panel_names = [r.panel.name for r in self.verified_requisitions]
+        if panel_names:
+            requisition_report = self.requisition_report_cls(
+                appointment=self.appointment,
+                selected_panel_names=panel_names,
+                consignee=self.consignee,
+                request=self.request)
+            response = requisition_report.render()
+        else:
+            messages.error(
+                self.request, 'Nothing to do. No "verified" requisitions selected.')
+            response = None
+        return response
 
     @property
     def requisition_metadata(self):
@@ -125,8 +133,21 @@ class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessForm
         return self._appointment
 
     @property
+    def requisition_model_cls(self):
+        if not self._requisition_model_cls:
+            for v in self.appointment.visit_model_cls().__dict__.values():
+                try:
+                    model_cls = getattr(getattr(v, 'rel'), 'related_model')
+                except AttributeError:
+                    pass
+                else:
+                    if issubclass(model_cls, RequisitionModelMixin):
+                        self._requisition_model_cls = model_cls
+        return self._requisition_model_cls
+
+    @property
     def verified_requisitions(self):
-        """Returns a list of requisition model instances related
+        """Returns a list of "verified" requisition model instances related
         to this appointment.
         """
         verified_requisitions = []
@@ -138,5 +159,6 @@ class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessForm
             else:
                 if issubclass(model_cls, RequisitionModelMixin):
                     verified_requisitions.extend(
-                        list(getattr(self.appointment.visit, k).filter(clinic_verified=YES)))
+                        list(getattr(self.appointment.visit, k).filter(
+                            clinic_verified=YES)))
         return verified_requisitions

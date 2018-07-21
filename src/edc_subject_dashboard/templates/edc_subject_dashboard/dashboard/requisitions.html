@@ -6,7 +6,7 @@
 	
 <div class="panel-group">
 	<div class="panel panel-success">
-		<div class="panel-heading clearfix"><i class="fa fa-flask fa-fw" aria-hidden="true"></i> Requisitions
+		<div class="panel-heading clearfix"><i class="fas fa-flask fa-fw" aria-hidden="true"></i> Requisitions
 		<label class="small pull-right" title="visit report datetime">{{ appointment.object.visit.report_datetime|localtime|date:"SHORT_DATETIME_FORMAT" }}</label>
 		</div>			
 		
@@ -44,17 +44,17 @@
 				    			{% if requisition.entry_status == KEYED %}
 					    			{% if requisition.object.is_drawn == YES and requisition.object.requisition_identifier %}
 					    				<span class="text text-success small">
-					    					<i class="fa fa-check fa-sm"></i>
-					    					{% if requisition.object.clinic_verified == YES %}<i class="fa fa-check fa-sm"></i>{% endif %}
+					    					<i class="fas fa-check fa-sm"></i>
+					    					{% if requisition.object.clinic_verified == YES %}<i class="fas fa-check fa-sm"></i>{% endif %}
 					    				</span> <span class="text text-default"><strong>{{ requisition.object.requisition_identifier|human }}</strong></span>
 					    			{% elif requisition.object.reason_not_drawn == NOT_REQUIRED %}
-					    				<span class="text text-info small"><i class="fa fa-info-circle"></i> no longer required</span>
+					    				<span class="text text-info small"><i class="fas fa-info-circle"></i> no longer required</span>
 					    			{% elif requisition.object.requisition_identifier  and not requisition.object.is_drawn %}
-					    			<span class="text text-danger"><i class="fa fa-hand-stop-o fa-fw"></i> <strong>{{ requisition.object.requisition_identifier|human }}</strong></span>
+					    			<span class="text text-danger"><i class="fas fa-hand-stop-o fa-fw"></i> <strong>{{ requisition.object.requisition_identifier|human }}</strong></span>
 					    			{% elif requisition.object.is_drawn == NO %}
 					    				<span class="text text-info small">not drawn</span>
 					    			{% else %}
-					    				<span class="text text-danger small"><i class="fa fa-warning"></i> ERROR</span>
+					    				<span class="text text-danger small"><i class="fas fa-warning"></i> ERROR</span>
 					    			{% endif %}
 				    			{% endif %}
 
@@ -63,9 +63,9 @@
 	    							<a role="button" class="btn btn-sm {% if requisition.entry_status == KEYED %}btn-success{% else %}{% if requisition.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
 											href="{{ requisition.object.href }}">
 											{% if requisition.entry_status == KEYED %}
-												<span class="fa fa-pencil fa-fw"></span> Change
+												<span class="fas fa-pencil-alt fa-fw"></span> Change
 											{% else %}
-												<span class="fa fa-plus fa-fw"></span> Add
+												<span class="fas fa-plus fa-fw"></span> Add
 											{% endif %}
 		       						</a> 
 				     		        <a role="button" class="btn btn-sm btn-default" 
