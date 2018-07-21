@@ -26,6 +26,7 @@ from ..offstudy_crf import SubjectOffstudyError
 from .consents import v1_consent
 from .forms import SubjectOffstudyForm, CrfOneForm, NonCrfOneForm
 from .models import BadSubjectOffstudy, CrfOne, NonCrfOne, BadNonCrfOne, SubjectOffstudy2
+from pprint import pprint
 
 pytestmark = pytest.mark.django_db
 
@@ -584,12 +585,18 @@ class TestOffstudy(TestCase):
         form.is_valid()
         self.assertIn('report_datetime', form.errors)
 
+    @tag('1')
     def test_crf_model_mixin_for_visit_schedule_2(self):
 
         appointments = [appt for appt in Appointment.objects.filter(
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
 
         appointment = appointments[0]
+        self.assertEqual(
+            [a.visit_code for a in appointments],
+            ['1000', '2000', '3000', '4000'])
+
+        # create visit for fist appointment, 1000
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -602,8 +609,8 @@ class TestOffstudy(TestCase):
             report_datetime=appointment.appt_datetime)
         crf_one.save()
 
+        # create visit for first appointment, 2000
         appointment = appointments[1]
-
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -611,6 +618,8 @@ class TestOffstudy(TestCase):
             visit_code=appointment.visit_code,
             report_datetime=appointment.appt_datetime,
             study_status=SCHEDULED)
+
+        # enter offstudy
         SubjectOffstudy.objects.create(
             offstudy_datetime=appointment.appt_datetime +
             relativedelta(hours=1),
@@ -620,10 +629,20 @@ class TestOffstudy(TestCase):
             subject_visit=subject_visit)
         crf_one.save()
 
+        # show appt was deleted
+        self.assertEqual(
+            ['1000', '2000'],
+            [appt.visit_code for appt in Appointment.objects.filter(
+                subject_identifier=self.subject_identifier).order_by('appt_datetime')])
+
+        # now create an error condition
         appointment = appointments[2]
         # resave since instance was deleted when SubjectOffstudy model
         # was created above
         appointment.save()
+
+        # create visit for first appointment, 3000
+        # knowing Offstudy for has been saved
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -637,27 +656,31 @@ class TestOffstudy(TestCase):
         self.assertRaises(
             SubjectOffstudyError,
             crf_one.save)
+        # clean up
+        subject_visit.delete()
+        appointment.delete()
 
         appointments = [appt.visit_code for appt in Appointment.objects.filter(
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
-        self.assertEqual(appointments, ['1000', '2000', '3000'])
+        self.assertEqual(appointments, ['1000', '2000'])
 
         # enroll to visit_schedule2
+        # to create more appointments
         OnScheduleTwo.objects.create(
             subject_identifier=self.subject_identifier,
             onschedule_datetime=self.consent_datetime)
-
         # show adds the visits for visit_schedule2
         appointments = [appt.visit_code for appt in Appointment.objects.filter(
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
         self.assertEqual(
-            appointments, ['1000', '2000', '3000', '5000', '6000', '7000', '8000'])
+            appointments, ['1000', '2000', '5000', '6000', '7000', '8000'])
+
         # show adds the visits for visit_schedule2
         appointments = [appt.visit_schedule_name for appt in Appointment.objects.filter(
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
         self.assertEqual(
             appointments, [
-                'visit_schedule1', 'visit_schedule1', 'visit_schedule1',
+                'visit_schedule1', 'visit_schedule1',
                 'visit_schedule2', 'visit_schedule2', 'visit_schedule2', 'visit_schedule2'])
         # show adding off study 2 removes visits from schedule2 only
         SubjectOffstudy2.objects.create(
@@ -666,4 +689,6 @@ class TestOffstudy(TestCase):
             subject_identifier=self.subject_identifier)
         appointments = [appt.visit_code for appt in Appointment.objects.filter(
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
-        self.assertEqual(appointments, ['1000', '2000', '3000'])
+        # note deletes appointments AFTER the date
+        # see edc_appointment for setting
+        self.assertEqual(appointments, ['1000', '2000', '5000'])
