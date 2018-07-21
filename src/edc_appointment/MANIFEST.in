@@ -1,2 +1,2 @@
-include AUTHORS CHANGES README LICENCE
+include AUTHORS CHANGES README LICENSE
 recursive-include edc_appointment/templates *
