@@ -20,5 +20,6 @@ class HomeView(EdcBaseViewMixin, NavbarViewMixin, TemplateView):
             'protocol_title': app_config.protocol_title,
             'study_open_datetime': app_config.study_open_datetime,
             'study_close_datetime': app_config.study_close_datetime,
-            'enrollment_caps': app_config.caps})
+            # 'enrollment_caps': app_config.caps
+        })
         return context

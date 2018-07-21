@@ -23,16 +23,14 @@ class AppConfig(DjangoAppConfig):
     verbose_name = 'Edc Protocol'
 
     # set with example defaults, you will need to change from your project
-    protocol = 'BHP000'
+    protocol = 'AAA000'
     protocol_number = '000'  # 3 digits, used for identifiers
     protocol_name = 'My Protocol'
     protocol_title = 'My Protocol of Many Things'
-
     try:
         email_contacts = settings.EMAIL_CONTACTS
     except AttributeError:
         email_contacts = {}
-
     study_open_datetime = arrow.utcnow().floor('hour') - relativedelta(years=1)
     study_close_datetime = arrow.utcnow().ceil('hour')
     messages_written = False
@@ -57,7 +55,6 @@ class AppConfig(DjangoAppConfig):
         close_date = self.study_close_datetime.strftime('%Y-%m-%d %Z')
         sys.stdout.write(f' * Expected study closing date: {close_date}\n')
 
-        # site_protocol_subjects.autodiscover()
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
         sys.stdout.flush()
         self.messages_written = True
