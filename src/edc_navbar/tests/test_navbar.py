@@ -1,5 +1,6 @@
 from django.test import TestCase, tag
 from django.urls.base import reverse
+from django.urls.exceptions import NoReverseMatch
 
 from ..navbar import Navbar
 from ..navbar_item import NavbarItem, NavbarItemError
@@ -49,7 +50,7 @@ class TestNavbar(TestCase):
 
     def test_navbar_item_raises_bad_url(self):
         self.assertRaises(
-            NavbarItemError,
+            NoReverseMatch,
             NavbarItem,
             name='navbar_item_one',
             label='Navbar Item One',
