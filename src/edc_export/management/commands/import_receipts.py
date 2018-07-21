@@ -67,10 +67,7 @@ class Command(BaseCommand):
             print('Some receipts were rejected.')
             print(f'See file {self.error_filename} in {target_path}')
         else:
-            try:
-                os.remove(self.error_filename)
-            except:
-                pass
+            os.remove(self.error_filename)
             print('Success')
 
     @property
