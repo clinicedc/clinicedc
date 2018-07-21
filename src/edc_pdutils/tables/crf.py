@@ -20,11 +20,6 @@ class Crf(Table):
             self.dataframe['drawn_datetime'])
         self.dataframe['received_datetime'] = self.helper.to_local_datetime(
             self.dataframe['received_datetime'])
-
-        # self.dataframe['processed_datetime'] = helper.to_local_datetime(self.dataframe['processed_datetime'])
-        # self.dataframe['packed_datetime'] = helper.to_local_datetime(self.dataframe['packed_datetime'])
-        # self.dataframe['shipped_datetime'] = helper.to_local_datetime(self.dataframe['shipped_datetime'])
-
         self.dataframe['received'] = self.dataframe['received'].map(
             yes_no, na_action='ignore')
         self.dataframe['processed'] = self.dataframe['processed'].map(

@@ -40,7 +40,7 @@ class CrfDialect:
             'R.screening_age_in_years, R.registration_status, R.registration_datetime, '
             'R.randomization_datetime, V.survival_status, V.last_alive_date, '
             f'V.id as {self.obj.visit_column} '
-            f'from {self.obj.appointment_tbl} as A '
+            f'from {self.obj.appointment_tbl} as  A '
             f'LEFT JOIN {self.obj.visit_tbl} as V on A.id=V.appointment_id '
             f'LEFT JOIN {self.obj.visit_definition_tbl} as VDEF '
             'on A.visit_definition_id=VDEF.id '

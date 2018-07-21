@@ -1,5 +1,3 @@
-import pandas as pd
-
 from ..database import Database
 from ..df_handlers import DfHandler
 from .csv_exporter import CsvExporter
@@ -32,7 +30,7 @@ class CsvTablesExporter:
     delimiter = '|'
     df_handler_cls = DfHandler
     exclude_history_tables = False
-    excluded_app_labels = ['edc_sync']
+    excluded_app_labels = ['django_collect_offline']
 
     def __init__(self, app_label=None, with_columns=None, without_columns=None,
                  exclude_history_tables=None, exclude_table_hints=None,
@@ -46,7 +44,8 @@ class CsvTablesExporter:
         self.without_columns = without_columns or []
         exclude_table_hints = exclude_table_hints or []
         self.exclude_history_tables = (
-            self.exclude_history_tables if exclude_history_tables is None else exclude_history_tables)
+            self.exclude_history_tables
+            if exclude_history_tables is None else exclude_history_tables)
         self.exported_paths = {}
         self.db = self.db_cls(**kwargs)
         self.table_names = self.get_table_names()

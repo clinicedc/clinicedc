@@ -1,6 +1,5 @@
-import sys
 import csv
-import os
+import sys
 
 from django.apps import apps as django_apps
 from django.test import TestCase, tag

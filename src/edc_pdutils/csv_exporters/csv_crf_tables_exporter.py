@@ -14,10 +14,10 @@ class CsvCrfTablesExporter(CsvTablesExporter):
 
     """A class to export CRF tables for this app_label.
 
-    CRF tables include an FK to the visit model.
+    CRF tables include a FK to the visit model.
     """
 
-    visit_column = None  # the visit column used to selected "CRF" tables
+    visit_column = None  # the visit column name used to select "CRF" tables
     df_handler_cls = CrfDfHandler
 
     def __init__(self, visit_column=None, with_columns=None, **kwargs):
