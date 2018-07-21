@@ -106,8 +106,8 @@ class TestVisit(TestCase):
                 'visit_code')):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() -
-                relativedelta(months=10 - index),
+                report_datetime=get_utcnow()
+                - relativedelta(months=10 - index),
                 reason=SCHEDULED)
         subject_visits = SubjectVisit.objects.all().order_by(
             'appointment__timepoint_datetime')
