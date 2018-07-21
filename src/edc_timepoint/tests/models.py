@@ -1,34 +1,32 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
-from edc_appointment.models import Appointment
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ..model_mixins import TimepointLookupModelMixin
 from ..timepoint_lookup import TimepointLookup
+from edc_appointment.models.appointment import Appointment
 
 
 class VisitTimepointLookup(TimepointLookup):
-    timepoint_model = 'edc_timepoint.appointment'
+    timepoint_model = 'edc_appointment.appointment'
     timepoint_related_model_lookup = 'appointment'
 
 
 class CrfTimepointLookup(TimepointLookup):
-    timepoint_model = 'edc_timepoint.appointment'
+    timepoint_model = 'edc_appointment.appointment'
 
 
-class SubjectVisit(TimepointLookupModelMixin, BaseUuidModel):
+class SubjectVisit(VisitModelMixin, TimepointLookupModelMixin, BaseUuidModel):
 
     timepoint_lookup_cls = VisitTimepointLookup
 
-    appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
+    appointment = models.OneToOneField(
+        Appointment, on_delete=PROTECT, related_name='edc_timepoint')
 
-    subject_identifier = models.CharField(max_length=50)
-
-    report_datetime = models.DateTimeField(default=get_utcnow)
-
-    visit_code = models.CharField(max_length=50)
+    class Meta(VisitModelMixin.Meta):
+        pass
 
 
 class CrfOne(TimepointLookupModelMixin, BaseUuidModel):

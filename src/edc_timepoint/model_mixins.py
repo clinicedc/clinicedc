@@ -1,6 +1,7 @@
 import arrow
 
 from django.apps import apps as django_apps
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
 from .choices import TIMEPOINT_STATUS
@@ -8,9 +9,6 @@ from .constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT, FEEDBACK
 from .timepoint import TimepointClosed
 from .timepoint_collection import TimepointConfigError
 from .timepoint_lookup import TimepointLookup
-from django.core.exceptions import ImproperlyConfigured
-
-app_config = django_apps.get_app_config('edc_timepoint')
 
 
 class UnableToCloseTimepoint(Exception):
@@ -63,14 +61,17 @@ class TimepointModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         if self.enabled_as_timepoint:
-            if (kwargs.get('update_fields') != ['timepoint_status'] and
-                    kwargs.get('update_fields') != ['timepoint_opened_datetime', 'timepoint_status'] and
-                    kwargs.get('update_fields') != ['timepoint_closed_datetime', 'timepoint_status']):
+            if (kwargs.get('update_fields') != ['timepoint_status']
+                and kwargs.get('update_fields') != [
+                'timepoint_opened_datetime', 'timepoint_status']
+                and kwargs.get('update_fields') != [
+                    'timepoint_closed_datetime', 'timepoint_status']):
                 self.timepoint_open_or_raise()
         super().save(*args, **kwargs)
 
     def timepoint_open_or_raise(self, timepoint=None):
         if not timepoint:
+            app_config = django_apps.get_app_config('edc_timepoint')
             try:
                 timepoint = app_config.timepoints.get(self._meta.label_lower)
             except KeyError:
@@ -93,6 +94,7 @@ class TimepointModelMixin(models.Model):
         Updates the timepoint specific fields when the status field
         changes to closed.
         """
+        app_config = django_apps.get_app_config('edc_timepoint')
         timepoint = app_config.timepoints.get(self._meta.label_lower)
         status = getattr(self, timepoint.status_field)
         if status == timepoint.closed_status:

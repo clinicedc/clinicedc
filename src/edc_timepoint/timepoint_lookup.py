@@ -7,7 +7,7 @@ from .timepoint import TimepointClosed
 
 class TimepointLookup:
 
-    """A class to be set as an attribute of a model that is to be
+    """A class to be set as an attribute of a model
     controlled by a timepoint model.
 
     For example, a SubjectVisit model or a CrfModel. Verify that the
