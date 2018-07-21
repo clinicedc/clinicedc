@@ -61,11 +61,11 @@ class TimepointModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         if self.enabled_as_timepoint:
-            if (kwargs.get('update_fields') != ['timepoint_status'] and
-                    kwargs.get('update_fields') != [
-                        'timepoint_opened_datetime', 'timepoint_status'] and
-                    kwargs.get('update_fields') != [
-                        'timepoint_closed_datetime', 'timepoint_status']):
+            if (kwargs.get('update_fields') != ['timepoint_status']
+                and kwargs.get('update_fields') != [
+                'timepoint_opened_datetime', 'timepoint_status']
+                and kwargs.get('update_fields') != [
+                    'timepoint_closed_datetime', 'timepoint_status']):
                 self.timepoint_open_or_raise()
         super().save(*args, **kwargs)
 
