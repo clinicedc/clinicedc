@@ -4,7 +4,6 @@ from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_metadata.constants import REQUIRED, KEYED
 
 from ..site_prn_forms import site_prn_forms
-from edc_lab.models.panel import Panel
 
 register = template.Library()
 

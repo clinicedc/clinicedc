@@ -2,11 +2,11 @@ import copy
 import sys
 
 from collections import OrderedDict
-from django.core.management.color import color_style
+from copy import deepcopy
 from django.apps import apps as django_apps
+from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
 from importlib import import_module
-from copy import deepcopy
 
 
 class AlreadyRegistered(Exception):
