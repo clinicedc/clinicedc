@@ -26,6 +26,19 @@ class TestVisit(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
 
+    def test_methods(self):
+        self.helper.consent_and_put_on_schedule()
+        appointment = Appointment.objects.all().order_by(
+            'timepoint_datetime')[0]
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, reason=SCHEDULED)
+        instance = CrfOne(subject_visit=subject_visit)
+
+        self.assertEqual(instance.visit, subject_visit)
+        self.assertEqual(instance.visit_model_attr(), 'subject_visit')
+        self.assertEqual(CrfOne.visit_model_attr(), 'subject_visit')
+        self.assertEqual(CrfOne.visit_model_cls(), SubjectVisit)
+
     def test_crf_visit_model_attrs(self):
         """Assert models using the CrfModelMixin can determine which
         attribute points to the visit model foreignkey.
@@ -37,7 +50,7 @@ class TestVisit(TestCase):
         """Assert models using the CrfModelMixin can determine which
         visit model is in use for the app_label.
         """
-        self.assertEqual(CrfOne().visit_model(), SubjectVisit)
+        self.assertEqual(CrfOne().visit_model_cls(), SubjectVisit)
         self.assertEqual(CrfOne.objects.all().count(), 0)
 
     def test_crf_inline_model_attrs(self):
@@ -88,14 +101,13 @@ class TestVisit(TestCase):
     def test_get_previous_model_instance(self):
         """Assert model can determine the previous.
         """
-
         self.helper.consent_and_put_on_schedule()
         for index, appointment in enumerate(Appointment.objects.all().order_by(
                 'visit_code')):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() -
-                relativedelta(months=10 - index),
+                report_datetime=get_utcnow()
+                - relativedelta(months=10 - index),
                 reason=SCHEDULED)
         subject_visits = SubjectVisit.objects.all().order_by(
             'appointment__timepoint_datetime')

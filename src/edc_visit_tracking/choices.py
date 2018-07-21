@@ -1,7 +1,8 @@
+from edc_constants.constants import OTHER, NOT_APPLICABLE
+
 from .constants import (
     MISSED_VISIT, SCHEDULED, UNSCHEDULED, LOST_VISIT, DEFERRED_VISIT,
     COMPLETED_PROTOCOL_VISIT, CHART)
-from edc_constants.constants import OTHER, NOT_APPLICABLE
 
 VISIT_REASON = (
     (SCHEDULED, 'Scheduled visit/contact'),

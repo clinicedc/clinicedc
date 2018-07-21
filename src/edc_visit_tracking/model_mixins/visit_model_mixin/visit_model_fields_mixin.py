@@ -1,5 +1,5 @@
 from django.db import models
-from edc_base.model_fields import OtherCharField
+from edc_model_fields.fields import OtherCharField
 from edc_base.model_validators import datetime_not_future, date_not_future
 from edc_base.utils import get_utcnow
 from edc_constants.choices import YES_NO, ALIVE_DEAD_UNKNOWN

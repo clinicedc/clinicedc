@@ -1,6 +1,18 @@
 from dateutil.relativedelta import relativedelta
 from edc_visit_schedule import VisitSchedule, Schedule, Visit
 from edc_visit_schedule import FormsCollection, Crf, Requisition
+from edc_visit_schedule.tests.dummy_panel import DummyPanel
+
+
+class Panel(DummyPanel):
+    """`requisition_model` is normally set when the lab profile
+    is set up.
+    """
+
+    def __init__(self, name):
+        super().__init__(
+            requisition_model='edc_appointment.subjectrequisition',
+            name=name)
 
 
 crfs = FormsCollection(
@@ -13,34 +25,45 @@ crfs = FormsCollection(
 
 requisitions = FormsCollection(
     Requisition(
-        show_order=10, model='edc_metadata.subjectrequisition',
-        panel='one', required=True, additional=False),
+        show_order=10,
+        panel=Panel('one'),
+        required=True, additional=False),
     Requisition(
-        show_order=20, model='edc_metadata.subjectrequisition',
-        panel='two', required=True, additional=False),
+        show_order=20,
+        panel=Panel('two'),
+        required=True, additional=False),
     Requisition(
-        show_order=30, model='edc_metadata.subjectrequisition',
-        panel='three', required=True, additional=False),
+        show_order=30,
+        panel=Panel(
+            'three'),
+        required=True, additional=False),
     Requisition(
-        show_order=40, model='edc_metadata.subjectrequisition',
-        panel='four', required=True, additional=False),
+        show_order=40,
+        panel=Panel(
+            'four'),
+        required=True, additional=False),
     Requisition(
-        show_order=50, model='edc_metadata.subjectrequisition',
-        panel='five', required=True, additional=False),
+        show_order=50,
+        panel=Panel(
+            'five'),
+        required=True, additional=False),
     Requisition(
-        show_order=60, model='edc_metadata.subjectrequisition',
-        panel='six', required=True, additional=False),
+        show_order=60,
+        panel=Panel('six'),
+        required=True, additional=False),
 )
 
 visit_schedule1 = VisitSchedule(
     name='visit_schedule1',
     offstudy_model='edc_visit_tracking.subjectoffstudy',
-    death_report_model='edc_visit_tracking.deathreport')
+    death_report_model='edc_visit_tracking.deathreport',
+    locator_model='edc_locator.subjectlocator')
 
 visit_schedule2 = VisitSchedule(
     name='visit_schedule2',
     offstudy_model='edc_visit_tracking.subjectoffstudy',
-    death_report_model='edc_visit_tracking.deathreport')
+    death_report_model='edc_visit_tracking.deathreport',
+    locator_model='edc_locator.subjectlocator')
 
 schedule1 = Schedule(
     name='schedule1',

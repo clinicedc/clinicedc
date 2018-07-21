@@ -1,15 +1,14 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.db.models import options
-from django.db.models.fields.related import OneToOneField, ForeignKey
+from django.db.models import options, OneToOneField, ForeignKey
 
-from .model_mixins import ModelMixin
+from .crf_inline_visit_methods_model_mixin import CrfInlineVisitMethodsModelMixin
 
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('crf_inline_parent',)
 
 
-class CrfInlineModelMixin(ModelMixin, models.Model):
+class CrfInlineModelMixin(CrfInlineVisitMethodsModelMixin, models.Model):
     """A mixin for models used as inlines in ModelAdmin.
     """
 

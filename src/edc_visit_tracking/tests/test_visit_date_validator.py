@@ -35,8 +35,8 @@ class TestVisitDateValidator(TestCase):
             with self.subTest(days=days):
                 try:
                     MyCrfDateValidator(
-                        report_datetime=visit_report_datetime +
-                        relativedelta(days=days),
+                        report_datetime=visit_report_datetime
+                        + relativedelta(days=days),
                         visit_report_datetime=visit_report_datetime)
                 except CrfReportDateAllowanceError as e:
                     self.fail(

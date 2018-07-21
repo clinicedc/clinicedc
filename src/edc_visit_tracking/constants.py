@@ -1,5 +1,3 @@
-# from edc_constants.constants import (OFF_STUDY)
-
 COMPLETED_PROTOCOL_VISIT = 'completed protocol'
 DEFERRED_VISIT = 'deferred'
 LOST_VISIT = 'lost'

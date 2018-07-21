@@ -4,21 +4,23 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
+from edc_appointment.models import Appointment
 from edc_base.model_managers.historical_records import HistoricalRecords
 from edc_constants.constants import YES, NO
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
 from ...choices import VISIT_REASON
-from ...constants import FOLLOW_UP_REASONS, REQUIRED_REASONS, NO_FOLLOW_UP_REASONS
+from ...constants import FOLLOW_UP_REASONS, REQUIRED_REASONS
+from ...constants import NO_FOLLOW_UP_REASONS, MISSED_VISIT
 from ...managers import VisitModelManager
 from ..previous_visit_model_mixin import PreviousVisitModelMixin
 from .visit_model_fields_mixin import VisitModelFieldsMixin
-from edc_visit_tracking.constants import MISSED_VISIT
 
 
 class VisitModelMixin(
-        VisitModelFieldsMixin, VisitScheduleModelMixin, NonUniqueSubjectIdentifierFieldMixin,
+        VisitModelFieldsMixin, VisitScheduleModelMixin,
+        NonUniqueSubjectIdentifierFieldMixin,
         PreviousVisitModelMixin, models.Model):
 
     """
@@ -27,12 +29,10 @@ class VisitModelMixin(
         class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin,
                            RequiresConsentModelMixin, BaseUuidModel):
 
-            appointment = models.OneToOneField('Appointment',
-                                                on_delete=PROTECT)
-
-        class Meta(VisitModelMixin.Meta):
-            app_label = 'my_app'
+            class Meta(VisitModelMixin.Meta):
+                app_label = 'my_app'
     """
+    appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
     objects = VisitModelManager()
 
@@ -42,11 +42,6 @@ class VisitModelMixin(
         return f'{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}'
 
     def save(self, *args, **kwargs):
-        if self.__class__.appointment.field.remote_field.on_delete != PROTECT:
-            raise ImproperlyConfigured(
-                'OneToOne relation to appointment must set '
-                'on_delete=PROTECT. Got {}'.format(
-                    self.__class__.appointment.field.remote_field.on_delete.__name__))
         self.subject_identifier = self.appointment.subject_identifier
         self.visit_schedule_name = self.appointment.visit_schedule_name
         self.schedule_name = self.appointment.schedule_name
@@ -61,7 +56,6 @@ class VisitModelMixin(
                 self.schedule_name,
                 self.visit_code,
                 self.visit_code_sequence)
-    # change this if you are using another appointment model
     natural_key.dependencies = ['edc_appointment.appointment']
 
     @property

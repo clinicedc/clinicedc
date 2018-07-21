@@ -8,7 +8,7 @@ class CrfModelManager(models.Manager):
 
     def get_by_natural_key(self, subject_identifier, visit_schedule_name,
                            schedule_name, visit_code, visit_code_sequence):
-        instance = self.model.visit_model().objects.get_by_natural_key(
+        instance = self.model.visit_model_cls().objects.get_by_natural_key(
             subject_identifier, visit_schedule_name, schedule_name,
             visit_code, visit_code_sequence)
         return self.get(**{self.model.visit_model_attr(): instance})
