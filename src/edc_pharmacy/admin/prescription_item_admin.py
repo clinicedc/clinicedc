@@ -42,8 +42,8 @@ class PrescriptionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
             )}),
         audit_fieldset_tuple)
 
-    list_display = ('subject_identifier', '__str__', 'duration', 'total', 'remaining',
-                    'verified', 'verified_datetime')
+    list_display = ('subject_identifier', '__str__', 'duration', 'total',
+                    'remaining', 'verified', 'verified_datetime')
     list_filter = ('start_date', 'end_date', )
     search_fields = ['prescription__subject_identifier', 'medication__name']
     ordering = ['medication__name']

@@ -67,10 +67,3 @@ FREQUENCY = (
     (OTHER, 'Other ...'),
     (NOT_APPLICABLE, 'Not applicable'),
 )
-
-
-# SCHEDULE_STATUS = (
-#     (NEW, 'New'),
-#     (IN_PROGRESS_APPT, 'In Progress'),
-#     (COMPLETE, 'Done'),
-# )

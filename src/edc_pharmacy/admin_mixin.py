@@ -32,7 +32,8 @@ class PrintButtonAdminMixin:
                 for printer in self.print_server.printers.items():
                     printer = str(printer[0])
                     printer_properties = {
-                        k.replace('-', '_'): v for k, v in self.print_server.printers[printer].items()}
+                        k.replace('-', '_'): v
+                        for k, v in self.print_server.printers[printer].items()}
                     self._printers.update({printer: printer_properties})
         return self._printers
 

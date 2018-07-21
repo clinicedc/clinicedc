@@ -1,4 +1,5 @@
-from edc_appointment.appointment_creator import AppointmentCreator as BaseAppointmentCreator
+from edc_appointment.appointment_creator import AppointmentCreator \
+    as BaseAppointmentCreator
 
 
 class AppointmentCreator(BaseAppointmentCreator):
