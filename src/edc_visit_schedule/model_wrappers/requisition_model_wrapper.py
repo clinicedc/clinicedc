@@ -8,7 +8,8 @@ class RequisitionModelWrapper(CrfModelWrapper):
     querystring_attrs = [visit_model_attr, 'panel']
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(object={self.object} id={self.object.id}, panel={self.panel})'
+        return (f'{self.__class__.__name__}(object={self.object} '
+                f'id={self.object.id}, panel={self.panel})')
 
     @property
     def panel(self):

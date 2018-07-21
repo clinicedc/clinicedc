@@ -2,7 +2,9 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
+from edc_base.tests.site_test_case_mixin import SiteTestCaseMixin
 from edc_base.utils import get_utcnow
+from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
 
 from ..constants import ON_SCHEDULE
@@ -16,8 +18,6 @@ from ..visit_schedule import VisitSchedule
 from ..visit_schedule import VisitScheduleNameError, AlreadyRegisteredSchedule
 from .models import OnSchedule, OnScheduleThree, OffSchedule
 from .models import SubjectVisit, SubjectConsent
-from edc_base.tests.site_test_case_mixin import SiteTestCaseMixin
-from edc_facility.import_holidays import import_holidays
 
 
 class TestVisitSchedule(SiteTestCaseMixin, TestCase):

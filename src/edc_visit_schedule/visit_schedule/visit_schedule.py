@@ -104,5 +104,9 @@ class VisitSchedule:
                         models.update({crf.model: schedule.consent_model})
                     for crf in visit.unscheduled_forms:
                         models.update({crf.model: schedule.consent_model})
+            if None in (list(models.keys())):
+                raise VisitScheduleError(
+                    f'One or more required models has not been defined. '
+                    f'Check the declaration for \'{self}\'. Got {list(models.keys())}.')
             self._all_post_consent_models = models
         return self._all_post_consent_models

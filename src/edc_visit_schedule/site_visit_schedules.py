@@ -3,7 +3,6 @@ import sys
 
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
-from pprint import pprint
 
 
 class RegistryNotLoaded(Exception):
@@ -86,8 +85,10 @@ class SiteVisitSchedules:
         return visit_schedules or self.registry
 
     def get_by_onschedule_model(self, onschedule_model=None):
-        """Returns a tuple of visit_schedule, schedule
+        """Returns a tuple of (visit_schedule, schedule)
         for the given onschedule model.
+
+        attr `onschedule_model` is in "label_lower" format.
         """
         schedule = None
         for visit_schedule in self.visit_schedules.values():
@@ -111,6 +112,43 @@ class SiteVisitSchedules:
             f'Schedule not found. No schedule exists for '
             f'offschedule_model={offschedule_model}.')
         return None, None
+
+    def get_by_offstudy_model(self, offstudy_model=None):
+        """Returns a list of visit_schedules for the given
+        offstudy model.
+        """
+        visit_schedules = []
+        for visit_schedule in self.visit_schedules.values():
+            if visit_schedule.offstudy_model == offstudy_model:
+                visit_schedules.append(visit_schedule)
+        if not visit_schedules:
+            raise SiteVisitScheduleError(
+                f'No visit schedules have been defined using the '
+                f'offstudy model \'{offstudy_model}\'')
+        return visit_schedules
+
+    @property
+    def all_post_consent_models(self):
+        """Returns a list of models that require consent before save.
+        """
+        if not self._all_post_consent_models:
+            models = {}
+            for visit_schedule in self.visit_schedules.values():
+                models.update(**visit_schedule.all_post_consent_models)
+            self._all_post_consent_models = models
+        return self._all_post_consent_models
+
+    def check(self):
+        if not self.loaded:
+            raise SiteVisitScheduleError('Registry is not loaded.')
+        errors = {'visit_schedules': [], 'schedules': [], 'visits': []}
+        for visit_schedule in site_visit_schedules.visit_schedules.values():
+            errors['visit_schedules'].extend(visit_schedule.check())
+            for schedule in visit_schedule.schedules.values():
+                errors['schedules'].extend(schedule.check())
+                for visit in schedule.visits.values():
+                    errors['visits'].extend(visit.check())
+        return errors
 
     def autodiscover(self, module_name=None, apps=None, verbose=None):
         """Autodiscovers classes in the visit_schedules.py file of
@@ -141,29 +179,6 @@ class SiteVisitSchedules:
                         raise
             except ModuleNotFoundError:
                 pass
-
-    @property
-    def all_post_consent_models(self):
-        """Returns a list of models that require consent before save.
-        """
-        if not self._all_post_consent_models:
-            models = {}
-            for visit_schedule in self.visit_schedules.values():
-                models.update(**visit_schedule.all_post_consent_models)
-            self._all_post_consent_models = models
-        return self._all_post_consent_models
-
-    def check(self):
-        if not self.loaded:
-            raise SiteVisitScheduleError('Registry is not loaded.')
-        errors = {'visit_schedules': [], 'schedules': [], 'visits': []}
-        for visit_schedule in site_visit_schedules.visit_schedules.values():
-            errors['visit_schedules'].extend(visit_schedule.check())
-            for schedule in visit_schedule.schedules.values():
-                errors['schedules'].extend(schedule.check())
-                for visit in schedule.visits.values():
-                    errors['visits'].extend(visit.check())
-        return errors
 
 
 site_visit_schedules = SiteVisitSchedules()

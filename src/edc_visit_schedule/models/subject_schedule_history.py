@@ -33,8 +33,8 @@ class SubjectScheduleModelManager(models.Manager):
         qs = self.filter(
             Q(subject_identifier=subject_identifier),
             Q(onschedule_datetime__lte=report_datetime),
-            (Q(offschedule_datetime__gte=report_datetime) |
-             Q(offschedule_datetime__isnull=True)))
+            (Q(offschedule_datetime__gte=report_datetime)
+             | Q(offschedule_datetime__isnull=True)))
         for obj in qs:
             onschedule_model_cls = django_apps.get_model(obj.onschedule_model)
             onschedules.append(onschedule_model_cls.objects.get(

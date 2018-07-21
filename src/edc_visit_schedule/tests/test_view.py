@@ -1,5 +1,7 @@
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
+from django.test.utils import override_settings
+from edc_base.tests import SiteTestCaseMixin
 
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules
@@ -21,7 +23,8 @@ class TestViewCurrent(VisitScheduleViewMixin):
         return True
 
 
-class TestViewMixin(TestCase):
+@override_settings(SITE_ID=40)
+class TestViewMixin(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
         self.visit_schedule = VisitSchedule(

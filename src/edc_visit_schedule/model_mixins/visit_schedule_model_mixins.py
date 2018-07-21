@@ -21,10 +21,17 @@ class VisitScheduleMethodsModelMixin(models.Model):
 
     @property
     def visit(self):
+        """Returns the visit object from the schedule object
+        for this visit code.
+
+        Note: This is not a model instance.
+        """
         return self.schedule.visits.get(self.visit_code)
 
     @property
     def visits(self):
+        """Returns all visit objects from the schedule object.
+        """
         return self.schedule.visits
 
     @property
@@ -42,10 +49,15 @@ class VisitScheduleMethodsModelMixin(models.Model):
         """Returns a visit schedule object from Meta.visit_schedule_name.
 
         Declared on Meta like this:
-            visit_schedule_name = 'visit_schedule_name.schedule_name'
+            visit_schedule_name = 'my_visit_schedule_name.my_schedule_name'
+
+        or, for example, in the case of an offstudy model:
+            visit_schedule_name = 'my_visit_schedule_name'
         """
         try:
             visit_schedule_name, _ = self._meta.visit_schedule_name.split('.')
+        except ValueError:
+            visit_schedule_name = self._meta.visit_schedule_name
         except AttributeError:
             visit_schedule_name = self.visit_schedule_name
         return site_visit_schedules.get_visit_schedule(
@@ -59,7 +71,8 @@ class VisitScheduleFieldsModelMixin(models.Model):
     """A model mixin that adds fields required to work with the visit
     schedule methods on the VisitScheduleMethodsModelMixin.
 
-    Note: visit_code is not included."""
+    Note: visit_code is not included.
+    """
 
     visit_schedule_name = models.CharField(
         max_length=25,

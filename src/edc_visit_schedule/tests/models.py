@@ -4,17 +4,15 @@ from django.db.models.deletion import PROTECT
 from edc_appointment.models import Appointment
 from edc_base import get_utcnow
 from edc_base.model_mixins import BaseUuidModel
-from edc_visit_tracking.model_mixins import CrfModelMixin
+from edc_visit_tracking.model_mixins import CrfModelMixin, VisitModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 
 from ..model_mixins import SubjectScheduleCrfModelMixin
 from ..model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
-from ..model_mixins import VisitScheduleFieldsModelMixin, VisitScheduleMethodsModelMixin
 
 
-class SubjectVisit(VisitScheduleFieldsModelMixin,
-                   VisitScheduleMethodsModelMixin, BaseUuidModel):
+class SubjectVisit(VisitModelMixin, BaseUuidModel):
 
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
