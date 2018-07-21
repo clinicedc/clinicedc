@@ -1,9 +1,9 @@
-{% load staticfiles %}
+{% load static %}
 <!-- begin rendered navbar item --><li id="li-topbar-{{ html_id }}"{% if active %} class="active"{% endif %}>
     <a title="{{ title }}" name="{{ name }}" id="{{ name }}" alt="{{ alt }}"
         href="{{ reversed_url }}">
         {% if glyphicon %}<i class="glyphicon {{ glyphicon }}"></i>{% endif %}
-        {% if fa_icon %}<i class="fa {{ fa_icon }} fa-fw"></i>&nbsp{% endif %}
+        {% if fa_icon %}<i class="{{ fa_icon }} fa-fw"></i>&nbsp{% endif %}
         {% if icon %}<img src='{% static icon %}' height="{{ icon_height }}" width="{{ icon_width }}"></img>{% endif %}
         {{ label|default:''|title }}
     </a>
