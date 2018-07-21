@@ -1,24 +1,34 @@
+import pytest
+
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_appointment.constants import IN_PROGRESS_APPT
-from edc_base.utils import get_utcnow
+from edc_appointment.models import Appointment
+from edc_appointment.tests.visit_schedule import visit_schedule1, visit_schedule2
+from edc_appointment.tests.models import OnScheduleOne, SubjectConsent, SubjectVisit
+from edc_appointment.tests.models import OnScheduleTwo
+
+from edc_base import get_utcnow, get_dob
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import DEAD
+from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules,\
+    SiteVisitScheduleError
 from edc_visit_tracking.constants import SCHEDULED
 
-from ..model_mixins import OffstudyModelMixinError, OffstudyNonCrfModelMixinError
+from ..model_mixins import OffstudyNonCrfModelMixinError
+from ..models import SubjectOffstudy
 from ..offstudy import OFFSTUDY_DATETIME_BEFORE_DOB, INVALID_DOB
 from ..offstudy import Offstudy, OffstudyError, NOT_CONSENTED
 from ..offstudy import SUBJECT_NOT_REGISTERED, INVALID_OFFSTUDY_DATETIME_CONSENT
 from ..offstudy_crf import SubjectOffstudyError
 from .consents import v1_consent
 from .forms import SubjectOffstudyForm, CrfOneForm, NonCrfOneForm
-from .models import Appointment, Enrollment, SubjectConsent, SubjectOffstudy, SubjectVisit
-from .models import BadSubjectOffstudy1, BadSubjectOffstudy2, CrfOne, NonCrfOne, BadNonCrfOne
-from .models import Enrollment2, SubjectOffstudy2
-from .visit_schedule import visit_schedule, visit_schedule2
+from .models import BadSubjectOffstudy, CrfOne, NonCrfOne, BadNonCrfOne, SubjectOffstudy2
+from pprint import pprint
+
+pytestmark = pytest.mark.django_db
 
 
 class TestOffstudy(TestCase):
@@ -26,6 +36,7 @@ class TestOffstudy(TestCase):
     @classmethod
     def setUpClass(cls):
         site_consents.register(v1_consent)
+        import_holidays()
         return super().setUpClass()
 
     @classmethod
@@ -33,44 +44,40 @@ class TestOffstudy(TestCase):
         super().tearDownClass()
 
     def setUp(self):
-        self.visit_schedule_name = 'visit_schedule'
+        self.visit_schedule_name = 'visit_schedule1'
         self.schedule_name = 'schedule'
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(visit_schedule1)
         site_visit_schedules.register(visit_schedule2)
 
         self.subject_identifier = '111111111'
         self.subject_identifiers = [
             self.subject_identifier, '222222222', '333333333', '444444444']
         self.consent_datetime = get_utcnow() - relativedelta(weeks=4)
+        dob = get_dob(age_in_years=25, now=self.consent_datetime)
         for subject_identifier in self.subject_identifiers:
             subject_consent = SubjectConsent.objects.create(
                 subject_identifier=subject_identifier,
                 identity=subject_identifier,
                 confirm_identity=subject_identifier,
                 consent_datetime=self.consent_datetime,
-                dob=get_utcnow() - relativedelta(years=25))
-            Enrollment.objects.create(
+                dob=dob)
+            OnScheduleOne.objects.create(
                 subject_identifier=subject_consent.subject_identifier,
-                schedule_name=self.schedule_name,
-                report_datetime=self.consent_datetime,
-                facility_name='default')
+                onschedule_datetime=self.consent_datetime)
         self.subject_consent = SubjectConsent.objects.get(
             subject_identifier=self.subject_identifier,
-            dob=get_utcnow() - relativedelta(years=25))
-        enrollment = Enrollment.objects.get(
-            subject_identifier=self.subject_identifier)
-        self.schedule = enrollment.schedule
+            dob=dob)
 
     def test_offstudy_cls_consented(self):
         try:
             Offstudy(
                 subject_identifier=self.subject_identifier,
                 offstudy_datetime=get_utcnow(),
-                consent_model='edc_offstudy.subjectconsent',
-                label_lower='edc_offstudy.subjectoffstudy')
+                consent_model='edc_appointment.subjectconsent',
+                offstudy_model='edc_offstudy.subjectoffstudy')
         except OffstudyError:
             self.fail('OffstudyError unexpectedly raised.')
 
@@ -79,8 +86,8 @@ class TestOffstudy(TestCase):
             Offstudy(
                 subject_identifier=self.subject_identifier,
                 offstudy_datetime=self.consent_datetime,
-                consent_model='edc_offstudy.subjectconsent',
-                label_lower='edc_offstudy.subjectoffstudy')
+                consent_model='edc_appointment.subjectconsent',
+                offstudy_model='edc_offstudy.subjectoffstudy')
         except OffstudyError:
             self.fail('OffstudyError unexpectedly raised.')
 
@@ -92,8 +99,8 @@ class TestOffstudy(TestCase):
             subject_identifier=subject_identifier,
             offstudy_datetime=self.consent_datetime -
             relativedelta(days=1),
-            consent_model='edc_offstudy.subjectconsent',
-            label_lower='edc_offstudy.subjectoffstudy')
+            consent_model='edc_appointment.subjectconsent',
+            offstudy_model='edc_offstudy.subjectoffstudy')
 
     def test_offstudy_cls_subject_not_registered(self):
         subject_identifier = '12345'
@@ -102,8 +109,8 @@ class TestOffstudy(TestCase):
                 subject_identifier=subject_identifier,
                 offstudy_datetime=self.consent_datetime -
                 relativedelta(days=1),
-                consent_model='edc_offstudy.subjectconsent',
-                label_lower='edc_offstudy.subjectoffstudy')
+                consent_model='edc_appointment.subjectconsent',
+                offstudy_model='edc_offstudy.subjectoffstudy')
         self.assertEqual(
             cm.exception.code,
             SUBJECT_NOT_REGISTERED)
@@ -117,8 +124,8 @@ class TestOffstudy(TestCase):
                 subject_identifier=subject_identifier,
                 offstudy_datetime=self.consent_datetime -
                 relativedelta(days=1),
-                consent_model='edc_offstudy.subjectconsent',
-                label_lower='edc_offstudy.subjectoffstudy')
+                consent_model='edc_appointment.subjectconsent',
+                offstudy_model='edc_offstudy.subjectoffstudy')
         self.assertEqual(
             cm.exception.code,
             INVALID_DOB)
@@ -133,8 +140,8 @@ class TestOffstudy(TestCase):
                 subject_identifier=subject_identifier,
                 offstudy_datetime=self.consent_datetime -
                 relativedelta(days=1),
-                consent_model='edc_offstudy.subjectconsent',
-                label_lower='edc_offstudy.subjectoffstudy')
+                consent_model='edc_appointment.subjectconsent',
+                offstudy_model='edc_offstudy.subjectoffstudy')
         self.assertEqual(
             cm.exception.code,
             OFFSTUDY_DATETIME_BEFORE_DOB)
@@ -149,8 +156,8 @@ class TestOffstudy(TestCase):
                 subject_identifier=subject_identifier,
                 offstudy_datetime=self.consent_datetime -
                 relativedelta(days=1),
-                consent_model='edc_offstudy.subjectconsent',
-                label_lower='edc_offstudy.subjectoffstudy')
+                consent_model='edc_appointment.subjectconsent',
+                offstudy_model='edc_offstudy.subjectoffstudy')
         self.assertEqual(cm.exception.code, NOT_CONSENTED)
 
     def test_offstudy_cls_offstudy_datetime_before_consent(self):
@@ -159,15 +166,13 @@ class TestOffstudy(TestCase):
                 subject_identifier=self.subject_identifier,
                 offstudy_datetime=self.consent_datetime -
                 relativedelta(days=1),
-                consent_model='edc_offstudy.subjectconsent',
-                label_lower='edc_offstudy.subjectoffstudy')
+                # consent_model='edc_appointment.subjectconsent',
+                offstudy_model='edc_offstudy.subjectoffstudy')
         self.assertEqual(cm.exception.code, INVALID_OFFSTUDY_DATETIME_CONSENT)
 
     def test_offstudy_with_model_mixin(self):
-        off_study = BadSubjectOffstudy1()
-        self.assertRaises(OffstudyModelMixinError, off_study.save)
-        off_study = BadSubjectOffstudy2()
-        self.assertRaises(OffstudyModelMixinError, off_study.save)
+        off_study = BadSubjectOffstudy()
+        self.assertRaises(SiteVisitScheduleError, off_study.save)
 
     def test_appointments_created(self):
         """Asserts creates 4 appointments per subject
@@ -395,10 +400,13 @@ class TestOffstudy(TestCase):
 
     def test_crf_model_mixin(self):
 
+        # get subject's appointments
         appointments = [appt for appt in Appointment.objects.filter(
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
 
+        # get first appointment
         appointment = appointments[0]
+        # get first visit
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -406,13 +414,16 @@ class TestOffstudy(TestCase):
             visit_code=appointment.visit_code,
             report_datetime=appointment.appt_datetime,
             study_status=SCHEDULED)
+        # get crf_one for this visit
         crf_one = CrfOne(
             subject_visit=subject_visit,
             report_datetime=appointment.appt_datetime)
         crf_one.save()
 
+        # get second appointment
         appointment = appointments[1]
 
+        # create second visit
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -420,19 +431,25 @@ class TestOffstudy(TestCase):
             visit_code=appointment.visit_code,
             report_datetime=appointment.appt_datetime,
             study_status=SCHEDULED)
+
+        # create complete off-study form for 1 hour after
+        # first visit date
         SubjectOffstudy.objects.create(
             offstudy_datetime=appointment.appt_datetime +
             relativedelta(hours=1),
             subject_identifier=self.subject_identifier)
+        # show CRF saves OK
         crf_one = CrfOne(
             report_datetime=appointment.appt_datetime,
             subject_visit=subject_visit)
         crf_one.save()
 
+        # get second appointment
         appointment = appointments[2]
         # resave since instance was deleted when SubjectOffstudy model
         # was created above
         appointment.save()
+        # create a second visit
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -575,6 +592,11 @@ class TestOffstudy(TestCase):
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
 
         appointment = appointments[0]
+        self.assertEqual(
+            [a.visit_code for a in appointments],
+            ['1000', '2000', '3000', '4000'])
+
+        # create visit for fist appointment, 1000
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -587,8 +609,8 @@ class TestOffstudy(TestCase):
             report_datetime=appointment.appt_datetime)
         crf_one.save()
 
+        # create visit for first appointment, 2000
         appointment = appointments[1]
-
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -596,6 +618,8 @@ class TestOffstudy(TestCase):
             visit_code=appointment.visit_code,
             report_datetime=appointment.appt_datetime,
             study_status=SCHEDULED)
+
+        # enter offstudy
         SubjectOffstudy.objects.create(
             offstudy_datetime=appointment.appt_datetime +
             relativedelta(hours=1),
@@ -605,10 +629,20 @@ class TestOffstudy(TestCase):
             subject_visit=subject_visit)
         crf_one.save()
 
+        # show appt was deleted
+        self.assertEqual(
+            ['1000', '2000'],
+            [appt.visit_code for appt in Appointment.objects.filter(
+                subject_identifier=self.subject_identifier).order_by('appt_datetime')])
+
+        # now create an error condition
         appointment = appointments[2]
         # resave since instance was deleted when SubjectOffstudy model
         # was created above
         appointment.save()
+
+        # create visit for first appointment, 3000
+        # knowing Offstudy for has been saved
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -622,33 +656,39 @@ class TestOffstudy(TestCase):
         self.assertRaises(
             SubjectOffstudyError,
             crf_one.save)
+        # clean up
+        subject_visit.delete()
+        appointment.delete()
 
         appointments = [appt.visit_code for appt in Appointment.objects.filter(
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
-        self.assertEqual(appointments, ['1000', '2000', '3000'])
+        self.assertEqual(appointments, ['1000', '2000'])
 
         # enroll to visit_schedule2
-        Enrollment2.objects.create(
+        # to create more appointments
+        OnScheduleTwo.objects.create(
             subject_identifier=self.subject_identifier,
-            schedule_name='schedule2',
-            report_datetime=self.consent_datetime,
-            facility_name='default')
-
-        # show adds the visit 4000 for visit_schedule2
+            onschedule_datetime=self.consent_datetime)
+        # show adds the visits for visit_schedule2
         appointments = [appt.visit_code for appt in Appointment.objects.filter(
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
-        self.assertEqual(appointments, ['1000', '2000', '3000', '4000'])
-        # show adds the visit 4000 for visit_schedule2
+        self.assertEqual(
+            appointments, ['1000', '2000', '5000', '6000', '7000', '8000'])
+
+        # show adds the visits for visit_schedule2
         appointments = [appt.visit_schedule_name for appt in Appointment.objects.filter(
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
         self.assertEqual(
             appointments, [
-                'visit_schedule', 'visit_schedule', 'visit_schedule', 'visit_schedule2'])
-        # show adding off study 2 removes visit 4000 only
+                'visit_schedule1', 'visit_schedule1',
+                'visit_schedule2', 'visit_schedule2', 'visit_schedule2', 'visit_schedule2'])
+        # show adding off study 2 removes visits from schedule2 only
         SubjectOffstudy2.objects.create(
             offstudy_datetime=appointment.appt_datetime +
             relativedelta(hours=1),
             subject_identifier=self.subject_identifier)
         appointments = [appt.visit_code for appt in Appointment.objects.filter(
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
-        self.assertEqual(appointments, ['1000', '2000', '3000'])
+        # note deletes appointments AFTER the date
+        # see edc_appointment for setting
+        self.assertEqual(appointments, ['1000', '2000', '5000'])

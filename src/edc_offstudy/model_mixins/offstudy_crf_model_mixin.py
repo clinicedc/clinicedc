@@ -1,10 +1,10 @@
-from django.apps import apps as django_apps
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from ..offstudy_crf import OffstudyCrf
 
 
-class OffstudyCrfModelMixinError(Exception):
+class OffstudyCrfModelMixinError(ValidationError):
     pass
 
 
@@ -34,10 +34,9 @@ class OffstudyCrfModelMixin(models.Model):
                 raise OffstudyCrfModelMixinError(
                     f'Model requires property \'visit\'. See {repr(self)}, Got {e}.')
             raise
-        offstudy_model_cls = django_apps.get_model(offstudy_model)
         self.offstudy_cls(
             subject_identifier=self.visit.subject_identifier,
-            offstudy_model_cls=offstudy_model_cls,
+            offstudy_model=offstudy_model,
             compare_as_datetimes=self.offstudy_compare_dates_as_datetimes,
             **self.__dict__)
         super().save(*args, **kwargs)

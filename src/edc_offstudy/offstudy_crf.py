@@ -12,10 +12,8 @@ class SubjectOffstudyError(Exception):
 class OffstudyCrf:
 
     def __init__(self, subject_identifier=None, report_datetime=None,
-                 offstudy_model_cls=None, offstudy_model=None,
-                 compare_as_datetimes=None, **kwargs):
-        self.offstudy_model_cls = (
-            offstudy_model_cls or django_apps.get_model(offstudy_model))
+                 offstudy_model=None, compare_as_datetimes=None, **kwargs):
+        self.offstudy_model_cls = django_apps.get_model(offstudy_model)
         self.compare_as_datetimes = compare_as_datetimes
         self.subject_identifier = subject_identifier
         self.report_datetime = report_datetime
