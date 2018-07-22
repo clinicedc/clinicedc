@@ -1,4 +1,4 @@
-from django.conf import settings
+from django.apps import apps as django_apps
 
 
 class FormsCollectionError(Exception):
@@ -8,13 +8,15 @@ class FormsCollectionError(Exception):
 class FormsCollection:
 
     def __init__(self, *forms, name=None, **kwargs):
+        Site = django_apps.get_model('sites.site')
         self._forms = None
         self.name = name
         forms = [] if not forms or forms == (None,) else list(forms)
 
         # exclude any flagged for a site that is not the current
         forms = [
-            f for f in forms if not f.site_ids or settings.SITE_ID in f.site_ids]
+            f for f in forms
+            if not f.site_ids or Site.objects.get_current().id in f.site_ids]
 
         # sort on show order
         try:
