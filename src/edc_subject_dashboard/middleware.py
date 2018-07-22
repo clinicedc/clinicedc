@@ -51,6 +51,7 @@ class DashboardMiddleware:
         request.template_data.update(**template_data)
 
     def process_template_response(self, request, response):
-        response.context_data.update(**request.url_name_data)
-        response.context_data.update(**request.template_data)
+        if response.context_data:
+            response.context_data.update(**request.url_name_data)
+            response.context_data.update(**request.template_data)
         return response
