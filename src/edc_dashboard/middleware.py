@@ -24,15 +24,16 @@ class DashboardMiddleware:
             reviewer_site_id = settings.REVIEWER_SITE_ID
         except AttributeError:
             reviewer_site_id = None
-        response.context_data.update(
-            OPEN=OPEN,
-            CLOSED=CLOSED,
-            FEMALE=FEMALE,
-            MALE=MALE,
-            NEW=NEW,
-            NO=NO,
-            NOT_APPLICABLE=NOT_APPLICABLE,
-            OTHER=OTHER,
-            YES=YES,
-            reviewer_site_id=reviewer_site_id)
+        if response.context_data:
+            response.context_data.update(
+                OPEN=OPEN,
+                CLOSED=CLOSED,
+                FEMALE=FEMALE,
+                MALE=MALE,
+                NEW=NEW,
+                NO=NO,
+                NOT_APPLICABLE=NOT_APPLICABLE,
+                OTHER=OTHER,
+                YES=YES,
+                reviewer_site_id=reviewer_site_id)
         return response
