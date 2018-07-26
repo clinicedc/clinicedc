@@ -9,7 +9,7 @@ app_name = 'edc_device'
 
 if settings.APP_NAME == 'edc_device':
     urlpatterns = [
-        path('accounts/', include('edc_base.auth.urls')),
+        path('accounts/', include('edc_auth.urls')),
         path('edc_base/', include('edc_base.urls')),
         path('administration/', AdministrationView.as_view(),
              name='administration_url')]
