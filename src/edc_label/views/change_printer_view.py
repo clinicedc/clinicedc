@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.views.generic.edit import ProcessFormView
-from edc_base.models import UserProfile
+from edc_auth.models import UserProfile
 
 
 class ChangePrinterView(LoginRequiredMixin, ProcessFormView):
