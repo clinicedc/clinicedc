@@ -18,7 +18,7 @@ class PrintersMixin:
 
     @property
     def user_profile(self):
-        UserProfile = django_apps.get_model('edc_base.userprofile')
+        UserProfile = django_apps.get_model('edc_auth.userprofile')
         return UserProfile.objects.get(user=self.request.user)
 
     @property
