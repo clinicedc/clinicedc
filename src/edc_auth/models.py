@@ -42,7 +42,3 @@ class UserProfile(models.Model):
         null=True,
         blank=True,
         help_text=mark_safe(f'Change in <a href="/edc_label/">Edc Label Administration</a>'))
-
-    class Meta:
-        # TODO: remove
-        db_table = 'edc_base_userprofile'
