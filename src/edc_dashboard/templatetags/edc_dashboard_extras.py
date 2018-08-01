@@ -1,7 +1,6 @@
 from django import template
 from django.urls.base import reverse
 from urllib.parse import urljoin, parse_qsl, urlencode, unquote
-from pprint import pprint
 
 
 register = template.Library()

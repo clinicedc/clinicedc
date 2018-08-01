@@ -1,6 +1,7 @@
 import arrow
 
 from datetime import datetime
+from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
@@ -59,7 +60,7 @@ class TestViewMixins(TestCase):
 
         class MyView(ListboardFilterViewMixin, ListboardView):
 
-            model = 'edc_dashboard.subjectvisit'
+            listboard_model = 'edc_dashboard.subjectvisit'
             listboard_url = 'listboard_url'
             listboard_template = 'listboard_template'
             listboard_filter_url = 'listboard_url'
@@ -79,10 +80,12 @@ class TestViewMixins(TestCase):
             reason='scheduled')
         request = RequestFactory().get('/?scheduled=scheduled')
         request.user = 'erik'
+        request.site = Site.objects.get_current()
         request.url_name_data = {'listboard_url': 'listboard_url'}
         request.template_data = {'listboard_template': 'listboard.html'}
         template_response = MyView.as_view()(request=request)
         object_list = template_response.__dict__.get(
             'context_data').get('object_list')
         self.assertEqual(
-            [wrapper.object.reason for wrapper in object_list], [subject_visit.reason])
+            [wrapper.object.reason for wrapper in object_list
+             if wrapper.object.pk == subject_visit.pk], [subject_visit.reason])

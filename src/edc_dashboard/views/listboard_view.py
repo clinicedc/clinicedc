@@ -22,13 +22,15 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
     context_object_name = 'results'
     empty_queryset_message = 'Nothing to display'
     listboard_template = None  # an existing key in request.context_data
+
+    # if self.listboard_url declared through another mixin.
     listboard_url = None  # an existing key in request.context_data
 
     # default, info, success, danger, warning, etc. See Bootstrap.
     listboard_panel_style = 'default'
-    listboard_fa_icon = "fa-user-circle-o"
+    listboard_fa_icon = "far fa-user-circle"
+    listboard_model = None  # label_lower model name or model class
 
-    model = None  # label_lower model name
     model_wrapper_cls = None
     ordering = '-created'
 
@@ -45,6 +47,8 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         queryset = context.get('object_list')  # from ListView
         context_object_name = self.get_context_object_name(queryset)
         wrapped_queryset = self.get_wrapped_queryset(queryset)
+        if self.listboard_fa_icon and self.listboard_fa_icon.startswith('fa-'):
+            self.listboard_fa_icon = f'fa {self.listboard_fa_icon}'
         context.update(
             listboard_panel_style=self.listboard_panel_style,
             listboard_fa_icon=self.listboard_fa_icon,
@@ -74,8 +78,18 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         return {}
 
     @property
-    def model_cls(self):
-        return django_apps.get_model(self.model)
+    def listboard_model_cls(self):
+        """Returns the listboard's model class.
+
+        Accepts `listboard_model` as a model class or label_lower.
+        """
+        if not self.listboard_model:
+            raise ListboardViewError(
+                f'Listboard model not declared. Got None. See {repr(self)}')
+        try:
+            return django_apps.get_model(self.listboard_model)
+        except (ValueError, AttributeError):
+            return self.listboard_model
 
     def get_queryset_exclude_options(self, request, *args, **kwargs):
         """Returns exclude options applied to every
@@ -132,10 +146,10 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
                     q = q | q_object
                 else:
                     q = q_object
-            queryset = self.model_cls.objects.filter(
+            queryset = self.listboard_model_cls.objects.filter(
                 q or Q(), **filter_options).exclude(**exclude_options)
         else:
-            queryset = self.model_cls.objects.filter(
+            queryset = self.listboard_model_cls.objects.filter(
                 **filter_options).exclude(
                     **exclude_options)
         ordering = self.get_ordering()

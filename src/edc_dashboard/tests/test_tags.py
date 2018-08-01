@@ -67,7 +67,7 @@ class TestTags(TestCase):
         self.assertEqual(context.get('previous_url'), '/subject_listboard/19/')
         self.assertIsNone(context.get('next_url'))
         self.assertIsNone(context.get('last_url'))
-        self.assertEqual(context.get('numbers')[0].number, 10)
+        self.assertEqual(context.get('numbers')[0].number, 15)
         self.assertEqual(context.get('numbers')[-1:][0].number, 20)
 
     def test_page_numbers(self):
