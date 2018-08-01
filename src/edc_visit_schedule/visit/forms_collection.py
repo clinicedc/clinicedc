@@ -14,7 +14,8 @@ class FormsCollection:
 
         # exclude any flagged for a site that is not the current
         forms = [
-            f for f in forms if not f.site_ids or settings.SITE_ID in f.site_ids]
+            f for f in forms
+            if not f.site_ids or settings.SITE_ID in f.site_ids]
 
         # sort on show order
         try:
