@@ -2,6 +2,10 @@ from django.test import TestCase, tag
 from django.contrib.auth.models import User
 
 from ..models import UserProfile
+from edc_auth.backends import ModelBackendWithSite
+from django.test.client import RequestFactory
+from django.contrib.sites.models import Site
+from django.test.utils import override_settings
 
 
 class TestUserProfile(TestCase):
@@ -14,6 +18,47 @@ class TestUserProfile(TestCase):
         """Assert creates userprofile instance.
         """
         self.user = User.objects.create(username='noam')
-        self.assertIsNone(self.user.userprofile.country)
-        self.assertIsNone(self.user.userprofile.study_country)
-        self.assertIsNone(self.user.userprofile.study_site)
+
+    def test_backend_superuser(self):
+        """Superuser can always log in.
+        """
+        user = User.objects.create(
+            username='erik', is_superuser=True, is_active=True, is_staff=True)
+        user.set_password('password')
+        user.save()
+        request = RequestFactory()
+        backend = ModelBackendWithSite()
+        self.assertIsNotNone(backend.authenticate(
+            request, username='erik', password='password'))
+
+    @override_settings(SITE_ID=10)
+    def test_backend_one_site(self):
+        """User of site 10 can login to site 10.
+        """
+        Site.objects.all().delete()
+        ten = Site.objects.create(id=10, domain='ten.example.com', name='ten')
+        user = User.objects.create(
+            username='erik', is_superuser=False, is_active=True, is_staff=True)
+        user.set_password('password')
+        user.save()
+        user.userprofile.sites.add(ten)
+        request = RequestFactory()
+        backend = ModelBackendWithSite()
+        self.assertIsNotNone(backend.authenticate(
+            request, username='erik', password='password'))
+
+    @override_settings(SITE_ID=20)
+    def test_backend_one_site2(self):
+        """User of site 10 cannot login to site 20.
+        """
+        Site.objects.all().delete()
+        ten = Site.objects.create(id=10, domain='ten.example.com', name='ten')
+        user = User.objects.create(
+            username='erik', is_superuser=False, is_active=True, is_staff=True)
+        user.set_password('password')
+        user.save()
+        user.userprofile.sites.add(ten)
+        request = RequestFactory()
+        backend = ModelBackendWithSite()
+        self.assertIsNone(backend.authenticate(
+            request, username='erik', password='password'))
