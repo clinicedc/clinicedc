@@ -1,9 +1,9 @@
+from collections import namedtuple
 from django import template
-from edc_appointment.models.appointment import Appointment
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from edc_appointment.constants import IN_PROGRESS_APPT
+from edc_appointment.models.appointment import Appointment
 from edc_lab.models.manifest.consignee import Consignee
-from collections import namedtuple
 
 
 register = template.Library()

@@ -1,6 +1,4 @@
-import os
-
-from django.conf import settings
+from django.contrib import messages
 from django.http import HttpResponse
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES
@@ -14,7 +12,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm, cm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from django.contrib import messages
+from tempfile import mkdtemp
 
 
 class RequisitionReport(Report):
@@ -31,7 +29,7 @@ class RequisitionReport(Report):
         self.user = request.user
         self.consignee = consignee
         self.contact_name = f'{self.user.first_name} {self.user.last_name}'
-        self.image_folder = os.path.join(settings.STATIC_ROOT, 'images')
+        self.image_folder = mkdtemp()
 
     @property
     def requisitions(self):
