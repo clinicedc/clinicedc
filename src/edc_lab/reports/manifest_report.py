@@ -1,7 +1,4 @@
-import os
-
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from edc_reports import NumberedCanvas, Report
@@ -11,6 +8,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm, cm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from tempfile import mkdtemp
 
 from ..models import Box, BoxItem, Aliquot
 from ..site_labs import site_labs
@@ -31,8 +29,7 @@ class ManifestReport(Report):
         self.box_model = Box
         self.box_item_model = BoxItem
         self.aliquot_model = Aliquot
-        self.image_folder = os.path.join(
-            settings.STATIC_ROOT, 'bcpp', 'images')
+        self.image_folder = mkdtemp()
 
     @property
     def contact_name(self):
