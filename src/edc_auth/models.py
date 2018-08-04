@@ -1,13 +1,13 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.deletion import PROTECT
+from django.db.models.deletion import CASCADE
 from django.utils.safestring import mark_safe
 from django.contrib.sites.models import Site
 
 
 class UserProfile(models.Model):
 
-    user = models.OneToOneField(User, on_delete=PROTECT)
+    user = models.OneToOneField(User, on_delete=CASCADE)
 
     sites = models.ManyToManyField(Site, blank=True)
 
