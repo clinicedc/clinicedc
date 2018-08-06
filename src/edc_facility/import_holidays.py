@@ -44,10 +44,10 @@ def check_for_duplicates_in_file(path):
     with open(path, 'r') as f:
         reader = csv.DictReader(
             f, fieldnames=['local_date', 'label', 'country'])
-        recs = [row['local_date'] for row in reader]
+        recs = [(row['local_date'], row['country']) for row in reader]
     if len(recs) != len(list(set(recs))):
         raise HolidayImportError(
-            'Invalid file. Duplicate dates detected')
+            'Invalid file. Duplicate dates detected for a country')
     return recs
 
 
