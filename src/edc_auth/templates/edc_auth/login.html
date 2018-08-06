@@ -44,9 +44,11 @@
                     <input type="hidden" name="next" value="{{ next }}" />
                 </div>
 
-                {# Assumes you setup the password_reset view in your URLconf #}
-                <p class="text text-muted"><a href="{% url 'password_reset' %}"><small><small>Lost password?</small></small></a></p>
-
+                {% if ALLOW_PASSWORD_RESET %}
+                    {# Assumes you setup the password_reset view in your URLconf #}
+                    <p class="text text-muted"><a href="{% url 'password_reset' %}"><small><small>Lost password?</small></small></a></p>
+                {% endif %}
+                
                 {% if INDEX_PAGE and INDEX_PAGE_LABEL %}<p><a href="{{ INDEX_PAGE }}">{{ INDEX_PAGE_LABEL }}</a></p>{% endif %}
 
                 </form>

@@ -26,8 +26,13 @@ class LoginView(BaseLoginView):
             live_system = settings.LIVE_SYSTEM
         except AttributeError:
             live_system = None
+        try:
+            allow_password_reset = settings.ALLOW_PASSWORD_RESET
+        except AttributeError:
+            allow_password_reset = None
         return {
             'DEBUG': settings.DEBUG,
+            'ALLOW_PASSWORD_RESET': allow_password_reset,
             'copyright': app_config.copyright,
             'disclaimer': app_config.disclaimer,
             'institution': app_config.institution,
