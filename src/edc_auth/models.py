@@ -11,20 +11,28 @@ class UserProfile(models.Model):
 
     sites = models.ManyToManyField(Site, blank=True)
 
+    job_title = models.CharField(
+        max_length=10,
+        null=True,
+        blank=True)
+
     clinic_label_printer = models.CharField(
         max_length=100,
         null=True,
         blank=True,
-        help_text=mark_safe(f'Change in <a href="/edc_label/">Edc Label Administration</a>'))
+        help_text=mark_safe(
+            f'Change in <a href="/edc_label/">Edc Label Administration</a>'))
 
     lab_label_printer = models.CharField(
         max_length=100,
         null=True,
         blank=True,
-        help_text=mark_safe(f'Change in <a href="/edc_label/">Edc Label Administration</a>'))
+        help_text=mark_safe(
+            f'Change in <a href="/edc_label/">Edc Label Administration</a>'))
 
     print_server = models.CharField(
         max_length=100,
         null=True,
         blank=True,
-        help_text=mark_safe(f'Change in <a href="/edc_label/">Edc Label Administration</a>'))
+        help_text=mark_safe(
+            f'Change in <a href="/edc_label/">Edc Label Administration</a>'))

@@ -1,0 +1,72 @@
+{% extends "edc_base/base.html" %}
+
+{% block topbar %}{% endblock topbar %}
+
+{% block main %}
+
+<div class="container">
+    <div class="col-md-3"></div>
+
+    <div class="col-md-6">
+      <div class="panel panel-{% if live_system and not DEBUG %}success{% else %}danger{% endif %}">
+          <div class="panel-heading">
+            <h4 class="text-muted text-center">{{ project_name }}</h4>
+            <h6 class="text-muted text-center">{{ request.site.name|title }}</h6>            
+            {% if not live_system or DEBUG %}<h6 class="text-center">This site is for testing and UAT only.</h6>{% endif %}      
+          </div>
+            <div class="panel-body text-center">
+    		{% if form.errors %}
+    		    {% for error in form.errors.values %}
+    		      <div class="alert alert-danger text-center">
+    		    	{{ error|striptags }}
+    		      </div>
+    		    {% endfor %}
+    		{% endif %}
+            {% if next %}
+                {% if user.is_authenticated %}
+                <p>Your account doesn't have access to this page. To proceed,
+                please login with an account that has access.</p>
+                {% endif %}
+            {% endif %}
+
+                <form method="post" action="{% url 'login' %}">
+        		{% csrf_token %}
+                <div class="form-group">
+                    {{ form.username.label_tag }}
+                    <input type="text" class="form-control" name="{{ form.username.html_name }}" autofocus maxlength="254" required id="{{ form.username.id_for_label }}" />
+                </div>
+                <div class="form-group">
+                    {{ form.password.label_tag }}
+                    <input type="password" class="form-control" name="{{ form.password.html_name }}" required id="{{ form.password.id_for_label }}" />
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn btn-default" value="Login" />
+                    <input type="hidden" name="next" value="{{ next }}" />
+                </div>
+
+                {# Assumes you setup the password_reset view in your URLconf #}
+                <p class="text text-muted"><a href="{% url 'password_reset' %}"><small><small>Lost password?</small></small></a></p>
+
+                {% if INDEX_PAGE and INDEX_PAGE_LABEL %}<p><a href="{{ INDEX_PAGE }}">{{ INDEX_PAGE_LABEL }}</a></p>{% endif %}
+
+                </form>
+
+
+            </div>
+          </div>
+      </div>
+
+    <div class="col-md-3"></div>
+</div>
+{% endblock main %}
+
+
+
+
+
+
+
+
+
+
+
