@@ -11,9 +11,8 @@ from string import Template
 from tempfile import mkdtemp
 
 from ..import_users import import_users, fieldnames, UserImporter, UserImporterError
-from edc_auth.passwd.mkpassword import PasswordGenerator
-from edc_auth.passwd.mkpassword import main, usage
-from edc_auth.passwd.password_setter import PasswordSetter
+from ..passwd import PasswordGenerator, PasswordSetter
+from ..passwd.mkpassword import main, usage
 
 fake = Faker()
 
@@ -209,14 +208,12 @@ class TestUser(TestCase):
     def test_make_password_usage(self):
         self.assertTrue(usage('mkpassword.py'))
 
-    @tag('1')
     def test_password_setter_all(self):
         self.create_users(5)
         pwsetter = PasswordSetter()
         pwsetter.reset_all()
         self.assertEqual(len(mail.outbox), self.user_count)  # noqa
 
-    @tag('1')
     def test_password_setter_groups(self):
         count = User.objects.filter(groups__name='CLINIC').count()
         self.create_users(5, group_name='CLINIC')
@@ -224,7 +221,6 @@ class TestUser(TestCase):
         pwsetter.reset_by_groups(['CLINIC'])
         self.assertEqual(len(mail.outbox), self.user_count + count)  # noqa
 
-    @tag('1')
     def test_password_setter_sites(self):
         count = User.objects.filter(userprofile__sites__name='harare').count()
         self.create_users(5, site_name='harare')
@@ -232,7 +228,6 @@ class TestUser(TestCase):
         pwsetter.reset_by_sites(['harare'])
         self.assertEqual(len(mail.outbox), self.user_count + count)  # noqa
 
-    @tag('1')
     def test_password_setter_user(self):
         usernames = self.create_users(5)
         pwsetter = PasswordSetter()
