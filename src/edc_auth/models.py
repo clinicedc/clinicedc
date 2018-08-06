@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models.deletion import CASCADE
 from django.utils.safestring import mark_safe
-from django.contrib.sites.models import Site
 
 
 class UserProfile(models.Model):

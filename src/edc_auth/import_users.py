@@ -10,7 +10,8 @@ from string import Template
 from .passwd import PasswordGenerator
 
 fieldnames = ['username', 'first_name',
-              'last_name', 'email', 'sites', 'groups', 'job_title']
+              'last_name', 'email',
+              'sites', 'groups', 'job_title']
 
 
 class UserImporterError(Exception):
@@ -18,7 +19,8 @@ class UserImporterError(Exception):
 
 
 def import_users(path, resource_name=None, send_email_to_user=None,
-                 alternate_email=None, verbose=None):
+                 alternate_email=None, verbose=None,
+                 export_to_file=None):
     """Import users from a CSV file with columns:
         username
         first_name
@@ -28,16 +30,17 @@ def import_users(path, resource_name=None, send_email_to_user=None,
         groups: a comma-separated list of groups
         job_title
     """
+    users = []
     with open(path) as f:
         reader = csv.DictReader(f)
         for user_data in reader:
             username = user_data.get('username')
             site_names = user_data.get('sites').lower().split(',')
             group_names = user_data.get('groups').lower().split(',')
-            first_name = user_data.get('first_name'),
-            last_name = user_data.get('last_name'),
-            email = user_data.get('email'),
-            UserImporter(
+            first_name = user_data.get('first_name')
+            last_name = user_data.get('last_name')
+            email = user_data.get('email')
+            o = UserImporter(
                 username=username,
                 first_name=first_name,
                 last_name=last_name,
@@ -48,6 +51,21 @@ def import_users(path, resource_name=None, send_email_to_user=None,
                 send_email_to_user=send_email_to_user,
                 alternate_email=alternate_email,
                 verbose=verbose)
+            users.append({'username': o.user.username,
+                          'password': o.password,
+                          'first_name': o.user.first_name,
+                          'last_name': o.user.last_name,
+                          'sites': o.site_names,
+                          'groups': o.group_names})
+    if export_to_file:
+        fieldnames = ['username', 'password',
+                      'first_name', 'last_name',
+                      'sites', 'groups']
+        with open(path + 'new.csv', 'w+') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for user in users:
+                writer.writerow(user)
 
 
 class UserImporter:
@@ -108,7 +126,6 @@ class UserImporter:
             [g.name for g in self.user.groups.all()])
         if send_email_to_user:
             self.email_message.send(fail_silently=False)
-        self.password = None
 
     def validate_username(self):
         if not self.username:

@@ -84,7 +84,7 @@ class TestUser(TestCase):
         self.user_count = User.objects.all().count()
         return usernames
 
-    def test_(self):
+    def test_import_users(self):
         # import new users
         import_users(
             self.filename,
@@ -105,12 +105,24 @@ class TestUser(TestCase):
             mail.outbox[0].subject,
             'Your example.com user account is ready.')
 
+    def test_import_users2(self):
+        import_users(
+            self.filename,
+            resource_name=None,
+            send_email_to_user=True,
+            export_to_file=True)
+        self.assertTrue(os.path.exists(self.filename + 'new.csv'))
+        with open(self.filename + 'new.csv') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                print(row)
+
     def test_bad_username(self):
         self.assertRaises(
             UserImporterError,
             UserImporter,
             username=None,
-            first_name=fake.first_name,
+            first_name=fake.first_name(),
             last_name=fake.last_name(),
             email=fake.email(),
             site_names=[],
@@ -121,7 +133,7 @@ class TestUser(TestCase):
             UserImporterError,
             UserImporter,
             username='erik@',
-            first_name=fake.first_name,
+            first_name=fake.first_name(),
             last_name=fake.last_name(),
             email=fake.email(),
             site_names=[],
@@ -133,7 +145,7 @@ class TestUser(TestCase):
             UserImporterError,
             UserImporter,
             username='erik',
-            first_name=fake.first_name,
+            first_name=fake.first_name(),
             last_name=fake.last_name(),
             email=fake.email(),
             site_names=['blah'],
@@ -145,7 +157,7 @@ class TestUser(TestCase):
             UserImporterError,
             UserImporter,
             username='erik',
-            first_name=fake.first_name,
+            first_name=fake.first_name(),
             last_name=fake.last_name(),
             email=fake.email(),
             site_names=['harare'],
@@ -157,7 +169,7 @@ class TestUser(TestCase):
             'Hi $first_name, \n\nStay Classy')
         updated_email_template = Template(
             'Hi $first_name, \n\nYou stay classy San Diego')
-        first_name = fake.first_name
+        first_name = fake.first_name()
         UserImporter(
             username='erik',
             first_name=first_name,
