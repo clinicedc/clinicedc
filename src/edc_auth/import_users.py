@@ -20,7 +20,7 @@ class UserImporterError(Exception):
 
 def import_users(path, resource_name=None, send_email_to_user=None,
                  alternate_email=None, verbose=None,
-                 export_to_file=None):
+                 export_to_file=None, **kwargs):
     """Import users from a CSV file with columns:
         username
         first_name
