@@ -50,7 +50,7 @@ def import_users(path, resource_name=None, send_email_to_user=None,
                 resource_name=resource_name,
                 send_email_to_user=send_email_to_user,
                 alternate_email=alternate_email,
-                verbose=verbose)
+                verbose=verbose, **kwargs)
             users.append({'username': o.user.username,
                           'password': o.password,
                           'first_name': o.user.first_name,
