@@ -54,7 +54,7 @@ class TestFacility(TestCase):
         facility = Facility(name='clinic', days=[WE], slots=[100])
         suggested_date = get_utcnow() + relativedelta(months=3)
         available_rdate = facility.available_rdate(suggested_date)
-        self.assertEqual(available_rdate.datetime.weekday(), WE.weekday)
+        self.assertEqual(available_rdate.datetime.weekday(), WE.weekday)  # noqa
 
     def test_available_rdate_with_holiday(self):
         """Asserts finds available_rdate on first clinic day after holiday.
