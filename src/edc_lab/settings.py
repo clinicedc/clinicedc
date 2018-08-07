@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'edc_identifier.apps.AppConfig',
     'edc_label.apps.AppConfig',
     'edc_locator.apps.AppConfig',
-    # 'edc_metadata.apps.AppConfig',
+    'edc_metadata.apps.AppConfig',
     'edc_registration.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_search.apps.AppConfig',
