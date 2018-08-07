@@ -2,6 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_base import get_utcnow
+from edc_facility.import_holidays import import_holidays
 from edc_metadata import NOT_REQUIRED, REQUIRED
 from edc_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -13,7 +14,6 @@ from ..target_handler import TargetModelLookupError, TargetModelNotScheduledForV
 from .models import SubjectVisit, SubjectConsent
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
-from edc_facility.import_holidays import import_holidays
 
 
 class TestMetadataUpdater(TestCase):

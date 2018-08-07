@@ -1,7 +1,6 @@
 from faker import Faker
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
-
 from django_collect_offline.models import OutgoingTransaction
 from django_collect_offline.tests import OfflineTestHelper
 from edc_appointment.models import Appointment
