@@ -1,10 +1,11 @@
-from django.test import TestCase, tag
-from dateutil.relativedelta import MO, TU, WE, TH, FR, SA, SU
-from ..appointment_creator import AppointmentCreator
-from edc_visit_schedule.visit.visit import Visit
-from edc_facility.facility import Facility
-from datetime import datetime
 from arrow import Arrow
+from datetime import datetime
+from dateutil.relativedelta import MO, TU, WE, TH, FR, SA, SU
+from django.test import TestCase, tag
+from edc_facility.facility import Facility
+from edc_visit_schedule.visit.visit import Visit
+
+from ..appointment_creator import AppointmentCreator
 
 
 class TestAppointmentCreator(TestCase):
