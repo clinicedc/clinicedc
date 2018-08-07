@@ -1,5 +1,6 @@
 from django.db import models
 from edc_base.model_mixins import BaseUuidModel
+from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_base.utils import get_utcnow
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
@@ -7,7 +8,6 @@ from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from ..field_mixins import ReviewFieldsMixin, PersonalFieldsMixin, CitizenFieldsMixin
 from ..field_mixins import VulnerabilityFieldsMixin, IdentityFieldsMixin
 from ..model_mixins import ConsentModelMixin, RequiresConsentFieldsModelMixin
-from edc_base.sites.site_model_mixin import SiteModelMixin
 
 
 class SubjectConsent(ConsentModelMixin, SiteModelMixin,
