@@ -1,7 +1,7 @@
 import sys
 
-from django.utils.text import slugify
 from django.core.management.color import color_style
+from django.utils.text import slugify
 
 style = color_style()
 
