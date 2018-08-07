@@ -16,15 +16,19 @@ class LabelTemplate:
         app_config = django_apps.get_app_config('edc_label')
         self.template_name = template_name or self.template_name
         try:
-            path = app_config.label_templates.get(template_name)
-        except TypeError:
+            path = app_config.label_templates[template_name]
+        except KeyError:
             raise LabelTemplateError(
-                f'Invalid path to label template. Looking for  \'{template_name}\'. '
-                f'Got {self}.')
-        if not os.path.exists(path):
+                f'Invalid label template name. '
+                f'Expected one of {list(app_config.label_templates.keys())}. '
+                f'Got \'{template_name}\'. '
+                f'See edc_label.app_config.')
+        if not os.path.exists(path or ''):
             raise LabelTemplateError(
                 f'Invalid label template path. '
-                f'Got {self}.')
+                f'Looking for  template \'{template_name}\'. '
+                f'Expected one of {list(app_config.label_templates.keys())}. '
+                f'Got {path}. See edc_label.app_config.')
         with open(path, 'r') as f:
             self.template = f.read()
 
