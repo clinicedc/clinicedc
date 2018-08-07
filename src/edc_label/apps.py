@@ -28,8 +28,11 @@ class AppConfig(DjangoAppConfig):
         except AttributeError:
             label_template_folder = os.path.join(
                 settings.BASE_DIR, 'label_templates')
+            sys.stdout.write(f' Using default label template path,)\n')
+            sys.stdout.write(
+                f' to customize set LABEL_TEMPLATE_FOLDER in settings.\n')
         sys.stdout.write(
-            f' Label template folder is {label_template_folder}.\n')
+            f' Label template folder is \'{label_template_folder}\'.\n')
         if not os.path.exists(label_template_folder):
             sys.stdout.write(style.ERROR(
                 f'Label template folder does not exist!\n'
