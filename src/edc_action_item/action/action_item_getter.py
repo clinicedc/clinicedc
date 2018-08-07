@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from edc_action_item.action.utils import SingletonActionItemError
+
+from .utils import SingletonActionItemError
 
 
 class ActionItemGetterError(Exception):

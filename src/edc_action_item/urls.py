@@ -1,6 +1,7 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
-from edc_action_item.admin_site import edc_action_item_admin
+
+from .admin_site import edc_action_item_admin
 
 app_name = 'edc_action_item'
 
