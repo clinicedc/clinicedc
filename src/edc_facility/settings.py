@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'edc_base.apps.AppConfig',
-    'edc_auth.apps.AppConfig',
     'edc_facility.apps.AppConfig',
 ]
 
