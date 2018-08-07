@@ -1,3 +1,6 @@
+from dateutil.relativedelta import relativedelta
+from django.contrib.auth.models import User
+from django.http.request import HttpRequest
 from django.test import tag
 from model_mommy import mommy
 
@@ -5,9 +8,6 @@ from ..actions import verify_consent, unverify_consent
 from .consent_test_case import ConsentTestCase
 from .dates_test_mixin import DatesTestMixin
 from .models import SubjectConsent
-from dateutil.relativedelta import relativedelta
-from django.contrib.auth.models import User
-from django.http.request import HttpRequest
 
 
 class TestActions(DatesTestMixin, ConsentTestCase):

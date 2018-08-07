@@ -1,5 +1,6 @@
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
+from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from model_mommy import mommy
 
@@ -8,7 +9,6 @@ from ..field_mixins import IdentityFieldsMixinError
 from ..site_consents import site_consents
 from .dates_test_mixin import DatesTestMixin
 from .models import SubjectConsent
-from django.contrib.sites.models import Site
 
 
 class TestConsentModel(DatesTestMixin, TestCase):

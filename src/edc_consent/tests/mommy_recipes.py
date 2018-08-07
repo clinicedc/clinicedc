@@ -5,7 +5,7 @@ from edc_constants.constants import YES, MALE, NO
 from faker import Faker
 from model_mommy.recipe import Recipe, seq
 
-from .tests.models import SubjectConsent
+from .models import SubjectConsent
 
 fake = Faker()
 
