@@ -1,6 +1,5 @@
 from django import forms
 from django.test import TestCase, tag
-
 from edc_constants.constants import YES, NO, DWTA, NOT_APPLICABLE
 
 from ..form_validator import FormValidator
