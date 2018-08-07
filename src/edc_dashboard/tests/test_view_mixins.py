@@ -6,13 +6,13 @@ from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_base.utils import get_utcnow
-from edc_dashboard.tests.models import SubjectVisit
-from edc_dashboard.view_mixins.listboard.querystring_view_mixin import QueryStringViewMixin
 from edc_model_wrapper import ModelWrapper
 
 from ..listboard_filter import ListboardFilter, ListboardViewFilters
 from ..view_mixins import ListboardFilterViewMixin
+from ..view_mixins.listboard.querystring_view_mixin import QueryStringViewMixin
 from ..views import ListboardView
+from .models import SubjectVisit
 
 
 class TestViewMixins(TestCase):
