@@ -1,6 +1,8 @@
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_base import get_utcnow
+from edc_facility.import_holidays import import_holidays
+from edc_lab.models.panel import Panel
 from edc_metadata.metadata_updater import MetadataUpdater
 from edc_reference import site_reference_configs
 from edc_visit_schedule import site_visit_schedules
@@ -13,8 +15,6 @@ from ..models import CrfMetadata, RequisitionMetadata
 from .models import SubjectVisit, SubjectConsent, CrfOne, CrfTwo, CrfThree, SubjectRequisition
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
-from edc_facility.import_holidays import import_holidays
-from edc_lab.models.panel import Panel
 
 
 class TestCreatesDeletesMetadata(TestCase):
