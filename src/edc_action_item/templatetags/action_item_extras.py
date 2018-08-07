@@ -1,7 +1,7 @@
 from django import template
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_base.utils import convert_php_dateformat
+from edc_base import convert_php_dateformat
 from edc_constants.constants import OPEN
 from urllib.parse import urlparse, parse_qsl
 
