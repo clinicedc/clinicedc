@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'edc_identifier.apps.AppConfig',
     'edc_timepoint.apps.AppConfig',
     'edc_appointment.apps.AppConfig',
+    'edc_metadata.apps.AppConfig',
+    'edc_metadata_rules.apps.AppConfig',
     'edc_pharmacy.apps.EdcLabelAppConfig',
     'edc_pharmacy.apps.EdcBaseAppConfig',
     'edc_pharmacy.apps.EdcFacilityAppConfig',
@@ -94,20 +96,11 @@ WSGI_APPLICATION = 'edc_pharmacy.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': os.path.join(BASE_DIR, 'etc', 'mysql.conf'),
-        },
-    },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
 
 # Password validation
@@ -156,6 +149,11 @@ LABEL_PRINTER = 'test_label_printer_ambition'
 
 COUNTRY = 'botswana'
 HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
+
+DASHBOARD_URL_NAMES = {
+    'subject_listboard_url': 'edc_subject_dashboard:subject_listboard_url',
+    'subject_dashboard_url': 'edc_subject_dashboard:subject_dashboard_url',
+}
 
 if 'test' in sys.argv:
 
