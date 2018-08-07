@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'edc_metadata.apps.AppConfig',
     'edc_prn.apps.AppConfig',
 ]
 
