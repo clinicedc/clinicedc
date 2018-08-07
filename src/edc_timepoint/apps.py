@@ -1,11 +1,11 @@
 import sys
 
+from django.conf import settings
 from django.apps import AppConfig as DjangoAppConfig
 from edc_appointment.constants import COMPLETE_APPT
 
 from .timepoint import Timepoint
 from .timepoint_collection import TimepointCollection
-from django.conf import settings
 
 
 class AppConfig(DjangoAppConfig):
