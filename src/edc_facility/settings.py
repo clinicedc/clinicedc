@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'edc_auth.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_facility.apps.AppConfig',
 ]
