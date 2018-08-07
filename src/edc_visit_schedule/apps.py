@@ -4,6 +4,7 @@ from django.apps.config import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.management.color import color_style
 from django.core.checks import register
+
 from .site_visit_schedules import site_visit_schedules
 from .system_checks import visit_schedule_check
 

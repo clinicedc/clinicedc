@@ -1,8 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
+from edc_base import get_utcnow
 
 from .site_visit_schedules import site_visit_schedules
-from edc_base.utils import get_utcnow
 
 
 class VisitScheduleViewMixin(ContextMixin):
