@@ -6,8 +6,8 @@ from django.db.models import Q
 from django.utils.text import slugify
 from django.views.generic.list import ListView
 from edc_base.sites import SiteQuerysetViewMixin
-from edc_dashboard.view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
 
+from ..view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
 from ..view_mixins import QueryStringViewMixin
 
 
