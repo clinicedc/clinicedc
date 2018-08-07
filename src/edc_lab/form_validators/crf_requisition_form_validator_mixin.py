@@ -2,7 +2,7 @@ from arrow.arrow import Arrow
 from django import forms
 from django.conf import settings
 from django.utils import timezone
-from edc_base.utils import convert_php_dateformat
+from edc_base import convert_php_dateformat
 
 
 class CrfRequisitionFormValidatorMixin:
