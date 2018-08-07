@@ -1,9 +1,9 @@
 from django.views.generic.base import TemplateView
 
 from edc_base.view_mixins import EdcBaseViewMixin
+from edc_navbar.view_mixin import NavbarViewMixin
 
 from .site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
-from edc_navbar.view_mixin import NavbarViewMixin
 
 
 class HomeView(EdcBaseViewMixin, NavbarViewMixin, TemplateView):
