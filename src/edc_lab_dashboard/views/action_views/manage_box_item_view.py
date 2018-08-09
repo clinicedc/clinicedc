@@ -94,7 +94,7 @@ class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin, ActionView):
                         self.box.save()
                 else:
                     href = reverse(
-                        self.listboard_url,
+                        self.post_action_url,
                         kwargs={
                             'box_identifier': box_item.box.box_identifier,
                             'action_name': 'manage'})
