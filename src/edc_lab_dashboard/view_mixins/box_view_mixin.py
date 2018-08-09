@@ -105,12 +105,12 @@ class BoxViewMixin(ContextMixin):
             message = 'Invalid aliquot identifier. Got {}.'.format(
                 self.original_box_item_identifier or 'None')
             messages.error(self.request, message)
-            raise BoxViewError(message)
+            # raise BoxViewError(message)
         if obj.is_primary and not self.box.accept_primary:
             message = 'Box does not accept "primary" specimens. Got {} is primary.'.format(
                 self.original_box_item_identifier)
             messages.error(self.request, message)
-            raise BoxViewError(message)
+            # raise BoxViewError(message)
         elif obj.numeric_code not in self.box.specimen_types.split(','):
             message = (
                 'Invalid specimen type. Box accepts types {}. '
@@ -119,5 +119,5 @@ class BoxViewMixin(ContextMixin):
                     self.original_box_item_identifier,
                     obj.numeric_code))
             messages.error(self.request, message)
-            raise BoxViewError(message)
+            # raise BoxViewError(message)
         return box_item_identifier
