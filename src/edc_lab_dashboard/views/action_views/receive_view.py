@@ -4,10 +4,10 @@ from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_constants.constants import YES
 from edc_lab import Specimen, AliquotLabel
+from edc_lab.site_labs import site_labs
 
 from ...view_mixins import ProcessRequisitionViewMixin
 from .action_view import ActionView
-from edc_lab.site_labs import site_labs
 
 
 class ReceiveView(EdcBaseViewMixin, ProcessRequisitionViewMixin, ActionView):
