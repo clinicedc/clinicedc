@@ -17,7 +17,7 @@ class AppConfig(DjangoAppConfig):
     verbose_name = 'Edc Metadata'
     # app_label = 'edc_metadata'
     crf_model = 'edc_metadata.crfmetadata'
-    requisition_model = 'edc_metadata.requisitionmetadata'
+    metadata_requisition_model = 'edc_metadata.requisitionmetadata'
 
     reason_field = {'edc_metadata.subjectvisit': 'reason'}
     create_on_reasons = [SCHEDULED, UNSCHEDULED]
@@ -34,7 +34,7 @@ class AppConfig(DjangoAppConfig):
         sys.stdout.write(
             f' * using crf metadata model \'{self.crf_model}\'\n')
         sys.stdout.write(
-            f' * using requisition metadata model \'{self.requisition_model}\'\n')
+            f' * using requisition metadata model \'{self.metadata_requisition_model}\'\n')
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
 
     @property
@@ -44,23 +44,23 @@ class AppConfig(DjangoAppConfig):
         return django_apps.get_model(self.crf_model)
 
     @property
-    def requisition_model_cls(self):
+    def metadata_requisition_model_cls(self):
         """Returns the meta data model used by Requisitions.
         """
-        return django_apps.get_model(self.requisition_model)
+        return django_apps.get_model(self.metadata_requisition_model)
 
     def get_metadata_model(self, category):
         if category == CRF:
             return self.crf_model_cls
         elif category == REQUISITION:
-            return self.requisition_model_cls
+            return self.metadata_requisition_model_cls
         return None
 
     def get_metadata(self, subject_identifier, **options):
         return {
             CRF: self.crf_model_cls.objects.filter(
                 subject_identifier=subject_identifier, **options),
-            REQUISITION: self.requisition_model_cls.objects.filter(
+            REQUISITION: self.metadata_requisition_model_cls.objects.filter(
                 subject_identifier=subject_identifier, **options)}
 
 
