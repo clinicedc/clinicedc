@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import escape
 from django.views.generic.base import ContextMixin
-from edc_lab.models import Aliquot, Box
+from edc_lab.models import Aliquot, Box, BoxItem
 
 
 class BoxViewError(Exception):
@@ -71,10 +71,10 @@ class BoxViewMixin(ContextMixin):
         if not self._box_item:
             if self.box_item_identifier:
                 try:
-                    self._box_item = self.box_item_model.objects.get(
+                    self._box_item = BoxItem.objects.get(
                         box=self.box,
                         identifier=self.box_item_identifier)
-                except self.box_item_model.DoesNotExist:
+                except ObjectDoesNotExist:
                     message = 'Invalid box item. Got {}'.format(
                         self.original_box_item_identifier)
                     messages.error(self.request, message)
@@ -84,9 +84,9 @@ class BoxViewMixin(ContextMixin):
         """Returns a box item model instance for the given position.
         """
         try:
-            box_item = self.box_item_model.objects.get(
+            box_item = BoxItem.objects.get(
                 box=self.box, position=position)
-        except self.box_item_model.DoesNotExist:
+        except ObjectDoesNotExist:
             message = 'Invalid position for box. Got {}'.format(
                 position)
             messages.error(self.request, message)
@@ -102,7 +102,7 @@ class BoxViewMixin(ContextMixin):
             obj = Aliquot.objects.get(
                 aliquot_identifier=box_item_identifier)
         except ObjectDoesNotExist:
-            self.box_item_model.objects.filter(
+            BoxItem.objects.filter(
                 box=self.box,
                 identifier=box_item_identifier).delete()
             message = 'Invalid aliquot identifier. Got {}.'.format(
