@@ -145,7 +145,9 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         querystring_opts = self.get_next_options(request=request)
         querystring_opts.update({obj.visit_model_attr(): str(obj.visit.id)})
         if panel_name:
-            querystring_opts.update(panel_name=panel_name)
+            Panel = django_apps.get_model('edc_lab.panel')
+            panel = Panel.objects.get(name=panel_name)
+            querystring_opts.update(panel=str(panel.id))
         querystring = urlencode(querystring_opts)
         return (f'{redirect_url}?{self.next_querystring_attr}='
                 f'{next_querystring}&{querystring}')
