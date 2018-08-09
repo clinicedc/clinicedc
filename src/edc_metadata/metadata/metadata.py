@@ -23,7 +23,7 @@ class Base:
         self.visit = visit  # visit model instance
         self.metadata_crf_model = metadata_crf_model or app_config.crf_model_cls
         self.metadata_requisition_model = (
-            metadata_requisition_model or app_config.requisition_model_cls)
+            metadata_requisition_model or app_config.metadata_requisition_model_cls)
 
 
 class CrfCreator(Base):
