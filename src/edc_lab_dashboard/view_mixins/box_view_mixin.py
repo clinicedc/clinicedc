@@ -102,6 +102,9 @@ class BoxViewMixin(ContextMixin):
             obj = Aliquot.objects.get(
                 aliquot_identifier=box_item_identifier)
         except ObjectDoesNotExist:
+            self.box_item_model.objects.filter(
+                box=self.box,
+                identifier=box_item_identifier).delete()
             message = 'Invalid aliquot identifier. Got {}.'.format(
                 self.original_box_item_identifier or 'None')
             messages.error(self.request, message)
