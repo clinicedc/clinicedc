@@ -55,13 +55,16 @@ class SimpleIdentifier:
 
 class SimpleTimestampIdentifier(SimpleIdentifier):
 
+    timestamp_format = '%y%m%d%H%M%S%f'
+    timestamp_length = 14
+
     @property
     def identifier(self):
         if not self._identifier:
             self._identifier = self.template.format(
                 device_id=self.device_id,
-                timestamp=timezone.localtime().strftime('%y%m%d%H%M%S%f')[:14],
-                # timestamp=timezone.localtime().strftime('%y%m%d%H%M%S%f'),
+                timestamp=timezone.localtime().strftime(
+                    self.timestamp_format)[:self.timestamp_length],
                 random_string=self.random_string)
             if self.identifier_prefix:
                 self._identifier = f'{self.identifier_prefix}{self._identifier}'
