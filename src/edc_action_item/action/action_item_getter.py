@@ -95,7 +95,7 @@ class ActionItemGetter:
                         'Expected ActionItem to exist for action class with FK attr. '
                         f'Got {self.action_cls} '
                         f'where {self.action_cls.related_reference_fk_attr}='
-                        f'{self.related_reference_identifier} (tracking identifier).')
+                        f'{self.related_reference_identifier}.')
         return self._action_item
 
     def _get_by_action_identifier_only(self):

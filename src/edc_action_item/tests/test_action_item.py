@@ -29,6 +29,13 @@ class TestActionItem(TestCase):
     def tearDown(self):
         ActionItem.subject_identifier_model = self.subject_identifier_model
 
+#     def test_identifier_unique(self):
+#         ids = []
+#         for _ in range(0, 10000):
+#             ids.append(ActionIdentifier().identifier)
+#         self.assertEqual(len(ids), len(list(set(ids))))
+#         pprint([obj.identifier for obj in ActionIdentifier().model_cls.objects.all()])
+
     def test_creates(self):
         obj = ActionItem.objects.create(
             subject_identifier=self.subject_identifier,
@@ -99,19 +106,19 @@ class TestActionItem(TestCase):
         class MyAction(Action):
             name = 'my-action'
             display_name = 'my action'
-            reference_model = 'edc_action_item.action'
+            reference_model = 'edc_action_item.reference'
 
         class MyActionWithNextAction(Action):
             name = 'my-action-with-next-as-self'
             display_name = 'my action with next as self'
             next_actions = [MyAction]
-            reference_model = 'edc_action_item.action'
+            reference_model = 'edc_action_item.reference'
 
         class MyActionWithNextActionAsSelf(Action):
             name = 'my-action-with-next'
             display_name = 'my action with next'
             next_actions = ['self']
-            reference_model = 'edc_action_item.action'
+            reference_model = 'edc_action_item.reference'
 
         site_action_items.register(MyAction)
         site_action_items.register(MyActionWithNextAction)

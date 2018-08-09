@@ -2,7 +2,6 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from edc_constants.constants import OPEN
-from edc_identifier.model_mixins import TrackingIdentifier
 
 from ..action import ActionItemGetter
 from ..site_action_items import site_action_items
@@ -20,20 +19,12 @@ class ActionModelMixin(models.Model):
 
     subject_dashboard_url = 'subject_dashboard_url'
 
-    tracking_identifier_cls = TrackingIdentifier
-
-    tracking_identifier_prefix = ''
-
-    tracking_identifier = models.CharField(
-        max_length=30,
+    action_identifier = models.CharField(
+        max_length=25,
         null=True)
 
     subject_identifier = models.CharField(
         max_length=50)
-
-    action_identifier = models.CharField(
-        max_length=25,
-        null=True)
 
     parent_reference_identifier = models.CharField(
         max_length=30,
@@ -50,11 +41,6 @@ class ActionModelMixin(models.Model):
         if not self.action_cls():
             raise ActionClassNotDefined(
                 f'Action class name not defined. See {repr(self)}')
-
-        if not self.id and not self.tracking_identifier:
-            self.tracking_identifier = self.tracking_identifier_cls(
-                identifier_prefix=self.tracking_identifier_prefix,
-                identifier_type=self._meta.label_lower).identifier
 
         if (not self.related_reference_identifier
                 and self.action_cls().related_reference_fk_attr):
@@ -82,7 +68,7 @@ class ActionModelMixin(models.Model):
                 related_reference_identifier=self.related_reference_identifier,
                 allow_create=allow_create)
 
-            # link to this model
+            # link action_item to this model instance
             self.action_identifier = getter.action_identifier
             self.parent_reference_identifier = getter.action_item.parent_reference_identifier
             getter.action_item.linked_to_reference = True
@@ -114,9 +100,9 @@ class ActionModelMixin(models.Model):
 
     @property
     def identifier(self):
-        """Returns a shortened tracking identifier.
+        """Returns a shortened action_identifier.
         """
-        return self.tracking_identifier[-9:]
+        return self.action_identifier[-9:]
 
     class Meta:
         abstract = True

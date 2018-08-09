@@ -64,10 +64,6 @@ class ActionType(BaseUuidModel):
             return django_apps.get_model(self.reference_model)
         return None
 
-#     @property
-#     def reference_model(self):
-#         return self.model
-
     def save(self, *args, **kwargs):
         self.display_name = self.display_name or self.name
         if self.reference_model:
