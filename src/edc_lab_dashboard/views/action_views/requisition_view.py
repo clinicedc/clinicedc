@@ -5,10 +5,10 @@ from edc_lab.models import Aliquot
 from edc_label import add_job_results_to_messages
 
 from .action_view import ActionView
-from ...view_mixins import RequisitionModelViewMixin
+from ...view_mixins import ProcessRequisitionViewMixin
 
 
-class RequisitionView(EdcBaseViewMixin, RequisitionModelViewMixin, ActionView):
+class RequisitionView(EdcBaseViewMixin, ProcessRequisitionViewMixin, ActionView):
 
     post_action_url = 'requisition_listboard_url'
     valid_form_actions = ['print_labels']
@@ -22,7 +22,7 @@ class RequisitionView(EdcBaseViewMixin, RequisitionModelViewMixin, ActionView):
                 messages.warning(request, message)
             else:
                 job_results = []
-                for requisition in self.requisitions:
+                for requisition in self.processed_requisitions:
                     aliquots = (
                         Aliquot.objects.filter(
                             requisition_identifier=requisition.requisition_identifier)
@@ -36,16 +36,10 @@ class RequisitionView(EdcBaseViewMixin, RequisitionModelViewMixin, ActionView):
                         if pks:
                             job_results.append(self.print_labels(
                                 pks=pks, request=request))
-                for requisition in self.requisition_model.objects.filter(
-                        processed=False, pk__in=self.selected_items):
+                for requisition in self.unprocessed_requisitions:
                     messages.error(
                         self.request,
                         'Unable to print labels. Requisition has not been '
                         f'processed. Got {requisition.requisition_identifier}')
                 if job_results:
                     add_job_results_to_messages(request, job_results)
-
-    @property
-    def requisitions(self):
-        return self.requisition_model.objects.filter(
-            processed=True, pk__in=self.selected_items)

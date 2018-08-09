@@ -2,6 +2,4 @@ from .box_view_mixin import BoxViewMixin
 from .clean_search_term_mixin import CleanSearchTermViewMixin
 from .form_action_view_mixin import FormActionViewMixin
 from .manifest_view_mixin import ManifestViewMixin
-from .requisition_model_view_mixin import RequisitionModelViewMixin
-from .process_view_mixin import ProcessViewMixin
-from .requisition_view_mixin import RequisitionViewMixin
+from .process_requisition_view_mixin import ProcessRequisitionViewMixin
