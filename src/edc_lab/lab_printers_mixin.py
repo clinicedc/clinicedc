@@ -1,5 +1,5 @@
 from django.contrib import messages
-from edc_label import JobResult, PrintersMixin, PrinterError
+from edc_label import JobResult, PrintersMixin, PrinterError, PrintServerError
 
 
 class LabPrintersMixin(PrintersMixin):
@@ -9,13 +9,17 @@ class LabPrintersMixin(PrintersMixin):
 
     @property
     def printer(self):
-        printer = self.lab_label_printer
-        if not printer:
+        try:
+            printer = self.lab_label_printer
+        except PrinterError:
             messages.error(
                 self.request,
                 'Your "lab" label printer is not configured. '
                 'See Edc Label in Administration.')
             raise PrinterError('lab_label_printer not set. Got None')
+        except PrintServerError as e:
+            messages.error(self.request, str(e))
+            raise PrinterError(e)
         return printer
 
     def print_labels(self, pks=None, request=None):
