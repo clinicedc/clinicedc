@@ -7,9 +7,14 @@ from .action_type import ActionType
 from .action_model_mixin import ActionModelMixin
 
 
-class Action(ActionModelMixin, BaseUuidModel):
+class Reference(ActionModelMixin, BaseUuidModel):
 
-    tracking_identifier_prefix = ''
+    """Model used as a default reference model for simple actions
+    not created by another model.
+
+    In almost all cases an action is created by a model. The
+    creating model is the "reference" model.
+    """
 
     action_identifier = models.CharField(
         max_length=25,

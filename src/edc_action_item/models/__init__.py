@@ -2,7 +2,7 @@ import sys
 
 from django.conf import settings
 
-from .action import Action
+from .reference import Reference
 from .action_item import ActionItem, ActionItemUpdatesRequireFollowup, SubjectDoesNotExist
 from .action_item_update import ActionItemUpdate
 from .action_type import ActionType, ActionTypeError

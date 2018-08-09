@@ -52,13 +52,17 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
         max_length=50,
         null=True)
 
-#     # is this needed?
-#     reference_identifier = models.CharField(
-#         max_length=50,
-#         null=True,
-#         help_text='e.g. action identifier updated from the reference model')
-
-    linked_to_reference = models.BooleanField(default=False, editable=False)
+    linked_to_reference = models.BooleanField(
+        default=False,
+        editable=False,
+        help_text=(
+            'True if this action is linked to it\'s reference_model.'
+            'Initially False if this action is created before reference_model.'
+            'Always True when reference_model creates the action.'
+            'Set to True when reference_model is created and "links" to this action.'
+            '(Note: reference_model looks for actions where '
+            'linked_to_reference is False before attempting to '
+            'create a new ActionItem).'))
 
     related_reference_model = models.CharField(
         max_length=100,
@@ -256,5 +260,3 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
     class Meta:
         verbose_name = 'Action Item'
         verbose_name_plural = 'Action Items'
-        unique_together = ('subject_identifier',
-                           'action_type', 'action_identifier')
