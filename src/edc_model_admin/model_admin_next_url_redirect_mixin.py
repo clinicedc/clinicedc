@@ -131,22 +131,22 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             url_name = '_'.join(
                 next_model_cls._meta.label_lower.split('.'))
             url_name = f'{self.admin_site.name}:{url_name}'
-            opts = {obj.visit_model_attr(): obj.visit}
+            lookup_opts = {obj.visit_model_attr(): obj.visit}
             if panel_name:
-                opts.update(panel_name=panel_name)
+                lookup_opts.update(panel__name=panel_name)
             try:
-                next_obj = next_model_cls.objects.get(**opts)
+                next_obj = next_model_cls.objects.get(**lookup_opts)
             except ObjectDoesNotExist:
                 redirect_url = reverse(f'{url_name}_add')
             else:
                 redirect_url = reverse(
                     f'{url_name}_change', args=(next_obj.id, ))
         next_querystring = request.GET.dict().get(self.next_querystring_attr)
-        options = self.get_next_options(request=request)
+        querystring_opts = self.get_next_options(request=request)
+        querystring_opts.update({obj.visit_model_attr(): str(obj.visit.id)})
         if panel_name:
-            options.update(panel_name=panel_name)
-        options.update({obj.visit_model_attr(): str(obj.visit.id)})
-        querystring = urlencode(options)
+            querystring_opts.update(panel_name=panel_name)
+        querystring = urlencode(querystring_opts)
         return (f'{redirect_url}?{self.next_querystring_attr}='
                 f'{next_querystring}&{querystring}')
 
