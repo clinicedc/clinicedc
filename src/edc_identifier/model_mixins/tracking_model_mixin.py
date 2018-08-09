@@ -11,7 +11,7 @@ class TrackingIdentifier(SimpleUniqueIdentifier):
     make_human_readable = True
 
 
-class TrackingIdentifierModelMixin(models.Model):
+class TrackingModelMixin(models.Model):
 
     """A model mixin to add a tracking identifier.
     """
@@ -29,7 +29,7 @@ class TrackingIdentifierModelMixin(models.Model):
         return f'{self.tracking_identifier[-9:]}'
 
     def save(self, *args, **kwargs):
-        if not self.id and not self.tracking_identifier:
+        if not self.tracking_identifier:
             self.tracking_identifier = self.tracking_identifier_cls(
                 identifier_prefix=self.tracking_identifier_prefix,
                 identifier_type=self._meta.label_lower).identifier
