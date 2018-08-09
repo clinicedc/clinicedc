@@ -4,12 +4,14 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab import SHIPPED, ManifestLabel
 from edc_label import add_job_results_to_messages
 from edc_lab.models import Box, Aliquot, Manifest
+from edc_lab.lab_printers_mixin import LabPrintersMixin
 
 from ...view_mixins import ManifestViewMixin
 from .action_view import ActionView
 
 
-class ManifestView(EdcBaseViewMixin, ManifestViewMixin, ActionView):
+class ManifestView(EdcBaseViewMixin, ManifestViewMixin,
+                   LabPrintersMixin, ActionView):
 
     post_action_url = 'manifest_listboard_url'
     valid_form_actions = [
