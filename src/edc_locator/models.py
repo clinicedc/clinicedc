@@ -6,6 +6,7 @@ from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.sites import CurrentSiteManager, SiteModelMixin
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
+from edc_identifier.model_mixins import TrackingModelMixin
 
 from .action_items import SUBJECT_LOCATOR_ACTION
 from .model_mixins import LocatorModelMixin, LocatorManager
@@ -15,7 +16,8 @@ if settings.APP_NAME == 'edc_locator' and 'makemigrations' not in sys.argv:
 
 
 class SubjectLocator(LocatorModelMixin, RequiresConsentFieldsModelMixin,
-                     ActionModelMixin, SiteModelMixin, BaseUuidModel):
+                     ActionModelMixin, TrackingModelMixin,
+                     SiteModelMixin, BaseUuidModel):
     """A model completed by the user to that captures participant
     locator information and permission to contact.
     """
