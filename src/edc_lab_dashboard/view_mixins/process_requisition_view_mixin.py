@@ -16,7 +16,7 @@ class ProcessRequisitionViewMixin:
         """
         processed = {}
         for requisition in self.get_requisitions(
-                pk__in=self.requisitions, received=True, processed=False):
+                pk__in=self.selected_items, received=True, processed=False):
             specimen = SpecimenObject(requisition=requisition)
             if requisition.panel_object.processing_profile:
                 processed.update({'requisition': specimen.process()})

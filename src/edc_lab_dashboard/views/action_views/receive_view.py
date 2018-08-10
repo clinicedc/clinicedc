@@ -4,13 +4,15 @@ from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_constants.constants import YES
 from edc_lab import Specimen, AliquotLabel
+from edc_lab.lab_printers_mixin import LabPrintersMixin
 from edc_lab.site_labs import site_labs
 
 from ...view_mixins import ProcessRequisitionViewMixin
 from .action_view import ActionView
 
 
-class ReceiveView(EdcBaseViewMixin, ProcessRequisitionViewMixin, ActionView):
+class ReceiveView(EdcBaseViewMixin, ProcessRequisitionViewMixin,
+                  LabPrintersMixin, ActionView):
 
     post_action_url = 'receive_listboard_url'
     valid_form_actions = ['receive', 'receive_and_process']

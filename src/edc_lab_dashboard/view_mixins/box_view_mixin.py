@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import escape
 from django.views.generic.base import ContextMixin
-from edc_lab.models import Aliquot, Box
+from edc_lab.models import Aliquot, Box, BoxItem
 
 
 class BoxViewError(Exception):
@@ -35,6 +35,8 @@ class BoxViewMixin(ContextMixin):
 
     @property
     def box_identifier(self):
+        """Returns a cleaned box identifier.
+        """
         if not self._box_identifier:
             self.original_box_identifier = escape(
                 self.kwargs.get('box_identifier')).strip()
@@ -71,10 +73,10 @@ class BoxViewMixin(ContextMixin):
         if not self._box_item:
             if self.box_item_identifier:
                 try:
-                    self._box_item = self.box_item_model.objects.get(
+                    self._box_item = BoxItem.objects.get(
                         box=self.box,
                         identifier=self.box_item_identifier)
-                except self.box_item_model.DoesNotExist:
+                except ObjectDoesNotExist:
                     message = 'Invalid box item. Got {}'.format(
                         self.original_box_item_identifier)
                     messages.error(self.request, message)
@@ -84,9 +86,9 @@ class BoxViewMixin(ContextMixin):
         """Returns a box item model instance for the given position.
         """
         try:
-            box_item = self.box_item_model.objects.get(
+            box_item = BoxItem.objects.get(
                 box=self.box, position=position)
-        except self.box_item_model.DoesNotExist:
+        except ObjectDoesNotExist:
             message = 'Invalid position for box. Got {}'.format(
                 position)
             messages.error(self.request, message)
@@ -105,19 +107,20 @@ class BoxViewMixin(ContextMixin):
             message = 'Invalid aliquot identifier. Got {}.'.format(
                 self.original_box_item_identifier or 'None')
             messages.error(self.request, message)
-            raise BoxViewError(message)
-        if obj.is_primary and not self.box.accept_primary:
-            message = 'Box does not accept "primary" specimens. Got {} is primary.'.format(
-                self.original_box_item_identifier)
-            messages.error(self.request, message)
-            raise BoxViewError(message)
-        elif obj.numeric_code not in self.box.specimen_types.split(','):
-            message = (
-                'Invalid specimen type. Box accepts types {}. '
-                'Got {} is type {}.'.format(
-                    ', '.join(self.box.specimen_types.split(',')),
-                    self.original_box_item_identifier,
-                    obj.numeric_code))
-            messages.error(self.request, message)
-            raise BoxViewError(message)
+            # raise BoxViewError(message)
+        else:
+            if obj.is_primary and not self.box.accept_primary:
+                message = 'Box does not accept "primary" specimens. Got {} is primary.'.format(
+                    self.original_box_item_identifier)
+                messages.error(self.request, message)
+                # raise BoxViewError(message)
+            elif obj.numeric_code not in self.box.specimen_types.split(','):
+                message = (
+                    'Invalid specimen type. Box accepts types {}. '
+                    'Got {} is type {}.'.format(
+                        ', '.join(self.box.specimen_types.split(',')),
+                        self.original_box_item_identifier,
+                        obj.numeric_code))
+                messages.error(self.request, message)
+                # raise BoxViewError(message)
         return box_item_identifier
