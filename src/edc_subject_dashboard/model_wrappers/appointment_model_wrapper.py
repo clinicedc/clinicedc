@@ -47,6 +47,10 @@ class AppointmentModelWrapper(ModelWrapper):
         return self.object.visit_code_sequence
 
     @property
+    def reason(self):
+        return self.object.appt_reason
+
+    @property
     def wrapped_visit(self):
         """Returns a wrapped persistent or non-persistent visit instance.
         """
