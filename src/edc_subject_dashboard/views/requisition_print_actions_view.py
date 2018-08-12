@@ -163,5 +163,6 @@ class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessForm
                 if issubclass(model_cls, RequisitionModelMixin):
                     verified_requisitions.extend(
                         list(getattr(self.appointment.visit, k).filter(
-                            clinic_verified=YES)))
+                            clinic_verified=YES,
+                            panel__name__in=self.selected_panel_names)))
         return verified_requisitions
