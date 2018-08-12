@@ -9,7 +9,7 @@ from edc_constants.constants import YES
 from edc_lab.models import Consignee
 from edc_lab.models.model_mixins import RequisitionModelMixin
 from edc_label.job_result import JobResult
-from edc_label.printers_mixin import PrintersMixin
+from edc_label.printers_mixin import PrintersMixin, PrintServerError, PrinterError
 from edc_metadata.constants import REQUIRED, KEYED
 from edc_metadata.models import RequisitionMetadata
 
@@ -54,7 +54,6 @@ class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessForm
         return response
 
     def print_labels_action(self):
-
         labels = self.requisition_labels_cls(
             requisition_metadata=self.requisition_metadata.filter(
                 panel_name__in=self.selected_panel_names),
@@ -63,12 +62,16 @@ class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessForm
             user=self.request.user)
 
         if labels.zpl_data:
-            job_id = self.clinic_label_printer.stream_print(
-                zpl_data=labels.zpl_data)
-            job_result = self.job_result_cls(
-                name=labels.label_template_name, copies=1, job_ids=[job_id],
-                printer=self.clinic_label_printer)
-            messages.success(self.request, job_result.message)
+            try:
+                job_id = self.clinic_label_printer.stream_print(
+                    zpl_data=labels.zpl_data)
+            except (PrintServerError, PrinterError) as e:
+                messages.error(self.request, str(e))
+            else:
+                job_result = self.job_result_cls(
+                    name=labels.label_template_name, copies=1, job_ids=[job_id],
+                    printer=self.clinic_label_printer)
+                messages.success(self.request, job_result.message)
         if labels.requisitions_not_printed:
             panels = ', '.join(
                 [str(r.panel_object) for r in labels.requisitions_not_printed])
