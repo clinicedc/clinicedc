@@ -85,6 +85,15 @@ class ConsentViewMixin(ContextMixin):
 
     @property
     def consents_wrapped(self):
-        """Returns a generator of wrapped consents.
+        """Returns a list of wrapped consents that this user
+        has permissions to access.
         """
-        return (self.consent_model_wrapper_cls(obj) for obj in self.consents)
+        consents_wrapped = []
+        for obj in self.consents:
+            perm_list = []
+            for code in ['add', 'change', 'view']:
+                perm_list.append(
+                    f'{obj._meta.app_label}.{code}_{obj._meta.label_lower.split(".")[1]}')
+            if self.request.user.has_perms(perm_list):
+                consents_wrapped.append(self.consent_model_wrapper_cls(obj))
+        return consents_wrapped
