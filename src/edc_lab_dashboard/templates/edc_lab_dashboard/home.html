@@ -22,24 +22,24 @@
 
     {{ block.super }}
 
-<div class="container bg-3 text-center">
+<div class="container bg-3">
+
+<div class="row">
+  <div class="col-sm-4"></div>
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">{{ protocol_name |default:project_name }} {{ request.site.name|title }} Lab</div>
+
+      <div class="list-group">
+        <a {% if perms.edc_navbar.nav_lab_receive %}href="{% url receive_listboard_url %}"{% else %} disabled {% endif %} class="list-group-item"><i class="fas fa-inbox fa-lg fa-fw"></i>&nbsp;&nbsp;&nbsp;Receive</a>
+        <a {% if perms.edc_navbar.nav_lab_process %}href="{% url process_listboard_url %}"{% else %} disabled {% endif %} class="list-group-item"><i class="fas fa-sitemap fa-lg fa-fw"></i>&nbsp;&nbsp;&nbsp;Process</a>
+        <a {% if perms.edc_navbar.nav_lab_pack %}href="{% url pack_listboard_url %}"{% else %} disabled {% endif %} class="list-group-item"><i class="fas fa-shopping-bag fa-lg fa-fw"></i>&nbsp;&nbsp;&nbsp;Pack</a>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4"></div>
 </div>
-
-
-<div class="container bg-3 text-center">
-    <h4 class="text text-muted">Receive specimens against requisitions.</h4>
-        <h3>
-            <a href="{% url receive_listboard_url %}" class="btn btn-default btn-lg"><i class="fas fa-inbox fa-lg"></i> Receive</a>
-        </h3>
-    <h4 class="text text-muted">Process received specimens.</h4>
-    <h3>
-        <a href="{% url process_listboard_url %}" class="btn btn-default btn-lg">
-           <i class="fas fa-gears fa-lg"></i> Process</a>
-    </h3>
-    <h4 class="text text-muted">Pack labelled specimens for shipping.</h4>
-        <h3>
-        <a href="{% url pack_listboard_url %}" class="btn btn-default btn-lg"><i class="fas fa-shopping-bag fa-lg"></i> Pack</a>
-    </h3>
 </div>
 
 
