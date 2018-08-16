@@ -22,6 +22,7 @@ class NavbarCollection:
 
     def __init__(self):
         self.registry = {}
+        self.permission_codenames = {}
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -29,6 +30,7 @@ class NavbarCollection:
     def register(self, navbar=None):
         if navbar.name not in self.registry:
             self.registry.update({navbar.name: navbar})
+            self.permission_codenames.update(**navbar.permission_codenames)
         else:
             raise AlreadyRegistered(
                 f'Navbar with name {navbar.name} is already registered.')
@@ -67,6 +69,20 @@ class NavbarCollection:
                         f'Expected one of {navbar_item_names}. '
                         f'See navbar \'{navbar.name}\'.')
         return navbar
+
+    def update_permission_codenames(self, verbose=None):
+        from django.contrib.auth.models import Permission
+        from django.contrib.contenttypes.models import ContentType
+        from .models import Navbar
+        write = str if verbose is False else sys.stdout.write
+        content_type = ContentType.objects.get_for_model(Navbar)
+        Permission.objects.filter(content_type=content_type).delete()
+        for codename, name in self.permission_codenames.values():
+            write(f'  - adding {codename} "{name}"\n')
+            Permission.objects.create(
+                codename=codename,
+                name=name,
+                content_type=content_type)
 
     def autodiscover(self, module_name=None, verbose=True):
         module_name = module_name or 'navbars'

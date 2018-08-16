@@ -19,7 +19,7 @@ class NavbarItem:
                  label=None, url_name=None, html_id=None,
                  glyphicon=None, fa_icon=None, icon=None,
                  icon_width=None, icon_height=None, no_url_namespace=None,
-                 active=None):
+                 active=None, permission_codename=None):
         self.name = name
         if no_url_namespace:
             self.url_name = url_name.split(':')[1]
@@ -48,6 +48,7 @@ class NavbarItem:
             self.reversed_url = '#'
         else:
             self.reversed_url = reverse(self.url_name)
+        self.permission_codename = permission_codename
 
     def __repr__(self):
         return (f'{self.__class__.__name__}(name={self.name}, '
@@ -65,9 +66,16 @@ class NavbarItem:
             context.update(active=True)
         return context
 
-    def render(self, **kwargs):
+    def render(self, request=None, **kwargs):
         """Render to string the template and context data.
         """
+        context = self.get_context(**kwargs)
+        if not self.permission_codename:
+            context.update(has_navbar_item_permission=True)
+        else:
+            context.update(
+                has_navbar_item_permission=request.user.has_perm(
+                    f'edc_navbar.{self.permission_codename}'))
         return render_to_string(
             template_name=self.template_name,
-            context=self.get_context(**kwargs))
+            context=context)
