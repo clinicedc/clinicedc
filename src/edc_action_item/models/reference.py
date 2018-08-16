@@ -12,8 +12,8 @@ class Reference(ActionModelMixin, BaseUuidModel):
     """Model used as a default reference model for simple actions
     not created by another model.
 
-    In almost all cases an action is created by a model. The
-    creating model is the "reference" model.
+    Note: In almost all cases an action is created by a model. The
+    creating model is then the "reference" model.
     """
 
     action_identifier = models.CharField(
