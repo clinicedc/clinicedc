@@ -86,6 +86,9 @@ class VisitSchedule:
 
     @property
     def all_post_consent_models(self):
+        """Returns a list of models that may only be complete
+        after the consent model.
+        """
         if not self._all_post_consent_models:
             models = {}
             models.update(
