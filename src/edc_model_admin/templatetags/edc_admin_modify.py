@@ -8,9 +8,18 @@ register = template.Library()
 def edc_submit_row(context):
     request = context.get('request')
     if int(request.site.id) == int(context.get('reviewer_site_id')):
-        context['show_save'] = False
-        context['show_delete'] = False
-        context['show_save_next'] = False
+        context.update({'save_next': None})
+        context.update({'show_delete': None})
+    try:
+        show_save = context['show_save']
+    except KeyError:
+        show_save = None
+    try:
+        context['save_next']
+    except KeyError:
+        pass
+    else:
+        context['save_next'] = show_save
     return django_submit_row(context)
 
 
