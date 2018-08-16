@@ -8,7 +8,8 @@ app_config = django_apps.get_app_config('edc_navbar')
 
 if app_config.register_default_navbar:
 
-    default_navbar = Navbar(name=app_config.default_navbar_name)
+    default_navbar = Navbar(
+        name=app_config.default_navbar_name)
 
     default_navbar.append_item(
         NavbarItem(name='home',
@@ -20,6 +21,7 @@ if app_config.register_default_navbar:
         NavbarItem(name='administration',
                    title='Administration',
                    fa_icon='fas fa-cog',
+                   permission_codename=f'nav_administration',
                    url_name='administration_url'))
 
     default_navbar.append_item(

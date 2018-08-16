@@ -2,7 +2,6 @@ from django.urls import path
 from django.views.generic.base import View
 from django.conf import settings
 
-
 if settings.APP_NAME == 'edc_navbar':
 
     # needed for tests
