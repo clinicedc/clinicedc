@@ -10,7 +10,7 @@
 		<label class="small pull-right" title="visit report datetime">{{ appointment.object.visit.report_datetime|localtime|date:"SHORT_DATETIME_FORMAT" }}</label>
 		</div>			
 		
-		{% requisition_panel_actions %}
+		{% requisition_panel_actions requisitions %}
  		
  		<div class="table table-responsive">
 			<table class="table table-striped table-hover">
@@ -50,7 +50,7 @@
 					    			{% elif requisition.object.reason_not_drawn == NOT_REQUIRED %}
 					    				<span class="text text-info small"><i class="fas fa-info-circle"></i> no longer required</span>
 					    			{% elif requisition.object.requisition_identifier  and not requisition.object.is_drawn %}
-					    			<span class="text text-danger"><i class="fas fa-hand-stop-o fa-fw"></i> <strong>{{ requisition.object.requisition_identifier|human }}</strong></span>
+					    				<span class="text text-danger"><i class="fas fa-hand-stop-o fa-fw"></i> <strong>{{ requisition.object.requisition_identifier|human }}</strong></span>
 					    			{% elif requisition.object.is_drawn == NO %}
 					    				<span class="text text-info small">not drawn</span>
 					    			{% else %}
@@ -61,16 +61,16 @@
 								<span class="btn-group pull-right">
 	                            {% if requisition.entry_status != NOT_REQUIRED %}
 	    							<a role="button" class="btn btn-sm {% if requisition.entry_status == KEYED %}btn-success{% else %}{% if requisition.entry_status == NOT_REQUIRED %} disabled btn-default{% else %}btn-warning{% endif %}{% endif %}" 
-											href="{{ requisition.object.href }}">
-											{% if requisition.entry_status == KEYED %}
-												<span class="fas fa-pencil-alt fa-fw"></span> Change
-											{% else %}
-												<span class="fas fa-plus fa-fw"></span> Add
-											{% endif %}
+										{% if requisition.entry_status == KEYED and requisition.object.has_change_permission %}
+											href="{{ requisition.object.href }}"><span class="fas fa-pencil-alt fa-fw"></span> Change
+                                        {% elif requisition.entry_status != KEYED and requisition.object.has_add_permission %}
+											href="{{ requisition.object.href }}"><span class="fas fa-plus fa-fw"></span> Add
+                                        {% elif requisition.entry_status == KEYED and requisition.object.has_view_permission %}
+											href="{{ requisition.object.href }}"><span class="fas fa-eye fa-fw"></span> View                                        
+                                        {% else %}
+                                            disabled >{% if requisition.entry_status == KEYED %}<span class="fas fa-pen"></span> Change{% else %}<span class="fas fa-plus"></span> Add{% endif %}
+										{% endif %}
 		       						</a> 
-				     		        <a role="button" class="btn btn-sm btn-default" 
-							        	{% if requisition.entry_status != KEYED %} disabled {% endif %} 
-							        		href="{{ requisition.object.get_absolute_url }}?edc_readonly=1&edc_readonly_{{ requisition.object.next_url }}&{{ requisition.object.querystring }}">View</a>
 					    	        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
 	                              {% else%}
 	                                <span class="text text-muted small">not required</span>
