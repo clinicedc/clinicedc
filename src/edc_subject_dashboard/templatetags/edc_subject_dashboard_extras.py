@@ -72,7 +72,15 @@ def appointment_in_progress(subject_identifier=None, visit_schedule=None,
 @register.inclusion_tag(
     'edc_subject_dashboard/requisition_panel_actions.html',
     takes_context=True)
-def requisition_panel_actions(context):
+def requisition_panel_actions(context, requisitions=None):
+    try:
+        requisition_metadata = requisitions[0]
+    except IndexError:
+        context['verify_disabled'] = None
+    else:
+        app_label, model_name = requisition_metadata.model.split('.')
+        context['verify_disabled'] = None if context['request'].user.has_perm(
+            f'{app_label}.change_{model_name}') else 'disabled'
     appointment = context.get('appointment')
     scanning = context.get('scanning')
     autofocus = 'autofocus' if scanning else ''
