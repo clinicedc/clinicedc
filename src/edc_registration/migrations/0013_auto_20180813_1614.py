@@ -10,20 +10,19 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='registeredsubject',
-            options={'ordering': ['subject_identifier'], 'permissions': (('can_display_firstname', 'Can display first name'), ('can_display_lastname', 'Can display last name'), ('can_display_dob', 'Can display DOB'), ('can_display_identity', 'Can display identity number'), ('can_display_initials', 'Can display initials')), 'verbose_name': 'Registered Subject'},
-        ),
         migrations.AlterUniqueTogether(
             name='registeredsubject',
-            unique_together={('first_name', 'dob', 'initials', 'additional_key')},
+            unique_together={
+                ('first_name', 'dob', 'initials', 'additional_key')},
         ),
         migrations.AddIndex(
             model_name='registeredsubject',
-            index=models.Index(fields=['first_name', 'dob', 'initials', 'additional_key'], name='edc_registr_first_n_a70796_idx'),
+            index=models.Index(fields=['first_name', 'dob', 'initials',
+                                       'additional_key'], name='edc_registr_first_n_a70796_idx'),
         ),
         migrations.AddIndex(
             model_name='registeredsubject',
-            index=models.Index(fields=['identity', 'subject_identifier', 'screening_identifier'], name='edc_registr_identit_eb36e0_idx'),
+            index=models.Index(fields=['identity', 'subject_identifier',
+                                       'screening_identifier'], name='edc_registr_identit_eb36e0_idx'),
         ),
     ]

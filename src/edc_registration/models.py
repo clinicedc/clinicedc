@@ -263,9 +263,9 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
             models.Index(fields=[
                 'identity', 'subject_identifier', 'screening_identifier'])]
         permissions = (
-            ('can_display_firstname', 'Can display first name'),
-            ('can_display_lastname', 'Can display last name'),
-            ('can_display_dob', 'Can display DOB'),
-            ('can_display_identity', 'Can display identity number'),
-            ('can_display_initials', 'Can display initials'),
+            ('display_firstname', 'Can display first name'),
+            ('display_lastname', 'Can display last name'),
+            ('display_dob', 'Can display DOB'),
+            ('display_identity', 'Can display identity number'),
+            ('display_initials', 'Can display initials'),
         )
