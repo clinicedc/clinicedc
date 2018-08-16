@@ -1,8 +1,10 @@
 from edc_model_wrapper import ModelWrapper
 from django.conf import settings
 
+from .permissions_mixin import PermissionsMixin
 
-class CrfModelWrapper(ModelWrapper):
+
+class CrfModelWrapper(PermissionsMixin, ModelWrapper):
 
     visit_model_attr = 'subject_visit'
 
