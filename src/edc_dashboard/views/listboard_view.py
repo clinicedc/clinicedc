@@ -55,6 +55,16 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
             empty_queryset_message=self.empty_queryset_message,
             object_list=wrapped_queryset,
             search_term=self.search_term)
+
+        app_label = self.listboard_model_cls._meta.label_lower.split('.')[0]
+        model_name = self.listboard_model_cls._meta.label_lower.split('.')[1]
+        has_listboard_model_perms = None
+        if (self.request.user.has_perms([
+            f'{app_label}.add_{model_name}',
+                f'{app_label}.change_{model_name}'])):
+            has_listboard_model_perms = True
+        context.update(has_listboard_model_perms=has_listboard_model_perms)
+
         if context_object_name is not None:
             context[context_object_name] = wrapped_queryset
         context = self.add_url_to_context(
