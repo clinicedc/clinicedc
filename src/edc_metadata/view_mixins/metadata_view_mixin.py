@@ -63,7 +63,8 @@ class MetaDataViewMixin(ContextMixin):
             metadata_wrapper.metadata_obj.object = self.crf_model_wrapper_cls(
                 model_obj=metadata_wrapper.model_obj,
                 model=metadata_wrapper.metadata_obj.model,
-                key=key)
+                key=key,
+                request=self.request)
             model_wrappers.append(metadata_wrapper.metadata_obj)
         return model_wrappers
 
@@ -78,7 +79,8 @@ class MetaDataViewMixin(ContextMixin):
             metadata_wrapper.metadata_obj.object = self.requisition_model_wrapper_cls(
                 model_obj=metadata_wrapper.model_obj,
                 model=metadata_wrapper.metadata_obj.model,
-                key=key)
+                key=key,
+                request=self.request)
             model_wrappers.append(metadata_wrapper.metadata_obj)
         return model_wrappers
 
