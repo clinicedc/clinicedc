@@ -71,9 +71,13 @@
       </div>
   </div>
 
-	{% if not results %}
-	    <span class="alert alert-success"><i class="far fa-thumbs-up fa-fw"></i> {{ empty_queryset_message }}</span>
-	{% endif %}
+  {% if not has_listboard_model_perms %}
+      <span class="alert alert-warning"><i class="far fa-hand-paper fa-fw"></i> {{ permissions_warning_message }}</span>
+  {% else %}
+    {% if not results %}
+        <span class="alert alert-success"><i class="far fa-thumbs-up fa-fw"></i> {{ empty_queryset_message }}</span>
+    {% endif %}  
+  {% endif %}  
   
       
   <!--end results-->
