@@ -20,7 +20,9 @@
 						{% endif %}
                         {% if wrapped.appt_status != COMPLETE_APPT %}
 						<a id="appointment_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default {% if wrapped.appt_status != IN_PROGRESS_APPT %}disabled{% endif %}"
-						    href="{{ wrapped.href }}">
+						    href="{% if perms.edc_appointment.view_appointment %}{{ wrapped.href }}{% else %}#{% endif %}"
+							data-toggle="tooltip" 
+						    title="{% if perms.edc_appointment.view_appointment %}Add/edit appointment{% else %}No permission to add/edit{% endif %}">
 						        <i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i> Appt
 						</a>
                         {% endif %}
@@ -28,7 +30,8 @@
                         <!--begin unscheduled appointment -->
                         {% if not wrapped.disabled and wrapped.object.visit_code_sequence == 0 %}
                         	{% if wrapped.appt_status == INCOMPLETE_APPT or wrapped.appt_status == COMPLETE_APPT %}
-		                     <a id="uscheduled_appt_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default" href="{{ wrapped.unscheduled_appointment_url }}">
+		                     <a id="uscheduled_appt_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default"
+		                     	href="{% if perms.edc_appointment.view_appointment %}{{ wrapped.unscheduled_appointment_url }}{% else %}#{% endif %}">
 		                        <i class="far fa-address-book fa-lg" data-toggle="tooltip" title="Add continuation / unscheduled appointment" aria-hidden="true"></i>
 		                     </a>
 							{% endif %}
@@ -39,7 +42,8 @@
 				      {% if wrapped.appt_status == IN_PROGRESS_APPT %}
 				        {% with wrapped.wrapped_visit as visit %}
 				      	     {% if visit.id %}
-		                        <a id="visit_report_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default" href="{{ visit.href }}">
+		                        <a id="visit_report_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default"
+		                        	href="{{ visit.href }}">
 		                            <i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> Visit Report
 		                        </a>
 		                     {% endif %}
@@ -57,7 +61,7 @@
 							        data-toggle="tooltip" title="Start, continue or restart data collection for this timepoint."
 							            class="btn btn-sm btn-default" href="{{ wrapped.href }}">
                                      {% if wrapped.appt_status == NEW_APPT %}
-                                       Start
+                                       Start visit
                                     {% elif wrapped.appt_status == IN_PROGRESS_APPT%}
                                        Continue
                                     {% elif wrapped.appt_status == INCOMPLETE_APPT %}
@@ -70,7 +74,7 @@
                                 <a id="start_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" data-toggle="tooltip" title="Disabled while another appointment is in progress." 
                                     class="btn btn-sm btn-default" href="#">
                                      {% if wrapped.appt_status == NEW_APPT %}
-                                       Start
+                                       Start visit
 			                        {% elif wrapped.appt_status == IN_PROGRESS_APPT%}
                                        Continue
 			                        {% elif wrapped.appt_status == INCOMPLETE_APPT %}
@@ -82,7 +86,8 @@
 							{% endif %}
 				      {% endif %}
                       {% if wrapped.appt_status == COMPLETE_APPT %}
-                                <a id="review_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default" href="{{ wrapped.wrapped_visit.href }}">
+                                <a id="review_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default"
+                                	href="{{ wrapped.wrapped_visit.href }}">
                                     <i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i> Review
                                 </a>
                       {% endif %}
