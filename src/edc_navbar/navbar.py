@@ -29,13 +29,18 @@ class Navbar:
             self.permission_codenames.update(
                 {navbar_item.permission_codename: permission_codename_tuple})
 
-    def render(self, selected_item=None, **kwargs):
+    def render(self, selected_item=None, request=None, **kwargs):
         self.rendered_items = []
         for item in self.items:
-            if item.permission_codename and item.permission_codename not in self.permission_codenames:
+            if (item.permission_codename
+                    and item.permission_codename not in self.permission_codenames):
                 raise NavbarError(
                     f'Permission code is invalid. '
                     f'Expected one of {list(self.permission_codenames.keys())}.'
                     f' Got {item.permission_codename}.')
-            self.rendered_items.append(item.render(
-                selected_item=selected_item, **kwargs))
+            if not item.permission_codename or (
+                    item.permission_codename
+                    and request.user.has_perm(f'edc_navbar.{item.permission_codename}')):
+                self.rendered_items.append(item.render(
+                    selected_item=selected_item,
+                    request=request, **kwargs))
