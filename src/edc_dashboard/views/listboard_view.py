@@ -2,6 +2,7 @@ import six
 
 from django.utils.html import escape
 from django.apps import apps as django_apps
+from django.contrib import messages
 from django.db.models import Q
 from django.utils.text import slugify
 from django.views.generic.list import ListView
@@ -20,8 +21,9 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
 
     cleaned_search_term = None
     context_object_name = 'results'
-    empty_queryset_message = 'Nothing to display'
+    empty_queryset_message = 'Nothing to display.'
     listboard_template = None  # an existing key in request.context_data
+    permissions_warning_message = 'You do not have permission to view these data.'
 
     # if self.listboard_url declared through another mixin.
     listboard_url = None  # an existing key in request.context_data
@@ -53,17 +55,12 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
             listboard_panel_style=self.listboard_panel_style,
             listboard_fa_icon=self.listboard_fa_icon,
             empty_queryset_message=self.empty_queryset_message,
+            permissions_warning_message=self.permissions_warning_message,
             object_list=wrapped_queryset,
             search_term=self.search_term)
 
-        app_label = self.listboard_model_cls._meta.label_lower.split('.')[0]
-        model_name = self.listboard_model_cls._meta.label_lower.split('.')[1]
-        has_listboard_model_perms = None
-        if (self.request.user.has_perms([
-            f'{app_label}.add_{model_name}',
-                f'{app_label}.change_{model_name}'])):
-            has_listboard_model_perms = True
-        context.update(has_listboard_model_perms=has_listboard_model_perms)
+        context.update(
+            has_listboard_model_perms=self.has_listboard_model_perms)
 
         if context_object_name is not None:
             context[context_object_name] = wrapped_queryset
@@ -76,6 +73,17 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
             existing_key=self.paginator_url or self.listboard_url,
             context=context)
         return context
+
+    @property
+    def has_listboard_model_perms(self):
+        """Returns True if request.user has permissions to at least
+        view the listboard model.
+        """
+        app_label = self.listboard_model_cls._meta.label_lower.split('.')[0]
+        model_name = self.listboard_model_cls._meta.label_lower.split('.')[1]
+        return (self.request.user.has_perms([
+            f'{app_label}.add_{model_name}',
+                f'{app_label}.change_{model_name}']))
 
     def get_template_names(self):
         return [self.get_template_from_context(self.listboard_template)]
@@ -140,33 +148,35 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         The return value gets set to self.object_list in get()
         just before rendering to response.
         """
-        filter_options = self.get_queryset_filter_options(
-            self.request, *self.args, **self.kwargs)
-        exclude_options = self.get_queryset_exclude_options(
-            self.request, *self.args, **self.kwargs)
-        if self.search_term and '|' not in self.search_term:
-            search_terms = self.search_term.split('+')
-            q = None
-            q_objects = []
-            for search_term in search_terms:
-                q_objects.append(Q(slug__icontains=slugify(search_term)))
-                q_objects.append(self.extra_search_options(search_term))
-            for q_object in q_objects:
-                if q:
-                    q = q | q_object
-                else:
-                    q = q_object
-            queryset = self.listboard_model_cls.objects.filter(
-                q or Q(), **filter_options).exclude(**exclude_options)
-        else:
-            queryset = self.listboard_model_cls.objects.filter(
-                **filter_options).exclude(
-                    **exclude_options)
-        ordering = self.get_ordering()
-        if ordering:
-            if isinstance(ordering, six.string_types):
-                ordering = (ordering,)
-            queryset = queryset.order_by(*ordering)
+        queryset = []
+        if self.has_listboard_model_perms:
+            filter_options = self.get_queryset_filter_options(
+                self.request, *self.args, **self.kwargs)
+            exclude_options = self.get_queryset_exclude_options(
+                self.request, *self.args, **self.kwargs)
+            if self.search_term and '|' not in self.search_term:
+                search_terms = self.search_term.split('+')
+                q = None
+                q_objects = []
+                for search_term in search_terms:
+                    q_objects.append(Q(slug__icontains=slugify(search_term)))
+                    q_objects.append(self.extra_search_options(search_term))
+                for q_object in q_objects:
+                    if q:
+                        q = q | q_object
+                    else:
+                        q = q_object
+                queryset = self.listboard_model_cls.objects.filter(
+                    q or Q(), **filter_options).exclude(**exclude_options)
+            else:
+                queryset = self.listboard_model_cls.objects.filter(
+                    **filter_options).exclude(
+                        **exclude_options)
+            ordering = self.get_ordering()
+            if ordering:
+                if isinstance(ordering, six.string_types):
+                    ordering = (ordering,)
+                queryset = queryset.order_by(*ordering)
         return queryset
 
     def get_wrapped_queryset(self, queryset):
