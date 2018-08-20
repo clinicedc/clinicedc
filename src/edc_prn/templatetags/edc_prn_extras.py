@@ -4,6 +4,7 @@ from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_metadata.constants import REQUIRED, KEYED
 
 from ..site_prn_forms import site_prn_forms
+from edc_lab.models.panel import Panel
 
 register = template.Library()
 
@@ -62,6 +63,15 @@ def add_prn_requisition_popover(appointment, subject_dashboard_url):
             requisition.add_url = requisition.model_cls().get_absolute_url()
             requisition.visit_model_attr = requisition.model_cls.visit_model_attr()
             requisition.subject_visit = str(appointment.visit.pk)
+            try:
+                panel_id = requisition.model_cls.panel.field.remote_field.model.objects.get(
+                    name=requisition.panel.name).id
+            except ObjectDoesNotExist:
+                requisition.panel.id = None
+                requisition.panel.pk = None
+            else:
+                requisition.panel.id = panel_id
+                requisition.panel.pk = panel_id
             prn_forms.append(requisition)
     return dict(
         label='Requisition',
