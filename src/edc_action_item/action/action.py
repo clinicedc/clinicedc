@@ -282,10 +282,14 @@ class Action:
         get back to the subject dashboard on save.
         """
         if cls.related_reference_fk_attr:
-            obj = cls.related_reference_model_cls().objects.get(
-                action_identifier=action_item.related_reference_identifier)
-            kwargs.update({
-                cls.related_reference_fk_attr: str(obj.pk)})
+            try:
+                obj = cls.related_reference_model_cls().objects.get(
+                    action_identifier=action_item.related_reference_identifier)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                kwargs.update({
+                    cls.related_reference_fk_attr: str(obj.pk)})
         query = unquote(urlencode(kwargs))
         if reference_obj:
             path = reference_obj.get_absolute_url()
