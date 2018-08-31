@@ -4,9 +4,11 @@ from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_metadata.constants import REQUIRED, KEYED
 
 from ..site_prn_forms import site_prn_forms
-from edc_lab.models.panel import Panel
 
 register = template.Library()
+
+CRF = 'CRF'
+REQUISITION = 'Requisition'
 
 
 @register.inclusion_tag('edc_prn/list_prns.html')
@@ -37,7 +39,9 @@ def add_prn_crf_popover(appointment, subject_dashboard_url):
             crf.subject_visit = str(appointment.visit.pk)
             prn_forms.append(crf)
     return dict(
-        label='CRF',
+        label=CRF,
+        CRF=CRF,
+        REQUISITION=REQUISITION,
         prn_forms=prn_forms,
         appointment_pk=str(appointment.pk),
         subject_identifier=appointment.subject_identifier,
@@ -74,7 +78,9 @@ def add_prn_requisition_popover(appointment, subject_dashboard_url):
                 requisition.panel.pk = panel_id
             prn_forms.append(requisition)
     return dict(
-        label='Requisition',
+        label=REQUISITION,
+        CRF=CRF,
+        REQUISITION=REQUISITION,
         prn_forms=prn_forms,
         appointment_pk=str(appointment.pk),
         subject_identifier=appointment.subject_identifier,
