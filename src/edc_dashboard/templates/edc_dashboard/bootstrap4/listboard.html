@@ -1,0 +1,81 @@
+{% extends listboard_base_template %}
+
+{% load edc_dashboard_extras %}
+
+{% load tz %}
+{% load static %}
+{% load edc_base_extras %}
+
+{% block main %}
+<!-- start listboard main block-->
+<div class="panel-group">
+<div class="panel panel-{{ listboard_panel_style }}">
+<div class="panel-heading">
+
+<i class="{{ listboard_fa_icon }} fa-2x"></i>
+                    
+<!-- begin search form -->
+<span class="pull-right">
+    {% block listboard_search_form %}
+        {% include 'edc_dashboard/bootstrap3/search_form.html' %}
+    {% endblock listboard_search_form %}
+</span>
+<!-- end search form -->
+
+{% block listboard_panel %}
+{% endblock listboard_panel %}
+
+</div> <!--end panel heading -->
+
+
+<!-- begin table -->
+<div class="table table-responsive">
+<table class="table table-condensed table-hover small">
+<thead>
+
+{% block listboard_table_header %}
+    {% include 'edc_dashboard/bootstrap3/listboard/results_header.html' %}
+{% endblock listboard_table_header %}
+
+</thead><tbody>
+
+{% block listboard_table_body %}
+
+    {% for result in results %}
+        <tr> 
+        
+        <td>{{ forloop.counter }}</td>
+        
+        {% block listboard_table_button_column %}
+            {% include 'edc_dashboard/bootstrap3/listboard/buttons_column.html' %}
+        {% endblock listboard_table_button_column %}
+    
+        {% block listboard_table_columns %}
+            {% include 'edc_dashboard/bootstrap3/listboard/columns.html' %}
+        {% endblock listboard_table_columns %}
+        </tr>                       
+    
+    {% endfor %}
+
+{% endblock listboard_table_body %}
+
+</tbody></table>
+
+<!-- begin spacer rows -->
+<table>
+<tr><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td></tr>
+</table>
+<!-- end spacer rows -->
+
+</div><!-- end table -->
+
+{% paginator_row %}
+
+</div>  <!--end panel -->
+</div> <!--end panel-group -->
+<!-- end listboard main block -->
+{% endblock main %}

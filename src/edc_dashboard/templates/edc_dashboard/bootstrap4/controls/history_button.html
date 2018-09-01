@@ -1,0 +1,29 @@
+
+<!-- start history button -->
+
+<div class="btn-group">
+
+	{% if add_button|default:False %}
+		<div class="btn-group">
+		  <a title="Add {{ title|lower }}" type="button" class="btn {% if history_object %}btn-default disabled{% else %}btn-warning{% endif %} btn-sm dropdown-toggle"
+		    href="{{ history_object.get_absolute_url }}?next={{ history_object.next_url }}&{{ history_object.querystring }}">
+		      <i class="fas fa-plus"></i>
+		  </a>
+		</div>
+	{% endif %}
+
+	<button title = "{{ title|default:'History' }}" type="button" class="btn btn-default btn-sm">
+	  <i class="fas fa-history fa-lg"></i> <i class="fas fa-files-o fa-lg"></i> {{ history_objects|length }}</button>
+	<div class="btn-group">
+	  <button title="History" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+	      <span class="caret"></span></button>
+	      <ul class="dropdown-menu" role="menu">
+	        <li class="dropdown-header">{{ title|default:"History" }}</li>
+	        {% for obj in history_objects reversed %}
+	          <li><a href="{{ obj.get_absolute_url }}?next={{ obj.next_url }}&{{ obj.querystring }}">
+	               {{ obj.report_datetime }}</a></li>
+	        {% endfor %}
+	      </ul>
+	</div>
+</div>
+<!-- end history button -->

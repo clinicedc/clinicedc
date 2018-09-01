@@ -1,0 +1,17 @@
+
+
+<td class="{% if wrapped %}{{ change_color|default:'success' }}{% else %}{{ add_color|default:'warning' }}{% endif %}">
+
+    {% include 'edc_dashboard/bootstrap3/controls/change_button.html' %}
+
+</td>
+
+<td class="{% if wrapped %}{{ change_color|default:'success' }}{% else %}{{ add_color|default:'warning' }}{% endif %}">
+    <span class="h6">
+    	{% if label %}{{ label }}
+    	{% else %}
+    		{{ wrapped.verbose_name|title }}{% if wrapped.object.id and wrapped.object.report_datetime %}
+    		<span class="text text-muted">{% if wrapped.object.user_modified %}{{wrapped.object.user_modified}}{% else %}{{wrapped.object.user_created }}{% endif %}&nbsp;{{ wrapped.object.modified|date:"SHORT_DATE_FORMAT" }}</span>{% endif %}
+    		</span>
+    	{% endif %}
+</td>

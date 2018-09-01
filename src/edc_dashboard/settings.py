@@ -130,6 +130,7 @@ KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 GIT_DIR = BASE_DIR
 
 DASHBOARD_URL_NAMES = {
+    'base_template': 'edc_dashboard:base_template',
     'subject_listboard_url': 'edc_subject_dashboard:subject_listboard_url',
     'subject_dashboard_url': 'edc_subject_dashboard:subject_dashboard_url',
 }

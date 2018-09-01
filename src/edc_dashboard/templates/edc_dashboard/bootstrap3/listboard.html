@@ -8,6 +8,9 @@
 
 {% block main %}
 <!-- start listboard main block-->
+
+{% block listboard_tabs %}{% endblock listboard_tabs %}
+
 <div class="panel-group">
 <div class="panel panel-{{ listboard_panel_style }}">
 <div class="panel-heading">
@@ -17,7 +20,7 @@
 <!-- begin search form -->
 <span class="pull-right">
     {% block listboard_search_form %}
-        {% include 'edc_dashboard/search_form.html' %}
+        {% include 'edc_dashboard/bootstrap3/search_form.html' %}
     {% endblock listboard_search_form %}
 </span>
 <!-- end search form -->
@@ -34,7 +37,7 @@
 <thead>
 
 {% block listboard_table_header %}
-    {% include 'edc_dashboard/listboard/results_header.html' %}
+    {% include 'edc_dashboard/bootstrap3/listboard/results_header.html' %}
 {% endblock listboard_table_header %}
 
 </thead><tbody>
@@ -47,11 +50,11 @@
         <td>{{ forloop.counter }}</td>
         
         {% block listboard_table_button_column %}
-            {% include 'edc_dashboard/listboard/buttons_column.html' %}
+            {% include 'edc_dashboard/bootstrap3/listboard/buttons_column.html' %}
         {% endblock listboard_table_button_column %}
     
         {% block listboard_table_columns %}
-            {% include 'edc_dashboard/listboard/columns.html' %}
+            {% include 'edc_dashboard/bootstrap3/listboard/columns.html' %}
         {% endblock listboard_table_columns %}
         </tr>                       
     

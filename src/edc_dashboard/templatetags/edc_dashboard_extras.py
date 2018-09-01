@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 from django.urls.base import reverse
 from urllib.parse import urljoin, parse_qsl, urlencode, unquote
 
@@ -45,7 +46,8 @@ def page_numbers(page, numpages, display=None):
     return page_numbers or []
 
 
-@register.inclusion_tag('edc_dashboard/paginator/paginator_row.html', takes_context=True)
+@register.inclusion_tag(f'edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/'
+                        'paginator/paginator_row.html', takes_context=True)
 def paginator_row(context):
 
     numbers = []
