@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
@@ -10,7 +11,7 @@ from .view_mixins import EdcDeviceViewMixin
 
 class HomeView(EdcBaseViewMixin, NavbarViewMixin, EdcDeviceViewMixin, TemplateView):
 
-    template_name = 'edc_device/home.html'
+    template_name = f'edc_device/bootstrap{settings.EDC_BOOTSTRAP}/home.html'
     navbar_name = 'edc_device'
     navbar_selected_item = 'device'
 
