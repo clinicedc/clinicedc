@@ -1,5 +1,6 @@
 from collections import namedtuple
 from django import template
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from edc_appointment.constants import IN_PROGRESS_APPT
 from edc_appointment.models.appointment import Appointment
@@ -9,7 +10,8 @@ from edc_lab.models.manifest.consignee import Consignee
 register = template.Library()
 
 
-@register.inclusion_tag('edc_subject_dashboard/forms_button.html')
+@register.inclusion_tag(f'edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/'
+                        'forms_button.html')
 def forms_button(wrapper=None, visit=None, **kwargs):
     """wrapper is an AppointmentModelWrapper.
     """
@@ -45,7 +47,8 @@ def forms_button(wrapper=None, visit=None, **kwargs):
     )
 
 
-@register.inclusion_tag('edc_subject_dashboard/appointment_in_progress.html')
+@register.inclusion_tag(f'edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/'
+                        f'appointment_in_progress.html')
 def appointment_in_progress(subject_identifier=None, visit_schedule=None,
                             schedule=None, **kwargs):
 
@@ -70,7 +73,8 @@ def appointment_in_progress(subject_identifier=None, visit_schedule=None,
 
 
 @register.inclusion_tag(
-    'edc_subject_dashboard/requisition_panel_actions.html',
+    f'edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/'
+    f'requisition_panel_actions.html',
     takes_context=True)
 def requisition_panel_actions(context, requisitions=None):
     try:
@@ -90,7 +94,8 @@ def requisition_panel_actions(context, requisitions=None):
 
 
 @register.inclusion_tag(
-    'edc_subject_dashboard/print_requisition_popover.html',
+    f'edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/'
+    f'print_requisition_popover.html',
     takes_context=True)
 def print_requisition_popover(context):
     C = namedtuple('Consignee', 'pk name')
