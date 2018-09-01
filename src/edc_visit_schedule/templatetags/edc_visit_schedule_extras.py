@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
 from urllib.parse import urlencode, unquote
@@ -8,7 +9,8 @@ from ..models import SubjectScheduleHistory
 register = template.Library()
 
 
-@register.inclusion_tag('edc_visit_schedule/subject_schedule_footer_row.html')
+@register.inclusion_tag(f'edc_visit_schedule/bootstrap{settings.EDC_BOOTSTRAP}/'
+                        f'subject_schedule_footer_row.html')
 def subject_schedule_footer_row(subject_identifier, visit_schedule, schedule,
                                 subject_dashboard_url):
 
