@@ -7,6 +7,7 @@ from django.test.utils import override_settings
 from ..constants import CLIENT
 from ..view_mixins import EdcDeviceViewMixin
 from ..views import HomeView
+from django.contrib.auth.models import User
 
 
 class TestView(EdcDeviceViewMixin, ContextMixin):
@@ -17,8 +18,10 @@ class TestView(EdcDeviceViewMixin, ContextMixin):
 class TestHomeView(TestCase):
 
     def setUp(self):
+        self.user = User.objects.create(username='erik')
         self.view = HomeView()
         self.view.request = RequestFactory()
+        self.view.request.user = self.user
         self.view.request.META = {'HTTP_CLIENT_IP': '1.1.1.1'}
 
     def test_context(self):
@@ -32,8 +35,10 @@ class TestHomeView(TestCase):
 class TestViewMixin(TestCase):
 
     def setUp(self):
+        self.user = User.objects.create(username='erik')
         self.view = TestView()
         self.view.request = RequestFactory()
+        self.view.request.user = self.user
         self.view.request.META = {'HTTP_CLIENT_IP': '1.1.1.1'}
 
     def test_context(self):
