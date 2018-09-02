@@ -13,12 +13,35 @@ from ..view_mixins import ListboardFilterViewMixin
 from ..view_mixins.listboard.querystring_view_mixin import QueryStringViewMixin
 from ..views import ListboardView
 from .models import SubjectVisit
+from django.contrib.auth.models import User, Group, Permission
+from edc_permissions.permissions_updater import PermissionsUpdater, CLINIC
+from edc_permissions.permissions_updater import AUDITOR, ADMINISTRATION, LAB, PHARMACY
 
 
 class TestViewMixins(TestCase):
+
     def setUp(self):
+        class MyPermissionsUpdater(PermissionsUpdater):
+            default_auditor_app_labels = []
+            default_pii_models = []
+            navbar_codenames = {
+                ADMINISTRATION: [],
+                AUDITOR: [],
+                CLINIC: [],
+                LAB: [],
+                PHARMACY: []}
+
+            def extra_clinic_group_permissions(self, group):
+                for permission in Permission.objects.filter(content_type__app_label__in=[
+                        'edc_dashboard']):
+                    group.permissions.add(permission)
+
+        MyPermissionsUpdater()
+        self.user = User.objects.create(username='erik')
+        group = Group.objects.get(name=CLINIC)
+        self.user.groups.add(group)
         self.request = RequestFactory().get('/')
-        self.request.user = 'erik'
+        self.request.user = self.user
 
     def test_querystring_mixin(self):
 
@@ -26,7 +49,7 @@ class TestViewMixins(TestCase):
             pass
 
         request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
-        request.user = 'erik'
+        request.user = self.user
         view = MyView(request=request)
         self.assertIn('f=f', view.querystring)
         self.assertIn('e=e', view.querystring)
@@ -79,7 +102,7 @@ class TestViewMixins(TestCase):
             report_datetime=get_utcnow(),
             reason='scheduled')
         request = RequestFactory().get('/?scheduled=scheduled')
-        request.user = 'erik'
+        request.user = self.user
         request.site = Site.objects.get_current()
         request.url_name_data = {'listboard_url': 'listboard_url'}
         request.template_data = {'listboard_template': 'listboard.html'}
