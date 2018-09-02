@@ -88,7 +88,6 @@ class TestHelpers(TestCase):
         helper = ActionItemHelper(model_wrapper)
         context = helper.get_context()
         self.assertEqual(context['reference_obj'], form_two)
-        self.assertFalse(context['strike_thru'])
         form_two.delete()
         action_item = ActionItem.objects.get(
             action_identifier=form_two.action_identifier)
@@ -96,7 +95,6 @@ class TestHelpers(TestCase):
         helper = ActionItemHelper(model_wrapper)
         context = helper.get_context()
         self.assertIsNone(context['reference_obj'])
-        self.assertTrue(context['strike_thru'])
 
     def test_create_parent_reference_model_instance(self):
         form_two = FormTwo.objects.create(

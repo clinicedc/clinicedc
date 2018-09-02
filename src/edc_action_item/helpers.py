@@ -15,7 +15,6 @@ class ActionItemHelper:
         self._reference_url = None
         self._related_reference_obj = None
         self._related_reference_url = None
-        # self.strike_thru = False
         if model_wrapper:
             self.action_item = model_wrapper.object
             self.href = model_wrapper.href
@@ -184,5 +183,4 @@ class ActionItemHelper:
             related_reference_url=self.related_reference_url,
             report_datetime=self.action_item.report_datetime,
             status=self.action_item.get_status_display(),
-            # strike_thru=self.strike_thru
         )
