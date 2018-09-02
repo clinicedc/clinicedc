@@ -1,21 +1,21 @@
 import arrow
 
 from datetime import datetime
+from django.contrib.auth.models import User, Group, Permission
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 from edc_base.utils import get_utcnow
 from edc_model_wrapper import ModelWrapper
+from edc_permissions.permissions_updater import AUDITOR, ADMINISTRATION, LAB, PHARMACY
+from edc_permissions.permissions_updater import PermissionsUpdater, CLINIC
 
 from ..listboard_filter import ListboardFilter, ListboardViewFilters
 from ..view_mixins import ListboardFilterViewMixin
 from ..view_mixins.listboard.querystring_view_mixin import QueryStringViewMixin
 from ..views import ListboardView
 from .models import SubjectVisit
-from django.contrib.auth.models import User, Group, Permission
-from edc_permissions.permissions_updater import PermissionsUpdater, CLINIC
-from edc_permissions.permissions_updater import AUDITOR, ADMINISTRATION, LAB, PHARMACY
 
 
 class TestViewMixins(TestCase):
