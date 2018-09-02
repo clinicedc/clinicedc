@@ -1,6 +1,6 @@
 from django.http.request import HttpRequest
 from django.test import TestCase, tag
-from django.views.generic.base import ContextMixin
+from django.views.generic.base import ContextMixin, View
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
@@ -16,6 +16,8 @@ from ..view_mixins import MetaDataViewMixin
 from .models import SubjectConsent, SubjectVisit, CrfOne, CrfThree
 from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
+from django.test.client import RequestFactory
+from django.contrib.auth.models import User
 
 
 class DummyCrfModelWrapper:
@@ -30,7 +32,7 @@ class DummyRequisitionModelWrapper:
         self.model = kwargs.get('model')
 
 
-class MyView(MetaDataViewMixin, ContextMixin):
+class MyView(MetaDataViewMixin, ContextMixin, View):
     crf_model_wrapper_cls = DummyCrfModelWrapper
     requisition_model_wrapper_cls = DummyRequisitionModelWrapper
 
@@ -42,6 +44,8 @@ class TestViewMixin(TestCase):
         register_to_site_reference_configs()
         for name in ['one', 'two', 'three', 'four', 'five', 'six']:
             Panel.objects.create(name=name)
+
+        self.user = User.objects.create(username='erik')
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
@@ -69,14 +73,18 @@ class TestViewMixin(TestCase):
             reason=SCHEDULED)
 
     def test_view_mixin(self):
-        view = MyView()
+        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        request.user = self.user
+        view = MyView(request=request)
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
         view.get_context_data()
 
     def test_view_mixin_context_data_crfs(self):
-        view = MyView()
+        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        request.user = self.user
+        view = MyView(request=request)
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
@@ -88,7 +96,9 @@ class TestViewMixin(TestCase):
             subject_visit=self.subject_visit)
         CrfThree.objects.create(
             subject_visit=self.subject_visit)
-        view = MyView()
+        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        request.user = self.user
+        view = MyView(request=request)
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
@@ -100,7 +110,9 @@ class TestViewMixin(TestCase):
                 self.assertIsNone(metadata.object.model_obj.id)
 
     def test_view_mixin_context_data_requisitions(self):
-        view = MyView()
+        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        request.user = self.user
+        view = MyView(request=request)
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         context_data = view.get_context_data()
@@ -121,7 +133,9 @@ class TestViewMixin(TestCase):
             subject_identifier=self.subject_identifier,
             reason=SCHEDULED)
 
-        view = MyView()
+        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        request.user = self.user
+        view = MyView(request=request)
         view.appointment = creator.appointment
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
@@ -129,7 +143,9 @@ class TestViewMixin(TestCase):
         self.assertEqual(len(context_data.get('crfs')), 3)
         self.assertEqual(len(context_data.get('requisitions')), 3)
 
-        view = MyView()
+        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        request.user = self.user
+        view = MyView(request=request)
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
