@@ -1,7 +1,8 @@
 """To customize any of the values below,
 use settings.LAB_DASHBOARD_BASE_TEMPLATES.
 """
-# from django.conf import settings
+from django.conf import settings
+from edc_dashboard.utils import insert_bootstrap_version
 
 dashboard_templates = dict(
     aliquot_listboard_template=f'edc_lab_dashboard/aliquot_listboard.html',
@@ -21,8 +22,10 @@ dashboard_templates = dict(
     verify_box_listboard_template=f'edc_lab_dashboard/verify_box_listboard.html',
 )
 
-# try:
-#     dashboard_templates.update(
-#         **settings.LAB_DASHBOARD_BASE_TEMPLATES)
-# except AttributeError:
-#     pass
+try:
+    dashboard_templates.update(
+        **settings.LAB_DASHBOARD_BASE_TEMPLATES)
+except AttributeError:
+    pass
+
+dashboard_templates = insert_bootstrap_version(**dashboard_templates)

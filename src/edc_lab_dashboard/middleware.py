@@ -19,8 +19,9 @@ class DashboardMiddleware:
         try:
             url_name_data = settings.LAB_DASHBOARD_URL_NAMES
         except AttributeError:
-            url_name_data = {}
-        request.url_name_data.update(**url_name_data)
+            pass
+        else:
+            request.url_name_data.update(**url_name_data)
 
         template_data = dashboard_templates
         try:
@@ -34,7 +35,5 @@ class DashboardMiddleware:
         if response.context_data:
             response.context_data.update(**request.url_name_data)
             response.context_data.update(**request.template_data)
-            response.context_data.update(
-                SHIPPED=SHIPPED,
-            )
+            response.context_data.update(SHIPPED=SHIPPED)
         return response
