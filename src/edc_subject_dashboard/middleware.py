@@ -1,4 +1,7 @@
 from django.conf import settings
+from edc_dashboard import insert_bootstrap_version
+
+from .dashboard_templates import dashboard_templates
 
 
 class DashboardMiddleware:
@@ -35,19 +38,21 @@ class DashboardMiddleware:
             'requisition_print_actions_url':
             'edc_subject_dashboard:requisition_print_actions_url',
             'requisition_verify_actions_url':
-            'edc_subject_dashboard:requisition_verify_actions_url',
-        }
+            'edc_subject_dashboard:requisition_verify_actions_url'}
         try:
             settings.DASHBOARD_URL_NAMES
         except AttributeError:
             pass
         else:
             url_name_data.update(**settings.DASHBOARD_URL_NAMES)
+        request.url_name_data.update(**url_name_data)
+
+        template_data = dashboard_templates
         try:
             template_data = settings.DASHBOARD_BASE_TEMPLATES
         except AttributeError:
             template_data = {}
-        request.url_name_data.update(**url_name_data)
+        template_data = insert_bootstrap_version(**template_data)
         request.template_data.update(**template_data)
 
     def process_template_response(self, request, response):

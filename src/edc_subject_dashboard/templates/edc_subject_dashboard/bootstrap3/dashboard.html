@@ -45,11 +45,11 @@
 			<div id="subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}"
 				class="panel-collapse collapse in">
 				    {% block crfs %}
-				  		{% include "edc_subject_dashboard/dashboard/crfs.html" %}
+				  		{% include "edc_subject_dashboard/bootstrap3/dashboard/crfs.html" %}
 				    {% endblock crfs %}
 
 					{% block requisitions %}
-					  	{% include "edc_subject_dashboard/dashboard/requisitions.html" %}
+					  	{% include "edc_subject_dashboard/bootstrap3/dashboard/requisitions.html" %}
 					{% endblock requisitions %}
 			</div>
 				{% subject_schedule_footer_row subject_identifier current_visit_schedule current_schedule subject_dashboard_url %}
@@ -77,7 +77,7 @@
 						class="panel-collapse collapse {% if current_visit_schedule.name == visit_schedule.name and current_schedule.name == schedule.name %}in{% endif %}">
 
 					{% block appointments %}
-						{% include "edc_subject_dashboard/dashboard/appointments.html" %}
+						{% include "edc_subject_dashboard/bootstrap3/dashboard/appointments.html" %}
 					{% endblock appointments %}
 
 					</div>
@@ -94,13 +94,13 @@
 
 	{% block top_bar %}
 
-	    {% include "edc_subject_dashboard/dashboard/topbar.html" %}
+	    {% include "edc_subject_dashboard/bootstrap3/dashboard/topbar.html" %}
 	
 	{% endblock top_bar %}
 
     {% block side_bar %}
 
-	    {% include 'edc_subject_dashboard/dashboard/sidebar.html' %}
+	    {% include 'edc_subject_dashboard/bootstrap3/dashboard/sidebar.html' %}
 
     {% endblock side_bar %}
 
