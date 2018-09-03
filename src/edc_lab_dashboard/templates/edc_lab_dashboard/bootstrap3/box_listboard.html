@@ -1,4 +1,4 @@
-{% extends "edc_lab_dashboard/listboard.html" %}
+{% extends edc_lab_listboard_template %}
 
 {% block panel_back %}
     <a title="Back to list of boxes" role="button" class="btn btn-default btn-sm"
@@ -31,10 +31,10 @@
 
 
 {% block results_header %}
-    {% include 'edc_lab_dashboard/listboard/box/results_header.html' %}
+    {% include 'edc_lab_dashboard/bootstrap3/listboard/box/results_header.html' %}
 {% endblock results_header %}
 
 {% block results_body %}
-    {% include 'edc_lab_dashboard/listboard/box/results_body.html' %}
+    {% include 'edc_lab_dashboard/bootstrap3/listboard/box/results_body.html' %}
 {% endblock results_body %}
 
