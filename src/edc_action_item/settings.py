@@ -134,6 +134,8 @@ DASHBOARD_URL_NAMES = {
     'subject_dashboard_url': 'edc_action_item:subject_dashboard_url',
 }
 
+EDC_BOOTSTRAP = 3
+
 if 'test' in sys.argv:
 
     class DisableMigrations:

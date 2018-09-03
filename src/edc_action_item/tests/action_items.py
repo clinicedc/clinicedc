@@ -64,6 +64,24 @@ class FollowupAction(Action):
     related_reference_model = 'edc_action_item.initial'
 
 
+class CrfTwoAction(Action):
+    name = 'submit-crf-two'
+    display_name = 'Submit Crf Two'
+    reference_model = 'edc_action_item.crftwo'
+    show_on_dashboard = True
+    priority = HIGH_PRIORITY
+    next_actions = ['self']
+
+
+class CrfOneAction(Action):
+    name = 'submit-crf-one'
+    display_name = 'Submit Crf One'
+    reference_model = 'edc_action_item.crfone'
+    show_on_dashboard = True
+    priority = HIGH_PRIORITY
+    next_actions = [CrfTwoAction]
+
+
 class InitialAction(Action):
     name = 'submit-initial'
     display_name = 'Submit Initial'
@@ -93,6 +111,8 @@ def register_actions():
     site_action_items.register(TestDoNothingPrnAction)
     site_action_items.register(TestPrnAction)
     site_action_items.register(SingletonAction)
+    site_action_items.register(CrfOneAction)
+    site_action_items.register(CrfTwoAction)
 
 
 register_actions()

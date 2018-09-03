@@ -125,11 +125,11 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
     history = HistoricalRecords()
 
     def __str__(self):
-        return (f'{self.action_identifier[-9:]} {self.action_type.name} '
+        return (f'{self.action_type.display_name} {self.action_identifier[-9:]} '
                 f'({self.get_status_display()})')
 
     def save(self, *args, **kwargs):
-        """See also signals.
+        """See also signals and action_cls.
         """
         if not self.id:
             # a new persisted action item always has
@@ -174,10 +174,10 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
     def reference_model_cls(self):
         return django_apps.get_model(self.reference_model)
 
-#     @property
-#     def reference_obj(self):
-#         return self.reference_model_cls.objects.get(
-#             action_identifier=self.action_identifier)
+    @property
+    def reference_obj(self):
+        return self.reference_model_cls.objects.get(
+            action_identifier=self.action_identifier)
 
     @property
     def parent_reference_model_cls(self):

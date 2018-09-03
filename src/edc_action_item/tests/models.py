@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.deletion import CASCADE, PROTECT
+from edc_base import get_utcnow
 from edc_base.model_mixins import BaseUuidModel
 
 from ..models import ActionModelMixin
@@ -26,6 +27,19 @@ class TestModelWithActionDoesNotCreateAction(ActionModelMixin,
 class TestModelWithAction(ActionModelMixin, BaseUuidModel):
 
     action_name = 'submit-form-zero'
+
+
+class Appointment(BaseUuidModel):
+
+    appt_datetime = models.DateTimeField(default=get_utcnow())
+
+
+class SubjectVisit(BaseUuidModel):
+
+    subject_identifier = models.CharField(
+        max_length=25)
+
+    appointment = models.OneToOneField(Appointment, on_delete=CASCADE)
 
 
 class FormZero(ActionModelMixin, BaseUuidModel):
@@ -65,3 +79,33 @@ class Followup(ActionModelMixin, BaseUuidModel):
 class MyAction(ActionModelMixin, BaseUuidModel):
 
     action_name = 'my-action'
+
+
+class CrfOne(ActionModelMixin, BaseUuidModel):
+
+    subject_visit = models.OneToOneField(SubjectVisit, on_delete=CASCADE)
+
+    action_name = 'submit-crf-one'
+
+    @property
+    def visit(self):
+        return self.subject_visit
+
+    @classmethod
+    def visit_model_attr(self):
+        return 'subject_visit'
+
+
+class CrfTwo(ActionModelMixin, BaseUuidModel):
+
+    subject_visit = models.OneToOneField(SubjectVisit, on_delete=CASCADE)
+
+    action_name = 'submit-crf-two'
+
+    @property
+    def visit(self):
+        return self.subject_visit
+
+    @classmethod
+    def visit_model_attr(self):
+        return 'subject_visit'
