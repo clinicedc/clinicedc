@@ -7,7 +7,7 @@ from django_revision.revision import site_revision
 
 class LoginView(BaseLoginView):
 
-    template_name = 'edc_auth/login.html'
+    template_name = f'edc_auth/bootstrap{settings.EDC_BOOTSTRAP}/login.html'
 
     def get_context_data(self, **kwargs):
         """Tests cookies.
