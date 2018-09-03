@@ -26,7 +26,8 @@ class CrfRequisitionFormValidatorMixin:
     """
 
     def validate_requisition(self, requisition_field, assay_datetime_field, *panels):
-        """Validates that the requisition model instance exists.
+        """Validates that the requisition model instance exists
+        and assay datetime provided.
         """
         requisition = self.cleaned_data.get(requisition_field)
         if requisition and requisition.panel_object not in panels:
