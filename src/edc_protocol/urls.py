@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.urls.conf import path
-from edc_base.views import AdministrationView
 
 from .views import HomeView
 
@@ -12,6 +11,7 @@ urlpatterns = [
 
 
 if settings.APP_NAME == 'edc_protocol':
+    from edc_dashboard.views import AdministrationView
     urlpatterns = [
         path('administration/', AdministrationView.as_view(),
              name='administration_url')] + urlpatterns

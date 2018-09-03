@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'edc_dashboard.middleware.DashboardMiddleware',
 ]
 
 ROOT_URLCONF = 'edc_protocol.urls'
@@ -127,6 +128,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
 DEFAULT_SUBJECT_TYPE = None
+
+EDC_BOOTSTRAP = 3
 
 if 'test' in sys.argv:
 

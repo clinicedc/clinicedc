@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.views.generic.base import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_navbar import NavbarViewMixin
@@ -6,7 +7,7 @@ from edc_navbar import NavbarViewMixin
 
 class HomeView(EdcBaseViewMixin, NavbarViewMixin, TemplateView):
 
-    template_name = 'edc_protocol/home.html'
+    template_name = f'edc_protocol/bootstrap{settings.EDC_BOOTSTRAP}/home.html'
     navbar_name = 'edc_protocol'
     navbar_selected_item = 'protocol'
 
