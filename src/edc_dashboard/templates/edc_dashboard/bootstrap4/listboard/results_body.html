@@ -1,0 +1,16 @@
+
+<!-- begin results body -->
+{% for result in results %}
+    <tr> 
+    
+    <td>{{ forloop.counter }}</td>
+    
+    {% include 'edc_dashboard/bootstrap3/listboard/buttons_column.html' %}
+
+    {% include 'edc_dashboard/bootstrap3/listboard/columns.html' %}
+
+    </tr>                       
+
+{% endfor %}
+
+<!-- begin results body -->

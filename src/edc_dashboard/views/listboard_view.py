@@ -2,7 +2,6 @@ import six
 
 from django.utils.html import escape
 from django.apps import apps as django_apps
-from django.contrib import messages
 from django.db.models import Q
 from django.utils.text import slugify
 from django.views.generic.list import ListView
@@ -30,8 +29,9 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
 
     # default, info, success, danger, warning, etc. See Bootstrap.
     listboard_panel_style = 'default'
-    listboard_fa_icon = "far fa-user-circle"
+    listboard_fa_icon = "fas fa-user-circle"
     listboard_model = None  # label_lower model name or model class
+    listboard_panel_title = None
 
     model_wrapper_cls = None
     ordering = '-created'
@@ -54,6 +54,7 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         context.update(
             listboard_panel_style=self.listboard_panel_style,
             listboard_fa_icon=self.listboard_fa_icon,
+            listboard_panel_title=self.listboard_panel_title,
             empty_queryset_message=self.empty_queryset_message,
             permissions_warning_message=self.permissions_warning_message,
             object_list=wrapped_queryset,
@@ -148,7 +149,7 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         The return value gets set to self.object_list in get()
         just before rendering to response.
         """
-        queryset = []
+        queryset = self.listboard_model_cls.objects.none()
         if self.has_listboard_model_perms:
             filter_options = self.get_queryset_filter_options(
                 self.request, *self.args, **self.kwargs)

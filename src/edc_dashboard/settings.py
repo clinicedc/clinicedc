@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_model_wrapper.apps.AppConfig',
+    'edc_navbar.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
@@ -121,7 +122,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
@@ -130,9 +130,12 @@ KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
 GIT_DIR = BASE_DIR
 
 DASHBOARD_URL_NAMES = {
+    'base_template': 'edc_dashboard:base_template',
     'subject_listboard_url': 'edc_subject_dashboard:subject_listboard_url',
     'subject_dashboard_url': 'edc_subject_dashboard:subject_dashboard_url',
 }
+
+EDC_BOOTSTRAP = 3
 
 if 'test' in sys.argv:
 

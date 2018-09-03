@@ -1,0 +1,49 @@
+{% extends base_template_name %}
+
+{% block main %}
+
+    {{ block.super }}
+
+
+<div class="container">
+
+   <div class="row">
+      <div class="col-md-12">
+        <div class="jumbotron text-center">
+          <h2>Administration</h2>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <ul class="nav nav-pills nav-stacked">
+              {% for name, url_name in col_one.items %}
+                <li>
+                  <a  href="{% url url_name|default:'home_url' %}">{{ name }}</a>
+                </li>
+              {% endfor %}
+        </ul>
+    </div>
+
+      <div class="col-md-4">
+        <ul class="nav nav-pills nav-stacked">
+              {% for name, url_name in col_two.items %}
+                <li>
+                  <a  href="{% url url_name|default:'home_url' %}">{{ name }}</a>
+                </li>
+              {% endfor %}
+        </ul>
+    </div>
+
+      <div class="col-md-4">
+        <ul class="nav nav-pills nav-stacked">
+              {% for name, url_name in col_three.items %}
+                <li>
+                  <a href="{% url url_name|default:'home_url' %}">{{ name }}</a>
+                </li>
+              {% endfor %}
+        </ul>
+      </div>
+
+  </div>
+</div>
+
+{% endblock main %}
