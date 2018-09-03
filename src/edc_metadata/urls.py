@@ -7,5 +7,5 @@ app_name = 'edc_metadata'
 
 urlpatterns = [
     path('admin/', edc_metadata_admin.urls),
-    path('', RedirectView.as_view(url='admin/edc_metadata/'), name='home_url'),
+    path('', RedirectView.as_view(url='/edc_metadata/admin/'), name='home_url'),
 ]
