@@ -1,4 +1,13 @@
-from edc_constants.constants import YES, NO
+from edc_constants.constants import YES, NO, OTHER
+
+IDENTITY_TYPE = (
+    ('country_id', 'Country ID number'),
+    ('drivers', 'Driver\'s license'),
+    ('passport', 'Passport'),
+    ('hospital_no', 'Hospital number'),
+    ('country_id_rcpt', 'Country ID receipt'),
+    (OTHER, 'Other'),
+)
 
 YES_DECLINED = 'Yes_declined'
 
