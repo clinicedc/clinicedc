@@ -2,6 +2,8 @@ from django.db import models
 from django_crypto_fields.fields import IdentityField
 from django_crypto_fields.mixins import CryptoMixin
 
+from ..choices import IDENTITY_TYPE
+
 
 class IdentityFieldsMixinError(Exception):
     pass
@@ -25,7 +27,8 @@ class IdentityFieldsMixin(CryptoMixin, models.Model):
 
     identity_type = models.CharField(
         verbose_name='What type of identity number is this?',
-        max_length=25)
+        max_length=25,
+        choices=IDENTITY_TYPE)
 
     confirm_identity = IdentityField(
         help_text='Retype the identity number',
