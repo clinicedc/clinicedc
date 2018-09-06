@@ -101,10 +101,10 @@ class NavbarCollection:
                 except NavbarError as e:
                     writer(f'   - loading {app}.navbars ... ')
                     writer(style.ERROR(f'ERROR! {e}\n'))
-                except ImportError:
+                except ImportError as e:
                     site_navbars.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise
+                        raise NavbarError(e)
             except ImportError:
                 pass
 
