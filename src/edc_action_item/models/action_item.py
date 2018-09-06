@@ -171,6 +171,12 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
         return site_action_items.get(self.action_type.name)
 
     @property
+    def action(self):
+        """Returns the instantiated action_cls.
+        """
+        return self.action_cls(action_identifier=self.action_identifier)
+
+    @property
     def reference_model_cls(self):
         return django_apps.get_model(self.reference_model)
 
