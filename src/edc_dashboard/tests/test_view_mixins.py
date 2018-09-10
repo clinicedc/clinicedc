@@ -31,6 +31,10 @@ class TestViewMixins(TestCase):
                 LAB: [],
                 PHARMACY: []}
 
+            extra_dashboard_codenames = {
+                'blah': [
+                    ('view_my_listboard', 'View my listboard')]}
+
             def extra_clinic_group_permissions(self, group):
                 for permission in Permission.objects.filter(content_type__app_label__in=[
                         'edc_dashboard']):
@@ -87,6 +91,7 @@ class TestViewMixins(TestCase):
             listboard_url = 'listboard_url'
             listboard_template = 'listboard_template'
             listboard_filter_url = 'listboard_url'
+            listboard_view_permission_codename = 'edc_dashboard.view_my_listboard'
             model_wrapper_cls = SubjectVisitModelWrapper
             listboard_view_filters = MyListboardViewFilters()
 
