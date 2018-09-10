@@ -41,7 +41,7 @@ class ActionItemHelper:
             self.action_item_reason = self.parent_reference_obj.action_item_reason
         try:
             self.related_reference_model_name = (
-                f'{self.action_item.related_reference_cls._meta.verbose_name} '
+                f'{self.action_item.related_reference_model_cls._meta.verbose_name} '
                 f'{str(self.related_reference_obj)}')
         except AttributeError:
             self.related_reference_model_name = None

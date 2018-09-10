@@ -32,7 +32,8 @@ class ActionItemManager(models.Manager):
         return self.get(action_identifier=action_identifier)
 
 
-class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidModel):
+class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
+                 BaseUuidModel):
 
     subject_identifier_model = 'edc_registration.registeredsubject'
 
@@ -203,6 +204,12 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidM
         """
         return django_apps.get_model(self.related_reference_model).objects.get(
             action_identifier=self.related_reference_identifier)
+
+    @property
+    def related_reference_model_cls(self):
+        """Returns the related reference model instance.
+        """
+        return django_apps.get_model(self.related_reference_model)
 
     @property
     def identifier(self):
