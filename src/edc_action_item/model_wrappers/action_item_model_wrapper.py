@@ -20,3 +20,7 @@ class ActionItemModelWrapper(ModelWrapper):
     @property
     def subject_identifier(self):
         return self.object.subject_identifier
+
+    @property
+    def report_date(self):
+        return self.object.report_datetime.date()
