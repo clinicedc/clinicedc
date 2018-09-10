@@ -32,6 +32,8 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
     listboard_fa_icon = "fas fa-user-circle"
     listboard_model = None  # label_lower model name or model class
     listboard_panel_title = None
+    listboard_view_permission_codename = None
+    listboard_view_only_my_permission_codename = None
 
     model_wrapper_cls = None
     ordering = '-created'
@@ -61,7 +63,9 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
             search_term=self.search_term)
 
         context.update(
-            has_listboard_model_perms=self.has_listboard_model_perms)
+            has_listboard_model_perms=self.has_listboard_model_perms,
+            has_view_listboard_perms=self.has_view_listboard_perms,
+            listboard_view_permission_codename=self.listboard_view_permission_codename)
 
         if context_object_name is not None:
             context[context_object_name] = wrapped_queryset
@@ -76,15 +80,38 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         return context
 
     @property
-    def has_listboard_model_perms(self):
-        """Returns True if request.user has permissions to at least
-        view the listboard model.
+    def has_view_listboard_perms(self):
+        """Returns True if request.user has permissions to
+        view the listboard.
+
+        If False, `get_queryset` returns an empty queryset.
         """
-        app_label = self.listboard_model_cls._meta.label_lower.split('.')[0]
-        model_name = self.listboard_model_cls._meta.label_lower.split('.')[1]
-        return (self.request.user.has_perms([
+        return self.request.user.has_perms([self.listboard_view_permission_codename])
+
+    @property
+    def has_view_only_my_listboard_perms(self):
+        """Returns True if request.user only has permissions to
+        view my records on the listboard.
+        """
+        return self.request.user.has_perm(
+            self.listboard_view_only_my_permission_codename)
+
+    @property
+    def has_listboard_model_perms(self):
+        """Returns True if request.user has permissions to
+        add/change the listboard model.
+
+        Does not affect `get_queryset`.
+
+        Used in templates.
+        """
+        app_label = (
+            self.listboard_model_cls._meta.label_lower.split('.')[0])
+        model_name = (
+            self.listboard_model_cls._meta.label_lower.split('.')[1])
+        return self.request.user.has_perms(
             f'{app_label}.add_{model_name}',
-                f'{app_label}.change_{model_name}']))
+            f'{app_label}.change_{model_name}')
 
     def get_template_names(self):
         return [self.get_template_from_context(self.listboard_template)]
@@ -150,9 +177,12 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         just before rendering to response.
         """
         queryset = self.listboard_model_cls.objects.none()
-        if self.has_listboard_model_perms:
+        if self.has_view_listboard_perms:
             filter_options = self.get_queryset_filter_options(
                 self.request, *self.args, **self.kwargs)
+            if self.has_view_only_my_listboard_perms:
+                filter_options.update(
+                    user_created=self.request.user.username)
             exclude_options = self.get_queryset_exclude_options(
                 self.request, *self.args, **self.kwargs)
             if self.search_term and '|' not in self.search_term:
