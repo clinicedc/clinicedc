@@ -71,7 +71,7 @@
       </div>
   </div>
 
-  {% if not has_listboard_model_perms %}
+  {% if not has_view_listboard_perms %}
       <span class="alert alert-warning"><i class="far fa-hand-paper fa-fw"></i> {{ permissions_warning_message }}</span>
   {% else %}
     {% if not results %}
