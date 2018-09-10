@@ -1,14 +1,11 @@
 import six
 
-from django.utils.html import escape
 from django.apps import apps as django_apps
-from django.db.models import Q
-from django.utils.text import slugify
 from django.views.generic.list import ListView
 from edc_base.sites import SiteQuerysetViewMixin
 
 from ..view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
-from ..view_mixins import QueryStringViewMixin
+from ..view_mixins import QueryStringViewMixin, SearchListboardMixin
 
 
 class ListboardViewError(Exception):
@@ -16,6 +13,7 @@ class ListboardViewError(Exception):
 
 
 class Base(QueryStringViewMixin, UrlRequestContextMixin,
+           SearchListboardMixin,
            TemplateRequestContextMixin, ListView):
 
     cleaned_search_term = None
@@ -41,10 +39,6 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
     orphans = 3
     paginate_by = 10
     paginator_url = None  # defaults to listboard_url
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._search_term = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -149,32 +143,26 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         """
         return {}
 
-    def extra_search_options(self, search_term):
-        """Returns a search Q object that will be added to the
-        search criteria (OR) for the search queryset.
+    def get_queryset_for_listboard(self, filter_options=None, exclude_options=None):
+        """Returns a queryset, called by `get_queryset`.
+
+        This can be overridden.
         """
-        return Q()
-
-    def clean_search_term(self, search_term):
-        return search_term
-
-    @property
-    def search_term(self):
-        if not self._search_term:
-            search_term = self.request.GET.get('q')
-            if search_term:
-                search_term = escape(search_term).strip()
-            search_term = self.clean_search_term(search_term)
-            self._search_term = search_term
-        return self._search_term
+        return self.listboard_model_cls.objects.filter(
+            **filter_options).exclude(**exclude_options)
 
     def get_queryset(self):
-        """Return the list of items for this view.
+        """Return the queryset of records for this view.
+
+        Only returns records if user has dashboard permissions to
+        do so. See `has_view_listboard_perms`.
 
         Completely overrides ListView.get_queryset.
 
-        The return value gets set to self.object_list in get()
-        just before rendering to response.
+        See also `get_queryset_for_listboard`.
+
+        Note: The returned queryset is set to self.object_list in
+        `get()` just before rendering to response.
         """
         queryset = self.listboard_model_cls.objects.none()
         if self.has_view_listboard_perms:
@@ -185,24 +173,9 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
                     user_created=self.request.user.username)
             exclude_options = self.get_queryset_exclude_options(
                 self.request, *self.args, **self.kwargs)
-            if self.search_term and '|' not in self.search_term:
-                search_terms = self.search_term.split('+')
-                q = None
-                q_objects = []
-                for search_term in search_terms:
-                    q_objects.append(Q(slug__icontains=slugify(search_term)))
-                    q_objects.append(self.extra_search_options(search_term))
-                for q_object in q_objects:
-                    if q:
-                        q = q | q_object
-                    else:
-                        q = q_object
-                queryset = self.listboard_model_cls.objects.filter(
-                    q or Q(), **filter_options).exclude(**exclude_options)
-            else:
-                queryset = self.listboard_model_cls.objects.filter(
-                    **filter_options).exclude(
-                        **exclude_options)
+            queryset = self.get_queryset_for_listboard(
+                filter_options=filter_options,
+                exclude_options=exclude_options)
             ordering = self.get_ordering()
             if ordering:
                 if isinstance(ordering, six.string_types):
@@ -212,11 +185,14 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
 
     def get_wrapped_queryset(self, queryset):
         """Returns a list of wrapped model instances.
+
+        Usually is passed the queryset `object_list` and wraps each
+        instance just before passing to the template.
         """
-        object_list = []
+        wrapped_objs = []
         for obj in queryset:
-            object_list.append(self.model_wrapper_cls(obj))
-        return object_list
+            wrapped_objs.append(self.model_wrapper_cls(obj))
+        return wrapped_objs
 
 
 class ListboardView(SiteQuerysetViewMixin, Base):
