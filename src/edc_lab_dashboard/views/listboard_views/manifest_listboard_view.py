@@ -15,6 +15,8 @@ class ManifestListboardView(BaseListboardView):
     listboard_url = 'manifest_listboard_url'
     listboard_template = 'manifest_listboard_template'
     listboard_model = Manifest
+    listboard_view_permission_codename = 'edc_dashboard.view_lab_manifest_listboard'
+    listboard_view_only_my_permission_codename = None
     model_wrapper_cls = ManifestModelWrapper
     listboard_view_filters = ManifestListboardViewFilters()
     search_form_url = 'manifest_listboard_url'

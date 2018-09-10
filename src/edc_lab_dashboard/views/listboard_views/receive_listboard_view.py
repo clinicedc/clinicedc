@@ -14,6 +14,8 @@ class ReceiveListboardView(RequisitionListboardView):
     form_action_url = 'receive_form_action_url'
     listboard_template = 'receive_listboard_template'
     listboard_url = 'receive_listboard_url'
+    listboard_view_permission_codename = 'edc_dashboard.view_lab_receive_listboard'
+    listboard_view_only_my_permission_codename = None
     navbar_selected_item = 'receive'
     process_listboard_url = 'process_listboard_url'
     show_all = True
