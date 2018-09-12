@@ -15,7 +15,8 @@ class TestActionItemGetter(TestCase):
     def setUp(self):
         register_actions()
         self.subject_identifier_model = ActionItem.subject_identifier_model
-        ActionItem.subject_identifier_model = 'edc_action_item.subjectidentifiermodel'
+        ActionItem.subject_identifier_model = (
+            'edc_action_item.subjectidentifiermodel')
         self.subject_identifier = '12345'
         SubjectIdentifierModel.objects.create(
             subject_identifier=self.subject_identifier)
@@ -185,7 +186,9 @@ class TestActionItemGetter(TestCase):
         self.assertEqual(ActionItem.objects.filter(
             action_type__name=FormTwo.action_cls().action_type().name,
             parent_reference_identifier__in=[
-                parent1.action_identifier, parent2.action_identifier, parent3.action_identifier],
+                parent1.action_identifier,
+                parent2.action_identifier,
+                parent3.action_identifier],
             linked_to_reference=False).count(), 0)
 
         # creating a child using any of the original parents
@@ -285,4 +288,5 @@ class TestActionItemGetter(TestCase):
             parent_reference_identifier=form_one_obj.action_identifier)
 
         self.assertEqual(
-            getter.action_item.parent_reference_identifier, form_one_obj.action_identifier)
+            getter.action_item.parent_reference_identifier,
+            form_one_obj.action_identifier)
