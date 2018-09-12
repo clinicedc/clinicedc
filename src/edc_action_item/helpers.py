@@ -24,28 +24,6 @@ class ActionItemHelper:
         self.action_identifier = self.action_item.action_identifier
         self.action_cls = site_action_items.get(
             self.action_item.reference_model_cls.action_name)
-        try:
-            self.reference_model_name = (
-                f'{self.action_item.reference_model_cls._meta.verbose_name} '
-                f'{str(self.reference_obj or "")}')
-        except AttributeError:
-            self.reference_model_name = None
-        try:
-            self.parent_reference_model_name = (
-                f'{self.action_item.parent_reference_model_cls._meta.verbose_name} '
-                f'{str(self.parent_reference_obj)}')
-        except AttributeError:
-            self.parent_reference_model_name = None
-            self.action_item_reason = None
-        else:
-            self.action_item_reason = self.parent_reference_obj.action_item_reason
-        try:
-            self.related_reference_model_name = (
-                f'{self.action_item.related_reference_model_cls._meta.verbose_name} '
-                f'{str(self.related_reference_obj)}')
-        except AttributeError:
-            self.related_reference_model_name = None
-
         if self.action_item.last_updated:
             # could also use action_item.linked_to_reference?
             date_format = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
@@ -155,6 +133,47 @@ class ActionItemHelper:
                         action_identifier=self.action_identifier,
                         **query_dict))
         return self._related_reference_url
+
+    @property
+    def action_item_reason(self):
+        try:
+            action_item_reason = self.parent_reference_obj.action_item_reason
+        except AttributeError:
+            try:
+                action_item_reason = self.related_reference_obj.action_item_reason
+            except AttributeError:
+                action_item_reason = None
+        return action_item_reason
+
+    @property
+    def reference_model_name(self):
+        try:
+            reference_model_name = (
+                f'{self.action_item.reference_model_cls._meta.verbose_name} '
+                f'{str(self.reference_obj or "")}')
+        except AttributeError:
+            reference_model_name = None
+        return reference_model_name
+
+    @property
+    def parent_reference_model_name(self):
+        try:
+            parent_reference_model_name = (
+                f'{self.action_item.parent_reference_model_cls._meta.verbose_name} '
+                f'{str(self.parent_reference_obj)}')
+        except AttributeError:
+            parent_reference_model_name = None
+        return parent_reference_model_name
+
+    @property
+    def related_reference_model_name(self):
+        try:
+            related_reference_model_name = (
+                f'{self.action_item.related_reference_model_cls._meta.verbose_name} '
+                f'{str(self.related_reference_obj)}')
+        except AttributeError:
+            related_reference_model_name = None
+        return related_reference_model_name
 
     def get_context(self):
         """Returns a dictionary of instance attr.
