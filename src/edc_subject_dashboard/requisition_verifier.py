@@ -8,7 +8,7 @@ from edc_lab.models.model_mixins import RequisitionModelMixin
 
 class RequisitionVerifier:
 
-    """Update a requisition setting the "verify" fields.
+    """Update a requisition's "verify" fields.
 
     Also sets defaults for any other fields that are required
     if pre-print a label.
