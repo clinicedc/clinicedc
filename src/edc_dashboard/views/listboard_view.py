@@ -42,25 +42,22 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = context.get('object_list')  # from ListView
+        queryset = context.get(self.context_object_name)
         context_object_name = self.get_context_object_name(queryset)
         wrapped_queryset = self.get_wrapped_queryset(queryset)
         if self.listboard_fa_icon and self.listboard_fa_icon.startswith('fa-'):
             self.listboard_fa_icon = f'fa {self.listboard_fa_icon}'
         context.update(
-            listboard_panel_style=self.listboard_panel_style,
-            listboard_fa_icon=self.listboard_fa_icon,
-            listboard_panel_title=self.listboard_panel_title,
             empty_queryset_message=self.empty_queryset_message,
-            permissions_warning_message=self.permissions_warning_message,
-            object_list=wrapped_queryset,
-            search_term=self.search_term)
-
-        context.update(
             has_listboard_model_perms=self.has_listboard_model_perms,
             has_view_listboard_perms=self.has_view_listboard_perms,
-            listboard_view_permission_codename=self.listboard_view_permission_codename)
-
+            listboard_fa_icon=self.listboard_fa_icon,
+            listboard_panel_style=self.listboard_panel_style,
+            listboard_panel_title=self.listboard_panel_title,
+            listboard_view_permission_codename=self.listboard_view_permission_codename,
+            object_list=wrapped_queryset,
+            permissions_warning_message=self.permissions_warning_message,
+            search_term=self.search_term)
         if context_object_name is not None:
             context[context_object_name] = wrapped_queryset
         context = self.add_url_to_context(
@@ -143,28 +140,28 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         """
         return {}
 
-    def get_queryset_for_listboard(self, filter_options=None, exclude_options=None):
+    def get_filtered_queryset(self, filter_options=None, exclude_options=None):
         """Returns a queryset, called by `get_queryset`.
 
-        This can be overridden.
+        This can be overridden but be sure to use the default_manager.
         """
         return self.listboard_model_cls.objects.filter(
             **filter_options).exclude(**exclude_options)
 
     def get_queryset(self):
-        """Return the queryset of records for this view.
+        """Return the queryset for this view.
+
+        Completely overrides ListView.get_queryset.
 
         Only returns records if user has dashboard permissions to
         do so. See `has_view_listboard_perms`.
 
-        Completely overrides ListView.get_queryset.
-
-        See also `get_queryset_for_listboard`.
+        Passes filter/exclude criteria to `get_filtered_queryset`.
 
         Note: The returned queryset is set to self.object_list in
         `get()` just before rendering to response.
         """
-        queryset = self.listboard_model_cls.objects.none()
+        queryset = self.listboard_model_cls._default_manager.none()
         if self.has_view_listboard_perms:
             filter_options = self.get_queryset_filter_options(
                 self.request, *self.args, **self.kwargs)
@@ -173,7 +170,7 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
                     user_created=self.request.user.username)
             exclude_options = self.get_queryset_exclude_options(
                 self.request, *self.args, **self.kwargs)
-            queryset = self.get_queryset_for_listboard(
+            queryset = self.get_filtered_queryset(
                 filter_options=filter_options,
                 exclude_options=exclude_options)
             ordering = self.get_ordering()
@@ -191,8 +188,14 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         """
         wrapped_objs = []
         for obj in queryset:
-            wrapped_objs.append(self.model_wrapper_cls(obj))
+            model_wrapper = self.model_wrapper_cls(obj)
+            model_wrapper = self.update_wrapped_instance(
+                model_wrapper)
+            wrapped_objs.append(model_wrapper)
         return wrapped_objs
+
+    def update_wrapped_instance(self, model_wrapper):
+        return model_wrapper
 
 
 class ListboardView(SiteQuerysetViewMixin, Base):
