@@ -15,7 +15,7 @@ class TestArchiveExporter(TestCase):
 
     def setUp(self):
 
-        User.objects.create(username='erikvw')
+        self.user = User.objects.create(username='erikvw')
         RegisteredSubject.objects.create(subject_identifier='12345')
         self.models = [
             'auth.user',
@@ -24,7 +24,9 @@ class TestArchiveExporter(TestCase):
     def test_request_archive(self):
 
         exporter = ArchiveExporter()
-        export_history = exporter.export_to_archive(models=self.models)
+        export_history = exporter.export_to_archive(
+            models=self.models,
+            user=self.user)
         folder = mkdtemp()
         shutil.unpack_archive(
             export_history.archive_filename, folder, 'zip')
@@ -36,7 +38,7 @@ class TestArchiveExporter(TestCase):
 
         exporter = ArchiveExporter()
         history = exporter.export_to_archive(
-            models=self.models, user='erikvw')
+            models=self.models, user=self.user)
         filename = history.archive_filename
         self.assertIsNotNone(filename)
         self.assertTrue(
@@ -50,11 +52,11 @@ class TestArchiveExporter(TestCase):
         exporter = ArchiveExporter()
         self.assertRaises(
             LookupError, exporter.export_to_archive,
-            models=models, user='erikvw')
+            models=models, user=self.user)
 
     def test_requested_with_nothing(self):
         models = []
         exporter = ArchiveExporter()
         self.assertRaises(
             NothingToExport, exporter.export_to_archive,
-            models=models, user='erikvw')
+            models=models, user=self.user)

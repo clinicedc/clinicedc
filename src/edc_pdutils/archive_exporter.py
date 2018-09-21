@@ -3,13 +3,14 @@ import shutil
 import sys
 
 from datetime import datetime
-from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.mail.message import EmailMessage
+from django.contrib.auth.models import User
 from edc_base.utils import get_utcnow
 from tempfile import mkdtemp
 
 from .csv_exporters import CsvModelExporter
+from .models import DataRequest, DataRequestHistory
 
 
 class NothingToExport(Exception):
@@ -18,14 +19,13 @@ class NothingToExport(Exception):
 
 class FilesEmailer:
 
-    def __init__(self, path=None, user=None, export_history=None):
-        from django.contrib.auth.models import User
-        self.user = User.objects.get(username=user)
+    def __init__(self, path=None, user=None, data_request_history=None):
+        self.user = user
         self.path = path
         self.email_files()
-        export_history.emailed_to = self.user.email
-        export_history.emailed_datetime = get_utcnow()
-        export_history.save()
+        data_request_history.emailed_to = self.user.email
+        data_request_history.emailed_datetime = get_utcnow()
+        data_request_history.save()
 
     def get_email_message(self):
         body = [
@@ -81,8 +81,6 @@ class ArchiveExporter:
     """
 
     date_format = '%Y%m%d%H%M%S'
-    data_request_model = 'edc_pdutils.datarequest'
-    export_history_model = 'edc_pdutils.datarequesthistory'
     csv_exporter_cls = CsvModelExporter
     files_emailer_cls = FilesEmailer
 
@@ -101,17 +99,15 @@ class ArchiveExporter:
         if data_request:
             models = data_request.requested_as_list
             decrypt = data_request.decrypt
-            user = data_request.user_created
+            user = User.objects.get(username=data_request.user_created)
         else:
             timestamp = datetime.now().strftime('%Y%m%d%H%M')
-            data_request = django_apps.get_model(
-                self.data_request_model).objects.create(
+            data_request = DataRequest.objects.create(
                 name=name or f'Data request {timestamp}',
                 models='\n'.join(models),
                 decrypt=False if decrypt is None else decrypt)
         exported = []
         tmp_folder = mkdtemp()
-        user = user or 'unknown_user'
         for model in models:
             csv_exporter = self.csv_exporter_cls(
                 model=model,
@@ -124,25 +120,24 @@ class ArchiveExporter:
         else:
             summary = [x for x in str(exported)]
             summary.sort()
-            export_history = django_apps.get_model(
-                self.export_history_model).objects.create(
+            data_request_history = DataRequestHistory.objects.create(
                 data_request=data_request,
                 exported_datetime=get_utcnow(),
                 summary='\n'.join(summary),
-                user_created=user)
+                user_created=user.username)
             if self.email_to_user:
                 self.files_emailer_cls(
                     path=tmp_folder,
                     user=user,
-                    export_history=export_history)
+                    data_request_history=data_request_history)
             else:
                 archive_filename = self._archive(
                     tmp_folder=tmp_folder, user=user)
-                export_history.archive_filename = archive_filename
-                export_history.save()
+                data_request_history.archive_filename = archive_filename
+                data_request_history.save()
                 sys.stdout.write(
-                    f'\nExported archive to {export_history.archive_filename}.\n')
-        return export_history
+                    f'\nExported archive to {data_request_history.archive_filename}.\n')
+        return data_request_history
 
     def _archive(self, tmp_folder=None, exported_datetime=None, user=None):
         """Returns the archive zip filename after calling make_archive.
@@ -151,4 +146,4 @@ class ArchiveExporter:
         formatted_date = exported_datetime.strftime(self.date_format)
         export_folder = tmp_folder if self.email_to_user else self.export_folder
         return shutil.make_archive(
-            os.path.join(export_folder, f'{user}_{formatted_date}'), 'zip', tmp_folder)
+            os.path.join(export_folder, f'{user.username}_{formatted_date}'), 'zip', tmp_folder)
