@@ -47,18 +47,15 @@ class TesExportModel(TestCase):
                 file = os.path.join(self.path, file)
                 os.remove(file)
 
-    @tag('1')
     def test_model(self):
         ModelExporter(model='edc_export.crf')
 
-    @tag('1')
     def test_queryset_no_data(self):
         Crf.objects.all().delete()
         queryset = Crf.objects.all()
         self.assertEqual(queryset.model, Crf)
         ModelExporter(queryset=queryset)
 
-    @tag('1')
     def test_export_file(self):
         """Assert creates file.
         """
@@ -70,7 +67,6 @@ class TesExportModel(TestCase):
         self.assertTrue(os.path.exists(path))
         self.assertIn('edc_export_crf_', path)
 
-    @tag('1')
     def test_field_names(self):
         Crf.objects.all().delete()
         queryset = Crf.objects.all()
@@ -88,7 +84,6 @@ class TesExportModel(TestCase):
         for i, name in enumerate(model_exporter.audit_fields):
             self.assertEqual(name, model_exporter.field_names[i])
 
-    @tag('1')
     def test_field_names_with_excluded(self):
         Crf.objects.all().delete()
         queryset = Crf.objects.all()
@@ -107,7 +102,6 @@ class TesExportModel(TestCase):
         for i, name in enumerate(model_exporter.audit_fields):
             self.assertEqual(name, model_exporter.field_names[i])
 
-    @tag('1')
     def test_field_names_provided(self):
         Crf.objects.all().delete()
         queryset = Crf.objects.all()
@@ -135,7 +129,6 @@ class TesExportModel(TestCase):
             rows = [row for row in enumerate(csv_reader)]
             self.assertEqual(len(rows), 2)
 
-    @tag('1')
     def test_header_row(self):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
@@ -148,7 +141,6 @@ class TesExportModel(TestCase):
         header = rows[0][1][0]
         self.assertEqual(model_exporter.field_names, header.split('|'))
 
-    @tag('1')
     def test_values_row(self):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
@@ -161,7 +153,6 @@ class TesExportModel(TestCase):
         values_row = rows[1][1][0]
         self.assertEqual(len(values_row.split('|')), 28)
 
-    @tag('1')
     def test_lookup(self):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
@@ -169,7 +160,6 @@ class TesExportModel(TestCase):
             lookups={'subject_visit': 'subject_visit__report_datetime'})
         self.assertTrue(model_exporter.export())
 
-    @tag('1')
     def test_invalid_lookup_raises(self):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
@@ -179,7 +169,6 @@ class TesExportModel(TestCase):
             ValueGetterInvalidLookup,
             model_exporter.export)
 
-    @tag('1')
     def test_m2m(self):
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
@@ -192,7 +181,6 @@ class TesExportModel(TestCase):
         values_row = rows[1][1][0]
         self.assertIn('thing_one;thing_two', values_row)
 
-    @tag('1')
     def test_encrypted(self):
         subject_visit = SubjectVisit.objects.create(
             subject_identifier='12345',
@@ -210,7 +198,6 @@ class TesExportModel(TestCase):
         values_row = rows[1][1][0]
         self.assertIn('<encrypted>', values_row)
 
-    @tag('1')
     def test_encrypted_not_masked(self):
         subject_visit = SubjectVisit.objects.create(
             subject_identifier='12345',
@@ -228,7 +215,6 @@ class TesExportModel(TestCase):
         values_row = rows[1][1][0]
         self.assertIn('value of encrypted field', values_row)
 
-    @tag('1')
     def test_export_history(self):
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
@@ -245,7 +231,6 @@ class TesExportModel(TestCase):
         self.assertFalse(obj.received_datetime)
         self.assertIn(str(self.crf.pk), obj.pk_list)
 
-    @tag('1')
     def test_export_transaction(self):
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
@@ -259,7 +244,6 @@ class TesExportModel(TestCase):
                       file_history_obj.export_uuid_list)
         self.assertEqual(tx_obj.status, EXPORTED)
 
-    @tag('1')
     def test_export_change_type_insert(self):
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
@@ -272,7 +256,6 @@ class TesExportModel(TestCase):
             tx_pk=self.crf.pk).order_by('exported_datetime')
         self.assertEqual(tx_qs[0].export_change_type, INSERT)
 
-    @tag('1')
     def test_export_change_type_update(self):
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
@@ -288,7 +271,6 @@ class TesExportModel(TestCase):
         self.assertEqual(tx_qs[0].export_change_type, INSERT)
         self.assertEqual(tx_qs[1].export_change_type, UPDATE)
 
-    @tag('1')
     def test_export_change_type_in_csv(self):
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
@@ -301,7 +283,6 @@ class TesExportModel(TestCase):
         values_row = rows[0][1]
         self.assertEqual(INSERT, values_row.get('export_change_type'))
 
-    @tag('1')
     def test_export_change_type_in_csv_update(self):
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
@@ -318,7 +299,6 @@ class TesExportModel(TestCase):
         values_row = rows[1][1]
         self.assertEqual(UPDATE, values_row.get('export_change_type'))
 
-    @tag('1')
     def test_manager_creates_exported_tx(self):
         try:
             tx_obj = ObjectHistory.objects.get(tx_pk=self.crf.pk)
