@@ -22,10 +22,10 @@ class Exported:
         self.data_label = data_label
         self.record_count = record_count
 
-    def repr(self):
+    def __repr__(self):
         return f'{self.__class__.__name__}(data_label={self.data_label})'
 
-    def str(self):
+    def __str__(self):
         return f'{self.data_label} {self.record_count}'
 
 
