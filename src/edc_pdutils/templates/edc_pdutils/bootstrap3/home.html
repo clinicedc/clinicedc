@@ -1,0 +1,211 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+
+{% block extra-css %}
+<style>
+/* Center the loader */
+#work-in-progress {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Add animation to "page content" */
+.animate-bottom {
+  position: relative;
+  -webkit-animation-name: animatebottom;
+  -webkit-animation-duration: 1s;
+  animation-name: animatebottom;
+  animation-duration: 1s
+}
+
+@-webkit-keyframes animatebottom {
+  from { bottom:-100px; opacity:0 } 
+  to { bottom:0px; opacity:1 }
+}
+
+@keyframes animatebottom { 
+  from{ bottom:-100px; opacity:0 } 
+  to{ bottom:0; opacity:1 }
+}
+</style>
+
+{% endblock extra-css %}
+
+
+{% block scripts %}
+
+{{ block.super }}
+
+
+<script>
+	$(window).bind("load", function () {
+        $('#work-in-progress').hide();
+    });
+    
+    function selectAll(app_config_name,label){
+		$( ":input[id^=chk_" + app_config_name + "_" + label + "]" ).prop('checked', $("#select_all_" + app_config_name + "_" + label).prop('checked'));
+    };
+
+    function toggle(id){
+    	$("input[id=" + id +"]").prop('checked', !$("input[id=" + id +"]").prop('checked'));
+    }
+
+</script>
+
+{% endblock scripts %}
+
+
+{% block main %}
+
+<div id="work-in-progress"></div>
+
+
+{% if request.session.selected_models %}
+
+	<div class="row">
+	<div class="col-sm-12">
+	<form method="post" action="{% url 'edc_pdutils:export_selected_models_url' %}">
+	<div class="form-group">
+
+ 		<div class="panel panel-warning">
+ 		<div class="panel-heading clearfix">
+ 			<i class="fas fa-file-export fa-fw fa-lg"></i> 
+			<div class="btn btn-group pull-right">
+			<a id="cancel" role="button" href="{% url 'edc_pdutils:home_url' action='cancel' %}" class="btn btn-default btn-sm"> Cancel </a>
+			<button id="confirm" type="submit" class="btn btn-primary btn-sm" onclick="$('#work-in-progress').show();"> Confirm </button>
+			</div>
+			{% csrf_token %}
+ 		</div>
+ 		</div>
+	</div>
+	</form>
+	</div>
+	</div>
+
+	<div class="row">
+ 	<div class="table-responsive">
+	<table class="table table-condensed">
+		<th>#</th>
+		<th>Model</th>
+		<th>Table</th>
+		<th>App</th>
+		{% for model in request.session.selected_models %}
+			<tr>
+				<td>{{ forloop.counter }}</td>
+				<td>{{ model.verbose_name|title }}</td>
+				<td>{{ model.db_table }}</td>
+				<td>{{ model.app_name|title }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	</div>
+	</div>
+	</div>
+
+{% else %}
+
+	{% if exportables %}
+		<div class="row">
+		<div class="col-sm-12">
+
+		<form id="frm_exportables" name="frm_exportables" method="post" action="{% url 'edc_pdutils:export_selected_models_url' %}">
+		<div class="form-group">
+	 	
+	 		<div class="panel panel-warning">
+	 		<div class="panel-heading clearfix">
+	 			<i class="fas fa-file-export fa-fw fa-lg"></i> <button type="submit" class="btn btn-primary btn-sm pull-right">Export Selected</button>
+	 		</div>
+	 		</div>
+
+		<div class="table-responsive">
+
+		{% csrf_token %}
+
+		{% for app_config, exportable in exportables.items %}
+			<input type="hidden" name="app_config_name" value="{{ app_config.name }}" form="frm_exportables">
+
+	 		<div class="panel panel-default">
+	 		<div class="panel-heading clearfix">{{ app_config.verbose_name }}&nbsp;<small>({{ app_config.name }})</small>
+	 		</div>
+			<div class="panel-body">
+				<div class="form-group">		
+
+			<table class="table table-hover table-condensed">
+
+			{% for label, models in exportable.items %}
+				{% if models %}
+					<tr><td colspan=4 class="text"><b>{{ label|title }}</b></td></tr>		
+					{% if models|length > 1 %}
+						<tr>
+							<td>
+								<input id="select_all_{{ app_config.name }}_{{ label }}"
+									type="checkbox" title="select all"
+									onchange="selectAll('{{app_config.name}}','{{ label }}');" />&nbsp;
+							</td>
+							<td class="text text-muted text-uppercase small text-left" onclick="toggle('select_all_{{ app_config.name }}_{{ label }}');selectAll('{{app_config.name}}','{{ label }}');">select all</td>
+							<td colspan=2 onclick="toggle('select_all_{{ app_config.name }}_{{ label }}');selectAll('{{app_config.name}}','{{ label }}');"></td>
+						 </tr>
+					{% endif %}
+					{% for model in models %}
+						<tr>
+							<td>
+								<input id="chk_{{ app_config.name }}_{{ label }}_{{ forloop.counter }}"
+									name="chk_{{ app_config.name }}_{{ label }}"
+									type="checkbox" value="{{ model.label_lower }}"
+									form="frm_exportables"/>
+							</td>
+							<td onclick="toggle('chk_{{ app_config.name }}_{{ label }}_{{ forloop.counter }}');" class="text text-left align-left">{{ model.verbose_name|title }}</td>
+							<td onclick="toggle('chk_{{ app_config.name }}_{{ label }}_{{ forloop.counter }}');">{{ model.db_table }}</td>
+							<td onclick="toggle('chk_{{ app_config.name }}_{{ label }}_{{ forloop.counter }}');" class="text text-nowrap text-right">{{ app_config.verbose_name }}</td>						
+						</tr>
+					{% endfor %}
+				{% endif %}
+			{% endfor %}
+			</table>
+			</div>
+			</div>
+			</div>
+
+		{% endfor %}
+
+		</div>
+
+	 		<div class="panel panel-warning">
+	 		<div class="panel-heading clearfix">
+	 			<i class="fas fa-file-export fa-fw fa-lg"></i> <button type="submit" class="btn btn-primary btn-sm pull-right">Export Selected</button>
+	 		</div>
+	 		</div>
+
+		</form>
+		</div>
+		</div>
+		</div>
+	{% endif %}
+{% endif %}
+
+
+{% endblock main %}

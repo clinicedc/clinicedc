@@ -2,9 +2,9 @@ import os
 import shutil
 
 from django.contrib.auth.models import User
-from edc_registration.models import RegisteredSubject
 from django.test import TestCase, tag
 from django.test.utils import override_settings
+from edc_registration.models import RegisteredSubject
 from tempfile import mkdtemp
 
 from ..archive_exporter import ArchiveExporter, NothingToExport
@@ -21,14 +21,13 @@ class TestArchiveExporter(TestCase):
             'auth.user',
             'edc_registration.registeredsubject']
 
-    @tag('1')
     def test_request_archive(self):
 
         exporter = ArchiveExporter()
-        history = exporter.export_to_archive(models=self.models)
+        export_history = exporter.export_to_archive(models=self.models)
         folder = mkdtemp()
         shutil.unpack_archive(
-            history.archive_filename, folder, 'zip')
+            export_history.archive_filename, folder, 'zip')
         filenames = os.listdir(folder)
         self.assertGreater(
             len([f for f in filenames]), 0)

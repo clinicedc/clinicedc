@@ -16,6 +16,19 @@ class CsvExporterFileExists(Exception):
     pass
 
 
+class Exported:
+    def __init__(self, path=None, data_label=None, record_count=None):
+        self.path = path
+        self.data_label = data_label
+        self.record_count = record_count
+
+    def repr(self):
+        return f'{self.__class__.__name__}(data_label={self.data_label})'
+
+    def str(self):
+        return f'{self.data_label} {self.record_count}'
+
+
 class CsvExporter:
 
     delimiter = '|'
@@ -47,21 +60,22 @@ class CsvExporter:
             to suppress stdout messages.
         """
         path = None
+        record_count = 0
         sys.stdout.write(self.data_label + '\r')
         if export_folder:
             self.export_folder = export_folder
         if not dataframe.empty:
-            path = self.path
+            path = self.get_path()
             if self.sort_by:
                 dataframe.sort_values(self.sort_by, inplace=True)
             sys.stdout.write(f'( ) {self.data_label} ...     \r')
             dataframe.to_csv(path_or_buf=path, **self.csv_options)
-            recs = len(dataframe)
+            record_count = len(dataframe)
             sys.stdout.write(
-                f'({style.SUCCESS("*")}) {self.data_label} {recs}       \n')
+                f'({style.SUCCESS("*")}) {self.data_label} {record_count}       \n')
         else:
             sys.stdout.write(f'(?) {self.data_label} empty  \n')
-        return path
+        return Exported(path, self.data_label, record_count)
 
     @property
     def csv_options(self):
@@ -73,8 +87,7 @@ class CsvExporter:
             sep=self.delimiter,
             date_format=self.date_format)
 
-    @property
-    def path(self):
+    def get_path(self):
         """Returns a full path and filename.
         """
         path = os.path.join(self.export_folder, self.filename)

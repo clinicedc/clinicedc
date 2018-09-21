@@ -144,6 +144,8 @@ DASHBOARD_URL_NAMES = {
     'subject_dashboard_url': 'edc_pdutils:subject_dashboard_url',
 }
 
+EDC_BOOTSTRAP = 3
+
 EXPORT_FOLDER = None
 
 if 'test' in sys.argv:

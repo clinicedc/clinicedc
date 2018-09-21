@@ -45,7 +45,7 @@ class TestExport(TestCase):
     def test_columns(self):
         model = 'edc_pdutils.crf'
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
-        self.assertEqual(len(list(m.dataframe.columns)), 18)
+        self.assertEqual(len(list(m.dataframe.columns)), 22)
 
     def test_values(self):
         model = 'edc_pdutils.crf'
@@ -110,8 +110,8 @@ class TestExport(TestCase):
             add_columns_for='subject_visit',
             sort_by=['subject_identifier'],
             export_folder=self.path)
-        path = model_exporter.to_csv()
-        with open(path, 'r') as f:
+        exported = model_exporter.to_csv()
+        with open(exported.path, 'r') as f:
             csv_reader = csv.DictReader(f, delimiter='|')
             rows = [row for row in enumerate(csv_reader)]
         self.assertEqual(len(rows), 5)

@@ -17,7 +17,6 @@ class DfHandler:
 
     def __init__(self, dataframe=None, db=None, sort_by=None, na_value=None,
                  table_name=None, **kwargs):
-
         self.table_name = table_name
         self.dataframe = dataframe
         original_row_count = len(self.dataframe.index)
@@ -49,7 +48,6 @@ class DfHandler:
         pass
 
     def finish_dataframe(self, **kwargs):
-
         if self.column_handler_cls:
             handler = self.column_handler_cls(self.dataframe)
             self.dataframe = handler.dataframe
