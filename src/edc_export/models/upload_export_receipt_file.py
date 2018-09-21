@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 from django.db import models
 from edc_base.model_mixins import BaseUuidModel
+from edc_constants.constants import UUID_PATTERN
 
 from .file_history import FileHistory
 
@@ -55,7 +56,7 @@ class UploadExportReceiptFile(BaseUuidModel):
         """
         self.export_receipt_file.open()
         reader = csv.reader(self.export_receipt_file)
-        re_pk = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}')
+        re_pk = re.compile(UUID_PATTERN)
         error_list = []
         for row in reader:
             self.total += 1
@@ -75,5 +76,4 @@ class UploadExportReceiptFile(BaseUuidModel):
         self.errors = '; '.join(error_list)
 
     class Meta:
-        app_label = 'edc_export'
         ordering = ('-created', )

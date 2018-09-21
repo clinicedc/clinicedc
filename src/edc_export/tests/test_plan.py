@@ -5,7 +5,7 @@ from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 
 from ..models import Plan
-from ..model_exporter.plan_exporter import PlanExporter
+from ..model_exporter import PlanExporter
 from .models import ListModel, SubjectVisit, Crf
 
 
