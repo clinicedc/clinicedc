@@ -1,3 +1,5 @@
+from .data_request_admin import DataRequestAdmin
+from .data_request_history_admin import DataRequestHistoryAdmin
 from .export_receipt_admin import ExportReceiptAdmin
 from .file_history_admin import FileHistoryAdmin
 from .object_history_admin import ObjectHistoryAdmin

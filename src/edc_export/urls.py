@@ -1,9 +1,15 @@
-from django.conf.urls import url
-from django.contrib import admin
+from django.urls.conf import re_path, path
 
 from .admin_site import edc_export_admin
+from .views import HomeView, ExportModelsView
+
+app_name = 'edc_export'
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'', edc_export_admin.urls),
+    path('admin/', edc_export_admin.urls),
+    path('export/', ExportModelsView.as_view(),
+         name='export_selected_models_url'),
+    re_path('(?P<action>cancel|confirm)/', HomeView.as_view(),
+            name='home_url'),
+    path('', HomeView.as_view(), name='home_url'),
 ]
