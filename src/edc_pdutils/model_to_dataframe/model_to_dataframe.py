@@ -57,7 +57,9 @@ class ModelToDataframe:
                         row = []
                         for lookup, column_name in self.columns.items():
                             value = self.get_column_value(
-                                model_obj=model_obj, column_name=column_name, lookup=lookup)
+                                model_obj=model_obj,
+                                column_name=column_name,
+                                lookup=lookup)
                             row.append(value)
                         data.append(row)
                         self._dataframe = pd.DataFrame(
@@ -137,11 +139,14 @@ class ModelToDataframe:
             if (self.add_columns_for.endswith('_visit')
                     or self.add_columns_for.endswith('_visit_id')):
                 columns.update({
-                    f'{self.add_columns_for}__appointment__appt_datetime': 'appointment_datetime'})
+                    f'{self.add_columns_for}__appointment__appt_datetime':
+                    'appointment_datetime'})
                 columns.update({
-                    f'{self.add_columns_for}__appointment__visit_code': 'visit_code'})
+                    f'{self.add_columns_for}__appointment__visit_code':
+                    'visit_code'})
                 columns.update({
-                    f'{self.add_columns_for}__appointment__visit_code_sequence': 'visit_code_sequence'})
+                    f'{self.add_columns_for}__appointment__visit_code_sequence':
+                    'visit_code_sequence'})
                 columns.update({
                     f'{self.add_columns_for}__report_datetime': 'visit_datetime'})
                 columns.update({
