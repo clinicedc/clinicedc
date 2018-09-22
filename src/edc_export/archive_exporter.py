@@ -9,7 +9,8 @@ from edc_base import get_utcnow
 from edc_pdutils import CsvModelExporter
 from tempfile import mkdtemp
 
-from .files_emailer import FilesEmailer
+from .files_archiver import FilesArchiver
+from .files_emailer import FilesEmailer, FilesEmailerError
 from .models import DataRequest, DataRequestHistory
 
 
@@ -21,23 +22,29 @@ class ArchiveExporterError(Exception):
     pass
 
 
+class ArchiveExporterEmailError(Exception):
+    pass
+
+
 class ArchiveExporter:
 
     """Exports a list of models to individual CSV files and
-    adds each to a single zip archive.
+    adds each to a single zip archive OR emails each.
     """
 
     date_format = '%Y%m%d%H%M%S'
     csv_exporter_cls = CsvModelExporter
     files_emailer_cls = FilesEmailer
+    files_archiver_cls = FilesArchiver
 
-    def __init__(self, export_folder=None, date_format=None, email_to_user=None):
+    def __init__(self, export_folder=None, date_format=None):
         self.date_format = date_format or self.date_format
         self.export_folder = export_folder or settings.EXPORT_FOLDER
-        self.email_to_user = email_to_user
 
-    def export_to_archive(self, data_request=None, name=None,
-                          models=None, decrypt=None, user=None, **kwargs):
+    def export(self, data_request=None, name=None,
+               models=None, decrypt=None, user=None,
+               archive=None, email_to_user=None,
+               **kwargs):
         """Returns a history model instance after exporting
          models to a single zip archive file.
 
@@ -67,31 +74,26 @@ class ArchiveExporter:
         else:
             summary = [str(x) for x in exported]
             summary.sort()
+            exported_datetime = get_utcnow()
             data_request_history = DataRequestHistory.objects.create(
                 data_request=data_request,
-                exported_datetime=get_utcnow(),
+                exported_datetime=exported_datetime,
                 summary='\n'.join(summary),
                 user_created=user.username)
-            if self.email_to_user:
-                self.files_emailer_cls(
-                    path=tmp_folder,
+            if archive:
+                self.files_archiver_cls(
+                    export_folder=tmp_folder,
                     user=user,
-                    data_request_history=data_request_history)
-            else:
-                archive_filename = self._archive(
-                    tmp_folder=tmp_folder, user=user)
-                data_request_history.archive_filename = archive_filename
-                data_request_history.save()
-                sys.stdout.write(
-                    f'\nExported archive to {data_request_history.archive_filename}.\n')
+                    exported_datetime=exported_datetime,
+                    data_request_history=data_request_history,
+                    date_format=self.date_format)
+            if email_to_user:
+                try:
+                    self.files_emailer_cls(
+                        path=tmp_folder,
+                        user=user,
+                        data_request_history=data_request_history,
+                        file_ext='.zip' if archive else '.csv')
+                except FilesEmailerError as e:
+                    raise ArchiveExporterEmailError(e)
         return data_request_history
-
-    def _archive(self, tmp_folder=None, exported_datetime=None, user=None):
-        """Returns the archive zip filename after calling make_archive.
-        """
-        exported_datetime = exported_datetime or get_utcnow()
-        formatted_date = exported_datetime.strftime(self.date_format)
-        export_folder = tmp_folder if self.email_to_user else self.export_folder
-        return shutil.make_archive(
-            os.path.join(
-                export_folder, f'{user.username}_{formatted_date}'), 'zip', tmp_folder)

@@ -13,7 +13,8 @@ class FilesEmailerError(ValidationError):
 
 class FilesEmailer:
 
-    def __init__(self, path=None, user=None, data_request_history=None):
+    def __init__(self, path=None, user=None, data_request_history=None, file_ext=None):
+        self.file_ext = file_ext or '.csv'
         self.user = user
         self.path = path
         self.email_files()
@@ -55,7 +56,7 @@ class FilesEmailer:
         email_message = self.get_email_message()
         files = []
         for filename in os.listdir(self.path):
-            if os.path.splitext(filename)[1] == '.csv':
+            if os.path.splitext(filename)[1] == self.file_ext:
                 files.append(os.path.join(self.path, filename))
         x = 0
         for index, file in enumerate(files):

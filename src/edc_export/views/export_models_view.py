@@ -7,6 +7,7 @@ from django.views.generic.base import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 
 from ..archive_exporter import ArchiveExporter
+from ..archive_exporter import ArchiveExporterEmailError
 from ..exportables import Exportables
 from ..files_emailer import FilesEmailerError
 from ..model_options import ModelOptions
@@ -69,19 +70,20 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
         return selected_models
 
     def export_models(self, request=None, email_to_user=None):
-        exporter = ArchiveExporter(email_to_user=email_to_user)
+        exporter = ArchiveExporter()
         selected_models = self.get_selected_models_from_session()
         selected_models = self.check_export_permissions(selected_models)
         try:
-            exporter.export_to_archive(
+            exporter.export(
                 models=[x.label_lower for x in selected_models],
                 add_columns_for='subject_visit_id',
                 user=request.user,
-                request=request)
-        except FilesEmailerError as e:
+                request=request,
+                email_to_user=email_to_user,
+                archive=False)
+        except ArchiveExporterEmailError as e:
             messages.error(
-                self.request, f'Failed to send files by email. Got {e}')
-
+                self.request, f'Failed to send files by email. Got \'{e}\'')
         else:
             messages.success(
                 request, (f'The data for {len(selected_models)} '

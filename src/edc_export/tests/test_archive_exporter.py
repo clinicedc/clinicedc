@@ -21,12 +21,14 @@ class TestArchiveExporter(TestCase):
             'auth.user',
             'edc_registration.registeredsubject']
 
+    @tag('1')
     def test_request_archive(self):
 
         exporter = ArchiveExporter()
-        export_history = exporter.export_to_archive(
+        export_history = exporter.export(
             models=self.models,
-            user=self.user)
+            user=self.user,
+            archive=True)
         folder = mkdtemp()
         shutil.unpack_archive(
             export_history.archive_filename, folder, 'zip')
@@ -37,8 +39,8 @@ class TestArchiveExporter(TestCase):
     def test_request_archive_filename_exists(self):
 
         exporter = ArchiveExporter()
-        history = exporter.export_to_archive(
-            models=self.models, user=self.user)
+        history = exporter.export(
+            models=self.models, user=self.user, archive=True)
         filename = history.archive_filename
         self.assertIsNotNone(filename)
         self.assertTrue(
@@ -51,12 +53,12 @@ class TestArchiveExporter(TestCase):
             'edc_registration.registeredsubject']
         exporter = ArchiveExporter()
         self.assertRaises(
-            LookupError, exporter.export_to_archive,
-            models=models, user=self.user)
+            LookupError, exporter.export,
+            models=models, user=self.user, archive=True)
 
     def test_requested_with_nothing(self):
         models = []
         exporter = ArchiveExporter()
         self.assertRaises(
-            NothingToExport, exporter.export_to_archive,
-            models=models, user=self.user)
+            NothingToExport, exporter.export,
+            models=models, user=self.user, archive=True)
