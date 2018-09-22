@@ -2,9 +2,9 @@ import csv
 
 from django.test import TestCase, tag
 from edc_pdutils import CsvModelExporter, ModelToDataframe
-from edc_pdutils.helper import Helper
 from tempfile import mkdtemp
 
+from .helper import Helper
 from .models import Crf, CrfEncrypted, SubjectVisit
 
 
@@ -20,15 +20,15 @@ class TestExport(TestCase):
 
     def test_none(self):
         Crf.objects.all().delete()
-        model = 'edc_pdutils.crf'
+        model = 'edc_export.crf'
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
         self.assertEqual(len(m.dataframe.index), 0)
 
     def test_records(self):
-        model = 'edc_pdutils.crf'
+        model = 'edc_export.crf'
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
         self.assertEqual(len(m.dataframe.index), 5)
-        model = 'edc_pdutils.crfone'
+        model = 'edc_export.crfone'
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
         self.assertEqual(len(m.dataframe.index), 5)
 
@@ -38,12 +38,12 @@ class TestExport(TestCase):
         self.assertEqual(len(m.dataframe.index), 5)
 
     def test_columns(self):
-        model = 'edc_pdutils.crf'
+        model = 'edc_export.crf'
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
-        self.assertEqual(len(list(m.dataframe.columns)), 22)
+        self.assertEqual(len(list(m.dataframe.columns)), 26)
 
     def test_values(self):
-        model = 'edc_pdutils.crf'
+        model = 'edc_export.crf'
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
         df = m.dataframe
         df.sort_values(['subject_identifier'], inplace=True)
@@ -52,7 +52,7 @@ class TestExport(TestCase):
             self.assertEqual(df.visit_code.iloc[i], f'{i}000')
 
     def test_encrypted_none(self):
-        model = 'edc_pdutils.crfencrypted'
+        model = 'edc_export.crfencrypted'
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
         self.assertEqual(len(m.dataframe.index), 0)
 
@@ -60,7 +60,7 @@ class TestExport(TestCase):
         CrfEncrypted.objects.create(
             subject_visit=self.subject_visit,
             encrypted1=f'encrypted1')
-        model = 'edc_pdutils.crfencrypted'
+        model = 'edc_export.crfencrypted'
         m = ModelToDataframe(model=model, add_columns_for='subject_visit')
         self.assertEqual(len(m.dataframe.index), 1)
 
@@ -87,7 +87,7 @@ class TestExport(TestCase):
             subject_visit=self.subject_visit,
             encrypted1=f'encrypted1')
         model_exporter = CsvModelExporter(
-            model='edc_pdutils.CrfEncrypted',
+            model='edc_export.CrfEncrypted',
             add_columns_for='subject_visit',
             export_folder=self.path)
         model_exporter.to_csv()
@@ -101,7 +101,7 @@ class TestExport(TestCase):
 
     def test_records_to_csv_from_model(self):
         model_exporter = CsvModelExporter(
-            model='edc_pdutils.crf',
+            model='edc_export.crf',
             add_columns_for='subject_visit',
             sort_by=['subject_identifier'],
             export_folder=self.path)
