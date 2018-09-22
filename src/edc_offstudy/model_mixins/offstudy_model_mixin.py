@@ -10,6 +10,8 @@ from edc_protocol.validators import datetime_not_before_study_start
 
 from ..choices import OFF_STUDY_REASONS
 from ..offstudy import Offstudy
+from django.contrib.sites.managers import CurrentSiteManager
+from edc_base.model_managers.historical_records import HistoricalRecords
 
 
 class OffstudyModelMixinError(ValidationError):
@@ -50,8 +52,6 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         max_length=125)
 
     offstudy_reason_other = OtherCharField()
-
-    objects = OffstudyModelManager()
 
     def __str__(self):
         formatted_date = timezone.localtime(
