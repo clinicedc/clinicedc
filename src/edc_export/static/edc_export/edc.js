@@ -9,3 +9,8 @@ function selectAll(app_config_name,label){
 function toggle(id){
     $("input[id=" + id +"]").prop('checked', !$("input[id=" + id +"]").prop('checked'));
 }
+
+function confirm(){
+    $('#btn-confirm').prop("disabled",true);
+    $('#work-in-progress').show();
+}
