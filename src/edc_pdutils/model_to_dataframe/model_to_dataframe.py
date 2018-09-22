@@ -57,7 +57,9 @@ class ModelToDataframe:
                         row = []
                         for lookup, column_name in self.columns.items():
                             value = self.get_column_value(
-                                model_obj=model_obj, column_name=column_name, lookup=lookup)
+                                model_obj=model_obj,
+                                column_name=column_name,
+                                lookup=lookup)
                             row.append(value)
                         data.append(row)
                         self._dataframe = pd.DataFrame(
@@ -128,15 +130,31 @@ class ModelToDataframe:
                 except ValueError:
                     pass
             columns = dict(zip(columns, columns))
-            if self.add_columns_for in columns or f'{self.add_columns_for}_id' in columns:
-                if self.add_columns_for.endswith('_visit'):
-                    columns.update({
-                        f'{self.add_columns_for}__appointment__visit_code': 'visit_code'})
-                    try:
-                        del columns['subject_identifier']
-                    except KeyError:
-                        columns.update({
-                            f'{self.add_columns_for}__appointment__subject_identifier':
-                            'subject_identifier'})
+            columns = self.add_columns_for_subject_visit(columns)
             self._columns = columns
         return self._columns
+
+    def add_columns_for_subject_visit(self, columns):
+        if self.add_columns_for in columns or f'{self.add_columns_for}_id' in columns:
+            if (self.add_columns_for.endswith('_visit')
+                    or self.add_columns_for.endswith('_visit_id')):
+                columns.update({
+                    f'{self.add_columns_for}__appointment__appt_datetime':
+                    'appointment_datetime'})
+                columns.update({
+                    f'{self.add_columns_for}__appointment__visit_code':
+                    'visit_code'})
+                columns.update({
+                    f'{self.add_columns_for}__appointment__visit_code_sequence':
+                    'visit_code_sequence'})
+                columns.update({
+                    f'{self.add_columns_for}__report_datetime': 'visit_datetime'})
+                columns.update({
+                    f'{self.add_columns_for}__reason': 'visit_reason'})
+                try:
+                    del columns['subject_identifier']
+                except KeyError:
+                    columns.update({
+                        f'{self.add_columns_for}__appointment__subject_identifier':
+                        'subject_identifier'})
+        return columns

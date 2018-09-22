@@ -82,6 +82,7 @@ class SubjectRequisition(CrfModelMixin, BaseUuidModel):
 
 
 class ListModel(ListModelMixin):
+
     pass
 
 

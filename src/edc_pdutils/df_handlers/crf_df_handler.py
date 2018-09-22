@@ -13,7 +13,7 @@ class CrfDfHandler(DfHandler):
 
     crf_dialect_cls = CrfDialect
     visit_tbl = None
-    visit_column = None  # e.g.  'subject_visit_id'
+    visit_column = 'subject_visit_id'
     appointment_tbl = 'edc_appointment_appointment'
     registered_subject_tbl = 'edc_registration_registeredsubject'
     dialect_select_visit_and_related = 'select_visit_and_related'

@@ -78,10 +78,10 @@ class CsvTablesExporter:
                 data_label=table_name,
                 export_folder=export_folder,
                 **kwargs)
-            path = exporter.to_csv(
+            exported = exporter.to_csv(
                 dataframe=df, export_folder=export_folder)
-            if path:
-                self.exported_paths.update({table_name: path})
+            if exported.path:
+                self.exported_paths.update({table_name: exported.path})
 
     def get_table_names(self):
         """Returns a list of table names for this app_label.

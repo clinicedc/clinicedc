@@ -42,9 +42,9 @@ class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
                         data_label=f'{row.table_name}_{label}_merged',
                         export_folder=export_folder,
                         **kwargs)
-                    path = csv_exporter.to_csv(dataframe=df)
-                    if path:
-                        self.exported_paths.update({table_name: path})
+                    exported = csv_exporter.to_csv(dataframe=df)
+                    if exported.path:
+                        self.exported_paths.update({table_name: exported.path})
 
     def get_inline_table_names(self, table_name=None):
         return self.db.show_inline_tables(referenced_table_name=table_name)
