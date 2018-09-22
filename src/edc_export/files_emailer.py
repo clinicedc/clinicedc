@@ -32,7 +32,8 @@ class FilesEmailer:
              f'files may be fewer than the number of tables you originally selected.'),
             (f'When importing files into your software note that the data are delimited \n'
              f'by a "|" instead of a comma. You will need to indicate this when you \n'
-             f'open/import the files into Excel, Numbers or whichever software you are using.'),
+             f'open/import the files into Excel, Numbers or whichever software '
+             f'you are using.'),
             # f'{summary}',
             f'Thanks'
         ]
