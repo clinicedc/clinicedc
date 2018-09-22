@@ -8,11 +8,11 @@ from django.test import TestCase, tag
 from ..csv_exporters import CsvTablesExporter
 from .helper import Helper
 
-app_config = django_apps.get_app_config('edc_pdutils')
 
-
+@tag('1')
 class TestExport(TestCase):
 
+    app_config = django_apps.get_app_config('edc_pdutils')
     path = app_config.export_folder
     helper = Helper()
 
@@ -58,6 +58,6 @@ class TestExport(TestCase):
             exclude_history_tables = True
 
         sys.stdout.write('\n')
-        tables_exporter = MyCsvTablesExporter(app_label='bcpp_clinic')
+        tables_exporter = MyCsvTablesExporter(app_label='edc_pdutils')
         for path in tables_exporter.exported_paths:
             self.assertNotIn('history', path)
