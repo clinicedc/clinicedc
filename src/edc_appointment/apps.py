@@ -18,8 +18,8 @@ class AppConfig(DjangoAppConfig):
     configurations = [
         AppointmentConfig(
             model='edc_appointment.appointment',
-            related_visit_model='edc_appointment.subjectvisit')
-    ]
+            related_visit_model='edc_appointment.subjectvisit')]
+    has_exportable_data = True
 
     def ready(self):
         from .signals import (
