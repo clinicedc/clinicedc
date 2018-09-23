@@ -18,7 +18,7 @@ class AppConfig(DjangoAppConfig):
     # app_label = 'edc_metadata'
     crf_model = 'edc_metadata.crfmetadata'
     metadata_requisition_model = 'edc_metadata.requisitionmetadata'
-
+    has_exportable_data = True
     reason_field = {'edc_metadata.subjectvisit': 'reason'}
     create_on_reasons = [SCHEDULED, UNSCHEDULED]
     delete_on_reasons = [MISSED_VISIT]
