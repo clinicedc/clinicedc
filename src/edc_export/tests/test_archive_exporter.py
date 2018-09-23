@@ -7,7 +7,7 @@ from django.test.utils import override_settings
 from edc_registration.models import RegisteredSubject
 from tempfile import mkdtemp
 
-from ..archive_exporter import ArchiveExporter, NothingToExport
+from ..archive_exporter import ArchiveExporter, ArchiveExporterNothingExported
 
 
 @override_settings(EXPORT_FOLDER=mkdtemp())
@@ -54,5 +54,5 @@ class TestArchiveExporter(TestCase):
 
     def test_requested_with_nothing(self):
         self.assertRaises(
-            NothingToExport, ArchiveExporter,
+            ArchiveExporterNothingExported, ArchiveExporter,
             models=[], user=self.user, archive=True)
