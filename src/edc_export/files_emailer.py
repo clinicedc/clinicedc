@@ -4,7 +4,6 @@ import sys
 
 from django.core.exceptions import ValidationError
 from django.core.mail.message import EmailMessage
-from edc_base import get_utcnow
 
 
 class FilesEmailerError(ValidationError):
@@ -13,29 +12,28 @@ class FilesEmailerError(ValidationError):
 
 class FilesEmailer:
 
-    def __init__(self, path=None, user=None, data_request_history=None, file_ext=None):
+    def __init__(self, path=None, user=None, file_ext=None, summary=None):
         self.file_ext = file_ext or '.csv'
         self.user = user
         self.path = path
+        self.summary = summary
         self.email_files()
-        data_request_history.emailed_to = self.user.email
-        data_request_history.emailed_datetime = get_utcnow()
-        data_request_history.save()
 
     def get_email_message(self):
         body = [
             f'Hello {self.user.first_name or self.user.username}',
-            f'The data you requested is attached.',
+            f'The data you requested are attached.',
             (f'An email can contain no more than 10 attached files. If you selected \n'
              f'more than 10 tables for export, you will receive more than one email for \n'
              f'this request.'),
             (f'Tables with zero records are not exported so the total number of attached \n'
              f'files may be fewer than the number of tables you originally selected.'),
             (f'When importing files into your software note that the data are delimited \n'
-             f'by a "|" instead of a comma. You will need to indicate this when you \n'
+             f'by a pipe, "|",  instead of a comma. You will need to indicate this when you \n'  # noqa
              f'open/import the files into Excel, Numbers or whichever software '
              f'you are using.'),
-            # f'{summary}',
+            f'Your request includes the following data:',
+            f'{self.summary}',
             f'Thanks'
         ]
         return EmailMessage(

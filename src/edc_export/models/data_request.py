@@ -5,6 +5,7 @@ from edc_base.model_mixins import BaseUuidModel
 
 from ..choices import EXPORT_FORMATS
 from ..constants import CSV
+from ..model_options import ModelOptions
 
 
 class DataRequest(BaseUuidModel):
@@ -30,7 +31,7 @@ class DataRequest(BaseUuidModel):
 
     @property
     def models_as_list(self):
-        """Returns `models` as a list.
+        """Returns `models` as a list of ModelOptions instances.
 
         Validates each item to be a model name.
         """
@@ -38,7 +39,7 @@ class DataRequest(BaseUuidModel):
         models_as_list = [x.strip() for x in models_as_list if x.strip()]
         for model in models_as_list:
             django_apps.get_model(model)
-        return models_as_list
+        return [ModelOptions(x) for x in models_as_list]
 
     class Meta:
         ordering = ('name', )
