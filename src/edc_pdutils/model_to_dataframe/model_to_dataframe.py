@@ -102,7 +102,7 @@ class ModelToDataframe:
                 df_m2m = df_m2m[df_m2m[m2m.name].notnull()]
                 df_pivot = pd.pivot_table(
                     df_m2m, values=m2m.name, index=['id'],
-                    aggfunc=lambda x: ','.join(str(v) for v in x))
+                    aggfunc=lambda x: ';'.join(str(v) for v in x))
                 self._dataframe = pd.merge(
                     self._dataframe, df_pivot, how='left', on='id')
 
