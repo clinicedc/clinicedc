@@ -2,15 +2,17 @@ import numpy as np
 import pandas as pd
 import sys
 
+from copy import copy
 from django.apps import apps as django_apps
 from django.db.models.constants import LOOKUP_SEP
 
 from .value_getter import ValueGetter
+from django.core.exceptions import FieldError
 
 
 class ModelToDataframe:
     """
-        m = ModelToDataframe(model='edc_pdutils.crf', add_columns_for='clinic_visit')
+        m = ModelToDataframe(model='edc_pdutils.crf', add_columns_for=['clinic_visit'])
         my_df = m.dataframe
     """
 
@@ -31,7 +33,8 @@ class ModelToDataframe:
         self._dataframe = pd.DataFrame()
         self.drop_sys_columns = drop_sys_columns
         self.decrypt = decrypt
-        self.add_columns_for = add_columns_for
+        self.m2m_columns = []
+        self.add_columns_for = add_columns_for or []
         self.query_filter = query_filter or {}
         if queryset:
             self.model = queryset.model._meta.label_lower
@@ -71,6 +74,7 @@ class ModelToDataframe:
                         *columns).filter(**self.query_filter)
                     self._dataframe = pd.DataFrame(
                         list(queryset), columns=columns)
+                self.merge_dataframe_with_pivoted_m2ms()
                 self._dataframe.rename(columns=self.columns, inplace=True)
                 self._dataframe.fillna(value=np.nan, inplace=True)
                 for column in list(self._dataframe.select_dtypes(
@@ -81,6 +85,26 @@ class ModelToDataframe:
                 self._dataframe = self._dataframe.drop(
                     self.edc_sys_columns, axis=1)
         return self._dataframe
+
+    def merge_dataframe_with_pivoted_m2ms(self):
+        """For each m2m field, merge in a single pivoted field.
+        """
+        for m2m in self.queryset.model._meta.many_to_many:
+            try:
+                m2m_qs = self.queryset.model.objects.filter(
+                    **self.query_filter).values_list(
+                    'id', f'{m2m.name}__short_name')
+            except FieldError:
+                pass
+            else:
+                df_m2m = pd.DataFrame.from_records(
+                    list(m2m_qs), columns=['id', m2m.name])
+                df_m2m = df_m2m[df_m2m[m2m.name].notnull()]
+                df_pivot = pd.pivot_table(
+                    df_m2m, values=m2m.name, index=['id'],
+                    aggfunc=lambda x: ','.join(str(v) for v in x))
+                self._dataframe = pd.merge(
+                    self._dataframe, df_pivot, how='left', on='id')
 
     def get_column_value(self, model_obj=None, column_name=None, lookup=None):
         """Returns the column value.
@@ -100,7 +124,7 @@ class ModelToDataframe:
     def has_encrypted_fields(self):
         """Returns True if at least one field uses encryption.
         """
-        for field in self.model_cls._meta.fields:
+        for field in self.queryset.model._meta.fields:
             if hasattr(field, 'field_cryptor'):
                 return True
         return False
@@ -111,7 +135,7 @@ class ModelToDataframe:
         """
         if not self._encrypted_columns:
             self._encrypted_columns = ['identity_or_pk']
-            for field in self.model_cls._meta.fields:
+            for field in self.queryset.model._meta.fields:
                 if hasattr(field, 'field_cryptor'):
                     self._encrypted_columns.append(field.name)
             self._encrypted_columns = list(set(self._encrypted_columns))
@@ -123,38 +147,59 @@ class ModelToDataframe:
         """Return a dictionary of column names.
         """
         if not self._columns:
-            columns = list(self.queryset[0].__dict__.keys())
+            columns_list = list(self.queryset[0].__dict__.keys())
             for name in self.sys_field_names:
                 try:
-                    columns.remove(name)
+                    columns_list.remove(name)
                 except ValueError:
                     pass
-            columns = dict(zip(columns, columns))
-            columns = self.add_columns_for_subject_visit(columns)
+            columns = dict(zip(columns_list, columns_list))
+            for column_name in columns_list:
+                if (column_name.endswith('_visit')
+                        or column_name.endswith('_visit_id')):
+                    columns = self.add_columns_for_subject_visit(
+                        column_name=column_name,
+                        columns=columns)
+                if (column_name.endswith('_requisition')
+                        or column_name.endswith('requisition_id')):
+                    columns = self.add_columns_for_subject_requisitions(
+                        columns=columns)
+
             self._columns = columns
         return self._columns
 
-    def add_columns_for_subject_visit(self, columns):
-        if self.add_columns_for in columns or f'{self.add_columns_for}_id' in columns:
-            if (self.add_columns_for.endswith('_visit')
-                    or self.add_columns_for.endswith('_visit_id')):
+    def add_columns_for_subject_visit(self, column_name=None, columns=None):
+        try:
+            del columns['subject_identifier']
+        except KeyError:
+            columns.update({
+                f'{column_name}__appointment__subject_identifier':
+                'subject_identifier'})
+        columns.update({
+            f'{column_name}__appointment__appt_datetime':
+            'appointment_datetime'})
+        columns.update({
+            f'{column_name}__appointment__visit_code':
+            'visit_code'})
+        columns.update({
+            f'{column_name}__appointment__visit_code_sequence':
+            'visit_code_sequence'})
+        columns.update({
+            f'{column_name}__report_datetime': 'visit_datetime'})
+        columns.update({
+            f'{column_name}__reason': 'visit_reason'})
+        return columns
+
+    def add_columns_for_subject_requisitions(self, columns=None):
+        for col in copy(columns):
+            if col.endswith('_requisition_id'):
+                col_prefix = col.split('_')[0]
+                column_name = col.split('_id')[0]
                 columns.update({
-                    f'{self.add_columns_for}__appointment__appt_datetime':
-                    'appointment_datetime'})
+                    f'{column_name}__requisition_identifier':
+                    f'{col_prefix}_requisition_identifier'})
                 columns.update({
-                    f'{self.add_columns_for}__appointment__visit_code':
-                    'visit_code'})
+                    f'{column_name}__drawn_datetime': f'{col_prefix}_drawn_datetime'})
                 columns.update({
-                    f'{self.add_columns_for}__appointment__visit_code_sequence':
-                    'visit_code_sequence'})
-                columns.update({
-                    f'{self.add_columns_for}__report_datetime': 'visit_datetime'})
-                columns.update({
-                    f'{self.add_columns_for}__reason': 'visit_reason'})
-                try:
-                    del columns['subject_identifier']
-                except KeyError:
-                    columns.update({
-                        f'{self.add_columns_for}__appointment__subject_identifier':
-                        'subject_identifier'})
+                    f'{column_name}__is_drawn': f'{col_prefix}_is_drawn'})
         return columns
