@@ -11,6 +11,7 @@ class AppConfig(DjangoAppConfig):
     name = 'edc_registration'
     verbose_name = 'Edc Registration'
     app_label = 'edc_registration'
+    has_exportable_data = True
 
     def ready(self):
         from .signals import update_registered_subject_from_model_on_post_save
