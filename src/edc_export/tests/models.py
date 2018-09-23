@@ -21,6 +21,12 @@ class SubjectVisit(BaseUuidModel):
 
     visit_code = models.CharField(max_length=25, default='T0')
 
+    reason = models.CharField(max_length=25, null=True)
+
+    survival_status = models.CharField(max_length=25, null=True)
+
+    last_alive_date = models.DateTimeField(null=True)
+
     class Meta:
         ordering = ['report_datetime']
 
@@ -100,3 +106,27 @@ class CrfEncrypted(CrfModelMixin, ExportTrackingFieldsModelMixin, BaseUuidModel)
     encrypted1 = EncryptedCharField(null=True)
 
     export_history = ExportHistoryManager()
+
+
+class CrfOne(CrfModelMixin, BaseUuidModel):
+
+    dte = models.DateTimeField(default=get_utcnow)
+
+
+class CrfTwo(CrfModelMixin, BaseUuidModel):
+
+    dte = models.DateTimeField(default=get_utcnow)
+
+
+class CrfThree(CrfModelMixin, BaseUuidModel):
+
+    UPPERCASE = models.DateTimeField(default=get_utcnow)
+
+
+class CrfInline(BaseUuidModel):
+
+    crf_one = models.ForeignKey(CrfOne, on_delete=models.PROTECT)
+
+    crf_two = models.ForeignKey(CrfTwo, on_delete=models.PROTECT)
+
+    dte = models.DateTimeField(default=get_utcnow)

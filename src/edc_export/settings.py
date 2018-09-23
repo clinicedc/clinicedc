@@ -18,6 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_NAME = 'edc_export'
 
 ETC_DIR = BASE_DIR
+SITE_ID = 10
 # AUTO_CREATE_KEYS = True
 
 # Quick-start development settings - unsuitable for production
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'edc_metadata.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_device.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_export.apps.AppConfig',
 ]
@@ -141,6 +143,7 @@ DASHBOARD_URL_NAMES = {
     'subject_dashboard_url': 'edc_export:subject_dashboard_url',
 }
 
+EDC_BOOTSTRAP = 3
 
 if 'test' in sys.argv:
 
