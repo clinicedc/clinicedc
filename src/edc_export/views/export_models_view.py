@@ -76,7 +76,7 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
         try:
             exporter.export(
                 models=[x.label_lower for x in selected_models],
-                add_columns_for='subject_visit_id',
+                add_columns_for=['subject_visit_id', 'requisition_id'],
                 user=request.user,
                 request=request,
                 email_to_user=email_to_user,

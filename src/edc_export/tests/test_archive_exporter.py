@@ -21,7 +21,6 @@ class TestArchiveExporter(TestCase):
             'auth.user',
             'edc_registration.registeredsubject']
 
-    @tag('1')
     def test_request_archive(self):
 
         exporter = ArchiveExporter()
