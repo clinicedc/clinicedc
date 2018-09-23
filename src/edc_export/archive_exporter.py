@@ -1,7 +1,3 @@
-import os
-import shutil
-import sys
-
 from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.models import User
