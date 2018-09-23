@@ -80,7 +80,6 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
         selected_models = self.check_export_permissions(
             self.get_selected_models_from_session())
         selected_models = [x.label_lower for x in selected_models]
-        decrypt = self.kwargs.get('decrypt')
         try:
             exporter = ArchiveExporter(
                 models=selected_models,
@@ -88,8 +87,7 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
                 user=self.user,
                 request=request,
                 email_to_user=email_to_user,
-                archive=False,
-                decrypt=decrypt)
+                archive=False)
         except ArchiveExporterEmailError as e:
             messages.error(
                 self.request, f'Failed to send files by email. Got \'{e}\'')
@@ -105,7 +103,6 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
             data_request = DataRequest.objects.create(
                 name=f'Data request {datetime.now().strftime("%Y%m%d%H%M")}',
                 models='\n'.join(selected_models),
-                decrypt=False if decrypt is None else decrypt,
                 user_created=self.user)
             DataRequestHistory.objects.create(
                 data_request=data_request,
