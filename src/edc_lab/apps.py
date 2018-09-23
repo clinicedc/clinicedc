@@ -21,6 +21,7 @@ def update_panels_on_post_migrate(sender, **kwargs):
 class AppConfig(DjangoAppConfig):
     name = 'edc_lab'
     verbose_name = 'Edc Lab'
+    has_exportable_data = True
 
     def ready(self):
         from .models.signals import manifest_item_on_post_delete
