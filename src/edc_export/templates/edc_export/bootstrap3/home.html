@@ -20,36 +20,33 @@
 	<div class="col-sm-12">
 	<div id="work-in-progress"></div>
 	<form method="post" action="{% url 'edc_export:export_selected_models_url' %}">
-	<div class="form-group">
+		<div class="form-group">
 
- 		<div class="panel panel-warning">
- 		<div class="panel-heading clearfix">
- 			<i class="fas fa-file-export fa-fw fa-lg"></i> 
- 		</div>
- 		</div>
-
-
- 		
-		<div class="col-sm-3"></div>
-		<div class="col-sm-6">
- 		<div class="panel">
- 		<div class="panel-body">
-				<p class="text-center">
-					Data from the models listed below are ready to send to you at<BR><B>{{ user.email }}</B>.
-				<BR><BR>
-				<a id="btn-cancel" role="button" href="{% url 'edc_export:home_url' action='cancel' %}" class="btn btn-default btn-sm"> Cancel </a>
-				<button id="btn-confirm" type="submit" class="btn btn-primary btn-sm" onclick="confirm();"> Confirm </button>
-
-				{% if request.session.selected_models|length > 10 %}
-				<BR><BR><small>Note: Since you have selected more than 10 models, your data will be sent over multiple emails each with no more than 10 attachments.</small>
-				{% endif %}
-			</p>
-			{% csrf_token %}
- 		</div>
- 		</div>
- 		</div>
- 		<div class="col-sm-3"></div>
-	</div>
+	 		<div class="panel panel-warning">
+	 		<div class="panel-heading clearfix">
+	 			<i class="fas fa-file-export fa-fw fa-lg"></i> 
+	 		</div>
+	 		</div>
+	 		
+			<div class="col-sm-3"></div>
+			<div class="col-sm-6">
+		 		<div class="panel">
+		 		<div class="panel-body">
+					<p class="text-center">
+						Data from the models listed below are ready to send to you at<BR><B>{{ user.email }}</B>.
+					<BR><BR>
+					<a id="btn-cancel" role="button" href="{% url 'edc_export:home_url' action='cancel' %}" class="btn btn-default btn-sm"> Cancel </a>
+					<button id="btn-confirm" class="btn btn-primary btn-sm" onclick="confirm();submit();return true;"> Confirm </button>
+					{% if request.session.selected_models|length > 10 %}
+						<BR><BR><small>Note: Since you have selected more than 10 models, your data will be sent over multiple emails each with no more than 10 attachments.</small>
+					{% endif %}
+					</p>
+					{% csrf_token %}
+		 		</div>
+		 		</div>
+	 		</div>
+	 		<div class="col-sm-3"></div>
+		</div>
 	</form>
 	</div>
 	</div>
@@ -97,7 +94,7 @@
 			<input type="hidden" name="app_config_name" value="{{ app_config.name }}" form="frm_exportables">
 
 	 		<div class="panel panel-default">
-	 		<div class="panel-heading clearfix">{{ app_config.verbose_name }}&nbsp;<small>({{ app_config.name }})</small>
+	 		<div class="panel-heading clearfix"><b>{{ app_config.verbose_name }}</b>&nbsp;<small>({{ app_config.name }})</small>
 	 		</div>
 			<div class="panel-body">
 				<div class="form-group">		

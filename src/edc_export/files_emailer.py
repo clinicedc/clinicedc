@@ -12,11 +12,13 @@ class FilesEmailerError(ValidationError):
 
 class FilesEmailer:
 
-    def __init__(self, path=None, user=None, file_ext=None, summary=None):
+    def __init__(self, path=None, user=None, file_ext=None, summary=None,
+                 verbose=None):
         self.file_ext = file_ext or '.csv'
         self.user = user
         self.path = path
         self.summary = summary
+        self.verbose = verbose
         self.email_files()
 
     def get_email_message(self):
@@ -72,5 +74,6 @@ class FilesEmailer:
                 f'{email_message.subject} (items '
                 f'{index + 2 - x}-{index + 1} of {len(files)})')
             self.send(email_message)
-        sys.stdout.write(
-            f'\nEmailed export files to {self.user.email}.\n')
+        if self.verbose:
+            sys.stdout.write(
+                f'\nEmailed export files to {self.user.email}.\n')

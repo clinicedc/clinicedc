@@ -2,7 +2,6 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
@@ -60,13 +59,12 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
             try:
                 self.export_models(request=request, email_to_user=True)
             except NothingToExport as e:
-                print(e)
                 selected_models = self.get_selected_models_from_post()
                 if selected_models:
                     self.request.session['selected_models'] = selected_models
                 else:
                     messages.warning(
-                        request, f'Nothing to do. Selecting one or more models and try again.')
+                        request, f'Nothing to do. Select one or more models and try again.')
             except FilesEmailerError as e:
                 messages.error(
                     request, f'Failed to send the data you requested. Got {e}')
@@ -80,7 +78,6 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
         selected_models = self.check_export_permissions(
             self.get_selected_models_from_session())
         selected_models = [x.label_lower for x in selected_models]
-        decrypt = self.kwargs.get('decrypt')
         try:
             exporter = ArchiveExporter(
                 models=selected_models,
@@ -88,8 +85,7 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
                 user=self.user,
                 request=request,
                 email_to_user=email_to_user,
-                archive=False,
-                decrypt=decrypt)
+                archive=False)
         except ArchiveExporterEmailError as e:
             messages.error(
                 self.request, f'Failed to send files by email. Got \'{e}\'')
@@ -97,15 +93,13 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
             messages.info(self.request, f'Nothing to export.')
         else:
             messages.success(
-                request, (f'The data for {len(selected_models)} '
-                          f'selected models have been sent to your email. '
-                          f'({self.user.email})'))
+                request, (f'Your data request has been sent to {self.user.email}. '
+                          f'Please check your email.'))
             summary = [str(x) for x in exporter.exported]
             summary.sort()
             data_request = DataRequest.objects.create(
                 name=f'Data request {datetime.now().strftime("%Y%m%d%H%M")}',
                 models='\n'.join(selected_models),
-                decrypt=False if decrypt is None else decrypt,
                 user_created=self.user)
             DataRequestHistory.objects.create(
                 data_request=data_request,
