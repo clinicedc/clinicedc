@@ -23,24 +23,22 @@ class TestArchiveExporter(TestCase):
 
     def test_request_archive(self):
 
-        exporter = ArchiveExporter()
-        export_history = exporter.export(
+        exporter = ArchiveExporter(
             models=self.models,
             user=self.user,
             archive=True)
         folder = mkdtemp()
         shutil.unpack_archive(
-            export_history.archive_filename, folder, 'zip')
+            exporter.archive_filename, folder, 'zip')
         filenames = os.listdir(folder)
         self.assertGreater(
             len([f for f in filenames]), 0)
 
     def test_request_archive_filename_exists(self):
 
-        exporter = ArchiveExporter()
-        history = exporter.export(
+        exporter = ArchiveExporter(
             models=self.models, user=self.user, archive=True)
-        filename = history.archive_filename
+        filename = exporter.archive_filename
         self.assertIsNotNone(filename)
         self.assertTrue(
             os.path.exists(filename),
@@ -50,14 +48,11 @@ class TestArchiveExporter(TestCase):
         models = [
             'auth.blah',
             'edc_registration.registeredsubject']
-        exporter = ArchiveExporter()
         self.assertRaises(
-            LookupError, exporter.export,
+            LookupError, ArchiveExporter,
             models=models, user=self.user, archive=True)
 
     def test_requested_with_nothing(self):
-        models = []
-        exporter = ArchiveExporter()
         self.assertRaises(
-            NothingToExport, exporter.export,
-            models=models, user=self.user, archive=True)
+            NothingToExport, ArchiveExporter,
+            models=[], user=self.user, archive=True)

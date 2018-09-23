@@ -20,6 +20,7 @@ class TestExportable(TestCase):
         user.groups.add(group)
         self.request = RequestFactory()
         self.request.user = user
+        self.user = user
 
     def test_model_options(self):
 
@@ -52,7 +53,8 @@ class TestExportable(TestCase):
         edc_registration = django_apps.get_app_config('edc_registration')
         exportables = Exportables(
             app_configs=[edc_registration, edc_appointment],
-            request=self.request)
+            request=self.request,
+            user=self.user)
         self.assertIn(edc_registration, exportables.keys())
         self.assertIn(edc_appointment, exportables.keys())
         self.assertIn(

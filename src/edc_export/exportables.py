@@ -1,7 +1,6 @@
 from collections import OrderedDict
 from django.apps import apps as django_apps
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from edc_permissions.constants.group_names import EXPORT
 
@@ -17,9 +16,8 @@ class Exportables(OrderedDict):
     includes that apps models, including historical and list models.
     """
 
-    def __init__(self, app_configs=None, request=None):
+    def __init__(self, app_configs=None, user=None, request=None):
         super().__init__()
-        user = User.objects.get(username=request.user)
         app_configs = app_configs or self.get_app_configs()
         app_configs.sort(key=lambda x: x.verbose_name)
         try:
