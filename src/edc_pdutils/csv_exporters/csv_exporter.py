@@ -40,12 +40,14 @@ class CsvExporter:
     sort_by = None
 
     def __init__(self, data_label=None, sort_by=None, export_folder=None,
-                 delimiter=None, date_format=None, index=None, **kwargs):
+                 delimiter=None, date_format=None, index=None,
+                 verbose=None, **kwargs):
         self.delimiter = delimiter or self.delimiter
         self.date_format = date_format or self.date_format
         self.index = index or self.index
         self.sort_by = sort_by or self.sort_by
         self.export_folder = export_folder or self.export_folder
+        self.verbose = verbose
         if not os.path.exists(self.export_folder):
             raise CsvExporterExportFolder(
                 f'Invalid export folder. Got {self.export_folder}')
@@ -61,20 +63,24 @@ class CsvExporter:
         """
         path = None
         record_count = 0
-        sys.stdout.write(self.data_label + '\r')
+        if self.verbose:
+            sys.stdout.write(self.data_label + '\r')
         if export_folder:
             self.export_folder = export_folder
         if not dataframe.empty:
             path = self.get_path()
             if self.sort_by:
                 dataframe.sort_values(self.sort_by, inplace=True)
-            sys.stdout.write(f'( ) {self.data_label} ...     \r')
+            if self.verbose:
+                sys.stdout.write(f'( ) {self.data_label} ...     \r')
             dataframe.to_csv(path_or_buf=path, **self.csv_options)
             record_count = len(dataframe)
-            sys.stdout.write(
-                f'({style.SUCCESS("*")}) {self.data_label} {record_count}       \n')
+            if self.verbose:
+                sys.stdout.write(
+                    f'({style.SUCCESS("*")}) {self.data_label} {record_count}       \n')
         else:
-            sys.stdout.write(f'(?) {self.data_label} empty  \n')
+            if self.verbose:
+                sys.stdout.write(f'(?) {self.data_label} empty  \n')
         return Exported(path, self.data_label, record_count)
 
     @property
