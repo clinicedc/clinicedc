@@ -27,7 +27,7 @@ class ModelToDataframe:
 
     def __init__(self, model=None, queryset=None, query_filter=None,
                  add_columns_for=None, decrypt=None, drop_sys_columns=None,
-                 **kwargs):
+                 verbose=None, **kwargs):
         self._columns = None
         self._encrypted_columns = None
         self._dataframe = pd.DataFrame()
@@ -36,6 +36,7 @@ class ModelToDataframe:
         self.m2m_columns = []
         self.add_columns_for = add_columns_for or []
         self.query_filter = query_filter or {}
+        self.verbose = verbose
         if queryset:
             self.model = queryset.model._meta.label_lower
         else:
@@ -50,13 +51,14 @@ class ModelToDataframe:
             row_count = self.queryset.count()
             if row_count > 0:
                 if self.decrypt and self.has_encrypted_fields:
-                    sys.stdout.write(
-                        f'   PII will be decrypted! ... \n')
+                    if self.verbose:
+                        sys.stdout.write(f'   PII will be decrypted! ... \n')
                     queryset = self.queryset.filter(**self.query_filter)
                     data = []
                     for index, model_obj in enumerate(queryset.order_by('id')):
-                        sys.stdout.write(
-                            f'   {self.model} {index + 1}/{row_count} ... \r')
+                        if self.verbose:
+                            sys.stdout.write(
+                                f'   {self.model} {index + 1}/{row_count} ... \r')
                         row = []
                         for lookup, column_name in self.columns.items():
                             value = self.get_column_value(
