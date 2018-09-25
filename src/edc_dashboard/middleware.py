@@ -43,6 +43,7 @@ class DashboardMiddleware:
             response.context_data.update(
                 CANCELLED=CANCELLED,
                 CLOSED=CLOSED,
+                DEBUG=settings.DEBUG,
                 FEMALE=FEMALE,
                 MALE=MALE,
                 NEW=NEW,
@@ -50,6 +51,7 @@ class DashboardMiddleware:
                 NOT_APPLICABLE=NOT_APPLICABLE,
                 OPEN=OPEN,
                 OTHER=OTHER,
+                SITE_ID=settings.SITE_ID,
                 YES=YES,
                 reviewer_site_id=reviewer_site_id)
         return response
