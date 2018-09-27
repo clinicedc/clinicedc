@@ -31,7 +31,7 @@ class TestModelWithAction(ActionModelMixin, BaseUuidModel):
 
 class Appointment(BaseUuidModel):
 
-    appt_datetime = models.DateTimeField(default=get_utcnow())
+    appt_datetime = models.DateTimeField(default=get_utcnow)
 
 
 class SubjectVisit(BaseUuidModel):
