@@ -1,11 +1,15 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured,\
     ValidationError
+from django.core.mail.message import EmailMessage
+from edc_base import get_utcnow
 from edc_constants.constants import CLOSED, NEW, OPEN
 from urllib.parse import urlencode, unquote
 
 from ..site_action_items import site_action_items
 from .action_item_getter import ActionItemGetter
+from django.utils.safestring import mark_safe
+from django.conf import settings
 
 REFERENCE_MODEL_ERROR_CODE = 'reference_model'
 
@@ -41,6 +45,8 @@ class Action:
     show_link_to_changelist = False
     show_on_dashboard = None
     singleton = False
+    email_recipients = None
+    email_sender = None
 
     action_type_model = 'edc_action_item.actiontype'
     next_actions = None  # a list of Action classes which may include 'self'
@@ -298,3 +304,31 @@ class Action:
         if query:
             return '?'.join([path, query])
         return path
+
+    def send_email(self):
+        # if not self.action_item_obj.emailed and self.email_recipients:
+        if self.action_item_obj.status == NEW and self.email_recipients:
+            from_email = (
+                self.email_sender or settings.EMAIL_CONTACTS.get('data_manager'))
+            body = [
+                mark_safe(
+                    'Do not reply to this email\n\n'
+                    f'An report has been submitted for patient '
+                    f'{self.action_item_obj.subject_identifier} '
+                    f'at site {self.action_item_obj.site} which may require '
+                    f'your attention.\n\n'
+                    f'Title: {self.action_item_obj}\n\n'
+                    f'Reference: {self.action_item_obj.action_identifier}\n\n'
+                    f'You received this message because you are listed as a '
+                    f'member the Ambition Trial TMG\n\n'
+                    'Thanks.')
+            ]
+            email_message = EmailMessage(
+                subject=f'Ambition trial: {self.action_item_obj.action_type.display_name}',
+                body='\n\n'.join(body),
+                from_email=from_email,
+                to=self.email_recipients)
+            email_message.send()
+            self.action_item_obj.emailed = True
+            self.action_item_obj.emailed_datetime = get_utcnow()
+            self.action_item_obj.save()

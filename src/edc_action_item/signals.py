@@ -19,10 +19,11 @@ def update_or_create_action_item_on_post_save(sender, instance, raw,
         except AttributeError:
             pass
         else:
-            if ('historical' not in instance._meta.label_lower
-                    and not isinstance(instance, ActionItem)):
-                instance.action_cls()(
-                    action_identifier=instance.action_identifier)
+            if 'historical' not in instance._meta.label_lower:
+                if not isinstance(instance, ActionItem):
+                    instance.action_cls()(
+                        action_identifier=instance.action_identifier)
+                    instance.action_item.action.send_email()
 
 
 @receiver(post_delete, weak=False,
