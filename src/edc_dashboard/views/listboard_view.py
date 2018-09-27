@@ -12,16 +12,13 @@ class ListboardViewError(Exception):
     pass
 
 
-class Base(QueryStringViewMixin, UrlRequestContextMixin,
-           SearchListboardMixin,
-           TemplateRequestContextMixin, ListView):
+class Base(TemplateRequestContextMixin, ListView):
 
     cleaned_search_term = None
     context_object_name = 'results'
     empty_queryset_message = 'Nothing to display.'
     listboard_template = None  # an existing key in request.context_data
     permissions_warning_message = 'You do not have permission to view these data.'
-
     # if self.listboard_url declared through another mixin.
     listboard_url = None  # an existing key in request.context_data
 
@@ -29,7 +26,9 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
     listboard_panel_style = 'default'
     listboard_fa_icon = "fas fa-user-circle"
     listboard_model = None  # label_lower model name or model class
+    listboard_model_manager_name = '_default_manager'
     listboard_panel_title = None
+
     listboard_view_permission_codename = None
     listboard_view_only_my_permission_codename = None
 
@@ -46,7 +45,7 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         context_object_name = self.get_context_object_name(queryset)
         wrapped_queryset = self.get_wrapped_queryset(queryset)
         if self.listboard_fa_icon and self.listboard_fa_icon.startswith('fa-'):
-            self.listboard_fa_icon = f'fa {self.listboard_fa_icon}'
+            self.listboard_fa_icon = f'fas {self.listboard_fa_icon}'
         context.update(
             empty_queryset_message=self.empty_queryset_message,
             has_listboard_model_perms=self.has_listboard_model_perms,
@@ -69,40 +68,6 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
             existing_key=self.paginator_url or self.listboard_url,
             context=context)
         return context
-
-    @property
-    def has_view_listboard_perms(self):
-        """Returns True if request.user has permissions to
-        view the listboard.
-
-        If False, `get_queryset` returns an empty queryset.
-        """
-        return self.request.user.has_perms([self.listboard_view_permission_codename])
-
-    @property
-    def has_view_only_my_listboard_perms(self):
-        """Returns True if request.user only has permissions to
-        view my records on the listboard.
-        """
-        return self.request.user.has_perm(
-            self.listboard_view_only_my_permission_codename)
-
-    @property
-    def has_listboard_model_perms(self):
-        """Returns True if request.user has permissions to
-        add/change the listboard model.
-
-        Does not affect `get_queryset`.
-
-        Used in templates.
-        """
-        app_label = (
-            self.listboard_model_cls._meta.label_lower.split('.')[0])
-        model_name = (
-            self.listboard_model_cls._meta.label_lower.split('.')[1])
-        return self.request.user.has_perms(
-            f'{app_label}.add_{model_name}',
-            f'{app_label}.change_{model_name}')
 
     def get_template_names(self):
         return [self.get_template_from_context(self.listboard_template)]
@@ -145,7 +110,9 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
 
         This can be overridden but be sure to use the default_manager.
         """
-        return self.listboard_model_cls.objects.filter(
+        return getattr(
+            self.listboard_model_cls,
+            self.listboard_model_manager_name).filter(
             **filter_options).exclude(**exclude_options)
 
     def get_queryset(self):
@@ -161,7 +128,8 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         Note: The returned queryset is set to self.object_list in
         `get()` just before rendering to response.
         """
-        queryset = self.listboard_model_cls._default_manager.none()
+        queryset = getattr(self.listboard_model_cls,
+                           self.listboard_model_manager_name).none()
         if self.has_view_listboard_perms:
             filter_options = self.get_queryset_filter_options(
                 self.request, *self.args, **self.kwargs)
@@ -195,8 +163,47 @@ class Base(QueryStringViewMixin, UrlRequestContextMixin,
         return wrapped_objs
 
     def update_wrapped_instance(self, model_wrapper):
+        """Returns a model_wrapper.
+
+        Hook to add attrs to wrapped model instance.
+        """
         return model_wrapper
 
+    @property
+    def has_view_listboard_perms(self):
+        """Returns True if request.user has permissions to
+        view the listboard.
 
-class ListboardView(SiteQuerysetViewMixin, Base):
+        If False, `get_queryset` returns an empty queryset.
+        """
+        return self.request.user.has_perms([self.listboard_view_permission_codename])
+
+    @property
+    def has_view_only_my_listboard_perms(self):
+        """Returns True if request.user only has permissions to
+        view my records on the listboard.
+        """
+        return self.request.user.has_perm(
+            self.listboard_view_only_my_permission_codename)
+
+    @property
+    def has_listboard_model_perms(self):
+        """Returns True if request.user has permissions to
+        add/change the listboard model.
+
+        Does not affect `get_queryset`.
+
+        Used in templates.
+        """
+        app_label = (
+            self.listboard_model_cls._meta.label_lower.split('.')[0])
+        model_name = (
+            self.listboard_model_cls._meta.label_lower.split('.')[1])
+        return self.request.user.has_perms(
+            f'{app_label}.add_{model_name}',
+            f'{app_label}.change_{model_name}')
+
+
+class ListboardView(SiteQuerysetViewMixin, QueryStringViewMixin,
+                    UrlRequestContextMixin, SearchListboardMixin, Base):
     pass
