@@ -4,6 +4,7 @@ import sys
 
 from django.core.exceptions import ValidationError
 from django.core.mail.message import EmailMessage
+from django.conf import settings
 
 
 class FilesEmailerError(ValidationError):
@@ -41,7 +42,7 @@ class FilesEmailer:
         return EmailMessage(
             subject='Ambition trial data request',
             body='\n\n'.join(body),
-            from_email='data-request@mg.clinicedc.org',
+            from_email=settings.EMAIL_CONTACTS.get('data_request'),
             to=[self.user.email])
 
     def send(self, email_message):
