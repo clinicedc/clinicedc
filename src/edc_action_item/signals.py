@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from edc_constants.constants import NEW
 
 from .models import ActionItem
+from .send_email import send_email
 
 
 @receiver(post_save, weak=False, dispatch_uid='update_or_create_action_item_on_post_save')
@@ -23,7 +24,20 @@ def update_or_create_action_item_on_post_save(sender, instance, raw,
                 if not isinstance(instance, ActionItem):
                     instance.action_cls()(
                         action_identifier=instance.action_identifier)
-                    instance.action_item.action.send_email()
+                    send_email(instance.action_item)
+
+
+@receiver(post_save, weak=False, dispatch_uid='send_email_on_new_action_item_post_save')
+def send_email_on_new_action_item_post_save(sender, instance, raw,
+                                            created, update_fields, **kwargs):
+    if not raw and not update_fields:
+        try:
+            emailed = instance.emailed
+        except AttributeError:
+            pass
+        else:
+            if not emailed and isinstance(instance, ActionItem):
+                send_email(instance)
 
 
 @receiver(post_delete, weak=False,

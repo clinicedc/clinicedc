@@ -304,31 +304,3 @@ class Action:
         if query:
             return '?'.join([path, query])
         return path
-
-    def send_email(self):
-        # if not self.action_item_obj.emailed and self.email_recipients:
-        if self.action_item_obj.status == NEW and self.email_recipients:
-            from_email = (
-                self.email_sender or settings.EMAIL_CONTACTS.get('data_manager'))
-            body = [
-                mark_safe(
-                    'Do not reply to this email\n\n'
-                    f'An report has been submitted for patient '
-                    f'{self.action_item_obj.subject_identifier} '
-                    f'at site {self.action_item_obj.site} which may require '
-                    f'your attention.\n\n'
-                    f'Title: {self.action_item_obj}\n\n'
-                    f'Reference: {self.action_item_obj.action_identifier}\n\n'
-                    f'You received this message because you are listed as a '
-                    f'member the Ambition Trial TMG\n\n'
-                    'Thanks.')
-            ]
-            email_message = EmailMessage(
-                subject=f'Ambition trial: {self.action_item_obj.action_type.display_name}',
-                body='\n\n'.join(body),
-                from_email=from_email,
-                to=self.email_recipients)
-            email_message.send()
-            self.action_item_obj.emailed = True
-            self.action_item_obj.emailed_datetime = get_utcnow()
-            self.action_item_obj.save()
