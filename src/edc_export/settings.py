@@ -144,6 +144,7 @@ DASHBOARD_URL_NAMES = {
 }
 
 EDC_BOOTSTRAP = 3
+EMAIL_CONTACTS = {'data_request': 'someone@example.com'}
 
 if 'test' in sys.argv:
 
