@@ -178,7 +178,6 @@ class TestAction(TestCase):
         self.assertEqual(ActionItem.objects.filter(
             subject_identifier=self.subject_identifier).count(), 3)
 
-    @tag('2')
     def test_does_not_duplicate_own_actions_on_save(self):
         obj = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
@@ -422,11 +421,11 @@ class TestAction(TestCase):
             return True
 
         class MyAction1(Action):
-            name = uuid4()
+            name = str(uuid4())
             reference_model = 'edc_action_item.formone'
 
         class MyAction2(Action):
-            name = uuid4()
+            name = str(uuid4())
             reference_model = 'edc_action_item.formone'
 
             def get_next_actions(self):

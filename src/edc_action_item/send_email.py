@@ -27,7 +27,8 @@ def send_email(action_item=None):
             body='\n\n'.join(body),
             from_email=from_email,
             to=email_recipients)
-        email_message.send()
-        action_item.emailed = True
-        action_item.emailed_datetime = get_utcnow()
-        action_item.save()
+        if settings.EMAIL_ENABLED:
+            email_message.send()
+            action_item.emailed = True
+            action_item.emailed_datetime = get_utcnow()
+            action_item.save()
