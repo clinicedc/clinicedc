@@ -11,6 +11,7 @@ from .action_items import FormZeroAction, FormOneAction, FormTwoAction
 from .models import SubjectIdentifierModel
 from .models import TestModelWithAction
 from .models import FormOne, FormTwo
+from edc_action_item.tests.action_items import FormThreeAction
 
 
 class TestActionItem(TestCase):
@@ -53,6 +54,7 @@ class TestActionItem(TestCase):
     def test_attrs(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
+        site_action_items.register(FormThreeAction)
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
         form_two = FormTwo.objects.create(

@@ -119,6 +119,10 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         null=True,
         blank=True)
 
+    emailed = models.BooleanField(default=False)
+
+    emailed_datetime = models.DateTimeField(null=True)
+
     on_site = CurrentSiteManager()
 
     objects = ActionItemManager()

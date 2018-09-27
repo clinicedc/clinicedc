@@ -1,11 +1,15 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured,\
     ValidationError
+from django.core.mail.message import EmailMessage
+from edc_base import get_utcnow
 from edc_constants.constants import CLOSED, NEW, OPEN
 from urllib.parse import urlencode, unquote
 
 from ..site_action_items import site_action_items
 from .action_item_getter import ActionItemGetter
+from django.utils.safestring import mark_safe
+from django.conf import settings
 
 REFERENCE_MODEL_ERROR_CODE = 'reference_model'
 
@@ -41,6 +45,8 @@ class Action:
     show_link_to_changelist = False
     show_on_dashboard = None
     singleton = False
+    email_recipients = None
+    email_sender = None
 
     action_type_model = 'edc_action_item.actiontype'
     next_actions = None  # a list of Action classes which may include 'self'

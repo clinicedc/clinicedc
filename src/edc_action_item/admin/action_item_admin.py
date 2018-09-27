@@ -58,6 +58,12 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
                 'auto_created',
                 'auto_created_comment',
             )}),
+        ('Email', {
+            'classes': ('collapse', ),
+            'fields': (
+                'emailed',
+                'emailed_datetime',
+            )}),
         audit_fieldset_tuple
     )
 
@@ -66,10 +72,10 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
     inlines = [ActionItemUpdateInline]
 
     list_display = ('identifier', 'dashboard',
-                    'action_type', 'priority', 'status', 'parent',
+                    'action_type', 'priority', 'status', 'emailed', 'parent',
                     'reference', 'related_reference', 'parent_reference')
 
-    list_filter = ('status', 'priority',
+    list_filter = ('status', 'priority', 'emailed',
                    'report_datetime', 'action_type__name')
 
     search_fields = ('subject_identifier',
@@ -88,7 +94,7 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
         fields = super().get_readonly_fields(request, obj=obj)
         fields = fields + ('action_identifier', 'instructions',
                            'auto_created', 'auto_created_comment',
-                           'reference_model',
+                           'reference_model', 'emailed', 'emailed_datetime',
                            'related_reference_identifier',
                            'parent_reference_identifier',
                            'parent_action_item',
