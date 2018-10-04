@@ -6,6 +6,8 @@ class CrfModelManager(models.Manager):
     the visit model.
     """
 
+    use_in_migrations = True
+
     def get_by_natural_key(self, subject_identifier, visit_schedule_name,
                            schedule_name, visit_code, visit_code_sequence):
         instance = self.model.visit_model_cls().objects.get_by_natural_key(
