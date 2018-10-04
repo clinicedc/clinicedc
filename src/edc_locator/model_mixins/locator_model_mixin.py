@@ -10,6 +10,8 @@ from .subject_work_fields_mixin import SubjectWorkFieldsMixin
 
 class LocatorManager(models.Manager):
 
+    use_in_migrations = True
+
     def get_by_natural_key(self, subject_identifier):
         return self.get(subject_identifier=subject_identifier)
 
