@@ -1,5 +1,8 @@
+import sys
+
+from django.core import checks
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.urls.base import reverse
@@ -7,7 +10,7 @@ from django.utils.safestring import mark_safe
 from edc_base import get_utcnow
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
-from edc_base.sites import CurrentSiteManager, SiteModelMixin
+from edc_base.sites import CurrentSiteManager as BaseCurrentSiteManager, SiteModelMixin
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 
@@ -26,7 +29,17 @@ class SubjectDoesNotExist(Exception):
     pass
 
 
+class CurrentSiteManager(BaseCurrentSiteManager):
+
+    use_in_migrations = True
+
+    def get_by_natural_key(self, action_identifier):
+        return self.get(action_identifier=action_identifier)
+
+
 class ActionItemManager(models.Manager):
+
+    use_in_migrations = True
 
     def get_by_natural_key(self, action_identifier):
         return self.get(action_identifier=action_identifier)
@@ -70,7 +83,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         null=True,
         editable=False)
 
-    related_reference_identifier = models.CharField(
+    related_action_identifier = models.CharField(
         max_length=50,
         null=True,
         blank=True,
@@ -82,7 +95,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         null=True,
         editable=False)
 
-    parent_reference_identifier = models.CharField(
+    parent_action_identifier = models.CharField(
         max_length=50,
         null=True,
         blank=True,
@@ -99,7 +112,8 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
     parent_action_item = models.ForeignKey(
         'self', on_delete=PROTECT,
         null=True,
-        blank=True)
+        blank=True,
+        editable=False)
 
     status = models.CharField(
         max_length=25,
@@ -159,7 +173,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
 
     def natural_key(self):
         return (self.action_identifier, )
-    natural_key.dependencies = ['sites.Site']
 
     @property
     def last_updated(self):
@@ -197,17 +210,27 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
     @property
     def parent_reference_obj(self):
         """Returns the parent reference model instance.
+
+        Links this action item to the immediate previous
+        action_item in the chain.
         """
         return self.parent_reference_model_cls.objects.get(
-            action_identifier=self.parent_reference_identifier)
+            action_identifier=self.parent_action_identifier)
 
     @property
     def related_reference_obj(self):
         """Returns the related reference model instance
         or raises ObjectDoesNotExist.
+
+        Links this action item to all previous
+        action_items in the chain.
+
+        The related reference FK points to the related reference
+        object that links this action item to the initial
+        reference model instance.
         """
         return django_apps.get_model(self.related_reference_model).objects.get(
-            action_identifier=self.related_reference_identifier)
+            action_identifier=self.related_action_identifier)
 
     @property
     def related_reference_model_cls(self):
@@ -248,7 +271,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
 
     @property
     def parent_reference(self):
-        """Returns a shortened parent_reference_identifier of the
+        """Returns a shortened parent_action_identifier of the
         parent model reference which in most cases is the
         parent reference model's action identifier.
         """
@@ -262,17 +285,57 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
 
     @property
     def related_reference(self):
-        """Returns a shortened related_reference_identifier of the
+        """Returns a shortened related_action_identifier of the
         parent model reference which in most cases is the
         parent reference model's action identifier.
         """
         try:
-            related_reference = self._related_reference_identifier
+            related_reference = self._related_action_identifier
         except AttributeError:
             related_reference = None
         if related_reference:
             return related_reference[-9:]
         return None
+
+    @classmethod
+    def check(cls, **kwargs):
+        errors = super().check(**kwargs)
+        if ('test' not in sys.argv
+                and 'makemigrations' not in sys.argv
+                and 'migrate' not in sys.argv):
+            for obj in cls.objects.all():
+                if (obj.action_cls.related_reference_fk_attr
+                        and not obj.related_action_identifier):
+                    errors.append(
+                        checks.Error(
+                            f'ActionItem.related_action_identifier cannot be '
+                            f'None if related_reference_fk_attr is specified. '
+                            f'Got ActionItem.action_identifier={obj.action_identifier}. '
+                            f'Expected the \'action_identifier\' from an instance of '
+                            f'{obj.action_cls.related_reference_model}',
+                            hint=(f'update {obj.__class__.__name__}.'
+                                  f'related_action_identifier '
+                                  f'or delete the {obj.__class__.__name__}.'),
+                            obj=obj,
+                            id='edc_action_item.E001'))
+            for action_cls in site_action_items.registry.values():
+                if not action_cls.reference_model:
+                    raise ImproperlyConfigured(
+                        f'Attribute reference_model cannot be None. See {action_cls}')
+                for obj in action_cls.reference_model_cls().objects.all():
+                    try:
+                        ActionItem.objects.get(
+                            action_identifier=obj.action_identifier)
+                    except ObjectDoesNotExist:
+                        errors.append(
+                            checks.Error(
+                                f'Model refers to non-existent action item.\n '
+                                f'Got {action_cls.reference_model} where '
+                                f'action_identifier={obj.action_identifier}.\n',
+                                hint=f'Set action_identifier=None and re-save the object.',
+                                obj=obj,
+                                id='edc_action_item.E002'))
+        return errors
 
     class Meta:
         verbose_name = 'Action Item'

@@ -28,7 +28,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
+    'django_collect_offline.apps.AppConfig',
+    'django_collect_offline_files.apps.AppConfig',
+    'rest_framework',
+    'rest_framework.authtoken',
     'simple_history',
     'edc_base.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
@@ -135,6 +140,9 @@ DASHBOARD_URL_NAMES = {
 }
 
 EDC_BOOTSTRAP = 3
+DJANGO_COLLECT_OFFLINE_FILES_USER = None
+DJANGO_COLLECT_OFFLINE_FILES_REMOTE_HOST = None
+DJANGO_COLLECT_OFFLINE_FILES_USB_VOLUME = None
 
 if 'test' in sys.argv:
 

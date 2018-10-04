@@ -9,7 +9,11 @@ def send_email(action_item=None):
     if not action_item.emailed and email_recipients:
         test_message = ''
         test_subject = ''
-        if not settings.LIVE_SYSTEM:
+        try:
+            live_system = settings.LIVE_SYSTEM
+        except AttributeError:
+            live_system = False
+        if not live_system:
             test_message = 'THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n'
             test_subject = 'TEST/UAT -- '
         from_email = settings.EMAIL_CONTACTS.get('data_manager')

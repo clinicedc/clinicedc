@@ -53,8 +53,8 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
             'classes': ('collapse', ),
             'fields': (
                 'reference_model',
-                'related_reference_identifier',
-                'parent_reference_identifier',
+                'related_action_identifier',
+                'parent_action_identifier',
                 'auto_created',
                 'auto_created_comment',
             )}),
@@ -80,8 +80,8 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
 
     search_fields = ('subject_identifier',
                      'action_identifier',
-                     'related_reference_identifier',
-                     'parent_reference_identifier',
+                     'related_action_identifier',
+                     'parent_action_identifier',
                      'action_type__name',
                      'action_type__display_name',
                      'parent_action_item__action_identifier')
@@ -95,8 +95,8 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
         fields = fields + ('action_identifier', 'instructions',
                            'auto_created', 'auto_created_comment',
                            'reference_model', 'emailed', 'emailed_datetime',
-                           'related_reference_identifier',
-                           'parent_reference_identifier',
+                           'related_action_identifier',
+                           'parent_action_identifier',
                            'parent_action_item',
                            )
         if obj:

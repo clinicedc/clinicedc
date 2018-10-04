@@ -1,10 +1,12 @@
-from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models.deletion import PROTECT
 from edc_constants.constants import OPEN
 
-from ..action import ActionItemGetter
+from ..action import ActionItemGetter, RelatedReferenceObjectDoesNotExist
+from ..create_action_item import create_action_item
 from ..site_action_items import site_action_items
+from .action_item import ActionItem
 
 
 class ActionClassNotDefined(Exception):
@@ -21,78 +23,83 @@ class ActionModelMixin(models.Model):
 
     action_identifier = models.CharField(
         max_length=25,
-        null=True)
+        unique=True)
 
     subject_identifier = models.CharField(
         max_length=50)
 
-    parent_reference_identifier = models.CharField(
+    parent_action_identifier = models.CharField(
         max_length=30,
-        null=True)
+        null=True,
+        help_text=('action identifier that links to parent '
+                   'reference model instance.'))
 
-    related_reference_identifier = models.CharField(
+    related_action_identifier = models.CharField(
         max_length=30,
-        null=True)
+        null=True,
+        help_text=('action identifier that links to related '
+                   'reference model instance.'))
+
+    action_item = models.ForeignKey(
+        ActionItem,
+        null=True,
+        on_delete=PROTECT)
 
     def __str__(self):
         return f'{self.action_identifier[-9:]}'
 
     def save(self, *args, **kwargs):
-        if not self.action_cls():
+        if not self.get_action_cls():
             raise ActionClassNotDefined(
                 f'Action class name not defined. See {repr(self)}')
 
-        if (not self.related_reference_identifier
-                and self.action_cls().related_reference_fk_attr):
-            self.related_reference_identifier = getattr(
-                self, self.action_cls().related_reference_fk_attr).action_identifier
+        if (self.get_action_cls().related_reference_model
+                and not self.related_action_identifier):
+            self.related_action_identifier = getattr(
+                self, self.get_action_cls().related_reference_fk_attr
+            ).action_identifier
 
-        if self.action_identifier:
-            # get the existing ActionItem linked to this model
-            ActionItemGetter(
-                self.action_cls(),
-                subject_identifier=self.subject_identifier,
-                action_identifier=self.action_identifier,
-                parent_reference_identifier=self.parent_reference_identifier,
-                related_reference_identifier=self.related_reference_identifier,
-                allow_create=False)
+        if not self.action_identifier:
+            # this is a new instance
+            # associate a new or existing ActionItem
+            # with this reference model instance
+            action_cls = site_action_items.get(self.action_name)
+            try:
+                # try to get an existing action_item
+                getter = ActionItemGetter(
+                    action_cls,
+                    subject_identifier=self.subject_identifier,
+                    parent_action_identifier=self.parent_action_identifier,
+                    related_action_identifier=self.related_action_identifier)
+            except ObjectDoesNotExist as e:
+                if action_cls.related_reference_fk_attr:
+                    # action item must exist!
+                    raise RelatedReferenceObjectDoesNotExist(e)
+                # create an new action_item
+                self.action_item = create_action_item(
+                    action_cls,
+                    subject_identifier=self.subject_identifier,
+                    action_identifier=self.action_identifier)
+            else:
+                self.action_item = getter.action_item
+            self.action_identifier = self.action_item.action_identifier
+            self.parent_action_identifier = self.action_item.parent_action_identifier
+            self.related_action_identifier = self.action_item.related_action_identifier
+            self.action_item.linked_to_reference = True
+            self.action_item.status = OPEN
+            self.action_item.save()
+            # also see signals.py
         else:
-            # get an existing unlinked ActionItem or create a new one
-            allow_create = (
-                False if self.related_reference_identifier
-                or self.parent_reference_identifier else True)
-            getter = ActionItemGetter(
-                self.action_cls(),
-                subject_identifier=self.subject_identifier,
-                parent_reference_identifier=self.parent_reference_identifier,
-                related_reference_identifier=self.related_reference_identifier,
-                allow_create=allow_create)
-
-            # link action_item to this model instance
-            self.action_identifier = getter.action_identifier
-            self.parent_reference_identifier = getter.action_item.parent_reference_identifier
-            getter.action_item.linked_to_reference = True
-            getter.action_item.status = OPEN
-            getter.action_item.save()
-        # also see signals.py
+            if not self.action_item:
+                self.action_item = ActionItem.objects.get(
+                    action_identifier=self.action_identifier)
+            self.action_item.status = OPEN
+            self.action_item.save()
         super().save(*args, **kwargs)
 
     @classmethod
-    def action_cls(cls):
+    def get_action_cls(cls):
         return site_action_items.get(cls.action_name)
-
-    @property
-    def action_item(self):
-        """Returns the ActionItem instance associated with
-        this model or None.
-        """
-        ActionItem = django_apps.get_model(self.action_item_model)
-        try:
-            action_item = ActionItem.objects.get(
-                action_identifier=self.action_identifier)
-        except ObjectDoesNotExist:
-            action_item = None
-        return action_item
 
     @property
     def action_item_reason(self):

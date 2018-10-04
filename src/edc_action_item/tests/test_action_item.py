@@ -13,6 +13,8 @@ from .models import TestModelWithAction
 from .models import FormOne, FormTwo
 from edc_action_item.tests.action_items import FormThreeAction
 
+from ..get_action_type import get_action_type
+
 
 class TestActionItem(TestCase):
 
@@ -24,18 +26,11 @@ class TestActionItem(TestCase):
             subject_identifier=self.subject_identifier)
         site_action_items.registry = {}
         site_action_items.register(FormZeroAction)
-        FormZeroAction.action_type()
+        get_action_type(FormZeroAction)
         self.action_type = ActionType.objects.get(name=FormZeroAction.name)
 
     def tearDown(self):
         ActionItem.subject_identifier_model = self.subject_identifier_model
-
-#     def test_identifier_unique(self):
-#         ids = []
-#         for _ in range(0, 10000):
-#             ids.append(ActionIdentifier().identifier)
-#         self.assertEqual(len(ids), len(list(set(ids))))
-#         pprint([obj.identifier for obj in ActionIdentifier().model_cls.objects.all()])
 
     def test_creates(self):
         obj = ActionItem.objects.create(
@@ -134,16 +129,16 @@ class TestActionItem(TestCase):
         except ObjectDoesNotExist:
             self.fail('ActionItem unexpectedly does not exist')
 
-        self.assertEqual(my_action.action_item_obj, action_item)
+        self.assertEqual(my_action.action_item, action_item)
         self.assertEqual(my_action.action_identifier,
                          action_item.action_identifier)
-        self.assertEqual(my_action.action_type(),
+        self.assertEqual(get_action_type(my_action),
                          action_item.action_type)
-        self.assertEqual(my_action.action_type().reference_model,
+        self.assertEqual(get_action_type(my_action).reference_model,
                          action_item.reference_model)
         self.assertIsNone(action_item.parent_action_item_id)
         self.assertIsNone(action_item.parent_reference_model)
-        self.assertIsNone(action_item.parent_reference_identifier)
+        self.assertIsNone(action_item.parent_action_identifier)
 
         class MyActionWithIncorrectModel(Action):
             name = 'my-action2'
@@ -151,11 +146,13 @@ class TestActionItem(TestCase):
             reference_model = 'edc_action_item.TestModelWithAction'
         site_action_items.register(MyActionWithIncorrectModel)
 
-        with self.assertRaises(ActionError) as cm:
-            TestModelWithAction.objects.create(
-                subject_identifier=self.subject_identifier,
-                action_identifier=action_item.action_identifier)
-        self.assertEqual(cm.exception.code, REFERENCE_MODEL_ERROR_CODE)
+        TestModelWithAction.objects.create(
+            subject_identifier=self.subject_identifier)
+        self.assertRaises(
+            ObjectDoesNotExist,
+            TestModelWithAction.objects.create,
+            subject_identifier=self.subject_identifier,
+            action_identifier='blahblah')
 
     def test_action_type_updates(self):
 
@@ -169,7 +166,7 @@ class TestActionItem(TestCase):
         action_type = ActionType.objects.get(name='my-action3')
         self.assertEqual(action_type.display_name, 'original display_name')
 
-        MyAction._updated_action_type = False
+        site_action_items.updated_action_type = False
         MyAction.display_name = 'changed display_name'
 
         MyAction(

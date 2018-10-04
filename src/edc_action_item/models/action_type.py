@@ -10,6 +10,11 @@ class ActionTypeError(Exception):
     pass
 
 
+class ActionTypeManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+
 class ActionType(BaseUuidModel):
 
     name = models.CharField(
@@ -55,8 +60,13 @@ class ActionType(BaseUuidModel):
         null=True,
         blank=True)
 
+    objects = ActionTypeManager()
+
     def __str__(self):
         return self.display_name
+
+    def natural_key(self):
+        return (self.name, )
 
     @property
     def reference_model_cls(self):
@@ -66,13 +76,13 @@ class ActionType(BaseUuidModel):
 
     def save(self, *args, **kwargs):
         self.display_name = self.display_name or self.name
-        if self.reference_model:
+        if self.reference_model and self.reference_model != 'edc_action_item.reference':
             try:
-                if not self.reference_model_cls.action_cls:
+                if not self.reference_model_cls.action_name:
                     raise ActionTypeError(
                         f'Model missing an action class. See {repr(self.reference_model_cls)}')
             except AttributeError as e:
-                if 'action_cls' in str(e):
+                if 'action_name' in str(e):
                     raise ActionTypeError(
                         f'Model not configured for Actions. Are you using the model mixin? '
                         f'See {repr(self.reference_model_cls)}. Got {e}')
