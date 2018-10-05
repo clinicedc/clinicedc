@@ -10,6 +10,7 @@ site_offline_models.register_for_app(
         'edc_action_item.formone',
         'edc_action_item.formtwo',
         'edc_action_item.formthree',
+        'edc_action_item.formfour',
         'edc_action_item.initial',
         'edc_action_item.followup',
         'edc_action_item.appointment',
