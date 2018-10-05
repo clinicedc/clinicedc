@@ -94,7 +94,11 @@
 				      
 	   		        </td>
 	   		        <td>{{wrapped.object.title}}</td>
-                    <td>{{ wrapped.object.appt_datetime|date:"SHORT_DATE_FORMAT" }} {{ wrapped.object.appt_datetime|date:"D"| capfirst }}</td>
+                    {% if wrapped.object.visit.report_datetime %}
+                    	<td>{{ wrapped.object.visit.report_datetime|date:"SHORT_DATE_FORMAT" }} {{ wrapped.object.visit.report_datetime|date:"D"| capfirst }}</td>
+                    {% else %}
+                    	<td class="text text-muted">{{ wrapped.object.appt_datetime|date:"SHORT_DATE_FORMAT" }} {{ wrapped.object.appt_datetime|date:"D"| capfirst }}</td>
+                    {% endif %}
                 </tr>
 		  {% endif %}
         {% endfor %}

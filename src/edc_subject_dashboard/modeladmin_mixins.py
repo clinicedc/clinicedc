@@ -11,6 +11,7 @@ class ModelAdminSubjectDashboardMixin:
         url = reverse(settings.DASHBOARD_URL_NAMES.get(self.subject_dashboard_url),
                       kwargs=dict(subject_identifier=obj.subject_identifier))
         return mark_safe(
-            f'<a class="button" title="go to subject dashboard" '
-            f'href="{url}">{obj.subject_identifier}</a>')
+            f'<span nowrap>{obj.subject_identifier}&nbsp;'
+            f'<a class="button" title="Go to subject\'s dashboard" '
+            f'href="{url}">Go</a></span>')
     dashboard.short_description = 'Dashboard'
