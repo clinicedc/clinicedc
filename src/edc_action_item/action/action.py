@@ -1,5 +1,9 @@
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db.models import Q
+from django.utils.formats import localize
+from edc_base.constants import DEFAULT_BASE_FIELDS
 from edc_constants.constants import CLOSED, NEW, OPEN
 from urllib.parse import urlencode, unquote
 
@@ -55,6 +59,8 @@ class Action:
                  related_action_identifier=None):
 
         self._reference_obj = reference_obj
+
+        self.messages = {}
 
         self.action_registered_or_raise()
 
@@ -210,6 +216,7 @@ class Action:
         """Attempt to close the action item and
         create new ones, if required.
         """
+        self.reopen_action_items_on_changed()
         status = CLOSED if self.close_action_item_on_save() else OPEN
         self.action_item.status = status
         self.action_item.save()
@@ -247,6 +254,52 @@ class Action:
                 self.action_item_model_cls().objects.get(**opts)
             except ObjectDoesNotExist:
                 self.action_item_model_cls().objects.create(**opts)
+
+    @property
+    def reference_obj_has_changed(self):
+        """Returns True if the reference object has changed
+        since the last save.
+
+        References the objects "history" (historical)
+        """
+        changed_message = {}
+        try:
+            history = self.reference_obj.history.all().order_by(
+                '-history_date')[1]
+        except IndexError:
+            pass
+        else:
+            field_names = [
+                field.name for field in self.reference_obj._meta.get_fields()
+                if field.name not in DEFAULT_BASE_FIELDS]
+            for field_name in field_names:
+                try:
+                    if getattr(history, field_name) != getattr(self.reference_obj, field_name):
+                        changed_message.update(
+                            {field_name: getattr(self.reference_obj, field_name)})
+                except AttributeError:
+                    pass
+        return changed_message
+
+    def reopen_action_items_on_changed(self):
+        """Reopen the action_item and child action items for this
+        reference object if reference object was changed since
+        the last save.
+        """
+        if self.reference_obj_has_changed:
+            for action_item in self.action_item_model_cls().objects.filter(
+                    (Q(action_identifier=self.reference_obj.action_identifier) |
+                     Q(parent_action_identifier=self.reference_obj.action_identifier) |
+                     Q(related_action_identifier=self.reference_obj.action_identifier)),
+                    status=CLOSED):
+                action_item.status = OPEN
+                action_item.save()
+                self.messages.update(
+                    {action_item: (
+                        f'{self.reference_obj._meta.verbose_name.title()} '
+                        f'{self.reference_obj} was changed on '
+                        f'{localize(self.reference_obj.modified)} '
+                        f'({settings.TIME_ZONE})')})
 
     def append_to_next_if_required(self, next_actions=None,
                                    action_cls=None, required=None):
