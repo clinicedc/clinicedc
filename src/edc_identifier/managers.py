@@ -3,6 +3,8 @@ from django.db import models
 
 class SubjectIdentifierManager(models.Manager):
 
+    use_in_migrations = True
+
     def get_by_natural_key(self, subject_identifier):
         return self.get(subject_identifier=subject_identifier)
 
@@ -14,6 +16,8 @@ class IdentifierManager(models.Manager):
 
 
 class TrackingIdentifierManager(models.Manager):
+
+    use_in_migrations = True
 
     def get_by_natural_key(self, tracking_identifier):
         return self.get(tracking_identifier=tracking_identifier)
