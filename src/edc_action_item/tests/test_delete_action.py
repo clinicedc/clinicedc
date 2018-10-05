@@ -9,6 +9,8 @@ from ..site_action_items import site_action_items
 from .action_items import FormOneAction, FormTwoAction, FormThreeAction
 from .action_items import SingletonAction, register_actions
 from .models import FormOne, SubjectIdentifierModel
+from edc_action_item.tests.models import FormTwo
+from django.db.models.deletion import ProtectedError
 
 
 class TestAction(TestCase):
@@ -52,7 +54,7 @@ class TestAction(TestCase):
         action = SingletonAction(
             subject_identifier=self.subject_identifier)
 
-        action_item = action.action_item_obj
+        action_item = action.action_item
 
         action_item.status = CLOSED
         action_item.save()
@@ -68,3 +70,18 @@ class TestAction(TestCase):
             delete_action_item,
             action_cls=SingletonAction,
             subject_identifier=self.subject_identifier)
+
+    def test_deleted_next_action_item(self):
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
+        ActionItem.objects.get(
+            action_identifier=form_one.action_identifier)
+        form_two = FormTwo.objects.create(
+            subject_identifier=self.subject_identifier,
+            form_one=form_one)
+
+        action_item = ActionItem.objects.get(
+            action_identifier=form_two.action_identifier)
+        self.assertRaises(
+            ProtectedError,
+            action_item.delete)

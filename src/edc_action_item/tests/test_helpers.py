@@ -1,9 +1,10 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 
 from ..helpers import ActionItemHelper
 from ..model_wrappers import ActionItemModelWrapper
 from ..models import ActionItem
-from .action_items import register_actions, FormOneAction
+from .action_items import register_actions, FormOneAction, CrfOneAction
 from .models import FormOne, SubjectIdentifierModel, CrfOne, CrfTwo, FormTwo
 from .models import SubjectVisit, Appointment
 
@@ -28,9 +29,13 @@ class TestHelpers(TestCase):
         self.assertTrue(helper.get_context())
 
     def test_new_action(self):
-        action = FormOneAction(subject_identifier=self.subject_identifier)
+
+        action = CrfOneAction(subject_identifier=self.subject_identifier)
+
+        self.assertIsNone(action.reference_obj)
+
         model_wrapper = ActionItemModelWrapper(
-            model_obj=action.action_item_obj)
+            model_obj=action.action_item)
         helper = ActionItemHelper(model_wrapper)
         context = helper.get_context()
         self.assertIsNone(context['reference_obj'])
@@ -42,7 +47,7 @@ class TestHelpers(TestCase):
 
     def test_new_action_url(self):
         action = FormOneAction(subject_identifier=self.subject_identifier)
-        action_item = action.action_item_obj
+        action_item = action.action_item
         model_wrapper = ActionItemModelWrapper(model_obj=action_item)
         helper = ActionItemHelper(model_wrapper)
         context = helper.get_context()
@@ -79,11 +84,13 @@ class TestHelpers(TestCase):
             f'subject_identifier&subject_identifier={self.subject_identifier}')
 
     def test_create_parent_reference_model_instance_then_delete(self):
+
         form_two = FormTwo.objects.create(
             form_one=self.form_one,
             subject_identifier=self.subject_identifier)
         action_item = ActionItem.objects.get(
             action_identifier=form_two.action_identifier)
+
         model_wrapper = ActionItemModelWrapper(model_obj=action_item)
         helper = ActionItemHelper(model_wrapper)
         context = helper.get_context()

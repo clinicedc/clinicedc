@@ -3,6 +3,7 @@ from django.test import TestCase, tag
 from uuid import uuid4
 
 from ..action import ActionError
+from ..get_action_type import get_action_type
 from ..models import ActionType, ActionItem
 from ..site_action_items import site_action_items, SiteActionError, AlreadyRegistered
 from .action_items import FormZeroAction
@@ -18,7 +19,7 @@ class TestSiteActionItems(TestCase):
         SubjectIdentifierModel.objects.create(
             subject_identifier=self.subject_identifier)
         site_action_items.registry = {}
-        FormZeroAction.action_type()
+        get_action_type(FormZeroAction)
         self.action_type = ActionType.objects.get(name=FormZeroAction.name)
 
     def test_action_raises_if_not_registered(self):

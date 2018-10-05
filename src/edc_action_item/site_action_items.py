@@ -9,6 +9,9 @@ from edc_prn.prn import Prn
 from edc_prn.site_prn_forms import site_prn_forms
 from importlib import import_module
 
+from .create_or_update_action_type import create_or_update_action_type
+from .get_action_type import get_action_type
+
 
 class AlreadyRegistered(Exception):
     pass
@@ -20,7 +23,7 @@ class SiteActionError(Exception):
 
 class SiteActionItemCollection:
 
-    populated_action_types = False
+    updated_action_types = False
 
     def __init__(self):
         self.registry = OrderedDict()
@@ -62,7 +65,7 @@ class SiteActionItemCollection:
                 f'Action does not exist. Did you register the Action? '
                 f'Expected one of {self.registry}. Got {name}.')
         # force create action type if it does not exist
-        self.registry.get(name).action_type()
+        get_action_type(self.registry.get(name))
         return self.registry.get(name)
 
     def get_by_model(self, model=None):
@@ -78,20 +81,20 @@ class SiteActionItemCollection:
             def __init__(self, action_cls=None):
                 self.name = action_cls.name
                 self.display_name = action_cls.display_name
-                self.action_type_id = str(action_cls.action_type().pk)
+                self.action_type_id = str(get_action_type(action_cls).pk)
         names = [v.name for v in self.registry.values()
                  if v.show_link_to_add]
         return [Wrapper(action_cls=self.get(name)) for name in names]
 
-    def populate_action_types(self):
+    def create_or_update_action_types(self):
         """Populates the ActionType model.
 
         Called by view.
         """
-        if not self.populated_action_types:
+        if not self.updated_action_types:
             for action_cls in self.registry.values():
-                action_cls.action_type()
-        self.populated_action_types = True
+                create_or_update_action_type(**action_cls.as_dict())
+        self.updated_action_types = True
 
     def autodiscover(self, module_name=None, verbose=True):
         module_name = module_name or 'action_items'

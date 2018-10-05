@@ -11,7 +11,7 @@ class ActionItemViewMixin(ContextMixin):
     action_item_model_wrapper_cls = ActionItemModelWrapper
 
     def __init__(self, **kwargs):
-        site_action_items.populate_action_types()
+        site_action_items.create_or_update_action_types()
         super().__init__(**kwargs)
 
     def get_context_data(self, **kwargs):

@@ -7,6 +7,11 @@ from .action_type import ActionType
 from .action_model_mixin import ActionModelMixin
 
 
+class ReferenceManager(models.Manager):
+    def get_by_natural_key(self, action_identifier):
+        return self.get(action_identifier=action_identifier)
+
+
 class Reference(ActionModelMixin, BaseUuidModel):
 
     """Model used as a default reference model for simple actions
@@ -27,3 +32,8 @@ class Reference(ActionModelMixin, BaseUuidModel):
         ActionType, on_delete=PROTECT,
         related_name='action',
         verbose_name='Action')
+
+    objects = ReferenceManager()
+
+    def natural_key(self):
+        return (self.naction_identifierame, )
