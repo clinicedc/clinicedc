@@ -4,7 +4,7 @@ from django.core import checks
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.db import models
-from django.db.models.deletion import PROTECT
+from django.db.models.deletion import PROTECT, SET_NULL
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_base import get_utcnow
@@ -243,22 +243,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         """Returns a shortened action identifier.
         """
         return self.action_identifier[-9:]
-
-    @property
-    def parent(self):
-        """Returns a url to the parent action item
-        for display in admin.
-        """
-        if self.parent_action_item:
-            url_name = '_'.join(self._meta.label_lower.split('.'))
-            namespace = edc_action_item_admin.name
-            url = reverse(
-                f'{namespace}:{url_name}_changelist')
-            return mark_safe(
-                f'<a data-toggle="tooltip" title="go to parent action item" '
-                f'href="{url}?q={self.parent_action_item.action_identifier}">'
-                f'{self.parent_action_item.identifier}</a>')
-        return None
 
     @property
     def reference(self):
