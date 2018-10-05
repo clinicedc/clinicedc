@@ -3,10 +3,42 @@ from django.utils.safestring import mark_safe
 from django.core.mail.message import EmailMessage
 from edc_base.utils import get_utcnow
 
+UPDATED_REPORT = 'updated_report'
 
-def send_email(action_item=None):
+message_templates = {
+    'new_report': (
+        'Do not reply to this email\n\n'
+        '{test_message}'
+        'A report has been submitted for patient '
+        '{action_item.subject_identifier} '
+        'at site {action_item.site} which may require '
+        'your attention.\n\n'
+        'Title: {action_item.action_type.display_name}\n\n'
+        'You received this message because you are listed as a '
+        'member the Ambition Trial TMG\n\n'
+        '{test_message}'
+        'Thanks.'),
+    UPDATED_REPORT: (
+        'Do not reply to this email\n\n'
+        '{test_message}'
+        'A report has been updated for patient '
+        '{action_item.subject_identifier} '
+        'at site {action_item.site} which may require '
+        'your attention.\n\n'
+        'Title: {action_item.action_type.display_name}\n\n'
+        'Reason: {reason}\n\n'
+        'You received this message because you are listed as a '
+        'member the Ambition Trial TMG\n\n'
+        '{test_message}'
+        'Thanks.')
+}
+
+
+def send_email(action_item=None, reason=None, template_name=None, force_send=None):
+    template_name = template_name or 'new_report'
+    updated = '*UPDATE* ' if template_name == 'updated_report' else ''
     email_recipients = action_item.action_cls.email_recipients
-    if not action_item.emailed and email_recipients:
+    if (not action_item.emailed or force_send) and email_recipients:
         test_message = ''
         test_subject = ''
         try:
@@ -17,23 +49,14 @@ def send_email(action_item=None):
             test_message = 'THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n'
             test_subject = 'TEST/UAT -- '
         from_email = settings.EMAIL_CONTACTS.get('data_manager')
-        body = [
-            mark_safe(
-                'Do not reply to this email\n\n'
-                f'{test_message}'
-                f'A report has been submitted for patient '
-                f'{action_item.subject_identifier} '
-                f'at site {action_item.site} which may require '
-                f'your attention.\n\n'
-                f'Title: {action_item.action_type.display_name}\n\n'
-                f'You received this message because you are listed as a '
-                f'member the Ambition Trial TMG\n\n'
-                f'{test_message}'
-                'Thanks.')
-        ]
+        message = message_templates[template_name].format(
+            test_message=test_message,
+            action_item=action_item,
+            reason=reason)
+        body = [mark_safe(message)]
         email_message = EmailMessage(
             subject=(
-                f'{test_subject}Ambition: '
+                f'{test_subject}{updated}Ambition: '
                 f'{action_item.action_type.display_name} '
                 f'for {action_item.subject_identifier}'),
             body='\n\n'.join(body),
