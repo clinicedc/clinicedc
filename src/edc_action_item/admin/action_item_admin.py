@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.options import TabularInline
+from django.urls.base import reverse
+from django.utils.safestring import mark_safe
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.inlines import TabularInlineMixin
 from edc_subject_dashboard import ModelAdminSubjectDashboardMixin
@@ -72,8 +74,8 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
     inlines = [ActionItemUpdateInline]
 
     list_display = ('identifier', 'dashboard',
-                    'action_type', 'priority', 'status', 'emailed', 'parent',
-                    'reference', 'related_reference', 'parent_reference')
+                    'action_type', 'priority', 'status', 'emailed', 'parent_action',
+                    'related_action_identifier')
 
     list_filter = ('status', 'priority', 'emailed',
                    'report_datetime', 'action_type__name')
@@ -104,6 +106,21 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
                                'report_datetime',
                                'action_type')
         return fields
+
+    def parent_action(self, obj):
+        """Returns a url to the parent action item
+        for display in admin.
+        """
+        if obj.parent_action_item:
+            url_name = '_'.join(obj._meta.label_lower.split('.'))
+            namespace = edc_action_item_admin.name
+            url = reverse(
+                f'{namespace}:{url_name}_changelist')
+            return mark_safe(
+                f'<a data-toggle="tooltip" title="go to parent action item" '
+                f'href="{url}?q={obj.parent_action_item.action_identifier}">'
+                f'{obj.parent_action_item.identifier}</a>')
+        return None
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'action_type':
