@@ -88,13 +88,16 @@ class Action:
         else:
             if self.reference_obj:
                 self.subject_identifier = self.reference_obj.subject_identifier
-                self.parent_action_identifier = self.reference_obj.parent_action_identifier
-                self.related_action_identifier = self.reference_obj.related_action_identifier
+                self.parent_action_identifier = (
+                    self.reference_obj.parent_action_identifier)
+                self.related_action_identifier = (
+                    self.reference_obj.related_action_identifier)
             self.action_item = self.get_or_create_action_item()
             self.action_identifier = self.action_item.action_identifier
             self.subject_identifier = self.action_item.subject_identifier
             self.parent_action_identifier = self.action_item.parent_action_identifier
-            self.related_action_identifier = self.action_item.related_action_identifier
+            self.related_action_identifier = (
+                self.action_item.related_action_identifier)
 
         self.linked_to_reference = self.action_item.linked_to_reference
 
@@ -114,7 +117,8 @@ class Action:
                 self._reference_obj = self.reference_model_cls().objects.get(
                     action_identifier=self.action_identifier)
             except ObjectDoesNotExist:
-                if self.action_identifier and self.action_item and self.action_item.status == CLOSED:
+                if (self.action_identifier and self.action_item
+                        and self.action_item.status == CLOSED):
                     raise ActionError(
                         'Reference model instance not found. '
                         f'Got action_identifier=\'{self.action_identifier}\' '
@@ -171,7 +175,8 @@ class Action:
         registered_cls = site_action_items.get(cls.name)
         if registered_cls is not cls:
             raise ActionError(
-                f'Inconsistent action name or class. Got {registered_cls} for {cls.name}.')
+                f'Inconsistent action name or class. Got '
+                f'{registered_cls} for {cls.name}.')
         return True
 
     @classmethod
@@ -194,9 +199,12 @@ class Action:
             show_on_dashboard=(
                 True if cls.show_on_dashboard is None else cls.show_on_dashboard),
             show_link_to_changelist=(
-                True if cls.show_link_to_changelist is None else cls.show_link_to_changelist),
-            create_by_user=True if cls.create_by_user is None else cls.create_by_user,
-            create_by_action=True if cls.create_by_action is None else cls.create_by_action,
+                True if cls.show_link_to_changelist is None
+                else cls.show_link_to_changelist),
+            create_by_user=(True if cls.create_by_user is None
+                            else cls.create_by_user),
+            create_by_action=(True if cls.create_by_action is None
+                              else cls.create_by_action),
             instructions=cls.instructions)
         return dct
 
