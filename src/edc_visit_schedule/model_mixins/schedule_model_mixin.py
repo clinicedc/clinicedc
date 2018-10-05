@@ -3,9 +3,17 @@ from django.db import models
 from django.utils import timezone
 from edc_base import convert_php_dateformat
 from edc_base.model_managers import HistoricalRecords
-from edc_base.sites import CurrentSiteManager, SiteModelMixin
+from edc_base.sites import CurrentSiteManager as BaseCurrentSiteManager, SiteModelMixin
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_identifier.managers import SubjectIdentifierManager
+
+
+class CurrentSiteManager(BaseCurrentSiteManager):
+
+    use_in_migrations = True
+
+    def get_by_natural_key(self, subject_identifier):
+        return self.get(subject_identifier=subject_identifier)
 
 
 class ScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model):
@@ -27,7 +35,6 @@ class ScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, mode
 
     def natural_key(self):
         return (self.subject_identifier, )
-    natural_key.dependencies = ['sites.Site']
 
     class Meta:
         abstract = True
