@@ -1,19 +1,18 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.deletion import ProtectedError
 from django.test import TestCase, tag
-from edc_constants.constants import NEW, OPEN
+from edc_constants.constants import NEW, OPEN, CLOSED
 
-from ..action import Action, ActionError, REFERENCE_MODEL_ERROR_CODE
+from ..action import Action
 from ..forms import ActionItemForm
-from ..models import ActionItem, SubjectDoesNotExist
-from ..models import ActionType
+from ..get_action_type import get_action_type
+from ..models import SubjectDoesNotExist, ActionItem, ActionType
 from ..site_action_items import site_action_items
+from .action_items import FormThreeAction
 from .action_items import FormZeroAction, FormOneAction, FormTwoAction
+from .models import FormOne, FormTwo, FormThree
 from .models import SubjectIdentifierModel
 from .models import TestModelWithAction
-from .models import FormOne, FormTwo
-from edc_action_item.tests.action_items import FormThreeAction
-
-from ..get_action_type import get_action_type
 
 
 class TestActionItem(TestCase):
@@ -63,13 +62,11 @@ class TestActionItem(TestCase):
         self.assertEqual(
             action_item_two.action_cls,
             site_action_items.get(action_item_two.action_type.name))
-        self.assertTrue(action_item_two.parent)
         self.assertTrue(action_item_two.identifier)
         self.assertTrue(str(action_item_two))
         self.assertTrue(action_item_two.reference)
         self.assertTrue(action_item_two.parent_reference)
         self.assertIsNone(action_item_one.parent_reference)
-        self.assertIsNone(action_item_one.parent)
         self.assertIsNone(action_item_one.parent_reference_model)
 
     def test_identifier_not_changed(self):
@@ -173,3 +170,110 @@ class TestActionItem(TestCase):
             subject_identifier=self.subject_identifier)
         action_type = ActionType.objects.get(name='my-action3')
         self.assertEqual(action_type.display_name, 'changed display_name')
+
+    def test_delete_child_and_parent_recreates(self):
+        site_action_items.register(FormOneAction)
+        site_action_items.register(FormTwoAction)
+        site_action_items.register(FormThreeAction)
+        form_one_action = FormOneAction(
+            subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier,
+            action_identifier=form_one_action.action_identifier)
+        action_item = ActionItem.objects.get(
+            action_type__name=FormTwoAction.name)
+        action_item.delete()
+        action_item = ActionItem.objects.get(
+            action_type__name=FormThreeAction.name)
+        action_item.delete()
+        # assert deleted actions are recreated
+        self.assertEqual(ActionItem.objects.all().count(), 3)
+        # assert two are parents of form one
+        self.assertEqual(ActionItem.objects.filter(
+            parent_action_identifier=form_one.action_identifier).count(), 2)
+
+    def test_delete2(self):
+        site_action_items.register(FormOneAction)
+        site_action_items.register(FormTwoAction)
+        site_action_items.register(FormThreeAction)
+        form_one_action = FormOneAction(
+            subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier,
+            action_identifier=form_one_action.action_identifier)
+
+        # delete form one
+        form_one.delete()
+        # assert resets action item
+        action_item = ActionItem.objects.get(
+            action_type__name=FormOneAction.name,
+            status=NEW)
+
+        # assert cleans up child action items
+        self.assertRaises(
+            ObjectDoesNotExist,
+            ActionItem.objects.get,
+            action_type__name=FormTwoAction.name)
+        self.assertRaises(
+            ObjectDoesNotExist,
+            ActionItem.objects.get,
+            action_type__name=FormThreeAction.name)
+
+        # assert can delete form one action
+        action_item.delete()
+
+    def test_delete3(self):
+        """Assert cannot delete action item if reference
+        object exists.
+        """
+        site_action_items.register(FormOneAction)
+        site_action_items.register(FormTwoAction)
+        site_action_items.register(FormThreeAction)
+        form_one_action = FormOneAction(
+            subject_identifier=self.subject_identifier)
+        FormOne.objects.create(
+            subject_identifier=self.subject_identifier,
+            action_identifier=form_one_action.action_identifier)
+
+        action_item = ActionItem.objects.get(
+            action_type__name=FormOneAction.name)
+
+        self.assertRaises(
+            ProtectedError,
+            action_item.delete)
+
+    def test_not_changed(self):
+        site_action_items.register(FormOneAction)
+        site_action_items.register(FormTwoAction)
+        site_action_items.register(FormThreeAction)
+        form_one_action = FormOneAction(
+            subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier,
+            action_identifier=form_one_action.action_identifier)
+
+        form_two = FormTwo.objects.create(
+            subject_identifier=self.subject_identifier,
+            form_one=form_one)
+
+        form_three = FormThree.objects.create(
+            subject_identifier=self.subject_identifier)
+
+        self.assertTrue(form_one.action_item.status == CLOSED)
+        self.assertTrue(form_two.action_item.status == CLOSED)
+        self.assertTrue(form_three.action_item.status == CLOSED)
+
+        form_one.f1 = 'blah'
+        form_one.save()
+
+        form_one.refresh_from_db()
+
+        self.assertIsNotNone(form_one.action.reference_obj_has_changed)
+
+        form_one.refresh_from_db()
+        form_two.refresh_from_db()
+        form_three.refresh_from_db()
+
+        self.assertTrue(form_one.action_item.status == CLOSED)
+        self.assertTrue(form_two.action_item.status == OPEN)
+        self.assertTrue(form_three.action_item.status == OPEN)

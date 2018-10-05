@@ -1,3 +1,5 @@
+from edc_constants.constants import NO
+
 from ..action import Action
 from ..site_action_items import site_action_items
 from ..constants import HIGH_PRIORITY
@@ -53,6 +55,22 @@ class FormOneAction(Action):
     next_actions = [FormTwoAction, FormThreeAction]
 
 
+class FormFourAction(Action):
+    name = 'submit-form-four'
+    display_name = 'Submit Form Four'
+    reference_model = 'edc_action_item.formfour'
+    show_on_dashboard = True
+    priority = HIGH_PRIORITY
+
+    def get_next_actions(self):
+        next_actions = []
+        next_actions = self.append_to_next_if_required(
+            next_actions=next_actions,
+            action_cls=FormOneAction,
+            required=self.reference_obj.happy == NO)
+        return next_actions
+
+
 class FollowupAction(Action):
     name = 'submit-followup'
     display_name = 'Submit Followup'
@@ -106,6 +124,7 @@ def register_actions():
     site_action_items.register(FormOneAction)
     site_action_items.register(FormTwoAction)
     site_action_items.register(FormThreeAction)
+    site_action_items.register(FormFourAction)
     site_action_items.register(InitialAction)
     site_action_items.register(FollowupAction)
     site_action_items.register(TestDoNothingPrnAction)

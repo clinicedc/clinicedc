@@ -1,13 +1,14 @@
 from django.test import TestCase, tag
 from django.core.exceptions import ObjectDoesNotExist
-from edc_constants.constants import CLOSED, NEW
+from edc_constants.constants import CLOSED, NEW, YES, NO
 
 from ..get_action_type import get_action_type
 from ..models import ActionItem, ActionType
 from ..site_action_items import site_action_items
 from .action_items import FormOneAction, FormTwoAction, FormThreeAction, FormZeroAction
-from .action_items import SingletonAction, register_actions
-from .models import FormZero, FormOne, FormTwo, FormThree, SubjectIdentifierModel
+from .action_items import SingletonAction, register_actions, FormFourAction
+from .models import FormZero, FormOne, FormTwo
+from .models import FormFour, FormThree, SubjectIdentifierModel
 
 
 class TestAction(TestCase):
@@ -447,3 +448,44 @@ class TestAction(TestCase):
             action_identifier=form_one.action_identifier,
             action_type__name=FormOneAction.name)
         self.assertEqual(action_item.status, NEW)
+
+    @tag('1')
+    def test_add_action_if_required(self):
+
+        FormFourAction(subject_identifier=self.subject_identifier)
+        form_four = FormFour.objects.create(
+            subject_identifier=self.subject_identifier,
+            happy=YES)
+
+        self.assertRaises(
+            ObjectDoesNotExist,
+            ActionItem.objects.get,
+            action_type=get_action_type(FormOneAction))
+
+        form_four.happy = NO
+        form_four.save()
+        try:
+            ActionItem.objects.get(
+                action_type=get_action_type(FormOneAction),
+                status=NEW)
+        except ObjectDoesNotExist:
+            self.fail('action item unexpectedly does not exist')
+
+        form_four.save()
+        try:
+            ActionItem.objects.get(
+                action_type=get_action_type(FormOneAction),
+                status=NEW)
+        except ObjectDoesNotExist:
+            self.fail('action item unexpectedly does not exist')
+
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
+
+        form_four.save()
+        try:
+            ActionItem.objects.get(
+                action_identifier=form_one.action_identifier,
+                status=CLOSED)
+        except ObjectDoesNotExist:
+            self.fail('action item unexpectedly does not exist')
