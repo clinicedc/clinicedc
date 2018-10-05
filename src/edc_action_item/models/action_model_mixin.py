@@ -102,6 +102,10 @@ class ActionModelMixin(models.Model):
         return site_action_items.get(cls.action_name)
 
     @property
+    def action(self):
+        return self.get_action_cls()(action_item=self.action_item)
+
+    @property
     def action_item_reason(self):
         return None
 
