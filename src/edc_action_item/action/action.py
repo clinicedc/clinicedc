@@ -276,6 +276,9 @@ class Action:
                 '-history_date')[1]
         except IndexError:
             pass
+        except AttributeError:
+            # suppressed here but is reviewed in system checks
+            pass
         else:
             field_names = [
                 field.name for field in self.reference_obj._meta.get_fields()

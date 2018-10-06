@@ -22,7 +22,7 @@ class ActionModelMixin(models.Model):
     subject_dashboard_url = 'subject_dashboard_url'
 
     action_identifier = models.CharField(
-        max_length=25,
+        max_length=36,
         unique=True)
 
     subject_identifier = models.CharField(

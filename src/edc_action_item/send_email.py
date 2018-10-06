@@ -38,7 +38,9 @@ def send_email(action_item=None, reason=None, template_name=None, force_send=Non
     template_name = template_name or 'new_report'
     updated = '*UPDATE* ' if template_name == 'updated_report' else ''
     email_recipients = action_item.action_cls.email_recipients
-    if (not action_item.emailed or force_send) and email_recipients:
+    email_enabled = settings.EMAIL_ENABLED
+    if email_enabled and email_recipients and (
+            not action_item.emailed or force_send):
         test_message = ''
         test_subject = ''
         try:
@@ -62,8 +64,7 @@ def send_email(action_item=None, reason=None, template_name=None, force_send=Non
             body='\n\n'.join(body),
             from_email=from_email,
             to=email_recipients)
-        if settings.EMAIL_ENABLED:
-            email_message.send()
-            action_item.emailed = True
-            action_item.emailed_datetime = get_utcnow()
-            action_item.save()
+        email_message.send()
+        action_item.emailed = True
+        action_item.emailed_datetime = get_utcnow()
+        action_item.save()
