@@ -11,7 +11,6 @@ from .models import SubjectVisit, CrfOneInline, OtherModel
 from .models import CrfOne, BadCrfOneInline
 from .helper import Helper
 from .visit_schedule import visit_schedule1, visit_schedule2
-from pprint import pprint
 
 
 class TestVisit(TestCase):
