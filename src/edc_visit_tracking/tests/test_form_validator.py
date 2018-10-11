@@ -9,8 +9,8 @@ from edc_visit_tracking.constants import MISSED_VISIT, UNSCHEDULED, SCHEDULED
 
 from ..form_validators import VisitFormValidator
 from .helper import Helper
+from .models import SubjectVisit
 from .visit_schedule import visit_schedule1, visit_schedule2
-from edc_visit_tracking.tests.models import SubjectVisit
 
 
 class TestSubjectVisitFormValidator(TestCase):

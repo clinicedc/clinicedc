@@ -1,6 +1,3 @@
-import copy
-
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
@@ -10,8 +7,6 @@ from edc_constants.constants import YES, NO
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
-from ...choices import VISIT_REASON
-from ...constants import FOLLOW_UP_REASONS, REQUIRED_REASONS
 from ...constants import NO_FOLLOW_UP_REASONS, MISSED_VISIT
 from ...managers import VisitModelManager
 from ..previous_visit_model_mixin import PreviousVisitModelMixin

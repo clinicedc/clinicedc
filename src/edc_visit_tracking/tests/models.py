@@ -6,10 +6,9 @@ from edc_base.utils import get_utcnow
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
-from edc_visit_tracking.model_mixins import CrfInlineModelMixin
-from edc_visit_tracking.model_mixins import CrfModelMixin
-from edc_visit_tracking.model_mixins.visit_model_mixin import VisitModelMixin
 from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
+
+from ..model_mixins import CrfInlineModelMixin, CrfModelMixin, VisitModelMixin
 
 
 class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
