@@ -11,6 +11,7 @@ from .models import SubjectVisit, CrfOneInline, OtherModel
 from .models import CrfOne, BadCrfOneInline
 from .helper import Helper
 from .visit_schedule import visit_schedule1, visit_schedule2
+from pprint import pprint
 
 
 class TestVisit(TestCase):
@@ -120,3 +121,41 @@ class TestVisit(TestCase):
         self.assertEqual(subject_visit.previous_visit.pk, subject_visits[1].pk)
         subject_visit = subject_visits[3]
         self.assertEqual(subject_visit.previous_visit.pk, subject_visits[2].pk)
+
+    def test_get_previous_model_instance2(self):
+        """Assert model can determine the previous even when unscheduled
+        appointment are inserted.
+        """
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.all().order_by('visit_code')
+        opts = appointments[0].__dict__
+        opts.pop('_state')
+        opts.pop('id')
+        opts.pop('created')
+        opts.pop('modified')
+
+        opts['visit_code_sequence'] = 1
+        Appointment.objects.create(**opts)
+        opts['visit_code_sequence'] = 2
+        Appointment.objects.create(**opts)
+
+        for index, appointment in enumerate(Appointment.objects.all().order_by(
+                'visit_code', 'visit_code_sequence')):
+            SubjectVisit.objects.create(
+                appointment=appointment,
+                report_datetime=get_utcnow()
+                - relativedelta(months=10 - index),
+                reason=SCHEDULED)
+
+        subject_visits = SubjectVisit.objects.all().order_by(
+            'appointment__timepoint_datetime')
+        self.assertEqual(subject_visits.count(), 6)
+
+        subject_visit = subject_visits[0]
+        self.assertIsNone(subject_visit.previous_visit)
+        subject_visit = subject_visits[1]
+        self.assertEqual(subject_visit.previous_visit, subject_visits[0])
+        subject_visit = subject_visits[2]
+        self.assertEqual(subject_visit.previous_visit, subject_visits[1])
+        subject_visit = subject_visits[3]
+        self.assertEqual(subject_visit.previous_visit, subject_visits[2])
