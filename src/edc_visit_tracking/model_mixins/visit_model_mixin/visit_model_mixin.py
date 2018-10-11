@@ -58,23 +58,6 @@ class VisitModelMixin(
                 self.visit_code_sequence)
     natural_key.dependencies = ['edc_appointment.appointment']
 
-    @property
-    def appointment_zero(self):
-        appointment_zero = None
-        try:
-            if self.appointment.visit_code_sequence == 0:
-                appointment_zero = self.appointment
-        except AttributeError:
-            pass
-        if not appointment_zero:
-            try:
-                appointment_zero = self.appointment.__class__.objects.get(
-                    subject_identifier=self.appointment.subject_identifier,
-                    visit_code_sequence=0)
-            except self.appointment.__class__.DoesNotExist:
-                pass
-        return appointment_zero
-
     def get_visit_reason_no_follow_up_choices(self):
         """Returns the visit reasons that do not imply any
         data collection; that is, the subject is not available.
@@ -83,41 +66,6 @@ class VisitModelMixin(
         for item in NO_FOLLOW_UP_REASONS:
             dct.update({item: item})
         return dct
-
-    def get_visit_reason_follow_up_choices(self):
-        """Returns visit reasons that imply data is being collected;
-        that is, subject is present.
-        """
-        dct = {}
-        for item in FOLLOW_UP_REASONS:
-            dct.update({item: item})
-        return dct
-
-    def get_visit_reason_choices(self):
-        """Returns a tuple of the reasons choices for the reason field.
-        """
-        return VISIT_REASON
-
-    def _check_visit_reason_keys(self):
-        user_keys = (
-            [k for k in self.get_visit_reason_no_follow_up_choices().iterkeys()]
-            + [k for k in self.get_visit_reason_follow_up_choices().iterkeys()])
-        default_keys = copy.deepcopy(REQUIRED_REASONS)
-        if list(set(default_keys) - set(user_keys)):
-            missing_keys = list(set(default_keys) - set(user_keys))
-            if missing_keys:
-                raise ImproperlyConfigured(
-                    'User\'s visit reasons tuple must contain all keys '
-                    'for no follow-up {1} and all for follow-up {2}. '
-                    'Missing {3}. Override methods \'get_visit_reason_'
-                    'no_follow_up_choices\' and \'get_visit_reason_follow_'
-                    'up_choices\' on the visit model if you are not using '
-                    'the default keys of {4}. Got {0}'.format(
-                        user_keys,
-                        NO_FOLLOW_UP_REASONS,
-                        FOLLOW_UP_REASONS,
-                        missing_keys,
-                        REQUIRED_REASONS))
 
     def post_save_check_appointment_in_progress(self):
         if self.reason in self.get_visit_reason_no_follow_up_choices():

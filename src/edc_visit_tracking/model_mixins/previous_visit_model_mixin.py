@@ -1,6 +1,7 @@
 from django.db import models
 
 from ..visit_sequence import VisitSequence, VisitSequenceError
+from pprint import pprint
 
 
 class PreviousVisitError(Exception):

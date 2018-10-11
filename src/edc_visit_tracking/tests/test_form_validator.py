@@ -10,6 +10,7 @@ from edc_visit_tracking.constants import MISSED_VISIT, UNSCHEDULED, SCHEDULED
 from ..form_validators import VisitFormValidator
 from .helper import Helper
 from .visit_schedule import visit_schedule1, visit_schedule2
+from edc_visit_tracking.tests.models import SubjectVisit
 
 
 class TestSubjectVisitFormValidator(TestCase):
@@ -41,10 +42,15 @@ class TestSubjectVisitFormValidator(TestCase):
         self.assertIn('reason', form_validator._errors)
 
     def test_visit_code_reason_with_visit_code_sequence_1(self):
-        appointment = self.appointment
-        appointment.visit_code_sequence = 1
-        appointment.save()
-        appointment = Appointment.objects.get(pk=appointment.pk)
+        SubjectVisit.objects.create(appointment=self.appointment)
+
+        opts = self.appointment.__dict__
+        opts.pop('_state')
+        opts.pop('id')
+        opts.pop('created')
+        opts.pop('modified')
+        opts['visit_code_sequence'] = 1
+        appointment = Appointment.objects.create(**opts)
 
         cleaned_data = {
             'appointment': appointment,
@@ -56,6 +62,33 @@ class TestSubjectVisitFormValidator(TestCase):
         except forms.ValidationError:
             pass
         self.assertIn('reason', form_validator._errors)
+
+    def test_visit_code_reason_with_visit_code_sequence_2(self):
+        SubjectVisit.objects.create(appointment=self.appointment)
+
+        opts = self.appointment.__dict__
+        opts.pop('_state')
+        opts.pop('id')
+        opts.pop('created')
+        opts.pop('modified')
+        opts['visit_code_sequence'] = 1
+        Appointment.objects.create(**opts)
+        opts['visit_code_sequence'] = 2
+        appointment = Appointment.objects.create(**opts)
+
+        cleaned_data = {
+            'appointment': appointment,
+            'reason': SCHEDULED}
+        form_validator = VisitFormValidator(
+            cleaned_data=cleaned_data)
+        try:
+            form_validator.validate()
+        except forms.ValidationError:
+            pass
+        self.assertIn('Previous visit report required', ','.join([
+                      str(e) for e in form_validator._errors.values()]))
+        self.assertIn('1000.1', ','.join([str(e)
+                                          for e in form_validator._errors.values()]))
 
     def test_reason_missed(self):
         options = {
@@ -71,10 +104,16 @@ class TestSubjectVisitFormValidator(TestCase):
         self.assertIn('reason_missed', form_validator._errors)
 
     def test_reason_unscheduled(self):
-        appointment = self.appointment
-        appointment.visit_code_sequence = 1
-        appointment.save()
-        appointment = Appointment.objects.get(pk=appointment.pk)
+        SubjectVisit.objects.create(appointment=self.appointment)
+
+        opts = self.appointment.__dict__
+        opts.pop('_state')
+        opts.pop('id')
+        opts.pop('created')
+        opts.pop('modified')
+        opts['visit_code_sequence'] = 1
+        appointment = Appointment.objects.create(**opts)
+
         options = {
             'appointment': appointment,
             'reason': UNSCHEDULED,
@@ -90,10 +129,16 @@ class TestSubjectVisitFormValidator(TestCase):
         self.assertIn(REQUIRED_ERROR, form_validator._error_codes)
 
     def test_reason_unscheduled_other(self):
-        appointment = self.appointment
-        appointment.visit_code_sequence = 1
-        appointment.save()
-        appointment = Appointment.objects.get(pk=appointment.pk)
+        SubjectVisit.objects.create(appointment=self.appointment)
+
+        opts = self.appointment.__dict__
+        opts.pop('_state')
+        opts.pop('id')
+        opts.pop('created')
+        opts.pop('modified')
+        opts['visit_code_sequence'] = 1
+        appointment = Appointment.objects.create(**opts)
+
         options = {
             'appointment': appointment,
             'reason': UNSCHEDULED,
