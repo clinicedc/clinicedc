@@ -128,8 +128,7 @@ class TestPopover(TestCase):
                          initial_obj.subject_identifier)
         self.assertEqual(initial_action_item_obj.action_identifier,
                          initial_obj.action_identifier)
-        self.assertIsNone(initial_action_item_obj.parent_action_identifier)
-        self.assertIsNone(initial_action_item_obj.parent_action_item_id)
+        self.assertIsNone(initial_action_item_obj.parent_action_item)
         self.assertEqual(initial_action_item_obj.action_identifier,
                          initial_obj.action_identifier)
 
@@ -154,7 +153,7 @@ class TestPopover(TestCase):
         # add a followup model instance
         followup_obj = Followup.objects.create(
             subject_identifier=initial_obj.subject_identifier,
-            parent_action_identifier=initial_obj.action_identifier,
+            parent_action_item=initial_obj.action_item,
             initial=initial_obj)
 
         # assert followup_obj has action identifier
@@ -199,7 +198,7 @@ class TestPopover(TestCase):
             subject_identifier=self.subject_identifier)
 
         followup_action_obj = ActionItem.objects.get(
-            parent_action_identifier=initial_obj1.action_identifier)
+            parent_action_item=initial_obj1.action_item)
         wrapper = ActionItemModelWrapper(model_obj=followup_action_obj)
         action_item_with_popover(wrapper, 0)
         context = action_item_with_popover(wrapper, 0)
@@ -207,7 +206,7 @@ class TestPopover(TestCase):
         self.assertIn(f'initial={str(initial_obj1.pk)}', reference_url)
 
         followup_action_obj = ActionItem.objects.get(
-            parent_action_identifier=initial_obj2.action_identifier)
+            parent_action_item=initial_obj2.action_item)
         wrapper = ActionItemModelWrapper(model_obj=followup_action_obj)
         action_item_with_popover(wrapper, 0)
         context = action_item_with_popover(wrapper, 0)
@@ -238,18 +237,18 @@ class TestPopover(TestCase):
 
         followup_obj1 = Followup.objects.create(
             subject_identifier=initial_obj1.subject_identifier,
-            parent_action_identifier=initial_obj1.action_identifier,
+            parent_action_item=initial_obj1.action_item,
             initial=initial_obj1)
 
         ActionItem.objects.get(
             subject_identifier=initial_obj1.subject_identifier,
-            related_action_identifier=initial_obj1.action_identifier,
-            parent_action_identifier=initial_obj1.action_identifier)
+            related_action_item=initial_obj1.action_item,
+            parent_action_item=initial_obj1.action_item)
 
         followup_action_obj2 = ActionItem.objects.get(
             subject_identifier=initial_obj1.subject_identifier,
-            related_action_identifier=initial_obj1.action_identifier,
-            parent_action_identifier=followup_obj1.action_identifier)
+            related_action_item=initial_obj1.action_item,
+            parent_action_item=followup_obj1.action_item)
 
         wrapper = ActionItemModelWrapper(model_obj=followup_action_obj2)
         action_item_with_popover(wrapper, 0)

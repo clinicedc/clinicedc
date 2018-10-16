@@ -1,8 +1,8 @@
 from edc_constants.constants import NO
 
 from ..action import Action
-from ..site_action_items import site_action_items
 from ..constants import HIGH_PRIORITY
+from ..site_action_items import site_action_items
 
 
 class FormZeroAction(Action):
@@ -11,12 +11,14 @@ class FormZeroAction(Action):
     reference_model = 'edc_action_item.formzero'
     show_on_dashboard = True
     priority = HIGH_PRIORITY
+    parent_action_names = ['submit-form-three']
 
 
 class TestDoNothingPrnAction(Action):
 
     name = 'test-nothing-prn-action'
     display_name = 'Test Prn Action'
+    parent_action_names = None
 
 
 class TestPrnAction(Action):
@@ -24,6 +26,7 @@ class TestPrnAction(Action):
     name = 'test-prn-action'
     display_name = 'Test Prn Action'
     next_actions = [FormZeroAction]
+    parent_action_names = None
 
 
 class FormThreeAction(Action):
@@ -32,7 +35,8 @@ class FormThreeAction(Action):
     reference_model = 'edc_action_item.formthree'
     show_on_dashboard = True
     priority = HIGH_PRIORITY
-    next_actions = [FormZeroAction]
+    next_actions = [FormZeroAction.name]
+    parent_action_names = ['submit-form-one']
 
 
 class FormTwoAction(Action):
@@ -44,6 +48,7 @@ class FormTwoAction(Action):
     related_reference_model = 'edc_action_item.formone'
     related_reference_fk_attr = 'form_one'
     next_actions = ['self']
+    parent_action_names = ['submit-form-two', 'submit-form-one']
 
 
 class FormOneAction(Action):
@@ -52,7 +57,8 @@ class FormOneAction(Action):
     reference_model = 'edc_action_item.formone'
     show_on_dashboard = True
     priority = HIGH_PRIORITY
-    next_actions = [FormTwoAction, FormThreeAction]
+    next_actions = [FormTwoAction.name, FormThreeAction.name]
+    parent_action_names = ['submit-form-three', 'submit-form-four']
 
 
 class FormFourAction(Action):
@@ -61,12 +67,13 @@ class FormFourAction(Action):
     reference_model = 'edc_action_item.formfour'
     show_on_dashboard = True
     priority = HIGH_PRIORITY
+    parent_action_names = ['submit-form-one']
 
     def get_next_actions(self):
         next_actions = []
         next_actions = self.append_to_next_if_required(
             next_actions=next_actions,
-            action_cls=FormOneAction,
+            action_name=FormOneAction.name,
             required=self.reference_obj.happy == NO)
         return next_actions
 
@@ -80,6 +87,7 @@ class FollowupAction(Action):
     next_actions = ['self']
     related_reference_fk_attr = 'initial'
     related_reference_model = 'edc_action_item.initial'
+    parent_action_names = ['submit-followup', 'submit-initial']
 
 
 class CrfTwoAction(Action):
@@ -89,6 +97,7 @@ class CrfTwoAction(Action):
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     next_actions = ['self']
+    parent_action_names = ['submit-crf-two', 'submit-crf-one']
 
 
 class CrfOneAction(Action):
@@ -97,7 +106,7 @@ class CrfOneAction(Action):
     reference_model = 'edc_action_item.crfone'
     show_on_dashboard = True
     priority = HIGH_PRIORITY
-    next_actions = [CrfTwoAction]
+    next_actions = [CrfTwoAction.name]
 
 
 class InitialAction(Action):
@@ -106,7 +115,7 @@ class InitialAction(Action):
     reference_model = 'edc_action_item.initial'
     show_on_dashboard = True
     priority = HIGH_PRIORITY
-    next_actions = [FollowupAction]
+    next_actions = [FollowupAction.name]
 
 
 class SingletonAction(Action):

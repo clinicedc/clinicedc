@@ -33,14 +33,14 @@ data-content="
 {% endif %}
 
 {% if parent_reference_url and parent_reference_model_name %}
-	<a 'parent-reference-change-{{ parent_action_identifier }}'
+	<a 'parent-reference-change-{{ parent_action_item.action_identifier }}'
 		class='list-group-item list-group-item-default' href='{{ parent_reference_url }}' title='click to edit'>
 		<span class='text text-default small'><i class='fas fa-pencil-alt fa-fw' aria-hidden='true'></i> Previous {{ parent_reference_model_name }}</span>
 	</a>
 {% endif %}
 
 {% if related_reference_url and related_reference_model_name %}
-	<a 'related-reference-change-{{ related_action_identifier }}'
+	<a 'related-reference-change-{{ related_action_item.action_identifier }}'
 		class='list-group-item list-group-item-default' href='{{ related_reference_url }}' title='click to edit'>
 		<span class='text text-default small'><i class='fas fa-pencil-alt fa-fw' aria-hidden='true'></i> Related {{ related_reference_model_name }}</span>
 	</a>

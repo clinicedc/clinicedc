@@ -104,7 +104,7 @@ class ActionItemHelper:
         """
         if not self._related_reference_obj:
             try:
-                self._related_reference_obj = self.action_item.related_reference_obj
+                self._related_reference_obj = self.action_item.related_action_item.reference_obj
             except (AttributeError, ObjectDoesNotExist):
                 pass
         return self._related_reference_obj
@@ -159,7 +159,7 @@ class ActionItemHelper:
     def parent_reference_model_name(self):
         try:
             parent_reference_model_name = (
-                f'{self.action_item.parent_reference_model_cls._meta.verbose_name} '
+                f'{self.action_item.parent_action_item.reference_model_cls._meta.verbose_name} '
                 f'{str(self.parent_reference_obj)}')
         except AttributeError:
             parent_reference_model_name = None
@@ -169,7 +169,7 @@ class ActionItemHelper:
     def related_reference_model_name(self):
         try:
             related_reference_model_name = (
-                f'{self.action_item.related_reference_model_cls._meta.verbose_name} '
+                f'{self.action_item.related_action_item.reference_model_cls._meta.verbose_name} '
                 f'{str(self.related_reference_obj)}')
         except AttributeError:
             related_reference_model_name = None
@@ -178,7 +178,15 @@ class ActionItemHelper:
     def get_context(self):
         """Returns a dictionary of instance attr.
         """
-        return dict(
+
+        context = {}
+        if self.action_item.parent_action_item:
+            context.update(
+                parent_action_identifier=self.action_item.parent_action_item.action_identifier)
+        if self.action_item.related_action_item:
+            context.update(
+                related_action_identifier=self.action_item.related_action_item.action_identifier)
+        context.update(
             action_identifier=self.action_identifier,
             action_instructions=self.action_item.instructions,
             action_item_color=self.action_cls.color_style,
@@ -189,17 +197,16 @@ class ActionItemHelper:
             name=self.action_item.action_type.name,
             parent_action_item=self.action_item.parent_action_item,
             parent_reference_obj=self.parent_reference_obj,
-            parent_action_identifier=self.action_item.parent_action_identifier,
             parent_reference_model_name=self.parent_reference_model_name,
             parent_reference_url=self.parent_reference_url,
             priority=self.action_item.priority or '',
             reference_model_name=self.reference_model_name,
             reference_obj=self.reference_obj,
             reference_url=self.reference_url,
-            related_action_identifier=self.action_item.related_action_identifier,
             related_reference_obj=self.related_reference_obj,
             related_reference_model_name=self.related_reference_model_name,
             related_reference_url=self.related_reference_url,
             report_datetime=self.action_item.report_datetime,
             status=self.action_item.get_status_display(),
         )
+        return context

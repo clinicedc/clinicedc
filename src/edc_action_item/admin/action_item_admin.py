@@ -48,15 +48,13 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
                 'action_type',
                 'priority',
                 'status',
-                'parent_action_item',
                 'instructions',
             )}),
         ('Reference Information', {
             'classes': ('collapse', ),
             'fields': (
-                'reference_model',
-                'related_action_identifier',
-                'parent_action_identifier',
+                'related_action_item',
+                'parent_action_item',
                 'auto_created',
                 'auto_created_comment',
             )}),
@@ -75,18 +73,18 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
 
     list_display = ('identifier', 'dashboard',
                     'action_type', 'priority', 'status', 'emailed', 'parent_action',
-                    'related_action_identifier')
+                    'related_action_item', 'created')
 
     list_filter = ('status', 'priority', 'emailed',
                    'report_datetime', 'action_type__name')
 
     search_fields = ('subject_identifier',
                      'action_identifier',
-                     'related_action_identifier',
-                     'parent_action_identifier',
+                     'related_action_item__action_identifier',
+                     'parent_action_item__action_identifier',
                      'action_type__name',
                      'action_type__display_name',
-                     'parent_action_item__action_identifier')
+                     'id')
 
     ordering = ('action_type__display_name', )
 
@@ -97,8 +95,7 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
         fields = fields + ('action_identifier', 'instructions',
                            'auto_created', 'auto_created_comment',
                            'reference_model', 'emailed', 'emailed_datetime',
-                           'related_action_identifier',
-                           'parent_action_identifier',
+                           'related_action_item',
                            'parent_action_item',
                            )
         if obj:

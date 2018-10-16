@@ -36,4 +36,4 @@ class Reference(ActionModelMixin, BaseUuidModel):
     objects = ReferenceManager()
 
     def natural_key(self):
-        return (self.naction_identifierame, )
+        return (self.action_identifier, )
