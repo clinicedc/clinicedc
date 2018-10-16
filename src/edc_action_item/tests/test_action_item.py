@@ -51,9 +51,11 @@ class TestActionItem(TestCase):
         site_action_items.register(FormThreeAction)
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
+        form_one.refresh_from_db()
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier,
             form_one=form_one)
+        form_two.refresh_from_db()
         action_item_one = ActionItem.objects.get(
             action_identifier=form_one.action_identifier)
         action_item_two = ActionItem.objects.get(
@@ -65,9 +67,10 @@ class TestActionItem(TestCase):
         self.assertTrue(action_item_two.identifier)
         self.assertTrue(str(action_item_two))
         self.assertTrue(action_item_two.reference)
+        self.assertTrue(action_item_two.parent_action_item)
         self.assertTrue(action_item_two.parent_reference)
         self.assertIsNone(action_item_one.parent_reference)
-        self.assertIsNone(action_item_one.parent_reference_model)
+        self.assertIsNone(action_item_one.parent_action_item)
 
     def test_identifier_not_changed(self):
         obj = ActionItem.objects.create(
@@ -134,8 +137,8 @@ class TestActionItem(TestCase):
         self.assertEqual(get_action_type(my_action).reference_model,
                          action_item.reference_model)
         self.assertIsNone(action_item.parent_action_item_id)
-        self.assertIsNone(action_item.parent_reference_model)
-        self.assertIsNone(action_item.parent_action_identifier)
+#         self.assertIsNone(action_item.parent_reference_model)
+#         self.assertIsNone(action_item.parent_action_identifier)
 
         class MyActionWithIncorrectModel(Action):
             name = 'my-action2'
@@ -190,7 +193,7 @@ class TestActionItem(TestCase):
         self.assertEqual(ActionItem.objects.all().count(), 3)
         # assert two are parents of form one
         self.assertEqual(ActionItem.objects.filter(
-            parent_action_identifier=form_one.action_identifier).count(), 2)
+            parent_action_item__action_identifier=form_one.action_identifier).count(), 2)
 
     def test_delete2(self):
         site_action_items.register(FormOneAction)

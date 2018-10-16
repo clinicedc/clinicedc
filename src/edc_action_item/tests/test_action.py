@@ -86,10 +86,10 @@ class TestAction(TestCase):
         self.assertEqual(action_item.reference_model,
                          obj._meta.label_lower)
         self.assertTrue(action_item.linked_to_reference)
-        self.assertIsNone(action_item.related_action_identifier)
+        self.assertIsNone(action_item.related_action_item)
         self.assertIsNone(action_item.related_reference_model)
-        self.assertIsNone(action_item.parent_action_identifier)
-        self.assertIsNone(action_item.parent_reference_model)
+        self.assertIsNone(action_item.parent_action_item)
+        # self.assertIsNone(action_item.parent_reference_model)
         self.assertIsNone(action_item.parent_action_item)
         self.assertEqual(action_item.action_type, action_type)
 
@@ -107,9 +107,9 @@ class TestAction(TestCase):
         self.assertEqual(action.reference_model,
                          obj._meta.label_lower)
         self.assertTrue(action.linked_to_reference)
-        self.assertIsNone(action.related_action_identifier)
+        self.assertIsNone(action.related_action_item)
         self.assertIsNone(action.related_reference_model)
-        self.assertIsNone(action.parent_action_identifier)
+        self.assertIsNone(action.parent_action_item)
         action_type = get_action_type(
             site_action_items.get(FormZero.action_name))
         self.assertEqual(get_action_type(action), action_type)
@@ -140,16 +140,16 @@ class TestAction(TestCase):
             action_item_two.reference_model,
             FormTwo._meta.label_lower)
         self.assertEqual(
-            action_item_two.related_action_identifier,
-            form_one.action_identifier)
+            action_item_two.related_action_item,
+            form_one.action_item)
         self.assertEqual(
             action_item_two.related_reference_model,
             FormOne._meta.label_lower)
         self.assertEqual(
-            action_item_two.parent_action_identifier,
-            form_one.action_identifier)
+            action_item_two.parent_action_item,
+            form_one.action_item)
         self.assertEqual(
-            action_item_two.parent_reference_model,
+            action_item_two.parent_action_item.reference_model,
             action_item_one.reference_model)
         self.assertEqual(action_item_two.parent_action_item, action_item_one)
         self.assertEqual(get_action_type(
@@ -306,11 +306,12 @@ class TestAction(TestCase):
         # form_one next_actions = [FormTwoAction, FormThreeAction]
         form_one_obj = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
+        self.assertEqual(ActionItem.objects.all().count(), 3)
 
         # next_actions = ['self']
         FormTwo.objects.create(
             subject_identifier=self.subject_identifier,
-            parent_action_identifier=form_one_obj.action_identifier,
+            parent_action_item=form_one_obj.action_item,
             form_one=form_one_obj)
         self.assertEqual(ActionItem.objects.all().count(), 4)
 
@@ -319,7 +320,7 @@ class TestAction(TestCase):
         # instead of creating one,.
         FormThree.objects.create(
             subject_identifier=self.subject_identifier,
-            parent_action_identifier=form_one_obj.action_identifier)
+            parent_action_item=form_one_obj.action_item)
         self.assertEqual(ActionItem.objects.all().count(), 5)
 
         # 3 (1 for each model) are closed
@@ -418,13 +419,7 @@ class TestAction(TestCase):
         action2 = SingletonAction(
             subject_identifier=self.subject_identifier)
 
-        try:
-            ActionItem.objects.get(
-                subject_identifier=self.subject_identifier)
-        except ObjectDoesNotExist:
-            self.fail('ObjectDoesNotExist unexpectedly raised.')
-
-        self.assertEqual(action1.action_identifier, action2.action_identifier)
+        self.assertEqual(action1.action_item, action2.action_item)
 
     def test_delete(self):
         """Assert action item is reset if reference object
@@ -449,7 +444,6 @@ class TestAction(TestCase):
             action_type__name=FormOneAction.name)
         self.assertEqual(action_item.status, NEW)
 
-    @tag('1')
     def test_add_action_if_required(self):
 
         FormFourAction(subject_identifier=self.subject_identifier)

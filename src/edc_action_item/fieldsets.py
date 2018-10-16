@@ -1,7 +1,8 @@
 action_fields = (
     'action_identifier',
-    'parent_action_identifier',
-    'related_action_identifier')
+    'action_item',
+    'parent_action_item',
+    'related_action_item')
 
 action_fieldset_tuple = [
     'Action', {

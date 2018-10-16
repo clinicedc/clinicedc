@@ -1,12 +1,7 @@
-import sys
-
-from django.core import checks
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models.deletion import PROTECT, SET_NULL
-from django.urls.base import reverse
-from django.utils.safestring import mark_safe
+from django.db.models.deletion import PROTECT
 from edc_base import get_utcnow
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
@@ -14,7 +9,6 @@ from edc_base.sites import CurrentSiteManager as BaseCurrentSiteManager, SiteMod
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 
-from ..admin_site import edc_action_item_admin
 from ..choices import ACTION_STATUS, PRIORITY
 from ..identifiers import ActionIdentifier
 from ..site_action_items import site_action_items
@@ -51,7 +45,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
     subject_identifier_model = 'edc_registration.registeredsubject'
 
     action_identifier = models.CharField(
-        max_length=25,
+        max_length=50,
         unique=True)
 
     report_datetime = models.DateTimeField(
@@ -90,10 +84,10 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         help_text=('May be left blank. e.g. action identifier from '
                    'source model that opened the item.'))
 
-    parent_reference_model = models.CharField(
-        max_length=100,
-        null=True,
-        editable=False)
+#     parent_reference_model = models.CharField(
+#         max_length=100,
+#         null=True,
+#         editable=False)
 
     parent_action_identifier = models.CharField(
         max_length=50,
@@ -111,6 +105,14 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
 
     parent_action_item = models.ForeignKey(
         'self', on_delete=PROTECT,
+        related_name='+',
+        null=True,
+        blank=True,
+        editable=False)
+
+    related_action_item = models.ForeignKey(
+        'self', on_delete=PROTECT,
+        related_name='+',
         null=True,
         blank=True,
         editable=False)
@@ -145,7 +147,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
 
     def __str__(self):
         return (f'{self.action_type.display_name} {self.action_identifier[-9:]} '
-                f'({self.get_status_display()})')
+                f'for {self.subject_identifier} ({self.get_status_display()})')
 
     def save(self, *args, **kwargs):
         """See also signals and action_cls.
@@ -162,6 +164,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
                     subject_identifier=self.subject_identifier)
             except ObjectDoesNotExist:
                 raise SubjectDoesNotExist(
+                    f'Attempt to create {self.__class__.__name__} failed. '
                     f'Invalid subject identifier. Subject does not exist '
                     f'in \'{self.subject_identifier_model}\'. '
                     f'Got \'{self.subject_identifier}\'.')
@@ -204,39 +207,18 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
             action_identifier=self.action_identifier)
 
     @property
-    def parent_reference_model_cls(self):
-        return django_apps.get_model(self.parent_reference_model)
-
-    @property
     def parent_reference_obj(self):
-        """Returns the parent reference model instance.
-
-        Links this action item to the immediate previous
-        action_item in the chain.
-        """
-        return self.parent_reference_model_cls.objects.get(
-            action_identifier=self.parent_action_identifier)
+        if not self.parent_action_item:
+            raise ObjectDoesNotExist(
+                f'Parent ActionItem does not exist for {self.action_identifier}.')
+        return self.parent_action_item.reference_obj
 
     @property
     def related_reference_obj(self):
-        """Returns the related reference model instance
-        or raises ObjectDoesNotExist.
-
-        Links this action item to all previous
-        action_items in the chain.
-
-        The related reference FK points to the related reference
-        object that links this action item to the initial
-        reference model instance.
-        """
-        return django_apps.get_model(self.related_reference_model).objects.get(
-            action_identifier=self.related_action_identifier)
-
-    @property
-    def related_reference_model_cls(self):
-        """Returns the related reference model instance.
-        """
-        return django_apps.get_model(self.related_reference_model)
+        if not self.related_action_item:
+            raise ObjectDoesNotExist(
+                f'Related ActionItem does not exist for {self.action_identifier}.')
+        return self.related_action_item.reference_obj
 
     @property
     def identifier(self):
@@ -259,67 +241,60 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         parent model reference which in most cases is the
         parent reference model's action identifier.
         """
-        try:
-            parent_reference = self.parent_action_item.action_identifier
-        except AttributeError:
-            parent_reference = None
-        if parent_reference:
-            return parent_reference[-9:]
+        if self.parent_action_item:
+            return self.parent_action_item.action_identifier[-9:]
         return None
 
     @property
     def related_reference(self):
-        """Returns a shortened related_action_identifier of the
+        """Returns a shortened related action_identifier of the
         parent model reference which in most cases is the
         parent reference model's action identifier.
         """
-        try:
-            related_reference = self._related_action_identifier
-        except AttributeError:
-            related_reference = None
-        if related_reference:
-            return related_reference[-9:]
+        if self.related_action_item:
+            return self.related_action_item.action_identifier[-9:]
         return None
 
-    @classmethod
-    def check(cls, **kwargs):
-        errors = super().check(**kwargs)
-        if ('test' not in sys.argv
-                and 'makemigrations' not in sys.argv
-                and 'migrate' not in sys.argv):
-            for obj in cls.objects.all():
-                if (obj.action_cls.related_reference_fk_attr
-                        and not obj.related_action_identifier):
-                    errors.append(
-                        checks.Error(
-                            f'ActionItem.related_action_identifier cannot be '
-                            f'None if related_reference_fk_attr is specified. '
-                            f'Got ActionItem.action_identifier={obj.action_identifier}. '
-                            f'Expected the \'action_identifier\' from an instance of '
-                            f'{obj.action_cls.related_reference_model}',
-                            hint=(f'update {obj.__class__.__name__}.'
-                                  f'related_action_identifier '
-                                  f'or delete the {obj.__class__.__name__}.'),
-                            obj=obj,
-                            id='edc_action_item.E001'))
-            for action_cls in site_action_items.registry.values():
-                if not action_cls.reference_model:
-                    raise ImproperlyConfigured(
-                        f'Attribute reference_model cannot be None. See {action_cls}')
-                for obj in action_cls.reference_model_cls().objects.all():
-                    try:
-                        ActionItem.objects.get(
-                            action_identifier=obj.action_identifier)
-                    except ObjectDoesNotExist:
-                        errors.append(
-                            checks.Error(
-                                f'Model refers to non-existent action item.\n '
-                                f'Got {action_cls.reference_model} where '
-                                f'action_identifier={obj.action_identifier}.\n',
-                                hint=f'Set action_identifier=None and re-save the object.',
-                                obj=obj,
-                                id='edc_action_item.E002'))
-        return errors
+#     @classmethod
+#     def check(cls, **kwargs):
+#         errors = super().check(**kwargs)
+#         if ('test' not in sys.argv
+#                 and 'showmigrations' not in sys.argv
+#                 and 'makemigrations' not in sys.argv
+#                 and 'migrate' not in sys.argv):
+#             for obj in cls.objects.all():
+#                 if (obj.action_cls.related_reference_fk_attr
+#                         and not obj.related_action_item):
+#                     errors.append(
+#                         checks.Error(
+#                             f'ActionItem.related_action_item cannot be '
+#                             f'None if related_reference_fk_attr is specified. '
+#                             f'Got ActionItem.action_identifier={obj.action_identifier}. ',
+#                             #                             f'Expected the \'action_identifier\' from an instance of '
+#                             #                             f'{obj.action_cls.related_reference_model}',
+#                             hint=(f'update {obj.__class__.__name__}.'
+#                                   f'related_action_item '
+#                                   f'or delete the {obj.__class__.__name__}.'),
+#                             obj=obj,
+#                             id='edc_action_item.E001'))
+#             for action_cls in site_action_items.registry.values():
+#                 if not action_cls.reference_model:
+#                     raise ImproperlyConfigured(
+#                         f'Attribute reference_model cannot be None. See {action_cls}')
+#                 for obj in action_cls.reference_model_cls().objects.all():
+#                     try:
+#                         ActionItem.objects.get(
+#                             action_identifier=obj.action_identifier)
+#                     except ObjectDoesNotExist:
+#                         errors.append(
+#                             checks.Error(
+#                                 f'Model refers to non-existent action item.\n '
+#                                 f'Got {action_cls.reference_model} where '
+#                                 f'action_identifier={obj.action_identifier}.\n',
+#                                 hint=f'Set action_identifier=None and re-save the object.',
+#                                 obj=obj,
+#                                 id='edc_action_item.E002'))
+#         return errors
 
     class Meta:
         verbose_name = 'Action Item'
