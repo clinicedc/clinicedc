@@ -2,9 +2,9 @@ from django.db import models
 from edc_base.model_validators.date import datetime_not_future
 from edc_base.utils import get_utcnow
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_visit_tracking.managers import CrfModelManager
 
 from ...crf_date_validator import CrfDateValidator
+from ...managers import CrfModelManager
 from .crf_visit_methods_model_mixin import CrfVisitMethodsModelMixin
 
 
@@ -33,15 +33,6 @@ class CrfModelMixin(CrfVisitMethodsModelMixin, models.Model):
 
     def __str__(self):
         return str(self.visit)
-
-#     def save(self, *args, **kwargs):
-#         if self.crf_date_validator_cls:
-#             self.crf_date_validator_cls(
-#                 report_datetime=self.report_datetime,
-#                 visit_report_datetime=self.visit.report_datetime,
-#                 created=self.created,
-#                 modified=self.modified)
-#         super().save(*args, **kwargs)
 
     def natural_key(self):
         return (getattr(self, self.visit_model_attr()).natural_key(), )

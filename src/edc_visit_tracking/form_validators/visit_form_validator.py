@@ -1,12 +1,10 @@
 from django import forms
-from edc_form_validators import FormValidator
-
-from ..constants import MISSED_VISIT
-from ..visit_sequence import VisitSequence, VisitSequenceError
-from edc_visit_tracking.constants import UNSCHEDULED
 from edc_constants.constants import OTHER
-from edc_form_validators.base_form_validator import REQUIRED_ERROR,\
-    INVALID_ERROR
+from edc_form_validators import FormValidator
+from edc_form_validators import REQUIRED_ERROR, INVALID_ERROR
+
+from ..constants import MISSED_VISIT, UNSCHEDULED
+from ..visit_sequence import VisitSequence, VisitSequenceError
 
 
 class VisitFormValidator(FormValidator):
