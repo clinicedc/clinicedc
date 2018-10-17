@@ -8,6 +8,7 @@ from edc_visit_schedule.model_wrappers import RequisitionModelWrapper, CrfModelW
 
 from ..constants import CRF, NOT_REQUIRED, REQUISITION, REQUIRED, KEYED
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
+from pprint import pprint
 
 
 class MetaDataViewError(Exception):
@@ -28,10 +29,7 @@ class MetaDataViewMixin(ContextMixin):
         context = super().get_context_data(**kwargs)
         context.update(metadata_show_status=self.metadata_show_status)
         if self.appointment:
-            if self.appointment.appt_status != IN_PROGRESS_APPT:
-                self.message_user(mark_safe(
-                    f'Wait!. Another user has switch the current appointment! '
-                    f'<BR>Appointment {self.appointment} is no longer "in progress".'))
+            self.message_if_appointment_in_progress()
             crf_metadata_wrappers = self.crf_metadata_wrappers_cls(
                 appointment=self.appointment)
             requisition_metadata_wrappers = self.requisition_metadata_wrappers_cls(
@@ -53,6 +51,12 @@ class MetaDataViewMixin(ContextMixin):
 
     def message_user(self, message=None):
         messages.error(self.request, message=message)
+
+    def message_if_appointment_in_progress(self):
+        if self.appointment.appt_status != IN_PROGRESS_APPT:
+            self.message_user(mark_safe(
+                f'Wait!. Another user has switch the current appointment! '
+                f'<BR>Appointment {self.appointment} is no longer "in progress".'))
 
     def get_crf_model_wrapper(self, key=None, metadata_wrappers=None):
         model_wrappers = []
