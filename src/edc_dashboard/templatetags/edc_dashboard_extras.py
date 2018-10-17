@@ -99,6 +99,7 @@ def paginator_row(context):
             f'of {paginator.count}.')
 
     return dict(
+        paginator_url=paginator_url,
         page_obj=page_obj,
         show=show,
         first_url=first_url,
