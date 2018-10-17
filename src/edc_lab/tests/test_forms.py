@@ -1,8 +1,11 @@
 from django import forms
 from django.test import TestCase, tag
 from edc_base.sites.utils import add_or_update_django_sites
+from edc_base.utils import get_utcnow
 from edc_constants.constants import OTHER, YES, NO, NOT_APPLICABLE
+from edc_form_validators import FormValidatorMixin
 
+from ..form_validators import RequisitionFormValidator
 from ..forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
 from ..models import Aliquot
 from .models import SubjectRequisition, SimpleSubjectVisit as SubjectVisit
@@ -74,8 +77,11 @@ class TestForms(TestCase):
         form.is_valid()
         self.assertNotIn('category_other', list(form.errors.keys()))
 
-    def test_requisition_form(self):
-        class RequisitionForm(RequisitionFormMixin, forms.ModelForm):
+    def test_requisition_form_reason(self):
+        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
+
+            form_validator_cls = RequisitionFormValidator
+
             class Meta:
                 fields = '__all__'
                 model = SubjectRequisition
@@ -95,6 +101,46 @@ class TestForms(TestCase):
         self.assertNotIn('drawn_datetime', list(form.errors.keys()))
         self.assertNotIn('item_type', list(form.errors.keys()))
 
+    @tag('1')
+    def test_requisition_form_drawn(self):
+        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
+
+            form_validator_cls = RequisitionFormValidator
+
+            class Meta:
+                fields = '__all__'
+                model = SubjectRequisition
+
+        data = {'is_drawn': YES, 'drawn_datetime': None}
+        form = RequisitionForm(data=data)
+        form.is_valid()
+        self.assertIn('drawn_datetime', list(form.errors.keys()))
+        self.assertEqual(form.errors.get('drawn_datetime'),
+                         ['This field is required.'])
+
+        data = {
+            'is_drawn': NO,
+            'drawn_datetime': get_utcnow()}
+        form = RequisitionForm(data=data)
+        form.is_valid()
+        self.assertIn('drawn_datetime', list(form.errors.keys()))
+        self.assertEqual(form.errors.get('drawn_datetime'),
+                         ['This field is not required.'])
+
+        data = {
+            'is_drawn': NO,
+            'drawn_datetime': None}
+        form = RequisitionForm(data=data)
+        form.is_valid()
+        self.assertIsNone(form.errors.get('drawn_datetime'))
+
+        data = {
+            'is_drawn': YES,
+            'drawn_datetime': get_utcnow()}
+        form = RequisitionForm(data=data)
+        form.is_valid()
+        self.assertIsNone(form.errors.get('drawn_datetime'))
+
 
 class TestForms2(TestCase):
 
@@ -103,12 +149,14 @@ class TestForms2(TestCase):
     def setUp(self):
         self.lab_helper.setup_site_labs()
 
-        class RequisitionForm(RequisitionFormMixin, forms.ModelForm):
-            aliquot_model = Aliquot
+        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
+
+            form_validator_cls = RequisitionFormValidator
 
             class Meta:
                 fields = '__all__'
                 model = SubjectRequisition
+
         self.form_cls = RequisitionForm
         self.subject_visit = SubjectVisit.objects.create()
 
