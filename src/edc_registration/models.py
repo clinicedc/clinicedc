@@ -224,7 +224,7 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
         if getattr(self, attrname):
             with transaction.atomic():
                 error_msg = (
-                    'Cannot {{action}} registered subject with a duplicate '
+                    f'Cannot {{action}} registered subject with a duplicate '
                     f'\'{attrname}\'. Got {getattr(self, attrname)}.')
                 try:
                     obj = self.__class__.objects.exclude(
