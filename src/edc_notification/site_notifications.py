@@ -48,10 +48,11 @@ class SiteNotifications:
                 raise AlreadyRegistered(
                     f'Notification {notification_cls.name} is already registered.')
 
-    def notify(self, sender=None, instance=None, created=None, **kwargs):
+    def notify(self, instance=None, created=None, user=None, **kwargs):
+        """Notify for each class.
+        """
         for notification_cls in self.registry.values():
-            notification = notification_cls(instance=instance, created=created)
-            notification.notify()
+            notification_cls().notify(instance=instance, created=created)
 
     def autodiscover(self, module_name=None, verbose=False):
         """Autodiscovers classes in the notifications.py file of any

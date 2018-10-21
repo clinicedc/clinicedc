@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from edc_notification.notification import Notification
 
 
@@ -18,14 +19,20 @@ class GradedEventNotification(Notification):
         '{test_message}'
         'Thanks.')
 
-    def callback(self):
-        if self.instance._meta.label_lower == self.model:
+    def __init__(self):
+        super().__init__()
+        if not self.display_name:
+            self.display_name = django_apps.get_model(
+                self.model)._meta.verbose_name.title()
+
+    def callback(self, instance=None, **kwargs):
+        if instance._meta.label_lower == self.model:
             grading_history = [
                 int(obj.ae_grade)
-                for obj in self.instance.history.all().order_by('history_date')]
-            grading_history.append(int(self.instance.ae_grade))
+                for obj in instance.history.all().order_by('history_date')]
+            grading_history.reverse()
             if grading_history:
-                x = [int(x) for x in grading_history][-2:]
-                if sum(x) != self.grade * 2 and x[-1:][0] == self.grade:
+                x = [int(x) for x in grading_history]
+                if sum(x) != self.grade * 2 and x[0] == self.grade:
                     return True
         return False

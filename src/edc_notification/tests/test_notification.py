@@ -7,6 +7,8 @@ from ..decorators import register
 from ..notification import Notification
 from ..site_notifications import site_notifications, AlreadyRegistered
 from .models import AE, Death
+from time import sleep
+from datetime import timedelta
 
 
 class TestNotification(TestCase):
@@ -96,7 +98,6 @@ class TestNotification(TestCase):
         ae.save()
         self.assertEqual(len(mail.outbox), 1)
 
-    @tag('1')
     def test_new_model_notification(self):
 
         site_notifications._registry = {}
@@ -120,14 +121,28 @@ class TestNotification(TestCase):
         class DeathNotification(UpdatedModelNotification):
             name = 'death'
             model = 'edc_notification.death'
+            fields = ['cause']
 
-        death = Death.objects.create(subject_identifier='1')
+        death = Death.objects.create(
+            subject_identifier='1', cause='A')
+        # this is an update notification, do nothing on create
         self.assertEqual(len(mail.outbox), 0)
+
+        # update/change cause of death, notify
+        death.cause = 'B'
         death.save()
         self.assertEqual(len(mail.outbox), 1)
+
+        # re-save, do nothing
+        death.save()
+        self.assertEqual(len(mail.outbox), 1)
+
+        # update/change cause of death, notify
+        death.cause = 'A'
         death.save()
         self.assertEqual(len(mail.outbox), 2)
 
+    @tag('1')
     def test_updated_model_notification2(self):
 
         site_notifications._registry = {}
@@ -138,15 +153,19 @@ class TestNotification(TestCase):
             model = 'edc_notification.death'
             fields = ['report_datetime']
 
-        death = Death.objects.create(subject_identifier='1')
+        death = Death.objects.create(
+            subject_identifier='1', cause='A')
         self.assertEqual(len(mail.outbox), 0)
         death.save()
         self.assertEqual(len(mail.outbox), 0)
-        death.report_datetime = get_utcnow()
+
+        death.report_datetime = get_utcnow() - timedelta(days=1)
         death.save()
         self.assertEqual(len(mail.outbox), 1)
+
         death.save()
         self.assertEqual(len(mail.outbox), 1)
+
         death.report_datetime = get_utcnow()
         death.save()
         self.assertEqual(len(mail.outbox), 2)

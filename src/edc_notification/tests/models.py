@@ -28,4 +28,6 @@ class Death(SiteModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
+    cause = models.CharField(max_length=10)
+
     history = HistoricalRecords()

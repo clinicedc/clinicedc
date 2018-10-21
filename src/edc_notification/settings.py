@@ -19,6 +19,7 @@ ALLOWED_HOSTS = []
 SITE_ID = 10
 
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+EMAIL_CONTACTS = {'data_manager': 'data_manager@clinicedc.org'}
 
 # Application definition
 
