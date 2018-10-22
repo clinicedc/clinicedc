@@ -1,14 +1,13 @@
+from datetime import timedelta
 from django.core import mail
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 
-from ..contrib import GradedEventNotification, NewModelNotification, UpdatedModelNotification
 from ..decorators import register
-from ..notification import Notification
+from ..notification import GradedEventNotification, NewModelNotification
+from ..notification import Notification, UpdatedModelNotification
 from ..site_notifications import site_notifications, AlreadyRegistered
 from .models import AE, Death
-from time import sleep
-from datetime import timedelta
 
 
 class TestNotification(TestCase):

@@ -1,18 +1,13 @@
-from django.apps import apps as django_apps
-from edc_notification.notification import Notification
+from .model_notification import ModelNotification
 
 
-class UpdatedModelNotification(Notification):
+class UpdatedModelNotification(ModelNotification):
 
-    model = None
     fields = ['modified']
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.changed_fields = {}
-        if not self.display_name:
-            self.display_name = django_apps.get_model(
-                self.model)._meta.verbose_name.title()
 
     def callback(self, instance=None, **kwargs):
         if self.fields and instance.history.all().count() > 1:
