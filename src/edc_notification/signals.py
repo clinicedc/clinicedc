@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from simple_history.signals import post_create_historical_record
@@ -10,7 +11,7 @@ from .site_notifications import site_notifications
 def notification_on_post_create_historical_record(
         sender, instance, history_date, history_user,
         history_change_reason, **kwargs):
-    if site_notifications.loaded:
+    if settings.EMAIL_ENABLED and site_notifications.loaded:
         site_notifications.notify(
             instance=instance,
             user=history_user,
@@ -26,7 +27,7 @@ def manage_mailists_on_userprofile_m2m_changed(
     except AttributeError:
         pass
     else:
-        if site_notifications.loaded:
+        if settings.EMAIL_ENABLED and site_notifications.loaded:
             if action == 'post_remove':
                 for notification in instance.notifications.all():
                     notification_cls = site_notifications.get(
