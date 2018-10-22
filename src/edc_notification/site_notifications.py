@@ -3,6 +3,8 @@ import sys
 
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.utils import IntegrityError
 
 
 class AlreadyRegistered(Exception):
@@ -53,6 +55,50 @@ class SiteNotifications:
         """
         for notification_cls in self.registry.values():
             notification_cls().notify(instance=instance, created=created)
+
+    def update_notification_list(self, apps=None, schema_editor=None, verbose=False):
+        """Update notification model to ensure all notifications
+        exist.
+
+        Typically called from a post_migrate signal.
+        """
+        Notification = (apps or django_apps).get_model(
+            'edc_notification', 'notification')
+        Notification.objects.all().update(enabled=False)
+        if site_notifications.loaded:
+            for name, notification_cls in site_notifications.registry.items():
+                if verbose:
+                    sys.stdout.write(
+                        f'{name}, {notification_cls().display_name}\n')
+                try:
+                    obj = Notification.objects.get(name=name)
+                except ObjectDoesNotExist:
+                    try:
+                        Notification.objects.create(
+                            name=name,
+                            display_name=notification_cls().display_name,
+                            enabled=True)
+                    except IntegrityError as e:
+                        raise IntegrityError(
+                            f'{e} Got name=\'{name}\', '
+                            f'display_name=\'{notification_cls().display_name}\'.')
+                else:
+                    obj.display_name = notification_cls().display_name
+                    obj.enabled = True
+                    obj.save()
+
+    def create_mailing_lists(self, verbose=True):
+        """Creates the mailing list for each registered notification.
+        """
+        responses = {}
+        for name, notification_cls in self.registry.items():
+            response = notification_cls().mailing_list_manager.create()
+            if verbose:
+                sys.stdout.write(
+                    f'Creating mailing list {name}. '
+                    f'Got {response.status_code}: \"{response.json().get("message")}\"\n')
+            responses.update({name: response})
+        return responses
 
     def autodiscover(self, module_name=None, verbose=False):
         """Autodiscovers classes in the notifications.py file of any

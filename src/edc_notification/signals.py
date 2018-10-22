@@ -31,27 +31,13 @@ def manage_mailists_on_userprofile_m2m_changed(
                 for notification in instance.notifications.all():
                     notification_cls = site_notifications.get(
                         notification.name)
-                    if not notification_cls:
-                        notification.delete()
-                    else:
-                        notification_cls().mailing_list.unsubscribe(
-                            instance.user.email)
+                    if notification_cls:
+                        notification_cls().mailing_list_manager.unsubscribe(
+                            instance.user, verbose=False)
             elif action == 'post_add':
                 for notification in instance.notifications.all():
                     notification_cls = site_notifications.get(
                         notification.name)
-                    if not notification_cls:
-                        notification.delete()
-                    else:
-                        notification_cls().mailing_list.subscribe(
-                            instance.user.email)
-
-
-#         requests.post(
-#             "https://api.mailgun.net/v3/lists/LIST@YOUR_DOMAIN_NAME/members",
-#             auth=('api', 'YOUR_API_KEY'),
-#             data={'subscribed': True,
-#                   'address': 'bar@example.com',
-#                   'name': 'Bob Bar',
-#                   'description': 'Developer',
-#                   'vars': '{"age": 26}'})
+                    if notification_cls:
+                        notification_cls().mailing_list_manager.subscribe(
+                            instance.user, verbose=False)

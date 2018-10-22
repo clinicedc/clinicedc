@@ -1,7 +1,6 @@
 import sys
 
 from django.apps import AppConfig as DjangoAppConfig
-from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 
@@ -11,8 +10,8 @@ style = color_style()
 
 
 def post_migrate_update_notifications(sender=None, **kwargs):
-    from .update_notification_list import update_notification_list
-    update_notification_list(apps=django_apps)
+    site_notifications.update_notification_list(verbose=True)
+    site_notifications.create_mailing_lists(verbose=True)
 
 
 class AppConfig(DjangoAppConfig):

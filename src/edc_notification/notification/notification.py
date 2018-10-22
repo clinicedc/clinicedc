@@ -2,8 +2,8 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from ..mail import EmailMessage, MailingList
-from ..update_notification_list import update_notification_list
+from ..mail import EmailMessage, MailingListManager
+from ..site_notifications import site_notifications
 
 
 class Notification:
@@ -14,7 +14,7 @@ class Notification:
     email_from = settings.EMAIL_CONTACTS.get('data_manager')
     email_to = None
     email_message_cls = EmailMessage
-    mailing_list_cls = MailingList
+    mailing_list_manager_cls = MailingListManager
     body_template = (
         '\n\nDo not reply to this email\n\n'
         '{body_test_line}'
@@ -35,11 +35,14 @@ class Notification:
     subject_test_line = 'TEST/UAT -- '
 
     def __init__(self):
-        self.mailing_list = self.mailing_list_cls(self)
         self.email_to = self.email_to or [
             f'{self.name}.{settings.APP_NAME}@mg.clinicedc.org']
         self.protocol_name = django_apps.get_app_config(
             'edc_protocol').protocol_name
+        self.mailing_list_manager = self.mailing_list_manager_cls(
+            email_to=self.email_to,
+            display_name=self.display_name,
+            name=self.name)
 
     def __str__(self):
         return f'{self.name}: {self.display_name}'
@@ -53,7 +56,7 @@ class Notification:
         try:
             obj = NotificationModel.objects.get(name=self.name)
         except ObjectDoesNotExist:
-            update_notification_list(django_apps)
+            site_notifications.update_notification_list()
             obj = NotificationModel.objects.get(name=self.name)
         if obj.enabled and self.callback(**kwargs):
             email_message = self.email_message_cls(
