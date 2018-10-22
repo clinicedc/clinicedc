@@ -28,7 +28,7 @@ class Notification:
         '{body_test_line}'
         'Thanks.')
     subject_template = (
-        '{subject_test_line}{updated}{protocol_name}: '
+        '{subject_test_line}{protocol_name}: '
         '{display_name} '
         'for {instance.subject_identifier}')
     body_test_line = 'THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n'

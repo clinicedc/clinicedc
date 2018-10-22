@@ -5,8 +5,7 @@ from django.core import mail
 
 class EmailMessage:
 
-    def __init__(self, notification=None, instance=None, test=None, created=None):
-        self.created = created
+    def __init__(self, notification=None, instance=None, test=None):
         self.instance = instance
         self.notification = notification
         self.test = test
@@ -19,7 +18,6 @@ class EmailMessage:
             and not inspect.isclass(v)
             and k not in self.__dict__}
         self.template_opts.update(
-            updated='Update' if not created else '',
             subject_test_line=self.notification.subject_test_line if self.test else '',
             body_test_line=self.notification.body_test_line if self.test else '')
         self.subject = self.notification.subject_template.format(

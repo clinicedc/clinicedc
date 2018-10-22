@@ -50,11 +50,11 @@ class SiteNotifications:
                 raise AlreadyRegistered(
                     f'Notification {notification_cls.name} is already registered.')
 
-    def notify(self, instance=None, created=None, user=None, **kwargs):
+    def notify(self, instance=None, **kwargs):
         """Notify for each class.
         """
         for notification_cls in self.registry.values():
-            notification_cls().notify(instance=instance, created=created)
+            notification_cls().notify(instance=instance)
 
     def update_notification_list(self, apps=None, schema_editor=None, verbose=False):
         """Update notification model to ensure all notifications
@@ -91,13 +91,14 @@ class SiteNotifications:
         """Creates the mailing list for each registered notification.
         """
         responses = {}
-        for name, notification_cls in self.registry.items():
-            response = notification_cls().mailing_list_manager.create()
-            if verbose:
-                sys.stdout.write(
-                    f'Creating mailing list {name}. '
-                    f'Got {response.status_code}: \"{response.json().get("message")}\"\n')
-            responses.update({name: response})
+        if self.loaded:
+            for name, notification_cls in self.registry.items():
+                response = notification_cls().mailing_list_manager.create()
+                if verbose:
+                    sys.stdout.write(
+                        f'Creating mailing list {name}. '
+                        f'Got {response.status_code}: \"{response.json().get("message")}\"\n')
+                responses.update({name: response})
         return responses
 
     def autodiscover(self, module_name=None, verbose=False):
