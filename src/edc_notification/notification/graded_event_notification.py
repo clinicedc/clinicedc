@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+
 from .notification import Notification
 
 
