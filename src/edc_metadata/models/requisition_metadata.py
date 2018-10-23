@@ -22,7 +22,8 @@ class RequisitionMetadata(ModelMixin, SiteModelMixin, BaseUuidModel):
 
     @property
     def verbose_name(self):
-        return self.panel_name
+        from edc_lab.site_labs import site_labs
+        return site_labs.panel_names.get(self.panel_name) or self.panel_name
 
     def natural_key(self):
         return (self.panel_name, self.model, self.subject_identifier,
