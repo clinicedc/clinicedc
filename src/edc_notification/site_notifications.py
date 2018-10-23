@@ -4,8 +4,12 @@ import sys
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.color import color_style
 from django.db.utils import IntegrityError
 from django.utils.module_loading import import_module, module_has_submodule
+from json.decoder import JSONDecodeError
+
+style = color_style()
 
 
 class AlreadyRegistered(Exception):
@@ -66,8 +70,9 @@ class SiteNotifications:
         Notification = (apps or django_apps).get_model(
             'edc_notification', 'notification')
         Notification.objects.all().update(enabled=False)
-        sys.stdout.write(f'Updating notifications ...\n')
         if site_notifications.loaded:
+            sys.stdout.write(style.MIGRATE_HEADING(
+                f'Populating Notification model:\n'))
             for name, notification_cls in site_notifications.registry.items():
                 if verbose:
                     sys.stdout.write(
@@ -94,12 +99,18 @@ class SiteNotifications:
         """
         responses = {}
         if settings.EMAIL_ENABLED and self.loaded:
+            sys.stdout.write(style.MIGRATE_HEADING(
+                f'Creating mailing lists:\n'))
             for name, notification_cls in self.registry.items():
                 response = notification_cls().mailing_list_manager.create()
                 if verbose:
+                    try:
+                        message = response.json().get("message")
+                    except JSONDecodeError:
+                        message = response.text
                     sys.stdout.write(
-                        f'Creating mailing list {name}. '
-                        f'Got {response.status_code}: \"{response.json().get("message")}\"\n')
+                        f'  * Creating mailing list {name}. '
+                        f'Got {response.status_code}: \"{message}\"\n')
                 responses.update({name: response})
         return responses
 

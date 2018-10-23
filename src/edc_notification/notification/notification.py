@@ -37,6 +37,8 @@ class Notification:
     def __init__(self):
         self.email_to = self.email_to or [
             f'{self.name}.{settings.APP_NAME}@mg.clinicedc.org']
+        if not settings.LIVE_SYSTEM:
+            self.email_to = [f'test.{email}' for email in self.email_to]
         self.protocol_name = django_apps.get_app_config(
             'edc_protocol').protocol_name
         self.mailing_list_manager = self.mailing_list_manager_cls(
