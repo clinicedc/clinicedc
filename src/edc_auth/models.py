@@ -37,3 +37,6 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
         blank=True,
         help_text=mark_safe(
             f'Change in <a href="/edc_label/">Edc Label Administration</a>'))
+
+    def __str__(self):
+        return self.user.username
