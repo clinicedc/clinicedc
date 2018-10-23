@@ -29,6 +29,8 @@ SITE_ID = '10'
 
 ALLOWED_HOSTS = []
 
+EDC_BOOTSTRAP = 3
+
 
 # Application definition
 
