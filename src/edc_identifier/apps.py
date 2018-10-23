@@ -11,6 +11,7 @@ class AppConfig(DjangoAppConfig):
     identifier_prefix = '999'  # e.g. 066 for BHP066
     identifier_modulus = 7
     messages_written = False
+    subject_identifier_pattern = '092\-[0-9\-]+'
 
     def ready(self):
         style = color_style()
@@ -28,6 +29,9 @@ class AppConfig(DjangoAppConfig):
             sys.stdout.write(
                 f' Done loading {self.verbose_name}\n')
         self.messages_written = True
+
+    def get_subject_identifier_pattern(self):
+        return self.subject_identifier_pattern or f'{self.identifier_prefix}\-[0-9\-]+'
 
 
 if settings.APP_NAME == 'edc_identifier':
