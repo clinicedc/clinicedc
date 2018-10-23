@@ -3,9 +3,10 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models.deletion import CASCADE
 from django.utils.safestring import mark_safe
+from edc_notification.model_mixins import NotificationUserProfileModelMixin
 
 
-class UserProfile(models.Model):
+class UserProfile(NotificationUserProfileModelMixin, models.Model):
 
     user = models.OneToOneField(User, on_delete=CASCADE)
 
