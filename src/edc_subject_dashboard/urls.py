@@ -1,10 +1,11 @@
+from django.conf import settings
 from django.contrib import admin
 from django.urls.conf import path
-from django.conf import settings
 
 from .views import RequisitionPrintActionsView, RequisitionVerifyActionsView
 
 app_name = 'edc_subject_dashboard'
+
 
 urlpatterns = [
     path(r'requisition_print_actions/',
@@ -14,6 +15,7 @@ urlpatterns = [
          RequisitionVerifyActionsView.as_view(),
          name='requisition_verify_actions_url'),
 ]
+
 
 if settings.APP_NAME == 'edc_subject_dashboard':
 
