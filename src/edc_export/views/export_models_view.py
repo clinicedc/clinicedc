@@ -137,7 +137,7 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
         return [ModelOptions(model=m).__dict__ for m in selected_models if m]
 
     def get_selected_models_from_session(self):
-        """Returns a list of selected models from the seesion object
+        """Returns a list of selected models from the session object
         as ModelOptions.
         """
         try:
