@@ -2,9 +2,10 @@ import copy
 import sys
 
 from django.apps import apps as django_apps
-from django.utils.module_loading import import_module, module_has_submodule
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
+from django.utils.module_loading import import_module, module_has_submodule
 
 
 class AlreadyRegistered(Exception):
@@ -65,11 +66,12 @@ class SiteNotifications:
         Notification = (apps or django_apps).get_model(
             'edc_notification', 'notification')
         Notification.objects.all().update(enabled=False)
+        sys.stdout.write(f'Updating notifications ...\n')
         if site_notifications.loaded:
             for name, notification_cls in site_notifications.registry.items():
                 if verbose:
                     sys.stdout.write(
-                        f'{name}, {notification_cls().display_name}\n')
+                        f'  * Adding \'{name}\': \'{notification_cls().display_name}\'\n')
                 try:
                     obj = Notification.objects.get(name=name)
                 except ObjectDoesNotExist:
@@ -91,7 +93,7 @@ class SiteNotifications:
         """Creates the mailing list for each registered notification.
         """
         responses = {}
-        if self.loaded:
+        if settings.EMAIL_ENABLED and self.loaded:
             for name, notification_cls in self.registry.items():
                 response = notification_cls().mailing_list_manager.create()
                 if verbose:
