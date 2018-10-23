@@ -1,14 +1,15 @@
 import inspect
 
+from django.conf import settings
 from django.core import mail
 
 
 class EmailMessage:
 
-    def __init__(self, notification=None, instance=None, test=None):
+    def __init__(self, notification=None, instance=None):
         self.instance = instance
         self.notification = notification
-        self.test = test
+        self.test = not settings.LIVE_SYSTEM
         self.email_from = self.notification.email_from
         self.email_to = self.notification.email_to
         self.template_opts = {
