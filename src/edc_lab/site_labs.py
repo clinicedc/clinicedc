@@ -81,6 +81,12 @@ class SiteLabs:
     def panel_model_cls(self):
         return django_apps.get_model(self.panel_model)
 
+    @property
+    def panel_names(self):
+        return {obj.name: obj.display_name
+                for obj in self.panel_model_cls.objects.all().order_by(
+                    'lab_profile_name')}
+
     def check_lab_profile_name_on_panels(self, panel_model_cls=None):
         """Checks if for panels referencing non-existent lab_profiles
         """
