@@ -37,6 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django_crypto_fields.apps.AppConfig',
+    'edc_appointment.apps.AppConfig',
+    'edc_device.apps.AppConfig',
+    'edc_visit_schedule.apps.AppConfig',
+    'edc_timepoint.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
+    'edc_metadata.apps.AppConfig',
     'edc_fieldsets.apps.AppConfig'
 ]
 
@@ -114,7 +122,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-
+DASHBOARD_URL_NAMES = {}
+SITE_ID = 10
+EDC_BOOTSTRAP = 3
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 

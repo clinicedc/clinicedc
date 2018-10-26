@@ -129,14 +129,14 @@ class FieldsetsModelAdminMixin:
         """Returns a model instance that is the first occurrence of a previous
         instance relative to this object's appointment.
 
-        Override this method if not a subject model.
+        Override this method if not a subject model / CRF.
         """
         obj = None
         appointment = instance or self.get_instance(request)
         if appointment:
             while appointment.previous_by_timepoint:
                 options = {
-                    '{}__appointment'.format(self.model.visit_model_attr()):
+                    f'{self.model.visit_model_attr()}__appointment':
                     appointment.previous_by_timepoint}
                 try:
                     obj = self.model.objects.get(**options)
