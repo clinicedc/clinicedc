@@ -4,7 +4,6 @@ from edc_model_admin.model_admin_audit_fields_mixin import audit_fieldset_tuple
 from ..fieldset import Fieldset
 from ..fieldsets_modeladmin_mixin import FieldsetsModelAdminMixin
 from .models import MyModel, MyModel2, MyModel3
-from build.lib.edc_fieldsets.fieldsets_modeladmin_mixin import FormLabel
 from edc_constants.constants import NO
 
 VISIT_ONE = '1000'
@@ -77,30 +76,3 @@ class MyModel2Admin(FieldsetsModelAdminMixin, admin.ModelAdmin):
 
 
 admin.site.register(MyModel2, MyModel2Admin)
-
-
-class MyModel3Admin(FieldsetsModelAdminMixin, admin.ModelAdmin):
-    """Demonstrate use of a custom form label.
-
-    """
-
-    fieldsets = (
-        ('Not special fields', {
-            'fields': (
-                'subject_visit',
-                'report_datetime',
-                'f1',
-                'f2',
-                'f3')},
-         ),
-    )
-
-    custom_form_labels = [
-        FormLabel(
-            field='f1',
-            label='Since we last saw you in {previous}, were you circumcised?',
-            callback=lambda obj, appointment: True if obj.f1 == NO else False)
-    ]
-
-
-admin.site.register(MyModel3, MyModel3Admin)

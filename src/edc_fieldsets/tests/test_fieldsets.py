@@ -4,7 +4,6 @@ from django.test import TestCase, tag
 from ..fieldsets import Fieldsets, FieldsetError
 from ..fieldset import Fieldset
 from .admin import MyModelAdmin
-from pprint import pprint
 
 
 class TestFieldsets(TestCase):
