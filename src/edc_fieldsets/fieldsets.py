@@ -38,8 +38,8 @@ class Fieldsets:
         """Adds a list of fieldsets.
         """
         try:
-            fieldsets = list(fieldsets)
-        except TypeError:
+            fieldsets[0]
+        except IndexError:
             fieldsets = [fieldsets]
         for fieldset in fieldsets:
             section = fieldset.fieldset[0]

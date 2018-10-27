@@ -3,6 +3,7 @@ from django.test import TestCase, tag
 
 from ..fieldsets import Fieldsets, FieldsetError
 from ..fieldset import Fieldset
+from .admin import MyModelAdmin
 
 
 class TestFieldsets(TestCase):
@@ -133,3 +134,11 @@ class TestFieldsets(TestCase):
             fields[1] not in fs.fieldsets[0][1]['fields'])
         self.assertTrue(
             fields[2] not in fs.fieldsets[0][1]['fields'])
+
+    def test_add_fieldsets(self):
+        fieldsets = Fieldsets(MyModelAdmin.fieldsets)
+        new_fieldset = Fieldset(
+            'field1', 'field2', 'field3', section='Hospitalisation')
+        fieldsets.add_fieldsets(fieldsets=[new_fieldset])
+        fieldsets = fieldsets.fieldsets
+        self.assertEqual(fieldsets[2], new_fieldset.fieldset)
