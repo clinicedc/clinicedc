@@ -1,14 +1,16 @@
 from datetime import timedelta
+from django.contrib import admin
 from django.contrib.auth.models import User, Permission
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
+from edc_constants.constants import NO
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule import site_visit_schedules
 
-from ..form_label import FormLabel
 from ..custom_label_condition import CustomLabelCondition
+from ..form_label import FormLabel
 from .admin import VISIT_ONE, VISIT_TWO
 from .forms import MyForm
 from .models import MyModel, SubjectVisit
@@ -26,7 +28,7 @@ class TestFormLabel(TestCase):
             is_active=True)
         self.subject_identifier = '1234'
         for permission in Permission.objects.filter(
-                content_type__app_label='edc_fieldsets',
+                content_type__app_label='edc_form_label',
                 content_type__model='mymodel'):
             self.user.user_permissions.add(permission)
         RegisteredSubject.objects.create(
@@ -41,7 +43,7 @@ class TestFormLabel(TestCase):
             schedule_name='schedule',
             timepoint=0,
             timepoint_datetime=get_utcnow() - timedelta(days=1))
-        self.subject_visit = SubjectVisit.objects.create(
+        self.subject_visit_one = SubjectVisit.objects.create(
             appointment=self.appointment_one)
 
         self.appointment_two = Appointment.objects.create(
@@ -53,18 +55,18 @@ class TestFormLabel(TestCase):
             schedule_name='schedule',
             timepoint=1,
             timepoint_datetime=get_utcnow())
-        self.subject_visit = SubjectVisit.objects.create(
+        self.subject_visit_two = SubjectVisit.objects.create(
             appointment=self.appointment_two)
+
         for field in MyModel._meta.fields:
-            if field.name == 'f1':
+            if field.name == 'circumcised':
                 self.default_label = field.verbose_name
                 break
 
-    @tag('1')
     def test_init(self):
 
         form_label = FormLabel(
-            field='f1',
+            field='circumcised',
             custom_label='New label',
             condition_cls=CustomLabelCondition)
 
@@ -82,7 +84,6 @@ class TestFormLabel(TestCase):
                 form=form),
             self.default_label)
 
-    @tag('1')
     def test_basics(self):
 
         class MyCustomLabelCondition(CustomLabelCondition):
@@ -93,7 +94,7 @@ class TestFormLabel(TestCase):
                 return False
 
         form_label = FormLabel(
-            field='f1',
+            field='circumcised',
             custom_label='My custom label',
             condition_cls=MyCustomLabelCondition)
 
@@ -125,7 +126,6 @@ class TestFormLabel(TestCase):
                 form=form),
             form_label.custom_label)
 
-    @tag('1')
     def test_custom_label_as_template(self):
 
         class MyCustomLabelCondition(CustomLabelCondition):
@@ -134,7 +134,7 @@ class TestFormLabel(TestCase):
                 return True if self.appointment.visit_code == VISIT_TWO else False
 
         form_label = FormLabel(
-            field='f1',
+            field='circumcised',
             custom_label=(
                 'The appointment is {appointment}. '
                 'The previous appointment is {previous_appointment}. '
@@ -159,3 +159,42 @@ class TestFormLabel(TestCase):
             'The previous appointment is 1000.0. '
             'The previous obj is None. '
             'The previous visit is 1234 1000.0.')
+
+    def test_custom_form_labels_default(self):
+
+        for model, model_admin in admin.site._registry.items():
+            if model == MyModel:
+                my_model_admin = model_admin.admin_site._registry.get(MyModel)
+
+        rf = RequestFactory()
+        request = rf.get(f'/?appointment={str(self.appointment_one.id)}')
+        request.user = self.user
+
+        rendered_change_form = my_model_admin.changeform_view(
+            request, None, '', {
+                'subject_visit': self.subject_visit_one})
+        self.assertIn('Are you circumcised',
+                      rendered_change_form.rendered_content)
+
+    @tag('1')
+    def test_custom_form_labels_2(self):
+
+        obj = MyModel.objects.create(
+            subject_visit=self.subject_visit_one,
+            circumcised=NO)
+
+        for model, model_admin in admin.site._registry.items():
+            if model == MyModel:
+                my_model_admin = model_admin.admin_site._registry.get(MyModel)
+
+        rf = RequestFactory()
+        request = rf.get(f'/?appointment={str(self.appointment_two.id)}')
+        request.user = self.user
+
+        rendered_change_form = my_model_admin.changeform_view(
+            request, None, '', {
+                'subject_visit': self.subject_visit_two})
+        self.assertNotIn('Are you circumcised',
+                         rendered_change_form.rendered_content)
+        self.assertIn('Since we last saw you in ',
+                      rendered_change_form.rendered_content)

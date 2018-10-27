@@ -128,6 +128,7 @@ USE_TZ = True
 
 
 DASHBOARD_URL_NAMES = {}
+EDC_BOOTSTRAP = 3
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
