@@ -179,7 +179,7 @@ class TestFormLabel(TestCase):
     @tag('1')
     def test_custom_form_labels_2(self):
 
-        obj = MyModel.objects.create(
+        MyModel.objects.create(
             subject_visit=self.subject_visit_one,
             circumcised=NO)
 
