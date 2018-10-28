@@ -7,7 +7,7 @@ register = template.Library()
 @register.inclusion_tag('edc_submit_line.html', takes_context=True)
 def edc_submit_row(context):
     request = context.get('request')
-    if int(request.site.id) == int(context.get('reviewer_site_id')):
+    if int(request.site.id) == int(context.get('reviewer_site_id', 0)):
         context.update({'save_next': None})
         context.update({'show_delete': None})
     try:
