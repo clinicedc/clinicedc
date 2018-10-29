@@ -159,3 +159,6 @@ class Schedule:
     @property
     def consent_model_cls(self):
         return self.subject.consent_model_cls
+
+    def to_dict(self):
+        return {k: v.to_dict() for k, v in self.visits.items()}

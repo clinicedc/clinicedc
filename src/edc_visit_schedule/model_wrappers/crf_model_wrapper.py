@@ -24,3 +24,7 @@ class CrfModelWrapper(PermissionsMixin, ModelWrapper):
     @property
     def subject_identifier(self):
         return getattr(self.object, self.visit_model_attr).subject_identifier
+
+    @property
+    def html_id(self):
+        return f'id_{self.model_cls._meta.label_lower.replace(".", "_")}'

@@ -24,3 +24,7 @@ class RequisitionModelWrapper(CrfModelWrapper):
             return str(self.object.panel.display_name)
         except AttributeError as e:
             return str(e)
+
+    @property
+    def html_id(self):
+        return f'id_{self.panel}'
