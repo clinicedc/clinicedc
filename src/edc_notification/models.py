@@ -18,7 +18,7 @@ class Notification(BaseUuidModel):
     enabled = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.display_name}: {"enabled" if self.enabled else "disabled"}'
+        return f'{self.display_name}'
 
     class Meta:
         ordering = ('display_name', )

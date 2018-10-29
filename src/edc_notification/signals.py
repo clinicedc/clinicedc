@@ -11,10 +11,10 @@ from .site_notifications import site_notifications
 def notification_on_post_create_historical_record(
         sender, instance, history_date, history_user,
         history_change_reason, **kwargs):
-    if settings.EMAIL_ENABLED and site_notifications.loaded:
+    if site_notifications.loaded:
         site_notifications.notify(
             instance=instance,
-            user=history_user,
+            user=instance.user_modified or instance.user_created,
             **kwargs)
 
 

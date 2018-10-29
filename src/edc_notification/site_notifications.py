@@ -59,7 +59,7 @@ class SiteNotifications:
         """Notify for each class.
         """
         for notification_cls in self.registry.values():
-            notification_cls().notify(instance=instance)
+            notification_cls().notify(instance=instance, **kwargs)
 
     def update_notification_list(self, apps=None, schema_editor=None, verbose=False):
         """Update notification model to ensure all notifications
