@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models.deletion import CASCADE
 from django.utils.safestring import mark_safe
 from edc_notification.model_mixins import NotificationUserProfileModelMixin
+from django.core.validators import RegexValidator
 
 
 class UserProfile(NotificationUserProfileModelMixin, models.Model):
@@ -16,6 +17,13 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
         max_length=10,
         null=True,
         blank=True)
+
+    mobile = models.CharField(
+        max_length=25,
+        validators=[RegexValidator(regex='^\+\d+')],
+        null=True,
+        blank=True,
+        help_text='e.g. +1234567890')
 
     clinic_label_printer = models.CharField(
         max_length=100,

@@ -11,7 +11,9 @@ class UserProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = 'User profile'
 
-    filter_horizontal = ('notifications', )
+    filter_horizontal = (
+        'email_notifications',
+        'sms_notifications', )
 
 
 class UserAdmin(BaseUserAdmin):
