@@ -5,11 +5,11 @@ from edc_constants.constants import UUID_PATTERN
 class UrlConfig:
     def __init__(self, url_name=None, view_class=None, label=None,
                  identifier_label=None, identifier_pattern=None):
+        self.identifier_label = identifier_label
+        self.identifier_pattern = identifier_pattern
+        self.label = label
         self.url_name = url_name
         self.view_class = view_class
-        self.label = label
-        self.identifier_pattern = identifier_pattern
-        self.identifier_label = identifier_label
 
     @property
     def dashboard_urls(self):
