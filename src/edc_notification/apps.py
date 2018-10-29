@@ -2,7 +2,11 @@ import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.management.color import color_style
+from django.core.checks.registry import register
 from django.db.models.signals import post_migrate
+
+from .system_checks import edc_notification_check
+
 
 from .site_notifications import site_notifications
 
@@ -25,3 +29,4 @@ class AppConfig(DjangoAppConfig):
         site_notifications.autodiscover(verbose=True)
         sys.stdout.write(f' Done loading {self.verbose_name}.\n')
         post_migrate.connect(post_migrate_update_notifications, sender=self)
+        register(edc_notification_check)

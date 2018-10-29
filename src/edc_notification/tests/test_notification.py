@@ -1,7 +1,9 @@
 from datetime import timedelta
+from django.contrib.auth.models import User
 from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
+from edc_auth.models import UserProfile
 from edc_base.utils import get_utcnow
 
 from ..decorators import register
@@ -10,6 +12,7 @@ from ..notification import Notification, UpdatedModelNotification
 from ..site_notifications import site_notifications, AlreadyRegistered
 from ..models import Notification as NotificationModel
 from .models import AE, Death
+from django.conf import settings
 
 
 class TestNotification(TestCase):
@@ -189,7 +192,6 @@ class TestNotification(TestCase):
         death.save()
         self.assertEqual(len(mail.outbox), 2)
 
-    @tag('1')
     def test_notification_model_is_updated(self):
 
         site_notifications._registry = {}
@@ -228,7 +230,6 @@ class TestNotification(TestCase):
         except ObjectDoesNotExist:
             self.fail('NotificationModel unexpectedly does not exist')
 
-    @tag('1')
     def test_notification_model_disables_unused(self):
 
         site_notifications._registry = {}
@@ -269,3 +270,27 @@ class TestNotification(TestCase):
             NotificationModel.objects.get,
             name=DeathNotification2.name,
             enabled=True)
+
+    @tag('1')
+    def test_sms(self):
+
+        user = User.objects.create(username='erikvw')
+        user.userprofile.mobile = settings.TWILIO_TEST_RECIPIENT
+        user.userprofile.save()
+
+        site_notifications._registry = {}
+        site_notifications.update_notification_list()
+
+        @register()
+        class DeathNotification(NewModelNotification):
+            name = 'death'
+            model = 'edc_notification.death'
+
+        site_notifications.update_notification_list()
+
+        user.userprofile.sms_notifications.add(
+            NotificationModel.objects.get(name=DeathNotification.name))
+
+        death = Death.objects.create(
+            subject_identifier='1', cause='A',
+            user_created='erikvw')

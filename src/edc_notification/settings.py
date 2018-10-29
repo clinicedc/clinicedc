@@ -1,10 +1,17 @@
+import environ
 import os
 import sys
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 APP_NAME = 'edc_notification'
+
+
+env = environ.Env()
+env.read_env(os.path.join(BASE_DIR, '.env'))
+print(f"Reading env from {os.path.join(BASE_DIR, '.env')}")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -33,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'edc_base.apps.AppConfig',
+    'edc_auth.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_notification.apps.AppConfig',
@@ -117,6 +125,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+TWILIO_ENABLED = True
+TWILIO_AUTH_TOKEN = env.str('TWILIO_AUTH_TOKEN')
+TWILIO_ACCOUNT_SID = env.str('TWILIO_ACCOUNT_SID')
+TWILIO_SENDER = env.str('TWILIO_SENDER')
+TWILIO_TEST_RECIPIENT = env.str('TWILIO_TEST_RECIPIENT')
 
 if 'test' in sys.argv:
 

@@ -1,7 +1,11 @@
+import sys
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.color import color_style
 
+from ..sms import SmsMessage, UnknownUser
 from ..mail import EmailMessage, MailingListManager
 from ..site_notifications import site_notifications
 
@@ -11,10 +15,16 @@ class Notification:
     app_name = None
     name = None
     display_name = None
+
     email_from = settings.EMAIL_CONTACTS.get('data_manager')
     email_to = None
     email_message_cls = EmailMessage
     mailing_list_manager_cls = MailingListManager
+
+    sms_message_cls = SmsMessage
+    sms_test_line = None
+    sms_template = None
+
     body_template = (
         '\n\nDo not reply to this email\n\n'
         '{body_test_line}'
@@ -53,14 +63,26 @@ class Notification:
         return False
 
     def notify(self, **kwargs):
-        NotificationModel = django_apps.get_model(
-            'edc_notification.notification')
-        try:
-            obj = NotificationModel.objects.get(name=self.name)
-        except ObjectDoesNotExist:
-            site_notifications.update_notification_list()
-            obj = NotificationModel.objects.get(name=self.name)
-        if obj.enabled and self.callback(**kwargs):
-            email_message = self.email_message_cls(
-                notification=self, **kwargs)
-            email_message.send()
+        if settings.EMAIL_ENABLED or settings.TWILIO_ENABLED:
+            NotificationModel = django_apps.get_model(
+                'edc_notification.notification')
+            try:
+                obj = NotificationModel.objects.get(name=self.name)
+            except ObjectDoesNotExist:
+                site_notifications.update_notification_list()
+                obj = NotificationModel.objects.get(name=self.name)
+            if obj.enabled and self.callback(**kwargs):
+                if settings.EMAIL_ENABLED:
+                    email_message = self.email_message_cls(
+                        notification=self, **kwargs)
+                    email_message.send()
+                if settings.TWILIO_ENABLED:
+                    try:
+                        sms_message = self.sms_message_cls(
+                            notification=self, **kwargs)
+                    except UnknownUser as e:
+                        sys.stdout.write(
+                            color_style().ERROR(f'sms_message. {e}\n'))
+                        pass
+                    else:
+                        sms_message.send()

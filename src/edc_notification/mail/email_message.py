@@ -6,7 +6,26 @@ from django.core import mail
 
 class EmailMessage:
 
-    def __init__(self, notification=None, instance=None):
+    body_template = (
+        '\n\nDo not reply to this email\n\n'
+        '{body_test_line}'
+        'A report has been submitted for patient '
+        '{instance.subject_identifier} '
+        'at site {instance.site.name} which may require '
+        'your attention.\n\n'
+        'Title: {display_name}\n\n'
+        'You received this message because you are subscribed to receive these '
+        'notifications in your user profile.\n\n'
+        '{body_test_line}'
+        'Thanks.')
+    subject_template = (
+        '{subject_test_line}{protocol_name}: '
+        '{display_name} '
+        'for {instance.subject_identifier}')
+    body_test_line = 'THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n'
+    subject_test_line = 'TEST/UAT -- '
+
+    def __init__(self, notification=None, instance=None, **kwargs):
         self.instance = instance
         self.notification = notification
         self.test = not settings.LIVE_SYSTEM
@@ -19,12 +38,12 @@ class EmailMessage:
             and not inspect.isclass(v)
             and k not in self.__dict__}
         self.template_opts.update(
-            subject_test_line=self.notification.subject_test_line if self.test else '',
-            body_test_line=self.notification.body_test_line if self.test else '')
-        self.subject = self.notification.subject_template.format(
+            subject_test_line=self.get_subject_test_line(),
+            body_test_line=self.get_body_test_line())
+        self.subject = self.get_subject_template().format(
             **self.template_opts,
             **self.__dict__)
-        self.body = self.notification.body_template.format(
+        self.body = self.get_body_template().format(
             **self.template_opts,
             **self.__dict__)
 
@@ -37,3 +56,19 @@ class EmailMessage:
             self.email_to]
         email = mail.EmailMessage(*args, connection=connection)
         email.send()
+
+    def get_body_template(self):
+        return self.notification.body_template or self.body_template
+
+    def get_subject_template(self):
+        return self.notification.subject_template or self.subject_template
+
+    def get_body_test_line(self):
+        if settings.LIVE_SYSTEM:
+            return self.notification.body_test_line or self.body_test_line
+        return ''
+
+    def get_subject_test_line(self):
+        if settings.LIVE_SYSTEM:
+            return self.notification.subject_test_line or self.subject_test_line
+        return ''
