@@ -8,7 +8,6 @@ from edc_visit_schedule.model_wrappers import RequisitionModelWrapper, CrfModelW
 
 from ..constants import CRF, NOT_REQUIRED, REQUISITION, REQUIRED, KEYED
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
-from pprint import pprint
 
 
 class MetaDataViewError(Exception):
@@ -30,20 +29,10 @@ class MetaDataViewMixin(ContextMixin):
         context.update(metadata_show_status=self.metadata_show_status)
         if self.appointment:
             self.message_if_appointment_in_progress()
-            crf_metadata_wrappers = self.crf_metadata_wrappers_cls(
-                appointment=self.appointment)
-            requisition_metadata_wrappers = self.requisition_metadata_wrappers_cls(
-                appointment=self.appointment)
             context.update(
                 report_datetime=self.appointment.visit.report_datetime,
-                crfs=[
-                    crf for crf in self.get_crf_model_wrapper(
-                        key=CRF, metadata_wrappers=crf_metadata_wrappers)
-                    if crf.entry_status in self.metadata_show_status],
-                requisitions=[
-                    requisition for requisition in self.get_requisition_model_wrapper(
-                        key=REQUISITION, metadata_wrappers=requisition_metadata_wrappers)
-                    if requisition.entry_status in self.metadata_show_status],
+                crfs=self.get_crf_model_wrappers(),
+                requisitions=self.get_requisition_model_wrapper(),
                 NOT_REQUIRED=NOT_REQUIRED,
                 REQUIRED=REQUIRED,
                 KEYED=KEYED)
@@ -58,23 +47,32 @@ class MetaDataViewMixin(ContextMixin):
                 f'Wait!. Another user has switch the current appointment! '
                 f'<BR>Appointment {self.appointment} is no longer "in progress".'))
 
-    def get_crf_model_wrapper(self, key=None, metadata_wrappers=None):
+    def get_crf_model_wrappers(self):
+        """Returns a list of model wrappers.
+        """
         model_wrappers = []
-        for metadata_wrapper in metadata_wrappers.objects:
+        crf_metadata_wrappers = self.crf_metadata_wrappers_cls(
+            appointment=self.appointment)
+        for metadata_wrapper in crf_metadata_wrappers.objects:
             if not metadata_wrapper.model_obj:
                 metadata_wrapper.model_obj = metadata_wrapper.model_cls(
                     **{metadata_wrapper.model_cls.visit_model_attr(): metadata_wrapper.visit})
             metadata_wrapper.metadata_obj.object = self.crf_model_wrapper_cls(
                 model_obj=metadata_wrapper.model_obj,
                 model=metadata_wrapper.metadata_obj.model,
-                key=key,
+                key=CRF,
                 request=self.request)
             model_wrappers.append(metadata_wrapper.metadata_obj)
-        return model_wrappers
+        return [model_wrapper for model_wrapper in model_wrappers
+                if model_wrapper.entry_status in self.metadata_show_status]
 
-    def get_requisition_model_wrapper(self, key=None, metadata_wrappers=None):
+    def get_requisition_model_wrapper(self):
+        """Returns a list of model wrappers.
+        """
         model_wrappers = []
-        for metadata_wrapper in metadata_wrappers.objects:
+        requisition_metadata_wrappers = self.requisition_metadata_wrappers_cls(
+            appointment=self.appointment)
+        for metadata_wrapper in requisition_metadata_wrappers.objects:
             if not metadata_wrapper.model_obj:
                 panel = self.get_panel(metadata_wrapper)
                 metadata_wrapper.model_obj = metadata_wrapper.model_cls(
@@ -83,10 +81,11 @@ class MetaDataViewMixin(ContextMixin):
             metadata_wrapper.metadata_obj.object = self.requisition_model_wrapper_cls(
                 model_obj=metadata_wrapper.model_obj,
                 model=metadata_wrapper.metadata_obj.model,
-                key=key,
+                key=REQUISITION,
                 request=self.request)
             model_wrappers.append(metadata_wrapper.metadata_obj)
-        return model_wrappers
+        return [model_wrapper for model_wrapper in model_wrappers
+                if model_wrapper.entry_status in self.metadata_show_status]
 
     def get_panel(self, metadata_wrapper=None):
         try:

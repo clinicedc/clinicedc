@@ -14,3 +14,7 @@ class RequisitionMetadataWrapper(MetadataWrapper):
         options = super().options
         options.update(panel__name=self.panel_name)
         return options
+
+    @property
+    def html_id(self):
+        return f'id_{self.panel_name}'

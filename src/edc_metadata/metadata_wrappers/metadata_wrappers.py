@@ -6,7 +6,7 @@ class MetadataWrappers:
     """A class that generates a collection of MetadataWrapper objects, e.g. CRF
     or REQUISITION, from a queryset of metadata objects.
 
-    See classes Crf, Requisition in edc_visit_schedule.
+    See also classes Crf, Requisition in edc_visit_schedule.
     """
 
     metadata_getter_cls = None
