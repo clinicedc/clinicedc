@@ -1,3 +1,4 @@
+import json
 import re
 
 from django.apps import apps as django_apps
@@ -113,3 +114,20 @@ class VisitSchedule:
                     f'Check the declaration for \'{self}\'. Got {list(models.keys())}.')
             self._all_post_consent_models = models
         return self._all_post_consent_models
+
+    def to_dict(self):
+        return {k: v.to_dict() for k, v in self.schedules.items()}
+
+    def to_json(self):
+        """Returns a json representation of the visit schedule.
+
+        For example, list all required CRF model names for
+        visit 1000:
+
+            json_str = visit_schedule.to_json()
+            model_names = [
+                crf[0] for crf in json.loads(json_str).get(
+                    'schedule').get('1000').get('crfs')
+                if crf[1]]
+        """
+        return json.dumps(self.to_dict())

@@ -180,3 +180,14 @@ class Visit:
             warnings.append(
                 f'{e} Got Visit {self.code} crf.model={crf.model}.')
         return warnings
+
+    def to_dict(self):
+        return dict(
+            crfs=[(crf.model, crf.required) for crf in self.crfs],
+            crfs_unscheduled=[(crf.model, crf.required)
+                              for crf in self.crfs_unscheduled],
+            requisitions=[(requisition.panel.name, requisition.required)
+                          for requisition in self.requisitions],
+            requisitions_unscheduled=[(requisition.panel.name, requisition.required)
+                                      for requisition in self.requisitions_unscheduled],
+        )
