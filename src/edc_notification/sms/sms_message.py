@@ -29,6 +29,10 @@ class SmsMessage:
         self.user = user
         self.template_opts = {}
         try:
+            self.live_system = settings.LIVE_SYSTEM
+        except AttributeError:
+            self.live_system = False
+        try:
             user = django_apps.get_model(
                 'auth.user').objects.get(username=user)
         except ObjectDoesNotExist as e:
@@ -74,6 +78,6 @@ class SmsMessage:
         return self.notification.sms_template or self.sms_template
 
     def get_sms_test_line(self):
-        if not settings.LIVE_SYSTEM:
+        if not self.live_system:
             return self.notification.sms_test_line or self.sms_test_line
         return ''

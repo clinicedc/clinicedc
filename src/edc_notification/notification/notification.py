@@ -47,7 +47,11 @@ class Notification:
     def __init__(self):
         self.email_to = self.email_to or [
             f'{self.name}.{settings.APP_NAME}@mg.clinicedc.org']
-        if not settings.LIVE_SYSTEM:
+        try:
+            live_system = settings.LIVE_SYSTEM
+        except AttributeError:
+            live_system = False
+        if not live_system:
             self.email_to = [f'test.{email}' for email in self.email_to]
         self.protocol_name = django_apps.get_app_config(
             'edc_protocol').protocol_name
