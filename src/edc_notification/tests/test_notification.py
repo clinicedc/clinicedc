@@ -1,9 +1,11 @@
 from datetime import timedelta
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
+from unittest.case import skip
 
 from ..decorators import register
 from ..notification import GradedEventNotification, NewModelNotification
@@ -11,8 +13,6 @@ from ..notification import Notification, UpdatedModelNotification
 from ..site_notifications import site_notifications, AlreadyRegistered
 from ..models import Notification as NotificationModel
 from .models import AE, Death
-from django.conf import settings
-from unittest.case import skip
 
 
 class TestNotification(TestCase):
