@@ -10,7 +10,10 @@ APP_NAME = 'edc_notification'
 
 
 env = environ.Env()
-ENVFILE = os.environ['ENVFILE'] or 'env.sample'
+try:
+    ENVFILE = os.environ['ENVFILE'] or 'env.sample'
+except KeyError:
+    ENVFILE = 'env.sample'
 env.read_env(os.path.join(BASE_DIR, ENVFILE))
 print(f"Reading env from {os.path.join(BASE_DIR, ENVFILE)}")
 
