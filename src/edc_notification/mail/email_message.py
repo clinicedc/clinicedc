@@ -28,7 +28,11 @@ class EmailMessage:
     def __init__(self, notification=None, instance=None, **kwargs):
         self.instance = instance
         self.notification = notification
-        self.test = not settings.LIVE_SYSTEM
+        try:
+            self.live_system = settings.LIVE_SYSTEM
+        except AttributeError:
+            self.live_system = False
+        self.test = not self.live_system
         self.email_from = self.notification.email_from
         self.email_to = self.notification.email_to
         self.template_opts = {
@@ -64,11 +68,11 @@ class EmailMessage:
         return self.notification.subject_template or self.subject_template
 
     def get_body_test_line(self):
-        if settings.LIVE_SYSTEM:
+        if self.live_system:
             return self.notification.body_test_line or self.body_test_line
         return ''
 
     def get_subject_test_line(self):
-        if settings.LIVE_SYSTEM:
+        if self.live_system:
             return self.notification.subject_test_line or self.subject_test_line
         return ''

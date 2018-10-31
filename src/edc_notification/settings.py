@@ -10,8 +10,12 @@ APP_NAME = 'edc_notification'
 
 
 env = environ.Env()
-env.read_env(os.path.join(BASE_DIR, '.env'))
-print(f"Reading env from {os.path.join(BASE_DIR, '.env')}")
+try:
+    ENVFILE = os.environ['ENVFILE'] or 'env.sample'
+except KeyError:
+    ENVFILE = 'env.sample'
+env.read_env(os.path.join(BASE_DIR, ENVFILE))
+print(f"Reading env from {os.path.join(BASE_DIR, ENVFILE)}")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -126,9 +130,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-TWILIO_ENABLED = True
-TWILIO_AUTH_TOKEN = env.str('TWILIO_AUTH_TOKEN')
+TWILIO_ENABLED = env.str('TWILIO_ENABLED')
 TWILIO_ACCOUNT_SID = env.str('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = env.str('TWILIO_AUTH_TOKEN')
 TWILIO_SENDER = env.str('TWILIO_SENDER')
 TWILIO_TEST_RECIPIENT = env.str('TWILIO_TEST_RECIPIENT')
 

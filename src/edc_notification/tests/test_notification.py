@@ -1,10 +1,11 @@
 from datetime import timedelta
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
-from edc_auth.models import UserProfile
 from edc_base.utils import get_utcnow
+from unittest.case import skip
 
 from ..decorators import register
 from ..notification import GradedEventNotification, NewModelNotification
@@ -12,7 +13,6 @@ from ..notification import Notification, UpdatedModelNotification
 from ..site_notifications import site_notifications, AlreadyRegistered
 from ..models import Notification as NotificationModel
 from .models import AE, Death
-from django.conf import settings
 
 
 class TestNotification(TestCase):
@@ -271,7 +271,7 @@ class TestNotification(TestCase):
             name=DeathNotification2.name,
             enabled=True)
 
-    @tag('1')
+    @skip('twilio')
     def test_sms(self):
 
         user = User.objects.create(username='erikvw')
@@ -291,6 +291,6 @@ class TestNotification(TestCase):
         user.userprofile.sms_notifications.add(
             NotificationModel.objects.get(name=DeathNotification.name))
 
-        death = Death.objects.create(
+        Death.objects.create(
             subject_identifier='1', cause='A',
             user_created='erikvw')
