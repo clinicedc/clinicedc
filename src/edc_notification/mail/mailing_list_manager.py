@@ -1,18 +1,32 @@
 import requests
-
-from django.conf import settings
 import sys
 
+from django.conf import settings
+from django.core.exceptions import ValidationError
 
-class EmailNotEnabledError(Exception):
+
+class EmailNotEnabledError(ValidationError):
     pass
 
 
 class MailingListManager:
 
+    """A class to manager mailing lists, subscribe,
+    unsubscribe members, etc via the MAILGUN API.
+
+    If this is a test / UAT, the mailing list names from settings
+    are automatically prefixed with `test-'.
+
+    """
+
     url = 'https://api.mailgun.net/v3/lists'
+    api_url_attr = 'MAILGUN_API_URL'
+    api_key_attr = 'MAILGUN_API_KEY'
 
     def __init__(self, email_to=None, name=None, display_name=None, description=None):
+        self._api_key = None
+        self._api_url = None
+        self.email_enabled = None
         self.description = description
         self.display_name = display_name
         try:
@@ -21,15 +35,47 @@ class MailingListManager:
             self.email_to = email_to
         self.name = name
 
+    @property
+    def api_url(self):
+        if not self._api_url:
+            error_msg = (f'Email is enabled but API_URL is not set. '
+                         f'See settings.{self.api_url_attr}')
+            try:
+                self._api_url = getattr(settings, self.api_url_attr)
+            except AttributeError:
+                raise EmailNotEnabledError(
+                    error_msg, code='api_url_attribute_error')
+            else:
+                if not self._api_url:
+                    raise EmailNotEnabledError(
+                        error_msg, code='api_url_is_none')
+        return self._api_url
+
+    @property
+    def api_key(self):
+        if not self._api_key:
+            error_msg = (f'Email is enabled but API_KEY is not set. '
+                         f'See settings.{self.api_key_attr}')
+            try:
+                self._api_key = getattr(settings, self.api_key_attr)
+            except AttributeError:
+                raise EmailNotEnabledError(
+                    error_msg, code='api_key_attribute_error')
+            else:
+                if not self._api_key:
+                    raise EmailNotEnabledError(
+                        error_msg, code='api_key_is_none')
+        return self._api_key
+
     def subscribe(self, user, verbose=None):
         """Returns a response after attempting to subscribe
         a member to the list.
         """
-        if not settings.EMAIL_ENABLED:
+        if not self.email_enabled:
             raise EmailNotEnabledError('See settings.EMAIL_ENABLED')
         response = requests.post(
-            f"{self.url}/{self.email_to}/members",
-            auth=('api', settings.MAILGUN_API_KEY),
+            f"{self.api_url}/{self.email_to}/members",
+            auth=('api', self.api_key),
             data={'subscribed': True,
                   'address': user.email,
                   'name': f'{user.first_name} {user.last_name}',
@@ -44,11 +90,11 @@ class MailingListManager:
         """Returns a response after attempting to unsubscribe
         a member from the list.
         """
-        if not settings.EMAIL_ENABLED:
+        if not self.email_enabled:
             raise EmailNotEnabledError('See settings.EMAIL_ENABLED')
         response = requests.put(
-            f"{self.url}/{self.email_to}/members/{user.email}",
-            auth=('api', settings.MAILGUN_API_KEY),
+            f"{self.api_url}/{self.email_to}/members/{user.email}",
+            auth=('api', self.api_key),
             data={'subscribed': False})
         if verbose:
             sys.stdout.write(
@@ -59,11 +105,11 @@ class MailingListManager:
     def create(self):
         """Returns a response after attempting to create the list.
         """
-        if not settings.EMAIL_ENABLED:
+        if not self.email_enabled:
             raise EmailNotEnabledError('See settings.EMAIL_ENABLED')
         return requests.post(
-            self.url,
-            auth=('api', settings.MAILGUN_API_KEY),
+            self.api_url,
+            auth=('api', self.api_key),
             data={'address': self.email_to,
                   'name': self.name,
                   'description': self.description or self.display_name})
@@ -71,18 +117,18 @@ class MailingListManager:
     def delete(self):
         """Returns a response after attempting to delete the list.
         """
-        if not settings.EMAIL_ENABLED:
+        if not self.email_enabled:
             raise EmailNotEnabledError('See settings.EMAIL_ENABLED')
         return requests.delete(
-            f'{self.url}/{self.email_to}',
-            auth=('api', settings.MAILGUN_API_KEY))
+            f'{self.api_url}/{self.email_to}',
+            auth=('api', self.api_key))
 
     def delete_member(self, user):
         """Returns a response after attempting to remove
         a member from the list.
         """
-        if not settings.EMAIL_ENABLED:
+        if not self.email_enabled:
             raise EmailNotEnabledError('See settings.EMAIL_ENABLED')
         return requests.delete(
-            f"{self.url}/{self.email_to}/members/{user.email}",
-            auth=('api', settings.MAILGUN_API_KEY))
+            f"{self.api_url}/{self.email_to}/members/{user.email}",
+            auth=('api', self.api_key))

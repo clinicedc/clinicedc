@@ -13,7 +13,7 @@ from ..site_notifications import site_notifications
 class Notification:
 
     app_name = None
-    name = None
+    name = 'undefined'
     display_name = None
 
     email_from = settings.EMAIL_CONTACTS.get('data_manager')
@@ -63,22 +63,47 @@ class Notification:
     def __str__(self):
         return f'{self.name}: {self.display_name}'
 
-    def callback(self, instance=None, created=None, test=None, **kwargs):
+    def callback(self, instance=None, created=None, **kwargs):
         return False
 
-    def notify(self, **kwargs):
+    def fake_callback(self, **kwargs):
+        return True
+
+    def notify(self, test=None, fake_callback=None, **kwargs):
+        """Notify / send an email and/or SMS.
+
+        This notification class (me) knows from whom and to whom the
+        notifications will be sent.
+
+        The notification "model" here only checks if the named
+        notification is enabled.
+        """
         if settings.EMAIL_ENABLED or settings.TWILIO_ENABLED:
             NotificationModel = django_apps.get_model(
                 'edc_notification.notification')
-            try:
-                obj = NotificationModel.objects.get(name=self.name)
-            except ObjectDoesNotExist:
-                site_notifications.update_notification_list()
-                obj = NotificationModel.objects.get(name=self.name)
-            if obj.enabled and self.callback(**kwargs):
+            if test and fake_callback:
+                enabled = True
+            else:
+                try:
+                    obj = NotificationModel.objects.get(name=self.name)
+                except ObjectDoesNotExist:
+                    site_notifications.update_notification_list()
+                    try:
+                        obj = NotificationModel.objects.get(name=self.name)
+                    except ObjectDoesNotExist as e:
+                        raise ObjectDoesNotExist(
+                            f'{e} Is this notification registered? '
+                            f'Got name={self.name}')
+                else:
+                    enabled = obj.enabled
+            if fake_callback:
+                callback = self.fake_callback
+            else:
+                callback = self.callback
+            if enabled and callback(**kwargs):
                 if settings.EMAIL_ENABLED:
                     email_message = self.email_message_cls(
-                        notification=self, **kwargs)
+                        notification=self, test=test, **kwargs)
                     email_message.send()
                 if settings.TWILIO_ENABLED:
                     try:
@@ -90,3 +115,28 @@ class Notification:
                         pass
                     else:
                         sms_message.send()
+
+    def send_test_message(self, email_to):
+        """Sends a test message to "email_to".
+
+        For example:
+
+            from edc_notification.notification import Notification
+
+            notification = Notification()
+            notification.send_test_message('someone@example.com')
+        """
+        class Site:
+            domain = 'dummy.example.com'
+            name = 'dummy'
+            id = 99
+
+        class DummyInstance:
+            subject_identifier = '123456910'
+            site = Site()
+
+        instance = DummyInstance()
+        original_email_to = self.email_to
+        self.email_to = [email_to]
+        self.notify(test=True, fake_callback=True, instance=instance)
+        self.email_to = original_email_to

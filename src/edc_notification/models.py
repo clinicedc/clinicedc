@@ -7,6 +7,17 @@ from edc_base.model_mixins import BaseUuidModel
 
 class Notification(BaseUuidModel):
 
+    """A model that stores the notification types.
+
+    Currently, show these for the user to select/subscribe to
+    in a M2M in the edc_auth.UserProfile.
+
+    For example:
+        - a new model has been created
+        - a death has occured
+        - a grade 4 event has occured.
+    """
+
     name = models.CharField(
         max_length=25,
         unique=True)
