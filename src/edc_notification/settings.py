@@ -142,6 +142,8 @@ if EMAIL_ENABLED:
     EMAIL_HOST_USER = env.str('DJANGO_EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = env.str('DJANGO_EMAIL_HOST_PASSWORD')
     EMAIL_USE_TLS = env('DJANGO_EMAIL_USE_TLS')
+    MAILGUN_API_KEY = env('MAILGUN_API_KEY')
+    MAILGUN_API_URL = env('MAILGUN_API_URL')
 EMAIL_CONTACTS = {'data_manager': 'data_manager@clinicedc.org'}
 if ENVFILE != '.env':
     EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'

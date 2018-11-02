@@ -26,7 +26,7 @@ class MailingListManager:
     def __init__(self, email_to=None, name=None, display_name=None, description=None):
         self._api_key = None
         self._api_url = None
-        self.email_enabled = None
+        self.email_enabled = settings.EMAIL_ENABLED
         self.description = description
         self.display_name = display_name
         try:
@@ -37,6 +37,8 @@ class MailingListManager:
 
     @property
     def api_url(self):
+        """Returns the api_url or None.
+        """
         if not self._api_url:
             error_msg = (f'Email is enabled but API_URL is not set. '
                          f'See settings.{self.api_url_attr}')
@@ -53,6 +55,8 @@ class MailingListManager:
 
     @property
     def api_key(self):
+        """Returns the api_key or None.
+        """
         if not self._api_key:
             error_msg = (f'Email is enabled but API_KEY is not set. '
                          f'See settings.{self.api_key_attr}')

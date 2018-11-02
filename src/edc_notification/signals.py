@@ -11,10 +11,17 @@ from .site_notifications import site_notifications
 def notification_on_post_create_historical_record(
         sender, instance, history_date, history_user,
         history_change_reason, **kwargs):
+    """Checks and processes any notifications for this model.
+
+    Note, this is the post_create of the historical model.
+    """
     if site_notifications.loaded:
         site_notifications.notify(
             instance=instance,
             user=instance.user_modified or instance.user_created,
+            history_date=history_date,
+            history_user=history_user,
+            history_change_reason=history_change_reason,
             **kwargs)
 
 
@@ -22,6 +29,9 @@ def notification_on_post_create_historical_record(
           dispatch_uid='manage_mailists_on_userprofile_m2m_changed')
 def manage_mailists_on_userprofile_m2m_changed(
         action, instance, reverse, model, pk_set, using, **kwargs):
+    """Updates the mail server mailing lists based on the
+    selections in the UserProfile model.
+    """
     try:
         instance.notifications
     except AttributeError:

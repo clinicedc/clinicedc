@@ -5,9 +5,9 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 
-from ..sms import SmsMessage, UnknownUser
 from ..mail import EmailMessage, MailingListManager
 from ..site_notifications import site_notifications
+from ..sms import SmsMessage, UnknownUser
 
 
 class Notification:
@@ -59,6 +59,14 @@ class Notification:
             email_to=self.email_to,
             display_name=self.display_name,
             name=self.name)
+        try:
+            self.email_enabled = settings.EMAIL_ENABLED
+        except AttributeError:
+            self.email_enabled = False
+        try:
+            self.sms_enabled = settings.TWILIO_ENABLED
+        except AttributeError:
+            self.sms_enabled = False
 
     def __str__(self):
         return f'{self.name}: {self.display_name}'
@@ -66,55 +74,92 @@ class Notification:
     def callback(self, instance=None, created=None, **kwargs):
         return False
 
-    def fake_callback(self, **kwargs):
-        return True
-
-    def notify(self, test=None, fake_callback=None, **kwargs):
+    def notify(self, **kwargs):
         """Notify / send an email and/or SMS.
+
+        Main entry point.
 
         This notification class (me) knows from whom and to whom the
         notifications will be sent.
 
-        The notification "model" here only checks if the named
-        notification is enabled.
+        See signals and kwargs are:
+            * history_intance
+            * instance
+            * user
         """
-        if settings.EMAIL_ENABLED or settings.TWILIO_ENABLED:
+        is_test = kwargs.get('test') or kwargs.get('fake_callback')
+        if self.email_enabled or self.sms_enabled or is_test:
+            self.send_notifications(**kwargs)
+            self.post_notifications_action(**kwargs)
+
+    def fake_callback(self, **kwargs):
+        return True
+
+    def get_callback(self, **kwargs):
+        """Returns the actual or a fake callback.
+        """
+        fake_callback = kwargs.get('fake_callback')
+        if fake_callback:
+            callback = self.fake_callback
+        else:
+            callback = self.callback
+        return callback
+
+    def post_notifications_action(self, **kwargs):
+        pass
+
+    def send_notifications(self, **kwargs):
+        notification_enabled = self.get_notification_enabled(**kwargs)
+        callback = self.get_callback(**kwargs)
+        if notification_enabled and callback(**kwargs):
+            self.send_email(**kwargs)
+            self.send_sms(**kwargs)
+
+    def send_email(self, **kwargs):
+        if settings.EMAIL_ENABLED:
+            email_message = self.email_message_cls(
+                notification=self, **kwargs)
+            email_message.send()
+
+    def send_sms(self, **kwargs):
+        if settings.TWILIO_ENABLED:
+            try:
+                sms_message = self.sms_message_cls(
+                    notification=self, **kwargs)
+            except UnknownUser as e:
+                sys.stdout.write(
+                    color_style().ERROR(f'sms_message. {e}\n'))
+                pass
+            else:
+                sms_message.send()
+
+    def get_notification_enabled(self, **kwargs):
+        """Returns True if notification is enabled based on the value
+        of Notification model instance.
+
+        If this is a test notification can skip the Notification
+        Model and use `test` and `test_callback`.
+        """
+        test = kwargs.get('test')
+        fake_callback = kwargs.get('fake_callback')
+        if test and fake_callback:
+            notification_enabled = True
+        else:
             NotificationModel = django_apps.get_model(
                 'edc_notification.notification')
-            if test and fake_callback:
-                enabled = True
-            else:
+            try:
+                obj = NotificationModel.objects.get(name=self.name)
+            except ObjectDoesNotExist:
+                site_notifications.update_notification_list()
                 try:
                     obj = NotificationModel.objects.get(name=self.name)
-                except ObjectDoesNotExist:
-                    site_notifications.update_notification_list()
-                    try:
-                        obj = NotificationModel.objects.get(name=self.name)
-                    except ObjectDoesNotExist as e:
-                        raise ObjectDoesNotExist(
-                            f'{e} Is this notification registered? '
-                            f'Got name={self.name}')
-                else:
-                    enabled = obj.enabled
-            if fake_callback:
-                callback = self.fake_callback
-            else:
-                callback = self.callback
-            if enabled and callback(**kwargs):
-                if settings.EMAIL_ENABLED:
-                    email_message = self.email_message_cls(
-                        notification=self, test=test, **kwargs)
-                    email_message.send()
-                if settings.TWILIO_ENABLED:
-                    try:
-                        sms_message = self.sms_message_cls(
-                            notification=self, **kwargs)
-                    except UnknownUser as e:
-                        sys.stdout.write(
-                            color_style().ERROR(f'sms_message. {e}\n'))
-                        pass
-                    else:
-                        sms_message.send()
+                except ObjectDoesNotExist as e:
+                    raise ObjectDoesNotExist(
+                        f'{e} Is this notification registered? '
+                        f'Got name={self.name}')
+            finally:
+                notification_enabled = obj.enabled
+        return notification_enabled
 
     def send_test_message(self, email_to):
         """Sends a test message to "email_to".
