@@ -6,6 +6,12 @@ from django.core import mail
 
 class EmailMessage:
 
+    """A simple wrapper class around Django's EmailMessage.
+
+    Authentication/transport is via SMTP, so uses
+    Django's EMAIL_HOST, EMAIL_HOST_PASSWORD, etc settings values.
+    """
+
     body_template = (
         '\n\nDo not reply to this email\n\n'
         '{body_test_line}'
@@ -25,14 +31,14 @@ class EmailMessage:
     body_test_line = 'THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n'
     subject_test_line = 'TEST/UAT -- '
 
-    def __init__(self, notification=None, instance=None, **kwargs):
+    def __init__(self, notification=None, instance=None, test=None, **kwargs):
         self.instance = instance
         self.notification = notification
         try:
-            self.live_system = settings.LIVE_SYSTEM
+            live_system = settings.LIVE_SYSTEM
         except AttributeError:
-            self.live_system = False
-        self.test = not self.live_system
+            live_system = False
+        self.test = test or not live_system
         self.email_from = self.notification.email_from
         self.email_to = self.notification.email_to
         self.template_opts = {
@@ -43,23 +49,19 @@ class EmailMessage:
             and k not in self.__dict__}
         self.template_opts.update(
             subject_test_line=self.get_subject_test_line(),
-            body_test_line=self.get_body_test_line())
-        self.subject = self.get_subject_template().format(
-            **self.template_opts,
+            body_test_line=self.get_body_test_line(),
             **self.__dict__)
-        self.body = self.get_body_template().format(
-            **self.template_opts,
-            **self.__dict__)
+        self.subject = self.get_subject_template().format(**self.template_opts)
+        self.body = self.get_body_template().format(**self.template_opts)
 
-    def send(self):
-        connection = mail.get_connection()
+    def send(self, fail_silently=None):
         args = [
             self.subject,
             self.body,
             self.email_from,
             self.email_to]
-        email = mail.EmailMessage(*args, connection=connection)
-        email.send()
+        email = mail.EmailMessage(*args)
+        email.send(fail_silently)
 
     def get_body_template(self):
         return self.notification.body_template or self.body_template
@@ -68,11 +70,11 @@ class EmailMessage:
         return self.notification.subject_template or self.subject_template
 
     def get_body_test_line(self):
-        if self.live_system:
+        if self.test:
             return self.notification.body_test_line or self.body_test_line
         return ''
 
     def get_subject_test_line(self):
-        if self.live_system:
+        if self.test:
             return self.notification.subject_test_line or self.subject_test_line
         return ''

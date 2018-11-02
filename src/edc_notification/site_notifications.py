@@ -62,10 +62,14 @@ class SiteNotifications:
             notification_cls().notify(instance=instance, **kwargs)
 
     def update_notification_list(self, apps=None, schema_editor=None, verbose=False):
-        """Update notification model to ensure all notifications
-        exist.
+        """Update notification model to ensure all registered
+        notifications exist in the model.
 
         Typically called from a post_migrate signal.
+
+        Also, in tests you can register a notification and the Notification
+        class (not model) will automatically call this method if the
+        named notification does not exist. See notification.notify()
         """
         Notification = (apps or django_apps).get_model(
             'edc_notification', 'notification')

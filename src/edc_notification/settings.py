@@ -9,7 +9,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_NAME = 'edc_notification'
 
 
-env = environ.Env()
+# to enable a test that actually sends notifications
+# $ export ENVFILE=.env
+# $ echo $ENVFILE
+# .env
+env = environ.Env(
+    DJANGO_EDC_BOOTSTRAP=(int, 3),
+    DJANGO_EMAIL_ENABLED=(bool, True),
+    TWILIO_ENABLED=(bool, False),
+)
+
 try:
     ENVFILE = os.environ['ENVFILE'] or 'env.sample'
 except KeyError:
@@ -25,14 +34,10 @@ SECRET_KEY = 'x+z##53)&0=v6_#10n6*$rh8e+1)ehwbzag-$=_5)64i64r_1&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+LIVE_SYSTEM = False
 ALLOWED_HOSTS = []
 SITE_ID = 10
 
-EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-EMAIL_CONTACTS = {'data_manager': 'data_manager@clinicedc.org'}
-EMAIL_ENABLED = True
-LIVE_SYSTEM = False
 # Application definition
 
 INSTALLED_APPS = [
@@ -130,6 +135,18 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+EMAIL_ENABLED = env('DJANGO_EMAIL_ENABLED')
+if EMAIL_ENABLED:
+    EMAIL_HOST = env.str('DJANGO_EMAIL_HOST')
+    EMAIL_PORT = env.int('DJANGO_EMAIL_PORT')
+    EMAIL_HOST_USER = env.str('DJANGO_EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env.str('DJANGO_EMAIL_HOST_PASSWORD')
+    EMAIL_USE_TLS = env('DJANGO_EMAIL_USE_TLS')
+    MAILGUN_API_KEY = env('MAILGUN_API_KEY')
+    MAILGUN_API_URL = env('MAILGUN_API_URL')
+EMAIL_CONTACTS = {'data_manager': 'data_manager@clinicedc.org'}
+if ENVFILE != '.env':
+    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 TWILIO_ENABLED = env.str('TWILIO_ENABLED')
 TWILIO_ACCOUNT_SID = env.str('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = env.str('TWILIO_AUTH_TOKEN')

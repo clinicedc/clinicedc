@@ -12,3 +12,6 @@ class ModelNotification(Notification):
         if not self.display_name:
             self.display_name = django_apps.get_model(
                 self.model)._meta.verbose_name.title()
+
+    def post_notification_action(self, instance=None, **kwargs):
+        pass
