@@ -74,7 +74,7 @@ class Notification:
     def callback(self, instance=None, created=None, **kwargs):
         return False
 
-    def notify(self, **kwargs):
+    def notify(self, fail_silently=None, **kwargs):
         """Notify / send an email and/or SMS.
 
         Main entry point.
@@ -89,8 +89,16 @@ class Notification:
         """
         is_test = kwargs.get('test') or kwargs.get('fake_callback')
         if self.email_enabled or self.sms_enabled or is_test:
+            kwargs.update(fail_silently=fail_silently)
             self.send_notifications(**kwargs)
             self.post_notifications_action(**kwargs)
+
+    def send_notifications(self, **kwargs):
+        notification_enabled = self.get_notification_enabled(**kwargs)
+        callback = self.get_callback(**kwargs)
+        if notification_enabled and callback(**kwargs):
+            self.send_email(**kwargs)
+            self.send_sms(**kwargs)
 
     def fake_callback(self, **kwargs):
         return True
@@ -108,20 +116,13 @@ class Notification:
     def post_notifications_action(self, **kwargs):
         pass
 
-    def send_notifications(self, **kwargs):
-        notification_enabled = self.get_notification_enabled(**kwargs)
-        callback = self.get_callback(**kwargs)
-        if notification_enabled and callback(**kwargs):
-            self.send_email(**kwargs)
-            self.send_sms(**kwargs)
-
-    def send_email(self, **kwargs):
+    def send_email(self, fail_silently=None, **kwargs):
         if settings.EMAIL_ENABLED:
             email_message = self.email_message_cls(
                 notification=self, **kwargs)
-            email_message.send()
+            email_message.send(fail_silently)
 
-    def send_sms(self, **kwargs):
+    def send_sms(self, fail_silently=None, **kwargs):
         if settings.TWILIO_ENABLED:
             try:
                 sms_message = self.sms_message_cls(
@@ -131,7 +132,7 @@ class Notification:
                     color_style().ERROR(f'sms_message. {e}\n'))
                 pass
             else:
-                sms_message.send()
+                sms_message.send(fail_silently)
 
     def get_notification_enabled(self, **kwargs):
         """Returns True if notification is enabled based on the value

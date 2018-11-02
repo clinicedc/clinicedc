@@ -22,6 +22,7 @@ def notification_on_post_create_historical_record(
             history_date=history_date,
             history_user=history_user,
             history_change_reason=history_change_reason,
+            fail_silently=True,
             **kwargs)
 
 

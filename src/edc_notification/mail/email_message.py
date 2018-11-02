@@ -54,15 +54,14 @@ class EmailMessage:
         self.subject = self.get_subject_template().format(**self.template_opts)
         self.body = self.get_body_template().format(**self.template_opts)
 
-    def send(self):
-        connection = mail.get_connection()
+    def send(self, fail_silently=None):
         args = [
             self.subject,
             self.body,
             self.email_from,
             self.email_to]
-        email = mail.EmailMessage(*args, connection=connection)
-        email.send()
+        email = mail.EmailMessage(*args)
+        email.send(fail_silently)
 
     def get_body_template(self):
         return self.notification.body_template or self.body_template
