@@ -56,8 +56,7 @@ class Notification:
     def __init__(self):
         self._notification_enabled = None
         self._template_opts = {}
-        self.email_to = self.email_to or [
-            f'{self.name}.{settings.APP_NAME}@mg.clinicedc.org']
+        self.email_to = self.email_to or self.default_email_to
         try:
             live_system = settings.LIVE_SYSTEM
         except AttributeError:
@@ -71,6 +70,10 @@ class Notification:
 
     def __str__(self):
         return f'{self.name}: {self.display_name}'
+
+    @property
+    def default_email_to(self):
+        return [f'{self.name}.{settings.APP_NAME}@mg.clinicedc.org']
 
     def notify(self, force_notify=None, use_email=None, use_sms=None, **kwargs):
         """Notify / send an email and/or SMS.
