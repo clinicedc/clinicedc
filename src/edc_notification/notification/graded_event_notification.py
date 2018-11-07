@@ -1,20 +1,12 @@
-from django.apps import apps as django_apps
-
-from .notification import Notification
+from .model_notification import ModelNotification
 
 
-class GradedEventNotification(Notification):
+class GradedEventNotification(ModelNotification):
 
     grade = None
     model = None
 
-    def __init__(self):
-        super().__init__()
-        if not self.display_name:
-            self.display_name = django_apps.get_model(
-                self.model)._meta.verbose_name.title()
-
-    def callback(self, instance=None, **kwargs):
+    def notify_on_condition(self, instance=None, **kwargs):
         if instance._meta.label_lower == self.model:
             grading_history = [
                 int(obj.ae_grade)

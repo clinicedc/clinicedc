@@ -8,6 +8,7 @@ from django.core.management.color import color_style
 from django.db.utils import IntegrityError
 from django.utils.module_loading import import_module, module_has_submodule
 from json.decoder import JSONDecodeError
+from requests.exceptions import ConnectionError
 
 style = color_style()
 
@@ -20,11 +21,16 @@ class RegistryNotLoaded(Exception):
     pass
 
 
+class NotificationNotRegistered(Exception):
+    pass
+
+
 class SiteNotifications:
 
     def __init__(self):
         self._registry = {}
         self.loaded = False
+        self.models = {}
 
     def __repr__(self):
         return f'{self.__class__.__name__}(loaded={self.loaded})'
@@ -42,6 +48,9 @@ class SiteNotifications:
         """
         if not self.loaded:
             raise RegistryNotLoaded(self)
+        if not self._registry.get(name):
+            raise NotificationNotRegistered(
+                'Notification not registered. Got \'name\'.')
         return self._registry.get(name)
 
     def register(self, notification_cls=None):
@@ -51,6 +60,11 @@ class SiteNotifications:
             self.loaded = True
             if notification_cls.name not in self.registry:
                 self.registry.update({notification_cls.name: notification_cls})
+                models = getattr(notification_cls, 'models', [])
+                if not models and getattr(notification_cls, 'model', None):
+                    models = [getattr(notification_cls, 'model')]
+                for model in models:
+                    self.models.update({model: model})
             else:
                 raise AlreadyRegistered(
                     f'Notification {notification_cls.name} is already registered.')
@@ -106,16 +120,23 @@ class SiteNotifications:
             sys.stdout.write(style.MIGRATE_HEADING(
                 f'Creating mailing lists:\n'))
             for name, notification_cls in self.registry.items():
-                response = notification_cls().mailing_list_manager.create()
-                if verbose:
-                    try:
-                        message = response.json().get("message")
-                    except JSONDecodeError:
-                        message = response.text
-                    sys.stdout.write(
-                        f'  * Creating mailing list {name}. '
-                        f'Got {response.status_code}: \"{message}\"\n')
-                responses.update({name: response})
+                message = None
+                try:
+                    response = notification_cls().mailing_list_manager.create()
+                except ConnectionError as e:
+                    sys.stdout.write(style.ERROR(
+                        f'  * Failed to create mailing list {name}. '
+                        f'Got {e}\n'))
+                else:
+                    if verbose:
+                        try:
+                            message = response.json().get("message")
+                        except JSONDecodeError:
+                            message = response.text
+                        sys.stdout.write(
+                            f'  * Creating mailing list {name}. '
+                            f'Got {response.status_code}: \"{message}\"\n')
+                    responses.update({name: response})
         return responses
 
     def autodiscover(self, module_name=None, verbose=False):

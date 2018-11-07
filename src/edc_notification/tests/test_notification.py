@@ -56,6 +56,29 @@ class TestNotification(TestCase):
                 display_name = 'Erik'
         self.assertEqual(cm.exception.__class__, AlreadyRegistered)
 
+    def test_default_notification(self):
+
+        site_notifications._registry = {}
+
+        @register()
+        class SomeNotification(Notification):
+            name = 'erik'
+            display_name = 'Erik'
+
+        SomeNotification().notify()
+        self.assertEqual(len(mail.outbox), 0)
+
+        SomeNotification().notify(
+            force_notify=True,
+            subject_identifier='12345',
+            site_name='Gaborone')
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        SomeNotification().send_test_email('someone@example.com')
+
+        self.assertEqual(len(mail.outbox), 2)
+
     def test_graded_event_grade3(self):
 
         site_notifications._registry = {}
@@ -117,7 +140,6 @@ class TestNotification(TestCase):
         ae.save()
         self.assertEqual(len(mail.outbox), 1)
 
-    @tag('1')
     def test_new_model_notification(self):
 
         site_notifications._registry = {}
@@ -234,6 +256,33 @@ class TestNotification(TestCase):
         except ObjectDoesNotExist:
             self.fail('NotificationModel unexpectedly does not exist')
 
+    def test_notification_model_is_updated_message_content(self):
+
+        site_notifications._registry = {}
+
+        @register()
+        class DeathNotification(NewModelNotification):
+            name = 'death'
+            model = 'edc_notification.death'
+
+        @register()
+        class DeathUpdateNotification(UpdatedModelNotification):
+            name = 'death_update'
+            display_name = 'Death (Updated Report)'
+            model = 'edc_notification.death'
+            fields = ['cause']
+
+        site_notifications.update_notification_list()
+
+        death = Death.objects.create(
+            subject_identifier='1',
+            cause='A')
+        self.assertEqual(len(mail.outbox), 1)
+        death.cause = 'B'
+        death.save()
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertIn('*UPDATE*', mail.outbox[1].__dict__.get('subject'))
+
     def test_notification_model_disables_unused(self):
 
         site_notifications._registry = {}
@@ -302,3 +351,63 @@ class TestNotification(TestCase):
             Death.objects.create(
                 subject_identifier='1', cause='A',
                 user_created='erikvw')
+
+    def test_graded_event_grade3_as_test_email_message(self):
+
+        site_notifications._registry = {}
+        site_notifications.update_notification_list()
+
+        @register()
+        class G3EventNotification(GradedEventNotification):
+            name = 'g3_event'
+            grade = 3
+            model = 'edc_notification.ae'
+
+        site_notifications.update_notification_list()
+
+        G3EventNotification().send_test_email('someone@example.com')
+
+    def test_graded_event_grade3_as_test_sms_message(self):
+
+        site_notifications._registry = {}
+        site_notifications.update_notification_list()
+
+        @register()
+        class G3EventNotification(GradedEventNotification):
+            name = 'g3_event'
+            display_name = 'Test Grade3 Event'
+            grade = 3
+            model = 'edc_notification.ae'
+
+        site_notifications.update_notification_list()
+
+        G3EventNotification().send_test_sms(
+            sms_recipient=settings.TWILIO_TEST_RECIPIENT)
+
+    @tag('1')
+    def test_graded_event_grade3_as_test_sms_message_to_subscribed_user(self):
+
+        user = User.objects.create(
+            username='erikvw', is_active=True, is_staff=True)
+
+        site_notifications._registry = {}
+        site_notifications.update_notification_list()
+
+        @register()
+        class G3EventNotification(GradedEventNotification):
+            name = 'g3_event'
+            display_name = 'Test Grade3 Event'
+            grade = 3
+            model = 'edc_notification.ae'
+
+        site_notifications.update_notification_list()
+        notification = NotificationModel.objects.get(
+            name=G3EventNotification.name)
+        user.userprofile.sms_notifications.add(notification)
+        user.userprofile.mobile = settings.TWILIO_TEST_RECIPIENT
+        user.userprofile.save()
+
+        self.assertIn(settings.TWILIO_TEST_RECIPIENT,
+                      G3EventNotification().sms_recipients)
+
+        AE.objects.create(subject_identifier='1', ae_grade=3)

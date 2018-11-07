@@ -9,9 +9,9 @@ class EmailNotEnabledError(ValidationError):
     pass
 
 
-class MailingListManager:
+class MailingListCreator:
 
-    """A class to manager mailing lists, subscribe,
+    """A class to create (and update) mailing lists, subscribe,
     unsubscribe members, etc via the MAILGUN API.
 
     If this is a test / UAT, the mailing list names from settings
