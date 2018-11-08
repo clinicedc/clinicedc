@@ -9,8 +9,8 @@ from django.db.models import Q
 from django.utils.formats import localize
 from edc_base.constants import DEFAULT_BASE_FIELDS
 from edc_constants.constants import CLOSED, NEW, OPEN
-from urllib.parse import urlencode, unquote
 
+from .action_notification_mixin import ActionNotificationMixin
 from .create_action_item import SingletonActionItemError
 from .create_action_item import create_action_item
 from .get_action_type import get_action_type
@@ -29,15 +29,13 @@ class RelatedReferenceObjectDoesNotExist(ObjectDoesNotExist):
     pass
 
 
-class Action:
+class Action(ActionNotificationMixin):
 
     admin_site_name = None
     color_style = 'danger'
     create_by_action = None
     create_by_user = None
     display_name = None
-    email_recipients = None
-    email_sender = None
     help_text = None
     instructions = None
     name = None
@@ -117,6 +115,12 @@ class Action:
 
     @property
     def reference_obj(self):
+        """Returns the reference model instance or None.
+
+        If the reference model instance "should" exist,
+        raise an exception. That is; action_identifier already
+        allocated, action item exists and is CLOSED.
+        """
         if not self._reference_obj:
             try:
                 self._reference_obj = self.reference_model_cls().objects.get(
@@ -134,6 +138,10 @@ class Action:
 
     @property
     def action_item(self):
+        """Returns an action_item model instance.
+
+        If necessary, create.
+        """
         if not self._action_item:
             if self.action_identifier:
                 self._action_item = self.action_item_model_cls().objects.get(
@@ -198,7 +206,8 @@ class Action:
 
     @classmethod
     def action_registered_or_raise(cls):
-        """Raises if this is not a registered action class.
+        """Raises if this action class is not registered
+        with the site controller, site_action_items.
         """
         registered_cls = site_action_items.get(cls.name)
         if registered_cls is not cls:
@@ -245,6 +254,8 @@ class Action:
     def close_action_item_on_save(self):
         """Returns True if action item for \'action_identifier\'
         is to be closed on post_save.
+
+        Note: post_save watches the reference model instance.
         """
         return True
 
@@ -252,7 +263,8 @@ class Action:
         """Attempt to close the action item and
         create new ones, if required.
         """
-        self.reopen_action_items_on_changed()
+        if self.reference_obj_has_changed:
+            self.reopen_action_items()
         status = CLOSED if self.close_action_item_on_save() else OPEN
         self.action_item.status = status
         self.action_item.save()
@@ -281,12 +293,31 @@ class Action:
                 parent_action_item=self.action_item,
                 related_action_item=related_action_item)
 
+    def reopen_action_items(self):
+        """Reopens the action_item and child action items for this
+        reference object if reference object was changed since
+        the last save.
+        """
+        for action_item in self.action_item_model_cls().objects.filter(
+                (Q(action_identifier=self.reference_obj.action_identifier) |
+                 Q(parent_action_item__action_identifier=self.reference_obj.action_identifier) |
+                 Q(related_action_item=self.reference_obj.action_item)),
+                status=CLOSED):
+            action_item.status = OPEN
+            action_item.save()
+            self.messages.update(
+                {action_item: (
+                    f'{self.reference_obj._meta.verbose_name.title()} '
+                    f'{self.reference_obj} was changed on '
+                    f'{localize(self.reference_obj.modified)} '
+                    f'({settings.TIME_ZONE})')})
+
     @property
     def reference_obj_has_changed(self):
         """Returns True if the reference object has changed
         since the last save.
 
-        References the objects "history" (historical)
+        Reviews the objects "history" (historical) instances.
         """
         changed_message = {}
         try:
@@ -309,26 +340,6 @@ class Action:
                 except AttributeError:
                     pass
         return changed_message
-
-    def reopen_action_items_on_changed(self):
-        """Reopen the action_item and child action items for this
-        reference object if reference object was changed since
-        the last save.
-        """
-        if self.reference_obj_has_changed:
-            for action_item in self.action_item_model_cls().objects.filter(
-                    (Q(action_identifier=self.reference_obj.action_identifier) |
-                     Q(parent_action_item__action_identifier=self.reference_obj.action_identifier) |
-                     Q(related_action_item=self.reference_obj.action_item)),
-                    status=CLOSED):
-                action_item.status = OPEN
-                action_item.save()
-                self.messages.update(
-                    {action_item: (
-                        f'{self.reference_obj._meta.verbose_name.title()} '
-                        f'{self.reference_obj} was changed on '
-                        f'{localize(self.reference_obj.modified)} '
-                        f'({settings.TIME_ZONE})')})
 
     def append_to_next_if_required(self, next_actions=None,
                                    action_cls=None, action_name=None,
@@ -382,41 +393,3 @@ class Action:
         for index, obj in enumerate(self.action_item_model_cls().objects.filter(**opts)):
             obj.delete()
         return index
-
-    @classmethod
-    def reference_url(cls, action_item=None, reference_obj=None, **kwargs):
-        """Returns a relative add URL with querystring that can
-        get back to the subject dashboard on save.
-
-        Adds visit fk to the querystring if possible.
-        """
-        if cls.related_reference_fk_attr:
-            try:
-                obj = cls.related_reference_model_cls().objects.get(
-                    action_item=action_item.related_action_item)
-            except ObjectDoesNotExist as e:
-                sys.stdout.write(
-                    f'{e} See {action_item}. Related action identifier'
-                    f'=\'{action_item.related_action_identifier}\'.')
-                kwargs.update({cls.related_reference_fk_attr: None})
-            else:
-                kwargs.update({cls.related_reference_fk_attr: str(obj.pk)})
-        if reference_obj:
-            try:
-                cls.reference_model_cls().visit_model_attr()
-            except AttributeError:
-                pass
-            else:
-                visit_obj = getattr(
-                    reference_obj,
-                    cls.reference_model_cls().visit_model_attr())
-                kwargs.update(
-                    {cls.reference_model_cls().visit_model_attr():
-                     str(visit_obj.pk)})
-            path = reference_obj.get_absolute_url()
-        else:
-            path = cls.reference_model_cls()().get_absolute_url()
-        query = unquote(urlencode(kwargs))
-        if query:
-            return '?'.join([path, query])
-        return path

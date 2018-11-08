@@ -13,11 +13,17 @@ class FormZeroAction(Action):
     priority = HIGH_PRIORITY
     parent_action_names = ['submit-form-three']
 
+    notification_enabled = True
+    notification_name = 'form-zero'
+    notification_display_name = 'a form zero event has occured'
+    notification_fields = ['f1']
+    email_recipients = ['someone@example.com']
+
 
 class TestDoNothingPrnAction(Action):
 
     name = 'test-nothing-prn-action'
-    display_name = 'Test Prn Action'
+    display_name = 'Test Nothing Prn Action'
     parent_action_names = None
 
 

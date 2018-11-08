@@ -8,6 +8,7 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_base.sites import CurrentSiteManager as BaseCurrentSiteManager, SiteModelMixin
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_notification.model_mixins import NotificationModelMixin
 
 from ..choices import ACTION_STATUS, PRIORITY
 from ..identifiers import ActionIdentifier
@@ -40,7 +41,7 @@ class ActionItemManager(models.Manager):
 
 
 class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
-                 BaseUuidModel):
+                 NotificationModelMixin, BaseUuidModel):
 
     subject_identifier_model = 'edc_registration.registeredsubject'
 
@@ -83,11 +84,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         blank=True,
         help_text=('May be left blank. e.g. action identifier from '
                    'source model that opened the item.'))
-
-#     parent_reference_model = models.CharField(
-#         max_length=100,
-#         null=True,
-#         editable=False)
 
     parent_action_identifier = models.CharField(
         max_length=50,
@@ -134,10 +130,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         max_length=25,
         null=True,
         blank=True)
-
-    emailed = models.BooleanField(default=False)
-
-    emailed_datetime = models.DateTimeField(null=True)
 
     on_site = CurrentSiteManager()
 

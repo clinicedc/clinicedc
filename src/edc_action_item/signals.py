@@ -4,7 +4,6 @@ from django.dispatch import receiver
 from edc_constants.constants import NEW
 
 from .models import ActionItem
-from .send_email import send_email, UPDATED_REPORT
 from .site_action_items import site_action_items
 
 
@@ -13,8 +12,8 @@ def update_or_create_action_item_on_post_save(sender, instance, raw,
                                               created, update_fields, **kwargs):
     """Updates action item for a model using the ActionModelMixin.
 
-    Instantiates the action class on the model with the model's
-    instance.
+    The update is done by instantiating the action class associated
+    with this model's instance.
     """
     if not raw and not update_fields:
         try:
@@ -28,26 +27,21 @@ def update_or_create_action_item_on_post_save(sender, instance, raw,
                 if not instance.action_item:
                     action_item = ActionItem.objects.get(
                         action_identifier=instance.action_identifier)
-                action = action_cls(
-                    action_item=action_item or instance.action_item)
-                send_email(action.action_item)
-                for action_item, reason in action.messages.items():
-                    send_email(action_item, reason=reason,
-                               force_send=True,
-                               template_name=UPDATED_REPORT)
+                # instantiate action class
+                action_cls(action_item=action_item or instance.action_item)
 
 
-@receiver(post_save, weak=False, dispatch_uid='send_email_on_new_action_item_post_save')
-def send_email_on_new_action_item_post_save(sender, instance, raw,
-                                            created, update_fields, **kwargs):
-    if not raw and not update_fields:
-        try:
-            emailed = instance.emailed
-        except AttributeError:
-            pass
-        else:
-            if not emailed and isinstance(instance, ActionItem):
-                send_email(instance)
+# @receiver(post_save, weak=False, dispatch_uid='send_email_on_new_action_item_post_save')
+# def send_email_on_new_action_item_post_save(sender, instance, raw,
+#                                             created, update_fields, **kwargs):
+#     if not raw and not update_fields:
+#         try:
+#             emailed = instance.emailed
+#         except AttributeError:
+#             pass
+#         else:
+#             if not emailed and isinstance(instance, ActionItem):
+#                 send_email(instance)
 
 
 @receiver(post_delete, weak=False,

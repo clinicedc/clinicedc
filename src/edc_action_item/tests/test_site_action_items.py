@@ -38,10 +38,10 @@ class TestSiteActionItems(TestCase):
     def test_action_raises_if_name_changed(self):
 
         class FormZeroAction1(FormZeroAction):
-            name = uuid4()
+            name = str(uuid4())
 
         class FormZeroAction2(FormZeroAction):
-            name = uuid4()
+            name = str(uuid4())
 
         site_action_items.register(FormZeroAction1)
         site_action_items.register(FormZeroAction2)

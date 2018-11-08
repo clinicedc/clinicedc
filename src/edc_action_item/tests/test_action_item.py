@@ -142,7 +142,7 @@ class TestActionItem(TestCase):
 
         class MyActionWithIncorrectModel(Action):
             name = 'my-action2'
-            display_name = 'my action'
+            display_name = 'my action 2'
             reference_model = 'edc_action_item.TestModelWithAction'
         site_action_items.register(MyActionWithIncorrectModel)
 

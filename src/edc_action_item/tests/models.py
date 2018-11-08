@@ -1,13 +1,16 @@
+import uuid
+
 from django.db import models
 from django.db.models.deletion import CASCADE, PROTECT
 from edc_base import get_utcnow
-from edc_base.model_mixins import BaseUuidModel
-
-from ..models import ActionModelMixin
 from edc_base.model_managers.historical_records import HistoricalRecords
-from edc_action_item.tests.action_items import FormZeroAction
+from edc_base.model_mixins import BaseUuidModel
+from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
+from edc_notification.model_mixins import NotificationModelMixin
+
+from ..models import ActionModelMixin
 
 
 class SubjectIdentifierModel(BaseUuidModel):
@@ -44,7 +47,7 @@ class Appointment(BaseUuidModel):
     history = HistoricalRecords()
 
 
-class SubjectVisit(BaseUuidModel):
+class SubjectVisit(SiteModelMixin, BaseUuidModel):
 
     subject_identifier = models.CharField(
         max_length=25)
@@ -53,13 +56,17 @@ class SubjectVisit(BaseUuidModel):
     history = HistoricalRecords()
 
 
-class FormZero(ActionModelMixin, BaseUuidModel):
+class FormZero(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     action_name = 'submit-form-zero'
-    history = HistoricalRecords()
+
+    f1 = models.CharField(max_length=100, null=True)
+
+    history = HistoricalRecords(
+        history_id_field=models.UUIDField(default=uuid.uuid4))
 
 
-class FormOne(ActionModelMixin, BaseUuidModel):
+class FormOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     action_name = 'submit-form-one'
 
@@ -68,7 +75,7 @@ class FormOne(ActionModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
 
-class FormTwo(ActionModelMixin, BaseUuidModel):
+class FormTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     form_one = models.ForeignKey(FormOne, on_delete=PROTECT)
 
@@ -77,14 +84,14 @@ class FormTwo(ActionModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
 
-class FormThree(ActionModelMixin, BaseUuidModel):
+class FormThree(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     action_name = 'submit-form-three'
 
     history = HistoricalRecords()
 
 
-class FormFour(ActionModelMixin, BaseUuidModel):
+class FormFour(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     action_name = 'submit-form-four'
 
@@ -96,14 +103,14 @@ class FormFour(ActionModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
 
-class Initial(ActionModelMixin, BaseUuidModel):
+class Initial(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     action_name = 'submit-initial'
 
     history = HistoricalRecords()
 
 
-class Followup(ActionModelMixin, BaseUuidModel):
+class Followup(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     initial = models.ForeignKey(Initial, on_delete=CASCADE)
 
@@ -112,14 +119,14 @@ class Followup(ActionModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
 
-class MyAction(ActionModelMixin, BaseUuidModel):
+class MyAction(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     action_name = 'my-action'
 
     history = HistoricalRecords()
 
 
-class CrfOne(ActionModelMixin, BaseUuidModel):
+class CrfOne(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     subject_visit = models.OneToOneField(SubjectVisit, on_delete=CASCADE)
 
@@ -136,7 +143,7 @@ class CrfOne(ActionModelMixin, BaseUuidModel):
         return 'subject_visit'
 
 
-class CrfTwo(ActionModelMixin, BaseUuidModel):
+class CrfTwo(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     subject_visit = models.OneToOneField(SubjectVisit, on_delete=CASCADE)
 

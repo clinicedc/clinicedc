@@ -27,7 +27,8 @@ def add_action_item_popover(subject_identifier, subject_dashboard_url):
                         'action_item_with_popover.html')
 def action_item_with_popover(action_item_model_wrapper, tabindex):
     helper = ActionItemHelper(
-        model_wrapper=action_item_model_wrapper)
+        action_item=action_item_model_wrapper.object,
+        href=action_item_model_wrapper.href)
     context = helper.get_context()
     context.update(
         CANCELLED=[c[1] for c in ACTION_STATUS if c[0] == CANCELLED][0],
