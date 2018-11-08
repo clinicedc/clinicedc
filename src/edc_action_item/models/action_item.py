@@ -247,47 +247,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
             return self.related_action_item.action_identifier[-9:]
         return None
 
-#     @classmethod
-#     def check(cls, **kwargs):
-#         errors = super().check(**kwargs)
-#         if ('test' not in sys.argv
-#                 and 'showmigrations' not in sys.argv
-#                 and 'makemigrations' not in sys.argv
-#                 and 'migrate' not in sys.argv):
-#             for obj in cls.objects.all():
-#                 if (obj.action_cls.related_reference_fk_attr
-#                         and not obj.related_action_item):
-#                     errors.append(
-#                         checks.Error(
-#                             f'ActionItem.related_action_item cannot be '
-#                             f'None if related_reference_fk_attr is specified. '
-#                             f'Got ActionItem.action_identifier={obj.action_identifier}. ',
-#                             #                             f'Expected the \'action_identifier\' from an instance of '
-#                             #                             f'{obj.action_cls.related_reference_model}',
-#                             hint=(f'update {obj.__class__.__name__}.'
-#                                   f'related_action_item '
-#                                   f'or delete the {obj.__class__.__name__}.'),
-#                             obj=obj,
-#                             id='edc_action_item.E001'))
-#             for action_cls in site_action_items.registry.values():
-#                 if not action_cls.reference_model:
-#                     raise ImproperlyConfigured(
-#                         f'Attribute reference_model cannot be None. See {action_cls}')
-#                 for obj in action_cls.reference_model_cls().objects.all():
-#                     try:
-#                         ActionItem.objects.get(
-#                             action_identifier=obj.action_identifier)
-#                     except ObjectDoesNotExist:
-#                         errors.append(
-#                             checks.Error(
-#                                 f'Model refers to non-existent action item.\n '
-#                                 f'Got {action_cls.reference_model} where '
-#                                 f'action_identifier={obj.action_identifier}.\n',
-#                                 hint=f'Set action_identifier=None and re-save the object.',
-#                                 obj=obj,
-#                                 id='edc_action_item.E002'))
-#         return errors
-
     class Meta:
         verbose_name = 'Action Item'
         verbose_name_plural = 'Action Items'

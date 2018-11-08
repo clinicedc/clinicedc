@@ -31,19 +31,6 @@ def update_or_create_action_item_on_post_save(sender, instance, raw,
                 action_cls(action_item=action_item or instance.action_item)
 
 
-# @receiver(post_save, weak=False, dispatch_uid='send_email_on_new_action_item_post_save')
-# def send_email_on_new_action_item_post_save(sender, instance, raw,
-#                                             created, update_fields, **kwargs):
-#     if not raw and not update_fields:
-#         try:
-#             emailed = instance.emailed
-#         except AttributeError:
-#             pass
-#         else:
-#             if not emailed and isinstance(instance, ActionItem):
-#                 send_email(instance)
-
-
 @receiver(post_delete, weak=False,
           dispatch_uid="action_on_post_delete")
 def action_on_post_delete(sender, instance, using, **kwargs):

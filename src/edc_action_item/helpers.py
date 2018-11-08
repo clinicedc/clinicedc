@@ -15,7 +15,8 @@ class ActionItemHelperError(Exception):
 
 class ActionItemHelper:
 
-    def __init__(self, action_item=None, href=None, action_name=None, related_action_item=None):
+    def __init__(self, action_item=None, href=None, action_name=None,
+                 related_action_item=None):
         self._parent_reference_obj = None
         self._parent_reference_url = None
         self._reference_obj = None
@@ -32,7 +33,8 @@ class ActionItemHelper:
             if self.action_cls.related_reference_fk_attr and not related_action_item:
                 raise ActionItemHelperError(
                     f'Expected related_action_item. Got None. '
-                    f'Related field attribute is \'{self.action_cls.related_reference_fk_attr}\'. '
+                    f'Related field attribute is \''
+                    f'{self.action_cls.related_reference_fk_attr}\'. '
                     f'See {repr(self)}.')
         else:
             self.action_identifier = action_item.action_identifier
@@ -67,8 +69,9 @@ class ActionItemHelper:
 
         if self.action_cls.related_reference_fk_attr:
             try:
-                related_reference_obj = self.action_cls.related_reference_model_cls().objects.get(
-                    action_item=self.related_action_item)
+                related_reference_obj = (
+                    self.action_cls.related_reference_model_cls().objects.get(
+                        action_item=self.related_action_item))
             except ObjectDoesNotExist as e:
                 sys.stdout.write(
                     f'{e} See {self.action_item}. Related action identifier'
@@ -77,7 +80,8 @@ class ActionItemHelper:
                     {self.action_cls.related_reference_fk_attr: None})
             else:
                 opts.update(
-                    {self.action_cls.related_reference_fk_attr: str(related_reference_obj.pk)})
+                    {self.action_cls.related_reference_fk_attr:
+                     str(related_reference_obj.pk)})
         if model_obj:
             try:
                 model_obj.visit_model_attr()
@@ -194,7 +198,7 @@ class ActionItemHelper:
     def parent_reference_model_name(self):
         try:
             parent_reference_model_name = (
-                f'{self.action_item.parent_action_item.reference_model_cls._meta.verbose_name} '
+                f'{self.action_item.parent_action_item.reference_model_cls._meta.verbose_name} '  # noqa
                 f'{str(self.parent_reference_obj)}')
         except AttributeError:
             parent_reference_model_name = None

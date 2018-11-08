@@ -300,7 +300,7 @@ class Action(ActionNotificationMixin):
         """
         for action_item in self.action_item_model_cls().objects.filter(
                 (Q(action_identifier=self.reference_obj.action_identifier) |
-                 Q(parent_action_item__action_identifier=self.reference_obj.action_identifier) |
+                 Q(parent_action_item__action_identifier=self.reference_obj.action_identifier) |  # noqa
                  Q(related_action_item=self.reference_obj.action_item)),
                 status=CLOSED):
             action_item.status = OPEN
