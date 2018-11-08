@@ -57,12 +57,14 @@ class Notification:
         self._notification_enabled = None
         self._template_opts = {}
         self.email_to = self.email_to or self.default_email_to
+        self.test_message = False
         try:
             live_system = settings.LIVE_SYSTEM
         except AttributeError:
             live_system = False
         if not live_system:
             self.email_to = [f'test.{email}' for email in self.email_to]
+            self.test_message = True
         self.mailing_list_manager = self.mailing_list_manager_cls(
             email_to=self.email_to,
             display_name=self.display_name,
@@ -97,8 +99,10 @@ class Notification:
                 email_sent = self.send_email(**kwargs)
             if use_sms:
                 sms_sent = self.send_sms(**kwargs)
-        self.post_notification_actions(
-            email_sent=email_sent, sms_sent=sms_sent)
+            self.post_notification_actions(
+                email_sent=email_sent,
+                sms_sent=sms_sent,
+                **kwargs)
 
     def notify_on_condition(self, **kwargs):
         """Override to return True if the notification
@@ -170,11 +174,12 @@ class Notification:
         return {}
 
     def send_email(self, fail_silently=None, email_to=None, **kwargs):
+        test_message = self.test_message or kwargs.get('test_message')
         opts = copy(self.template_options)
         opts.update(
             test_subject_line=(
-                self.email_test_subject_line if kwargs.get('test_message') else '').strip(),
-            test_body_line=self.email_test_body_line if kwargs.get('test_message') else '')
+                self.email_test_subject_line if test_message else '').strip(),
+            test_body_line=self.email_test_body_line if test_message else '')
         opts.update(**kwargs)
         subject = self.email_subject_template.format(**opts)
         body = self.email_body_template.format(**opts)
@@ -187,11 +192,11 @@ class Notification:
 
     def send_sms(self, fail_silently=None, sms_recipient=None, **kwargs):
         status = {}
+        test_message = self.test_message or kwargs.get('test_message')
         if self.sms_sender:
             opts = copy(self.template_options)
             opts.update(
-                test_line=self.sms_test_line if kwargs.get(
-                    'test_message') else '',
+                test_line=self.sms_test_line if test_message else '',
                 **kwargs)
             body = self.sms_template.format(**opts)
             try:
