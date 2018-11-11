@@ -10,7 +10,6 @@ from django.utils.formats import localize
 from edc_base.constants import DEFAULT_BASE_FIELDS
 from edc_constants.constants import CLOSED, NEW, OPEN
 
-from .action_notification_mixin import ActionNotificationMixin
 from .create_action_item import SingletonActionItemError
 from .create_action_item import create_action_item
 from .get_action_type import get_action_type
@@ -29,7 +28,7 @@ class RelatedReferenceObjectDoesNotExist(ObjectDoesNotExist):
     pass
 
 
-class Action(ActionNotificationMixin):
+class Action:
 
     admin_site_name = None
     color_style = 'danger'
