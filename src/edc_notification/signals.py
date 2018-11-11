@@ -1,15 +1,15 @@
-from django.conf import settings
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from simple_history.signals import post_create_historical_record
 
+from .update_mailing_lists_in_m2m import update_mailing_lists_in_m2m
 from .site_notifications import site_notifications
 
 
 @receiver(post_create_historical_record, weak=False,
           dispatch_uid='notification_on_post_create_historical_record')
 def notification_on_post_create_historical_record(
-        sender, instance, history_date, history_user,
+        instance, history_date, history_user,
         history_change_reason, **kwargs):
     """Checks and processes any notifications for this model.
 
@@ -29,27 +29,26 @@ def notification_on_post_create_historical_record(
 @receiver(m2m_changed, weak=False,
           dispatch_uid='manage_mailists_on_userprofile_m2m_changed')
 def manage_mailists_on_userprofile_m2m_changed(
-        action, instance, reverse, model, pk_set, using, **kwargs):
+        action, instance, pk_set, sender, **kwargs):
     """Updates the mail server mailing lists based on the
     selections in the UserProfile model.
     """
     try:
-        instance.notifications
+        instance.email_notifications
     except AttributeError:
         pass
     else:
-        if settings.EMAIL_ENABLED and site_notifications.loaded:
-            if action == 'post_remove':
-                for notification in instance.notifications.all():
-                    notification_cls = site_notifications.get(
-                        notification.name)
-                    if notification_cls:
-                        notification_cls().mailing_list_manager.unsubscribe(
-                            instance.user, verbose=False)
-            elif action == 'post_add':
-                for notification in instance.notifications.all():
-                    notification_cls = site_notifications.get(
-                        notification.name)
-                    if notification_cls:
-                        notification_cls().mailing_list_manager.subscribe(
-                            instance.user, verbose=False)
+        if action == 'post_remove':
+            update_mailing_lists_in_m2m(
+                sender=sender,
+                userprofile=instance,
+                unsubscribe=True,
+                pk_set=pk_set,
+                verbose=True)
+        elif action == 'post_add':
+            update_mailing_lists_in_m2m(
+                sender=sender,
+                userprofile=instance,
+                subscribe=True,
+                pk_set=pk_set,
+                verbose=True)
