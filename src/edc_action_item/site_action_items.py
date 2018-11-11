@@ -58,7 +58,12 @@ class SiteActionItemCollection:
                 site_prn_forms.register(prn)
             except AlreadyRegistered:
                 pass
-        self.register_notifications(action_cls)
+        try:
+            action_cls.notification_email_to
+        except AttributeError:
+            pass
+        else:
+            self.register_notifications(action_cls)
 
     def register_notifications(self, action_cls):
         """Registers a new model notification and an updated model
@@ -66,13 +71,12 @@ class SiteActionItemCollection:
 
         See edc_notification.
         """
-        if action_cls.notifications_enabled:
-            if action_cls.notification_cls():
-                try:
-                    site_notifications.register(
-                        action_cls.notification_cls())
-                except NotificationAlreadyRegistered:
-                    pass
+        if action_cls.notification_cls():
+            try:
+                site_notifications.register(
+                    action_cls.notification_cls())
+            except NotificationAlreadyRegistered:
+                pass
 
     def get(self, name):
         """Returns an action class.
@@ -94,11 +98,14 @@ class SiteActionItemCollection:
         return None
 
     def get_show_link_to_add_actions(self):
+
         class Wrapper:
+
             def __init__(self, action_cls=None):
                 self.name = action_cls.name
                 self.display_name = action_cls.display_name
                 self.action_type_id = str(get_action_type(action_cls).pk)
+
         names = [v.name for v in self.registry.values()
                  if v.show_link_to_add]
         return [Wrapper(action_cls=self.get(name)) for name in names]
