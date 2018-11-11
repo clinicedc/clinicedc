@@ -41,4 +41,6 @@ def instructions(context):
 @register.inclusion_tag('edc_additional_instructions.html', takes_context=True)
 def additional_instructions(context):
     additional_instructions = context.get('additional_instructions')
-    return {'additional_instructions': additional_instructions}
+    notification_instructions = context.get('notification_instructions')
+    return {'additional_instructions': additional_instructions,
+            'notification_instructions': notification_instructions}
