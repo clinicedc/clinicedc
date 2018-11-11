@@ -36,6 +36,5 @@ def action_item_with_popover(action_item_model_wrapper, tabindex):
         HIGH_PRIORITY=HIGH_PRIORITY,
         NEW=[c[1] for c in ACTION_STATUS if c[0] == NEW][0],
         OPEN=[c[1] for c in ACTION_STATUS if c[0] == OPEN][0],
-        tabindex=tabindex
-    )
+        tabindex=tabindex)
     return context
