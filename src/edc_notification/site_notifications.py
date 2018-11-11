@@ -9,6 +9,7 @@ from django.db.utils import IntegrityError
 from django.utils.module_loading import import_module, module_has_submodule
 from json.decoder import JSONDecodeError
 from requests.exceptions import ConnectionError
+from .mailing_list_manager import MailingListManager
 
 style = color_style()
 
@@ -50,7 +51,7 @@ class SiteNotifications:
             raise RegistryNotLoaded(self)
         if not self._registry.get(name):
             raise NotificationNotRegistered(
-                'Notification not registered. Got \'name\'.')
+                f'Notification not registered. Got \'{name}\'.')
         return self._registry.get(name)
 
     def register(self, notification_cls=None):
@@ -60,20 +61,33 @@ class SiteNotifications:
             self.loaded = True
             if notification_cls.name not in self.registry:
                 self.registry.update({notification_cls.name: notification_cls})
+
                 models = getattr(notification_cls, 'models', [])
                 if not models and getattr(notification_cls, 'model', None):
                     models = [getattr(notification_cls, 'model')]
                 for model in models:
-                    self.models.update({model: model})
+                    try:
+                        self.models[model].append(notification_cls)
+                    except KeyError:
+                        self.models.update({model: [notification_cls]})
             else:
                 raise AlreadyRegistered(
                     f'Notification {notification_cls.name} is already registered.')
 
     def notify(self, instance=None, **kwargs):
-        """Notify for each class.
+        """A wrapper to call notify for each notification associated
+        with the given model instance.
+
+        Returns a dictionary of {notification.name: model, ...}
+        including only notifications sent.
         """
+        notified = {}
         for notification_cls in self.registry.values():
-            notification_cls().notify(instance=instance, **kwargs)
+            notification = notification_cls()
+            if notification.notify(instance=instance, **kwargs):
+                notified.update({
+                    notification_cls.name: instance._meta.label_lower})
+        return notified
 
     def update_notification_list(self, apps=None, schema_editor=None, verbose=False):
         """Update notification model to ensure all registered
@@ -106,7 +120,8 @@ class SiteNotifications:
                     except IntegrityError as e:
                         raise IntegrityError(
                             f'{e} Got name=\'{name}\', '
-                            f'display_name=\'{notification_cls().display_name}\'.')
+                            f'display_name=\'{notification_cls().display_name}\'. '
+                            f'{[(x.name, x.display_name) for x in Notification.objects.all().order_by("display_name")]}')  # no qa
                 else:
                     obj.display_name = notification_cls().display_name
                     obj.enabled = True
@@ -121,8 +136,13 @@ class SiteNotifications:
                 f'Creating mailing lists:\n'))
             for name, notification_cls in self.registry.items():
                 message = None
+                notification = notification_cls()
+                manager = MailingListManager(
+                    address=notification.email_to,
+                    name=notification.name,
+                    display_name=notification.display_name)
                 try:
-                    response = notification_cls().mailing_list_manager.create()
+                    response = manager.create()
                 except ConnectionError as e:
                     sys.stdout.write(style.ERROR(
                         f'  * Failed to create mailing list {name}. '
