@@ -1,12 +1,15 @@
 from django.core import mail
 from django.test import TestCase, tag
 from edc_action_item.site_action_items import site_action_items
+from edc_constants.constants import NEW
 from edc_notification import NewModelNotification, UpdatedModelNotification
 from edc_notification.site_notifications import site_notifications
 from unittest.case import skip
 
+from ..action_item_notification import NOTIFY_ON_CHANGED_REFERENCE_OBJ
+from ..action_item_notification import NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ
 from ..models import ActionItem
-from .action_items import register_actions
+from .action_items import register_actions, FormZeroAction
 from .models import SubjectIdentifierModel, FormZero
 
 
@@ -23,17 +26,53 @@ class TestActionNotification(TestCase):
     def tearDown(self):
         ActionItem.subject_identifier_model = self.subject_identifier_model
 
+    @tag('4')
+    def test_sends_correct_number_of_emails(self):
+
+        self.assertIn(FormZeroAction, site_action_items.registry.values())
+
+        # action without reference obj
+        form_zero_action = FormZeroAction(
+            subject_identifier=self.subject_identifier)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ, mail.outbox[0].body)
+        self.assertEqual(form_zero_action.action_item.status, NEW)
+
+        # action with reference obj
+        form_zero = FormZero.objects.create(
+            subject_identifier=self.subject_identifier,
+            f1='1')
+        form_zero.refresh_from_db()
+        self.assertEqual(len(mail.outbox), 1)
+
+        # change/update field on reference obj that is a notification field
+        form_zero.f1 = '2'
+        form_zero.save()
+        form_zero.refresh_from_db()
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertIn('*UPDATE*', mail.outbox[1].subject)
+        self.assertIn('An updated report', mail.outbox[1].body)
+        self.assertIn(NOTIFY_ON_CHANGED_REFERENCE_OBJ, mail.outbox[1].body)
+
+        # resave reference obj without any change
+        form_zero.save()
+        form_zero.refresh_from_db()
+        self.assertEqual(len(mail.outbox), 2)
+
+        form_zero.f1 = '1'
+        form_zero.save()
+        form_zero.refresh_from_db()
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertIn(NOTIFY_ON_CHANGED_REFERENCE_OBJ, mail.outbox[1].body)
+
     @skip('notification')
     def test_notification_registration(self):
         """Asserts that by registering the action class, the
         notification class is also registered.
-
-        (if action_cls.notifications_enabled = True)
         """
         action_enabled_for_notifications = []
         for action_cls in site_action_items.registry.values():
-            if action_cls.notifications_enabled:
-                action_enabled_for_notifications.append(action_cls)
+            action_enabled_for_notifications.append(action_cls)
 
         self.assertIsNotNone(action_enabled_for_notifications)
 

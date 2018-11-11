@@ -1,11 +1,12 @@
 from edc_constants.constants import NO
 
 from ..action import Action
+from ..action_with_notification import ActionWithNotification
 from ..constants import HIGH_PRIORITY
 from ..site_action_items import site_action_items
 
 
-class FormZeroAction(Action):
+class FormZeroAction(ActionWithNotification):
     name = 'submit-form-zero'
     display_name = 'Submit Form Zero'
     reference_model = 'edc_action_item.formzero'
@@ -13,11 +14,9 @@ class FormZeroAction(Action):
     priority = HIGH_PRIORITY
     parent_action_names = ['submit-form-three']
 
-    notification_enabled = True
-    notification_name = 'form-zero'
     notification_display_name = 'a form zero event has occured'
     notification_fields = ['f1']
-    email_recipients = ['someone@example.com']
+    notification_email_to = ['someone@example.com']
 
 
 class TestDoNothingPrnAction(Action):
