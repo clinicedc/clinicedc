@@ -167,7 +167,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.action_identifier, )
+        return (self.action_identifier,)
 
     @property
     def last_updated(self):
@@ -217,35 +217,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         """Returns a shortened action identifier.
         """
         return self.action_identifier[-9:]
-
-    @property
-    def reference(self):
-        """Returns a shortened action_identifier which in
-        most cases is the reference model's action identifier.
-        """
-        if self.action_identifier:
-            return self.action_identifier[-9:]
-        return None
-
-    @property
-    def parent_reference(self):
-        """Returns a shortened parent_action_identifier of the
-        parent model reference which in most cases is the
-        parent reference model's action identifier.
-        """
-        if self.parent_action_item:
-            return self.parent_action_item.action_identifier[-9:]
-        return None
-
-    @property
-    def related_reference(self):
-        """Returns a shortened related action_identifier of the
-        parent model reference which in most cases is the
-        parent reference model's action identifier.
-        """
-        if self.related_action_item:
-            return self.related_action_item.action_identifier[-9:]
-        return None
 
     class Meta:
         verbose_name = 'Action Item'
