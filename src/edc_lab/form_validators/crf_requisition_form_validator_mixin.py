@@ -22,7 +22,7 @@ class CrfRequisitionFormValidatorMixin:
         self.validate_requisition(
             'cd4_requisition', 'cd4_assay_datetime', cd4_panel)
 
-    See also, for example: ambition_validators.form_validators.blood_result
+    See also, for example: ambition_form_validators.form_validators.blood_result
     """
 
     def validate_requisition(self, requisition_field, assay_datetime_field, *panels):
