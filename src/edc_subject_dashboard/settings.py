@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'edc_lab.apps.AppConfig',
     'edc_locator.apps.AppConfig',
     'edc_metadata.apps.AppConfig',
+    'edc_notification.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_registration.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
@@ -153,6 +154,8 @@ DASHBOARD_BASE_TEMPLATES = {
     'subject_dashboard_template': 'edc_subject_dashboard/dashboard.html',
 }
 
+EMAIL_CONTACTS = {}
+EMAIL_ENABLED = False
 
 if 'test' in sys.argv:
 

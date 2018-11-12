@@ -39,9 +39,9 @@
                 <li class="list-group-item">{% if requisition.entry_status == KEYED %}<span class="text text-muted text-success">{% else %}<span class="text text-danger">{% endif %}<i class="fas fa-flask fa-fw"></i> {{ requisition.verbose_name }}</span></li>
             {% endfor %}
 
-        {% else%}
-
-            <a href="?q={{ result.subject_identifier}}" class="list-group-item" title="click to list reported visits for this subject">{{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.subject_identifier }}</b> <span class="text text-muted">{{ result.visit_count }} visits</span></a>
+        {% else %}
+            <a href="{% url paginator_url %}?q={{ result.subject_identifier}}" class="list-group-item" title="click to list reported visits for this subject">{{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.subject_identifier }}</b> <span class="text text-muted">{{ result.visit_count }} visits</span></a>
+            
 
         {% endif %}
     {% endfor %}
