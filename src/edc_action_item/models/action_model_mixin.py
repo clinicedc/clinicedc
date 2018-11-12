@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_constants.constants import OPEN
 
 from ..site_action_items import site_action_items
 from .action_item import ActionItem

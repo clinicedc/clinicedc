@@ -9,9 +9,11 @@ from .models import ActionItem
 from .site_action_items import site_action_items
 
 
-@receiver(post_save, weak=False, dispatch_uid='update_or_create_action_item_on_post_save')
+@receiver(post_save, weak=False,
+          dispatch_uid='update_or_create_action_item_on_post_save')
 def update_or_create_action_item_on_post_save(sender, instance, raw,
-                                              created, update_fields, **kwargs):
+                                              created, update_fields,
+                                              **kwargs):
     """Updates action item for a model using the ActionModelMixin.
 
     The update is done by instantiating the action class associated
@@ -86,7 +88,8 @@ def action_item_notification_on_post_create_historical_record(
 
     Note, this is the post_create of the historical model.
     """
-    if site_notifications.loaded and instance._meta.label_lower == 'edc_action_item.actionitem':
+    if (site_notifications.loaded
+            and instance._meta.label_lower == 'edc_action_item.actionitem'):
         if instance.status != CLOSED:
             opts = dict(instance=instance,
                         user=instance.user_modified or instance.user_created,

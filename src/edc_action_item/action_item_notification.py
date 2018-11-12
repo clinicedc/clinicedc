@@ -87,18 +87,13 @@ class ActionItemNotification(Notification):
         """
         notified = False
         instance = kwargs.get('instance')
-        try:
-            action_name = instance.action_item.action_cls.name
-        except AttributeError:
-            action_name = instance.action_cls.name
+        action_name = self.get_action_name(instance)
         if action_name == self.notification_action_name:
             if instance._meta.label_lower == 'edc_action_item.actionitem':
                 action_item = kwargs.get('instance')
                 updated = False
-                try:
-                    reference_obj = action_item.reference_obj
-                except ObjectDoesNotExist:
-                    reference_obj = None
+                reference_obj = self.get_reference_obj(action_item)
+
                 if (self.notify_on_new_and_no_reference_obj
                         and action_item.status == NEW and not reference_obj):
                     notify = NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ
@@ -106,18 +101,19 @@ class ActionItemNotification(Notification):
                         and action_item.status == NEW and reference_obj):
                     notify = NOTIFY_ON_NEW
                 elif self.notify_on_open and action_item.status == OPEN and reference_obj:
-                    kwargs.update(instance=reference_obj)
                     notify = NOTIFY_ON_OPEN
                 elif self.notify_on_closed and action_item.status == CLOSED and reference_obj:
-                    kwargs.update(instance=reference_obj)
                     notify = NOTIFY_ON_CLOSE
                 elif (self.notify_on_changed_reference_obj
                         and action_item.status != NEW and reference_obj):
-                    kwargs.update(instance=reference_obj)
-                    updated = True
                     notify = NOTIFY_ON_CHANGED_REFERENCE_OBJ
+                    updated = True
                 else:
                     notify = False
+
+                kwargs.update(updated=updated)
+                kwargs.update(instance=reference_obj)
+
                 if notify:
                     try:
                         parent_reference_verbose_name = (
@@ -158,24 +154,24 @@ class ActionItemNotification(Notification):
             notify_on_condition = True
         return notify_on_condition
 
-#     def get_reference_obj_has_changed(self, reference_obj):
-#         history = {}
-#         has_changed = False
-#         for field in self.notification_fields:
-#             values = [
-#                 getattr(obj, field)
-#                 for obj in reference_obj.history.all().order_by('-history_date')]
-#             history.update({field: values})
-#         for field, values in history.items():
-#             try:
-#                 values[1]
-#             except IndexError:
-#                 has_changed = False
-#             else:
-#                 has_changed = values[0] != values[1]
-#             if has_changed:
-#                 break
-#         return has_changed
+    def get_reference_obj(self, action_item):
+        try:
+            reference_obj = action_item.reference_obj
+        except ObjectDoesNotExist:
+            reference_obj = None
+        return reference_obj
+
+    def get_action_name(self, instance):
+        """Returns that action_name.
+        """
+        try:
+            action_name = instance.action_item.action_cls.name
+        except AttributeError:
+            try:
+                action_name = instance.get_action_cls().name
+            except AttributeError:
+                action_name = None
+        return action_name
 
     def get_template_options(self, **kwargs):
         template_options = super().get_template_options(**kwargs)
