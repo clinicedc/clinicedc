@@ -1,8 +1,31 @@
+import environ
 import os
 import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ETC_DIR = BASE_DIR
+LIVE_SYSTEM = False
+# AUTO_CREATE_KEYS = True
+
+# to enable a test that actually sends notifications
+# $ export ENVFILE=.env
+# $ echo $ENVFILE
+# .env
+env = environ.Env(
+    DJANGO_EDC_BOOTSTRAP=(int, 3),
+    DJANGO_EMAIL_ENABLED=(bool, True),
+    TWILIO_ENABLED=(bool, False),
+)
+
+try:
+    ENVFILE = os.environ['ENVFILE'] or 'env.sample'
+except KeyError:
+    ENVFILE = 'env.sample'
+env.read_env(os.path.join(BASE_DIR, ENVFILE))
+print(f"Reading env from {os.path.join(BASE_DIR, ENVFILE)}")
+
+
 APP_NAME = 'edc_action_item'
 SITE_ID = 40
 
@@ -39,6 +62,7 @@ INSTALLED_APPS = [
     'edc_protocol.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_device.apps.AppConfig',
+    'edc_notification.apps.AppConfig',
     'edc_action_item.apps.AppConfig',
 ]
 
@@ -143,6 +167,24 @@ EDC_BOOTSTRAP = 3
 DJANGO_COLLECT_OFFLINE_FILES_USER = None
 DJANGO_COLLECT_OFFLINE_FILES_REMOTE_HOST = None
 DJANGO_COLLECT_OFFLINE_FILES_USB_VOLUME = None
+
+EMAIL_ENABLED = env('DJANGO_EMAIL_ENABLED')
+if EMAIL_ENABLED:
+    EMAIL_HOST = env.str('DJANGO_EMAIL_HOST')
+    EMAIL_PORT = env.int('DJANGO_EMAIL_PORT')
+    EMAIL_HOST_USER = env.str('DJANGO_EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env.str('DJANGO_EMAIL_HOST_PASSWORD')
+    EMAIL_USE_TLS = env('DJANGO_EMAIL_USE_TLS')
+    MAILGUN_API_KEY = env('MAILGUN_API_KEY')
+    MAILGUN_API_URL = env('MAILGUN_API_URL')
+EMAIL_CONTACTS = {'data_manager': 'data_manager@clinicedc.org'}
+# if ENVFILE != '.env':
+EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+TWILIO_ENABLED = env.str('TWILIO_ENABLED')
+TWILIO_ACCOUNT_SID = env.str('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = env.str('TWILIO_AUTH_TOKEN')
+TWILIO_SENDER = env.str('TWILIO_SENDER')
+TWILIO_TEST_RECIPIENT = env.str('TWILIO_TEST_RECIPIENT')
 
 if 'test' in sys.argv:
 

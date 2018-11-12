@@ -1,38 +1,104 @@
+import sys
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_base import convert_php_dateformat
 from urllib.parse import urlparse, parse_qsl
+from urllib.parse import urlencode, unquote
 
 from .site_action_items import site_action_items
 
 
+class ActionItemHelperError(Exception):
+    pass
+
+
 class ActionItemHelper:
 
-    def __init__(self, model_wrapper=None, action_item=None, href=None):
+    def __init__(self, action_item=None, href=None, action_name=None,
+                 related_action_item=None):
         self._parent_reference_obj = None
         self._parent_reference_url = None
         self._reference_obj = None
         self._reference_url = None
         self._related_reference_obj = None
         self._related_reference_url = None
-        if model_wrapper:
-            self.action_item = model_wrapper.object
-            self.href = model_wrapper.href
+        self.href = href
+        self.last_updated_text = 'This action item has not been updated.'
+        if not action_item and action_name:
+            self.action_identifier = None
+            self.action_item = None
+            self.action_cls = site_action_items.get(action_name)
+            self.related_action_item = related_action_item
+            if self.action_cls.related_reference_fk_attr and not related_action_item:
+                raise ActionItemHelperError(
+                    f'Expected related_action_item. Got None. '
+                    f'Related field attribute is \''
+                    f'{self.action_cls.related_reference_fk_attr}\'. '
+                    f'See {repr(self)}.')
         else:
+            self.action_identifier = action_item.action_identifier
             self.action_item = action_item
-            self.href = href
-        self.action_identifier = self.action_item.action_identifier
-        self.action_cls = site_action_items.get(
-            self.action_item.reference_model_cls.action_name)
-        if self.action_item.last_updated:
-            # could also use action_item.linked_to_reference?
-            date_format = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-            last_updated = self.action_item.last_updated.strftime(date_format)
-            user_last_updated = self.action_item.user_last_updated
-            self.last_updated_text = (
-                f'Last updated on {last_updated} by {user_last_updated}.')
+            self.action_cls = site_action_items.get(
+                action_item.reference_model_cls.action_name)
+            self.related_action_item = self.action_item.related_action_item
+            if self.action_item.last_updated:
+                # could also use action_item.linked_to_reference?
+                date_format = convert_php_dateformat(
+                    settings.SHORT_DATE_FORMAT)
+                last_updated = self.action_item.last_updated.strftime(
+                    date_format)
+                user_last_updated = self.action_item.user_last_updated
+                self.last_updated_text = (
+                    f'Last updated on {last_updated} by {user_last_updated}.')
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}(action_name={self.action_cls})'
+
+    def get_url(self, model_obj=None, model_cls=None, **kwargs):
+        """Returns a relative add URL with querystring that can
+        get back to the subject dashboard on save.
+
+        Adds visit fk to the querystring if possible.
+        """
+        opts = dict(
+            **self.get_query_dict(),
+            **kwargs)
+        if self.action_identifier:
+            opts.update(action_identifier=self.action_identifier)
+
+        if self.action_cls.related_reference_fk_attr:
+            try:
+                related_reference_obj = (
+                    self.action_cls.related_reference_model_cls().objects.get(
+                        action_item=self.related_action_item))
+            except ObjectDoesNotExist as e:
+                sys.stdout.write(
+                    f'{e} See {self.action_item}. Related action identifier'
+                    f'=\'{self.action_item.related_action_identifier}\'.')
+                opts.update(
+                    {self.action_cls.related_reference_fk_attr: None})
+            else:
+                opts.update(
+                    {self.action_cls.related_reference_fk_attr:
+                     str(related_reference_obj.pk)})
+        if model_obj:
+            try:
+                model_obj.visit_model_attr()
+            except AttributeError:
+                pass
+            else:
+                visit_obj = getattr(model_obj, model_obj.visit_model_attr())
+                opts.update({
+                    model_obj.visit_model_attr(): str(visit_obj.pk),
+                    'appointment': str(visit_obj.appointment.pk)})
+            path = model_obj.get_absolute_url()
         else:
-            self.last_updated_text = 'This action item has not been updated.'
+            path = model_cls().get_absolute_url()
+        query = unquote(urlencode(opts))
+        if query:
+            return '?'.join([path, query])
+        return path
 
     @property
     def reference_obj(self):
@@ -41,21 +107,18 @@ class ActionItemHelper:
         if not self._reference_obj:
             try:
                 self._reference_obj = self.action_item.reference_obj
-            except ObjectDoesNotExist:
+            except (AttributeError, ObjectDoesNotExist):
                 pass
         return self._reference_obj
 
     @property
     def reference_url(self):
-        """Returns the add/change url for the reference model instance.
+        """Returns the url for the reference object.
         """
         if not self._reference_url:
-            opts = dict(
-                action_item=self.action_item,
-                action_identifier=self.action_identifier,
-                reference_obj=self.reference_obj,
-                **self.get_query_dict())
-            self._reference_url = self.action_cls.reference_url(**opts)
+            self._reference_url = self.get_url(
+                model_obj=self.reference_obj,
+                model_cls=self.action_cls.reference_model_cls())
         return self._reference_url
 
     @property
@@ -79,22 +142,10 @@ class ActionItemHelper:
         """
         if not self._parent_reference_url:
             if self.parent_reference_obj:
-                query_dict = self.get_query_dict()
-                try:
-                    subject_visit = self.parent_reference_obj.visit
-                except AttributeError:
-                    pass
-                else:
-                    # parent reference model is a CRF, add visit to querystring
-                    query_dict.update({
-                        self.parent_reference_obj.visit_model_attr(): str(subject_visit.pk),
-                        'appointment': str(subject_visit.appointment.pk)})
-                self._parent_reference_url = (
-                    self.action_cls.reference_url(
-                        reference_obj=self.parent_reference_obj,
-                        action_item=self.action_item,
-                        action_identifier=self.action_identifier,
-                        **query_dict))
+                kwargs = dict(
+                    model_obj=self.parent_reference_obj,
+                    model_cls=self.parent_reference_obj.__class__)
+                self._parent_reference_url = self.get_url(**kwargs)
         return self._parent_reference_url
 
     @property
@@ -104,7 +155,7 @@ class ActionItemHelper:
         """
         if not self._related_reference_obj:
             try:
-                self._related_reference_obj = self.action_item.related_action_item.reference_obj
+                self._related_reference_obj = self.related_action_item.reference_obj
             except (AttributeError, ObjectDoesNotExist):
                 pass
         return self._related_reference_obj
@@ -116,22 +167,10 @@ class ActionItemHelper:
         """
         if not self._related_reference_url:
             if self.related_reference_obj:
-                query_dict = self.get_query_dict()
-                try:
-                    subject_visit = self.related_reference_obj.visit
-                except AttributeError:
-                    pass
-                else:
-                    # related reference model is a CRF
-                    query_dict.update({
-                        self.related_reference_obj.visit_model_attr(): str(subject_visit.pk),
-                        'appointment': str(subject_visit.appointment.pk)})
-                self._related_reference_url = (
-                    self.action_cls.reference_url(
-                        reference_obj=self.related_reference_obj,
-                        action_item=self.action_item,
-                        action_identifier=self.action_identifier,
-                        **query_dict))
+                kwargs = dict(
+                    model_obj=self.related_reference_obj,
+                    model_cls=self.related_reference_obj.__class__)
+                self._related_reference_url = self.get_url(**kwargs)
         return self._related_reference_url
 
     @property
@@ -159,7 +198,7 @@ class ActionItemHelper:
     def parent_reference_model_name(self):
         try:
             parent_reference_model_name = (
-                f'{self.action_item.parent_action_item.reference_model_cls._meta.verbose_name} '
+                f'{self.action_item.parent_action_item.reference_model_cls._meta.verbose_name} '  # noqa
                 f'{str(self.parent_reference_obj)}')
         except AttributeError:
             parent_reference_model_name = None
@@ -169,7 +208,7 @@ class ActionItemHelper:
     def related_reference_model_name(self):
         try:
             related_reference_model_name = (
-                f'{self.action_item.related_action_item.reference_model_cls._meta.verbose_name} '
+                f'{self.related_action_item.reference_model_cls._meta.verbose_name} '
                 f'{str(self.related_reference_obj)}')
         except AttributeError:
             related_reference_model_name = None
@@ -183,9 +222,9 @@ class ActionItemHelper:
         if self.action_item.parent_action_item:
             context.update(
                 parent_action_identifier=self.action_item.parent_action_item.action_identifier)
-        if self.action_item.related_action_item:
+        if self.related_action_item:
             context.update(
-                related_action_identifier=self.action_item.related_action_item.action_identifier)
+                related_action_identifier=self.related_action_item.action_identifier)
         context.update(
             action_identifier=self.action_identifier,
             action_instructions=self.action_item.instructions,

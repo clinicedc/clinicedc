@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_constants.constants import OPEN
 
 from ..site_action_items import site_action_items
 from .action_item import ActionItem
@@ -87,11 +86,8 @@ class ActionModelMixin(models.Model):
                 related_action_item=self.related_action_item)
             self.action_item = action.action_item
             self.action_item.linked_to_reference = True
-            self.action_item.status = OPEN
-            self.action_item.save()
-            self.action_item.refresh_from_db()
             self.action_identifier = self.action_item.action_identifier
-        elif not self.action_item:
+        elif self.id and not self.action_item:
             self.action_item = ActionItem.objects.get(
                 action_identifier=self.action_identifier)
         self.parent_action_item = self.action_item.parent_action_item

@@ -5,10 +5,11 @@ from django.utils.safestring import mark_safe
 from django.core.mail.message import EmailMessage
 from edc_base.utils import get_utcnow
 
+NEW_REPORT = 'new_report'
 UPDATED_REPORT = 'updated_report'
 
 message_templates = {
-    'new_report': (
+    NEW_REPORT: (
         'Do not reply to this email\n\n'
         '{test_message}'
         'A report has been submitted for patient '
@@ -37,6 +38,13 @@ message_templates = {
 
 
 def send_email(action_item=None, reason=None, template_name=None, force_send=None):
+    #     if template_name:
+    #         print('send_email', f'action_item={action_item}',
+    #               f'reason={reason}', f'template_name={template_name}')
+    #     else:
+    #         print('send_email', f'action_item={action_item}')
+    return None
+
     if 'migrate' not in sys.argv:
         template_name = template_name or 'new_report'
         updated = '*UPDATE* ' if template_name == 'updated_report' else ''

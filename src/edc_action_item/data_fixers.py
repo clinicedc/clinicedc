@@ -52,7 +52,7 @@ def fix_null_action_item_fk(apps, app_label, models):
                 else:
                     try:
                         obj.save()
-                    except MultipleObjectsReturned as e:
+                    except MultipleObjectsReturned:
                         sys.stdout.write(f'Failed to resave {repr(obj)}')
 
 
@@ -95,10 +95,11 @@ def fix_null_action_items(apps):
                         action_identifier=action_item.related_action_identifier
                 ).update(related_action_item=related_action_item)
                 sys.stdout.write(
-                    f' setting related_action_items for {related_action_item}. Got {updated}\n')
+                    f' setting related_action_items for '
+                    f'{related_action_item}. Got {updated}\n')
 
 
-def fix_null_related_action_items(apps):
+def fix_null_related_action_items(apps):  # noqa
     """
     """
     post_save.disconnect(dispatch_uid='serialize_on_save')
@@ -165,13 +166,6 @@ def fix_action_item_sequence(action_item_cls, action_identifier=None,
         subject_identifier=subject_identifier,
         action_identifier=action_identifier)
     last_action_item = None
-    # are there any with the related action item updated?
-#     if not action_item_cls.objects.filter(related_action_item=parent_action_item):
-#         action_item_cls.objects.filter(
-#             subject_identifier=subject_identifier,
-#             action_identifier=action_identifier
-#         ).update(related_action_item=parent_action_item)
-
     for action_item in action_item_cls.objects.filter(
             related_action_item=parent_action_item).order_by('created'):
         action_item.parent_action_item = last_action_item or parent_action_item

@@ -13,7 +13,7 @@ class ActionItemModelWrapper(ModelWrapper):
 
     def __init__(self, model_obj=None, **kwargs):
         super().__init__(model_obj=model_obj, **kwargs)
-        helper = ActionItemHelper(model_wrapper=self)
+        helper = ActionItemHelper(action_item=self.object, href=self.href)
         for key, value in helper.get_context().items():
             setattr(self, key, value)
 

@@ -9,6 +9,7 @@ from .action_items import FormOneAction, FormTwoAction, FormThreeAction, FormZer
 from .action_items import SingletonAction, register_actions, FormFourAction
 from .models import FormZero, FormOne, FormTwo
 from .models import FormFour, FormThree, SubjectIdentifierModel
+from edc_action_item.helpers import ActionItemHelper
 
 
 class TestAction(TestCase):
@@ -350,61 +351,46 @@ class TestAction(TestCase):
         self.assertEqual(obj.status, CLOSED)
 
     def test_reference_url(self):
-        obj = FormOne.objects.create(
+        action = FormOneAction(
             subject_identifier=self.subject_identifier)
-        action_item = ActionItem.objects.get(
-            action_identifier=obj.action_identifier)
-        url = FormOneAction(action_identifier=obj.action_identifier).reference_url(
-            action_item=action_item)
+        helper = ActionItemHelper(action_item=action.action_item)
+        url = helper.get_url(model_cls=action.reference_model_cls())
         self.assertEqual(
-            url, f'/admin/edc_action_item/formone/add/')
+            url, (f'/admin/edc_action_item/formone/add/?'
+                  f'action_identifier={action.action_identifier}'))
 
     def test_reference_url2(self):
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
-        obj = FormTwo.objects.create(
+        helper = ActionItemHelper(
+            action_name=FormTwoAction.name,
+            related_action_item=form_one.action_item)
+        form_two_add_url = helper.reference_url
+        self.assertEqual(
+            form_two_add_url,
+            f'/admin/edc_action_item/formtwo/add/?form_one={str(form_one.pk)}')
+        form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier,
             form_one=form_one)
-        action_item = ActionItem.objects.get(
-            action_identifier=obj.action_identifier)
-        url = FormTwoAction(action_identifier=obj.action_identifier).reference_url(
-            action_item=action_item)
+        helper = ActionItemHelper(action_item=form_two.action_item)
+        form_two_change_url = helper.reference_url
         self.assertEqual(
-            url,
-            f'/admin/edc_action_item/formtwo/add/?form_one={str(form_one.pk)}')
+            form_two_change_url,
+            f'/admin/edc_action_item/formtwo/{str(form_two.pk)}/change/?'
+            f'action_identifier={form_two.action_identifier}&form_one={str(form_one.pk)}')
 
     def test_reference_url3(self):
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
-        obj = FormTwo.objects.create(
+        form_two_action = FormTwoAction(
             subject_identifier=self.subject_identifier,
-            form_one=form_one)
-        action_item = ActionItem.objects.get(
-            action_identifier=obj.action_identifier)
-        url = FormTwoAction(action_identifier=obj.action_identifier).reference_url(
-            action_item=action_item,
-            subject_identifier=self.subject_identifier)
+            related_action_item=form_one.action_item)
+        helper = ActionItemHelper(action_item=form_two_action.action_item)
         self.assertEqual(
-            url,
-            (f'/admin/edc_action_item/formtwo/add/?subject_identifier='
-             f'{self.subject_identifier}&form_one={str(form_one.pk)}'))
-
-    def test_reference_url5(self):
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
-        form_two = FormTwo.objects.create(
-            subject_identifier=self.subject_identifier,
-            form_one=form_one)
-        action_item = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier)
-        url = FormTwoAction(action_identifier=form_two.action_identifier).reference_url(
-            reference_obj=form_two,
-            action_item=action_item,
-            subject_identifier=self.subject_identifier)
-        self.assertEqual(
-            url,
-            (f'/admin/edc_action_item/formtwo/{str(form_two.pk)}/change/?'
-             f'subject_identifier={self.subject_identifier}&form_one={str(form_one.pk)}'))
+            helper.reference_url,
+            (f'/admin/edc_action_item/formtwo/add/?'
+             f'action_identifier={form_two_action.action_identifier}&'
+             f'form_one={str(form_one.pk)}'))
 
     def test_create_singleton(self):
 

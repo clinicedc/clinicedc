@@ -8,6 +8,7 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_base.sites import CurrentSiteManager as BaseCurrentSiteManager, SiteModelMixin
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_notification.model_mixins import NotificationModelMixin
 
 from ..choices import ACTION_STATUS, PRIORITY
 from ..identifiers import ActionIdentifier
@@ -40,7 +41,7 @@ class ActionItemManager(models.Manager):
 
 
 class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
-                 BaseUuidModel):
+                 NotificationModelMixin, BaseUuidModel):
 
     subject_identifier_model = 'edc_registration.registeredsubject'
 
@@ -83,11 +84,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         blank=True,
         help_text=('May be left blank. e.g. action identifier from '
                    'source model that opened the item.'))
-
-#     parent_reference_model = models.CharField(
-#         max_length=100,
-#         null=True,
-#         editable=False)
 
     parent_action_identifier = models.CharField(
         max_length=50,
@@ -135,10 +131,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         null=True,
         blank=True)
 
-    emailed = models.BooleanField(default=False)
-
-    emailed_datetime = models.DateTimeField(null=True)
-
     on_site = CurrentSiteManager()
 
     objects = ActionItemManager()
@@ -175,7 +167,7 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.action_identifier, )
+        return (self.action_identifier,)
 
     @property
     def last_updated(self):
@@ -225,76 +217,6 @@ class ActionItem(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin,
         """Returns a shortened action identifier.
         """
         return self.action_identifier[-9:]
-
-    @property
-    def reference(self):
-        """Returns a shortened action_identifier which in
-        most cases is the reference model's action identifier.
-        """
-        if self.action_identifier:
-            return self.action_identifier[-9:]
-        return None
-
-    @property
-    def parent_reference(self):
-        """Returns a shortened parent_action_identifier of the
-        parent model reference which in most cases is the
-        parent reference model's action identifier.
-        """
-        if self.parent_action_item:
-            return self.parent_action_item.action_identifier[-9:]
-        return None
-
-    @property
-    def related_reference(self):
-        """Returns a shortened related action_identifier of the
-        parent model reference which in most cases is the
-        parent reference model's action identifier.
-        """
-        if self.related_action_item:
-            return self.related_action_item.action_identifier[-9:]
-        return None
-
-#     @classmethod
-#     def check(cls, **kwargs):
-#         errors = super().check(**kwargs)
-#         if ('test' not in sys.argv
-#                 and 'showmigrations' not in sys.argv
-#                 and 'makemigrations' not in sys.argv
-#                 and 'migrate' not in sys.argv):
-#             for obj in cls.objects.all():
-#                 if (obj.action_cls.related_reference_fk_attr
-#                         and not obj.related_action_item):
-#                     errors.append(
-#                         checks.Error(
-#                             f'ActionItem.related_action_item cannot be '
-#                             f'None if related_reference_fk_attr is specified. '
-#                             f'Got ActionItem.action_identifier={obj.action_identifier}. ',
-#                             #                             f'Expected the \'action_identifier\' from an instance of '
-#                             #                             f'{obj.action_cls.related_reference_model}',
-#                             hint=(f'update {obj.__class__.__name__}.'
-#                                   f'related_action_item '
-#                                   f'or delete the {obj.__class__.__name__}.'),
-#                             obj=obj,
-#                             id='edc_action_item.E001'))
-#             for action_cls in site_action_items.registry.values():
-#                 if not action_cls.reference_model:
-#                     raise ImproperlyConfigured(
-#                         f'Attribute reference_model cannot be None. See {action_cls}')
-#                 for obj in action_cls.reference_model_cls().objects.all():
-#                     try:
-#                         ActionItem.objects.get(
-#                             action_identifier=obj.action_identifier)
-#                     except ObjectDoesNotExist:
-#                         errors.append(
-#                             checks.Error(
-#                                 f'Model refers to non-existent action item.\n '
-#                                 f'Got {action_cls.reference_model} where '
-#                                 f'action_identifier={obj.action_identifier}.\n',
-#                                 hint=f'Set action_identifier=None and re-save the object.',
-#                                 obj=obj,
-#                                 id='edc_action_item.E002'))
-#         return errors
 
     class Meta:
         verbose_name = 'Action Item'

@@ -66,16 +66,17 @@ class TestActionItem(TestCase):
             site_action_items.get(action_item_two.action_type.name))
         self.assertTrue(action_item_two.identifier)
         self.assertTrue(str(action_item_two))
-        self.assertTrue(action_item_two.reference)
         self.assertTrue(action_item_two.parent_action_item)
-        self.assertTrue(action_item_two.parent_reference)
-        self.assertIsNone(action_item_one.parent_reference)
         self.assertIsNone(action_item_one.parent_action_item)
 
     def test_identifier_not_changed(self):
+        site_action_items.registry = {}
+        site_action_items.register(FormOneAction)
+        get_action_type(FormOneAction)
+        action_type = ActionType.objects.get(name=FormOneAction.name)
         obj = ActionItem.objects.create(
             subject_identifier=self.subject_identifier,
-            action_type=self.action_type)
+            action_type=action_type)
         action_identifier = obj.action_identifier
         obj.save()
         try:
@@ -137,13 +138,12 @@ class TestActionItem(TestCase):
         self.assertEqual(get_action_type(my_action).reference_model,
                          action_item.reference_model)
         self.assertIsNone(action_item.parent_action_item_id)
-#         self.assertIsNone(action_item.parent_reference_model)
-#         self.assertIsNone(action_item.parent_action_identifier)
 
         class MyActionWithIncorrectModel(Action):
             name = 'my-action2'
-            display_name = 'my action'
+            display_name = 'my action 2'
             reference_model = 'edc_action_item.TestModelWithAction'
+
         site_action_items.register(MyActionWithIncorrectModel)
 
         TestModelWithAction.objects.create(
@@ -160,6 +160,7 @@ class TestActionItem(TestCase):
             name = 'my-action3'
             display_name = 'original display_name'
             reference_model = 'edc_action_item.FormOne'
+
         site_action_items.register(MyAction)
         MyAction(
             subject_identifier=self.subject_identifier)

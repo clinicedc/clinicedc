@@ -6,5 +6,5 @@ action_fields = (
 
 action_fieldset_tuple = [
     'Action', {
-        'classes': ('collapse', ),
+        'classes': ('collapse',),
         'fields': action_fields}]
