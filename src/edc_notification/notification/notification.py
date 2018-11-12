@@ -1,80 +1,89 @@
-import sys
-
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.color import color_style
+from django.core.mail import EmailMessage
+from edc_base.utils import get_utcnow
+from twilio.base.exceptions import TwilioRestException, TwilioException
+from twilio.rest import Client
 
-from ..mail import EmailMessage, MailingListManager
 from ..site_notifications import site_notifications
-from ..sms import SmsMessage, UnknownUser
+from ..sms_message import SmsMessage
+
+
+class NotificationError(Exception):
+    pass
 
 
 class Notification:
 
     app_name = None
-    name = 'undefined'
+    name = None
     display_name = None
 
     email_from = settings.EMAIL_CONTACTS.get('data_manager')
     email_to = None
     email_message_cls = EmailMessage
-    mailing_list_manager_cls = MailingListManager
 
-    sms_message_cls = SmsMessage
-    sms_test_line = None
-    sms_template = None
-
-    body_template = (
+    email_body_template = (
         '\n\nDo not reply to this email\n\n'
-        '{body_test_line}'
+        '{test_body_line}'
         'A report has been submitted for patient '
-        '{instance.subject_identifier} '
-        'at site {instance.site.name} which may require '
+        '{subject_identifier} '
+        'at site {site_name} which may require '
         'your attention.\n\n'
         'Title: {display_name}\n\n'
         'You received this message because you are subscribed to receive these '
         'notifications in your user profile.\n\n'
-        '{body_test_line}'
+        '{test_body_line}'
         'Thanks.')
-    subject_template = (
-        '{subject_test_line}{protocol_name}: '
+    email_subject_template = (
+        '{test_subject_line}{protocol_name}: '
         '{display_name} '
-        'for {instance.subject_identifier}')
-    body_test_line = 'THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n'
-    subject_test_line = 'TEST/UAT -- '
+        'for {subject_identifier}')
+    email_footer_template = (
+        '\n\n-----------------\n'
+        'To unsubscribe remove "{display_name}" from your chosen '
+        'email notifications in your user profile.\n\n'
+        '{name}\n'
+        '{notification_reason}:{instance.pk}\n'
+        '{message_datetime} (UTC)')
+    email_test_body_line = 'THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n'
+    email_test_subject_line = 'TEST/UAT -- '
+
+    sms_message_cls = SmsMessage
+    sms_template = (
+        '{test_line}{protocol_name}: Report "{display_name}" for '
+        'patient {subject_identifier} '
+        'at site {site_name} may require '
+        'your attention. Login to review.')
+    sms_test_line = 'TEST MESSAGE. NO ACTION REQUIRED - '
 
     def __init__(self):
-        self.email_to = self.email_to or [
-            f'{self.name}.{settings.APP_NAME}@mg.clinicedc.org']
+        self._notification_enabled = None
+        self._template_opts = {}
+        self.email_to = self.email_to or self.default_email_to
+        self.test_message = False
         try:
             live_system = settings.LIVE_SYSTEM
         except AttributeError:
             live_system = False
         if not live_system:
             self.email_to = [f'test.{email}' for email in self.email_to]
-        self.protocol_name = django_apps.get_app_config(
-            'edc_protocol').protocol_name
-        self.mailing_list_manager = self.mailing_list_manager_cls(
-            email_to=self.email_to,
-            display_name=self.display_name,
-            name=self.name)
-        try:
-            self.email_enabled = settings.EMAIL_ENABLED
-        except AttributeError:
-            self.email_enabled = False
-        try:
-            self.sms_enabled = settings.TWILIO_ENABLED
-        except AttributeError:
-            self.sms_enabled = False
+            self.test_message = True
+
+    def __repr__(self):
+        return (f'<{self.__class__.__name__}:name=\'{self.name}\', '
+                f'display_name=\'{self.display_name}\'>')
 
     def __str__(self):
         return f'{self.name}: {self.display_name}'
 
-    def callback(self, instance=None, created=None, **kwargs):
-        return False
+    @property
+    def default_email_to(self):
+        return [f'{self.name}.{settings.APP_NAME}@mg.clinicedc.org']
 
-    def notify(self, fail_silently=None, **kwargs):
+    def notify(self, force_notify=None, use_email=None, use_sms=None,
+               email_body_template=None, **kwargs):
         """Notify / send an email and/or SMS.
 
         Main entry point.
@@ -83,86 +92,173 @@ class Notification:
         notifications will be sent.
 
         See signals and kwargs are:
-            * history_intance
+            * history_instance
             * instance
             * user
         """
-        is_test = kwargs.get('test') or kwargs.get('fake_callback')
-        if self.email_enabled or self.sms_enabled or is_test:
-            kwargs.update(fail_silently=fail_silently)
-            self.send_notifications(**kwargs)
-            self.post_notifications_action(**kwargs)
+        email_sent = None
+        sms_sent = None
+        use_email = use_email or getattr(settings, 'EMAIL_ENABLED', False)
+        use_sms = use_sms or getattr(settings, 'TWILIO_ENABLED', False)
+        if force_notify or self._notify_on_condition(**kwargs):
+            if use_email:
+                email_body_template = (
+                    email_body_template + self.email_footer_template)
+                email_sent = self.send_email(
+                    email_body_template=email_body_template, **kwargs)
+            if use_sms:
+                sms_sent = self.send_sms(**kwargs)
+            self.post_notification_actions(
+                email_sent=email_sent,
+                sms_sent=sms_sent,
+                **kwargs)
+        return True if email_sent or sms_sent else False
 
-    def send_notifications(self, **kwargs):
-        notification_enabled = self.get_notification_enabled(**kwargs)
-        callback = self.get_callback(**kwargs)
-        if notification_enabled and callback(**kwargs):
-            self.send_email(**kwargs)
-            self.send_sms(**kwargs)
+    def notify_on_condition(self, **kwargs):
+        """Override to return True if the notification
+        should be sent by email and/or sms.
 
-    def fake_callback(self, **kwargs):
-        return True
-
-    def get_callback(self, **kwargs):
-        """Returns the actual or a fake callback.
+        A return value of `False` means nothing will be sent.
         """
-        fake_callback = kwargs.get('fake_callback')
-        if fake_callback:
-            callback = self.fake_callback
-        else:
-            callback = self.callback
-        return callback
+        return False
 
-    def post_notifications_action(self, **kwargs):
+    def _notify_on_condition(self, test_message=None, **kwargs):
+        """Returns the value of `notify_on_condition` or False.
+        """
+        if self.enabled or test_message:
+            return test_message or self.notify_on_condition(**kwargs)
+        return False
+
+    def post_notification_actions(self, **kwargs):
         pass
 
-    def send_email(self, fail_silently=None, **kwargs):
-        if settings.EMAIL_ENABLED:
-            email_message = self.email_message_cls(
-                notification=self, **kwargs)
-            email_message.send(fail_silently)
-
-    def send_sms(self, fail_silently=None, **kwargs):
-        if settings.TWILIO_ENABLED:
-            try:
-                sms_message = self.sms_message_cls(
-                    notification=self, **kwargs)
-            except UnknownUser as e:
-                sys.stdout.write(
-                    color_style().ERROR(f'sms_message. {e}\n'))
-                pass
-            else:
-                sms_message.send(fail_silently)
-
-    def get_notification_enabled(self, **kwargs):
-        """Returns True if notification is enabled based on the value
+    @property
+    def enabled(self):
+        """Returns True if this notification is enabled based on the value
         of Notification model instance.
 
-        If this is a test notification can skip the Notification
-        Model and use `test` and `test_callback`.
+        Note: Notification names/display_names are persisted in the
+        "Notification" model where each mode instance can be flagged
+        as enabled or not, and are selected/subscribed to by
+        each user in their user profile.
+
+        See also: `site_notifications.update_notification_list`
         """
-        test = kwargs.get('test')
-        fake_callback = kwargs.get('fake_callback')
-        if test and fake_callback:
-            notification_enabled = True
-        else:
+        if not self._notification_enabled:
+            # trigger exception if this class is not registered.
+            site_notifications.get(self.name)
+
             NotificationModel = django_apps.get_model(
                 'edc_notification.notification')
             try:
                 obj = NotificationModel.objects.get(name=self.name)
             except ObjectDoesNotExist:
                 site_notifications.update_notification_list()
-                try:
-                    obj = NotificationModel.objects.get(name=self.name)
-                except ObjectDoesNotExist as e:
-                    raise ObjectDoesNotExist(
-                        f'{e} Is this notification registered? '
-                        f'Got name={self.name}')
-            finally:
-                notification_enabled = obj.enabled
-        return notification_enabled
+                obj = NotificationModel.objects.get(name=self.name)
+            self._notification_enabled = obj.enabled
+        return self._notification_enabled
 
-    def send_test_message(self, email_to):
+    def get_template_options(self, instance=None, test_message=None, **kwargs):
+        """Returns a dictionary of message template options.
+
+        Extend using `extra_template_options`.
+        """
+        protocol_name = django_apps.get_app_config('edc_protocol').protocol_name
+        test_message = test_message or self.test_message
+        template_options = dict(
+            name=self.name,
+            protocol_name=protocol_name,
+            display_name=self.display_name,
+            email_from=self.email_from,
+            test_subject_line=(
+                self.email_test_subject_line if test_message else '').strip(),
+            test_body_line=self.email_test_body_line if test_message else '',
+            test_line=self.sms_test_line if test_message else '',
+            message_datetime=get_utcnow())
+        if 'subject_identifier' not in template_options:
+            try:
+                template_options.update(
+                    subject_identifier=instance.subject_identifier)
+            except AttributeError:
+                pass
+        if 'site_name' not in template_options:
+            try:
+                template_options.update(site_name=instance.site.name.title())
+            except AttributeError:
+                pass
+        return template_options
+
+    def send_email(self, fail_silently=None, email_to=None,
+                   email_body_template=None, **kwargs):
+        kwargs.update(**self.get_template_options(**kwargs))
+        subject = self.email_subject_template.format(**kwargs)
+        body = (email_body_template or self.email_body_template).format(**kwargs)
+        args = [
+            subject, body,
+            self.email_from,
+            email_to or self.email_to]
+        email = self.email_message_cls(*args)
+        return email.send(fail_silently)
+
+    def send_sms(self, fail_silently=None, sms_recipient=None, **kwargs):
+        status = {}
+        if self.sms_sender:
+            kwargs.update(**self.get_template_options(**kwargs))
+            body = self.sms_template.format(**kwargs)
+            try:
+                client = Client()
+            except (TwilioRestException, TwilioException):
+                if not fail_silently:
+                    raise
+            else:
+                recipients = (
+                    [sms_recipient] if sms_recipient else self.sms_recipients)
+                for recipient in recipients:
+                    try:
+                        message = client.messages.create(
+                            from_=self.sms_sender,
+                            to=recipient,
+                            body=body)
+                    except (TwilioRestException, TwilioException):
+                        if not fail_silently:
+                            raise
+                    else:
+                        status.update({recipient: message.sid})
+        return status
+
+    @property
+    def sms_sender(self):
+        try:
+            sender = settings.TWILIO_SENDER
+        except AttributeError:
+            sender = None
+        return sender
+
+    @property
+    def sms_recipients(self):
+        """Returns a list of recipients subscribed to receive SMS's
+        for this "notifications" class.
+
+        See also: edc_auth.UserProfile.
+        """
+        sms_recipients = []
+        UserProfile = django_apps.get_model('edc_auth.UserProfile')
+        for user_profile in UserProfile.objects.filter(
+                user__is_active=True, user__is_staff=True):
+            try:
+                user_profile.sms_notifications.get(name=self.name)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                if user_profile.mobile:
+                    sms_recipients.append(user_profile.mobile)
+        return sms_recipients
+
+    @property
+    def test_template_options(self):
+        return dict(subject_identifier='123456910', site_name='Gaborone')
+
+    def send_test_email(self, email_to):
         """Sends a test message to "email_to".
 
         For example:
@@ -170,19 +266,22 @@ class Notification:
             from edc_notification.notification import Notification
 
             notification = Notification()
-            notification.send_test_message('someone@example.com')
+            notification.send_test_email('someone@example.com')
         """
-        class Site:
-            domain = 'dummy.example.com'
-            name = 'dummy'
-            id = 99
+        self.notify(force_notify=True, test_message=True,
+                    email_to=[email_to],
+                    **self.test_template_options)
 
-        class DummyInstance:
-            subject_identifier = '123456910'
-            site = Site()
+    def send_test_sms(self, sms_recipient=None):
+        """Sends a test message to "email_to".
 
-        instance = DummyInstance()
-        original_email_to = self.email_to
-        self.email_to = [email_to]
-        self.notify(test=True, fake_callback=True, instance=instance)
-        self.email_to = original_email_to
+        For example:
+
+            from edc_notification.notification import Notification
+
+            notification = Notification()
+            notification.send_test_sms(sms_recipient='+123456789')
+        """
+        self.notify(force_notify=True, test_message=True,
+                    sms_recipient=sms_recipient,
+                    ** self.test_template_options)

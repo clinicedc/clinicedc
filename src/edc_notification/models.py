@@ -19,7 +19,7 @@ class Notification(BaseUuidModel):
     """
 
     name = models.CharField(
-        max_length=25,
+        max_length=255,
         unique=True)
 
     display_name = models.CharField(
@@ -32,7 +32,7 @@ class Notification(BaseUuidModel):
         return f'{self.display_name}'
 
     class Meta:
-        ordering = ('display_name', )
+        ordering = ('display_name',)
 
 
 if settings.APP_NAME == 'edc_notification' and 'makemigrations' not in sys.argv:

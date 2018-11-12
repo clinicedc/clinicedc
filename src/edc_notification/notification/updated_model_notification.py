@@ -5,11 +5,13 @@ class UpdatedModelNotification(ModelNotification):
 
     fields = ['modified']
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.changed_fields = {}
+    email_subject_template = (
+        '*UPDATE* {test_subject_line}{protocol_name}: '
+        '{display_name} '
+        'for {instance.subject_identifier}')
 
-    def callback(self, instance=None, **kwargs):
+    def notify_on_condition(self, instance=None, **kwargs):
+        changed_fields = {}
         if self.fields and instance.history.all().count() > 1:
             if instance._meta.label_lower == self.model:
                 changes = {}
@@ -26,5 +28,5 @@ class UpdatedModelNotification(ModelNotification):
                         pass
                     else:
                         if changed:
-                            self.changed_fields.update({field: values})
-        return self.changed_fields
+                            changed_fields.update({field: values})
+        return changed_fields

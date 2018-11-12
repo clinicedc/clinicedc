@@ -3,6 +3,8 @@ import sys
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from json.decoder import JSONDecodeError
+from pprint import pprint
 
 
 class EmailNotEnabledError(ValidationError):
@@ -11,11 +13,11 @@ class EmailNotEnabledError(ValidationError):
 
 class MailingListManager:
 
-    """A class to manager mailing lists, subscribe,
+    """A class to create (and update) mailing lists, subscribe,
     unsubscribe members, etc via the MAILGUN API.
 
     If this is a test / UAT, the mailing list names from settings
-    are automatically prefixed with `test-'.
+    are automatically prefixed with 'test'.
 
     """
 
@@ -23,16 +25,12 @@ class MailingListManager:
     api_url_attr = 'MAILGUN_API_URL'
     api_key_attr = 'MAILGUN_API_KEY'
 
-    def __init__(self, email_to=None, name=None, display_name=None, description=None):
+    def __init__(self, address=None, name=None, display_name=None):
         self._api_key = None
         self._api_url = None
-        self.email_enabled = settings.EMAIL_ENABLED
-        self.description = description
+        self.address = address
         self.display_name = display_name
-        try:
-            self.email_to = email_to[0]
-        except IndexError:
-            self.email_to = email_to
+        self.email_enabled = settings.EMAIL_ENABLED
         self.name = name
 
     @property
@@ -78,16 +76,21 @@ class MailingListManager:
         if not self.email_enabled:
             raise EmailNotEnabledError('See settings.EMAIL_ENABLED')
         response = requests.post(
-            f"{self.api_url}/{self.email_to}/members",
+            f"{self.api_url}/{self.address}/members",
             auth=('api', self.api_key),
             data={'subscribed': True,
                   'address': user.email,
                   'name': f'{user.first_name} {user.last_name}',
-                  'description': f'{user.userprofile.job_title or ""}'})
+                  'description': f'{user.userprofile.job_title or ""}',
+                  'upsert': 'yes'})
         if verbose:
             sys.stdout.write(
-                f'Subscribing user {user.username}. '
-                f'Got {response.status_code}: \"{response.json().get("message")}\"\n')
+                f'Subscribing {user.email} to {self.address}. '
+                f'Got response={response.status_code}.\n')
+            try:
+                pprint(response.json())
+            except JSONDecodeError:
+                pass
         return response
 
     def unsubscribe(self, user, verbose=None):
@@ -97,26 +100,39 @@ class MailingListManager:
         if not self.email_enabled:
             raise EmailNotEnabledError('See settings.EMAIL_ENABLED')
         response = requests.put(
-            f"{self.api_url}/{self.email_to}/members/{user.email}",
+            f"{self.api_url}/{self.address}/members/{user.email}",
             auth=('api', self.api_key),
             data={'subscribed': False})
         if verbose:
             sys.stdout.write(
-                f'Unsubscribing user {user.username}. '
-                f'Got {response.status_code}: \"{response.json().get("message")}\"\n')
+                f'Unsubscribing {user.email} from {self.address}. '
+                f'Got response={response.status_code}.\n')
+            try:
+                pprint(response.json())
+            except JSONDecodeError:
+                pass
         return response
 
-    def create(self):
+    def create(self, verbose=None):
         """Returns a response after attempting to create the list.
         """
         if not self.email_enabled:
             raise EmailNotEnabledError('See settings.EMAIL_ENABLED')
-        return requests.post(
+        response = requests.post(
             self.api_url,
             auth=('api', self.api_key),
-            data={'address': self.email_to,
+            data={'address': self.address,
                   'name': self.name,
-                  'description': self.description or self.display_name})
+                  'description': self.display_name})
+        if verbose:
+            sys.stdout.write(
+                f'Creating mailing list {self.address}. '
+                f'Got response={response.status_code}.\n')
+            try:
+                pprint(response.json())
+            except JSONDecodeError:
+                pass
+        return response
 
     def delete(self):
         """Returns a response after attempting to delete the list.
@@ -124,7 +140,7 @@ class MailingListManager:
         if not self.email_enabled:
             raise EmailNotEnabledError('See settings.EMAIL_ENABLED')
         return requests.delete(
-            f'{self.api_url}/{self.email_to}',
+            f'{self.api_url}/{self.address}',
             auth=('api', self.api_key))
 
     def delete_member(self, user):
@@ -134,5 +150,5 @@ class MailingListManager:
         if not self.email_enabled:
             raise EmailNotEnabledError('See settings.EMAIL_ENABLED')
         return requests.delete(
-            f"{self.api_url}/{self.email_to}/members/{user.email}",
+            f"{self.api_url}/{self.address}/members/{user.email}",
             auth=('api', self.api_key))
