@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django_crypto_fields.apps.AppConfig',
     'django_revision.apps.AppConfig',
     'edc_action_item.apps.AppConfig',
+    'edc_notification.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_registration.apps.AppConfig',
@@ -126,6 +127,8 @@ DASHBOARD_URL_NAMES = {
     'subject_dashboard_url': 'edc_subject_dashboard:subject_dashboard_url',
 }
 
+EMAIL_CONTACTS = {}
+EMAIL_ENABLED = False
 
 if 'test' in sys.argv:
 
