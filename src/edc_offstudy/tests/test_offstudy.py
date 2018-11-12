@@ -686,4 +686,4 @@ class TestOffstudy(TestCase):
             subject_identifier=self.subject_identifier).order_by('appt_datetime')]
         # note deletes appointments AFTER the date
         # see edc_appointment for setting
-        self.assertEqual(appointments, ['1000', '2000', '5000'])
+        self.assertEqual(appointments, ['1000', '2000'])
