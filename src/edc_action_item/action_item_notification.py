@@ -76,6 +76,13 @@ class ActionItemNotification(Notification):
         'notifications in your user profile.\n\n'
         '{test_body_line}'
         'Thanks.')
+    email_footer_template = (
+        '\n\n-----------------\n'
+        'To unsubscribe remove "{display_name}" from your chosen '
+        'email notifications in your user profile.\n\n'
+        '{name}\n'
+        '{notification_reason}:{instance.pk}\n'
+        '{message_datetime} (UTC)')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
