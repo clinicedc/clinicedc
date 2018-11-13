@@ -45,7 +45,7 @@ class Notification:
         'To unsubscribe remove "{display_name}" from your chosen '
         'email notifications in your user profile.\n\n'
         '{name}\n'
-        '{notification_reason}:{instance.pk}\n'
+        '{instance.pk}\n'
         '{message_datetime} (UTC)')
     email_test_body_line = 'THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n'
     email_test_subject_line = 'TEST/UAT -- '
@@ -103,7 +103,8 @@ class Notification:
         if force_notify or self._notify_on_condition(**kwargs):
             if use_email:
                 email_body_template = (
-                    email_body_template + self.email_footer_template)
+                    (email_body_template or self.email_body_template)
+                    + self.email_footer_template)
                 email_sent = self.send_email(
                     email_body_template=email_body_template, **kwargs)
             if use_sms:
@@ -163,7 +164,8 @@ class Notification:
 
         Extend using `extra_template_options`.
         """
-        protocol_name = django_apps.get_app_config('edc_protocol').protocol_name
+        protocol_name = django_apps.get_app_config(
+            'edc_protocol').protocol_name
         test_message = test_message or self.test_message
         template_options = dict(
             name=self.name,
