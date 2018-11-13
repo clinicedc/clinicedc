@@ -83,13 +83,13 @@ class RequiredFieldValidator(BaseFormValidator):
             condition = None
         else:
             condition = self.cleaned_data.get(field) is not None
-        if condition and not self.cleaned_data.get(field_required):
+        if condition and self.cleaned_data.get(field_required) is None:
             message = {
                 field_required: required_msg or 'This field is required.'}
             self._errors.update(message)
             self._error_codes.append(REQUIRED_ERROR)
             raise ValidationError(message, code=REQUIRED_ERROR)
-        elif (not condition and self.cleaned_data.get(field_required)
+        elif (not condition and self.cleaned_data.get(field_required) is not None
               and self.cleaned_data.get(field_required) != NOT_APPLICABLE):
             message = {
                 field_required: not_required_msg or 'This field is not required.'}
