@@ -10,10 +10,14 @@ class NavbarViewMixin(ContextMixin):
     navbar_name = None
 
     def get_context_data(self, **kwargs):
+        """Add rendered navbar <navbar_name> to the context for
+        this view.
+
+        Also adds the "default" navbar.
+        """
         context = super().get_context_data(**kwargs)
         app_config = django_apps.get_app_config('edc_navbar')
-        navbar = site_navbars.get_navbar(
-            name=self.navbar_name)
+        navbar = site_navbars.get_navbar(name=self.navbar_name)
         navbar.render(
             selected_item=self.navbar_selected_item,
             request=self.request)

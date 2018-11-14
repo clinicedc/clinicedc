@@ -15,19 +15,23 @@ if app_config.register_default_navbar:
         NavbarItem(name='home',
                    title='Home',
                    fa_icon='fas fa-home',
-                   url_name='home_url'))
+                   url_name='home_url',
+                   permission_codename=f'edc_navbar.nav_home',
+                   ))
 
     default_navbar.append_item(
         NavbarItem(name='administration',
                    title='Administration',
                    fa_icon='fas fa-cog',
-                   permission_codename=f'nav_administration',
+                   permission_codename=f'edc_navbar.nav_administration',
                    url_name='administration_url'))
 
     default_navbar.append_item(
         NavbarItem(name='logout',
                    title='Logout',
                    fa_icon='fas fa-sign-out-alt',
-                   url_name='logout'))
+                   url_name='logout',
+                   permission_codename=f'edc_navbar.nav_logout',
+                   ))
 
     site_navbars.register(default_navbar)

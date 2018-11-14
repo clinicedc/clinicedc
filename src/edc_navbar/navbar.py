@@ -22,7 +22,10 @@ class Navbar:
 
     def append_item(self, navbar_item=None):
         self.items.append(navbar_item)
-        if navbar_item.permission_codename:
+        if not navbar_item.permission_codename:
+            raise NavbarError(
+                f'Invalid permission_codename. Got None. See {repr(navbar_item)}.')
+        else:
             permission_codename_tuple = (
                 navbar_item.permission_codename,
                 f'Can access {" ".join(navbar_item.permission_codename.split("_"))}')
@@ -40,7 +43,19 @@ class Navbar:
                     f' Got {item.permission_codename}.')
             if not item.permission_codename or (
                     item.permission_codename
-                    and request.user.has_perm(f'edc_navbar.{item.permission_codename}')):
+                    and request.user.has_perm(item.permission_codename)):
                 self.rendered_items.append(item.render(
                     selected_item=selected_item,
                     request=request, **kwargs))
+
+    def show_user_permissions(self, user=None):
+        """Returns the permissions required to access this Navbar
+        and True if the given user has such permissions.
+        """
+        permissions = {}
+        for navbar_item in self.items:
+            has_perm = {}
+            has_perm.update(
+                {navbar_item.permission_codename: user.has_perm(navbar_item.permission_codename)})
+            permissions.update({navbar_item.name: has_perm})
+        return permissions
