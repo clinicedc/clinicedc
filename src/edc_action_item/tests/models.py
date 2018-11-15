@@ -8,7 +8,6 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
-from edc_notification.model_mixins import NotificationModelMixin
 
 from ..models import ActionModelMixin
 
