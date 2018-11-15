@@ -10,6 +10,7 @@ device.append_item(
                label='device',
                fa_icon='fa-calculator',
                no_url_namespace=no_url_namespace,
+               permission_codename=f'edc_navbar.nav_edc_device',
                url_name='edc_device:home_url'))
 
 site_navbars.register(device)
