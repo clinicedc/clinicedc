@@ -70,7 +70,7 @@ class AdministrationViewMixin(ContextMixin):
 
     @property
     def default_sections(self):
-        return {'Accounts, Sites and Logs': 'admin:index'}
+        return {'Accounts, Profiles, Sites and Logs': 'admin:index'}
 
     @property
     def sections(self):
