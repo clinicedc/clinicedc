@@ -48,6 +48,19 @@ class NavbarItem:
             self.reversed_url = '#'
         else:
             self.reversed_url = reverse(self.url_name)
+        if permission_codename:
+            try:
+                app_label, codename = permission_codename.split('.')
+            except ValueError:
+                app_label = 'edc_navbar'
+                codename = permission_codename
+            else:
+                if app_label != 'edc_navbar':
+                    raise NavbarItemError(
+                        f'Invalid navbar permission_codename. Expected app_label '
+                        f'to be \'edc_navbar\'. Got \'{permission_codename}\'')
+            finally:
+                permission_codename = f'{app_label}.{codename}'
         self.permission_codename = permission_codename
 
     def __repr__(self):
@@ -68,6 +81,9 @@ class NavbarItem:
 
     def render(self, request=None, **kwargs):
         """Render to string the template and context data.
+
+        If permission codename is specified, check the user
+        has permissions. If not return a disabled control.
         """
         context = self.get_context(**kwargs)
         if not self.permission_codename:
@@ -75,7 +91,7 @@ class NavbarItem:
         else:
             context.update(
                 has_navbar_item_permission=request.user.has_perm(
-                    f'edc_navbar.{self.permission_codename}'))
+                    self.permission_codename))
         return render_to_string(
             template_name=self.template_name,
             context=context)

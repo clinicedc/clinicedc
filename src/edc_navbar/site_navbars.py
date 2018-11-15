@@ -9,6 +9,10 @@ from importlib import import_module
 from .navbar import NavbarError
 
 
+class PermissionsCodenameError(Exception):
+    pass
+
+
 class AlreadyRegistered(Exception):
     pass
 
@@ -71,18 +75,44 @@ class NavbarCollection:
         return navbar
 
     def update_permission_codenames(self, verbose=None):
+        """Recreates auth.permission objects for the Navbar
+        models.
+        """
         from django.contrib.auth.models import Permission
         from django.contrib.contenttypes.models import ContentType
         from .models import Navbar
         write = str if verbose is False else sys.stdout.write
         content_type = ContentType.objects.get_for_model(Navbar)
         Permission.objects.filter(content_type=content_type).delete()
-        for codename, name in self.permission_codenames.values():
-            write(f'  - adding {codename} "{name}"\n')
+        for app_codename, name in self.permission_codenames.values():
+            try:
+                app_label, codename = app_codename.split('.')
+            except ValueError as e:
+                raise PermissionsCodenameError(
+                    f'Invalid Navbar codename. Expected format '
+                    f'\'edc_navbar.<some_codename>\'. Got {app_codename}. ({e})')
+            if app_label != 'edc_navbar':
+                raise PermissionsCodenameError(
+                    f'Invalid Navbar codename. Expected an app_label prefix of '
+                    f'\'edc_navbar\' as prefix. Got {app_codename}.')
+            write(f'  - adding {app_codename} "{name}" to Permissions.\n')
             Permission.objects.create(
                 codename=codename,
                 name=name,
                 content_type=content_type)
+
+    def show_user_permissions(self, username=None, navbar_name=None):
+        user = django_apps.get_model(
+            'auth.user').objects.get(username=username)
+        navbar = self.registry.get(navbar_name)
+        return navbar.show_user_permissions(user=user)
+
+    def show_user_codenames(self, username=None, navbar_name=None):
+        user_permissions = self.show_user_permissions(username, navbar_name)
+        codenames = []
+        for l in [list(v.keys()) for v in user_permissions.values()]:
+            codenames.extend(l)
+        return codenames
 
     def autodiscover(self, module_name=None, verbose=True):
         module_name = module_name or 'navbars'

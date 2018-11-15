@@ -18,12 +18,14 @@ class TestNavbar(TestCase):
             NavbarItem(name='navbar1',
                        title='Navbar1',
                        label='one',
+                       permission_codename='edc_navbar.navbar1',
                        url_name='navbar_one_url'))
 
         testnavbar.append_item(
             NavbarItem(name='navbar2',
                        title='Navbar2',
                        label='two',
+                       permission_codename='edc_navbar.navbar2',
                        url_name='navbar_two_url'))
         return testnavbar
 
