@@ -22,7 +22,7 @@ subjectconsent = Recipe(
     identity=seq('12315678'),
     # will raise IntegrityError if multiple made without _quantity
     confirm_identity=seq('12315678'),
-    identity_type='OMANG',
+    identity_type='passport',
     is_dob_estimated='-',
     language='en',
     is_literate=YES,

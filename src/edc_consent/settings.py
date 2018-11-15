@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'edc_action_item.apps.AppConfig',
     'edc_locator.apps.AppConfig',
     'edc_metadata.apps.AppConfig',
+    'edc_notification.apps.AppConfig',
     'edc_registration.apps.AppConfig',
     'edc_visit_schedule.apps.AppConfig',
     'edc_visit_tracking.apps.AppConfig',
@@ -138,6 +139,8 @@ DASHBOARD_URL_NAMES = {
 }
 
 EDC_BOOTSTRAP = 3
+EMAIL_ENABLED = False
+EMAIL_CONTACTS = {}
 
 if 'test' in sys.argv:
 
