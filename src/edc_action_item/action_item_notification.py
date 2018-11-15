@@ -52,7 +52,7 @@ class ActionItemNotification(Notification):
     email_subject_template = (
         '{updated_subject_line}{test_subject_line}{protocol_name}: '
         '{display_name} '
-        'for {instance.subject_identifier}')
+        'for {subject_identifier}')
     email_body_template_new = (
         '\n\nDo not reply to this email\n\n'
         '{test_body_line}'
@@ -81,7 +81,7 @@ class ActionItemNotification(Notification):
         'To unsubscribe remove "{display_name}" from your chosen '
         'email notifications in your user profile.\n\n'
         '{name}\n'
-        '{notification_reason}:{instance.pk}\n'
+        '{notification_reason}:{pk}\n'
         '{message_datetime} (UTC)')
 
     def __init__(self, **kwargs):
@@ -94,63 +94,72 @@ class ActionItemNotification(Notification):
         """
         notified = False
         instance = kwargs.get('instance')
-        action_name = self.get_action_name(instance)
-        if action_name == self.notification_action_name:
-            if instance._meta.label_lower == 'edc_action_item.actionitem':
-                action_item = kwargs.get('instance')
-                updated = False
-                reference_obj = self.get_reference_obj(action_item)
+        if instance._meta.label_lower == 'edc_action_item.actionitem':
+            try:
+                action_name = instance.action_type.name
+            except AttributeError:
+                pass
+            else:
+                if action_name == self.notification_action_name:
+                    action_item = kwargs.get('instance')
+                    updated = False
+                    reference_obj = self.get_reference_obj(action_item)
 
-                if (self.notify_on_new_and_no_reference_obj
-                        and action_item.status == NEW and not reference_obj):
-                    notify = NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ
-                elif (self.notify_on_new
-                        and action_item.status == NEW and reference_obj):
-                    notify = NOTIFY_ON_NEW
-                elif self.notify_on_open and action_item.status == OPEN and reference_obj:
-                    notify = NOTIFY_ON_OPEN
-                elif self.notify_on_closed and action_item.status == CLOSED and reference_obj:
-                    notify = NOTIFY_ON_CLOSE
-                elif (self.notify_on_changed_reference_obj
-                        and action_item.status != NEW and reference_obj):
-                    notify = NOTIFY_ON_CHANGED_REFERENCE_OBJ
-                    updated = True
-                else:
-                    notify = False
+                    if (self.notify_on_new_and_no_reference_obj
+                            and action_item.status == NEW and not reference_obj):
+                        notify = NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ
+                    elif (self.notify_on_new
+                            and action_item.status == NEW and reference_obj):
+                        notify = NOTIFY_ON_NEW
+                    elif self.notify_on_open and action_item.status == OPEN and reference_obj:
+                        notify = NOTIFY_ON_OPEN
+                    elif self.notify_on_closed and action_item.status == CLOSED and reference_obj:
+                        notify = NOTIFY_ON_CLOSE
+                    elif (self.notify_on_changed_reference_obj
+                            and action_item.status != NEW and reference_obj):
+                        notify = NOTIFY_ON_CHANGED_REFERENCE_OBJ
+                        updated = True
+                    else:
+                        notify = False
 
-                kwargs.update(updated=updated)
-                kwargs.update(instance=reference_obj)
+                    kwargs.update(updated=updated)
+                    kwargs.update(instance=reference_obj)
+                    kwargs.update(action_item=action_item)
 
-                if notify:
-                    try:
-                        parent_reference_verbose_name = (
-                            action_item.parent_action_item.reference_obj._meta.verbose_name)
-                    except AttributeError:
-                        parent_reference_verbose_name = (
-                            action_item.reference_model_cls()._meta.verbose_name)
-                    email_body_template = (
-                        self.email_body_template_update
-                        if updated else self.email_body_template_new)
-                    kwargs.update(
-                        notification_reason=notify,
-                        updated=updated,
-                        parent_reference_verbose_name=parent_reference_verbose_name)
-                    notified = super().notify(
-                        force_notify=force_notify,
-                        use_email=use_email,
-                        use_sms=use_sms,
-                        email_body_template=email_body_template,
-                        **kwargs)
+                    if notify:
+                        try:
+                            parent_reference_verbose_name = (
+                                action_item.parent_action_item.reference_obj._meta.verbose_name)
+                        except AttributeError:
+                            parent_reference_verbose_name = (
+                                action_item.reference_model_cls()._meta.verbose_name)
+                        email_body_template = (
+                            self.email_body_template_update
+                            if updated else self.email_body_template_new)
+                        kwargs.update(
+                            notification_reason=notify,
+                            updated=updated,
+                            parent_reference_verbose_name=parent_reference_verbose_name,
+                            subject_identifier=action_item.subject_identifier,
+                            site_name=action_item.site.name,
+                            pk=action_item.pk)
+                        notified = super().notify(
+                            force_notify=force_notify,
+                            use_email=use_email,
+                            use_sms=use_sms,
+                            email_body_template=email_body_template,
+                            **kwargs)
         return notified
 
     def notify_on_condition(self, **kwargs):
         notify_on_condition = False
-        instance = kwargs.get('instance')
         updated = kwargs.get('updated')
-        try:
-            emailed = instance.action_item.emailed
-        except AttributeError:
-            emailed = instance.emailed
+        reference_obj = kwargs.get('instance')
+        action_item = kwargs.get('action_item')
+        if not reference_obj:
+            emailed = action_item.emailed
+        else:
+            emailed = reference_obj.action_item.emailed
         if not emailed and not updated:
             self.updated_subject_line = ''
             self.updated_body_line = 'A report'
@@ -175,7 +184,7 @@ class ActionItemNotification(Notification):
             action_name = instance.action_item.action_cls.name
         except AttributeError:
             try:
-                action_name = instance.get_action_cls().name
+                action_name = instance.action_type.name
             except AttributeError:
                 action_name = None
         return action_name
@@ -190,11 +199,7 @@ class ActionItemNotification(Notification):
     def post_notification_actions(self, email_sent=None, **kwargs):
         """Record the datetime of first email sent.
         """
-        instance = kwargs.get('instance')
-        try:
-            action_item = instance.action_item
-        except (AttributeError, ObjectDoesNotExist):
-            action_item = instance
+        action_item = kwargs.get('action_item')
         if email_sent and not action_item.emailed:
             action_item.emailed = True
             action_item.emailed_datetime = get_utcnow()
