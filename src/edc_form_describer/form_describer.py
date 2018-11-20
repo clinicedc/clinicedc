@@ -118,12 +118,12 @@ class FormDescriber:
             self.markdown.append(
                 f'*Additional instructions*: {self.admin_cls.additional_instructions}\n')
 
-        for fieldset_name, fields in self.fieldsets:
+        for fieldset_name, fieldset in self.fieldsets:
             if fieldset_name not in ['Audit']:
                 fieldset_name = fieldset_name or 'Main'
                 self.markdown.append(f'\n**Section: {fieldset_name}**')
-                for fnames in fields.values():
-                    for fname in fnames:
+                if fieldset.get('classes') != 'collapse':
+                    for fname in fieldset.get('fields'):
                         if fname not in DEFAULT_BASE_FIELDS:
                             number = self.get_next_number(number, fname)
                             self.add_field(fname=fname, number=number)

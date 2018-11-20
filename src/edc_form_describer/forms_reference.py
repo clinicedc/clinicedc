@@ -9,6 +9,10 @@ from .markdown_writer import MarkdownWriter
 
 class FormsReference:
 
+    """
+
+    """
+
     describer_cls = FormDescriber
     markdown_writer_cls = MarkdownWriter
     anchor_prefix = 'user-content'
@@ -79,7 +83,6 @@ class FormsReference:
                         f'\n<a href="#{self.anchor_prefix}-{visit_code.lower()}">'
                         f'**{visit_code}.**</a>')
                     for index, model in enumerate(documents.get('crfs')):
-                        sys.stdout.write(f'{model}\n')
                         model_cls = django_apps.get_model(model)
                         admin_cls = self.admin_site._registry.get(model_cls)
                         describer = self.describer_cls(
