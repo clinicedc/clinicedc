@@ -24,8 +24,8 @@ class ValueGetter:
         * lookups: a dictionary of {field_name: lookup, ...} where
             lookup is a django-style lookup string
             e.g. 'subject_visit__appointment__visit_code'.
-        * encrypt: replaces encrypted values with `encrypted_label`.
-            (Default: True). If False will decrypt the value.
+        * decrypt: If False, replaces encrypted values with `encrypted_label`.
+            (Default: False). If True will show the value.
         * additional_values: a class to provide additional attrs
             to get if field_name is not on the model_obj and
             not a lookup.
@@ -35,14 +35,14 @@ class ValueGetter:
     m2m_delimiter = ';'
 
     def __init__(self, field_name=None, model_obj=None,
-                 lookups=None, encrypt=None, additional_values=None):
+                 lookups=None, decrypt=None, additional_values=None):
         self._value = None
         self.additional_values = additional_values
+        self.decrypt = decrypt
         self.field_name = field_name
-        self.model_obj = model_obj
         self.lookups = lookups or {}
+        self.model_obj = model_obj
         self.model_cls = self.model_obj.__class__
-        self.encrypt = True if encrypt is None else encrypt
 
     @property
     def value(self):
@@ -69,7 +69,7 @@ class ValueGetter:
         value = ''
         for f in model_obj.__class__._meta.fields:
             if (f.name == field_name and issubclass(f.__class__, BaseEncryptedField)
-                    and self.encrypt):
+                    and not self.decrypt):
                 value = self.encrypted_label
         if value != self.encrypted_label:
             try:

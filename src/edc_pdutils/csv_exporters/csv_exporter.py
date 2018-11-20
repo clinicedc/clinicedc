@@ -31,12 +31,12 @@ class Exported:
 
 class CsvExporter:
 
+    date_format = None
     delimiter = '|'
     encoding = 'utf-8'
     export_folder = None
-    index = False
     file_exists_ok = False
-    date_format = None
+    index = False
     sort_by = None
 
     def __init__(self, data_label=None, sort_by=None, export_folder=None,
@@ -48,6 +48,8 @@ class CsvExporter:
         self.sort_by = sort_by or self.sort_by
         self.export_folder = export_folder or self.export_folder
         self.verbose = verbose
+        if not self.export_folder:
+            raise CsvExporterExportFolder('Invalid export folder. Got None')
         if not os.path.exists(self.export_folder):
             raise CsvExporterExportFolder(
                 f'Invalid export folder. Got {self.export_folder}')

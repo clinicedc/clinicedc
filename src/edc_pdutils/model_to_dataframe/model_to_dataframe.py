@@ -4,10 +4,10 @@ import sys
 
 from copy import copy
 from django.apps import apps as django_apps
+from django.core.exceptions import FieldError
 from django.db.models.constants import LOOKUP_SEP
 
 from .value_getter import ValueGetter
-from django.core.exceptions import FieldError
 
 
 class ModelToDataframe:
@@ -115,7 +115,8 @@ class ModelToDataframe:
         value_getter = self.value_getter_cls(
             field_name=column_name,
             model_obj=model_obj,
-            lookups=lookups)
+            lookups=lookups,
+            decrypt=self.decrypt)
         return value_getter.value
 
     @property
