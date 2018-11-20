@@ -39,7 +39,7 @@ class Fieldsets:
         """
         try:
             fieldsets[0]
-        except IndexError:
+        except TypeError:
             fieldsets = [fieldsets]
         for fieldset in fieldsets:
             section = fieldset.fieldset[0]
