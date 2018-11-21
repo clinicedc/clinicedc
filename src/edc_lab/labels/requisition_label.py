@@ -1,3 +1,5 @@
+import pytz
+
 from arrow.arrow import Arrow
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -29,10 +31,10 @@ class RequisitionLabel(Label):
     @property
     def label_context(self):
         edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
-        utc = Arrow.fromdatetime(
-            self.requisition.drawn_datetime or self.requisition.created)
-        dte = utc.to(settings.TIME_ZONE).datetime
-        formatted_date = dte.strftime("%Y-%m-%d %H:%M")
+        tz = pytz.timezone(settings.TIME_ZONE)
+        local = Arrow.fromdatetime(
+            self.requisition.drawn_datetime or self.requisition.created).to(tz)
+        formatted_date = local.format('YYYY-MM-DD HH:mm')
         printed = 'PRINTED: ' if not self.requisition.drawn_datetime else 'DRAWN: '
         return {
             'requisition_identifier': self.requisition.requisition_identifier,

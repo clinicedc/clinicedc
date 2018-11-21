@@ -1,10 +1,6 @@
-import pytz
-
-from arrow import Arrow
 from django import forms
 from django.apps import apps as django_apps
-from django.conf import settings
-from edc_base.utils import convert_php_dateformat
+from edc_base import formatted_datetime, to_utc
 from edc_constants.constants import YES, NO
 from edc_form_validators import FormValidator
 
@@ -55,28 +51,22 @@ class RequisitionFormValidator(FormValidator):
 
     def validate_assay_datetime(self, assay_datetime, requisition, field):
         if assay_datetime:
-            assay_datetime = Arrow.fromdatetime(
-                assay_datetime, assay_datetime.tzinfo).to('utc').datetime
-            if assay_datetime < requisition.requisition_datetime:
-                tz = pytz.timezone(settings.TIME_ZONE)
-                formatted_date = Arrow.fromdatetime(
-                    requisition.requisition_datetime).to(tz).strftime(
-                        convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
+            assay_datetime = to_utc(assay_datetime)
+            requisition_datetime = to_utc(requisition.requisition_datetime)
+            if assay_datetime < requisition_datetime:
                 raise forms.ValidationError({
-                    field: (f'Invalid. Cannot be before date of '
-                            f'requisition {formatted_date}.')})
+                    field: (
+                        f'Invalid. Cannot be before date of requisition '
+                        f'{formatted_datetime(requisition_datetime)}.')})
 
     def validate_requisition_datetime(self):
         requisition_datetime = self.cleaned_data.get('requisition_datetime')
         subject_visit = self.cleaned_data.get('subject_visit')
         if requisition_datetime:
-            requisition_datetime = Arrow.fromdatetime(
-                requisition_datetime, requisition_datetime.tzinfo).to('utc').datetime
-            if requisition_datetime < subject_visit.report_datetime:
-                tz = pytz.timezone(settings.TIME_ZONE)
-                formatted_date = Arrow.fromdatetime(
-                    subject_visit.report_datetime).to(tz).strftime(
-                        convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
+            report_datetime = to_utc(subject_visit.report_datetime)
+            requisition_datetime = to_utc(requisition_datetime)
+            if requisition_datetime < report_datetime:
                 raise forms.ValidationError({
                     'requisition_datetime':
-                    f'Invalid. Cannot be before date of visit {formatted_date}.'})
+                    f'Invalid. Cannot be before date of visit '
+                    f'{formatted_datetime(report_datetime)}.'})
