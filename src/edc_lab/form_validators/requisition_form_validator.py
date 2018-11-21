@@ -1,5 +1,6 @@
+import pytz
+
 from arrow import Arrow
-from datetime import timezone
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -57,11 +58,13 @@ class RequisitionFormValidator(FormValidator):
             assay_datetime = Arrow.fromdatetime(
                 assay_datetime, assay_datetime.tzinfo).to('utc').datetime
             if assay_datetime < requisition.requisition_datetime:
-                formatted = timezone.localtime(requisition.requisition_datetime).strftime(
-                    convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
+                tz = pytz.timezone(settings.TIME_ZONE)
+                formatted_date = Arrow.fromdatetime(
+                    requisition.requisition_datetime).to(tz).strftime(
+                        convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
                 raise forms.ValidationError({
                     field: (f'Invalid. Cannot be before date of '
-                            f'requisition {formatted}.')})
+                            f'requisition {formatted_date}.')})
 
     def validate_requisition_datetime(self):
         requisition_datetime = self.cleaned_data.get('requisition_datetime')
@@ -70,8 +73,10 @@ class RequisitionFormValidator(FormValidator):
             requisition_datetime = Arrow.fromdatetime(
                 requisition_datetime, requisition_datetime.tzinfo).to('utc').datetime
             if requisition_datetime < subject_visit.report_datetime:
-                formatted = timezone.localtime(subject_visit.report_datetime).strftime(
-                    convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
+                tz = pytz.timezone(settings.TIME_ZONE)
+                formatted_date = Arrow.fromdatetime(
+                    subject_visit.report_datetime).to(tz).strftime(
+                        convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
                 raise forms.ValidationError({
                     'requisition_datetime':
-                    f'Invalid. Cannot be before date of visit {formatted}.'})
+                    f'Invalid. Cannot be before date of visit {formatted_date}.'})

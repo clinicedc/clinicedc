@@ -3,6 +3,7 @@ from django import forms
 from django.conf import settings
 from django.utils import timezone
 from edc_base import convert_php_dateformat
+import pytz
 
 
 class CrfRequisitionFormValidatorMixin:
@@ -46,8 +47,10 @@ class CrfRequisitionFormValidatorMixin:
             assay_datetime = Arrow.fromdatetime(
                 assay_datetime, assay_datetime.tzinfo).to('utc').datetime
             if assay_datetime < requisition.requisition_datetime:
-                formatted = timezone.localtime(requisition.requisition_datetime).strftime(
-                    convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
+                tz = pytz.timezone(settings.TIME_ZONE)
+                formatted_date = Arrow.fromdatetime(
+                    requisition.requisition_datetime).to(tz).strftime(
+                        convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
                 raise forms.ValidationError({
                     assay_datetime_field: (f'Invalid. Cannot be before date of '
-                                           f'requisition {formatted}.')})
+                                           f'requisition {formatted_date}.')})

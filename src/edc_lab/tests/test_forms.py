@@ -10,6 +10,8 @@ from ..forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
 from ..models import Aliquot
 from .models import SubjectRequisition, SimpleSubjectVisit as SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
+from pprint import pprint
+from datetime import timedelta
 
 
 class TestForms(TestCase):
@@ -78,6 +80,7 @@ class TestForms(TestCase):
         self.assertNotIn('category_other', list(form.errors.keys()))
 
     def test_requisition_form_reason(self):
+
         class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
 
             form_validator_cls = RequisitionFormValidator
@@ -101,8 +104,8 @@ class TestForms(TestCase):
         self.assertNotIn('drawn_datetime', list(form.errors.keys()))
         self.assertNotIn('item_type', list(form.errors.keys()))
 
-    @tag('1')
-    def test_requisition_form_drawn(self):
+    def test_requisition_form_drawn_not_drawn(self):
+
         class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
 
             form_validator_cls = RequisitionFormValidator
@@ -130,13 +133,6 @@ class TestForms(TestCase):
         data = {
             'is_drawn': NO,
             'drawn_datetime': None}
-        form = RequisitionForm(data=data)
-        form.is_valid()
-        self.assertIsNone(form.errors.get('drawn_datetime'))
-
-        data = {
-            'is_drawn': YES,
-            'drawn_datetime': get_utcnow()}
         form = RequisitionForm(data=data)
         form.is_valid()
         self.assertIsNone(form.errors.get('drawn_datetime'))
@@ -232,3 +228,25 @@ class TestForms2(TestCase):
         form.is_valid()
         self.assertIn('Requisition may not be changed',
                       ''.join(form.errors.get('__all__')))
+
+    @tag('1')
+    def test_requisition_form_dates(self):
+
+        class RequisitionForm(RequisitionFormMixin, FormValidatorMixin, forms.ModelForm):
+
+            form_validator_cls = RequisitionFormValidator
+
+            class Meta:
+                fields = '__all__'
+                model = SubjectRequisition
+
+        data = {
+            'is_drawn': YES,
+            'drawn_datetime': self.subject_visit.report_datetime,
+            'requisition_datetime': self.subject_visit.report_datetime - timedelta(days=3),
+            'subject_visit': self.subject_visit.pk}
+        form = RequisitionForm(data=data)
+        form.is_valid()
+        print(form.is_valid())
+        self.assertIn('Cannot be before date of visit',
+                      form.errors.get('requisition_datetime')[0])
