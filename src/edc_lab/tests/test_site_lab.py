@@ -87,6 +87,7 @@ class TestSiteLab2(TestCase):
         pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
         self.assertTrue(pattern.match(requisition.requisition_identifier))
 
+    @tag('1')
     def test_requisition_identifier3(self):
         """Asserts requisition identifier is NOT set on requisition
         if specimen not drawn.
@@ -97,7 +98,10 @@ class TestSiteLab2(TestCase):
             panel=self.panel.panel_model_obj,
             is_drawn=NO,
             reason_not_drawn=NOT_APPLICABLE)
-        pattern = re.compile('[0-9]{2}[A-Z0-9]{5}')
+        # is never None, even if not drawn.
+        self.assertIsNotNone(requisition.requisition_identifier)
+        # if not drawn, format is not UUID
+        pattern = re.compile('^[0-9]{2}[A-Z0-9]{5}$')
         self.assertFalse(pattern.match(requisition.requisition_identifier))
 
     def test_requisition_identifier5(self):
