@@ -26,7 +26,6 @@ class TestActionNotification(TestCase):
     def tearDown(self):
         ActionItem.subject_identifier_model = self.subject_identifier_model
 
-    @tag('4')
     def test_sends_correct_number_of_emails(self):
 
         self.assertIn(FormZeroAction, site_action_items.registry.values())
@@ -94,14 +93,12 @@ class TestActionNotification(TestCase):
                 self.assertTrue(issubclass(
                     v, NewModelNotification), msg=v.name)
 
-    @tag('1')
     def test_action_sends_notification_on_new(self):
         FormZero.objects.create(
             subject_identifier=self.subject_identifier)
         self.assertEqual(len(mail.outbox), 1)
         self.assertNotIn('*UPDATE*', mail.outbox[0].subject)
 
-    @tag('1')
     def test_action_sends_notification_does_not_duplicate_send(self):
         form_zero = FormZero.objects.create(
             subject_identifier=self.subject_identifier)
@@ -109,7 +106,6 @@ class TestActionNotification(TestCase):
         form_zero.save()
         self.assertEqual(len(mail.outbox), 1)
 
-    @tag('1')
     def test_action_sends_another_notification_on_update(self):
         form_zero = FormZero.objects.create(
             f1=1, subject_identifier=self.subject_identifier)
@@ -121,7 +117,6 @@ class TestActionNotification(TestCase):
         self.assertEqual(len(mail.outbox), 2)
         self.assertIn('*UPDATE*', mail.outbox[1].subject)
 
-    @tag('2')
     def test_notification_updates_the_actions_model_as_emailed(self):
         form_zero = FormZero.objects.create(
             subject_identifier=self.subject_identifier)
@@ -129,7 +124,6 @@ class TestActionNotification(TestCase):
         self.assertTrue(form_zero.action_item.emailed)
         self.assertIsNotNone(form_zero.action_item.emailed_datetime)
 
-    @tag('2')
     def test_action_sends_as_test_email(self):
         FormZero.objects.create(
             subject_identifier=self.subject_identifier)
@@ -137,7 +131,6 @@ class TestActionNotification(TestCase):
         self.assertIn('TEST/UAT', mail.outbox[0].subject)
         self.assertIn('THIS IS A TEST MESSAGE', mail.outbox[0].body)
 
-    @tag('1')
     def test_action_sends_as_test_email_with_update(self):
         form_zero = FormZero.objects.create(
             f1=1, subject_identifier=self.subject_identifier)

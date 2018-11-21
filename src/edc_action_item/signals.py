@@ -7,6 +7,7 @@ from simple_history.signals import post_create_historical_record
 
 from .models import ActionItem
 from .site_action_items import site_action_items
+from edc_action_item.models.action_model_mixin import ActionModelMixin
 
 
 @receiver(post_save, weak=False,
@@ -21,11 +22,13 @@ def update_or_create_action_item_on_post_save(sender, instance, raw,
     """
     if not raw and not update_fields:
         try:
+            instance.action_name
             instance.action_item
         except AttributeError:
             pass
         else:
-            if 'historical' not in instance._meta.label_lower:
+            if ('historical' not in instance._meta.label_lower
+                    and isinstance(instance, ActionModelMixin)):
                 action_item = None
                 action_cls = site_action_items.get(instance.action_name)
                 if not instance.action_item:

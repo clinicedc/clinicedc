@@ -14,7 +14,7 @@ LIVE_SYSTEM = False
 # .env
 env = environ.Env(
     DJANGO_EDC_BOOTSTRAP=(int, 3),
-    DJANGO_EMAIL_ENABLED=(bool, True),
+    DJANGO_EMAIL_ENABLED=(bool, False),
     TWILIO_ENABLED=(bool, False),
 )
 
@@ -181,7 +181,7 @@ if EMAIL_ENABLED:
 EMAIL_CONTACTS = {'data_manager': 'data_manager@clinicedc.org'}
 # if ENVFILE != '.env':
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-TWILIO_ENABLED = env.str('TWILIO_ENABLED')
+TWILIO_ENABLED = env('TWILIO_ENABLED')
 TWILIO_ACCOUNT_SID = env.str('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = env.str('TWILIO_AUTH_TOKEN')
 TWILIO_SENDER = env.str('TWILIO_SENDER')
