@@ -45,7 +45,7 @@ class Notification:
         'To unsubscribe remove "{display_name}" from your chosen '
         'email notifications in your user profile.\n\n'
         '{name}\n'
-        '{instance.pk}\n'
+        '{message_reference}\n'
         '{message_datetime} (UTC)')
     email_test_body_line = 'THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n'
     email_test_subject_line = 'TEST/UAT -- '
@@ -176,7 +176,8 @@ class Notification:
                 self.email_test_subject_line if test_message else '').strip(),
             test_body_line=self.email_test_body_line if test_message else '',
             test_line=self.sms_test_line if test_message else '',
-            message_datetime=get_utcnow())
+            message_datetime=get_utcnow(),
+            message_reference='')
         if 'subject_identifier' not in template_options:
             try:
                 template_options.update(
