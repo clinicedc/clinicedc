@@ -60,6 +60,12 @@ class ModelNotification(Notification):
                     use_sms=use_sms, **kwargs)
         return notified
 
+    def get_template_options(self, instance=None, test_message=None, **kwargs):
+        opts = super().get_template_options(
+            instance=instance, test_message=test_message, **kwargs)
+        opts.update(message_reference=instance.pk)
+        return opts
+
     @property
     def test_template_options(self):
 

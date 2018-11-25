@@ -118,10 +118,14 @@ class SiteNotifications:
                             display_name=notification_cls().display_name,
                             enabled=True)
                     except IntegrityError as e:
+                        persisted = [
+                            (x.name, x.display_name)
+                            for x in Notification.objects.all().order_by(
+                                'display_name')]
                         raise IntegrityError(
                             f'{e} Got name=\'{name}\', '
                             f'display_name=\'{notification_cls().display_name}\'. '
-                            f'{[(x.name, x.display_name) for x in Notification.objects.all().order_by("display_name")]}')  # no qa
+                            f'Persisted notifications are {persisted}')
                 else:
                     obj.display_name = notification_cls().display_name
                     obj.enabled = True
