@@ -19,15 +19,19 @@ class PreloadData:
         self.list_data = list_data or {}
         self.model_data = model_data or {}
         self.unique_field_data = unique_field_data or {}
+
         self.load_list_data()
-        self.load_model_data()
-        self.update_unique_field_data()
+
+        if self.model_data:
+            self.load_model_data()
+        if self.unique_field_data:
+            self.update_unique_field_data()
 
     def load_list_data(self):
         """Loads data into a list model.
 
         List models have short_name, name where short_name
-        is the unique field.
+        is the unique field / stored field.
 
         Format:
             {model_name1: [(short_name1, name),
@@ -39,19 +43,23 @@ class PreloadData:
         for model_name in self.list_data.keys():
             try:
                 model = django_apps.get_model(model_name)
-                for data in self.list_data.get(model_name):
-                    short_name, display_value = data
+                display_index = 0
+                for display_index, value in enumerate(self.list_data.get(model_name)):
+                    store_value, display_value = value
                     try:
-                        obj = model.objects.get(short_name=short_name)
+                        obj = model.objects.get(short_name=store_value)
                     except ObjectDoesNotExist:
                         model.objects.create(
-                            short_name=short_name, name=display_value)
+                            short_name=store_value,
+                            name=display_value,
+                            display_index=display_index)
                     else:
                         obj.name = display_value
+                        obj.display_index = display_index
                         obj.save()
-            except Exception as e:
-                raise PreloadDataError(e)
-                # sys.stdout.write(style.ERROR(str(e) + '\n'))
+            except ValueError as e:
+                raise PreloadDataError(
+                    f'{e} See {self.list_data.get(model_name)}.')
 
     def load_model_data(self):
         """Loads data into a model, creates or updates existing.
