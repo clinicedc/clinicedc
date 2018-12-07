@@ -17,6 +17,8 @@ class CustomLabelCondition:
 
     def check(self):
         """Override with custom logic.
+
+        If True, form label will be customized. See`FormLabel`.
         """
         return None
 
@@ -39,6 +41,8 @@ class CustomLabelCondition:
     @property
     def previous_visit(self):
         """Returns the previous visit for this request or None.
+
+        Requires attr `visit_model_cls`.
         """
         previous_visit = None
         if self.appointment:
@@ -59,7 +63,7 @@ class CustomLabelCondition:
         """Returns a model obj that is the first occurrence of a previous
         obj relative to this object's appointment.
 
-        Override this method if not a subject model / CRF.
+        Override this method if not am EDC subject model / CRF.
         """
         previous_obj = None
         if self.previous_visit:

@@ -5,7 +5,7 @@ class FormLabelModelAdminMixin:
 
     """A class that helps modify fieldsets for subject models
 
-    * Model is expected to have a relation to have subject_visit__appointment.
+    * Model is expected to have a relation `subject_visit__appointment`.
     * Expects appointment to be in GET
     """
 
