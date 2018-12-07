@@ -13,6 +13,8 @@ def notification_on_post_create_historical_record(
         history_change_reason, **kwargs):
     """Checks and processes any notifications for this model.
 
+    Processes if `label_lower` is in site_notifications.models.
+
     Note, this is the post_create of the historical model.
     """
     if site_notifications.loaded and instance._meta.label_lower in site_notifications.models:

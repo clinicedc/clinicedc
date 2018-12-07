@@ -384,7 +384,6 @@ class TestNotification(TestCase):
         G3EventNotification().send_test_sms(
             sms_recipient=settings.TWILIO_TEST_RECIPIENT)
 
-    @tag('1')
     def test_graded_event_grade3_as_test_sms_message_to_subscribed_user(self):
 
         user = User.objects.create(
