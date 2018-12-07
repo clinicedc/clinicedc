@@ -9,6 +9,7 @@ from django.db.utils import IntegrityError
 from django.utils.module_loading import import_module, module_has_submodule
 from json.decoder import JSONDecodeError
 from requests.exceptions import ConnectionError
+
 from .mailing_list_manager import MailingListManager
 
 style = color_style()
@@ -75,8 +76,8 @@ class SiteNotifications:
                     f'Notification {notification_cls.name} is already registered.')
 
     def notify(self, instance=None, **kwargs):
-        """A wrapper to call notify for each notification associated
-        with the given model instance.
+        """A wrapper to call notification.notify for each notification
+        class associated with the given model instance.
 
         Returns a dictionary of {notification.name: model, ...}
         including only notifications sent.
