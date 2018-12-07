@@ -131,3 +131,41 @@ class ManyToManyFieldValidator(BaseFormValidator):
             self._error_codes.append(NOT_APPLICABLE_ERROR)
             raise ValidationError(message, code=NOT_APPLICABLE_ERROR)
         return False
+
+    def m2m_selection_expected(self, response, m2m_field=None, error_msg=None):
+        """Raises an exception or returns False.
+
+        m2m_field is required and the selection must be `response`
+        and only `response`.
+        """
+        qs = self.cleaned_data.get(m2m_field)
+        if qs and qs.count() > 0:
+            selection = [
+                obj.short_name for obj in qs if obj.short_name == response]
+            if not selection or qs.count() > 1:
+                message = {
+                    m2m_field: error_msg or f'Expected {response} only.'}
+                self._errors.update(message)
+                self._error_codes.append(NOT_APPLICABLE_ERROR)
+                raise ValidationError(message, code=NOT_APPLICABLE_ERROR)
+        return False
+
+    def m2m_selections_not_expected(self, *responses, m2m_field=None, error_msg=None):
+        """Raises an exception or returns False.
+
+        m2m_field is required but no selections may be in `responses`.
+        """
+        qs = self.cleaned_data.get(m2m_field)
+        if qs and qs.count() > 0:
+            selections = [
+                obj.short_name for obj in qs if obj.short_name in responses]
+            if selections:
+                display_names = ', '.join([
+                    obj.name for obj in qs if obj.short_name in responses])
+                message = {
+                    m2m_field: error_msg or (f'Invalid selection. '
+                                             f'Cannot be any of: {display_names}.')}
+                self._errors.update(message)
+                self._error_codes.append(NOT_APPLICABLE_ERROR)
+                raise ValidationError(message, code=NOT_APPLICABLE_ERROR)
+        return False
