@@ -3,9 +3,9 @@ from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields.encrypted_char_field import EncryptedCharField
 from edc_appointment.models import Appointment
 from edc_base.model_mixins import BaseUuidModel
-from edc_base.model_mixins.list_model_mixin import ListModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES
+from edc_list_data.model_mixins import ListModelMixin
 
 
 class SubjectVisit(BaseUuidModel):
