@@ -176,7 +176,7 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
         return (self.subject_identifier_as_pk, )
 
     def __str__(self):
-        return self.mask_subject_identifier()
+        return self.masked_subject_identifier
     natural_key.dependencies = ['sites.Site']
 
     def update_subject_identifier_on_save(self):
@@ -191,12 +191,20 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
     def make_new_identifier(self):
         return self.subject_identifier_as_pk.hex
 
-    def mask_subject_identifier(self):
-        if not self.subject_identifier_is_set():
+    @property
+    def masked_subject_identifier(self):
+        """Returns the subject identifier, if set, otherwise
+        the string '<identifier not set>'.
+        """
+        if not self.subject_identifier_is_set:
             return '<identifier not set>'
         return self.subject_identifier
 
+    @property
     def subject_identifier_is_set(self):
+        """Returns True if subject identifier has been set to a
+        subject identifier; that is, no longer the default UUID.
+        """
         obj = self.__class__.objects.get(pk=self.id)
         if re.match(UUID_PATTERN, obj.subject_identifier):
             return False
@@ -207,7 +215,7 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
         the subject identifier for an existing instance if the subject
         identifier is already set.
         """
-        if self.id and self.subject_identifier_is_set():
+        if self.id and self.subject_identifier_is_set:
             with transaction.atomic():
                 obj = self.__class__.objects.get(pk=self.id)
                 if obj.subject_identifier != self.subject_identifier_as_pk.hex:
@@ -233,7 +241,7 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
                     if not self.id:
                         raise RegisteredSubjectError(
                             error_msg.format(action='insert'))
-                    elif self.subject_identifier_is_set() and obj.id != self.id:
+                    elif self.subject_identifier_is_set and obj.id != self.id:
                         raise RegisteredSubjectError(
                             error_msg.format(action='update'))
                     else:

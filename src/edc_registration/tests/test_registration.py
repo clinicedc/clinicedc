@@ -92,7 +92,7 @@ class TestRegistration(SiteTestCaseMixin, TestCase):
             screening_identifier='12345')
         rs = RegisteredSubject.objects.get(
             registration_identifier=obj.to_string(obj.registration_identifier))
-        self.assertFalse(rs.subject_identifier_is_set())
+        self.assertFalse(rs.subject_identifier_is_set)
 
     def test_masks_if_not_set(self):
         obj = SubjectModelOne.objects.create(
