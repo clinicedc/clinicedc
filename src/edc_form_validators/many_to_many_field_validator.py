@@ -6,6 +6,10 @@ from .base_form_validator import NOT_APPLICABLE_ERROR, APPLICABLE_ERROR
 from .base_form_validator import NOT_REQUIRED_ERROR, REQUIRED_ERROR, INVALID_ERROR
 
 
+M2M_SELECTION_ONLY = 'm2m_selection_only'
+M2M_INVALID_SELECTION = 'm2m_invalid_selection'
+
+
 class ManyToManyFieldValidator(BaseFormValidator):
 
     def m2m_required(self, m2m_field=None):
@@ -146,8 +150,8 @@ class ManyToManyFieldValidator(BaseFormValidator):
                 message = {
                     m2m_field: error_msg or f'Expected {response} only.'}
                 self._errors.update(message)
-                self._error_codes.append(NOT_APPLICABLE_ERROR)
-                raise ValidationError(message, code=NOT_APPLICABLE_ERROR)
+                self._error_codes.append(M2M_SELECTION_ONLY)
+                raise ValidationError(message, code=M2M_SELECTION_ONLY)
         return False
 
     def m2m_selections_not_expected(self, *responses, m2m_field=None, error_msg=None):
@@ -166,6 +170,6 @@ class ManyToManyFieldValidator(BaseFormValidator):
                     m2m_field: error_msg or (f'Invalid selection. '
                                              f'Cannot be any of: {display_names}.')}
                 self._errors.update(message)
-                self._error_codes.append(NOT_APPLICABLE_ERROR)
-                raise ValidationError(message, code=NOT_APPLICABLE_ERROR)
+                self._error_codes.append(M2M_INVALID_SELECTION)
+                raise ValidationError(message, code=M2M_INVALID_SELECTION)
         return False
