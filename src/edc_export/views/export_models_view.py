@@ -58,7 +58,7 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
         else:
             try:
                 self.export_models(request=request, email_to_user=True)
-            except NothingToExport as e:
+            except NothingToExport:
                 selected_models = self.get_selected_models_from_post()
                 if selected_models:
                     self.request.session['selected_models'] = selected_models
@@ -67,7 +67,7 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
                         request, f'Nothing to do. Select one or more models and try again.')
             except FilesEmailerError as e:
                 messages.error(
-                    request, f'Failed to send the data you requested. Got {e}')
+                    request, f'Failed to send the data you requested. Got \'{e}\'')
         url = reverse(self.post_action_url, kwargs=self.kwargs)
         return HttpResponseRedirect(url)
 
@@ -89,7 +89,7 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
         except ArchiveExporterEmailError as e:
             messages.error(
                 self.request, f'Failed to send files by email. Got \'{e}\'')
-        except ArchiveExporterNothingExported as e:
+        except ArchiveExporterNothingExported:
             messages.info(self.request, f'Nothing to export.')
         else:
             messages.success(
@@ -134,6 +134,8 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
                 f'chk_{app_config.name}_historicals') or [])
             selected_models.extend(self.request.POST.getlist(
                 f'chk_{app_config.name}_lists') or [])
+            selected_models.extend(self.request.POST.getlist(
+                f'chk_{app_config.name}_inlines') or [])
         return [ModelOptions(model=m).__dict__ for m in selected_models if m]
 
     def get_selected_models_from_session(self):
@@ -151,6 +153,8 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
 
     @property
     def user(self):
+        """Returns an instance of the User model.
+        """
         if not self._user:
             self._user = User.objects.get(username=self.request.user)
         return self._user

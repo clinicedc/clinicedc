@@ -5,6 +5,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_permissions.constants.group_names import EXPORT
 
 from .model_options import ModelOptions
+from django.contrib.admin.sites import site
+from django.contrib.admin import sites
 
 
 class Exportables(OrderedDict):
@@ -16,12 +18,28 @@ class Exportables(OrderedDict):
     includes that apps models, including historical and list models.
     """
 
+    export_group_name = EXPORT
+
     def __init__(self, app_configs=None, user=None, request=None):
         super().__init__()
         app_configs = app_configs or self.get_app_configs()
         app_configs.sort(key=lambda x: x.verbose_name)
+
+        inlines = {}
+        for site in sites.all_sites:
+            for model_cls, admin_site in site._registry.items():
+                for inline_cls in admin_site.inlines:
+                    model_opts = ModelOptions(
+                        model=inline_cls.model._meta.label_lower)
+                    try:
+                        inlines[model_cls._meta.app_label].append(model_opts)
+                    except KeyError:
+                        inlines[model_cls._meta.app_label] = [model_opts]
+                    inlines[model_cls._meta.app_label].sort(
+                        key=lambda x: x.verbose_name.title())
+
         try:
-            user.groups.get(name=EXPORT)
+            user.groups.get(name=self.export_group_name)
         except ObjectDoesNotExist:
             messages.error(
                 request, 'You do not have sufficient permissions to export data.')
@@ -43,11 +61,14 @@ class Exportables(OrderedDict):
                 list_models.sort(key=lambda x: x.verbose_name.title())
                 exportable = {
                     'models': models,
+                    'inlines': inlines.get(model._meta.app_label),
                     'historicals': historical_models,
                     'lists': list_models}
                 self.update({app_config: exportable})
 
     def get_app_configs(self):
+        """Returns a list of app_configs with exportable data.
+        """
         app_configs = []
         for app_config in django_apps.get_app_configs():
             try:
