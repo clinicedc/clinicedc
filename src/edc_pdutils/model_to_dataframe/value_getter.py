@@ -35,10 +35,10 @@ class ValueGetter:
     m2m_delimiter = ';'
 
     def __init__(self, field_name=None, model_obj=None,
-                 lookups=None, decrypt=None, additional_values=None):
+                 lookups=None, encrypt=None, additional_values=None):
         self._value = None
         self.additional_values = additional_values
-        self.decrypt = decrypt
+        self.encrypt = encrypt
         self.field_name = field_name
         self.lookups = lookups or {}
         self.model_obj = model_obj
@@ -69,7 +69,7 @@ class ValueGetter:
         value = ''
         for f in model_obj.__class__._meta.fields:
             if (f.name == field_name and issubclass(f.__class__, BaseEncryptedField)
-                    and not self.decrypt):
+                    and self.encrypt):
                 value = self.encrypted_label
         if value != self.encrypted_label:
             try:
