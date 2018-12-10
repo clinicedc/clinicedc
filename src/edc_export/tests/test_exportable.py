@@ -29,6 +29,7 @@ class TestExportable(TestCase):
         self.assertTrue(model_opts.verbose_name)
         self.assertFalse(model_opts.is_historical)
         self.assertFalse(model_opts.is_list_model)
+        self.assertFalse(model_opts.is_inline)
 
         obj = json.dumps(model_opts)
         json.loads(obj)
@@ -44,7 +45,6 @@ class TestExportable(TestCase):
         obj = json.dumps(model_opts)
         json.loads(obj)
 
-    @tag('1')
     def test_exportables(self):
         registered_subject_opts = ModelOptions(
             model=RegisteredSubject._meta.label_lower)

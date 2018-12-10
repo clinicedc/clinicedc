@@ -3,9 +3,9 @@ from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields.encrypted_char_field import EncryptedCharField
 from edc_appointment.models import Appointment
 from edc_base.model_mixins import BaseUuidModel
-from edc_base.model_mixins.list_model_mixin import ListModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES
+from edc_list_data.model_mixins import ListModelMixin
 
 from ..managers import ExportHistoryManager
 from ..model_mixins import ExportTrackingFieldsModelMixin
@@ -123,10 +123,26 @@ class CrfThree(CrfModelMixin, BaseUuidModel):
     UPPERCASE = models.DateTimeField(default=get_utcnow)
 
 
-class CrfInline(BaseUuidModel):
+class ListOne(ListModelMixin, BaseUuidModel):
 
-    crf_one = models.ForeignKey(CrfOne, on_delete=models.PROTECT)
+    char1 = models.CharField(max_length=25, null=True)
 
-    crf_two = models.ForeignKey(CrfTwo, on_delete=models.PROTECT)
+    dte = models.DateTimeField(default=get_utcnow)
+
+
+class ListTwo(ListModelMixin, BaseUuidModel):
+
+    char1 = models.CharField(max_length=25, null=True)
+
+    dte = models.DateTimeField(default=get_utcnow)
+
+
+class CrfWithInline(CrfModelMixin, BaseUuidModel):
+
+    list_one = models.ForeignKey(ListOne, on_delete=models.PROTECT)
+
+    list_two = models.ForeignKey(ListTwo, on_delete=models.PROTECT)
+
+    char1 = models.CharField(max_length=25, null=True)
 
     dte = models.DateTimeField(default=get_utcnow)

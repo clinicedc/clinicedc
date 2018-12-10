@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from edc_base.model_mixins import ListModelMixin
+from edc_list_data.model_mixins import ListModelMixin
 
 
 class ModelOptions(dict):
@@ -29,7 +29,12 @@ class ModelOptions(dict):
             label_lower=self.label_lower,
             is_historical=self.is_historical,
             is_list_model=self.is_list_model,
+            is_inline=self.is_inline,
             db_table=self.db_table)
 
     def __repr__(self):
         return f'{self.__class__.__name__}(model=\'{self.label_lower}\')'
+
+    @property
+    def is_inline(self):
+        return False

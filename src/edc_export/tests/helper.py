@@ -5,7 +5,7 @@ from edc_base.utils import get_utcnow
 from edc_registration.models import RegisteredSubject
 
 from .models import ListModel, SubjectVisit, Crf
-from .models import CrfTwo, CrfOne, CrfThree, CrfInline
+from .models import CrfTwo, CrfOne, CrfThree, CrfWithInline, ListOne, ListTwo
 
 
 class Helper:
@@ -43,7 +43,24 @@ class Helper:
         CrfThree.objects.create(
             subject_visit=self.subject_visit,
             UPPERCASE=get_utcnow())
-        CrfInline.objects.create(
-            crf_one=crf_one,
-            crf_two=crf_two,
-            dte=get_utcnow())
+
+        for j in range(0, 5, 10):
+            appointment = Appointment.objects.create(
+                subject_identifier=subject_identifier,
+                visit_code=f'{i + j}000',
+                appt_datetime=get_utcnow())
+            subject_visit = SubjectVisit.objects.create(
+                appointment=appointment,
+                subject_identifier=subject_identifier,
+                report_datetime=get_utcnow())
+            list_one = ListOne.objects.create(
+                name=f'list_one{i + j}',
+                short_name=f'list_one{i + j}')
+            list_two = ListTwo.objects.create(
+                name=f'list_two{i + j}',
+                short_name=f'list_two{i + j}')
+            CrfWithInline.objects.create(
+                subject_visit=subject_visit,
+                list_one=list_one,
+                list_two=list_two,
+                dte=get_utcnow())
