@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'edc_identifier.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_notification.apps.AppConfig',
+    'edc_visit_schedule.apps.AppConfig',
     'edc_action_item.apps.AppConfig',
 ]
 
