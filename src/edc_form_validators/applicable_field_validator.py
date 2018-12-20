@@ -11,9 +11,12 @@ class ApplicableFieldValidator(BaseFormValidator):
         return self.applicable(
             *responses, field=field, field_applicable=field_applicable)
 
-    def not_applicable_if(self, *responses, field=None, field_applicable=None):
+    def not_applicable_if(self, *responses, field=None, field_applicable=None,
+                          inverse=None):
         return self.not_applicable(
-            *responses, field=field, field_applicable=field_applicable)
+            *responses, field=field,
+            field_applicable=field_applicable,
+            inverse=inverse)
 
     def not_applicable_only_if(self, *responses, field=None,
                                field_applicable=None, cleaned_data=None):
@@ -49,11 +52,12 @@ class ApplicableFieldValidator(BaseFormValidator):
                 raise ValidationError(message, code=NOT_APPLICABLE_ERROR)
         return False
 
-    def not_applicable(self, *responses, field=None, field_applicable=None):
+    def not_applicable(self, *responses, field=None, field_applicable=None, inverse=None):
         """Returns False or raises a validation error for field
         pattern where response to question 1 makes
         question 2 NOT applicable.
         """
+        inverse = True if inverse is None else inverse
         cleaned_data = self.cleaned_data
         if field in cleaned_data and field_applicable in cleaned_data:
             if (cleaned_data.get(field) in responses
@@ -62,7 +66,8 @@ class ApplicableFieldValidator(BaseFormValidator):
                 self._errors.update(message)
                 self._error_codes.append(NOT_APPLICABLE_ERROR)
                 raise ValidationError(message, code=NOT_APPLICABLE_ERROR)
-            elif (cleaned_data.get(field) not in responses
+            elif inverse and (
+                    cleaned_data.get(field) not in responses
                     and cleaned_data.get(field_applicable) == NOT_APPLICABLE):
                 message = {field_applicable: 'This field is applicable'}
                 self._errors.update(message)

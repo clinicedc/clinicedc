@@ -155,6 +155,19 @@ class TestRequiredFieldValidator2(TestCase):
         except (ModelFormFieldValidatorError, InvalidModelFormFieldValidator) as e:
             self.fail(f'Exception unexpectedly raised. Got {e}')
 
+    def test_not_required_if_true(self):
+        """Asserts field not required if condition.
+        """
+        form_validator = FormValidator(cleaned_data=dict(field_one=NO))
+        self.assertRaises(forms.ValidationError, form_validator.not_required_if_true,
+                          True, field='field_one')
+
+        try:
+            form_validator.not_required_if_true(
+                False, field='field_one')
+        except forms.ValidationError as e:
+            self.fail(f'ValidationError unexpectedly raised. Got {e}')
+
     def test_required_if_specifying_inverse(self):
 
         class MyFormValidator1(FormValidator):
