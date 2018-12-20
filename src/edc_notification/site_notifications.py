@@ -136,7 +136,8 @@ class SiteNotifications:
         """Creates the mailing list for each registered notification.
         """
         responses = {}
-        if settings.EMAIL_ENABLED and self.loaded:
+        if (settings.EMAIL_ENABLED and self.loaded
+                and settings.EMAIL_BACKEND != 'django.core.mail.backends.locmem.EmailBackend'):
             sys.stdout.write(style.MIGRATE_HEADING(
                 f'Creating mailing lists:\n'))
             for name, notification_cls in self.registry.items():
