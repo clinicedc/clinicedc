@@ -1,7 +1,8 @@
 from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import options
-from edc_device.device_permission import DevicePermissions
+
+from .device_permission import DevicePermissions
 
 if 'device_permissions' not in options.DEFAULT_NAMES:
     options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('device_permissions',)
