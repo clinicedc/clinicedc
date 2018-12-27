@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.safestring import mark_safe
 from django_crypto_fields.fields import EncryptedCharField, EncryptedTextField
-from edc_base.model_validators import CellNumber, TelephoneNumber
+from edc_base import CellNumber, TelephoneNumber
 from edc_constants.choices import YES_NO
 
 
