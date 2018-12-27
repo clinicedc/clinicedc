@@ -2,10 +2,10 @@ import six
 
 from django.apps import apps as django_apps
 from django.views.generic.list import ListView
-from edc_base.sites import SiteQuerysetViewMixin
 
 from ..view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
 from ..view_mixins import QueryStringViewMixin, SearchListboardMixin
+from ..view_mixins import SiteQuerysetViewMixin
 
 
 class ListboardViewError(Exception):
