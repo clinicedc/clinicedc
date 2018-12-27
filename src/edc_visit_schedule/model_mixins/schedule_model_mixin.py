@@ -25,7 +25,7 @@ class ScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, mode
 
     objects = SubjectIdentifierManager()
 
-    history = HistoricalRecords()
+    history = HistoricalRecords(inherit=True)
 
     def __str__(self):
         formatted_date = timezone.localtime(
