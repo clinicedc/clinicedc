@@ -116,12 +116,12 @@ class Notification:
         return True if email_sent or sms_sent else False
 
     def notify_on_condition(self, **kwargs):
-        """Override to return True if the notification
+        """Override to conditionally return True if the notification
         should be sent by email and/or sms.
 
         A return value of `False` means nothing will be sent.
         """
-        return False
+        return True
 
     def _notify_on_condition(self, test_message=None, **kwargs):
         """Returns the value of `notify_on_condition` or False.
@@ -196,11 +196,8 @@ class Notification:
         kwargs.update(**self.get_template_options(**kwargs))
         subject = self.email_subject_template.format(**kwargs)
         body = (email_body_template or self.email_body_template).format(**kwargs)
-        args = [
-            subject, body,
-            self.email_from,
-            email_to or self.email_to]
-        email = self.email_message_cls(*args)
+        email = self.email_message_cls(
+            subject, body, self.email_from, email_to or self.email_to)
         return email.send(fail_silently)
 
     def send_sms(self, fail_silently=None, sms_recipient=None, **kwargs):

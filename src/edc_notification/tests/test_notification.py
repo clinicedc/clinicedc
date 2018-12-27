@@ -65,14 +65,9 @@ class TestNotification(TestCase):
             name = 'erik'
             display_name = 'Erik'
 
-        SomeNotification().notify()
-        self.assertEqual(len(mail.outbox), 0)
-
         SomeNotification().notify(
-            force_notify=True,
             subject_identifier='12345',
             site_name='Gaborone')
-
         self.assertEqual(len(mail.outbox), 1)
 
         SomeNotification().send_test_email('someone@example.com')
