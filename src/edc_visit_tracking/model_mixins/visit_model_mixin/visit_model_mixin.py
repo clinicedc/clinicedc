@@ -31,7 +31,7 @@ class VisitModelMixin(
 
     objects = VisitModelManager()
 
-    history = HistoricalRecords()
+    history = HistoricalRecords(inherit=True)
 
     def __str__(self):
         return f'{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}'
