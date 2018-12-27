@@ -213,3 +213,39 @@ def fix_duplicate_singleton_action_items(apps, name=None):
                         subject_identifier=obj.subject_identifier,
                         action_type__name=name,
                         status=NEW).delete()
+
+def fix_null_related_action_items2(delete_orphans=None):  # noqa
+    """Used for early action items where related_action_item
+    was not set, e.g. v0.1.1
+
+    Call from shell.
+
+    mysql:
+        select action_identifier, subject_identifier,
+        created from edc_action_item_actionitem
+        where related_action_item_id is NULL
+        and reference_model = 'ambition_ae.aefollowup';
+    """
+    from django.apps import apps as django_apps
+    post_save.disconnect(dispatch_uid='serialize_on_save')
+    pre_save.disconnect(dispatch_uid='requires_consent_on_pre_save')
+    ActionItem = django_apps.get_model('edc_action_item', 'ActionItem')
+    for action_cls in site_action_items.registry.values():
+        if action_cls.related_reference_fk_attr:
+            for action_item in ActionItem.objects.filter(
+                    related_action_item__isnull=True,
+                    action_type__name=action_cls.name):
+                try:
+                    action_item.reference_obj
+                except ObjectDoesNotExist as e:
+                    if delete_orphans:
+                        print(f'Deleting orphaned action item {action_item}.')
+                        action_item.delete()
+                    else:
+                        print(f'Skipping {action_item}. Got {e}')
+                else:
+                    print(action_item, action_cls.related_reference_fk_attr,
+                          action_item.reference_obj)
+                    action_item.related_action_item = getattr(
+                        action_item.reference_obj, action_cls.related_reference_fk_attr).action_item
+                    action_item.save()
