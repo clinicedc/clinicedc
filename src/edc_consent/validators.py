@@ -42,12 +42,6 @@ class FullNameValidator:
         return self.regex == other.regex
 
 
-def dob_not_future(value):
-    now = get_utcnow().date()
-    if now < value:
-        raise ValidationError('Date of birth cannot be a future date.')
-
-
 def eligible_if_yes(value):
     if value != YES:
         raise ValidationError('Participant is not eligible.')
