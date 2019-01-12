@@ -34,10 +34,10 @@ class Helper:
             date1=get_utcnow(),
             int1=i,
             uuid1=uuid.uuid4())
-        crf_one = CrfOne.objects.create(
+        CrfOne.objects.create(
             subject_visit=self.subject_visit,
             dte=get_utcnow())
-        crf_two = CrfTwo.objects.create(
+        CrfTwo.objects.create(
             subject_visit=self.subject_visit,
             dte=get_utcnow())
         CrfThree.objects.create(
