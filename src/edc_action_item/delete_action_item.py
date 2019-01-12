@@ -8,12 +8,12 @@ class ActionItemDeleteError(Exception):
     pass
 
 
-def delete_action_item(action_cls=None, subject_identifier=None):
+def delete_action_item(action_cls=None, subject_identifier=None, using=None):
     """Deletes any NEW action items for a given class
     and subject_identifier.
     """
     try:
-        obj = action_cls.action_item_model_cls().objects.get(
+        obj = action_cls.action_item_model_cls().objects.using(using).get(
             subject_identifier=subject_identifier,
             action_type=get_action_type(action_cls),
             status=NEW)
@@ -23,11 +23,11 @@ def delete_action_item(action_cls=None, subject_identifier=None):
             f'Action item {action_cls.name} does not exist for '
             f'{subject_identifier}.')
     except MultipleObjectsReturned:
-        for obj in action_cls.action_item_model_cls().objects.filter(
+        for obj in action_cls.action_item_model_cls().objects.using(using).filter(
                 subject_identifier=subject_identifier,
                 action_type=get_action_type(action_cls),
                 status=NEW):
-            obj.delete()
+            obj.delete(using=using)
     else:
-        obj.delete()
+        obj.delete(using=using)
     return None

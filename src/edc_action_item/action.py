@@ -59,7 +59,8 @@ class Action:
                  subject_identifier=None,
                  action_identifier=None,
                  parent_action_item=None,
-                 related_action_item=None):
+                 related_action_item=None,
+                 using=None):
 
         self._action_item = action_item
         self._reference_obj = reference_obj
@@ -74,6 +75,7 @@ class Action:
         self.parent_action_item = parent_action_item
         self.related_action_item = related_action_item
         self.subject_identifier = subject_identifier
+        self.using = using
 
         if self.action_item.action_cls != self.__class__:
             raise ActionError(
@@ -122,8 +124,8 @@ class Action:
         """
         if not self._reference_obj:
             try:
-                self._reference_obj = self.reference_model_cls().objects.get(
-                    action_identifier=self.action_identifier)
+                self._reference_obj = self.reference_model_cls().objects.using(
+                    self.using).get(action_identifier=self.action_identifier)
             except ObjectDoesNotExist:
                 if (self.action_identifier and self.action_item
                         and self.action_item.status == CLOSED):
@@ -143,8 +145,8 @@ class Action:
         """
         if not self._action_item:
             if self.action_identifier:
-                self._action_item = self.action_item_model_cls().objects.get(
-                    action_identifier=self.action_identifier)
+                self._action_item = self.action_item_model_cls().objects.using(
+                    self.using).get(action_identifier=self.action_identifier)
             elif self.reference_obj:
                 self._action_item = self.reference_obj.action_item
             else:
@@ -154,20 +156,23 @@ class Action:
                     related_action_item=self.related_action_item,
                     status=NEW)
                 try:
-                    self._action_item = self.action_item_model_cls().objects.get(**opts)
+                    self._action_item = self.action_item_model_cls().objects.using(
+                        self.using).get(**opts)
                 except ObjectDoesNotExist:
                     try:
                         self._action_item = create_action_item(
                             self.__class__,
                             parent_action_item=self.parent_action_item,
+                            using=self.using,
                             **opts)
                     except SingletonActionItemError:
-                        self._action_item = self.action_item_model_cls().objects.get(
-                            subject_identifier=self.subject_identifier,
-                            action_type=get_action_type(self.__class__))
+                        self._action_item = self.action_item_model_cls().objects.using(
+                            self.using).get(
+                                subject_identifier=self.subject_identifier,
+                                action_type=get_action_type(self.__class__))
                 except MultipleObjectsReturned:
-                    self._action_item = self.action_item_model_cls().objects.filter(
-                        **opts).order_by('created')[0]
+                    self._action_item = self.action_item_model_cls().objects.using(
+                        self.using).filter(**opts).order_by('created')[0]
             if not self._action_item:
                 opts = dict(
                     reference_obj=self.reference_obj,
@@ -266,8 +271,8 @@ class Action:
             self.reopen_action_items()
         status = CLOSED if self.close_action_item_on_save() else OPEN
         self.action_item.status = status
-        self.action_item.save()
-        self.action_item.refresh_from_db()
+        self.action_item.save(using=self.using)
+        self.action_item.refresh_from_db(using=self.using)
         if status == CLOSED:
             self.create_next_action_items()
 
@@ -290,20 +295,21 @@ class Action:
             action_cls(
                 subject_identifier=self.subject_identifier,
                 parent_action_item=self.action_item,
-                related_action_item=related_action_item)
+                related_action_item=related_action_item,
+                using=self.using)
 
     def reopen_action_items(self):
         """Reopens the action_item and child action items for this
         reference object if reference object was changed since
         the last save.
         """
-        for action_item in self.action_item_model_cls().objects.filter(
+        for action_item in self.action_item_model_cls().objects.using(self.using).filter(
                 (Q(action_identifier=self.reference_obj.action_identifier) |
                  Q(parent_action_item__action_identifier=self.reference_obj.action_identifier) |  # noqa
                  Q(related_action_item=self.reference_obj.action_item)),
                 status=CLOSED):
             action_item.status = OPEN
-            action_item.save()
+            action_item.save(using=self.using)
             self.messages.update(
                 {action_item: (
                     f'{self.reference_obj._meta.verbose_name.title()} '
@@ -320,7 +326,7 @@ class Action:
         """
         changed_message = {}
         try:
-            history = self.reference_obj.history.all().order_by(
+            history = self.reference_obj.history.using(self.using).all().order_by(
                 '-history_date')[1]
         except IndexError:
             pass
@@ -328,6 +334,7 @@ class Action:
             # suppressed here but is reviewed in system checks
             pass
         else:
+            # TODO: use historical record's diff??
             field_names = [
                 field.name for field in self.reference_obj._meta.get_fields()
                 if field.name not in DEFAULT_BASE_FIELDS]
@@ -362,7 +369,8 @@ class Action:
             parent_action_item__action_identifier=self.action_identifier,
             action_type__name=action_name)
         try:
-            next_action_item = self.action_item_model_cls().objects.get(**opts)
+            next_action_item = self.action_item_model_cls(
+            ).objects.using(self.using).get(**opts)
         except ObjectDoesNotExist:
             next_action_item = None
         except MultipleObjectsReturned:
@@ -389,6 +397,7 @@ class Action:
             subject_identifier=self.subject_identifier,
             parent_action_item=parent_action_item,
             status=NEW)
-        for index, obj in enumerate(self.action_item_model_cls().objects.filter(**opts)):
-            obj.delete()
+        for index, obj in enumerate(self.action_item_model_cls().objects.using(
+                self.using).filter(**opts)):
+            obj.delete(using=self.using)
         return index

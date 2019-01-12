@@ -116,6 +116,7 @@ class TestAction(TestCase):
         self.assertEqual(get_action_type(action), action_type)
 
     def test_check_attrs_for_form_one_next_action(self):
+
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier)
 

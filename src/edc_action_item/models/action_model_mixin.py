@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+from edc_base.model_managers import HistoricalRecords
 
 from ..site_action_items import site_action_items
 from .action_item import ActionItem
@@ -11,6 +12,11 @@ class ActionClassNotDefined(Exception):
 
 class ActionItemError(Exception):
     pass
+
+
+class ActionItemModelManager(models.Manager):
+    def get_by_natural_key(self, action_identifier):
+        return self.get(action_identifier=action_identifier)
 
 
 class ActionModelMixin(models.Model):
@@ -57,6 +63,10 @@ class ActionModelMixin(models.Model):
         help_text=('action identifier that links to related '
                    'reference model instance.'))
 
+    objects = ActionItemModelManager()
+
+    history = HistoricalRecords(inherit=True)
+
     def __str__(self):
         return f'{self.action_identifier[-9:]}'
 
@@ -93,6 +103,10 @@ class ActionModelMixin(models.Model):
         self.parent_action_item = self.action_item.parent_action_item
         # also see signals.py
         super().save(*args, **kwargs)
+
+    def natural_key(self):
+        return (self.action_identifier, )
+    natural_key.dependencies = ['edc_action_item.actionitem']
 
     @classmethod
     def get_action_cls(cls):

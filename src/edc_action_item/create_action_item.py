@@ -14,11 +14,12 @@ class CreateActionItemError(Exception):
 def create_action_item(action_cls, subject_identifier=None,
                        action_identifier=None,
                        related_action_item=None,
-                       parent_action_item=None, **kwargs):
+                       parent_action_item=None,
+                       using=None, **kwargs):
     action_item = None
     if action_cls.singleton:
         try:
-            action_item = action_cls.action_item_model_cls().objects.get(
+            action_item = action_cls.action_item_model_cls().objects.using(using).get(
                 action_type=get_action_type(action_cls),
                 subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
@@ -39,5 +40,5 @@ def create_action_item(action_cls, subject_identifier=None,
         if related_action_item:
             opts.update(related_action_item=related_action_item)
         action_item = action_cls.action_item_model_cls()(**opts)
-        action_item.save()
+        action_item.save(using=using)
     return action_item
