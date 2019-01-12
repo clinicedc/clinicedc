@@ -6,6 +6,7 @@ from datetime import datetime
 from django.apps import apps as django_apps
 from django.conf import settings
 from tqdm import tqdm
+from edc_base.utils import get_utcnow
 
 
 class HolidayImportError(Exception):
@@ -16,26 +17,29 @@ class HolidayFileNotFoundError(Exception):
     pass
 
 
-def import_holidays(verbose=None):
+def import_holidays(verbose=None, test=None):
     model_cls = django_apps.get_model('edc_facility.holiday')
-    path = settings.HOLIDAY_FILE
-    try:
-        if not os.path.exists(path):
-            raise HolidayFileNotFoundError(path)
-    except TypeError:
-        raise HolidayImportError(f'Invalid path. Got {path}.')
-    if verbose:
-        sys.stdout.write(
-            f'\nImporting holidays from \'{path}\' '
-            f'into {model_cls._meta.label_lower}\n')
-    model_cls.objects.all().delete()
+    if test:
+        import_for_tests(model_cls)
+    else:
+        path = settings.HOLIDAY_FILE
+        try:
+            if not os.path.exists(path):
+                raise HolidayFileNotFoundError(path)
+        except TypeError:
+            raise HolidayImportError(f'Invalid path. Got {path}.')
+        if verbose:
+            sys.stdout.write(
+                f'\nImporting holidays from \'{path}\' '
+                f'into {model_cls._meta.label_lower}\n')
+        model_cls.objects.all().delete()
 
-    recs = check_for_duplicates_in_file(path)
+        recs = check_for_duplicates_in_file(path)
 
-    import_file(path, recs, model_cls)
+        import_file(path, recs, model_cls)
 
-    if verbose:
-        sys.stdout.write(f'Done.\n')
+        if verbose:
+            sys.stdout.write(f'Done.\n')
 
 
 def check_for_duplicates_in_file(path):
@@ -72,3 +76,41 @@ def import_file(path, recs, model_cls):
                     local_date=local_date,
                     name=row['label']))
         model_cls.objects.bulk_create(objs)
+
+
+def import_for_tests(model_cls):
+    LOCAL_DATE = 0
+    LABEL = 1
+    COUNTRY = 2
+    year = get_utcnow().year
+    country = settings.COUNTRY.lower()
+    rows = [
+        [f'{year}-01-02', 'Public Holiday', country],
+        [f'{year}-01-01', 'New Year', country],
+        [f'{year}-04-14', 'Good Friday', country],
+        [f'{year}-04-17', 'Easter Monday', country],
+        [f'{year}-05-01', 'May Day/Labour Day', country],
+        [f'{year}-05-25', 'Ascension Day', country],
+        [f'{year}-07-18', 'Public Holiday', country],
+        [f'{year}-09-30', 'Botswana Day', country],
+        [f'{year}-10-02', 'Public Holiday', country],
+        [f'{year}-12-25', 'Christmas Day', country],
+        [f'{year}-12-26', 'Boxing Day', country],
+    ]
+    objs = []
+    for index, row in tqdm(enumerate(rows), total=len(rows)):
+        if index == 0:
+            continue
+        try:
+            local_date = datetime.strptime(
+                row[LOCAL_DATE], '%Y-%m-%d').date()
+        except ValueError as e:
+            raise HolidayImportError(
+                f'Invalid format when importing holidays (test). '
+                f'Got \'{e}\'')
+        else:
+            objs.append(model_cls(
+                country=row[COUNTRY],
+                local_date=local_date,
+                name=row[LABEL]))
+    model_cls.objects.bulk_create(objs)
