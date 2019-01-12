@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from django.conf import settings
@@ -7,6 +8,8 @@ from urllib.parse import urlparse, parse_qsl
 from urllib.parse import urlencode, unquote
 
 from .site_action_items import site_action_items
+
+logger = logging.getLogger(__name__)
 
 
 class ActionItemHelperError(Exception):
@@ -73,7 +76,7 @@ class ActionItemHelper:
                     self.action_cls.related_reference_model_cls().objects.get(
                         action_item=self.related_action_item))
             except ObjectDoesNotExist as e:
-                sys.stdout.write(
+                logger.warning(
                     f'{e} See {self.action_item}. Related action identifier'
                     f'=\'{self.action_item.related_action_identifier}\'.')
                 opts.update(
