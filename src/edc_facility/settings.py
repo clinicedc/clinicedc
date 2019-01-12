@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'edc_auth.apps.AppConfig',
+    'edc_notification.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_facility.apps.AppConfig',
 ]
@@ -116,6 +117,8 @@ STATIC_URL = '/static/'
 COUNTRY = 'botswana'
 HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
 
+EMAIL_CONTACTS = {}
+EMAIL_ENABLED = False
 
 if 'test' in sys.argv:
 
