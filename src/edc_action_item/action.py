@@ -1,4 +1,4 @@
-import sys
+import logging
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -15,6 +15,7 @@ from .create_action_item import create_action_item
 from .get_action_type import get_action_type
 from .site_action_items import site_action_items
 
+logger = logging.getLogger(__name__)
 style = color_style()
 
 REFERENCE_MODEL_ERROR_CODE = 'reference_model'
@@ -375,7 +376,7 @@ class Action:
             next_action_item = None
         except MultipleObjectsReturned:
             # suggests the action item sequence is broken
-            sys.stdout.write(
+            logger.warning(
                 style.ERROR(
                     f'skipping \'append_to_next_if_required\' for '
                     f'{self.action_identifier} next actions. '
