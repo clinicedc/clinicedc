@@ -2,7 +2,6 @@ import sys
 
 from django.conf import settings
 from edc_action_item.models import ActionModelMixin
-from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.sites import CurrentSiteManager, SiteModelMixin
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
@@ -28,8 +27,6 @@ class SubjectLocator(LocatorModelMixin, RequiresConsentFieldsModelMixin,
     on_site = CurrentSiteManager()
 
     objects = LocatorManager()
-
-    history = HistoricalRecords()
 
     def natural_key(self):
         return (self.subject_identifier, )
