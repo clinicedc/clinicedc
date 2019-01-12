@@ -5,15 +5,14 @@ from edc_constants.constants import NEW, OPEN, CLOSED
 from edc_notification import site_notifications
 from simple_history.signals import post_create_historical_record
 
-from .models import ActionItem
+from .models import ActionItem, ActionModelMixin
 from .site_action_items import site_action_items
-from edc_action_item.models.action_model_mixin import ActionModelMixin
 
 
 @receiver(post_save, weak=False,
           dispatch_uid='update_or_create_action_item_on_post_save')
 def update_or_create_action_item_on_post_save(sender, instance, raw,
-                                              created, update_fields,
+                                              created, using, update_fields,
                                               **kwargs):
     """Updates action item for a model using the ActionModelMixin.
 
@@ -32,13 +31,15 @@ def update_or_create_action_item_on_post_save(sender, instance, raw,
                 action_item = None
                 action_cls = site_action_items.get(instance.action_name)
                 if not instance.action_item:
-                    action_item = ActionItem.objects.get(
+                    action_item = ActionItem.objects.using(using).get(
                         action_identifier=instance.action_identifier)
+                    instance.action_item = action_item
                 # instantiate action class
-                action_cls(action_item=action_item or instance.action_item)
+                action_cls(action_item=action_item or instance.action_item,
+                           using=using)
                 if created and instance.action_item.status == NEW:
                     instance.action_item.status = OPEN
-                    instance.action_item.save()
+                    instance.action_item.save(using=using)
 
 
 @receiver(post_delete, weak=False,
@@ -57,19 +58,19 @@ def action_on_post_delete(sender, instance, using, **kwargs):
         except AttributeError:
             pass
         else:
-            action_item = ActionItem.objects.get(
+            action_item = ActionItem.objects.using(using).get(
                 action_identifier=instance.action_identifier)
             action_item.status = NEW
             action_item.linked_to_reference = False
-            action_item.save()
-            for obj in ActionItem.objects.filter(
+            action_item.save(using=using)
+            for obj in ActionItem.objects.using(using).filter(
                     parent_action_item=instance.action_item,
                     status=NEW):
-                obj.delete()
-            for obj in ActionItem.objects.filter(
+                obj.delete(using=using)
+            for obj in ActionItem.objects.using(using).filter(
                     related_action_item=instance.action_item,
                     status=NEW):
-                obj.delete()
+                obj.delete(using=using)
     elif isinstance(instance, ActionItem):
         if instance.parent_action_item:
             try:
@@ -78,8 +79,8 @@ def action_on_post_delete(sender, instance, using, **kwargs):
                 pass
             else:
                 instance.parent_reference_obj.action_item.action_cls(
-                    action_item=instance.parent_reference_obj.action_item
-                ).create_next_action_items()
+                    action_item=instance.parent_reference_obj.action_item,
+                    using=using).create_next_action_items()
 
 
 @receiver(post_create_historical_record, weak=False,

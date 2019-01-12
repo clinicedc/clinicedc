@@ -45,6 +45,7 @@ class TestActionItem(TestCase):
             SubjectDoesNotExist,
             ActionItem.objects.create)
 
+    @tag('3')
     def test_attrs(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
