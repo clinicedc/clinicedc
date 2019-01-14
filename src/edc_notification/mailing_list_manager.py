@@ -30,6 +30,7 @@ class MailingListManager:
         self._api_url = None
         self.address = address
         self.display_name = display_name
+        self.email_enabled = settings.EMAIL_ENABLED
         self.name = name
 
     @property
