@@ -100,7 +100,7 @@ class ExportModelsView(EdcBaseViewMixin, TemplateView):
             data_request = DataRequest.objects.create(
                 name=f'Data request {datetime.now().strftime("%Y%m%d%H%M")}',
                 models='\n'.join(selected_models),
-                user_created=self.user)
+                user_created=self.user.username)
             DataRequestHistory.objects.create(
                 data_request=data_request,
                 exported_datetime=exporter.exported_datetime,
