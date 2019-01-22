@@ -9,15 +9,7 @@
                 <tr>
 					<td><i class="far fa-calendar fa-sm fa-fw"></i> {{wrapped.visit_code}}{% if wrapped.visit_code_sequence %}.{{wrapped.visit_code_sequence}}{% endif %}</td>
 					<td>
-                        {% if wrapped.appt_status == NEW_APPT %}
-                          <i class="far fa-star fa-fw" aria-hidden="true" data-toggle="tooltip" title="New"></i>
-                        {% elif wrapped.appt_status == IN_PROGRESS_APPT%}
-						  <i class="fas fa-spinner fa-fw" aria-hidden="true" data-toggle="tooltip" title="In progress"></i>
-                        {% elif wrapped.appt_status == INCOMPLETE_APPT %}
-                          <i class="fas fa-star-half fa-fw" aria-hidden="true" data-toggle="tooltip" title="Incomplete"></i>
-						{% elif wrapped.appt_status == COMPLETE_APPT %}
-                          <i class="fas fa-star fa-fw" aria-hidden="true" data-toggle="tooltip" title="Complete"></i>
-						{% endif %}
+						{% appointment_status_icon appt_status=wrapped.appt_status %}
                         {% if wrapped.appt_status != COMPLETE_APPT %}
 						<a id="appointment_btn_{{ wrapped.visit_code }}_{{ wrapped.visit_code_sequence }}" role="button" class="btn btn-sm btn-default {% if wrapped.appt_status != IN_PROGRESS_APPT %}disabled{% endif %}"
 						    href="{% if perms.edc_appointment.view_appointment %}{{ wrapped.href }}{% else %}#{% endif %}"

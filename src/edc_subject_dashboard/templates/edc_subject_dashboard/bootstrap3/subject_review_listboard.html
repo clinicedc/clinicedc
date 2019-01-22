@@ -2,6 +2,7 @@
 
 {% load edc_base_extras %}
 {% load edc_dashboard_extras %}
+{% load edc_subject_dashboard_extras %}
 {% load tz %}
 {% load static %}
 
@@ -31,9 +32,9 @@
         
         {% if search_term %}
 
-            <a href="{{ result.dashboard_direct_href }}" class="list-group-item list-group-item-info" title="click to go to subject dashboard for visit">{{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.object.visit_code }}.{{ result.object.visit_code_sequence }}</b> on {{ result.object.report_datetime|date:"SHORT_DATE_FORMAT" }} {{ result.metadata_summary }}</a>
+            <a href="{{ result.dashboard_direct_href }}" class="list-group-item list-group-item-info" title="click to go to subject dashboard for visit">{% appointment_status_icon appt_status=result.object.appointment.appt_status %} {{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.object.visit_code }}.{{ result.object.visit_code_sequence }}</b> on {{ result.object.report_datetime|date:"SHORT_DATE_FORMAT" }} {{ result.metadata_summary }}</a>
             {% for crf in result.crf_metadata %}
-                <li class="list-group-item">{% if crf.entry_status == KEYED %}<span class="text text-muted text-success">{% else %}<span class="text text-danger">{% endif %}<i class="fas fa-list-alt fa-fw"></i> {{ crf.verbose_name }}</span></li>
+                <a href="{{ result.dashboard_direct_href }}" class="list-group-item">{% if crf.entry_status == KEYED %}<span class="text text-muted text-success">{% else %}<span class="text text-danger">{% endif %}<i class="fas fa-list-alt fa-fw"></i> {{ crf.verbose_name }} {% if result.object.appointment %}APPT{%endif %}</span></a>
             {% endfor %}
             {% for requisition in result.requisition_metadata %}
                 <li class="list-group-item">{% if requisition.entry_status == KEYED %}<span class="text text-muted text-success">{% else %}<span class="text text-danger">{% endif %}<i class="fas fa-flask fa-fw"></i> {{ requisition.verbose_name }}</span></li>

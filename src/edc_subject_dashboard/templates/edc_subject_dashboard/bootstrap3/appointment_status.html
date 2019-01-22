@@ -1,0 +1,11 @@
+<!-- BEGIN appointment status -->
+{% if appt_status == NEW_APPT %}
+  <i class="far fa-star fa-fw" aria-hidden="true" data-toggle="tooltip" title="New"></i>
+{% elif appt_status == IN_PROGRESS_APPT%}
+  <i class="fas fa-spinner fa-fw" aria-hidden="true" data-toggle="tooltip" title="In progress"></i>
+{% elif appt_status == INCOMPLETE_APPT %}
+  <i class="fas fa-star-half fa-fw" aria-hidden="true" data-toggle="tooltip" title="Incomplete"></i>
+{% elif appt_status == COMPLETE_APPT %}
+  <i class="fas fa-star fa-fw" aria-hidden="true" data-toggle="tooltip" title="Complete"></i>
+{% endif %}
+<!-- END appointment status -->
