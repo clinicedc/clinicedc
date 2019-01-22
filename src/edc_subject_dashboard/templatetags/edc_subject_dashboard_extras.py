@@ -2,7 +2,8 @@ from collections import namedtuple
 from django import template
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from edc_appointment.constants import IN_PROGRESS_APPT
+from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
+from edc_appointment.constants import NEW_APPT, COMPLETE_APPT
 from edc_appointment.models.appointment import Appointment
 from edc_lab.models.manifest.consignee import Consignee
 
@@ -104,3 +105,16 @@ def print_requisition_popover(context):
         consignees.append(C(str(consignee.pk), consignee.name))
     context['consignees'] = consignees
     return context
+
+
+@register.inclusion_tag(
+    f'edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/'
+    f'appointment_status.html')
+def appointment_status_icon(appt_status=None):
+    return dict(
+        appt_status=appt_status,
+        NEW_APPT=NEW_APPT,
+        IN_PROGRESS_APPT=IN_PROGRESS_APPT,
+        INCOMPLETE_APPT=INCOMPLETE_APPT,
+        COMPLETE_APPT=COMPLETE_APPT,
+    )
