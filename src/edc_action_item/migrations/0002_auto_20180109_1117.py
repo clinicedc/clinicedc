@@ -5,13 +5,14 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_action_item', '0001_initial'),
-    ]
+    dependencies = [("edc_action_item", "0001_initial")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='actionitem',
-            options={'verbose_name': 'Action Item', 'verbose_name_plural': 'Action Items'},
-        ),
+            name="actionitem",
+            options={
+                "verbose_name": "Action Item",
+                "verbose_name_plural": "Action Items",
+            },
+        )
     ]

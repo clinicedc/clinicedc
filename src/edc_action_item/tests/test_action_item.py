@@ -16,13 +16,13 @@ from .models import TestModelWithAction
 
 
 class TestActionItem(TestCase):
-
     def setUp(self):
         self.subject_identifier_model = ActionItem.subject_identifier_model
-        ActionItem.subject_identifier_model = 'edc_action_item.subjectidentifiermodel'
-        self.subject_identifier = '12345'
+        ActionItem.subject_identifier_model = "edc_action_item.subjectidentifiermodel"
+        self.subject_identifier = "12345"
         SubjectIdentifierModel.objects.create(
-            subject_identifier=self.subject_identifier)
+            subject_identifier=self.subject_identifier
+        )
         site_action_items.registry = {}
         site_action_items.register(FormZeroAction)
         get_action_type(FormZeroAction)
@@ -35,36 +35,37 @@ class TestActionItem(TestCase):
         obj = ActionItem.objects.create(
             subject_identifier=self.subject_identifier,
             action_type=self.action_type,
-            reference_model='edc_action_item.testmodel')
-        self.assertTrue(obj.action_identifier.startswith('AC'))
+            reference_model="edc_action_item.testmodel",
+        )
+        self.assertTrue(obj.action_identifier.startswith("AC"))
         self.assertEqual(obj.status, NEW)
         self.assertIsNotNone(obj.report_datetime)
 
     def test_create_requires_existing_subject(self):
-        self.assertRaises(
-            SubjectDoesNotExist,
-            ActionItem.objects.create)
+        self.assertRaises(SubjectDoesNotExist, ActionItem.objects.create)
 
-    @tag('3')
+    @tag("3")
     def test_attrs(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
         site_action_items.register(FormThreeAction)
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
         form_one.refresh_from_db()
         form_two = FormTwo.objects.create(
-            subject_identifier=self.subject_identifier,
-            form_one=form_one)
+            subject_identifier=self.subject_identifier, form_one=form_one
+        )
         form_two.refresh_from_db()
         action_item_one = ActionItem.objects.get(
-            action_identifier=form_one.action_identifier)
+            action_identifier=form_one.action_identifier
+        )
         action_item_two = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier)
+            action_identifier=form_two.action_identifier
+        )
 
         self.assertEqual(
             action_item_two.action_cls,
-            site_action_items.get(action_item_two.action_type.name))
+            site_action_items.get(action_item_two.action_type.name),
+        )
         self.assertTrue(action_item_two.identifier)
         self.assertTrue(str(action_item_two))
         self.assertTrue(action_item_two.parent_action_item)
@@ -76,153 +77,152 @@ class TestActionItem(TestCase):
         get_action_type(FormOneAction)
         action_type = ActionType.objects.get(name=FormOneAction.name)
         obj = ActionItem.objects.create(
-            subject_identifier=self.subject_identifier,
-            action_type=action_type)
+            subject_identifier=self.subject_identifier, action_type=action_type
+        )
         action_identifier = obj.action_identifier
         obj.save()
         try:
             obj = ActionItem.objects.get(action_identifier=action_identifier)
         except ObjectDoesNotExist:
-            self.fail('ActionItem unexpectedly does not exist')
+            self.fail("ActionItem unexpectedly does not exist")
 
     def test_changes_action_item_status_from_new_to_open_on_edit(self):
 
         action_type = ActionType.objects.get(name=FormZeroAction.name)
 
         obj = ActionItem.objects.create(
-            subject_identifier=self.subject_identifier,
-            action_type=action_type)
+            subject_identifier=self.subject_identifier, action_type=action_type
+        )
         data = obj.__dict__
         data.update(action_type=obj.action_type.id)
-        data['status'] = NEW
+        data["status"] = NEW
         form = ActionItemForm(data=obj.__dict__, instance=obj)
         form.is_valid()
-        self.assertNotIn('status', form.errors)
-        self.assertEqual(form.cleaned_data.get('status'), OPEN)
+        self.assertNotIn("status", form.errors)
+        self.assertEqual(form.cleaned_data.get("status"), OPEN)
 
     def test_action_type_update_from_action_classes(self):
-
         class MyAction(Action):
-            name = 'my-action'
-            display_name = 'my action'
-            reference_model = 'edc_action_item.reference'
+            name = "my-action"
+            display_name = "my action"
+            reference_model = "edc_action_item.reference"
 
         class MyActionWithNextAction(Action):
-            name = 'my-action-with-next-as-self'
-            display_name = 'my action with next as self'
+            name = "my-action-with-next-as-self"
+            display_name = "my action with next as self"
             next_actions = [MyAction]
-            reference_model = 'edc_action_item.reference'
+            reference_model = "edc_action_item.reference"
 
         class MyActionWithNextActionAsSelf(Action):
-            name = 'my-action-with-next'
-            display_name = 'my action with next'
-            next_actions = ['self']
-            reference_model = 'edc_action_item.reference'
+            name = "my-action-with-next"
+            display_name = "my action with next"
+            next_actions = ["self"]
+            reference_model = "edc_action_item.reference"
 
         site_action_items.register(MyAction)
         site_action_items.register(MyActionWithNextAction)
         site_action_items.register(MyActionWithNextActionAsSelf)
-        my_action = MyAction(
-            subject_identifier=self.subject_identifier)
+        my_action = MyAction(subject_identifier=self.subject_identifier)
 
         try:
             action_item = ActionItem.objects.get(
-                action_identifier=my_action.action_identifier)
+                action_identifier=my_action.action_identifier
+            )
         except ObjectDoesNotExist:
-            self.fail('ActionItem unexpectedly does not exist')
+            self.fail("ActionItem unexpectedly does not exist")
 
         self.assertEqual(my_action.action_item, action_item)
-        self.assertEqual(my_action.action_identifier,
-                         action_item.action_identifier)
-        self.assertEqual(get_action_type(my_action),
-                         action_item.action_type)
-        self.assertEqual(get_action_type(my_action).reference_model,
-                         action_item.reference_model)
+        self.assertEqual(my_action.action_identifier, action_item.action_identifier)
+        self.assertEqual(get_action_type(my_action), action_item.action_type)
+        self.assertEqual(
+            get_action_type(my_action).reference_model, action_item.reference_model
+        )
         self.assertIsNone(action_item.parent_action_item_id)
 
         class MyActionWithIncorrectModel(Action):
-            name = 'my-action2'
-            display_name = 'my action 2'
-            reference_model = 'edc_action_item.TestModelWithAction'
+            name = "my-action2"
+            display_name = "my action 2"
+            reference_model = "edc_action_item.TestModelWithAction"
 
         site_action_items.register(MyActionWithIncorrectModel)
 
-        TestModelWithAction.objects.create(
-            subject_identifier=self.subject_identifier)
+        TestModelWithAction.objects.create(subject_identifier=self.subject_identifier)
         self.assertRaises(
             ObjectDoesNotExist,
             TestModelWithAction.objects.create,
             subject_identifier=self.subject_identifier,
-            action_identifier='blahblah')
+            action_identifier="blahblah",
+        )
 
     def test_action_type_updates(self):
-
         class MyAction(Action):
-            name = 'my-action3'
-            display_name = 'original display_name'
-            reference_model = 'edc_action_item.FormOne'
+            name = "my-action3"
+            display_name = "original display_name"
+            reference_model = "edc_action_item.FormOne"
 
         site_action_items.register(MyAction)
-        MyAction(
-            subject_identifier=self.subject_identifier)
-        action_type = ActionType.objects.get(name='my-action3')
-        self.assertEqual(action_type.display_name, 'original display_name')
+        MyAction(subject_identifier=self.subject_identifier)
+        action_type = ActionType.objects.get(name="my-action3")
+        self.assertEqual(action_type.display_name, "original display_name")
 
         site_action_items.updated_action_type = False
-        MyAction.display_name = 'changed display_name'
+        MyAction.display_name = "changed display_name"
 
-        MyAction(
-            subject_identifier=self.subject_identifier)
-        action_type = ActionType.objects.get(name='my-action3')
-        self.assertEqual(action_type.display_name, 'changed display_name')
+        MyAction(subject_identifier=self.subject_identifier)
+        action_type = ActionType.objects.get(name="my-action3")
+        self.assertEqual(action_type.display_name, "changed display_name")
 
     def test_delete_child_and_parent_recreates(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
         site_action_items.register(FormThreeAction)
-        form_one_action = FormOneAction(
-            subject_identifier=self.subject_identifier)
+        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier,
-            action_identifier=form_one_action.action_identifier)
-        action_item = ActionItem.objects.get(
-            action_type__name=FormTwoAction.name)
+            action_identifier=form_one_action.action_identifier,
+        )
+        action_item = ActionItem.objects.get(action_type__name=FormTwoAction.name)
         action_item.delete()
-        action_item = ActionItem.objects.get(
-            action_type__name=FormThreeAction.name)
+        action_item = ActionItem.objects.get(action_type__name=FormThreeAction.name)
         action_item.delete()
         # assert deleted actions are recreated
         self.assertEqual(ActionItem.objects.all().count(), 3)
         # assert two are parents of form one
-        self.assertEqual(ActionItem.objects.filter(
-            parent_action_item__action_identifier=form_one.action_identifier).count(), 2)
+        self.assertEqual(
+            ActionItem.objects.filter(
+                parent_action_item__action_identifier=form_one.action_identifier
+            ).count(),
+            2,
+        )
 
     def test_delete2(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
         site_action_items.register(FormThreeAction)
-        form_one_action = FormOneAction(
-            subject_identifier=self.subject_identifier)
+        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier,
-            action_identifier=form_one_action.action_identifier)
+            action_identifier=form_one_action.action_identifier,
+        )
 
         # delete form one
         form_one.delete()
         # assert resets action item
         action_item = ActionItem.objects.get(
-            action_type__name=FormOneAction.name,
-            status=NEW)
+            action_type__name=FormOneAction.name, status=NEW
+        )
 
         # assert cleans up child action items
         self.assertRaises(
             ObjectDoesNotExist,
             ActionItem.objects.get,
-            action_type__name=FormTwoAction.name)
+            action_type__name=FormTwoAction.name,
+        )
         self.assertRaises(
             ObjectDoesNotExist,
             ActionItem.objects.get,
-            action_type__name=FormThreeAction.name)
+            action_type__name=FormThreeAction.name,
+        )
 
         # assert can delete form one action
         action_item.delete()
@@ -234,41 +234,39 @@ class TestActionItem(TestCase):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
         site_action_items.register(FormThreeAction)
-        form_one_action = FormOneAction(
-            subject_identifier=self.subject_identifier)
+        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
         FormOne.objects.create(
             subject_identifier=self.subject_identifier,
-            action_identifier=form_one_action.action_identifier)
+            action_identifier=form_one_action.action_identifier,
+        )
 
-        action_item = ActionItem.objects.get(
-            action_type__name=FormOneAction.name)
+        action_item = ActionItem.objects.get(action_type__name=FormOneAction.name)
 
-        self.assertRaises(
-            ProtectedError,
-            action_item.delete)
+        self.assertRaises(ProtectedError, action_item.delete)
 
     def test_not_changed(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
         site_action_items.register(FormThreeAction)
-        form_one_action = FormOneAction(
-            subject_identifier=self.subject_identifier)
+        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier,
-            action_identifier=form_one_action.action_identifier)
+            action_identifier=form_one_action.action_identifier,
+        )
 
         form_two = FormTwo.objects.create(
-            subject_identifier=self.subject_identifier,
-            form_one=form_one)
+            subject_identifier=self.subject_identifier, form_one=form_one
+        )
 
         form_three = FormThree.objects.create(
-            subject_identifier=self.subject_identifier)
+            subject_identifier=self.subject_identifier
+        )
 
         self.assertTrue(form_one.action_item.status == CLOSED)
         self.assertTrue(form_two.action_item.status == CLOSED)
         self.assertTrue(form_three.action_item.status == CLOSED)
 
-        form_one.f1 = 'blah'
+        form_one.f1 = "blah"
         form_one.save()
 
         form_one.refresh_from_db()

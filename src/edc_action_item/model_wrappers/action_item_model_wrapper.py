@@ -8,8 +8,8 @@ from ..models import ActionItem
 class ActionItemModelWrapper(ModelWrapper):
 
     model_cls = ActionItem
-    next_url_attrs = ['subject_identifier']
-    next_url_name = settings.DASHBOARD_URL_NAMES.get('subject_dashboard_url')
+    next_url_attrs = ["subject_identifier"]
+    next_url_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
 
     def __init__(self, model_obj=None, **kwargs):
         super().__init__(model_obj=model_obj, **kwargs)

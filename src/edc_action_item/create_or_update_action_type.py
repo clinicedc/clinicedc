@@ -10,13 +10,14 @@ def create_or_update_action_type(name=None, using=None, **options):
     If model instance exists, updates.
     """
 
-    action_type_model = 'edc_action_item.actiontype'
+    action_type_model = "edc_action_item.actiontype"
 
     opts = {}
     action_type_model_cls = django_apps.get_model(action_type_model)
     if options:
         fields = [
-            f.name for f in action_type_model_cls._meta.fields if f.name != 'name']
+            f.name for f in action_type_model_cls._meta.fields if f.name != "name"
+        ]
         for attr, value in options.items():
             if attr in fields:
                 opts.update({attr: value})

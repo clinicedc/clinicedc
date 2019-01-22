@@ -12,78 +12,103 @@ from .modeladmin_mixins import ModelAdminMixin
 
 
 @admin.register(ActionItem, site=edc_action_item_admin)
-class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
+class ActionItemAdmin(
+    ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.ModelAdmin
+):
 
     form = ActionItemForm
 
     save_on_top = True
 
-    subject_dashboard_url = 'subject_dashboard_url'
+    subject_dashboard_url = "subject_dashboard_url"
 
-    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get(
-        subject_dashboard_url)
+    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get(subject_dashboard_url)
 
     fieldsets = (
-        (None, {
-            'fields': (
-                'action_identifier',
-                'subject_identifier',
-                'report_datetime',
-                'action_type',
-                'priority',
-                'status',
-                'instructions',
-            )}),
-        ('Reference Information', {
-            'classes': ('collapse', ),
-            'fields': (
-                'related_action_item',
-                'parent_action_item',
-                'auto_created',
-                'auto_created_comment',
-            )}),
-        ('Email', {
-            'classes': ('collapse', ),
-            'fields': (
-                'emailed',
-                'emailed_datetime',
-            )}),
-        audit_fieldset_tuple
+        (
+            None,
+            {
+                "fields": (
+                    "action_identifier",
+                    "subject_identifier",
+                    "report_datetime",
+                    "action_type",
+                    "priority",
+                    "status",
+                    "instructions",
+                )
+            },
+        ),
+        (
+            "Reference Information",
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    "related_action_item",
+                    "parent_action_item",
+                    "auto_created",
+                    "auto_created_comment",
+                ),
+            },
+        ),
+        (
+            "Email",
+            {"classes": ("collapse",), "fields": ("emailed", "emailed_datetime")},
+        ),
+        audit_fieldset_tuple,
     )
 
-    radio_fields = {'status': admin.VERTICAL}
+    radio_fields = {"status": admin.VERTICAL}
 
-    list_display = ('identifier', 'dashboard',
-                    'action_type', 'priority', 'status', 'emailed', 'parent_action',
-                    'related_action_item', 'created')
+    list_display = (
+        "identifier",
+        "dashboard",
+        "action_type",
+        "priority",
+        "status",
+        "emailed",
+        "parent_action",
+        "related_action_item",
+        "created",
+    )
 
-    list_filter = ('status', 'priority', 'emailed',
-                   'report_datetime', 'action_type__name')
+    list_filter = (
+        "status",
+        "priority",
+        "emailed",
+        "report_datetime",
+        "action_type__name",
+    )
 
-    search_fields = ('subject_identifier',
-                     'action_identifier',
-                     'related_action_item__action_identifier',
-                     'parent_action_item__action_identifier',
-                     'action_type__name',
-                     'action_type__display_name',
-                     'id')
+    search_fields = (
+        "subject_identifier",
+        "action_identifier",
+        "related_action_item__action_identifier",
+        "parent_action_item__action_identifier",
+        "action_type__name",
+        "action_type__display_name",
+        "id",
+    )
 
-    ordering = ('action_type__display_name', )
+    ordering = ("action_type__display_name",)
 
-    date_hierarchy = 'created'
+    date_hierarchy = "created"
 
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)
-        fields = fields + ('action_identifier', 'instructions',
-                           'auto_created', 'auto_created_comment',
-                           'reference_model', 'emailed', 'emailed_datetime',
-                           'related_action_item',
-                           'parent_action_item',
-                           )
+        fields = fields + (
+            "action_identifier",
+            "instructions",
+            "auto_created",
+            "auto_created_comment",
+            "reference_model",
+            "emailed",
+            "emailed_datetime",
+            "related_action_item",
+            "parent_action_item",
+        )
         if obj:
-            fields = fields + ('subject_identifier',
-                               'report_datetime',
-                               'action_type')
+            fields = fields + ("subject_identifier", "report_datetime", "action_type")
         return fields
 
     def parent_action(self, obj):
@@ -91,22 +116,22 @@ class ActionItemAdmin(ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.Mo
         for display in admin.
         """
         if obj.parent_action_item:
-            url_name = '_'.join(obj._meta.label_lower.split('.'))
+            url_name = "_".join(obj._meta.label_lower.split("."))
             namespace = edc_action_item_admin.name
-            url = reverse(
-                f'{namespace}:{url_name}_changelist')
+            url = reverse(f"{namespace}:{url_name}_changelist")
             return mark_safe(
                 f'<a data-toggle="tooltip" title="go to parent action item" '
                 f'href="{url}?q={obj.parent_action_item.action_identifier}">'
-                f'{obj.parent_action_item.identifier}</a>')
+                f"{obj.parent_action_item.identifier}</a>"
+            )
         return None
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'action_type':
+        if db_field.name == "action_type":
             kwargs["queryset"] = db_field.related_model.objects.filter(
-                create_by_user=True)
-        return super().formfield_for_foreignkey(
-            db_field, request, **kwargs)
+                create_by_user=True
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def post_url_on_delete_kwargs(self, request, obj):
         return dict(subject_identifier=obj.subject_identifier)

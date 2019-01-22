@@ -16,9 +16,9 @@ class ActionItemHelperError(Exception):
 
 
 class ActionItemHelper:
-
-    def __init__(self, action_item=None, href=None, action_name=None,
-                 related_action_item=None):
+    def __init__(
+        self, action_item=None, href=None, action_name=None, related_action_item=None
+    ):
         self._parent_reference_obj = None
         self._parent_reference_url = None
         self._reference_obj = None
@@ -26,7 +26,7 @@ class ActionItemHelper:
         self._related_reference_obj = None
         self._related_reference_url = None
         self.href = href
-        self.last_updated_text = 'This action item has not been updated.'
+        self.last_updated_text = "This action item has not been updated."
         if not action_item and action_name:
             self.action_identifier = None
             self.action_item = None
@@ -34,28 +34,29 @@ class ActionItemHelper:
             self.related_action_item = related_action_item
             if self.action_cls.related_reference_fk_attr and not related_action_item:
                 raise ActionItemHelperError(
-                    f'Expected related_action_item. Got None. '
-                    f'Related field attribute is \''
-                    f'{self.action_cls.related_reference_fk_attr}\'. '
-                    f'See {repr(self)}.')
+                    f"Expected related_action_item. Got None. "
+                    f"Related field attribute is '"
+                    f"{self.action_cls.related_reference_fk_attr}'. "
+                    f"See {repr(self)}."
+                )
         else:
             self.action_identifier = action_item.action_identifier
             self.action_item = action_item
             self.action_cls = site_action_items.get(
-                action_item.reference_model_cls.action_name)
+                action_item.reference_model_cls.action_name
+            )
             self.related_action_item = self.action_item.related_action_item
             if self.action_item.last_updated:
                 # could also use action_item.linked_to_reference?
-                date_format = convert_php_dateformat(
-                    settings.SHORT_DATE_FORMAT)
-                last_updated = self.action_item.last_updated.strftime(
-                    date_format)
+                date_format = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+                last_updated = self.action_item.last_updated.strftime(date_format)
                 user_last_updated = self.action_item.user_last_updated
                 self.last_updated_text = (
-                    f'Last updated on {last_updated} by {user_last_updated}.')
+                    f"Last updated on {last_updated} by {user_last_updated}."
+                )
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(action_name={self.action_cls})'
+        return f"{self.__class__.__name__}(action_name={self.action_cls})"
 
     def get_url(self, model_obj=None, model_cls=None, **kwargs):
         """Returns a relative add URL with querystring that can
@@ -63,27 +64,29 @@ class ActionItemHelper:
 
         Adds visit fk to the querystring if possible.
         """
-        opts = dict(
-            **self.get_query_dict(),
-            **kwargs)
+        opts = dict(**self.get_query_dict(), **kwargs)
         if self.action_identifier:
             opts.update(action_identifier=self.action_identifier)
 
         if self.action_cls.related_reference_fk_attr:
             try:
-                related_reference_obj = (
-                    self.action_cls.related_reference_model_cls().objects.get(
-                        action_item=self.related_action_item))
+                related_reference_obj = self.action_cls.related_reference_model_cls().objects.get(
+                    action_item=self.related_action_item
+                )
             except ObjectDoesNotExist as e:
                 logger.warning(
-                    f'{e} See {self.action_item}. Related action identifier'
-                    f'=\'{self.action_item.related_action_identifier}\'.')
-                opts.update(
-                    {self.action_cls.related_reference_fk_attr: None})
+                    f"{e} See {self.action_item}. Related action identifier"
+                    f"='{self.action_item.related_action_identifier}'."
+                )
+                opts.update({self.action_cls.related_reference_fk_attr: None})
             else:
                 opts.update(
-                    {self.action_cls.related_reference_fk_attr:
-                     str(related_reference_obj.pk)})
+                    {
+                        self.action_cls.related_reference_fk_attr: str(
+                            related_reference_obj.pk
+                        )
+                    }
+                )
         if model_obj:
             try:
                 model_obj.visit_model_attr()
@@ -91,15 +94,18 @@ class ActionItemHelper:
                 pass
             else:
                 visit_obj = getattr(model_obj, model_obj.visit_model_attr())
-                opts.update({
-                    model_obj.visit_model_attr(): str(visit_obj.pk),
-                    'appointment': str(visit_obj.appointment.pk)})
+                opts.update(
+                    {
+                        model_obj.visit_model_attr(): str(visit_obj.pk),
+                        "appointment": str(visit_obj.appointment.pk),
+                    }
+                )
             path = model_obj.get_absolute_url()
         else:
             path = model_cls().get_absolute_url()
         query = unquote(urlencode(opts))
         if query:
-            return '?'.join([path, query])
+            return "?".join([path, query])
         return path
 
     @property
@@ -120,7 +126,8 @@ class ActionItemHelper:
         if not self._reference_url:
             self._reference_url = self.get_url(
                 model_obj=self.reference_obj,
-                model_cls=self.action_cls.reference_model_cls())
+                model_cls=self.action_cls.reference_model_cls(),
+            )
         return self._reference_url
 
     @property
@@ -146,7 +153,8 @@ class ActionItemHelper:
             if self.parent_reference_obj:
                 kwargs = dict(
                     model_obj=self.parent_reference_obj,
-                    model_cls=self.parent_reference_obj.__class__)
+                    model_cls=self.parent_reference_obj.__class__,
+                )
                 self._parent_reference_url = self.get_url(**kwargs)
         return self._parent_reference_url
 
@@ -171,7 +179,8 @@ class ActionItemHelper:
             if self.related_reference_obj:
                 kwargs = dict(
                     model_obj=self.related_reference_obj,
-                    model_cls=self.related_reference_obj.__class__)
+                    model_cls=self.related_reference_obj.__class__,
+                )
                 self._related_reference_url = self.get_url(**kwargs)
         return self._related_reference_url
 
@@ -190,8 +199,9 @@ class ActionItemHelper:
     def reference_model_name(self):
         try:
             reference_model_name = (
-                f'{self.action_item.reference_model_cls._meta.verbose_name} '
-                f'{str(self.reference_obj or "")}')
+                f"{self.action_item.reference_model_cls._meta.verbose_name} "
+                f'{str(self.reference_obj or "")}'
+            )
         except AttributeError:
             reference_model_name = None
         return reference_model_name
@@ -200,8 +210,9 @@ class ActionItemHelper:
     def parent_reference_model_name(self):
         try:
             parent_reference_model_name = (
-                f'{self.action_item.parent_action_item.reference_model_cls._meta.verbose_name} '  # noqa
-                f'{str(self.parent_reference_obj)}')
+                f"{self.action_item.parent_action_item.reference_model_cls._meta.verbose_name} "  # noqa
+                f"{str(self.parent_reference_obj)}"
+            )
         except AttributeError:
             parent_reference_model_name = None
         return parent_reference_model_name
@@ -210,8 +221,9 @@ class ActionItemHelper:
     def related_reference_model_name(self):
         try:
             related_reference_model_name = (
-                f'{self.related_action_item.reference_model_cls._meta.verbose_name} '
-                f'{str(self.related_reference_obj)}')
+                f"{self.related_action_item.reference_model_cls._meta.verbose_name} "
+                f"{str(self.related_reference_obj)}"
+            )
         except AttributeError:
             related_reference_model_name = None
         return related_reference_model_name
@@ -223,10 +235,12 @@ class ActionItemHelper:
         context = {}
         if self.action_item.parent_action_item:
             context.update(
-                parent_action_identifier=self.action_item.parent_action_item.action_identifier)
+                parent_action_identifier=self.action_item.parent_action_item.action_identifier
+            )
         if self.related_action_item:
             context.update(
-                related_action_identifier=self.related_action_item.action_identifier)
+                related_action_identifier=self.related_action_item.action_identifier
+            )
         context.update(
             action_identifier=self.action_identifier,
             action_instructions=self.action_item.instructions,
@@ -240,7 +254,7 @@ class ActionItemHelper:
             parent_reference_obj=self.parent_reference_obj,
             parent_reference_model_name=self.parent_reference_model_name,
             parent_reference_url=self.parent_reference_url,
-            priority=self.action_item.priority or '',
+            priority=self.action_item.priority or "",
             reference_model_name=self.reference_model_name,
             reference_obj=self.reference_obj,
             reference_url=self.reference_url,

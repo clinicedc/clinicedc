@@ -23,67 +23,66 @@ class ActionModelMixin(models.Model):
 
     action_name = None
 
-    action_item_model = 'edc_action_item.actionitem'
+    action_item_model = "edc_action_item.actionitem"
 
-    subject_dashboard_url = 'subject_dashboard_url'
+    subject_dashboard_url = "subject_dashboard_url"
 
-    action_identifier = models.CharField(
-        max_length=50,
-        unique=True)
+    action_identifier = models.CharField(max_length=50, unique=True)
 
-    subject_identifier = models.CharField(
-        max_length=50)
+    subject_identifier = models.CharField(max_length=50)
 
-    action_item = models.ForeignKey(
-        ActionItem,
-        null=True,
-        on_delete=PROTECT)
+    action_item = models.ForeignKey(ActionItem, null=True, on_delete=PROTECT)
 
     parent_action_item = models.ForeignKey(
-        ActionItem,
-        related_name='+',
-        null=True,
-        on_delete=PROTECT)
+        ActionItem, related_name="+", null=True, on_delete=PROTECT
+    )
 
     related_action_item = models.ForeignKey(
-        ActionItem,
-        related_name='+',
-        null=True,
-        on_delete=PROTECT)
+        ActionItem, related_name="+", null=True, on_delete=PROTECT
+    )
 
     parent_action_identifier = models.CharField(
         max_length=30,
         null=True,
-        help_text=('action identifier that links to parent '
-                   'reference model instance.'))
+        help_text=(
+            "action identifier that links to parent " "reference model instance."
+        ),
+    )
 
     related_action_identifier = models.CharField(
         max_length=30,
         null=True,
-        help_text=('action identifier that links to related '
-                   'reference model instance.'))
+        help_text=(
+            "action identifier that links to related " "reference model instance."
+        ),
+    )
 
     objects = ActionItemModelManager()
 
     history = HistoricalRecords(inherit=True)
 
     def __str__(self):
-        return f'{self.action_identifier[-9:]}'
+        return f"{self.action_identifier[-9:]}"
 
     def save(self, *args, **kwargs):
         if not self.get_action_cls():
             raise ActionClassNotDefined(
-                f'Action class name not defined. See {repr(self)}')
+                f"Action class name not defined. See {repr(self)}"
+            )
 
         if not self.subject_identifier:
             raise ActionItemError(
-                f'Missing subject identifier. See {self.__class__}'
-                f' {self.action_identifier}.')
+                f"Missing subject identifier. See {self.__class__}"
+                f" {self.action_identifier}."
+            )
 
-        if (self.get_action_cls().related_reference_model
-                and not self.related_action_item):
+        if (
+            self.get_action_cls().related_reference_model
+            and not self.related_action_item
+        ):
             self.related_action_item = getattr(
-                self, self.get_action_cls().related_reference_fk_attr).action_item
+                self, self.get_action_cls().related_reference_fk_attr
+            ).action_item
 
         if not self.id:
             # this is a new instance
@@ -93,20 +92,23 @@ class ActionModelMixin(models.Model):
             action = action_cls(
                 subject_identifier=self.subject_identifier,
                 action_identifier=self.action_identifier,
-                related_action_item=self.related_action_item)
+                related_action_item=self.related_action_item,
+            )
             self.action_item = action.action_item
             self.action_item.linked_to_reference = True
             self.action_identifier = self.action_item.action_identifier
         elif self.id and not self.action_item:
             self.action_item = ActionItem.objects.get(
-                action_identifier=self.action_identifier)
+                action_identifier=self.action_identifier
+            )
         self.parent_action_item = self.action_item.parent_action_item
         # also see signals.py
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.action_identifier, )
-    natural_key.dependencies = ['edc_action_item.actionitem']
+        return (self.action_identifier,)
+
+    natural_key.dependencies = ["edc_action_item.actionitem"]
 
     @classmethod
     def get_action_cls(cls):

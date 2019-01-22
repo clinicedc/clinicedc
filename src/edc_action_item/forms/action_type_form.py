@@ -4,7 +4,6 @@ from ..models import ActionType
 
 
 class ActionTypeForm(forms.ModelForm):
-
     class Meta:
         model = ActionType
-        fields = '__all__'
+        fields = "__all__"
