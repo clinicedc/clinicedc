@@ -6,19 +6,21 @@ import uuid
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_action_item', '0012_auto_20181010_2348'),
-    ]
+    dependencies = [("edc_action_item", "0012_auto_20181010_2348")]
 
     operations = [
         migrations.AlterField(
-            model_name='historicalactionitem',
-            name='history_id',
-            field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
+            model_name="historicalactionitem",
+            name="history_id",
+            field=models.UUIDField(
+                default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalactionitemupdate',
-            name='history_id',
-            field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
+            model_name="historicalactionitemupdate",
+            name="history_id",
+            field=models.UUIDField(
+                default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+            ),
         ),
     ]

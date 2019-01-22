@@ -5,34 +5,47 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_action_item', '0004_auto_20180319_2128'),
-    ]
+    dependencies = [("edc_action_item", "0004_auto_20180319_2128")]
 
     operations = [
         migrations.AddField(
-            model_name='actionitem',
-            name='related_reference_identifier',
-            field=models.CharField(blank=True, help_text='May be left blank. e.g. tracking identifier from source model that opened the item.', max_length=50, null=True),
+            model_name="actionitem",
+            name="related_reference_identifier",
+            field=models.CharField(
+                blank=True,
+                help_text="May be left blank. e.g. tracking identifier from source model that opened the item.",
+                max_length=50,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='actionitem',
-            name='related_reference_model',
+            model_name="actionitem",
+            name="related_reference_model",
             field=models.CharField(editable=False, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='actiontype',
-            name='related_reference_model',
-            field=models.CharField(blank=True, help_text='origin reference model', max_length=100, null=True),
+            model_name="actiontype",
+            name="related_reference_model",
+            field=models.CharField(
+                blank=True,
+                help_text="origin reference model",
+                max_length=100,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='historicalactionitem',
-            name='related_reference_identifier',
-            field=models.CharField(blank=True, help_text='May be left blank. e.g. tracking identifier from source model that opened the item.', max_length=50, null=True),
+            model_name="historicalactionitem",
+            name="related_reference_identifier",
+            field=models.CharField(
+                blank=True,
+                help_text="May be left blank. e.g. tracking identifier from source model that opened the item.",
+                max_length=50,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='historicalactionitem',
-            name='related_reference_model',
+            model_name="historicalactionitem",
+            name="related_reference_model",
             field=models.CharField(editable=False, max_length=100, null=True),
         ),
     ]

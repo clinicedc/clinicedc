@@ -5,17 +5,11 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_action_item', '0006_auto_20180707_1659'),
-    ]
+    dependencies = [("edc_action_item", "0006_auto_20180707_1659")]
 
     operations = [
+        migrations.RemoveField(model_name="actionitem", name="reference_identifier"),
         migrations.RemoveField(
-            model_name='actionitem',
-            name='reference_identifier',
-        ),
-        migrations.RemoveField(
-            model_name='historicalactionitem',
-            name='reference_identifier',
+            model_name="historicalactionitem", name="reference_identifier"
         ),
     ]

@@ -12,10 +12,13 @@ def edc_notification_check(app_configs, **kwargs):
         except AttributeError:
             errors.append(
                 Warning(
-                    (f'Reference model used by action cls {action_cls} '
-                     f'has no history manager.'),
-                    hint='History manager is need to detect changes.',
+                    (
+                        f"Reference model used by action cls {action_cls} "
+                        f"has no history manager."
+                    ),
+                    hint="History manager is need to detect changes.",
                     obj=action_cls,
-                    id='edc_action_item.E001',
-                ))
+                    id="edc_action_item.E001",
+                )
+            )
     return errors

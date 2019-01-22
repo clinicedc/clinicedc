@@ -30,12 +30,12 @@ class SiteActionItemCollection:
     def __init__(self):
         self.registry = OrderedDict()
         prn = Prn(
-            model='edc_action_item.actionitem',
-            url_namespace='edc_action_item_admin')
+            model="edc_action_item.actionitem", url_namespace="edc_action_item_admin"
+        )
         site_prn_forms.register(prn)
 
     def __repr__(self):
-        return f'{self.__class__.__name__}()'
+        return f"{self.__class__.__name__}()"
 
     def __len__(self):
         return len(self.registry.values())
@@ -46,14 +46,16 @@ class SiteActionItemCollection:
     def register(self, action_cls=None):
         if action_cls.name in self.registry:
             raise AlreadyRegistered(
-                f'Action class is already registered. Got name=\'{action_cls.name}\' '
-                f'for {action_cls.__name__}')
+                f"Action class is already registered. Got name='{action_cls.name}' "
+                f"for {action_cls.__name__}"
+            )
         else:
             self.registry.update({action_cls.name: action_cls})
         if action_cls.show_link_to_changelist:
             prn = Prn(
                 model=action_cls.reference_model,
-                url_namespace=action_cls.admin_site_name)
+                url_namespace=action_cls.admin_site_name,
+            )
             try:
                 site_prn_forms.register(prn)
             except AlreadyRegistered:
@@ -73,8 +75,7 @@ class SiteActionItemCollection:
         """
         if action_cls.notification_cls():
             try:
-                site_notifications.register(
-                    action_cls.notification_cls())
+                site_notifications.register(action_cls.notification_cls())
             except NotificationAlreadyRegistered:
                 pass
 
@@ -83,8 +84,9 @@ class SiteActionItemCollection:
         """
         if name not in self.registry:
             raise SiteActionError(
-                f'Action does not exist. Did you register the Action? '
-                f'Expected one of {self.registry}. Got {name}.')
+                f"Action does not exist. Did you register the Action? "
+                f"Expected one of {self.registry}. Got {name}."
+            )
         # force create action type if it does not exist
         get_action_type(self.registry.get(name))
         return self.registry.get(name)
@@ -98,16 +100,13 @@ class SiteActionItemCollection:
         return None
 
     def get_show_link_to_add_actions(self):
-
         class Wrapper:
-
             def __init__(self, action_cls=None):
                 self.name = action_cls.name
                 self.display_name = action_cls.display_name
                 self.action_type_id = str(get_action_type(action_cls).pk)
 
-        names = [v.name for v in self.registry.values()
-                 if v.show_link_to_add]
+        names = [v.name for v in self.registry.values() if v.show_link_to_add]
         return [Wrapper(action_cls=self.get(name)) for name in names]
 
     def create_or_update_action_types(self):
@@ -121,23 +120,21 @@ class SiteActionItemCollection:
         self.updated_action_types = True
 
     def autodiscover(self, module_name=None, verbose=True):
-        module_name = module_name or 'action_items'
+        module_name = module_name or "action_items"
         writer = sys.stdout.write if verbose else lambda x: x
         style = color_style()
-        writer(f' * checking for site {module_name} ...\n')
+        writer(f" * checking for site {module_name} ...\n")
         for app in django_apps.app_configs:
-            writer(f' * searching {app}           \r')
+            writer(f" * searching {app}           \r")
             try:
                 mod = import_module(app)
                 try:
-                    before_import_registry = copy.copy(
-                        site_action_items.registry)
-                    import_module(f'{app}.{module_name}')
-                    writer(
-                        f' * registered \'{module_name}\' from \'{app}\'\n')
+                    before_import_registry = copy.copy(site_action_items.registry)
+                    import_module(f"{app}.{module_name}")
+                    writer(f" * registered '{module_name}' from '{app}'\n")
                 except SiteActionError as e:
-                    writer(f'   - loading {app}.{module_name} ... ')
-                    writer(style.ERROR(f'ERROR! {e}\n'))
+                    writer(f"   - loading {app}.{module_name} ... ")
+                    writer(style.ERROR(f"ERROR! {e}\n"))
                 except ImportError as e:
                     site_action_items.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
@@ -146,8 +143,9 @@ class SiteActionItemCollection:
                 pass
             except Exception as e:
                 raise SiteActionError(
-                    f'{e.__class__.__name__} was raised when loading {module_name}. '
-                    f'Got {e} See {app}.{module_name}')
+                    f"{e.__class__.__name__} was raised when loading {module_name}. "
+                    f"Got {e} See {app}.{module_name}"
+                )
 
 
 site_action_items = SiteActionItemCollection()

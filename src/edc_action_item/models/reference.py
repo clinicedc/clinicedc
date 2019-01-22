@@ -21,19 +21,15 @@ class Reference(ActionModelMixin, BaseUuidModel):
     creating model is then the "reference" model.
     """
 
-    action_identifier = models.CharField(
-        max_length=25,
-        unique=True)
+    action_identifier = models.CharField(max_length=25, unique=True)
 
-    report_datetime = models.DateTimeField(
-        default=get_utcnow)
+    report_datetime = models.DateTimeField(default=get_utcnow)
 
     action_type = models.ForeignKey(
-        ActionType, on_delete=PROTECT,
-        related_name='action',
-        verbose_name='Action')
+        ActionType, on_delete=PROTECT, related_name="action", verbose_name="Action"
+    )
 
     objects = ReferenceManager()
 
     def natural_key(self):
-        return (self.action_identifier, )
+        return (self.action_identifier,)

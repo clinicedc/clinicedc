@@ -14,7 +14,8 @@ def register(**kwargs):
 
         if not issubclass(action_cls, (Action,)):
             raise RegisterNotificationError(
-                f'Wrapped class must a Action class. Got {action_cls}')
+                f"Wrapped class must a Action class. Got {action_cls}"
+            )
 
         site_action_items.register(action_cls=action_cls)
 
