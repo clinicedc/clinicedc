@@ -1,5 +1,6 @@
 import copy
 
+from django.conf import settings
 from django.template.loader import render_to_string
 from django.urls.base import reverse
 
@@ -13,13 +14,14 @@ class NavbarItem:
     """A class that represents a single item on a navbar.
     """
 
-    template_name = 'edc_navbar/navbar_item.html'
+    template_name = f'edc_navbar/bootstrap{settings.EDC_BOOTSTRAP}/navbar_item.html'
 
     def __init__(self, name=None, title=None,
-                 label=None, url_name=None, html_id=None,
+                 label=None, alt=None, url_name=None, html_id=None,
                  glyphicon=None, fa_icon=None, icon=None,
                  icon_width=None, icon_height=None, no_url_namespace=None,
                  active=None, permission_codename=None):
+        self.alt = alt or label or name
         self.name = name
         if no_url_namespace:
             self.url_name = url_name.split(':')[1]

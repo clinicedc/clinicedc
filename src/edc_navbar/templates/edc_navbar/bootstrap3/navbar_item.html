@@ -3,8 +3,8 @@
     <a title="{% if has_navbar_item_permission %}{{ title }}{% else %}unavailable{% endif %}" name="{{ name }}" id="{{ name }}" alt="{{ alt }}"
         {% if has_navbar_item_permission %}href="{{ reversed_url }}"{% else %} disabled {% endif %}>
         {% if glyphicon %}<i class="glyphicon {{ glyphicon }}"></i>{% endif %}
-        {% if fa_icon %}<i class="{{ fa_icon }} fa-fw"></i>&nbsp{% endif %}
+        {% if fa_icon %}<i class="{{ fa_icon }} fa-fw" alt="{{ alt }}" title="{{ title }}"></i>&nbsp{% endif %}
         {% if icon %}<img src='{% static icon %}' height="{{ icon_height }}" width="{{ icon_width }}"></img>{% endif %}
-        {{ label|default:''|title }}
+        {{ label }}
     </a>
 </li><!-- end rendered navbar item -->
