@@ -121,6 +121,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 DEFAULT_NAVBAR_NAME = 'default'
+EDC_BOOTSTRAP = 3
 
 if 'test' in sys.argv:
 
