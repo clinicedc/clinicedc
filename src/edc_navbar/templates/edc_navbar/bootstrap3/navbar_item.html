@@ -5,6 +5,6 @@
         {% if glyphicon %}<i class="glyphicon {{ glyphicon }}"></i>{% endif %}
         {% if fa_icon %}<i class="{{ fa_icon }} fa-fw" alt="{{ alt }}" title="{{ title }}"></i>&nbsp{% endif %}
         {% if icon %}<img src='{% static icon %}' height="{{ icon_height }}" width="{{ icon_width }}"></img>{% endif %}
-        {{ label }}
+        {{ label|default:'' }}
     </a>
 </li><!-- end rendered navbar item -->
