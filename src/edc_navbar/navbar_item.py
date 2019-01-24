@@ -14,63 +14,63 @@ class NavbarItem:
     """A class that represents a single item on a navbar.
     """
 
-    template_name = f'edc_navbar/bootstrap{settings.EDC_BOOTSTRAP}/navbar_item.html'
+    template_name = f"edc_navbar/bootstrap{settings.EDC_BOOTSTRAP}/navbar_item.html"
 
-    def __init__(self, name=None, title=None,
-                 label=None, alt=None, url_name=None, html_id=None,
-                 glyphicon=None, fa_icon=None, icon=None,
-                 icon_width=None, icon_height=None, no_url_namespace=None,
-                 active=None, permission_codename=None):
+    def __init__(
+        self,
+        name=None,
+        title=None,
+        label=None,
+        alt=None,
+        url_name=None,
+        html_id=None,
+        glyphicon=None,
+        fa_icon=None,
+        icon=None,
+        icon_width=None,
+        icon_height=None,
+        no_url_namespace=None,
+        active=None,
+        permission_codename=None,
+    ):
+        self.active = active
         self.alt = alt or label or name
-        self.name = name
-        if no_url_namespace:
-            self.url_name = url_name.split(':')[1]
+        if fa_icon and fa_icon.startswith("fa-"):
+            self.fa_icon = f"fa {fa_icon}"
         else:
-            self.url_name = url_name
+            self.fa_icon = fa_icon
+        self.glyphicon = glyphicon
+        self.html_id = html_id or name
+        self.icon = icon
+        self.icon_height = icon_height
+        self.icon_width = icon_width
         try:
             self.label = label.title()
         except AttributeError:
             self.label = None
-
-        self.title = title or self.label or self.name.title()  # the anchor title
-
-        self.active = active
-        self.html_id = html_id or self.name
-        self.glyphicon = glyphicon
-        self.fa_icon = fa_icon
-        if self.fa_icon and self.fa_icon.startswith('fa-'):
-            self.fa_icon = f'fa {self.fa_icon}'
-        self.icon = icon
-        self.icon_height = icon_height
-        self.icon_width = icon_width
+        self.name = name
+        self.title = title or self.label or name.title()  # the anchor title
+        if no_url_namespace:
+            self.url_name = url_name.split(":")[1]
+        else:
+            self.url_name = url_name
         if not self.url_name:
-            raise NavbarItemError(
-                f'\'url_name\' not specified. See {repr(self)}')
-        elif self.url_name == '#':
-            self.reversed_url = '#'
+            raise NavbarItemError(f"'url_name' not specified. See {repr(self)}")
+        elif self.url_name == "#":
+            self.reversed_url = "#"
         else:
             self.reversed_url = reverse(self.url_name)
-        if permission_codename:
-            try:
-                app_label, codename = permission_codename.split('.')
-            except ValueError:
-                app_label = 'edc_navbar'
-                codename = permission_codename
-            else:
-                if app_label != 'edc_navbar':
-                    raise NavbarItemError(
-                        f'Invalid navbar permission_codename. Expected app_label '
-                        f'to be \'edc_navbar\'. Got \'{permission_codename}\'')
-            finally:
-                permission_codename = f'{app_label}.{codename}'
-        self.permission_codename = permission_codename
+
+        self.permission_codename = self.get_permission_codename(permission_codename)
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}(name={self.name}, '
-                f'title={self.title}, url_name={self.url_name})')
+        return (
+            f"{self.__class__.__name__}(name={self.name}, "
+            f"title={self.title}, url_name={self.url_name})"
+        )
 
     def __str__(self):
-        return f'{self.name}, {self.url_name}'
+        return f"{self.name}, {self.url_name}"
 
     def get_context(self, selected_item=None, **kwargs):
         """Returns a dictionary of context data.
@@ -93,7 +93,24 @@ class NavbarItem:
         else:
             context.update(
                 has_navbar_item_permission=request.user.has_perm(
-                    self.permission_codename))
-        return render_to_string(
-            template_name=self.template_name,
-            context=context)
+                    self.permission_codename
+                )
+            )
+        return render_to_string(template_name=self.template_name, context=context)
+
+    def get_permission_codename(self, permission_codename):
+        if permission_codename:
+            try:
+                app_label, codename = permission_codename.split(".")
+            except ValueError:
+                app_label = "edc_navbar"
+                codename = permission_codename
+            else:
+                if app_label != "edc_navbar":
+                    raise NavbarItemError(
+                        f"Invalid navbar permission_codename. Expected app_label "
+                        f"to be 'edc_navbar'. Got '{permission_codename}'"
+                    )
+            finally:
+                permission_codename = f"{app_label}.{codename}"
+        return permission_codename
