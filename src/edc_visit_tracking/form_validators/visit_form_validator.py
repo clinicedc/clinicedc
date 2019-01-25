@@ -10,6 +10,8 @@ from ..visit_sequence import VisitSequence, VisitSequenceError
 class VisitFormValidator(FormValidator):
 
     visit_sequence_cls = VisitSequence
+    validate_missed_visit = True
+    validate_unscheduled_visit = True
 
     def clean(self):
         appointment = self.cleaned_data.get('appointment')
@@ -46,22 +48,29 @@ class VisitFormValidator(FormValidator):
 
     def validate_required_fields(self):
 
-        self.required_if(
-            MISSED_VISIT,
-            field='reason',
-            field_required='reason_missed')
+        if self.validate_missed_visit:
+            self.required_if(
+                MISSED_VISIT,
+                field='reason',
+                field_required='reason_missed')
 
-        self.required_if(
-            UNSCHEDULED,
-            field='reason',
-            field_required='reason_unscheduled')
+            self.required_if(
+                OTHER,
+                field='reason_missed',
+                field_required='reason_missed_other')
+
+        if self.validate_unscheduled_visit:
+            self.required_if(
+                UNSCHEDULED,
+                field='reason',
+                field_required='reason_unscheduled')
+
+            self.required_if(
+                OTHER,
+                field='reason_unscheduled',
+                field_required='reason_unscheduled_other')
 
         self.required_if(
             OTHER,
             field='info_source',
             field_required='info_source_other')
-
-        self.required_if(
-            OTHER,
-            field='reason_unscheduled',
-            field_required='reason_unscheduled_other')
