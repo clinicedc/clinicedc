@@ -108,8 +108,7 @@ class NavbarCollection:
             )
 
     def show_user_permissions(self, username=None, navbar_name=None):
-        user = django_apps.get_model(
-            "auth.user").objects.get(username=username)
+        user = django_apps.get_model("auth.user").objects.get(username=username)
         navbar = self.registry.get(navbar_name)
         return navbar.show_user_permissions(user=user)
 
@@ -132,8 +131,7 @@ class NavbarCollection:
                 try:
                     before_import_registry = copy.copy(site_navbars.registry)
                     import_module(f"{app}.{module_name}")
-                    writer(
-                        f" * registered navbars '{module_name}' from '{app}'\n")
+                    writer(f" * registered navbars '{module_name}' from '{app}'\n")
                 except NavbarError as e:
                     writer(f"   - loading {app}.navbars ... ")
                     writer(style.ERROR(f"ERROR! {e}\n"))
