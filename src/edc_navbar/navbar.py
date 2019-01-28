@@ -51,7 +51,8 @@ class Navbar:
                 and request.user.has_perm(item.permission_codename)
             ):
                 self.rendered_items.append(
-                    item.render(selected_item=selected_item, request=request, **kwargs)
+                    item.render(selected_item=selected_item,
+                                request=request, **kwargs)
                 )
 
     def show_user_permissions(self, user=None):
