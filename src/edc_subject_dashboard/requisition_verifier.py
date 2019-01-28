@@ -27,15 +27,17 @@ class RequisitionVerifier:
             self.requisition.is_drawn = self.requisition.is_drawn or YES
             self.requisition.item_count = self.requisition.item_count or 1
             self.requisition.item_type = self.requisition.item_type or TUBE
-            self.requisition.drawn_datetime = self.requisition.drawn_datetime or get_utcnow()
+            self.requisition.drawn_datetime = (
+                self.requisition.drawn_datetime or get_utcnow()
+            )
             self.requisition.save()
             self.verified = self.requisition.clinic_verified
 
     def __str__(self):
-        return f'{self.requisition_identifier} {self.verified}'
+        return f"{self.requisition_identifier} {self.verified}"
 
     def __repr__(self):
-        return f'<{self.__class__.__name__}({self.requisition_identifier}) {self.verified}>'
+        return f"<{self.__class__.__name__}({self.requisition_identifier}) {self.verified}>"
 
     @property
     def requisition(self):
@@ -44,7 +46,8 @@ class RequisitionVerifier:
         if not self._requisition:
             try:
                 self._requisition = self.requisition_model_cls.objects.get(
-                    requisition_identifier=self.requisition_identifier.strip())
+                    requisition_identifier=self.requisition_identifier.strip()
+                )
             except ObjectDoesNotExist:
                 pass
         return self._requisition
@@ -60,8 +63,7 @@ class RequisitionVerifier:
         visit_model_cls = self.appointment.visit.__class__
         for attr in dir(visit_model_cls):
             try:
-                obj = getattr(
-                    getattr(visit_model_cls, attr), 'rel')
+                obj = getattr(getattr(visit_model_cls, attr), "rel")
             except AttributeError:
                 pass
             else:
@@ -70,6 +72,6 @@ class RequisitionVerifier:
                 except AttributeError:
                     pass
                 else:
-                    if issubclass(model_cls, (RequisitionModelMixin, )):
+                    if issubclass(model_cls, (RequisitionModelMixin,)):
                         break
         return model_cls

@@ -5,6 +5,6 @@ from .modeladmin_mixins import ModelAdminSubjectDashboardMixin
 from .model_wrappers import AppointmentModelWrapper, AppointmentModelWrapperError
 from .model_wrappers import SubjectVisitModelWrapper
 
-name = 'edc_subject_dashboard.middleware.DashboardMiddleware'
+name = "edc_subject_dashboard.middleware.DashboardMiddleware"
 if name not in settings.MIDDLEWARE:
-    raise ImproperlyConfigured(f'Missing middleware. Expected {name}.')
+    raise ImproperlyConfigured(f"Missing middleware. Expected {name}.")

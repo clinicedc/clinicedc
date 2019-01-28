@@ -11,23 +11,23 @@ from .subject_visit_view_mixin import SubjectVisitViewMixin
 
 
 class VerifyRequisitionMixin(ContextMixin):
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        scanning = self.kwargs.get('scanning')
+        scanning = self.kwargs.get("scanning")
         context.update(scanning=scanning)
         return context
 
 
 class SubjectDashboardViewMixin(
-        MetaDataViewMixin,
-        ConsentViewMixin,
-        SubjectLocatorViewMixin,
-        AppointmentViewMixin,
-        ActionItemViewMixin,
-        SubjectVisitViewMixin,
-        VisitScheduleViewMixin,
-        RegisteredSubjectViewMixin,
-        VerifyRequisitionMixin):
+    MetaDataViewMixin,
+    ConsentViewMixin,
+    SubjectLocatorViewMixin,
+    AppointmentViewMixin,
+    ActionItemViewMixin,
+    SubjectVisitViewMixin,
+    VisitScheduleViewMixin,
+    RegisteredSubjectViewMixin,
+    VerifyRequisitionMixin,
+):
 
     pass

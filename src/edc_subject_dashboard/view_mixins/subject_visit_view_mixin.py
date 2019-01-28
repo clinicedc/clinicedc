@@ -12,7 +12,7 @@ class SubjectVisitViewMixin(ContextMixin):
     Declare together with the edc_appointment.AppointmentViewMixin.
     """
 
-    visit_attr = 'subjectvisit'
+    visit_attr = "subjectvisit"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -24,15 +24,16 @@ class SubjectVisitViewMixin(ContextMixin):
             appointment = self.appointment
         except AttributeError as e:
             raise SubjectVisitViewMixinError(
-                f'Mixin must be declared together with AppointmentViewMixin '
-                f'Got {e}')
+                f"Mixin must be declared together with AppointmentViewMixin " f"Got {e}"
+            )
         else:
             if appointment:
                 try:
                     self.subject_visit = getattr(appointment, self.visit_attr)
                 except AttributeError as e:
                     raise SubjectVisitViewMixinError(
-                        f'Visit model must have a OneToOne relation to appointment. '
-                        f'Got {e}')
+                        f"Visit model must have a OneToOne relation to appointment. "
+                        f"Got {e}"
+                    )
                 context.update(subject_visit=self.subject_visit)
         return context
