@@ -7,19 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_metadata', '0003_auto_20161211_1005'),
-    ]
+    dependencies = [("edc_metadata", "0003_auto_20161211_1005")]
 
     operations = [
         migrations.AlterField(
-            model_name='crfmetadata',
-            name='subject_identifier',
-            field=models.CharField(max_length=50, verbose_name='Subject Identifier'),
+            model_name="crfmetadata",
+            name="subject_identifier",
+            field=models.CharField(max_length=50, verbose_name="Subject Identifier"),
         ),
         migrations.AlterField(
-            model_name='requisitionmetadata',
-            name='subject_identifier',
-            field=models.CharField(max_length=50, verbose_name='Subject Identifier'),
+            model_name="requisitionmetadata",
+            name="subject_identifier",
+            field=models.CharField(max_length=50, verbose_name="Subject Identifier"),
         ),
     ]

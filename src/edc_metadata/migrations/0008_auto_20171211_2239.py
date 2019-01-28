@@ -5,27 +5,44 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_metadata', '0007_auto_20170810_1032'),
-    ]
+    dependencies = [("edc_metadata", "0007_auto_20170810_1032")]
 
     operations = [
         migrations.AddField(
-            model_name='crfmetadata',
-            name='visit_code_sequence',
+            model_name="crfmetadata",
+            name="visit_code_sequence",
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='requisitionmetadata',
-            name='visit_code_sequence',
+            model_name="requisitionmetadata",
+            name="visit_code_sequence",
             field=models.IntegerField(default=0),
         ),
         migrations.AlterUniqueTogether(
-            name='crfmetadata',
-            unique_together={('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'visit_code_sequence', 'model')},
+            name="crfmetadata",
+            unique_together={
+                (
+                    "subject_identifier",
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "model",
+                )
+            },
         ),
         migrations.AlterUniqueTogether(
-            name='requisitionmetadata',
-            unique_together={('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'visit_code_sequence', 'model', 'panel_name')},
+            name="requisitionmetadata",
+            unique_together={
+                (
+                    "subject_identifier",
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "model",
+                    "panel_name",
+                )
+            },
         ),
     ]

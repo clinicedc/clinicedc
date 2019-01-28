@@ -22,14 +22,14 @@ from django.contrib.auth.models import User
 
 class DummyCrfModelWrapper:
     def __init__(self, **kwargs):
-        self.model_obj = kwargs.get('model_obj')
-        self.model = kwargs.get('model')
+        self.model_obj = kwargs.get("model_obj")
+        self.model = kwargs.get("model")
 
 
 class DummyRequisitionModelWrapper:
     def __init__(self, **kwargs):
-        self.model_obj = kwargs.get('model_obj')
-        self.model = kwargs.get('model')
+        self.model_obj = kwargs.get("model_obj")
+        self.model = kwargs.get("model")
 
 
 class MyView(MetaDataViewMixin, ContextMixin, View):
@@ -38,42 +38,45 @@ class MyView(MetaDataViewMixin, ContextMixin, View):
 
 
 class TestViewMixin(TestCase):
-
     def setUp(self):
         import_holidays()
         register_to_site_reference_configs()
-        for name in ['one', 'two', 'three', 'four', 'five', 'six']:
+        for name in ["one", "two", "three", "four", "five", "six"]:
             Panel.objects.create(name=name)
 
-        self.user = User.objects.create(username='erik')
+        self.user = User.objects.create(username="erik")
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                'edc_appointment.appointment': 'edc_metadata.subjectvisit'})
-        self.subject_identifier = '1111111'
+            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+        )
+        self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow())
+            subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
+        )
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
-            'edc_metadata.onschedule')
+            "edc_metadata.onschedule"
+        )
         self.schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime)
+            onschedule_datetime=subject_consent.consent_datetime,
+        )
         self.appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
-            visit_code=self.schedule.visits.first.code)
+            visit_code=self.schedule.visits.first.code,
+        )
         self.subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
             subject_identifier=self.subject_identifier,
-            reason=SCHEDULED)
+            reason=SCHEDULED,
+        )
 
     def test_view_mixin(self):
-        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
         view = MyView(request=request)
         view.appointment = self.appointment
@@ -82,41 +85,39 @@ class TestViewMixin(TestCase):
         view.get_context_data()
 
     def test_view_mixin_context_data_crfs(self):
-        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
         view = MyView(request=request)
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
         context_data = view.get_context_data()
-        self.assertEqual(len(context_data.get('crfs')), 5)
+        self.assertEqual(len(context_data.get("crfs")), 5)
 
     def test_view_mixin_context_data_crfs_exists(self):
-        CrfOne.objects.create(
-            subject_visit=self.subject_visit)
-        CrfThree.objects.create(
-            subject_visit=self.subject_visit)
-        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        CrfOne.objects.create(subject_visit=self.subject_visit)
+        CrfThree.objects.create(subject_visit=self.subject_visit)
+        request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
         view = MyView(request=request)
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
         context_data = view.get_context_data()
-        for metadata in context_data.get('crfs'):
-            if metadata.model in ['edc_metadata.crfone', 'edc_metadata.crfthree']:
+        for metadata in context_data.get("crfs"):
+            if metadata.model in ["edc_metadata.crfone", "edc_metadata.crfthree"]:
                 self.assertIsNotNone(metadata.object.model_obj.id)
             else:
                 self.assertIsNone(metadata.object.model_obj.id)
 
     def test_view_mixin_context_data_requisitions(self):
-        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
         view = MyView(request=request)
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         context_data = view.get_context_data()
-        self.assertEqual(len(context_data.get('requisitions')), 6)
+        self.assertEqual(len(context_data.get("requisitions")), 6)
 
     def test_view_mixin_context_data_crfs_unscheduled(self):
         self.appointment.appt_status = INCOMPLETE_APPT
@@ -126,24 +127,26 @@ class TestViewMixin(TestCase):
             visit_schedule_name=self.appointment.visit_schedule_name,
             schedule_name=self.appointment.schedule_name,
             visit_code=self.appointment.visit_code,
-            facility=self.appointment.facility)
+            facility=self.appointment.facility,
+        )
 
         SubjectVisit.objects.create(
             appointment=creator.appointment,
             subject_identifier=self.subject_identifier,
-            reason=SCHEDULED)
+            reason=SCHEDULED,
+        )
 
-        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
         view = MyView(request=request)
         view.appointment = creator.appointment
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
         context_data = view.get_context_data()
-        self.assertEqual(len(context_data.get('crfs')), 3)
-        self.assertEqual(len(context_data.get('requisitions')), 3)
+        self.assertEqual(len(context_data.get("crfs")), 3)
+        self.assertEqual(len(context_data.get("requisitions")), 3)
 
-        request = RequestFactory().get('/?f=f&e=e&o=o&q=q')
+        request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
         view = MyView(request=request)
         view.appointment = self.appointment
@@ -152,5 +155,5 @@ class TestViewMixin(TestCase):
         view.request = HttpRequest()
         view.message_user = lambda x: x
         context_data = view.get_context_data()
-        self.assertEqual(len(context_data.get('crfs')), 5)
-        self.assertEqual(len(context_data.get('requisitions')), 6)
+        self.assertEqual(len(context_data.get("crfs")), 5)
+        self.assertEqual(len(context_data.get("requisitions")), 6)

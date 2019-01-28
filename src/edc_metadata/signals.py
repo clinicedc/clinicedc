@@ -4,8 +4,9 @@ from django.dispatch import receiver
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_create_on_post_save")
-def metadata_create_on_post_save(sender, instance, raw, created, using,
-                                 update_fields, **kwargs):
+def metadata_create_on_post_save(
+    sender, instance, raw, created, using, update_fields, **kwargs
+):
     """Creates all meta data on post save of model using
     CreatesMetaDataModelMixin.
 
@@ -14,40 +15,41 @@ def metadata_create_on_post_save(sender, instance, raw, created, using,
     if not raw:
         try:
             instance.reference_creator_cls(model_obj=instance)
-        except AttributeError:
-            pass
-
+        except AttributeError as e:
+            if "reference_creator_cls" not in str(e):
+                raise
         try:
             instance.metadata_create()
         except AttributeError as e:
-            if 'metadata_create' not in str(e):
+            if "metadata_create" not in str(e):
                 raise
         else:
-            if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
+            if django_apps.get_app_config("edc_metadata_rules").metadata_rules_enabled:
                 instance.run_metadata_rules()
 
 
 @receiver(post_save, weak=False, dispatch_uid="metadata_update_on_post_save")
-def metadata_update_on_post_save(sender, instance, raw, created, using,
-                                 update_fields, **kwargs):
-    """Updates the metadata record on post save of a CRF model.
+def metadata_update_on_post_save(
+    sender, instance, raw, created, using, update_fields, **kwargs
+):
+    """Updates the single metadata record on post save of a CRF model.
 
-    Does not create metadata.
+    Does not "create" metadata.
     """
 
     if not raw and not update_fields:
         try:
             instance.reference_updater_cls(model_obj=instance)
-        except AttributeError:
-            pass
-
+        except AttributeError as e:
+            if "reference_updater_cls" not in str(e):
+                raise
         try:
             instance.metadata_update()
         except AttributeError as e:
-            if 'metadata_update' not in str(e):
+            if "metadata_update" not in str(e):
                 raise
         else:
-            if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
+            if django_apps.get_app_config("edc_metadata_rules").metadata_rules_enabled:
                 instance.run_metadata_rules_for_crf()
 
 
@@ -66,14 +68,14 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs):
     try:
         instance.metadata_reset_on_delete()
     except AttributeError as e:
-        if 'metadata_reset_on_delete' not in str(e):
+        if "metadata_reset_on_delete" not in str(e):
             raise
     else:
-        if django_apps.get_app_config('edc_metadata_rules').metadata_rules_enabled:
+        if django_apps.get_app_config("edc_metadata_rules").metadata_rules_enabled:
             instance.run_metadata_rules_for_crf()
     # deletes all for a visit used by CreatesMetadataMixin
     try:
         instance.metadata_delete_for_visit()
     except AttributeError as e:
-        if 'metadata_delete_for_visit' not in str(e):
+        if "metadata_delete_for_visit" not in str(e):
             raise

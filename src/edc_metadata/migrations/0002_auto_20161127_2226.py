@@ -8,29 +8,35 @@ import edc_base.utils
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_metadata', '0001_initial'),
-    ]
+    dependencies = [("edc_metadata", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='crfmetadata',
-            name='created',
-            field=models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False),
+            model_name="crfmetadata",
+            name="created",
+            field=models.DateTimeField(
+                default=edc_base.utils.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterField(
-            model_name='crfmetadata',
-            name='modified',
-            field=models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False),
+            model_name="crfmetadata",
+            name="modified",
+            field=models.DateTimeField(
+                default=edc_base.utils.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterField(
-            model_name='requisitionmetadata',
-            name='created',
-            field=models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False),
+            model_name="requisitionmetadata",
+            name="created",
+            field=models.DateTimeField(
+                default=edc_base.utils.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterField(
-            model_name='requisitionmetadata',
-            name='modified',
-            field=models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False),
+            model_name="requisitionmetadata",
+            name="modified",
+            field=models.DateTimeField(
+                default=edc_base.utils.get_utcnow, editable=False
+            ),
         ),
     ]

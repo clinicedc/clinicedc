@@ -9,8 +9,13 @@ class MetadataGetter:
 
     metadata_model = None
 
-    def __init__(self, appointment=None, subject_identifier=None, visit_code=None,
-                 visit_code_sequence=None):
+    def __init__(
+        self,
+        appointment=None,
+        subject_identifier=None,
+        visit_code=None,
+        visit_code_sequence=None,
+    ):
         try:
             self.visit = appointment.visit
         except AttributeError:
@@ -22,7 +27,8 @@ class MetadataGetter:
             self.visit_code = self.visit.visit_code
             self.visit_code_sequence = self.visit.visit_code_sequence
         self.metadata_objects = self.metadata_model_cls.objects.filter(
-            **self.options).order_by('show_order')
+            **self.options
+        ).order_by("show_order")
 
     @property
     def metadata_model_cls(self):
@@ -35,12 +41,13 @@ class MetadataGetter:
         return dict(
             subject_identifier=self.subject_identifier,
             visit_code=self.visit_code,
-            visit_code_sequence=self.visit_code_sequence)
+            visit_code_sequence=self.visit_code_sequence,
+        )
 
     def next_object(self, show_order=None, entry_status=None):
         """Returns the next model instance based on the show order.
         """
-        opts = {'show_order__gt': show_order}
+        opts = {"show_order__gt": show_order}
         if entry_status:
             opts.update(entry_status=entry_status)
-        return self.metadata_objects.filter(**opts).order_by('show_order').first()
+        return self.metadata_objects.filter(**opts).order_by("show_order").first()

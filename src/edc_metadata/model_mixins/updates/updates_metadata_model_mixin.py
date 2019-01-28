@@ -28,9 +28,7 @@ class UpdatesMetadataModelMixin(models.Model):
     def metadata_updater(self):
         """Returns an instance of MetadataUpdater.
         """
-        return self.updater_cls(
-            visit=self.visit,
-            target_model=self._meta.label_lower)
+        return self.updater_cls(visit=self.visit, target_model=self._meta.label_lower)
 
     def metadata_reset_on_delete(self):
         """Sets the metadata instance to its original state.
@@ -64,23 +62,27 @@ class UpdatesMetadataModelMixin(models.Model):
     @property
     def metadata_visit_object(self):
         visit_schedule = site_visit_schedules.get_visit_schedule(
-            visit_schedule_name=self.visit.visit_schedule_name)
+            visit_schedule_name=self.visit.visit_schedule_name
+        )
         schedule = visit_schedule.schedules.get(self.visit.schedule_name)
         return schedule.visits.get(self.visit.visit_code)
 
     @property
     def metadata_query_options(self):
         options = self.visit.metadata_query_options
-        options.update({
-            'subject_identifier': self.visit.subject_identifier,
-            'model': self._meta.label_lower})
+        options.update(
+            {
+                "subject_identifier": self.visit.subject_identifier,
+                "model": self._meta.label_lower,
+            }
+        )
         return options
 
     @property
     def metadata_model(self):
         """Returns the metadata model associated with self.
         """
-        app_config = django_apps.get_app_config('edc_metadata')
+        app_config = django_apps.get_app_config("edc_metadata")
         return app_config.get_metadata_model(self.metadata_category)
 
     class Meta:

@@ -23,17 +23,17 @@ class TestNaturalKey(TestCase):
     offline_helper = OfflineTestHelper()
 
     exclude_models = [
-        'edc_metadata.enrollment',
-        'edc_metadata.disenrollment',
-        'edc_metadata.subjectrequisition',
-        'edc_metadata.subjectvisit',
-        'edc_metadata.subjectoffstudy',
-        'edc_metadata.crfone',
-        'edc_metadata.crftwo',
-        'edc_metadata.crfthree',
-        'edc_metadata.crffour',
-        'edc_metadata.crffive',
-        'edc_metadata.crfmissingmanager',
+        "edc_metadata.enrollment",
+        "edc_metadata.disenrollment",
+        "edc_metadata.subjectrequisition",
+        "edc_metadata.subjectvisit",
+        "edc_metadata.subjectoffstudy",
+        "edc_metadata.crfone",
+        "edc_metadata.crftwo",
+        "edc_metadata.crfthree",
+        "edc_metadata.crffour",
+        "edc_metadata.crffive",
+        "edc_metadata.crfmissingmanager",
     ]
 
     def setUp(self):
@@ -44,34 +44,43 @@ class TestNaturalKey(TestCase):
 
         # note crfs in visit schedule are all set to REQUIRED by default.
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
-            'edc_metadata.onschedule')
+            "edc_metadata.onschedule"
+        )
 
     def enroll(self, gender=None):
         subject_identifier = fake.credit_card_number()
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=subject_identifier,
             consent_datetime=get_utcnow(),
-            gender=gender)
+            gender=gender,
+        )
         self.registered_subject = RegisteredSubject.objects.get(
-            subject_identifier=subject_identifier)
+            subject_identifier=subject_identifier
+        )
         self.schedule.put_on_schedule(
             subject_identifier=subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime)
+            onschedule_datetime=subject_consent.consent_datetime,
+        )
         self.appointment = Appointment.objects.get(
             subject_identifier=subject_identifier,
-            visit_code=self.schedule.visits.first.code)
+            visit_code=self.schedule.visits.first.code,
+        )
         subject_visit = SubjectVisit.objects.create(
-            appointment=self.appointment, reason=SCHEDULED,
-            subject_identifier=subject_identifier)
+            appointment=self.appointment,
+            reason=SCHEDULED,
+            subject_identifier=subject_identifier,
+        )
         return subject_visit
 
     def test_natural_key_attrs(self):
         self.offline_helper.offline_test_natural_key_attr(
-            'edc_metadata', exclude_models=self.exclude_models)
+            "edc_metadata", exclude_models=self.exclude_models
+        )
 
     def test_get_by_natural_key_attr(self):
         self.offline_helper.offline_test_get_by_natural_key_attr(
-            'edc_metadata', exclude_models=self.exclude_models)
+            "edc_metadata", exclude_models=self.exclude_models
+        )
 
     def test_offline_test_natural_keys(self):
         self.enroll(MALE)
@@ -80,13 +89,13 @@ class TestNaturalKey(TestCase):
         completed_model_lower = []
         for outgoing_transaction in OutgoingTransaction.objects.all():
             if outgoing_transaction.tx_name in offline_models:
-                model_cls = django_apps.get_app_config('edc_metadata').get_model(
-                    outgoing_transaction.tx_name.split('.')[1])
+                model_cls = django_apps.get_app_config("edc_metadata").get_model(
+                    outgoing_transaction.tx_name.split(".")[1]
+                )
                 obj = model_cls.objects.get(pk=outgoing_transaction.tx_pk)
                 if outgoing_transaction.tx_name in completed_model_lower:
                     continue
                 model_objs.append(obj)
                 completed_model_lower.append(outgoing_transaction.tx_name)
-        completed_model_objs.update({'edc_metadata': model_objs})
-        self.offline_helper.offline_test_natural_keys(
-            completed_model_objs)
+        completed_model_objs.update({"edc_metadata": model_objs})
+        self.offline_helper.offline_test_natural_keys(completed_model_objs)

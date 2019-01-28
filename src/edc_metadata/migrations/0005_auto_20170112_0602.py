@@ -10,69 +10,93 @@ import edc_base.utils
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_metadata', '0004_auto_20161221_2323'),
-    ]
+    dependencies = [("edc_metadata", "0004_auto_20161221_2323")]
 
     operations = [
         migrations.AlterField(
-            model_name='crfmetadata',
-            name='created',
+            model_name="crfmetadata",
+            name="created",
             field=models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
         ),
         migrations.AlterField(
-            model_name='crfmetadata',
-            name='hostname_created',
-            field=models.CharField(blank=True, default='mac2-2.local', help_text='System field. (modified on create only)', max_length=50),
+            model_name="crfmetadata",
+            name="hostname_created",
+            field=models.CharField(
+                blank=True,
+                default="mac2-2.local",
+                help_text="System field. (modified on create only)",
+                max_length=50,
+            ),
         ),
         migrations.AlterField(
-            model_name='crfmetadata',
-            name='hostname_modified',
-            field=edc_model_fields.fields.hostname_modification_field.HostnameModificationField(blank=True, help_text='System field. (modified on every save)', max_length=50),
+            model_name="crfmetadata",
+            name="hostname_modified",
+            field=edc_model_fields.fields.hostname_modification_field.HostnameModificationField(
+                blank=True,
+                help_text="System field. (modified on every save)",
+                max_length=50,
+            ),
         ),
         migrations.AlterField(
-            model_name='crfmetadata',
-            name='modified',
+            model_name="crfmetadata",
+            name="modified",
             field=models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
         ),
         migrations.AlterField(
-            model_name='crfmetadata',
-            name='user_created',
-            field=edc_model_fields.fields.userfield.UserField(blank=True, max_length=50, verbose_name='user created'),
+            model_name="crfmetadata",
+            name="user_created",
+            field=edc_model_fields.fields.userfield.UserField(
+                blank=True, max_length=50, verbose_name="user created"
+            ),
         ),
         migrations.AlterField(
-            model_name='crfmetadata',
-            name='user_modified',
-            field=edc_model_fields.fields.userfield.UserField(blank=True, max_length=50, verbose_name='user modified'),
+            model_name="crfmetadata",
+            name="user_modified",
+            field=edc_model_fields.fields.userfield.UserField(
+                blank=True, max_length=50, verbose_name="user modified"
+            ),
         ),
         migrations.AlterField(
-            model_name='requisitionmetadata',
-            name='created',
+            model_name="requisitionmetadata",
+            name="created",
             field=models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
         ),
         migrations.AlterField(
-            model_name='requisitionmetadata',
-            name='hostname_created',
-            field=models.CharField(blank=True, default='mac2-2.local', help_text='System field. (modified on create only)', max_length=50),
+            model_name="requisitionmetadata",
+            name="hostname_created",
+            field=models.CharField(
+                blank=True,
+                default="mac2-2.local",
+                help_text="System field. (modified on create only)",
+                max_length=50,
+            ),
         ),
         migrations.AlterField(
-            model_name='requisitionmetadata',
-            name='hostname_modified',
-            field=edc_model_fields.fields.hostname_modification_field.HostnameModificationField(blank=True, help_text='System field. (modified on every save)', max_length=50),
+            model_name="requisitionmetadata",
+            name="hostname_modified",
+            field=edc_model_fields.fields.hostname_modification_field.HostnameModificationField(
+                blank=True,
+                help_text="System field. (modified on every save)",
+                max_length=50,
+            ),
         ),
         migrations.AlterField(
-            model_name='requisitionmetadata',
-            name='modified',
+            model_name="requisitionmetadata",
+            name="modified",
             field=models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
         ),
         migrations.AlterField(
-            model_name='requisitionmetadata',
-            name='user_created',
-            field=edc_model_fields.fields.userfield.UserField(blank=True, max_length=50, verbose_name='user created'),
+            model_name="requisitionmetadata",
+            name="user_created",
+            field=edc_model_fields.fields.userfield.UserField(
+                blank=True, max_length=50, verbose_name="user created"
+            ),
         ),
         migrations.AlterField(
-            model_name='requisitionmetadata',
-            name='user_modified',
-            field=edc_model_fields.fields.userfield.UserField(blank=True, max_length=50, verbose_name='user modified'),
+            model_name="requisitionmetadata",
+            name="user_modified",
+            field=edc_model_fields.fields.userfield.UserField(
+                blank=True, max_length=50, verbose_name="user modified"
+            ),
         ),
     ]

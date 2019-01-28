@@ -27,25 +27,25 @@ class NextFormGetter:
             panel_name = panel_name
 
         if panel_name:
-            this_form = visit.get_requisition(
-                model=model, panel_name=panel_name)
-            getter = self.requisition_metadata_getter_cls(
-                appointment=appointment)
+            this_form = visit.get_requisition(model=model, panel_name=panel_name)
+            getter = self.requisition_metadata_getter_cls(appointment=appointment)
             default_next_form = None
         else:
             this_form = visit.get_crf(model=model)
-            getter = self.crf_metadata_getter_cls(
-                appointment=appointment)
+            getter = self.crf_metadata_getter_cls(appointment=appointment)
             default_next_form = self.first_requisition_form(
-                appointment=appointment, visit=visit)
+                appointment=appointment, visit=visit
+            )
 
         metadata_obj = getter.next_object(
-            show_order=this_form.show_order, entry_status=REQUIRED)
+            show_order=this_form.show_order, entry_status=REQUIRED
+        )
 
         if metadata_obj:
             if panel_name:
                 next_form = visit.get_requisition(
-                    metadata_obj.model, panel_name=metadata_obj.panel_name)
+                    metadata_obj.model, panel_name=metadata_obj.panel_name
+                )
             else:
                 next_form = visit.get_crf(metadata_obj.model)
         return next_form or default_next_form
@@ -57,5 +57,6 @@ class NextFormGetter:
         metadata_obj = getter.next_object(show_order=0, entry_status=REQUIRED)
         if metadata_obj:
             first_requisition_form = visit.get_requisition(
-                metadata_obj.model, panel_name=metadata_obj.panel_name)
+                metadata_obj.model, panel_name=metadata_obj.panel_name
+            )
         return first_requisition_form
