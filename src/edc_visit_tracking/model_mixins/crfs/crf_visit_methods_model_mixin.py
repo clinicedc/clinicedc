@@ -5,7 +5,6 @@ from ..visit_model_mixin import VisitModelMixin
 
 
 class CrfVisitMethodsModelMixin(models.Model):
-
     @property
     def visit_code(self):
         return self.visit.visit_code
@@ -27,7 +26,7 @@ class CrfVisitMethodsModelMixin(models.Model):
             except (AttributeError, AssertionError):
                 pass
             else:
-                if issubclass(field.related_model, (VisitModelMixin, )):
+                if issubclass(field.related_model, (VisitModelMixin,)):
                     try:
                         visit = getattr(self, name)
                     except ObjectDoesNotExist:
@@ -40,15 +39,14 @@ class CrfVisitMethodsModelMixin(models.Model):
         foreign key.
         """
         visit_model_attr = None
-        fields = {
-            field.name: field for field in cls._meta.fields}
+        fields = {field.name: field for field in cls._meta.fields}
         for name, field in fields.items():
             try:
                 assert field.related_model is not None
             except (AttributeError, AssertionError):
                 pass
             else:
-                if issubclass(field.related_model, (VisitModelMixin, )):
+                if issubclass(field.related_model, (VisitModelMixin,)):
                     visit_model_attr = name
         return visit_model_attr
 
@@ -71,7 +69,7 @@ class CrfVisitMethodsModelMixin(models.Model):
             except (AttributeError, AssertionError):
                 pass
             else:
-                if issubclass(field.related_model, (VisitModelMixin, )):
+                if issubclass(field.related_model, (VisitModelMixin,)):
                     visit_model_cls = field.related_model
         return visit_model_cls
 

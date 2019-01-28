@@ -18,16 +18,18 @@ class CrfModelMixin(CrfVisitMethodsModelMixin, models.Model):
 
     and specify the `natural key` with its dependency of the visit model.
     """
+
     crf_date_validator_cls = CrfDateValidator
 
     report_datetime = models.DateTimeField(
         verbose_name="Report Date",
-        validators=[
-            datetime_not_before_study_start,
-            datetime_not_future],
+        validators=[datetime_not_before_study_start, datetime_not_future],
         default=get_utcnow,
-        help_text=('If reporting today, use today\'s date/time, otherwise use '
-                   'the date/time this information was reported.'))
+        help_text=(
+            "If reporting today, use today's date/time, otherwise use "
+            "the date/time this information was reported."
+        ),
+    )
 
     objects = CrfModelManager()
 
@@ -35,7 +37,8 @@ class CrfModelMixin(CrfVisitMethodsModelMixin, models.Model):
         return str(self.visit)
 
     def natural_key(self):
-        return (getattr(self, self.visit_model_attr()).natural_key(), )
+        return (getattr(self, self.visit_model_attr()).natural_key(),)
+
     # TODO: need to add the natural key dependencies !!
 
     class Meta:

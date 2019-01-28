@@ -13,82 +13,90 @@ from ...choices import VISIT_REASON_UNSCHEDULED
 class VisitModelFieldsMixin(models.Model):
 
     report_datetime = models.DateTimeField(
-        verbose_name='Visit Date and Time',
-        validators=[
-            datetime_not_before_study_start,
-            datetime_not_future],
+        verbose_name="Report date and time",
+        validators=[datetime_not_before_study_start, datetime_not_future],
         default=get_utcnow,
-        help_text='Date and time of this report')
+        help_text="Date and time of this report",
+    )
 
     reason = models.CharField(
-        verbose_name='What is the reason for this visit?',
-        max_length=25)
+        verbose_name="What is the reason for this report?", max_length=25
+    )
 
     reason_unscheduled = models.CharField(
         verbose_name=(
-            'If \'Unscheduled\' above, provide reason for '
-            'the unscheduled visit'),
+            "If 'unscheduled', provide the reason for " "the unscheduled visit"
+        ),
         max_length=25,
         choices=VISIT_REASON_UNSCHEDULED,
-        default=NOT_APPLICABLE)
+        default=NOT_APPLICABLE,
+    )
 
     reason_unscheduled_other = OtherCharField(
-        verbose_name='If "Other" reason for unscheduled visit, specify',
+        verbose_name='If the reason for the unscheduled visit is "other", specify',
         max_length=25,
         blank=True,
-        null=True)
+        null=True,
+    )
 
     reason_missed = models.CharField(
-        verbose_name='If \'Missed\' above, provide the reason the scheduled visit was missed',
+        verbose_name=("If 'missed', provide the reason for the missed visit"),
         max_length=35,
         blank=True,
-        null=True)
+        null=True,
+    )
 
     reason_missed_other = OtherCharField(
-        verbose_name='If "Other" reason for missed visit, specify',
+        verbose_name='If the reason for the missed visit is "other", specify',
         max_length=25,
         blank=True,
-        null=True)
+        null=True,
+    )
 
     study_status = models.CharField(
-        verbose_name='What is the participant\'s current study status',
+        verbose_name="What is the participant's current study status",
         max_length=50,
-        null=True)
+        null=True,
+    )
 
     require_crfs = models.CharField(
         max_length=10,
-        verbose_name='Are scheduled data being submitted with this visit?',
+        verbose_name="Are scheduled data being submitted with this visit?",
         choices=YES_NO,
-        default=YES)
+        default=YES,
+    )
 
     info_source = models.CharField(
-        verbose_name='What is the main source of this information?',
-        max_length=25)
+        verbose_name="What is the main source of this information?", max_length=25
+    )
 
     info_source_other = OtherCharField(
-        verbose_name='If "Other" source of information, specify',
+        verbose_name='If "Other" source of information, specify'
     )
 
     survival_status = models.CharField(
         max_length=10,
-        verbose_name='Participant\'s survival status',
+        verbose_name="Participant's survival status",
         choices=ALIVE_DEAD_UNKNOWN,
         null=True,
-        default=ALIVE)
+        default=ALIVE,
+    )
 
     last_alive_date = models.DateField(
-        verbose_name='Date participant last known alive',
+        verbose_name="Date participant last known alive",
         validators=[date_not_before_study_start, date_not_future],
         null=True,
-        blank=True)
+        blank=True,
+    )
 
     comments = models.TextField(
         verbose_name=(
-            'Comment if any additional pertinent information '
-            'about the participant'),
+            "Comment if any additional pertinent information " "about the participant"
+        ),
         max_length=250,
         blank=True,
-        null=True)
+        null=True,
+    )
 
     class Meta:
         abstract = True

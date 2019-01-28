@@ -16,6 +16,7 @@ class PreviousVisitModelMixin(models.Model):
       by raising PreviousVisitError.
     * If the visit is the first in the sequence, save() is allowed.
     """
+
     visit_sequence_cls = VisitSequence
 
     def save(self, *args, **kwargs):
@@ -23,8 +24,7 @@ class PreviousVisitModelMixin(models.Model):
             appointment = self.visit.appointment
         except AttributeError:
             appointment = self.appointment
-        visit_sequence = self.visit_sequence_cls(
-            appointment=appointment)
+        visit_sequence = self.visit_sequence_cls(appointment=appointment)
         try:
             visit_sequence.enforce_sequence()
         except VisitSequenceError as e:
@@ -37,8 +37,7 @@ class PreviousVisitModelMixin(models.Model):
             appointment = self.visit.appointment
         except AttributeError:
             appointment = self.appointment
-        visit_sequence = self.visit_sequence_cls(
-            appointment=appointment)
+        visit_sequence = self.visit_sequence_cls(appointment=appointment)
         return visit_sequence.previous_visit
 
     class Meta:
