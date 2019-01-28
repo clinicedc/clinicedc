@@ -34,7 +34,8 @@ class AppointmentModelWrapper(ModelWrapper):
                     f"model in visit_model_wrapper. Got self.model='{declared_model}' "
                     f"!= {repr(self.visit_model_wrapper_cls)}.model='{model}'. "
                     f"Try not explicitly declaring an appointment model if "
-                    f"'visit_model_wrapper_cls' is declared. (e.g. leave cls.model = None)."
+                    f"'visit_model_wrapper_cls' is declared. "
+                    f"(e.g. leave cls.model = None)."
                 )
 
         super().__init__(model=model, **kwargs)

@@ -37,7 +37,10 @@ class RequisitionVerifier:
         return f"{self.requisition_identifier} {self.verified}"
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}({self.requisition_identifier}) {self.verified}>"
+        return (
+            f"<{self.__class__.__name__}("
+            "{self.requisition_identifier}) {self.verified}>"
+        )
 
     @property
     def requisition(self):
