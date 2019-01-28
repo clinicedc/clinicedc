@@ -1,8 +1,9 @@
 from django.test import TestCase, tag
+from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
 
 from ..model_wrappers import SubjectVisitModelWrapper
-from .models import SubjectVisit, Appointment
+from .models import SubjectVisit
 
 
 class MySubjectVisitModelWrapper(SubjectVisitModelWrapper):

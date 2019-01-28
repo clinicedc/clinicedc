@@ -53,9 +53,9 @@ INSTALLED_APPS = [
     'edc_notification.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'edc_registration.apps.AppConfig',
+    'edc_timepoint.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_subject_dashboard.apps.EdcAppointmentAppConfig',
-    'edc_subject_dashboard.apps.EdcTimepointAppConfig',
     'edc_subject_dashboard.apps.AppConfig',
 ]
 

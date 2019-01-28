@@ -31,7 +31,7 @@
 			  <i class="far fa-calendar fa-lg fa-fw"></i> 
 			      <a data-toggle="collapse" data-parent="#accordion_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}" aria-hidden="true"
 			         href="#subject_dashboard_forms_for_{{ current_visit_schedule.name|slugify }}-{{ current_schedule.name|slugify }}">
-			         {{ current_visit_schedule.verbose_name }} <i class="fas fa-caret-right"></i> {{ current_schedule.verbose_name }} <i class="fas fa-caret-right"></i> {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }} <span class="caret"></span>
+			         {{ current_visit_schedule.verbose_name }} <i class="fas fa-caret-right"></i> {{ current_schedule.verbose_name }} <i class="fas fa-caret-right"></i> {{ appointment.visit_code }}.{{ appointment.visit_code_sequence }} {{ appointment.title|lower|title }} {{ appointment.wrapped_visit.object.get_reason_display }}<span class="caret"></span>
 			      </a>
 	            {% block schedule_button %}
 	            <span class="pull-right"><span class="text test-muted">

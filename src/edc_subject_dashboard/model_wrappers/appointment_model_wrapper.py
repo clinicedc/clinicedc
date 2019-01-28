@@ -52,10 +52,11 @@ class AppointmentModelWrapper(ModelWrapper):
 
     @property
     def wrapped_visit(self):
-        """Returns a wrapped persistent or non-persistent visit instance.
+        """Returns a wrapped persisted or non-persisted
+        visit model instance.
         """
         try:
-            model_obj = self.object.subjectvisit
+            model_obj = self.object.visit
         except ObjectDoesNotExist:
             visit_model = django_apps.get_model(
                 self.visit_model_wrapper_cls.model)
@@ -63,7 +64,8 @@ class AppointmentModelWrapper(ModelWrapper):
                 appointment=self.object,
                 subject_identifier=self.subject_identifier,
                 reason=self.object.appt_reason)
-        return self.visit_model_wrapper_cls(model_obj=model_obj)
+        return self.visit_model_wrapper_cls(
+            model_obj=model_obj, force_wrap=True)
 
     @property
     def forms_url(self):

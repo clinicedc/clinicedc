@@ -1,10 +1,11 @@
 from django.test import TestCase, tag
+from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
 from edc_locator.view_mixins import SubjectLocatorViewMixin, SubjectLocatorViewMixinError
 from edc_registration.models import RegisteredSubject
 
 from ..view_mixins import SubjectVisitViewMixin, SubjectVisitViewMixinError
-from .models import SubjectVisit, TestModel, BadSubjectVisit, Appointment
+from .models import SubjectVisit, TestModel, BadSubjectVisit
 
 
 class DummyModelWrapper:
