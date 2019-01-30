@@ -11,17 +11,15 @@ from .view_mixins import EdcDeviceViewMixin
 
 class HomeView(EdcBaseViewMixin, NavbarViewMixin, EdcDeviceViewMixin, TemplateView):
 
-    template_name = f'edc_device/bootstrap{settings.EDC_BOOTSTRAP}/home.html'
-    navbar_name = 'edc_device'
-    navbar_selected_item = 'device'
+    template_name = f"edc_device/bootstrap{settings.EDC_BOOTSTRAP}/home.html"
+    navbar_name = "edc_device"
+    navbar_selected_item = "device"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        app_config = django_apps.get_app_config('edc_device')
-        project_name = context.get('project_name')
-        context.update({
-            'project_name': f'{project_name}: {app_config.verbose_name}',
-        })
+        app_config = django_apps.get_app_config("edc_device")
+        project_name = context.get("project_name")
+        context.update({"project_name": f"{project_name}: {app_config.verbose_name}"})
         return context
 
     @method_decorator(login_required)

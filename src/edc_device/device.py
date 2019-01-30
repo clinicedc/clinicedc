@@ -15,11 +15,18 @@ class DeviceRoleError(ValidationError):
 
 class Device:
 
-    default_central_server_id = '99'
-    default_device_id = '99'
+    default_central_server_id = "99"
+    default_device_id = "99"
 
-    def __init__(self, device_id=None, device_role=None, central_server_id=None,
-                 nodes=None, middlemen=None, **kwargs):
+    def __init__(
+        self,
+        device_id=None,
+        device_role=None,
+        central_server_id=None,
+        nodes=None,
+        middlemen=None,
+        **kwargs,
+    ):
 
         self.central_server_id = central_server_id or self.default_central_server_id
         self.nodes = nodes or []
@@ -27,12 +34,14 @@ class Device:
 
         if central_server_id in self.nodes:
             raise DeviceIdError(
-                f'Central server ID may not be included with node IDs. '
-                f'Got {self.central_server_id}, nodes={self.nodes}.')
+                f"Central server ID may not be included with node IDs. "
+                f"Got {self.central_server_id}, nodes={self.nodes}."
+            )
         elif central_server_id in self.middlemen:
             raise DeviceIdError(
-                f'Central server ID may not be included with middleman IDs. '
-                f'Got {self.central_server_id}, middlemen={self.middlemen}.')
+                f"Central server ID may not be included with middleman IDs. "
+                f"Got {self.central_server_id}, middlemen={self.middlemen}."
+            )
 
         self.servers = copy(nodes or [])
         self.servers.append(self.central_server_id)
@@ -66,14 +75,17 @@ class Device:
             settings_device_role = None
         calculated_role = self.calculated_device_role
 
-        if not (calculated_role
-                == (device_role or calculated_role)
-                == (settings_device_role or calculated_role)):
+        if not (
+            calculated_role
+            == (device_role or calculated_role)
+            == (settings_device_role or calculated_role)
+        ):
             raise DeviceRoleError(
-                f'Device role conflict. Calculated role as \'{calculated_role}\' but '
-                f'got settings.DEVICE_ID=\'{settings_device_role}\', '
-                f'AppConfig.device_role=\'{device_role}\' and device_id=\'{self.device_id}\'',
-                code='device_role_conflict')
+                f"Device role conflict. Calculated role as '{calculated_role}' but "
+                f"got settings.DEVICE_ID='{settings_device_role}', "
+                f"AppConfig.device_role='{device_role}' and device_id='{self.device_id}'",
+                code="device_role_conflict",
+            )
 
         return calculated_role
 
@@ -108,7 +120,8 @@ class Device:
                 assert value == device_id
             except AssertionError:
                 raise DeviceIdError(
-                    f'AppConfig.device_id conflicts with settings.DEVICE_ID '
-                    f'Got \'{device_id}\' != \'{settings.DEVICE_ID}\'',
-                    code='device_id_conflict')
+                    f"AppConfig.device_id conflicts with settings.DEVICE_ID "
+                    f"Got '{device_id}' != '{settings.DEVICE_ID}'",
+                    code="device_id_conflict",
+                )
         return value

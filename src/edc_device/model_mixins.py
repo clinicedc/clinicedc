@@ -4,8 +4,8 @@ from django.db.models import options
 
 from .device_permission import DevicePermissions
 
-if 'device_permissions' not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('device_permissions',)
+if "device_permissions" not in options.DEFAULT_NAMES:
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("device_permissions",)
 
 
 class DeviceModelMixin(models.Model):
@@ -15,16 +15,12 @@ class DeviceModelMixin(models.Model):
 
     check_device_permissions = True
 
-    device_created = models.CharField(
-        max_length=10,
-        blank=True)
+    device_created = models.CharField(max_length=10, blank=True)
 
-    device_modified = models.CharField(
-        max_length=10,
-        blank=True)
+    device_modified = models.CharField(max_length=10, blank=True)
 
     def save(self, *args, **kwargs):
-        app_config = django_apps.get_app_config('edc_device')
+        app_config = django_apps.get_app_config("edc_device")
         if not self.id:
             self.device_created = app_config.device_id
         self.device_modified = app_config.device_id
