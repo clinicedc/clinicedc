@@ -16,7 +16,6 @@ from .visit_schedule import visit_schedule
 
 
 class TestMetadataGetter(TestCase):
-
     def setUp(self):
         import_holidays()
         register_to_site_reference_configs()
@@ -24,49 +23,54 @@ class TestMetadataGetter(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                'edc_appointment.appointment': 'edc_metadata.subjectvisit'})
-        self.subject_identifier = '1111111'
+            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+        )
+        self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow())
+            subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
+        )
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
-            'edc_metadata.onschedule')
+            "edc_metadata.onschedule"
+        )
         self.schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime)
+            onschedule_datetime=subject_consent.consent_datetime,
+        )
         self.appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
-            visit_code=self.schedule.visits.first.code)
+            visit_code=self.schedule.visits.first.code,
+        )
         self.subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
             subject_identifier=self.subject_identifier,
-            reason=SCHEDULED)
+            reason=SCHEDULED,
+        )
 
     def test_objects_none_no_appointment(self):
         subject_identifier = None
         visit_code = None
         getter = CrfMetadataGetter(
-            subject_identifier=subject_identifier,
-            visit_code=visit_code)
+            subject_identifier=subject_identifier, visit_code=visit_code
+        )
         self.assertEqual(getter.metadata_objects.count(), 0)
 
     def test_objects_none_no_visit_with_appointment(self):
         appointment = Appointment.objects.create(
             subject_identifier=self.subject_identifier,
             appt_datetime=get_utcnow(),
-            visit_code='BLAH')
-        getter = CrfMetadataGetter(
-            appointment=appointment)
+            visit_code="BLAH",
+        )
+        getter = CrfMetadataGetter(appointment=appointment)
         self.assertEqual(getter.metadata_objects.count(), 0)
 
     def test_objects_not_none_without_appointment(self):
         getter = CrfMetadataGetter(
             subject_identifier=self.subject_identifier,
             visit_code=self.appointment.visit_code,
-            visit_code_sequence=self.appointment.visit_code_sequence)
+            visit_code_sequence=self.appointment.visit_code_sequence,
+        )
         self.assertGreater(getter.metadata_objects.count(), 0)
 
     def test_objects_not_none_from_appointment(self):
@@ -88,13 +92,13 @@ class TestMetadataGetter(TestCase):
     def test_next_required_form(self):
         getter = NextFormGetter()
         next_form = getter.next_form(
-            appointment=self.appointment,
-            model='edc_metadata.crftwo')
-        self.assertEqual(next_form.model, 'edc_metadata.crfthree')
+            appointment=self.appointment, model="edc_metadata.crftwo"
+        )
+        self.assertEqual(next_form.model, "edc_metadata.crfthree")
 
     def test_next_required_form2(self):
         CrfOne.objects.create(subject_visit=self.subject_visit)
         crf_two = CrfTwo.objects.create(subject_visit=self.subject_visit)
         getter = NextFormGetter()
         next_form = getter.next_form(model_obj=crf_two)
-        self.assertEqual(next_form.model, 'edc_metadata.crfthree')
+        self.assertEqual(next_form.model, "edc_metadata.crfthree")

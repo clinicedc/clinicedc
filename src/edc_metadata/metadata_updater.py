@@ -20,7 +20,7 @@ class MetadataUpdater:
         self.target_model = target_model
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(visit={self.visit})'
+        return f"{self.__class__.__name__}(visit={self.visit})"
 
     def update(self, entry_status=None):
 
@@ -34,6 +34,4 @@ class MetadataUpdater:
 
     @property
     def target(self):
-        return self.target_handler(
-            model=self.target_model,
-            visit=self.visit)
+        return self.target_handler(model=self.target_model, visit=self.visit)

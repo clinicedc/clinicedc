@@ -21,11 +21,12 @@ class MetadataWrappers:
                     metadata_wrapper = self.metadata_wrapper_cls(
                         metadata_obj=metadata_obj,
                         visit=self.metadata.visit,
-                        **metadata_obj.__dict__)
+                        **metadata_obj.__dict__,
+                    )
                 except DeletedInvalidMetadata:
                     pass
                 else:
                     self.objects.append(metadata_wrapper)
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.objects})'
+        return f"{self.__class__.__name__}({self.objects})"

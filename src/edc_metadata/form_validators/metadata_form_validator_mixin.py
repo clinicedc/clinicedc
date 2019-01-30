@@ -3,7 +3,6 @@ from ..models import CrfMetadata, RequisitionMetadata
 
 
 class MetaDataFormValidatorMixin:
-
     @property
     def crf_metadata_exists(self):
         """Returns True if CRF metadata exists for this visit code.
@@ -12,7 +11,8 @@ class MetaDataFormValidatorMixin:
             subject_identifier=self.instance.subject_identifier,
             visit_schedule_name=self.instance.visit_schedule_name,
             schedule_name=self.instance.schedule_name,
-            visit_code=self.instance.visit_code).exists()
+            visit_code=self.instance.visit_code,
+        ).exists()
 
     @property
     def crf_metadata_required_exists(self):
@@ -24,7 +24,8 @@ class MetaDataFormValidatorMixin:
             visit_schedule_name=self.instance.visit_schedule_name,
             schedule_name=self.instance.schedule_name,
             visit_code=self.instance.visit_code,
-            entry_status=REQUIRED).exists()
+            entry_status=REQUIRED,
+        ).exists()
 
     @property
     def requisition_metadata_exists(self):
@@ -34,7 +35,8 @@ class MetaDataFormValidatorMixin:
             subject_identifier=self.instance.subject_identifier,
             visit_schedule_name=self.instance.visit_schedule_name,
             schedule_name=self.instance.schedule_name,
-            visit_code=self.instance.visit_code).exists()
+            visit_code=self.instance.visit_code,
+        ).exists()
 
     @property
     def requisition_metadata_required_exists(self):
@@ -46,4 +48,5 @@ class MetaDataFormValidatorMixin:
             visit_schedule_name=self.instance.visit_schedule_name,
             schedule_name=self.instance.schedule_name,
             visit_code=self.instance.visit_code,
-            entry_status=REQUIRED).exists()
+            entry_status=REQUIRED,
+        ).exists()

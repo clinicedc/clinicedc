@@ -1,6 +1,6 @@
-REQUIRED = 'REQUIRED'
-NOT_REQUIRED = 'NOT_REQUIRED'
-KEYED = 'KEYED'
-CRF = 'crf'
-REQUISITION = 'requisition'
-DO_NOTHING = 'do_nothing'
+REQUIRED = "REQUIRED"
+NOT_REQUIRED = "NOT_REQUIRED"
+KEYED = "KEYED"
+CRF = "crf"
+REQUISITION = "requisition"
+DO_NOTHING = "do_nothing"

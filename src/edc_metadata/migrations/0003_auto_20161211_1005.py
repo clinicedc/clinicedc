@@ -7,17 +7,23 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_metadata', '0002_auto_20161127_2226'),
-    ]
+    dependencies = [("edc_metadata", "0002_auto_20161127_2226")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='crfmetadata',
-            options={'ordering': ('show_order',), 'verbose_name': 'Crf Metadata', 'verbose_name_plural': 'Crf Metadata'},
+            name="crfmetadata",
+            options={
+                "ordering": ("show_order",),
+                "verbose_name": "Crf Metadata",
+                "verbose_name_plural": "Crf Metadata",
+            },
         ),
         migrations.AlterModelOptions(
-            name='requisitionmetadata',
-            options={'ordering': ('show_order',), 'verbose_name': 'Requisition Metadata', 'verbose_name_plural': 'Requisition Metadata'},
+            name="requisitionmetadata",
+            options={
+                "ordering": ("show_order",),
+                "verbose_name": "Requisition Metadata",
+                "verbose_name_plural": "Requisition Metadata",
+            },
         ),
     ]

@@ -7,10 +7,12 @@ from edc_visit_schedule.model_mixins import VisitScheduleFieldsModelMixin
 from ..choices import ENTRY_STATUS, REQUIRED, NOT_REQUIRED
 
 
-class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,
-                 VisitScheduleMethodsModelMixin,
-                 VisitScheduleFieldsModelMixin,
-                 models.Model):
+class ModelMixin(
+    NonUniqueSubjectIdentifierFieldMixin,
+    VisitScheduleMethodsModelMixin,
+    VisitScheduleFieldsModelMixin,
+    models.Model,
+):
 
     """ Mixin for CrfMetadata and RequisitionMetadata models.
     """
@@ -21,43 +23,33 @@ class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,
 
     model = models.CharField(max_length=50)
 
-    current_entry_title = models.CharField(
-        max_length=250,
-        null=True)
+    current_entry_title = models.CharField(max_length=250, null=True)
 
     show_order = models.IntegerField()  # must always be provided!
 
     entry_status = models.CharField(
-        max_length=25,
-        choices=ENTRY_STATUS,
-        default=REQUIRED,
-        db_index=True)
+        max_length=25, choices=ENTRY_STATUS, default=REQUIRED, db_index=True
+    )
 
-    due_datetime = models.DateTimeField(
-        null=True,
-        blank=True)
+    due_datetime = models.DateTimeField(null=True, blank=True)
 
-    report_datetime = models.DateTimeField(
-        null=True,
-        blank=True)
+    report_datetime = models.DateTimeField(null=True, blank=True)
 
-    entry_comment = models.TextField(
-        max_length=250,
-        null=True,
-        blank=True)
+    entry_comment = models.TextField(max_length=250, null=True, blank=True)
 
-    close_datetime = models.DateTimeField(
-        null=True,
-        blank=True)
+    close_datetime = models.DateTimeField(null=True, blank=True)
 
-    fill_datetime = models.DateTimeField(
-        null=True,
-        blank=True)
+    fill_datetime = models.DateTimeField(null=True, blank=True)
 
     def natural_key(self):
-        return (self.subject_identifier, self.visit_schedule_name,
-                self.schedule_name, self.visit_code,
-                self.visit_code_sequence, self.model)
+        return (
+            self.subject_identifier,
+            self.visit_schedule_name,
+            self.schedule_name,
+            self.visit_code,
+            self.visit_code_sequence,
+            self.model,
+        )
 
     def is_required(self):
         return self.entry_status != NOT_REQUIRED
@@ -67,4 +59,4 @@ class ModelMixin(NonUniqueSubjectIdentifierFieldMixin,
 
     class Meta:
         abstract = True
-        ordering = ('show_order', )
+        ordering = ("show_order",)

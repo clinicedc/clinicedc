@@ -5,17 +5,21 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_metadata', '0009_auto_20180116_1528'),
-    ]
+    dependencies = [("edc_metadata", "0009_auto_20180116_1528")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='crfmetadata',
-            options={'verbose_name': 'Crf Metadata', 'verbose_name_plural': 'Crf Metadata'},
+            name="crfmetadata",
+            options={
+                "verbose_name": "Crf Metadata",
+                "verbose_name_plural": "Crf Metadata",
+            },
         ),
         migrations.AlterModelOptions(
-            name='requisitionmetadata',
-            options={'verbose_name': 'Requisition Metadata', 'verbose_name_plural': 'Requisition Metadata'},
+            name="requisitionmetadata",
+            options={
+                "verbose_name": "Requisition Metadata",
+                "verbose_name_plural": "Requisition Metadata",
+            },
         ),
     ]

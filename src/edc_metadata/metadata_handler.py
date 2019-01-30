@@ -33,8 +33,7 @@ class MetadataHandler:
         Creates if it does not exist.
         """
         try:
-            metadata_obj = self.metadata_model.objects.get(
-                **self.query_options)
+            metadata_obj = self.metadata_model.objects.get(**self.query_options)
         except ObjectDoesNotExist:
             metadata_obj = self._create()
         return metadata_obj
@@ -43,7 +42,8 @@ class MetadataHandler:
         """Returns a new metadata model instance for this CRF.
         """
         crf_object = [
-            crf for crf in self.creator.visit.all_crfs if crf.model == self.model][0]
+            crf for crf in self.creator.visit.all_crfs if crf.model == self.model
+        ][0]
         return self.creator.create_crf(crf_object)
 
     @property
@@ -54,7 +54,7 @@ class MetadataHandler:
         with the visit model.
         """
         query_options = self.visit.metadata_query_options
-        query_options.update({
-            'model': self.model,
-            'subject_identifier': self.visit.subject_identifier})
+        query_options.update(
+            {"model": self.model, "subject_identifier": self.visit.subject_identifier}
+        )
         return query_options
