@@ -27,21 +27,23 @@ class BaseDevicePermission:
         self.device_ids = device_ids or self.device_ids
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.model},{self.device_roles})'
+        return f"{self.__class__.__name__}({self.model},{self.device_roles})"
 
     def __str__(self):
-        roles = ','.join(self.device_roles)
-        return f'{self.model} {self.label} {roles}'
+        roles = ",".join(self.device_roles)
+        return f"{self.model} {self.label} {roles}"
 
     def model_operation(self, model_obj=None, **kwargs):
         """Override."""
-        raise DevicePermissionError('Method not implemented')
+        raise DevicePermissionError("Method not implemented")
 
     @property
     def _permit_model_operation(self):
-        app_config = django_apps.get_app_config('edc_device')
-        if (app_config.device_role in self.device_roles
-                or app_config.device_id in self.device_ids):
+        app_config = django_apps.get_app_config("edc_device")
+        if (
+            app_config.device_role in self.device_roles
+            or app_config.device_id in self.device_ids
+        ):
             return True
         return False
 
@@ -49,21 +51,25 @@ class BaseDevicePermission:
         if not self.model:
             self.model = model_obj._meta.label_lower
         if model_obj._meta.label_lower == self.model:
-            if (self.model_operation(model_obj=model_obj, **kwargs)
-                    and not self._permit_model_operation):
-                app_config = django_apps.get_app_config('edc_device')
+            if (
+                self.model_operation(model_obj=model_obj, **kwargs)
+                and not self._permit_model_operation
+            ):
+                app_config = django_apps.get_app_config("edc_device")
                 err_message = err_message or (
-                    f'Device role may not {self.label.lower()} '
-                    f'\'{model_obj._meta.verbose_name}\'.')
+                    f"Device role may not {self.label.lower()} "
+                    f"'{model_obj._meta.verbose_name}'."
+                )
                 raise self.exception_cls(
-                    f'Device/Role has insufficient permissions for action. '
-                    f'Got {err_message}. Device role is {app_config.device_role}.',
-                    code=f'{self.label}_permission')
+                    f"Device/Role has insufficient permissions for action. "
+                    f"Got {err_message}. Device role is {app_config.device_role}.",
+                    code=f"{self.label}_permission",
+                )
 
 
 class DeviceAddPermission(BaseDevicePermission):
 
-    label = 'ADD'
+    label = "ADD"
     exception_cls = DevicePermissionAddError
 
     def model_operation(self, model_obj=None, **kwargs):
@@ -76,7 +82,7 @@ class DeviceAddPermission(BaseDevicePermission):
 
 class DeviceChangePermission(BaseDevicePermission):
 
-    label = 'CHANGE'
+    label = "CHANGE"
     exception_cls = DevicePermissionChangeError
 
     def model_operation(self, model_obj=None, **kwargs):

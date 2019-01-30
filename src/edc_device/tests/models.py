@@ -26,4 +26,5 @@ class TestModelPermissions(BaseUuidModel):
 
     class Meta(DeviceModelMixin.Meta):
         device_permissions = DevicePermissions(
-            DeviceChangePermission(device_roles=[CLIENT]))
+            DeviceChangePermission(device_roles=[CLIENT])
+        )
