@@ -25,36 +25,39 @@ class SubjectLocatorViewMixin(ContextMixin):
         super().__init__(**kwargs)
         if not self.subject_locator_model_wrapper_cls:
             raise SubjectLocatorViewMixinError(
-                'subject_locator_model_wrapper_cls must be a valid ModelWrapper. Got None')
+                "subject_locator_model_wrapper_cls must be a valid ModelWrapper. Got None"
+            )
         if not self.subject_locator_model:
             raise SubjectLocatorViewMixinError(
-                'subject_locator_model must be a model (label_lower). Got None')
+                "subject_locator_model must be a model (label_lower). Got None"
+            )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        wrapper = self.subject_locator_model_wrapper_cls(
-            model_obj=self.subject_locator)
+        wrapper = self.subject_locator_model_wrapper_cls(model_obj=self.subject_locator)
         context.update(subject_locator=wrapper)
         self.get_subject_locator_or_message()
         return context
 
     def get_subject_locator_or_message(self):
         obj = None
-        subject_identifier = self.kwargs.get('subject_identifier')
+        subject_identifier = self.kwargs.get("subject_identifier")
         try:
             obj = self.subject_locator_model_cls.objects.get(
-                subject_identifier=subject_identifier)
+                subject_identifier=subject_identifier
+            )
         except ObjectDoesNotExist:
             action_cls = site_action_items.get(
-                self.subject_locator_model_cls.action_name)
+                self.subject_locator_model_cls.action_name
+            )
             action_item_model_cls = action_cls.action_item_model_cls()
             try:
                 action_item_model_cls.objects.get(
                     subject_identifier=subject_identifier,
-                    action_type__name=SUBJECT_LOCATOR_ACTION)
+                    action_type__name=SUBJECT_LOCATOR_ACTION,
+                )
             except ObjectDoesNotExist:
-                action_cls(
-                    subject_identifier=subject_identifier)
+                action_cls(subject_identifier=subject_identifier)
         return obj
 
     @property
@@ -63,8 +66,9 @@ class SubjectLocatorViewMixin(ContextMixin):
             model_cls = django_apps.get_model(self.subject_locator_model)
         except LookupError as e:
             raise SubjectLocatorViewMixinError(
-                f'Unable to lookup subject locator model. '
-                f'model={self.subject_locator_model}. Got {e}')
+                f"Unable to lookup subject locator model. "
+                f"model={self.subject_locator_model}. Got {e}"
+            )
         return model_cls
 
     @property
@@ -76,8 +80,10 @@ class SubjectLocatorViewMixin(ContextMixin):
         model_cls = self.subject_locator_model_cls
         try:
             subject_locator = model_cls.objects.get(
-                subject_identifier=self.kwargs.get('subject_identifier'))
+                subject_identifier=self.kwargs.get("subject_identifier")
+            )
         except ObjectDoesNotExist:
             subject_locator = model_cls(
-                subject_identifier=self.kwargs.get('subject_identifier'))
+                subject_identifier=self.kwargs.get("subject_identifier")
+            )
         return subject_locator

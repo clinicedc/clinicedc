@@ -11,26 +11,31 @@ class SubjectWorkFieldsMixin(models.Model):
         max_length=25,
         choices=YES_NO,
         verbose_name=mark_safe(
-            'Has the participant given permission to contacted <b>at work</b> by telephone '
-            'or cell by study staff for follow-up purposes during the study?'))
+            "Has the participant given permission to contacted <b>at work</b> by telephone "
+            "or cell by study staff for follow-up purposes during the study?"
+        ),
+    )
 
     subject_work_place = EncryptedTextField(
-        verbose_name='Name and location of work place',
+        verbose_name="Name and location of work place",
         max_length=250,
         blank=True,
-        null=True)
+        null=True,
+    )
 
     subject_work_phone = EncryptedCharField(
-        verbose_name='Work contact telephone',
-        validators=[TelephoneNumber, ],
+        verbose_name="Work contact telephone",
+        validators=[TelephoneNumber],
         blank=True,
-        null=True)
+        null=True,
+    )
 
     subject_work_cell = EncryptedCharField(
-        verbose_name='Work contact cell number',
-        validators=[CellNumber, ],
+        verbose_name="Work contact cell number",
+        validators=[CellNumber],
         blank=True,
-        null=True)
+        null=True,
+    )
 
     class Meta:
         abstract = True
