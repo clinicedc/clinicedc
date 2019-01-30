@@ -6,15 +6,11 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_locator', '0005_auto_20180116_1411'),
-    ]
+    dependencies = [("edc_locator", "0005_auto_20180116_1411")]
 
     operations = [
         migrations.AlterModelManagers(
-            name='subjectlocator',
-            managers=[
-                ('on_site', django.contrib.sites.managers.CurrentSiteManager()),
-            ],
-        ),
+            name="subjectlocator",
+            managers=[("on_site", django.contrib.sites.managers.CurrentSiteManager())],
+        )
     ]

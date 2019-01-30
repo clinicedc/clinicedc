@@ -16,12 +16,14 @@ class LocatorManager(models.Manager):
         return self.get(subject_identifier=subject_identifier)
 
 
-class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin,
-                        SubjectContactFieldsMixin,
-                        SubjectIndirectContactFieldsMixin,
-                        SubjectWorkFieldsMixin,
-                        LocatorMethodsModelMixin,
-                        models.Model):
+class LocatorModelMixin(
+    UniqueSubjectIdentifierFieldMixin,
+    SubjectContactFieldsMixin,
+    SubjectIndirectContactFieldsMixin,
+    SubjectWorkFieldsMixin,
+    LocatorMethodsModelMixin,
+    models.Model,
+):
 
     """A model completed by the user to that captures participant
     locator information and permission to contact.
@@ -35,7 +37,7 @@ class LocatorModelMixin(UniqueSubjectIdentifierFieldMixin,
         return self.subject_identifier
 
     def natural_key(self):
-        return (self.subject_identifier, )
+        return (self.subject_identifier,)
 
     class Meta:
         abstract = True

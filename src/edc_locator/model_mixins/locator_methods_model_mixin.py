@@ -2,7 +2,6 @@ from django.db import models
 
 
 class LocatorMethodsModelMixin(models.Model):
-
     @property
     def call(self):
         return self.may_call

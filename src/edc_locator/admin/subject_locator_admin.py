@@ -15,10 +15,7 @@ class SubjectLocatorAdmin(ModelAdminMixin, admin.ModelAdmin):
     form = SubjectLocatorForm
 
     fieldsets = (
-        (None, {
-            'fields': (
-                'subject_identifier',
-            )}),
+        (None, {"fields": ("subject_identifier",)}),
         subject_contacts_fieldset,
         work_contacts_fieldset,
         indirect_contacts_fieldset,
@@ -26,26 +23,29 @@ class SubjectLocatorAdmin(ModelAdminMixin, admin.ModelAdmin):
     )
 
     radio_fields = {
-        'may_visit_home': admin.VERTICAL,
-        'may_call': admin.VERTICAL,
-        'may_sms': admin.VERTICAL,
-        'may_call_work': admin.VERTICAL,
-        'may_contact_indirectly': admin.VERTICAL}
+        "may_visit_home": admin.VERTICAL,
+        "may_call": admin.VERTICAL,
+        "may_sms": admin.VERTICAL,
+        "may_call_work": admin.VERTICAL,
+        "may_contact_indirectly": admin.VERTICAL,
+    }
 
     list_filter = (
-        'may_visit_home',
-        'may_call',
-        'may_sms',
-        'may_call_work',
-        'may_contact_indirectly')
+        "may_visit_home",
+        "may_call",
+        "may_sms",
+        "may_call_work",
+        "may_contact_indirectly",
+    )
 
     list_display = (
-        'subject_identifier',
-        'dashboard',
-        'visit_home',
-        'call',
-        'sms',
-        'call_work',
-        'contact_indirectly')
+        "subject_identifier",
+        "dashboard",
+        "visit_home",
+        "call",
+        "sms",
+        "call_work",
+        "contact_indirectly",
+    )
 
-    search_fields = ('subject_identifier', )
+    search_fields = ("subject_identifier",)

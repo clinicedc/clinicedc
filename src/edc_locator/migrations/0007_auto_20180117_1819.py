@@ -6,15 +6,11 @@ import edc_base.sites.managers
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_locator', '0006_auto_20180116_1528'),
-    ]
+    dependencies = [("edc_locator", "0006_auto_20180116_1528")]
 
     operations = [
         migrations.AlterModelManagers(
-            name='subjectlocator',
-            managers=[
-                ('on_site', edc_base.sites.managers.CurrentSiteManager()),
-            ],
-        ),
+            name="subjectlocator",
+            managers=[("on_site", edc_base.sites.managers.CurrentSiteManager())],
+        )
     ]
