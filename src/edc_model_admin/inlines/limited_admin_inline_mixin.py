@@ -1,4 +1,3 @@
-
 class LimitedAdminInlineMixin:
     """Limit choices on a foreignkey field in an inline to a value
     on the parent model.
@@ -37,7 +36,8 @@ class LimitedAdminInlineMixin:
 
     def get_formset(self, request, obj=None, **kwargs):
         formset = super(LimitedAdminInlineMixin, self).get_formset(
-            request, obj, **kwargs)
+            request, obj, **kwargs
+        )
 
         for (field, filters) in self.get_filters(obj):
             if obj:
@@ -48,4 +48,4 @@ class LimitedAdminInlineMixin:
         return formset
 
     def get_filters(self, obj):
-        return getattr(self, 'filters', ())
+        return getattr(self, "filters", ())

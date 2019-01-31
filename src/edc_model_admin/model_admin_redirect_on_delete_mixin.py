@@ -8,6 +8,7 @@ class ModelAdminRedirectOnDeleteMixin:
 
     """A mixin to redirect on delete.
     """
+
     post_url_on_delete_name = None
 
     def __init__(self, *args, **kwargs):
@@ -32,8 +33,10 @@ class ModelAdminRedirectOnDeleteMixin:
                 url_name_data = request.url_name_data
             except AttributeError:
                 url_name_data = {}
-            url_name = url_name_data.get(
-                self.post_url_on_delete_name) or self.post_url_on_delete_name
+            url_name = (
+                url_name_data.get(self.post_url_on_delete_name)
+                or self.post_url_on_delete_name
+            )
             kwargs = self.post_url_on_delete_kwargs(request, obj)
             try:
                 self.post_url_on_delete = reverse(url_name, kwargs=kwargs)
@@ -47,8 +50,9 @@ class ModelAdminRedirectOnDeleteMixin:
         if self.post_url_on_delete:
             opts = self.model._meta
             msg = ('The %(name)s "%(obj)s" was deleted successfully.') % {
-                'name': force_text(opts.verbose_name),
-                'obj': force_text(obj_display)}
+                "name": force_text(opts.verbose_name),
+                "obj": force_text(obj_display),
+            }
             messages.add_message(request, messages.SUCCESS, msg)
             return HttpResponseRedirect(self.post_url_on_delete)
         return super().response_delete(request, obj_display, obj_id)

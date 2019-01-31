@@ -32,7 +32,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
     show_save_next = False
     show_cancel = False
 
-    next_querystring_attr = 'next'
+    next_querystring_attr = "next"
 
     def extra_context(self, extra_context=None):
         """Adds the booleans for the savenext and cancel buttons
@@ -47,27 +47,27 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             extra_context.update(show_cancel=self.show_cancel)
         return extra_context
 
-    def add_view(self, request, form_url='', extra_context=None):
+    def add_view(self, request, form_url="", extra_context=None):
         """Redirect before save on "cancel", otherwise return
         normal behavior.
         """
-        if self.show_cancel and request.POST.get('_cancel'):
+        if self.show_cancel and request.POST.get("_cancel"):
             redirect_url = self.get_next_redirect_url(request=request)
             return HttpResponseRedirect(redirect_url)
         extra_context = self.extra_context(extra_context)
-        return super().add_view(
-            request, form_url=form_url, extra_context=extra_context)
+        return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
+    def change_view(self, request, object_id, form_url="", extra_context=None):
         """Redirect before save on "cancel", otherwise return
         normal behavior.
         """
-        if self.show_cancel and request.POST.get('_cancel'):
+        if self.show_cancel and request.POST.get("_cancel"):
             redirect_url = self.get_next_redirect_url(request=request)
             return HttpResponseRedirect(redirect_url)
         extra_context = self.extra_context(extra_context)
         return super().change_view(
-            request, object_id, form_url=form_url, extra_context=extra_context)
+            request, object_id, form_url=form_url, extra_context=extra_context
+        )
 
     def render_delete_form(self, request, context):
         return super().render_delete_form(request, context)
@@ -77,31 +77,30 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
 
     def redirect_url(self, request, obj, post_url_continue=None):
         redirect_url = None
-        if self.show_save_next and request.POST.get('_savenext'):
-            redirect_url = self.get_savenext_redirect_url(
-                request=request, obj=obj)
+        if self.show_save_next and request.POST.get("_savenext"):
+            redirect_url = self.get_savenext_redirect_url(request=request, obj=obj)
             if not redirect_url:
                 redirect_url = self.get_next_redirect_url(request=request)
-        elif self.show_cancel and request.POST.get('_cancel'):
+        elif self.show_cancel and request.POST.get("_cancel"):
             redirect_url = self.get_next_redirect_url(request=request)
         elif request.GET.dict().get(self.next_querystring_attr):
             redirect_url = self.get_next_redirect_url(request=request)
         if not redirect_url:
             redirect_url = super().redirect_url(
-                request, obj, post_url_continue=post_url_continue)
+                request, obj, post_url_continue=post_url_continue
+            )
         return redirect_url
 
     def get_next_redirect_url(self, request=None):
         """Returns a redirect url determined from the "next" attr
         in the querystring.
         """
-        url_name = request.GET.dict().get(
-            self.next_querystring_attr).split(',')[0]
+        url_name = request.GET.dict().get(self.next_querystring_attr).split(",")[0]
         options = self.get_next_options(request=request)
         try:
             redirect_url = reverse(url_name, kwargs=options)
         except NoReverseMatch as e:
-            msg = f'{e}. Got url_name={url_name}, kwargs={options}.'
+            msg = f"{e}. Got url_name={url_name}, kwargs={options}."
             try:
                 redirect_url = reverse(url_name)  # retry without kwargs
             except NoReverseMatch:
@@ -128,35 +127,35 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             except AttributeError:
                 panel_name = None
             next_model_cls = django_apps.get_model(next_form.model)
-            url_name = '_'.join(
-                next_model_cls._meta.label_lower.split('.'))
-            url_name = f'{self.admin_site.name}:{url_name}'
+            url_name = "_".join(next_model_cls._meta.label_lower.split("."))
+            url_name = f"{self.admin_site.name}:{url_name}"
             lookup_opts = {obj.visit_model_attr(): obj.visit}
             if panel_name:
                 lookup_opts.update(panel__name=panel_name)
             try:
                 next_obj = next_model_cls.objects.get(**lookup_opts)
             except ObjectDoesNotExist:
-                redirect_url = reverse(f'{url_name}_add')
+                redirect_url = reverse(f"{url_name}_add")
             else:
-                redirect_url = reverse(
-                    f'{url_name}_change', args=(next_obj.id, ))
+                redirect_url = reverse(f"{url_name}_change", args=(next_obj.id,))
         next_querystring = request.GET.dict().get(self.next_querystring_attr)
         querystring_opts = self.get_next_options(request=request)
         querystring_opts.update({obj.visit_model_attr(): str(obj.visit.id)})
         if panel_name:
-            Panel = django_apps.get_model('edc_lab.panel')
+            Panel = django_apps.get_model("edc_lab.panel")
             panel = Panel.objects.get(name=panel_name)
             querystring_opts.update(panel=str(panel.id))
         querystring = urlencode(querystring_opts)
-        return (f'{redirect_url}?{self.next_querystring_attr}='
-                f'{next_querystring}&{querystring}')
+        return (
+            f"{redirect_url}?{self.next_querystring_attr}="
+            f"{next_querystring}&{querystring}"
+        )
 
     def get_next_options(self, request=None):
         """Returns the key/value pairs from the "next" querystring
         as a dictionary.
         """
-        attrs = request.GET.dict().get(
-            self.next_querystring_attr).split(',')[1:]
-        return {k: request.GET.dict().get(k)
-                for k in attrs if request.GET.dict().get(k)}
+        attrs = request.GET.dict().get(self.next_querystring_attr).split(",")[1:]
+        return {
+            k: request.GET.dict().get(k) for k in attrs if request.GET.dict().get(k)
+        }

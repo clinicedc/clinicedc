@@ -28,9 +28,8 @@ class ModelAdminReadOnlyMixin:
     """
 
     def get_form(self, request, obj=None, **kwargs):
-        form = super(ModelAdminReadOnlyMixin, self).get_form(
-            request, obj, **kwargs)
-        if request.GET.get('edc_readonly'):
+        form = super(ModelAdminReadOnlyMixin, self).get_form(request, obj, **kwargs)
+        if request.GET.get("edc_readonly"):
             for form_field in form.base_fields.values():
                 form_field.disabled = True
                 try:
@@ -43,12 +42,13 @@ class ModelAdminReadOnlyMixin:
                     form_field.widget = DateInput()
         return form
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
+    def change_view(self, request, object_id, form_url="", extra_context=None):
         extra_context = extra_context or {}
-        if request.GET.get('edc_readonly'):
+        if request.GET.get("edc_readonly"):
+            extra_context.update({"edc_readonly": request.GET.get("edc_readonly")})
             extra_context.update(
-                {'edc_readonly': request.GET.get('edc_readonly')})
-            extra_context.update(
-                {'edc_readonly_next': request.GET.get(self.next_querystring_attr)})
+                {"edc_readonly_next": request.GET.get(self.next_querystring_attr)}
+            )
         return super().change_view(
-            request, object_id, form_url=form_url, extra_context=extra_context)
+            request, object_id, form_url=form_url, extra_context=extra_context
+        )

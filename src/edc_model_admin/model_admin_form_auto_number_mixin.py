@@ -28,11 +28,14 @@ class ModelAdminFormAutoNumberMixin:
             if auto_number:
                 for index, fld in enumerate(form.base_fields.items()):
                     label = str(fld[WIDGET].label)
-                    if (not re.match(r'^\d+\.', label)
-                            and not re.match(r'\<a\ title\=\"', label)):
+                    if not re.match(r"^\d+\.", label) and not re.match(
+                        r"\<a\ title\=\"", label
+                    ):
                         fld[WIDGET].label = mark_safe(
                             '<a title="{0}">{1}</a>. {2}'.format(
-                                fld[0], str(index + 1), label))
+                                fld[0], str(index + 1), label
+                            )
+                        )
         return form
 
     def get_form(self, request, obj=None, **kwargs):
