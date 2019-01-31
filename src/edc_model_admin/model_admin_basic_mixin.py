@@ -1,4 +1,3 @@
-
 class ModelAdminBasicMixin:
 
     """Merge ModelAdmin attributes with the concrete class attributes
@@ -47,35 +46,42 @@ class ModelAdminBasicMixin:
 
     def get_list_display(self, request):
         self.list_display = list(
-            super(ModelAdminBasicMixin, self).get_list_display(request) or [])
+            super(ModelAdminBasicMixin, self).get_list_display(request) or []
+        )
         self.list_display = self.reorder(
-            list(self.list_display) + list(self.list_display_pos or []))
+            list(self.list_display) + list(self.list_display_pos or [])
+        )
         self.list_display = self.extend_from(
-            self.list_display, self.mixin_list_display or [])
+            self.list_display, self.mixin_list_display or []
+        )
         self.list_display = self.remove_from(self.list_display)
         return tuple(self.list_display)
 
     def get_list_filter(self, request):
         self.list_filter = list(
-            super(ModelAdminBasicMixin, self).get_list_filter(request) or [])
+            super(ModelAdminBasicMixin, self).get_list_filter(request) or []
+        )
         self.list_filter = self.reorder(
-            list(self.list_filter) + list(self.list_filter_pos or []))
+            list(self.list_filter) + list(self.list_filter_pos or [])
+        )
         self.list_filter = self.update_from_mixin(
-            self.list_filter, self.mixin_list_filter or [])
+            self.list_filter, self.mixin_list_filter or []
+        )
         return tuple(self.list_filter)
 
     def get_search_fields(self, request):
         self.search_fields = list(
-            super(ModelAdminBasicMixin, self).get_search_fields(request) or [])
+            super(ModelAdminBasicMixin, self).get_search_fields(request) or []
+        )
         self.search_fields = self.update_from_mixin(
-            self.search_fields, self.mixin_search_fields or [])
+            self.search_fields, self.mixin_search_fields or []
+        )
         return tuple(self.search_fields)
 
     def get_fields(self, request, obj=None):
         self.radio_fields = self.get_radio_fields(request, obj)
         if self.mixin_fields:
-            self.fields = self.update_from_mixin(
-                self.fields, self.mixin_fields or [])
+            self.fields = self.update_from_mixin(self.fields, self.mixin_fields or [])
             return self.fields
         elif self.fields:
             return self.fields
@@ -88,8 +94,9 @@ class ModelAdminBasicMixin:
         return tuple(field_list)
 
     def extend_from(self, field_list, mixin_field_list):
-        return (list(field_list)
-                + list([fld for fld in mixin_field_list if fld not in field_list]))
+        return list(field_list) + list(
+            [fld for fld in mixin_field_list if fld not in field_list]
+        )
 
     def remove_from(self, field_list):
         field_list = list(field_list)

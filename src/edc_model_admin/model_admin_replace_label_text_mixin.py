@@ -2,7 +2,6 @@ from django.utils.safestring import mark_safe
 
 
 class ModelAdminReplaceLabelTextMixin:
-
     def replace_label_text(self, form=None, old=None, new=None, skip_fields=None):
         NAME = 0
         WIDGET = 1
