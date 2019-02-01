@@ -20,43 +20,47 @@ class Notification:
     name = None
     display_name = None
 
-    email_from = settings.EMAIL_CONTACTS.get('data_manager')
+    email_from = settings.EMAIL_CONTACTS.get("data_manager")
     email_to = None
     email_message_cls = EmailMessage
 
     email_body_template = (
-        '\n\nDo not reply to this email\n\n'
-        '{test_body_line}'
-        'A report has been submitted for patient '
-        '{subject_identifier} '
-        'at site {site_name} which may require '
-        'your attention.\n\n'
-        'Title: {display_name}\n\n'
-        'You received this message because you are subscribed to receive these '
-        'notifications in your user profile.\n\n'
-        '{test_body_line}'
-        'Thanks.')
+        "\n\nDo not reply to this email\n\n"
+        "{test_body_line}"
+        "A report has been submitted for patient "
+        "{subject_identifier} "
+        "at site {site_name} which may require "
+        "your attention.\n\n"
+        "Title: {display_name}\n\n"
+        "You received this message because you are subscribed to receive these "
+        "notifications in your user profile.\n\n"
+        "{test_body_line}"
+        "Thanks."
+    )
     email_subject_template = (
-        '{test_subject_line}{protocol_name}: '
-        '{display_name} '
-        'for {subject_identifier}')
+        "{test_subject_line}{protocol_name}: "
+        "{display_name} "
+        "for {subject_identifier}"
+    )
     email_footer_template = (
-        '\n\n-----------------\n'
+        "\n\n-----------------\n"
         'To unsubscribe remove "{display_name}" from your chosen '
-        'email notifications in your user profile.\n\n'
-        '{name}\n'
-        '{message_reference}\n'
-        '{message_datetime} (UTC)')
-    email_test_body_line = 'THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n'
-    email_test_subject_line = 'TEST/UAT -- '
+        "email notifications in your user profile.\n\n"
+        "{name}\n"
+        "{message_reference}\n"
+        "{message_datetime} (UTC)"
+    )
+    email_test_body_line = "THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n"
+    email_test_subject_line = "TEST/UAT -- "
 
     sms_message_cls = SmsMessage
     sms_template = (
         '{test_line}{protocol_name}: Report "{display_name}" for '
-        'patient {subject_identifier} '
-        'at site {site_name} may require '
-        'your attention. Login to review.')
-    sms_test_line = 'TEST MESSAGE. NO ACTION REQUIRED - '
+        "patient {subject_identifier} "
+        "at site {site_name} may require "
+        "your attention. Login to review."
+    )
+    sms_test_line = "TEST MESSAGE. NO ACTION REQUIRED - "
 
     def __init__(self):
         self._notification_enabled = None
@@ -68,22 +72,30 @@ class Notification:
         except AttributeError:
             live_system = False
         if not live_system:
-            self.email_to = [f'test.{email}' for email in self.email_to]
+            self.email_to = [f"test.{email}" for email in self.email_to]
             self.test_message = True
 
     def __repr__(self):
-        return (f'<{self.__class__.__name__}:name=\'{self.name}\', '
-                f'display_name=\'{self.display_name}\'>')
+        return (
+            f"<{self.__class__.__name__}:name='{self.name}', "
+            f"display_name='{self.display_name}'>"
+        )
 
     def __str__(self):
-        return f'{self.name}: {self.display_name}'
+        return f"{self.name}: {self.display_name}"
 
     @property
     def default_email_to(self):
-        return [f'{self.name}.{settings.APP_NAME}@mg.clinicedc.org']
+        return [f"{self.name}.{settings.APP_NAME}@mg.clinicedc.org"]
 
-    def notify(self, force_notify=None, use_email=None, use_sms=None,
-               email_body_template=None, **kwargs):
+    def notify(
+        self,
+        force_notify=None,
+        use_email=None,
+        use_sms=None,
+        email_body_template=None,
+        **kwargs,
+    ):
         """Notify / send an email and/or SMS.
 
         Main entry point.
@@ -98,21 +110,21 @@ class Notification:
         """
         email_sent = None
         sms_sent = None
-        use_email = use_email or getattr(settings, 'EMAIL_ENABLED', False)
-        use_sms = use_sms or getattr(settings, 'TWILIO_ENABLED', False)
+        use_email = use_email or getattr(settings, "EMAIL_ENABLED", False)
+        use_sms = use_sms or getattr(settings, "TWILIO_ENABLED", False)
         if force_notify or self._notify_on_condition(**kwargs):
             if use_email:
                 email_body_template = (
-                    (email_body_template or self.email_body_template)
-                    + self.email_footer_template)
+                    email_body_template or self.email_body_template
+                ) + self.email_footer_template
                 email_sent = self.send_email(
-                    email_body_template=email_body_template, **kwargs)
+                    email_body_template=email_body_template, **kwargs
+                )
             if use_sms:
                 sms_sent = self.send_sms(**kwargs)
             self.post_notification_actions(
-                email_sent=email_sent,
-                sms_sent=sms_sent,
-                **kwargs)
+                email_sent=email_sent, sms_sent=sms_sent, **kwargs
+            )
         return True if email_sent or sms_sent else False
 
     def notify_on_condition(self, **kwargs):
@@ -126,9 +138,10 @@ class Notification:
     def _notify_on_condition(self, test_message=None, **kwargs):
         """Returns the value of `notify_on_condition` or False.
         """
-        if self.enabled or test_message:
-            return test_message or self.notify_on_condition(**kwargs)
-        return False
+        if test_message:
+            return True
+        else:
+            return self.enabled and self.notify_on_condition(**kwargs)
 
     def post_notification_actions(self, **kwargs):
         pass
@@ -149,8 +162,7 @@ class Notification:
             # trigger exception if this class is not registered.
             site_notifications.get(self.name)
 
-            NotificationModel = django_apps.get_model(
-                'edc_notification.notification')
+            NotificationModel = django_apps.get_model("edc_notification.notification")
             try:
                 obj = NotificationModel.objects.get(name=self.name)
             except ObjectDoesNotExist:
@@ -164,8 +176,7 @@ class Notification:
 
         Extend using `extra_template_options`.
         """
-        protocol_name = django_apps.get_app_config(
-            'edc_protocol').protocol_name
+        protocol_name = django_apps.get_app_config("edc_protocol").protocol_name
         test_message = test_message or self.test_message
         template_options = dict(
             name=self.name,
@@ -173,31 +184,34 @@ class Notification:
             display_name=self.display_name,
             email_from=self.email_from,
             test_subject_line=(
-                self.email_test_subject_line if test_message else '').strip(),
-            test_body_line=self.email_test_body_line if test_message else '',
-            test_line=self.sms_test_line if test_message else '',
+                self.email_test_subject_line if test_message else ""
+            ).strip(),
+            test_body_line=self.email_test_body_line if test_message else "",
+            test_line=self.sms_test_line if test_message else "",
             message_datetime=get_utcnow(),
-            message_reference='')
-        if 'subject_identifier' not in template_options:
+            message_reference="",
+        )
+        if "subject_identifier" not in template_options:
             try:
-                template_options.update(
-                    subject_identifier=instance.subject_identifier)
+                template_options.update(subject_identifier=instance.subject_identifier)
             except AttributeError:
                 pass
-        if 'site_name' not in template_options:
+        if "site_name" not in template_options:
             try:
                 template_options.update(site_name=instance.site.name.title())
             except AttributeError:
                 pass
         return template_options
 
-    def send_email(self, fail_silently=None, email_to=None,
-                   email_body_template=None, **kwargs):
+    def send_email(
+        self, fail_silently=None, email_to=None, email_body_template=None, **kwargs
+    ):
         kwargs.update(**self.get_template_options(**kwargs))
         subject = self.email_subject_template.format(**kwargs)
         body = (email_body_template or self.email_body_template).format(**kwargs)
         email = self.email_message_cls(
-            subject, body, self.email_from, email_to or self.email_to)
+            subject, body, self.email_from, email_to or self.email_to
+        )
         return email.send(fail_silently)
 
     def send_sms(self, fail_silently=None, sms_recipient=None, **kwargs):
@@ -211,14 +225,12 @@ class Notification:
                 if not fail_silently:
                     raise
             else:
-                recipients = (
-                    [sms_recipient] if sms_recipient else self.sms_recipients)
+                recipients = [sms_recipient] if sms_recipient else self.sms_recipients
                 for recipient in recipients:
                     try:
                         message = client.messages.create(
-                            from_=self.sms_sender,
-                            to=recipient,
-                            body=body)
+                            from_=self.sms_sender, to=recipient, body=body
+                        )
                     except (TwilioRestException, TwilioException):
                         if not fail_silently:
                             raise
@@ -242,9 +254,10 @@ class Notification:
         See also: edc_auth.UserProfile.
         """
         sms_recipients = []
-        UserProfile = django_apps.get_model('edc_auth.UserProfile')
+        UserProfile = django_apps.get_model("edc_auth.UserProfile")
         for user_profile in UserProfile.objects.filter(
-                user__is_active=True, user__is_staff=True):
+            user__is_active=True, user__is_staff=True
+        ):
             try:
                 user_profile.sms_notifications.get(name=self.name)
             except ObjectDoesNotExist:
@@ -256,7 +269,7 @@ class Notification:
 
     @property
     def test_template_options(self):
-        return dict(subject_identifier='123456910', site_name='Gaborone')
+        return dict(subject_identifier="123456910", site_name="Gaborone")
 
     def send_test_email(self, email_to):
         """Sends a test message to "email_to".
@@ -268,9 +281,12 @@ class Notification:
             notification = Notification()
             notification.send_test_email('someone@example.com')
         """
-        self.notify(force_notify=True, test_message=True,
-                    email_to=[email_to],
-                    **self.test_template_options)
+        self.notify(
+            force_notify=True,
+            test_message=True,
+            email_to=[email_to],
+            **self.test_template_options,
+        )
 
     def send_test_sms(self, sms_recipient=None):
         """Sends a test message to "email_to".
@@ -282,6 +298,9 @@ class Notification:
             notification = Notification()
             notification.send_test_sms(sms_recipient='+123456789')
         """
-        self.notify(force_notify=True, test_message=True,
-                    sms_recipient=sms_recipient,
-                    ** self.test_template_options)
+        self.notify(
+            force_notify=True,
+            test_message=True,
+            sms_recipient=sms_recipient,
+            **self.test_template_options,
+        )

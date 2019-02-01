@@ -12,19 +12,16 @@ class TestModel(BaseUuidModel):
 
 class AE(SiteModelMixin, BaseUuidModel):
 
-    ae_grade = models.CharField(
-        max_length=10)
+    ae_grade = models.CharField(max_length=10)
 
-    subject_identifier = models.CharField(
-        max_length=10)
+    subject_identifier = models.CharField(max_length=10)
 
     history = HistoricalRecords()
 
 
 class Death(SiteModelMixin, BaseUuidModel):
 
-    subject_identifier = models.CharField(
-        max_length=10)
+    subject_identifier = models.CharField(max_length=10)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
