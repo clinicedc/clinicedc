@@ -41,6 +41,7 @@ class ActionModelMixin(models.Model):
         ActionItem, related_name="+", null=True, on_delete=PROTECT
     )
 
+    # remove
     parent_action_identifier = models.CharField(
         max_length=30,
         null=True,
@@ -49,6 +50,7 @@ class ActionModelMixin(models.Model):
         ),
     )
 
+    # remove
     related_action_identifier = models.CharField(
         max_length=30,
         null=True,
@@ -76,10 +78,8 @@ class ActionModelMixin(models.Model):
                 f" {self.action_identifier}."
             )
 
-        if (
-            self.get_action_cls().related_reference_model
-            and not self.related_action_item
-        ):
+        if (self.get_action_cls().related_reference_model
+                and not self.related_action_item):
             self.related_action_item = getattr(
                 self, self.get_action_cls().related_reference_fk_attr
             ).action_item
