@@ -11,12 +11,13 @@ from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleMod
 from ..model_mixins import CrfInlineModelMixin, CrfModelMixin, VisitModelMixin
 
 
-class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
-                     UpdatesOrCreatesRegistrationModelMixin,
-                     BaseUuidModel):
+class SubjectConsent(
+    NonUniqueSubjectIdentifierFieldMixin,
+    UpdatesOrCreatesRegistrationModelMixin,
+    BaseUuidModel,
+):
 
-    consent_datetime = models.DateTimeField(
-        default=get_utcnow)
+    consent_datetime = models.DateTimeField(default=get_utcnow)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
@@ -37,7 +38,6 @@ class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
 
 
 class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
-
     class Meta(OffstudyModelMixin.Meta):
         pass
 
@@ -64,7 +64,7 @@ class CrfOne(CrfModelMixin, BaseUuidModel):
 
 class OtherModel(BaseUuidModel):
 
-    f1 = models.CharField(max_length=10, default='erik')
+    f1 = models.CharField(max_length=10, default="erik")
 
 
 class CrfOneInline(CrfInlineModelMixin, BaseUuidModel):
@@ -73,10 +73,10 @@ class CrfOneInline(CrfInlineModelMixin, BaseUuidModel):
 
     other_model = models.ForeignKey(OtherModel, on_delete=PROTECT)
 
-    f1 = models.CharField(max_length=10, default='erik')
+    f1 = models.CharField(max_length=10, default="erik")
 
     class Meta(CrfInlineModelMixin.Meta):
-        crf_inline_parent = 'crf_one'
+        crf_inline_parent = "crf_one"
 
 
 class BadCrfOneInline(CrfInlineModelMixin, BaseUuidModel):
@@ -87,7 +87,7 @@ class BadCrfOneInline(CrfInlineModelMixin, BaseUuidModel):
 
     other_model = models.ForeignKey(OtherModel, on_delete=PROTECT)
 
-    f1 = models.CharField(max_length=10, default='erik')
+    f1 = models.CharField(max_length=10, default="erik")
 
     class Meta:
         pass
@@ -99,7 +99,7 @@ class BadCrfOneInline2(CrfInlineModelMixin, BaseUuidModel):
 
     other_model = models.ForeignKey(OtherModel, on_delete=PROTECT)
 
-    f1 = models.CharField(max_length=10, default='erik')
+    f1 = models.CharField(max_length=10, default="erik")
 
     class Meta(CrfInlineModelMixin.Meta):
         crf_inline_parent = None

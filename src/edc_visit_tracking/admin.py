@@ -1,6 +1,6 @@
 from django.conf import settings
 
-if settings.APP_NAME == 'edc_visit_tracking':
+if settings.APP_NAME == "edc_visit_tracking":
     from django.contrib import admin
 
     from .admin_site import edc_visit_tracking_admin

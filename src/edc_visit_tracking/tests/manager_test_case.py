@@ -32,7 +32,7 @@ class ManagerTestCase:
         appointment_model = None
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
-            if issubclass(model, (self.appointment_model_cls, )):
+            if issubclass(model, (self.appointment_model_cls,)):
                 appointment_model = model._meta.label_lower
                 break
         return appointment_model
@@ -44,7 +44,7 @@ class ManagerTestCase:
         visit_models = []
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
-            if issubclass(model, (self.visit_model_cls, )):
+            if issubclass(model, (self.visit_model_cls,)):
                 visit_models.append(model._meta.label_lower)
         return visit_models
 
@@ -55,7 +55,7 @@ class ManagerTestCase:
         requisition_models = []
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
-            if issubclass(model, (self.requisition_model_cls, )):
+            if issubclass(model, (self.requisition_model_cls,)):
                 requisition_models.append(model._meta.label_lower)
         return requisition_models
 
@@ -66,7 +66,7 @@ class ManagerTestCase:
         list_models = []
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
-            if issubclass(model, (self.list_model_cls, )):
+            if issubclass(model, (self.list_model_cls,)):
                 list_models.append(model._meta.label_lower)
         return list_models
 
@@ -80,8 +80,12 @@ class ManagerTestCase:
         non_crf_models = []
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
-            classes = (self.crf_model_cls, self.list_model_cls,
-                       self.appointment_model_cls, self.visit_manager_cls)
+            classes = (
+                self.crf_model_cls,
+                self.list_model_cls,
+                self.appointment_model_cls,
+                self.visit_manager_cls,
+            )
             if not issubclass(model, classes):
                 non_crf_models.append(model._meta.label_lower)
         return non_crf_models
@@ -93,8 +97,9 @@ class ManagerTestCase:
         crf_models = []
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
-            if (issubclass(model, (self.crf_model_cls, ))
-                    and not issubclass(model, (self.requisition_model_cls, ))):
+            if issubclass(model, (self.crf_model_cls,)) and not issubclass(
+                model, (self.requisition_model_cls,)
+            ):
                 crf_models.append(model._meta.label_lower)
         return crf_models
 
@@ -102,40 +107,45 @@ class ManagerTestCase:
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
             if model._meta.label_lower in models:
-                if (model._default_manager.__class__ != manager_cls
-                        and 'historical' not in model._meta.label_lower):
+                if (
+                    model._default_manager.__class__ != manager_cls
+                    and "historical" not in model._meta.label_lower
+                ):
                     self.assertTrue(
-                        issubclass(
-                            model._default_manager.__class__, manager_cls),
-                        msg=(f'model {model._meta.label_lower}. '
-                             f'Got manager {model._default_manager.__class__} '
-                             f'is not a subclass of {manager_cls}.'))
+                        issubclass(model._default_manager.__class__, manager_cls),
+                        msg=(
+                            f"model {model._meta.label_lower}. "
+                            f"Got manager {model._default_manager.__class__} "
+                            f"is not a subclass of {manager_cls}."
+                        ),
+                    )
 
     def have_history_or_raise(self, models=None):
         app_config = django_apps.get_app_config(self.app_label)
         for model in app_config.get_models():
             if model._meta.label_lower in models:
-                if 'historical' not in model._meta.label_lower:
+                if "historical" not in model._meta.label_lower:
                     self.assertTrue(
-                        issubclass(model.history.__class__,
-                                   self.history_manager_cls),
-                        msg=(f'model {model._meta.label_lower}. '
-                             f'Got history manager {model.history.__class__} '
-                             f'is not a subclass of {self.history_manager_cls}.'))
+                        issubclass(model.history.__class__, self.history_manager_cls),
+                        msg=(
+                            f"model {model._meta.label_lower}. "
+                            f"Got history manager {model.history.__class__} "
+                            f"is not a subclass of {self.history_manager_cls}."
+                        ),
+                    )
 
     def test_crf_default_manager_subclass(self):
         self.have_manager_or_raise(
-            models=self.crf_models,
-            manager_cls=self.crf_manager_cls)
+            models=self.crf_models, manager_cls=self.crf_manager_cls
+        )
 
     def test_crf_history_manager_subclass(self):
         self.have_history_or_raise(models=self.crf_models)
 
     def test_requisition_default_manager_subclass(self):
         self.have_manager_or_raise(
-            models=self.requisition_models,
-            manager_cls=self.requisition_manager_cls)
+            models=self.requisition_models, manager_cls=self.requisition_manager_cls
+        )
 
     def test_requisition_history_manager_subclass(self):
-        self.have_history_or_raise(
-            models=self.requisition_models)
+        self.have_history_or_raise(models=self.requisition_models)

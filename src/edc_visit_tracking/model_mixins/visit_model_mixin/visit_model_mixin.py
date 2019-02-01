@@ -13,9 +13,12 @@ from .visit_model_fields_mixin import VisitModelFieldsMixin
 
 
 class VisitModelMixin(
-        VisitModelFieldsMixin, VisitScheduleModelMixin,
-        NonUniqueSubjectIdentifierFieldMixin,
-        PreviousVisitModelMixin, models.Model):
+    VisitModelFieldsMixin,
+    VisitScheduleModelMixin,
+    NonUniqueSubjectIdentifierFieldMixin,
+    PreviousVisitModelMixin,
+    models.Model,
+):
 
     """
     For example:
@@ -26,12 +29,13 @@ class VisitModelMixin(
             class Meta(VisitModelMixin.Meta):
                 app_label = 'my_app'
     """
+
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
     objects = VisitModelManager()
 
     def __str__(self):
-        return f'{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}'
+        return f"{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}"
 
     def save(self, *args, **kwargs):
         self.subject_identifier = self.appointment.subject_identifier
@@ -43,12 +47,15 @@ class VisitModelMixin(
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.subject_identifier,
-                self.visit_schedule_name,
-                self.schedule_name,
-                self.visit_code,
-                self.visit_code_sequence)
-    natural_key.dependencies = ['edc_appointment.appointment']
+        return (
+            self.subject_identifier,
+            self.visit_schedule_name,
+            self.schedule_name,
+            self.visit_code,
+            self.visit_code_sequence,
+        )
+
+    natural_key.dependencies = ["edc_appointment.appointment"]
 
     def get_visit_reason_no_follow_up_choices(self):
         """Returns the visit reasons that do not imply any
@@ -72,11 +79,25 @@ class VisitModelMixin(
     class Meta:
         abstract = True
         unique_together = (
-            ('subject_identifier', 'visit_schedule_name',
-             'schedule_name', 'visit_code', 'visit_code_sequence'),
-            ('subject_identifier', 'visit_schedule_name',
-             'schedule_name', 'report_datetime'),
+            (
+                "subject_identifier",
+                "visit_schedule_name",
+                "schedule_name",
+                "visit_code",
+                "visit_code_sequence",
+            ),
+            (
+                "subject_identifier",
+                "visit_schedule_name",
+                "schedule_name",
+                "report_datetime",
+            ),
         )
-        ordering = (('subject_identifier', 'visit_schedule_name',
-                     'schedule_name', 'visit_code', 'visit_code_sequence',
-                     'report_datetime', ))
+        ordering = (
+            "subject_identifier",
+            "visit_schedule_name",
+            "schedule_name",
+            "visit_code",
+            "visit_code_sequence",
+            "report_datetime",
+        )

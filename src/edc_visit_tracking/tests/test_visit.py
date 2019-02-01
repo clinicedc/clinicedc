@@ -19,31 +19,30 @@ class TestVisit(TestCase):
 
     def setUp(self):
         import_holidays()
-        self.subject_identifier = '12345'
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier)
+        self.subject_identifier = "12345"
+        self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
 
     def test_methods(self):
         self.helper.consent_and_put_on_schedule()
-        appointment = Appointment.objects.all().order_by(
-            'timepoint_datetime')[0]
+        appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED)
+            appointment=appointment, reason=SCHEDULED
+        )
         instance = CrfOne(subject_visit=subject_visit)
 
         self.assertEqual(instance.visit, subject_visit)
-        self.assertEqual(instance.visit_model_attr(), 'subject_visit')
-        self.assertEqual(CrfOne.visit_model_attr(), 'subject_visit')
+        self.assertEqual(instance.visit_model_attr(), "subject_visit")
+        self.assertEqual(CrfOne.visit_model_attr(), "subject_visit")
         self.assertEqual(CrfOne.visit_model_cls(), SubjectVisit)
 
     def test_crf_visit_model_attrs(self):
         """Assert models using the CrfModelMixin can determine which
         attribute points to the visit model foreignkey.
         """
-        self.assertEqual(CrfOne().visit_model_attr(), 'subject_visit')
+        self.assertEqual(CrfOne().visit_model_attr(), "subject_visit")
         self.assertEqual(CrfOne.objects.all().count(), 0)
 
     def test_crf_visit_model(self):
@@ -57,14 +56,15 @@ class TestVisit(TestCase):
         """Assert inline model can find visit instance from parent.
         """
         self.helper.consent_and_put_on_schedule()
-        appointment = Appointment.objects.all().order_by(
-            'timepoint_datetime')[0]
+        appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED)
+            appointment=appointment, reason=SCHEDULED
+        )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = OtherModel.objects.create()
         crf_one_inline = CrfOneInline.objects.create(
-            crf_one=crf_one, other_model=other_model)
+            crf_one=crf_one, other_model=other_model
+        )
         self.assertEqual(crf_one_inline.visit.pk, subject_visit.pk)
 
     def test_crf_inline_model_parent_model(self):
@@ -73,15 +73,16 @@ class TestVisit(TestCase):
         self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment,
-            reason=SCHEDULED)
+            appointment=appointment, reason=SCHEDULED
+        )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = OtherModel.objects.create()
         self.assertRaises(
             ImproperlyConfigured,
             BadCrfOneInline.objects.create,
             crf_one=crf_one,
-            other_model=other_model)
+            other_model=other_model,
+        )
 
     def test_crf_inline_model_attrs2(self):
         """Assert inline model can find visit instance from parent.
@@ -89,28 +90,30 @@ class TestVisit(TestCase):
         self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment,
-            reason=SCHEDULED)
+            appointment=appointment, reason=SCHEDULED
+        )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = OtherModel.objects.create()
         crf_one_inline = CrfOneInline.objects.create(
-            crf_one=crf_one,
-            other_model=other_model)
+            crf_one=crf_one, other_model=other_model
+        )
         self.assertIsInstance(crf_one_inline.visit, SubjectVisit)
 
     def test_get_previous_model_instance(self):
         """Assert model can determine the previous.
         """
         self.helper.consent_and_put_on_schedule()
-        for index, appointment in enumerate(Appointment.objects.all().order_by(
-                'visit_code')):
+        for index, appointment in enumerate(
+            Appointment.objects.all().order_by("visit_code")
+        ):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow()
-                - relativedelta(months=10 - index),
-                reason=SCHEDULED)
+                report_datetime=get_utcnow() - relativedelta(months=10 - index),
+                reason=SCHEDULED,
+            )
         subject_visits = SubjectVisit.objects.all().order_by(
-            'appointment__timepoint_datetime')
+            "appointment__timepoint_datetime"
+        )
         self.assertEqual(subject_visits.count(), 4)
         subject_visit = subject_visits[0]
         self.assertIsNone(subject_visit.previous_visit)
@@ -126,28 +129,30 @@ class TestVisit(TestCase):
         appointment are inserted.
         """
         self.helper.consent_and_put_on_schedule()
-        appointments = Appointment.objects.all().order_by('visit_code')
+        appointments = Appointment.objects.all().order_by("visit_code")
         opts = appointments[0].__dict__
-        opts.pop('_state')
-        opts.pop('id')
-        opts.pop('created')
-        opts.pop('modified')
+        opts.pop("_state")
+        opts.pop("id")
+        opts.pop("created")
+        opts.pop("modified")
 
-        opts['visit_code_sequence'] = 1
+        opts["visit_code_sequence"] = 1
         Appointment.objects.create(**opts)
-        opts['visit_code_sequence'] = 2
+        opts["visit_code_sequence"] = 2
         Appointment.objects.create(**opts)
 
-        for index, appointment in enumerate(Appointment.objects.all().order_by(
-                'visit_code', 'visit_code_sequence')):
+        for index, appointment in enumerate(
+            Appointment.objects.all().order_by("visit_code", "visit_code_sequence")
+        ):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow()
-                - relativedelta(months=10 - index),
-                reason=SCHEDULED)
+                report_datetime=get_utcnow() - relativedelta(months=10 - index),
+                reason=SCHEDULED,
+            )
 
         subject_visits = SubjectVisit.objects.all().order_by(
-            'appointment__timepoint_datetime')
+            "appointment__timepoint_datetime"
+        )
         self.assertEqual(subject_visits.count(), 6)
 
         subject_visit = subject_visits[0]

@@ -12,22 +12,28 @@ class CaretakerFieldsMixin(models.Model):
     the choices and labels.
 
     """
+
     information_provider = models.CharField(
-        verbose_name=('Please indicate who provided most of the '
-                      'information for this participant\'s visit'),
-        max_length=20)
+        verbose_name=(
+            "Please indicate who provided most of the "
+            "information for this participant's visit"
+        ),
+        max_length=20,
+    )
 
     information_provider_other = models.CharField(
         verbose_name="if information provider is Other, please specify",
         max_length=20,
         blank=True,
-        null=True)
+        null=True,
+    )
 
     is_present = models.CharField(
         max_length=10,
-        verbose_name="Is the participant present at today\'s visit",
+        verbose_name="Is the participant present at today's visit",
         choices=YES_NO,
-        default=YES)
+        default=YES,
+    )
 
     class Meta:
         abstract = True

@@ -5,7 +5,7 @@ from django.db.models import options, OneToOneField, ForeignKey
 from .crf_inline_visit_methods_model_mixin import CrfInlineVisitMethodsModelMixin
 
 
-options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('crf_inline_parent',)
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("crf_inline_parent",)
 
 
 class CrfInlineModelMixin(CrfInlineVisitMethodsModelMixin, models.Model):
@@ -20,16 +20,20 @@ class CrfInlineModelMixin(CrfInlineVisitMethodsModelMixin, models.Model):
         try:
             self._meta.crf_inline_parent
         except AttributeError:
-            fks = [field for field in self._meta.fields if isinstance(
-                field, (OneToOneField, ForeignKey))]
+            fks = [
+                field
+                for field in self._meta.fields
+                if isinstance(field, (OneToOneField, ForeignKey))
+            ]
             if len(fks) == 1:
                 self.__class__._meta.crf_inline_parent = fks[0].name
             else:
                 raise ImproperlyConfigured(
-                    'CrfInlineModelMixin cannot determine the '
-                    'inline parent model name. Got more than one foreign key. '
-                    'Try declaring \"crf_inline_parent = \'<field name>\'\" '
-                    'explicitly in Meta.')
+                    "CrfInlineModelMixin cannot determine the "
+                    "inline parent model name. Got more than one foreign key. "
+                    "Try declaring \"crf_inline_parent = '<field name>'\" "
+                    "explicitly in Meta."
+                )
 
     def __str__(self):
         return str(self.parent_instance.visit)
@@ -58,8 +62,7 @@ class CrfInlineModelMixin(CrfInlineVisitMethodsModelMixin, models.Model):
         """Return the instance of the inline parent model's visit
         model.
         """
-        return getattr(
-            self.parent_instance, self.parent_model.visit_model_attr())
+        return getattr(self.parent_instance, self.parent_model.visit_model_attr())
 
     @property
     def report_datetime(self):

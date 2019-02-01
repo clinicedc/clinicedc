@@ -20,7 +20,7 @@ class SubjectVisitForm(forms.ModelForm):
 
     class Meta:
         model = SubjectVisit
-        fields = '__all__'
+        fields = "__all__"
 
 
 class TestForm(TestCase):
@@ -29,9 +29,8 @@ class TestForm(TestCase):
 
     def setUp(self):
         import_holidays()
-        self.subject_identifier = '12345'
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier)
+        self.subject_identifier = "12345"
+        self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
@@ -40,37 +39,40 @@ class TestForm(TestCase):
         self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment,
-            reason=SCHEDULED)
+            appointment=appointment, reason=SCHEDULED
+        )
         cleaned_data = dict(
             appointment=appointment,
             reason=SCHEDULED,
             is_present=YES,
             survival_status=ALIVE,
-            last_alive_date=get_utcnow().date())
+            last_alive_date=get_utcnow().date(),
+        )
         form_validator = VisitFormValidator(
-            cleaned_data=cleaned_data, instance=subject_visit)
+            cleaned_data=cleaned_data, instance=subject_visit
+        )
         form_validator.validate()
 
-    @tag('1')
+    @tag("1")
     def test_visit_tracking_form(self):
-
         class CrfForm(VisitTrackingModelFormMixin, forms.ModelForm):
-
             class Meta:
                 model = CrfOne
-                fields = '__all__'
+                fields = "__all__"
 
         self.helper.consent_and_put_on_schedule()
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment,
-            reason=SCHEDULED)
-        form = CrfForm({
-            'f1': '1',
-            'f2': '2',
-            'f3': '3',
-            'report_datetime': get_utcnow(),
-            'subject_visit': subject_visit.pk})
+            appointment=appointment, reason=SCHEDULED
+        )
+        form = CrfForm(
+            {
+                "f1": "1",
+                "f2": "2",
+                "f3": "3",
+                "report_datetime": get_utcnow(),
+                "subject_visit": subject_visit.pk,
+            }
+        )
         self.assertTrue(form.is_valid())
         form.save(commit=True)

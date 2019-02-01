@@ -2,7 +2,6 @@ from django.db import models
 
 
 class CrfInlineVisitMethodsModelMixin(models.Model):
-
     @property
     def visit_code(self):
         return self.visit.visit_code
