@@ -51,13 +51,12 @@ class SmsMessage:
                 if not fail_silently:
                     raise
             else:
-                sender = sender or getattr(settings, 'TWILIO_SENDER', None)
+                sender = sender or getattr(settings, "TWILIO_SENDER", None)
                 recipient = recipient or self.user.userprofile.mobile
                 try:
                     message = client.messages.create(
-                        from_=sender,
-                        to=recipient,
-                        body=self.body)
+                        from_=sender, to=recipient, body=self.body
+                    )
                 except (TwilioRestException, TwilioException):
                     if not fail_silently:
                         raise
@@ -71,4 +70,4 @@ class SmsMessage:
     def get_sms_test_line(self):
         if not self.live_system:
             return self.notification.sms_test_line or self.sms_test_line
-        return ''
+        return ""

@@ -7,9 +7,6 @@ from edc_notification import site_notifications
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_notification', '0002_update_notifications'),
-    ]
+    dependencies = [("edc_notification", "0002_update_notifications")]
 
-    operations = [migrations.RunPython(
-        site_notifications.update_notification_list)]
+    operations = [migrations.RunPython(site_notifications.update_notification_list)]

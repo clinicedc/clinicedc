@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_notification', '0001_initial'),
-    ]
+    dependencies = [("edc_notification", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='notification',
-            name='name',
+            model_name="notification",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
-        ),
+        )
     ]

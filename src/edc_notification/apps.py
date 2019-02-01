@@ -19,14 +19,15 @@ def post_migrate_update_notifications(sender=None, **kwargs):
 
 
 class AppConfig(DjangoAppConfig):
-    name = 'edc_notification'
-    verbose_name = 'Edc Notification'
+    name = "edc_notification"
+    verbose_name = "Edc Notification"
 
     def ready(self):
         from .signals import manage_mailists_on_userprofile_m2m_changed
         from .signals import notification_on_post_create_historical_record
-        sys.stdout.write(f'Loading {self.verbose_name} ...\n')
+
+        sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         site_notifications.autodiscover(verbose=True)
-        sys.stdout.write(f' Done loading {self.verbose_name}.\n')
+        sys.stdout.write(f" Done loading {self.verbose_name}.\n")
         post_migrate.connect(post_migrate_update_notifications, sender=self)
         register(edc_notification_check)
