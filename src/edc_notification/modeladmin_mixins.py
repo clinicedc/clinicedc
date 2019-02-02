@@ -14,8 +14,7 @@ class NotificationModelAdminMixin:
     """
 
     def get_notification_instructions(self, request=None):
-        notifications = site_notifications.models.get(
-            self.model._meta.label_lower)
+        notifications = site_notifications.models.get(self.model._meta.label_lower)
         if notifications:
             notifications = [
                 notification.display_name for notification in notifications
@@ -28,8 +27,7 @@ class NotificationModelAdminMixin:
                 )
             ]
             tooltip2 = mark_safe(", ".join(my_notifications))
-            word = "notification is" if len(
-                notifications) == 1 else "notifications are"
+            word = "notification is" if len(notifications) == 1 else "notifications are"
             notification_instructions = (
                 f'<a href="#" title="{tooltip1}">{len(notifications)} '
                 f"{word}</a> enabled for this form. "

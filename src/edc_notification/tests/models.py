@@ -12,12 +12,12 @@ class TestModel(BaseUuidModel):
 
 class Condition(BaseUuidModel):
 
-    name = models.CharField(max_length=25, default='anemia')
+    name = models.CharField(max_length=25, default="anemia")
 
 
 class AnyModel(BaseUuidModel):
 
-    name = models.CharField(max_length=25, default='anemia')
+    name = models.CharField(max_length=25, default="anemia")
 
     history = HistoricalRecords()
 

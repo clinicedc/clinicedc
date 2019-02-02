@@ -11,7 +11,6 @@ from .models import AE
 
 
 class TwilioTestClient:
-
     def __init__(self, **kwargs):
 
         self.messages = TwillioTestClientMessages()
@@ -21,23 +20,17 @@ class TwillioTestClientMessages:
 
     created = []
 
-    sid = 'test-sid'
+    sid = "test-sid"
 
     def create(self, to, from_, body):
-        self.created.append({
-            'to': to,
-            'from_': from_,
-            'body': body
-        })
+        self.created.append({"to": to, "from_": from_, "body": body})
         return self
 
 
 class TestTwilio(TestCase):
-
-    @override_settings(TWILIO_ENABLED=True, TWILIO_SENDER='5555555555')
+    @override_settings(TWILIO_ENABLED=True, TWILIO_SENDER="5555555555")
     def test_(self):
-        user = User.objects.create(
-            username="erikvw", is_active=True, is_staff=True)
+        user = User.objects.create(username="erikvw", is_active=True, is_staff=True)
 
         site_notifications._registry = {}
         site_notifications.update_notification_list()
@@ -51,8 +44,7 @@ class TestTwilio(TestCase):
             sms_client = TwilioTestClient
 
         site_notifications.update_notification_list()
-        notification = NotificationModel.objects.get(
-            name=G3EventNotification.name)
+        notification = NotificationModel.objects.get(name=G3EventNotification.name)
         user.userprofile.sms_notifications.add(notification)
         user.userprofile.mobile = settings.TWILIO_TEST_RECIPIENT
         user.userprofile.save()
@@ -64,8 +56,10 @@ class TestTwilio(TestCase):
         AE.objects.create(subject_identifier="1", ae_grade=3)
 
         self.assertEqual(
-            TwillioTestClientMessages.created[0].get('body'),
-            ('TEST MESSAGE. NO ACTION REQUIRED - My Protocol: Report "Test Grade3 Event" '
-             'for patient 1 at site example.com may require your attention. '
-             'Login to review. (See your user profile to unsubscribe.)')
+            TwillioTestClientMessages.created[0].get("body"),
+            (
+                'TEST MESSAGE. NO ACTION REQUIRED - My Protocol: Report "Test Grade3 Event" '
+                "for patient 1 at site example.com may require your attention. "
+                "Login to review. (See your user profile to unsubscribe.)"
+            ),
         )
