@@ -1,6 +1,3 @@
-import sys
-
-from django.conf import settings
 from django.db import models
 from edc_base.model_mixins import BaseUuidModel
 
@@ -29,7 +26,3 @@ class Notification(BaseUuidModel):
 
     class Meta:
         ordering = ("display_name",)
-
-
-if settings.APP_NAME == "edc_notification" and "makemigrations" not in sys.argv:
-    from .tests import models  # noqa

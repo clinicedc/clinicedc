@@ -3,11 +3,13 @@ import sys
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from json.decoder import JSONDecodeError
-from pprint import pprint
 
 
 class EmailNotEnabledError(ValidationError):
+    pass
+
+
+class UserEmailError(ValidationError):
     pass
 
 
@@ -28,7 +30,7 @@ class MailingListManager:
     def __init__(self, address=None, name=None, display_name=None):
         self._api_key = None
         self._api_url = None
-        self.address = address
+        self.address = address  # mailing list address
         self.display_name = display_name
         self.email_enabled = settings.EMAIL_ENABLED
         self.name = name
@@ -75,6 +77,8 @@ class MailingListManager:
         """
         if not self.email_enabled:
             raise EmailNotEnabledError("See settings.EMAIL_ENABLED")
+        if not user.email:
+            raise UserEmailError(f"User {user}'s email address is not defined.")
         response = requests.post(
             f"{self.api_url}/{self.address}/members",
             auth=("api", self.api_key),
@@ -91,10 +95,6 @@ class MailingListManager:
                 f"Subscribing {user.email} to {self.address}. "
                 f"Got response={response.status_code}.\n"
             )
-            try:
-                pprint(response.json())
-            except JSONDecodeError:
-                pass
         return response
 
     def unsubscribe(self, user, verbose=None):
@@ -113,10 +113,6 @@ class MailingListManager:
                 f"Unsubscribing {user.email} from {self.address}. "
                 f"Got response={response.status_code}.\n"
             )
-            try:
-                pprint(response.json())
-            except JSONDecodeError:
-                pass
         return response
 
     def create(self, verbose=None):
@@ -138,10 +134,6 @@ class MailingListManager:
                 f"Creating mailing list {self.address}. "
                 f"Got response={response.status_code}.\n"
             )
-            try:
-                pprint(response.json())
-            except JSONDecodeError:
-                pass
         return response
 
     def delete(self):

@@ -55,17 +55,16 @@ class ModelNotification(Notification):
         notified = False
         instance = kwargs.get("instance")
         try:
-            model = instance._meta.label_lower
+            instance._meta.label_lower
         except AttributeError:
             pass
         else:
-            if model == self.model:
-                notified = super().notify(
-                    force_notify=force_notify,
-                    use_email=use_email,
-                    use_sms=use_sms,
-                    **kwargs,
-                )
+            notified = super().notify(
+                force_notify=force_notify,
+                use_email=use_email,
+                use_sms=use_sms,
+                **kwargs,
+            )
         return notified
 
     def get_template_options(self, instance=None, test_message=None, **kwargs):
