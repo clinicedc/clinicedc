@@ -7,7 +7,6 @@ from twilio.base.exceptions import TwilioRestException, TwilioException
 from twilio.rest import Client
 
 from ..site_notifications import site_notifications
-from ..sms_message import SmsMessage
 
 
 class NotificationError(Exception):
@@ -20,8 +19,10 @@ class Notification:
     name = None
     display_name = None
 
+    sms_client = Client
+
     email_from = settings.EMAIL_CONTACTS.get("data_manager")
-    email_to = None
+    email_to = None  # usually a mailing list address
     email_message_cls = EmailMessage
 
     email_body_template = (
@@ -53,7 +54,6 @@ class Notification:
     email_test_body_line = "THIS IS A TEST MESSAGE. NO ACTION IS REQUIRED\n\n"
     email_test_subject_line = "TEST/UAT -- "
 
-    sms_message_cls = SmsMessage
     sms_template = (
         '{test_line}{protocol_name}: Report "{display_name}" for '
         "patient {subject_identifier} "
@@ -159,24 +159,32 @@ class Notification:
         See also: `site_notifications.update_notification_list`
         """
         if not self._notification_enabled:
-            # trigger exception if this class is not registered.
-            site_notifications.get(self.name)
-
-            NotificationModel = django_apps.get_model("edc_notification.notification")
-            try:
-                obj = NotificationModel.objects.get(name=self.name)
-            except ObjectDoesNotExist:
-                site_notifications.update_notification_list()
-                obj = NotificationModel.objects.get(name=self.name)
-            self._notification_enabled = obj.enabled
+            self._notification_enabled = self.notification_model.enabled
         return self._notification_enabled
+
+    @property
+    def notification_model(self):
+        """Returns the Notification 'model' instance associated
+        with this notification.
+        """
+        NotificationModel = django_apps.get_model(
+            "edc_notification.notification")
+        # trigger exception if this class is not registered.
+        site_notifications.get(self.name)
+        try:
+            notification_model = NotificationModel.objects.get(name=self.name)
+        except ObjectDoesNotExist:
+            site_notifications.update_notification_list()
+            notification_model = NotificationModel.objects.get(name=self.name)
+        return notification_model
 
     def get_template_options(self, instance=None, test_message=None, **kwargs):
         """Returns a dictionary of message template options.
 
         Extend using `extra_template_options`.
         """
-        protocol_name = django_apps.get_app_config("edc_protocol").protocol_name
+        protocol_name = django_apps.get_app_config(
+            "edc_protocol").protocol_name
         test_message = test_message or self.test_message
         template_options = dict(
             name=self.name,
@@ -193,7 +201,8 @@ class Notification:
         )
         if "subject_identifier" not in template_options:
             try:
-                template_options.update(subject_identifier=instance.subject_identifier)
+                template_options.update(
+                    subject_identifier=instance.subject_identifier)
             except AttributeError:
                 pass
         if "site_name" not in template_options:
@@ -220,12 +229,13 @@ class Notification:
             kwargs.update(**self.get_template_options(**kwargs))
             body = self.sms_template.format(**kwargs)
             try:
-                client = Client()
+                client = self.sms_client()
             except (TwilioRestException, TwilioException):
                 if not fail_silently:
                     raise
             else:
-                recipients = [sms_recipient] if sms_recipient else self.sms_recipients
+                recipients = [
+                    sms_recipient] if sms_recipient else self.sms_recipients
                 for recipient in recipients:
                     try:
                         message = client.messages.create(

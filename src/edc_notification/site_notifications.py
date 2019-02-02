@@ -5,7 +5,6 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
-from django.db.utils import IntegrityError
 from django.utils.module_loading import import_module, module_has_submodule
 from json.decoder import JSONDecodeError
 from requests.exceptions import ConnectionError
@@ -73,7 +72,9 @@ class SiteNotifications:
                     models = [getattr(notification_cls, "model")]
                 for model in models:
                     try:
-                        self.models[model].append(notification_cls)
+                        if notification_cls.name not in [
+                                n.name for n in self.models[model]]:
+                            self.models[model].append(notification_cls)
                     except KeyError:
                         self.models.update({model: [notification_cls]})
             else:
@@ -93,7 +94,8 @@ class SiteNotifications:
         for notification_cls in self.registry.values():
             notification = notification_cls()
             if notification.notify(instance=instance, **kwargs):
-                notified.update({notification_cls.name: instance._meta.label_lower})
+                notified.update(
+                    {notification_cls.name: instance._meta.label_lower})
         return notified
 
     def update_notification_list(self, apps=None, schema_editor=None, verbose=False):
@@ -113,10 +115,12 @@ class SiteNotifications:
         # flag all notifications as disabled and re-enable as required
         Notification.objects.all().update(enabled=False)
         if site_notifications.loaded:
-            sys.stdout.write(style.MIGRATE_HEADING(f"Populating Notification model:\n"))
+            sys.stdout.write(style.MIGRATE_HEADING(
+                f"Populating Notification model:\n"))
             deleted, _ = self.delete_unregistered_notifications(apps=apps)
             if deleted and verbose:
-                sys.stdout.write(f"  * Deleted {deleted} orphaned notifications.\n")
+                sys.stdout.write(
+                    f"  * Deleted {deleted} orphaned notifications.\n")
             for name, notification_cls in site_notifications.registry.items():
                 if verbose:
                     sys.stdout.write(
@@ -155,7 +159,8 @@ class SiteNotifications:
             and settings.EMAIL_BACKEND
             != "django.core.mail.backends.locmem.EmailBackend"
         ):
-            sys.stdout.write(style.MIGRATE_HEADING(f"Creating mailing lists:\n"))
+            sys.stdout.write(style.MIGRATE_HEADING(
+                f"Creating mailing lists:\n"))
             for name, notification_cls in self.registry.items():
                 message = None
                 notification = notification_cls()
@@ -196,7 +201,8 @@ class SiteNotifications:
             try:
                 mod = import_module(app)
                 try:
-                    before_import_registry = copy.copy(site_notifications._registry)
+                    before_import_registry = copy.copy(
+                        site_notifications._registry)
                     import_module(f"{app}.{module_name}")
                     if verbose:
                         sys.stdout.write(

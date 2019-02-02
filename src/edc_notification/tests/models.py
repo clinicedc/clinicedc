@@ -10,11 +10,25 @@ class TestModel(BaseUuidModel):
     pass
 
 
+class Condition(BaseUuidModel):
+
+    name = models.CharField(max_length=25, default='anemia')
+
+
+class AnyModel(BaseUuidModel):
+
+    name = models.CharField(max_length=25, default='anemia')
+
+    history = HistoricalRecords()
+
+
 class AE(SiteModelMixin, BaseUuidModel):
 
     ae_grade = models.CharField(max_length=10)
 
     subject_identifier = models.CharField(max_length=10)
+
+    conditions = models.ManyToManyField(Condition)
 
     history = HistoricalRecords()
 

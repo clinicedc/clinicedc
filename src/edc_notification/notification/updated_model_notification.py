@@ -14,21 +14,16 @@ class UpdatedModelNotification(ModelNotification):
     def notify_on_condition(self, instance=None, **kwargs):
         changed_fields = {}
         if self.fields and instance.history.all().count() > 1:
-            if instance._meta.label_lower == self.model:
-                changes = {}
-                for field in self.fields:
-                    values = [
-                        getattr(obj, field)
-                        for obj in instance.history.all().order_by("history_date")
-                    ]
-                    values.reverse()
-                    changes.update({field: values[:2]})
-                for field, values in changes.items():
-                    try:
-                        changed = values[0] != values[1]
-                    except IndexError:
-                        pass
-                    else:
-                        if changed:
-                            changed_fields.update({field: values})
+            changes = {}
+            for field in self.fields:
+                values = [
+                    getattr(obj, field)
+                    for obj in instance.history.all().order_by("history_date")
+                ]
+                values.reverse()
+                changes.update({field: values[:2]})
+            for field, values in changes.items():
+                changed = values[0] != values[1]
+                if changed:
+                    changed_fields.update({field: values})
         return changed_fields

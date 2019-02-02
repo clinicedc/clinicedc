@@ -11,6 +11,10 @@ class EmailNotEnabledError(ValidationError):
     pass
 
 
+class UserEmailError(ValidationError):
+    pass
+
+
 class MailingListManager:
 
     """A class to create (and update) mailing lists, subscribe,
@@ -28,7 +32,7 @@ class MailingListManager:
     def __init__(self, address=None, name=None, display_name=None):
         self._api_key = None
         self._api_url = None
-        self.address = address
+        self.address = address  # mailing list address
         self.display_name = display_name
         self.email_enabled = settings.EMAIL_ENABLED
         self.name = name
@@ -45,10 +49,12 @@ class MailingListManager:
             try:
                 self._api_url = getattr(settings, self.api_url_attr)
             except AttributeError:
-                raise EmailNotEnabledError(error_msg, code="api_url_attribute_error")
+                raise EmailNotEnabledError(
+                    error_msg, code="api_url_attribute_error")
             else:
                 if not self._api_url:
-                    raise EmailNotEnabledError(error_msg, code="api_url_is_none")
+                    raise EmailNotEnabledError(
+                        error_msg, code="api_url_is_none")
         return self._api_url
 
     @property
@@ -63,10 +69,12 @@ class MailingListManager:
             try:
                 self._api_key = getattr(settings, self.api_key_attr)
             except AttributeError:
-                raise EmailNotEnabledError(error_msg, code="api_key_attribute_error")
+                raise EmailNotEnabledError(
+                    error_msg, code="api_key_attribute_error")
             else:
                 if not self._api_key:
-                    raise EmailNotEnabledError(error_msg, code="api_key_is_none")
+                    raise EmailNotEnabledError(
+                        error_msg, code="api_key_is_none")
         return self._api_key
 
     def subscribe(self, user, verbose=None):
@@ -75,6 +83,9 @@ class MailingListManager:
         """
         if not self.email_enabled:
             raise EmailNotEnabledError("See settings.EMAIL_ENABLED")
+        if not user.email:
+            raise UserEmailError(
+                f"User {user}'s email address is not defined.")
         response = requests.post(
             f"{self.api_url}/{self.address}/members",
             auth=("api", self.api_key),

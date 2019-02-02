@@ -29,7 +29,3 @@ class Notification(BaseUuidModel):
 
     class Meta:
         ordering = ("display_name",)
-
-
-if settings.APP_NAME == "edc_notification" and "makemigrations" not in sys.argv:
-    from .tests import models  # noqa
