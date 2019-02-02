@@ -4,7 +4,6 @@ import sys
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from json.decoder import JSONDecodeError
-from pprint import pprint
 
 
 class EmailNotEnabledError(ValidationError):
@@ -97,10 +96,6 @@ class MailingListManager:
                 f"Subscribing {user.email} to {self.address}. "
                 f"Got response={response.status_code}.\n"
             )
-            try:
-                pprint(response.json())
-            except JSONDecodeError:
-                pass
         return response
 
     def unsubscribe(self, user, verbose=None):
@@ -119,10 +114,6 @@ class MailingListManager:
                 f"Unsubscribing {user.email} from {self.address}. "
                 f"Got response={response.status_code}.\n"
             )
-            try:
-                pprint(response.json())
-            except JSONDecodeError:
-                pass
         return response
 
     def create(self, verbose=None):
@@ -144,10 +135,6 @@ class MailingListManager:
                 f"Creating mailing list {self.address}. "
                 f"Got response={response.status_code}.\n"
             )
-            try:
-                pprint(response.json())
-            except JSONDecodeError:
-                pass
         return response
 
     def delete(self):
