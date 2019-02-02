@@ -1,6 +1,3 @@
-import sys
-
-from django.conf import settings
 from django.db import models
 from edc_base.model_mixins import BaseUuidModel
 

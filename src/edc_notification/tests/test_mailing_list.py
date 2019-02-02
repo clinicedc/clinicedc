@@ -67,7 +67,8 @@ class TestMailingList(TestCase):
             "mock://localhost/somemailinglist@example.com/members",
             str(requests.post.call_args_list),
         )
-        self.assertIn("auth=('api', '123456')", str(requests.post.call_args_list))
+        self.assertIn("auth=('api', '123456')",
+                      str(requests.post.call_args_list))
         self.assertIn(
             "data={'subscribed': True, "
             "'address': 'erikvw@example.com', "
@@ -91,8 +92,10 @@ class TestMailingList(TestCase):
             "mock://localhost/somemailinglist@example.com/members/erikvw@example.com",
             str(requests.put.call_args_list),
         )
-        self.assertIn("auth=('api', '123456')", str(requests.put.call_args_list))
-        self.assertIn("data={'subscribed': False}", str(requests.put.call_args_list))
+        self.assertIn("auth=('api', '123456')",
+                      str(requests.put.call_args_list))
+        self.assertIn("data={'subscribed': False}",
+                      str(requests.put.call_args_list))
 
     @override_settings(MAILGUN_API_KEY="123456", MAILGUN_API_URL="mock://localhost")
     @patch("requests.post")
@@ -105,7 +108,8 @@ class TestMailingList(TestCase):
         manager.enabled = True
         manager.create(True)
         self.assertIn("mock://localhost", str(requests.post.call_args_list))
-        self.assertIn("auth=('api', '123456')", str(requests.post.call_args_list))
+        self.assertIn("auth=('api', '123456')",
+                      str(requests.post.call_args_list))
         self.assertIn(
             "data={'address': 'somemailinglist@example.com', "
             "'name': 'g3_event', "
@@ -127,7 +131,8 @@ class TestMailingList(TestCase):
             "mock://localhost/somemailinglist@example.com/members/erikvw@example.com",
             str(requests.delete.call_args_list),
         )
-        self.assertIn("auth=('api', '123456')", str(requests.delete.call_args_list))
+        self.assertIn("auth=('api', '123456')", str(
+            requests.delete.call_args_list))
 
     @override_settings(MAILGUN_API_KEY="123456", MAILGUN_API_URL="mock://localhost")
     @patch("requests.delete")
@@ -143,4 +148,18 @@ class TestMailingList(TestCase):
             "mock://localhost/somemailinglist@example.com",
             str(requests.delete.call_args_list),
         )
-        self.assertIn("auth=('api', '123456')", str(requests.delete.call_args_list))
+        self.assertIn("auth=('api', '123456')", str(
+            requests.delete.call_args_list))
+
+    @override_settings(
+        MAILGUN_API_KEY="123456",
+        MAILGUN_API_URL="mock://localhost",
+        EMAIL_ENABLED=True,
+        EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+    )
+    @patch("requests.post")
+    @patch("requests.put")
+    @patch("requests.delete")
+    def test_create_mailing_lists(self, *args):
+        responses = site_notifications.create_mailing_lists()
+        self.assertIn('g3_event', responses)

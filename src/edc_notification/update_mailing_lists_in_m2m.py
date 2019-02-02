@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 
 from .mailing_list_manager import MailingListManager
-from .site_notifications import site_notifications, NotificationNotRegistered
+from .site_notifications import site_notifications
 
 
 def update_mailing_lists_in_m2m(
@@ -24,26 +24,18 @@ def update_mailing_lists_in_m2m(
         if userprofile.email_notifications.through == sender:
             NotificationModel = django_apps.get_model("edc_notification.Notification")
             for notification_obj in NotificationModel.objects.filter(
-                pk__in=list(pk_set)
+                pk__in=list(pk_set), enabled=True
             ):
-                try:
-                    notification_cls = site_notifications.get(notification_obj.name)
-                except NotificationNotRegistered:
-                    if verbose:
-                        raise
-                    pass
-                else:
-                    notification = notification_cls()
-                    manager = MailingListManager(
-                        address=notification.email_to[0],
-                        display_name=notification.display_name,
-                        name=notification.name,
-                    )
-                    response = manager.create(verbose=verbose)
-                    if subscribe:
-                        response = manager.subscribe(userprofile.user, verbose=verbose)
-                    elif unsubscribe:
-                        response = manager.unsubscribe(
-                            userprofile.user, verbose=verbose
-                        )
+                notification_cls = site_notifications.get(notification_obj.name)
+                notification = notification_cls()
+                manager = MailingListManager(
+                    address=notification.email_to[0],
+                    display_name=notification.display_name,
+                    name=notification.name,
+                )
+                response = manager.create(verbose=verbose)
+                if subscribe:
+                    response = manager.subscribe(userprofile.user, verbose=verbose)
+                elif unsubscribe:
+                    response = manager.unsubscribe(userprofile.user, verbose=verbose)
     return response
