@@ -54,11 +54,7 @@ class ModelNotification(Notification):
         """
         notified = False
         instance = kwargs.get("instance")
-        try:
-            instance._meta.label_lower
-        except AttributeError:
-            pass
-        else:
+        if instance._meta.label_lower == self.model:
             notified = super().notify(
                 force_notify=force_notify,
                 use_email=use_email,
@@ -71,7 +67,7 @@ class ModelNotification(Notification):
         opts = super().get_template_options(
             instance=instance, test_message=test_message, **kwargs
         )
-        opts.update(message_reference=instance.pk)
+        opts.update(message_reference=instance.id)
         return opts
 
     @property
@@ -81,9 +77,14 @@ class ModelNotification(Notification):
             name = "gaborone"
             id = 99
 
+        class Meta:
+            label_lower = self.model
+
         class DummyInstance:
+            id = 99
             subject_identifier = "123456910"
             site = Site()
+            _meta = Meta()
 
         instance = DummyInstance()
         return dict(instance=instance)

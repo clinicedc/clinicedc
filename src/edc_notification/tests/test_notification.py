@@ -7,7 +7,9 @@ from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.test import TestCase, tag
+from django.test.utils import override_settings
 from edc_base.utils import get_utcnow
+from unittest.mock import patch
 
 from ..decorators import register, RegisterNotificationError
 from ..notification import ModelNotification
@@ -17,8 +19,6 @@ from ..site_notifications import site_notifications, AlreadyRegistered
 from ..site_notifications import RegistryNotLoaded, NotificationNotRegistered
 from ..models import Notification as NotificationModel
 from .models import AE, Death, Condition, AnyModel
-from django.test.utils import override_settings
-from unittest.mock import patch
 
 style = color_style()
 
