@@ -13,7 +13,8 @@ class Holidays:
     """A class used by Facility to get holidays for the
     country of facility.
     """
-    model = 'edc_facility.holiday'
+
+    model = "edc_facility.holiday"
 
     def __init__(self, country=None, facility_name=None):
         self._holidays = {}
@@ -25,15 +26,17 @@ class Holidays:
                 pass
             if not self.country:
                 raise HolidayError(
-                    f'No country specified for facility {facility_name}. '
-                    f'See settings.COUNTRY')
+                    f"No country specified for facility {facility_name}. "
+                    f"See settings.COUNTRY"
+                )
         self.time_zone = settings.TIME_ZONE
         self.model_cls = django_apps.get_model(self.model)
 
     def __repr__(self):
         return (
-            f'{self.__class__.__name__}(country={self.country}, '
-            f'time_zone={self.time_zone})')
+            f"{self.__class__.__name__}(country={self.country}, "
+            f"time_zone={self.time_zone})"
+        )
 
     def __len__(self):
         return len(self.holidays)
@@ -48,11 +51,11 @@ class Holidays:
         {local_date: label, ...}.
         """
         if not self._holidays:
-            self._holidays = self.model_cls.objects.filter(
-                country=self.country)
+            self._holidays = self.model_cls.objects.filter(country=self.country)
             if not self._holidays:
                 raise HolidayError(
-                    f'No holidays found for \'{self.country}. See {self.model}.')
+                    f"No holidays found for '{self.country}. See {self.model}."
+                )
         return self._holidays
 
     def is_holiday(self, utc_datetime=None):

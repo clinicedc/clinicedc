@@ -18,7 +18,7 @@ class HolidayFileNotFoundError(Exception):
 
 
 def import_holidays(verbose=None, test=None):
-    model_cls = django_apps.get_model('edc_facility.holiday')
+    model_cls = django_apps.get_model("edc_facility.holiday")
     if test:
         import_for_tests(model_cls)
     else:
@@ -27,11 +27,12 @@ def import_holidays(verbose=None, test=None):
             if not os.path.exists(path):
                 raise HolidayFileNotFoundError(path)
         except TypeError:
-            raise HolidayImportError(f'Invalid path. Got {path}.')
+            raise HolidayImportError(f"Invalid path. Got {path}.")
         if verbose:
             sys.stdout.write(
-                f'\nImporting holidays from \'{path}\' '
-                f'into {model_cls._meta.label_lower}\n')
+                f"\nImporting holidays from '{path}' "
+                f"into {model_cls._meta.label_lower}\n"
+            )
         model_cls.objects.all().delete()
 
         recs = check_for_duplicates_in_file(path)
@@ -39,42 +40,39 @@ def import_holidays(verbose=None, test=None):
         import_file(path, recs, model_cls)
 
         if verbose:
-            sys.stdout.write(f'Done.\n')
+            sys.stdout.write(f"Done.\n")
 
 
 def check_for_duplicates_in_file(path):
     """Returns a list of records.
     """
-    with open(path, 'r') as f:
-        reader = csv.DictReader(
-            f, fieldnames=['local_date', 'label', 'country'])
-        recs = [(row['local_date'], row['country']) for row in reader]
+    with open(path, "r") as f:
+        reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
+        recs = [(row["local_date"], row["country"]) for row in reader]
     if len(recs) != len(list(set(recs))):
-        raise HolidayImportError(
-            'Invalid file. Duplicate dates detected for a country')
+        raise HolidayImportError("Invalid file. Duplicate dates detected for a country")
     return recs
 
 
 def import_file(path, recs, model_cls):
     objs = []
-    with open(path, 'r') as f:
-        reader = csv.DictReader(
-            f, fieldnames=['local_date', 'label', 'country'])
+    with open(path, "r") as f:
+        reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
         for index, row in tqdm(enumerate(reader), total=len(recs)):
             if index == 0:
                 continue
             try:
-                local_date = datetime.strptime(
-                    row['local_date'], '%Y-%m-%d').date()
+                local_date = datetime.strptime(row["local_date"], "%Y-%m-%d").date()
             except ValueError as e:
                 raise HolidayImportError(
-                    f'Invalid format when importing from '
-                    f'{path}. Got \'{e}\'')
+                    f"Invalid format when importing from " f"{path}. Got '{e}'"
+                )
             else:
-                objs.append(model_cls(
-                    country=row['country'],
-                    local_date=local_date,
-                    name=row['label']))
+                objs.append(
+                    model_cls(
+                        country=row["country"], local_date=local_date, name=row["label"]
+                    )
+                )
         model_cls.objects.bulk_create(objs)
 
 
@@ -85,32 +83,30 @@ def import_for_tests(model_cls):
     year = get_utcnow().year
     country = settings.COUNTRY.lower()
     rows = [
-        [f'{year}-01-02', 'Public Holiday', country],
-        [f'{year}-01-01', 'New Year', country],
-        [f'{year}-04-14', 'Good Friday', country],
-        [f'{year}-04-17', 'Easter Monday', country],
-        [f'{year}-05-01', 'May Day/Labour Day', country],
-        [f'{year}-05-25', 'Ascension Day', country],
-        [f'{year}-07-18', 'Public Holiday', country],
-        [f'{year}-09-30', 'Botswana Day', country],
-        [f'{year}-10-02', 'Public Holiday', country],
-        [f'{year}-12-25', 'Christmas Day', country],
-        [f'{year}-12-26', 'Boxing Day', country],
+        [f"{year}-01-02", "Public Holiday", country],
+        [f"{year}-01-01", "New Year", country],
+        [f"{year}-04-14", "Good Friday", country],
+        [f"{year}-04-17", "Easter Monday", country],
+        [f"{year}-05-01", "May Day/Labour Day", country],
+        [f"{year}-05-25", "Ascension Day", country],
+        [f"{year}-07-18", "Public Holiday", country],
+        [f"{year}-09-30", "Botswana Day", country],
+        [f"{year}-10-02", "Public Holiday", country],
+        [f"{year}-12-25", "Christmas Day", country],
+        [f"{year}-12-26", "Boxing Day", country],
     ]
     objs = []
     for index, row in tqdm(enumerate(rows), total=len(rows)):
         if index == 0:
             continue
         try:
-            local_date = datetime.strptime(
-                row[LOCAL_DATE], '%Y-%m-%d').date()
+            local_date = datetime.strptime(row[LOCAL_DATE], "%Y-%m-%d").date()
         except ValueError as e:
             raise HolidayImportError(
-                f'Invalid format when importing holidays (test). '
-                f'Got \'{e}\'')
+                f"Invalid format when importing holidays (test). " f"Got '{e}'"
+            )
         else:
-            objs.append(model_cls(
-                country=row[COUNTRY],
-                local_date=local_date,
-                name=row[LABEL]))
+            objs.append(
+                model_cls(country=row[COUNTRY], local_date=local_date, name=row[LABEL])
+            )
     model_cls.objects.bulk_create(objs)
