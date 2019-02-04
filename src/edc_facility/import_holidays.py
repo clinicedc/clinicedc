@@ -5,8 +5,8 @@ import sys
 from datetime import datetime
 from django.apps import apps as django_apps
 from django.conf import settings
-from tqdm import tqdm
 from edc_base.utils import get_utcnow
+from tqdm import tqdm
 
 
 class HolidayImportError(Exception):
