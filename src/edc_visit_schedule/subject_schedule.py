@@ -39,8 +39,8 @@ class SubjectSchedule:
     This class is instantiated by the Schedule class.
     """
 
-    history_model = 'edc_visit_schedule.subjectschedulehistory'
-    registered_subject_model = 'edc_registration.registeredsubject'
+    history_model = "edc_visit_schedule.subjectschedulehistory"
+    registered_subject_model = "edc_registration.registeredsubject"
     appointments_creator_cls = AppointmentsCreator
 
     def __init__(self, visit_schedule=None, schedule=None):
@@ -77,8 +77,12 @@ class SubjectSchedule:
     def consent_model_cls(self):
         return django_apps.get_model(self.consent_model)
 
-    def put_on_schedule(self, onschedule_model_obj=None, subject_identifier=None,
-                        onschedule_datetime=None):
+    def put_on_schedule(
+        self,
+        onschedule_model_obj=None,
+        subject_identifier=None,
+        onschedule_datetime=None,
+    ):
         """Puts a subject on-schedule.
 
         A person is put on schedule by creating an instance
@@ -91,19 +95,20 @@ class SubjectSchedule:
         else:
             onschedule_datetime = onschedule_datetime or get_utcnow()
         try:
-            self.onschedule_model_cls.objects.get(
-                subject_identifier=subject_identifier)
+            self.onschedule_model_cls.objects.get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             self.registered_or_raise(subject_identifier=subject_identifier)
             self.consented_or_raise(subject_identifier=subject_identifier)
             self.onschedule_model_cls.objects.create(
                 subject_identifier=subject_identifier,
-                onschedule_datetime=onschedule_datetime)
+                onschedule_datetime=onschedule_datetime,
+            )
         try:
             history_obj = self.history_model_cls.objects.get(
                 subject_identifier=subject_identifier,
                 schedule_name=self.schedule_name,
-                visit_schedule_name=self.visit_schedule_name)
+                visit_schedule_name=self.visit_schedule_name,
+            )
         except ObjectDoesNotExist:
             history_obj = self.history_model_cls.objects.create(
                 subject_identifier=subject_identifier,
@@ -112,7 +117,8 @@ class SubjectSchedule:
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
                 onschedule_datetime=onschedule_datetime,
-                schedule_status=ON_SCHEDULE)
+                schedule_status=ON_SCHEDULE,
+            )
         if history_obj.schedule_status == ON_SCHEDULE:
             # create appointments per schedule
             creator = self.appointments_creator_cls(
@@ -120,11 +126,16 @@ class SubjectSchedule:
                 subject_identifier=subject_identifier,
                 schedule=self.schedule,
                 visit_schedule=self.visit_schedule,
-                appointment_model=self.appointment_model)
+                appointment_model=self.appointment_model,
+            )
             creator.create_appointments(onschedule_datetime)
 
-    def take_off_schedule(self, offschedule_model_obj=None, subject_identifier=None,
-                          offschedule_datetime=None):
+    def take_off_schedule(
+        self,
+        offschedule_model_obj=None,
+        subject_identifier=None,
+        offschedule_datetime=None,
+    ):
         """Takes a subject off-schedule.
 
         A person is taken off-schedule by creating an instance
@@ -136,11 +147,13 @@ class SubjectSchedule:
             offschedule_datetime = offschedule_datetime or get_utcnow()
             try:
                 offschedule_model_obj = self.offschedule_model_cls.objects.get(
-                    subject_identifier=subject_identifier)
+                    subject_identifier=subject_identifier
+                )
             except ObjectDoesNotExist:
                 offschedule_model_obj = self.offschedule_model_cls.objects.create(
                     subject_identifier=subject_identifier,
-                    offschedule_datetime=offschedule_datetime)
+                    offschedule_datetime=offschedule_datetime,
+                )
 
         subject_identifier = offschedule_model_obj.subject_identifier
         offschedule_datetime = offschedule_model_obj.offschedule_datetime
@@ -150,29 +163,36 @@ class SubjectSchedule:
             history_obj = self.history_model_cls.objects.get(
                 subject_identifier=subject_identifier,
                 schedule_name=self.schedule_name,
-                visit_schedule_name=self.visit_schedule_name)
+                visit_schedule_name=self.visit_schedule_name,
+            )
         except ObjectDoesNotExist:
             raise NotOnScheduleError(
-                'Failed to take subject off schedule. '
-                f'Subject has not been put on schedule '
-                f'\'{self.visit_schedule_name}.{self.schedule_name}\'. '
-                f'Got \'{subject_identifier}\'.')
+                "Failed to take subject off schedule. "
+                f"Subject has not been put on schedule "
+                f"'{self.visit_schedule_name}.{self.schedule_name}'. "
+                f"Got '{subject_identifier}'."
+            )
 
         if history_obj:
             self._update_history_or_raise(
                 history_obj=history_obj,
                 subject_identifier=subject_identifier,
-                offschedule_datetime=offschedule_datetime)
+                offschedule_datetime=offschedule_datetime,
+            )
 
-            self._update_in_progress_appointment(
-                subject_identifier=subject_identifier)
+            self._update_in_progress_appointment(subject_identifier=subject_identifier)
 
             # clear future appointments
             self.appointment_model_cls.objects.delete_for_subject_after_date(
-                subject_identifier, offschedule_datetime)
+                subject_identifier,
+                offschedule_datetime,
+                visit_schedule_name=self.visit_schedule_name,
+                schedule_name=self.schedule_name,
+            )
 
-    def _update_history_or_raise(self, history_obj=None, subject_identifier=None,
-                                 offschedule_datetime=None):
+    def _update_history_or_raise(
+        self, history_obj=None, subject_identifier=None, offschedule_datetime=None
+    ):
         """Updates the history model instance.
 
         Raises an error if the offschedule_datetime is before the
@@ -183,14 +203,16 @@ class SubjectSchedule:
                 subject_identifier=subject_identifier,
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
-                onschedule_datetime__lte=offschedule_datetime)
+                onschedule_datetime__lte=offschedule_datetime,
+            )
         except ObjectDoesNotExist:
             raise InvalidOffscheduleDate(
-                'Failed to take subject off schedule. '
-                'Offschedule date cannot precede onschedule date. '
-                f'Subject was put on schedule {self.visit_schedule_name}.'
-                f'{self.schedule_name} on {history_obj.onschedule_datetime}. '
-                f'Got {offschedule_datetime}.')
+                "Failed to take subject off schedule. "
+                "Offschedule date cannot precede onschedule date. "
+                f"Subject was put on schedule {self.visit_schedule_name}."
+                f"{self.schedule_name} on {history_obj.onschedule_datetime}. "
+                f"Got {offschedule_datetime}."
+            )
         # confirm date not before last visit
         related_visit_model_attr = self.appointment_model_cls.related_visit_model_attr()
         try:
@@ -198,8 +220,10 @@ class SubjectSchedule:
                 subject_identifier=subject_identifier,
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
-                **{f'{related_visit_model_attr}__report_datetime__gt':
-                   offschedule_datetime})
+                **{
+                    f"{related_visit_model_attr}__report_datetime__gt": offschedule_datetime
+                },
+            )
         except ObjectDoesNotExist:
             appointments = None
         except MultipleObjectsReturned:
@@ -207,13 +231,16 @@ class SubjectSchedule:
                 subject_identifier=subject_identifier,
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
-                **{f'{related_visit_model_attr}__report_datetime__gt':
-                   offschedule_datetime})
+                **{
+                    f"{related_visit_model_attr}__report_datetime__gt": offschedule_datetime
+                },
+            )
         if appointments:
             raise InvalidOffscheduleDate(
-                f'Failed to take subject off schedule. '
-                f'Visits exist after proposed offschedule date. '
-                f'Got \'{offschedule_datetime}\'.')
+                f"Failed to take subject off schedule. "
+                f"Visits exist after proposed offschedule date. "
+                f"Got '{offschedule_datetime}'."
+            )
         # update history object
         history_obj.offschedule_datetime = offschedule_datetime
         history_obj.schedule_status = OFF_SCHEDULE
@@ -224,10 +251,11 @@ class SubjectSchedule:
         future appointments.
         """
         for obj in self.appointment_model_cls.objects.filter(
-                subject_identifier=subject_identifier,
-                schedule_name=self.schedule_name,
-                visit_schedule_name=self.visit_schedule_name,
-                appt_status=IN_PROGRESS_APPT):
+            subject_identifier=subject_identifier,
+            schedule_name=self.schedule_name,
+            visit_schedule_name=self.visit_schedule_name,
+            appt_status=IN_PROGRESS_APPT,
+        ):
             obj.appt_status = COMPLETE_APPT
             obj.save()
 
@@ -236,7 +264,8 @@ class SubjectSchedule:
         appointment creation (if using edc_appointment mixin).
         """
         obj = self.onschedule_model_cls.objects.get(
-            subject_identifier=subject_identifier)
+            subject_identifier=subject_identifier
+        )
         obj.save()
 
     def registered_or_raise(self, subject_identifier=None):
@@ -244,54 +273,63 @@ class SubjectSchedule:
         """
         model_cls = django_apps.get_model(self.registered_subject_model)
         try:
-            model_cls.objects.get(
-                subject_identifier=subject_identifier)
+            model_cls.objects.get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             raise UnknownSubjectError(
-                f'Failed to put subject on schedule. Unknown subject.  '
-                f'Got {subject_identifier}.')
+                f"Failed to put subject on schedule. Unknown subject.  "
+                f"Got {subject_identifier}."
+            )
 
     def consented_or_raise(self, subject_identifier=None):
         """Raises an exception if one or more consents do not exist.
         """
         try:
-            self.consent_model_cls.objects.get(
-                subject_identifier=subject_identifier)
+            self.consent_model_cls.objects.get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             raise NotConsentedError(
-                f'Failed to put subject on schedule. Consent not found. '
-                f'Using consent model \'{self.consent_model}\' '
-                f'subject identifier={subject_identifier}.')
+                f"Failed to put subject on schedule. Consent not found. "
+                f"Using consent model '{self.consent_model}' "
+                f"subject identifier={subject_identifier}."
+            )
         except MultipleObjectsReturned:
             pass
 
-    def onschedule_or_raise(self, subject_identifier=None, report_datetime=None,
-                            compare_as_datetimes=None):
+    def onschedule_or_raise(
+        self, subject_identifier=None, report_datetime=None, compare_as_datetimes=None
+    ):
         try:
             history_obj = self.history_model_cls.objects.get(
                 subject_identifier=subject_identifier,
                 visit_schedule_name=self.visit_schedule_name,
-                schedule_name=self.schedule_name)
+                schedule_name=self.schedule_name,
+            )
         except ObjectDoesNotExist:
             raise NotOnScheduleError(
-                f'Subject is not been put on schedule {self.schedule_name}. '
-                f'Got {subject_identifier}.')
+                f"Subject is not been put on schedule {self.schedule_name}. "
+                f"Got {subject_identifier}."
+            )
         offschedule_datetime = history_obj.offschedule_datetime or get_utcnow()
         if compare_as_datetimes:
-            in_date_range = (history_obj.onschedule_datetime
-                             <= report_datetime
-                             <= offschedule_datetime)
+            in_date_range = (
+                history_obj.onschedule_datetime
+                <= report_datetime
+                <= offschedule_datetime
+            )
         else:
-            in_date_range = (history_obj.onschedule_datetime.date()
-                             <= report_datetime.date()
-                             <= offschedule_datetime.date())
+            in_date_range = (
+                history_obj.onschedule_datetime.date()
+                <= report_datetime.date()
+                <= offschedule_datetime.date()
+            )
 
         if not in_date_range:
             formatted_date = report_datetime.strftime(
-                convert_php_dateformat(settings.SHORT_DATE_FORMAT))
+                convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+            )
             raise NotOnScheduleForDateError(
-                f'Subject not on schedule {self.schedule_name} on '
-                f'{formatted_date}. Got {subject_identifier}.')
+                f"Subject not on schedule {self.schedule_name} on "
+                f"{formatted_date}. Got {subject_identifier}."
+            )
 
     def check(self):
         try:

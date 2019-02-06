@@ -15,9 +15,12 @@ class CurrentSiteManager(BaseCurrentSiteManager):
         return self.get(subject_identifier=subject_identifier)
 
 
-class ScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model):
+class ScheduleModelMixin(
+    UniqueSubjectIdentifierFieldMixin, SiteModelMixin, models.Model
+):
     """A model mixin for a schedule's on/off schedule models.
     """
+
     report_datetime = models.DateTimeField(editable=False)
 
     on_site = CurrentSiteManager()
@@ -25,13 +28,13 @@ class ScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, mode
     objects = SubjectIdentifierManager()
 
     def __str__(self):
-        formatted_date = timezone.localtime(
-            self.report_datetime).strftime(
-                convert_php_dateformat(settings.SHORT_DATE_FORMAT))
-        return f'{self.subject_identifier} {formatted_date}'
+        formatted_date = timezone.localtime(self.report_datetime).strftime(
+            convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+        )
+        return f"{self.subject_identifier} {formatted_date}"
 
     def natural_key(self):
-        return (self.subject_identifier, )
+        return (self.subject_identifier,)
 
     class Meta:
         abstract = True

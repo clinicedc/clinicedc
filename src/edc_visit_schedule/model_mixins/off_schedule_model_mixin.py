@@ -13,10 +13,9 @@ class OffScheduleModelMixin(ScheduleModelMixin):
 
     offschedule_datetime = models.DateTimeField(
         verbose_name="Date and time subject taken off schedule",
-        validators=[
-            datetime_not_before_study_start,
-            datetime_not_future],
-        default=get_utcnow)
+        validators=[datetime_not_before_study_start, datetime_not_future],
+        default=get_utcnow,
+    )
 
     def save(self, *args, **kwargs):
         self.report_datetime = self.offschedule_datetime
@@ -24,7 +23,8 @@ class OffScheduleModelMixin(ScheduleModelMixin):
 
     def take_off_schedule(self):
         _, schedule = site_visit_schedules.get_by_offschedule_model(
-            self._meta.label_lower)
+            self._meta.label_lower
+        )
         schedule.take_off_schedule(offschedule_model_obj=self)
 
     class Meta:

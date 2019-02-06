@@ -28,12 +28,19 @@ class AlreadyRegisteredSchedule(Exception):
 
 class VisitSchedule:
 
-    name_regex = r'[a-z0-9\_\-]+$'
-    name_regex_msg = 'numbers, lower case letters and \'_\''
+    name_regex = r"[a-z0-9\_\-]+$"
+    name_regex_msg = "numbers, lower case letters and '_'"
     schedules_collection = SchedulesCollection
 
-    def __init__(self, name=None, verbose_name=None, previous_visit_schedule=None,
-                 death_report_model=None, offstudy_model=None, locator_model=None):
+    def __init__(
+        self,
+        name=None,
+        verbose_name=None,
+        previous_visit_schedule=None,
+        death_report_model=None,
+        offstudy_model=None,
+        locator_model=None,
+    ):
         self._all_post_consent_models = None
         self.name = name
         self.schedules = self.schedules_collection(visit_schedule_name=name)
@@ -43,12 +50,14 @@ class VisitSchedule:
         self.previous_visit_schedule = previous_visit_schedule
         if not re.match(self.name_regex, name):
             raise VisitScheduleNameError(
-                f'Visit schedule name may only contain {self.name_regex_msg}. Got {name}')
-        self.title = self.verbose_name = verbose_name or ' '.join(
-            [s.capitalize() for s in name.split('_')])
+                f"Visit schedule name may only contain {self.name_regex_msg}. Got {name}"
+            )
+        self.title = self.verbose_name = verbose_name or " ".join(
+            [s.capitalize() for s in name.split("_")]
+        )
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(\'{self.name}\')'
+        return f"{self.__class__.__name__}('{self.name}')"
 
     def __str__(self):
         return self.name
@@ -70,7 +79,8 @@ class VisitSchedule:
         """
         if schedule.name in self.schedules:
             raise AlreadyRegisteredSchedule(
-                f'Schedule \'{schedule.name}\' is already registered. See \'{self}\'')
+                f"Schedule '{schedule.name}' is already registered. See '{self}'"
+            )
         self.schedules.update({schedule.name: schedule})
         self._all_post_consent_models = None
         return schedule
@@ -81,8 +91,7 @@ class VisitSchedule:
             self.offstudy_model_cls
             self.death_report_model_cls
         except LookupError as e:
-            warnings.append(
-                f'{e} See visit schedule \'{self.name}\'.')
+            warnings.append(f"{e} See visit schedule '{self.name}'.")
         return warnings
 
     @property
@@ -92,17 +101,12 @@ class VisitSchedule:
         """
         if not self._all_post_consent_models:
             models = {}
-            models.update(
-                {self.offstudy_model: None})
-            models.update(
-                {self.death_report_model: None})
-            models.update(
-                {self.locator_model: None})
+            models.update({self.offstudy_model: None})
+            models.update({self.death_report_model: None})
+            models.update({self.locator_model: None})
             for schedule in self.schedules.values():
-                models.update(
-                    {schedule.onschedule_model: schedule.consent_model})
-                models.update(
-                    {schedule.offschedule_model: schedule.consent_model})
+                models.update({schedule.onschedule_model: schedule.consent_model})
+                models.update({schedule.offschedule_model: schedule.consent_model})
                 for visit in schedule.visits.values():
                     for crf in visit.forms:
                         models.update({crf.model: schedule.consent_model})
@@ -110,8 +114,9 @@ class VisitSchedule:
                         models.update({crf.model: schedule.consent_model})
             if None in (list(models.keys())):
                 raise VisitScheduleError(
-                    f'One or more required models has not been defined. '
-                    f'Check the declaration for \'{self}\'. Got {list(models.keys())}.')
+                    f"One or more required models has not been defined. "
+                    f"Check the declaration for '{self}'. Got {list(models.keys())}."
+                )
             self._all_post_consent_models = models
         return self._all_post_consent_models
 

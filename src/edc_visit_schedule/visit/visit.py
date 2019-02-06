@@ -41,16 +41,28 @@ class VisitDate:
 
 class Visit:
 
-    code_regex = r'^([A-Z0-9])+$'
+    code_regex = r"^([A-Z0-9])+$"
     visit_date_cls = VisitDate
 
-    def __init__(self, code=None, timepoint=None, rbase=None, rlower=None,
-                 rupper=None, crfs=None, requisitions=None,
-                 crfs_unscheduled=None, requisitions_unscheduled=None,
-                 crfs_prn=None, requisitions_prn=None,
-                 title=None,
-                 instructions=None, grouping=None,
-                 allow_unscheduled=None, facility_name=None):
+    def __init__(
+        self,
+        code=None,
+        timepoint=None,
+        rbase=None,
+        rlower=None,
+        rupper=None,
+        crfs=None,
+        requisitions=None,
+        crfs_unscheduled=None,
+        requisitions_unscheduled=None,
+        crfs_prn=None,
+        requisitions_prn=None,
+        title=None,
+        instructions=None,
+        grouping=None,
+        allow_unscheduled=None,
+        facility_name=None,
+    ):
 
         self.crfs = ()
         if crfs:
@@ -77,9 +89,9 @@ class Visit:
         self.rupper = rupper
         self.grouping = grouping
         self.dates = self.visit_date_cls(rlower=rlower, rupper=rupper)
-        self.title = title or f'Visit {code}'
+        self.title = title or f"Visit {code}"
         if not code or isinstance(code, int) or not re.match(self.code_regex, code):
-            raise VisitCodeError(f'Invalid visit code. Got \'{code}\'')
+            raise VisitCodeError(f"Invalid visit code. Got '{code}'")
         else:
             self.code = code  # unique
         self.name = self.code
@@ -87,7 +99,7 @@ class Visit:
         self.allow_unscheduled = allow_unscheduled
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.code}, {self.timepoint})'
+        return f"{self.__class__.__name__}({self.code}, {self.timepoint})"
 
     def __str__(self):
         return self.title
@@ -153,7 +165,7 @@ class Visit:
         """Returns a Facility object.
         """
         if self.facility_name:
-            app_config = django_apps.get_app_config('edc_facility')
+            app_config = django_apps.get_app_config("edc_facility")
             return app_config.get_facility(name=self.facility_name)
         return None
 
@@ -177,17 +189,21 @@ class Visit:
             for crf in self.requisitions_unscheduled:
                 django_apps.get_model(crf.model)
         except LookupError as e:
-            warnings.append(
-                f'{e} Got Visit {self.code} crf.model={crf.model}.')
+            warnings.append(f"{e} Got Visit {self.code} crf.model={crf.model}.")
         return warnings
 
     def to_dict(self):
         return dict(
             crfs=[(crf.model, crf.required) for crf in self.crfs],
-            crfs_unscheduled=[(crf.model, crf.required)
-                              for crf in self.crfs_unscheduled],
-            requisitions=[(requisition.panel.name, requisition.required)
-                          for requisition in self.requisitions],
-            requisitions_unscheduled=[(requisition.panel.name, requisition.required)
-                                      for requisition in self.requisitions_unscheduled],
+            crfs_unscheduled=[
+                (crf.model, crf.required) for crf in self.crfs_unscheduled
+            ],
+            requisitions=[
+                (requisition.panel.name, requisition.required)
+                for requisition in self.requisitions
+            ],
+            requisitions_unscheduled=[
+                (requisition.panel.name, requisition.required)
+                for requisition in self.requisitions_unscheduled
+            ],
         )

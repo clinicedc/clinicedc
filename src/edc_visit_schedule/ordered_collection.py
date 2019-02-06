@@ -11,6 +11,7 @@ class OrderedCollection(OrderedDict):
     def update(self, *args, **kwargs):
         """Updates and reorders.
         """
+
         def key_order(v):
             return getattr(v, self.ordering_attr)
 
@@ -18,7 +19,8 @@ class OrderedCollection(OrderedDict):
         od = self.copy()
         self.clear()
         super().update(
-            **{getattr(v, self.key): v for v in sorted(od.values(), key=key_order)})
+            **{getattr(v, self.key): v for v in sorted(od.values(), key=key_order)}
+        )
 
     @property
     def first(self):

@@ -7,8 +7,8 @@ class SchedulesCollectionError(Exception):
 
 class SchedulesCollection(OrderedCollection):
 
-    key = 'name'
-    ordering_attr = 'sequence'
+    key = "name"
+    ordering_attr = "sequence"
 
     def __init__(self, visit_schedule_name=None, *args, **kwargs):
         self.visit_schedule_name = visit_schedule_name
@@ -32,8 +32,9 @@ class SchedulesCollection(OrderedCollection):
             schedule = self.get(schedule_name)
         if not schedule:
             raise SchedulesCollectionError(
-                f'Schedule does not exist. Using model={model}, '
-                f'schedule_name={schedule_name}.')
+                f"Schedule does not exist. Using model={model}, "
+                f"schedule_name={schedule_name}."
+            )
         return schedule
 
     def validate(self):

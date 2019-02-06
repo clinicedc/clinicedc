@@ -14,24 +14,26 @@ class ScheduledRequisitionError(Exception):
 
 
 class Requisition(Crf):
-
     def __init__(self, panel=None, required=None, **kwargs):
         required = False if required is None else required
         self.panel = panel
         if not self.panel.requisition_model:
             raise RequisitionError(
-                f'Invalid requisition model. Got None. '
-                f'See {repr(panel)}. '
-                f'Was the panel referred to by this schedule\'s requisition '
-                f'added to a lab profile and registered with site_labs?')
-        super().__init__(required=required, model=self.panel.requisition_model, **kwargs)
+                f"Invalid requisition model. Got None. "
+                f"See {repr(panel)}. "
+                f"Was the panel referred to by this schedule's requisition "
+                f"added to a lab profile and registered with site_labs?"
+            )
+        super().__init__(
+            required=required, model=self.panel.requisition_model, **kwargs
+        )
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.show_order}, {self.panel.name})'
+        return f"{self.__class__.__name__}({self.show_order}, {self.panel.name})"
 
     def __str__(self):
-        required = 'Required' if self.required else ''
-        return f'{self.panel.name} {required}'
+        required = "Required" if self.required else ""
+        return f"{self.panel.name} {required}"
 
     @property
     def verbose_name(self):
@@ -54,5 +56,5 @@ class Requisition(Crf):
         for lab_profile in site_labs.registry.values():
             if self.panel.name not in lab_profile.panels:
                 raise ScheduledRequisitionError(
-                    f'Panel does not exist in lab profiles. '
-                    f'Got {repr(self.panel)}')
+                    f"Panel does not exist in lab profiles. " f"Got {repr(self.panel)}"
+                )
