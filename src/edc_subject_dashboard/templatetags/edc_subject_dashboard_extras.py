@@ -3,7 +3,7 @@ from django import template
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
-from edc_appointment.constants import NEW_APPT, COMPLETE_APPT
+from edc_appointment.constants import NEW_APPT, COMPLETE_APPT, CANCELLED_APPT
 from edc_appointment.models.appointment import Appointment
 from edc_lab.models.manifest.consignee import Consignee
 
@@ -129,4 +129,5 @@ def appointment_status_icon(appt_status=None):
         IN_PROGRESS_APPT=IN_PROGRESS_APPT,
         INCOMPLETE_APPT=INCOMPLETE_APPT,
         COMPLETE_APPT=COMPLETE_APPT,
+        CANCELLED_APPT=CANCELLED_APPT,
     )
