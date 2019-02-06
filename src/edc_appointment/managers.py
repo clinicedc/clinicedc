@@ -190,18 +190,21 @@ class AppointmentManager(models.Manager):
         options = {
             'subject_identifier': subject_identifier,
             f'appt_datetime__{op}': dt}
-        if schedule_name and not visit_schedule_name:
+        # determine schedule_name and visit_schedule_name
+        try:
+            visit_schedule_name, schedule_name = visit_schedule_name.split(
+                '.')
+        except (ValueError, AttributeError):
+            pass
+        if not schedule_name or not visit_schedule_name:
             raise TypeError(
-                f'Expected visit_schedule_name for schedule_name '
-                f'\'{schedule_name}\'. Got {visit_schedule_name}')
-        if visit_schedule_name:
-            try:
-                visit_schedule_name, schedule_name = visit_schedule_name.split(
-                    '.')
-            except ValueError:
-                if schedule_name:
-                    options.update(dict(schedule_name=schedule_name))
-            options.update(dict(visit_schedule_name=visit_schedule_name))
+                f'Expected both the visit_schedule_name and schedule_name. '
+                f'Got schedule_name=\'{schedule_name}\', '
+                f'visit_schedule_name=\'{visit_schedule_name}\'')
+
+        options.update(dict(visit_schedule_name=visit_schedule_name))
+        options.update(dict(schedule_name=schedule_name))
+
         deleted = 0
         appointments = self.filter(**options).order_by('-timepoint')
         for appointment in appointments:

@@ -22,11 +22,11 @@ class AppointmentCreatorError(Exception):
 
 class AppointmentCreator:
 
-    def __init__(self, timepoint_datetime=None,
-                 visit=None, visit_code_sequence=None, facility=None, appointment_model=None,
-                 taken_datetimes=None, subject_identifier=None, visit_schedule_name=None,
-                 schedule_name=None, default_appt_type=None, appt_status=None,
-                 suggested_datetime=None):
+    def __init__(self, timepoint_datetime=None, timepoint=None,
+                 visit=None, visit_code_sequence=None, facility=None,
+                 appointment_model=None, taken_datetimes=None, subject_identifier=None,
+                 visit_schedule_name=None, schedule_name=None, default_appt_type=None,
+                 appt_status=None, suggested_datetime=None):
         self._appointment = None
         self._appointment_config = None
         self._appointment_model_cls = None
@@ -40,7 +40,7 @@ class AppointmentCreator:
         self.taken_datetimes = taken_datetimes or []
         self.visit = visit
         self.visit_code_sequence = visit_code_sequence or 0
-        # timepoint_datetime (required)
+        self.timepoint = timepoint
         try:
             if is_naive(timepoint_datetime):
                 raise ValueError(
@@ -103,7 +103,7 @@ class AppointmentCreator:
             schedule_name=self.schedule_name,
             visit_code=self.visit.code,
             visit_code_sequence=self.visit_code_sequence,
-            timepoint=self.visit.timepoint)
+            timepoint=self.timepoint or self.visit.timepoint)
         if self.appt_status:
             options.update(appt_status=self.appt_status)
         return options

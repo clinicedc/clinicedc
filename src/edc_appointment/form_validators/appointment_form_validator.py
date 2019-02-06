@@ -19,7 +19,8 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
 
     def clean(self):
 
-        self.validate_sequence()
+        self.validate_visit_report_sequence()
+        self.validate_appt_sequence()
         self.validate_not_future_appt_datetime()
         self.validate_appt_new_or_cancelled()
         self.validate_appt_inprogress_or_incomplete()
@@ -39,43 +40,55 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
         """
         return False
 
-    def validate_sequence(self):
-        """Enforce appointment and visit entry sequence.
+    def validate_visit_report_sequence(self):
+        """Enforce visit report sequence.
         """
-        if self.cleaned_data.get('appt_status') == IN_PROGRESS_APPT:
-            # visit report sequence
-            try:
-                self.instance.previous.visit
-            except ObjectDoesNotExist:
-                last_visit = self.appointment_model_cls.visit_model_cls().objects.filter(
-                    appointment__subject_identifier=self.instance.subject_identifier,
-                    visit_schedule_name=self.instance.visit_schedule_name,
-                    schedule_name=self.instance.schedule_name,
-                ).order_by('appointment__appt_datetime').last()
-                if last_visit:
-                    raise forms.ValidationError(
-                        f'A previous visit report is required. Enter the visit report for '
-                        f'appointment {last_visit.appointment.next.visit_code} before '
-                        'starting with this appointment.')
-            except AttributeError:
-                pass
+        try:
+            self.instance.visit
+        except (ObjectDoesNotExist, AttributeError):
+            if (self.cleaned_data.get('appt_status') == IN_PROGRESS_APPT
+                    and self.instance):
+                try:
+                    self.instance.visit
+                except ObjectDoesNotExist:
+                    previous_appt = self.instance.get_previous(
+                        include_interim=True)
+                    try:
+                        previous_appt.visit
+                    except ObjectDoesNotExist:
+                        raise forms.ValidationError(
+                            'A previous appointment requires a visit report. '
+                            f'Update appointment {previous_appt.visit_code}.'
+                            f'{previous_appt.visit_code_sequence} first.',
+                            code="previous_visit_missing")
+        return True
 
-            # appointment sequence
-            try:
-                self.instance.previous.visit
-            except ObjectDoesNotExist:
-                first_new_appt = self.appointment_model_cls.objects.filter(
-                    subject_identifier=self.instance.subject_identifier,
-                    visit_schedule_name=self.instance.visit_schedule_name,
-                    schedule_name=self.instance.schedule_name,
-                    appt_status=NEW_APPT
-                ).order_by('appt_datetime').first()
-                if first_new_appt:
-                    raise forms.ValidationError(
-                        'A previous appointment requires updating. '
-                        f'Update appointment for {first_new_appt.visit_code} first.')
-            except AttributeError:
-                pass
+    def validate_appt_sequence(self):
+        """Enforce appointment and visit entry sequence.
+
+        1. Check if previous appointment has a visit report
+        2. If not check which previous appointment, if any,
+        has a completed visit report
+        3. If none, is this the first appointment?
+
+        """
+
+        # appointment sequence
+        try:
+            self.instance.previous.visit
+        except ObjectDoesNotExist:
+            first_new_appt = self.appointment_model_cls.objects.filter(
+                subject_identifier=self.instance.subject_identifier,
+                visit_schedule_name=self.instance.visit_schedule_name,
+                schedule_name=self.instance.schedule_name,
+                appt_status=NEW_APPT
+            ).order_by('appt_datetime').first()
+            if first_new_appt:
+                raise forms.ValidationError(
+                    'A previous appointment requires updating. '
+                    f'Update appointment for {first_new_appt.visit_code} first.')
+        except AttributeError:
+            pass
 
     def validate_not_future_appt_datetime(self):
         appt_datetime = self.cleaned_data.get('appt_datetime')

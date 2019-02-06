@@ -1,3 +1,4 @@
+from decimal import Decimal
 from edc_base.utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -30,5 +31,6 @@ class Helper:
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
-            facility=appointment.facility)
+            facility=appointment.facility,
+            timepoint=appointment.timepoint + Decimal('0.1'))
         return creator.appointment

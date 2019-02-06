@@ -68,7 +68,10 @@ class TestAppointment(TestCase):
 
         Appointment.objects.delete_for_subject_after_date(
             appointments[0].subject_identifier,
-            appointments[0].appt_datetime - relativedelta(days=1))
+            appointments[0].appt_datetime - relativedelta(days=1),
+            visit_schedule_name=appointments[0].visit_schedule_name,
+            schedule_name=appointments[0].schedule_name,
+        )
         self.assertEqual(Appointment.objects.filter(
             subject_identifier=self.subject_identifier).count(), 1)
 
@@ -88,13 +91,18 @@ class TestAppointment(TestCase):
         appointment = appointments[0]
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
+
         self.helper.add_unscheduled_appointment(appointment)
 
         Appointment.objects.delete_for_subject_after_date(
             appointments[0].subject_identifier,
-            appointments[0].appt_datetime - relativedelta(days=1))
+            appointments[0].appt_datetime - relativedelta(days=1),
+            visit_schedule_name=appointments[0].visit_schedule_name,
+            schedule_name=appointments[0].schedule_name,
+        )
+
         self.assertEqual(Appointment.objects.filter(
-            subject_identifier=self.subject_identifier).count(), 2)
+            subject_identifier=self.subject_identifier).count(), 1)
 
     def test_appointments_dates_mo(self):
         """Test appointment datetimes are chronological.

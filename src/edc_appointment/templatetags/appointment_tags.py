@@ -58,7 +58,7 @@ class ContinuationAppointmentAnchor(template.Node):
                     int(self.appointment.visit_code_sequence) + 1)
                 rev_url = (
                     f'{url}?next=dashboard_url&dashboard_type={self.dashboard_type}'
-                    f'&registered_subject={self.appointment.registered_subject.pk}'
+                    f'&subject_identifier={self.appointment.subject_identifier}'
                     f'&visit_definition={self.appointment.visit_definition.pk}'
                     f'&visit_code_sequence={visit_code_sequence}')
                 anchor = f'<A href="{rev_url}">continuation</A>'
