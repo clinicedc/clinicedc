@@ -10,11 +10,11 @@ from .schedule_model_mixin import ScheduleModelMixin
 class OnScheduleModelMixin(ScheduleModelMixin):
     """A model mixin for a schedule's onschedule model.
     """
+
     onschedule_datetime = models.DateTimeField(
-        validators=[
-            datetime_not_before_study_start,
-            datetime_not_future],
-        default=get_utcnow)
+        validators=[datetime_not_before_study_start, datetime_not_future],
+        default=get_utcnow,
+    )
 
     def save(self, *args, **kwargs):
         self.report_datetime = self.onschedule_datetime
@@ -22,7 +22,8 @@ class OnScheduleModelMixin(ScheduleModelMixin):
 
     def put_on_schedule(self):
         _, schedule = site_visit_schedules.get_by_onschedule_model(
-            self._meta.label_lower)
+            self._meta.label_lower
+        )
         schedule.put_on_schedule(onschedule_model_obj=self)
 
     class Meta:

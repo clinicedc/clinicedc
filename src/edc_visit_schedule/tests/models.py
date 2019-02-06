@@ -23,13 +23,15 @@ class SubjectVisit(VisitModelMixin, BaseUuidModel):
     reason = models.CharField(max_length=25, null=True)
 
 
-class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
-                     UpdatesOrCreatesRegistrationModelMixin,
-                     BaseUuidModel):
+class SubjectConsent(
+    NonUniqueSubjectIdentifierFieldMixin,
+    UpdatesOrCreatesRegistrationModelMixin,
+    BaseUuidModel,
+):
 
     consent_datetime = models.DateTimeField(default=get_utcnow)
 
-    version = models.CharField(max_length=25, default='1')
+    version = models.CharField(max_length=25, default="1")
 
     identity = models.CharField(max_length=25)
 
@@ -54,6 +56,7 @@ class DeathReport(BaseUuidModel):
 
 # visit_schedule
 
+
 class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
 
     pass
@@ -75,6 +78,7 @@ class OffScheduleThree(OffScheduleModelMixin, BaseUuidModel):
 
 
 # visit_schedule_two
+
 
 class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
 

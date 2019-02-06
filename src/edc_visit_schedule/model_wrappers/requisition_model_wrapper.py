@@ -3,13 +3,15 @@ from .crf_model_wrapper import CrfModelWrapper
 
 class RequisitionModelWrapper(CrfModelWrapper):
 
-    visit_model_attr = 'subject_visit'
+    visit_model_attr = "subject_visit"
 
-    querystring_attrs = [visit_model_attr, 'panel']
+    querystring_attrs = [visit_model_attr, "panel"]
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}(object={self.object} '
-                f'id={self.object.id}, panel={self.panel})')
+        return (
+            f"{self.__class__.__name__}(object={self.object} "
+            f"id={self.object.id}, panel={self.panel})"
+        )
 
     @property
     def panel(self):
@@ -27,4 +29,4 @@ class RequisitionModelWrapper(CrfModelWrapper):
 
     @property
     def html_id(self):
-        return f'id_{self.panel}'
+        return f"id_{self.panel}"

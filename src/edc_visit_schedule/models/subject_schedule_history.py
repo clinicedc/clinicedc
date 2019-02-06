@@ -16,12 +16,14 @@ class OnScheduleModelError(Exception):
 
 
 class SubjectScheduleModelManager(models.Manager):
-
-    def get_by_natural_key(self, subject_identifier, visit_schedule_name, schedule_name):
+    def get_by_natural_key(
+        self, subject_identifier, visit_schedule_name, schedule_name
+    ):
         return self.get(
             subject_identifier=subject_identifier,
             visit_schedule_name=visit_schedule_name,
-            schedule_name=schedule_name)
+            schedule_name=schedule_name,
+        )
 
     def onschedules(self, subject_identifier=None, report_datetime=None):
         """Returns a list of onschedule model instances for this
@@ -33,39 +35,38 @@ class SubjectScheduleModelManager(models.Manager):
         qs = self.filter(
             Q(subject_identifier=subject_identifier),
             Q(onschedule_datetime__lte=report_datetime),
-            (Q(offschedule_datetime__gte=report_datetime)
-             | Q(offschedule_datetime__isnull=True)))
+            (
+                Q(offschedule_datetime__gte=report_datetime)
+                | Q(offschedule_datetime__isnull=True)
+            ),
+        )
         for obj in qs:
             onschedule_model_cls = django_apps.get_model(obj.onschedule_model)
-            onschedules.append(onschedule_model_cls.objects.get(
-                subject_identifier=subject_identifier))
+            onschedules.append(
+                onschedule_model_cls.objects.get(subject_identifier=subject_identifier)
+            )
         return onschedules
 
 
-class SubjectScheduleHistory(NonUniqueSubjectIdentifierFieldMixin,
-                             VisitScheduleFieldsModelMixin, BaseUuidModel):
+class SubjectScheduleHistory(
+    NonUniqueSubjectIdentifierFieldMixin, VisitScheduleFieldsModelMixin, BaseUuidModel
+):
 
-    onschedule_model = models.CharField(
-        max_length=100)
+    onschedule_model = models.CharField(max_length=100)
 
-    offschedule_model = models.CharField(
-        max_length=100)
+    offschedule_model = models.CharField(max_length=100)
 
     onschedule_datetime = models.DateTimeField(
-        validators=[
-            datetime_not_before_study_start,
-            datetime_not_future])
+        validators=[datetime_not_before_study_start, datetime_not_future]
+    )
 
     offschedule_datetime = models.DateTimeField(
-        validators=[
-            datetime_not_before_study_start,
-            datetime_not_future],
-        null=True)
+        validators=[datetime_not_before_study_start, datetime_not_future], null=True
+    )
 
     schedule_status = models.CharField(
-        max_length=15,
-        choices=SCHEDULE_STATUS,
-        null=True)
+        max_length=15, choices=SCHEDULE_STATUS, null=True
+    )
 
     objects = SubjectScheduleModelManager()
 
@@ -73,5 +74,4 @@ class SubjectScheduleHistory(NonUniqueSubjectIdentifierFieldMixin,
         return (self.subject_identifier, self.visit_schedule_name, self.schedule_name)
 
     class Meta:
-        unique_together = (
-            'subject_identifier', 'visit_schedule_name', 'schedule_name')
+        unique_together = ("subject_identifier", "visit_schedule_name", "schedule_name")

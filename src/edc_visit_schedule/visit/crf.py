@@ -6,9 +6,9 @@ class CrfLookupError(Exception):
 
 
 class Crf:
-
-    def __init__(self, show_order=None, model=None, required=None,
-                 additional=None, site_ids=None):
+    def __init__(
+        self, show_order=None, model=None, required=None, additional=None, site_ids=None
+    ):
         self.additional = additional
         self.model = model
         self.required = True if required is None else required
@@ -16,12 +16,14 @@ class Crf:
         self.site_ids = site_ids or []
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}({self.show_order}, '
-                f'{self.model}, {self.required})')
+        return (
+            f"{self.__class__.__name__}({self.show_order}, "
+            f"{self.model}, {self.required})"
+        )
 
     def __str__(self):
-        required = 'Required' if self.required else ''
-        return f'{self.model} {required}'
+        required = "Required" if self.required else ""
+        return f"{self.model} {required}"
 
     def validate(self):
         """Raises an exception if the model class lookup fails.

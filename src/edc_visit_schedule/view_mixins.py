@@ -6,7 +6,6 @@ from .site_visit_schedules import site_visit_schedules
 
 
 class VisitScheduleViewMixin(ContextMixin):
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.onschedule_models = []
@@ -24,25 +23,26 @@ class VisitScheduleViewMixin(ContextMixin):
                     self.current_visit_schedule = visit_schedule
                 try:
                     onschedule_model_obj = schedule.onschedule_model_cls.objects.get(
-                        subject_identifier=self.subject_identifier)
+                        subject_identifier=self.subject_identifier
+                    )
                 except ObjectDoesNotExist:
                     pass
                 else:
                     if schedule.is_onschedule(
-                            subject_identifier=self.kwargs.get(
-                                'subject_identifier'),
-                            report_datetime=get_utcnow()):
+                        subject_identifier=self.kwargs.get("subject_identifier"),
+                        report_datetime=get_utcnow(),
+                    ):
                         self.current_schedule = schedule
                         self.current_visit_schedule = visit_schedule
                         self.current_onschedule_model = onschedule_model_obj
                     self.onschedule_models.append(onschedule_model_obj)
-                    self.visit_schedules.update(
-                        {visit_schedule.name: visit_schedule})
+                    self.visit_schedules.update({visit_schedule.name: visit_schedule})
 
         context.update(
             visit_schedules=self.visit_schedules,
             current_onschedule_model=self.current_onschedule_model,
             onschedule_models=self.onschedule_models,
             current_schedule=self.current_schedule,
-            current_visit_schedule=self.current_visit_schedule)
+            current_visit_schedule=self.current_visit_schedule,
+        )
         return context

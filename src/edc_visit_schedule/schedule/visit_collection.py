@@ -9,8 +9,8 @@ class VisitCollectionError(Exception):
 
 class VisitCollection(OrderedCollection):
 
-    key = 'code'
-    ordering_attr = 'timepoint'
+    key = "code"
+    ordering_attr = "timepoint"
 
     def timepoint_dates(self, dt=None):
         """Returns an ordered dictionary of visit dates calculated
@@ -22,8 +22,9 @@ class VisitCollection(OrderedCollection):
                 timepoint_datetime = dt + visit.rbase
             except TypeError as e:
                 raise VisitCollectionError(
-                    f'Invalid visit.rbase. visit.rbase={visit.rbase}. '
-                    f'See {repr(visit)}. Got {e}.')
+                    f"Invalid visit.rbase. visit.rbase={visit.rbase}. "
+                    f"See {repr(visit)}. Got {e}."
+                )
             else:
                 visit.timepoint_datetime = timepoint_datetime
             timepoint_dates.update({visit: visit.timepoint_datetime})

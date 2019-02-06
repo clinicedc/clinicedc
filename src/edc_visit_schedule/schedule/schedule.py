@@ -1,6 +1,7 @@
 import re
 
 from django.core.management.color import color_style
+from edc_base import get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..subject_schedule import NotOnScheduleForDateError, NotOnScheduleError
@@ -32,19 +33,29 @@ class Schedule:
     Contains an ordered dictionary of visit instances and the onschedule
     and offschedule models used to get on and off the schedule.
     """
-    name_regex = r'[a-z0-9\_\-]+$'
+
+    name_regex = r"[a-z0-9\_\-]+$"
     visit_cls = Visit
     visit_collection_cls = VisitCollection
     subject_schedule_cls = SubjectSchedule
 
-    def __init__(self, name=None, verbose_name=None, sequence=None, onschedule_model=None,
-                 offschedule_model=None, appointment_model=None, consent_model=None):
+    def __init__(
+        self,
+        name=None,
+        verbose_name=None,
+        sequence=None,
+        onschedule_model=None,
+        offschedule_model=None,
+        appointment_model=None,
+        consent_model=None,
+    ):
         self._subject = None
         self.visits = self.visit_collection_cls()
-        if not name or not re.match(r'[a-z0-9\_\-]+$', name):
+        if not name or not re.match(r"[a-z0-9\_\-]+$", name):
             raise ScheduleNameError(
-                f'Invalid name. Got \'{name}\'. May only contains numbers, '
-                'lower case letters and \'_\'.')
+                f"Invalid name. Got '{name}'. May only contains numbers, "
+                "lower case letters and '_'."
+            )
         else:
             self.name = name
         self.verbose_name = verbose_name or name
@@ -60,12 +71,11 @@ class Schedule:
         try:
             self.subject.check()
         except (SiteVisitScheduleError, SubjectScheduleError) as e:
-            warnings.append(
-                f'{e} See schedule \'{self.name}\'.')
+            warnings.append(f"{e} See schedule '{self.name}'.")
         return warnings
 
     def __repr__(self):
-        return f'Schedule({self.name})'
+        return f"Schedule({self.name})"
 
     def __str__(self):
         return self.name
@@ -74,11 +84,12 @@ class Schedule:
         """Adds a unique visit to the schedule.
         """
         visit = visit or self.visit_cls(**kwargs)
-        for attr in ['code', 'title', 'timepoint', 'rbase']:
+        for attr in ["code", "title", "timepoint", "rbase"]:
             if getattr(visit, attr) in [getattr(v, attr) for v in self.visits.values()]:
                 raise AlreadyRegisteredVisit(
-                    f'Visit already registered. Got visit={visit} ({attr}). '
-                    f'See schedule \'{self}\'')
+                    f"Visit already registered. Got visit={visit} ({attr}). "
+                    f"See schedule '{self}'"
+                )
         self.visits.update({visit.code: visit})
         return visit
 
@@ -95,24 +106,32 @@ class Schedule:
         """
         if not self._subject:
             visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
-                self.onschedule_model)
+                self.onschedule_model
+            )
             if schedule.name != self.name:
                 raise ValueError(
-                    f'Site visit schedules return the wrong schedule object. '
-                    f'Expected {repr(self)} for onschedule_model={self.onschedule_model}. '
-                    f'Got {repr(schedule)}.')
+                    f"Site visit schedules return the wrong schedule object. "
+                    f"Expected {repr(self)} for onschedule_model={self.onschedule_model}. "
+                    f"Got {repr(schedule)}."
+                )
             self._subject = self.subject_schedule_cls(
-                visit_schedule=visit_schedule, schedule=self)
+                visit_schedule=visit_schedule, schedule=self
+            )
         return self._subject
 
-    def put_on_schedule(self, onschedule_model_obj=None,
-                        subject_identifier=None, onschedule_datetime=None):
+    def put_on_schedule(
+        self,
+        onschedule_model_obj=None,
+        subject_identifier=None,
+        onschedule_datetime=None,
+    ):
         """Wrapper method to puts a subject onto this schedule.
         """
         self.subject.put_on_schedule(
             onschedule_model_obj=onschedule_model_obj,
             subject_identifier=subject_identifier,
-            onschedule_datetime=onschedule_datetime)
+            onschedule_datetime=onschedule_datetime,
+        )
 
     def refresh_schedule(self, subject_identifier=None):
         """Resaves the onschedule model to, for example, refresh
@@ -120,18 +139,28 @@ class Schedule:
         """
         self.subject.resave(subject_identifier=subject_identifier)
 
-    def take_off_schedule(self, offschedule_model_obj=None,
-                          offschedule_datetime=None, subject_identifier=None):
+    def take_off_schedule(
+        self,
+        offschedule_model_obj=None,
+        offschedule_datetime=None,
+        subject_identifier=None,
+    ):
+        if not offschedule_datetime:
+            try:
+                offschedule_datetime = offschedule_model_obj.offschedule_datetime
+            except AttributeError:
+                offschedule_datetime = get_utcnow()
         self.subject.take_off_schedule(
             offschedule_model_obj=offschedule_model_obj,
             subject_identifier=subject_identifier,
-            offschedule_datetime=offschedule_datetime)
+            offschedule_datetime=offschedule_datetime,
+        )
 
     def is_onschedule(self, subject_identifier=None, report_datetime=None):
         try:
             self.subject.onschedule_or_raise(
-                subject_identifier=subject_identifier,
-                report_datetime=report_datetime)
+                subject_identifier=subject_identifier, report_datetime=report_datetime
+            )
         except (NotOnScheduleError, NotOnScheduleForDateError):
             return False
         return True
