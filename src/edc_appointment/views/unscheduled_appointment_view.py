@@ -24,25 +24,37 @@ class UnscheduledAppointmentView(View):
     """
 
     unscheduled_appointment_cls = UnscheduledAppointmentCreator
-    dashboard_template = 'subject_dashboard_template'
+    dashboard_template = "subject_dashboard_template"
 
     def get(self, request, *args, **kwargs):
 
         try:
             creator = self.unscheduled_appointment_cls(**kwargs)
-        except (ObjectDoesNotExist, UnscheduledAppointmentError,
-                InvalidParentAppointmentMissingVisitError,
-                InvalidParentAppointmentStatusError,
-                AppointmentInProgressError) as e:
+        except (
+            ObjectDoesNotExist,
+            UnscheduledAppointmentError,
+            InvalidParentAppointmentMissingVisitError,
+            InvalidParentAppointmentStatusError,
+            AppointmentInProgressError,
+        ) as e:
             messages.error(self.request, str(e))
         else:
             messages.success(
-                self.request, mark_safe(
-                    f'Appointment {creator.appointment} was created successfully.'))
+                self.request,
+                mark_safe(
+                    f"Appointment {creator.appointment} was created successfully."
+                ),
+            )
             messages.warning(
-                self.request, mark_safe(
-                    f'Remember to adjust the appointment date and time on '
-                    f'appointment {creator.appointment}.'))
+                self.request,
+                mark_safe(
+                    f"Remember to adjust the appointment date and time on "
+                    f"appointment {creator.appointment}."
+                ),
+            )
         return HttpResponseRedirect(
-            reverse(self.kwargs.get('redirect_url'),
-                    kwargs={'subject_identifier': kwargs.get('subject_identifier')}))
+            reverse(
+                self.kwargs.get("redirect_url"),
+                kwargs={"subject_identifier": kwargs.get("subject_identifier")},
+            )
+        )

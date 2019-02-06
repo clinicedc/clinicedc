@@ -7,17 +7,31 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_appointment', '0003_auto_20161127_2226'),
-    ]
+    dependencies = [("edc_appointment", "0003_auto_20161127_2226")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='appointment',
-            options={'ordering': ('timepoint_datetime',)},
+            name="appointment", options={"ordering": ("timepoint_datetime",)}
         ),
         migrations.AlterUniqueTogether(
-            name='appointment',
-            unique_together=set([('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'timepoint'), ('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'visit_code_sequence')]),
+            name="appointment",
+            unique_together=set(
+                [
+                    (
+                        "subject_identifier",
+                        "visit_schedule_name",
+                        "schedule_name",
+                        "visit_code",
+                        "timepoint",
+                    ),
+                    (
+                        "subject_identifier",
+                        "visit_schedule_name",
+                        "schedule_name",
+                        "visit_code",
+                        "visit_code_sequence",
+                    ),
+                ]
+            ),
         ),
     ]

@@ -6,14 +6,20 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_appointment', '0016_auto_20181108_0353'),
-    ]
+    dependencies = [("edc_appointment", "0016_auto_20181108_0353")]
 
     operations = [
         migrations.AlterField(
-            model_name='historicalappointment',
-            name='site',
-            field=models.ForeignKey(blank=True, db_constraint=False, editable=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='sites.Site'),
-        ),
+            model_name="historicalappointment",
+            name="site",
+            field=models.ForeignKey(
+                blank=True,
+                db_constraint=False,
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="+",
+                to="sites.Site",
+            ),
+        )
     ]
