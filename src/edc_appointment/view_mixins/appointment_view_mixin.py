@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
 
 from ..constants import (
-    NEW_APPT, IN_PROGRESS_APPT, INCOMPLETE_APPT, COMPLETE_APPT)
+    NEW_APPT, IN_PROGRESS_APPT, INCOMPLETE_APPT, COMPLETE_APPT, CANCELLED_APPT)
 
 
 class AppointmentViewMixin(ContextMixin):
@@ -28,10 +28,12 @@ class AppointmentViewMixin(ContextMixin):
         context.update(
             appointment=self.appointment_wrapped,
             appointments=self.appointments_wrapped,
-            NEW_APPT=NEW_APPT,
-            INCOMPLETE_APPT=INCOMPLETE_APPT,
+            CANCELLED_APPT=CANCELLED_APPT,
             COMPLETE_APPT=COMPLETE_APPT,
-            IN_PROGRESS_APPT=IN_PROGRESS_APPT)
+            INCOMPLETE_APPT=INCOMPLETE_APPT,
+            IN_PROGRESS_APPT=IN_PROGRESS_APPT,
+            NEW_APPT=NEW_APPT,
+        )
         return context
 
     @property
