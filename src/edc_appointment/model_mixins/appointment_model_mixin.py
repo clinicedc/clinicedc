@@ -121,7 +121,7 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
 
     @property
     def next_by_timepoint(self):
-        """Returns the previous appointment or None of all appointments
+        """Returns the next appointment or None of all appointments
         for this subject for visit_code_sequence=0.
         """
         return self.__class__.objects.filter(
@@ -159,6 +159,23 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
             return self.last_visit_code_sequence + 1
         return self.visit_code_sequence + 1
 
+    def get_last_appointment_with_visit_report(self):
+        """Returns the last appointment model instance,
+        or None, with a completed visit report.
+
+        Ordering is by appointment timepoint/visit_code_sequence
+        with a completed visit report.
+        """
+        appointment = None
+        visit = self.__class__.visit_model_cls().objects.filter(
+            appointment__subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name).order_by(
+                'appointment__timepoint', 'appointment__visit_code_sequence').last()
+        if visit:
+            appointment = visit.appointment
+        return appointment
+
     @property
     def previous_by_timepoint(self):
         """Returns the previous appointment or None by timepoint
@@ -175,18 +192,33 @@ class AppointmentModelMixin(NonUniqueSubjectIdentifierFieldMixin,
         """Returns the previous appointment or None in this schedule
         for visit_code_sequence=0.
         """
-        previous_appt = None
-        previous_visit = self.schedule.visits.previous(self.visit_code)
-        if previous_visit:
-            try:
-                previous_appt = self.__class__.objects.get(
-                    subject_identifier=self.subject_identifier,
-                    visit_schedule_name=self.visit_schedule_name,
-                    schedule_name=self.schedule_name,
-                    visit_code=previous_visit.code,
-                    visit_code_sequence=0)
-            except ObjectDoesNotExist:
-                pass
+        return self.get_previous()
+
+    def get_previous(self, include_interim=None):
+        """Returns the previous appointment model instance,
+        or None, in this schedule.
+
+        Keywords:
+            * include_interim: include interim appointments
+              (e.g. those where visit_code_sequence != 0)
+        """
+        opts = dict(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            timepoint__lt=self.timepoint,
+        )
+        if include_interim and self.visit_code_sequence != 0:
+            opts.pop('timepoint__lt')
+            opts.update(timepoint__lte=self.timepoint)
+        elif not include_interim:
+            opts.update(visit_code_sequence=0)
+        appointments = self.__class__.objects.filter(**opts).exclude(
+            id=self.id).order_by('timepoint', 'visit_code_sequence')
+        try:
+            previous_appt = appointments.reverse()[0]
+        except IndexError:
+            previous_appt = None
         return previous_appt
 
     @property

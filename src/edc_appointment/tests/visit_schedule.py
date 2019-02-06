@@ -1,5 +1,4 @@
 from dateutil.relativedelta import relativedelta
-
 from edc_visit_schedule import VisitSchedule, Schedule, Visit
 from edc_visit_schedule import FormsCollection, Crf, Requisition
 from edc_visit_schedule.tests.dummy_panel import DummyPanel
