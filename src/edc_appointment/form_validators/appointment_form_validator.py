@@ -72,23 +72,24 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
         3. If none, is this the first appointment?
 
         """
-
-        # appointment sequence
-        try:
-            self.instance.previous.visit
-        except ObjectDoesNotExist:
-            first_new_appt = self.appointment_model_cls.objects.filter(
-                subject_identifier=self.instance.subject_identifier,
-                visit_schedule_name=self.instance.visit_schedule_name,
-                schedule_name=self.instance.schedule_name,
-                appt_status=NEW_APPT
-            ).order_by('appt_datetime').first()
-            if first_new_appt:
-                raise forms.ValidationError(
-                    'A previous appointment requires updating. '
-                    f'Update appointment for {first_new_appt.visit_code} first.')
-        except AttributeError:
-            pass
+        if self.cleaned_data.get('appt_status') in [
+                IN_PROGRESS_APPT, INCOMPLETE_APPT, COMPLETE_APPT]:
+            try:
+                self.instance.previous.visit
+            except ObjectDoesNotExist:
+                first_new_appt = self.appointment_model_cls.objects.filter(
+                    subject_identifier=self.instance.subject_identifier,
+                    visit_schedule_name=self.instance.visit_schedule_name,
+                    schedule_name=self.instance.schedule_name,
+                    appt_status=NEW_APPT
+                ).order_by('timepoint', 'visit_code_sequence').first()
+                if first_new_appt:
+                    raise forms.ValidationError(
+                        'A previous appointment requires updating. '
+                        f'Update appointment for {first_new_appt.visit_code} first.')
+            except AttributeError:
+                pass
+        return True
 
     def validate_not_future_appt_datetime(self):
         appt_datetime = self.cleaned_data.get('appt_datetime')
