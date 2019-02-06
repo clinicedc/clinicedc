@@ -13,9 +13,8 @@ class RegisteredSubjectViewMixin(ContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self.subject_identifier = self.kwargs.get('subject_identifier')
-        obj = RegisteredSubject.objects.get(
-            subject_identifier=self.subject_identifier)
+        self.subject_identifier = self.kwargs.get("subject_identifier")
+        obj = RegisteredSubject.objects.get(subject_identifier=self.subject_identifier)
         context.update(
             subject_identifier=self.subject_identifier,
             gender=obj.gender,
@@ -23,5 +22,6 @@ class RegisteredSubjectViewMixin(ContextMixin):
             initials=obj.initials,
             identity=obj.identity,
             firstname=obj.first_name,
-            lastname=obj.last_name)
+            lastname=obj.last_name,
+        )
         return context

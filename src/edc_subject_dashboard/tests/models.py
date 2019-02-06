@@ -1,13 +1,8 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.model_mixins import AppointmentModelMixin
+from edc_appointment.models import Appointment
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
-
-
-class Appointment(AppointmentModelMixin, BaseUuidModel):
-
-    pass
 
 
 class SubjectConsent(models.Model):

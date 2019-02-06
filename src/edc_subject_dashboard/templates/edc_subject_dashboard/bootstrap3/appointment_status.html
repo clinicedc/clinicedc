@@ -7,5 +7,7 @@
   <i class="fas fa-star-half fa-fw" aria-hidden="true" data-toggle="tooltip" title="Incomplete"></i>
 {% elif appt_status == COMPLETE_APPT %}
   <i class="fas fa-star fa-fw" aria-hidden="true" data-toggle="tooltip" title="Complete"></i>
+{% elif appt_status == CANCELLED_APPT %}
+  <i class="fas fa-times fa-fw" aria-hidden="true" data-toggle="tooltip" title="Cancelled"></i>
 {% endif %}
 <!-- END appointment status -->

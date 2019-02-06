@@ -60,6 +60,8 @@
                                        Continue
                                     {% elif wrapped.appt_status == COMPLETE_APPT %}
                                        <i class="fas fa-check fa-fw"></i>Done
+                                    {% elif wrapped.appt_status == CANCELLED_APPT %}
+                                       Cancelled
                                     {% endif %}
 							    </a>
 							{% else %}
@@ -73,6 +75,8 @@
                                        Continue
 			                        {% elif wrapped.appt_status == COMPLETE_APPT %}
                                        <i class="fas fa-check fa-fw"></i>Done
+                                    {% elif wrapped.appt_status == CANCELLED_APPT %}
+                                       <i class="fas fa-times fa-fw"></i>Cancelled
 			                        {% endif %}
                                 </a>
 							{% endif %}
