@@ -5,7 +5,7 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_locator.model_mixins import LocatorModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
-from edc_visit_schedule.model_mixins import OnScheduleModelMixin
+from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ..models import Appointment
@@ -49,7 +49,17 @@ class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
     pass
 
 
+class OffScheduleOne(OffScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
 class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
+class OffScheduleTwo(OffScheduleModelMixin, BaseUuidModel):
 
     pass
 

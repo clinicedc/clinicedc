@@ -17,7 +17,8 @@ class AppointmentMethodsModelMixin(models.Model):
     @classmethod
     def related_visit_model_attr(cls):
         app_config = django_apps.get_app_config("edc_appointment")
-        appointment_config = app_config.get_configuration(name=cls._meta.label_lower)
+        appointment_config = app_config.get_configuration(
+            name=cls._meta.label_lower)
         return appointment_config.related_visit_model_attr
 
     @classmethod

@@ -9,3 +9,4 @@ class EdcAppointmentAdminSite(AdminSite):
 
 
 edc_appointment_admin = EdcAppointmentAdminSite(name="edc_appointment_admin")
+edc_appointment_admin.disable_action('delete_selected')

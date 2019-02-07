@@ -1,5 +1,7 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
+from django.db.models.deletion import ProtectedError
+from edc_visit_schedule import off_schedule_or_raise, OnScheduleError
 
 
 @receiver(post_save, weak=False, dispatch_uid="create_appointments_on_post_save")
@@ -27,9 +29,17 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
                 raise
 
 
-@receiver(post_delete, weak=False, dispatch_uid="delete_appointments_on_post_delete")
-def delete_appointments_on_post_delete(sender, instance, using, **kwargs):
-    try:
-        instance.delete_unused_appointments()
-    except AttributeError:
-        pass
+@receiver(pre_delete, weak=False, dispatch_uid="appointments_on_pre_delete")
+def appointments_on_pre_delete(sender, instance, using, **kwargs):
+    pass
+#     try:
+#         opts = dict(
+#             subject_identifier=instance.subject_identifier,
+#             report_datetime=instance.appt_datetime,
+#             visit_schedule_name=instance.visit_schedule_name,
+#             schedule_name=instance.schedule_name)
+#     except AttributeError:
+#         pass
+#     else:
+#         if instance.visit_code_sequence == 0:
+#             off_schedule_or_raise(**opts)

@@ -14,6 +14,7 @@ from edc_model_admin import (
     ModelAdminReadOnlyMixin,
     audit_fieldset_tuple,
 )
+from edc_visit_schedule import off_schedule_or_raise, OnScheduleError
 from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
     visit_schedule_fields,
@@ -22,6 +23,7 @@ from edc_visit_schedule.fieldsets import (
 from ..admin_site import edc_appointment_admin
 from ..forms import AppointmentForm
 from ..models import Appointment
+from edc_appointment.constants import NEW_APPT
 
 
 @admin.register(Appointment, site=edc_appointment_admin)
@@ -37,8 +39,10 @@ class AppointmentAdmin(
     admin.ModelAdmin,
 ):
 
-    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
-    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
+    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get(
+        "subject_dashboard_url")
+    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get(
+        "subject_dashboard_url")
 
     form = AppointmentForm
     date_hierarchy = "appt_datetime"
@@ -124,3 +128,29 @@ class AppointmentAdmin(
         except NoReverseMatch:
             url = super().view_on_site(obj)
         return url
+
+    def has_delete_permission(self, request, obj=None):
+        """Override to remove delete permissions if OnSchedule
+        and visit_code_sequence == 0.
+
+        See `edc_visit_schedule.off_schedule_or_raise()`
+        """
+        has_delete_permission = super().has_delete_permission(request, obj=obj)
+        if has_delete_permission:
+            try:
+                opts = dict(
+                    subject_identifier=obj.subject_identifier,
+                    report_datetime=obj.appt_datetime,
+                    visit_schedule_name=obj.visit_schedule_name,
+                    schedule_name=obj.schedule_name)
+            except AttributeError:
+                pass
+            else:
+                if (obj.visit_code_sequence == 0
+                        or (obj.visit_code_sequence != 0
+                            and obj.appt_status != NEW_APPT)):
+                    try:
+                        off_schedule_or_raise(**opts)
+                    except OnScheduleError:
+                        has_delete_permission = False
+        return has_delete_permission

@@ -34,7 +34,8 @@ class TestAppointmentForm(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule2)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=arrow.Arrow.fromdatetime(datetime(2017, 1, 7), tzinfo="UTC").datetime,
+            now=arrow.Arrow.fromdatetime(
+                datetime(2017, 1, 7), tzinfo="UTC").datetime,
         )
 
     def test_get_previous(self):
@@ -76,7 +77,8 @@ class TestAppointmentForm(TestCase):
         try:
             AppointmentFormValidator(cleaned_data={})
         except ModelFormFieldValidatorError as e:
-            self.fail(f"ModelFormFieldValidatorError unexpectedly raised. Got {e}")
+            self.fail(
+                f"ModelFormFieldValidatorError unexpectedly raised. Got {e}")
 
     def test_visit_report_sequence(self):
         """Asserts a sequence error is raised if previous visit
@@ -145,7 +147,8 @@ class TestAppointmentForm(TestCase):
                 schedule_name=appointments[i].schedule_name,
             )
 
-        appointments = Appointment.objects.all().order_by("appt_datetime")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence")
 
         # appointments is
         # 1000.0, 1000.1, 1000.2 2000.0, 3000.0, 4000.0

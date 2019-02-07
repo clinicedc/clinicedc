@@ -6,7 +6,7 @@ from decimal import Context
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule import site_visit_schedules, OnScheduleError
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..constants import INCOMPLETE_APPT, IN_PROGRESS_APPT
@@ -14,6 +14,8 @@ from ..models import Appointment
 from .helper import Helper
 from .models import SubjectConsent, SubjectVisit, OnScheduleOne, OnScheduleTwo
 from .visit_schedule import visit_schedule1, visit_schedule2
+from django.db.models.deletion import ProtectedError
+from django.db import transaction
 
 
 class TestAppointment(TestCase):
@@ -32,7 +34,8 @@ class TestAppointment(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule2)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=arrow.Arrow.fromdatetime(datetime(2017, 1, 7), tzinfo="UTC").datetime,
+            now=arrow.Arrow.fromdatetime(
+                datetime(2017, 1, 7), tzinfo="UTC").datetime,
         )
 
     def test_appointments_creation(self):
@@ -54,6 +57,7 @@ class TestAppointment(TestCase):
         )
         self.assertEqual(Appointment.objects.all().count(), 8)
 
+    @tag('1')
     def test_deletes_appointments(self):
         """Asserts manager method can delete appointments.
         """
@@ -69,12 +73,16 @@ class TestAppointment(TestCase):
             reason=SCHEDULED,
         )
 
-        Appointment.objects.delete_for_subject_after_date(
-            subject_identifier=appointments[0].subject_identifier,
-            cutoff_datetime=(appointments[0].appt_datetime - relativedelta(days=1)),
-            visit_schedule_name=appointments[0].visit_schedule_name,
-            schedule_name=appointments[0].schedule_name,
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            visit_schedule_name=appointments[0].visit_schedule_name)
+        schedule = visit_schedule.schedules.get(appointments[0].schedule_name)
+
+        # this calls the manager method "delete_for_subject_after_date"
+        schedule.take_off_schedule(
+            subject_identifier=self.subject_identifier,
+            offschedule_datetime=appointments[0].appt_datetime,
         )
+
         self.assertEqual(
             Appointment.objects.filter(
                 subject_identifier=self.subject_identifier
@@ -102,12 +110,16 @@ class TestAppointment(TestCase):
         appointment.save()
 
         self.helper.add_unscheduled_appointment(appointment)
+        self.assertEqual(appointments.count(), 5)
 
-        Appointment.objects.delete_for_subject_after_date(
-            subject_identifier=appointments[0].subject_identifier,
-            cutoff_datetime=(appointments[0].appt_datetime - relativedelta(days=1)),
-            visit_schedule_name=appointments[0].visit_schedule_name,
-            schedule_name=appointments[0].schedule_name,
+        visit_schedule = site_visit_schedules.get_visit_schedule(
+            visit_schedule_name=appointments[0].visit_schedule_name)
+        schedule = visit_schedule.schedules.get(appointments[0].schedule_name)
+
+        # this calls the manager method "delete_for_subject_after_date"
+        schedule.take_off_schedule(
+            subject_identifier=self.subject_identifier,
+            offschedule_datetime=appointments[0].appt_datetime,
         )
 
         self.assertEqual(
@@ -116,6 +128,45 @@ class TestAppointment(TestCase):
             ).count(),
             1,
         )
+
+    @tag('1')
+    def test_delete_single_appointment(self):
+        self.helper.consent_and_put_on_schedule()
+        appointments = Appointment.objects.filter(
+            subject_identifier=self.subject_identifier
+        )
+        self.assertEqual(appointments.count(), 4)
+
+        SubjectVisit.objects.create(
+            appointment=appointments[0],
+            report_datetime=appointments[0].appt_datetime,
+            reason=SCHEDULED,
+        )
+
+        appointment = appointments[0]
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+
+        # raised by Django
+        with transaction.atomic():
+            self.assertRaises(
+                ProtectedError,
+                appointment.delete)
+
+        # raised in signal pre_delete
+        with transaction.atomic():
+            self.assertRaises(
+                OnScheduleError,
+                appointments[1].delete)
+
+        self.helper.add_unscheduled_appointment(appointment)
+        self.assertEqual(appointments.count(), 5)
+
+        unscheduled_appointment = Appointment.objects.get(
+            visit_code='1000', visit_code_sequence=1)
+
+        unscheduled_appointment.delete()
+        self.assertEqual(appointments.count(), 4)
 
     def test_appointments_dates_mo(self):
         """Test appointment datetimes are chronological.
@@ -352,7 +403,8 @@ class TestAppointment(TestCase):
             schedule_name="schedule1",
         )
         self.assertEqual(
-            Appointment.objects.next_appointment(appointment=last_appointment), None
+            Appointment.objects.next_appointment(
+                appointment=last_appointment), None
         )
 
     def test_next_appointment_after_last_returns_none_with_unscheduled(self):
@@ -380,7 +432,8 @@ class TestAppointment(TestCase):
         self.helper.add_unscheduled_appointment(last_appointment)
 
         self.assertEqual(
-            Appointment.objects.next_appointment(appointment=last_appointment), None
+            Appointment.objects.next_appointment(
+                appointment=last_appointment), None
         )
 
     def test_next_appointment_until_none(self):
@@ -392,10 +445,12 @@ class TestAppointment(TestCase):
             visit_schedule_name="visit_schedule1",
             schedule_name="schedule1",
         )
-        first = Appointment.objects.first_appointment(appointment=appointments[0])
+        first = Appointment.objects.first_appointment(
+            appointment=appointments[0])
         appts = [first]
         for appointment in appointments:
-            appts.append(Appointment.objects.next_appointment(appointment=appointment))
+            appts.append(Appointment.objects.next_appointment(
+                appointment=appointment))
         self.assertIsNotNone(appts[0])
         self.assertEqual(appts[0], first)
         self.assertEqual(appts[-1], None)
@@ -410,7 +465,8 @@ class TestAppointment(TestCase):
             schedule_name="schedule1",
         )
         self.assertEqual(
-            Appointment.objects.previous_appointment(appointment=first_appointment),
+            Appointment.objects.previous_appointment(
+                appointment=first_appointment),
             None,
         )
 
@@ -427,7 +483,8 @@ class TestAppointment(TestCase):
             appointment=first_appointment
         )
         self.assertEqual(
-            Appointment.objects.previous_appointment(appointment=next_appointment),
+            Appointment.objects.previous_appointment(
+                appointment=next_appointment),
             first_appointment,
         )
 

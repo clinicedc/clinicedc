@@ -1,10 +1,13 @@
 from django.db import models
 from django.db.models.deletion import ProtectedError
-
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule import site_visit_schedules
 
 
 class AppointmentManagerError(Exception):
+    pass
+
+
+class SubjectOnScheduleError(Exception):
     pass
 
 
@@ -45,7 +48,8 @@ class AppointmentManager(models.Manager):
         except AttributeError:
             options.update(subject_identifier=subject_identifier)
             try:
-                visit_schedule_name, schedule_name = visit_schedule_name.split(".")
+                visit_schedule_name, schedule_name = visit_schedule_name.split(
+                    ".")
                 options.update(
                     visit_schedule_name=visit_schedule_name, schedule_name=schedule_name
                 )
@@ -155,7 +159,8 @@ class AppointmentManager(models.Manager):
         schedule = site_visit_schedules.get_visit_schedule(
             options.get("visit_schedule_name")
         ).schedules.get(options.get("schedule_name"))
-        options.update(visit_code=self.get_visit_code("next", schedule, **kwargs))
+        options.update(visit_code=self.get_visit_code(
+            "next", schedule, **kwargs))
         try:
             next_appointment = self.filter(**options).order_by(
                 "timepoint", "visit_code_sequence"
@@ -174,7 +179,8 @@ class AppointmentManager(models.Manager):
         schedule = site_visit_schedules.get_visit_schedule(
             options.get("visit_schedule_name")
         ).schedules.get(options.get("schedule_name"))
-        options.update(visit_code=self.get_visit_code("previous", schedule, **kwargs))
+        options.update(visit_code=self.get_visit_code(
+            "previous", schedule, **kwargs))
         try:
             previous_appointment = (
                 self.filter(**options)
@@ -205,7 +211,8 @@ class AppointmentManager(models.Manager):
         valid_ops = ["gt", "gte"]
         if op and op not in valid_ops:
             formatted = ", ".join(valid_ops)
-            raise TypeError(f"Allowed lookup operators are {formatted}. Got {op}.")
+            raise TypeError(
+                f"Allowed lookup operators are {formatted}. Got {op}.")
         op = "gte" if op is None else op
 
         # prepare options
@@ -215,7 +222,8 @@ class AppointmentManager(models.Manager):
         }
         if not is_offstudy:
             try:
-                visit_schedule_name, schedule_name = visit_schedule_name.split(".")
+                visit_schedule_name, schedule_name = visit_schedule_name.split(
+                    ".")
             except (ValueError, AttributeError):
                 pass
             if not schedule_name or not visit_schedule_name:
