@@ -31,7 +31,7 @@ class SubjectConsent(
 
     identity = models.CharField(max_length=36, default=get_uuid)
 
-    confirm_identity = models.CharField(max_length=25, default=get_uuid)
+    confirm_identity = models.CharField(max_length=36, default=get_uuid)
 
     version = models.CharField(max_length=25, default="1")
 
