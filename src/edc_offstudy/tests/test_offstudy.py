@@ -584,7 +584,8 @@ class TestOffstudy(TestCase):
     def test_crf_model_mixin_for_visit_schedule_2(self):
 
         appointments = [appt for appt in Appointment.objects.filter(
-            subject_identifier=self.subject_identifier).order_by('appt_datetime')]
+            subject_identifier=self.subject_identifier).order_by(
+                'timepoint', 'visit_code_sequence')]
 
         appointment = appointments[0]
         self.assertEqual(
@@ -628,7 +629,8 @@ class TestOffstudy(TestCase):
         self.assertEqual(
             ['1000', '2000'],
             [appt.visit_code for appt in Appointment.objects.filter(
-                subject_identifier=self.subject_identifier).order_by('appt_datetime')])
+                subject_identifier=self.subject_identifier).order_by(
+                    'timepoint', 'visit_code_sequence')])
 
         # now create an error condition
         appointment = appointments[2]
@@ -656,7 +658,8 @@ class TestOffstudy(TestCase):
         appointment.delete()
 
         appointments = [appt.visit_code for appt in Appointment.objects.filter(
-            subject_identifier=self.subject_identifier).order_by('appt_datetime')]
+            subject_identifier=self.subject_identifier).order_by(
+                'timepoint', 'visit_code_sequence')]
         self.assertEqual(appointments, ['1000', '2000'])
 
         # enroll to visit_schedule2
@@ -666,13 +669,15 @@ class TestOffstudy(TestCase):
             onschedule_datetime=self.consent_datetime)
         # show adds the visits for visit_schedule2
         appointments = [appt.visit_code for appt in Appointment.objects.filter(
-            subject_identifier=self.subject_identifier).order_by('appt_datetime')]
+            subject_identifier=self.subject_identifier).order_by(
+                'timepoint', 'visit_code_sequence')]
         self.assertEqual(
             appointments, ['1000', '2000', '5000', '6000', '7000', '8000'])
 
         # show adds the visits for visit_schedule2
         appointments = [appt.visit_schedule_name for appt in Appointment.objects.filter(
-            subject_identifier=self.subject_identifier).order_by('appt_datetime')]
+            subject_identifier=self.subject_identifier).order_by(
+                'timepoint', 'visit_code_sequence')]
         self.assertEqual(
             appointments, [
                 'visit_schedule1', 'visit_schedule1',
@@ -683,7 +688,8 @@ class TestOffstudy(TestCase):
             relativedelta(hours=1),
             subject_identifier=self.subject_identifier)
         appointments = [appt.visit_code for appt in Appointment.objects.filter(
-            subject_identifier=self.subject_identifier).order_by('appt_datetime')]
+            subject_identifier=self.subject_identifier).order_by(
+                'timepoint', 'visit_code_sequence')]
         # note deletes appointments AFTER the date
         # see edc_appointment for setting
-        self.assertEqual(appointments, ['1000', '2000'])
+        self.assertEqual(appointments, ['1000', '2000', '5000'])
