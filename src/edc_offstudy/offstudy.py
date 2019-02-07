@@ -35,9 +35,11 @@ class Offstudy:
         self.consented_or_raise(**kwargs)
         self.offstudy_datetime_or_raise(**kwargs)
 
-        # passes validation, now delete unused "future" appointments
+        # passes validation, now delete ALL unused "future" appointments
         appointment_model_cls.objects.delete_for_subject_after_date(
-            self.subject_identifier, self.offstudy_datetime)
+            subject_identifier=self.subject_identifier,
+            cutoff_datetime=self.offstudy_datetime,
+            is_offstudy=True)
 
     @property
     def visit_model_cls(self):
