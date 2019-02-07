@@ -2,17 +2,16 @@ from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_appointment.constants import IN_PROGRESS_APPT
 from edc_appointment.models import Appointment
-from edc_appointment.tests.visit_schedule import visit_schedule1, visit_schedule2
 from edc_appointment.tests.models import OnScheduleOne, SubjectConsent, SubjectVisit
 from edc_appointment.tests.models import OnScheduleTwo
-
+from edc_appointment.tests.visit_schedule import visit_schedule1, visit_schedule2
 from edc_base import get_utcnow, get_dob
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import DEAD
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules,\
-    SiteVisitScheduleError
+from edc_visit_schedule.site_visit_schedules import SiteVisitScheduleError
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..model_mixins import OffstudyNonCrfModelMixinError
@@ -23,7 +22,8 @@ from ..offstudy import SUBJECT_NOT_REGISTERED, INVALID_OFFSTUDY_DATETIME_CONSENT
 from ..offstudy_crf import SubjectOffstudyError
 from .consents import v1_consent
 from .forms import SubjectOffstudyForm, CrfOneForm, NonCrfOneForm
-from .models import BadSubjectOffstudy, CrfOne, NonCrfOne, BadNonCrfOne, SubjectOffstudy2
+from .models import BadNonCrfOne, SubjectOffstudy2
+from .models import BadSubjectOffstudy, CrfOne, NonCrfOne
 
 
 class TestOffstudy(TestCase):
