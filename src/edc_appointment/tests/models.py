@@ -29,9 +29,9 @@ class SubjectConsent(
 
     dob = models.DateField(default=get_dob(25))
 
-    identity = models.CharField(max_length=25, default=get_uuid)
+    identity = models.CharField(max_length=36, default=get_uuid)
 
-    confirm_identity = models.CharField(max_length=25, default=get_uuid)
+    confirm_identity = models.CharField(max_length=36, default=get_uuid)
 
     version = models.CharField(max_length=25, default="1")
 
