@@ -5,7 +5,7 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_locator.model_mixins import LocatorModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
-from edc_visit_schedule.model_mixins import OnScheduleModelMixin
+from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ..models import Appointment
@@ -15,12 +15,13 @@ class MyModel(VisitModelMixin, BaseUuidModel):
     pass
 
 
-class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
-                     UpdatesOrCreatesRegistrationModelMixin,
-                     BaseUuidModel):
+class SubjectConsent(
+    NonUniqueSubjectIdentifierFieldMixin,
+    UpdatesOrCreatesRegistrationModelMixin,
+    BaseUuidModel,
+):
 
-    consent_datetime = models.DateTimeField(
-        default=get_utcnow)
+    consent_datetime = models.DateTimeField(default=get_utcnow)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
@@ -32,7 +33,7 @@ class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
 
     confirm_identity = models.CharField(max_length=25, default=get_uuid)
 
-    version = models.CharField(max_length=25, default='1')
+    version = models.CharField(max_length=25, default="1")
 
     def save(self, *args, **kwargs):
         self.confirm_identity = self.identity
@@ -40,7 +41,7 @@ class SubjectConsent(NonUniqueSubjectIdentifierFieldMixin,
 
     @property
     def registration_unique_field(self):
-        return 'subject_identifier'
+        return "subject_identifier"
 
 
 class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
@@ -48,7 +49,17 @@ class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
     pass
 
 
+class OffScheduleOne(OffScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
 class OnScheduleTwo(OnScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
+class OffScheduleTwo(OffScheduleModelMixin, BaseUuidModel):
 
     pass
 

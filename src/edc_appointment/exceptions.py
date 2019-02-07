@@ -1,5 +1,3 @@
-
-
 class AppointmentStatusError(Exception):
     pass
 

@@ -6,14 +6,14 @@ import uuid
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_appointment', '0015_auto_20180706_1519'),
-    ]
+    dependencies = [("edc_appointment", "0015_auto_20180706_1519")]
 
     operations = [
         migrations.AlterField(
-            model_name='historicalappointment',
-            name='history_id',
-            field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
-        ),
+            model_name="historicalappointment",
+            name="history_id",
+            field=models.UUIDField(
+                default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+            ),
+        )
     ]

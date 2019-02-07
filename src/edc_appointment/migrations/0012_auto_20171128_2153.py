@@ -5,13 +5,11 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_appointment', '0011_auto_20171128_1054'),
-    ]
+    dependencies = [("edc_appointment", "0011_auto_20171128_1054")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='appointment',
-            options={'ordering': ('timepoint', 'visit_code_sequence')},
-        ),
+            name="appointment",
+            options={"ordering": ("timepoint", "visit_code_sequence")},
+        )
     ]

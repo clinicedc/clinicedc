@@ -5,13 +5,15 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_appointment', '0014_auto_20180116_1411'),
-    ]
+    dependencies = [("edc_appointment", "0014_auto_20180116_1411")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='historicalappointment',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical appointment'},
-        ),
+            name="historicalappointment",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical appointment",
+            },
+        )
     ]

@@ -8,45 +8,41 @@ import edc_base.utils
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_appointment', '0002_auto_20161126_1156'),
-    ]
+    dependencies = [("edc_appointment", "0002_auto_20161126_1156")]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='appointment',
-            options={},
-        ),
+        migrations.AlterModelOptions(name="appointment", options={}),
         migrations.RemoveField(
-            model_name='historicalappointment',
-            name='consent_version',
+            model_name="historicalappointment", name="consent_version"
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='created',
-            field=models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False),
+            model_name="appointment",
+            name="created",
+            field=models.DateTimeField(
+                default=edc_base.utils.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='modified',
-            field=models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False),
+            model_name="appointment",
+            name="modified",
+            field=models.DateTimeField(
+                default=edc_base.utils.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalappointment',
-            name='created',
-            field=models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False),
+            model_name="historicalappointment",
+            name="created",
+            field=models.DateTimeField(
+                default=edc_base.utils.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalappointment',
-            name='modified',
-            field=models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False),
+            model_name="historicalappointment",
+            name="modified",
+            field=models.DateTimeField(
+                default=edc_base.utils.get_utcnow, editable=False
+            ),
         ),
-        migrations.AlterUniqueTogether(
-            name='appointment',
-            unique_together=set([]),
-        ),
-        migrations.RemoveField(
-            model_name='appointment',
-            name='consent_version',
-        ),
+        migrations.AlterUniqueTogether(name="appointment", unique_together=set([])),
+        migrations.RemoveField(model_name="appointment", name="consent_version"),
     ]

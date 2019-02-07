@@ -5,19 +5,31 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_appointment', '0008_auto_20171115_1601'),
-    ]
+    dependencies = [("edc_appointment", "0008_auto_20171115_1601")]
 
     operations = [
         migrations.AlterField(
-            model_name='appointment',
-            name='appt_reason',
-            field=models.CharField(choices=[('scheduled', 'Routine / Scheduled'), ('unscheduled', 'Unscheduled')], max_length=25, verbose_name='Reason for appointment'),
+            model_name="appointment",
+            name="appt_reason",
+            field=models.CharField(
+                choices=[
+                    ("scheduled", "Routine / Scheduled"),
+                    ("unscheduled", "Unscheduled"),
+                ],
+                max_length=25,
+                verbose_name="Reason for appointment",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalappointment',
-            name='appt_reason',
-            field=models.CharField(choices=[('scheduled', 'Routine / Scheduled'), ('unscheduled', 'Unscheduled')], max_length=25, verbose_name='Reason for appointment'),
+            model_name="historicalappointment",
+            name="appt_reason",
+            field=models.CharField(
+                choices=[
+                    ("scheduled", "Routine / Scheduled"),
+                    ("unscheduled", "Unscheduled"),
+                ],
+                max_length=25,
+                verbose_name="Reason for appointment",
+            ),
         ),
     ]

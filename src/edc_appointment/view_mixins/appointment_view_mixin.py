@@ -3,7 +3,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
 
 from ..constants import (
-    NEW_APPT, IN_PROGRESS_APPT, INCOMPLETE_APPT, COMPLETE_APPT, CANCELLED_APPT)
+    NEW_APPT,
+    IN_PROGRESS_APPT,
+    INCOMPLETE_APPT,
+    COMPLETE_APPT,
+    CANCELLED_APPT,
+)
 
 
 class AppointmentViewMixin(ContextMixin):
@@ -17,11 +22,15 @@ class AppointmentViewMixin(ContextMixin):
         super().__init__(**kwargs)
         self._appointments = None
         self._wrapped_appointments = None
-        self.appointment_model = django_apps.get_app_config(
-            'edc_appointment').get_configuration(
-            related_visit_model=(
-                self.appointment_model_wrapper_cls.visit_model_wrapper_cls.model)
-        ).model
+        self.appointment_model = (
+            django_apps.get_app_config("edc_appointment")
+            .get_configuration(
+                related_visit_model=(
+                    self.appointment_model_wrapper_cls.visit_model_wrapper_cls.model
+                )
+            )
+            .model
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -40,7 +49,8 @@ class AppointmentViewMixin(ContextMixin):
     def appointment(self):
         try:
             appointment = self.appointment_model_cls.objects.get(
-                id=self.kwargs.get('appointment'))
+                id=self.kwargs.get("appointment")
+            )
         except ObjectDoesNotExist:
             appointment = None
         return appointment
@@ -57,8 +67,8 @@ class AppointmentViewMixin(ContextMixin):
         """
         if not self._appointments:
             self._appointments = self.appointment_model_cls.objects.filter(
-                subject_identifier=self.subject_identifier).order_by(
-                    'timepoint', 'visit_code_sequence')
+                subject_identifier=self.subject_identifier
+            ).order_by("timepoint", "visit_code_sequence")
         return self._appointments
 
     @property
@@ -69,7 +79,8 @@ class AppointmentViewMixin(ContextMixin):
             if self.appointments:
                 wrapped = [
                     self.appointment_model_wrapper_cls(model_obj=obj)
-                    for obj in self.appointments]
+                    for obj in self.appointments
+                ]
                 for i in range(0, len(wrapped)):
                     if wrapped[i].appt_status == IN_PROGRESS_APPT:
                         wrapped[i].disabled = False

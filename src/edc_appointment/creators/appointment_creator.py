@@ -21,12 +21,22 @@ class AppointmentCreatorError(Exception):
 
 
 class AppointmentCreator:
-
-    def __init__(self, timepoint_datetime=None, timepoint=None,
-                 visit=None, visit_code_sequence=None, facility=None,
-                 appointment_model=None, taken_datetimes=None, subject_identifier=None,
-                 visit_schedule_name=None, schedule_name=None, default_appt_type=None,
-                 appt_status=None, suggested_datetime=None):
+    def __init__(
+        self,
+        timepoint_datetime=None,
+        timepoint=None,
+        visit=None,
+        visit_code_sequence=None,
+        facility=None,
+        appointment_model=None,
+        taken_datetimes=None,
+        subject_identifier=None,
+        visit_schedule_name=None,
+        schedule_name=None,
+        default_appt_type=None,
+        appt_status=None,
+        suggested_datetime=None,
+    ):
         self._appointment = None
         self._appointment_config = None
         self._appointment_model_cls = None
@@ -44,31 +54,37 @@ class AppointmentCreator:
         try:
             if is_naive(timepoint_datetime):
                 raise ValueError(
-                    f'Naive datetime not allowed. {repr(self)}. '
-                    f'Got {timepoint_datetime}')
+                    f"Naive datetime not allowed. {repr(self)}. "
+                    f"Got {timepoint_datetime}"
+                )
             else:
                 self.timepoint_datetime = timepoint_datetime
         except AttributeError:
             raise AppointmentCreatorError(
-                f'Expected \'timepoint_datetime\'. Got None. {repr(self)}.')
+                f"Expected 'timepoint_datetime'. Got None. {repr(self)}."
+            )
         # suggested_datetime (defaults to timepoint_datetime)
         # If provided, the rules for window period/rdelta relative
         # to timepoint_datetime still apply.
         if suggested_datetime and is_naive(suggested_datetime):
             raise ValueError(
-                f'Naive datetime not allowed. {repr(self)}. '
-                f'Got {suggested_datetime}')
+                f"Naive datetime not allowed. {repr(self)}. "
+                f"Got {suggested_datetime}"
+            )
         else:
             self.suggested_datetime = suggested_datetime or self.timepoint_datetime
         self.facility = facility or visit.facility
         if not self.facility:
             raise AppointmentCreatorError(
-                f'facility_name not defined. See {repr(visit)}')
+                f"facility_name not defined. See {repr(visit)}"
+            )
         self.appointment
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}(subject_identifier={self.subject_identifier}, '
-                f'visit_code={self.visit.code})')
+        return (
+            f"{self.__class__.__name__}(subject_identifier={self.subject_identifier}, "
+            f"visit_code={self.visit.code})"
+        )
 
     def __str__(self):
         return self.subject_identifier
@@ -80,7 +96,8 @@ class AppointmentCreator:
         if not self._appointment:
             try:
                 self._appointment = self.appointment_model_cls.objects.get(
-                    **self.options)
+                    **self.options
+                )
             except ObjectDoesNotExist:
                 self._appointment = self._create()
             else:
@@ -103,7 +120,8 @@ class AppointmentCreator:
             schedule_name=self.schedule_name,
             visit_code=self.visit.code,
             visit_code_sequence=self.visit_code_sequence,
-            timepoint=self.timepoint or self.visit.timepoint)
+            timepoint=self.timepoint or self.visit.timepoint,
+        )
         if self.appt_status:
             options.update(appt_status=self.appt_status)
         return options
@@ -118,12 +136,14 @@ class AppointmentCreator:
                     timepoint_datetime=self.timepoint_datetime,
                     appt_datetime=self.appt_rdate.datetime,
                     appt_type=self.default_appt_type,
-                    **self.options)
+                    **self.options,
+                )
         except IntegrityError as e:
             raise CreateAppointmentError(
-                f'An \'IntegrityError\' was raised while trying to '
-                f'create an appointment for subject \'{self.subject_identifier}\'. '
-                f'Got {e}. Appointment create options were {self.options}')
+                f"An 'IntegrityError' was raised while trying to "
+                f"create an appointment for subject '{self.subject_identifier}'. "
+                f"Got {e}. Appointment create options were {self.options}"
+            )
         return appointment
 
     def _update(self, appointment=None):
@@ -146,31 +166,36 @@ class AppointmentCreator:
                 suggested_datetime=self.suggested_datetime,
                 forward_delta=self.visit.rupper,
                 reverse_delta=self.visit.rlower,
-                taken_datetimes=self.taken_datetimes)
+                taken_datetimes=self.taken_datetimes,
+            )
         except FacilityError as e:
             raise CreateAppointmentDateError(
-                f'{e} Visit={repr(self.visit)}. '
-                f'Try setting \'best_effort_available_datetime=True\' on facility.')
+                f"{e} Visit={repr(self.visit)}. "
+                f"Try setting 'best_effort_available_datetime=True' on facility."
+            )
         return appt_rdate
 
     @property
     def appointment_config(self):
         if not self._appointment_config:
-            app_config = django_apps.get_app_config('edc_appointment')
+            app_config = django_apps.get_app_config("edc_appointment")
             try:
                 self._appointment_config = [
-                    a for a in app_config.configurations
-                    if a.name == self.appointment_model][0]
+                    a
+                    for a in app_config.configurations
+                    if a.name == self.appointment_model
+                ][0]
             except IndexError as e:
                 if len(app_config.configurations) == 1 and not self.appointment_model:
                     self._appointment_config = app_config.configurations[0]
                 else:
                     config_names = [a.name for a in app_config.configurations]
                     raise AppointmentConfigError(
-                        f'Error looking up appointment config for {self.appointment_model}. '
-                        f'Got {e}. AppoinmentConfigs exist for {config_names}. '
-                        f'See {app_config.configurations}. See also the visit schedule '
-                        f'and or settings.DEFAULT_APPOINTMENT_MODEL.')
+                        f"Error looking up appointment config for {self.appointment_model}. "
+                        f"Got {e}. AppoinmentConfigs exist for {config_names}. "
+                        f"See {app_config.configurations}. See also the visit schedule "
+                        f"and or settings.DEFAULT_APPOINTMENT_MODEL."
+                    )
         return self._appointment_config
 
     @property

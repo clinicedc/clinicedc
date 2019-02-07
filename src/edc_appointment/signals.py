@@ -1,16 +1,16 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
+from django.db.models.deletion import ProtectedError
+from edc_visit_schedule import off_schedule_or_raise, OnScheduleError
 
 
-@receiver(post_save, weak=False,
-          dispatch_uid="create_appointments_on_post_save")
-def create_appointments_on_post_save(sender, instance, raw,
-                                     created, using, **kwargs):
-    if not raw and not kwargs.get('update_fields'):
+@receiver(post_save, weak=False, dispatch_uid="create_appointments_on_post_save")
+def create_appointments_on_post_save(sender, instance, raw, created, using, **kwargs):
+    if not raw and not kwargs.get("update_fields"):
         try:
             instance.create_appointments()
         except AttributeError as e:
-            if 'create_appointments' not in str(e):
+            if "create_appointments" not in str(e):
                 raise
 
 
@@ -23,16 +23,23 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
         try:
             if not instance.time_point_status:
                 instance.time_point_status
-                instance.save(update_fields=['time_point_status'])
+                instance.save(update_fields=["time_point_status"])
         except AttributeError as e:
-            if 'time_point_status' not in str(e):
+            if "time_point_status" not in str(e):
                 raise
 
 
-@receiver(post_delete, weak=False,
-          dispatch_uid="delete_appointments_on_post_delete")
-def delete_appointments_on_post_delete(sender, instance, using, **kwargs):
-    try:
-        instance.delete_unused_appointments()
-    except AttributeError:
-        pass
+@receiver(pre_delete, weak=False, dispatch_uid="appointments_on_pre_delete")
+def appointments_on_pre_delete(sender, instance, using, **kwargs):
+    pass
+#     try:
+#         opts = dict(
+#             subject_identifier=instance.subject_identifier,
+#             report_datetime=instance.appt_datetime,
+#             visit_schedule_name=instance.visit_schedule_name,
+#             schedule_name=instance.schedule_name)
+#     except AttributeError:
+#         pass
+#     else:
+#         if instance.visit_code_sequence == 0:
+#             off_schedule_or_raise(**opts)

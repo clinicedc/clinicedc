@@ -7,100 +7,177 @@ import edc_model_fields.fields.userfield
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_appointment', '0007_auto_20170302_2220'),
-    ]
+    dependencies = [("edc_appointment", "0007_auto_20170302_2220")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='historicalappointment',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical '},
+            name="historicalappointment",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical ",
+            },
         ),
         migrations.RemoveField(
-            model_name='historicalappointment',
-            name='visit_instance',
+            model_name="historicalappointment", name="visit_instance"
         ),
         migrations.AddField(
-            model_name='appointment',
-            name='device_created',
+            model_name="appointment",
+            name="device_created",
             field=models.CharField(blank=True, max_length=10),
         ),
         migrations.AddField(
-            model_name='appointment',
-            name='device_modified',
+            model_name="appointment",
+            name="device_modified",
             field=models.CharField(blank=True, max_length=10),
         ),
         migrations.AddField(
-            model_name='historicalappointment',
-            name='device_created',
+            model_name="historicalappointment",
+            name="device_created",
             field=models.CharField(blank=True, max_length=10),
         ),
         migrations.AddField(
-            model_name='historicalappointment',
-            name='device_modified',
+            model_name="historicalappointment",
+            name="device_modified",
             field=models.CharField(blank=True, max_length=10),
         ),
         migrations.AddField(
-            model_name='historicalappointment',
-            name='history_change_reason',
+            model_name="historicalappointment",
+            name="history_change_reason",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='appt_reason',
-            field=models.CharField(blank=True, choices=[('scheduled', 'Routine / Scheduled'), ('unscheduled', 'Unscheduled')], help_text='Reason for appointment', max_length=25, verbose_name='Reason for appointment'),
+            model_name="appointment",
+            name="appt_reason",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("scheduled", "Routine / Scheduled"),
+                    ("unscheduled", "Unscheduled"),
+                ],
+                help_text="Reason for appointment",
+                max_length=25,
+                verbose_name="Reason for appointment",
+            ),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='appt_type',
-            field=models.CharField(choices=[('clinic', 'In clinic'), ('home', 'At home'), ('hospital', 'In hospital'), ('telephone', 'By telephone')], default='clinic', help_text='Default for subject may be edited Subject Configuration.', max_length=20, verbose_name='Appointment type'),
+            model_name="appointment",
+            name="appt_type",
+            field=models.CharField(
+                choices=[
+                    ("clinic", "In clinic"),
+                    ("home", "At home"),
+                    ("hospital", "In hospital"),
+                    ("telephone", "By telephone"),
+                ],
+                default="clinic",
+                help_text="Default for subject may be edited Subject Configuration.",
+                max_length=20,
+                verbose_name="Appointment type",
+            ),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='hostname_created',
-            field=models.CharField(blank=True, default=_socket.gethostname, help_text='System field. (modified on create only)', max_length=60),
+            model_name="appointment",
+            name="hostname_created",
+            field=models.CharField(
+                blank=True,
+                default=_socket.gethostname,
+                help_text="System field. (modified on create only)",
+                max_length=60,
+            ),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='user_created',
-            field=edc_model_fields.fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user created'),
+            model_name="appointment",
+            name="user_created",
+            field=edc_model_fields.fields.userfield.UserField(
+                blank=True,
+                help_text="Updated by admin.save_model",
+                max_length=50,
+                verbose_name="user created",
+            ),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='user_modified',
-            field=edc_model_fields.fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user modified'),
+            model_name="appointment",
+            name="user_modified",
+            field=edc_model_fields.fields.userfield.UserField(
+                blank=True,
+                help_text="Updated by admin.save_model",
+                max_length=50,
+                verbose_name="user modified",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalappointment',
-            name='appt_reason',
-            field=models.CharField(blank=True, choices=[('scheduled', 'Routine / Scheduled'), ('unscheduled', 'Unscheduled')], help_text='Reason for appointment', max_length=25, verbose_name='Reason for appointment'),
+            model_name="historicalappointment",
+            name="appt_reason",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("scheduled", "Routine / Scheduled"),
+                    ("unscheduled", "Unscheduled"),
+                ],
+                help_text="Reason for appointment",
+                max_length=25,
+                verbose_name="Reason for appointment",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalappointment',
-            name='appt_type',
-            field=models.CharField(choices=[('clinic', 'In clinic'), ('home', 'At home'), ('hospital', 'In hospital'), ('telephone', 'By telephone')], default='clinic', help_text='Default for subject may be edited Subject Configuration.', max_length=20, verbose_name='Appointment type'),
+            model_name="historicalappointment",
+            name="appt_type",
+            field=models.CharField(
+                choices=[
+                    ("clinic", "In clinic"),
+                    ("home", "At home"),
+                    ("hospital", "In hospital"),
+                    ("telephone", "By telephone"),
+                ],
+                default="clinic",
+                help_text="Default for subject may be edited Subject Configuration.",
+                max_length=20,
+                verbose_name="Appointment type",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalappointment',
-            name='hostname_created',
-            field=models.CharField(blank=True, default=_socket.gethostname, help_text='System field. (modified on create only)', max_length=60),
+            model_name="historicalappointment",
+            name="hostname_created",
+            field=models.CharField(
+                blank=True,
+                default=_socket.gethostname,
+                help_text="System field. (modified on create only)",
+                max_length=60,
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalappointment',
-            name='user_created',
-            field=edc_model_fields.fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user created'),
+            model_name="historicalappointment",
+            name="user_created",
+            field=edc_model_fields.fields.userfield.UserField(
+                blank=True,
+                help_text="Updated by admin.save_model",
+                max_length=50,
+                verbose_name="user created",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalappointment',
-            name='user_modified',
-            field=edc_model_fields.fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user modified'),
+            model_name="historicalappointment",
+            name="user_modified",
+            field=edc_model_fields.fields.userfield.UserField(
+                blank=True,
+                help_text="Updated by admin.save_model",
+                max_length=50,
+                verbose_name="user modified",
+            ),
         ),
-        migrations.RemoveField(
-            model_name='appointment',
-            name='visit_instance',
-        ),
+        migrations.RemoveField(model_name="appointment", name="visit_instance"),
         migrations.AlterUniqueTogether(
-            name='appointment',
-            unique_together={('subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'timepoint', 'visit_code_sequence')},
+            name="appointment",
+            unique_together={
+                (
+                    "subject_identifier",
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "timepoint",
+                    "visit_code_sequence",
+                )
+            },
         ),
     ]

@@ -7,7 +7,6 @@ from .models import SubjectConsent
 
 
 class Helper:
-
     def __init__(self, subject_identifier=None, now=None):
         self.subject_identifier = subject_identifier
         self.now = now or get_utcnow()
@@ -15,14 +14,14 @@ class Helper:
     def consent_and_put_on_schedule(self, subject_identifier=None):
         subject_identifier = subject_identifier or self.subject_identifier
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier=subject_identifier,
-            consent_datetime=self.now)
-        visit_schedule = site_visit_schedules.get_visit_schedule(
-            'visit_schedule1')
-        schedule = visit_schedule.schedules.get('schedule1')
+            subject_identifier=subject_identifier, consent_datetime=self.now
+        )
+        visit_schedule = site_visit_schedules.get_visit_schedule("visit_schedule1")
+        schedule = visit_schedule.schedules.get("schedule1")
         schedule.put_on_schedule(
             subject_identifier=subject_consent.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime)
+            onschedule_datetime=subject_consent.consent_datetime,
+        )
         return subject_consent
 
     def add_unscheduled_appointment(self, appointment=None):
@@ -32,5 +31,6 @@ class Helper:
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
             facility=appointment.facility,
-            timepoint=appointment.timepoint + Decimal('0.1'))
+            timepoint=appointment.timepoint + Decimal("0.1"),
+        )
         return creator.appointment

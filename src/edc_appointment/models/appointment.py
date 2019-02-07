@@ -15,12 +15,15 @@ class Appointment(AppointmentModelMixin, SiteModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     def natural_key(self):
-        return (self.subject_identifier,
-                self.visit_schedule_name,
-                self.schedule_name,
-                self.visit_code,
-                self.visit_code_sequence)
-    natural_key.dependencies = ['sites.Site']
+        return (
+            self.subject_identifier,
+            self.visit_schedule_name,
+            self.schedule_name,
+            self.visit_code,
+            self.visit_code_sequence,
+        )
+
+    natural_key.dependencies = ["sites.Site"]
 
     class Meta(AppointmentModelMixin.Meta):
         pass
