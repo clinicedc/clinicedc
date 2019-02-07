@@ -19,7 +19,6 @@ class OffstudyModelMixinError(ValidationError):
 
 
 class OffstudyModelManager(models.Manager):
-
     def get_by_natural_key(self, subject_identifier):
         return self.get(subject_identifier=subject_identifier)
 
@@ -41,31 +40,30 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     offstudy_datetime = models.DateTimeField(
         verbose_name="Off-study date and time",
-        validators=[
-            datetime_not_before_study_start,
-            datetime_not_future],
-        default=get_utcnow)
+        validators=[datetime_not_before_study_start, datetime_not_future],
+        default=get_utcnow,
+    )
 
     offstudy_reason = models.CharField(
         verbose_name="Please code the primary reason participant taken off-study",
         choices=offstudy_reason_choices,
-        max_length=125)
+        max_length=125,
+    )
 
     offstudy_reason_other = OtherCharField()
 
     def __str__(self):
-        formatted_date = timezone.localtime(
-            self.offstudy_datetime).strftime(EDC_DATETIME_FORMAT)
-        return f'{self.subject_identifier} {formatted_date}'
+        formatted_date = timezone.localtime(self.offstudy_datetime).strftime(
+            EDC_DATETIME_FORMAT
+        )
+        return f"{self.subject_identifier} {formatted_date}"
 
     def save(self, *args, **kwargs):
-        self.offstudy_cls(
-            offstudy_model=self._meta.label_lower,
-            **self.__dict__)
+        self.offstudy_cls(offstudy_model=self._meta.label_lower, **self.__dict__)
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.subject_identifier, )
+        return (self.subject_identifier,)
 
     @property
     def report_datetime(self):

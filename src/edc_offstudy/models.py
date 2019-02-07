@@ -18,5 +18,5 @@ class SubjectOffstudy(OffstudyModelMixin, SiteModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
 
-if 'edc_offstudy' in settings.APP_NAME and 'makemigrations' not in sys.argv:
+if "edc_offstudy" in settings.APP_NAME and "makemigrations" not in sys.argv:
     from .tests import models

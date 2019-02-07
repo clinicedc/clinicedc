@@ -30,15 +30,17 @@ class OffstudyCrfModelMixin(models.Model):
         try:
             offstudy_model = self.visit.visit_schedule.offstudy_model
         except AttributeError as e:
-            if 'visit' in str(e):
+            if "visit" in str(e):
                 raise OffstudyCrfModelMixinError(
-                    f'Model requires property \'visit\'. See {repr(self)}, Got {e}.')
+                    f"Model requires property 'visit'. See {repr(self)}, Got {e}."
+                )
             raise
         self.offstudy_cls(
             subject_identifier=self.visit.subject_identifier,
             offstudy_model=offstudy_model,
             compare_as_datetimes=self.offstudy_compare_dates_as_datetimes,
-            **self.__dict__)
+            **self.__dict__,
+        )
         super().save(*args, **kwargs)
 
     class Meta:

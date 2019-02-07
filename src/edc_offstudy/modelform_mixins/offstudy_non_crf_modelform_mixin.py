@@ -17,5 +17,5 @@ class OffstudyNonCrfModelFormMixin(forms.ModelForm):
         try:
             self.offstudy_cls(offstudy_model=offstudy_model, **cleaned_data)
         except SubjectOffstudyError as e:
-            raise forms.ValidationError({'report_datetime': e})
+            raise forms.ValidationError({"report_datetime": e})
         return cleaned_data

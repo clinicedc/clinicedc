@@ -12,13 +12,14 @@ class OffstudyCrfModelFormMixin(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        subject_visit = cleaned_data.get('subject_visit')
+        subject_visit = cleaned_data.get("subject_visit")
         offstudy_model = subject_visit.visit_schedule.offstudy_model
         try:
             self.offstudy_cls(
                 subject_identifier=subject_visit.subject_identifier,
                 offstudy_model=offstudy_model,
-                **cleaned_data)
+                **cleaned_data
+            )
         except SubjectOffstudyError as e:
-            raise forms.ValidationError({'report_datetime': e})
+            raise forms.ValidationError({"report_datetime": e})
         return cleaned_data

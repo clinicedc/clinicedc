@@ -6,7 +6,11 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_tracking.model_mixins import CrfModelMixin
 from edc_appointment.tests.models import SubjectVisit
 
-from ..model_mixins import OffstudyModelMixin, OffstudyCrfModelMixin, OffstudyNonCrfModelMixin
+from ..model_mixins import (
+    OffstudyModelMixin,
+    OffstudyCrfModelMixin,
+    OffstudyNonCrfModelMixin,
+)
 
 
 class CrfOne(OffstudyCrfModelMixin, CrfModelMixin, BaseUuidModel):
@@ -22,17 +26,19 @@ class CrfOne(OffstudyCrfModelMixin, CrfModelMixin, BaseUuidModel):
     f3 = models.CharField(max_length=50, null=True, blank=True)
 
 
-class NonCrfOne(NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin,
-                BaseUuidModel):
+class NonCrfOne(
+    NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel
+):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
     class Meta(OffstudyNonCrfModelMixin.Meta):
-        offstudy_model = 'edc_offstudy.subjectoffstudy'
+        offstudy_model = "edc_offstudy.subjectoffstudy"
 
 
-class BadNonCrfOne(NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin,
-                   BaseUuidModel):
+class BadNonCrfOne(
+    NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel
+):
     """Missing _meta.offstudy_model.
     """
 

@@ -5,12 +5,12 @@ from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
 
 from ..offstudy_non_crf import OffstudyNonCrf
 
-if 'offstudy_model' not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('offstudy_model',)
+if "offstudy_model" not in options.DEFAULT_NAMES:
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("offstudy_model",)
 
 
-MISSING_META_OFFSTUDY_MODEL = 'missing_meta_offstudy_model'
-META_OFFSTUDY_MODEL = 'meta_offstudy_model'
+MISSING_META_OFFSTUDY_MODEL = "missing_meta_offstudy_model"
+META_OFFSTUDY_MODEL = "meta_offstudy_model"
 
 
 class OffstudyNonCrfModelMixinError(ValidationError):
@@ -38,16 +38,19 @@ class OffstudyNonCrfModelMixin(VisitScheduleMethodsModelMixin, models.Model):
             offstudy_model = self._meta.offstudy_model
         except AttributeError as e:
             raise OffstudyNonCrfModelMixinError(
-                f'Missing Meta class option. See {repr(self)}. Got {e}.',
-                code=MISSING_META_OFFSTUDY_MODEL)
+                f"Missing Meta class option. See {repr(self)}. Got {e}.",
+                code=MISSING_META_OFFSTUDY_MODEL,
+            )
         if not offstudy_model:
             raise OffstudyNonCrfModelMixinError(
-                f'meta.offstudy_model not defined. See {repr(self)}.',
-                code=META_OFFSTUDY_MODEL)
+                f"meta.offstudy_model not defined. See {repr(self)}.",
+                code=META_OFFSTUDY_MODEL,
+            )
         self.offstudy_cls(
             offstudy_model=offstudy_model,
             compare_as_datetimes=self.offstudy_compare_dates_as_datetimes,
-            **self.__dict__)
+            **self.__dict__,
+        )
         super().save(*args, **kwargs)
 
     @property

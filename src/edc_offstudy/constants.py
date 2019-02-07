@@ -1,2 +1,1 @@
-
-CONSENT_WITHDRAWAL = 'consent_withdrawal'
+CONSENT_WITHDRAWAL = "consent_withdrawal"

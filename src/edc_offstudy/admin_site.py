@@ -9,4 +9,4 @@ class AdminSite(DjangoAdminSite):
 
 
 edc_offstudy_admin = AdminSite(name="edc_notification_admin")
-edc_offstudy_admin.disable_action('delete_selected')
+edc_offstudy_admin.disable_action("delete_selected")
