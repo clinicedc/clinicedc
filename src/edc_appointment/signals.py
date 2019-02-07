@@ -35,7 +35,8 @@ def appointments_on_pre_delete(sender, instance, using, **kwargs):
             subject_identifier=instance.subject_identifier,
             report_datetime=instance.appt_datetime,
             visit_schedule_name=instance.visit_schedule_name,
-            schedule_name=instance.schedule_name)
+            schedule_name=instance.schedule_name,
+        )
     except AttributeError:
         pass
     else:

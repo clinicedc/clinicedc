@@ -39,10 +39,8 @@ class AppointmentAdmin(
     admin.ModelAdmin,
 ):
 
-    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get(
-        "subject_dashboard_url")
-    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get(
-        "subject_dashboard_url")
+    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
+    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
 
     form = AppointmentForm
     date_hierarchy = "appt_datetime"
@@ -142,13 +140,14 @@ class AppointmentAdmin(
                     subject_identifier=obj.subject_identifier,
                     report_datetime=obj.appt_datetime,
                     visit_schedule_name=obj.visit_schedule_name,
-                    schedule_name=obj.schedule_name)
+                    schedule_name=obj.schedule_name,
+                )
             except AttributeError:
                 pass
             else:
-                if (obj.visit_code_sequence == 0
-                        or (obj.visit_code_sequence != 0
-                            and obj.appt_status != NEW_APPT)):
+                if obj.visit_code_sequence == 0 or (
+                    obj.visit_code_sequence != 0 and obj.appt_status != NEW_APPT
+                ):
                     try:
                         off_schedule_or_raise(**opts)
                     except OnScheduleError:

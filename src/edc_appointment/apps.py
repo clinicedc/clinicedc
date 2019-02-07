@@ -48,8 +48,7 @@ class AppConfig(DjangoAppConfig):
                 c for c in self.configurations if getattr(c, attr) == value
             ][0]
         except IndexError:
-            keys = [(c.name, c.related_visit_model)
-                    for c in self.configurations]
+            keys = [(c.name, c.related_visit_model) for c in self.configurations]
             raise EdcAppointmentAppConfigError(
                 f"AppointmentConfig not found. Got {name or related_visit_model}. "
                 f'Expected one of {keys}. See edc_appointment.AppConfig "configurations".'
