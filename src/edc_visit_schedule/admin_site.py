@@ -9,3 +9,4 @@ class AdminSite(DjangoAdminSite):
 
 
 edc_visit_schedule_admin = AdminSite(name="edc_visit_schedule_admin")
+edc_visit_schedule_admin.disable_action("delete_selected")

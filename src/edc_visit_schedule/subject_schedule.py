@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
 from edc_appointment.creators import AppointmentsCreator
-from edc_base.utils import get_utcnow, convert_php_dateformat
+from edc_base import get_utcnow, convert_php_dateformat, formatted_datetime
 
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
 
@@ -138,9 +138,11 @@ class SubjectSchedule:
     ):
         """Takes a subject off-schedule.
 
-        A person is taken off-schedule by creating an instance
-        of the offschedule_model, if it does not already exist,
-        and updating the history_obj.
+        A person is taken off-schedule by:
+        * creating an instance of the offschedule_model,
+          if it does not already exist,
+        * updating the history_obj
+        * deleting future appointments
         """
         # create offschedule_model_obj if it does not exist
         if not offschedule_model_obj:
@@ -174,7 +176,7 @@ class SubjectSchedule:
             )
 
         if history_obj:
-            self._update_history_or_raise(
+            self.update_history_or_raise(
                 history_obj=history_obj,
                 subject_identifier=subject_identifier,
                 offschedule_datetime=offschedule_datetime,
@@ -184,20 +186,25 @@ class SubjectSchedule:
 
             # clear future appointments
             self.appointment_model_cls.objects.delete_for_subject_after_date(
-                subject_identifier,
-                offschedule_datetime,
+                subject_identifier=subject_identifier,
+                cutoff_datetime=offschedule_datetime,
                 visit_schedule_name=self.visit_schedule_name,
                 schedule_name=self.schedule_name,
             )
 
-    def _update_history_or_raise(
-        self, history_obj=None, subject_identifier=None, offschedule_datetime=None
+    def update_history_or_raise(
+        self,
+        history_obj=None,
+        subject_identifier=None,
+        offschedule_datetime=None,
+        update=None,
     ):
         """Updates the history model instance.
 
         Raises an error if the offschedule_datetime is before the
         onschedule_datetime or before the last visit.
         """
+        update = True if update is None else update
         try:
             self.history_model_cls.objects.get(
                 subject_identifier=subject_identifier,
@@ -239,12 +246,13 @@ class SubjectSchedule:
             raise InvalidOffscheduleDate(
                 f"Failed to take subject off schedule. "
                 f"Visits exist after proposed offschedule date. "
-                f"Got '{offschedule_datetime}'."
+                f"Got '{formatted_datetime(offschedule_datetime)}'."
             )
-        # update history object
-        history_obj.offschedule_datetime = offschedule_datetime
-        history_obj.schedule_status = OFF_SCHEDULE
-        history_obj.save()
+        if update:
+            # update history object
+            history_obj.offschedule_datetime = offschedule_datetime
+            history_obj.schedule_status = OFF_SCHEDULE
+            history_obj.save()
 
     def _update_in_progress_appointment(self, subject_identifier=None):
         """Updates the "in_progress" appointment and clears
