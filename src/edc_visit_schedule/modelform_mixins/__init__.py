@@ -1,1 +1,1 @@
-from .subject_schedule_modelform_mixin import SubjectScheduleModelFormMixin
+from .off_schedule_modelform_mixin import OffScheduleModelFormMixin

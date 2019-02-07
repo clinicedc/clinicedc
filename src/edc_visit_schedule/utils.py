@@ -1,6 +1,11 @@
 from django.apps import apps as django_apps
+from edc_base.utils import formatted_datetime
 
 from .site_visit_schedules import site_visit_schedules
+
+
+class OnScheduleError(Exception):
+    pass
 
 
 def get_offschedule_models(
@@ -28,3 +33,29 @@ def get_offschedule_models(
         )
         offschedule_models.append(schedule.offschedule_model)
     return offschedule_models
+
+
+def off_schedule_or_raise(
+    subject_identifier=None,
+    report_datetime=None,
+    visit_schedule_name=None,
+    schedule_name=None,
+):
+    """Returns True if subject is on the given schedule
+    on this date.
+
+    Will raise and exception if raise_exception=True.
+    """
+    visit_schedule = site_visit_schedules.get_visit_schedule(
+        visit_schedule_name=visit_schedule_name
+    )
+    schedule = visit_schedule.schedules.get(schedule_name)
+    if schedule.is_onschedule(
+        subject_identifier=subject_identifier, report_datetime=report_datetime
+    ):
+        raise OnScheduleError(
+            f"Not allowed. Subject {subject_identifier} is on schedule "
+            f"{visit_schedule.verbose_name}.{schedule_name} on "
+            f"{formatted_datetime(report_datetime)}. "
+            f"See model '{schedule.offschedule_model_cls().verbose_name}'"
+        )
