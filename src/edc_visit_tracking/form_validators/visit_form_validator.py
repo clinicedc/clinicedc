@@ -75,8 +75,7 @@ class VisitFormValidator(FormValidator):
                 field_required="reason_unscheduled_other",
             )
 
-        self.required_if(OTHER, field="info_source",
-                         field_required="info_source_other")
+        self.required_if(OTHER, field="info_source", field_required="info_source_other")
 
     def metadata_exists_for(self, entry_status=None):
         """Returns True if metadata exists for this visit for

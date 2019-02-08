@@ -9,3 +9,4 @@ class EdcVisitTrackingAdminSite(AdminSite):
 
 
 edc_visit_tracking_admin = EdcVisitTrackingAdminSite(name="edc_visit_tracking_admin")
+edc_visit_tracking_admin.disable_action("delete_selected")
