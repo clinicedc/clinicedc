@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "edc_device.apps.AppConfig",
     "edc_identifier.apps.AppConfig",
     "edc_timepoint.apps.AppConfig",
+    "edc_offstudy.apps.AppConfig",
     "edc_protocol.apps.AppConfig",
     "edc_metadata.apps.AppConfig",
     "edc_visit_tracking.apps.AppConfig",
