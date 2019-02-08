@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.db import models
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_offstudy.model_mixins import OffstudyVisitModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from uuid import UUID
@@ -16,6 +17,7 @@ class AppointmentModelMixin(
     AppointmentMethodsModelMixin,
     TimepointModelMixin,
     VisitScheduleModelMixin,
+    OffstudyVisitModelMixin,
 ):
 
     """Mixin for the appointment model only.

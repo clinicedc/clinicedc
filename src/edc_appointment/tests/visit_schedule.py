@@ -31,12 +31,18 @@ crfs = FormsCollection(
 )
 
 requisitions = FormsCollection(
-    Requisition(show_order=10, panel=panel_one, required=True, additional=False),
-    Requisition(show_order=20, panel=panel_two, required=True, additional=False),
-    Requisition(show_order=30, panel=panel_three, required=True, additional=False),
-    Requisition(show_order=40, panel=panel_four, required=True, additional=False),
-    Requisition(show_order=50, panel=panel_five, required=True, additional=False),
-    Requisition(show_order=60, panel=panel_six, required=True, additional=False),
+    Requisition(show_order=10, panel=panel_one,
+                required=True, additional=False),
+    Requisition(show_order=20, panel=panel_two,
+                required=True, additional=False),
+    Requisition(show_order=30, panel=panel_three,
+                required=True, additional=False),
+    Requisition(show_order=40, panel=panel_four,
+                required=True, additional=False),
+    Requisition(show_order=50, panel=panel_five,
+                required=True, additional=False),
+    Requisition(show_order=60, panel=panel_six,
+                required=True, additional=False),
 )
 
 
@@ -49,14 +55,14 @@ crfs_unscheduled = FormsCollection(
 
 visit_schedule1 = VisitSchedule(
     name="visit_schedule1",
-    offstudy_model="edc_offstudy.subjectoffstudy",
+    offstudy_model="edc_appointment.subjectoffstudy",
     death_report_model="edc_appointment.deathreport",
     locator_model="edc_appointment.subjectlocator",
 )
 
 visit_schedule2 = VisitSchedule(
     name="visit_schedule2",
-    offstudy_model="edc_offstudy.subjectoffstudy2",
+    offstudy_model="edc_appointment.subjectoffstudy2",
     death_report_model="edc_appointment.deathreport",
     locator_model="edc_appointment.subjectlocator",
 )

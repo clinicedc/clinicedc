@@ -13,6 +13,7 @@ from edc_visit_schedule import VisitSchedule, Schedule, Visit
 
 from ..creators import AppointmentCreator
 from ..models import Appointment
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class TestAppointmentCreator(TestCase):
@@ -27,7 +28,7 @@ class TestAppointmentCreator(TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="edc_appointment.subjectoffstudy",
+            offstudy_model="edc_offstudy.subjectoffstudy",
             death_report_model="edc_appointment.deathreport",
         )
 
@@ -56,6 +57,12 @@ class TestAppointmentCreator(TestCase):
             rupper=relativedelta(days=6),
             facility_name="7-day-clinic",
         )
+        self.schedule.add_visit(self.visit1000)
+        self.visit_schedule.add_schedule(self.schedule)
+
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule=self.visit_schedule)
+
         app_config = django_apps.get_app_config("edc_facility")
 
         class Meta:
@@ -133,7 +140,8 @@ class TestAppointmentCreator(TestCase):
             timepoint_datetime=appt_datetime,
         )
         self.assertEqual(Appointment.objects.all()[0], creator.appointment)
-        self.assertEqual(Appointment.objects.all()[0].appt_datetime, appt_datetime)
+        self.assertEqual(Appointment.objects.all()[
+                         0].appt_datetime, appt_datetime)
 
     def test_create_forward(self):
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
