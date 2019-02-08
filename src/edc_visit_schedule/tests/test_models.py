@@ -1,6 +1,9 @@
+import arrow
 import pytz
 
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_base import get_utcnow
@@ -11,7 +14,10 @@ from ..constants import OFF_SCHEDULE, ON_SCHEDULE
 from ..models import SubjectScheduleHistory
 from ..site_visit_schedules import site_visit_schedules, RegistryNotLoaded
 from .models import OnSchedule, OffSchedule, SubjectVisit, CrfOne
-from .visit_schedule import visit_schedule
+from .models import OnScheduleFive, OnScheduleSeven, OffScheduleFive
+from .models import OnScheduleSix, OffScheduleSix, OffScheduleSeven, BadOffSchedule1
+from .visit_schedule import visit_schedule, visit_schedule5, visit_schedule6
+from .visit_schedule import visit_schedule7
 
 
 class TestModels(SiteTestCaseMixin, TestCase):
@@ -26,7 +32,8 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.assertIn("1234", str(obj))
         self.assertEqual(obj.natural_key(), ("1234",))
         self.assertEqual(
-            obj, OnSchedule.objects.get_by_natural_key(subject_identifier="1234")
+            obj, OnSchedule.objects.get_by_natural_key(
+                subject_identifier="1234")
         )
 
     def test_str_offschedule(self):
@@ -35,8 +42,81 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.assertIn("1234", str(obj))
         self.assertEqual(obj.natural_key(), ("1234",))
         self.assertEqual(
-            obj, OffSchedule.objects.get_by_natural_key(subject_identifier="1234")
+            obj, OffSchedule.objects.get_by_natural_key(
+                subject_identifier="1234")
         )
+
+    @tag('1')
+    def test_offschedule_custom_field_datetime(self):
+        site_visit_schedules.loaded = False
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule5)
+
+        OnScheduleFive.objects.create(
+            subject_identifier="1234",
+            onschedule_datetime=get_utcnow() - relativedelta(years=2))
+
+        offschedule_datetime = get_utcnow() - relativedelta(years=1)
+        obj = OffScheduleFive.objects.create(
+            subject_identifier="1234",
+            my_offschedule_datetime=offschedule_datetime)
+        self.assertEqual(
+            obj.my_offschedule_datetime, offschedule_datetime)
+        self.assertEqual(
+            obj.offschedule_datetime, offschedule_datetime)
+
+    @tag('1')
+    def test_offschedule_custom_field_date(self):
+        site_visit_schedules.loaded = False
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule6)
+
+        OnScheduleSix.objects.create(
+            subject_identifier="1234",
+            onschedule_datetime=get_utcnow() - relativedelta(years=2))
+
+        offschedule_datetime = arrow.Arrow.fromdate(
+            (get_utcnow() - relativedelta(years=1)).date())
+        obj = OffScheduleSix.objects.create(
+            subject_identifier="1234",
+            my_offschedule_date=offschedule_datetime.date())
+        self.assertEqual(
+            obj.my_offschedule_date, offschedule_datetime.date())
+        self.assertEqual(
+            obj.offschedule_datetime, offschedule_datetime)
+
+    @tag('1')
+    def test_bad_offschedule1(self):
+        site_visit_schedules.loaded = False
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule6)
+
+        OnScheduleSix.objects.create(
+            subject_identifier="1234",
+            onschedule_datetime=get_utcnow() - relativedelta(years=2))
+
+        self.assertRaises(
+            ImproperlyConfigured,
+            BadOffSchedule1.objects.create,
+            subject_identifier="1234",
+            my_offschedule_date=get_utcnow())
+
+    @tag('1')
+    def test_offschedule_no_meta_defaults_offschedule_field(self):
+        site_visit_schedules.loaded = False
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule7)
+
+        OnScheduleSeven.objects.create(
+            subject_identifier="1234",
+            onschedule_datetime=get_utcnow() - relativedelta(years=2))
+
+        offschedule_datetime = get_utcnow()
+        obj = OffScheduleSeven.objects.create(
+            subject_identifier="1234",
+            offschedule_datetime=offschedule_datetime)
+
+        self.assertEqual(obj.offschedule_datetime, offschedule_datetime)
 
     def test_onschedule(self):
         """Asserts cannot access without site_visit_schedule loaded.
@@ -59,12 +139,14 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier="1234",
             onschedule_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc),
         )
-        history_obj = SubjectScheduleHistory.objects.get(subject_identifier="1234")
+        history_obj = SubjectScheduleHistory.objects.get(
+            subject_identifier="1234")
         self.assertEqual(history_obj.schedule_status, ON_SCHEDULE)
         OffSchedule.objects.create(
             subject_identifier="1234", offschedule_datetime=get_utcnow()
         )
-        history_obj = SubjectScheduleHistory.objects.get(subject_identifier="1234")
+        history_obj = SubjectScheduleHistory.objects.get(
+            subject_identifier="1234")
         self.assertEqual(history_obj.schedule_status, OFF_SCHEDULE)
 
     def test_history(self):
@@ -119,7 +201,8 @@ class TestModels(SiteTestCaseMixin, TestCase):
             onschedule_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc),
         )
 
-        history = SubjectScheduleHistory.objects.onschedules(subject_identifier="1234")
+        history = SubjectScheduleHistory.objects.onschedules(
+            subject_identifier="1234")
         self.assertEqual([onschedule], [obj for obj in history])
 
         onschedules = SubjectScheduleHistory.objects.onschedules(

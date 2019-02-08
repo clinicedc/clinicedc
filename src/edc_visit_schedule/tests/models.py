@@ -46,6 +46,21 @@ class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
     objects = OffstudyModelManager()
 
 
+class SubjectOffstudyFive(OffstudyModelMixin, BaseUuidModel):
+
+    objects = OffstudyModelManager()
+
+
+class SubjectOffstudySix(OffstudyModelMixin, BaseUuidModel):
+
+    objects = OffstudyModelManager()
+
+
+class SubjectOffstudySeven(OffstudyModelMixin, BaseUuidModel):
+
+    objects = OffstudyModelManager()
+
+
 class DeathReport(BaseUuidModel):
 
     subject_identifier = models.CharField(max_length=25, null=True)
@@ -62,8 +77,8 @@ class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
 
 
 class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
-
-    pass
+    class Meta(OffScheduleModelMixin.Meta):
+        pass
 
 
 class OnScheduleThree(OnScheduleModelMixin, BaseUuidModel):
@@ -72,8 +87,8 @@ class OnScheduleThree(OnScheduleModelMixin, BaseUuidModel):
 
 
 class OffScheduleThree(OffScheduleModelMixin, BaseUuidModel):
-
-    pass
+    class Meta(OffScheduleModelMixin.Meta):
+        pass
 
 
 # visit_schedule_two
@@ -97,6 +112,55 @@ class OnScheduleFour(OnScheduleModelMixin, BaseUuidModel):
 class OffScheduleFour(OffScheduleModelMixin, BaseUuidModel):
 
     pass
+
+
+class OnScheduleFive(OnScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
+class OffScheduleFive(OffScheduleModelMixin, BaseUuidModel):
+
+    my_offschedule_datetime = models.DateTimeField()
+
+    class Meta(OffScheduleModelMixin.Meta):
+        offschedule_datetime_field = "my_offschedule_datetime"
+
+
+class OnScheduleSix(OnScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
+class OffScheduleSix(OffScheduleModelMixin, BaseUuidModel):
+
+    my_offschedule_date = models.DateField()
+
+    class Meta(OffScheduleModelMixin.Meta):
+        offschedule_datetime_field = "my_offschedule_date"
+
+
+class BadOffSchedule1(OffScheduleModelMixin, BaseUuidModel):
+    """Meta.OffScheduleModelMixin.offschedule_datetime_field
+    is None"""
+
+    my_offschedule_date = models.DateField()
+
+    class Meta(OffScheduleModelMixin.Meta):
+        offschedule_datetime_field = None
+
+
+class OnScheduleSeven(OnScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
+class OffScheduleSeven(OffScheduleModelMixin, BaseUuidModel):
+    """Is Missing Meta.OffScheduleModelMixin
+    """
+
+    class Meta:
+        pass
 
 
 class CrfOne(SubjectScheduleCrfModelMixin, CrfModelMixin, BaseUuidModel):
