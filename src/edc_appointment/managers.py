@@ -1,6 +1,6 @@
-from django.db import models
+from django.db import models, transaction
 from django.db.models.deletion import ProtectedError
-from edc_visit_schedule import site_visit_schedules
+from edc_visit_schedule import site_visit_schedules, OnScheduleError
 
 
 class AppointmentManagerError(Exception):
@@ -238,8 +238,9 @@ class AppointmentManager(models.Manager):
         )
         for appointment in appointments.reverse():
             try:
-                appointment.delete()
-                deleted += 1
+                with transaction.atomic():
+                    appointment.delete()
+                    deleted += 1
             except ProtectedError:
                 break
         return deleted
