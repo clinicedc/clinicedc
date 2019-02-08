@@ -37,6 +37,11 @@ class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
     pass
 
 
+class OffScheduleOne(OffScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
 class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
     class Meta(OffstudyModelMixin.Meta):
         pass
