@@ -4,7 +4,7 @@ from edc_base.model_mixins import BaseUuidModel
 from edc_base import get_utcnow
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_tracking.model_mixins import CrfModelMixin
-from edc_appointment.tests.models import SubjectVisit
+from edc_appointment.tests.models import SubjectVisit, SubjectOffstudy
 
 from ..model_mixins import (
     OffstudyModelMixin,
@@ -30,16 +30,20 @@ class NonCrfOne(
     NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel
 ):
 
-    offstudy_model = "edc_offstudy.subjectoffstudy"
     report_datetime = models.DateTimeField(default=get_utcnow)
+
+    class Meta(OffstudyNonCrfModelMixin.Meta):
+        offstudy_model_cls = SubjectOffstudy
 
 
 class BadNonCrfOne(
     NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel
 ):
 
-    offstudy_model = None
     report_datetime = models.DateTimeField(default=get_utcnow)
+
+    class Meta(OffstudyNonCrfModelMixin.Meta):
+        pass
 
 
 class SubjectOffstudy2(OffstudyModelMixin, BaseUuidModel):
