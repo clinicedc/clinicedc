@@ -1,10 +1,17 @@
 from django.db import models
+from django.db.models import options
 from edc_base import get_utcnow
 from edc_base.model_validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 
 from ..site_visit_schedules import site_visit_schedules
 from .schedule_model_mixin import ScheduleModelMixin
+from django.core.exceptions import ImproperlyConfigured
+import arrow
+
+if "offschedule_datetime_field" not in options.DEFAULT_NAMES:
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + \
+        ("offschedule_datetime_field",)
 
 
 class OffScheduleModelMixin(ScheduleModelMixin):
@@ -18,6 +25,25 @@ class OffScheduleModelMixin(ScheduleModelMixin):
     )
 
     def save(self, *args, **kwargs):
+        try:
+            self._meta.offschedule_datetime_field
+        except AttributeError:
+            offschedule_datetime_field = "offschedule_datetime"
+        else:
+            offschedule_datetime_field = self._meta.offschedule_datetime_field
+        if not offschedule_datetime_field:
+            raise ImproperlyConfigured(
+                f"Meta attr 'offschedule_datetime_field' "
+                f"cannot be None. See model {self.__class__.__name__}"
+            )
+        dt = getattr(self, offschedule_datetime_field)
+        try:
+            dt.date()
+        except AttributeError:
+            self.offschedule_datetime = arrow.Arrow.fromdate(dt).datetime
+        else:
+            self.offschedule_datetime = dt
+
         self.report_datetime = self.offschedule_datetime
         super().save(*args, **kwargs)
 
@@ -32,3 +58,4 @@ class OffScheduleModelMixin(ScheduleModelMixin):
 
     class Meta:
         abstract = True
+        offschedule_datetime_field = "offschedule_datetime"

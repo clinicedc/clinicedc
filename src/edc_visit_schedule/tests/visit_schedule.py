@@ -76,13 +76,7 @@ visit_schedule = VisitSchedule(
 visit_schedule.add_schedule(schedule)
 
 
-visit_schedule2 = VisitSchedule(
-    name="visit_schedule2",
-    offstudy_model="edc_visit_schedule.subjectoffstudy2",
-    death_report_model="edc_visit_schedule.deathreport",
-)
-
-
+# visit_schedule2
 schedule2 = Schedule(
     name="schedule2",
     onschedule_model="edc_visit_schedule.onschedule2",
@@ -92,5 +86,65 @@ schedule2 = Schedule(
 )
 
 schedule2.add_visit(visit3)
+visit_schedule2 = VisitSchedule(
+    name="visit_schedule2",
+    offstudy_model="edc_visit_schedule.subjectoffstudy2",
+    death_report_model="edc_visit_schedule.deathreport",
+)
 
 visit_schedule2.add_schedule(schedule2)
+
+# visit_schedule5
+schedule5 = Schedule(
+    name="schedule5",
+    onschedule_model="edc_visit_schedule.onschedulefive",
+    offschedule_model="edc_visit_schedule.offschedulefive",
+    appointment_model="edc_appointment.appointment",
+    consent_model="edc_visit_schedule.subjectconsent",
+)
+
+schedule5.add_visit(visit0)
+visit_schedule5 = VisitSchedule(
+    name="visit_schedule5",
+    offstudy_model="edc_visit_schedule.subjectoffstudyfive",
+    death_report_model="edc_visit_schedule.deathreport",
+)
+
+visit_schedule5.add_schedule(schedule5)
+
+
+# visit_schedule6
+schedule6 = Schedule(
+    name="schedule6",
+    onschedule_model="edc_visit_schedule.onschedulesix",
+    offschedule_model="edc_visit_schedule.offschedulesix",
+    appointment_model="edc_appointment.appointment",
+    consent_model="edc_visit_schedule.subjectconsent",
+)
+
+schedule6.add_visit(visit0)
+visit_schedule6 = VisitSchedule(
+    name="visit_schedule6",
+    offstudy_model="edc_visit_schedule.subjectoffstudysix",
+    death_report_model="edc_visit_schedule.deathreport",
+)
+
+visit_schedule6.add_schedule(schedule6)
+
+# visit_schedule7
+schedule7 = Schedule(
+    name="schedule7",
+    onschedule_model="edc_visit_schedule.onscheduleseven",
+    offschedule_model="edc_visit_schedule.offscheduleseven",
+    appointment_model="edc_appointment.appointment",
+    consent_model="edc_visit_schedule.subjectconsent",
+)
+
+schedule7.add_visit(visit0)
+visit_schedule7 = VisitSchedule(
+    name="visit_schedule7",
+    offstudy_model="edc_visit_schedule.subjectoffstudyseven",
+    death_report_model="edc_visit_schedule.deathreport",
+)
+
+visit_schedule7.add_schedule(schedule7)
