@@ -31,18 +31,12 @@ crfs = FormsCollection(
 )
 
 requisitions = FormsCollection(
-    Requisition(show_order=10, panel=panel_one,
-                required=True, additional=False),
-    Requisition(show_order=20, panel=panel_two,
-                required=True, additional=False),
-    Requisition(show_order=30, panel=panel_three,
-                required=True, additional=False),
-    Requisition(show_order=40, panel=panel_four,
-                required=True, additional=False),
-    Requisition(show_order=50, panel=panel_five,
-                required=True, additional=False),
-    Requisition(show_order=60, panel=panel_six,
-                required=True, additional=False),
+    Requisition(show_order=10, panel=panel_one, required=True, additional=False),
+    Requisition(show_order=20, panel=panel_two, required=True, additional=False),
+    Requisition(show_order=30, panel=panel_three, required=True, additional=False),
+    Requisition(show_order=40, panel=panel_four, required=True, additional=False),
+    Requisition(show_order=50, panel=panel_five, required=True, additional=False),
+    Requisition(show_order=60, panel=panel_six, required=True, additional=False),
 )
 
 
