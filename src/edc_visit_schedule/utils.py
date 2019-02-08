@@ -43,8 +43,6 @@ def off_schedule_or_raise(
 ):
     """Returns True if subject is on the given schedule
     on this date.
-
-    Will raise and exception if raise_exception=True.
     """
     visit_schedule = site_visit_schedules.get_visit_schedule(
         visit_schedule_name=visit_schedule_name

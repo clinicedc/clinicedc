@@ -16,6 +16,10 @@ class NotOnScheduleError(Exception):
     pass
 
 
+class NotOffScheduleError(Exception):
+    pass
+
+
 class NotOnScheduleForDateError(Exception):
     pass
 
@@ -77,23 +81,14 @@ class SubjectSchedule:
     def consent_model_cls(self):
         return django_apps.get_model(self.consent_model)
 
-    def put_on_schedule(
-        self,
-        onschedule_model_obj=None,
-        subject_identifier=None,
-        onschedule_datetime=None,
-    ):
+    def put_on_schedule(self, subject_identifier=None, onschedule_datetime=None):
         """Puts a subject on-schedule.
 
         A person is put on schedule by creating an instance
         of the onschedule_model, if it does not already exist,
         and updating the history_obj.
         """
-        if onschedule_model_obj:
-            subject_identifier = onschedule_model_obj.subject_identifier
-            onschedule_datetime = onschedule_model_obj.onschedule_datetime
-        else:
-            onschedule_datetime = onschedule_datetime or get_utcnow()
+        onschedule_datetime = onschedule_datetime or get_utcnow()
         try:
             self.onschedule_model_cls.objects.get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
@@ -130,12 +125,7 @@ class SubjectSchedule:
             )
             creator.create_appointments(onschedule_datetime)
 
-    def take_off_schedule(
-        self,
-        offschedule_model_obj=None,
-        subject_identifier=None,
-        offschedule_datetime=None,
-    ):
+    def take_off_schedule(self, subject_identifier=None, offschedule_datetime=None):
         """Takes a subject off-schedule.
 
         A person is taken off-schedule by:
@@ -145,20 +135,16 @@ class SubjectSchedule:
         * deleting future appointments
         """
         # create offschedule_model_obj if it does not exist
-        if not offschedule_model_obj:
-            offschedule_datetime = offschedule_datetime or get_utcnow()
-            try:
-                offschedule_model_obj = self.offschedule_model_cls.objects.get(
-                    subject_identifier=subject_identifier
-                )
-            except ObjectDoesNotExist:
-                offschedule_model_obj = self.offschedule_model_cls.objects.create(
-                    subject_identifier=subject_identifier,
-                    offschedule_datetime=offschedule_datetime,
-                )
-
-        subject_identifier = offschedule_model_obj.subject_identifier
-        offschedule_datetime = offschedule_model_obj.offschedule_datetime
+        offschedule_datetime = offschedule_datetime or get_utcnow()
+        try:
+            self.offschedule_model_cls.objects.get(
+                subject_identifier=subject_identifier
+            )
+        except ObjectDoesNotExist:
+            self.offschedule_model_cls.objects.create(
+                subject_identifier=subject_identifier,
+                offschedule_datetime=offschedule_datetime,
+            )
 
         # get existing history obj or raise
         try:
@@ -305,27 +291,40 @@ class SubjectSchedule:
     def onschedule_or_raise(
         self, subject_identifier=None, report_datetime=None, compare_as_datetimes=None
     ):
+        """Raise an exception if subject is not on the schedule during
+        the given date.
+        """
+        compare_as_datetimes = (
+            True if compare_as_datetimes is None else compare_as_datetimes
+        )
         try:
-            history_obj = self.history_model_cls.objects.get(
-                subject_identifier=subject_identifier,
-                visit_schedule_name=self.visit_schedule_name,
-                schedule_name=self.schedule_name,
+            onschedule_obj = self.onschedule_model_cls.objects.get(
+                subject_identifier=subject_identifier
             )
         except ObjectDoesNotExist:
             raise NotOnScheduleError(
-                f"Subject is not been put on schedule {self.schedule_name}. "
+                f"Subject has not been put on of schedule {self.schedule_name}. "
                 f"Got {subject_identifier}."
             )
-        offschedule_datetime = history_obj.offschedule_datetime or get_utcnow()
+
+        try:
+            offschedule_obj = self.offschedule_model_cls.objects.get(
+                subject_identifier=subject_identifier
+            )
+        except ObjectDoesNotExist:
+            offschedule_datetime = get_utcnow()
+        else:
+            offschedule_datetime = offschedule_obj.offschedule_datetime
+
         if compare_as_datetimes:
             in_date_range = (
-                history_obj.onschedule_datetime
+                onschedule_obj.onschedule_datetime
                 <= report_datetime
                 <= offschedule_datetime
             )
         else:
             in_date_range = (
-                history_obj.onschedule_datetime.date()
+                onschedule_obj.onschedule_datetime.date()
                 <= report_datetime.date()
                 <= offschedule_datetime.date()
             )
@@ -338,6 +337,7 @@ class SubjectSchedule:
                 f"Subject not on schedule {self.schedule_name} on "
                 f"{formatted_date}. Got {subject_identifier}."
             )
+        return None
 
     def check(self):
         try:

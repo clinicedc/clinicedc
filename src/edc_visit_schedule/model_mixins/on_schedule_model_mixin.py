@@ -24,7 +24,10 @@ class OnScheduleModelMixin(ScheduleModelMixin):
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             self._meta.label_lower
         )
-        schedule.put_on_schedule(onschedule_model_obj=self)
+        schedule.put_on_schedule(
+            subject_identifier=self.subject_identifier,
+            onschedule_datetime=self.onschedule_datetime,
+        )
 
     class Meta:
         abstract = True
