@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_base.model_mixins import BaseUuidModel
-from edc_base.utils import get_utcnow
+from edc_base import get_utcnow
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_tracking.model_mixins import CrfModelMixin
 from edc_appointment.tests.models import SubjectVisit
@@ -30,26 +30,16 @@ class NonCrfOne(
     NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel
 ):
 
+    offstudy_model = "edc_offstudy.subjectoffstudy"
     report_datetime = models.DateTimeField(default=get_utcnow)
-
-    class Meta(OffstudyNonCrfModelMixin.Meta):
-        offstudy_model = "edc_offstudy.subjectoffstudy"
 
 
 class BadNonCrfOne(
     NonUniqueSubjectIdentifierFieldMixin, OffstudyNonCrfModelMixin, BaseUuidModel
 ):
-    """Missing _meta.offstudy_model.
-    """
 
+    offstudy_model = None
     report_datetime = models.DateTimeField(default=get_utcnow)
-
-    class Meta:
-        pass
-
-
-class BadSubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
-    pass
 
 
 class SubjectOffstudy2(OffstudyModelMixin, BaseUuidModel):

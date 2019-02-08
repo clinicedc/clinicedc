@@ -18,7 +18,7 @@ class AppConfig(DjangoAppConfig):
     has_exportable_data = True
 
     def ready(self):
-        from .signals import offstudy_model_on_post_save
+        # from .signals import offstudy_model_on_post_save
 
         sys.stdout.write("Loading {} ...\n".format(self.verbose_name))
         sys.stdout.write(" Done loading {}.\n".format(self.verbose_name))

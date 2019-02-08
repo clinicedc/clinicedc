@@ -1,6 +1,3 @@
-import sys
-
-from django.conf import settings
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins.base_uuid_model import BaseUuidModel
 from edc_base.sites import CurrentSiteManager, SiteModelMixin
@@ -16,7 +13,3 @@ class SubjectOffstudy(OffstudyModelMixin, SiteModelMixin, BaseUuidModel):
     objects = OffstudyModelManager()
 
     history = HistoricalRecords()
-
-
-if "edc_offstudy" in settings.APP_NAME and "makemigrations" not in sys.argv:
-    from .tests import models

@@ -1,7 +1,8 @@
 from django import forms
+from django.apps import apps as django_apps
+from django.core.exceptions import ImproperlyConfigured
 
-from ..offstudy_crf import SubjectOffstudyError
-from ..offstudy_non_crf import OffstudyNonCrf
+from ..utils import OffstudyError, raise_if_offstudy
 
 
 class OffstudyNonCrfModelFormMixin(forms.ModelForm):
@@ -9,13 +10,20 @@ class OffstudyNonCrfModelFormMixin(forms.ModelForm):
     """ModelForm mixin for non-CRF modelforms.
     """
 
-    offstudy_cls = OffstudyNonCrf
-
     def clean(self):
         cleaned_data = super().clean()
-        offstudy_model = self._meta.model()._meta.offstudy_model
+        if not self._meta.model.offstudy_model:
+            raise ImproperlyConfigured(
+                f"Attribute offstudy_model not defined. See {repr(self)}."
+            )
         try:
-            self.offstudy_cls(offstudy_model=offstudy_model, **cleaned_data)
-        except SubjectOffstudyError as e:
-            raise forms.ValidationError({"report_datetime": e})
+            raise_if_offstudy(
+                subject_identifier=cleaned_data.get("subject_identifier"),
+                report_datetime=cleaned_data.get("report_datetime"),
+                offstudy_model_cls=django_apps.get_model(
+                    self._meta.model.offstudy_model
+                ),
+            )
+        except OffstudyError as e:
+            raise forms.ValidationError(f"{e}")
         return cleaned_data
