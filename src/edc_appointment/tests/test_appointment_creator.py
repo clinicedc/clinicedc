@@ -140,8 +140,7 @@ class TestAppointmentCreator(TestCase):
             timepoint_datetime=appt_datetime,
         )
         self.assertEqual(Appointment.objects.all()[0], creator.appointment)
-        self.assertEqual(Appointment.objects.all()[
-                         0].appt_datetime, appt_datetime)
+        self.assertEqual(Appointment.objects.all()[0].appt_datetime, appt_datetime)
 
     def test_create_forward(self):
         appt_datetime = Arrow.fromdatetime(datetime(2017, 1, 1)).datetime
