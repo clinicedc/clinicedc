@@ -1,11 +1,6 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 
-from ..offstudy_crf import OffstudyCrf
-
-
-class OffstudyCrfModelMixinError(ValidationError):
-    pass
+from ..utils import raise_if_offstudy
 
 
 class OffstudyCrfModelMixin(models.Model):
@@ -19,26 +14,12 @@ class OffstudyCrfModelMixin(models.Model):
     Also requires field "report_datetime"
     """
 
-    offstudy_cls = OffstudyCrf
-
-    # If True, compares report_datetime and offstudy_datetime as datetimes
-    # If False, (Default) compares report_datetime and
-    # offstudy_datetime as dates
-    offstudy_compare_dates_as_datetimes = False
-
     def save(self, *args, **kwargs):
-        try:
-            offstudy_model = self.visit.visit_schedule.offstudy_model
-        except AttributeError as e:
-            if 'visit' in str(e):
-                raise OffstudyCrfModelMixinError(
-                    f'Model requires property \'visit\'. See {repr(self)}, Got {e}.')
-            raise
-        self.offstudy_cls(
+        raise_if_offstudy(
             subject_identifier=self.visit.subject_identifier,
-            offstudy_model=offstudy_model,
-            compare_as_datetimes=self.offstudy_compare_dates_as_datetimes,
-            **self.__dict__)
+            report_datetime=self.report_datetime,
+            offstudy_model_cls=self.visit.visit_schedule.offstudy_model_cls,
+        )
         super().save(*args, **kwargs)
 
     class Meta:
