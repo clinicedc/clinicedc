@@ -4,12 +4,13 @@ from django.db.models.deletion import PROTECT
 from edc_appointment.models import Appointment
 from edc_base import get_utcnow
 from edc_base.model_mixins import BaseUuidModel
-from edc_visit_tracking.model_mixins import CrfModelMixin, VisitModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_offstudy.model_mixins import OffstudyModelMixin, OffstudyModelManager
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_visit_tracking.model_mixins import CrfModelMixin, VisitModelMixin
 
-from ..model_mixins import SubjectScheduleCrfModelMixin
 from ..model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
+from ..model_mixins import SubjectScheduleCrfModelMixin
 
 
 class SubjectVisit(VisitModelMixin, BaseUuidModel):
@@ -40,11 +41,9 @@ class SubjectConsent(
     dob = models.DateField(default=date(1995, 1, 1))
 
 
-class SubjectOffstudy(BaseUuidModel):
+class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
 
-    subject_identifier = models.CharField(max_length=25, null=True)
-
-    report_datetime = models.DateTimeField()
+    objects = OffstudyModelManager()
 
 
 class DeathReport(BaseUuidModel):

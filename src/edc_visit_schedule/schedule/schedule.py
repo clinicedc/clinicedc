@@ -119,16 +119,10 @@ class Schedule:
             )
         return self._subject
 
-    def put_on_schedule(
-        self,
-        onschedule_model_obj=None,
-        subject_identifier=None,
-        onschedule_datetime=None,
-    ):
+    def put_on_schedule(self, subject_identifier=None, onschedule_datetime=None):
         """Wrapper method to puts a subject onto this schedule.
         """
         self.subject.put_on_schedule(
-            onschedule_model_obj=onschedule_model_obj,
             subject_identifier=subject_identifier,
             onschedule_datetime=onschedule_datetime,
         )
@@ -139,19 +133,9 @@ class Schedule:
         """
         self.subject.resave(subject_identifier=subject_identifier)
 
-    def take_off_schedule(
-        self,
-        offschedule_model_obj=None,
-        offschedule_datetime=None,
-        subject_identifier=None,
-    ):
-        if not offschedule_datetime:
-            try:
-                offschedule_datetime = offschedule_model_obj.offschedule_datetime
-            except AttributeError:
-                offschedule_datetime = get_utcnow()
+    def take_off_schedule(self, offschedule_datetime=None, subject_identifier=None):
+        offschedule_datetime = offschedule_datetime or get_utcnow()
         self.subject.take_off_schedule(
-            offschedule_model_obj=offschedule_model_obj,
             subject_identifier=subject_identifier,
             offschedule_datetime=offschedule_datetime,
         )
@@ -159,7 +143,9 @@ class Schedule:
     def is_onschedule(self, subject_identifier=None, report_datetime=None):
         try:
             self.subject.onschedule_or_raise(
-                subject_identifier=subject_identifier, report_datetime=report_datetime
+                subject_identifier=subject_identifier,
+                report_datetime=report_datetime,
+                compare_as_datetimes=True,
             )
         except (NotOnScheduleError, NotOnScheduleForDateError):
             return False

@@ -25,7 +25,10 @@ class OffScheduleModelMixin(ScheduleModelMixin):
         _, schedule = site_visit_schedules.get_by_offschedule_model(
             self._meta.label_lower
         )
-        schedule.take_off_schedule(offschedule_model_obj=self)
+        schedule.take_off_schedule(
+            subject_identifier=self.subject_identifier,
+            offschedule_datetime=self.offschedule_datetime,
+        )
 
     class Meta:
         abstract = True
