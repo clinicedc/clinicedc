@@ -22,24 +22,24 @@ class IdentityFieldsMixin(CryptoMixin, models.Model):
             widget=forms.RadioSelect(choices=list(IDENTITY_TYPE)))
     """
 
-    identity = IdentityField(
-        verbose_name='Identity number')
+    identity = IdentityField(verbose_name="Identity number")
 
     identity_type = models.CharField(
-        verbose_name='What type of identity number is this?',
+        verbose_name="What type of identity number is this?",
         max_length=25,
-        choices=IDENTITY_TYPE)
+        choices=IDENTITY_TYPE,
+    )
 
     confirm_identity = IdentityField(
-        help_text='Retype the identity number',
-        null=True,
-        blank=False)
+        help_text="Retype the identity number", null=True, blank=False
+    )
 
     def save(self, *args, **kwargs):
         if self.identity != self.confirm_identity:
             raise IdentityFieldsMixinError(
-                '\'Identity\' must match \'confirm_identity\'. '
-                'Catch this error on the form')
+                "'Identity' must match 'confirm_identity'. "
+                "Catch this error on the form"
+            )
         super().save(*args, **kwargs)
 
     class Meta:
