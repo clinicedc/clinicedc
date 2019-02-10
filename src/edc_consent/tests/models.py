@@ -10,28 +10,41 @@ from ..field_mixins import VulnerabilityFieldsMixin, IdentityFieldsMixin
 from ..model_mixins import ConsentModelMixin, RequiresConsentFieldsModelMixin
 
 
-class SubjectConsent(ConsentModelMixin, SiteModelMixin,
-                     NonUniqueSubjectIdentifierModelMixin,
-                     UpdatesOrCreatesRegistrationModelMixin,
-                     IdentityFieldsMixin, ReviewFieldsMixin, PersonalFieldsMixin,
-                     CitizenFieldsMixin, VulnerabilityFieldsMixin, BaseUuidModel):
-
+class SubjectConsent(
+    ConsentModelMixin,
+    SiteModelMixin,
+    NonUniqueSubjectIdentifierModelMixin,
+    UpdatesOrCreatesRegistrationModelMixin,
+    IdentityFieldsMixin,
+    ReviewFieldsMixin,
+    PersonalFieldsMixin,
+    CitizenFieldsMixin,
+    VulnerabilityFieldsMixin,
+    BaseUuidModel,
+):
     class Meta(ConsentModelMixin.Meta):
         pass
 
 
-class SubjectConsent2(ConsentModelMixin, SiteModelMixin,
-                      NonUniqueSubjectIdentifierModelMixin,
-                      UpdatesOrCreatesRegistrationModelMixin,
-                      IdentityFieldsMixin, ReviewFieldsMixin, PersonalFieldsMixin,
-                      CitizenFieldsMixin, VulnerabilityFieldsMixin, BaseUuidModel):
-
+class SubjectConsent2(
+    ConsentModelMixin,
+    SiteModelMixin,
+    NonUniqueSubjectIdentifierModelMixin,
+    UpdatesOrCreatesRegistrationModelMixin,
+    IdentityFieldsMixin,
+    ReviewFieldsMixin,
+    PersonalFieldsMixin,
+    CitizenFieldsMixin,
+    VulnerabilityFieldsMixin,
+    BaseUuidModel,
+):
     class Meta(ConsentModelMixin.Meta):
         pass
 
 
-class TestModel(NonUniqueSubjectIdentifierModelMixin, RequiresConsentFieldsModelMixin,
-                BaseUuidModel):
+class TestModel(
+    NonUniqueSubjectIdentifierModelMixin, RequiresConsentFieldsModelMixin, BaseUuidModel
+):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 

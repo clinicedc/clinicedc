@@ -15,11 +15,13 @@ class ConsentModelWrapperMixin:
         relative to the wrapper's "object" report_datetime.
         """
         default_consent_group = django_apps.get_app_config(
-            'edc_consent').default_consent_group
+            "edc_consent"
+        ).default_consent_group
         consent_object = site_consents.get_consent_for_period(
             model=self.consent_model_wrapper_cls.model,
             report_datetime=self.object.report_datetime,
-            consent_group=default_consent_group)
+            consent_group=default_consent_group,
+        )
         return consent_object
 
     @property
@@ -36,7 +38,8 @@ class ConsentModelWrapperMixin:
         """Returns a wrapped saved or unsaved consent.
         """
         model_obj = self.consent_model_obj or self.consent_object.model_cls(
-            **self.create_consent_options)
+            **self.create_consent_options
+        )
         return self.consent_model_wrapper_cls(model_obj=model_obj)
 
     @property
@@ -47,7 +50,8 @@ class ConsentModelWrapperMixin:
         options = dict(
             subject_identifier=self.object.subject_identifier,
             consent_identifier=get_uuid(),
-            version=self.consent_object.version)
+            version=self.consent_object.version,
+        )
         return options
 
     @property
@@ -57,5 +61,6 @@ class ConsentModelWrapperMixin:
         """
         options = dict(
             subject_identifier=self.object.subject_identifier,
-            version=self.consent_object.version)
+            version=self.consent_object.version,
+        )
         return options

@@ -22,7 +22,8 @@ class ConsentViewMixin(ContextMixin):
         context.update(
             consent=self.consent_wrapped,
             consents=self.consents_wrapped,
-            consent_object=self.consent_object)
+            consent_object=self.consent_object,
+        )
         return context
 
     @property
@@ -45,7 +46,8 @@ class ConsentViewMixin(ContextMixin):
         try:
             consent_object = site_consents.get_consent_for_period(
                 model=self.consent_model_wrapper_cls.model,
-                report_datetime=self.report_datetime)
+                report_datetime=self.report_datetime,
+            )
         except ConsentObjectDoesNotExist:
             consent_object = None
         return consent_object
@@ -56,7 +58,8 @@ class ConsentViewMixin(ContextMixin):
         """
         return self.consent_object.model_cls.consent.consent_for_period(
             subject_identifier=self.subject_identifier,
-            report_datetime=self.report_datetime)
+            report_datetime=self.report_datetime,
+        )
 
     @property
     def consent_wrapped(self):
@@ -74,14 +77,16 @@ class ConsentViewMixin(ContextMixin):
         return self.consent_object.model_cls(
             subject_identifier=self.subject_identifier,
             consent_identifier=get_uuid(),
-            version=self.consent_object.version)
+            version=self.consent_object.version,
+        )
 
     @property
     def consents(self):
         """Returns a Queryset of consents for this subject.
         """
         return self.consent_object.model_cls.objects.filter(
-            subject_identifier=self.subject_identifier).order_by('version')
+            subject_identifier=self.subject_identifier
+        ).order_by("version")
 
     @property
     def consents_wrapped(self):
@@ -91,9 +96,10 @@ class ConsentViewMixin(ContextMixin):
         consents_wrapped = []
         for obj in self.consents:
             perm_list = []
-            for code in ['add', 'change', 'view']:
+            for code in ["add", "change", "view"]:
                 perm_list.append(
-                    f'{obj._meta.app_label}.{code}_{obj._meta.label_lower.split(".")[1]}')
+                    f'{obj._meta.app_label}.{code}_{obj._meta.label_lower.split(".")[1]}'
+                )
             if self.request.user.has_perms(perm_list):
                 consents_wrapped.append(self.consent_model_wrapper_cls(obj))
         return consents_wrapped

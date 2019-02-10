@@ -1,1 +1,1 @@
-DEFAULT_CONSENT_GROUP = 'default'
+DEFAULT_CONSENT_GROUP = "default"

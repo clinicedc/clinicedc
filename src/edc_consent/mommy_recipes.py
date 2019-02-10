@@ -16,15 +16,15 @@ subjectconsent = Recipe(
     first_name=fake.first_name,
     last_name=fake.last_name,
     # note, passes for model but won't pass validation in modelform clean()
-    initials='AA',
+    initials="AA",
     gender=MALE,
     # will raise IntegrityError if multiple made without _quantity
-    identity=seq('12315678'),
+    identity=seq("12315678"),
     # will raise IntegrityError if multiple made without _quantity
-    confirm_identity=seq('12315678'),
-    identity_type='passport',
-    is_dob_estimated='-',
-    language='en',
+    confirm_identity=seq("12315678"),
+    identity_type="passport",
+    is_dob_estimated="-",
+    language="en",
     is_literate=YES,
     is_incarcerated=NO,
     study_questions=YES,
