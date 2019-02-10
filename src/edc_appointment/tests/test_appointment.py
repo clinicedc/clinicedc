@@ -56,7 +56,6 @@ class TestAppointment(TestCase):
         )
         self.assertEqual(Appointment.objects.all().count(), 8)
 
-    @tag("1")
     def test_deletes_appointments(self):
         """Asserts manager method can delete appointments.
         """
@@ -130,7 +129,6 @@ class TestAppointment(TestCase):
             1,
         )
 
-    @tag("1")
     def test_delete_single_appointment(self):
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(
