@@ -11,6 +11,10 @@ from .models import SubjectVisit, CrfOneInline, OtherModel
 from .models import CrfOne, BadCrfOneInline
 from .helper import Helper
 from .visit_schedule import visit_schedule1, visit_schedule2
+from edc_appointment.creators.unscheduled_appointment_creator import (
+    UnscheduledAppointmentCreator,
+)
+from edc_appointment.constants import INCOMPLETE_APPT
 
 
 class TestVisit(TestCase):
@@ -27,7 +31,9 @@ class TestVisit(TestCase):
 
     def test_methods(self):
         self.helper.consent_and_put_on_schedule()
-        appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
+        appointment = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment, reason=SCHEDULED
         )
@@ -56,7 +62,9 @@ class TestVisit(TestCase):
         """Assert inline model can find visit instance from parent.
         """
         self.helper.consent_and_put_on_schedule()
-        appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
+        appointment = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment, reason=SCHEDULED
         )
@@ -104,7 +112,7 @@ class TestVisit(TestCase):
         """
         self.helper.consent_and_put_on_schedule()
         for index, appointment in enumerate(
-            Appointment.objects.all().order_by("visit_code")
+            Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         ):
             SubjectVisit.objects.create(
                 appointment=appointment,
@@ -112,7 +120,7 @@ class TestVisit(TestCase):
                 reason=SCHEDULED,
             )
         subject_visits = SubjectVisit.objects.all().order_by(
-            "appointment__timepoint_datetime"
+            "appointment__timepoint", "appointment__visit_code_sequence"
         )
         self.assertEqual(subject_visits.count(), 4)
         subject_visit = subject_visits[0]
@@ -129,29 +137,38 @@ class TestVisit(TestCase):
         appointment are inserted.
         """
         self.helper.consent_and_put_on_schedule()
-        appointments = Appointment.objects.all().order_by("visit_code")
-        opts = appointments[0].__dict__
-        opts.pop("_state")
-        opts.pop("id")
-        opts.pop("created")
-        opts.pop("modified")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
 
-        opts["visit_code_sequence"] = 1
-        Appointment.objects.create(**opts)
-        opts["visit_code_sequence"] = 2
-        Appointment.objects.create(**opts)
-
-        for index, appointment in enumerate(
-            Appointment.objects.all().order_by("visit_code", "visit_code_sequence")
-        ):
+        for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
                 report_datetime=get_utcnow() - relativedelta(months=10 - index),
                 reason=SCHEDULED,
             )
+            appointment.appt_status = INCOMPLETE_APPT
+            appointment.save()
+
+        last_appt = appointments.last()
+        for i in [1, 2]:
+            appointment = UnscheduledAppointmentCreator(
+                subject_identifier=self.subject_identifier,
+                visit_schedule_name=last_appt.visit_schedule_name,
+                schedule_name=last_appt.schedule_name,
+                visit_code=last_appt.visit_code,
+                facility=last_appt.facility,
+            ).appointment
+            SubjectVisit.objects.create(
+                appointment=appointment,
+                report_datetime=last_appt.appt_datetime + relativedelta(days=i),
+                reason=SCHEDULED,
+            )
+            appointment.appt_status = INCOMPLETE_APPT
+            appointment.save()
 
         subject_visits = SubjectVisit.objects.all().order_by(
-            "appointment__timepoint_datetime"
+            "appointment__timepoint", "appointment__visit_code_sequence"
         )
         self.assertEqual(subject_visits.count(), 6)
 
