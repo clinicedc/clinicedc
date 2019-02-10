@@ -119,34 +119,25 @@ class Schedule:
             )
         return self._subject
 
-    def put_on_schedule(self, subject_identifier=None, onschedule_datetime=None):
+    def put_on_schedule(self, **kwargs):
         """Wrapper method to puts a subject onto this schedule.
         """
-        self.subject.put_on_schedule(
-            subject_identifier=subject_identifier,
-            onschedule_datetime=onschedule_datetime,
-        )
+        self.subject.put_on_schedule(**kwargs)
 
-    def refresh_schedule(self, subject_identifier=None):
+    def refresh_schedule(self, **kwargs):
         """Resaves the onschedule model to, for example, refresh
         appointments.
         """
-        self.subject.resave(subject_identifier=subject_identifier)
+        self.subject.resave(**kwargs)
 
-    def take_off_schedule(self, offschedule_datetime=None, subject_identifier=None):
-        offschedule_datetime = offschedule_datetime or get_utcnow()
+    def take_off_schedule(self, offschedule_datetime=None, **kwargs):
         self.subject.take_off_schedule(
-            subject_identifier=subject_identifier,
-            offschedule_datetime=offschedule_datetime,
+            offschedule_datetime=offschedule_datetime or get_utcnow(), **kwargs
         )
 
-    def is_onschedule(self, subject_identifier=None, report_datetime=None):
+    def is_onschedule(self, **kwargs):
         try:
-            self.subject.onschedule_or_raise(
-                subject_identifier=subject_identifier,
-                report_datetime=report_datetime,
-                compare_as_datetimes=True,
-            )
+            self.subject.onschedule_or_raise(compare_as_datetimes=True, **kwargs)
         except (NotOnScheduleError, NotOnScheduleForDateError):
             return False
         return True

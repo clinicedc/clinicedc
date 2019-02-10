@@ -10,8 +10,7 @@ from django.core.exceptions import ImproperlyConfigured
 import arrow
 
 if "offschedule_datetime_field" not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + \
-        ("offschedule_datetime_field",)
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("offschedule_datetime_field",)
 
 
 class OffScheduleModelMixin(ScheduleModelMixin):
