@@ -39,8 +39,10 @@ class AppointmentAdmin(
     admin.ModelAdmin,
 ):
 
-    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
-    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
+    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get(
+        "subject_dashboard_url")
+    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get(
+        "subject_dashboard_url")
 
     form = AppointmentForm
     date_hierarchy = "appt_datetime"
@@ -100,6 +102,8 @@ class AppointmentAdmin(
         "appt_status": admin.VERTICAL,
         "appt_reason": admin.VERTICAL,
     }
+
+    search_fields = ("subject_identifier",)
 
     def post_url_on_delete_kwargs(self, request, obj):
         return dict(subject_identifier=obj.subject_identifier)
