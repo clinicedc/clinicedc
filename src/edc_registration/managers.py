@@ -10,9 +10,9 @@ class RegisteredSubjectManager(models.Manager):
 
     def get_for_subject_identifier(self, subject_identifier):
         """Returns a queryset for the given subject_identifier."""
-        options = {'subject_identifier': subject_identifier}
+        options = {"subject_identifier": subject_identifier}
         return self.filter(**options)
 
     def get_for_visit(self, visit):
-        options = {'subject_identifier': visit.subject_identifier}
+        options = {"subject_identifier": visit.subject_identifier}
         return self.get(**options)

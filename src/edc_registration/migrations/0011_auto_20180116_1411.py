@@ -6,14 +6,17 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_registration', '0010_registeredsubject_consent_datetime'),
-    ]
+    dependencies = [("edc_registration", "0010_registeredsubject_consent_datetime")]
 
     operations = [
         migrations.AlterField(
-            model_name='registeredsubject',
-            name='site',
-            field=models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.PROTECT, to='sites.Site'),
-        ),
+            model_name="registeredsubject",
+            name="site",
+            field=models.ForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="sites.Site",
+            ),
+        )
     ]

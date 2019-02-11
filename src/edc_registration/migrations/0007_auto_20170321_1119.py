@@ -8,14 +8,12 @@ import uuid
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_registration', '0006_auto_20170209_0924'),
-    ]
+    dependencies = [("edc_registration", "0006_auto_20170209_0924")]
 
     operations = [
         migrations.AlterField(
-            model_name='registeredsubject',
-            name='subject_identifier_as_pk',
+            model_name="registeredsubject",
+            name="subject_identifier_as_pk",
             field=models.UUIDField(default=uuid.uuid4, editable=False),
-        ),
+        )
     ]

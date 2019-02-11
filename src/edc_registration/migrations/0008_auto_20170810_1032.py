@@ -9,34 +9,47 @@ import edc_model_fields.fields.userfield
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_registration', '0007_auto_20170321_1119'),
-    ]
+    dependencies = [("edc_registration", "0007_auto_20170321_1119")]
 
     operations = [
         migrations.AddField(
-            model_name='registeredsubject',
-            name='device_created',
+            model_name="registeredsubject",
+            name="device_created",
             field=models.CharField(blank=True, max_length=10),
         ),
         migrations.AddField(
-            model_name='registeredsubject',
-            name='device_modified',
+            model_name="registeredsubject",
+            name="device_modified",
             field=models.CharField(blank=True, max_length=10),
         ),
         migrations.AlterField(
-            model_name='registeredsubject',
-            name='hostname_created',
-            field=models.CharField(blank=True, default=_socket.gethostname, help_text='System field. (modified on create only)', max_length=60),
+            model_name="registeredsubject",
+            name="hostname_created",
+            field=models.CharField(
+                blank=True,
+                default=_socket.gethostname,
+                help_text="System field. (modified on create only)",
+                max_length=60,
+            ),
         ),
         migrations.AlterField(
-            model_name='registeredsubject',
-            name='user_created',
-            field=edc_model_fields.fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user created'),
+            model_name="registeredsubject",
+            name="user_created",
+            field=edc_model_fields.fields.userfield.UserField(
+                blank=True,
+                help_text="Updated by admin.save_model",
+                max_length=50,
+                verbose_name="user created",
+            ),
         ),
         migrations.AlterField(
-            model_name='registeredsubject',
-            name='user_modified',
-            field=edc_model_fields.fields.userfield.UserField(blank=True, help_text='Updated by admin.save_model', max_length=50, verbose_name='user modified'),
+            model_name="registeredsubject",
+            name="user_modified",
+            field=edc_model_fields.fields.userfield.UserField(
+                blank=True,
+                help_text="Updated by admin.save_model",
+                max_length=50,
+                verbose_name="user modified",
+            ),
         ),
     ]

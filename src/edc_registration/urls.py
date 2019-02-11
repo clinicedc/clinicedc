@@ -3,9 +3,9 @@ from django.urls.conf import path
 
 from .admin_site import edc_registration_admin
 
-app_name = 'edc_registration'
+app_name = "edc_registration"
 
 urlpatterns = [
-    path('admin/', edc_registration_admin.urls),
-    path('', RedirectView.as_view(url='/edc_registration/admin/'), name='home_url'),
+    path("admin/", edc_registration_admin.urls),
+    path("", RedirectView.as_view(url="/edc_registration/admin/"), name="home_url"),
 ]

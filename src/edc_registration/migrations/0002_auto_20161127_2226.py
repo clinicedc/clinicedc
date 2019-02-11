@@ -8,19 +8,21 @@ import edc_base.utils
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_registration', '0001_initial'),
-    ]
+    dependencies = [("edc_registration", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='registeredsubject',
-            name='created',
-            field=models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False),
+            model_name="registeredsubject",
+            name="created",
+            field=models.DateTimeField(
+                default=edc_base.utils.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterField(
-            model_name='registeredsubject',
-            name='modified',
-            field=models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False),
+            model_name="registeredsubject",
+            name="modified",
+            field=models.DateTimeField(
+                default=edc_base.utils.get_utcnow, editable=False
+            ),
         ),
     ]

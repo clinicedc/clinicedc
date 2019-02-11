@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_registration', '0009_auto_20171228_1816'),
-    ]
+    dependencies = [("edc_registration", "0009_auto_20171228_1816")]
 
     operations = [
         migrations.AddField(
-            model_name='registeredsubject',
-            name='consent_datetime',
+            model_name="registeredsubject",
+            name="consent_datetime",
             field=models.DateTimeField(blank=True, null=True),
-        ),
+        )
     ]
