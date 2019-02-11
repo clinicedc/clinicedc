@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
+from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
 from edc_base import get_utcnow
 from edc_facility.import_holidays import import_holidays
@@ -160,18 +161,7 @@ class TestPreviousVisit(TestCase):
             "timepoint", "visit_code_sequence"
         )
 
-        appointments[1].delete()
-
-        visit_sequence = VisitSequence(appointment=appointments[0])
-        self.assertIsNone(visit_sequence.previous_appointment)
-
-        visit_sequence = VisitSequence(appointment=appointments[1])
-        self.assertRaises(
-            VisitSequenceError, getattr, visit_sequence, "previous_appointment"
-        )
-
-        visit_sequence = VisitSequence(appointment=appointments[2])
-        self.assertEqual(visit_sequence.previous_appointment, appointments[1])
+        self.assertRaises(AppointmentDeleteError, appointments[1].delete)
 
     def test_previous_appointment_broken_sequence2(self):
         appointments = Appointment.objects.all().order_by(
