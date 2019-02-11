@@ -44,7 +44,8 @@ class TimepointLookup:
         try:
             timepoint_obj = model_obj.__class__.objects.get(
                 **{
-                    f"{self.timepoint_related_model_lookup}__timepoint_status": CLOSED_TIMEPOINT
+                    f"{self.timepoint_related_model_lookup}__timepoint_status":
+                    CLOSED_TIMEPOINT
                 }
             )
         except ObjectDoesNotExist:
