@@ -19,8 +19,9 @@ class TimepointLookupModelMixin(models.Model):
         timepoint_lookup = self.timepoint_lookup_cls()
         if timepoint_lookup.timepoint_model == self._meta.label_lower:
             raise ImproperlyConfigured(
-                f'Timepoint model cannot use TimepointLookupModelMixin. '
-                f'Got {self._meta.label_lower}')
+                f"Timepoint model cannot use TimepointLookupModelMixin. "
+                f"Got {self._meta.label_lower}"
+            )
         timepoint_lookup.raise_if_closed(model_obj=self)
         super().save(*args, **kwargs)
 
