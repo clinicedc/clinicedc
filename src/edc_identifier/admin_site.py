@@ -9,3 +9,4 @@ class EdcIdentifierAdminSite(AdminSite):
 
 
 edc_identifier_admin = EdcIdentifierAdminSite(name='edc_identifier_admin')
+edc_identifier_admin.disable_action('delete_selected')
