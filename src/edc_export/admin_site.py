@@ -9,3 +9,4 @@ class EdcExportAdminSite(AdminSite):
 
 
 edc_export_admin = EdcExportAdminSite(name='edc_export_admin')
+edc_export_admin.disable_action('delete_selected')
