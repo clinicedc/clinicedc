@@ -8,19 +8,24 @@ import edc_base.utils
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_registration', '0003_registeredsubject_subject_type'),
-    ]
+    dependencies = [("edc_registration", "0003_registeredsubject_subject_type")]
 
     operations = [
         migrations.AlterField(
-            model_name='registeredsubject',
-            name='subject_identifier',
-            field=models.CharField(max_length=50, unique=True, verbose_name='Subject Identifier'),
+            model_name="registeredsubject",
+            name="subject_identifier",
+            field=models.CharField(
+                max_length=50, unique=True, verbose_name="Subject Identifier"
+            ),
         ),
         migrations.AlterField(
-            model_name='registeredsubject',
-            name='subject_identifier_as_pk',
-            field=models.CharField(default=edc_base.utils.get_uuid, editable=False, max_length=50, verbose_name='Subject Identifier as pk'),
+            model_name="registeredsubject",
+            name="subject_identifier_as_pk",
+            field=models.CharField(
+                default=edc_base.utils.get_uuid,
+                editable=False,
+                max_length=50,
+                verbose_name="Subject Identifier as pk",
+            ),
         ),
     ]
