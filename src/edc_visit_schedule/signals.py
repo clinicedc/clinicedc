@@ -2,16 +2,21 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from .constants import ON_SCHEDULE
+from .model_mixins import OffScheduleModelMixin
 from .site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 
 
 @receiver(post_save, weak=False, dispatch_uid="offschedule_model_on_post_save")
-def offschedule_model_on_post_save(instance, raw, update_fields, **kwargs):
+def offschedule_model_on_post_save(sender, instance, raw, update_fields, **kwargs):
     if not raw and not update_fields:
-        try:
-            instance.take_off_schedule()
-        except AttributeError:
-            pass
+        if issubclass(sender, (OffScheduleModelMixin,)):
+            _, schedule = site_visit_schedules.get_by_offschedule_model(
+                instance._meta.label_lower
+            )
+            schedule.take_off_schedule(
+                subject_identifier=instance.subject_identifier,
+                offschedule_datetime=instance.offschedule_datetime,
+            )
 
 
 @receiver(post_save, weak=False, dispatch_uid="onschedule_model_on_post_save")

@@ -32,19 +32,21 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.assertIn("1234", str(obj))
         self.assertEqual(obj.natural_key(), ("1234",))
         self.assertEqual(
-            obj, OnSchedule.objects.get_by_natural_key(subject_identifier="1234")
+            obj, OnSchedule.objects.get_by_natural_key(
+                subject_identifier="1234")
         )
 
     def test_str_offschedule(self):
         OnSchedule.objects.create(subject_identifier="1234")
-        obj = OffSchedule.objects.create(subject_identifier="1234")
+        obj = OffSchedule.objects.create(
+            subject_identifier="1234")
         self.assertIn("1234", str(obj))
         self.assertEqual(obj.natural_key(), ("1234",))
         self.assertEqual(
-            obj, OffSchedule.objects.get_by_natural_key(subject_identifier="1234")
+            obj, OffSchedule.objects.get_by_natural_key(
+                subject_identifier="1234")
         )
 
-    @tag("1")
     def test_offschedule_custom_field_datetime(self):
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
@@ -62,7 +64,6 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.assertEqual(obj.my_offschedule_datetime, offschedule_datetime)
         self.assertEqual(obj.offschedule_datetime, offschedule_datetime)
 
-    @tag("1")
     def test_offschedule_custom_field_date(self):
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
@@ -82,7 +83,6 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.assertEqual(obj.my_offschedule_date, offschedule_datetime.date())
         self.assertEqual(obj.offschedule_datetime, offschedule_datetime)
 
-    @tag("1")
     def test_bad_offschedule1(self):
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
@@ -100,7 +100,6 @@ class TestModels(SiteTestCaseMixin, TestCase):
             my_offschedule_date=get_utcnow(),
         )
 
-    @tag("1")
     def test_offschedule_no_meta_defaults_offschedule_field(self):
         site_visit_schedules.loaded = False
         site_visit_schedules._registry = {}
@@ -139,12 +138,14 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier="1234",
             onschedule_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc),
         )
-        history_obj = SubjectScheduleHistory.objects.get(subject_identifier="1234")
+        history_obj = SubjectScheduleHistory.objects.get(
+            subject_identifier="1234")
         self.assertEqual(history_obj.schedule_status, ON_SCHEDULE)
         OffSchedule.objects.create(
             subject_identifier="1234", offschedule_datetime=get_utcnow()
         )
-        history_obj = SubjectScheduleHistory.objects.get(subject_identifier="1234")
+        history_obj = SubjectScheduleHistory.objects.get(
+            subject_identifier="1234")
         self.assertEqual(history_obj.schedule_status, OFF_SCHEDULE)
 
     def test_history(self):
@@ -170,6 +171,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
     def test_crf(self):
         """Assert can enter a CRF.
         """
+
         OnSchedule.objects.create(
             subject_identifier="1234",
             onschedule_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc),
@@ -199,7 +201,8 @@ class TestModels(SiteTestCaseMixin, TestCase):
             onschedule_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc),
         )
 
-        history = SubjectScheduleHistory.objects.onschedules(subject_identifier="1234")
+        history = SubjectScheduleHistory.objects.onschedules(
+            subject_identifier="1234")
         self.assertEqual([onschedule], [obj for obj in history])
 
         onschedules = SubjectScheduleHistory.objects.onschedules(
