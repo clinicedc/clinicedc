@@ -40,5 +40,6 @@ class TimepointCollection:
             timepoint = self._timepoints[model]
         except KeyError:
             raise TimepointDoesNotExist(
-                f'No timepoint has been configured with {model}.')
+                f"No timepoint has been configured with {model}."
+            )
         return timepoint

@@ -10,12 +10,12 @@ from ..timepoint_lookup import TimepointLookup
 
 
 class VisitTimepointLookup(TimepointLookup):
-    timepoint_model = 'edc_appointment.appointment'
-    timepoint_related_model_lookup = 'appointment'
+    timepoint_model = "edc_appointment.appointment"
+    timepoint_related_model_lookup = "appointment"
 
 
 class CrfTimepointLookup(TimepointLookup):
-    timepoint_model = 'edc_appointment.appointment'
+    timepoint_model = "edc_appointment.appointment"
 
 
 class SubjectVisit(VisitModelMixin, TimepointLookupModelMixin, BaseUuidModel):
@@ -23,7 +23,8 @@ class SubjectVisit(VisitModelMixin, TimepointLookupModelMixin, BaseUuidModel):
     timepoint_lookup_cls = VisitTimepointLookup
 
     appointment = models.OneToOneField(
-        Appointment, on_delete=PROTECT, related_name='edc_timepoint')
+        Appointment, on_delete=PROTECT, related_name="edc_timepoint"
+    )
 
     class Meta(VisitModelMixin.Meta):
         pass
