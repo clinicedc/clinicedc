@@ -1,6 +1,12 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
-from edc_visit_schedule import off_schedule_or_raise
+from edc_appointment.models.appointment import Appointment
+from edc_base import formatted_datetime
+from edc_base.utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+
+from .managers import AppointmentDeleteError
 
 
 @receiver(post_save, weak=False, dispatch_uid="create_appointments_on_post_save")
@@ -30,15 +36,40 @@ def appointment_post_save(sender, instance, raw, created, using, **kwargs):
 
 @receiver(pre_delete, weak=False, dispatch_uid="appointments_on_pre_delete")
 def appointments_on_pre_delete(sender, instance, using, **kwargs):
-    try:
-        opts = dict(
-            subject_identifier=instance.subject_identifier,
-            report_datetime=instance.appt_datetime,
-            visit_schedule_name=instance.visit_schedule_name,
-            schedule_name=instance.schedule_name,
-        )
-    except AttributeError:
-        pass
-    else:
+    if sender == Appointment:
         if instance.visit_code_sequence == 0:
-            off_schedule_or_raise(**opts)
+            schedule = site_visit_schedules.get_visit_schedule(
+                instance.visit_schedule_name
+            ).schedules.get(instance.schedule_name)
+            onschedule_datetime = schedule.onschedule_model_cls.objects.get(
+                subject_identifier=instance.subject_identifier
+            ).onschedule_datetime
+            try:
+                offschedule_datetime = schedule.offschedule_model_cls.objects.get(
+                    subject_identifier=instance.subject_identifier
+                ).offschedule_datetime
+            except ObjectDoesNotExist:
+                raise AppointmentDeleteError(
+                    f"Appointment may not be deleted. "
+                    f"Subject {instance.subject_identifier} is on schedule "
+                    f"'{instance.visit_schedule.verbose_name}.{instance.schedule_name}' "
+                    f"as of '{formatted_datetime(onschedule_datetime)}'. "
+                    f"Got appointment datetime {formatted_datetime(instance.appt_datetime)}. "
+                    f"Perhaps complete off schedule model "
+                    f"'{instance.schedule.offschedule_model_cls().verbose_name.title()}' "
+                    f"first."
+                )
+            else:
+                if (
+                    onschedule_datetime
+                    <= instance.appt_datetime
+                    <= offschedule_datetime
+                ):
+                    raise AppointmentDeleteError(
+                        f"Appointment may not be deleted. "
+                        f"Subject {instance.subject_identifier} is on schedule "
+                        f"'{instance.visit_schedule.verbose_name}.{instance.schedule_name}' "
+                        f"as of '{formatted_datetime(onschedule_datetime)}' "
+                        f"until '{formatted_datetime(get_utcnow())}'. "
+                        f"Got appointment datetime {formatted_datetime(instance.appt_datetime)}. "
+                    )

@@ -6,11 +6,12 @@ from decimal import Context
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
-from edc_visit_schedule import site_visit_schedules, OnScheduleError
+from edc_visit_schedule import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..constants import INCOMPLETE_APPT, IN_PROGRESS_APPT
 from ..models import Appointment
+from ..signals import AppointmentDeleteError
 from .helper import Helper
 from .models import SubjectConsent, SubjectVisit, OnScheduleOne, OnScheduleTwo
 from .visit_schedule import visit_schedule1, visit_schedule2
@@ -56,6 +57,7 @@ class TestAppointment(TestCase):
         )
         self.assertEqual(Appointment.objects.all().count(), 8)
 
+    @tag("2")
     def test_deletes_appointments(self):
         """Asserts manager method can delete appointments.
         """
@@ -77,7 +79,7 @@ class TestAppointment(TestCase):
         schedule = visit_schedule.schedules.get(appointments[0].schedule_name)
 
         # this calls the manager method "delete_for_subject_after_date"
-        schedule.take_off_schedule(
+        schedule.offschedule_model_cls.objects.create(
             subject_identifier=self.subject_identifier,
             offschedule_datetime=appointments[0].appt_datetime,
         )
@@ -152,7 +154,7 @@ class TestAppointment(TestCase):
 
         # raised in signal pre_delete
         with transaction.atomic():
-            self.assertRaises(OnScheduleError, appointments[1].delete)
+            self.assertRaises(AppointmentDeleteError, appointments[1].delete)
 
         self.helper.add_unscheduled_appointment(appointment)
         self.assertEqual(appointments.count(), 5)

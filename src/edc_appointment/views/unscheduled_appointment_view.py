@@ -1,5 +1,3 @@
-from decimal import Decimal
-from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import HttpResponseRedirect
@@ -55,6 +53,7 @@ class UnscheduledAppointmentView(View):
         return HttpResponseRedirect(
             reverse(
                 self.kwargs.get("redirect_url"),
-                kwargs={"subject_identifier": kwargs.get("subject_identifier")},
+                kwargs={"subject_identifier": kwargs.get(
+                    "subject_identifier")},
             )
         )
