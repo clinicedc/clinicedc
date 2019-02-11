@@ -71,5 +71,6 @@ def appointments_on_pre_delete(sender, instance, using, **kwargs):
                         f"'{instance.visit_schedule.verbose_name}.{instance.schedule_name}' "
                         f"as of '{formatted_datetime(onschedule_datetime)}' "
                         f"until '{formatted_datetime(get_utcnow())}'. "
-                        f"Got appointment datetime {formatted_datetime(instance.appt_datetime)}. "
+                        f"Got appointment datetime "
+                        f"{formatted_datetime(instance.appt_datetime)}. "
                     )

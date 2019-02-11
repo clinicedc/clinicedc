@@ -53,7 +53,6 @@ class UnscheduledAppointmentView(View):
         return HttpResponseRedirect(
             reverse(
                 self.kwargs.get("redirect_url"),
-                kwargs={"subject_identifier": kwargs.get(
-                    "subject_identifier")},
+                kwargs={"subject_identifier": kwargs.get("subject_identifier")},
             )
         )
