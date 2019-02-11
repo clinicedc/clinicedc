@@ -12,6 +12,7 @@ class MetaDataFormValidatorMixin:
             visit_schedule_name=self.instance.visit_schedule_name,
             schedule_name=self.instance.schedule_name,
             visit_code=self.instance.visit_code,
+            visit_code_sequence=self.instance.visit_code_sequence,
         ).exists()
 
     @property
@@ -24,6 +25,7 @@ class MetaDataFormValidatorMixin:
             visit_schedule_name=self.instance.visit_schedule_name,
             schedule_name=self.instance.schedule_name,
             visit_code=self.instance.visit_code,
+            visit_code_sequence=self.instance.visit_code_sequence,
             entry_status=REQUIRED,
         ).exists()
 
@@ -36,6 +38,7 @@ class MetaDataFormValidatorMixin:
             visit_schedule_name=self.instance.visit_schedule_name,
             schedule_name=self.instance.schedule_name,
             visit_code=self.instance.visit_code,
+            visit_code_sequence=self.instance.visit_code_sequence,
         ).exists()
 
     @property
@@ -48,5 +51,6 @@ class MetaDataFormValidatorMixin:
             visit_schedule_name=self.instance.visit_schedule_name,
             schedule_name=self.instance.schedule_name,
             visit_code=self.instance.visit_code,
+            visit_code_sequence=self.instance.visit_code_sequence,
             entry_status=REQUIRED,
         ).exists()
