@@ -138,22 +138,17 @@ class AppointmentAdmin(
         See `edc_visit_schedule.off_schedule_or_raise()`
         """
         has_delete_permission = super().has_delete_permission(request, obj=obj)
-        if has_delete_permission:
-            try:
-                opts = dict(
-                    subject_identifier=obj.subject_identifier,
-                    report_datetime=obj.appt_datetime,
-                    visit_schedule_name=obj.visit_schedule_name,
-                    schedule_name=obj.schedule_name,
-                )
-            except AttributeError:
-                pass
-            else:
-                if obj.visit_code_sequence == 0 or (
-                    obj.visit_code_sequence != 0 and obj.appt_status != NEW_APPT
-                ):
-                    try:
-                        off_schedule_or_raise(**opts)
-                    except OnScheduleError:
-                        has_delete_permission = False
+        if has_delete_permission and obj:
+            if obj.visit_code_sequence == 0 or (
+                obj.visit_code_sequence != 0 and obj.appt_status != NEW_APPT
+            ):
+                try:
+                    off_schedule_or_raise(
+                        subject_identifier=obj.subject_identifier,
+                        report_datetime=obj.appt_datetime,
+                        visit_schedule_name=obj.visit_schedule_name,
+                        schedule_name=obj.schedule_name,
+                    )
+                except OnScheduleError:
+                    has_delete_permission = False
         return has_delete_permission
