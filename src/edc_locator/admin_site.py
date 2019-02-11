@@ -9,3 +9,4 @@ class AdminSite(DjangoAdminSite):
 
 
 edc_locator_admin = AdminSite(name="edc_locator_admin")
+edc_locator_admin.disable_action('delete_selected')
