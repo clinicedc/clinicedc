@@ -9,3 +9,4 @@ class EdcLabAdminSite(AdminSite):
 
 
 edc_lab_admin = EdcLabAdminSite(name='edc_lab_admin')
+edc_lab_admin.disable_action('delete_selected')
