@@ -76,6 +76,7 @@ for index in range(0, 4):
             requisitions=requisitions,
             crfs=crfs,
             facility_name="default",
+            allow_unscheduled=True,
         )
     )
 for visit in visits:
