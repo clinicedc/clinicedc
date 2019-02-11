@@ -1,9 +1,14 @@
 import sys
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from dateutil.tz.tz import gettz
 from django.apps.config import AppConfig as DjangoAppConfig
 from django.conf import settings
-from django.core.management.color import color_style
 from django.core.checks import register
+from django.core.management.color import color_style
+from edc_base.utils import get_utcnow
+from edc_protocol.apps import AppConfig as BaseEdcProtocolAppConfig
 
 from .site_visit_schedules import site_visit_schedules
 from .system_checks import visit_schedule_check
@@ -57,3 +62,16 @@ if settings.APP_NAME == "edc_visit_schedule":
         visit_models = {
             "edc_visit_schedule": ("subject_visit", "edc_visit_schedule.subjectvisit")
         }
+
+    class EdcProtocolAppConfig(BaseEdcProtocolAppConfig):
+        protocol = "BHP099"
+        protocol_number = "099"
+        protocol_name = "TestApp"
+        protocol_title = ""
+        study_open_datetime = datetime(
+            2007, 12, 31, 0, 0, 0, tzinfo=gettz("UTC"))
+        study_close_datetime = get_utcnow() + relativedelta(years=5)
+
+        @property
+        def site_name(self):
+            return "Gaborone"

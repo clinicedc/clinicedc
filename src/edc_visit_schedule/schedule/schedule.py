@@ -132,12 +132,13 @@ class Schedule:
 
     def take_off_schedule(self, offschedule_datetime=None, **kwargs):
         self.subject.take_off_schedule(
-            offschedule_datetime=offschedule_datetime or get_utcnow(), **kwargs
+            offschedule_datetime=offschedule_datetime, **kwargs
         )
 
     def is_onschedule(self, **kwargs):
         try:
-            self.subject.onschedule_or_raise(compare_as_datetimes=True, **kwargs)
+            self.subject.onschedule_or_raise(
+                compare_as_datetimes=True, **kwargs)
         except (NotOnScheduleError, NotOnScheduleForDateError):
             return False
         return True

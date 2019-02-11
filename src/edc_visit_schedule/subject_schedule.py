@@ -24,6 +24,10 @@ class NotOnScheduleForDateError(Exception):
     pass
 
 
+class OnScheduleForDateError(Exception):
+    pass
+
+
 class NotConsentedError(Exception):
     pass
 
@@ -90,7 +94,8 @@ class SubjectSchedule:
         """
         onschedule_datetime = onschedule_datetime or get_utcnow()
         try:
-            self.onschedule_model_cls.objects.get(subject_identifier=subject_identifier)
+            self.onschedule_model_cls.objects.get(
+                subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             self.registered_or_raise(subject_identifier=subject_identifier)
             self.consented_or_raise(subject_identifier=subject_identifier)
@@ -135,7 +140,6 @@ class SubjectSchedule:
         * deleting future appointments
         """
         # create offschedule_model_obj if it does not exist
-        offschedule_datetime = offschedule_datetime or get_utcnow()
         try:
             self.offschedule_model_cls.objects.get(
                 subject_identifier=subject_identifier
@@ -168,7 +172,8 @@ class SubjectSchedule:
                 offschedule_datetime=offschedule_datetime,
             )
 
-            self._update_in_progress_appointment(subject_identifier=subject_identifier)
+            self._update_in_progress_appointment(
+                subject_identifier=subject_identifier)
 
             # clear future appointments
             self.appointment_model_cls.objects.delete_for_subject_after_date(
@@ -278,7 +283,8 @@ class SubjectSchedule:
         """Raises an exception if one or more consents do not exist.
         """
         try:
-            self.consent_model_cls.objects.get(subject_identifier=subject_identifier)
+            self.consent_model_cls.objects.get(
+                subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             raise NotConsentedError(
                 f"Failed to put subject on schedule. Consent not found. "

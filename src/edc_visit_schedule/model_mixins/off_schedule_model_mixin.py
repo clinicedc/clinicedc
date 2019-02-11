@@ -1,16 +1,20 @@
+import arrow
+
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models import options
 from edc_base import get_utcnow
 from edc_base.model_validators import datetime_not_future
+from edc_base.model_validators.date import date_not_future
+from edc_protocol.validators import date_not_before_study_start
 from edc_protocol.validators import datetime_not_before_study_start
 
 from ..site_visit_schedules import site_visit_schedules
 from .schedule_model_mixin import ScheduleModelMixin
-from django.core.exceptions import ImproperlyConfigured
-import arrow
 
 if "offschedule_datetime_field" not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("offschedule_datetime_field",)
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + \
+        ("offschedule_datetime_field",)
 
 
 class OffScheduleModelMixin(ScheduleModelMixin):
@@ -39,21 +43,15 @@ class OffScheduleModelMixin(ScheduleModelMixin):
         try:
             dt.date()
         except AttributeError:
+            date_not_before_study_start(dt)
+            date_not_future(dt)
             self.offschedule_datetime = arrow.Arrow.fromdate(dt).datetime
         else:
+            datetime_not_before_study_start(dt)
+            datetime_not_future(dt)
             self.offschedule_datetime = dt
-
         self.report_datetime = self.offschedule_datetime
         super().save(*args, **kwargs)
-
-    def take_off_schedule(self):
-        _, schedule = site_visit_schedules.get_by_offschedule_model(
-            self._meta.label_lower
-        )
-        schedule.take_off_schedule(
-            subject_identifier=self.subject_identifier,
-            offschedule_datetime=self.offschedule_datetime,
-        )
 
     class Meta:
         abstract = True

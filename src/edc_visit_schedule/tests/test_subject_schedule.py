@@ -66,7 +66,8 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         self.visit_schedule_two.add_schedule(self.schedule_two_2)
         site_visit_schedules.register(self.visit_schedule_two)
         self.subject_identifier = "111111"
-        SubjectConsent.objects.create(subject_identifier=self.subject_identifier)
+        SubjectConsent.objects.create(
+            subject_identifier=self.subject_identifier)
 
     def test_onschedule_updates_history(self):
         """Asserts returns the correct instances for the schedule.
@@ -157,7 +158,9 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         )
         schedule = visit_schedule.schedules.get("schedule")
         schedule.put_on_schedule(subject_identifier=self.subject_identifier)
-        schedule.take_off_schedule(subject_identifier=self.subject_identifier)
+        schedule.take_off_schedule(
+            subject_identifier=self.subject_identifier,
+            offschedule_datetime=get_utcnow())
         try:
             OffSchedule.objects.get(subject_identifier=self.subject_identifier)
         except ObjectDoesNotExist:
