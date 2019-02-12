@@ -36,6 +36,10 @@ class Requisition(Crf):
         return f"{self.panel.name} {required}"
 
     @property
+    def name(self):
+        return self.panel.name
+
+    @property
     def verbose_name(self):
         return self.panel.verbose_name
 

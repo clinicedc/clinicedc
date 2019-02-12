@@ -3,6 +3,7 @@ import re
 from django.apps import apps as django_apps
 
 from .window_period import WindowPeriod
+from pprint import pprint
 
 
 class VisitCodeError(Exception):
@@ -128,7 +129,13 @@ class Visit:
 
     @property
     def all_requisitions(self):
-        return self.requisitions + self.requisitions_unscheduled + self.requisitions_prn
+        names = list(set([r.name for r in self.requisitions]))
+        requisitions = list(self.requisitions) + [
+            r for r in self.requisitions_unscheduled if r.name not in names]
+        names = list(set([r.name for r in requisitions]))
+        requisitions = requisitions + [
+            r for r in self.requisitions_prn if r.name not in names]
+        return sorted(requisitions, key=lambda x: x.show_order)
 
     def next_form(self, model=None, panel=None):
         """Returns the next required "form" or None.
@@ -189,7 +196,8 @@ class Visit:
             for crf in self.requisitions_unscheduled:
                 django_apps.get_model(crf.model)
         except LookupError as e:
-            warnings.append(f"{e} Got Visit {self.code} crf.model={crf.model}.")
+            warnings.append(
+                f"{e} Got Visit {self.code} crf.model={crf.model}.")
         return warnings
 
     def to_dict(self):
