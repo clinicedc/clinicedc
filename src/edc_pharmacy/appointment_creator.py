@@ -1,4 +1,4 @@
-from edc_appointment.appointment_creator import AppointmentCreator \
+from edc_appointment.creators import AppointmentCreator \
     as BaseAppointmentCreator
 
 
