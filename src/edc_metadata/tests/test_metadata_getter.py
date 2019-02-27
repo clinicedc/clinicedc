@@ -23,8 +23,7 @@ class TestMetadataGetter(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
