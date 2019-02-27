@@ -9,4 +9,4 @@ class EdcMetaDataAdminSite(AdminSite):
 
 
 edc_metadata_admin = EdcMetaDataAdminSite(name="edc_metadata_admin")
-edc_metadata_admin.disable_action('delete_selected')
+edc_metadata_admin.disable_action("delete_selected")
