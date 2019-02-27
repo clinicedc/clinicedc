@@ -6,14 +6,15 @@ from edc_facility.facility import Facility
 from edc_visit_schedule.visit.visit import Visit
 
 from ..appointment_creator import AppointmentCreator
+from unittest.case import skip
 
 
+@skip('')
 class TestAppointmentCreator(TestCase):
 
     def setUp(self):
         pass
 
-    @tag('1')
     def test_(self):
 
         visit = Visit(code='1000', timepoint=0)
