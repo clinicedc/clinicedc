@@ -15,10 +15,9 @@ class PrintServerError(Exception):
 
 
 class PrintersMixin:
-
     @property
     def user_profile(self):
-        UserProfile = django_apps.get_model('edc_auth.userprofile')
+        UserProfile = django_apps.get_model("edc_auth.userprofile")
         return UserProfile.objects.get(user=self.request.user)
 
     @property
@@ -26,31 +25,31 @@ class PrintersMixin:
         """Returns a string.
         """
         return self.request.session.get(
-            'print_server_name', self.user_profile.print_server)
+            "print_server_name", self.user_profile.print_server
+        )
 
     @property
     def clinic_label_printer_name(self):
         """Returns a string.
         """
         return self.request.session.get(
-            'clinic_label_printer_name',
-            self.user_profile.clinic_label_printer)
+            "clinic_label_printer_name", self.user_profile.clinic_label_printer
+        )
 
     @property
     def lab_label_printer_name(self):
         """Returns a string.
         """
         return self.request.session.get(
-            'lab_label_printer_name',
-            self.user_profile.lab_label_printer)
+            "lab_label_printer_name", self.user_profile.lab_label_printer
+        )
 
     @property
     def print_server_ip(self):
-        if self.print_server_name == 'localhost':
+        if self.print_server_name == "localhost":
             return None
         try:
-            return socket.gethostbyname(
-                self.print_server_name)
+            return socket.gethostbyname(self.print_server_name)
         except (TypeError, socket.gaierror):
             return self.print_server_name
 
@@ -66,10 +65,11 @@ class PrintersMixin:
                     cups_connection = cups.Connection(self.print_server_ip)
             except RuntimeError as e:
                 raise PrintServerError(
-                    f'Unable to connect to print server. Tried '
-                    f'\'{self.print_server_name}\'. Got {e}')
+                    f"Unable to connect to print server. Tried "
+                    f"'{self.print_server_name}'. Got {e}"
+                )
         else:
-            raise PrintServerError('Print server not defined')
+            raise PrintServerError("Print server not defined")
         return cups_connection
 
     @property
@@ -83,14 +83,16 @@ class PrintersMixin:
             cups_printers = self.print_server().getPrinters()
         except (RuntimeError, cups.IPPError) as e:
             raise PrinterError(
-                f'Unable to list printers from print server. '
-                f'Tried \'{self.print_server_name}\'. Got {e}')
+                f"Unable to list printers from print server. "
+                f"Tried '{self.print_server_name}'. Got {e}"
+            )
         for name in cups_printers:
             printer = Printer(
                 name=name,
                 print_server_func=self.print_server,
                 print_server_name=self.print_server_name,
-                print_server_ip=self.print_server_ip)
+                print_server_ip=self.print_server_ip,
+            )
             printers.update({name: printer})
         return printers
 

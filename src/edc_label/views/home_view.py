@@ -8,6 +8,6 @@ from ..view_mixins import EdcLabelViewMixin
 
 class HomeView(EdcBaseViewMixin, NavbarViewMixin, EdcLabelViewMixin, TemplateView):
 
-    template_name = f'edc_label/bootstrap{settings.EDC_BOOTSTRAP}/home.html'
-    navbar_name = 'edc_label'
-    navbar_selected_item = 'label'
+    template_name = f"edc_label/bootstrap{settings.EDC_BOOTSTRAP}/home.html"
+    navbar_name = "edc_label"
+    navbar_selected_item = "label"

@@ -7,10 +7,9 @@ from ..printer import Printer
 
 class DummyCupsConnection:
 
-    printer_name = 'test_printer'
+    printer_name = "test_printer"
 
-    properties = {
-        'printer-state-reasons': ['']}
+    properties = {"printer-state-reasons": [""]}
 
     def getPrinters(self):
         return {self.printer_name: self.properties}
@@ -29,27 +28,20 @@ class DummyCupsConnection:
 
 
 class TestLabels(TestCase):
-
     def test_dummy(self):
         connection = DummyCupsConnection()
-        connection.getPrinters().get('test_printer')
+        connection.getPrinters().get("test_printer")
 
     def test_str(self):
-        printer = Printer(
-            name='test_printer',
-            print_server_func=DummyCupsConnection)
+        printer = Printer(name="test_printer", print_server_func=DummyCupsConnection)
         self.assertTrue(str(printer))
 
     def test_repr(self):
-        printer = Printer(
-            name='test_printer',
-            print_server_func=DummyCupsConnection)
+        printer = Printer(name="test_printer", print_server_func=DummyCupsConnection)
         self.assertTrue(repr(printer))
 
     def test_stream_job(self):
-        printer = Printer(
-            name='test_printer',
-            print_server_func=DummyCupsConnection)
+        printer = Printer(name="test_printer", print_server_func=DummyCupsConnection)
         zpl_data = {}
         jobid = printer.stream_print(zpl_data)
         self.assertIsNotNone(jobid)
