@@ -19,8 +19,13 @@ class Printer:
     * Adds extra properties and methods.
     """
 
-    def __init__(self, name=None, print_server_func=None, print_server_ip=None,
-                 print_server_name=None):
+    def __init__(
+        self,
+        name=None,
+        print_server_func=None,
+        print_server_ip=None,
+        print_server_name=None,
+    ):
         self.name = name
         self.printer_info = None
         self.printer_make_and_model = None
@@ -34,18 +39,19 @@ class Printer:
             pass
         else:
             for k, v in cups_properties.items():
-                k = k.replace('-', '_')
+                k = k.replace("-", "_")
                 setattr(self, k, v)
         self.printer_state_reasons = [
-            r for r in self.printer_state_reasons if r != 'none']
+            r for r in self.printer_state_reasons if r != "none"
+        ]
         if self.printer_state_reasons:
-            self.printer_state_reasons = ', '.join(self.printer_state_reasons)
+            self.printer_state_reasons = ", ".join(self.printer_state_reasons)
 
     def __str__(self):
-        return f'{self.printer_info or self.name} ({self.printer_make_and_model})'
+        return f"{self.printer_info or self.name} ({self.printer_make_and_model})"
 
     def __repr__(self):
-        return f'{self.__class__}(name={self.name})'
+        return f"{self.__class__}(name={self.name})"
 
     def stream_print(self, zpl_data=None):
         """Returns a job_id after sending zpl_data
@@ -53,14 +59,16 @@ class Printer:
         """
         cups_connection = self.print_server()
         try:
-            job_id = cups_connection.createJob(self.name, '', {})
+            job_id = cups_connection.createJob(self.name, "", {})
             cups_connection.startDocument(
-                self.name, job_id, str(uuid4()), cups.CUPS_FORMAT_RAW, 1)
+                self.name, job_id, str(uuid4()), cups.CUPS_FORMAT_RAW, 1
+            )
             cups_connection.writeRequestData(zpl_data, len(zpl_data))
             cups_connection.finishDocument(self.name)
         except cups.IPPError as e:
             raise PrinterError(
-                f'Failed to print. Tried printing to \'{self.name}\'. Got \'{e}\'.')
+                f"Failed to print. Tried printing to '{self.name}'. Got '{e}'."
+            )
         return job_id
 
     def print_file(self, zpl_data=None):
@@ -71,14 +79,14 @@ class Printer:
         _, temp = tempfile.mkstemp()
         cups_connection = self.print_server()
         try:
-            with open(temp, 'w') as f:
+            with open(temp, "w") as f:
                 f.write(zpl_data)
             #  note: "raw" attr is to prevent CUPS from rendering
-            args = (self.name, temp, 'edc_label', {'raw': temp})
+            args = (self.name, temp, "edc_label", {"raw": temp})
             try:
                 job_id = cups_connection.printFile(*args)
             except cups.IPPError as e:
-                raise PrinterError(f'{e} using options {args}.')
+                raise PrinterError(f"{e} using options {args}.")
         finally:
             os.remove(temp)
         return job_id
