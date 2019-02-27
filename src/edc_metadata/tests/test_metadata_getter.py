@@ -56,15 +56,6 @@ class TestMetadataGetter(TestCase):
         )
         self.assertEqual(getter.metadata_objects.count(), 0)
 
-    def test_objects_none_no_visit_with_appointment(self):
-        appointment = Appointment.objects.create(
-            subject_identifier=self.subject_identifier,
-            appt_datetime=get_utcnow(),
-            visit_code="BLAH",
-        )
-        getter = CrfMetadataGetter(appointment=appointment)
-        self.assertEqual(getter.metadata_objects.count(), 0)
-
     def test_objects_not_none_without_appointment(self):
         getter = CrfMetadataGetter(
             subject_identifier=self.subject_identifier,
