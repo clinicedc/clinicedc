@@ -15,6 +15,7 @@ from edc_model_fields.fields import IdentityTypeField, IsDateEstimatedField
 
 from .exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
+from edc_base.model_managers.historical_records import HistoricalRecords
 
 
 class RegisteredSubject(
@@ -135,6 +136,8 @@ class RegisteredSubject(
     )
 
     on_site = CurrentSiteManager()
+
+    history = HistoricalRecords()
 
     objects = RegisteredSubjectManager()
 
