@@ -83,8 +83,7 @@ class TestNotification(TestCase):
         site_notifications._registry = {}
         site_notifications.loaded = False
         # registry
-        self.assertRaises(RegistryNotLoaded, getattr,
-                          site_notifications, "registry")
+        self.assertRaises(RegistryNotLoaded, getattr, site_notifications, "registry")
 
         # repr
         class ErikNotification(Notification):
@@ -95,8 +94,7 @@ class TestNotification(TestCase):
         self.assertTrue(repr(site_notifications))
 
         # get
-        self.assertRaises(NotificationNotRegistered,
-                          site_notifications.get, "frisco")
+        self.assertRaises(NotificationNotRegistered, site_notifications.get, "frisco")
 
     def test_duplicate_notifications(self):
         """Assert raises for non-unique names and non-unique display_names.
@@ -506,8 +504,7 @@ class TestNotification(TestCase):
 
     def test_graded_event_grade3_as_test_sms_message_to_subscribed_user(self, *args):
 
-        user = User.objects.create(
-            username="erikvw", is_active=True, is_staff=True)
+        user = User.objects.create(username="erikvw", is_active=True, is_staff=True)
 
         class G3EventNotification(GradedEventNotification):
             name = "g3_event"
@@ -518,8 +515,7 @@ class TestNotification(TestCase):
         site_notifications._registry = {}
         site_notifications.register(G3EventNotification)
         site_notifications.update_notification_list()
-        notification = NotificationModel.objects.get(
-            name=G3EventNotification.name)
+        notification = NotificationModel.objects.get(name=G3EventNotification.name)
         user.userprofile.sms_notifications.add(notification)
         user.userprofile.mobile = settings.TWILIO_TEST_RECIPIENT
         user.userprofile.save()
@@ -552,8 +548,7 @@ class TestNotification(TestCase):
         site_notifications.register(notification_cls=G3EventNotification)
         site_notifications.update_notification_list(verbose=True)
 
-        self.assertEqual(site_notifications.get(
-            "g3_event"), G3EventNotification)
+        self.assertEqual(site_notifications.get("g3_event"), G3EventNotification)
 
         try:
             NotificationModel.objects.get(name=G3EventNotification.name)
@@ -596,8 +591,7 @@ class TestNotification(TestCase):
 
         site_notifications.register(notification_cls=G3EventNotification)
         site_notifications.update_notification_list()
-        notification = NotificationModel.objects.get(
-            name=G3EventNotification.name)
+        notification = NotificationModel.objects.get(name=G3EventNotification.name)
         user.userprofile.email_notifications.add(notification)
         user.userprofile.save()
 

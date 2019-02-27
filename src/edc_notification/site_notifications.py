@@ -94,8 +94,7 @@ class SiteNotifications:
         for notification_cls in self.registry.values():
             notification = notification_cls()
             if notification.notify(instance=instance, **kwargs):
-                notified.update(
-                    {notification_cls.name: instance._meta.label_lower})
+                notified.update({notification_cls.name: instance._meta.label_lower})
         return notified
 
     def update_notification_list(self, apps=None, schema_editor=None, verbose=False):
@@ -115,8 +114,7 @@ class SiteNotifications:
         # flag all notifications as disabled and re-enable as required
         Notification.objects.all().update(enabled=False)
         if site_notifications.loaded:
-            sys.stdout.write(style.MIGRATE_HEADING(
-                f"Populating Notification model:\n"))
+            sys.stdout.write(style.MIGRATE_HEADING(f"Populating Notification model:\n"))
             self.delete_unregistered_notifications(apps=apps)
             for name, notification_cls in site_notifications.registry.items():
                 if verbose:
@@ -156,8 +154,7 @@ class SiteNotifications:
             and settings.EMAIL_BACKEND
             != "django.core.mail.backends.locmem.EmailBackend"
         ):
-            sys.stdout.write(style.MIGRATE_HEADING(
-                f"Creating mailing lists:\n"))
+            sys.stdout.write(style.MIGRATE_HEADING(f"Creating mailing lists:\n"))
             for name, notification_cls in self.registry.items():
                 message = None
                 notification = notification_cls()
@@ -198,8 +195,7 @@ class SiteNotifications:
             try:
                 mod = import_module(app)
                 try:
-                    before_import_registry = copy.copy(
-                        site_notifications._registry)
+                    before_import_registry = copy.copy(site_notifications._registry)
                     import_module(f"{app}.{module_name}")
                     if verbose:
                         sys.stdout.write(
