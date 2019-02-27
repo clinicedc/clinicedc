@@ -62,14 +62,11 @@ class RegisteredSubject(
         verbose_name="Gender", max_length=1, choices=GENDER, null=True, blank=False
     )
 
-    subject_consent_id = models.CharField(
-        max_length=100, null=True, blank=True)
+    subject_consent_id = models.CharField(max_length=100, null=True, blank=True)
 
-    registration_identifier = models.CharField(
-        max_length=36, null=True, blank=True)
+    registration_identifier = models.CharField(max_length=36, null=True, blank=True)
 
-    sid = models.CharField(
-        verbose_name="SID", max_length=15, null=True, blank=True)
+    sid = models.CharField(verbose_name="SID", max_length=15, null=True, blank=True)
 
     subject_type = models.CharField(max_length=25, null=True, blank=True)
 
@@ -93,8 +90,7 @@ class RegisteredSubject(
 
     identity_type = IdentityTypeField(null=True, blank=True)
 
-    screening_identifier = models.CharField(
-        max_length=36, null=True, blank=True)
+    screening_identifier = models.CharField(max_length=36, null=True, blank=True)
 
     screening_datetime = models.DateTimeField(null=True, blank=True)
 
@@ -225,14 +221,11 @@ class RegisteredSubject(
                         **{"pk": self.pk} if self.id else {}
                     ).get(**{attrname: getattr(self, attrname)})
                     if not self.id:
-                        raise RegisteredSubjectError(
-                            error_msg.format(action="insert"))
+                        raise RegisteredSubjectError(error_msg.format(action="insert"))
                     elif self.subject_identifier_is_set and obj.id != self.id:
-                        raise RegisteredSubjectError(
-                            error_msg.format(action="update"))
+                        raise RegisteredSubjectError(error_msg.format(action="update"))
                     else:
-                        raise RegisteredSubjectError(
-                            error_msg.format(action="update"))
+                        raise RegisteredSubjectError(error_msg.format(action="update"))
                 except self.__class__.DoesNotExist:
                     pass
 
@@ -252,11 +245,9 @@ class RegisteredSubject(
         ordering = ["subject_identifier"]
         unique_together = ("first_name", "dob", "initials", "additional_key")
         indexes = [
-            models.Index(fields=["first_name", "dob",
-                                 "initials", "additional_key"]),
+            models.Index(fields=["first_name", "dob", "initials", "additional_key"]),
             models.Index(
-                fields=["identity", "subject_identifier",
-                        "screening_identifier"]
+                fields=["identity", "subject_identifier", "screening_identifier"]
             ),
         ]
         permissions = (
