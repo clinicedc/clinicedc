@@ -32,19 +32,16 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.assertIn("1234", str(obj))
         self.assertEqual(obj.natural_key(), ("1234",))
         self.assertEqual(
-            obj, OnSchedule.objects.get_by_natural_key(
-                subject_identifier="1234")
+            obj, OnSchedule.objects.get_by_natural_key(subject_identifier="1234")
         )
 
     def test_str_offschedule(self):
         OnSchedule.objects.create(subject_identifier="1234")
-        obj = OffSchedule.objects.create(
-            subject_identifier="1234")
+        obj = OffSchedule.objects.create(subject_identifier="1234")
         self.assertIn("1234", str(obj))
         self.assertEqual(obj.natural_key(), ("1234",))
         self.assertEqual(
-            obj, OffSchedule.objects.get_by_natural_key(
-                subject_identifier="1234")
+            obj, OffSchedule.objects.get_by_natural_key(subject_identifier="1234")
         )
 
     def test_offschedule_custom_field_datetime(self):
@@ -138,14 +135,12 @@ class TestModels(SiteTestCaseMixin, TestCase):
             subject_identifier="1234",
             onschedule_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc),
         )
-        history_obj = SubjectScheduleHistory.objects.get(
-            subject_identifier="1234")
+        history_obj = SubjectScheduleHistory.objects.get(subject_identifier="1234")
         self.assertEqual(history_obj.schedule_status, ON_SCHEDULE)
         OffSchedule.objects.create(
             subject_identifier="1234", offschedule_datetime=get_utcnow()
         )
-        history_obj = SubjectScheduleHistory.objects.get(
-            subject_identifier="1234")
+        history_obj = SubjectScheduleHistory.objects.get(subject_identifier="1234")
         self.assertEqual(history_obj.schedule_status, OFF_SCHEDULE)
 
     def test_history(self):
@@ -201,8 +196,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
             onschedule_datetime=datetime(2017, 12, 1, 0, 0, 0, 0, pytz.utc),
         )
 
-        history = SubjectScheduleHistory.objects.onschedules(
-            subject_identifier="1234")
+        history = SubjectScheduleHistory.objects.onschedules(subject_identifier="1234")
         self.assertEqual([onschedule], [obj for obj in history])
 
         onschedules = SubjectScheduleHistory.objects.onschedules(
