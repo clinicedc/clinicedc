@@ -1,14 +1,15 @@
 from django.test import TestCase, tag
-from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
 from edc_locator.view_mixins import (
     SubjectLocatorViewMixin,
     SubjectLocatorViewMixinError,
 )
 from edc_registration.models import RegisteredSubject
+from edc_visit_schedule import site_visit_schedules
 
 from ..view_mixins import SubjectVisitViewMixin, SubjectVisitViewMixinError
-from .models import SubjectVisit, TestModel, BadSubjectVisit
+from .models import SubjectVisit, TestModel, BadSubjectVisit, Appointment
+from .visit_schedule import visit_schedule1
 
 
 class DummyModelWrapper:
@@ -18,11 +19,15 @@ class DummyModelWrapper:
 
 class TestViewMixins(TestCase):
     def setUp(self):
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule=visit_schedule1)
 
         RegisteredSubject.objects.create(subject_identifier="12345")
 
         self.appointment = Appointment.objects.create(
-            visit_code="1000", appt_datetime=get_utcnow()
+            visit_code="1000",
+            appt_datetime=get_utcnow(),
+            visit_schedule_name="visit_schedule1",
         )
         self.subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, subject_identifier="12345"

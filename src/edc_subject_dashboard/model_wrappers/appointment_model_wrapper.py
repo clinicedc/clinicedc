@@ -12,8 +12,7 @@ class AppointmentModelWrapperError(Exception):
 
 class AppointmentModelWrapper(ModelWrapper):
 
-    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get(
-        "subject_dashboard_url")
+    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
     next_url_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
     next_url_attrs = ["subject_identifier"]
     querystring_attrs = ["subject_identifier", "reason"]
@@ -65,8 +64,7 @@ class AppointmentModelWrapper(ModelWrapper):
         try:
             model_obj = self.object.visit
         except ObjectDoesNotExist:
-            visit_model = django_apps.get_model(
-                self.visit_model_wrapper_cls.model)
+            visit_model = django_apps.get_model(self.visit_model_wrapper_cls.model)
             model_obj = visit_model(
                 appointment=self.object,
                 subject_identifier=self.subject_identifier,
@@ -89,21 +87,21 @@ class AppointmentModelWrapper(ModelWrapper):
     def unscheduled_appointment_url(self):
         """Returns a url for the unscheduled appointment.
         """
-        Appointment = django_apps.get_model('edc_appointment.appointment')
+        Appointment = django_apps.get_model("edc_appointment.appointment")
         kwargs = dict(
             subject_identifier=self.subject_identifier,
             visit_schedule_name=self.object.visit_schedule_name,
             schedule_name=self.object.schedule_name,
-            visit_code=self.object.visit_code)
-        appointment = Appointment.objects.filter(
-            visit_code_sequence__gt=0, **kwargs).order_by(
-                'visit_code_sequence').last()
-        try:
-            timepoint = appointment.timepoint + Decimal('0.1')
-        except AttributeError:
-            timepoint = Decimal('0.1')
-        kwargs.update(
-            timepoint=str(timepoint),
-            redirect_url=self.dashboard_url_name,
+            visit_code=self.object.visit_code,
         )
+        appointment = (
+            Appointment.objects.filter(visit_code_sequence__gt=0, **kwargs)
+            .order_by("visit_code_sequence")
+            .last()
+        )
+        try:
+            timepoint = appointment.timepoint + Decimal("0.1")
+        except AttributeError:
+            timepoint = Decimal("0.1")
+        kwargs.update(timepoint=str(timepoint), redirect_url=self.dashboard_url_name)
         return reverse(self.unscheduled_appointment_url_name, kwargs=kwargs)

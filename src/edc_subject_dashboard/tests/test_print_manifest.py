@@ -1,8 +1,7 @@
 from django.test import TestCase
-from edc_appointment.models import Appointment
 from edc_base.utils import get_utcnow
 
-from .models import SubjectVisit, TestModel, BadSubjectVisit
+from .models import SubjectVisit, TestModel, BadSubjectVisit, Appointment
 
 
 class DummyModelWrapper:
