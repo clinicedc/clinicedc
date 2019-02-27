@@ -13,37 +13,33 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
     form = ManifestForm
 
     fieldsets = (
-        (None, {
-            'fields': (
-                'manifest_datetime',
-                'shipper',
-                'consignee',
-                'export_references',
-                'status',
-                'category',
-                'category_other',
-            )}),
-        ('Site', {
-            'classes': ('collapse',),
-            'fields': (
-                'site',
-            )}),
-        ('Shipping', {
-            'classes': ('collapse',),
-            'fields': (
-                'shipped',
-                'export_datetime',
-            )}),
-        audit_fieldset_tuple)
+        (
+            None,
+            {
+                "fields": (
+                    "manifest_datetime",
+                    "shipper",
+                    "consignee",
+                    "export_references",
+                    "status",
+                    "category",
+                    "category_other",
+                )
+            },
+        ),
+        ("Site", {"classes": ("collapse",), "fields": ("site",)}),
+        (
+            "Shipping",
+            {"classes": ("collapse",), "fields": ("shipped", "export_datetime")},
+        ),
+        audit_fieldset_tuple,
+    )
 
     def get_readonly_fields(self, request, obj=None):
-        return (super().get_readonly_fields(request, obj=obj)
-                + audit_fields
-                + ('site', ))
+        return super().get_readonly_fields(request, obj=obj) + audit_fields + ("site",)
 
-    list_display = (
-        'manifest_identifier', 'manifest_datetime', 'shipper', 'consignee')
+    list_display = ("manifest_identifier", "manifest_datetime", "shipper", "consignee")
 
-    list_filter = ('manifest_datetime', )
+    list_filter = ("manifest_datetime",)
 
-    search_fields = ('manifest_identifier', )
+    search_fields = ("manifest_identifier",)

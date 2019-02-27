@@ -5,12 +5,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_lab', '0010_auto_20171127_1541'),
-    ]
+    dependencies = [("edc_lab", "0010_auto_20171127_1541")]
 
-    operations = [
-        migrations.DeleteModel(
-            name='IdentifierHistory',
-        ),
-    ]
+    operations = [migrations.DeleteModel(name="IdentifierHistory")]

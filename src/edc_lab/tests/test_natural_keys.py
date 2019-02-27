@@ -14,19 +14,19 @@ class TestNaturalKey(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, 'test_site', 'Test Site'), ), fqdn='clinicedc.org')
+            sites=((10, "test_site", "Test Site"),), fqdn="clinicedc.org"
+        )
         return super().setUpClass()
 
     def tearDown(self):
         super().tearDown()
 
     def test_natural_key_attrs(self):
-        self.offline_test_helper.offline_test_natural_key_attr(
-            'edc_lab')
+        self.offline_test_helper.offline_test_natural_key_attr("edc_lab")
 
     def test_get_by_natural_key_attr(self):
-        self.offline_test_helper.offline_test_get_by_natural_key_attr(
-            'edc_lab')
+        self.offline_test_helper.offline_test_get_by_natural_key_attr("edc_lab")
+
 
 #     def test_deserialize_subject_screening(self):
 #         ambition_screening = mommy.make_recipe(

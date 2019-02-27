@@ -5,8 +5,7 @@ from edc_base.sites.site_model_mixin import SiteModelMixin
 
 class ResultItemModelMixin(SiteModelMixin, models.Model):
 
-    report_datetime = models.DateTimeField(
-        null=True)
+    report_datetime = models.DateTimeField(null=True)
 
     utestid = models.CharField(max_length=25, null=True)
 
@@ -18,8 +17,7 @@ class ResultItemModelMixin(SiteModelMixin, models.Model):
 
     reference = models.CharField(max_length=25, null=True)
 
-    pending_datetime = models.DateTimeField(
-        default=timezone.now)
+    pending_datetime = models.DateTimeField(default=timezone.now)
 
     pending = models.BooleanField(default=True)
 

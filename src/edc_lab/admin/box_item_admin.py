@@ -13,15 +13,11 @@ class BoxItemAdmin(BaseModelAdmin, admin.ModelAdmin):
     form = BoxItemForm
 
     fieldsets = (
-        (None, {
-            'fields': (
-                'box',
-                'position',
-                'identifier',
-                'comment')}),
-        audit_fieldset_tuple)
+        (None, {"fields": ("box", "position", "identifier", "comment")}),
+        audit_fieldset_tuple,
+    )
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj=obj) + audit_fields
 
-    list_display = ('identifier', 'position', )
+    list_display = ("identifier", "position")

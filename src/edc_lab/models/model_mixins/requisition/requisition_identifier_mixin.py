@@ -7,27 +7,22 @@ from edc_constants.constants import YES, UUID_PATTERN
 
 from ....identifiers import RequisitionIdentifier
 
-human_readable_pattern = '^[0-9A-Z]{3}\-[0-9A-Z]{4}$'
+human_readable_pattern = "^[0-9A-Z]{3}\-[0-9A-Z]{4}$"
 
 
 class RequisitionIdentifierMixin(models.Model):
 
     requisition_identifier = models.CharField(
-        verbose_name='Requisition Id',
-        max_length=50,
-        unique=True)
+        verbose_name="Requisition Id", max_length=50, unique=True
+    )
 
     identifier_prefix = models.CharField(
-        max_length=50,
-        null=True,
-        editable=False,
-        unique=True)
+        max_length=50, null=True, editable=False, unique=True
+    )
 
     primary_aliquot_identifier = models.CharField(
-        max_length=18,
-        null=True,
-        editable=False,
-        unique=True)
+        max_length=18, null=True, editable=False, unique=True
+    )
 
     def save(self, *args, **kwargs):
         if not self.requisition_identifier:
@@ -41,7 +36,7 @@ class RequisitionIdentifierMixin(models.Model):
         """Returns a human readable requisition identifier.
         """
         x = self.requisition_identifier
-        return f'{x[0:3]}-{x[3:7]}'
+        return f"{x[0:3]}-{x[3:7]}"
 
     def get_protocol_number(self):
         """Returns the protocol number from the field or
@@ -49,8 +44,7 @@ class RequisitionIdentifierMixin(models.Model):
         """
         protocol_number = self.protocol_number
         if not self.protocol_number:
-            protocol_number = django_apps.get_app_config(
-                'edc_protocol').protocol_number
+            protocol_number = django_apps.get_app_config("edc_protocol").protocol_number
         return protocol_number
 
     def get_requisition_identifier(self):
@@ -62,7 +56,8 @@ class RequisitionIdentifierMixin(models.Model):
             return RequisitionIdentifier(
                 protocol_number=self.protocol_number,
                 subject_identifier=self.subject_identifier,
-                source_model=self._meta.label_lower).identifier
+                source_model=self._meta.label_lower,
+            ).identifier
         return self.requisition_identifier
 
     class Meta:

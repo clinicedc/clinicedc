@@ -8,8 +8,12 @@ from .box import Box
 from .manifest import ManifestItem
 
 
-@receiver(post_delete, weak=False, sender=ManifestItem,
-          dispatch_uid="manifest_item_on_post_delete")
+@receiver(
+    post_delete,
+    weak=False,
+    sender=ManifestItem,
+    dispatch_uid="manifest_item_on_post_delete",
+)
 def manifest_item_on_post_delete(sender, instance, using, **kwargs):
     try:
         box = Box.objects.get(box_identifier=instance.identifier)
@@ -20,7 +24,8 @@ def manifest_item_on_post_delete(sender, instance, using, **kwargs):
         box.save()
 
 
-@receiver(post_delete, weak=False, sender=BoxItem,
-          dispatch_uid="box_item_on_post_delete")
+@receiver(
+    post_delete, weak=False, sender=BoxItem, dispatch_uid="box_item_on_post_delete"
+)
 def box_item_on_post_delete(sender, instance, using, **kwargs):
     instance.box.save()

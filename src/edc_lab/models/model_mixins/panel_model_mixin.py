@@ -32,7 +32,8 @@ class PanelModelMixin(models.Model):
                 panel_object = self.lab_profile_object.panels[panel_name]
             except KeyError as e:
                 raise PanelModelError(
-                    f'Undefined panel name. Got {panel_name}. See AppConfig. Got {e}')
+                    f"Undefined panel name. Got {panel_name}. See AppConfig. Got {e}"
+                )
         return panel_object
 
     @property
@@ -40,10 +41,11 @@ class PanelModelMixin(models.Model):
         lab_profile_object = site_labs.get(self.panel.lab_profile_name)
         if not lab_profile_object:
             raise LabProfileError(
-                f'Undefined lab profile name detected from panel {self.panel}. '
-                f'Expected one of {site_labs.lab_profiles}. '
-                f'Got \'{self.panel.lab_profile_name}\'. '
-                'See stored values in panel model.')
+                f"Undefined lab profile name detected from panel {self.panel}. "
+                f"Expected one of {site_labs.lab_profiles}. "
+                f"Got '{self.panel.lab_profile_name}'. "
+                "See stored values in panel model."
+            )
         return lab_profile_object
 
     class Meta:

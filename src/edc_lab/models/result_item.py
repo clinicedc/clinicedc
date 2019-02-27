@@ -9,11 +9,11 @@ from .result import Result
 
 
 class ResultItemManager(models.Manager):
-
     def get_by_natural_key(self, report_datetime, requisition_identifier):
         return self.get(
             report_datetime=report_datetime,
-            requisition__requisition_identifier=requisition_identifier,)
+            requisition__requisition_identifier=requisition_identifier,
+        )
 
 
 class ResultItem(ResultItemModelMixin, BaseUuidModel):
@@ -28,4 +28,5 @@ class ResultItem(ResultItemModelMixin, BaseUuidModel):
 
     def natural_key(self):
         return (self.report_datetime,) + self.result.natural_key()
-    natural_key.dependencies = ['edc_lab.result', 'sites.Site']
+
+    natural_key.dependencies = ["edc_lab.result", "sites.Site"]

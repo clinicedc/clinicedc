@@ -13,21 +13,34 @@ class BoxAdmin(BaseModelAdmin, admin.ModelAdmin):
     form = BoxForm
 
     fieldsets = (
-        (None, {
-            'fields': (
-                'name',
-                'box_type',
-                'specimen_types',
-                'box_datetime',
-                'category',
-                'category_other',
-                'accept_primary',
-                'comment')}),
-        audit_fieldset_tuple)
+        (
+            None,
+            {
+                "fields": (
+                    "name",
+                    "box_type",
+                    "specimen_types",
+                    "box_datetime",
+                    "category",
+                    "category_other",
+                    "accept_primary",
+                    "comment",
+                )
+            },
+        ),
+        audit_fieldset_tuple,
+    )
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj=obj) + audit_fields
 
     list_display = (
-        'box_identifier', 'name', 'category', 'specimen_types', 'box_type',
-        'box_datetime', 'user_created', 'user_modified')
+        "box_identifier",
+        "name",
+        "category",
+        "specimen_types",
+        "box_type",
+        "box_datetime",
+        "user_created",
+        "user_modified",
+    )

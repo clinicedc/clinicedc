@@ -5,25 +5,11 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_lab', '0013_auto_20180117_1438'),
-    ]
+    dependencies = [("edc_lab", "0013_auto_20180117_1438")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='historicalmanifest',
-            name='site_code',
-        ),
-        migrations.RemoveField(
-            model_name='historicalmanifest',
-            name='site_name',
-        ),
-        migrations.RemoveField(
-            model_name='manifest',
-            name='site_code',
-        ),
-        migrations.RemoveField(
-            model_name='manifest',
-            name='site_name',
-        ),
+        migrations.RemoveField(model_name="historicalmanifest", name="site_code"),
+        migrations.RemoveField(model_name="historicalmanifest", name="site_name"),
+        migrations.RemoveField(model_name="manifest", name="site_code"),
+        migrations.RemoveField(model_name="manifest", name="site_name"),
     ]

@@ -20,7 +20,7 @@ class Specimen:
     """
 
     aliquot_creator_cls = AliquotCreator
-    aliquot_model = 'edc_lab.aliquot'
+    aliquot_model = "edc_lab.aliquot"
     identifier_prefix_cls = IdentifierPrefix
     primary_aliquot_cls = PrimaryAliquot
     specimen_processor_cls = SpecimenProcessor
@@ -30,15 +30,15 @@ class Specimen:
         self.requisition = requisition
 
         if not self.requisition.is_drawn == YES:
-            raise SpecimenNotDrawnError(
-                f'Specimen not drawn. Got \'{requisition}\'')
+            raise SpecimenNotDrawnError(f"Specimen not drawn. Got '{requisition}'")
 
         self.aliquot_type = self.requisition.panel_object.aliquot_type
 
         if not self.requisition.identifier_prefix:
             self.requisition.identifier_prefix = self.primary_aliquot.identifier_prefix
             self.requisition.primary_aliquot_identifier = (
-                self.primary_aliquot.aliquot_identifier)
+                self.primary_aliquot.aliquot_identifier
+            )
             self.requisition.save()
 
     @property
@@ -51,7 +51,8 @@ class Specimen:
             aliquot_type=self.aliquot_type,
             identifier_prefix=self.identifier_prefix,
             requisition_identifier=self.requisition.requisition_identifier,
-            subject_identifier=self.requisition.subject_identifier)
+            subject_identifier=self.requisition.subject_identifier,
+        )
         return primary_aliquot_obj.object
 
     def process(self):
@@ -62,14 +63,16 @@ class Specimen:
             aliquot_creator_cls=self.aliquot_creator_cls,
             identifier_prefix=self.identifier_prefix,
             model_obj=self.primary_aliquot,
-            processing_profile=self.requisition.panel_object.processing_profile)
+            processing_profile=self.requisition.panel_object.processing_profile,
+        )
         return specimen_processor.create()
 
     @property
     def aliquots(self):
         aliquot_model_cls = django_apps.get_model(self.aliquot_model)
         return aliquot_model_cls.objects.filter(
-            identifier_prefix=self.identifier_prefix)
+            identifier_prefix=self.identifier_prefix
+        )
 
     @property
     def identifier_prefix(self):
@@ -78,4 +81,5 @@ class Specimen:
         """
         return self.identifier_prefix_cls(
             protocol_number=self.requisition.get_protocol_number(),
-            requisition_identifier=self.requisition.requisition_identifier)
+            requisition_identifier=self.requisition.requisition_identifier,
+        )

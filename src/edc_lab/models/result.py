@@ -9,11 +9,10 @@ from .order import Order
 
 
 class ResultManager(models.Manager):
-
     def get_by_natural_key(self, report_datetime, order_identifier):
         return self.get(
-            report_datetime=report_datetime,
-            order__order_identifier=order_identifier)
+            report_datetime=report_datetime, order__order_identifier=order_identifier
+        )
 
 
 class Result(ResultModelMixin, BaseUuidModel):
@@ -27,5 +26,6 @@ class Result(ResultModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     def natural_key(self):
-        return (self.report_datetime, self.order.order_identifier,)
-    natural_key.dependencies = ['edc_lab.order', 'edc_lab.panel', 'sites.Site']
+        return (self.report_datetime, self.order.order_identifier)
+
+    natural_key.dependencies = ["edc_lab.order", "edc_lab.panel", "sites.Site"]

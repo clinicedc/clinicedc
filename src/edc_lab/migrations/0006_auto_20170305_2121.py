@@ -7,19 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_lab', '0005_auto_20170305_2109'),
-    ]
+    dependencies = [("edc_lab", "0005_auto_20170305_2109")]
 
     operations = [
         migrations.AddField(
-            model_name='aliquot',
-            name='shipped',
+            model_name="aliquot",
+            name="shipped",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='historicalaliquot',
-            name='shipped',
+            model_name="historicalaliquot",
+            name="shipped",
             field=models.BooleanField(default=False),
         ),
     ]

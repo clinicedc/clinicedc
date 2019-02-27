@@ -28,12 +28,9 @@ class CrfRequisitionFormValidatorMixin:
         """
         requisition = self.cleaned_data.get(requisition_field)
         if requisition and requisition.panel_object not in panels:
-            raise forms.ValidationError(
-                {requisition_field: 'Incorrect requisition.'})
+            raise forms.ValidationError({requisition_field: "Incorrect requisition."})
 
-        self.required_if_true(
-            requisition,
-            field_required=assay_datetime_field)
+        self.required_if_true(requisition, field_required=assay_datetime_field)
 
         self.validate_assay_datetime(requisition, assay_datetime_field)
 
@@ -43,7 +40,11 @@ class CrfRequisitionFormValidatorMixin:
             assay_datetime = to_utc(assay_datetime)
             requisition_datetime = to_utc(requisition.requisition_datetime)
             if assay_datetime < requisition_datetime:
-                raise forms.ValidationError({
-                    assay_datetime_field: (
-                        f'Invalid. Cannot be before date of requisition '
-                        f'{formatted_datetime(requisition_datetime)}.')})
+                raise forms.ValidationError(
+                    {
+                        assay_datetime_field: (
+                            f"Invalid. Cannot be before date of requisition "
+                            f"{formatted_datetime(requisition_datetime)}."
+                        )
+                    }
+                )

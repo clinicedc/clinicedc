@@ -5,45 +5,79 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_lab', '0015_manifestitem_site'),
-    ]
+    dependencies = [("edc_lab", "0015_manifestitem_site")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='historicalaliquot',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical aliquot'},
+            name="historicalaliquot",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical aliquot",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalbox',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical box'},
+            name="historicalbox",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical box",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalboxitem',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical box item'},
+            name="historicalboxitem",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical box item",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalconsignee',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical consignee'},
+            name="historicalconsignee",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical consignee",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalmanifest',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical manifest'},
+            name="historicalmanifest",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical manifest",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalorder',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical order'},
+            name="historicalorder",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical order",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalresult',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical result'},
+            name="historicalresult",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical result",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalresultitem',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical result item'},
+            name="historicalresultitem",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical result item",
+            },
         ),
         migrations.AlterModelOptions(
-            name='historicalshipper',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical shipper'},
+            name="historicalshipper",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical shipper",
+            },
         ),
     ]
