@@ -23,7 +23,8 @@ class TestMetadataGetter(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={
+                "edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
@@ -54,15 +55,6 @@ class TestMetadataGetter(TestCase):
         getter = CrfMetadataGetter(
             subject_identifier=subject_identifier, visit_code=visit_code
         )
-        self.assertEqual(getter.metadata_objects.count(), 0)
-
-    def test_objects_none_no_visit_with_appointment(self):
-        appointment = Appointment.objects.create(
-            subject_identifier=self.subject_identifier,
-            appt_datetime=get_utcnow(),
-            visit_code="BLAH",
-        )
-        getter = CrfMetadataGetter(appointment=appointment)
         self.assertEqual(getter.metadata_objects.count(), 0)
 
     def test_objects_not_none_without_appointment(self):
