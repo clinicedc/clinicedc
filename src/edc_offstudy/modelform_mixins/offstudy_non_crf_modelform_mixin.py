@@ -12,8 +12,10 @@ class OffstudyNonCrfModelFormMixin(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if (not self._meta.model._meta.offstudy_model_cls
-                and not self._meta.model._meta.offstudy_model):
+        if (
+            not self._meta.model._meta.offstudy_model_cls
+            and not self._meta.model._meta.offstudy_model
+        ):
             raise ImproperlyConfigured(
                 f"Attribute offstudy_model not defined. See {repr(self)}."
             )

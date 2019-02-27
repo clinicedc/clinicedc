@@ -5,10 +5,10 @@ from django.db.models import options
 
 from ..utils import raise_if_offstudy
 
-if 'offstudy_model' not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('offstudy_model', )
-if 'offstudy_model_cls' not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('offstudy_model_cls', )
+if "offstudy_model" not in options.DEFAULT_NAMES:
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("offstudy_model",)
+if "offstudy_model_cls" not in options.DEFAULT_NAMES:
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("offstudy_model_cls",)
 
 
 class OffstudyNonCrfModelMixin(models.Model):
@@ -30,7 +30,8 @@ class OffstudyNonCrfModelMixin(models.Model):
             report_datetime=self.report_datetime,
             offstudy_model_cls=(
                 self._meta.offstudy_model_cls
-                or django_apps.get_model(self._meta.offstudy_model)),
+                or django_apps.get_model(self._meta.offstudy_model)
+            ),
         )
         super().save(*args, **kwargs)
 
