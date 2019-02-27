@@ -4,7 +4,6 @@ from ..models import ManifestItem
 
 
 class ManifestItemForm(forms.ModelForm):
-
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = ManifestItem

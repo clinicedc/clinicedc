@@ -7,19 +7,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_lab', '0006_auto_20170305_2121'),
-    ]
+    dependencies = [("edc_lab", "0006_auto_20170305_2121")]
 
     operations = [
         migrations.AlterField(
-            model_name='consignee',
-            name='name',
-            field=models.CharField(help_text='Company name', max_length=50, unique=True),
+            model_name="consignee",
+            name="name",
+            field=models.CharField(
+                help_text="Company name", max_length=50, unique=True
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalconsignee',
-            name='name',
-            field=models.CharField(db_index=True, help_text='Company name', max_length=50),
+            model_name="historicalconsignee",
+            name="name",
+            field=models.CharField(
+                db_index=True, help_text="Company name", max_length=50
+            ),
         ),
     ]

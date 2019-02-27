@@ -1,4 +1,3 @@
-
 class PrimaryAliquotError(Exception):
     pass
 
@@ -12,9 +11,14 @@ class PrimaryAliquot:
     """A class that gets or creates the primary aliquot.
     """
 
-    def __init__(self, aliquot_type=None, subject_identifier=None,
-                 requisition_identifier=None, identifier_prefix=None,
-                 aliquot_creator_cls=None):
+    def __init__(
+        self,
+        aliquot_type=None,
+        subject_identifier=None,
+        requisition_identifier=None,
+        identifier_prefix=None,
+        aliquot_creator_cls=None,
+    ):
         self._object = None
         self.aliquot_creator_cls = aliquot_creator_cls
         self.aliquot_type = aliquot_type
@@ -36,7 +40,9 @@ class PrimaryAliquot:
                 identifier_prefix=self.identifier_prefix,
                 is_primary=True,
                 requisition_identifier=self.requisition_identifier,
-                subject_identifier=self.subject_identifier)
+                subject_identifier=self.subject_identifier,
+            )
             self._object = aliquot_creator.create_primary(
-                aliquot_type=self.aliquot_type)
+                aliquot_type=self.aliquot_type
+            )
         return self._object

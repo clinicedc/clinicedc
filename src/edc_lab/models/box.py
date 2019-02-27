@@ -13,83 +13,57 @@ from .box_type import BoxType
 from .model_mixins.shipping import VerifyBoxModelMixin
 
 
-BOX_DIMENSIONS = (
-    ('8 x 8', '8 x 8'),
-    ('9 x 9', '9 x 9'),
-    ('10 x 10', '10 x 10'),
-)
+BOX_DIMENSIONS = (("8 x 8", "8 x 8"), ("9 x 9", "9 x 9"), ("10 x 10", "10 x 10"))
 
-BOX_CATEGORY = (
-    (TESTING, 'Testing'),
-    (STORAGE, 'Storage'),
-    (OTHER, 'Other'),
-)
+BOX_CATEGORY = ((TESTING, "Testing"), (STORAGE, "Storage"), (OTHER, "Other"))
 
 STATUS = (
-    (OPEN, 'Open'),
-    (VERIFIED, 'Verified'),
-    (PACKED, 'Packed'),
-    (SHIPPED, 'Shipped'),
+    (OPEN, "Open"),
+    (VERIFIED, "Verified"),
+    (PACKED, "Packed"),
+    (SHIPPED, "Shipped"),
 )
 
-human_readable_pattern = '^[A-Z]{3}\-[0-9]{4}\-[0-9]{2}$'
+human_readable_pattern = "^[A-Z]{3}\-[0-9]{4}\-[0-9]{2}$"
 
 
 class BoxManager(SearchSlugManager, models.Manager):
-
     def get_by_natural_key(self, box_identifier):
         return self.get(box_identifier=box_identifier)
 
 
 class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidModel):
 
-    search_slug_fields = [
-        'box_identifier', 'human_readable_identifier', 'name']
+    search_slug_fields = ["box_identifier", "human_readable_identifier", "name"]
 
-    box_identifier = models.CharField(
-        max_length=25,
-        editable=False,
-        unique=True)
+    box_identifier = models.CharField(max_length=25, editable=False, unique=True)
 
-    name = models.CharField(
-        max_length=25,
-        null=True,
-        blank=True)
+    name = models.CharField(max_length=25, null=True, blank=True)
 
-    box_datetime = models.DateTimeField(
-        default=timezone.now)
+    box_datetime = models.DateTimeField(default=timezone.now)
 
-    box_type = models.ForeignKey(
-        BoxType, on_delete=PROTECT)
+    box_type = models.ForeignKey(BoxType, on_delete=PROTECT)
 
-    category = models.CharField(
-        max_length=25,
-        default=TESTING,
-        choices=BOX_CATEGORY)
+    category = models.CharField(max_length=25, default=TESTING, choices=BOX_CATEGORY)
 
-    category_other = models.CharField(
-        max_length=25,
-        null=True,
-        blank=True)
+    category_other = models.CharField(max_length=25, null=True, blank=True)
 
     specimen_types = models.CharField(
         max_length=25,
         help_text=(
-            'List of specimen types in this box. Use two-digit numeric '
-            'codes separated by commas.'))
+            "List of specimen types in this box. Use two-digit numeric "
+            "codes separated by commas."
+        ),
+    )
 
-    status = models.CharField(
-        max_length=15,
-        default=OPEN,
-        choices=STATUS)
+    status = models.CharField(max_length=15, default=OPEN, choices=STATUS)
 
     accept_primary = models.BooleanField(
         default=False,
-        help_text='Tick to allow \'primary\' specimens to be added to this box')
+        help_text="Tick to allow 'primary' specimens to be added to this box",
+    )
 
-    comment = models.TextField(
-        null=True,
-        blank=True)
+    comment = models.TextField(null=True, blank=True)
 
     on_site = CurrentSiteManager()
 
@@ -111,7 +85,8 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidMod
 
     def natural_key(self):
         return (self.box_identifier,)
-    natural_key.dependencies = ['edc_lab.boxtype', 'sites.Site']
+
+    natural_key.dependencies = ["edc_lab.boxtype", "sites.Site"]
 
     @property
     def count(self):
@@ -119,18 +94,18 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidMod
 
     @property
     def items(self):
-        return self.boxitem_set.all().order_by('position')
+        return self.boxitem_set.all().order_by("position")
 
     @property
     def human_readable_identifier(self):
         x = self.box_identifier
-        return '{}-{}-{}'.format(x[0:4], x[4:8], x[8:12])
+        return "{}-{}-{}".format(x[0:4], x[4:8], x[8:12])
 
     @property
     def next_position(self):
         """Returns an integer or None.
         """
-        last_obj = self.boxitem_set.all().order_by('position').last()
+        last_obj = self.boxitem_set.all().order_by("position").last()
         if not last_obj:
             next_position = 1
         else:
@@ -144,6 +119,6 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidMod
         return
 
     class Meta:
-        app_label = 'edc_lab'
-        ordering = ('-box_datetime',)
-        verbose_name_plural = 'Boxes'
+        app_label = "edc_lab"
+        ordering = ("-box_datetime",)
+        verbose_name_plural = "Boxes"

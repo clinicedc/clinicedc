@@ -10,28 +10,24 @@ from .aliquot import Aliquot
 
 
 class OrderManager(models.Manager):
-
     def get_by_natural_key(self, report_datetime, aliquot_identifier):
         return self.get(
             report_datetime=report_datetime,
-            aliquot__aliquot_identifier=aliquot_identifier)
+            aliquot__aliquot_identifier=aliquot_identifier,
+        )
 
 
 class Order(SiteModelMixin, BaseUuidModel):
 
     aliquot = models.ForeignKey(Aliquot, on_delete=PROTECT)
 
-    order_identifier = models.CharField(
-        max_length=25,
-        editable=False,
-        unique=True)
+    order_identifier = models.CharField(max_length=25, editable=False, unique=True)
 
     order_datetime = models.DateTimeField(
-        default=get_utcnow,
-        validators=[datetime_not_future])
+        default=get_utcnow, validators=[datetime_not_future]
+    )
 
-    panel_name = models.CharField(
-        max_length=25)
+    panel_name = models.CharField(max_length=25)
 
     on_site = CurrentSiteManager()
 
@@ -40,5 +36,6 @@ class Order(SiteModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     def natural_key(self):
-        return (self.report_datetime, ) + self.aliquot.natural_key()
-    natural_key.dependencies = ['edc_lab.aliquot', 'sites.Site']
+        return (self.report_datetime,) + self.aliquot.natural_key()
+
+    natural_key.dependencies = ["edc_lab.aliquot", "sites.Site"]

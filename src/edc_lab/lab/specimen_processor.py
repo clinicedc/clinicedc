@@ -11,8 +11,13 @@ class SpecimenProcessor:
     to its processing profile.
     """
 
-    def __init__(self, model_obj=None, processing_profile=None,
-                 identifier_prefix=None, aliquot_creator_cls=None):
+    def __init__(
+        self,
+        model_obj=None,
+        processing_profile=None,
+        identifier_prefix=None,
+        aliquot_creator_cls=None,
+    ):
         self.aliquot_creator_cls = aliquot_creator_cls
         self.model_obj = model_obj
         self.processing_profile = processing_profile
@@ -20,9 +25,10 @@ class SpecimenProcessor:
 
     def __repr__(self):
         return (
-            f'{self.__class__.__name__}('
-            f'processing_profile={self.processing_profile},'
-            f'identifier_prefix={self.identifier_prefix})')
+            f"{self.__class__.__name__}("
+            f"processing_profile={self.processing_profile},"
+            f"identifier_prefix={self.identifier_prefix})"
+        )
 
     def create(self):
         """Creates all aliquots in the processing profile "processes".
@@ -37,13 +43,15 @@ class SpecimenProcessor:
                     parent_identifier=self.model_obj.aliquot_identifier,
                     requisition_identifier=self.model_obj.requisition_identifier,
                     subject_identifier=self.model_obj.subject_identifier,
-                    identifier_prefix=self.identifier_prefix)
+                    identifier_prefix=self.identifier_prefix,
+                )
                 with transaction.atomic():
                     try:
                         aliquot = aliquot_creator.create(
-                            count=count, aliquot_type=process.aliquot_type)
+                            count=count, aliquot_type=process.aliquot_type
+                        )
                     except IntegrityError as e:
-                        if 'UNIQUE constraint failed' in str(e):
+                        if "UNIQUE constraint failed" in str(e):
                             pass  # if aliquot already exists, pass
                         else:
                             raise SpecimenProcessorError(e) from e

@@ -3,21 +3,17 @@ from edc_base.model_mixins import BaseUuidModel
 
 
 class PanelManager(models.Manager):
-
     def get_by_natural_key(self, name, lab_profile_name):
         return self.get(name=name, lab_profile_name=lab_profile_name)
 
 
 class Panel(BaseUuidModel):
 
-    name = models.CharField(
-        max_length=50)
+    name = models.CharField(max_length=50)
 
-    display_name = models.CharField(
-        max_length=50)
+    display_name = models.CharField(max_length=50)
 
-    lab_profile_name = models.CharField(
-        max_length=50)
+    lab_profile_name = models.CharField(max_length=50)
 
     objects = PanelManager()
 
@@ -28,5 +24,5 @@ class Panel(BaseUuidModel):
         return (self.name, self.lab_profile_name)
 
     class Meta:
-        unique_together = ('name', 'lab_profile_name')
-        ordering = ('lab_profile_name', 'name')
+        unique_together = ("name", "lab_profile_name")
+        ordering = ("lab_profile_name", "name")

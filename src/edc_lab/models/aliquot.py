@@ -12,20 +12,22 @@ class Manager(AliquotManager, SearchSlugManager):
     pass
 
 
-class Aliquot(AliquotModelMixin,
-              AliquotIdentifierModelMixin,
-              AliquotTypeModelMixin,
-              AliquotShippingMixin,
-              SearchSlugModelMixin,
-              BaseUuidModel):
-
+class Aliquot(
+    AliquotModelMixin,
+    AliquotIdentifierModelMixin,
+    AliquotTypeModelMixin,
+    AliquotShippingMixin,
+    SearchSlugModelMixin,
+    BaseUuidModel,
+):
     def get_search_slug_fields(self):
         return [
-            'aliquot_identifier',
-            'human_readable_identifier',
-            'subject_identifier',
-            'parent_identifier',
-            'requisition_identifier']
+            "aliquot_identifier",
+            "human_readable_identifier",
+            "subject_identifier",
+            "parent_identifier",
+            "requisition_identifier",
+        ]
 
     on_site = CurrentSiteManager()
 
@@ -38,5 +40,4 @@ class Aliquot(AliquotModelMixin,
         """Returns a human readable aliquot identifier.
         """
         x = self.aliquot_identifier
-        return '{}-{}-{}-{}-{}'.format(
-            x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
+        return "{}-{}-{}-{}-{}".format(x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])

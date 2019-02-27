@@ -7,79 +7,103 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_lab', '0004_auto_20170305_2015'),
-    ]
+    dependencies = [("edc_lab", "0004_auto_20170305_2015")]
 
     operations = [
         migrations.AddField(
-            model_name='historicalmanifest',
-            name='printed',
+            model_name="historicalmanifest",
+            name="printed",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='historicalmanifest',
-            name='printed_datetime',
+            model_name="historicalmanifest",
+            name="printed_datetime",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='manifest',
-            name='printed',
+            model_name="manifest",
+            name="printed",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='manifest',
-            name='printed_datetime',
+            model_name="manifest",
+            name="printed_datetime",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='box',
-            name='status',
-            field=models.CharField(choices=[('open', 'Open'), ('verified', 'Verified'), ('packed', 'Packed'), ('shipped', 'Shipped')], default='open', max_length=15),
+            model_name="box",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("open", "Open"),
+                    ("verified", "Verified"),
+                    ("packed", "Packed"),
+                    ("shipped", "Shipped"),
+                ],
+                default="open",
+                max_length=15,
+            ),
         ),
         migrations.AlterField(
-            model_name='consignee',
-            name='contact_name',
+            model_name="consignee",
+            name="contact_name",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
         migrations.AlterField(
-            model_name='historicalbox',
-            name='status',
-            field=models.CharField(choices=[('open', 'Open'), ('verified', 'Verified'), ('packed', 'Packed'), ('shipped', 'Shipped')], default='open', max_length=15),
+            model_name="historicalbox",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("open", "Open"),
+                    ("verified", "Verified"),
+                    ("packed", "Packed"),
+                    ("shipped", "Shipped"),
+                ],
+                default="open",
+                max_length=15,
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalconsignee',
-            name='contact_name',
+            model_name="historicalconsignee",
+            name="contact_name",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
         migrations.AlterField(
-            model_name='historicalmanifest',
-            name='export_datetime',
+            model_name="historicalmanifest",
+            name="export_datetime",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='historicalmanifest',
-            name='status',
-            field=models.CharField(choices=[('open', 'Open'), ('closed', 'Closed')], default='open', max_length=15),
+            model_name="historicalmanifest",
+            name="status",
+            field=models.CharField(
+                choices=[("open", "Open"), ("closed", "Closed")],
+                default="open",
+                max_length=15,
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalshipper',
-            name='contact_name',
+            model_name="historicalshipper",
+            name="contact_name",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
         migrations.AlterField(
-            model_name='manifest',
-            name='export_datetime',
+            model_name="manifest",
+            name="export_datetime",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='manifest',
-            name='status',
-            field=models.CharField(choices=[('open', 'Open'), ('closed', 'Closed')], default='open', max_length=15),
+            model_name="manifest",
+            name="status",
+            field=models.CharField(
+                choices=[("open", "Open"), ("closed", "Closed")],
+                default="open",
+                max_length=15,
+            ),
         ),
         migrations.AlterField(
-            model_name='shipper',
-            name='contact_name',
+            model_name="shipper",
+            name="contact_name",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
     ]

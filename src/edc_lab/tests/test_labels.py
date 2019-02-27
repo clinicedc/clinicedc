@@ -20,9 +20,9 @@ class TestLabels(TestCase):
     lab_helper = SiteLabsTestHelper()
 
     def setUp(self):
-        self.subject_identifier = '1111111111'
-        self.gender = 'M'
-        self.initials = 'EW'
+        self.subject_identifier = "1111111111"
+        self.gender = "M"
+        self.initials = "EW"
         self.dob = datetime.now() - relativedelta(years=25)
         self.lab_helper.setup_site_labs()
         self.panel = self.lab_helper.panel
@@ -30,21 +30,24 @@ class TestLabels(TestCase):
             subject_identifier=self.subject_identifier,
             initials=self.initials,
             dob=self.dob,
-            gender=self.gender)
+            gender=self.gender,
+        )
         self.subject_visit = SubjectVisit.objects.create(
-            subject_identifier=self.subject_identifier)
+            subject_identifier=self.subject_identifier
+        )
         self.subject_requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             requisition_datetime=get_utcnow(),
             drawn_datetime=get_utcnow(),
             is_drawn=YES,
-            panel=Panel.objects.get(name=self.panel.name))
+            panel=Panel.objects.get(name=self.panel.name),
+        )
         creator = AliquotCreator(
             subject_identifier=self.subject_identifier,
             requisition_identifier=self.subject_requisition.requisition_identifier,
-            is_primary=True)
-        self.aliquot = creator.create(
-            count=1, aliquot_type=self.panel.aliquot_type)
+            is_primary=True,
+        )
+        self.aliquot = creator.create(count=1, aliquot_type=self.panel.aliquot_type)
 
     def test_aliquot_label(self):
         label = AliquotLabel(pk=self.aliquot.pk)
@@ -59,12 +62,12 @@ class TestLabels(TestCase):
         except AliquotLabelError:
             pass
         else:
-            self.fail('AliquotLabel unexpectedly failed')
+            self.fail("AliquotLabel unexpectedly failed")
         finally:
             site_labs.requisition_models = requisition_models
 
     def test_aliquot_label_requisition_doesnotexist(self):
-        self.aliquot.requisition_identifier = 'erik'
+        self.aliquot.requisition_identifier = "erik"
         self.aliquot.save()
         label = AliquotLabel(pk=self.aliquot.pk)
-        self.assertRaises(AliquotLabelError, getattr, label, 'label_context')
+        self.assertRaises(AliquotLabelError, getattr, label, "label_context")

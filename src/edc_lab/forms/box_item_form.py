@@ -4,7 +4,6 @@ from ..models import BoxItem
 
 
 class BoxItemForm(forms.ModelForm):
-
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = BoxItem

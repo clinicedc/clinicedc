@@ -11,8 +11,8 @@ class Manifest:
     """A class of manifest that contains boxes.
     """
 
-    manifest_model = 'edc_lab.manifest'
-    manifest_item_model = 'edc_lab.manifestitem'
+    manifest_model = "edc_lab.manifest"
+    manifest_item_model = "edc_lab.manifestitem"
 
     def __init__(self, manifest=None, manifest_identifier=None, request=None):
         self._manifest = manifest
@@ -23,7 +23,8 @@ class Manifest:
     def manifest(self):
         if not self._manifest:
             self._manifest = self.manifest_model_cls.objects.get(
-                manifest_identifier=self.manifest_identifier)
+                manifest_identifier=self.manifest_identifier
+            )
         return self._manifest
 
     @property
@@ -40,39 +41,45 @@ class Manifest:
         """
         added = 0
         if not box:
-            message = 'Box does not exist. Got {}.'.format(
-                manifest_item_identifier)
+            message = "Box does not exist. Got {}.".format(manifest_item_identifier)
             messages.error(self.request, message)
         elif self.validate_box_category(box) and self.validate_box_verified(box):
             try:
                 manifest_item = self.manifest_item_model_cls.objects.get(
                     manifest__manifest_identifier=self.manifest.manifest_identifier,
-                    identifier=manifest_item_identifier)
+                    identifier=manifest_item_identifier,
+                )
             except ObjectDoesNotExist:
                 try:
                     manifest_item = self.manifest_item_model_cls.objects.get(
-                        identifier=manifest_item_identifier)
+                        identifier=manifest_item_identifier
+                    )
                 except ObjectDoesNotExist:
                     manifest_item = self.manifest_item_model_cls(
-                        manifest=self.manifest,
-                        identifier=manifest_item_identifier)
+                        manifest=self.manifest, identifier=manifest_item_identifier
+                    )
                     manifest_item.save()
                     added = 1
                 else:
                     href = reverse(
                         self.listboard_url,
                         kwargs={
-                            'manifest_identifier':
-                            manifest_item.manifest.manifest_identifier})
-                    manifest_identifier = manifest_item.manifest.human_readable_identifier
+                            "manifest_identifier": manifest_item.manifest.manifest_identifier
+                        },
+                    )
+                    manifest_identifier = (
+                        manifest_item.manifest.human_readable_identifier
+                    )
                     message = mark_safe(
-                        'Item is already in a manifest. See '
+                        "Item is already in a manifest. See "
                         f'<a href="{href}" class="alert-link">'
-                        f'{manifest_identifier}</a>')
+                        f"{manifest_identifier}</a>"
+                    )
                     messages.error(self.request, message)
             else:
-                message = 'Duplicate item. Got {}.'.format(
-                    manifest_item.manifest.human_readable_identifier)
+                message = "Duplicate item. Got {}.".format(
+                    manifest_item.manifest.human_readable_identifier
+                )
                 messages.error(self.request, message)
         return added
 
@@ -80,9 +87,9 @@ class Manifest:
         """Returns True if box category matches manifest category.
         """
         if box.category != self.manifest.category:
-            message = 'Invalid category. Manifest accepts {}. Got {}.'.format(
-                self.manifest.get_category_display(),
-                box.get_category_display())
+            message = "Invalid category. Manifest accepts {}. Got {}.".format(
+                self.manifest.get_category_display(), box.get_category_display()
+            )
             messages.error(self.request, message)
             return False
         return True
@@ -91,8 +98,9 @@ class Manifest:
         """Returns True if box status is verified.
         """
         if box.status != VERIFIED:
-            message = 'Box is not verified. Got {}.'.format(
-                box.human_readable_identifier)
+            message = "Box is not verified. Got {}.".format(
+                box.human_readable_identifier
+            )
             messages.error(self.request, message)
             return False
         return True

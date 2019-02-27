@@ -7,67 +7,71 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_lab', '0003_auto_20170305_1940'),
-    ]
+    dependencies = [("edc_lab", "0003_auto_20170305_1940")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='historicalmanifest',
-            name='consignee_name',
-        ),
-        migrations.RemoveField(
-            model_name='historicalmanifest',
-            name='shipper_name',
-        ),
-        migrations.RemoveField(
-            model_name='manifest',
-            name='consignee_name',
-        ),
-        migrations.RemoveField(
-            model_name='manifest',
-            name='shipper_name',
-        ),
+        migrations.RemoveField(model_name="historicalmanifest", name="consignee_name"),
+        migrations.RemoveField(model_name="historicalmanifest", name="shipper_name"),
+        migrations.RemoveField(model_name="manifest", name="consignee_name"),
+        migrations.RemoveField(model_name="manifest", name="shipper_name"),
         migrations.AddField(
-            model_name='consignee',
-            name='contact_name',
-            field=models.CharField(default='1', max_length=50),
+            model_name="consignee",
+            name="contact_name",
+            field=models.CharField(default="1", max_length=50),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='historicalconsignee',
-            name='contact_name',
-            field=models.CharField(default='1', max_length=50),
+            model_name="historicalconsignee",
+            name="contact_name",
+            field=models.CharField(default="1", max_length=50),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='historicalshipper',
-            name='contact_name',
-            field=models.CharField(blank=True, help_text="If left blank will use user's first and last name and the time the manifest is created.", max_length=50, null=True),
+            model_name="historicalshipper",
+            name="contact_name",
+            field=models.CharField(
+                blank=True,
+                help_text="If left blank will use user's first and last name and the time the manifest is created.",
+                max_length=50,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='shipper',
-            name='contact_name',
-            field=models.CharField(blank=True, help_text="If left blank will use user's first and last name and the time the manifest is created.", max_length=50, null=True),
+            model_name="shipper",
+            name="contact_name",
+            field=models.CharField(
+                blank=True,
+                help_text="If left blank will use user's first and last name and the time the manifest is created.",
+                max_length=50,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalmanifest',
-            name='description',
-            field=models.TextField(help_text='If blank will be automatically generated', null=True, verbose_name='Description of contents'),
+            model_name="historicalmanifest",
+            name="description",
+            field=models.TextField(
+                help_text="If blank will be automatically generated",
+                null=True,
+                verbose_name="Description of contents",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalmanifest',
-            name='export_references',
+            model_name="historicalmanifest",
+            name="export_references",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='manifest',
-            name='description',
-            field=models.TextField(help_text='If blank will be automatically generated', null=True, verbose_name='Description of contents'),
+            model_name="manifest",
+            name="description",
+            field=models.TextField(
+                help_text="If blank will be automatically generated",
+                null=True,
+                verbose_name="Description of contents",
+            ),
         ),
         migrations.AlterField(
-            model_name='manifest',
-            name='export_references',
+            model_name="manifest",
+            name="export_references",
             field=models.TextField(blank=True, null=True),
         ),
     ]

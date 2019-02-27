@@ -9,8 +9,7 @@ class VerifyModelMixin(models.Model):
 
     verified = models.IntegerField(default=0)
 
-    verified_datetime = models.DateTimeField(
-        null=True)
+    verified_datetime = models.DateTimeField(null=True)
 
     def unverify(self):
         self.verified = 0
@@ -23,7 +22,6 @@ class VerifyModelMixin(models.Model):
 
 
 class VerifyBoxModelMixin(VerifyModelMixin, models.Model):
-
     def update_verified(self):
         if self.status in [OPEN, VERIFIED]:
             if self.is_verified:

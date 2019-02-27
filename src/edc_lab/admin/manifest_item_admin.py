@@ -19,14 +19,11 @@ class ManifestItemAdmin(BaseModelAdmin, admin.ModelAdmin):
     form = ManifestItemForm
 
     fieldsets = (
-        (None, {
-            'fields': (
-                'manifest',
-                'identifier',
-                'comment')}),
-        audit_fieldset_tuple)
+        (None, {"fields": ("manifest", "identifier", "comment")}),
+        audit_fieldset_tuple,
+    )
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj=obj) + audit_fields
 
-    list_display = ('identifier', )
+    list_display = ("identifier",)

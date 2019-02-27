@@ -5,13 +5,12 @@ from ..models import Manifest
 
 
 class ManifestForm(forms.ModelForm):
-
     def clean(self):
         cleaned_data = super().clean()
         form_validator = FormValidator(cleaned_data=cleaned_data)
-        form_validator.validate_other_specify('category')
+        form_validator.validate_other_specify("category")
         return cleaned_data
 
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = Manifest

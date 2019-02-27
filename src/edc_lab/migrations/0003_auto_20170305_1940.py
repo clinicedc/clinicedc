@@ -7,29 +7,47 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_lab', '0002_auto_20170305_1939'),
-    ]
+    dependencies = [("edc_lab", "0002_auto_20170305_1939")]
 
     operations = [
         migrations.AddField(
-            model_name='historicalmanifest',
-            name='consignee_name',
-            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="Consignee's contact name"),
+            model_name="historicalmanifest",
+            name="consignee_name",
+            field=models.CharField(
+                blank=True,
+                max_length=50,
+                null=True,
+                verbose_name="Consignee's contact name",
+            ),
         ),
         migrations.AddField(
-            model_name='historicalmanifest',
-            name='shipper_name',
-            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="Shipper's contact name"),
+            model_name="historicalmanifest",
+            name="shipper_name",
+            field=models.CharField(
+                blank=True,
+                max_length=50,
+                null=True,
+                verbose_name="Shipper's contact name",
+            ),
         ),
         migrations.AddField(
-            model_name='manifest',
-            name='consignee_name',
-            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="Consignee's contact name"),
+            model_name="manifest",
+            name="consignee_name",
+            field=models.CharField(
+                blank=True,
+                max_length=50,
+                null=True,
+                verbose_name="Consignee's contact name",
+            ),
         ),
         migrations.AddField(
-            model_name='manifest',
-            name='shipper_name',
-            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="Shipper's contact name"),
+            model_name="manifest",
+            name="shipper_name",
+            field=models.CharField(
+                blank=True,
+                max_length=50,
+                null=True,
+                verbose_name="Shipper's contact name",
+            ),
         ),
     ]

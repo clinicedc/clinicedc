@@ -18,24 +18,31 @@ class AliquotCreator:
     """
 
     aliquot_identifier_cls = AliquotIdentifier
-    aliquot_model = 'edc_lab.aliquot'
+    aliquot_model = "edc_lab.aliquot"
 
-    def __init__(self, parent_identifier=None, identifier_prefix=None,
-                 requisition_identifier=None, subject_identifier=None,
-                 is_primary=None):
-        edc_protocol_app_config = django_apps.get_app_config('edc_protocol')
+    def __init__(
+        self,
+        parent_identifier=None,
+        identifier_prefix=None,
+        requisition_identifier=None,
+        subject_identifier=None,
+        is_primary=None,
+    ):
+        edc_protocol_app_config = django_apps.get_app_config("edc_protocol")
         self.aliquot_model_cls = django_apps.get_model(self.aliquot_model)
         self.requisition_identifier = requisition_identifier
         self.subject_identifier = subject_identifier
         if not parent_identifier and not is_primary:
             raise AliquotCreatorError(
-                'Cannot create child aliquot without parent aliquot identifier. '
-                f'Got is_primary={is_primary}.')
+                "Cannot create child aliquot without parent aliquot identifier. "
+                f"Got is_primary={is_primary}."
+            )
         else:
             self.parent_identifier = parent_identifier
         self.identifier_prefix = (
             identifier_prefix
-            or f'{edc_protocol_app_config.protocol_number}{self.requisition_identifier}')
+            or f"{edc_protocol_app_config.protocol_number}{self.requisition_identifier}"
+        )
         if is_primary:
             self.parent_segment = None
         else:
@@ -51,12 +58,14 @@ class AliquotCreator:
                 aliquot_type=aliquot_type,
                 count=count,
                 parent_identifier=self.parent_identifier,
-                is_primary=False)
+                is_primary=False,
+            )
         except ObjectDoesNotExist:
             aliquot = self._create(
                 aliquot_type=aliquot_type,
                 count=count,
-                parent_identifier=self.parent_identifier)
+                parent_identifier=self.parent_identifier,
+            )
         return aliquot
 
     def create_primary(self, aliquot_type=None):
@@ -67,7 +76,8 @@ class AliquotCreator:
             aliquot = self.aliquot_model_cls.objects.get(
                 Q(identifier_prefix=self.identifier_prefix)
                 | Q(requisition_identifier=self.requisition_identifier),
-                is_primary=True)
+                is_primary=True,
+            )
         except ObjectDoesNotExist:
             aliquot = self._create(count=1, aliquot_type=aliquot_type)
         return aliquot
@@ -79,7 +89,8 @@ class AliquotCreator:
             count=count,
             numeric_code=aliquot_type.numeric_code,
             identifier_prefix=self.identifier_prefix,
-            parent_segment=self.parent_segment)
+            parent_segment=self.parent_segment,
+        )
 
         parent_identifier = parent_identifier or aliquot_identifier_obj.identifier
 
@@ -93,5 +104,6 @@ class AliquotCreator:
             identifier_prefix=self.identifier_prefix,
             is_primary=True if self.is_primary else False,
             requisition_identifier=self.requisition_identifier,
-            subject_identifier=self.subject_identifier)
+            subject_identifier=self.subject_identifier,
+        )
         return aliquot
