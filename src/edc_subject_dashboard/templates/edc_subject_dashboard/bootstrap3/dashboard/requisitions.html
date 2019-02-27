@@ -74,7 +74,11 @@
                                             disabled >{% if requisition.entry_status == KEYED %}<span class="fas fa-pen"></span> Change{% else %}<span class="fas fa-plus"></span> Add{% endif %}
 										{% endif %}
 		       						</a> 
-					    	        <a href="#" role="button" class="btn btn-sm btn-default">Audit</a>
+	                               {% if requisition.object.history_url %}
+	                                   <a href="{{ requisition.object.history_url }}" role="button" class="btn btn-sm btn-default">Audit</a>
+	                               {% else %}
+	                                   <a disabled role="button" class="btn btn-sm btn-default">Audit</a>
+	                               {% endif %}
 	                              {% else%}
 	                                <span class="text text-muted small">not required</span>
 	                              {% endif %}
