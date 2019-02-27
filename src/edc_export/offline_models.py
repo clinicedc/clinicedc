@@ -3,11 +3,11 @@ from django_collect_offline.offline_model import OfflineModel
 
 
 offline_models = [
-    'edc_export.objecthistory',
-    'edc_export.exportplan',
-    'edc_export.exportreceipt',
-    'edc_export.filehistory',
-    'edc_export.uploadexportreceiptfile',
+    "edc_export.objecthistory",
+    "edc_export.exportplan",
+    "edc_export.exportreceipt",
+    "edc_export.filehistory",
+    "edc_export.uploadexportreceiptfile",
 ]
 
 site_offline_models.register(offline_models, OfflineModel)

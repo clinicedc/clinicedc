@@ -14,25 +14,29 @@ class ExportTrackingFieldsModelMixin(models.Model):
     exported = models.BooleanField(
         default=False,
         editable=False,
-        help_text=('system field for export tracking. considered '
-                   '\'exported\' if both sent and received.'))
+        help_text=(
+            "system field for export tracking. considered "
+            "'exported' if both sent and received."
+        ),
+    )
 
     exported_datetime = models.DateTimeField(
-        null=True,
-        editable=False,
-        help_text='system field for export tracking.')
+        null=True, editable=False, help_text="system field for export tracking."
+    )
 
     export_change_type = models.CharField(
         max_length=1,
-        choices=((INSERT, 'Insert'), (UPDATE, 'Update'), (DELETE, 'Delete'), ),
+        choices=((INSERT, "Insert"), (UPDATE, "Update"), (DELETE, "Delete")),
         default=INSERT,
         editable=False,
-        help_text='system field for export tracking.')
+        help_text="system field for export tracking.",
+    )
 
     export_uuid = models.UUIDField(
         default=uuid.uuid4,
         editable=False,
-        help_text='system field for export tracking.')
+        help_text="system field for export tracking.",
+    )
 
     def update_export_mixin_fields(self):
         self.exported = True

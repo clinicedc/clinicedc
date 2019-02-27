@@ -7,7 +7,6 @@ from edc_base.model_managers import HistoricalRecords
 
 
 class FileHistoryManager(models.Manager):
-
     def get_by_natural_key(self, history_uuid):
         return self.get(history_uuid=history_uuid)
 
@@ -18,65 +17,52 @@ class FileHistory(BaseUuidModel):
         editable=False,
         default=uuid4,
         unique=True,
-        help_text="system field for export tracking.")
+        help_text="system field for export tracking.",
+    )
 
-    model = models.CharField(
-        max_length=50)
+    model = models.CharField(max_length=50)
 
     export_uuid_list = models.TextField(
-        null=True,
-        help_text='list of export_uuid\'s of model app_label.model_name')
+        null=True, help_text="list of export_uuid's of model app_label.model_name"
+    )
 
     pk_list = models.TextField(
-        null=True,
-        help_text='list of pk\'s of model app_label.model_name')
+        null=True, help_text="list of pk's of model app_label.model_name"
+    )
 
     exit_message = models.CharField(
-        max_length=250,
-        help_text='exit message from the export_transactions command')
+        max_length=250, help_text="exit message from the export_transactions command"
+    )
 
     exit_status = models.IntegerField(
-        null=True,
-        help_text='0=success, 1=failed from the export_transactions command')
+        null=True, help_text="0=success, 1=failed from the export_transactions command"
+    )
 
-    filename = models.CharField(
-        max_length=250,
-        help_text='original filename on export')
+    filename = models.CharField(max_length=250, help_text="original filename on export")
 
     file_contents = models.TextField(
-        null=True,
-        help_text='save contents of file as a list of rows')
+        null=True, help_text="save contents of file as a list of rows"
+    )
 
-    exported = models.BooleanField(
-        default=False,
-        help_text="exported to a file")
+    exported = models.BooleanField(default=False, help_text="exported to a file")
 
-    exported_datetime = models.DateTimeField(
-        null=True)
+    exported_datetime = models.DateTimeField(null=True)
 
-    notification_plan_name = models.CharField(
-        max_length=50, null=True)
+    notification_plan_name = models.CharField(max_length=50, null=True)
 
-    sent = models.BooleanField(
-        default=False,
-        help_text='export file sent to recipient')
+    sent = models.BooleanField(default=False, help_text="export file sent to recipient")
 
-    sent_datetime = models.DateTimeField(
-        null=True)
+    sent_datetime = models.DateTimeField(null=True)
 
     received = models.BooleanField(
-        default=False,
-        help_text='have received an ACK from the recipient')
+        default=False, help_text="have received an ACK from the recipient"
+    )
 
-    received_datetime = models.DateTimeField(
-        null=True)
+    received_datetime = models.DateTimeField(null=True)
 
-    closed = models.BooleanField(
-        default=False,
-        help_text='exported, sent, received')
+    closed = models.BooleanField(default=False, help_text="exported, sent, received")
 
-    closed_datetime = models.DateTimeField(
-        null=True)
+    closed_datetime = models.DateTimeField(null=True)
 
     objects = FileHistoryManager()
 
@@ -89,7 +75,7 @@ class FileHistory(BaseUuidModel):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.history_uuid, )
+        return (self.history_uuid,)
 
     class Meta:
-        ordering = ('-sent_datetime', )
+        ordering = ("-sent_datetime",)

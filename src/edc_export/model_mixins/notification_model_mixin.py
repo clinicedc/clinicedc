@@ -17,11 +17,9 @@ class NotificationMixin(models.Model):
 
     status = models.CharField(
         max_length=15,
-        default='new',
-        choices=(
-            ('new', 'New'),
-            ('sent', 'Sent'),
-            ('cancelled', 'Cancelled')))
+        default="new",
+        choices=(("new", "New"), ("sent", "Sent"), ("cancelled", "Cancelled")),
+    )
 
     sent = models.BooleanField(default=False)
 
@@ -29,4 +27,4 @@ class NotificationMixin(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ('notification_datetime', )
+        ordering = ("notification_datetime",)

@@ -21,6 +21,6 @@ class DataRequestHistory(BaseUuidModel):
     exported_datetime = models.DateTimeField(default=get_utcnow)
 
     class Meta:
-        ordering = ('-exported_datetime', )
-        verbose_name = 'Data Request History'
-        verbose_name_plural = 'Data Request History'
+        ordering = ("-exported_datetime",)
+        verbose_name = "Data Request History"
+        verbose_name_plural = "Data Request History"

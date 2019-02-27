@@ -19,7 +19,7 @@ class SubjectVisit(BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    visit_code = models.CharField(max_length=25, default='T0')
+    visit_code = models.CharField(max_length=25, default="T0")
 
     reason = models.CharField(max_length=25, null=True)
 
@@ -28,7 +28,7 @@ class SubjectVisit(BaseUuidModel):
     last_alive_date = models.DateTimeField(null=True)
 
     class Meta:
-        ordering = ['report_datetime']
+        ordering = ["report_datetime"]
 
 
 class SubjectConsent(BaseUuidModel):
@@ -75,7 +75,7 @@ class CrfModelMixin(models.Model):
 
 class SubjectRequisition(CrfModelMixin, BaseUuidModel):
 
-    panel_name = models.CharField(max_length=25, default='Microtube')
+    panel_name = models.CharField(max_length=25, default="Microtube")
 
 
 class ListModel(ListModelMixin):

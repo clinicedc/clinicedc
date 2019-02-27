@@ -11,7 +11,6 @@ from .file_history import FileHistory
 
 
 class UploadExportReceiptFileManager(models.Manager):
-
     def get_by_natural_key(self, file_name):
         return self.get(file_name=file_name)
 
@@ -19,10 +18,10 @@ class UploadExportReceiptFileManager(models.Manager):
 class UploadExportReceiptFile(BaseUuidModel):
 
     export_receipt_file = models.FileField(
-        upload_to=os.path.join('media', 'edc_export', 'uploads'))
+        upload_to=os.path.join("media", "edc_export", "uploads")
+    )
 
-    file_name = models.CharField(
-        max_length=50, null=True, editable=False, unique=True)
+    file_name = models.CharField(max_length=50, null=True, editable=False, unique=True)
 
     app_label = models.CharField(max_length=50)
 
@@ -42,13 +41,14 @@ class UploadExportReceiptFile(BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.file_name = self.export_receipt_file.name.replace(
-                '\\', '/').split('/')[-1]
+            self.file_name = self.export_receipt_file.name.replace("\\", "/").split(
+                "/"
+            )[-1]
             self.update_file_history()
         super(UploadExportReceiptFile, self).save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.file_name, )
+        return (self.file_name,)
 
     def update_file_history(self):
         """Reads the csv file and updates the export history for
@@ -67,13 +67,12 @@ class UploadExportReceiptFile(BaseUuidModel):
                     elif FileHistory.objects.filter(export_uuid=item, received=True):
                         self.duplicate += 1
                     else:
-                        file_history = FileHistory.objects.get(
-                            export_uuid=item)
+                        file_history = FileHistory.objects.get(export_uuid=item)
                         file_history.received = True
                         file_history.received_datetime = datetime.today()
                         file_history.save()
                         self.accepted += 1
-        self.errors = '; '.join(error_list)
+        self.errors = "; ".join(error_list)
 
     class Meta:
-        ordering = ('-created', )
+        ordering = ("-created",)

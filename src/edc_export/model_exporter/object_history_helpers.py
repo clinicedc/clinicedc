@@ -13,7 +13,7 @@ class ObjectHistoryUpdaterError(Exception):
 
 class Base:
 
-    history_model = 'edc_export.objecthistory'
+    history_model = "edc_export.objecthistory"
 
     @property
     def model_cls(self):
@@ -21,14 +21,12 @@ class Base:
 
 
 class ObjectHistoryCreator(Base):
-
     def create(self, model_obj=None, change_type=None, using=None):
         if not change_type:
             change_type = self.get_change_type(model_obj=model_obj)
         export_datetime = get_utcnow()
         if model_obj._meta.proxy_for_model:  # if proxy model, get main model
-            model_obj = model_obj._meta.proxy_for_model.objects.get(
-                id=model_obj.id)
+            model_obj = model_obj._meta.proxy_for_model.objects.get(id=model_obj.id)
         obj = self.model_cls.objects.using(using).create(
             model=model_obj._meta.label_lower,
             tx_pk=model_obj.id,
@@ -38,15 +36,18 @@ class ObjectHistoryCreator(Base):
             status=NEW,
             tx=self.get_json_tx(model_obj),
             exported_datetime=export_datetime,
-            timestamp=export_datetime.strftime('%Y%m%d%H%M%S%f'))
+            timestamp=export_datetime.strftime("%Y%m%d%H%M%S%f"),
+        )
         return obj
 
     def get_json_tx(self, model_obj=None):
         return serializers.serialize(
-            "json", [model_obj, ],
+            "json",
+            [model_obj],
             ensure_ascii=True,
             use_natural_foreign_keys=True,
-            use_natural_primary_keys=False)
+            use_natural_primary_keys=False,
+        )
 
     def get_change_type(self, model_obj=None):
         """Returns the export_change_type by querying the
@@ -79,25 +80,24 @@ class ObjectHistoryGetter(Base):
         except MultipleObjectsReturned:
             pass
         return self.model_cls.objects.filter(
-            export_uuid=model_obj.export_uuid,
-            exported=False).order_by('created')
+            export_uuid=model_obj.export_uuid, exported=False
+        ).order_by("created")
 
 
 class ObjectHistoryUpdater(Base):
-
     def update_as_exported(self, objects=None, exported_datetime=None):
         """Updates all objects in the objecthistory queryset
         as exported.
         """
         for obj in objects:
             if obj.exported:
-                raise ObjectHistoryUpdaterError(
-                    f'Already exported. Got {objects}.')
+                raise ObjectHistoryUpdaterError(f"Already exported. Got {objects}.")
         objects.update(
             exported=True,
             status=EXPORTED,
             exported_datetime=exported_datetime,
-            timestamp=exported_datetime.strftime('%Y%m%d%H%M%S'))
+            timestamp=exported_datetime.strftime("%Y%m%d%H%M%S"),
+        )
 
 
 class ObjectHistoryHelper:
@@ -111,7 +111,8 @@ class ObjectHistoryHelper:
 
     def get_not_exported(self):
         return self.obj_getter.get_not_exported(
-            model_obj=self.model_obj, create=self.create)
+            model_obj=self.model_obj, create=self.create
+        )
 
     def update_as_exported(self, **kwargs):
         self.obj_updater.update_as_exported(**kwargs)

@@ -16,13 +16,11 @@ class DataRequest(BaseUuidModel):
 
     decrypt = models.BooleanField(default=False)
 
-    export_format = models.CharField(
-        max_length=25,
-        choices=EXPORT_FORMATS,
-        default=CSV)
+    export_format = models.CharField(max_length=25, choices=EXPORT_FORMATS, default=CSV)
 
     models = models.TextField(
-        help_text='List one table per line, no commas. Use "label lower" format.')
+        help_text='List one table per line, no commas. Use "label lower" format.'
+    )
 
     history = HistoricalRecords()
 
@@ -35,11 +33,11 @@ class DataRequest(BaseUuidModel):
 
         Validates each item to be a model name.
         """
-        models_as_list = self.models.split('\n')
+        models_as_list = self.models.split("\n")
         models_as_list = [x.strip() for x in models_as_list if x.strip()]
         for model in models_as_list:
             django_apps.get_model(model)
         return [ModelOptions(x) for x in models_as_list]
 
     class Meta:
-        ordering = ('name', )
+        ordering = ("name",)

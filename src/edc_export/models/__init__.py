@@ -10,5 +10,5 @@ from .object_history import ObjectHistory
 from .plan import Plan
 from .upload_export_receipt_file import UploadExportReceiptFile
 
-if settings.APP_NAME == 'edc_export' and 'makemigrations' not in sys.argv:
+if settings.APP_NAME == "edc_export" and "makemigrations" not in sys.argv:
     from ..tests import models  # noqa

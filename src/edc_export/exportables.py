@@ -29,7 +29,8 @@ class Exportables(OrderedDict):
             user.groups.get(name=self.export_group_name)
         except ObjectDoesNotExist:
             messages.error(
-                request, 'You do not have sufficient permissions to export data.')
+                request, "You do not have sufficient permissions to export data."
+            )
         else:
             for app_config in app_configs:
                 models = []
@@ -47,10 +48,11 @@ class Exportables(OrderedDict):
                 historical_models.sort(key=lambda x: x.verbose_name.title())
                 list_models.sort(key=lambda x: x.verbose_name.title())
                 exportable = {
-                    'models': models,
-                    'inlines': self.inlines.get(model._meta.app_label),
-                    'historicals': historical_models,
-                    'lists': list_models}
+                    "models": models,
+                    "inlines": self.inlines.get(model._meta.app_label),
+                    "historicals": historical_models,
+                    "lists": list_models,
+                }
                 self.update({app_config: exportable})
 
     @property
@@ -60,15 +62,15 @@ class Exportables(OrderedDict):
                 for model_cls, admin_site in site._registry.items():
                     for inline_cls in admin_site.inlines:
                         model_opts = ModelOptions(
-                            model=inline_cls.model._meta.label_lower)
+                            model=inline_cls.model._meta.label_lower
+                        )
                         try:
-                            self._inlines[model_cls._meta.app_label].append(
-                                model_opts)
+                            self._inlines[model_cls._meta.app_label].append(model_opts)
                         except KeyError:
-                            self._inlines[model_cls._meta.app_label] = [
-                                model_opts]
+                            self._inlines[model_cls._meta.app_label] = [model_opts]
                         self._inlines[model_cls._meta.app_label].sort(
-                            key=lambda x: x.verbose_name.title())
+                            key=lambda x: x.verbose_name.title()
+                        )
         return self._inlines
 
     def get_app_configs(self):
