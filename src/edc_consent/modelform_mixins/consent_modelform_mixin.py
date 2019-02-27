@@ -62,6 +62,43 @@ class ConsentModelFormMixin:
             raise forms.ValidationError(e)
         return consent_config
 
+    @property
+    def age(self):
+        consent_datetime = self.cleaned_data.get(
+            "consent_datetime", self.instance.consent_datetime
+        )
+        dob = self.cleaned_data.get("dob")
+        if consent_datetime and dob:
+            return age(dob, consent_datetime)
+        return None
+
+    def unique_together_string(self, first_name, initials, dob):
+        try:
+            dob = dob.isoformat()
+        except AttributeError:
+            dob = ""
+        return f"{first_name}{dob}{initials}"
+
+    def validate_min_age(self):
+        if self.age:
+            if self.age.years < self.consent_config.age_min:
+                raise forms.ValidationError(
+                    "Subject's age is %(age)s. Subject is not eligible for "
+                    "consent. Minimum age of consent is %(min)s.",
+                    params={"age": self.age.years, "min": self.consent_config.age_min},
+                    code="invalid",
+                )
+
+    def validate_max_age(self):
+        if self.age:
+            if self.age.years > self.consent_config.age_max:
+                raise forms.ValidationError(
+                    "Subject's age is %(age)s. Subject is not eligible for "
+                    "consent. Maximum age of consent is %(max)s.",
+                    params={"age": self.age.years, "max": self.consent_config.age_max},
+                    code="invalid",
+                )
+
     def clean_with_registered_subject(self):
         cleaned_data = self.cleaned_data
         identity = cleaned_data.get("identity")
@@ -120,7 +157,6 @@ class ConsentModelFormMixin:
                     }
                 )
 
-    # ok
     def clean_initials_with_full_name(self):
         cleaned_data = self.cleaned_data
         first_name = cleaned_data.get("first_name")
@@ -184,42 +220,8 @@ class ConsentModelFormMixin:
                 ["This field is required. Please fill consent date and time."]
             )
             raise forms.ValidationError("Please correct the errors below.")
-
-        if consent_datetime:
-            age
-
         self.validate_min_age()
         self.validate_max_age()
-
-    @property
-    def age(self):
-        consent_datetime = self.cleaned_data.get(
-            "consent_datetime", self.instance.consent_datetime
-        )
-        dob = self.cleaned_data.get("dob")
-        if consent_datetime and dob:
-            return age(dob, consent_datetime.date())
-        return None
-
-    def validate_min_age(self):
-        if self.age:
-            if self.age.years < self.consent_config.age_min:
-                raise forms.ValidationError(
-                    "Subject's age is %(age)s. Subject is not eligible for "
-                    "consent. Minimum age of consent is %(min)s.",
-                    params={"age": self.age.years, "min": self.consent_config.age_min},
-                    code="invalid",
-                )
-
-    def validate_max_age(self):
-        if self.age:
-            if self.age.years > self.consent_config.age_max:
-                raise forms.ValidationError(
-                    "Subject's age is %(age)s. Subject is not eligible for "
-                    "consent. Maximum age of consent is %(max)s.",
-                    params={"age": self.age.years, "max": self.consent_config.age_max},
-                    code="invalid",
-                )
 
     def clean_is_literate_and_witness(self):
         cleaned_data = self.cleaned_data
@@ -296,10 +298,3 @@ class ConsentModelFormMixin:
                 code="invalid",
             )
         return gender
-
-    def unique_together_string(self, first_name, initials, dob):
-        try:
-            dob = dob.isoformat()
-        except AttributeError:
-            dob = ""
-        return "{}{}{}".format(first_name, dob, initials)
