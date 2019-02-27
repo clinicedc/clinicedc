@@ -131,10 +131,12 @@ class Visit:
     def all_requisitions(self):
         names = list(set([r.name for r in self.requisitions]))
         requisitions = list(self.requisitions) + [
-            r for r in self.requisitions_unscheduled if r.name not in names]
+            r for r in self.requisitions_unscheduled if r.name not in names
+        ]
         names = list(set([r.name for r in requisitions]))
         requisitions = requisitions + [
-            r for r in self.requisitions_prn if r.name not in names]
+            r for r in self.requisitions_prn if r.name not in names
+        ]
         return sorted(requisitions, key=lambda x: x.show_order)
 
     def next_form(self, model=None, panel=None):
@@ -196,8 +198,7 @@ class Visit:
             for crf in self.requisitions_unscheduled:
                 django_apps.get_model(crf.model)
         except LookupError as e:
-            warnings.append(
-                f"{e} Got Visit {self.code} crf.model={crf.model}.")
+            warnings.append(f"{e} Got Visit {self.code} crf.model={crf.model}.")
         return warnings
 
     def to_dict(self):

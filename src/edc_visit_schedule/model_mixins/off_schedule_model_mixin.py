@@ -13,8 +13,7 @@ from ..site_visit_schedules import site_visit_schedules
 from .schedule_model_mixin import ScheduleModelMixin
 
 if "offschedule_datetime_field" not in options.DEFAULT_NAMES:
-    options.DEFAULT_NAMES = options.DEFAULT_NAMES + \
-        ("offschedule_datetime_field",)
+    options.DEFAULT_NAMES = options.DEFAULT_NAMES + ("offschedule_datetime_field",)
 
 
 class OffScheduleModelMixin(ScheduleModelMixin):

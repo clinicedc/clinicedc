@@ -68,8 +68,7 @@ if settings.APP_NAME == "edc_visit_schedule":
         protocol_number = "099"
         protocol_name = "TestApp"
         protocol_title = ""
-        study_open_datetime = datetime(
-            2007, 12, 31, 0, 0, 0, tzinfo=gettz("UTC"))
+        study_open_datetime = datetime(2007, 12, 31, 0, 0, 0, tzinfo=gettz("UTC"))
         study_close_datetime = get_utcnow() + relativedelta(years=5)
 
         @property
