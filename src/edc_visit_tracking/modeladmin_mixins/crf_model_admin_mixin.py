@@ -1,5 +1,4 @@
 from edc_model_admin.model_admin_audit_fields_mixin import audit_fields
-from edc_visit_schedule.fieldsets import visit_schedule_fields
 
 
 class CrfModelAdminMixin:
