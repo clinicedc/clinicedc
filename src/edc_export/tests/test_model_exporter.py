@@ -1,6 +1,8 @@
 import csv
 
 from django.test import TestCase, tag
+from edc_appointment.models import Appointment
+from edc_facility.import_holidays import import_holidays
 from edc_pdutils import CsvModelExporter, ModelToDataframe
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from tempfile import mkdtemp
@@ -8,8 +10,6 @@ from tempfile import mkdtemp
 from .helper import Helper
 from .models import Crf, CrfEncrypted, SubjectVisit
 from .visit_schedule import visit_schedule1
-from edc_facility.import_holidays import import_holidays
-from edc_appointment.models.appointment import Appointment
 
 
 class TestExport(TestCase):
