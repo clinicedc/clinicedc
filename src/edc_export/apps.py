@@ -16,3 +16,25 @@ class AppConfig(DjangoApponfig):
 
         os.makedirs(self.export_folder, exist_ok=True)
         os.makedirs(self.upload_folder, exist_ok=True)
+
+
+if settings.APP_NAME == "edc_export":
+
+    from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
+    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
+#     from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
+
+#     class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
+#         visit_models = {"edc_metadata": (
+#             "subject_visit", "edc_metadata.subjectvisit")}
+
+    class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
+        definitions = {
+            "7-day-clinic": dict(
+                days=[MO, TU, WE, TH, FR, SA, SU],
+                slots=[100, 100, 100, 100, 100, 100, 100],
+            ),
+            "5-day-clinic": dict(
+                days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
+            ),
+        }

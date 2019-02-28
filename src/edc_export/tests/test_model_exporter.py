@@ -2,22 +2,28 @@ import csv
 
 from django.test import TestCase, tag
 from edc_pdutils import CsvModelExporter, ModelToDataframe
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from tempfile import mkdtemp
 
 from .helper import Helper
 from .models import Crf, CrfEncrypted, SubjectVisit
+from .visit_schedule import visit_schedule1
+from edc_facility.import_holidays import import_holidays
+from edc_appointment.models.appointment import Appointment
 
 
 class TestExport(TestCase):
 
-    helper = Helper()
-
     def setUp(self):
+        import_holidays()
+        self.helper = Helper()
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule1)
         self.path = mkdtemp()
-        for i in range(0, 5):
-            self.helper.create_crf(i)
+        self.helper.create_crfs(5)
         self.subject_visit = SubjectVisit.objects.all()[0]
 
+    @tag('2')
     def test_none(self):
         Crf.objects.all().delete()
         model = "edc_export.crf"
@@ -27,16 +33,16 @@ class TestExport(TestCase):
     def test_records(self):
         model = "edc_export.crf"
         m = ModelToDataframe(model=model, add_columns_for="subject_visit")
-        self.assertEqual(len(m.dataframe.index), 5)
+        self.assertEqual(len(m.dataframe.index), 4)
         model = "edc_export.crfone"
         m = ModelToDataframe(model=model, add_columns_for="subject_visit")
-        self.assertEqual(len(m.dataframe.index), 5)
+        self.assertEqual(len(m.dataframe.index), 4)
 
     def test_records_as_qs(self):
         m = ModelToDataframe(
             queryset=Crf.objects.all(), add_columns_for="subject_visit"
         )
-        self.assertEqual(len(m.dataframe.index), 5)
+        self.assertEqual(len(m.dataframe.index), 4)
 
     def test_columns(self):
         model = "edc_export.crf"
@@ -48,9 +54,10 @@ class TestExport(TestCase):
         m = ModelToDataframe(model=model, add_columns_for="subject_visit")
         df = m.dataframe
         df.sort_values(["subject_identifier"], inplace=True)
-        for i in range(0, 5):
-            self.assertEqual(df.subject_identifier.iloc[i], f"12345{i}")
-            self.assertEqual(df.visit_code.iloc[i], f"{i}000")
+        for i, appointment in enumerate(Appointment.objects.all().order_by('visit_code')):
+            self.assertEqual(
+                df.subject_identifier.iloc[i], appointment.subject_identifier)
+            self.assertEqual(df.visit_code.iloc[i], appointment.visit_code)
 
     def test_encrypted_none(self):
         model = "edc_export.crfencrypted"
@@ -115,7 +122,9 @@ class TestExport(TestCase):
         with open(exported.path, "r") as f:
             csv_reader = csv.DictReader(f, delimiter="|")
             rows = [row for row in enumerate(csv_reader)]
-        self.assertEqual(len(rows), 5)
-        for i in range(0, 5):
-            self.assertEqual(rows[i][1].get("subject_identifier"), f"12345{i}")
-            self.assertEqual(rows[i][1].get("visit_code"), f"{i}000")
+        self.assertEqual(len(rows), 4)
+        for i, appointment in enumerate(Appointment.objects.all().order_by('visit_code')):
+            self.assertEqual(rows[i][1].get(
+                "subject_identifier"), appointment.subject_identifier)
+            self.assertEqual(rows[i][1].get(
+                "visit_code"), appointment.visit_code)

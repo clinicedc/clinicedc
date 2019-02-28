@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "edc_device.apps.AppConfig",
     "edc_registration.apps.AppConfig",
     "edc_visit_schedule.apps.AppConfig",
+    "edc_export.apps.EdcFacilityAppConfig",
     "edc_export.apps.AppConfig",
 ]
 
@@ -133,10 +134,13 @@ KEY_PATH = os.path.join(BASE_DIR, "crypto_fields")
 GIT_DIR = BASE_DIR
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-DASHBOARD_URL_NAMES = {"subject_dashboard_url": "edc_export:subject_dashboard_url"}
+DASHBOARD_URL_NAMES = {
+    "subject_dashboard_url": "edc_export:subject_dashboard_url"}
 
+COUNTRY = "botswana"
 EDC_BOOTSTRAP = 3
 EMAIL_CONTACTS = {"data_request": "someone@example.com"}
+HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, "tests", "holidays.csv")
 
 if "test" in sys.argv:
 
