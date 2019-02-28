@@ -9,7 +9,6 @@ from edc_base.model_validators.date import date_not_future
 from edc_protocol.validators import date_not_before_study_start
 from edc_protocol.validators import datetime_not_before_study_start
 
-from ..site_visit_schedules import site_visit_schedules
 from .schedule_model_mixin import ScheduleModelMixin
 
 if "offschedule_datetime_field" not in options.DEFAULT_NAMES:
