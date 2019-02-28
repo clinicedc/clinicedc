@@ -14,8 +14,7 @@ from .models import Appointment
 class TestExportable(TestCase):
     def setUp(self):
         group = Group.objects.create(name="EXPORT")
-        user = User.objects.create(
-            username="erikvw", is_superuser=True, is_active=True)
+        user = User.objects.create(username="erikvw", is_superuser=True, is_active=True)
         user.groups.add(group)
         self.request = RequestFactory()
         self.request.user = user
@@ -34,8 +33,7 @@ class TestExportable(TestCase):
         json.loads(obj)
 
     def test_model_options_historical(self):
-        model_opts = ModelOptions(
-            model="edc_appointment.historicalappointment")
+        model_opts = ModelOptions(model="edc_appointment.historicalappointment")
         self.assertTrue(model_opts.label_lower)
         self.assertTrue(model_opts.verbose_name)
         self.assertTrue(model_opts.is_historical)
@@ -60,15 +58,13 @@ class TestExportable(TestCase):
         self.assertIn(edc_appointment, exportables.keys())
         self.assertIn(
             registered_subject_opts.verbose_name,
-            [o.verbose_name for o in exportables.get(
-                edc_registration).get("models")],
+            [o.verbose_name for o in exportables.get(edc_registration).get("models")],
         )
         self.assertIn(
             appointment_opts.verbose_name,
-            [o.verbose_name for o in exportables.get(
-                edc_appointment).get("models")],
+            [o.verbose_name for o in exportables.get(edc_appointment).get("models")],
         )
-#         self.assertFalse(exportables.get(edc_registration).get("historicals"))
+        #         self.assertFalse(exportables.get(edc_registration).get("historicals"))
         self.assertIn(
             "edc_registration.historicalregisteredsubject",
             [

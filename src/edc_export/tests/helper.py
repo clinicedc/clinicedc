@@ -13,7 +13,6 @@ from .visit_schedule import visit_schedule1
 
 
 class Helper:
-
     def __init__(self, now=None, subject_identifier=None):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule1)
@@ -23,13 +22,11 @@ class Helper:
 
     def consent_and_put_on_schedule(self, subject_identifier=None):
         subject_identifier = subject_identifier or self.subject_identifier
-        RegisteredSubject.objects.create(
-            subject_identifier=self.subject_identifier)
+        RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=subject_identifier, consent_datetime=self.now
         )
-        visit_schedule = site_visit_schedules.get_visit_schedule(
-            "visit_schedule1")
+        visit_schedule = site_visit_schedules.get_visit_schedule("visit_schedule1")
         schedule = visit_schedule.schedules.get("schedule1")
         schedule.put_on_schedule(
             subject_identifier=subject_consent.subject_identifier,
@@ -49,23 +46,22 @@ class Helper:
         return creator.appointment
 
     def create_crfs(self, i):
-        for appointment in Appointment.objects.all().order_by('visit_code'):
+        for appointment in Appointment.objects.all().order_by("visit_code"):
             SubjectVisit.objects.create(
                 appointment=appointment,
                 subject_identifier=appointment.subject_identifier,
                 report_datetime=get_utcnow(),
             )
         for j in range(0, i - 1):
-            appointment = Appointment.objects.all().order_by('visit_code')[j]
-            self.subject_visit = SubjectVisit.objects.get(
-                appointment=appointment)
+            appointment = Appointment.objects.all().order_by("visit_code")[j]
+            self.subject_visit = SubjectVisit.objects.get(appointment=appointment)
             self.thing_one = ListModel.objects.create(
                 name=f"thing_one_{appointment.visit_code}",
-                short_name=f"thing_one_{appointment.visit_code}"
+                short_name=f"thing_one_{appointment.visit_code}",
             )
             self.thing_two = ListModel.objects.create(
                 name=f"thing_two_{appointment.visit_code}",
-                short_name=f"thing_two_{appointment.visit_code}"
+                short_name=f"thing_two_{appointment.visit_code}",
             )
             Crf.objects.create(
                 subject_visit=self.subject_visit,
@@ -74,15 +70,15 @@ class Helper:
                 int1=j,
                 uuid1=uuid.uuid4(),
             )
-            CrfOne.objects.create(
-                subject_visit=self.subject_visit, dte=get_utcnow())
-            CrfTwo.objects.create(
-                subject_visit=self.subject_visit, dte=get_utcnow())
+            CrfOne.objects.create(subject_visit=self.subject_visit, dte=get_utcnow())
+            CrfTwo.objects.create(subject_visit=self.subject_visit, dte=get_utcnow())
             CrfThree.objects.create(
                 subject_visit=self.subject_visit, UPPERCASE=get_utcnow()
             )
 
-        for i, appointment in enumerate(Appointment.objects.all().order_by('visit_code')):
+        for i, appointment in enumerate(
+            Appointment.objects.all().order_by("visit_code")
+        ):
             if appointment != self.subject_visit.appointment:
                 self.create_crf_with_inlines(appointment)
 
@@ -93,10 +89,12 @@ class Helper:
             report_datetime=get_utcnow(),
         )
         list_one = ListOne.objects.create(
-            name=f"list_one{appointment.visit_code}", short_name=f"list_one{appointment.visit_code}"
+            name=f"list_one{appointment.visit_code}",
+            short_name=f"list_one{appointment.visit_code}",
         )
         list_two = ListTwo.objects.create(
-            name=f"list_two{appointment.visit_code}", short_name=f"list_two{appointment.visit_code}"
+            name=f"list_two{appointment.visit_code}",
+            short_name=f"list_two{appointment.visit_code}",
         )
         CrfWithInline.objects.create(
             subject_visit=subject_visit,

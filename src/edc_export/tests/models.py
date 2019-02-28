@@ -9,7 +9,9 @@ from edc_constants.constants import YES
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_list_data.model_mixins import ListModelMixin
 from edc_offstudy.model_mixins import OffstudyModelMixin, OffstudyModelManager
-from edc_visit_schedule.model_mixins.off_schedule_model_mixin import OffScheduleModelMixin
+from edc_visit_schedule.model_mixins.off_schedule_model_mixin import (
+    OffScheduleModelMixin,
+)
 from edc_visit_schedule.model_mixins.on_schedule_model_mixin import OnScheduleModelMixin
 
 from ..managers import ExportHistoryManager
@@ -152,7 +154,6 @@ class CrfWithInline(CrfModelMixin, BaseUuidModel):
 
 
 class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
-
     def put_on_schedule(self):
         pass
 

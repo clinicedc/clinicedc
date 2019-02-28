@@ -13,7 +13,6 @@ from .visit_schedule import visit_schedule1
 
 
 class TestExport(TestCase):
-
     def setUp(self):
         import_holidays()
         self.helper = Helper()
@@ -23,7 +22,7 @@ class TestExport(TestCase):
         self.helper.create_crfs(5)
         self.subject_visit = SubjectVisit.objects.all()[0]
 
-    @tag('2')
+    @tag("2")
     def test_none(self):
         Crf.objects.all().delete()
         model = "edc_export.crf"
@@ -54,9 +53,12 @@ class TestExport(TestCase):
         m = ModelToDataframe(model=model, add_columns_for="subject_visit")
         df = m.dataframe
         df.sort_values(["subject_identifier"], inplace=True)
-        for i, appointment in enumerate(Appointment.objects.all().order_by('visit_code')):
+        for i, appointment in enumerate(
+            Appointment.objects.all().order_by("visit_code")
+        ):
             self.assertEqual(
-                df.subject_identifier.iloc[i], appointment.subject_identifier)
+                df.subject_identifier.iloc[i], appointment.subject_identifier
+            )
             self.assertEqual(df.visit_code.iloc[i], appointment.visit_code)
 
     def test_encrypted_none(self):
@@ -123,8 +125,10 @@ class TestExport(TestCase):
             csv_reader = csv.DictReader(f, delimiter="|")
             rows = [row for row in enumerate(csv_reader)]
         self.assertEqual(len(rows), 4)
-        for i, appointment in enumerate(Appointment.objects.all().order_by('visit_code')):
-            self.assertEqual(rows[i][1].get(
-                "subject_identifier"), appointment.subject_identifier)
-            self.assertEqual(rows[i][1].get(
-                "visit_code"), appointment.visit_code)
+        for i, appointment in enumerate(
+            Appointment.objects.all().order_by("visit_code")
+        ):
+            self.assertEqual(
+                rows[i][1].get("subject_identifier"), appointment.subject_identifier
+            )
+            self.assertEqual(rows[i][1].get("visit_code"), appointment.visit_code)

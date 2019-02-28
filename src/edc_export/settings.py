@@ -134,8 +134,7 @@ KEY_PATH = os.path.join(BASE_DIR, "crypto_fields")
 GIT_DIR = BASE_DIR
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-DASHBOARD_URL_NAMES = {
-    "subject_dashboard_url": "edc_export:subject_dashboard_url"}
+DASHBOARD_URL_NAMES = {"subject_dashboard_url": "edc_export:subject_dashboard_url"}
 
 COUNTRY = "botswana"
 EDC_BOOTSTRAP = 3
