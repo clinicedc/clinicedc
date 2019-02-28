@@ -3,6 +3,8 @@ import arrow
 from datetime import datetime
 from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA
 from decimal import Context
+from django.db import transaction
+from django.db.models.deletion import ProtectedError
 from django.test import TestCase, tag
 from edc_base.utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
@@ -15,8 +17,6 @@ from ..signals import AppointmentDeleteError
 from .helper import Helper
 from .models import SubjectConsent, SubjectVisit, OnScheduleOne, OnScheduleTwo
 from .visit_schedule import visit_schedule1, visit_schedule2
-from django.db.models.deletion import ProtectedError
-from django.db import transaction
 
 
 class TestAppointment(TestCase):

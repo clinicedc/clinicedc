@@ -19,11 +19,12 @@ from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
     visit_schedule_fields,
 )
+from simple_history.admin import SimpleHistoryAdmin
 
 from ..admin_site import edc_appointment_admin
+from ..constants import NEW_APPT
 from ..forms import AppointmentForm
 from ..models import Appointment
-from edc_appointment.constants import NEW_APPT
 
 
 @admin.register(Appointment, site=edc_appointment_admin)
@@ -36,13 +37,11 @@ class AppointmentAdmin(
     ModelAdminRedirectOnDeleteMixin,
     ModelAdminReadOnlyMixin,
     ModelAdminSiteMixin,
-    admin.ModelAdmin,
+    SimpleHistoryAdmin,
 ):
 
-    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get(
-        "subject_dashboard_url")
-    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get(
-        "subject_dashboard_url")
+    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
+    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
 
     form = AppointmentForm
     date_hierarchy = "appt_datetime"

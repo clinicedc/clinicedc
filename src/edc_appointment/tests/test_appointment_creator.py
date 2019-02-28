@@ -10,10 +10,10 @@ from django.test.utils import override_settings
 from edc_base.utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule import VisitSchedule, Schedule, Visit
+from edc_visit_schedule import site_visit_schedules
 
 from ..creators import AppointmentCreator
 from ..models import Appointment
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class TestAppointmentCreator(TestCase):

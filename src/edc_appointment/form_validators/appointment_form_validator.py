@@ -53,8 +53,7 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
                 try:
                     self.instance.visit
                 except ObjectDoesNotExist:
-                    previous_appt = self.instance.get_previous(
-                        include_interim=True)
+                    previous_appt = self.instance.get_previous(include_interim=True)
                     if previous_appt:
                         try:
                             previous_appt.visit
@@ -106,8 +105,7 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
     def validate_not_future_appt_datetime(self):
         appt_datetime = self.cleaned_data.get("appt_datetime")
         if appt_datetime and appt_datetime != NEW_APPT:
-            rappt_datetime = Arrow.fromdatetime(
-                appt_datetime, appt_datetime.tzinfo)
+            rappt_datetime = Arrow.fromdatetime(appt_datetime, appt_datetime.tzinfo)
             if rappt_datetime.to("UTC").date() > get_utcnow().date():
                 raise forms.ValidationError(
                     {"appt_datetime": "Cannot be a future date."}
