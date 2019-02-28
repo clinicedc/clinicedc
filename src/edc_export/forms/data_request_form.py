@@ -16,17 +16,16 @@ class DataRequestForm(FormValidatorMixin, forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if self.cleaned_data.get('requested'):
-            requested = self.cleaned_data.get('requested').split('\n')
+        if self.cleaned_data.get("requested"):
+            requested = self.cleaned_data.get("requested").split("\n")
             requested = [x.strip() for x in requested if x.strip()]
             for model in requested:
                 try:
                     django_apps.get_model(model)
                 except (LookupError, ValueError):
-                    raise forms.ValidationError(
-                        f'Invalid model. Got \'{model}\'')
+                    raise forms.ValidationError(f"Invalid model. Got '{model}'")
         return cleaned_data
 
     class Meta:
         model = DataRequest
-        fields = '__all__'
+        fields = "__all__"

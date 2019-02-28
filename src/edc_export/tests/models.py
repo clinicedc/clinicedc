@@ -3,9 +3,16 @@ from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields.encrypted_char_field import EncryptedCharField
 from edc_appointment.models import Appointment
 from edc_base.model_mixins import BaseUuidModel
+from edc_base.sites import SiteModelMixin
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES
+from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_list_data.model_mixins import ListModelMixin
+from edc_offstudy.model_mixins import OffstudyModelMixin, OffstudyModelManager
+from edc_visit_schedule.model_mixins.off_schedule_model_mixin import (
+    OffScheduleModelMixin,
+)
+from edc_visit_schedule.model_mixins.on_schedule_model_mixin import OnScheduleModelMixin
 
 from ..managers import ExportHistoryManager
 from ..model_mixins import ExportTrackingFieldsModelMixin
@@ -15,11 +22,11 @@ class SubjectVisit(BaseUuidModel):
 
     appointment = models.ForeignKey(Appointment, null=True, on_delete=PROTECT)
 
-    subject_identifier = models.CharField(max_length=25)
+    subject_identifier = models.CharField(max_length=36)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    visit_code = models.CharField(max_length=25, default='T0')
+    visit_code = models.CharField(max_length=25, default="T0")
 
     reason = models.CharField(max_length=25, null=True)
 
@@ -28,12 +35,10 @@ class SubjectVisit(BaseUuidModel):
     last_alive_date = models.DateTimeField(null=True)
 
     class Meta:
-        ordering = ['report_datetime']
+        ordering = ["report_datetime"]
 
 
-class SubjectConsent(BaseUuidModel):
-
-    subject_identifier = models.CharField(max_length=25)
+class SubjectConsent(BaseUuidModel, SiteModelMixin, UniqueSubjectIdentifierModelMixin):
 
     consent_datetime = models.DateTimeField(default=get_utcnow)
 
@@ -48,7 +53,7 @@ class SubjectConsent(BaseUuidModel):
 
 class SubjectLocator(BaseUuidModel):
 
-    subject_identifier = models.CharField(max_length=25)
+    subject_identifier = models.CharField(max_length=36)
 
 
 class CrfModelMixin(models.Model):
@@ -75,7 +80,7 @@ class CrfModelMixin(models.Model):
 
 class SubjectRequisition(CrfModelMixin, BaseUuidModel):
 
-    panel_name = models.CharField(max_length=25, default='Microtube')
+    panel_name = models.CharField(max_length=25, default="Microtube")
 
 
 class ListModel(ListModelMixin):
@@ -146,3 +151,18 @@ class CrfWithInline(CrfModelMixin, BaseUuidModel):
     char1 = models.CharField(max_length=25, null=True)
 
     dte = models.DateTimeField(default=get_utcnow)
+
+
+class OnScheduleOne(OnScheduleModelMixin, BaseUuidModel):
+    def put_on_schedule(self):
+        pass
+
+
+class OffScheduleOne(OffScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
+class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
+
+    objects = OffstudyModelManager()
