@@ -1,5 +1,6 @@
 from django.db import models
-from ..model_mixin import SiteModelMixin
+
+from ..model_mixins import SiteModelMixin
 
 
 class TestModelWithSite(SiteModelMixin, models.Model):
