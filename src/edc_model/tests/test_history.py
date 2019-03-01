@@ -6,7 +6,8 @@ from django.test import TestCase, tag  # noqa
 from .models import TestModelWithHistory
 
 UUID_PATTERN = re.compile(
-    '[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}')
+    "[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
+)
 
 
 class TestHistory(TestCase):
@@ -26,8 +27,7 @@ class TestHistory(TestCase):
     def test_history_has_natural_key_method(self):
         obj = TestModelWithHistory.objects.create()
         pattern = re.compile(UUID_PATTERN)
-        self.assertTrue(pattern.match(
-            str(obj.history.all()[0].natural_key()[0])))
+        self.assertTrue(pattern.match(str(obj.history.all()[0].natural_key()[0])))
 
     def test_history_has_custom_get_by_natural_key(self):
         obj = TestModelWithHistory.objects.create()

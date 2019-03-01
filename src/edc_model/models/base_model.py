@@ -55,8 +55,7 @@ class BaseModel(UrlModelMixin, models.Model):
     def save(self, *args, **kwargs):
         try:
             # don't allow update_fields to bypass these audit fields
-            update_fields = kwargs.get(
-                "update_fields", None) + BASE_MODEL_UPDATE_FIELDS
+            update_fields = kwargs.get("update_fields", None) + BASE_MODEL_UPDATE_FIELDS
         except TypeError:
             pass
         else:

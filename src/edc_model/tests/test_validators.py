@@ -25,8 +25,7 @@ class TestValidators(TestCase):
         form = TestDateForm(data={"datetime_not_future": future_datetime})
         self.assertFalse(form.is_valid())
         self.assertEqual(
-            form.errors.get("datetime_not_future"), [
-                "Cannot be a future date/time"]
+            form.errors.get("datetime_not_future"), ["Cannot be a future date/time"]
         )
 
         future_date = (get_utcnow() + relativedelta(days=10)).date()
@@ -40,15 +39,13 @@ class TestValidators(TestCase):
         form = TestDateForm(data={"datetime_is_future": past_datetime})
         self.assertFalse(form.is_valid())
         self.assertEqual(
-            form.errors.get("datetime_is_future"), [
-                "Expected a future date/time"]
+            form.errors.get("datetime_is_future"), ["Expected a future date/time"]
         )
 
         past_date = (get_utcnow() - relativedelta(days=10)).date()
         form = TestDateForm(data={"date_is_future": past_date})
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors.get("date_is_future"),
-                         ["Expected a future date"])
+        self.assertEqual(form.errors.get("date_is_future"), ["Expected a future date"])
 
     def test_phone_validtors1(self):
         form = TestPhoneForm(data={"cell": "ABC", "tel": "ABC"})
@@ -59,6 +56,5 @@ class TestValidators(TestCase):
         form = TestPhoneForm(data={"cell": "777777777", "tel": "777777777"})
         self.assertTrue(form.is_valid())
 
-        form = TestPhoneForm(
-            data={"cell": "777777777", "tel": "777777777 ext 2205"})
+        form = TestPhoneForm(data={"cell": "777777777", "tel": "777777777 ext 2205"})
         self.assertTrue(form.is_valid())
