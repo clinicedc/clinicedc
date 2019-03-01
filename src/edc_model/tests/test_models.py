@@ -4,7 +4,7 @@ from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured
 
-from ..model_mixins import UrlModelMixinNoReverseMatch
+from ..models import UrlModelMixinNoReverseMatch
 from .models import TestBaseModel, TestSimpleModel
 
 

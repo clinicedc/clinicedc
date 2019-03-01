@@ -4,8 +4,8 @@ from dateutil.relativedelta import relativedelta
 from django.db import models
 from edc_sites.model_mixins import SiteModelMixin
 
-from ..model_managers.historical_records import HistoricalRecords
-from ..model_mixins import BaseUuidModel, BaseModel, ReportStatusModelMixin
+from ..models import HistoricalRecords
+from ..models import BaseUuidModel, BaseModel, ReportStatusModelMixin
 from ..model_validators import datetime_is_future, date_is_future
 from ..model_validators import datetime_not_future, date_not_future
 from ..model_validators import CellNumber, TelephoneNumber
