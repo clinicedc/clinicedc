@@ -4,7 +4,7 @@ from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured
 
-from ..model_mixins import UrlModelMixinNoReverseMatch
+from ..models import UrlModelMixinNoReverseMatch
 from .models import TestBaseModel, TestSimpleModel
 
 
@@ -37,8 +37,7 @@ class TestModels(TestCase):
 
     def test_get_absolute_url_add(self):
         obj = TestBaseModel()
-        self.assertEqual(obj.get_absolute_url(),
-                         "/admin/edc_model/testbasemodel/add/")
+        self.assertEqual(obj.get_absolute_url(), "/admin/edc_model/testbasemodel/add/")
 
     def test_get_absolute_url_not_registered(self):
         obj = TestSimpleModel()

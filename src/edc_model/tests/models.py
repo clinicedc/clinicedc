@@ -4,11 +4,11 @@ from dateutil.relativedelta import relativedelta
 from django.db import models
 from edc_sites.model_mixins import SiteModelMixin
 
-from ..model_managers.historical_records import HistoricalRecords
-from ..model_mixins import BaseUuidModel, BaseModel, ReportStatusModelMixin
-from ..model_validators import datetime_is_future, date_is_future
-from ..model_validators import datetime_not_future, date_not_future
-from ..model_validators import CellNumber, TelephoneNumber
+from ..models import HistoricalRecords
+from ..models import BaseUuidModel, BaseModel, ReportStatusModelMixin
+from ..validators import datetime_is_future, date_is_future
+from ..validators import datetime_not_future, date_not_future
+from ..validators import CellNumber, TelephoneNumber
 
 
 def get_utcnow():
@@ -58,8 +58,7 @@ class TestModelWithDateValidators(BaseModel):
         validators=[datetime_not_future], default=get_utcnow
     )
 
-    date_not_future = models.DateField(
-        validators=[date_not_future], default=get_utcnow)
+    date_not_future = models.DateField(validators=[date_not_future], default=get_utcnow)
 
     datetime_is_future = models.DateTimeField(
         validators=[datetime_is_future], default=get_future_date
@@ -73,5 +72,4 @@ class TestModelWithDateValidators(BaseModel):
 class TestModelWithPhoneValidators(BaseModel):
 
     cell = models.CharField(max_length=25, null=True, validators=[CellNumber])
-    tel = models.CharField(max_length=25, null=True,
-                           validators=[TelephoneNumber])
+    tel = models.CharField(max_length=25, null=True, validators=[TelephoneNumber])
