@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.test.testcases import TestCase
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_constants.constants import MALE
 from tempfile import mkdtemp
 

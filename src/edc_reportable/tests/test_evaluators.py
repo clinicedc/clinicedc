@@ -1,6 +1,6 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from edc_base.utils import age
+from edc_utils import age
 from edc_constants.constants import MALE
 from pytz import utc
 from unittest import TestCase

@@ -1,4 +1,4 @@
-from edc_base.utils import age, get_utcnow
+from edc_utils import age, get_utcnow
 
 from .evaluator import Evaluator
 
