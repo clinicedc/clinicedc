@@ -1,6 +1,6 @@
 from django.db.utils import IntegrityError
-from django.test import TestCase, tag
-from edc_sites.models.utils import add_or_update_django_sites
+from django.test import TestCase, tag  # noqa
+from edc_sites.utils import add_or_update_django_sites
 
 from ..lab import AliquotCreator, AliquotCreatorError
 from ..models import Aliquot
@@ -19,7 +19,8 @@ class TestAliquot(TestCase):
 
     def test_aliquot_model_constraint(self):
         Aliquot.objects.create(count=0)
-        self.assertRaises(IntegrityError, aliquot=Aliquot.objects.create, count=0)
+        self.assertRaises(
+            IntegrityError, aliquot=Aliquot.objects.create, count=0)
 
     def test_create_aliquot(self):
         self.assertRaises(AliquotCreatorError, AliquotCreator)
