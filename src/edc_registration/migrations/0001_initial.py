@@ -15,7 +15,7 @@ import edc_model_fields.fields
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
 import edc_model_fields.fields.uuid_auto_field
-import edc_base.utils
+import edc_utils
 
 
 class Migration(migrations.Migration):
@@ -227,7 +227,7 @@ class Migration(migrations.Migration):
                 (
                     "identity_or_pk",
                     models.CharField(
-                        default=edc_base.utils.get_uuid,
+                        default=edc_utils.get_uuid,
                         editable=False,
                         max_length=50,
                         unique=True,

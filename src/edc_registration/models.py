@@ -5,17 +5,16 @@ from django.db import models, transaction
 from django.utils.translation import ugettext as _
 from django_crypto_fields.fields import FirstnameField, LastnameField
 from django_crypto_fields.fields import IdentityField, EncryptedCharField
-from edc_base.model_mixins import BaseUuidModel
-from edc_base.sites import CurrentSiteManager, SiteModelMixin
-from edc_base.utils import get_uuid
 from edc_constants.choices import GENDER
 from edc_constants.constants import UUID_PATTERN
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_model_fields.fields import IdentityTypeField, IsDateEstimatedField
+from edc_sites.models import CurrentSiteManager, SiteModelMixin
+from edc_utils import get_uuid
 
 from .exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
-from edc_base.model_managers.historical_records import HistoricalRecords
 
 
 class RegisteredSubject(

@@ -10,7 +10,7 @@ import django_crypto_fields.fields.firstname_field
 import django_crypto_fields.fields.identity_field
 import django_crypto_fields.fields.lastname_field
 import django_revision.revision_field
-import edc_base.utils
+import edc_utils
 import edc_model_fields.fields.date_estimated
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.identity_type_field
@@ -34,11 +34,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "user_created",
@@ -224,7 +224,7 @@ class Migration(migrations.Migration):
                     "identity_or_pk",
                     models.CharField(
                         db_index=True,
-                        default=edc_base.utils.get_uuid,
+                        default=edc_utils.get_uuid,
                         editable=False,
                         max_length=75,
                         verbose_name="identity or pk",

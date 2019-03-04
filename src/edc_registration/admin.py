@@ -1,5 +1,5 @@
 from django.contrib import admin
-from edc_model_admin import audit_fieldset_tuple, audit_fields
+from edc_model_admin import audit_fieldset_tuple, audit_fields, SimpleHistoryAdmin
 
 from .admin_mixins import RegisteredSubjectModelAdminMixin
 from .admin_site import edc_registration_admin
@@ -7,7 +7,7 @@ from .models import RegisteredSubject
 
 
 @admin.register(RegisteredSubject, site=edc_registration_admin)
-class RegisteredSubjectAdmin(RegisteredSubjectModelAdminMixin, admin.ModelAdmin):
+class RegisteredSubjectAdmin(RegisteredSubjectModelAdminMixin, SimpleHistoryAdmin):
 
     fieldsets = (
         (

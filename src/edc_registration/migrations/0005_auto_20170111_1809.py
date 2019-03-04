@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
-import edc_base.utils
+import edc_utils
 
 
 class Migration(migrations.Migration):
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="registeredsubject",
             name="created",
-            field=models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+            field=models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
         ),
         migrations.AlterField(
             model_name="registeredsubject",
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
             model_name="registeredsubject",
             name="identity_or_pk",
             field=models.CharField(
-                default=edc_base.utils.get_uuid,
+                default=edc_utils.get_uuid,
                 editable=False,
                 max_length=75,
                 unique=True,
@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="registeredsubject",
             name="modified",
-            field=models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+            field=models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
         ),
         migrations.AlterField(
             model_name="registeredsubject",
