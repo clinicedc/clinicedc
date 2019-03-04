@@ -7,6 +7,6 @@ from ..dashboard_templates import dashboard_templates
 
 class HomeView(EdcBaseViewMixin, NavbarViewMixin, TemplateView):
 
-    template_name = dashboard_templates.get('home_template')
-    navbar_name = 'specimens'
-    navbar_selected_item = 'specimens'
+    template_name = dashboard_templates.get("home_template")
+    navbar_name = "specimens"
+    navbar_selected_item = "specimens"

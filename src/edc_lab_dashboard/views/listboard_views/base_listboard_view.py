@@ -6,8 +6,13 @@ from edc_navbar import NavbarViewMixin
 from ...view_mixins import FormActionViewMixin
 
 
-class BaseListboardView(EdcBaseViewMixin, FormActionViewMixin, SearchFormViewMixin,
-                        NavbarViewMixin, ListboardFilterViewMixin,
-                        ListboardView):
+class BaseListboardView(
+    EdcBaseViewMixin,
+    FormActionViewMixin,
+    SearchFormViewMixin,
+    NavbarViewMixin,
+    ListboardFilterViewMixin,
+    ListboardView,
+):
 
-    navbar_name = 'specimens'
+    navbar_name = "specimens"

@@ -4,6 +4,5 @@ from .action_view import ActionView
 
 
 class BoxView(EdcBaseViewMixin, ActionView):
-
     def form_actions(self):
         pass

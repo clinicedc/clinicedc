@@ -7,9 +7,9 @@ from ..dashboard_urls import dashboard_urls
 class RequisitionModelWrapper(ModelWrapper):
 
     model = settings.LAB_DASHBOARD_REQUISITION_MODEL
-    next_url_name = dashboard_urls.get('requisition_listboard_url')
-    next_url_attrs = ['appointment', 'subject_identifier']
-    querystring_attrs = ['subject_visit', 'panel']
+    next_url_name = dashboard_urls.get("requisition_listboard_url")
+    next_url_attrs = ["appointment", "subject_identifier"]
+    querystring_attrs = ["subject_visit", "panel"]
 
     @property
     def subject_visit(self):

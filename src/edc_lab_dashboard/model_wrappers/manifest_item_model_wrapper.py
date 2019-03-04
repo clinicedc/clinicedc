@@ -7,8 +7,8 @@ from ..dashboard_urls import dashboard_urls
 class ManifestItemModelWrapper(ModelWrapper):
 
     model_cls = ManifestItem
-    next_url_name = dashboard_urls.get('manage_manifest_listboard_url')
-    action_name = 'manage'
+    next_url_name = dashboard_urls.get("manage_manifest_listboard_url")
+    action_name = "manage"
 
     @property
     def manifest_identifier(self):

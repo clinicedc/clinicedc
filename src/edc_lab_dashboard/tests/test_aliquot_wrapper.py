@@ -6,32 +6,27 @@ from edc_lab.models import Aliquot, Box, BoxType, BoxItem
 from ..model_wrappers import AliquotModelWrapper
 
 
-app_config = django_apps.get_app_config('edc_lab_dashboard')
+app_config = django_apps.get_app_config("edc_lab_dashboard")
 
 
 class TestModelWrapper(TestCase):
-
     def setUp(self):
-        self.box_type = BoxType.objects.create(
-            name='9 x 9',
-            across=9, down=9, total=81)
-        self.box = Box.objects.create(
-            box_identifier='12345678',
-            box_type=self.box_type)
-        self.box_item = BoxItem.objects.create(
-            box=self.box, position=0)
+        self.box_type = BoxType.objects.create(name="9 x 9", across=9, down=9, total=81)
+        self.box = Box.objects.create(box_identifier="12345678", box_type=self.box_type)
+        self.box_item = BoxItem.objects.create(box=self.box, position=0)
         self.aliquot = Aliquot.objects.create(
-            subject_identifier='ABCDEFG',
+            subject_identifier="ABCDEFG",
             count=1,
             is_primary=True,
-            aliquot_type='Whole Blood',
-            numeric_code='02',
-            alpha_code='WB')
+            aliquot_type="Whole Blood",
+            numeric_code="02",
+            alpha_code="WB",
+        )
         self.wrapper_cls = AliquotModelWrapper
         next_url_name = self.wrapper_cls.next_url_name
         # attempt to remove namespace
         try:
-            self.wrapper_cls.next_url_name = next_url_name.split(':')[1]
+            self.wrapper_cls.next_url_name = next_url_name.split(":")[1]
         except IndexError:
             pass
 
@@ -39,17 +34,27 @@ class TestModelWrapper(TestCase):
         wrapper = self.wrapper_cls(self.aliquot)
         self.assertEqual(
             wrapper.href,
-            f'/admin/edc_lab/aliquot/{self.aliquot.id}/change/?next=aliquot_listboard_url&')
-        self.assertEqual(wrapper.reverse(), '/listboard/aliquot/')
+            f"/admin/edc_lab/aliquot/{self.aliquot.id}/change/?next=aliquot_listboard_url&",
+        )
+        self.assertEqual(wrapper.reverse(), "/listboard/aliquot/")
 
     def test_aliquot_wrapper_attrs(self):
         """Asserts attrs used in template exist.
         """
         wrapper = self.wrapper_cls(self.aliquot)
-        attrs = ['is_primary', 'box_item',
-                 'manifest_item', 'subject_identifier', 'aliquot_datetime',
-                 'aliquot_type', 'numeric_code', 'alpha_code',
-                 'box_item', 'shipped', 'count']
+        attrs = [
+            "is_primary",
+            "box_item",
+            "manifest_item",
+            "subject_identifier",
+            "aliquot_datetime",
+            "aliquot_type",
+            "numeric_code",
+            "alpha_code",
+            "box_item",
+            "shipped",
+            "count",
+        ]
         for attr in attrs:
             with self.subTest(attr=attr):
                 self.assertTrue(hasattr(wrapper, attr))
