@@ -2,8 +2,8 @@ import arrow
 
 from datetime import datetime
 from django.test import TestCase, tag
-from edc_base import get_utcnow
 from edc_facility.import_holidays import import_holidays
+from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import NEW_APPT, INCOMPLETE_APPT, IN_PROGRESS_APPT, CANCELLED_APPT
@@ -33,7 +33,8 @@ class TestUnscheduledAppointmentCreator(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule2)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=arrow.Arrow.fromdatetime(datetime(2017, 1, 7), tzinfo="UTC").datetime,
+            now=arrow.Arrow.fromdatetime(
+                datetime(2017, 1, 7), tzinfo="UTC").datetime,
         )
 
     def test_unscheduled_allowed_but_raises_on_appt_status(self):

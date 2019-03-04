@@ -2,9 +2,9 @@ from arrow.arrow import Arrow
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from edc_base import get_utcnow
 from edc_form_validators.form_validator import FormValidator
 from edc_metadata.form_validators import MetaDataFormValidatorMixin
+from edc_utils import get_utcnow
 
 from ..constants import NEW_APPT, IN_PROGRESS_APPT, CANCELLED_APPT
 from ..constants import UNSCHEDULED_APPT, INCOMPLETE_APPT, COMPLETE_APPT
@@ -53,7 +53,8 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
                 try:
                     self.instance.visit
                 except ObjectDoesNotExist:
-                    previous_appt = self.instance.get_previous(include_interim=True)
+                    previous_appt = self.instance.get_previous(
+                        include_interim=True)
                     if previous_appt:
                         try:
                             previous_appt.visit
@@ -105,7 +106,8 @@ class AppointmentFormValidator(MetaDataFormValidatorMixin, FormValidator):
     def validate_not_future_appt_datetime(self):
         appt_datetime = self.cleaned_data.get("appt_datetime")
         if appt_datetime and appt_datetime != NEW_APPT:
-            rappt_datetime = Arrow.fromdatetime(appt_datetime, appt_datetime.tzinfo)
+            rappt_datetime = Arrow.fromdatetime(
+                appt_datetime, appt_datetime.tzinfo)
             if rappt_datetime.to("UTC").date() > get_utcnow().date():
                 raise forms.ValidationError(
                     {"appt_datetime": "Cannot be a future date."}

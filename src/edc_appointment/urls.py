@@ -14,5 +14,5 @@ urlpatterns = [
         name="unscheduled_appointment_url",
     ),
     path("admin/", edc_appointment_admin.urls),
-    path("", RedirectView.as_view(url="admin/edc_appointment/"), name="home_url"),
+    path("", RedirectView.as_view(url="/edc_appointment/admin/"), name="home_url"),
 ]

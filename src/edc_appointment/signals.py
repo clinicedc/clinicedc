@@ -2,8 +2,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from edc_appointment.models.appointment import Appointment
-from edc_base import formatted_datetime
-from edc_base.utils import get_utcnow
+from edc_utils import formatted_datetime
+from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .managers import AppointmentDeleteError

@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from dateutil.tz.tz import gettz
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 
 from .appointment_config import AppointmentConfig
 
