@@ -1,21 +1,11 @@
-from edc_device.model_mixins import DeviceModelMixin
-from edc_model_fields.fields import UUIDAutoField
+from django.db import models
+from django_audit_fields.models import AuditUuidModelMixin
+from edc_model.models.url_model_mixin import UrlModelMixin
 
-from .base_model import BaseModel
 
+class BaseUuidModel(UrlModelMixin, AuditUuidModelMixin, models.Model):
 
-class BaseUuidModel(DeviceModelMixin, BaseModel):
+    objects = models.Manager()
 
-    """Base model class for all models using an UUID and not
-    an INT for the primary key.
-    """
-
-    id = UUIDAutoField(
-        blank=True,
-        editable=False,
-        help_text="System auto field. UUID primary key.",
-        primary_key=True,
-    )
-
-    class Meta(BaseModel.Meta):
+    class Meta(AuditUuidModelMixin.Meta):
         abstract = True
