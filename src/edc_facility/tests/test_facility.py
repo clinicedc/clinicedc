@@ -3,7 +3,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta, SU, MO, TU, WE, TH, FR, SA
 from django.test import TestCase, tag
 from django.test.utils import override_settings
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 
 from ..facility import Facility
 from ..import_holidays import import_holidays
