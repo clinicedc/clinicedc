@@ -1,7 +1,7 @@
 import csv
 
 from django.apps import apps as django_apps
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 
 
 class FileHistoryUpdater:

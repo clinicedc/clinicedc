@@ -2,7 +2,7 @@ import uuid
 
 from decimal import Decimal
 from edc_appointment.creators import UnscheduledAppointmentCreator
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 

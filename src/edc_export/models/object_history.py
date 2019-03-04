@@ -1,9 +1,8 @@
-from django.urls import reverse
 from django.db import models
+from django.urls import reverse
 from django_crypto_fields.fields import EncryptedTextField
-from edc_base.model_managers import HistoricalRecords
-from edc_base.model_mixins import BaseUuidModel
 from edc_constants.constants import CLOSED, NEW
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from ..model_mixins import ExportTrackingFieldsModelMixin
 from ..constants import EXPORTED, CANCELLED

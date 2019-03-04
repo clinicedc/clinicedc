@@ -5,7 +5,7 @@ import uuid
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_pdutils.model_to_dataframe import ValueGetterInvalidLookup
 
 from ..constants import EXPORTED, UPDATE, INSERT
