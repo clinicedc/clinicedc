@@ -2,7 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from django.forms.utils import ErrorList
 from django.utils import timezone
-from edc_base.utils import formatted_age, age
+from edc_utils import formatted_age, age
 from edc_constants.constants import YES, NO
 from edc_registration.models import RegisteredSubject
 
