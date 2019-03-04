@@ -5,7 +5,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
-from edc_base.utils import convert_php_dateformat
+from edc_utils import convert_php_dateformat
 
 from .exceptions import ConsentObjectDoesNotExist
 from .consent_object_validator import ConsentObjectValidator

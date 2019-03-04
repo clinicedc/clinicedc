@@ -1,5 +1,5 @@
 from django.views.generic.base import ContextMixin
-from edc_base.utils import get_utcnow, get_uuid
+from edc_utils import get_utcnow, get_uuid
 
 from .exceptions import ConsentObjectDoesNotExist
 from .site_consents import site_consents

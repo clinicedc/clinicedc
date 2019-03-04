@@ -1,6 +1,6 @@
 from django.contrib import messages
 
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 
 
 def verify_consent(request=None, consent_obj=None):

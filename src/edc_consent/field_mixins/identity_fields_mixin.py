@@ -1,6 +1,6 @@
 from django.db import models
 from django_crypto_fields.fields import IdentityField
-from django_crypto_fields.mixins import CryptoMixin
+from django_crypto_fields.models import CryptoMixin
 
 from ..choices import IDENTITY_TYPE
 

@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.conf import settings
-from edc_base import convert_php_dateformat
+from edc_utils import convert_php_dateformat
 
 from .exceptions import ConsentVersionSequenceError
 

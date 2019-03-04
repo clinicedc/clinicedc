@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from edc_base.utils import get_uuid
+from edc_utils import get_uuid
 
 from ..site_consents import site_consents
 

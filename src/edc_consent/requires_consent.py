@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_base import convert_php_dateformat
+from edc_utils import convert_php_dateformat
 
 from .exceptions import NotConsentedError
 from .site_consents import site_consents, SiteConsentError
