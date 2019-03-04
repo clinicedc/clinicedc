@@ -31,11 +31,17 @@ class ValueGetter:
             not a lookup.
     """
 
-    encrypted_label = '<encrypted>'
-    m2m_delimiter = ';'
+    encrypted_label = "<encrypted>"
+    m2m_delimiter = ";"
 
-    def __init__(self, field_name=None, model_obj=None,
-                 lookups=None, encrypt=None, additional_values=None):
+    def __init__(
+        self,
+        field_name=None,
+        model_obj=None,
+        lookups=None,
+        encrypt=None,
+        additional_values=None,
+    ):
         self._value = None
         self.additional_values = additional_values
         self.encrypt = encrypt
@@ -48,8 +54,7 @@ class ValueGetter:
     def value(self):
         if not self._value:
             try:
-                self._value = self.get_field_value(
-                    self.model_obj, self.field_name)
+                self._value = self.get_field_value(self.model_obj, self.field_name)
             except ValueGetterUnknownField as e:
                 try:
                     self._value = getattr(self.model_obj, e.code)
@@ -59,17 +64,20 @@ class ValueGetter:
                     else:
                         raise ValueGetterUnknownField(e)
             if self._value is None:
-                self._value = ''
+                self._value = ""
             self._value = self.strip_value(self._value)
         return self._value
 
     def get_field_value(self, model_obj=None, field_name=None):
         """Returns a field value.
         """
-        value = ''
+        value = ""
         for f in model_obj.__class__._meta.fields:
-            if (f.name == field_name and issubclass(f.__class__, BaseEncryptedField)
-                    and self.encrypt):
+            if (
+                f.name == field_name
+                and issubclass(f.__class__, BaseEncryptedField)
+                and self.encrypt
+            ):
                 value = self.encrypted_label
         if value != self.encrypted_label:
             try:
@@ -77,13 +85,14 @@ class ValueGetter:
             except AttributeError:
                 if field_name in self.lookups:
                     value = self.get_lookup_value(
-                        model_obj=model_obj,
-                        field_name=field_name)
+                        model_obj=model_obj, field_name=field_name
+                    )
                 elif field_name in self.m2m_field_names:
                     value = self.get_m2m_value(model_obj, field_name)
                 else:
                     raise ValueGetterUnknownField(
-                        f'Unknown field name. Got {field_name}.', code=field_name)
+                        f"Unknown field name. Got {field_name}.", code=field_name
+                    )
         return value
 
     def get_lookup_value(self, model_obj=None, field_name=None):
@@ -97,7 +106,8 @@ class ValueGetter:
                 value = getattr(value, attr)
             except AttributeError:
                 raise ValueGetterInvalidLookup(
-                    f'Invalid lookup string. Got {lookup_string}')
+                    f"Invalid lookup string. Got {lookup_string}"
+                )
         return value
 
     @property
@@ -110,15 +120,16 @@ class ValueGetter:
         """Returns an m2m field value as a delimited string.
         """
         return self.m2m_delimiter.join(
-            [value.name for value in getattr(model_obj, field_name).all()])
+            [value.name for value in getattr(model_obj, field_name).all()]
+        )
 
     def strip_value(self, value):
         """Returns a string cleaned of \n\t\r and double spaces.
         """
         try:
-            value = value.replace(string.whitespace, ' ')
+            value = value.replace(string.whitespace, " ")
         except (TypeError, AttributeError):
             pass
         else:
-            value = ' '.join(value.split())
+            value = " ".join(value.split())
         return value

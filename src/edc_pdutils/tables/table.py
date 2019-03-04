@@ -9,8 +9,15 @@ class Table:
     helper_cls = Helper
     table_to_dataframe_cls = TableToDataframe
 
-    def __init__(self, table_name=None, columns=None, filename=None, local_tz=None,
-                 limit=None, **kwargs):
+    def __init__(
+        self,
+        table_name=None,
+        columns=None,
+        filename=None,
+        local_tz=None,
+        limit=None,
+        **kwargs
+    ):
         self.dataframe = None
         self.helper = self.helper_cls(local_tz=local_tz)
         self.columns = columns or self.default_columns
@@ -18,9 +25,8 @@ class Table:
             self.read_csv(filename=filename)
         else:
             self.dataframe = self.table_to_dataframe_cls(
-                table_name=table_name,
-                columns=self.columns,
-                limit=limit).dataframe
+                table_name=table_name, columns=self.columns, limit=limit
+            ).dataframe
             self.prepare(**kwargs)
 
     def prepare(self, **kwargs):

@@ -16,8 +16,9 @@ def decrypt(row, column_name, algorithm, mode):
     if pd.notnull(row[column_name]):
         field_cryptor = FieldCryptor(algorithm, mode)
         value = field_cryptor.decrypt(row[column_name])
-        if value.startswith('enc1::'):
+        if value.startswith("enc1::"):
             raise DecryptError(
-                f'Failed to decrypt column value {column_name}. '
-                f'Perhaps check the path to the encryption keys.')
+                f"Failed to decrypt column value {column_name}. "
+                f"Perhaps check the path to the encryption keys."
+            )
     return value

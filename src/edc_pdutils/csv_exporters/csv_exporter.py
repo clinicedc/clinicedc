@@ -2,7 +2,7 @@ import os
 import sys
 
 from django.core.management.color import color_style
-from edc_base import get_utcnow
+from edc_utils import get_utcnow
 
 
 style = color_style()
@@ -23,25 +23,33 @@ class Exported:
         self.record_count = record_count
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(data_label={self.data_label})'
+        return f"{self.__class__.__name__}(data_label={self.data_label})"
 
     def __str__(self):
-        return f'{self.data_label} {self.record_count}'
+        return f"{self.data_label} {self.record_count}"
 
 
 class CsvExporter:
 
     date_format = None
-    delimiter = '|'
-    encoding = 'utf-8'
+    delimiter = "|"
+    encoding = "utf-8"
     export_folder = None
     file_exists_ok = False
     index = False
     sort_by = None
 
-    def __init__(self, data_label=None, sort_by=None, export_folder=None,
-                 delimiter=None, date_format=None, index=None,
-                 verbose=None, **kwargs):
+    def __init__(
+        self,
+        data_label=None,
+        sort_by=None,
+        export_folder=None,
+        delimiter=None,
+        date_format=None,
+        index=None,
+        verbose=None,
+        **kwargs,
+    ):
         self.delimiter = delimiter or self.delimiter
         self.date_format = date_format or self.date_format
         self.index = index or self.index
@@ -49,10 +57,11 @@ class CsvExporter:
         self.export_folder = export_folder or self.export_folder
         self.verbose = verbose
         if not self.export_folder:
-            raise CsvExporterExportFolder('Invalid export folder. Got None')
+            raise CsvExporterExportFolder("Invalid export folder. Got None")
         if not os.path.exists(self.export_folder):
             raise CsvExporterExportFolder(
-                f'Invalid export folder. Got {self.export_folder}')
+                f"Invalid export folder. Got {self.export_folder}"
+            )
         self.data_label = data_label
 
     def to_csv(self, dataframe=None, export_folder=None):
@@ -66,7 +75,7 @@ class CsvExporter:
         path = None
         record_count = 0
         if self.verbose:
-            sys.stdout.write(self.data_label + '\r')
+            sys.stdout.write(self.data_label + "\r")
         if export_folder:
             self.export_folder = export_folder
         if not dataframe.empty:
@@ -74,15 +83,16 @@ class CsvExporter:
             if self.sort_by:
                 dataframe.sort_values(self.sort_by, inplace=True)
             if self.verbose:
-                sys.stdout.write(f'( ) {self.data_label} ...     \r')
+                sys.stdout.write(f"( ) {self.data_label} ...     \r")
             dataframe.to_csv(path_or_buf=path, **self.csv_options)
             record_count = len(dataframe)
             if self.verbose:
                 sys.stdout.write(
-                    f'({style.SUCCESS("*")}) {self.data_label} {record_count}       \n')
+                    f'({style.SUCCESS("*")}) {self.data_label} {record_count}       \n'
+                )
         else:
             if self.verbose:
-                sys.stdout.write(f'(?) {self.data_label} empty  \n')
+                sys.stdout.write(f"(?) {self.data_label} empty  \n")
         return Exported(path, self.data_label, record_count)
 
     @property
@@ -93,7 +103,8 @@ class CsvExporter:
             index=self.index,
             encoding=self.encoding,
             sep=self.delimiter,
-            date_format=self.date_format)
+            date_format=self.date_format,
+        )
 
     def get_path(self):
         """Returns a full path and filename.
@@ -101,7 +112,8 @@ class CsvExporter:
         path = os.path.join(self.export_folder, self.filename)
         if os.path.exists(path) and not self.file_exists_ok:
             raise CsvExporterFileExists(
-                f'File \'{path}\' exists! Not exporting {self.data_label}.\n')
+                f"File '{path}' exists! Not exporting {self.data_label}.\n"
+            )
         return path
 
     @property
@@ -109,6 +121,6 @@ class CsvExporter:
         """Returns a CSV filename based on the timestamp.
         """
         dt = get_utcnow()
-        prefix = self.data_label.replace('-', '_')
-        formatted_date = dt.strftime('%Y%m%d%H%M%S')
-        return f'{prefix}_{formatted_date}.csv'
+        prefix = self.data_label.replace("-", "_")
+        formatted_date = dt.strftime("%Y%m%d%H%M%S")
+        return f"{prefix}_{formatted_date}.csv"

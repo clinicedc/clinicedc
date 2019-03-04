@@ -5,26 +5,12 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_pdutils', '0001_initial'),
-    ]
+    dependencies = [("edc_pdutils", "0001_initial")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='datarequesthistory',
-            name='data_request',
-        ),
-        migrations.RemoveField(
-            model_name='historicaldatarequest',
-            name='history_user',
-        ),
-        migrations.DeleteModel(
-            name='DataRequest',
-        ),
-        migrations.DeleteModel(
-            name='DataRequestHistory',
-        ),
-        migrations.DeleteModel(
-            name='HistoricalDataRequest',
-        ),
+        migrations.RemoveField(model_name="datarequesthistory", name="data_request"),
+        migrations.RemoveField(model_name="historicaldatarequest", name="history_user"),
+        migrations.DeleteModel(name="DataRequest"),
+        migrations.DeleteModel(name="DataRequestHistory"),
+        migrations.DeleteModel(name="HistoricalDataRequest"),
     ]

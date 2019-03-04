@@ -15,7 +15,7 @@ import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APP_NAME = 'edc_pdutils'
+APP_NAME = "edc_pdutils"
 SITE_ID = 10
 ETC_DIR = BASE_DIR
 
@@ -23,7 +23,7 @@ ETC_DIR = BASE_DIR
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '^)w&o56r-yd5a-k+#&jes225!zd3!j-etbf_*!!^rf5_&1#(gl'
+SECRET_KEY = "^)w&o56r-yd5a-k+#&jes225!zd3!j-etbf_*!!^rf5_&1#(gl"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -34,70 +34,68 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sites',
-    'django_extensions',
-    'django_crypto_fields.apps.AppConfig',
-    'django_revision.apps.AppConfig',
-    'edc_appointment.apps.AppConfig',
-    'edc_metadata.apps.AppConfig',
-    'edc_visit_tracking.apps.AppConfig',
-    'edc_visit_schedule.apps.AppConfig',
-    'edc_timepoint.apps.AppConfig',
-    'edc_registration.apps.AppConfig',
-    'edc_protocol.apps.AppConfig',
-    'edc_identifier.apps.AppConfig',
-    'edc_device.apps.AppConfig',
-    'edc_pdutils.apps.AppConfig',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "django_extensions",
+    "django_crypto_fields.apps.AppConfig",
+    "django_revision.apps.AppConfig",
+    "edc_appointment.apps.AppConfig",
+    "edc_metadata.apps.AppConfig",
+    "edc_visit_tracking.apps.AppConfig",
+    "edc_visit_schedule.apps.AppConfig",
+    "edc_timepoint.apps.AppConfig",
+    "edc_registration.apps.AppConfig",
+    "edc_protocol.apps.AppConfig",
+    "edc_identifier.apps.AppConfig",
+    "edc_device.apps.AppConfig",
+    "edc_pdutils.apps.AppConfig",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'edc_pdutils.urls'
+ROOT_URLCONF = "edc_pdutils.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ]
         },
-    },
+    }
 ]
 
-WSGI_APPLICATION = 'edc_pdutils.wsgi.application'
+WSGI_APPLICATION = "edc_pdutils.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': os.path.join(BASE_DIR, 'etc', 'mysql.conf'),
-        },
-        'TEST': {'NAME': 'test_edc', 'CHARSET': 'utf8'},
-    },
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "OPTIONS": {"read_default_file": os.path.join(BASE_DIR, "etc", "mysql.conf")},
+        "TEST": {"NAME": "test_edc", "CHARSET": "utf8"},
+    }
 }
 
 # Password validation
@@ -105,26 +103,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -136,19 +128,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 GIT_DIR = BASE_DIR
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-DASHBOARD_URL_NAMES = {
-    'subject_dashboard_url': 'edc_pdutils:subject_dashboard_url',
-}
+DASHBOARD_URL_NAMES = {"subject_dashboard_url": "edc_pdutils:subject_dashboard_url"}
 
 EDC_BOOTSTRAP = 3
 
 EXPORT_FOLDER = None
 
-if 'test' in sys.argv:
+if "test" in sys.argv:
 
     class DisableMigrations:
         def __contains__(self, item):
@@ -158,5 +148,5 @@ if 'test' in sys.argv:
             return None
 
     MIGRATION_MODULES = DisableMigrations()
-    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
-    DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'
+    PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
+    DEFAULT_FILE_STORAGE = "inmemorystorage.InMemoryStorage"
