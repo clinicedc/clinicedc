@@ -1,11 +1,11 @@
 from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import Q
-from edc_base import get_utcnow
-from edc_base.model_validators.date import datetime_not_future
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_model.models import BaseUuidModel
+from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_base.model_mixins import BaseUuidModel
+from edc_utils import get_utcnow
 
 from ..choices import SCHEDULE_STATUS
 from ..model_mixins import VisitScheduleFieldsModelMixin

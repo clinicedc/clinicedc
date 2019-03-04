@@ -1,7 +1,7 @@
-from django.test import TestCase, tag
 from django.core.exceptions import ObjectDoesNotExist
-from edc_base import get_utcnow
-from edc_base.tests import SiteTestCaseMixin
+from django.test import TestCase, tag
+from edc_sites.tests import SiteTestCaseMixin
+from edc_utils import get_utcnow
 
 from ..models import SubjectScheduleHistory
 from ..schedule import Schedule

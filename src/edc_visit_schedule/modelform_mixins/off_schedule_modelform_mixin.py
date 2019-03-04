@@ -1,5 +1,5 @@
 from django.forms import ValidationError
-from edc_base import get_utcnow
+from edc_utils import get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules
 from ..subject_schedule import InvalidOffscheduleDate

@@ -6,9 +6,9 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
-from edc_base import get_utcnow
-from edc_base.tests import SiteTestCaseMixin
 from edc_facility.import_holidays import import_holidays
+from edc_sites.tests import SiteTestCaseMixin
+from edc_utils import get_utcnow
 
 from ..constants import OFF_SCHEDULE, ON_SCHEDULE
 from ..models import SubjectScheduleHistory

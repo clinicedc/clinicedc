@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from edc_appointment.constants import IN_PROGRESS_APPT, COMPLETE_APPT
 from edc_appointment.creators import AppointmentsCreator
-from edc_base import get_utcnow, convert_php_dateformat, formatted_datetime
+from edc_utils import get_utcnow, convert_php_dateformat, formatted_datetime
 
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
 
