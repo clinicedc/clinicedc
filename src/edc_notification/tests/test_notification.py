@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.test import TestCase, tag
 from django.test.utils import override_settings
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from unittest.mock import patch
 
 from ..decorators import register, RegisterNotificationError

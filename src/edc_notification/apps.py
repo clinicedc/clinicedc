@@ -6,8 +6,6 @@ from django.core.checks.registry import register
 from django.db.models.signals import post_migrate
 
 from .system_checks import edc_notification_check
-
-
 from .site_notifications import site_notifications
 
 style = color_style()
@@ -23,8 +21,8 @@ class AppConfig(DjangoAppConfig):
     verbose_name = "Edc Notification"
 
     def ready(self):
-        from .signals import manage_mailists_on_userprofile_m2m_changed
-        from .signals import notification_on_post_create_historical_record
+        from .signals import manage_mailists_on_userprofile_m2m_changed  # noqa
+        from .signals import notification_on_post_create_historical_record  # noqa
 
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         site_notifications.autodiscover(verbose=True)

@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from twilio.base.exceptions import TwilioRestException, TwilioException
 from twilio.rest import Client
 

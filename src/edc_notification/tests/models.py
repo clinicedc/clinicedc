@@ -1,8 +1,7 @@
 from django.db import models
-from edc_base.model_mixins import BaseUuidModel
-from edc_base.model_managers import HistoricalRecords
-from edc_base.sites import SiteModelMixin
-from edc_base.utils import get_utcnow
+from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_sites.models import SiteModelMixin
+from edc_utils import get_utcnow
 
 
 class TestModel(BaseUuidModel):
