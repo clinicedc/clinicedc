@@ -6,7 +6,7 @@ from django_crypto_fields.fields import (
     LastnameField,
     EncryptedCharField,
 )
-from django_crypto_fields.model_mixins import CryptoMixin
+from django_crypto_fields.models import CryptoMixin
 from edc_constants.choices import GENDER_UNDETERMINED
 from edc_model_fields.fields import IsDateEstimatedField
 
