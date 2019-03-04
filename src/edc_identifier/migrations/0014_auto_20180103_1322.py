@@ -5,34 +5,30 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_identifier', '0013_auto_20171230_1316'),
-    ]
+    dependencies = [("edc_identifier", "0013_auto_20171230_1316")]
 
     operations = [
         migrations.AlterField(
-            model_name='identifiermodel',
-            name='device_id',
-            field=models.IntegerField(),
+            model_name="identifiermodel", name="device_id", field=models.IntegerField()
         ),
         migrations.AlterField(
-            model_name='identifiermodel',
-            name='identifier_type',
+            model_name="identifiermodel",
+            name="identifier_type",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AlterField(
-            model_name='identifiermodel',
-            name='model',
+            model_name="identifiermodel",
+            name="model",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AlterField(
-            model_name='identifiermodel',
-            name='name',
+            model_name="identifiermodel",
+            name="name",
             field=models.CharField(max_length=100),
         ),
         migrations.AlterField(
-            model_name='identifiermodel',
-            name='protocol_number',
+            model_name="identifiermodel",
+            name="protocol_number",
             field=models.CharField(max_length=25),
         ),
     ]

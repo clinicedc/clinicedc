@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_identifier', '0017_identifiermodel_subject_identifier'),
-    ]
+    dependencies = [("edc_identifier", "0017_identifiermodel_subject_identifier")]
 
     operations = [
         migrations.AlterField(
-            model_name='identifiermodel',
-            name='protocol_number',
+            model_name="identifiermodel",
+            name="protocol_number",
             field=models.CharField(max_length=25, null=True),
-        ),
+        )
     ]

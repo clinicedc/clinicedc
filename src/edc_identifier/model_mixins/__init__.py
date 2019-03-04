@@ -4,5 +4,6 @@ from .subject_identifier_model_mixins import (
     SubjectIdentifierAdditionalFieldsModelMixin,
     SubjectIdentifierMethodsModelMixin,
     UniqueSubjectIdentifierFieldMixin,
-    UniqueSubjectIdentifierModelMixin)
+    UniqueSubjectIdentifierModelMixin,
+)
 from .tracking_model_mixin import TrackingModelMixin, TrackingIdentifier

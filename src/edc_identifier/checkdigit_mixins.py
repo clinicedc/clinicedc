@@ -1,10 +1,8 @@
-
-
 class LuhnMixin:
-
     def calculate_checkdigit(self, identifier):
         check_digit = self._luhn_checksum(
-            int(''.join(map(str, self._digits_of(identifier)))) * 10)
+            int("".join(map(str, self._digits_of(identifier)))) * 10
+        )
         check_digit = check_digit if check_digit == 0 else 10 - check_digit
         return str(check_digit)
 

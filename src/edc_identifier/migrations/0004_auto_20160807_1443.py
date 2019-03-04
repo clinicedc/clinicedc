@@ -8,19 +8,29 @@ import edc_model_fields.fields.uuid_auto_field
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_identifier', '0003_auto_20160625_0938'),
-    ]
+    dependencies = [("edc_identifier", "0003_auto_20160625_0938")]
 
     operations = [
         migrations.AlterField(
-            model_name='identifiertracker',
-            name='id',
-            field=edc_model_fields.fields.uuid_auto_field.UUIDAutoField(blank=True, editable=False, help_text='System auto field. UUID primary key.', primary_key=True, serialize=False),
+            model_name="identifiertracker",
+            name="id",
+            field=edc_model_fields.fields.uuid_auto_field.UUIDAutoField(
+                blank=True,
+                editable=False,
+                help_text="System auto field. UUID primary key.",
+                primary_key=True,
+                serialize=False,
+            ),
         ),
         migrations.AlterField(
-            model_name='subjectidentifier',
-            name='id',
-            field=edc_model_fields.fields.uuid_auto_field.UUIDAutoField(blank=True, editable=False, help_text='System auto field. UUID primary key.', primary_key=True, serialize=False),
+            model_name="subjectidentifier",
+            name="id",
+            field=edc_model_fields.fields.uuid_auto_field.UUIDAutoField(
+                blank=True,
+                editable=False,
+                help_text="System auto field. UUID primary key.",
+                primary_key=True,
+                serialize=False,
+            ),
         ),
     ]

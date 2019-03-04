@@ -3,24 +3,22 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_identifier', '0008_identifiermodel_linked_identifier'),
-    ]
+    dependencies = [("edc_identifier", "0008_identifiermodel_linked_identifier")]
 
     operations = [
         migrations.AlterField(
-            model_name='historicalidentifierhistory',
-            name='created_datetime',
+            model_name="historicalidentifierhistory",
+            name="created_datetime",
             field=models.DateTimeField(default=get_utcnow),
         ),
         migrations.AlterField(
-            model_name='identifierhistory',
-            name='created_datetime',
+            model_name="identifierhistory",
+            name="created_datetime",
             field=models.DateTimeField(default=get_utcnow),
         ),
     ]

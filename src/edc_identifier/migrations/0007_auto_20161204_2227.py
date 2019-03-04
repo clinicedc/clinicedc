@@ -7,42 +7,98 @@ import django_revision.revision_field
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
 import edc_model_fields.fields.uuid_auto_field
-import edc_base.utils
+import edc_utils
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_identifier', '0006_auto_20161127_2226'),
-    ]
+    dependencies = [("edc_identifier", "0006_auto_20161127_2226")]
 
     operations = [
         migrations.CreateModel(
-            name='IdentifierModel',
+            name="IdentifierModel",
             fields=[
-                ('created', models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False)),
-                ('modified', models.DateTimeField(default=edc_base.utils.get_utcnow, editable=False)),
-                ('user_created', edc_model_fields.fields.userfield.UserField(blank=True, editable=False, max_length=50, verbose_name='user created')),
-                ('user_modified', edc_model_fields.fields.userfield.UserField(blank=True, editable=False, max_length=50, verbose_name='user modified')),
-                ('hostname_created', models.CharField(default='mac2-2.local', editable=False, help_text='System field. (modified on create only)', max_length=50)),
-                ('hostname_modified', edc_model_fields.fields.hostname_modification_field.HostnameModificationField(blank=True, editable=False, help_text='System field. (modified on every save)', max_length=50)),
-                ('revision', django_revision.revision_field.RevisionField(blank=True, editable=False, help_text='System field. Git repository tag:branch:commit.', max_length=75, null=True, verbose_name='Revision')),
-                ('id', edc_model_fields.fields.uuid_auto_field.UUIDAutoField(blank=True, editable=False, help_text='System auto field. UUID primary key.', primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=50)),
-                ('sequence_number', models.IntegerField()),
-                ('identifier', models.CharField(max_length=50, unique=True)),
-                ('device_id', models.IntegerField(default=99)),
-                ('protocol_number', models.CharField(max_length=3)),
-                ('model', models.CharField(max_length=50, null=True)),
-                ('subject_type', models.CharField(max_length=25, null=True)),
-                ('study_site', models.CharField(max_length=25)),
+                (
+                    "created",
+                    models.DateTimeField(
+                        default=edc_utils.date.get_utcnow, editable=False
+                    ),
+                ),
+                (
+                    "modified",
+                    models.DateTimeField(
+                        default=edc_utils.date.get_utcnow, editable=False
+                    ),
+                ),
+                (
+                    "user_created",
+                    edc_model_fields.fields.userfield.UserField(
+                        blank=True,
+                        editable=False,
+                        max_length=50,
+                        verbose_name="user created",
+                    ),
+                ),
+                (
+                    "user_modified",
+                    edc_model_fields.fields.userfield.UserField(
+                        blank=True,
+                        editable=False,
+                        max_length=50,
+                        verbose_name="user modified",
+                    ),
+                ),
+                (
+                    "hostname_created",
+                    models.CharField(
+                        default="mac2-2.local",
+                        editable=False,
+                        help_text="System field. (modified on create only)",
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "hostname_modified",
+                    edc_model_fields.fields.hostname_modification_field.HostnameModificationField(
+                        blank=True,
+                        editable=False,
+                        help_text="System field. (modified on every save)",
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "revision",
+                    django_revision.revision_field.RevisionField(
+                        blank=True,
+                        editable=False,
+                        help_text="System field. Git repository tag:branch:commit.",
+                        max_length=75,
+                        null=True,
+                        verbose_name="Revision",
+                    ),
+                ),
+                (
+                    "id",
+                    edc_model_fields.fields.uuid_auto_field.UUIDAutoField(
+                        blank=True,
+                        editable=False,
+                        help_text="System auto field. UUID primary key.",
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
+                ("sequence_number", models.IntegerField()),
+                ("identifier", models.CharField(max_length=50, unique=True)),
+                ("device_id", models.IntegerField(default=99)),
+                ("protocol_number", models.CharField(max_length=3)),
+                ("model", models.CharField(max_length=50, null=True)),
+                ("subject_type", models.CharField(max_length=25, null=True)),
+                ("study_site", models.CharField(max_length=25)),
             ],
-            options={
-                'ordering': ['sequence_number'],
-            },
+            options={"ordering": ["sequence_number"]},
         ),
         migrations.AlterUniqueTogether(
-            name='identifiermodel',
-            unique_together=set([('name', 'identifier')]),
+            name="identifiermodel", unique_together=set([("name", "identifier")])
         ),
     ]

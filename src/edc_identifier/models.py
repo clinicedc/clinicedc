@@ -1,10 +1,9 @@
 from django.db import models
-from edc_base.model_mixins import BaseUuidModel
-from edc_base.sites.site_model_mixin import SiteModelMixin
+from edc_model.models import BaseUuidModel
+from edc_sites.models import SiteModelMixin
 
 
 class IdentifierModelManager(models.Manager):
-
     def get_by_natural_key(self, identifier):
         return self.get(identifier=identifier)
 
@@ -13,8 +12,8 @@ class IdentifierModelManager(models.Manager):
         """Returns a padded sequence segment for the identifier
         """
         if self.is_derived:
-            return ''
-        return str(self.sequence_number).rjust(self.padding, '0')
+            return ""
+        return str(self.sequence_number).rjust(self.padding, "0")
 
     class Meta:
         abstract = True
@@ -45,12 +44,12 @@ class IdentifierModel(SiteModelMixin, BaseUuidModel):
     objects = IdentifierModelManager()
 
     def __str__(self):
-        return f'{self.identifier} {self.name}'
+        return f"{self.identifier} {self.name}"
 
     def natural_key(self):
-        return (self.identifier, )
+        return (self.identifier,)
 
     class Meta:
-        app_label = 'edc_identifier'
-        ordering = ['sequence_number', ]
-        unique_together = ('name', 'identifier')
+        app_label = "edc_identifier"
+        ordering = ["sequence_number"]
+        unique_together = ("name", "identifier")

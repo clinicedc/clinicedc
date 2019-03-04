@@ -1,5 +1,3 @@
-
-
 class IdentifierError(Exception):
     pass
 

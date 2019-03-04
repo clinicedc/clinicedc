@@ -6,14 +6,17 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_identifier', '0015_auto_20180116_1235'),
-    ]
+    dependencies = [("edc_identifier", "0015_auto_20180116_1235")]
 
     operations = [
         migrations.AlterField(
-            model_name='identifiermodel',
-            name='site',
-            field=models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.PROTECT, to='sites.Site'),
-        ),
+            model_name="identifiermodel",
+            name="site",
+            field=models.ForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="sites.Site",
+            ),
+        )
     ]
