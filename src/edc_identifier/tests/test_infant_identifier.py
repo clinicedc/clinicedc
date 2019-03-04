@@ -14,6 +14,7 @@ fake = Faker()
 
 
 class TestInfantIdentifier(TestCase):
+
     def get_maternal_identifier(self):
         site = Site.objects.get_current()
         maternal_identifier = SubjectIdentifier(
