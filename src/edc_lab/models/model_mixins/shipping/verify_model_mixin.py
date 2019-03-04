@@ -1,6 +1,6 @@
 from django.db import models
-from edc_base.utils import get_utcnow
 from edc_constants.constants import OPEN
+from edc_utils import get_utcnow
 
 from ....constants import VERIFIED
 

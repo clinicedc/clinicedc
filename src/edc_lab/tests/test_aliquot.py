@@ -1,6 +1,6 @@
 from django.db.utils import IntegrityError
 from django.test import TestCase, tag
-from edc_base.sites.utils import add_or_update_django_sites
+from edc_sites.models.utils import add_or_update_django_sites
 
 from ..lab import AliquotCreator, AliquotCreatorError
 from ..models import Aliquot

@@ -2,7 +2,7 @@ from copy import copy
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_constants.constants import YES
 from edc_registration.models import RegisteredSubject
 

@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import edc_base.sites.managers
+import edc_sites.models
 
 
 class Migration(migrations.Migration):
@@ -16,27 +16,24 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(name="order", options={}),
         migrations.AlterModelManagers(
             name="aliquot",
-            managers=[("on_site", edc_base.sites.managers.CurrentSiteManager())],
+            managers=[("on_site", edc_sites.models.CurrentSiteManager())],
         ),
         migrations.AlterModelManagers(
-            name="box",
-            managers=[("on_site", edc_base.sites.managers.CurrentSiteManager())],
+            name="box", managers=[("on_site", edc_sites.models.CurrentSiteManager())]
         ),
         migrations.AlterModelManagers(
             name="manifest",
-            managers=[("on_site", edc_base.sites.managers.CurrentSiteManager())],
+            managers=[("on_site", edc_sites.models.CurrentSiteManager())],
         ),
         migrations.AlterModelManagers(
-            name="order",
-            managers=[("on_site", edc_base.sites.managers.CurrentSiteManager())],
+            name="order", managers=[("on_site", edc_sites.models.CurrentSiteManager())]
         ),
         migrations.AlterModelManagers(
-            name="result",
-            managers=[("on_site", edc_base.sites.managers.CurrentSiteManager())],
+            name="result", managers=[("on_site", edc_sites.models.CurrentSiteManager())]
         ),
         migrations.AlterModelManagers(
             name="resultitem",
-            managers=[("on_site", edc_base.sites.managers.CurrentSiteManager())],
+            managers=[("on_site", edc_sites.models.CurrentSiteManager())],
         ),
         migrations.AddField(
             model_name="aliquot",
