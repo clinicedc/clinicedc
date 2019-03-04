@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_base.model_managers import HistoricalRecords
+from edc_model.models import HistoricalRecords
 
 from ..site_action_items import site_action_items
 from .action_item import ActionItem

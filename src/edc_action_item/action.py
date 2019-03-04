@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.management.color import color_style
 from django.db.models import Q
 from django.utils.formats import localize
-from edc_base.constants import DEFAULT_BASE_FIELDS
+from edc_model.constants import DEFAULT_BASE_FIELDS
 from edc_constants.constants import CLOSED, NEW, OPEN
 
 from .create_action_item import SingletonActionItemError

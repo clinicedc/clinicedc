@@ -1,13 +1,11 @@
-import uuid
-
 from django.db import models
 from django.db.models.deletion import CASCADE, PROTECT
-from edc_base import get_utcnow
-from edc_base.model_managers import HistoricalRecords
-from edc_base.model_mixins import BaseUuidModel
-from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
+from edc_model.models import BaseUuidModel
+from edc_model.models import HistoricalRecords
+from edc_sites.models import SiteModelMixin
+from edc_utils import get_utcnow
 
 from ..models import ActionModelMixin
 
