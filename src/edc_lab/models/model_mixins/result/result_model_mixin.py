@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from edc_base.sites.site_model_mixin import SiteModelMixin
+from edc_sites.models import SiteModelMixin
 
 from ..panel_model_mixin import PanelModelMixin
 

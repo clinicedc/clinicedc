@@ -2,8 +2,8 @@ import re
 
 from django.apps import apps as django_apps
 from django.db import models
-from edc_base.utils import get_uuid
 from edc_constants.constants import YES, UUID_PATTERN
+from edc_utils import get_uuid
 
 from ....identifiers import RequisitionIdentifier
 

@@ -1,7 +1,6 @@
 from django.db import models
 
-from edc_base.model_mixins import AddressMixin, BaseUuidModel
-from edc_base.model_managers import HistoricalRecords
+from edc_model.models import BaseUuidModel, HistoricalRecords, AddressMixin
 
 
 class ConsigneeManager(models.Manager):

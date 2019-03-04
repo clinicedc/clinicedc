@@ -1,9 +1,9 @@
 from django.db import models
 from django.utils import timezone
-from edc_model_fields.fields import OtherCharField, InitialsField
-from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import NOT_APPLICABLE
+from edc_model_fields.fields import OtherCharField, InitialsField
+from edc_sites.models import SiteModelMixin
 
 from ....choices import ITEM_TYPE, REASON_NOT_DRAWN
 from ..panel_model_mixin import PanelModelMixin

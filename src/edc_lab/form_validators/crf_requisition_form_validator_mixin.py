@@ -1,5 +1,5 @@
 from django import forms
-from edc_base import formatted_datetime, to_utc
+from edc_utils import formatted_datetime, to_utc
 
 
 class CrfRequisitionFormValidatorMixin:

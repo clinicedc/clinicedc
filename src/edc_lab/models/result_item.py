@@ -1,8 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_base.model_mixins import BaseUuidModel
-from edc_base.model_managers import HistoricalRecords
-from edc_base.sites import CurrentSiteManager
+from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_sites.models import CurrentSiteManager
 
 from .model_mixins import ResultItemModelMixin
 from .result import Result

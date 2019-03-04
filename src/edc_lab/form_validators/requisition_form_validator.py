@@ -1,8 +1,8 @@
 from django import forms
 from django.apps import apps as django_apps
-from edc_base import formatted_datetime, to_utc
 from edc_constants.constants import YES, NO
 from edc_form_validators import FormValidator
+from edc_utils import formatted_datetime, to_utc
 
 
 class RequisitionFormValidator(FormValidator):

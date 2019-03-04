@@ -1,7 +1,5 @@
 from django.db import models
-
-from edc_base.model_managers import HistoricalRecords
-from edc_base.model_mixins import BaseUuidModel, AddressMixin
+from edc_model.models import BaseUuidModel, HistoricalRecords, AddressMixin
 
 
 class ShipperManager(models.Manager):

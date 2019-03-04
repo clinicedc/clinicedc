@@ -1,6 +1,6 @@
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
-from edc_base.sites.utils import add_or_update_django_sites
+from edc_sites.models.utils import add_or_update_django_sites
 from edc_constants.constants import YES, NO
 
 from ..lab import AliquotType, Process, ProcessingProfile
