@@ -1,8 +1,8 @@
 import re
 
-from django.test import TestCase, tag
-from edc_sites.models.utils import add_or_update_django_sites
+from django.test import TestCase, tag  # noqa
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
+from edc_sites.utils import add_or_update_django_sites
 
 from ..lab import AliquotType, LabProfile, ProcessingProfile
 from ..lab import Process, ProcessingProfileAlreadyAdded
@@ -84,7 +84,6 @@ class TestSiteLab2(TestCase):
         pattern = re.compile("[0-9]{2}[A-Z0-9]{5}")
         self.assertTrue(pattern.match(requisition.requisition_identifier))
 
-    @tag("1")
     def test_requisition_identifier3(self):
         """Asserts requisition identifier is NOT set on requisition
         if specimen not drawn.

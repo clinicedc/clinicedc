@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
-from django.test import TestCase, tag
-from edc_sites.models.utils import add_or_update_django_sites
+from django.test import TestCase, tag  # noqa
+from edc_sites.utils import add_or_update_django_sites
 
 from ..models import Box, BoxItem, BoxType, Aliquot
 from ..models import Manifest, Shipper, Consignee, ManifestItem

@@ -1,7 +1,7 @@
 from django.contrib.sites.models import Site
-from django.test import TestCase, tag
-from edc_sites.models.utils import add_or_update_django_sites
+from django.test import TestCase, tag  # noqa
 from edc_constants.constants import YES, NO
+from edc_sites.utils import add_or_update_django_sites
 
 from ..lab import AliquotType, Process, ProcessingProfile
 from ..lab import Specimen as SpecimenBase, SpecimenNotDrawnError
