@@ -1,6 +1,7 @@
 from django.db import models
 from django_audit_fields.models import AuditUuidModelMixin
-from edc_model.models import UrlModelMixin
+
+from .url_model_mixin import UrlModelMixin
 
 
 class BaseUuidModel(UrlModelMixin, AuditUuidModelMixin, models.Model):
