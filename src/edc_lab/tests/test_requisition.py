@@ -1,7 +1,7 @@
 import re
 
-from django.test import TestCase, tag
-from edc_sites.models.utils import add_or_update_django_sites
+from django.test import TestCase, tag  # noqa
+from edc_sites.utils import add_or_update_django_sites
 
 from ..identifiers import RequisitionIdentifier
 from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel, Process

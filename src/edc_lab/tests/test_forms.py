@@ -1,17 +1,16 @@
+from datetime import timedelta
 from django import forms
 from django.test import TestCase, tag
-from edc_sites.models.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_constants.constants import OTHER, YES, NO, NOT_APPLICABLE
 from edc_form_validators import FormValidatorMixin
+from edc_sites.utils import add_or_update_django_sites
+from edc_utils import get_utcnow
 
 from ..form_validators import RequisitionFormValidator
 from ..forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
 from ..models import Aliquot
 from .models import SubjectRequisition, SimpleSubjectVisit as SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
-from pprint import pprint
-from datetime import timedelta
 
 
 class TestForms(TestCase):

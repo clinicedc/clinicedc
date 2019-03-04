@@ -1,10 +1,7 @@
-from django.test import TestCase, tag
-from django.test.utils import override_settings
-from django_collect_offline.models import OutgoingTransaction
+from django.test import TestCase, tag  # noqa
 from django_collect_offline.tests import OfflineTestHelper
-from edc_sites.utils import add_or_update_django_sites
 from edc_sites.tests import SiteTestCaseMixin
-from model_mommy import mommy
+from edc_sites.utils import add_or_update_django_sites
 
 
 class TestNaturalKey(SiteTestCaseMixin, TestCase):
