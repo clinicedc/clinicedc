@@ -4,7 +4,7 @@ from collections import OrderedDict
 from datetime import datetime
 from dateutil.relativedelta import relativedelta, weekday
 from django.conf import settings
-from edc_base.utils import get_utcnow, convert_php_dateformat
+from edc_utils import get_utcnow, convert_php_dateformat
 
 from .holidays import Holidays
 

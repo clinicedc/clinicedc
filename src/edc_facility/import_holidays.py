@@ -5,7 +5,7 @@ import sys
 from datetime import datetime
 from django.apps import apps as django_apps
 from django.conf import settings
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from tqdm import tqdm
 
 
