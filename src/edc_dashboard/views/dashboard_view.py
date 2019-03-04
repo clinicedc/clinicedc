@@ -14,7 +14,8 @@ class DashboardView(UrlRequestContextMixin, TemplateRequestContextMixin, Templat
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context = self.add_url_to_context(
-            new_key='dashboard_url_name',
+            new_key="dashboard_url_name",
             existing_key=self.dashboard_url,
-            context=context)
+            context=context,
+        )
         return context

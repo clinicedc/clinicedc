@@ -5,13 +5,13 @@ from .models import SubjectVisit
 
 
 class AdminSite(DjangoAdminSite):
-    site_title = 'Example'
-    site_header = 'Example'
-    index_title = 'Example'
-    site_url = '/'
+    site_title = "Example"
+    site_header = "Example"
+    index_title = "Example"
+    site_url = "/"
 
 
-edc_dashboard_admin = AdminSite(name='edc_dashboard_admin')
+edc_dashboard_admin = AdminSite(name="edc_dashboard_admin")
 
 
 @admin.register(SubjectVisit, site=edc_dashboard_admin)

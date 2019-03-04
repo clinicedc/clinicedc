@@ -8,8 +8,10 @@ from math import floor
 
 class AdministrationViewMixin(ContextMixin):
 
-    template_name = f'edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/administration.html'
-    base_template_name = f'edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/base.html'
+    template_name = (
+        f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/administration.html"
+    )
+    base_template_name = f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/base.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -30,8 +32,7 @@ class AdministrationViewMixin(ContextMixin):
                 col_two.update({k: v})
             else:
                 col_three.update({k: v})
-        context.update(
-            col_one=col_one, col_two=col_two, col_three=col_three)
+        context.update(col_one=col_one, col_two=col_two, col_three=col_three)
         return context
 
     def get_section(self, app_config=None):
@@ -58,7 +59,7 @@ class AdministrationViewMixin(ContextMixin):
         try:
             url = app_config.home_url_name
         except AttributeError:
-            url = f'{url_namespace}:home_url'
+            url = f"{url_namespace}:home_url"
         try:
             reverse(url)
         except NoReverseMatch:
@@ -70,7 +71,7 @@ class AdministrationViewMixin(ContextMixin):
 
     @property
     def default_sections(self):
-        return {'Accounts, Profiles, Sites and Logs': 'admin:index'}
+        return {"Accounts, Profiles, Sites and Logs": "admin:index"}
 
     @property
     def sections(self):

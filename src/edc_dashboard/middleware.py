@@ -20,8 +20,7 @@ class DashboardMiddleware:
             request.template_data
         except AttributeError:
             request.template_data = {}
-        request.template_data = insert_bootstrap_version(
-            **request.template_data)
+        request.template_data = insert_bootstrap_version(**request.template_data)
         response = self.get_response(request)
         return response
 
@@ -53,5 +52,6 @@ class DashboardMiddleware:
                 OTHER=OTHER,
                 SITE_ID=settings.SITE_ID,
                 YES=YES,
-                reviewer_site_id=reviewer_site_id)
+                reviewer_site_id=reviewer_site_id,
+            )
         return response

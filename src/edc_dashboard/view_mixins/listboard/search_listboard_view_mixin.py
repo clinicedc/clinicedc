@@ -5,7 +5,7 @@ from django.utils.text import slugify
 
 class SearchListboardMixin:
 
-    search_fields = ['slug']
+    search_fields = ["slug"]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -23,7 +23,7 @@ class SearchListboardMixin:
     @property
     def search_term(self):
         if not self._search_term:
-            search_term = self.request.GET.get('q')
+            search_term = self.request.GET.get("q")
             if search_term:
                 search_term = escape(search_term).strip()
             search_term = self.clean_search_term(search_term)
@@ -32,15 +32,14 @@ class SearchListboardMixin:
 
     @property
     def search_terms(self):
-        return self.search_term.split('+')
+        return self.search_term.split("+")
 
     def get_search_filtered_queryset(self, filter_options=None, exclude_options=None):
         q = None
         q_objects = []
         for search_term in self.search_terms:
             for field in self.search_fields:
-                q_objects.append(
-                    Q(**{f'{field}__icontains': slugify(search_term)}))
+                q_objects.append(Q(**{f"{field}__icontains": slugify(search_term)}))
             extra_q_objects = self.extra_search_options(search_term)
             if extra_q_objects:
                 q_objects.extend(extra_q_objects)
@@ -50,28 +49,30 @@ class SearchListboardMixin:
             else:
                 q = q_object
         if q:
-            queryset = getattr(
-                self.listboard_model_cls,
-                self.listboard_model_manager_name).filter(
-                q, **filter_options).exclude(**exclude_options)
+            queryset = (
+                getattr(self.listboard_model_cls, self.listboard_model_manager_name)
+                .filter(q, **filter_options)
+                .exclude(**exclude_options)
+            )
         else:
-            queryset = getattr(
-                self.listboard_model_cls,
-                self.listboard_model_manager_name).filter(
-                **filter_options).exclude(**exclude_options)
+            queryset = (
+                getattr(self.listboard_model_cls, self.listboard_model_manager_name)
+                .filter(**filter_options)
+                .exclude(**exclude_options)
+            )
         return queryset
 
     def get_filtered_queryset(self, filter_options=None, exclude_options=None):
         """Override to add conditional logic to filter on search term.
         """
-        if self.search_term and '|' not in self.search_term:
+        if self.search_term and "|" not in self.search_term:
             queryset = self.get_search_filtered_queryset(
-                filter_options=filter_options,
-                exclude_options=exclude_options)
+                filter_options=filter_options, exclude_options=exclude_options
+            )
         else:
             queryset = super().get_filtered_queryset(
-                filter_options=filter_options,
-                exclude_options=exclude_options)
+                filter_options=filter_options, exclude_options=exclude_options
+            )
         ordering = self.get_ordering()
         if ordering:
             if isinstance(ordering, str):

@@ -2,14 +2,13 @@ import urllib
 
 
 class QueryStringViewMixin:
-
     @property
     def querystring(self):
         querystring = {}
-        f = self.request.GET.get('f')
-        e = self.request.GET.get('e')
-        q = self.request.GET.get('q')
-        o = self.request.GET.get('o')
+        f = self.request.GET.get("f")
+        e = self.request.GET.get("e")
+        q = self.request.GET.get("q")
+        o = self.request.GET.get("o")
         if f:
             querystring.update(f=f)
         if e:
@@ -19,15 +18,16 @@ class QueryStringViewMixin:
         if o:
             querystring.update(o=o)
         if querystring:
-            return '?' + urllib.parse.urlencode(querystring)
-        return ''
+            return "?" + urllib.parse.urlencode(querystring)
+        return ""
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
-            f=self.request.GET.get('f'),
-            e=self.request.GET.get('e'),
-            o=self.request.GET.get('o'),
-            q=self.request.GET.get('q'),
-            querystring=self.querystring)
+            f=self.request.GET.get("f"),
+            e=self.request.GET.get("e"),
+            o=self.request.GET.get("o"),
+            q=self.request.GET.get("q"),
+            querystring=self.querystring,
+        )
         return context

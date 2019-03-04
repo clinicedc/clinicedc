@@ -11,13 +11,13 @@ class Number:
     def __init__(self, number=None, url=None, current=None):
         self.number = number
         self.url = url
-        self.active = 'active' if current else ''
+        self.active = "active" if current else ""
 
     def __str__(self):
         return self.number
 
     def __repr__(self):
-        return f'{self.__class__.__name__}<number={self.number} {self.active}>'
+        return f"{self.__class__.__name__}<number={self.number} {self.active}>"
 
 
 class UrlMaker:
@@ -26,9 +26,9 @@ class UrlMaker:
         self.querystring = querystring
 
     def url(self, page):
-        url = urljoin(self.base, str(page)) + '/'
+        url = urljoin(self.base, str(page)) + "/"
         if self.querystring:
-            return '?'.join([url, self.querystring])
+            return "?".join([url, self.querystring])
         return url
 
 
@@ -46,14 +46,17 @@ def page_numbers(page, numpages, display=None):
     return page_numbers or []
 
 
-@register.inclusion_tag(f'edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/'
-                        'copy_element.html')
+@register.inclusion_tag(
+    f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" "copy_element.html"
+)
 def copy_string_to_clipboard_button(value, index=None):
     return dict(value=value, index=index)
 
 
-@register.inclusion_tag(f'edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/'
-                        'paginator/paginator_row.html', takes_context=True)
+@register.inclusion_tag(
+    f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" "paginator/paginator_row.html",
+    takes_context=True,
+)
 def paginator_row(context):
 
     numbers = []
@@ -63,19 +66,18 @@ def paginator_row(context):
     last_url = None
     sub_text = None
 
-    paginator_url = context.get('paginator_url')
-    paginator = context.get('paginator')
-    page_obj = context.get('page_obj')
-    querystring = context.get('querystring')
+    paginator_url = context.get("paginator_url")
+    paginator = context.get("paginator")
+    page_obj = context.get("page_obj")
+    querystring = context.get("querystring")
 
-    search_term = context.get('search_term')
+    search_term = context.get("search_term")
 
     show = page_obj.has_other_pages()
-    paginator_url = reverse(
-        paginator_url, kwargs=context.get('paginator_url_kwargs'))
+    paginator_url = reverse(paginator_url, kwargs=context.get("paginator_url_kwargs"))
     if querystring:
-        if '?' in querystring:
-            querystring = querystring.split('?')[1]
+        if "?" in querystring:
+            querystring = querystring.split("?")[1]
         query_dict = parse_qsl(querystring)
         querystring = unquote(urlencode(query_dict))
     if show:
@@ -89,14 +91,14 @@ def paginator_row(context):
 
         for page in page_numbers(page_obj.number, paginator.num_pages):
             current = page_obj.number == page
-            url = '#'
+            url = "#"
             if not current:
                 url = url_maker.url(page)
-            numbers.append(
-                Number(number=page, url=url, current=current))
+            numbers.append(Number(number=page, url=url, current=current))
         sub_text = (
-            f'Showing items {page_obj.start_index()} to {page_obj.end_index()} '
-            f'of {paginator.count}.')
+            f"Showing items {page_obj.start_index()} to {page_obj.end_index()} "
+            f"of {paginator.count}."
+        )
 
     return dict(
         paginator_url=paginator_url,
@@ -108,4 +110,5 @@ def paginator_row(context):
         last_url=last_url,
         numbers=numbers,
         search_term=search_term,
-        sub_text=sub_text)
+        sub_text=sub_text,
+    )
