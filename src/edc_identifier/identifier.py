@@ -9,33 +9,34 @@ from .models import IdentifierModel
 
 class Identifier:
 
-    name = 'identifier'
+    name = "identifier"
     identifier_model_cls = IdentifierModel
-    identifier_pattern = '^\d+$'  # noqa
+    identifier_pattern = "^\d+$"  # noqa
     prefix_pattern = None
     prefix = None
-    seed = ['0']
+    seed = ["0"]
     separator = None
 
     def __init__(self, last_identifier=None, prefix=None):
         self.identifier_as_list = []
-        self.prefix = prefix or self.prefix or ''
+        self.prefix = prefix or self.prefix or ""
         try:
-            seed = ''.join(self.seed)
+            seed = "".join(self.seed)
         except TypeError:
             seed = self.seed
-        edc_device_app_config = django_apps.get_app_config('edc_device')
+        edc_device_app_config = django_apps.get_app_config("edc_device")
         self.device_id = edc_device_app_config.device_id
-        self.identifier = last_identifier or self.last_identifier or f'{self.prefix}{seed}'
-        self.prefix_pattern = f'^{self.prefix}$'
-        self.identifier_pattern = (
-            self.prefix_pattern[:-1] + self.identifier_pattern[1:])
+        self.identifier = (
+            last_identifier or self.last_identifier or f"{self.prefix}{seed}"
+        )
+        self.prefix_pattern = f"^{self.prefix}$"
+        self.identifier_pattern = self.prefix_pattern[:-1] + self.identifier_pattern[1:]
         if self.identifier:
             self.validate_identifier_pattern(self.identifier)
         self.next_identifier()
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(\'{self.identifier}\')'
+        return f"{self.__class__.__name__}('{self.identifier}')"
 
     def __str__(self):
         return self.identifier
@@ -64,8 +65,10 @@ class Identifier:
         try:
             identifier = re.match(pattern, identifier).group()
         except AttributeError:
-            error_msg = (error_msg or ('Invalid identifier format for pattern '
-                                       f'{pattern}. Got identifier=\'{identifier}\''))
+            error_msg = error_msg or (
+                "Invalid identifier format for pattern "
+                f"{pattern}. Got identifier='{identifier}'"
+            )
             raise IdentifierError(error_msg)
         return identifier
 
@@ -90,7 +93,8 @@ class Identifier:
                 identifier=self.identifier,
                 identifier_type=self.name,
                 identifier_prefix=self.identifier_prefix,
-                device_id=self.device_id)
+                device_id=self.device_id,
+            )
         return True
 
     @property
@@ -115,7 +119,7 @@ class Identifier:
             return identifier
         else:
             self.identifier_as_list = identifier.split(self.separator)
-            return ''.join(self.identifier_as_list)
+            return "".join(self.identifier_as_list)
 
     def insert_separator(self, identifier):
         """Returns the identifier by reinserting the separator.
@@ -125,7 +129,7 @@ class Identifier:
         start = 0
         items = []
         for item in self.identifier_as_list:
-            items.append(identifier[start:start + len(item)])
+            items.append(identifier[start : start + len(item)])
             start += len(item)
-        identifier = (self.separator or '').join(items)
+        identifier = (self.separator or "").join(items)
         return identifier

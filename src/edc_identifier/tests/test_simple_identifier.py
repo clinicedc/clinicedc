@@ -7,7 +7,6 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 class TestSimpleIdentifier(TestCase):
-
     def test_simple(self):
         obj = SimpleIdentifier()
         obj.identifier
@@ -18,4 +17,4 @@ class TestSimpleIdentifier(TestCase):
         try:
             IdentifierModel.objects.get(identifier=obj.identifier)
         except ObjectDoesNotExist:
-            self.fail('Identifier not add to history')
+            self.fail("Identifier not add to history")

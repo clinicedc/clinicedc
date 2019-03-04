@@ -7,37 +7,31 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_identifier', '0010_auto_20170112_0602'),
-    ]
+    dependencies = [("edc_identifier", "0010_auto_20170112_0602")]
 
     operations = [
         migrations.RemoveField(
-            model_name='historicalidentifierhistory',
-            name='created_datetime',
+            model_name="historicalidentifierhistory", name="created_datetime"
         ),
-        migrations.RemoveField(
-            model_name='identifierhistory',
-            name='created_datetime',
-        ),
+        migrations.RemoveField(model_name="identifierhistory", name="created_datetime"),
         migrations.AlterField(
-            model_name='historicalidentifierhistory',
-            name='identifier',
+            model_name="historicalidentifierhistory",
+            name="identifier",
             field=models.CharField(db_index=True, max_length=50),
         ),
         migrations.AlterField(
-            model_name='historicalidentifierhistory',
-            name='identifier_type',
+            model_name="historicalidentifierhistory",
+            name="identifier_type",
             field=models.CharField(max_length=50),
         ),
         migrations.AlterField(
-            model_name='identifierhistory',
-            name='identifier',
+            model_name="identifierhistory",
+            name="identifier",
             field=models.CharField(max_length=50, unique=True),
         ),
         migrations.AlterField(
-            model_name='identifierhistory',
-            name='identifier_type',
+            model_name="identifierhistory",
+            name="identifier_type",
             field=models.CharField(max_length=50),
         ),
     ]

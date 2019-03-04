@@ -8,7 +8,7 @@ from edc_base.view_mixins import EdcBaseViewMixin
 
 class HomeView(EdcBaseViewMixin, TemplateView):
 
-    template_name = f'edc_identifier/bootstrap{settings.EDC_BOOTSTRAP}/home.html'
+    template_name = f"edc_identifier/bootstrap{settings.EDC_BOOTSTRAP}/home.html"
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
