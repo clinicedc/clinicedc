@@ -3,7 +3,7 @@ from django.apps import apps as django_apps
 
 class ModelAdminInstitutionMixin:
 
-    """Adds instituion attrs to the ModelAdmin context.
+    """Adds institution attrs to the ModelAdmin context.
     """
 
     def get_institution_extra_context(self, extra_context):
