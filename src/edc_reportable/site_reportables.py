@@ -9,7 +9,6 @@ from .value_reference_group import ValueReferenceGroup, GRADING, NORMAL
 
 
 class Reportables:
-
     def __init__(self):
         self._registry = {}
 
@@ -34,7 +33,8 @@ class Reportables:
                 grp.add_grading(grade_ref)
             reference_collection.update_grp(grp)
         site_reportables._registry.update(
-            {reference_collection.name: reference_collection})
+            {reference_collection.name: reference_collection}
+        )
 
     def get(self, name):
         return self._registry.get(name)
@@ -49,10 +49,10 @@ class Reportables:
         pass
 
     def to_csv(self, collection_name=None, path=None):
-        path = path or '~/'
+        path = path or "~/"
         path = os.path.expanduser(path)
-        filename1 = os.path.join(path, f'{collection_name}_normal_ranges.csv')
-        filename2 = os.path.join(path, f'{collection_name}_grading.csv')
+        filename1 = os.path.join(path, f"{collection_name}_normal_ranges.csv")
+        filename2 = os.path.join(path, f"{collection_name}_grading.csv")
         reference_collection = self.get(collection_name)
         data = reference_collection.as_data()
         try:
@@ -60,8 +60,8 @@ class Reportables:
         except IndexError:
             pass
         else:
-            fieldnames.insert(1, 'description')
-            with open(filename1, 'w') as f:
+            fieldnames.insert(1, "description")
+            with open(filename1, "w") as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
                 for dct in data.get(NORMAL):
@@ -72,8 +72,8 @@ class Reportables:
         except IndexError:
             pass
         else:
-            fieldnames.insert(1, 'description')
-            with open(filename2, 'w') as f:
+            fieldnames.insert(1, "description")
+            with open(filename2, "w") as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
                 for dct in data.get(GRADING):
