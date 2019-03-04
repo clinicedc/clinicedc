@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.http import HttpResponse
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_constants.constants import YES
 from edc_identifier.simple_identifier import make_human_readable
 from edc_lab.models.manifest.shipper import Shipper

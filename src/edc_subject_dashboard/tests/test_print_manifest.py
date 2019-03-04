@@ -1,5 +1,5 @@
 from django.test import TestCase
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 
 from .models import SubjectVisit, TestModel, BadSubjectVisit, Appointment
 
