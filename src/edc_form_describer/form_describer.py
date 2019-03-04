@@ -4,8 +4,8 @@ import sys
 
 from datetime import datetime
 from django.core.management.color import color_style
-from edc_base.constants import DEFAULT_BASE_FIELDS
 from edc_fieldsets import Fieldsets
+from edc_model import DEFAULT_BASE_FIELDS
 from math import floor
 
 from .markdown_writer import MarkdownWriter
