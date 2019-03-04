@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import edc_base.sites.managers
+import edc_sites.models
 import edc_locator.model_mixins.locator_model_mixin
 
 
@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         migrations.AlterModelManagers(
             name="subjectlocator",
             managers=[
-                ("on_site", edc_base.sites.managers.CurrentSiteManager()),
+                ("on_site", edc_sites.models.CurrentSiteManager()),
                 (
                     "objects",
                     edc_locator.model_mixins.locator_model_mixin.LocatorManager(),

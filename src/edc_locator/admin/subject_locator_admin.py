@@ -1,5 +1,5 @@
 from django.contrib import admin
-from edc_model_admin import audit_fieldset_tuple
+from edc_model_admin import audit_fieldset_tuple, SimpleHistoryAdmin
 
 from ..admin_site import edc_locator_admin
 from ..fieldsets import subject_contacts_fieldset
@@ -10,7 +10,7 @@ from .modeladmin_mixins import ModelAdminMixin
 
 
 @admin.register(SubjectLocator, site=edc_locator_admin)
-class SubjectLocatorAdmin(ModelAdminMixin, admin.ModelAdmin):
+class SubjectLocatorAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     form = SubjectLocatorForm
 
