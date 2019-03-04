@@ -1,11 +1,11 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
-from edc_base.model_validators import datetime_not_future
-from edc_base import get_utcnow, formatted_datetime
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_model.validators import datetime_not_future
 from edc_model_fields.fields import OtherCharField
 from edc_protocol.validators import datetime_not_before_study_start
+from edc_utils import get_utcnow, formatted_datetime
 
 from ..choices import OFF_STUDY_REASONS
 from ..utils import off_all_schedules_or_raise
