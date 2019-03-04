@@ -16,7 +16,7 @@ class NonCrfDfHandler(CrfDfHandler):
         columns = list(self.dataframe.columns)
         # "export_" columns
         if self.exclude_export_columns:
-            columns = [col for col in columns if not col.startswith('export_')]
+            columns = [col for col in columns if not col.startswith("export_")]
         # "system" columns, move to the end
         if not self.exclude_system_columns:
             columns = [col for col in columns if col not in self.system_columns]

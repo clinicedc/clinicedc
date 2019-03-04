@@ -9,17 +9,19 @@ class RegisteredSubjectDfHandler(DfHandler):
 
     rs_dialect_cls = RsDialect
 
-    registered_subject_tbl = 'edc_registration_registeredsubject'
-    registered_subject_column = 'registered_subject_id'
+    registered_subject_tbl = "edc_registration_registeredsubject"
+    registered_subject_column = "registered_subject_id"
     system_columns = SYSTEM_COLUMNS
-    sort_by = ['subject_identifier']
+    sort_by = ["subject_identifier"]
     exclude_export_columns = True
     exclude_system_columns = False
 
     def __init__(self, exclude_system_columns=None, **kwargs):
         self._df_registered_subject = pd.DataFrame()
         self.rs_dialect = self.rs_dialect_cls(self)
-        self.exclude_system_columns = exclude_system_columns or self.exclude_system_columns
+        self.exclude_system_columns = (
+            exclude_system_columns or self.exclude_system_columns
+        )
         super().__init__(**kwargs)
 
     def prepare_dataframe(self, **kwargs):
@@ -27,9 +29,12 @@ class RegisteredSubjectDfHandler(DfHandler):
         on visit_column.
         """
         self.dataframe = pd.merge(
-            left=self.dataframe, right=self.df_visit_and_related,
-            how='left', on=self.visit_column,
-            suffixes=['_notused', ''])
+            left=self.dataframe,
+            right=self.df_visit_and_related,
+            how="left",
+            on=self.visit_column,
+            suffixes=["_notused", ""],
+        )
         self.dataframe = self.dataframe[self.columns]
 
     @property
@@ -42,7 +47,7 @@ class RegisteredSubjectDfHandler(DfHandler):
         columns.extend([c for c in df_columns if c not in columns])
         # "export_" columns
         if self.exclude_export_columns:
-            columns = [col for col in columns if not col.startswith('export_')]
+            columns = [col for col in columns if not col.startswith("export_")]
         # "system" columns, move to the end
         if not self.exclude_system_columns:
             columns = [col for col in columns if col not in self.system_columns]

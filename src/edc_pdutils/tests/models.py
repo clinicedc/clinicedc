@@ -2,8 +2,8 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields.encrypted_char_field import EncryptedCharField
 from edc_appointment.models import Appointment
-from edc_base.model_mixins import BaseUuidModel
-from edc_base.utils import get_utcnow
+from edc_model.models import BaseUuidModel
+from edc_utils import get_utcnow
 from edc_constants.constants import YES
 from edc_list_data.model_mixins import ListModelMixin
 
@@ -16,7 +16,7 @@ class SubjectVisit(BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    visit_code = models.CharField(max_length=25, default='T0')
+    visit_code = models.CharField(max_length=25, default="T0")
 
     reason = models.CharField(max_length=25, null=True)
 
@@ -25,7 +25,7 @@ class SubjectVisit(BaseUuidModel):
     last_alive_date = models.DateTimeField(null=True)
 
     class Meta:
-        ordering = ['report_datetime']
+        ordering = ["report_datetime"]
 
 
 class SubjectConsent(BaseUuidModel):
@@ -43,10 +43,8 @@ class SubjectConsent(BaseUuidModel):
     marriage_certificate = models.CharField(max_length=25, null=True)
 
     happy = models.CharField(
-        max_length=25,
-        choices=(
-            ('YES', 'YES'), ('NO', 'NO')),
-        null=True)
+        max_length=25, choices=(("YES", "YES"), ("NO", "NO")), null=True
+    )
 
 
 class SubjectLocator(BaseUuidModel):
@@ -78,7 +76,7 @@ class CrfModelMixin(models.Model):
 
 class SubjectRequisition(CrfModelMixin, BaseUuidModel):
 
-    panel_name = models.CharField(max_length=25, default='Microtube')
+    panel_name = models.CharField(max_length=25, default="Microtube")
 
 
 class ListModel(ListModelMixin):
