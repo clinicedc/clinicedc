@@ -1,4 +1,3 @@
-
 class AlreadyRegistered(Exception):
     pass
 
@@ -16,11 +15,11 @@ class ReferenceCollection:
         self.name = name
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(\'{self.name}\')'
+        return f"{self.__class__.__name__}('{self.name}')"
 
     def register(self, grp=None):
         if grp.name in self.registry:
-            raise AlreadyRegistered(f'Got {repr(grp)}')
+            raise AlreadyRegistered(f"Got {repr(grp)}")
         else:
             self.registry.update({grp.name: grp})
 
@@ -34,20 +33,20 @@ class ReferenceCollection:
         """Returns a dictionary of the normal and grading references
         in this collection.
         """
-        exclude_attrs = ['evaluator', 'age_evaluator']
-        data = {'normal': [], 'grading': []}
+        exclude_attrs = ["evaluator", "age_evaluator"]
+        data = {"normal": [], "grading": []}
         for name, grp in self.registry.items():
             for normal_refs in grp.normal.values():
                 for ref in normal_refs:
                     dct = ref.__dict__
                     dct.update(name=name)
                     dct = {k: v for k, v in dct.items() if k not in exclude_attrs}
-                    data['normal'].append(dct)
+                    data["normal"].append(dct)
         for name, grp in self.registry.items():
             for grade_refs in grp.grading.values():
                 for ref in grade_refs:
                     dct = ref.__dict__
                     dct.update(name=name)
                     dct = {k: v for k, v in dct.items() if k not in exclude_attrs}
-                    data['grading'].append(dct)
+                    data["grading"].append(dct)
         return data
