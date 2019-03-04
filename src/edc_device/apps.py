@@ -4,7 +4,7 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.core.management.color import color_style
 
 from .device import Device
-from .device_permission import DevicePermissions
+from . import device_permissions
 
 style = color_style()
 
@@ -28,9 +28,12 @@ class AppConfig(DjangoAppConfig):
     middleman_id_list = ["95"]
     node_server_id_list = ["98"]
 
-    device_permissions = DevicePermissions()
-
     def ready(self):
+
+        from .signals import (
+            check_device_on_pre_save,
+            update_device_on_post_save,
+        )  # noqa
 
         device = Device(
             device_id=self.device_id,
@@ -50,7 +53,7 @@ class AppConfig(DjangoAppConfig):
                 f"  * device id is '{self.device_id}'.\n"
                 f"  * device role is '{self.device_role}'.\n"
             )
-            for index, device_permission in enumerate(self.device_permissions):
+            for index, device_permission in enumerate(device_permissions):
                 if index == 0:
                     sys.stdout.write("  * device permissions exist for:\n")
                 sys.stdout.write(f"    - {device_permission}\n")

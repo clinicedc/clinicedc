@@ -1,24 +1,25 @@
 from django.apps import apps as django_apps
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.test.utils import override_settings
 
 from ..constants import CLIENT
-from .models import TestModel, TestModelPermissions
+from .models import TestModel as MyTestModel, TestModelPermissions
 
 
-class TestModelMixin(TestCase):
+class TestModel(TestCase):
     def test_model(self):
-        obj = TestModel()
+        obj = MyTestModel()
         self.assertFalse(obj.device_created)
         self.assertFalse(obj.device_modified)
 
+    @tag("1")
     def test_model_on_create(self):
         app_config = django_apps.get_app_config("edc_device")
         with override_settings(DEVICE_ID="10", DEVICE_ROLE=CLIENT):
             app_config.device_id = None
             app_config.device_role = None
             app_config.ready()
-            obj = TestModel.objects.create()
+            obj = MyTestModel.objects.create()
             self.assertEqual(obj.device_created, "10")
             self.assertEqual(obj.device_modified, "10")
 
@@ -28,7 +29,7 @@ class TestModelMixin(TestCase):
             app_config.device_id = None
             app_config.device_role = None
             app_config.ready()
-            obj = TestModel.objects.create()
+            obj = MyTestModel.objects.create()
             self.assertEqual(obj.device_created, "10")
             self.assertEqual(obj.device_modified, "10")
         with override_settings(DEVICE_ID="20", DEVICE_ROLE=CLIENT):

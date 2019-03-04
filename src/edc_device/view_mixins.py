@@ -1,6 +1,5 @@
-from ipware.ip import get_ip, get_real_ip
-
 from django.apps import apps as django_apps
+from ipware.ip import get_ip, get_real_ip
 
 
 class EdcDeviceViewMixin:
