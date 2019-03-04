@@ -4,10 +4,10 @@ from django.views.generic.base import ContextMixin, View
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
-from edc_base import get_utcnow
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_reference import site_reference_configs
+from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 

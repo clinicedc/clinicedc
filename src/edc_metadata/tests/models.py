@@ -2,19 +2,19 @@ from datetime import date
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.models import Appointment
-from edc_base import get_utcnow
-from edc_base.model_mixins import BaseUuidModel
 from edc_constants.choices import YES_NO
 from edc_constants.constants import MALE
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_lab.models.model_mixins import PanelModelMixin
+from edc_model.models import BaseUuidModel
 from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_reference.model_mixins import (
     ReferenceModelMixin,
     RequisitionReferenceModelMixin,
 )
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin, CrfModelMixin
 

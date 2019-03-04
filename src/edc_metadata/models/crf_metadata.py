@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
-from edc_base.model_mixins import BaseUuidModel
-from edc_base.sites import CurrentSiteManager, SiteModelMixin
+from edc_model.models import BaseUuidModel
+from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
 from .managers import CrfMetadataManager
 from .model_mixin import ModelMixin
