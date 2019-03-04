@@ -1,9 +1,9 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
-from django.test.utils import tag, override_settings
-from edc_base.utils import get_utcnow
-from edc_base.tests import SiteTestCaseMixin
+from django.test.utils import tag, override_settings  # noqa
+from edc_sites.tests import SiteTestCaseMixin
+from edc_utils import get_utcnow
 
 from ..exceptions import RegisteredSubjectError
 from ..models import RegisteredSubject

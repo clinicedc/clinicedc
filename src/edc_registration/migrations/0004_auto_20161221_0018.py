@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import edc_base.utils
+import edc_utils
 
 
 class Migration(migrations.Migration):
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             model_name="registeredsubject",
             name="subject_identifier_as_pk",
             field=models.CharField(
-                default=edc_base.utils.get_uuid,
+                default=edc_utils.get_uuid,
                 editable=False,
                 max_length=50,
                 verbose_name="Subject Identifier as pk",

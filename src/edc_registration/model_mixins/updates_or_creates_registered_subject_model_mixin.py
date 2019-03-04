@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.db import models
-from edc_base.model_mixins import DEFAULT_BASE_FIELDS
+from edc_model import DEFAULT_BASE_FIELDS
 
 
 class UpdatesOrCreatesRegistrationModelError(Exception):
