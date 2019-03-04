@@ -1,4 +1,4 @@
-__all__ = ['TestModel', 'TestModelExtra']
+__all__ = ["TestModel", "TestModelExtra"]
 
 from django.db import models
 
@@ -8,10 +8,10 @@ from ..model_mixins import SearchSlugModelMixin
 
 class Dummy:
 
-    attr = 'dummy_attr'
+    attr = "dummy_attr"
 
     def __str__(self):
-        return 'Dummy'
+        return "Dummy"
 
 
 class TestModelMixin(SearchSlugModelMixin, models.Model):
@@ -26,7 +26,7 @@ class TestModelMixin(SearchSlugModelMixin, models.Model):
 
     @property
     def attr(self):
-        return 'attr'
+        return "attr"
 
     @property
     def dummy(self):
@@ -34,8 +34,7 @@ class TestModelMixin(SearchSlugModelMixin, models.Model):
 
     def get_search_slug_fields(self):
         fields = super().get_search_slug_fields()
-        fields.extend(
-            ['f1', 'f2', 'f3', 'attr', 'dummy', 'dummy.attr'])
+        fields.extend(["f1", "f2", "f3", "attr", "dummy", "dummy.attr"])
         return fields
 
     class Meta:
@@ -53,7 +52,7 @@ class TestModelExtra(TestModelMixin, models.Model):
 
     def get_search_slug_fields(self):
         fields = super().get_search_slug_fields()
-        fields.append('f4')
+        fields.append("f4")
         return fields
 
 
@@ -63,5 +62,5 @@ class TestModelDuplicate(TestModelMixin, models.Model):
 
     def get_search_slug_fields(self):
         fields = super().get_search_slug_fields()
-        fields.extend(['f1', 'f4'])
+        fields.extend(["f1", "f4"])
         return fields
