@@ -1,5 +1,5 @@
 from django.test import TestCase, tag
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_visit_schedule import site_visit_schedules
 
 from ..model_wrappers import SubjectVisitModelWrapper

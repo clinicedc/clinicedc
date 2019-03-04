@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from edc_appointment.models import Appointment
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_constants.constants import YES, NO
 from edc_lab.constants import TUBE
 from edc_lab.models.model_mixins import RequisitionModelMixin
