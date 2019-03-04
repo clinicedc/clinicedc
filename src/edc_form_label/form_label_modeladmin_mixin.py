@@ -22,8 +22,8 @@ class FormLabelModelAdminMixin:
         for form_label in self.custom_form_labels:
             if form_label.field in form.base_fields:
                 label = form_label.get_form_label(
-                    request=request, obj=obj, model=self.model, form=form)
+                    request=request, obj=obj, model=self.model, form=form
+                )
                 if label:
-                    form.base_fields[
-                        form_label.field].label = mark_safe(label)
+                    form.base_fields[form_label.field].label = mark_safe(label)
         return form
