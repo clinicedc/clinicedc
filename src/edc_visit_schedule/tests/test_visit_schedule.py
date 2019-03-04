@@ -2,8 +2,8 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
-from edc_base.tests.site_test_case_mixin import SiteTestCaseMixin
-from edc_base.utils import get_utcnow
+from edc_sites.tests import SiteTestCaseMixin
+from edc_utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
 

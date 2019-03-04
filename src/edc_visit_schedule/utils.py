@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from edc_base.utils import formatted_datetime
+from edc_utils import formatted_datetime
 
 from .site_visit_schedules import site_visit_schedules
 

@@ -1,7 +1,7 @@
 from django.db import models
-from edc_base import get_utcnow
-from edc_base.model_validators.date import datetime_not_future
+from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
+from edc_utils import get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules
 from .schedule_model_mixin import ScheduleModelMixin

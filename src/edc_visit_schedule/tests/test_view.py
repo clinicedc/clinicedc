@@ -1,7 +1,7 @@
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
-from edc_base.tests import SiteTestCaseMixin
+from edc_sites.tests import SiteTestCaseMixin
 
 from ..schedule import Schedule
 from ..site_visit_schedules import site_visit_schedules

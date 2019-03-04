@@ -1,7 +1,7 @@
 import re
 
 from django.core.management.color import color_style
-from edc_base import get_utcnow
+from edc_utils import get_utcnow
 
 from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 from ..subject_schedule import NotOnScheduleForDateError, NotOnScheduleError

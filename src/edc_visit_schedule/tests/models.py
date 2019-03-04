@@ -2,11 +2,11 @@ from datetime import date
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_appointment.models import Appointment
-from edc_base import get_utcnow
-from edc_base.model_mixins import BaseUuidModel
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_model.models import BaseUuidModel
 from edc_offstudy.model_mixins import OffstudyModelMixin, OffstudyModelManager
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_utils import get_utcnow
 from edc_visit_tracking.model_mixins import CrfModelMixin, VisitModelMixin
 
 from ..model_mixins import OffScheduleModelMixin, OnScheduleModelMixin

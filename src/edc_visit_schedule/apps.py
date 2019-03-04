@@ -7,7 +7,7 @@ from django.apps.config import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.checks import register
 from django.core.management.color import color_style
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_protocol.apps import AppConfig as BaseEdcProtocolAppConfig
 
 from .site_visit_schedules import site_visit_schedules
