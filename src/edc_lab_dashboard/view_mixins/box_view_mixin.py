@@ -25,12 +25,14 @@ class BoxViewMixin(ContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({
-            'box_identifier': self.original_box_identifier,
-            'box_item_identifier': self.original_box_item_identifier,
-            'box': self.box,
-            'paginator_url_kwargs': self.url_kwargs,
-        })
+        context.update(
+            {
+                "box_identifier": self.original_box_identifier,
+                "box_item_identifier": self.original_box_item_identifier,
+                "box": self.box,
+                "paginator_url_kwargs": self.url_kwargs,
+            }
+        )
         return context
 
     @property
@@ -39,9 +41,9 @@ class BoxViewMixin(ContextMixin):
         """
         if not self._box_identifier:
             self.original_box_identifier = escape(
-                self.kwargs.get('box_identifier')).strip()
-            self._box_identifier = ''.join(
-                self.original_box_identifier.split('-'))
+                self.kwargs.get("box_identifier")
+            ).strip()
+            self._box_identifier = "".join(self.original_box_identifier.split("-"))
         return self._box_identifier
 
     @property
@@ -50,7 +52,8 @@ class BoxViewMixin(ContextMixin):
         """
         if not self._box_item_identifier:
             self.original_box_item_identifier = escape(
-                self.request.POST.get('box_item_identifier', '')).strip()
+                self.request.POST.get("box_item_identifier", "")
+            ).strip()
             if self.original_box_item_identifier:
                 self._box_item_identifier = self._clean_box_item_identifier()
         return self._box_item_identifier
@@ -60,8 +63,7 @@ class BoxViewMixin(ContextMixin):
         if not self._box:
             if self.box_identifier:
                 try:
-                    self._box = Box.objects.get(
-                        box_identifier=self.box_identifier)
+                    self._box = Box.objects.get(box_identifier=self.box_identifier)
                 except ObjectDoesNotExist:
                     self._box = None
         return self._box
@@ -74,11 +76,12 @@ class BoxViewMixin(ContextMixin):
             if self.box_item_identifier:
                 try:
                     self._box_item = BoxItem.objects.get(
-                        box=self.box,
-                        identifier=self.box_item_identifier)
+                        box=self.box, identifier=self.box_item_identifier
+                    )
                 except ObjectDoesNotExist:
-                    message = 'Invalid box item. Got {}'.format(
-                        self.original_box_item_identifier)
+                    message = "Invalid box item. Got {}".format(
+                        self.original_box_item_identifier
+                    )
                     messages.error(self.request, message)
         return self._box_item
 
@@ -86,11 +89,9 @@ class BoxViewMixin(ContextMixin):
         """Returns a box item model instance for the given position.
         """
         try:
-            box_item = BoxItem.objects.get(
-                box=self.box, position=position)
+            box_item = BoxItem.objects.get(box=self.box, position=position)
         except ObjectDoesNotExist:
-            message = 'Invalid position for box. Got {}'.format(
-                position)
+            message = "Invalid position for box. Got {}".format(position)
             messages.error(self.request, message)
             return None
         return box_item
@@ -98,29 +99,31 @@ class BoxViewMixin(ContextMixin):
     def _clean_box_item_identifier(self):
         """Returns a valid identifier or raises.
         """
-        box_item_identifier = ''.join(
-            self.original_box_item_identifier.split('-'))
+        box_item_identifier = "".join(self.original_box_item_identifier.split("-"))
         try:
-            obj = Aliquot.objects.get(
-                aliquot_identifier=box_item_identifier)
+            obj = Aliquot.objects.get(aliquot_identifier=box_item_identifier)
         except ObjectDoesNotExist:
-            message = 'Invalid aliquot identifier. Got {}.'.format(
-                self.original_box_item_identifier or 'None')
+            message = "Invalid aliquot identifier. Got {}.".format(
+                self.original_box_item_identifier or "None"
+            )
             messages.error(self.request, message)
             # raise BoxViewError(message)
         else:
             if obj.is_primary and not self.box.accept_primary:
                 message = 'Box does not accept "primary" specimens. Got {} is primary.'.format(
-                    self.original_box_item_identifier)
+                    self.original_box_item_identifier
+                )
                 messages.error(self.request, message)
                 # raise BoxViewError(message)
-            elif obj.numeric_code not in self.box.specimen_types.split(','):
+            elif obj.numeric_code not in self.box.specimen_types.split(","):
                 message = (
-                    'Invalid specimen type. Box accepts types {}. '
-                    'Got {} is type {}.'.format(
-                        ', '.join(self.box.specimen_types.split(',')),
+                    "Invalid specimen type. Box accepts types {}. "
+                    "Got {} is type {}.".format(
+                        ", ".join(self.box.specimen_types.split(",")),
                         self.original_box_item_identifier,
-                        obj.numeric_code))
+                        obj.numeric_code,
+                    )
+                )
                 messages.error(self.request, message)
                 # raise BoxViewError(message)
         return box_item_identifier

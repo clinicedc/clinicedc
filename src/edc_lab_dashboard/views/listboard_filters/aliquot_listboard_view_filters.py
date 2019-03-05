@@ -3,34 +3,27 @@ from edc_lab.models import BoxItem
 
 
 def get_box_items():
-    return BoxItem.objects.all().values('identifier')
+    return BoxItem.objects.all().values("identifier")
 
 
 class AliquotListboardViewFilters(ListboardViewFilters):
 
-    all = ListboardFilter(
-        name='all',
-        label='All',
-        lookup={})
+    all = ListboardFilter(name="all", label="All", lookup={})
 
-    is_primary = ListboardFilter(
-        label='Primary',
-        lookup={'is_primary': True})
+    is_primary = ListboardFilter(label="Primary", lookup={"is_primary": True})
 
     packed = ListboardFilter(
-        label='Packed',
-        lookup={'aliquot_identifier__in': get_box_items})
+        label="Packed", lookup={"aliquot_identifier__in": get_box_items}
+    )
 
     not_packed = ListboardFilter(
-        label='Not Packed',
+        label="Not Packed",
         exclude_filter=True,
-        lookup={'aliquot_identifier__in': get_box_items})
+        lookup={"aliquot_identifier__in": get_box_items},
+    )
 
-    shipped = ListboardFilter(
-        label='Shipped',
-        lookup={'shipped': True})
+    shipped = ListboardFilter(label="Shipped", lookup={"shipped": True})
 
     not_shipped = ListboardFilter(
-        label='Not shipped',
-        default=True,
-        lookup={'shipped': False})
+        label="Not shipped", default=True, lookup={"shipped": False}
+    )

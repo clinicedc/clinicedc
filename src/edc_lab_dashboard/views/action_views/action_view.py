@@ -22,13 +22,13 @@ class ActionView(TemplateView):
     aliquot, etc.
     """
 
-    form_action_selected_items_name = 'selected_items'
+    form_action_selected_items_name = "selected_items"
     post_action_url = None  # key exists in request.url_name_data
     redirect_querystring = {}
-    template_name = dashboard_templates.get('home_template')
+    template_name = dashboard_templates.get("home_template")
     valid_form_actions = []
 
-    navbar_name = 'specimens'
+    navbar_name = "specimens"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -45,8 +45,9 @@ class ActionView(TemplateView):
         """Returns a list of selected listboard items.
         """
         if not self._selected_items:
-            self._selected_items = self.request.POST.getlist(
-                self.form_action_selected_items_name) or []
+            self._selected_items = (
+                self.request.POST.getlist(self.form_action_selected_items_name) or []
+            )
             self._selected_items = [x for x in self._selected_items if x]
         return self._selected_items
 
@@ -59,10 +60,9 @@ class ActionView(TemplateView):
     def post(self, request, *args, **kwargs):
         """Process the form "action" then redirect.
         """
-        action = slugify(self.request.POST.get('action', '').lower())
+        action = slugify(self.request.POST.get("action", "").lower())
         if action not in self.valid_form_actions:
-            raise InvalidPostError(
-                f'Invalid form action in POST. Got {action}')
+            raise InvalidPostError(f"Invalid form action in POST. Got {action}")
         else:
             self.action = action
         self.process_form_action(request=request)
@@ -70,8 +70,9 @@ class ActionView(TemplateView):
             url_name = request.url_name_data[self.post_action_url]
         except KeyError as e:
             raise ActionViewError(
-                f'Invalid action \'post_action_url\'. Got {e}. See {repr(self)}.')
+                f"Invalid action 'post_action_url'. Got {e}. See {repr(self)}."
+            )
         url = reverse(url_name, kwargs=self.url_kwargs)
         if self.redirect_querystring:
-            url = f'{url}?{urllib.parse.urlencode(self.redirect_querystring)}'
+            url = f"{url}?{urllib.parse.urlencode(self.redirect_querystring)}"
         return HttpResponseRedirect(url)

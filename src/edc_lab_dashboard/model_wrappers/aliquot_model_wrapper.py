@@ -7,7 +7,7 @@ from ..dashboard_urls import dashboard_urls
 class AliquotModelWrapper(ModelWrapper):
 
     model_cls = Aliquot
-    next_url_name = dashboard_urls.get('aliquot_listboard_url')
+    next_url_name = dashboard_urls.get("aliquot_listboard_url")
 
     @property
     def human_readable_identifier(self):
@@ -26,7 +26,8 @@ class AliquotModelWrapper(ModelWrapper):
         if self.box_item:
             try:
                 manifest_item = ManifestItem.objects.get(
-                    identifier=self.box_item.box.box_identifier)
+                    identifier=self.box_item.box.box_identifier
+                )
             except ManifestItem.DoesNotExist:
                 pass
         return manifest_item
