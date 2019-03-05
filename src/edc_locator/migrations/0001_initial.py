@@ -12,8 +12,8 @@ import django_revision.revision_field
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
 import edc_model_fields.fields.uuid_auto_field
-import edc_base.model_validators.phone
-import edc_base.utils
+import edc_model.validators.phone
+import edc_utils
 
 
 class Migration(migrations.Migration):
@@ -31,11 +31,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "user_created",
@@ -162,7 +162,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.CellNumber],
+                        validators=[edc_model.validators.phone.CellNumber],
                         verbose_name="Cell number",
                     ),
                 ),
@@ -173,7 +173,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.CellNumber],
+                        validators=[edc_model.validators.phone.CellNumber],
                         verbose_name="Cell number (alternate)",
                     ),
                 ),
@@ -184,7 +184,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.TelephoneNumber],
+                        validators=[edc_model.validators.phone.TelephoneNumber],
                         verbose_name="Telephone",
                     ),
                 ),
@@ -195,7 +195,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.TelephoneNumber],
+                        validators=[edc_model.validators.phone.TelephoneNumber],
                         verbose_name="Telephone (alternate)",
                     ),
                 ),
@@ -265,7 +265,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.CellNumber],
+                        validators=[edc_model.validators.phone.CellNumber],
                         verbose_name="Cell number",
                     ),
                 ),
@@ -276,7 +276,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.CellNumber],
+                        validators=[edc_model.validators.phone.CellNumber],
                         verbose_name="Cell number (alternative)",
                     ),
                 ),
@@ -287,13 +287,13 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.TelephoneNumber],
+                        validators=[edc_model.validators.phone.TelephoneNumber],
                         verbose_name="Telephone number",
                     ),
                 ),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
                 ),
                 ("history_date", models.DateTimeField()),
                 ("history_change_reason", models.CharField(max_length=100, null=True)),
@@ -342,11 +342,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "user_created",
@@ -474,7 +474,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.CellNumber],
+                        validators=[edc_model.validators.phone.CellNumber],
                         verbose_name="Cell number",
                     ),
                 ),
@@ -485,7 +485,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.CellNumber],
+                        validators=[edc_model.validators.phone.CellNumber],
                         verbose_name="Cell number (alternate)",
                     ),
                 ),
@@ -496,7 +496,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.TelephoneNumber],
+                        validators=[edc_model.validators.phone.TelephoneNumber],
                         verbose_name="Telephone",
                     ),
                 ),
@@ -507,7 +507,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.TelephoneNumber],
+                        validators=[edc_model.validators.phone.TelephoneNumber],
                         verbose_name="Telephone (alternate)",
                     ),
                 ),
@@ -577,7 +577,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.CellNumber],
+                        validators=[edc_model.validators.phone.CellNumber],
                         verbose_name="Cell number",
                     ),
                 ),
@@ -588,7 +588,7 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.CellNumber],
+                        validators=[edc_model.validators.phone.CellNumber],
                         verbose_name="Cell number (alternative)",
                     ),
                 ),
@@ -599,13 +599,13 @@ class Migration(migrations.Migration):
                         help_text=" (Encryption: RSA local)",
                         max_length=71,
                         null=True,
-                        validators=[edc_base.model_validators.phone.TelephoneNumber],
+                        validators=[edc_model.validators.phone.TelephoneNumber],
                         verbose_name="Telephone number",
                     ),
                 ),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "site",

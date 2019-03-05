@@ -3,7 +3,7 @@
 from django.db import migrations, models
 import django_crypto_fields.fields.encrypted_char_field
 import django_crypto_fields.fields.encrypted_text_field
-import edc_base.model_validators.phone
+import edc_model.validators.phone
 
 
 class Migration(migrations.Migration):
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 help_text=" (Encryption: AES local)",
                 max_length=250,
                 null=True,
-                validators=[edc_base.model_validators.phone.TelephoneNumber],
+                validators=[edc_model.validators.phone.TelephoneNumber],
                 verbose_name="Name and location of work place",
             ),
         ),
@@ -75,7 +75,7 @@ class Migration(migrations.Migration):
                 help_text=" (Encryption: AES local)",
                 max_length=250,
                 null=True,
-                validators=[edc_base.model_validators.phone.TelephoneNumber],
+                validators=[edc_model.validators.phone.TelephoneNumber],
                 verbose_name="Name and location of work place",
             ),
         ),

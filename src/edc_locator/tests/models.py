@@ -1,5 +1,5 @@
 from django.db import models
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_base.model_mixins import BaseUuidModel
 
 

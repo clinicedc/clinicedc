@@ -3,7 +3,7 @@
 from django.db import migrations
 import django_crypto_fields.fields.encrypted_char_field
 import django_crypto_fields.fields.encrypted_text_field
-import edc_base.model_validators.phone
+import edc_model.validators.phone
 
 
 class Migration(migrations.Migration):
@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 help_text=" (Encryption: RSA local)",
                 max_length=71,
                 null=True,
-                validators=[edc_base.model_validators.phone.CellNumber],
+                validators=[edc_model.validators.phone.CellNumber],
                 verbose_name="Work contact cell number",
             ),
         ),
@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 help_text=" (Encryption: RSA local)",
                 max_length=71,
                 null=True,
-                validators=[edc_base.model_validators.phone.CellNumber],
+                validators=[edc_model.validators.phone.CellNumber],
                 verbose_name="Work contact cell number",
             ),
         ),
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 help_text=" (Encryption: RSA local)",
                 max_length=71,
                 null=True,
-                validators=[edc_base.model_validators.phone.TelephoneNumber],
+                validators=[edc_model.validators.phone.TelephoneNumber],
                 verbose_name="Work contact telephone",
             ),
         ),
@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
                 help_text=" (Encryption: RSA local)",
                 max_length=71,
                 null=True,
-                validators=[edc_base.model_validators.phone.TelephoneNumber],
+                validators=[edc_model.validators.phone.TelephoneNumber],
                 verbose_name="Work contact telephone",
             ),
         ),
