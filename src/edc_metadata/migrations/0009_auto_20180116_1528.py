@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import edc_base.sites.managers
+import edc_sites.models
 
 
 class Migration(migrations.Migration):
@@ -15,11 +15,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelManagers(
             name="crfmetadata",
-            managers=[("on_site", edc_base.sites.managers.CurrentSiteManager())],
+            managers=[("on_site", edc_sites.models.CurrentSiteManager())],
         ),
         migrations.AlterModelManagers(
             name="requisitionmetadata",
-            managers=[("on_site", edc_base.sites.managers.CurrentSiteManager())],
+            managers=[("on_site", edc_sites.models.CurrentSiteManager())],
         ),
         migrations.AddField(
             model_name="crfmetadata",

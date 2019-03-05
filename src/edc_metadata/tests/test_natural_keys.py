@@ -4,7 +4,7 @@ from django.test import TestCase, tag
 from django_collect_offline.models import OutgoingTransaction
 from django_collect_offline.tests import OfflineTestHelper
 from edc_appointment.models import Appointment
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
