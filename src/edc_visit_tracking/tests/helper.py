@@ -1,4 +1,4 @@
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .models import SubjectConsent

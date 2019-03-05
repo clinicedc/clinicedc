@@ -1,7 +1,7 @@
 from django import forms
 from django.test import TestCase, tag
 from edc_appointment.models import Appointment
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_constants.constants import ALIVE, YES
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules

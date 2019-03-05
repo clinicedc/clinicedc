@@ -1,8 +1,8 @@
 from django.apps import apps as django_apps
 from edc_appointment.managers import AppointmentManager
 from edc_appointment.model_mixins import AppointmentModelMixin
-from edc_base.model_managers import HistoricalRecords
 from edc_list_data.model_mixins import ListModelMixin, ListModelManager
+from edc_model.models import HistoricalRecords
 
 from ..managers import CrfModelManager, VisitModelManager
 from ..model_mixins import VisitModelMixin

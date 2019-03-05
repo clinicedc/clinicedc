@@ -3,7 +3,7 @@ import arrow
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-from edc_base.model_validators.date import datetime_not_future
+from edc_model.validators.date import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 
 
