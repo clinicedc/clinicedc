@@ -33,8 +33,7 @@ class TestUnscheduledAppointmentCreator(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule2)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=arrow.Arrow.fromdatetime(
-                datetime(2017, 1, 7), tzinfo="UTC").datetime,
+            now=arrow.Arrow.fromdatetime(datetime(2017, 1, 7), tzinfo="UTC").datetime,
         )
 
     def test_unscheduled_allowed_but_raises_on_appt_status(self):

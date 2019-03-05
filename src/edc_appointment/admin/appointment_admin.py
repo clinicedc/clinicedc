@@ -40,10 +40,8 @@ class AppointmentAdmin(
     SimpleHistoryAdmin,
 ):
 
-    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get(
-        "subject_dashboard_url")
-    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get(
-        "subject_dashboard_url")
+    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
+    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
 
     form = AppointmentForm
     date_hierarchy = "appt_datetime"
