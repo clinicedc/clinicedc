@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from edc_base import formatted_datetime
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from django.db import transaction
+from edc_utils import formatted_datetime
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class OffstudyError(ValidationError):

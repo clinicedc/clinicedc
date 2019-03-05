@@ -1,9 +1,7 @@
-from edc_base.model_managers import HistoricalRecords
-from edc_base.model_mixins.base_uuid_model import BaseUuidModel
-from edc_base.sites import CurrentSiteManager, SiteModelMixin
-from edc_offstudy.model_mixins import OffstudyModelManager
+from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
-from .model_mixins import OffstudyModelMixin
+from .model_mixins import OffstudyModelMixin, OffstudyModelManager
 
 
 class SubjectOffstudy(OffstudyModelMixin, SiteModelMixin, BaseUuidModel):

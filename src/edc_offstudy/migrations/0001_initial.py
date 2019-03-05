@@ -3,8 +3,8 @@
 import _socket
 from django.db import migrations, models
 import django_revision.revision_field
-import edc_base.model_validators.date
-import edc_base.utils
+import edc_model.validators.date
+import edc_utils
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.other_charfield
 import edc_model_fields.fields.userfield
@@ -24,11 +24,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "user_created",
@@ -97,10 +97,10 @@ class Migration(migrations.Migration):
                 (
                     "offstudy_datetime",
                     models.DateTimeField(
-                        default=edc_base.utils.get_utcnow,
+                        default=edc_utils.date.get_utcnow,
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
-                            edc_base.model_validators.date.datetime_not_future,
+                            edc_model.validators.date.datetime_not_future,
                         ],
                         verbose_name="Off-study date and time",
                     ),

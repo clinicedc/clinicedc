@@ -1,10 +1,10 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_base.model_mixins import BaseUuidModel
-from edc_base import get_utcnow
-from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_visit_tracking.model_mixins import CrfModelMixin
 from edc_appointment.tests.models import SubjectVisit, SubjectOffstudy
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_model.models import BaseUuidModel
+from edc_utils import get_utcnow
+from edc_visit_tracking.model_mixins import CrfModelMixin
 
 from ..model_mixins import (
     OffstudyModelMixin,
