@@ -1,16 +1,14 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_base import get_utcnow, get_dob, get_uuid
-from edc_base.model_mixins.base_uuid_model import BaseUuidModel
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_locator.model_mixins import LocatorModelMixin
+from edc_model.models import BaseUuidModel
 from edc_offstudy.model_mixins import OffstudyModelManager, OffstudyVisitModelMixin
+from edc_offstudy.model_mixins import OffstudyModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_utils import get_utcnow, get_dob, get_uuid
 from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
 from edc_visit_tracking.model_mixins import VisitModelMixin
-
-from edc_offstudy.model_mixins import OffstudyModelMixin
-
 
 from ..models import Appointment
 

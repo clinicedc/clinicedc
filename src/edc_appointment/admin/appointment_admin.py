@@ -4,7 +4,6 @@ from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
-from edc_base.sites.admin import ModelAdminSiteMixin
 from edc_model_admin import (
     ModelAdminFormInstructionsMixin,
     ModelAdminNextUrlRedirectMixin,
@@ -13,13 +12,14 @@ from edc_model_admin import (
     ModelAdminAuditFieldsMixin,
     ModelAdminReadOnlyMixin,
     audit_fieldset_tuple,
+    SimpleHistoryAdmin,
 )
+from edc_sites.admin import ModelAdminSiteMixin
 from edc_visit_schedule import off_schedule_or_raise, OnScheduleError
 from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
     visit_schedule_fields,
 )
-from simple_history.admin import SimpleHistoryAdmin
 
 from ..admin_site import edc_appointment_admin
 from ..constants import NEW_APPT
