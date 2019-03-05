@@ -23,7 +23,9 @@ class ListboardFilterViewMixin(ContextMixin):
         context.update(
             listboard_view_filters=self.listboard_view_filters.filters,
             listboard_filter_url=self.request.url_name_data[
-                self.listboard_filter_url or listboard_url])
+                self.listboard_filter_url or listboard_url
+            ],
+        )
         return context
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
@@ -35,15 +37,17 @@ class ListboardFilterViewMixin(ContextMixin):
                 if lookup_options:
                     options.update(**listboard_filter.lookup_options)
                 self.listboard_view_include_filter_applied = True
-        if (not self.listboard_view_include_filter_applied
-                and self.listboard_view_filters.default_include_filter):
+        if (
+            not self.listboard_view_include_filter_applied
+            and self.listboard_view_filters.default_include_filter
+        ):
             options.update(
-                **self.listboard_view_filters.default_include_filter.lookup_options)
+                **self.listboard_view_filters.default_include_filter.lookup_options
+            )
         return options
 
     def get_queryset_exclude_options(self, request, *args, **kwargs):
-        options = super().get_queryset_exclude_options(
-            request, *args, **kwargs)
+        options = super().get_queryset_exclude_options(request, *args, **kwargs)
         self.listboard_view_exclude_filter_applied = False
         for listboard_filter in self.listboard_view_filters.exclude_filters:
             if self.request.GET.get(listboard_filter.attr) == listboard_filter.name:
@@ -51,9 +55,12 @@ class ListboardFilterViewMixin(ContextMixin):
                 if lookup_options:
                     options.update(**listboard_filter.lookup_options)
                 self.listboard_view_exclude_filter_applied = True
-        if (not self.listboard_view_exclude_filter_applied
-                and not self.listboard_view_include_filter_applied
-                and self.listboard_view_filters.default_exclude_filter):
+        if (
+            not self.listboard_view_exclude_filter_applied
+            and not self.listboard_view_include_filter_applied
+            and self.listboard_view_filters.default_exclude_filter
+        ):
             options.update(
-                **self.listboard_view_filters.default_exclude_filter.lookup_options)
+                **self.listboard_view_filters.default_exclude_filter.lookup_options
+            )
         return options

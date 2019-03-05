@@ -15,25 +15,25 @@ class ListboardViewError(Exception):
 class Base(TemplateRequestContextMixin, ListView):
 
     cleaned_search_term = None
-    context_object_name = 'results'
-    empty_queryset_message = 'Nothing to display.'
+    context_object_name = "results"
+    empty_queryset_message = "Nothing to display."
     listboard_template = None  # an existing key in request.context_data
-    permissions_warning_message = 'You do not have permission to view these data.'
+    permissions_warning_message = "You do not have permission to view these data."
     # if self.listboard_url declared through another mixin.
     listboard_url = None  # an existing key in request.context_data
 
     # default, info, success, danger, warning, etc. See Bootstrap.
-    listboard_panel_style = 'default'
+    listboard_panel_style = "default"
     listboard_fa_icon = "fas fa-user-circle"
     listboard_model = None  # label_lower model name or model class
-    listboard_model_manager_name = '_default_manager'
+    listboard_model_manager_name = "_default_manager"
     listboard_panel_title = None
 
     listboard_view_permission_codename = None
     listboard_view_only_my_permission_codename = None
 
     model_wrapper_cls = None
-    ordering = '-created'
+    ordering = "-created"
 
     orphans = 3
     paginate_by = 10
@@ -44,8 +44,8 @@ class Base(TemplateRequestContextMixin, ListView):
         queryset = context.get(self.context_object_name)
         context_object_name = self.get_context_object_name(queryset)
         wrapped_queryset = self.get_wrapped_queryset(queryset)
-        if self.listboard_fa_icon and self.listboard_fa_icon.startswith('fa-'):
-            self.listboard_fa_icon = f'fas {self.listboard_fa_icon}'
+        if self.listboard_fa_icon and self.listboard_fa_icon.startswith("fa-"):
+            self.listboard_fa_icon = f"fas {self.listboard_fa_icon}"
         context.update(
             empty_queryset_message=self.empty_queryset_message,
             has_listboard_model_perms=self.has_listboard_model_perms,
@@ -56,17 +56,18 @@ class Base(TemplateRequestContextMixin, ListView):
             listboard_view_permission_codename=self.listboard_view_permission_codename,
             object_list=wrapped_queryset,
             permissions_warning_message=self.permissions_warning_message,
-            search_term=self.search_term)
+            search_term=self.search_term,
+        )
         if context_object_name is not None:
             context[context_object_name] = wrapped_queryset
         context = self.add_url_to_context(
-            new_key='listboard_url',
-            existing_key=self.listboard_url,
-            context=context)
+            new_key="listboard_url", existing_key=self.listboard_url, context=context
+        )
         context = self.add_url_to_context(
-            new_key='paginator_url',
+            new_key="paginator_url",
             existing_key=self.paginator_url or self.listboard_url,
-            context=context)
+            context=context,
+        )
         return context
 
     def get_template_names(self):
@@ -87,7 +88,8 @@ class Base(TemplateRequestContextMixin, ListView):
         """
         if not self.listboard_model:
             raise ListboardViewError(
-                f'Listboard model not declared. Got None. See {repr(self)}')
+                f"Listboard model not declared. Got None. See {repr(self)}"
+            )
         try:
             return django_apps.get_model(self.listboard_model)
         except (ValueError, AttributeError):
@@ -110,10 +112,11 @@ class Base(TemplateRequestContextMixin, ListView):
 
         This can be overridden but be sure to use the default_manager.
         """
-        return getattr(
-            self.listboard_model_cls,
-            self.listboard_model_manager_name).filter(
-            **filter_options).exclude(**exclude_options)
+        return (
+            getattr(self.listboard_model_cls, self.listboard_model_manager_name)
+            .filter(**filter_options)
+            .exclude(**exclude_options)
+        )
 
     def get_queryset(self):
         """Return the queryset for this view.
@@ -128,19 +131,21 @@ class Base(TemplateRequestContextMixin, ListView):
         Note: The returned queryset is set to self.object_list in
         `get()` just before rendering to response.
         """
-        queryset = getattr(self.listboard_model_cls,
-                           self.listboard_model_manager_name).none()
+        queryset = getattr(
+            self.listboard_model_cls, self.listboard_model_manager_name
+        ).none()
         if self.has_view_listboard_perms:
             filter_options = self.get_queryset_filter_options(
-                self.request, *self.args, **self.kwargs)
+                self.request, *self.args, **self.kwargs
+            )
             if self.has_view_only_my_listboard_perms:
-                filter_options.update(
-                    user_created=self.request.user.username)
+                filter_options.update(user_created=self.request.user.username)
             exclude_options = self.get_queryset_exclude_options(
-                self.request, *self.args, **self.kwargs)
+                self.request, *self.args, **self.kwargs
+            )
             queryset = self.get_filtered_queryset(
-                filter_options=filter_options,
-                exclude_options=exclude_options)
+                filter_options=filter_options, exclude_options=exclude_options
+            )
             ordering = self.get_ordering()
             if ordering:
                 if isinstance(ordering, six.string_types):
@@ -157,8 +162,7 @@ class Base(TemplateRequestContextMixin, ListView):
         wrapped_objs = []
         for obj in queryset:
             model_wrapper = self.model_wrapper_cls(obj)
-            model_wrapper = self.update_wrapped_instance(
-                model_wrapper)
+            model_wrapper = self.update_wrapped_instance(model_wrapper)
             wrapped_objs.append(model_wrapper)
         return wrapped_objs
 
@@ -184,7 +188,8 @@ class Base(TemplateRequestContextMixin, ListView):
         view my records on the listboard.
         """
         return self.request.user.has_perm(
-            self.listboard_view_only_my_permission_codename)
+            self.listboard_view_only_my_permission_codename
+        )
 
     @property
     def has_listboard_model_perms(self):
@@ -195,15 +200,18 @@ class Base(TemplateRequestContextMixin, ListView):
 
         Used in templates.
         """
-        app_label = (
-            self.listboard_model_cls._meta.label_lower.split('.')[0])
-        model_name = (
-            self.listboard_model_cls._meta.label_lower.split('.')[1])
+        app_label = self.listboard_model_cls._meta.label_lower.split(".")[0]
+        model_name = self.listboard_model_cls._meta.label_lower.split(".")[1]
         return self.request.user.has_perms(
-            f'{app_label}.add_{model_name}',
-            f'{app_label}.change_{model_name}')
+            f"{app_label}.add_{model_name}", f"{app_label}.change_{model_name}"
+        )
 
 
-class ListboardView(SiteQuerysetViewMixin, QueryStringViewMixin,
-                    UrlRequestContextMixin, SearchListboardMixin, Base):
+class ListboardView(
+    SiteQuerysetViewMixin,
+    QueryStringViewMixin,
+    UrlRequestContextMixin,
+    SearchListboardMixin,
+    Base,
+):
     pass

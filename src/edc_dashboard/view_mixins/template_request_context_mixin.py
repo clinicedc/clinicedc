@@ -18,6 +18,7 @@ class TemplateRequestContextMixin:
             template_name = self.request.template_data[key]
         except KeyError as e:
             raise TemplateRequestContextError(
-                f'Template name not defined in request context data. '
-                f'Expected one of {list(self.request.template_data.keys())}. Got {e}.')
+                f"Template name not defined in request context data. "
+                f"Expected one of {list(self.request.template_data.keys())}. Got {e}."
+            )
         return template_name

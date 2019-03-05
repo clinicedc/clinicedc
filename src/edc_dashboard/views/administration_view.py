@@ -5,8 +5,9 @@ from edc_dashboard.view_mixins import AdministrationViewMixin
 from edc_navbar import NavbarViewMixin
 
 
-class AdministrationView(EdcBaseViewMixin, NavbarViewMixin,
-                         AdministrationViewMixin, TemplateView):
+class AdministrationView(
+    EdcBaseViewMixin, NavbarViewMixin, AdministrationViewMixin, TemplateView
+):
 
-    navbar_selected_item = 'administration'
+    navbar_selected_item = "administration"
     navbar_name = settings.APP_NAME
