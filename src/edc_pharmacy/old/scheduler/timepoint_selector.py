@@ -1,5 +1,3 @@
-
-
 class TimepointSelector:
 
     """Given a list of timepoints and number of desired visits, the timepoint
@@ -39,7 +37,6 @@ class TimepointSelector:
                     self.selected_timepoints.append(workdays[index])
 
     def get_middle_workday(self):
-
         def is_odd(days=None):
             return True if not days % 2 == 0 else False
 

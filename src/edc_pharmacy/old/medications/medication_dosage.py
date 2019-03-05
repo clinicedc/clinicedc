@@ -32,7 +32,8 @@ class MedicationDosage:
             strength=self.definition.strength,
             millgrams_per_vial=self.definition.milligram,
             duration=self.duration,
-            use_body_weight=self.definition.use_body_weight)
+            use_body_weight=self.definition.use_body_weight,
+        )
 
     @property
     def required_quantity(self):
@@ -46,11 +47,13 @@ class MedicationDosage:
     @property
     def vials(self):
         result = self.vial_dosage_cls(
-            body_weight=self.weight, strength_of_vial=self.definition.strength,
+            body_weight=self.weight,
+            strength_of_vial=self.definition.strength,
             millgrams_per_vial=self.definition.milligram,
             duration=self.duration,
-            use_body_weight=self.definition.use_body_weight)
+            use_body_weight=self.definition.use_body_weight,
+        )
         return result
 
     def __repr__(self):
-        return f'{self.definition.description}'
+        return f"{self.definition.description}"

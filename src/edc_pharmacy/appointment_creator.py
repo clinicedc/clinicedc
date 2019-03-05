@@ -1,5 +1,4 @@
-from edc_appointment.creators import AppointmentCreator \
-    as BaseAppointmentCreator
+from edc_appointment.creators import AppointmentCreator as BaseAppointmentCreator
 
 
 class AppointmentCreator(BaseAppointmentCreator):
@@ -7,8 +6,9 @@ class AppointmentCreator(BaseAppointmentCreator):
     """Creates dispense timepoints and update.
     """
 
-    appointment_model = 'edc_pharmacy.appointment'
+    appointment_model = "edc_pharmacy.appointment"
     # profile_selector_cls = DispenseProfileSelector
+
 
 #     def __init__(self, schedule_name=None, schedule_plan=None,
 #                  subject_identifier=None, schedule=None, timepoints=None):

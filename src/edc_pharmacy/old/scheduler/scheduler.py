@@ -23,8 +23,13 @@ class Scheduler:
     dispense_timepoint_cls = DispenseAppointmentCreator
     dispense_schedule_creator_cls = DispenseScheduleCreator
 
-    def __init__(self, subject_identifier=None, dispense_plan=None, arm=None,
-                 randomization_datetime=None):
+    def __init__(
+        self,
+        subject_identifier=None,
+        dispense_plan=None,
+        arm=None,
+        randomization_datetime=None,
+    ):
         self.subject_identifier = subject_identifier
         self.randomization_datetime = randomization_datetime
         self.arm = arm
@@ -32,7 +37,8 @@ class Scheduler:
         self.dispense_appointments = []
         if not self.dispense_plan:
             raise SchedulerException(
-                f'Failed to find dispense schedule plan, for {self.arm}.')
+                f"Failed to find dispense schedule plan, for {self.arm}."
+            )
         self.create_schedules()
 
     @property
@@ -46,13 +52,15 @@ class Scheduler:
             start_datetime = schedules.next_timepoint or self.randomization_datetime
             schedule_period = Period(
                 start_datetime=start_datetime,
-                unit=schedule_details.get('unit'),
-                duration=schedule_details.get('duration'))
+                unit=schedule_details.get("unit"),
+                duration=schedule_details.get("duration"),
+            )
             schedule = Schedule(
                 schedule_period,
                 name=schedule_name,
-                number_of_visits=schedule_details.get('number_of_visits'),
-                description=schedule_details.get('description'))
+                number_of_visits=schedule_details.get("number_of_visits"),
+                description=schedule_details.get("description"),
+            )
             schedules.add(schedule=schedule)
         return schedules
 
@@ -60,12 +68,12 @@ class Scheduler:
         for item in dispense_plan or {}:
             try:
                 plan = dispense_plan.get(item)
-                plan['unit']
-                plan['duration']
-                plan['number_of_visits']
-                plan['dispense_profile']
+                plan["unit"]
+                plan["duration"]
+                plan["number_of_visits"]
+                plan["dispense_profile"]
             except KeyError as e:
-                raise InvalidScheduleConfig(f'Missing expected key {e}')
+                raise InvalidScheduleConfig(f"Missing expected key {e}")
 
     def create_schedules(self):
         for sequence, schedule_name in enumerate(self.subject_schedules):
@@ -75,13 +83,15 @@ class Scheduler:
                 arm=self.arm,
                 schedule=schedule,
                 subject_identifier=self.subject_identifier,
-                sequence=sequence).create()
-###
+                sequence=sequence,
+            ).create()
+            ###
             schedule_plan = self.dispense_plan.get(schedule_name)
             appointments = self.dispense_timepoint_cls(
-                schedule_name=schedule_name, schedule_plan=schedule_plan,
+                schedule_name=schedule_name,
+                schedule_plan=schedule_plan,
                 schedule=schedule_obj,
                 timepoints=schedule.visits,
-                subject_identifier=self.subject_identifier
+                subject_identifier=self.subject_identifier,
             ).create()
             self.dispense_appointments.extend(appointments)

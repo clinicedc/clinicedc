@@ -16,13 +16,13 @@ import sys
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APP_NAME = 'edc_pharmacy'
+APP_NAME = "edc_pharmacy"
 SITE_ID = 40
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'w30a*vldb5m5_!6z5ls0shizm8p()738y8mhxb3k+8379sa&eh'
+SECRET_KEY = "w30a*vldb5m5_!6z5ls0shizm8p()738y8mhxb3k+8379sa&eh"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -33,25 +33,25 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sites',
-    'simple_history',
-    'django_revision.apps.AppConfig',
-    'edc_appointment.apps.AppConfig',
-    'edc_device.apps.AppConfig',
-    'edc_identifier.apps.AppConfig',
-    'edc_timepoint.apps.AppConfig',
-    'edc_metadata.apps.AppConfig',
-    'edc_metadata_rules.apps.AppConfig',
-    'edc_pharmacy.apps.EdcLabelAppConfig',
-    'edc_pharmacy.apps.EdcBaseAppConfig',
-    'edc_pharmacy.apps.EdcFacilityAppConfig',
-    'edc_pharmacy.apps.AppConfig',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "simple_history",
+    "django_revision.apps.AppConfig",
+    "edc_appointment.apps.AppConfig",
+    "edc_device.apps.AppConfig",
+    "edc_identifier.apps.AppConfig",
+    "edc_timepoint.apps.AppConfig",
+    "edc_metadata.apps.AppConfig",
+    "edc_metadata_rules.apps.AppConfig",
+    "edc_pharmacy.apps.EdcLabelAppConfig",
+    "edc_pharmacy.apps.EdcBaseAppConfig",
+    "edc_pharmacy.apps.EdcFacilityAppConfig",
+    "edc_pharmacy.apps.AppConfig",
 ]
 
 # TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -62,44 +62,43 @@ INSTALLED_APPS = [
 # ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'edc_pharmacy.urls'
+ROOT_URLCONF = "edc_pharmacy.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ]
         },
-    },
+    }
 ]
 
-WSGI_APPLICATION = 'edc_pharmacy.wsgi.application'
+WSGI_APPLICATION = "edc_pharmacy.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     }
 }
 
@@ -108,26 +107,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'Africa/Gaborone'
+TIME_ZONE = "Africa/Gaborone"
 
 USE_I18N = True
 
@@ -139,26 +132,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'edc_pharmacy', 'static')
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "edc_pharmacy", "static")
 GIT_DIR = BASE_DIR
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_TEMPLATE_PACK = "bootstrap3"
 
 # KEY_PATH = os.path.join(BASE_DIR, 'crypto_fields')
-LABEL_PRINTER = 'test_label_printer_ambition'
+LABEL_PRINTER = "test_label_printer_ambition"
 
-COUNTRY = 'botswana'
-HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
+COUNTRY = "botswana"
+HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, "tests", "holidays.csv")
 
 DASHBOARD_URL_NAMES = {
-    'subject_listboard_url': 'edc_subject_dashboard:subject_listboard_url',
-    'subject_dashboard_url': 'edc_subject_dashboard:subject_dashboard_url',
+    "subject_listboard_url": "edc_subject_dashboard:subject_listboard_url",
+    "subject_dashboard_url": "edc_subject_dashboard:subject_dashboard_url",
 }
 
-if 'test' in sys.argv:
+if "test" in sys.argv:
 
     class DisableMigrations:
-
         def __contains__(self, item):
             return True
 
@@ -166,5 +158,5 @@ if 'test' in sys.argv:
             return None
 
     MIGRATION_MODULES = DisableMigrations()
-    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',)
-    DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'
+    PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
+    DEFAULT_FILE_STORAGE = "inmemorystorage.InMemoryStorage"
