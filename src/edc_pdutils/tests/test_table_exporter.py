@@ -3,13 +3,12 @@ import os
 import sys
 
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase, tag  # noqa
 
 from ..csv_exporters import CsvTablesExporter
 from .helper import Helper
 
 
-@tag("1")
 class TestExport(TestCase):
 
     app_config = django_apps.get_app_config("edc_pdutils")
