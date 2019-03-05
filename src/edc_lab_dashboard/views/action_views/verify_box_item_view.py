@@ -1,7 +1,7 @@
 from django.contrib import messages
-from edc_utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_lab import SHIPPED
+from edc_utils import get_utcnow
 
 from ...view_mixins import BoxViewMixin
 from .action_view import ActionView
@@ -33,7 +33,8 @@ class VerifyBoxItemView(EdcBaseViewMixin, BoxViewMixin, ActionView):
     def next_position(self):
         """Returns the next position relative to that from the URL.
         """
-        self.kwargs["position"] = str(int(self.kwargs.get("position", "1")) + 1)
+        self.kwargs["position"] = str(
+            int(self.kwargs.get("position", "1")) + 1)
 
     def verify_item(self):
         """Updates the box_item as verified if the identifier matches

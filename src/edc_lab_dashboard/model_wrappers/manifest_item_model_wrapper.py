@@ -1,5 +1,5 @@
-from edc_model_wrapper import ModelWrapper
 from edc_lab.models import Box, ManifestItem
+from edc_model_wrapper import ModelWrapper
 
 from ..dashboard_urls import dashboard_urls
 

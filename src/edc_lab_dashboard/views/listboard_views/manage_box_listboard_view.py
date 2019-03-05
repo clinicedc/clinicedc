@@ -1,10 +1,9 @@
 from copy import copy
-
 from django.urls.base import reverse
+from edc_lab.models import BoxItem
 
 from ...model_wrappers import ManageBoxItemModelWrapper
 from .base_box_item_listboard_view import BaseBoxItemListboardView
-from edc_lab.models import BoxItem
 
 
 class ManageBoxListboardView(BaseBoxItemListboardView):

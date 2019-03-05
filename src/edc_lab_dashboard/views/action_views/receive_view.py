@@ -1,10 +1,10 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
-from edc_utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_constants.constants import YES
 from edc_lab import Specimen, AliquotLabel
 from edc_lab.site_labs import site_labs
+from edc_utils import get_utcnow
 
 from ...view_mixins import ProcessRequisitionViewMixin
 from .action_view import ActionView
@@ -36,7 +36,8 @@ class ReceiveView(EdcBaseViewMixin, ProcessRequisitionViewMixin, ActionView):
         for model in site_labs.requisition_models.values():
             model_cls = django_apps.get_model(model)
             updated += (
-                model_cls.objects.filter(pk__in=self.selected_items, is_drawn=YES)
+                model_cls.objects.filter(
+                    pk__in=self.selected_items, is_drawn=YES)
                 .exclude(received=True)
                 .update(received=True, received_datetime=get_utcnow())
             )
