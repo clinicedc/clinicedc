@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_base import convert_php_dateformat
+from edc_utils import convert_php_dateformat
 from urllib.parse import urlparse, parse_qsl
 from urllib.parse import urlencode, unquote
 

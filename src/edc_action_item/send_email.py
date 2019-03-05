@@ -3,7 +3,7 @@
 # from django.conf import settings
 # from django.utils.safestring import mark_safe
 # from django.core.mail.message import EmailMessage
-# from edc_base.utils import get_utcnow
+# from edc_utils import get_utcnow
 #
 # NEW_REPORT = 'new_report'
 # UPDATED_REPORT = 'updated_report'

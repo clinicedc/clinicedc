@@ -2,13 +2,16 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_base import get_utcnow
-from edc_base.model_managers import HistoricalRecords
-from edc_base.model_mixins import BaseUuidModel
-from edc_base.sites import CurrentSiteManager as BaseCurrentSiteManager, SiteModelMixin
 from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_model.models import BaseUuidModel
+from edc_model.models import HistoricalRecords
 from edc_notification.model_mixins import NotificationModelMixin
+from edc_sites.models import (
+    CurrentSiteManager as BaseCurrentSiteManager,
+    SiteModelMixin,
+)
+from edc_utils import get_utcnow
 
 from ..choices import ACTION_STATUS, PRIORITY
 from ..identifiers import ActionIdentifier

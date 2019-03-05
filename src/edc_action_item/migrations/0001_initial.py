@@ -8,7 +8,7 @@ import django_revision.revision_field
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
 import edc_model_fields.fields.uuid_auto_field
-import edc_base.utils
+import edc_utils
 
 
 class Migration(migrations.Migration):
@@ -23,11 +23,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "user_created",
@@ -94,7 +94,7 @@ class Migration(migrations.Migration):
                 ("action_identifier", models.CharField(max_length=25, unique=True)),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "reference_identifier",
@@ -163,11 +163,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "user_created",
@@ -229,7 +229,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
                 ),
                 ("comment", models.TextField(blank=True, max_length=250, null=True)),
                 (
@@ -251,11 +251,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "user_created",
@@ -361,11 +361,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "user_created",
@@ -431,7 +431,7 @@ class Migration(migrations.Migration):
                 ("action_identifier", models.CharField(db_index=True, max_length=25)),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "reference_identifier",
@@ -551,11 +551,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
                 ),
                 (
                     "user_created",
@@ -616,7 +616,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_base.utils.get_utcnow),
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
                 ),
                 ("comment", models.TextField(blank=True, max_length=250, null=True)),
                 ("history_date", models.DateTimeField()),
