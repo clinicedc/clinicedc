@@ -1,7 +1,7 @@
 from django.db import models
-from edc_base.model_validators.date import datetime_not_future
-from edc_base.utils import get_utcnow
+from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
+from edc_utils import get_utcnow
 
 from ...crf_date_validator import CrfDateValidator
 from ...managers import CrfModelManager

@@ -2,7 +2,7 @@ from model_mommy import mommy
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from edc_base import get_utcnow
+from edc_utils import get_utcnow
 
 from ..constants import SCHEDULED
 
