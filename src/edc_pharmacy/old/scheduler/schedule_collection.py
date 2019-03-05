@@ -10,6 +10,7 @@ class ScheduleCollection(OrderedDict):
     Is contained by a "schedule". A period is measured in days,
     weeks, and years.
     """
+
     validator = ScheduleValidator
 
     def add(self, schedule=None):

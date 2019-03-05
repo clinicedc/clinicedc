@@ -26,4 +26,4 @@ class PrescriptionForm(forms.ModelForm):
 
     class Meta:
         model = Prescription
-        fields = '__all__'
+        fields = "__all__"

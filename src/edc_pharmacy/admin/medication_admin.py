@@ -13,22 +13,18 @@ class MedicationAdmin(ModelAdminMixin, admin.ModelAdmin):
     form = MedicationForm
 
     fieldsets = (
-        (None, {
-            'fields': (
-                'name',
-                'strength',
-                'units',
-                'formulation',
-                'route',
-                'notes',
-            )}), audit_fieldset_tuple
+        (
+            None,
+            {"fields": ("name", "strength", "units", "formulation", "route", "notes")},
+        ),
+        audit_fieldset_tuple,
     )
 
     radio_fields = {
-        'units': admin.VERTICAL,
-        'formulation': admin.VERTICAL,
-        'route': admin.VERTICAL
+        "units": admin.VERTICAL,
+        "formulation": admin.VERTICAL,
+        "route": admin.VERTICAL,
     }
 
-    search_fields = ['name']
-    ordering = ['name']
+    search_fields = ["name"]
+    ordering = ["name"]

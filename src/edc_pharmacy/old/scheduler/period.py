@@ -1,4 +1,4 @@
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 
 import arrow
 from dateutil.relativedelta import relativedelta
@@ -13,7 +13,8 @@ class Period:
     weeks, and years. Given a timepoint_datetime the class calculates
     start_date and end_date excluding weekends and holidays.
     """
-    app_config = django_apps.get_app_config('edc_pharma')
+
+    app_config = django_apps.get_app_config("edc_pharma")
 
     def __init__(self, start_datetime=None, unit=None, duration=None, **kwargs):
         self.start_datetime = start_datetime or get_utcnow()
@@ -24,11 +25,13 @@ class Period:
         self.workdays = []
         if self.start_datetime and self.end_datetime:
             for arr in arrow.Arrow.span_range(
-                    'day', self.start_datetime, self.end_datetime):
+                "day", self.start_datetime, self.end_datetime
+            ):
                 available_datetime = facility.available_datetime(
-                    suggested_datetime=arr[0].datetime, window_delta=rdelta)
+                    suggested_datetime=arr[0].datetime, window_delta=rdelta
+                )
                 if available_datetime:
                     self.workdays.append(available_datetime)
 
     def __repr__(self):
-        return f'{self.start_date.date()}, {self.end_date.date()}'
+        return f"{self.start_date.date()}, {self.end_date.date()}"

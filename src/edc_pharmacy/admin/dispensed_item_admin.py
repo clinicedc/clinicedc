@@ -13,21 +13,32 @@ class DispensedItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     form = DispensedItemForm
 
     fieldsets = (
-        (None, {
-            'fields': (
-                'prescription_item',
-                'dispensed',
-                'status',
-                'dispensed_datetime',
-            )}), audit_fieldset_tuple
+        (
+            None,
+            {
+                "fields": (
+                    "prescription_item",
+                    "dispensed",
+                    "status",
+                    "dispensed_datetime",
+                )
+            },
+        ),
+        audit_fieldset_tuple,
     )
 
-    list_display = ['subject_identifier',
-                    'prescription_item', 'dispensed_date', 'dispensed']
-    list_filter = ['dispensed_datetime', 'status']
-    search_fields = ['prescription__subject_identifier',
-                     'prescription_item__medication__name']
-    ordering = ['dispensed_datetime']
+    list_display = [
+        "subject_identifier",
+        "prescription_item",
+        "dispensed_date",
+        "dispensed",
+    ]
+    list_filter = ["dispensed_datetime", "status"]
+    search_fields = [
+        "prescription__subject_identifier",
+        "prescription_item__medication__name",
+    ]
+    ordering = ["dispensed_datetime"]
 
 
 class DispensedItemInlineAdmin(admin.TabularInline):
@@ -35,10 +46,6 @@ class DispensedItemInlineAdmin(admin.TabularInline):
     form = DispensedItemReadonlyForm
     model = DispensedItem
 
-    fields = [
-        'dispensed',
-        'status',
-        'dispensed_datetime',
-    ]
-    ordering = ['dispensed_datetime']
+    fields = ["dispensed", "status", "dispensed_datetime"]
+    ordering = ["dispensed_datetime"]
     extra = 0

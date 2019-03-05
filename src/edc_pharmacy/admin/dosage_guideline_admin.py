@@ -13,18 +13,22 @@ class DosageGuidelineAdmin(ModelAdminMixin, admin.ModelAdmin):
     form = DosageGuidelineForm
 
     fieldsets = (
-        (None, {
-            'fields': (
-                'medication_name',
-                'dose',
-                'dose_per_kg',
-                'dose_units',
-                'dose_frequency_factor',
-                'dose_frequency_units',
-                'subject_weight_factor'
-            )}),
-        audit_fieldset_tuple
+        (
+            None,
+            {
+                "fields": (
+                    "medication_name",
+                    "dose",
+                    "dose_per_kg",
+                    "dose_units",
+                    "dose_frequency_factor",
+                    "dose_frequency_units",
+                    "subject_weight_factor",
+                )
+            },
+        ),
+        audit_fieldset_tuple,
     )
 
-    list_display = ['__str__', 'modified', 'user_modified']
-    search_fields = ['medication_name']
+    list_display = ["__str__", "modified", "user_modified"]
+    search_fields = ["medication_name"]

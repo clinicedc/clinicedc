@@ -12,9 +12,15 @@ class Country:
 
     holidays_cls = Holidays
 
-    def __init__(self, country=None, time_zone=None, skip_holiday=None,
-                 skip_weekend=None, **kwargs):
-        app_config = django_apps.get_app_config('edc_pharma')
+    def __init__(
+        self,
+        country=None,
+        time_zone=None,
+        skip_holiday=None,
+        skip_weekend=None,
+        **kwargs
+    ):
+        app_config = django_apps.get_app_config("edc_pharma")
         self.skip_holiday = skip_holiday
         self.skip_weekend = skip_weekend
         self.name = country or app_config.country

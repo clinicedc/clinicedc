@@ -15,38 +15,43 @@ class PrescriptionItemAdmin(ModelAdminMixin, admin.ModelAdmin):
     model = PrescriptionItem
 
     fieldsets = (
-        (None, {
-            'fields': (
-                'prescription',
-                'medication',
-                'dosage_guideline',
-                'calculate_dose',
-                'dose',
-                'frequency',
-                'frequency_units',
-                'start_date',
-                'end_date',
-                'notes',
-            )}),
-        ('Verification', {
-            'classes': ('collapse',),
-            'fields': (
-                'verified',
-                'verified_datetime',
-            )}),
-        ('Calculations', {
-            'classes': ('collapse',),
-            'fields': (
-                'total',
-                'remaining'
-            )}),
-        audit_fieldset_tuple)
+        (
+            None,
+            {
+                "fields": (
+                    "prescription",
+                    "medication",
+                    "dosage_guideline",
+                    "calculate_dose",
+                    "dose",
+                    "frequency",
+                    "frequency_units",
+                    "start_date",
+                    "end_date",
+                    "notes",
+                )
+            },
+        ),
+        (
+            "Verification",
+            {"classes": ("collapse",), "fields": ("verified", "verified_datetime")},
+        ),
+        ("Calculations", {"classes": ("collapse",), "fields": ("total", "remaining")}),
+        audit_fieldset_tuple,
+    )
 
-    list_display = ('subject_identifier', '__str__', 'duration', 'total',
-                    'remaining', 'verified', 'verified_datetime')
-    list_filter = ('start_date', 'end_date', )
-    search_fields = ['prescription__subject_identifier', 'medication__name']
-    ordering = ['medication__name']
+    list_display = (
+        "subject_identifier",
+        "__str__",
+        "duration",
+        "total",
+        "remaining",
+        "verified",
+        "verified_datetime",
+    )
+    list_filter = ("start_date", "end_date")
+    search_fields = ["prescription__subject_identifier", "medication__name"]
+    ordering = ["medication__name"]
 
 
 class PrescriptionItemInlineAdmin(admin.StackedInline):
@@ -56,15 +61,16 @@ class PrescriptionItemInlineAdmin(admin.StackedInline):
     model = PrescriptionItem
 
     fields = [
-        'medication',
-        'dosage_guideline',
-        'calculate_dose',
-        'dose',
-        'frequency',
-        'frequency_units',
-        'start_date',
-        'end_date']
+        "medication",
+        "dosage_guideline",
+        "calculate_dose",
+        "dose",
+        "frequency",
+        "frequency_units",
+        "start_date",
+        "end_date",
+    ]
 
-    search_fields = ['medication__name']
-    ordering = ['medication__name']
+    search_fields = ["medication__name"]
+    ordering = ["medication__name"]
     extra = 0

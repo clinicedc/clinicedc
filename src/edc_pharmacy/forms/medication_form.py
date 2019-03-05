@@ -4,7 +4,6 @@ from ..models import Medication
 
 
 class MedicationForm(forms.ModelForm):
-
     class Meta:
         model = Medication
-        fields = '__all__'
+        fields = "__all__"

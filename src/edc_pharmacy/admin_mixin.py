@@ -8,7 +8,7 @@ class PrintButtonAdminMixin:
 
     def __init__(self, args, *kwargs):
         super(PrintButtonAdminMixin, self).__init__(*args, **kwargs)
-        app_config = django_apps.get_app_config('edc_label')
+        app_config = django_apps.get_app_config("edc_label")
         self._print_server = None
         self._printers = {}
         self.cups_server_ip = app_config.default_cups_server_ip
@@ -32,8 +32,9 @@ class PrintButtonAdminMixin:
                 for printer in self.print_server.printers.items():
                     printer = str(printer[0])
                     printer_properties = {
-                        k.replace('-', '_'): v
-                        for k, v in self.print_server.printers[printer].items()}
+                        k.replace("-", "_"): v
+                        for k, v in self.print_server.printers[printer].items()
+                    }
                     self._printers.update({printer: printer_properties})
         return self._printers
 
@@ -41,7 +42,6 @@ class PrintButtonAdminMixin:
         copies = 1 if copies is None else copies
         label_template = self.label_templates.get(label_name)
         context = label_template.test_context if context is None else context
-        label = Label(label_name, print_server=self.print_server,
-                      context=context)
+        label = Label(label_name, print_server=self.print_server, context=context)
         label.print_label(copies)
         return label

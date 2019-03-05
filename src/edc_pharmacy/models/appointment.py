@@ -1,6 +1,6 @@
 from django.db import models
 from edc_appointment.model_mixins import AppointmentModelMixin
-from edc_base.model_mixins import BaseUuidModel
+from edc_model.models import BaseUuidModel
 from edc_search.model_mixins import SearchSlugManager
 
 from .search_slug_model_mixin import SearchSlugModelMixin
@@ -15,4 +15,4 @@ class Appointment(SearchSlugModelMixin, AppointmentModelMixin, BaseUuidModel):
     objects = Manager()
 
     def __str__(self):
-        return (f'{self.appt_datetime} - {self.profile_label}')
+        return f"{self.appt_datetime} - {self.profile_label}"

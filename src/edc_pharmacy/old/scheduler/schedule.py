@@ -7,10 +7,10 @@ class Schedule:
     """A class that represents a "schedule" of medication plan.
     Is contained by a "schedules".
     """
+
     timepoint_selector_cls = TimepointSelector
 
-    def __init__(self, period, name=None, number_of_visits=None,
-                 description=None):
+    def __init__(self, period, name=None, number_of_visits=None, description=None):
         self._visits = {}
         self.period = period
         self.name = name
@@ -18,8 +18,8 @@ class Schedule:
         self.workdays = self.period.workdays
         self.description = description
         self.selector = self.timepoint_selector_cls(
-            workdays=self.workdays,
-            number_of_visits=self.number_of_visits)
+            workdays=self.workdays, number_of_visits=self.number_of_visits
+        )
         self.prepare()
 
     def add(self, visit=None):
@@ -30,11 +30,9 @@ class Schedule:
         return self._visits
 
     def __repr__(self):
-        return f'Visit({self.name})'
+        return f"Visit({self.name})"
 
     def prepare(self):
         for i, timepoint in enumerate(self.selector.selected_timepoints):
-            visit = Visit(
-                code=f'visit{i}', title=i,
-                timepoint_datetime=timepoint)
+            visit = Visit(code=f"visit{i}", title=i, timepoint_datetime=timepoint)
             self.add(visit)
