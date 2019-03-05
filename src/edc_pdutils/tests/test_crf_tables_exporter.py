@@ -2,7 +2,7 @@ import csv
 import sys
 
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase, tag  # noqa
 from tempfile import mkdtemp
 
 from ..csv_exporters import CsvCrfTablesExporter, CsvCrfInlineTablesExporter

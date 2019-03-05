@@ -1,7 +1,5 @@
 from django.conf import settings
 
-from .constants import CSV
-
 
 APP_LABELS = (
     (
