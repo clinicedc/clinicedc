@@ -12,7 +12,8 @@ from .value_getter import ValueGetter
 
 class ModelToDataframe:
     """
-        m = ModelToDataframe(model='edc_pdutils.crf', add_columns_for=['clinic_visit'])
+        m = ModelToDataframe(model='edc_pdutils.crf',
+            add_columns_for=['clinic_visit'])
         my_df = m.dataframe
     """
 
@@ -200,7 +201,9 @@ class ModelToDataframe:
         except KeyError:
             columns.update(
                 {
-                    f"{column_name}__appointment__subject_identifier": "subject_identifier"
+                    f"{column_name}__appointment__subject_identifier": (
+                        "subject_identifier"
+                    )
                 }
             )
         columns.update(
@@ -221,7 +224,9 @@ class ModelToDataframe:
                 column_name = col.split("_id")[0]
                 columns.update(
                     {
-                        f"{column_name}__requisition_identifier": f"{col_prefix}_requisition_identifier"
+                        f"{column_name}__requisition_identifier": (
+                            f"{col_prefix}_requisition_identifier"
+                        )
                     }
                 )
                 columns.update(
