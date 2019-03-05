@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "edc_base.apps.AppConfig",
     "edc_device.apps.AppConfig",
     "edc_appointment.apps.AppConfig",
+    "edc_offstudy.apps.AppConfig",
     "edc_visit_schedule.apps.AppConfig",
     "edc_protocol.apps.AppConfig",
     "edc_metadata.apps.AppConfig",
@@ -63,7 +64,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "edc_timepoint.urls"
+ROOT_URLCONF = "edc_timepoint.tests.urls"
 
 TEMPLATES = [
     {
