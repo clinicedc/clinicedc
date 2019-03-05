@@ -2,12 +2,12 @@ from arrow import arrow
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
-from django.test import TestCase, tag
+from django.test import TestCase, tag  # noqa
 from edc_appointment.constants import COMPLETE_APPT
 from edc_appointment.models.appointment import Appointment
 from edc_appointment.tests.helper import Helper
-from edc_base.utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
+from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT
@@ -86,21 +86,20 @@ class TimepointTests(TestCase):
         """Assert timepoint closes because appointment status
         is COMPLETE_APPT and blocks further changes.
         """
-        self.appointment.delete()
-        appointment = Appointment.objects.create(
-            appt_datetime=get_utcnow() - relativedelta(days=10), visit_code="1000"
-        )
-        appointment.appt_status = COMPLETE_APPT
-        appointment.save()
-        appointment.timepoint_close_timepoint()
-        self.assertEqual(appointment.appt_status, COMPLETE_APPT)
+        self.appointment.appt_datetime = get_utcnow() - relativedelta(days=10)
+        self.appointment.visit_code = "1000"
+        self.appointment.appt_status = COMPLETE_APPT
+        self.appointment.save()
+        self.appointment.timepoint_close_timepoint()
+        self.assertEqual(self.appointment.appt_status, COMPLETE_APPT)
         self.assertEqual(
-            appointment.timepoint_opened_datetime, appointment.appt_datetime
+            self.appointment.timepoint_opened_datetime, self.appointment.appt_datetime
         )
         self.assertGreater(
-            appointment.timepoint_closed_datetime, appointment.timepoint_opened_datetime
+            self.appointment.timepoint_closed_datetime,
+            self.appointment.timepoint_opened_datetime,
         )
-        self.assertEqual(appointment.timepoint_status, CLOSED_TIMEPOINT)
+        self.assertEqual(self.appointment.timepoint_status, CLOSED_TIMEPOINT)
 
     def test_timepoint_lookup_blocks_crf_create(self):
         subject_visit = SubjectVisit.objects.create(appointment=self.appointment)
