@@ -1,5 +1,5 @@
-from edc_base import get_utcnow
 from edc_pdutils import CsvModelExporter
+from edc_utils import get_utcnow
 from tempfile import mkdtemp
 
 from .files_archiver import FilesArchiver

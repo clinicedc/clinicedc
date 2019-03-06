@@ -1,14 +1,14 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from django_crypto_fields.fields.encrypted_char_field import EncryptedCharField
+from django_crypto_fields.fields import EncryptedCharField
 from edc_appointment.models import Appointment
-from edc_base.model_mixins import BaseUuidModel
-from edc_base.sites import SiteModelMixin
-from edc_base.utils import get_utcnow
 from edc_constants.constants import YES
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_list_data.model_mixins import ListModelMixin
+from edc_model.models import BaseUuidModel
 from edc_offstudy.model_mixins import OffstudyModelMixin, OffstudyModelManager
+from edc_sites.models import SiteModelMixin
+from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins.off_schedule_model_mixin import (
     OffScheduleModelMixin,
 )

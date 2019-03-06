@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 
-from edc_base import get_utcnow
+from edc_utils import get_utcnow
 
 
 class FilesArchiver:

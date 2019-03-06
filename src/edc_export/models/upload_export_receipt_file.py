@@ -4,8 +4,8 @@ import re
 
 from datetime import datetime
 from django.db import models
-from edc_base.model_mixins import BaseUuidModel
 from edc_constants.constants import UUID_PATTERN
+from edc_model.models import BaseUuidModel
 
 from .file_history import FileHistory
 

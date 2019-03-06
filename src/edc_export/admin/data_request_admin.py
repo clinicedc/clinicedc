@@ -1,5 +1,5 @@
 from django.contrib import admin
-from edc_base import get_utcnow
+from edc_utils import get_utcnow
 
 from ..admin_site import edc_export_admin
 from ..forms import DataRequestForm

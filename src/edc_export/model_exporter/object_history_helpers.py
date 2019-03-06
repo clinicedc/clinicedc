@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core import serializers
-from edc_base.utils import get_utcnow
+from edc_utils import get_utcnow
 from edc_constants.constants import NEW
 
 from ..constants import EXPORTED, INSERT, UPDATE
