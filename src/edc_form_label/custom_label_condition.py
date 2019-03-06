@@ -8,7 +8,7 @@ class CustomFormLabelError(Exception):
 
 class CustomLabelCondition:
 
-    appointment_model = 'edc_appointment.appointment'
+    appointment_model = "edc_appointment.appointment"
 
     def __init__(self, request=None, obj=None, model=None):
         self.request = request
@@ -30,7 +30,8 @@ class CustomLabelCondition:
         """Returns the appointment instance for this request or None.
         """
         return django_apps.get_model(self.appointment_model).objects.get(
-            pk=self.request.GET.get('appointment'))
+            pk=self.request.GET.get("appointment")
+        )
 
     @property
     def previous_appointment(self):
@@ -50,7 +51,8 @@ class CustomLabelCondition:
             while appointment.previous_by_timepoint:
                 try:
                     previous_visit = self.model.visit_model_cls().objects.get(
-                        appointment=appointment.previous_by_timepoint)
+                        appointment=appointment.previous_by_timepoint
+                    )
                 except ObjectDoesNotExist:
                     pass
                 else:
@@ -69,7 +71,8 @@ class CustomLabelCondition:
         if self.previous_visit:
             try:
                 previous_obj = self.model.objects.get(
-                    **{f'{self.model.visit_model_attr()}': self.previous_visit})
+                    **{f"{self.model.visit_model_attr()}": self.previous_visit}
+                )
             except ObjectDoesNotExist:
                 pass
         return previous_obj

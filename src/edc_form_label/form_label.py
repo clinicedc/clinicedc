@@ -2,7 +2,6 @@ from .custom_label_condition import CustomFormLabelError
 
 
 class FormLabel:
-
     def __init__(self, field=None, custom_label=None, condition_cls=None):
         self.field = field
         self.custom_label = custom_label
@@ -15,15 +14,16 @@ class FormLabel:
         * condition is an instance of CustomLabelCondition.
         """
         label = form.base_fields[self.field].label
-        condition = self.condition_cls(
-            request=request, obj=obj, model=model)
+        condition = self.condition_cls(request=request, obj=obj, model=model)
         if condition.check():
             additional_opts = condition.get_additional_options(
-                request=request, obj=obj, model=model)
-            visit_datetime = ''
+                request=request, obj=obj, model=model
+            )
+            visit_datetime = ""
             if obj:
                 visit_datetime = getattr(
-                    obj, obj.visit_model_attr()).report_datetime.strftime('%B %Y')
+                    obj, obj.visit_model_attr()
+                ).report_datetime.strftime("%B %Y")
             try:
                 label = self.custom_label.format(
                     appointment=condition.appointment,
@@ -31,8 +31,10 @@ class FormLabel:
                     previous_obj=condition.previous_obj,
                     previous_visit=condition.previous_visit,
                     visit_datetime=visit_datetime,
-                    **additional_opts)
+                    **additional_opts,
+                )
             except KeyError as e:
                 raise CustomFormLabelError(
-                    f'Custom label template has invalid keys. See {label}. Got {e}.')
+                    f"Custom label template has invalid keys. See {label}. Got {e}."
+                )
         return label

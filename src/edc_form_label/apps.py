@@ -2,4 +2,4 @@ from django.apps import AppConfig as DjangoAppConfig
 
 
 class AppConfig(DjangoAppConfig):
-    name = 'edc_form_label'
+    name = "edc_form_label"
