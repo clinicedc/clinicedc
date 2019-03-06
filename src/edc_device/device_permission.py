@@ -97,12 +97,13 @@ class DevicePermissions:
     """Container class for registered device permission instances.
     """
 
-    def __init__(self, *device_permissions):
+    def __init__(self):  # , *device_permissions):
         self._registry = []
         self.n = 0
         self.models = []
-        for device_permission in device_permissions:
-            self.register(device_permission)
+
+    #         for device_permission in device_permissions:
+    #             self.register(device_permission)
 
     def __iter__(self):
         self.n = 0
@@ -115,6 +116,11 @@ class DevicePermissions:
         except IndexError:
             raise StopIteration
         return item
+
+    def reset(self):
+        self._registry = []
+        self.n = 0
+        self.models = []
 
     def register(self, device_permission):
         self._registry.append(device_permission)
