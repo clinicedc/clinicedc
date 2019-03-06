@@ -12,7 +12,7 @@ class FieldsetsModelAdminMixin:
     * Expects appointment to be in GET
     """
 
-    appointment_model = 'edc_appointment.appointment'
+    appointment_model = "edc_appointment.appointment"
     # key: value where key is a visit_code. value is a fieldlist object
     conditional_fieldlists = {}
     # key: value where key is a visit code. value is a fieldsets object.
@@ -33,13 +33,14 @@ class FieldsetsModelAdminMixin:
         appointment_model_cls = django_apps.get_model(self.appointment_model)
         try:
             appointment = appointment_model_cls.objects.get(
-                pk=request.GET.get('appointment'))
+                pk=request.GET.get("appointment")
+            )
         except ObjectDoesNotExist:
             visit_code = None
         else:
             visit_code = appointment.visit_code
             if appointment.visit_code_sequence != 0:
-                visit_code = f'{visit_code}.{appointment.visit_code_sequence}'
+                visit_code = f"{visit_code}.{appointment.visit_code_sequence}"
         return visit_code
 
     def get_fieldsets(self, request, obj=None):
@@ -54,7 +55,7 @@ class FieldsetsModelAdminMixin:
             try:
                 fieldset = tuple(fieldset)
             except TypeError:
-                fieldset = (fieldset, )
+                fieldset = (fieldset,)
             for f in fieldset:
                 fieldsets.add_fieldset(fieldset=f)
         fieldlist = self.conditional_fieldlists.get(key)
@@ -63,13 +64,14 @@ class FieldsetsModelAdminMixin:
                 fieldsets.insert_fields(
                     *fieldlist.insert_fields,
                     insert_after=fieldlist.insert_after,
-                    section=fieldlist.section)
+                    section=fieldlist.section,
+                )
             except AttributeError:
                 pass
             try:
                 fieldsets.remove_fields(
-                    *fieldlist.remove_fields,
-                    section=fieldlist.section)
+                    *fieldlist.remove_fields, section=fieldlist.section
+                )
             except AttributeError:
                 pass
         fieldsets.move_to_end(self.fieldsets_move_to_end)

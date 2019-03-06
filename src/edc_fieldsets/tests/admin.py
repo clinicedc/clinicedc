@@ -6,19 +6,13 @@ from ..fieldsets_modeladmin_mixin import FieldsetsModelAdminMixin
 from .models import MyModel, MyModel2, MyModel3
 from edc_constants.constants import NO
 
-VISIT_ONE = '1000'
-VISIT_TWO = '2000'
+VISIT_ONE = "1000"
+VISIT_TWO = "2000"
 
-visit_two_fieldset = Fieldset(
-    'f4',
-    'f5',
-    section='Visit Two Additional Questions')
+visit_two_fieldset = Fieldset("f4", "f5", section="Visit Two Additional Questions")
 
 
-summary_fieldset = Fieldset(
-    'summary_one',
-    'summary_two',
-    section='Summary')
+summary_fieldset = Fieldset("summary_one", "summary_two", section="Summary")
 
 
 class MyModelAdmin(FieldsetsModelAdminMixin, admin.ModelAdmin):
@@ -29,18 +23,13 @@ class MyModelAdmin(FieldsetsModelAdminMixin, admin.ModelAdmin):
     form if the visit_code is '2000'
     """
 
-    conditional_fieldsets = {
-        VISIT_TWO: (visit_two_fieldset, )}
+    conditional_fieldsets = {VISIT_TWO: (visit_two_fieldset,)}
 
     fieldsets = (
-        ('Not special fields', {
-            'fields': (
-                'subject_visit',
-                'report_datetime',
-                'f1',
-                'f2',
-                'f3')},
-         ),
+        (
+            "Not special fields",
+            {"fields": ("subject_visit", "report_datetime", "f1", "f2", "f3")},
+        ),
         audit_fieldset_tuple,
     )
 
@@ -55,21 +44,15 @@ class MyModel2Admin(FieldsetsModelAdminMixin, admin.ModelAdmin):
 
     """
 
-    fieldsets_move_to_end = [
-        'Summary', audit_fieldset_tuple[0]]
+    fieldsets_move_to_end = ["Summary", audit_fieldset_tuple[0]]
 
-    conditional_fieldsets = {
-        VISIT_TWO: (visit_two_fieldset, )}
+    conditional_fieldsets = {VISIT_TWO: (visit_two_fieldset,)}
 
     fieldsets = (
-        ('Not special fields', {
-            'fields': (
-                'subject_visit',
-                'report_datetime',
-                'f1',
-                'f2',
-                'f3')},
-         ),
+        (
+            "Not special fields",
+            {"fields": ("subject_visit", "report_datetime", "f1", "f2", "f3")},
+        ),
         summary_fieldset.fieldset,
         audit_fieldset_tuple,
     )
