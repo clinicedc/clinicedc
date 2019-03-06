@@ -1,8 +1,6 @@
-import sys
 import pandas as pd
 import numpy as np
 
-from django.conf import settings
 from django.db import connection
 from uuid import UUID
 
@@ -28,27 +26,27 @@ class Database:
     def database(self):
         """Returns the database name.
         """
-        if not self._database:
-            filename = (
-                settings.DATABASES.get(self.DATABASES_NAME)
-                .get("OPTIONS")
-                .get("read_default_file")
-            )
-            if "test" in sys.argv:
-                self._database = connection.settings_dict["TEST"]["NAME"]
-            else:
-                self._database = connection.settings_dict["NAME"]
-                if not self._database:
-                    with open(filename, "r") as f:
-                        for line in [line for line in f if "#" not in line]:
-                            if "database" in line:
-                                self._database = line.split("=")[1].strip()
-            if not self._database:
-                raise DatabaseNameError(
-                    f"Unable to determine the DB name from settings.DATABASES. "
-                    f"Got NAME={self.DATABASES_NAME}, read_default_file={filename}."
-                )
-        return self._database
+#         if not self._database:
+#             filename = (
+#                 settings.DATABASES.get(self.DATABASES_NAME)
+#                 .get("OPTIONS")
+#                 .get("read_default_file")
+#             )
+#             if "test" in sys.argv:
+#                 self._database = connection.settings_dict["TEST"]["NAME"]
+#             else:
+#                 self._database = connection.settings_dict["NAME"]
+#                 if not self._database:
+#                     with open(filename, "r") as f:
+#                         for line in [line for line in f if "#" not in line]:
+#                             if "database" in line:
+#                                 self._database = line.split("=")[1].strip()
+#             if not self._database:
+#                 raise DatabaseNameError(
+#                     f"Unable to determine the DB name from settings.DATABASES. "
+#                     f"Got NAME={self.DATABASES_NAME}, read_default_file={filename}."
+#                 )
+        return connection.settings_dict['NAME']
 
     def read_sql(self, sql, params=None):
         """Returns a dataframe. A simple wrapper for pd.read_sql().
@@ -95,14 +93,16 @@ class Database:
         """Returns a dataframe of table names in the schema
         that have a column in column_names.
         """
-        sql, params = self.dialect.show_tables_with_columns(app_label, column_names)
+        sql, params = self.dialect.show_tables_with_columns(
+            app_label, column_names)
         return self.read_sql(sql, params=params)
 
     def show_tables_without_columns(self, app_label=None, column_names=None):
         """Returns a dataframe of table names in the schema.
         that DO NOT have a column in column_names.
         """
-        sql, params = self.dialect.show_tables_without_columns(app_label, column_names)
+        sql, params = self.dialect.show_tables_without_columns(
+            app_label, column_names)
         return self.read_sql(sql, params=params)
 
     def show_inline_tables(self, referenced_table_name=None):
