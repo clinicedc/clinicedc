@@ -3,7 +3,7 @@ import re
 from django.core import serializers
 from django.test import TestCase, tag  # noqa
 
-from .models import TestModelWithHistory
+from .models import ModelWithHistory
 
 UUID_PATTERN = re.compile(
     "[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
@@ -15,22 +15,22 @@ class TestHistory(TestCase):
     databases = "__all__"
 
     def test_history_creates(self):
-        obj = TestModelWithHistory.objects.create()
+        obj = ModelWithHistory.objects.create()
         self.assertEqual(obj.history.all().count(), 1)
 
     def test_history_id_is_uuid(self):
-        obj = TestModelWithHistory.objects.create()
+        obj = ModelWithHistory.objects.create()
         pattern = re.compile(UUID_PATTERN)
         self.assertTrue(pattern.match(str(obj.history.all()[0].id)))
         self.assertTrue(pattern.match(str(obj.history.all()[0].history_id)))
 
     def test_history_has_natural_key_method(self):
-        obj = TestModelWithHistory.objects.create()
+        obj = ModelWithHistory.objects.create()
         pattern = re.compile(UUID_PATTERN)
         self.assertTrue(pattern.match(str(obj.history.all()[0].natural_key()[0])))
 
     def test_history_has_custom_get_by_natural_key(self):
-        obj = TestModelWithHistory.objects.create()
+        obj = ModelWithHistory.objects.create()
         try:
             obj.history.all()[0].__class__.objects.get_by_natural_key(
                 obj.history.all()[0].history_id
@@ -40,7 +40,7 @@ class TestHistory(TestCase):
 
     def test_history_is_serializable_deserializable(self):
 
-        model_obj = TestModelWithHistory.objects.create()
+        model_obj = ModelWithHistory.objects.create()
 
         json_text = serializers.serialize(
             "json",
@@ -70,7 +70,7 @@ class TestHistory(TestCase):
 
     def test_history_is_serializable_deserializable_using(self):
 
-        model_obj = TestModelWithHistory.objects.using("client").create()
+        model_obj = ModelWithHistory.objects.using("client").create()
 
         json_text = serializers.serialize(
             "json",

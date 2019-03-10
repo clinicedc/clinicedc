@@ -5,7 +5,7 @@ from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured
 
 from ..models import UrlModelMixinNoReverseMatch
-from .models import TestBaseModel, TestSimpleModel
+from .models import BasicModel, SimpleModel
 
 
 class TestModels(TestCase):
@@ -17,7 +17,7 @@ class TestModels(TestCase):
     def test_base_update_fields(self):
         """Assert update fields cannot bypass modified fields.
         """
-        obj = TestBaseModel.objects.create()
+        obj = BasicModel.objects.create()
         modified = copy(obj.modified)
 
         obj.save(update_fields=["f1"])
@@ -26,19 +26,19 @@ class TestModels(TestCase):
         self.assertNotEqual(modified, obj.modified)
 
     def test_base_verbose_name(self):
-        obj = TestBaseModel.objects.create()
+        obj = BasicModel.objects.create()
         self.assertEqual(obj.verbose_name, obj._meta.verbose_name)
 
     def test_get_absolute_url_change(self):
-        obj = TestBaseModel.objects.create()
+        obj = BasicModel.objects.create()
         self.assertEqual(
-            obj.get_absolute_url(), "/admin/edc_model/testbasemodel/1/change/"
+            obj.get_absolute_url(), "/admin/edc_model/basicmodel/1/change/"
         )
 
     def test_get_absolute_url_add(self):
-        obj = TestBaseModel()
-        self.assertEqual(obj.get_absolute_url(), "/admin/edc_model/testbasemodel/add/")
+        obj = BasicModel()
+        self.assertEqual(obj.get_absolute_url(), "/admin/edc_model/basicmodel/add/")
 
     def test_get_absolute_url_not_registered(self):
-        obj = TestSimpleModel()
+        obj = SimpleModel()
         self.assertRaises(UrlModelMixinNoReverseMatch, obj.get_absolute_url)
