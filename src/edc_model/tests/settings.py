@@ -77,21 +77,40 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "edc_model.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DATABASES = {
-    # required for tests when acting as a server that deserializes
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": join(BASE_DIR, "db.sqlite3"),
-    },
-    "client": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": join(BASE_DIR, "db.sqlite3"),
-    },
-}
+if os.environ.get("TRAVIS"):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'edc',
+            'USER': 'travis',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '',
+        },
+        'client': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'edc_client',
+            'USER': 'travis',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '',
+        },
+    }
+else:
+    DATABASES = {
+        # required for tests when acting as a server that deserializes
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": join(BASE_DIR, "db.sqlite3"),
+        },
+        "client": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": join(BASE_DIR, "db.sqlite3"),
+        },
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

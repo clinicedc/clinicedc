@@ -19,40 +19,40 @@ def get_future_date():
     return arrow.utcnow().datetime + relativedelta(days=10)
 
 
-class TestSimpleModel(BaseModel):
+class SimpleModel(BaseModel):
 
     f1 = models.CharField(max_length=10, null=True)
 
 
-class TestBaseModel(BaseModel):
+class BasicModel(BaseModel):
 
     f1 = models.CharField(max_length=10)
     f2 = models.CharField(max_length=10)
 
 
-class TestBaseModelWithStatus(BaseModel, ReportStatusModelMixin):
+class BasicModelWithStatus(BaseModel, ReportStatusModelMixin):
 
     f1 = models.CharField(max_length=10)
 
 
-class TestModel(BaseUuidModel):
+# class BasicUuidModel(BaseUuidModel):
+#
+#     f1 = models.CharField(max_length=10)
+#     f2 = models.CharField(max_length=10)
+#     f3 = models.CharField(max_length=10, null=True, blank=False)
+#     f4 = models.CharField(max_length=10, null=True, blank=False)
+#     f5 = models.CharField(max_length=10)
+#     f5_other = models.CharField(max_length=10, null=True)
 
-    f1 = models.CharField(max_length=10)
-    f2 = models.CharField(max_length=10)
-    f3 = models.CharField(max_length=10, null=True, blank=False)
-    f4 = models.CharField(max_length=10, null=True, blank=False)
-    f5 = models.CharField(max_length=10)
-    f5_other = models.CharField(max_length=10, null=True)
 
-
-class TestModelWithHistory(SiteModelMixin, BaseUuidModel):
+class ModelWithHistory(SiteModelMixin, BaseUuidModel):
 
     f1 = models.CharField(max_length=10, default="1")
 
     history = HistoricalRecords()
 
 
-class TestModelWithDateValidators(BaseModel):
+class ModelWithDateValidators(BaseModel):
 
     datetime_not_future = models.DateTimeField(
         validators=[datetime_not_future], default=get_utcnow
@@ -69,7 +69,7 @@ class TestModelWithDateValidators(BaseModel):
     )
 
 
-class TestModelWithPhoneValidators(BaseModel):
+class ModelWithPhoneValidators(BaseModel):
 
     cell = models.CharField(max_length=25, null=True, validators=[CellNumber])
     tel = models.CharField(max_length=25, null=True, validators=[TelephoneNumber])
