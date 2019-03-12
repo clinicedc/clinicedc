@@ -6,7 +6,7 @@ from django.contrib.sites.models import Site
 from django.core import mail
 from django.test import TestCase, tag
 from faker import Faker
-from random import choice
+from secrets import choice
 from string import Template
 from tempfile import mkdtemp
 

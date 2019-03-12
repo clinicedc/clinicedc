@@ -7,11 +7,10 @@ Adapted from https://github.com/jesterpm/bin/blob/master/mkpasswd
 
 import itertools
 import os
-import random
 import sys
 
+from secrets import choice
 from zxcvbn import zxcvbn
-
 
 strength_score = {
     0: 'Very weak (0 out of 4)',
@@ -35,8 +34,8 @@ class PasswordGenerator:
         self.wordlist = self._read_file(self.filename)
 
     def get_password(self):
-        choice = random.SystemRandom().choice
-        password = ' '.join(choice(self.wordlist) for _ in range(self.nwords))
+        password = ' '.join(choice(self.wordlist)
+                            for _ in range(self.nwords))
         self._results = zxcvbn(password)
         self._results['password'] = None
         return password
