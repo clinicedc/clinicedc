@@ -1,7 +1,7 @@
+from copy import copy
 from edc_navbar import NavbarItem, site_navbars, Navbar
 
 from .dashboard_urls import dashboard_urls
-from copy import copy
 
 
 specimens_navbar = NavbarItem(

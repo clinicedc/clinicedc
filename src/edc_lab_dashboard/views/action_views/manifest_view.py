@@ -1,10 +1,10 @@
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab import SHIPPED, ManifestLabel
-from edc_label import add_job_results_to_messages
+from edc_lab import SHIPPED
 from edc_lab.models import Box, Aliquot, Manifest
-from edc_lab.lab_printers_mixin import LabPrintersMixin
+from edc_lab_label import LabPrintersMixin, ManifestLabel
+from edc_label import add_job_results_to_messages
 
 from ...view_mixins import ManifestViewMixin
 from .action_view import ActionView
@@ -28,7 +28,8 @@ class ManifestView(EdcBaseViewMixin, ManifestViewMixin, LabPrintersMixin, Action
             if self.action == "remove_selected_items":
                 self.remove_selected_items()
             elif self.action == "print_labels":
-                job_result = self.print_labels(pks=self.selected_items, request=request)
+                job_result = self.print_labels(
+                    pks=self.selected_items, request=request)
                 if job_result:
                     add_job_results_to_messages(request, [job_result])
             elif self.action == "ship_selected_items":

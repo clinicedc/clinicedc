@@ -4,7 +4,7 @@ from django.apps import apps as django_apps
 from edc_constants.constants import UUID_PATTERN
 from edc_lab.site_labs import site_labs
 from edc_lab.lab import Specimen as SpecimenObject
-from edc_lab.lab_printers_mixin import LabPrintersMixin
+from edc_lab_label import LabPrintersMixin
 from edc_label import add_job_results_to_messages
 
 
@@ -24,7 +24,8 @@ class ProcessRequisitionViewMixin(LabPrintersMixin):
                 requisition.processed = True
                 requisition.save()
         for created_aliquots in processed.values():
-            pks = [specimen.primary_aliquot.pk] + [obj.pk for obj in created_aliquots]
+            pks = [specimen.primary_aliquot.pk] + \
+                [obj.pk for obj in created_aliquots]
             if pks:
                 job_result = self.print_labels(pks=pks, request=request)
                 if job_result:
@@ -50,7 +51,8 @@ class ProcessRequisitionViewMixin(LabPrintersMixin):
         requisitions = []
         for model in site_labs.requisition_models.values():
             model_cls = django_apps.get_model(model)
-            requisitions.extend([r for r in model_cls.objects.filter(**kwargs)])
+            requisitions.extend(
+                [r for r in model_cls.objects.filter(**kwargs)])
         return requisitions
 
     @property

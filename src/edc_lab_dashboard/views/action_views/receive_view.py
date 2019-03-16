@@ -2,8 +2,9 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_constants.constants import YES
-from edc_lab import Specimen, AliquotLabel
+from edc_lab import Specimen
 from edc_lab.site_labs import site_labs
+from edc_lab_label import AliquotLabel
 from edc_utils import get_utcnow
 
 from ...view_mixins import ProcessRequisitionViewMixin

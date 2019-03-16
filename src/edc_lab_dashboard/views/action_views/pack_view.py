@@ -2,9 +2,9 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab import PACKED, BoxLabel, Manifest as ManifestObject
-from edc_lab.lab_printers_mixin import LabPrintersMixin
+from edc_lab import PACKED, Manifest as ManifestObject
 from edc_lab.models import Manifest, Box
+from edc_lab_label import LabPrintersMixin, BoxLabel
 from edc_label import add_job_results_to_messages
 
 from .action_view import ActionView
@@ -35,7 +35,8 @@ class PackView(EdcBaseViewMixin, LabPrintersMixin, ActionView):
                 if self.selected_manifest:
                     self.add_selected_to_manifest()
             elif self.action == "print_labels":
-                job_result = self.print_labels(pks=self.selected_items, request=request)
+                job_result = self.print_labels(
+                    pks=self.selected_items, request=request)
                 if job_result:
                     add_job_results_to_messages(request, [job_result])
 
@@ -93,7 +94,8 @@ class PackView(EdcBaseViewMixin, LabPrintersMixin, ActionView):
             messages.warning(self.request, message)
         else:
             try:
-                deleted = Box.objects.filter(pk__in=self.selected_items).delete()
+                deleted = Box.objects.filter(
+                    pk__in=self.selected_items).delete()
                 message = "{} items have been removed.".format(deleted[0])
                 messages.success(self.request, message)
             except ProtectedError:

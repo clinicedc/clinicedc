@@ -1,6 +1,6 @@
 from django.contrib import messages
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab import AliquotLabel, LabPrintersMixin
+from edc_lab_label import AliquotLabel, LabPrintersMixin
 from edc_label import add_job_results_to_messages
 
 from .action_view import ActionView
@@ -19,7 +19,8 @@ class AliquotView(EdcBaseViewMixin, LabPrintersMixin, ActionView):
                 message = "Nothing to do. No items have been selected."
                 messages.warning(request, message)
             else:
-                job_result = self.print_labels(pks=self.selected_items, request=request)
+                job_result = self.print_labels(
+                    pks=self.selected_items, request=request)
                 if job_result:
                     add_job_results_to_messages(request, [job_result])
                 else:
