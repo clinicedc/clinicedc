@@ -1,6 +1,6 @@
 from django.contrib import messages
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_lab_label import AliquotLabel
+from edc_lab.labels import AliquotLabel
 
 from ...view_mixins import ProcessRequisitionViewMixin
 from .action_view import ActionView
