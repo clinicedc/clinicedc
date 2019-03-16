@@ -2,7 +2,6 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
 from ..site_labs import site_labs
-
 from .base_label import BaseLabel
 
 

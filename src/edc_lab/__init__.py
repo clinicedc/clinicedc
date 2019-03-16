@@ -5,5 +5,5 @@ from .identifiers import AliquotIdentifier, AliquotIdentifierCountError
 from .identifiers import AliquotIdentifierLengthError
 from .identifiers import RequisitionIdentifier, ManifestIdentifier, BoxIdentifier
 from .lab import ProcessingProfile, Specimen, LabProfile, Process, Manifest
-from .lab import SpecimenProcessor, AliquotType, RequisitionPanel
-from .labels import AliquotLabel, RequisitionLabel, ManifestLabel, BoxLabel
+from .lab import AliquotCreator, SpecimenProcessor, AliquotType, RequisitionPanel
+from .site_labs import site_labs

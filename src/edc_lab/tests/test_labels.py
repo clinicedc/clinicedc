@@ -2,17 +2,16 @@ from copy import copy
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
+from edc_lab import AliquotCreator, site_labs
+from edc_lab.models import Panel
+from edc_lab.tests.site_labs_test_helper import SiteLabsTestHelper
 from edc_utils import get_utcnow
 from edc_constants.constants import YES
 from edc_registration.models import RegisteredSubject
 
-from ..lab.aliquot_creator import AliquotCreator
 from ..labels.aliquot_label import AliquotLabel, AliquotLabelError
-from ..models.panel import Panel
-from ..site_labs import site_labs
 from .models import SimpleSubjectVisit as SubjectVisit
 from .models import SubjectRequisition
-from .site_labs_test_helper import SiteLabsTestHelper
 
 
 class TestLabels(TestCase):
@@ -47,7 +46,8 @@ class TestLabels(TestCase):
             requisition_identifier=self.subject_requisition.requisition_identifier,
             is_primary=True,
         )
-        self.aliquot = creator.create(count=1, aliquot_type=self.panel.aliquot_type)
+        self.aliquot = creator.create(
+            count=1, aliquot_type=self.panel.aliquot_type)
 
     def test_aliquot_label(self):
         label = AliquotLabel(pk=self.aliquot.pk)
