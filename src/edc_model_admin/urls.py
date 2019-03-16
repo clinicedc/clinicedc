@@ -1,19 +1,23 @@
-"""edc_model_admin URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/dev/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
+from edc_dashboard.url_config import UrlConfig
+from edc_dashboard.views import DashboardView as BaseDashboardView
+
+
+class DashboardView(BaseDashboardView):
+
+    dashboard_url = "subject_dashboard_url"
+    dashboard_template = "subject_dashboard_template"
+
 
 urlpatterns = [path("admin/", admin.site.urls)]
+
+subject_dashboard_url_config = UrlConfig(
+    url_name="subject_dashboard_url",
+    view_class=DashboardView,
+    label="subject_dashboard",
+    identifier_label="subject_identifier",
+    identifier_pattern="\w+",
+)
+
+urlpatterns += subject_dashboard_url_config.dashboard_urls

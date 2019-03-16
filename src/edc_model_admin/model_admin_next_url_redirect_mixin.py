@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.urls import reverse, NoReverseMatch
+from edc_metadata.next_form_getter import NextFormGetter
 from urllib.parse import urlencode
 
 from .base_model_admin_redirect_mixin import BaseModelAdminRedirectMixin
@@ -26,7 +27,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
 
     # this func is required if show_save_next=True
     # use edc_metadata.get_next_required_form
-    next_form_getter_cls = None
+    next_form_getter_cls = NextFormGetter
 
     # need to override admin change_form template for these to wrrk
     show_save_next = False
