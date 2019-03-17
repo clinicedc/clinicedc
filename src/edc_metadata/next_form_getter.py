@@ -1,3 +1,6 @@
+from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
+
 from .constants import REQUIRED
 from .metadata import CrfMetadataGetter, RequisitionMetadataGetter
 
@@ -7,56 +10,108 @@ class NextFormGetter:
     crf_metadata_getter_cls = CrfMetadataGetter
     requisition_metadata_getter_cls = RequisitionMetadataGetter
 
-    def next_form(self, model_obj=None, appointment=None, model=None, panel_name=None):
+    def __init__(self, model_obj=None, appointment=None, model=None, panel_name=None):
+        self._getter = None
+        self._next_metadata_obj = None
+        self._model_obj = model_obj
+        self._next_form = None
+        self._next_panel = None
+        self._panel_name = panel_name
+        self._visit = None
+
+        self.model = model or model_obj._meta.label_lower
+        self.appointment = appointment or model_obj.visit.appointment
+        self.visit = self.appointment.visit.visit
+
+    @property
+    def next_form(self):
         """Returns the next required form based on the metadata.
 
         A form is a Crf or Requisition object from edc_visit_schedule.
         """
-        next_form = None
+        if not self._next_form:
+            next_model = getattr(self.next_metadata_obj, "model", None)
+            self._next_form = self.visit.get_requisition(
+                next_model, panel_name=self.next_panel
+            ) or self.visit.get_crf(next_model)
+        return self._next_form
 
-        if model_obj:
-            appointment = model_obj.visit.appointment
-            model = model_obj._meta.label_lower
-            visit = model_obj.visit.visit
+    @property
+    def model_obj(self):
+        """Returns the model instance of the current CRF or
+        Requisition.
+        """
+        if not self._model_obj:
+            model_cls = django_apps.get_model(self.model)
             try:
-                panel_name = model_obj.panel.name
-            except AttributeError:
-                panel_name = None
-        else:
-            visit = appointment.visit.visit
-            panel_name = panel_name
+                self._model_obj = model_cls.objects.get(
+                    **{f"{model_cls.visit_model_attr()}__appointment": self.appointment}
+                )
+            except ObjectDoesNotExist:
+                pass
+        return self._model_obj
 
-        if panel_name:
-            this_form = visit.get_requisition(model=model, panel_name=panel_name)
-            getter = self.requisition_metadata_getter_cls(appointment=appointment)
-            default_next_form = None
-        else:
-            this_form = visit.get_crf(model=model)
-            getter = self.crf_metadata_getter_cls(appointment=appointment)
-            default_next_form = self.first_requisition_form(
-                appointment=appointment, visit=visit
-            )
-
-        metadata_obj = getter.next_object(
-            show_order=this_form.show_order, entry_status=REQUIRED
-        )
-
-        if metadata_obj:
-            if panel_name:
-                next_form = visit.get_requisition(
-                    metadata_obj.model, panel_name=metadata_obj.panel_name
+    @property
+    def metadata_getter(self):
+        """Returns a metadata_getter instance.
+        """
+        if not self._getter:
+            if self.panel_name:
+                self._getter = self.requisition_metadata_getter_cls(
+                    appointment=self.appointment
                 )
             else:
-                next_form = visit.get_crf(metadata_obj.model)
-        return next_form or default_next_form
+                self._getter = self.crf_metadata_getter_cls(
+                    appointment=self.appointment
+                )
+        return self._getter
 
-    def first_requisition_form(self, appointment=None, visit=None):
-        first_requisition_form = None
-        metadata_getter_cls = self.requisition_metadata_getter_cls
-        getter = metadata_getter_cls(appointment=appointment)
-        metadata_obj = getter.next_object(show_order=0, entry_status=REQUIRED)
-        if metadata_obj:
-            first_requisition_form = visit.get_requisition(
-                metadata_obj.model, panel_name=metadata_obj.panel_name
+    @property
+    def next_metadata_obj(self):
+        """Returns the "next" metadata model instance or None.
+        """
+        if not self._next_metadata_obj:
+            show_order = getattr(self.crf_or_requisition, "show_order", None)
+            self._next_metadata_obj = self.metadata_getter.next_object(
+                show_order=show_order, entry_status=REQUIRED
             )
-        return first_requisition_form
+        return self._next_metadata_obj
+
+    @property
+    def next_panel(self):
+        """Returns the metadata model instance.
+        """
+        if not self._next_panel:
+            if self.next_metadata_obj:
+                try:
+                    self._next_panel = self.next_metadata_obj.panel_name
+                except AttributeError:
+                    pass
+        return self._next_panel
+
+    @property
+    def panel_name(self):
+        """Returns a panel_name or None.
+        """
+        if not self._panel_name:
+            if self.model_obj:
+                try:
+                    self._panel_name = self.model_obj.panel.name
+                except AttributeError:
+                    self._panel_name = None
+        return self._panel_name
+
+    @property
+    def crf_or_requisition(self):
+        """Returns a CRF or Requisition object from
+        the visit schedule's visit.
+        """
+        crf = None
+        requisition = None
+        if self.panel_name:
+            requisition = self.visit.get_requisition(
+                model=self.model, panel_name=self.panel_name
+            )
+        else:
+            crf = self.visit.get_crf(model=self.model)
+        return crf or requisition
