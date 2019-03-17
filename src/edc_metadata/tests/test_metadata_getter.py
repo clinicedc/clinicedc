@@ -81,15 +81,44 @@ class TestMetadataGetter(TestCase):
         self.assertEqual(len(objects), len(visit.crfs) - 1)
 
     def test_next_required_form(self):
-        getter = NextFormGetter()
-        next_form = getter.next_form(
+        getter = NextFormGetter(
             appointment=self.appointment, model="edc_metadata.crftwo"
         )
-        self.assertEqual(next_form.model, "edc_metadata.crfthree")
+        self.assertEqual(getter.next_form.model, "edc_metadata.crfthree")
 
     def test_next_required_form2(self):
         CrfOne.objects.create(subject_visit=self.subject_visit)
         crf_two = CrfTwo.objects.create(subject_visit=self.subject_visit)
-        getter = NextFormGetter()
-        next_form = getter.next_form(model_obj=crf_two)
-        self.assertEqual(next_form.model, "edc_metadata.crfthree")
+        getter = NextFormGetter(model_obj=crf_two)
+        self.assertEqual(getter.next_form.model, "edc_metadata.crfthree")
+
+    @tag("1")
+    def test_next_requisition(self):
+        getter = NextFormGetter(
+            appointment=self.appointment,
+            model="edc_metadata.subjectrequisition",
+            panel_name="one",
+        )
+        next_form = getter.next_form
+        self.assertEqual(next_form.model, "edc_metadata.subjectrequisition")
+        self.assertEqual(next_form.panel.name, "two")
+
+    @tag("1")
+    def test_next_requisition_if_last(self):
+        getter = NextFormGetter(
+            appointment=self.appointment,
+            model="edc_metadata.subjectrequisition",
+            panel_name="six",
+        )
+        next_form = getter.next_form
+        self.assertIsNone(next_form)
+
+    @tag("1")
+    def test_next_requisition_if_not_in_visit(self):
+        getter = NextFormGetter(
+            appointment=self.appointment,
+            model="edc_metadata.subjectrequisition",
+            panel_name="blah",
+        )
+        next_form = getter.next_form
+        self.assertIsNone(next_form)
