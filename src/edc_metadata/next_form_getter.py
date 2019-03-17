@@ -15,7 +15,6 @@ class NextFormGetter:
         self._next_metadata_obj = None
         self._model_obj = model_obj
         self._next_form = None
-        self._next_model = None
         self._next_panel = None
         self._panel_name = panel_name
         self._visit = None
@@ -31,12 +30,10 @@ class NextFormGetter:
         A form is a Crf or Requisition object from edc_visit_schedule.
         """
         if not self._next_form:
-            if self.next_panel:
-                self._next_form = self.visit.get_requisition(
-                    self.next_model, panel_name=self.next_panel
-                )
-            else:
-                self._next_form = self.visit.get_crf(self.next_model)
+            next_model = getattr(self.next_metadata_obj, "model", None)
+            self._next_form = self.visit.get_requisition(
+                next_model, panel_name=self.next_panel
+            ) or self.visit.get_crf(next_model)
         return self._next_form
 
     @property
@@ -64,7 +61,6 @@ class NextFormGetter:
                     appointment=self.appointment
                 )
             else:
-                print(self.appointment)
                 self._getter = self.crf_metadata_getter_cls(
                     appointment=self.appointment
                 )
@@ -75,25 +71,11 @@ class NextFormGetter:
         """Returns the "next" metadata model instance or None.
         """
         if not self._next_metadata_obj:
+            show_order = getattr(self.crf_or_requisition, "show_order", None)
             self._next_metadata_obj = self.metadata_getter.next_object(
-                show_order=self.show_order, entry_status=REQUIRED
+                show_order=show_order, entry_status=REQUIRED
             )
         return self._next_metadata_obj
-
-    @property
-    def show_order(self):
-        if not self.crf_or_requisition:
-            return None
-        return self.crf_or_requisition.show_order
-
-    @property
-    def next_model(self):
-        """Returns the metadata model instance.
-        """
-        if not self._next_model:
-            if self.next_metadata_obj:
-                self._next_model = self.next_metadata_obj.model
-        return self._next_model
 
     @property
     def next_panel(self):
@@ -106,17 +88,6 @@ class NextFormGetter:
                 except AttributeError:
                     pass
         return self._next_panel
-
-    #     @property
-    #     def first_requisition(self):
-    #         first_requisition = None
-    #         metadata_obj = self.metadata_getter.next_object(
-    #             show_order=0, entry_status=REQUIRED)
-    #         if metadata_obj:
-    #             first_requisition = self.visit.get_requisition(
-    #                 metadata_obj.model, panel_name=metadata_obj.panel_name
-    #             )
-    #         return first_requisition
 
     @property
     def panel_name(self):
