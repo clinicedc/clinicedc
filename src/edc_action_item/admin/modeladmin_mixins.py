@@ -5,7 +5,6 @@ from edc_model_admin import (
     ModelAdminFormInstructionsMixin,
     ModelAdminFormAutoNumberMixin,
     ModelAdminAuditFieldsMixin,
-    ModelAdminReadOnlyMixin,
     ModelAdminInstitutionMixin,
     ModelAdminRedirectOnDeleteMixin,
 )
@@ -17,7 +16,6 @@ class ModelAdminMixin(
     ModelAdminFormAutoNumberMixin,
     ModelAdminRevisionMixin,
     ModelAdminAuditFieldsMixin,
-    ModelAdminReadOnlyMixin,
     ModelAdminInstitutionMixin,
     ModelAdminRedirectOnDeleteMixin,
 ):
