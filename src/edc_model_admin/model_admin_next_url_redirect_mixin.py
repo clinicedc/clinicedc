@@ -70,12 +70,6 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             request, object_id, form_url=form_url, extra_context=extra_context
         )
 
-    def render_delete_form(self, request, context):
-        return super().render_delete_form(request, context)
-
-    def delete_view(self, request, object_id, extra_context=None):
-        return super().delete_view(request, object_id, extra_context=extra_context)
-
     def redirect_url(self, request, obj, post_url_continue=None):
         redirect_url = None
         if self.show_save_next and request.POST.get("_savenext"):
@@ -120,14 +114,13 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         """
         panel_name = None
         redirect_url = self.get_next_redirect_url(request=request)
-        getter = self.next_form_getter_cls()
-        next_form = getter.next_form(model_obj=obj)
-        if next_form:
+        getter = self.next_form_getter_cls(model_obj=obj)
+        if getter.next_form:
             try:
-                panel_name = next_form.panel.name
+                panel_name = getter.next_form.panel.name
             except AttributeError:
                 panel_name = None
-            next_model_cls = django_apps.get_model(next_form.model)
+            next_model_cls = django_apps.get_model(getter.next_form.model)
             url_name = "_".join(next_model_cls._meta.label_lower.split("."))
             url_name = f"{self.admin_site.name}:{url_name}"
             lookup_opts = {obj.visit_model_attr(): obj.visit}

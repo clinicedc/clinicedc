@@ -1,16 +1,11 @@
 from django.contrib import admin
 from django.urls import path
 from edc_dashboard.url_config import UrlConfig
-from edc_dashboard.views import DashboardView as BaseDashboardView
 
+from .views import CrfOneListView, DashboardView
 
-class DashboardView(BaseDashboardView):
+app_name = "edc_model_admin"
 
-    dashboard_url = "subject_dashboard_url"
-    dashboard_template = "subject_dashboard_template"
-
-
-urlpatterns = [path("admin/", admin.site.urls)]
 
 subject_dashboard_url_config = UrlConfig(
     url_name="subject_dashboard_url",
@@ -20,4 +15,8 @@ subject_dashboard_url_config = UrlConfig(
     identifier_pattern="\w+",
 )
 
-urlpatterns += subject_dashboard_url_config.dashboard_urls
+urlpatterns = subject_dashboard_url_config.dashboard_urls
+urlpatterns += [
+    path("admin/", admin.site.urls),
+    path("", CrfOneListView.as_view(), name="crfone-list"),
+]
