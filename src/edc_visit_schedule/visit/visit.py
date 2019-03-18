@@ -158,16 +158,20 @@ class Visit:
         return None
 
     def get_crf(self, model=None):
-        for form in self.crfs:
-            if form.model == model:
-                return form
-        return None
+        get_crf = None
+        for crf in self.crfs:
+            if crf.model == model:
+                get_crf = crf
+                break
+        return get_crf
 
     def get_requisition(self, model=None, panel_name=None):
-        for form in self.requisitions:
-            if form.model == model and form.panel.name == panel_name:
-                return form
-        return None
+        get_requisition = None
+        for requisition in self.requisitions:
+            if requisition.model == model and requisition.panel.name == panel_name:
+                get_requisition = requisition
+                break
+        return get_requisition
 
     @property
     def facility(self):
