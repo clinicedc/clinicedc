@@ -117,6 +117,7 @@ class RequiredFieldValidator(BaseFormValidator):
             raise ValidationError(message, code=NOT_REQUIRED_ERROR)
 
     def not_required_if(self, *responses, field=None, field_required=None,
+                        field_not_required=None,
                         required_msg=None, not_required_msg=None,
                         optional_if_dwta=None, inverse=None, code=None, **kwargs):
         """Raises an exception or returns False.
@@ -124,6 +125,7 @@ class RequiredFieldValidator(BaseFormValidator):
         if field NOT in responses then field_required is required.
         """
         inverse = True if inverse is None else inverse
+        field_required = field_required or field_not_required
         self._inspect_params(
             *responses, field=field, field_required=field_required)
         if field in self.cleaned_data and field_required in self.cleaned_data:
