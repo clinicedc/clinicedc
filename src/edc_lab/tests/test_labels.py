@@ -46,8 +46,7 @@ class TestLabels(TestCase):
             requisition_identifier=self.subject_requisition.requisition_identifier,
             is_primary=True,
         )
-        self.aliquot = creator.create(
-            count=1, aliquot_type=self.panel.aliquot_type)
+        self.aliquot = creator.create(count=1, aliquot_type=self.panel.aliquot_type)
 
     def test_aliquot_label(self):
         label = AliquotLabel(pk=self.aliquot.pk)
