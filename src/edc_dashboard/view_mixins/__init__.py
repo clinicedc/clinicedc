@@ -1,7 +1,8 @@
 from .administration_view_mixin import AdministrationViewMixin
+from .edc_view_mixin import EdcViewMixin
 from .listboard import (
-    QueryStringViewMixin,
     ListboardFilterViewMixin,
+    QueryStringViewMixin,
     SearchFormViewMixin,
     SearchListboardMixin,
     SiteQuerysetViewMixin,

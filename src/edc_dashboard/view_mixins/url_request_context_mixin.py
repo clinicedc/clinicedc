@@ -15,7 +15,8 @@ class UrlRequestContextMixin(ContextMixin):
         except KeyError as e:
             raise UrlRequestContextError(
                 f"Url name not defined in context. "
-                f"Expected one of {list(self.request.url_name_data.keys())}. Got {e}."
+                f"Expected one of {list(self.request.url_name_data.keys())}. Got {e}. "
+                f"Hint: check if dashboard middleware is loaded."
             )
         context.update({new_key: self.request.url_name_data.get(existing_key)})
         return context
