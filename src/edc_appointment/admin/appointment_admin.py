@@ -10,7 +10,6 @@ from edc_model_admin import (
     ModelAdminFormAutoNumberMixin,
     ModelAdminRedirectOnDeleteMixin,
     ModelAdminAuditFieldsMixin,
-    ModelAdminReadOnlyMixin,
     audit_fieldset_tuple,
     SimpleHistoryAdmin,
 )
@@ -35,7 +34,6 @@ class AppointmentAdmin(
     ModelAdminRevisionMixin,
     ModelAdminAuditFieldsMixin,
     ModelAdminRedirectOnDeleteMixin,
-    ModelAdminReadOnlyMixin,
     ModelAdminSiteMixin,
     SimpleHistoryAdmin,
 ):
