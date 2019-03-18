@@ -16,8 +16,9 @@ class ModelAdminModelRedirectMixin(BaseModelAdminRedirectMixin):
     def search_value(self, obj):
         def objattr(inst):
             my_inst = inst
-            for name in self.redirect_search_field.split("__"):
-                my_inst = getattr(my_inst, name)
+            if self.redirect_search_field:
+                for name in self.redirect_search_field.split("__"):
+                    my_inst = getattr(my_inst, name)
             return my_inst
 
         try:
