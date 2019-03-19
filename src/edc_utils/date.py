@@ -2,7 +2,13 @@ import arrow
 
 from arrow.arrow import Arrow
 from dateutil import tz
-from django.conf import settings
+
+try:
+    from django.conf import settings
+except ImportError:
+    TIME_ZONE = "UTC"
+else:
+    TIME_ZONE = settings.TIME_ZONE
 
 
 class MyTimezone:
@@ -10,7 +16,7 @@ class MyTimezone:
         if timezone:
             self.tzinfo = tz.gettz(timezone)
         else:
-            self.tzinfo = tz.gettz(settings.TIME_ZONE)
+            self.tzinfo = tz.gettz(TIME_ZONE)
 
 
 def get_utcnow():

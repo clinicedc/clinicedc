@@ -4,7 +4,16 @@ import re
 import pytz
 
 from arrow.arrow import Arrow
-from django.conf import settings
+
+try:
+    from django.conf import settings
+except ImportError:
+    TIME_ZONE = "UTC"
+    SHORT_DATETIME_FORMAT = "m/d/Y P"
+else:
+    TIME_ZONE = settings.TIME_ZONE
+    SHORT_DATETIME_FORMAT = settings.SHORT_DATETIME_FORMAT
+
 
 safe_allowed_chars = "ABCDEFGHKMNPRTUVWXYZ2346789"
 
@@ -59,8 +68,8 @@ def convert_from_camel(name):
 def formatted_datetime(aware_datetime, php_dateformat=None, tz=None):
     """Returns a formatted datetime string, localized by default.
     """
-    php_dateformat = php_dateformat or settings.SHORT_DATETIME_FORMAT
-    tz = tz or pytz.timezone(settings.TIME_ZONE)
+    php_dateformat = php_dateformat or SHORT_DATETIME_FORMAT
+    tz = tz or pytz.timezone(TIME_ZONE)
     utc = Arrow.fromdatetime(aware_datetime)
     local = utc.to(tz)
     return local.datetime.strftime(convert_php_dateformat(php_dateformat))

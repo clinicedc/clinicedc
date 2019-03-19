@@ -3,9 +3,11 @@ import pytz
 
 from datetime import datetime, date
 from dateutil import tz
-from django.test import TestCase, tag  # noqa
 
-from .. import (
+# from django.test import TestCase, tag  # noqa
+from unittest import TestCase
+
+from edc_utils import (
     age,
     formatted_age,
     formatted_datetime,
@@ -28,8 +30,7 @@ class TestUtils(TestCase):
     def test_formatted_age(self):
 
         self.assertEqual(
-            formatted_age(
-                None, pytz.utc.localize(datetime(2016, 12, 12))), "?"
+            formatted_age(None, pytz.utc.localize(datetime(2016, 12, 12))), "?"
         )
 
         self.assertEqual(
@@ -39,8 +40,7 @@ class TestUtils(TestCase):
             "26y",
         )
         self.assertEqual(
-            formatted_age(date(2016, 9, 9), pytz.utc.localize(
-                datetime(2016, 12, 12))),
+            formatted_age(date(2016, 9, 9), pytz.utc.localize(datetime(2016, 12, 12))),
             "3m",
         )
         self.assertEqual(
@@ -50,8 +50,7 @@ class TestUtils(TestCase):
             "1m14d",
         )
         self.assertEqual(
-            formatted_age(date(2016, 12, 6), pytz.utc.localize(
-                datetime(2016, 12, 12))),
+            formatted_age(date(2016, 12, 6), pytz.utc.localize(datetime(2016, 12, 12))),
             "6d",
         )
         self.assertEqual(
@@ -64,7 +63,8 @@ class TestUtils(TestCase):
         self.assertRaises(
             AgeValueError,
             formatted_age,
-            date(2016, 12, 12), pytz.utc.localize(datetime(2015, 12, 12))
+            date(2016, 12, 12),
+            pytz.utc.localize(datetime(2015, 12, 12)),
         )
 
     def test_age_in_days(self):
@@ -78,8 +78,7 @@ class TestUtils(TestCase):
         self.assertEqual(age(born, reference_dt).years, 10)
 
         self.assertEqual(get_dob(age_in_years=10, now=reference_dt), born)
-        self.assertEqual(
-            get_dob(age_in_years=10, now=reference_dt.date()), born)
+        self.assertEqual(get_dob(age_in_years=10, now=reference_dt.date()), born)
 
     def test_age_without_tz(self):
         born = pytz.utc.localize(datetime(1990, 5, 1))
@@ -101,8 +100,7 @@ class TestUtils(TestCase):
         born = arrow.get(
             datetime(1990, 5, 1, 0, 0), tz.gettz("Africa/Gaborone")
         ).datetime
-        reference_dt = arrow.get(
-            datetime(1990, 5, 1, 0, 0), tz.gettz("UTC")).datetime
+        reference_dt = arrow.get(datetime(1990, 5, 1, 0, 0), tz.gettz("UTC")).datetime
         self.assertEqual(age(born, reference_dt).years, 0)
 
     def test_age_zero2(self):
@@ -110,8 +108,7 @@ class TestUtils(TestCase):
         born = arrow.get(
             datetime(1990, 5, 1, 2, 0), tz.gettz("Africa/Gaborone")
         ).datetime
-        reference_dt = arrow.get(
-            datetime(1990, 5, 1, 0, 0), tz.gettz("UTC")).datetime
+        reference_dt = arrow.get(datetime(1990, 5, 1, 0, 0), tz.gettz("UTC")).datetime
         self.assertEqual(age(born, reference_dt).hours, 0)
 
     def test_age_zero3(self):
@@ -119,8 +116,7 @@ class TestUtils(TestCase):
         born = arrow.get(
             datetime(1990, 5, 2, 5, 0), tz.gettz("Africa/Gaborone")
         ).datetime
-        reference_dt = arrow.get(
-            datetime(1990, 5, 2, 2, 0), tz.gettz("UTC")).datetime
+        reference_dt = arrow.get(datetime(1990, 5, 2, 2, 0), tz.gettz("UTC")).datetime
         self.assertRaises(AgeValueError, age, born, reference_dt)
 
     def test_age_zero4(self):
@@ -135,8 +131,7 @@ class TestUtils(TestCase):
 
     def test_age_zero5(self):
         """Assert born 8hrs before reference date considering timezones."""
-        born = arrow.get(datetime(1990, 5, 2, 0, 0),
-                         tz.gettz("Africa/Gaborone"))
+        born = arrow.get(datetime(1990, 5, 2, 0, 0), tz.gettz("Africa/Gaborone"))
         reference_dt = arrow.get(
             datetime(1990, 5, 2, 2, 0), tz.gettz("America/New_York")
         )
