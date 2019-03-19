@@ -15,6 +15,6 @@ class ModelBackendWithSite(ModelBackend):
         user = super().authenticate(request, username=username, password=password)
         if user:
             sites = [obj.id for obj in user.userprofile.sites.all()]
-            if (user.is_superuser or settings.SITE_ID in sites):
+            if user.is_superuser or settings.SITE_ID in sites:
                 return user
         return None

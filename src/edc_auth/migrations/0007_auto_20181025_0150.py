@@ -7,28 +7,41 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_notification', '0002_update_notifications'),
-        ('edc_auth', '0006_userprofile_notifications'),
+        ("edc_notification", "0002_update_notifications"),
+        ("edc_auth", "0006_userprofile_notifications"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='userprofile',
-            name='notifications',
+        migrations.RemoveField(model_name="userprofile", name="notifications"),
+        migrations.AddField(
+            model_name="userprofile",
+            name="email_notifications",
+            field=models.ManyToManyField(
+                blank=True,
+                limit_choices_to={"enabled": True},
+                related_name="email_notifications",
+                to="edc_notification.Notification",
+            ),
         ),
         migrations.AddField(
-            model_name='userprofile',
-            name='email_notifications',
-            field=models.ManyToManyField(blank=True, limit_choices_to={'enabled': True}, related_name='email_notifications', to='edc_notification.Notification'),
+            model_name="userprofile",
+            name="mobile",
+            field=models.CharField(
+                blank=True,
+                help_text="e.g. +1234567890",
+                max_length=25,
+                null=True,
+                validators=[django.core.validators.RegexValidator(regex="^\\+\\d+")],
+            ),
         ),
         migrations.AddField(
-            model_name='userprofile',
-            name='mobile',
-            field=models.CharField(blank=True, help_text='e.g. +1234567890', max_length=25, null=True, validators=[django.core.validators.RegexValidator(regex='^\\+\\d+')]),
-        ),
-        migrations.AddField(
-            model_name='userprofile',
-            name='sms_notifications',
-            field=models.ManyToManyField(blank=True, limit_choices_to={'enabled': True}, related_name='sms_notifications', to='edc_notification.Notification'),
+            model_name="userprofile",
+            name="sms_notifications",
+            field=models.ManyToManyField(
+                blank=True,
+                limit_choices_to={"enabled": True},
+                related_name="sms_notifications",
+                to="edc_notification.Notification",
+            ),
         ),
     ]

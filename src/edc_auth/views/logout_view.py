@@ -6,23 +6,24 @@ from django_revision.revision import site_revision
 
 class LogoutView(BaseLogoutView):
 
-    next_page = 'login'
+    next_page = "login"
 
     @property
     def extra_context(self):
-        app_config = django_apps.get_app_config('edc_base')
+        app_config = django_apps.get_app_config("edc_base")
         try:
             live_system = settings.LIVE_SYSTEM
         except AttributeError:
             live_system = None
         return {
-            'DEBUG': settings.DEBUG,
-            'copyright': app_config.copyright,
-            'disclaimer': app_config.disclaimer,
-            'institution': app_config.institution,
-            'license': app_config.license,
-            'revision': site_revision.tag,
-            'project_name': app_config.project_name,
-            'live_system': live_system,
-            'INDEX_PAGE': getattr(settings, 'INDEX_PAGE', None),
-            'INDEX_PAGE_LABEL': getattr(settings, 'INDEX_PAGE_LABEL', None)}
+            "DEBUG": settings.DEBUG,
+            "copyright": app_config.copyright,
+            "disclaimer": app_config.disclaimer,
+            "institution": app_config.institution,
+            "license": app_config.license,
+            "revision": site_revision.tag,
+            "project_name": app_config.project_name,
+            "live_system": live_system,
+            "INDEX_PAGE": getattr(settings, "INDEX_PAGE", None),
+            "INDEX_PAGE_LABEL": getattr(settings, "INDEX_PAGE_LABEL", None),
+        }

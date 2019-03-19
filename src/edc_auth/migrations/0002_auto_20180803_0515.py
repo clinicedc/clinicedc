@@ -5,27 +5,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('sites', '0002_alter_domain_unique'),
-        ('edc_auth', '0001_initial'),
-    ]
+    dependencies = [("sites", "0002_alter_domain_unique"), ("edc_auth", "0001_initial")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='userprofile',
-            name='country',
-        ),
-        migrations.RemoveField(
-            model_name='userprofile',
-            name='study_country',
-        ),
-        migrations.RemoveField(
-            model_name='userprofile',
-            name='study_site',
-        ),
+        migrations.RemoveField(model_name="userprofile", name="country"),
+        migrations.RemoveField(model_name="userprofile", name="study_country"),
+        migrations.RemoveField(model_name="userprofile", name="study_site"),
         migrations.AddField(
-            model_name='userprofile',
-            name='sites',
-            field=models.ManyToManyField(to='sites.Site'),
+            model_name="userprofile",
+            name="sites",
+            field=models.ManyToManyField(to="sites.Site"),
         ),
     ]

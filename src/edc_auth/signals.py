@@ -6,8 +6,9 @@ from django.dispatch import receiver
 from .models import UserProfile
 
 
-@receiver(post_save, weak=False, sender=User,
-          dispatch_uid='update_user_profile_on_post_save')
+@receiver(
+    post_save, weak=False, sender=User, dispatch_uid="update_user_profile_on_post_save"
+)
 def update_user_profile_on_post_save(sender, instance, raw, **kwargs):
     if not raw:
         try:
