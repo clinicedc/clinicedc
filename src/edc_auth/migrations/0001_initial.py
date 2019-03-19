@@ -9,22 +9,74 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-    ]
+    dependencies = [migrations.swappable_dependency(settings.AUTH_USER_MODEL)]
 
     operations = [
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('study_site', models.CharField(blank=True, max_length=100, null=True)),
-                ('study_country', models.CharField(blank=True, help_text="user's country of work", max_length=100, null=True)),
-                ('country', models.CharField(blank=True, help_text="user's country of origin", max_length=100, null=True)),
-                ('clinic_label_printer', models.CharField(blank=True, help_text='Change in <a href="/edc_label/">Edc Label Administration</a>', max_length=100, null=True)),
-                ('lab_label_printer', models.CharField(blank=True, help_text='Change in <a href="/edc_label/">Edc Label Administration</a>', max_length=100, null=True)),
-                ('print_server', models.CharField(blank=True, help_text='Change in <a href="/edc_label/">Edc Label Administration</a>', max_length=100, null=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("study_site", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "study_country",
+                    models.CharField(
+                        blank=True,
+                        help_text="user's country of work",
+                        max_length=100,
+                        null=True,
+                    ),
+                ),
+                (
+                    "country",
+                    models.CharField(
+                        blank=True,
+                        help_text="user's country of origin",
+                        max_length=100,
+                        null=True,
+                    ),
+                ),
+                (
+                    "clinic_label_printer",
+                    models.CharField(
+                        blank=True,
+                        help_text='Change in <a href="/edc_label/">Edc Label Administration</a>',
+                        max_length=100,
+                        null=True,
+                    ),
+                ),
+                (
+                    "lab_label_printer",
+                    models.CharField(
+                        blank=True,
+                        help_text='Change in <a href="/edc_label/">Edc Label Administration</a>',
+                        max_length=100,
+                        null=True,
+                    ),
+                ),
+                (
+                    "print_server",
+                    models.CharField(
+                        blank=True,
+                        help_text='Change in <a href="/edc_label/">Edc Label Administration</a>',
+                        max_length=100,
+                        null=True,
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
-        ),
+        )
     ]

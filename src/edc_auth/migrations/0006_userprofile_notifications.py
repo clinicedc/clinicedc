@@ -6,14 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_notification', '0002_update_notifications'),
-        ('edc_auth', '0005_userprofile_job_title'),
+        ("edc_notification", "0002_update_notifications"),
+        ("edc_auth", "0005_userprofile_job_title"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='notifications',
-            field=models.ManyToManyField(blank=True, limit_choices_to={'enabled': True}, to='edc_notification.Notification'),
-        ),
+            model_name="userprofile",
+            name="notifications",
+            field=models.ManyToManyField(
+                blank=True,
+                limit_choices_to={"enabled": True},
+                to="edc_notification.Notification",
+            ),
+        )
     ]

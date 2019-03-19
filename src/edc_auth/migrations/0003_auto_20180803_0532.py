@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_auth', '0002_auto_20180803_0515'),
-    ]
+    dependencies = [("edc_auth", "0002_auto_20180803_0515")]
 
     operations = [
         migrations.AlterField(
-            model_name='userprofile',
-            name='sites',
-            field=models.ManyToManyField(blank=True, to='sites.Site'),
-        ),
+            model_name="userprofile",
+            name="sites",
+            field=models.ManyToManyField(blank=True, to="sites.Site"),
+        )
     ]

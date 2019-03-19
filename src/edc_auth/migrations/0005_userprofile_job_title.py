@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_auth', '0004_auto_20180804_2041'),
-    ]
+    dependencies = [("edc_auth", "0004_auto_20180804_2041")]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='job_title',
+            model_name="userprofile",
+            name="job_title",
             field=models.CharField(blank=True, max_length=10, null=True),
-        ),
+        )
     ]

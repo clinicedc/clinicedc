@@ -13,38 +13,42 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
 
     sites = models.ManyToManyField(Site, blank=True)
 
-    job_title = models.CharField(
-        max_length=10,
-        null=True,
-        blank=True)
+    job_title = models.CharField(max_length=10, null=True, blank=True)
 
     mobile = models.CharField(
         max_length=25,
-        validators=[RegexValidator(regex='^\+\d+')],
+        validators=[RegexValidator(regex="^\+\d+")],
         null=True,
         blank=True,
-        help_text='e.g. +1234567890')
+        help_text="e.g. +1234567890",
+    )
 
     clinic_label_printer = models.CharField(
         max_length=100,
         null=True,
         blank=True,
         help_text=mark_safe(
-            f'Change in <a href="/edc_label/">Edc Label Administration</a>'))
+            f'Change in <a href="/edc_label/">Edc Label Administration</a>'
+        ),
+    )
 
     lab_label_printer = models.CharField(
         max_length=100,
         null=True,
         blank=True,
         help_text=mark_safe(
-            f'Change in <a href="/edc_label/">Edc Label Administration</a>'))
+            f'Change in <a href="/edc_label/">Edc Label Administration</a>'
+        ),
+    )
 
     print_server = models.CharField(
         max_length=100,
         null=True,
         blank=True,
         help_text=mark_safe(
-            f'Change in <a href="/edc_label/">Edc Label Administration</a>'))
+            f'Change in <a href="/edc_label/">Edc Label Administration</a>'
+        ),
+    )
 
     def __str__(self):
         return self.user.username
