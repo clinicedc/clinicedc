@@ -148,6 +148,21 @@ class CrfThree(BaseCrfModel, CrfModelMixin, BaseUuidModel):
     pass
 
 
+class CrfFour(BaseCrfModel, CrfModelMixin, BaseUuidModel):
+
+    pass
+
+
+class CrfFive(BaseCrfModel, CrfModelMixin, BaseUuidModel):
+
+    pass
+
+
+class CrfSix(BaseCrfModel, CrfModelMixin, BaseUuidModel):
+
+    pass
+
+
 class Requisition(BaseCrfModel, RequisitionModelMixin, CrfModelMixin, BaseUuidModel):
 
     pass
