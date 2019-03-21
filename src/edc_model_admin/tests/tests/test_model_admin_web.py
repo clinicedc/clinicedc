@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import tag
+from django.test import tag  # noqa
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_constants.constants import YES
@@ -67,33 +67,6 @@ class ModelAdminSiteTest(WebTest):
         form["password"] = "pass"
         return form.submit()
 
-    @tag("1")
-    def test_redirect(self):
-        self.login()
-
-        model = "crfone"
-        response = self.app.get(
-            reverse(f"admin:edc_model_admin_{model}_add"), user=self.user
-        )
-        response.form["subject_identifier"] = self.subject_identifier
-        response.form["subject_visit"] = str(self.subject_visit.id)
-        response = response.form.submit().follow()
-
-        model = "redirectmodel"
-        response = self.app.get(
-            reverse(f"admin:edc_model_admin_{model}_add"), user=self.user
-        )
-        response.form["subject_identifier"] = self.subject_identifier
-        response = response.form.submit().follow()
-        # redirects to CRF Model changelist
-        self.assertIn("Crf ones", response)
-
-        # adds subject_identifier to query_string "q"
-        self.assertIn(self.subject_identifier, response.request.query_string)
-        self.assertIn("Select crf one to change", response)
-        self.assertIn("1 crf one", response)
-
-    @tag("1")
     def test_redirect_next(self):
         """Assert redirects to "subject_dashboard_url" as give in the
         query_string "next=".
@@ -126,7 +99,6 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn("You are at the subject dashboard", response)
         self.assertIn(self.subject_identifier, response)
 
-    @tag("1")
     def test_redirect_save_next_crf(self):
         """Assert redirects CRFs for both add and change from
         crftwo -> crfthree -> dashboard.

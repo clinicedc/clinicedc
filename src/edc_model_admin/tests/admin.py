@@ -3,6 +3,7 @@ from edc_model_admin import (
     ModelAdminModelRedirectMixin,
     ModelAdminNextUrlRedirectMixin,
     ModelAdminRedirectOnDeleteMixin,
+    TemplatesModelAdminMixin,
 )
 
 from .models import (
@@ -18,27 +19,14 @@ from .models import (
 )
 
 
-class BaseModelAdmin:
+class BaseModelAdmin(TemplatesModelAdminMixin):
 
     search_fields = ("subject_identifier",)
-
-    add_form_template = "edc_model_admin/admin/change_form.html"
-    change_form_template = "edc_model_admin/admin/change_form.html"
-    change_list_template = "edc_model_admin/admin/change_list.html"
 
 
 @admin.register(CrfOne)
 class CrfOneAdmin(BaseModelAdmin, admin.ModelAdmin):
     pass
-
-
-@admin.register(RedirectModel)
-class RedirectModelAdmin(
-    BaseModelAdmin, ModelAdminModelRedirectMixin, admin.ModelAdmin
-):
-    redirect_app_label = "edc_model_admin"
-    redirect_model_name = "crfone"
-    redirect_search_field = "subject_identifier"
 
 
 # using ModelAdminNextUrlRedirectMixin

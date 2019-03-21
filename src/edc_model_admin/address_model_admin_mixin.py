@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .model_admin_audit_fields_mixin import audit_fieldset_tuple, audit_fields
+from .model_admin_audit_fields_mixin import audit_fieldset_tuple
 
 
 class AddressModelAdminMixin(admin.ModelAdmin):
@@ -25,6 +25,3 @@ class AddressModelAdminMixin(admin.ModelAdmin):
         ),
         audit_fieldset_tuple,
     )
-
-    def get_readonly_fields(self, request, obj=None):
-        return super().get_readonly_fields(request, obj=obj) + audit_fields

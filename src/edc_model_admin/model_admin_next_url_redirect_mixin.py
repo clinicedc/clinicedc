@@ -73,7 +73,8 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
     def redirect_url(self, request, obj, post_url_continue=None):
         redirect_url = None
         if self.show_save_next and request.POST.get("_savenext"):
-            redirect_url = self.get_savenext_redirect_url(request=request, obj=obj)
+            redirect_url = self.get_savenext_redirect_url(
+                request=request, obj=obj)
             if not redirect_url:
                 redirect_url = self.get_next_redirect_url(request=request)
         elif self.show_cancel and request.POST.get("_cancel"):
@@ -90,17 +91,20 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         """Returns a redirect url determined from the "next" attr
         in the querystring.
         """
-        url_name = request.GET.dict().get(self.next_querystring_attr).split(",")[0]
-        options = self.get_next_options(request=request)
-        try:
-            redirect_url = reverse(url_name, kwargs=options)
-        except NoReverseMatch as e:
-            msg = f"{e}. Got url_name={url_name}, kwargs={options}."
+        redirect_url = None
+        next_value = request.GET.dict().get(self.next_querystring_attr)
+        if next_value:
+            url_name = next_value.split(",")[0]
+            options = self.get_next_options(request=request)
             try:
-                redirect_url = reverse(url_name)  # retry without kwargs
-            except NoReverseMatch:
-                # raise with first exception msg
-                raise ModelAdminNextUrlRedirectError(msg)
+                redirect_url = reverse(url_name, kwargs=options)
+            except NoReverseMatch as e:
+                msg = f"{e}. Got url_name={url_name}, kwargs={options}."
+                try:
+                    redirect_url = reverse(url_name)  # retry without kwargs
+                except NoReverseMatch:
+                    # raise with first exception msg
+                    raise ModelAdminNextUrlRedirectError(msg)
         return redirect_url
 
     def get_savenext_redirect_url(self, request=None, obj=None):
@@ -131,7 +135,8 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             except ObjectDoesNotExist:
                 redirect_url = reverse(f"{url_name}_add")
             else:
-                redirect_url = reverse(f"{url_name}_change", args=(next_obj.id,))
+                redirect_url = reverse(
+                    f"{url_name}_change", args=(next_obj.id,))
         next_querystring = request.GET.dict().get(self.next_querystring_attr)
         querystring_opts = self.get_next_options(request=request)
         querystring_opts.update({obj.visit_model_attr(): str(obj.visit.id)})
@@ -149,7 +154,8 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         """Returns the key/value pairs from the "next" querystring
         as a dictionary.
         """
-        attrs = request.GET.dict().get(self.next_querystring_attr).split(",")[1:]
+        attrs = request.GET.dict().get(
+            self.next_querystring_attr).split(",")[1:]
         return {
             k: request.GET.dict().get(k) for k in attrs if request.GET.dict().get(k)
         }

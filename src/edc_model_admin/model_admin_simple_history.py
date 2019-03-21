@@ -7,6 +7,9 @@ class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
 
     history_list_display = ["dashboard", "change_message"]
 
+    save_as = False
+    save_as_continue = False
+
     def change_message(self, obj):
         LogEntry = django_apps.get_model("admin.logentry")
         log_entry = (
@@ -22,4 +25,6 @@ class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
             return None
 
     def dashboard(self, obj):
-        return mark_safe(f'<A href="{self.view_on_site(obj)}">Dashboard</A>')
+        if callable(self.view_on_site):
+            return mark_safe(f'<A href="{self.view_on_site(obj)}">Dashboard</A>')
+        return None

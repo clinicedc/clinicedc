@@ -14,12 +14,12 @@ class ModelAdminRedirectOnDeleteMixin:
     post_url_on_delete_name = None
 
     def get_post_url_on_delete(self, request, obj):
-        post_url_on_delete = None
-        if self.post_url_on_delete_name:
-            url_name = self.get_post_url_on_delete_name(request, obj)
+        url_name = self.get_post_url_on_delete_name(request, obj)
+        if url_name:
             kwargs = self.post_url_on_delete_kwargs(request, obj)
             post_url_on_delete = reverse(url_name, kwargs=kwargs)
-        return post_url_on_delete
+            return post_url_on_delete
+        return None
 
     def get_post_url_on_delete_name(self, request, obj):
         """Returns the urlname or namespace:urlname.
@@ -36,8 +36,7 @@ class ModelAdminRedirectOnDeleteMixin:
         return url_name or self.post_url_on_delete_name
 
     def post_url_on_delete_kwargs(self, request, obj):
-        """Returns kwargs needed to reverse the post_url,
-        `post_url_on_delete_name`.
+        """Returns kwargs needed to reverse the url.
 
         Override.
         """
