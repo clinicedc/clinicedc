@@ -1,0 +1,56 @@
+{% extends edc_listboard_template %}
+
+{% load edc_base_extras %}
+{% load edc_dashboard_extras %}
+{% load edc_subject_dashboard_extras %}
+{% load tz %}
+{% load static %}
+
+
+{% block main %}
+
+<div class="row">
+
+<div class="panel panel-{{ listboard_panel_style}}">
+<div class="panel-heading">
+
+<i class="{{ listboard_fa_icon }} fa-2x"></i>
+                    
+<span class="pull-right">
+    {% include 'edc_dashboard/bootstrap3/search_form.html' %}
+</span>
+
+</div> <!--end panel heading -->
+
+<div class="list-group">
+        {% if search_term %}
+            <li class="list-group-item list-group-item-success"><b>Reported Visits for {{ search_term }} {% copy_string_to_clipboard_button search_term %}</b></li>
+        {% else%}
+            <li class="list-group-item list-group-item-success"><b>Subjects</b></li>
+        {% endif %}
+    {% for result in results %}
+        
+        {% if search_term %}
+
+            <a href="{{ result.dashboard_direct_href }}" class="list-group-item list-group-item-info" title="click to go to subject dashboard for visit">{% appointment_status_icon appt_status=result.object.appointment.appt_status %} {{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.object.visit_code }}.{{ result.object.visit_code_sequence }}</b> on {{ result.object.report_datetime|date:"SHORT_DATE_FORMAT" }} {{ result.metadata_summary }}</a>
+            {% for crf in result.crf_metadata %}
+                <a href="{{ result.dashboard_direct_href }}" class="list-group-item">{% if crf.entry_status == KEYED %}<span class="text text-muted text-success">{% else %}<span class="text text-danger">{% endif %}<i class="fas fa-list-alt fa-fw"></i> {{ crf.verbose_name }} {% if result.object.appointment %}APPT{%endif %}</span></a>
+            {% endfor %}
+            {% for requisition in result.requisition_metadata %}
+                <li class="list-group-item">{% if requisition.entry_status == KEYED %}<span class="text text-muted text-success">{% else %}<span class="text text-danger">{% endif %}<i class="fas fa-flask fa-fw"></i> {{ requisition.verbose_name }}</span></li>
+            {% endfor %}
+
+        {% else %}
+            <a href="{% url paginator_url %}?q={{ result.subject_identifier}}" class="list-group-item" title="click to list reported visits for this subject">{{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.subject_identifier }}</b> <span class="text text-muted">{{ result.visit_count }} visits</span></a>
+            
+
+        {% endif %}
+    {% endfor %}
+    
+</div>
+</div>
+<div class="well">{% paginator_row %}</div>
+</div>
+
+
+{% endblock main %}
