@@ -31,6 +31,7 @@ class CrfOneAdmin(BaseModelAdmin, admin.ModelAdmin):
 
 # using ModelAdminNextUrlRedirectMixin
 
+
 @admin.register(RedirectNextModel)
 class RedirectNextModelAdmin(
     BaseModelAdmin, ModelAdminNextUrlRedirectMixin, admin.ModelAdmin
@@ -56,6 +57,7 @@ class RequisitionAdmin(
     show_save_next = True
     show_cancel = True
 
+
 # using ModelAdminRedirectOnDeleteMixin
 
 
@@ -65,7 +67,7 @@ class CrfFourAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelA
     post_url_on_delete_name = "subject_dashboard_url"
 
     def post_url_on_delete_kwargs(self, request, obj):
-        return {'subject_identifier': obj.subject_identifier}
+        return {"subject_identifier": obj.subject_identifier}
 
 
 @admin.register(CrfFive)
@@ -74,7 +76,7 @@ class CrfFiveAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelA
     post_url_on_delete_name = "dashboard2_app:dashboard_url"
 
     def post_url_on_delete_kwargs(self, request, obj):
-        return {'subject_identifier': obj.subject_identifier}
+        return {"subject_identifier": obj.subject_identifier}
 
 
 @admin.register(CrfSix)
@@ -83,4 +85,4 @@ class CrfSixAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelAd
     post_url_on_delete_name = None
 
     def post_url_on_delete_kwargs(self, request, obj):
-        return {'subject_identifier': obj.subject_identifier}
+        return {"subject_identifier": obj.subject_identifier}

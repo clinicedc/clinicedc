@@ -38,9 +38,7 @@ class ModelAdminSubjectDashboardMixin(
         return settings.DASHBOARD_URL_NAMES.get(self.subject_dashboard_url_name)
 
     def get_subject_dashboard_url_kwargs(self, obj):
-        return dict(
-            subject_identifier=obj.subject_identifier,
-        )
+        return dict(subject_identifier=obj.subject_identifier)
 
     def get_post_url_on_delete_name(self, *args):
         return self.get_subject_dashboard_url_name()
@@ -54,9 +52,8 @@ class ModelAdminSubjectDashboardMixin(
             kwargs=self.get_subject_dashboard_url_kwargs(obj),
         )
         context = dict(
-            dashboard="dashboard",
-            title="Go to subject\'s dashboard",
-            url=url)
+            dashboard="dashboard", title="Go to subject's dashboard", url=url
+        )
         return render_to_string("dashboard_button.html", context=context)
 
     def view_on_site(self, obj):

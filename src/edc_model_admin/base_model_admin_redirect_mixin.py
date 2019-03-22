@@ -35,8 +35,7 @@ class BaseModelAdminRedirectMixin:
         return super().response_change(request, obj)
 
     def response_delete(self, request, obj_display, obj_id):
-        redirect_url = self.redirect_url_on_delete(
-            request, obj_display, obj_id)
+        redirect_url = self.redirect_url_on_delete(request, obj_display, obj_id)
         if redirect_url:
             return HttpResponseRedirect(redirect_url)
         return super().response_delete(request, obj_display, obj_id)

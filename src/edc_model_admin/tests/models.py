@@ -89,7 +89,7 @@ class SubjectVisit(
     ReferenceModelMixin,
     CreatesMetadataModelMixin,
     SiteModelMixin,
-    BaseUuidModel
+    BaseUuidModel,
 ):
 
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
