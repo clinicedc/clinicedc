@@ -90,17 +90,20 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         """Returns a redirect url determined from the "next" attr
         in the querystring.
         """
-        url_name = request.GET.dict().get(self.next_querystring_attr).split(",")[0]
-        options = self.get_next_options(request=request)
-        try:
-            redirect_url = reverse(url_name, kwargs=options)
-        except NoReverseMatch as e:
-            msg = f"{e}. Got url_name={url_name}, kwargs={options}."
+        redirect_url = None
+        next_value = request.GET.dict().get(self.next_querystring_attr)
+        if next_value:
+            url_name = next_value.split(",")[0]
+            options = self.get_next_options(request=request)
             try:
-                redirect_url = reverse(url_name)  # retry without kwargs
-            except NoReverseMatch:
-                # raise with first exception msg
-                raise ModelAdminNextUrlRedirectError(msg)
+                redirect_url = reverse(url_name, kwargs=options)
+            except NoReverseMatch as e:
+                msg = f"{e}. Got url_name={url_name}, kwargs={options}."
+                try:
+                    redirect_url = reverse(url_name)  # retry without kwargs
+                except NoReverseMatch:
+                    # raise with first exception msg
+                    raise ModelAdminNextUrlRedirectError(msg)
         return redirect_url
 
     def get_savenext_redirect_url(self, request=None, obj=None):

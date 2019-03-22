@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.test import tag
+from django.core.exceptions import ObjectDoesNotExist
+from django.test import tag  # noqa
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_constants.constants import YES
@@ -11,7 +12,16 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..lab_profiles import lab_profile
-from ..models import Appointment, SubjectVisit, CrfOne, CrfTwo, Requisition
+from ..models import (
+    Appointment,
+    SubjectVisit,
+    CrfOne,
+    CrfTwo,
+    CrfFour,
+    CrfFive,
+    CrfSix,
+    Requisition,
+)
 from ..reference_configs import register_to_site_reference_configs
 from ..visit_schedule import visit_schedule
 
@@ -55,41 +65,16 @@ class ModelAdminSiteTest(WebTest):
         form["password"] = "pass"
         return form.submit()
 
-    @tag("1")
-    def test_redirect_mixin(self):
-        self.login()
-
-        model = "crfone"
-        response = self.app.get(
-            reverse(f"admin:edc_model_admin_{model}_add"), user=self.user
-        )
-        response.form["subject_identifier"] = self.subject_identifier
-        response.form["subject_visit"] = str(self.subject_visit.id)
-        response = response.form.submit().follow()
-
-        model = "redirectmodel"
-        response = self.app.get(
-            reverse(f"admin:edc_model_admin_{model}_add"), user=self.user
-        )
-        response.form["subject_identifier"] = self.subject_identifier
-        response = response.form.submit().follow()
-        # redirects to CRF Model changelist
-        self.assertIn("Crf ones", response)
-
-        # adds subject_identifier to query_string "q"
-        self.assertIn(self.subject_identifier, response.request.query_string)
-        self.assertIn("Select crf one to change", response)
-        self.assertIn("1 crf one", response)
-
-    @tag("1")
-    def test_redirect_next_mixin(self):
+    def test_redirect_next(self):
         """Assert redirects to "subject_dashboard_url" as give in the
         query_string "next=".
         """
         self.login()
 
         self.app.get(
-            reverse(f"subject_dashboard_url", args=(self.subject_identifier,)),
+            reverse(
+                f"dashboard_app:subject_dashboard_url", args=(self.subject_identifier,)
+            ),
             user=self.user,
             status=200,
         )
@@ -100,7 +85,7 @@ class ModelAdminSiteTest(WebTest):
 
         model = "redirectnextmodel"
         query_string = (
-            f"next=subject_dashboard_url,subject_identifier&"
+            f"next=dashboard_app:subject_dashboard_url,subject_identifier&"
             f"subject_identifier={self.subject_identifier}"
         )
         url = reverse(f"admin:edc_model_admin_{model}_add") + "?" + query_string
@@ -112,7 +97,6 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn("You are at the subject dashboard", response)
         self.assertIn(self.subject_identifier, response)
 
-    @tag("1")
     def test_redirect_save_next_crf(self):
         """Assert redirects CRFs for both add and change from
         crftwo -> crfthree -> dashboard.
@@ -120,33 +104,40 @@ class ModelAdminSiteTest(WebTest):
         self.login()
 
         self.app.get(
-            reverse(f"subject_dashboard_url", args=(self.subject_identifier,)),
+            reverse(
+                f"dashboard_app:subject_dashboard_url", args=(self.subject_identifier,)
+            ),
             user=self.user,
             status=200,
         )
 
+        # add CRF Two
         model = "crftwo"
         query_string = (
-            f"next=subject_dashboard_url,subject_identifier&"
+            f"next=dashboard_app:subject_dashboard_url,subject_identifier&"
             f"subject_identifier={self.subject_identifier}"
         )
         url = reverse(f"admin:edc_model_admin_{model}_add") + "?" + query_string
 
+        # oops, cancel
         response = self.app.get(url, user=self.user)
         response = response.form.submit(name="_cancel").follow()
         self.assertIn("You are at the subject dashboard", response)
 
+        # add CRF Two
         response = self.app.get(url, user=self.user)
         self.assertIn("Add crf two", response)
         response.form["subject_identifier"] = self.subject_identifier
         response.form["subject_visit"] = str(self.subject_visit.id)
         response = response.form.submit(name="_savenext").follow()
 
+        # goes directly to CRF Three, add CRF Three
         self.assertIn("Add crf three", response)
         response.form["subject_identifier"] = self.subject_identifier
         response.form["subject_visit"] = str(self.subject_visit.id)
         response = response.form.submit(name="_savenext").follow()
 
+        # goes to dashboard
         self.assertIn("You are at the subject dashboard", response)
         self.assertIn(self.subject_identifier, response)
 
@@ -178,19 +169,21 @@ class ModelAdminSiteTest(WebTest):
 
     def test_redirect_save_next_requisition(self):
         """Assert redirects requisitions for both add and change from
-        crftwo -> crfthree -> dashboard.
+        panel one -> panel two -> dashboard.
         """
         self.login()
 
         self.app.get(
-            reverse(f"subject_dashboard_url", args=(self.subject_identifier,)),
+            reverse(
+                f"dashboard_app:subject_dashboard_url", args=(self.subject_identifier,)
+            ),
             user=self.user,
             status=200,
         )
 
         model = "requisition"
         query_string = (
-            f"next=subject_dashboard_url,subject_identifier&"
+            f"next=dashboard_app:subject_dashboard_url,subject_identifier&"
             f"subject_identifier={self.subject_identifier}&"
             f"subject_visit={str(self.subject_visit.id)}"
         )
@@ -263,3 +256,79 @@ class ModelAdminSiteTest(WebTest):
 
         self.assertIn("You are at the subject dashboard", response)
         self.assertIn(self.subject_identifier, response)
+
+    def test_redirect_on_delete_with_url_name_from_settings(self):
+        self.login()
+
+        self.app.get(
+            reverse(
+                f"dashboard_app:subject_dashboard_url", args=(self.subject_identifier,)
+            ),
+            user=self.user,
+            status=200,
+        )
+
+        model = "crffour"
+        query_string = (
+            f"next=dashboard_app:subject_dashboard_url,subject_identifier&"
+            f"subject_identifier={self.subject_identifier}"
+        )
+        url = reverse(f"admin:edc_model_admin_{model}_add") + "?" + query_string
+        response = self.app.get(url, user=self.user)
+        response.form["subject_identifier"] = self.subject_identifier
+        response.form["subject_visit"] = str(self.subject_visit.id)
+        response = response.form.submit(name="_save").follow()
+
+        # delete
+        crffour = CrfFour.objects.all()[0]
+        url = (
+            reverse(f"admin:edc_model_admin_{model}_change", args=(crffour.id,))
+            + "?"
+            + query_string
+        )
+        response = self.app.get(url, user=self.user)
+        delete_url = reverse(
+            f"admin:edc_model_admin_{model}_delete", args=(crffour.id,)
+        )
+        response = response.click(href=delete_url)
+
+        # submit confirmation page
+        response = response.form.submit().follow()
+
+        # redirects to the dashboard
+        self.assertIn("You are at the subject dashboard", response)
+        self.assertRaises(ObjectDoesNotExist, CrfFour.objects.get, id=crffour.id)
+
+    def test_redirect_on_delete_with_url_name_from_admin(self):
+        self.login()
+
+        crffive = CrfFive.objects.create(
+            subject_identifier=self.subject_identifier, subject_visit=self.subject_visit
+        )
+
+        model = "crffive"
+        url = reverse(f"admin:edc_model_admin_{model}_change", args=(crffive.id,))
+        response = self.app.get(url, user=self.user)
+        delete_url = reverse(
+            f"admin:edc_model_admin_{model}_delete", args=(crffive.id,)
+        )
+        response = response.click(href=delete_url)
+        response = response.form.submit().follow()
+        self.assertIn("You are at Dashboard Two", response)
+        self.assertRaises(ObjectDoesNotExist, CrfFive.objects.get, id=crffive.id)
+
+    def test_redirect_on_delete_with_url_name_is_none(self):
+        self.login()
+
+        crfsix = CrfSix.objects.create(
+            subject_identifier=self.subject_identifier, subject_visit=self.subject_visit
+        )
+
+        model = "crfsix"
+        url = reverse(f"admin:edc_model_admin_{model}_change", args=(crfsix.id,))
+        response = self.app.get(url, user=self.user)
+        delete_url = reverse(f"admin:edc_model_admin_{model}_delete", args=(crfsix.id,))
+        response = response.click(href=delete_url)
+        response = response.form.submit().follow()
+        self.assertRaises(ObjectDoesNotExist, CrfSix.objects.get, id=crfsix.id)
+        self.assertIn("changelist", response)

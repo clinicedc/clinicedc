@@ -1,13 +1,13 @@
 from edc_utils import get_utcnow
 
-audit_fields = (
+audit_fields = [
     "user_created",
     "user_modified",
     "created",
     "modified",
     "hostname_created",
     "hostname_modified",
-)
+]
 
 audit_fieldset_tuple = ("Audit", {"classes": ("collapse",), "fields": audit_fields})
 
@@ -23,7 +23,7 @@ class ModelAdminAuditFieldsMixin:
         super().save_model(request, obj, form, change)
 
     def get_list_filter(self, request):
-        columns = [
+        fields = [
             "created",
             "modified",
             "user_created",
@@ -31,15 +31,13 @@ class ModelAdminAuditFieldsMixin:
             "hostname_created",
             "hostname_modified",
         ]
-        self.list_filter = list(self.list_filter or [])
-        self.list_filter = self.list_filter + [
-            item for item in columns if item not in self.list_filter
+        self.list_filter = list(self.list_filter) + [
+            f for f in fields if f not in self.list_filter
         ]
-        return tuple(self.list_filter)
+        return self.list_filter
 
     def get_readonly_fields(self, request, obj=None):
-        # FIXME: somewhere the readonly_fields is being changed to a list
         readonly_fields = super().get_readonly_fields(request, obj=obj)
-        if readonly_fields:
-            readonly_fields = tuple(readonly_fields)
-        return readonly_fields + audit_fields
+        return list(readonly_fields) + [
+            f for f in audit_fields if f not in readonly_fields
+        ]

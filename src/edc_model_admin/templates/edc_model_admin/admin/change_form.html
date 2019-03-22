@@ -5,7 +5,7 @@
 
 {% block extrastyle %}{{ block.super }}
 
-  <link rel="stylesheet" type="text/css" href="{% static "edc_base/css/font-awesome/css/font-awesome.min.css" %}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" integrity="sha384-O8whS3fhG2OnA5Kas0Y9l3cfpmYjapjI0E4theH4iuMD+pLhbf6JI0jIMfYcK3yZ" crossorigin="anonymous">    
 
 {% endblock %}
 
@@ -15,11 +15,13 @@
   {% instructions %}
 
   {% additional_instructions %}
-
+  
   {{ block.super }}
 
 {% endblock field_sets %}
 
+
+{% block submit_buttons_top %}{% edc_submit_row %}{% endblock %}
 
 {% block submit_buttons_bottom %}
 

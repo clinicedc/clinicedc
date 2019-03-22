@@ -19,12 +19,13 @@ from edc_reference.model_mixins import (
     RequisitionReferenceModelMixin,
 )
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_sites.models import SiteModelMixin
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
 from edc_visit_tracking.model_mixins import CrfModelMixin, VisitModelMixin
 
 
-class BasicModel(BaseUuidModel):
+class BasicModel(SiteModelMixin, BaseUuidModel):
 
     f1 = models.CharField(max_length=10)
     f2 = models.CharField(max_length=10)
@@ -50,7 +51,7 @@ class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
         pass
 
 
-class DeathReport(UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
+class DeathReport(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidModel):
 
     objects = SubjectIdentifierManager()
 
@@ -61,6 +62,7 @@ class DeathReport(UniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 class SubjectConsent(
     UniqueSubjectIdentifierFieldMixin,
     UpdatesOrCreatesRegistrationModelMixin,
+    SiteModelMixin,
     BaseUuidModel,
 ):
 
@@ -83,7 +85,11 @@ class SubjectConsent(
 
 
 class SubjectVisit(
-    VisitModelMixin, ReferenceModelMixin, CreatesMetadataModelMixin, BaseUuidModel
+    VisitModelMixin,
+    ReferenceModelMixin,
+    CreatesMetadataModelMixin,
+    SiteModelMixin,
+    BaseUuidModel,
 ):
 
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
@@ -98,6 +104,7 @@ class SubjectRequisition(
     RequisitionReferenceModelMixin,
     PanelModelMixin,
     UpdatesRequisitionMetadataModelMixin,
+    SiteModelMixin,
     BaseUuidModel,
 ):
 
@@ -110,7 +117,7 @@ class SubjectRequisition(
     reason_not_drawn = models.CharField(max_length=25, null=True)
 
 
-class BaseCrfModel(models.Model):
+class BaseCrfModel(SiteModelMixin, models.Model):
 
     subject_identifier = models.CharField(max_length=25)
 
@@ -144,6 +151,21 @@ class CrfTwo(BaseCrfModel, CrfModelMixin, BaseUuidModel):
 
 
 class CrfThree(BaseCrfModel, CrfModelMixin, BaseUuidModel):
+
+    pass
+
+
+class CrfFour(BaseCrfModel, CrfModelMixin, BaseUuidModel):
+
+    pass
+
+
+class CrfFive(BaseCrfModel, CrfModelMixin, BaseUuidModel):
+
+    pass
+
+
+class CrfSix(BaseCrfModel, CrfModelMixin, BaseUuidModel):
 
     pass
 
