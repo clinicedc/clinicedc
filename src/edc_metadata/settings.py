@@ -59,6 +59,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "edc_dashboard.middleware.DashboardMiddleware",
+    "edc_subject_dashboard.middleware.DashboardMiddleware",
 ]
 
 ROOT_URLCONF = "edc_metadata.urls"
@@ -140,6 +142,8 @@ DASHBOARD_URL_NAMES = {
 }
 
 EDC_BOOTSTRAP = 3
+
+EMAIL_CONTACTS = {}
 
 if "test" in sys.argv:
 
