@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.views.generic.edit import ProcessFormView
-from edc_appointment.models.appointment import Appointment
+from edc_appointment.models import Appointment
 from edc_constants.constants import YES
 from edc_lab.models import Consignee
 from edc_lab.models.model_mixins import RequisitionModelMixin
