@@ -1,28 +1,21 @@
-from django.conf import settings
 from django.contrib import admin
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
-from edc_model_admin import audit_fieldset_tuple
-from edc_subject_dashboard import ModelAdminSubjectDashboardMixin
+from edc_model_admin import audit_fieldset_tuple, SimpleHistoryAdmin
+from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from ..admin_site import edc_action_item_admin
 from ..forms import ActionItemForm
 from ..models import ActionItem
-from .modeladmin_mixins import ModelAdminMixin
 
 
 @admin.register(ActionItem, site=edc_action_item_admin)
-class ActionItemAdmin(
-    ModelAdminMixin, ModelAdminSubjectDashboardMixin, admin.ModelAdmin
-):
+class ActionItemAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     form = ActionItemForm
 
     save_on_top = True
-
-    subject_dashboard_url = "subject_dashboard_url"
-
-    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get(subject_dashboard_url)
+    show_cancel = True
 
     fieldsets = (
         (
@@ -53,7 +46,8 @@ class ActionItemAdmin(
         ),
         (
             "Email",
-            {"classes": ("collapse",), "fields": ("emailed", "emailed_datetime")},
+            {"classes": ("collapse",), "fields": (
+                "emailed", "emailed_datetime")},
         ),
         audit_fieldset_tuple,
     )
@@ -63,6 +57,7 @@ class ActionItemAdmin(
     list_display = (
         "identifier",
         "dashboard",
+        "subject_identifier",
         "action_type",
         "priority",
         "status",
@@ -95,8 +90,8 @@ class ActionItemAdmin(
     date_hierarchy = "created"
 
     def get_readonly_fields(self, request, obj=None):
-        fields = super().get_readonly_fields(request, obj=obj)
-        fields = fields + (
+        readonly_fields = super().get_readonly_fields(request, obj=obj)
+        readonly_fields = list(readonly_fields) + [
             "action_identifier",
             "instructions",
             "auto_created",
@@ -106,10 +101,11 @@ class ActionItemAdmin(
             "emailed_datetime",
             "related_action_item",
             "parent_action_item",
-        )
+        ]
         if obj:
-            fields = fields + ("subject_identifier", "report_datetime", "action_type")
-        return fields
+            readonly_fields = readonly_fields + ["subject_identifier",
+                                                 "report_datetime", "action_type"]
+        return readonly_fields
 
     def parent_action(self, obj):
         """Returns a url to the parent action item
@@ -132,6 +128,3 @@ class ActionItemAdmin(
                 create_by_user=True
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def post_url_on_delete_kwargs(self, request, obj):
-        return dict(subject_identifier=obj.subject_identifier)

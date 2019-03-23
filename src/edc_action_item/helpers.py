@@ -48,8 +48,10 @@ class ActionItemHelper:
             self.related_action_item = self.action_item.related_action_item
             if self.action_item.last_updated:
                 # could also use action_item.linked_to_reference?
-                date_format = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-                last_updated = self.action_item.last_updated.strftime(date_format)
+                date_format = convert_php_dateformat(
+                    settings.SHORT_DATE_FORMAT)
+                last_updated = self.action_item.last_updated.strftime(
+                    date_format)
                 user_last_updated = self.action_item.user_last_updated
                 self.last_updated_text = (
                     f"Last updated on {last_updated} by {user_last_updated}."
@@ -247,7 +249,7 @@ class ActionItemHelper:
             action_item_color=self.action_cls.color_style,
             action_item_reason=self.action_item_reason,
             display_name=self.action_item.action_type.display_name,
-            href=self.href,
+            # href=self.href,
             last_updated_text=self.last_updated_text,
             name=self.action_item.action_type.name,
             parent_action_item=self.action_item.parent_action_item,
