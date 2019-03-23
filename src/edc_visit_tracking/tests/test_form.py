@@ -12,6 +12,8 @@ from ..modelform_mixins import VisitTrackingModelFormMixin
 from .helper import Helper
 from .models import SubjectVisit, CrfOne
 from .visit_schedule import visit_schedule1, visit_schedule2
+from django.conf import settings
+from pprint import pprint
 
 
 class SubjectVisitForm(forms.ModelForm):
@@ -28,9 +30,11 @@ class TestForm(TestCase):
     helper_cls = Helper
 
     def setUp(self):
+        pprint(settings.__dict__)
         import_holidays()
         self.subject_identifier = "12345"
-        self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
+        self.helper = self.helper_cls(
+            subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
