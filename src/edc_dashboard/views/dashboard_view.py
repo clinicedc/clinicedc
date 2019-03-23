@@ -1,3 +1,4 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.base import TemplateView
 
 from ..view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
@@ -7,6 +8,17 @@ class DashboardView(UrlRequestContextMixin, TemplateRequestContextMixin, Templat
 
     dashboard_url = None
     dashboard_template = None
+
+    def __init__(self, **kwargs):
+        if not self.dashboard_url:
+            raise ImproperlyConfigured(
+                f"'dashboard_url' cannot be None. See {repr(self)}."
+            )
+        if not self.dashboard_template:
+            raise ImproperlyConfigured(
+                f"'dashboard_template' cannot be None. See {repr(self)}."
+            )
+        super().__init__(**kwargs)
 
     def get_template_names(self):
         return [self.get_template_from_context(self.dashboard_template)]

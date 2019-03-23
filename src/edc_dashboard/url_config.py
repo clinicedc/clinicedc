@@ -1,11 +1,14 @@
 from django.urls.conf import re_path
 from edc_constants.constants import UUID_PATTERN
 
+from .url_names import url_names
+
 
 class UrlConfig:
     def __init__(
         self,
         url_name=None,
+        namespace=None,
         view_class=None,
         label=None,
         identifier_label=None,
@@ -16,6 +19,7 @@ class UrlConfig:
         self.label = label
         self.url_name = url_name
         self.view_class = view_class
+        url_names.register(url=self.url_name, namespace=namespace)
 
     @property
     def dashboard_urls(self):

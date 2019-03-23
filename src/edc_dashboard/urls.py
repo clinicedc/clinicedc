@@ -9,7 +9,7 @@ app_name = "edc_dashboard"
 urlpatterns = [path("admin/", admin.site.urls)]
 
 
-if settings.APP_NAME == "edc_dashboard":
+if settings.APP_NAME == app_name:
 
     from django.views.generic.base import RedirectView
 
@@ -18,6 +18,7 @@ if settings.APP_NAME == "edc_dashboard":
 
     subject_listboard_url_config = UrlConfig(
         url_name="listboard_url",
+        namespace=app_name,
         view_class=ListboardView,
         label="subject_listboard",
         identifier_label="subject_identifier",
