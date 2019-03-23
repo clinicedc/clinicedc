@@ -82,21 +82,21 @@ WSGI_APPLICATION = "edc_model.wsgi.application"
 
 if os.environ.get("TRAVIS"):
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'edc',
-            'USER': 'travis',
-            'PASSWORD': '',
-            'HOST': 'localhost',
-            'PORT': '',
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "edc",
+            "USER": "travis",
+            "PASSWORD": "",
+            "HOST": "localhost",
+            "PORT": "",
         },
-        'client': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'edc_client',
-            'USER': 'travis',
-            'PASSWORD': '',
-            'HOST': 'localhost',
-            'PORT': '',
+        "client": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "edc_client",
+            "USER": "travis",
+            "PASSWORD": "",
+            "HOST": "localhost",
+            "PORT": "",
         },
     }
 else:

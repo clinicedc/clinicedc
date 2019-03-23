@@ -32,14 +32,12 @@ class TestModels(TestCase):
     def test_get_absolute_url_change(self):
         obj = BasicModel.objects.create()
         self.assertEqual(
-            obj.get_absolute_url(
-            ), f"/admin/edc_model/basicmodel/{str(obj.id)}/change/"
+            obj.get_absolute_url(), f"/admin/edc_model/basicmodel/{str(obj.id)}/change/"
         )
 
     def test_get_absolute_url_add(self):
         obj = BasicModel()
-        self.assertEqual(obj.get_absolute_url(),
-                         "/admin/edc_model/basicmodel/add/")
+        self.assertEqual(obj.get_absolute_url(), "/admin/edc_model/basicmodel/add/")
 
     def test_get_absolute_url_not_registered(self):
         obj = SimpleModel()
