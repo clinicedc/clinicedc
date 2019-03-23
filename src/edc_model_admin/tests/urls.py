@@ -6,9 +6,7 @@ from .views import CrfOneListView
 
 app_name = "edc_model_admin"
 
-urlpatterns = [
-    path("admin/", admin.site.urls),
-]
+urlpatterns = [path("admin/", admin.site.urls)]
 
 if settings.APP_NAME == app_name:
     urlpatterns += [
