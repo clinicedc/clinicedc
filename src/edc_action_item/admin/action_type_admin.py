@@ -4,11 +4,10 @@ from edc_model_admin import audit_fieldset_tuple
 from ..admin_site import edc_action_item_admin
 from ..forms import ActionTypeForm
 from ..models import ActionType
-from .modeladmin_mixins import ModelAdminMixin
 
 
 @admin.register(ActionType, site=edc_action_item_admin)
-class ActionTypeAdmin(ModelAdminMixin, admin.ModelAdmin):
+class ActionTypeAdmin(admin.ModelAdmin):
 
     form = ActionTypeForm
 
@@ -44,8 +43,8 @@ class ActionTypeAdmin(ModelAdminMixin, admin.ModelAdmin):
     date_hierarchy = None
 
     def get_readonly_fields(self, request, obj=None):
-        fields = super().get_readonly_fields(request, obj=obj)
-        fields = fields + (
+        readonly_fields = super().get_readonly_fields(request, obj=obj)
+        readonly_fields = list(readonly_fields) + [
             "name",
             "display_name",
             "model",
@@ -53,5 +52,5 @@ class ActionTypeAdmin(ModelAdminMixin, admin.ModelAdmin):
             "create_by_action",
             "create_by_user",
             "instructions",
-        )
-        return fields
+        ]
+        return readonly_fields
