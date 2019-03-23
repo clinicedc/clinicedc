@@ -39,10 +39,8 @@ class TestPopover(TestCase):
             def subject_identifier(self):
                 return self.object.subject_identifier
 
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
-        obj = ActionItem.objects.get(
-            action_identifier=form_one.action_identifier)
+        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
+        obj = ActionItem.objects.get(action_identifier=form_one.action_identifier)
         wrapper = ActionItemModelWrapper(model_obj=obj)
         action_item_with_popover(wrapper, 0)
         context = action_item_with_popover(wrapper, 0)
@@ -52,22 +50,19 @@ class TestPopover(TestCase):
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one
         )
-        obj = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier)
+        obj = ActionItem.objects.get(action_identifier=form_two.action_identifier)
         wrapper = ActionItemModelWrapper(model_obj=obj)
         context = action_item_with_popover(wrapper, 0)
         self.assertEqual(
             context.get("parent_action_identifier"), form_one.action_identifier
         )
-        self.assertEqual(context.get("parent_action_item"),
-                         form_one.action_item)
+        self.assertEqual(context.get("parent_action_item"), form_one.action_item)
 
         context = action_item_with_popover(wrapper, 0)
         self.assertEqual(
             context.get("parent_action_identifier"), form_one.action_identifier
         )
-        self.assertEqual(context.get("parent_action_item"),
-                         form_one.action_item)
+        self.assertEqual(context.get("parent_action_item"), form_one.action_item)
 
     def test_popover_templatetag_action_url_if_reference_model_exists(self):
         """Asserts returns a change url if reference model
@@ -84,10 +79,8 @@ class TestPopover(TestCase):
             def subject_identifier(self):
                 return self.object.subject_identifier
 
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
-        obj = ActionItem.objects.get(
-            action_identifier=form_one.action_identifier)
+        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
+        obj = ActionItem.objects.get(action_identifier=form_one.action_identifier)
         self.assertTrue(obj.status == CLOSED)
         obj.status = OPEN
         obj.save()
@@ -116,8 +109,7 @@ class TestPopover(TestCase):
 
         Initial.objects.create(subject_identifier=self.subject_identifier)
         Initial.objects.create(subject_identifier=self.subject_identifier)
-        initial_obj = Initial.objects.create(
-            subject_identifier=self.subject_identifier)
+        initial_obj = Initial.objects.create(subject_identifier=self.subject_identifier)
         initial_action_item_obj = ActionItem.objects.get(
             action_identifier=initial_obj.action_identifier
         )

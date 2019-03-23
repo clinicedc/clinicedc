@@ -46,8 +46,7 @@ class ActionItemAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         ),
         (
             "Email",
-            {"classes": ("collapse",), "fields": (
-                "emailed", "emailed_datetime")},
+            {"classes": ("collapse",), "fields": ("emailed", "emailed_datetime")},
         ),
         audit_fieldset_tuple,
     )
@@ -103,8 +102,11 @@ class ActionItemAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
             "parent_action_item",
         ]
         if obj:
-            readonly_fields = readonly_fields + ["subject_identifier",
-                                                 "report_datetime", "action_type"]
+            readonly_fields = readonly_fields + [
+                "subject_identifier",
+                "report_datetime",
+                "action_type",
+            ]
         return readonly_fields
 
     def parent_action(self, obj):
