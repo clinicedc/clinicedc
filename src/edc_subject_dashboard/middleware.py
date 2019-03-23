@@ -1,5 +1,5 @@
 from django.conf import settings
-from edc_dashboard import insert_bootstrap_version
+from edc_dashboard import insert_bootstrap_version, url_names
 
 from .dashboard_templates import dashboard_templates
 
@@ -34,21 +34,16 @@ class DashboardMiddleware:
         return response
 
     def process_view(self, request, *args):
-        url_name_data = {
-            "requisition_print_actions_url": (
-                "edc_subject_dashboard:requisition_print_actions_url"
-            ),
-            "requisition_verify_actions_url": (
-                "edc_subject_dashboard:requisition_verify_actions_url"
-            ),
-        }
+        """Adds/Updates references to urls and templates.
+        """
+
         try:
             settings.DASHBOARD_URL_NAMES
         except AttributeError:
             pass
         else:
-            url_name_data.update(**settings.DASHBOARD_URL_NAMES)
-        request.url_name_data.update(**url_name_data)
+            url_names.register_from_dict(**settings.DASHBOARD_URL_NAMES)
+        request.url_name_data = url_names.registry
 
         template_data = dashboard_templates
         try:
