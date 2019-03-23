@@ -1,16 +1,16 @@
 from django.contrib import admin
-from edc_model_admin import audit_fieldset_tuple, SimpleHistoryAdmin
+from edc_model_admin import SimpleHistoryAdmin, audit_fieldset_tuple
+from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
-from ..admin_site import edc_locator_admin
-from ..fieldsets import subject_contacts_fieldset
-from ..fieldsets import indirect_contacts_fieldset, work_contacts_fieldset
-from ..forms import SubjectLocatorForm
-from ..models import SubjectLocator
-from .modeladmin_mixins import ModelAdminMixin
+from .admin_site import edc_locator_admin
+from .fieldsets import subject_contacts_fieldset
+from .fieldsets import indirect_contacts_fieldset, work_contacts_fieldset
+from .forms import SubjectLocatorForm
+from .models import SubjectLocator
 
 
 @admin.register(SubjectLocator, site=edc_locator_admin)
-class SubjectLocatorAdmin(ModelAdminMixin, SimpleHistoryAdmin):
+class SubjectLocatorAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     form = SubjectLocatorForm
 
