@@ -44,9 +44,9 @@ class VisitSchedule:
         self._all_post_consent_models = None
         self.name = name
         self.schedules = self.schedules_collection(visit_schedule_name=name)
-        self.offstudy_model = offstudy_model
+        self.offstudy_model = offstudy_model or "edc_offstudy.subjectoffstudy"
         self.death_report_model = death_report_model
-        self.locator_model = locator_model
+        self.locator_model = locator_model or "edc_locator.subjectlocator"
         self.previous_visit_schedule = previous_visit_schedule
         if not re.match(self.name_regex, name):
             raise VisitScheduleNameError(
@@ -115,7 +115,8 @@ class VisitSchedule:
             if None in (list(models.keys())):
                 raise VisitScheduleError(
                     f"One or more required models has not been defined. "
-                    f"Check the declaration for '{self}'. Got {list(models.keys())}."
+                    f"Check the declaration for visit schedule '{self}'. "
+                    f"Got {models}."
                 )
             self._all_post_consent_models = models
         return self._all_post_consent_models
