@@ -1,5 +1,6 @@
 import re
 
+from django.conf import settings
 from django.test import TestCase, tag  # noqa
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from edc_sites.utils import add_or_update_django_sites
@@ -15,7 +16,7 @@ class TestSiteLab(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
 
@@ -50,7 +51,8 @@ class TestSiteLab2(TestCase):
         self.lab_profile = self.lab_helper.lab_profile
 
     def test_site_lab_panels(self):
-        self.assertIn(self.panel.name, site_labs.get(self.lab_profile.name).panels)
+        self.assertIn(self.panel.name, site_labs.get(
+            self.lab_profile.name).panels)
 
     def test_panel_repr(self):
         self.assertTrue(repr(self.panel))
@@ -124,4 +126,5 @@ class TestSiteLab2(TestCase):
         requisition_identifier = requisition.requisition_identifier
         requisition.is_drawn = YES
         requisition.save()
-        self.assertEqual(requisition_identifier, requisition.requisition_identifier)
+        self.assertEqual(requisition_identifier,
+                         requisition.requisition_identifier)

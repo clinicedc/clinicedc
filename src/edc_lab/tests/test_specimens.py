@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag  # noqa
 from edc_constants.constants import YES, NO
@@ -32,7 +33,7 @@ class TestSpecimen(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
 
@@ -85,7 +86,8 @@ class TestSpecimen(TestCase):
             protocol_number="999",
             is_drawn=NO,
         )
-        self.assertRaises(SpecimenNotDrawnError, Specimen, requisition=requisition)
+        self.assertRaises(SpecimenNotDrawnError, Specimen,
+                          requisition=requisition)
 
 
 class TestSpecimen2(TestCase):
@@ -95,7 +97,7 @@ class TestSpecimen2(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
 
@@ -164,16 +166,19 @@ class TestSpecimen2(TestCase):
         """
         self.assertEqual(self.specimen.aliquots.count(), 1)
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(),
+                         self.profile_aliquot_count + 1)
 
     def test_specimen_process2(self):
         """Asserts calling process more than once has no effect.
         """
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(),
+                         self.profile_aliquot_count + 1)
         self.specimen.process()
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(),
+                         self.profile_aliquot_count + 1)
 
     def test_specimen_process_identifier_prefix(self):
         """Assert all aliquots start with the correct identifier

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, tag  # noqa
 from edc_sites.utils import add_or_update_django_sites
@@ -11,7 +12,7 @@ class TestManifest(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, "example.com", "Test Site"),), fqdn="example.com"
+            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
 
@@ -26,18 +27,22 @@ class TestManifest(TestCase):
     def test_manifest_with_items(self):
         consignee = Consignee.objects.create(name="consignee")
         shipper = Shipper.objects.create(name="shipper")
-        manifest = Manifest.objects.create(consignee=consignee, shipper=shipper)
-        ManifestItem.objects.create(manifest=manifest, identifier="aaaaaaaaaaaa")
+        manifest = Manifest.objects.create(
+            consignee=consignee, shipper=shipper)
+        ManifestItem.objects.create(
+            manifest=manifest, identifier="aaaaaaaaaaaa")
 
     def test_manifest_with_items_slug(self):
         consignee = Consignee.objects.create(name="consignee")
         shipper = Shipper.objects.create(name="shipper")
-        manifest = Manifest.objects.create(consignee=consignee, shipper=shipper)
+        manifest = Manifest.objects.create(
+            consignee=consignee, shipper=shipper)
         manifest_item = ManifestItem.objects.create(
             manifest=manifest, identifier="aaaaaaaaaaaabb"
         )
         self.assertIn("aaaaaaaaaaaabb", manifest_item.slug)
-        self.assertIn(manifest_item.human_readable_identifier, manifest_item.slug)
+        self.assertIn(manifest_item.human_readable_identifier,
+                      manifest_item.slug)
 
 
 class TestManifestReport(TestCase):
@@ -45,17 +50,18 @@ class TestManifestReport(TestCase):
         self.user = User.objects.create(first_name="Noam", last_name="Chomsky")
         consignee = Consignee.objects.create(name="consignee")
         shipper = Shipper.objects.create(name="shipper")
-        self.manifest = Manifest.objects.create(consignee=consignee, shipper=shipper)
+        self.manifest = Manifest.objects.create(
+            consignee=consignee, shipper=shipper)
 
     def test_report(self):
-        self.assertEqual(self.manifest.site.name, "example.com")
+        self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         report.render()
 
     def test_report_shipped(self):
         self.manifest.shipped = True
         self.manifest.save()
-        self.assertEqual(self.manifest.site.name, "example.com")
+        self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         report.render()
 
@@ -67,7 +73,7 @@ class TestManifestReport(TestCase):
                 manifest=self.manifest,
                 identifier=f"{self.manifest.manifest_identifier}{i}",
             )
-        self.assertEqual(self.manifest.site.name, "example.com")
+        self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render)
         try:
@@ -79,18 +85,22 @@ class TestManifestReport(TestCase):
         BoxType.objects.create(name="box_type", across=8, down=8, total=64)
 
     def test_box(self):
-        box_type = BoxType.objects.create(name="box_type", across=8, down=8, total=64)
+        box_type = BoxType.objects.create(
+            name="box_type", across=8, down=8, total=64)
         Box.objects.create(box_type=box_type)
 
     def test_box_item(self):
-        box_type = BoxType.objects.create(name="box_type", across=8, down=8, total=64)
+        box_type = BoxType.objects.create(
+            name="box_type", across=8, down=8, total=64)
         box = Box.objects.create(box_type=box_type)
-        BoxItem.objects.create(box=box, identifier=box.box_identifier, position=0)
+        BoxItem.objects.create(
+            box=box, identifier=box.box_identifier, position=0)
 
     def test_report_invalid_invalid_aliquot_identifier(self):
         self.manifest.shipped = True
         self.manifest.save()
-        box_type = BoxType.objects.create(name="box_type", across=8, down=8, total=64)
+        box_type = BoxType.objects.create(
+            name="box_type", across=8, down=8, total=64)
         box = Box.objects.create(box_type=box_type)
         # add box items with invalid aliquot identifiers
         for i in range(0, 3):
@@ -98,7 +108,7 @@ class TestManifestReport(TestCase):
         ManifestItem.objects.create(
             manifest=self.manifest, identifier=box.box_identifier
         )
-        self.assertEqual(self.manifest.site.name, "example.com")
+        self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render)
         try:
@@ -112,7 +122,8 @@ class TestManifestReport(TestCase):
         prefix = "ABCDEFG"
         for i in range(0, 3):
             Aliquot.objects.create(count=i, aliquot_identifier=f"{prefix}{i}")
-        box_type = BoxType.objects.create(name="box_type", across=8, down=8, total=64)
+        box_type = BoxType.objects.create(
+            name="box_type", across=8, down=8, total=64)
         box = Box.objects.create(box_type=box_type)
         # add box items with invalid aliquot identifiers
         for index, aliquot in enumerate(Aliquot.objects.all()):
@@ -122,7 +133,7 @@ class TestManifestReport(TestCase):
         ManifestItem.objects.create(
             manifest=self.manifest, identifier=box.box_identifier
         )
-        self.assertEqual(self.manifest.site.name, "example.com")
+        self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render)
         try:

@@ -1,5 +1,6 @@
 from datetime import timedelta
 from django import forms
+from django.conf import settings
 from django.test import TestCase, tag
 from edc_constants.constants import OTHER, YES, NO, NOT_APPLICABLE
 from edc_form_validators import FormValidatorMixin
@@ -17,7 +18,7 @@ class TestForms(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
 
@@ -120,7 +121,8 @@ class TestForms(TestCase):
         form = RequisitionForm(data=data)
         form.is_valid()
         self.assertIn("drawn_datetime", list(form.errors.keys()))
-        self.assertEqual(form.errors.get("drawn_datetime"), ["This field is required."])
+        self.assertEqual(form.errors.get("drawn_datetime"),
+                         ["This field is required."])
 
         data = {"is_drawn": NO, "drawn_datetime": get_utcnow()}
         form = RequisitionForm(data=data)
@@ -234,7 +236,8 @@ class TestForms2(TestCase):
         form = self.form_cls(data=data, instance=obj)
         form.is_valid()
         self.assertIn(
-            "Requisition may not be changed", "".join(form.errors.get("__all__"))
+            "Requisition may not be changed", "".join(
+                form.errors.get("__all__"))
         )
 
     @tag("1")
@@ -260,5 +263,6 @@ class TestForms2(TestCase):
         form.is_valid()
         print(form.is_valid())
         self.assertIn(
-            "Cannot be before date of visit", form.errors.get("requisition_datetime")[0]
+            "Cannot be before date of visit", form.errors.get(
+                "requisition_datetime")[0]
         )
