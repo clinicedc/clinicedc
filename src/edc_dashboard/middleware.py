@@ -5,6 +5,7 @@ from edc_constants.constants import NOT_APPLICABLE, CANCELLED
 
 from .dashboard_templates import dashboard_templates
 from .utils import insert_bootstrap_version
+from .url_names import url_names
 
 
 class DashboardMiddleware:
@@ -15,7 +16,7 @@ class DashboardMiddleware:
         try:
             request.url_name_data
         except AttributeError:
-            request.url_name_data = {}
+            request.url_name_data = url_names.registry
         try:
             request.template_data
         except AttributeError:
@@ -25,6 +26,8 @@ class DashboardMiddleware:
         return response
 
     def process_view(self, request, *args):
+        """Adds/Updates references to urls and templates.
+        """
         template_data = dashboard_templates
         try:
             template_data.update(settings.DASHBOARD_BASE_TEMPLATES)
@@ -54,4 +57,6 @@ class DashboardMiddleware:
                 YES=YES,
                 reviewer_site_id=reviewer_site_id,
             )
+            if "project_name" not in response.context_data:
+                response.context_data.update(project_name="project_name")
         return response

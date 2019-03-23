@@ -12,7 +12,7 @@ class ListboardViewError(Exception):
     pass
 
 
-class Base(TemplateRequestContextMixin, ListView):
+class BaseListboardView(TemplateRequestContextMixin, ListView):
 
     cleaned_search_term = None
     context_object_name = "results"
@@ -29,7 +29,10 @@ class Base(TemplateRequestContextMixin, ListView):
     listboard_model_manager_name = "_default_manager"
     listboard_panel_title = None
 
+    # e.g. "edc_dashboard.view_subject_listboard"
     listboard_view_permission_codename = None
+
+    # e.g. "edc_dashboard.view_subject_listboard"
     listboard_view_only_my_permission_codename = None
 
     model_wrapper_cls = None
@@ -123,8 +126,17 @@ class Base(TemplateRequestContextMixin, ListView):
 
         Completely overrides ListView.get_queryset.
 
-        Only returns records if user has dashboard permissions to
-        do so. See `has_view_listboard_perms`.
+        Important:
+            the resulting queryset filtering takes allocated
+            permissions into account using Django's permissions
+            framework.
+
+            Only returns records if user has dashboard permissions to
+            do so. See `has_view_listboard_perms`.
+
+            Limits records to those created by the current user if
+            `has_view_only_my_listboard_perms` return True.
+            See `has_view_only_my_listboard_perms`.
 
         Passes filter/exclude criteria to `get_filtered_queryset`.
 
@@ -184,8 +196,8 @@ class Base(TemplateRequestContextMixin, ListView):
 
     @property
     def has_view_only_my_listboard_perms(self):
-        """Returns True if request.user only has permissions to
-        view my records on the listboard.
+        """Returns True if request.user ONLY has permissions to
+        view records created by request.user on the listboard.
         """
         return self.request.user.has_perm(
             self.listboard_view_only_my_permission_codename
@@ -212,6 +224,6 @@ class ListboardView(
     QueryStringViewMixin,
     UrlRequestContextMixin,
     SearchListboardMixin,
-    Base,
+    BaseListboardView,
 ):
     pass

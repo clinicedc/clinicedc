@@ -28,7 +28,7 @@ class SearchFormViewMixin(ContextMixin):
             )
         except NoReverseMatch as e:
             raise SearchFormViewError(
-                f"{e}. Expected one of {list(self.request.url_name_data.keys())}. "
+                f"{e}. Expected one of {self.request.url_name_data}. "
                 f"See attribute 'search_form_url'."
             )
         return f"{url}{self.querystring}"
