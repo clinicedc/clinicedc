@@ -6,6 +6,7 @@ app_name = "dashboard_app"
 
 subject_dashboard_url_config = UrlConfig(
     url_name="subject_dashboard_url",
+    namespace=app_name,
     view_class=DashboardView,
     label="subject_dashboard",
     identifier_label="subject_identifier",

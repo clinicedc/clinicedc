@@ -15,7 +15,8 @@ class MockPanel(DummyPanel):
     """
 
     def __init__(self, name):
-        super().__init__(requisition_model=f"{app_label}.requisition", name=name)
+        super().__init__(
+            requisition_model=f"{app_label}.requisition", name=name)
 
 
 crfs0 = FormsCollection(
@@ -32,7 +33,8 @@ crfs1 = FormsCollection(
     Crf(show_order=3, model=f"{app_label}.crfsix", required=True),
 )
 
-crfs2 = FormsCollection(Crf(show_order=1, model=f"{app_label}.crfseven", required=True))
+crfs2 = FormsCollection(
+    Crf(show_order=1, model=f"{app_label}.crfseven", required=True))
 
 
 crfs_unscheduled = FormsCollection(
@@ -42,8 +44,10 @@ crfs_unscheduled = FormsCollection(
 )
 
 requisitions = FormsCollection(
-    Requisition(show_order=10, panel=panel_one, required=True, additional=False),
-    Requisition(show_order=20, panel=panel_two, required=True, additional=False),
+    Requisition(show_order=10, panel=panel_one,
+                required=True, additional=False),
+    Requisition(show_order=20, panel=panel_two,
+                required=True, additional=False),
 )
 
 requisitions3000 = FormsCollection(
@@ -53,7 +57,8 @@ requisitions3000 = FormsCollection(
 )
 
 requisitions_unscheduled = FormsCollection(
-    Requisition(show_order=10, panel=MockPanel("one"), required=True, additional=False),
+    Requisition(show_order=10, panel=MockPanel(
+        "one"), required=True, additional=False),
     Requisition(
         show_order=20, panel=MockPanel("three"), required=True, additional=False
     ),
