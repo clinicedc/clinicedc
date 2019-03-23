@@ -13,10 +13,15 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from ..constants import INCOMPLETE_APPT, IN_PROGRESS_APPT
 from ..models import Appointment
+from ..model_mixins import AppointmentMethodsModelError
 from ..signals import AppointmentDeleteError
 from .helper import Helper
 from .models import SubjectConsent, SubjectVisit, OnScheduleOne, OnScheduleTwo
 from .visit_schedule import visit_schedule1, visit_schedule2
+from edc_visit_tracking.model_mixins.visit_model_mixin.visit_model_mixin import (
+    VisitModelMixin,
+)
+from edc_model.models.base_uuid_model import BaseUuidModel
 
 
 class TestAppointment(TestCase):

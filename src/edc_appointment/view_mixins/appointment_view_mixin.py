@@ -22,15 +22,7 @@ class AppointmentViewMixin(ContextMixin):
         super().__init__(**kwargs)
         self._appointments = None
         self._wrapped_appointments = None
-        self.appointment_model = (
-            django_apps.get_app_config("edc_appointment")
-            .get_configuration(
-                related_visit_model=(
-                    self.appointment_model_wrapper_cls.visit_model_wrapper_cls.model
-                )
-            )
-            .model
-        )
+        self.appointment_model = "edc_appointment.appointment"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

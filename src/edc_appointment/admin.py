@@ -3,43 +3,24 @@ from django.contrib import admin
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
-from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
-from edc_model_admin import (
-    ModelAdminFormInstructionsMixin,
-    ModelAdminNextUrlRedirectMixin,
-    ModelAdminFormAutoNumberMixin,
-    ModelAdminRedirectOnDeleteMixin,
-    ModelAdminAuditFieldsMixin,
-    audit_fieldset_tuple,
-    SimpleHistoryAdmin,
-)
-from edc_sites.admin import ModelAdminSiteMixin
+from edc_model_admin import audit_fieldset_tuple, SimpleHistoryAdmin
+from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_visit_schedule import off_schedule_or_raise, OnScheduleError
 from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
     visit_schedule_fields,
 )
 
-from ..admin_site import edc_appointment_admin
-from ..constants import NEW_APPT
-from ..forms import AppointmentForm
-from ..models import Appointment
+from .admin_site import edc_appointment_admin
+from .constants import NEW_APPT
+from .forms import AppointmentForm
+from .models import Appointment
 
 
 @admin.register(Appointment, site=edc_appointment_admin)
-class AppointmentAdmin(
-    ModelAdminFormInstructionsMixin,
-    ModelAdminNextUrlRedirectMixin,
-    ModelAdminFormAutoNumberMixin,
-    ModelAdminRevisionMixin,
-    ModelAdminAuditFieldsMixin,
-    ModelAdminRedirectOnDeleteMixin,
-    ModelAdminSiteMixin,
-    SimpleHistoryAdmin,
-):
+class AppointmentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
-    post_url_on_delete_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
-    dashboard_url_name = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
+    show_cancel = True
 
     form = AppointmentForm
     date_hierarchy = "appt_datetime"
@@ -102,9 +83,6 @@ class AppointmentAdmin(
 
     search_fields = ("subject_identifier",)
 
-    def post_url_on_delete_kwargs(self, request, obj):
-        return dict(subject_identifier=obj.subject_identifier)
-
     def get_readonly_fields(self, request, obj=None):
         return (
             super().get_readonly_fields(request, obj=obj)
@@ -117,16 +95,6 @@ class AppointmentAdmin(
                 "facility_name",
             )
         )
-
-    def view_on_site(self, obj):
-        try:
-            url = reverse(
-                self.dashboard_url_name,
-                kwargs=dict(subject_identifier=obj.subject_identifier),
-            )
-        except NoReverseMatch:
-            url = super().view_on_site(obj)
-        return url
 
     def has_delete_permission(self, request, obj=None):
         """Override to remove delete permissions if OnSchedule

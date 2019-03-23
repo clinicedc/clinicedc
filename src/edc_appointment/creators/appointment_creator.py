@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.utils import IntegrityError
@@ -6,6 +7,7 @@ from django.utils.timezone import is_naive
 from edc_facility.facility import FacilityError
 
 from ..appointment_config import AppointmentConfigError
+from ..constants import CLINIC
 
 
 class CreateAppointmentError(Exception):
@@ -193,8 +195,7 @@ class AppointmentCreator:
                     raise AppointmentConfigError(
                         f"Error looking up appointment config for {self.appointment_model}. "
                         f"Got {e}. AppoinmentConfigs exist for {config_names}. "
-                        f"See {app_config.configurations}. See also the visit schedule "
-                        f"and or settings.DEFAULT_APPOINTMENT_MODEL."
+                        f"See {app_config.configurations}. See also the visit schedule."
                     )
         return self._appointment_config
 
@@ -202,9 +203,11 @@ class AppointmentCreator:
     def appointment_model_cls(self):
         """Returns the appointment model class.
         """
-        if not self._appointment_model_cls:
-            self._appointment_model_cls = self.appointment_config.model_cls
-        return self._appointment_model_cls
+        return django_apps.get_model("edc_appointment.appointment")
+
+    #         if not self._appointment_model_cls:
+    #             self._appointment_model_cls = self.appointment_config.model_cls
+    #         return self._appointment_model_cls
 
     @property
     def default_appt_type(self):
@@ -212,5 +215,9 @@ class AppointmentCreator:
         type, e.g. 'clinic'.
         """
         if not self._default_appt_type:
-            self._default_appt_type = self.appointment_config.appt_type
+            try:
+                self._default_appt_type = settings.DEFAULT_APPOINTMENT_TYPE
+            except AttributeError:
+                self._default_appt_type = CLINIC
+        #             self._default_appt_type = self.appointment_config.appt_type
         return self._default_appt_type

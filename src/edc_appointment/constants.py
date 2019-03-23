@@ -1,4 +1,5 @@
 CANCELLED_APPT = "cancelled"
+CLINIC = "clinic"
 COMPLETE_APPT = "done"
 INCOMPLETE_APPT = "incomplete"
 IN_PROGRESS_APPT = "in_progress"

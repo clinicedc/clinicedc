@@ -1,6 +1,10 @@
-from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from edc_visit_tracking.model_mixins import VisitModelMixin
+
+
+class AppointmentMethodsModelError(Exception):
+    pass
 
 
 class AppointmentMethodsModelMixin(models.Model):
@@ -16,9 +20,20 @@ class AppointmentMethodsModelMixin(models.Model):
 
     @classmethod
     def related_visit_model_attr(cls):
-        app_config = django_apps.get_app_config("edc_appointment")
-        appointment_config = app_config.get_configuration(name=cls._meta.label_lower)
-        return appointment_config.related_visit_model_attr
+        related_visit_model_attr = None
+        fields = []
+        for f in cls._meta.get_fields():
+            if f.related_model:
+                if issubclass(f.related_model, VisitModelMixin):
+                    fields.append(f)
+        if len(fields) > 1:
+            raise AppointmentMethodsModelError(
+                f"More than field on Appointment is related field to a visit model. "
+                f"Got {fields}."
+            )
+        else:
+            related_visit_model_attr = fields[0].name
+        return related_visit_model_attr
 
     @classmethod
     def visit_model_cls(cls):
