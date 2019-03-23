@@ -1,5 +1,3 @@
-from edc_model_admin.model_admin_audit_fields_mixin import audit_fields
-
 
 class CrfModelAdminMixin:
 
@@ -9,13 +7,32 @@ class CrfModelAdminMixin:
 
     date_hierarchy = "report_datetime"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.list_display = list(self.list_display)
-        self.list_display.append(self.visit_model_attr)
-        self.list_display = tuple(self.list_display)
-        self.extend_search_fields()
-        self.extend_list_filter()
+    def get_list_display(self, request):
+        list_display = super().get_list_display(request)
+        list_display = list(list_display)
+        list_display.append(self.visit_model_attr)
+        return list_display
+
+    def get_search_fields(self, request):
+        search_fields = super().get_search_fields(request)
+        search_fields = list(search_fields)
+        search_fields.extend(
+            [f"{self.visit_model_attr}__appointment__subject_identifier"]
+        )
+        return search_fields
+
+    def get_list_filter(self, request):
+        list_filter = super().get_list_filter(request)
+        list_filter = list(list_filter)
+        list_filter.extend(
+            [
+                f"{self.visit_model_attr}__report_datetime",
+                f"{self.visit_model_attr}__reason",
+                f"{self.visit_model_attr}__appointment__appt_status",
+                f"{self.visit_model_attr}__appointment__visit_code",
+            ]
+        )
+        return list_filter
 
     @property
     def visit_model(self):
@@ -24,28 +41,6 @@ class CrfModelAdminMixin:
     @property
     def visit_model_attr(self):
         return self.model.visit_model_attr()
-
-    def extend_search_fields(self):
-        self.search_fields = list(self.search_fields)
-        self.search_fields.extend(
-            [f"{self.visit_model_attr}__appointment__subject_identifier"]
-        )
-        self.search_fields = tuple(set(self.search_fields))
-
-    def extend_list_filter(self):
-        """Extends list filter with additional values from the visit
-        model.
-        """
-        self.list_filter = list(self.list_filter)
-        self.list_filter.extend(
-            [
-                f"{self.visit_model_attr}__report_datetime",
-                f"{self.visit_model_attr}__reason",
-                f"{self.visit_model_attr}__appointment__appt_status",
-                f"{self.visit_model_attr}__appointment__visit_code",
-            ]
-        )
-        self.list_filter = tuple(self.list_filter)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         db = kwargs.get("using")
@@ -59,7 +54,3 @@ class CrfModelAdminMixin:
             else:
                 kwargs["queryset"] = self.visit_model._default_manager.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def get_readonly_fields(self, request, obj=None):
-        fields = super().get_readonly_fields(request, obj=obj)
-        return fields + audit_fields
