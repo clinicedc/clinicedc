@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.models.appointment import Appointment
+from edc_appointment.models import Appointment
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
 from edc_visit_tracking.model_mixins import VisitModelMixin

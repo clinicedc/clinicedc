@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase, tag  # noqa
 from edc_appointment.constants import COMPLETE_APPT
-from edc_appointment.models.appointment import Appointment
+from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
