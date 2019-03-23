@@ -4,6 +4,8 @@ from datetime import date
 from django.db import models
 from django.db.models.deletion import CASCADE, PROTECT
 from edc_appointment.models import Appointment
+from edc_consent.model_mixins import ConsentModelMixin
+from edc_consent.field_mixins import PersonalFieldsMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import MALE
 from edc_identifier.managers import SubjectIdentifierManager
@@ -60,6 +62,8 @@ class DeathReport(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidMod
 
 
 class SubjectConsent(
+    ConsentModelMixin,
+    PersonalFieldsMixin,
     UniqueSubjectIdentifierFieldMixin,
     UpdatesOrCreatesRegistrationModelMixin,
     SiteModelMixin,
@@ -166,6 +170,11 @@ class CrfFive(BaseCrfModel, CrfModelMixin, BaseUuidModel):
 
 
 class CrfSix(BaseCrfModel, CrfModelMixin, BaseUuidModel):
+
+    pass
+
+
+class CrfSeven(BaseCrfModel, CrfModelMixin, BaseUuidModel):
 
     pass
 
