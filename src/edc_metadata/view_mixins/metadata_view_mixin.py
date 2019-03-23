@@ -25,10 +25,13 @@ class MetaDataViewMixin(ContextMixin):
 
     metadata_show_status = [REQUIRED, KEYED]
 
-    appointment_in_progress_message = _(
-        'This visit is no longer "in progress". '
-        'Refer to the schedule for the visit that is '
-        'currently "in progress".'),
+    appointment_in_progress_message = (
+        _(
+            'This visit is no longer "in progress". '
+            "Refer to the schedule for the visit that is "
+            'currently "in progress".'
+        ),
+    )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -46,7 +49,7 @@ class MetaDataViewMixin(ContextMixin):
         return context
 
     def message_user(self, message=None, tag=None):
-        m = getattr(messages, tag or '', messages.error)
+        m = getattr(messages, tag or "", messages.error)
         m(self.request, message=mark_safe(message))
 
     def message_if_appointment_in_progress(self):
@@ -111,8 +114,7 @@ class MetaDataViewMixin(ContextMixin):
 
     def get_panel(self, metadata_wrapper=None):
         try:
-            panel = self.panel_model_cls.objects.get(
-                name=metadata_wrapper.panel_name)
+            panel = self.panel_model_cls.objects.get(name=metadata_wrapper.panel_name)
         except ObjectDoesNotExist as e:
             raise MetaDataViewError(
                 f"{e} Got panel name '{metadata_wrapper.panel_name}'. "
