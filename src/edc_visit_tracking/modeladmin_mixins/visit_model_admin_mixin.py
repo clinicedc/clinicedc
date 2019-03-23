@@ -1,7 +1,5 @@
 from django.contrib import admin
-from edc_model_admin.model_admin_audit_fields_mixin import (
-    audit_fieldset_tuple,
-)
+from edc_model_admin.model_admin_audit_fields_mixin import audit_fieldset_tuple
 from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
     visit_schedule_fields,

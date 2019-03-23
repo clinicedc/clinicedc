@@ -30,8 +30,7 @@ class TestForm(TestCase):
     def setUp(self):
         import_holidays()
         self.subject_identifier = "12345"
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier)
+        self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)

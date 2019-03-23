@@ -1,4 +1,3 @@
-
 class CrfModelAdminMixin:
 
     """ModelAdmin subclass for models with a ForeignKey to your
