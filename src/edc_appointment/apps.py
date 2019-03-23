@@ -7,11 +7,11 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 from edc_utils import get_utcnow
 
-from .appointment_config import AppointmentConfig
+# from .appointment_config import AppointmentConfig
 
 
-class EdcAppointmentAppConfigError(Exception):
-    pass
+# class EdcAppointmentAppConfigError(Exception):
+#     pass
 
 
 class AppConfig(DjangoAppConfig):
@@ -19,12 +19,7 @@ class AppConfig(DjangoAppConfig):
     _holidays = {}
     name = "edc_appointment"
     verbose_name = "Edc Appointments"
-    configurations = [
-        AppointmentConfig(
-            model="edc_appointment.appointment",
-            related_visit_model="edc_appointment.subjectvisit",
-        )
-    ]
+    configurations = []
     has_exportable_data = True
 
     def ready(self):
@@ -35,29 +30,31 @@ class AppConfig(DjangoAppConfig):
         )
 
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
-        for config in self.configurations:
-            sys.stdout.write(f" * {config.name}.\n")
+        #         for config in self.configurations:
+        #             sys.stdout.write(f" * {config.name}.\n")
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")
 
-    def get_configuration(self, name=None, related_visit_model=None):
-        """Returns an AppointmentConfig instance for the given
-        name or related_visit_model.
-        """
-        if related_visit_model:
-            attr, value = "related_visit_model", related_visit_model
-        else:
-            attr, value = "name", name
-        try:
-            appointment_config = [
-                c for c in self.configurations if getattr(c, attr) == value
-            ][0]
-        except IndexError:
-            keys = [(c.name, c.related_visit_model) for c in self.configurations]
-            raise EdcAppointmentAppConfigError(
-                f"AppointmentConfig not found. Got {name or related_visit_model}. "
-                f'Expected one of {keys}. See edc_appointment.AppConfig "configurations".'
-            )
-        return appointment_config
+
+#     def get_configuration(self, name=None, related_visit_model=None):
+#         """Returns an AppointmentConfig instance for the given
+#         name or related_visit_model.
+#         """
+#         if related_visit_model:
+#             attr, value = "related_visit_model", related_visit_model
+#         else:
+#             attr, value = "name", name
+#         try:
+#             appointment_config = [
+#                 c for c in self.configurations if getattr(c, attr) == value
+#             ][0]
+#         except IndexError:
+#             keys = [(c.name, c.related_visit_model)
+#                     for c in self.configurations]
+#             raise EdcAppointmentAppConfigError(
+#                 f"AppointmentConfig not found. Got {name or related_visit_model}. "
+#                 f'Expected one of {keys}. See edc_appointment.AppConfig "configurations".'
+#             )
+#         return appointment_config
 
 
 if settings.APP_NAME == "edc_appointment":
