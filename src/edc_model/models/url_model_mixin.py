@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
-from django.urls import reverse
+from django.contrib.admin import sites
 from django.db import models
+from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
 
@@ -40,9 +41,12 @@ class UrlModelMixin(models.Model):
 
     @property
     def admin_site_name(self):
-        """Returns the admin url namespace for this model.
+        """Returns the "admin" url namespace for this model.
 
-        e.g. for module plot the default would be 'plot_admin'.
+        Default naming convention for edc is "<app_label>_admin".
+        For example, for module my_app the default would be 'my_app_admin'.
+
+        If the edc module's admin site is not defined, defaults to "admin".
         """
         # model specific
         admin_site_name = self.ADMIN_SITE_NAME
@@ -52,8 +56,10 @@ class UrlModelMixin(models.Model):
                 # app specific
                 admin_site_name = django_apps.get_app_config(app_label).admin_site_name
             except AttributeError:
-                # default
+                # default to edc format
                 admin_site_name = f"{self._meta.app_label}_admin"
+                if admin_site_name not in [s.name for s in sites.all_sites]:
+                    admin_site_name = "admin"
         return admin_site_name
 
     class Meta:
