@@ -44,11 +44,8 @@ class AliquotAdmin(BaseModelAdmin, admin.ModelAdmin):
     )
 
     def get_readonly_fields(self, request, obj=None):
-        return (
-            super().get_readonly_fields(request, obj=obj)
-            + audit_fields
-            + aliquot_identifiers_fields
-        )
+        readonly_fields = super().get_readonly_fields(request, obj=obj)
+        return list(readonly_fields) + list(aliquot_identifiers_fields)
 
     list_display = (
         "aliquot_identifier",

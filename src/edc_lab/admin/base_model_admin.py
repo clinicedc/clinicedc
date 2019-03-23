@@ -6,6 +6,7 @@ from edc_model_admin import (
     ModelAdminFormInstructionsMixin,
     ModelAdminNextUrlRedirectMixin,
     ModelAdminFormAutoNumberMixin,
+    audit_fields,
 )
 
 
@@ -24,3 +25,7 @@ class BaseModelAdmin(
     empty_value_display = "-"
     view_on_site = False
     show_cancel = True
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request, obj=obj)
+        return list(readonly_fields) + list(audit_fields) + ["site"]
