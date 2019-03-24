@@ -64,7 +64,3 @@ class SubjectRequisition(
     @property
     def visit(self):
         return self.subject_visit
-
-    @property
-    def subject_identifier(self):
-        return self.visit.subject_identifier

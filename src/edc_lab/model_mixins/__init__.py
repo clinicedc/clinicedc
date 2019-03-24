@@ -6,7 +6,5 @@ from .requisition import (
     RequisitionIdentifierMixin,
     RequisitionModelMixin,
     RequisitionStatusMixin,
-    SubjectRequisitionModelMixin,
-    SubjectRequisitionManager,
 )
 from .shipping import ManifestModelMixin, VerifyModelMixin, VerifyBoxModelMixin
