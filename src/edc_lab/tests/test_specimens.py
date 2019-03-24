@@ -10,7 +10,7 @@ from ..lab import SpecimenProcessor
 from ..lab import AliquotCreator as AliquotCreatorBase
 from ..identifiers import AliquotIdentifier as AliquotIdentifierBase
 from ..models import Aliquot
-from .models import SubjectRequisition, SimpleSubjectVisit as SubjectVisit
+from .models import SubjectRequisition, SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 

@@ -8,7 +8,7 @@ from edc_sites.utils import add_or_update_django_sites
 from ..lab import AliquotType, LabProfile, ProcessingProfile
 from ..lab import Process, ProcessingProfileAlreadyAdded
 from ..site_labs import SiteLabs, site_labs
-from .models import SubjectRequisition, SimpleSubjectVisit as SubjectVisit
+from .models import SubjectRequisition, SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 

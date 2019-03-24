@@ -1,8 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 
-from ...site_labs import site_labs
-from ..panel import Panel
+from ..site_labs import site_labs
 
 
 class PanelModelError(Exception):
@@ -19,7 +18,7 @@ class NothingPanel:
 
 class PanelModelMixin(models.Model):
 
-    panel = models.ForeignKey(Panel, on_delete=PROTECT, null=True)
+    panel = models.ForeignKey("edc_lab.Panel", on_delete=PROTECT, null=True)
 
     @property
     def panel_object(self):

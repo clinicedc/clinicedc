@@ -1,4 +1,11 @@
-from edc_constants.constants import PENDING, PARTIAL, COMPLETE, NOT_APPLICABLE, OTHER
+from edc_constants.constants import (
+    COMPLETE,
+    NOT_APPLICABLE,
+    OTHER,
+    PARTIAL,
+    PENDING,
+)
+from edc_metadata.constants import NOT_REQUIRED
 
 from .constants import FILL_ACROSS, FILL_DOWN, TUBE
 
@@ -26,7 +33,18 @@ MODIFY_ACTIONS = (
     ("VIEW", "Print"),
 )
 
-ORDER_STATUS = ((PENDING, "Pending"), (PARTIAL, "Partial"), (COMPLETE, "Complete"))
+ORDER_STATUS = ((PENDING, "Pending"), (PARTIAL, "Partial"),
+                (COMPLETE, "Complete"))
+
+REASON_NOT_DRAWN = (
+    (NOT_APPLICABLE, "Not applicable"),
+    ("collection_failed", "Tried, but unable to obtain sample from patient"),
+    ("absent", "Patient did not attend visit"),
+    ("refused", "Patient refused"),
+    ("no_supplies", "No supplies"),
+    (NOT_REQUIRED, "No longer required for this visit"),
+    (OTHER, "Other"),
+)
 
 RESULT_RELEASE_STATUS = (
     ("NEW", "New"),
@@ -34,9 +52,11 @@ RESULT_RELEASE_STATUS = (
     ("AMENDED", "Amended"),
 )
 
-RESULT_VALIDATION_STATUS = (("P", "Preliminary"), ("F", "Final"), ("R", "Rejected"))
+RESULT_VALIDATION_STATUS = (
+    ("P", "Preliminary"), ("F", "Final"), ("R", "Rejected"))
 
-RESULT_QUANTIFIER = (("=", "="), (">", ">"), (">=", ">="), ("<", "<"), ("<=", "<="))
+RESULT_QUANTIFIER = (("=", "="), (">", ">"), (">=", ">="),
+                     ("<", "<"), ("<=", "<="))
 
 SPECIMEN_MEASURE_UNITS = (
     ("mL", "mL"),

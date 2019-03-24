@@ -10,7 +10,7 @@ from edc_constants.constants import YES
 from edc_registration.models import RegisteredSubject
 
 from ..labels.aliquot_label import AliquotLabel, AliquotLabelError
-from .models import SimpleSubjectVisit as SubjectVisit
+from .models import SubjectVisit
 from .models import SubjectRequisition
 
 
@@ -46,7 +46,8 @@ class TestLabels(TestCase):
             requisition_identifier=self.subject_requisition.requisition_identifier,
             is_primary=True,
         )
-        self.aliquot = creator.create(count=1, aliquot_type=self.panel.aliquot_type)
+        self.aliquot = creator.create(
+            count=1, aliquot_type=self.panel.aliquot_type)
 
     def test_aliquot_label(self):
         label = AliquotLabel(pk=self.aliquot.pk)

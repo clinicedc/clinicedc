@@ -4,3 +4,7 @@ from .requisition_identifier_mixin import (
 )
 from .requisition_model_mixin import RequisitionModelMixin
 from .requisition_status_mixin import RequisitionStatusMixin
+from .subject_requisition_model_mixin import (
+    SubjectRequisitionModelMixin,
+    SubjectRequisitionManager,
+)

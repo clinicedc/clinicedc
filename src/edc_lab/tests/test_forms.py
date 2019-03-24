@@ -10,7 +10,7 @@ from edc_utils import get_utcnow
 from ..form_validators import RequisitionFormValidator
 from ..forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
 from ..models import Aliquot
-from .models import SubjectRequisition, SimpleSubjectVisit as SubjectVisit
+from .models import SubjectRequisition, SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 

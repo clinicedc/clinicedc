@@ -5,7 +5,7 @@ from edc_constants.constants import NOT_APPLICABLE
 from edc_model_fields.fields import OtherCharField, InitialsField
 from edc_sites.models import SiteModelMixin
 
-from ....choices import ITEM_TYPE, REASON_NOT_DRAWN
+from ...choices import ITEM_TYPE, REASON_NOT_DRAWN
 from ..panel_model_mixin import PanelModelMixin
 from .requisition_verify_model_mixin import RequisitionVerifyModelMixin
 
@@ -44,7 +44,8 @@ class RequisitionModelMixin(
 
     reason_not_drawn_other = OtherCharField()
 
-    protocol_number = models.CharField(max_length=10, null=True, editable=False)
+    protocol_number = models.CharField(
+        max_length=10, null=True, editable=False)
 
     clinician_initials = InitialsField(null=True, blank=True)
 

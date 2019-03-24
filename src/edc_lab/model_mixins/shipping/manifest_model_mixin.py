@@ -4,12 +4,13 @@ from edc_constants.constants import OPEN, CLOSED, OTHER
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
-from ....constants import TESTING, STORAGE
-from ....identifiers import ManifestIdentifier
+from ...constants import TESTING, STORAGE
+from ...identifiers import ManifestIdentifier
 
 STATUS = ((OPEN, "Open"), (CLOSED, "Closed"))
 
-MANIFEST_CATEGORY = ((TESTING, "Testing"), (STORAGE, "Storage"), (OTHER, "Other"))
+MANIFEST_CATEGORY = ((TESTING, "Testing"),
+                     (STORAGE, "Storage"), (OTHER, "Other"))
 
 
 class ManifestModelMixin(SiteModelMixin, models.Model):
