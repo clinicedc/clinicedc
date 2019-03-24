@@ -1,7 +1,6 @@
 from django.views.generic.base import ContextMixin
 from django.urls.base import reverse
-
-from ..dashboard_urls import dashboard_urls
+from edc_dashboard.url_names import url_names
 
 
 class FormActionViewError(Exception):
@@ -31,11 +30,10 @@ class FormActionViewMixin(ContextMixin):
 
     @property
     def form_action_url_reversed(self):
-        try:
-            form_action_url = dashboard_urls[self.form_action_url]
-        except KeyError:
+        form_action_url = self.form_action_url
+        if form_action_url not in url_names.registry:
             raise FormActionViewError(
-                f"'form_action_url' not defined in dashboard_urls. "
+                f"'form_action_url' not defined in url_names. "
                 f"See {repr(self)}. Got {self.form_action_url}"
             )
         return reverse(form_action_url, kwargs=self.form_action_url_kwargs)

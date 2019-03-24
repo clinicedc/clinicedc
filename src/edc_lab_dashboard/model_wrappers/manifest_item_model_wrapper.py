@@ -1,13 +1,11 @@
 from edc_lab.models import Box, ManifestItem
 from edc_model_wrapper import ModelWrapper
 
-from ..dashboard_urls import dashboard_urls
-
 
 class ManifestItemModelWrapper(ModelWrapper):
 
     model_cls = ManifestItem
-    next_url_name = dashboard_urls.get("manage_manifest_listboard_url")
+    next_url_name = "manage_manifest_listboard_url"
     action_name = "manage"
 
     @property

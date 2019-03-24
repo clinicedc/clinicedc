@@ -11,8 +11,10 @@ app_config = django_apps.get_app_config("edc_lab_dashboard")
 
 class TestModelWrapper(TestCase):
     def setUp(self):
-        self.box_type = BoxType.objects.create(name="9 x 9", across=9, down=9, total=81)
-        self.box = Box.objects.create(box_identifier="12345678", box_type=self.box_type)
+        self.box_type = BoxType.objects.create(
+            name="9 x 9", across=9, down=9, total=81)
+        self.box = Box.objects.create(
+            box_identifier="12345678", box_type=self.box_type)
         self.box_item = BoxItem.objects.create(box=self.box, position=0)
         self.aliquot = Aliquot.objects.create(
             subject_identifier="ABCDEFG",
@@ -23,18 +25,13 @@ class TestModelWrapper(TestCase):
             alpha_code="WB",
         )
         self.wrapper_cls = AliquotModelWrapper
-        next_url_name = self.wrapper_cls.next_url_name
-        # attempt to remove namespace
-        try:
-            self.wrapper_cls.next_url_name = next_url_name.split(":")[1]
-        except IndexError:
-            pass
 
     def test_aliquot_model_wrapper(self):
         wrapper = self.wrapper_cls(self.aliquot)
         self.assertEqual(
             wrapper.href,
-            f"/admin/edc_lab/aliquot/{self.aliquot.id}/change/?next=aliquot_listboard_url&",
+            f"/admin/edc_lab/aliquot/{self.aliquot.id}/change/?"
+            f"next=edc_lab_dashboard:aliquot_listboard_url&",
         )
         self.assertEqual(wrapper.reverse(), "/listboard/aliquot/")
 
