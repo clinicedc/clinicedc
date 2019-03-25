@@ -54,8 +54,8 @@ class SubjectScheduleHistoryAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)
         fields = (
-            fields
-            + (
+            list(fields)
+            + [
                 "subject_identifier",
                 "visit_schedule_name",
                 "schedule_name",
@@ -64,7 +64,7 @@ class SubjectScheduleHistoryAdmin(admin.ModelAdmin):
                 "offschedule_datetime",
                 "onschedule_model",
                 "offschedule_model",
-            )
-            + tuple(audit_fieldset_tuple[1].get("fields"))
+            ]
+            + list(audit_fieldset_tuple[1].get("fields"))
         )
         return fields
