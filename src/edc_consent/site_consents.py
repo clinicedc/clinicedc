@@ -29,6 +29,7 @@ class SiteConsents:
 
     def __init__(self):
         self.registry = {}
+        self.loaded = False
 
     def register(self, consent=None):
         if consent.name in self.registry:
@@ -39,6 +40,7 @@ class SiteConsents:
             consent=consent, consents=self.consents
         )
         self.registry.update({consent.name: consent})
+        self.loaded = True
 
     @property
     def consents(self):
@@ -59,6 +61,11 @@ class SiteConsents:
         """Returns a consent object with a date range that the
         given report_datetime falls within.
         """
+        if not self.consents or not self.loaded:
+            raise SiteConsentError(
+                f"No consent objects have been registered by site consents. "
+                f"Got {self.consents}, loaded={self.loaded}."
+            )
         app_config = django_apps.get_app_config("edc_consent")
         consent_group = consent_group or app_config.default_consent_group
         registered_consents = self.registry.values()
