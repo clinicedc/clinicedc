@@ -1,28 +1,25 @@
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
-from django.views.generic.edit import ProcessFormView
 from edc_appointment.models import Appointment
 from edc_constants.constants import YES
 from edc_lab.models import Consignee
-from edc_lab.models.model_mixins import RequisitionModelMixin
+from edc_lab.model_mixins import RequisitionModelMixin
 from edc_label.job_result import JobResult
-from edc_label.printers_mixin import PrintersMixin, PrintServerError, PrinterError
+from edc_label.printers_mixin import PrintServerError, PrinterError
 from edc_metadata.constants import REQUIRED, KEYED
 from edc_metadata.models import RequisitionMetadata
 
 from ..requisition_report import RequisitionReport
 from ..requisition_labels import RequisitionLabels
+from .base_requisition_view import BaseRequisitionView
 
 
-class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessFormView):
+class RequisitionPrintActionsView(BaseRequisitionView):
 
     job_result_cls = JobResult
     requisition_report_cls = RequisitionReport
     requisition_labels_cls = RequisitionLabels
-    success_url = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
     print_selected_button = "print_selected_labels"
     print_all_button = "print_all_labels"
     print_requisition = "print_requisition"
@@ -34,6 +31,9 @@ class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessForm
         self._requisition_metadata = None
         self._requisition_model_cls = None
         super().__init__(**kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         response = None
@@ -51,7 +51,7 @@ class RequisitionPrintActionsView(LoginRequiredMixin, PrintersMixin, ProcessForm
         if not response:
             subject_identifier = request.POST.get("subject_identifier")
             success_url = reverse(
-                self.success_url,
+                self.get_success_url(),
                 kwargs=dict(
                     subject_identifier=subject_identifier,
                     appointment=str(self.appointment.pk),

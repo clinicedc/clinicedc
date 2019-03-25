@@ -93,7 +93,7 @@ def requisition_panel_actions(context, requisitions=None):
         app_label, model_name = requisition_metadata.model.split(".")
         context["verify_disabled"] = (
             None
-            if context["request"].user.has_perm(f"{app_label}.change_{model_name}")
+            if context["user"].has_perm(f"{app_label}.change_{model_name}")
             else "disabled"
         )
     appointment = context.get("appointment")

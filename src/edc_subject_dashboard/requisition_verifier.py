@@ -3,7 +3,7 @@ from edc_appointment.models import Appointment
 from edc_utils import get_utcnow
 from edc_constants.constants import YES, NO
 from edc_lab.constants import TUBE
-from edc_lab.models.model_mixins import RequisitionModelMixin
+from edc_lab.model_mixins import RequisitionModelMixin
 
 
 class RequisitionVerifier:
