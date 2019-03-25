@@ -30,10 +30,5 @@ class FormActionViewMixin(ContextMixin):
 
     @property
     def form_action_url_reversed(self):
-        form_action_url = self.form_action_url
-        if form_action_url not in url_names.registry:
-            raise FormActionViewError(
-                f"'form_action_url' not defined in url_names. "
-                f"See {repr(self)}. Got {self.form_action_url}"
-            )
+        form_action_url = url_names.get(self.form_action_url)
         return reverse(form_action_url, kwargs=self.form_action_url_kwargs)

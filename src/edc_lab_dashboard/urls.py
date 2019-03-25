@@ -175,7 +175,7 @@ urlpatterns = [
         name="manage_manifest_item_form_action_url",
     ),
     path("aliquot/", AliquotView.as_view(), name="aliquot_form_action_url"),
-    path(r"", HomeView.as_view(), name="home_url"),
+    path("", HomeView.as_view(), name="home_url"),
 ]
 
 url_names.register_from_dict(**dashboard_urls)
