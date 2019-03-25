@@ -51,8 +51,7 @@ class TestSiteLab2(TestCase):
         self.lab_profile = self.lab_helper.lab_profile
 
     def test_site_lab_panels(self):
-        self.assertIn(self.panel.name, site_labs.get(
-            self.lab_profile.name).panels)
+        self.assertIn(self.panel.name, site_labs.get(self.lab_profile.name).panels)
 
     def test_panel_repr(self):
         self.assertTrue(repr(self.panel))
@@ -126,5 +125,4 @@ class TestSiteLab2(TestCase):
         requisition_identifier = requisition.requisition_identifier
         requisition.is_drawn = YES
         requisition.save()
-        self.assertEqual(requisition_identifier,
-                         requisition.requisition_identifier)
+        self.assertEqual(requisition_identifier, requisition.requisition_identifier)

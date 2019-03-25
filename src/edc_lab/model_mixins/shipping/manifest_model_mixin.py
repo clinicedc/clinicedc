@@ -9,8 +9,7 @@ from ...identifiers import ManifestIdentifier
 
 STATUS = ((OPEN, "Open"), (CLOSED, "Closed"))
 
-MANIFEST_CATEGORY = ((TESTING, "Testing"),
-                     (STORAGE, "Storage"), (OTHER, "Other"))
+MANIFEST_CATEGORY = ((TESTING, "Testing"), (STORAGE, "Storage"), (OTHER, "Other"))
 
 
 class ManifestModelMixin(SiteModelMixin, models.Model):

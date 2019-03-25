@@ -1,10 +1,4 @@
-from edc_constants.constants import (
-    COMPLETE,
-    NOT_APPLICABLE,
-    OTHER,
-    PARTIAL,
-    PENDING,
-)
+from edc_constants.constants import COMPLETE, NOT_APPLICABLE, OTHER, PARTIAL, PENDING
 from edc_metadata.constants import NOT_REQUIRED
 
 from .constants import FILL_ACROSS, FILL_DOWN, TUBE
@@ -33,8 +27,7 @@ MODIFY_ACTIONS = (
     ("VIEW", "Print"),
 )
 
-ORDER_STATUS = ((PENDING, "Pending"), (PARTIAL, "Partial"),
-                (COMPLETE, "Complete"))
+ORDER_STATUS = ((PENDING, "Pending"), (PARTIAL, "Partial"), (COMPLETE, "Complete"))
 
 REASON_NOT_DRAWN = (
     (NOT_APPLICABLE, "Not applicable"),
@@ -52,11 +45,9 @@ RESULT_RELEASE_STATUS = (
     ("AMENDED", "Amended"),
 )
 
-RESULT_VALIDATION_STATUS = (
-    ("P", "Preliminary"), ("F", "Final"), ("R", "Rejected"))
+RESULT_VALIDATION_STATUS = (("P", "Preliminary"), ("F", "Final"), ("R", "Rejected"))
 
-RESULT_QUANTIFIER = (("=", "="), (">", ">"), (">=", ">="),
-                     ("<", "<"), ("<=", "<="))
+RESULT_QUANTIFIER = (("=", "="), (">", ">"), (">=", ">="), ("<", "<"), ("<=", "<="))
 
 SPECIMEN_MEASURE_UNITS = (
     ("mL", "mL"),

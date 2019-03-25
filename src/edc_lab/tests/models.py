@@ -31,9 +31,7 @@ class SubjectRequisitionManager(models.Manager):
         )
 
 
-class SubjectVisit(
-    NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidModel
-):
+class SubjectVisit(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 

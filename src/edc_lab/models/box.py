@@ -12,8 +12,7 @@ from ..model_mixins import VerifyBoxModelMixin
 from .box_type import BoxType
 
 
-BOX_DIMENSIONS = (("8 x 8", "8 x 8"), ("9 x 9", "9 x 9"),
-                  ("10 x 10", "10 x 10"))
+BOX_DIMENSIONS = (("8 x 8", "8 x 8"), ("9 x 9", "9 x 9"), ("10 x 10", "10 x 10"))
 
 BOX_CATEGORY = ((TESTING, "Testing"), (STORAGE, "Storage"), (OTHER, "Other"))
 
@@ -34,11 +33,9 @@ class BoxManager(SearchSlugManager, models.Manager):
 
 class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidModel):
 
-    search_slug_fields = ["box_identifier",
-                          "human_readable_identifier", "name"]
+    search_slug_fields = ["box_identifier", "human_readable_identifier", "name"]
 
-    box_identifier = models.CharField(
-        max_length=25, editable=False, unique=True)
+    box_identifier = models.CharField(max_length=25, editable=False, unique=True)
 
     name = models.CharField(max_length=25, null=True, blank=True)
 
@@ -46,8 +43,7 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidMod
 
     box_type = models.ForeignKey(BoxType, on_delete=PROTECT)
 
-    category = models.CharField(
-        max_length=25, default=TESTING, choices=BOX_CATEGORY)
+    category = models.CharField(max_length=25, default=TESTING, choices=BOX_CATEGORY)
 
     category_other = models.CharField(max_length=25, null=True, blank=True)
 

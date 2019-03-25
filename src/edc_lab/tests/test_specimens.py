@@ -86,8 +86,7 @@ class TestSpecimen(TestCase):
             protocol_number="999",
             is_drawn=NO,
         )
-        self.assertRaises(SpecimenNotDrawnError, Specimen,
-                          requisition=requisition)
+        self.assertRaises(SpecimenNotDrawnError, Specimen, requisition=requisition)
 
 
 class TestSpecimen2(TestCase):
@@ -166,19 +165,16 @@ class TestSpecimen2(TestCase):
         """
         self.assertEqual(self.specimen.aliquots.count(), 1)
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(),
-                         self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
 
     def test_specimen_process2(self):
         """Asserts calling process more than once has no effect.
         """
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(),
-                         self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
         self.specimen.process()
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(),
-                         self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
 
     def test_specimen_process_identifier_prefix(self):
         """Assert all aliquots start with the correct identifier

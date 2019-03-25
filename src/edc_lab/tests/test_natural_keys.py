@@ -23,8 +23,7 @@ class TestNaturalKey(SiteTestCaseMixin, TestCase):
         self.offline_test_helper.offline_test_natural_key_attr("edc_lab")
 
     def test_get_by_natural_key_attr(self):
-        self.offline_test_helper.offline_test_get_by_natural_key_attr(
-            "edc_lab")
+        self.offline_test_helper.offline_test_get_by_natural_key_attr("edc_lab")
 
 
 #     def test_deserialize_subject_screening(self):
