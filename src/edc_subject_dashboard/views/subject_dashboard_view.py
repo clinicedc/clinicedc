@@ -63,9 +63,11 @@ class SubjectDashboardView(
     def __init__(self, **kwargs):
         if not self.navbar_name:
             raise ImproperlyConfigured(
-                f"'navbar_name' cannot be None. See {repr(self)}.")
+                f"'navbar_name' cannot be None. See {repr(self)}."
+            )
         self.appointment_model_wrapper_cls.visit_model_wrapper_cls = (
-            self.visit_model_wrapper_cls)
+            self.visit_model_wrapper_cls
+        )
         if self.visit_model:
             self.visit_model_wrapper_cls.model = self.visit_model
         else:

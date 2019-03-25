@@ -10,12 +10,12 @@ app_name = "edc_subject_dashboard"
 
 urlpatterns = [
     path(
-        r"requisition_print_actions/",
+        "requisition_print_actions/",
         RequisitionPrintActionsView.as_view(),
         name="requisition_print_actions_url",
     ),
     path(
-        r"requisition_verify_actions/",
+        "requisition_verify_actions/",
         RequisitionVerifyActionsView.as_view(),
         name="requisition_verify_actions_url",
     ),

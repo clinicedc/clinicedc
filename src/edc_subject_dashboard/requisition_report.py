@@ -4,9 +4,7 @@ from edc_utils import get_utcnow
 from edc_constants.constants import YES
 from edc_identifier.simple_identifier import make_human_readable
 from edc_lab.models.manifest.shipper import Shipper
-from edc_lab.models.model_mixins.requisition.requisition_model_mixin import (
-    RequisitionModelMixin,
-)
+from edc_lab.model_mixins import RequisitionModelMixin
 from edc_reports import NumberedCanvas, Report
 from io import BytesIO
 from reportlab.graphics.barcode import code39

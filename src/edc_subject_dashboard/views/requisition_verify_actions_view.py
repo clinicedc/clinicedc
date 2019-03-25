@@ -1,16 +1,12 @@
-from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
-from django.views.generic.edit import ProcessFormView
-from edc_label.printers_mixin import PrintersMixin
 
 from ..requisition_verifier import RequisitionVerifier
+from .base_requisition_view import BaseRequisitionView
 
 
-class RequisitionVerifyActionsView(LoginRequiredMixin, PrintersMixin, ProcessFormView):
+class RequisitionVerifyActionsView(BaseRequisitionView):
 
-    success_url = settings.DASHBOARD_URL_NAMES.get("subject_dashboard_url")
     requisition_verifier_cls = RequisitionVerifier
 
     def post(self, request, *args, **kwargs):
@@ -31,8 +27,9 @@ class RequisitionVerifyActionsView(LoginRequiredMixin, PrintersMixin, ProcessFor
             if requisition_verifier.verified:
                 alert = ""
                 error = 0
+
         success_url = reverse(
-            self.success_url,
+            self.get_success_url(),
             kwargs=dict(
                 subject_identifier=subject_identifier,
                 appointment=appointment_pk,
