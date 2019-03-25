@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase, tag  # noqa
 from django_collect_offline.tests import OfflineTestHelper
 from edc_sites.tests import SiteTestCaseMixin
@@ -11,7 +12,7 @@ class TestNaturalKey(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
 

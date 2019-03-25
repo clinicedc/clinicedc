@@ -2,9 +2,15 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from edc_constants.constants import YES
 from uuid import UUID
+from edc_lab.admin.fieldsets import (
+    requisition_identifier_fields,
+    requisition_verify_fields,
+)
 
 
 class RequisitionAdminMixin:
+
+    ordering = ("requisition_identifier",)
 
     date_hierarchy = "requisition_datetime"
 
@@ -48,3 +54,11 @@ class RequisitionAdminMixin:
             pk = UUID(request.GET.get("panel")) if request.GET.get("panel") else None
             kwargs["queryset"] = db_field.related_model.objects.filter(pk=pk)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request, obj=obj)
+        return (
+            list(readonly_fields)
+            + list(requisition_identifier_fields)
+            + list(requisition_verify_fields)
+        )

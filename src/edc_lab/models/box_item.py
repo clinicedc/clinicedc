@@ -5,9 +5,9 @@ from django.db.models.deletion import PROTECT
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
+from ..model_mixins import VerifyModelMixin
 from ..patterns import aliquot_pattern
 from .box import Box
-from .model_mixins.shipping import VerifyModelMixin
 
 
 class BoxItemManager(SearchSlugManager, models.Manager):

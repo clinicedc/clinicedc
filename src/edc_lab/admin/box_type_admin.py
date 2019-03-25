@@ -1,5 +1,5 @@
 from django.contrib import admin
-from edc_model_admin import audit_fieldset_tuple, audit_fields
+from edc_model_admin import audit_fieldset_tuple
 
 from ..admin_site import edc_lab_admin
 from ..forms import BoxTypeForm
@@ -16,8 +16,5 @@ class BoxTypeAdmin(BaseModelAdmin, admin.ModelAdmin):
         (None, {"fields": ("name", "across", "down", "total", "fill_order")}),
         audit_fieldset_tuple,
     )
-
-    def get_readonly_fields(self, request, obj=None):
-        return super().get_readonly_fields(request, obj=obj) + audit_fields
 
     list_display = ("name", "across", "down", "total")

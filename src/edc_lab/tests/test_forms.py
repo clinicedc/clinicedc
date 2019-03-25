@@ -1,5 +1,6 @@
 from datetime import timedelta
 from django import forms
+from django.conf import settings
 from django.test import TestCase, tag
 from edc_constants.constants import OTHER, YES, NO, NOT_APPLICABLE
 from edc_form_validators import FormValidatorMixin
@@ -9,7 +10,7 @@ from edc_utils import get_utcnow
 from ..form_validators import RequisitionFormValidator
 from ..forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
 from ..models import Aliquot
-from .models import SubjectRequisition, SimpleSubjectVisit as SubjectVisit
+from .models import SubjectRequisition, SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 
@@ -17,7 +18,7 @@ class TestForms(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
 

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag  # noqa
 from edc_constants.constants import YES, NO
@@ -9,7 +10,7 @@ from ..lab import SpecimenProcessor
 from ..lab import AliquotCreator as AliquotCreatorBase
 from ..identifiers import AliquotIdentifier as AliquotIdentifierBase
 from ..models import Aliquot
-from .models import SubjectRequisition, SimpleSubjectVisit as SubjectVisit
+from .models import SubjectRequisition, SubjectVisit
 from .site_labs_test_helper import SiteLabsTestHelper
 
 
@@ -32,7 +33,7 @@ class TestSpecimen(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
 
@@ -95,7 +96,7 @@ class TestSpecimen2(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
 

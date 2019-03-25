@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db.utils import IntegrityError
 from django.test import TestCase, tag  # noqa
 from edc_sites.utils import add_or_update_django_sites
@@ -10,7 +11,7 @@ class TestAliquot(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, "test_site", "Test Site"),), fqdn="clinicedc.org"
+            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
 

@@ -1,18 +1,49 @@
+from django.apps import apps as django_apps
+from django.conf import settings
 from django.db import models
+from django.db.models.deletion import PROTECT
 from django.utils import timezone
+from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import NOT_APPLICABLE
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_metadata.model_mixins.updates import UpdatesRequisitionMetadataModelMixin
+from edc_model.models import HistoricalRecords
 from edc_model_fields.fields import OtherCharField, InitialsField
+from edc_reference.model_mixins import RequisitionReferenceModelMixin
+from edc_search.model_mixins import SearchSlugModelMixin
 from edc_sites.models import SiteModelMixin
+from edc_visit_schedule.model_mixins import SubjectScheduleCrfModelMixin
+from edc_visit_tracking.managers import CurrentSiteManager
+from edc_visit_tracking.model_mixins import CrfModelMixin
+from edc_visit_tracking.model_mixins import PreviousVisitModelMixin
 
-from ....choices import ITEM_TYPE, REASON_NOT_DRAWN
+from ...choices import ITEM_TYPE, REASON_NOT_DRAWN
+from ...managers import RequisitionManager
 from ..panel_model_mixin import PanelModelMixin
 from .requisition_verify_model_mixin import RequisitionVerifyModelMixin
+from .requisition_status_mixin import RequisitionStatusMixin
+from .requisition_identifier_mixin import RequisitionIdentifierMixin
 
 
 class RequisitionModelMixin(
-    PanelModelMixin, SiteModelMixin, RequisitionVerifyModelMixin, models.Model
+    NonUniqueSubjectIdentifierFieldMixin,
+    RequisitionStatusMixin,
+    RequisitionIdentifierMixin,
+    PanelModelMixin,
+    CrfModelMixin,
+    SubjectScheduleCrfModelMixin,
+    RequiresConsentFieldsModelMixin,
+    UpdatesRequisitionMetadataModelMixin,
+    PreviousVisitModelMixin,
+    RequisitionReferenceModelMixin,
+    SearchSlugModelMixin,
+    SiteModelMixin,
+    RequisitionVerifyModelMixin,
+    models.Model,
 ):
+
+    subject_visit = models.ForeignKey(settings.SUBJECT_VISIT_MODEL, on_delete=PROTECT)
 
     requisition_datetime = models.DateTimeField(
         default=timezone.now, verbose_name="Requisition Date"
@@ -84,7 +115,20 @@ class RequisitionModelMixin(
 
     comments = models.TextField(max_length=25, null=True, blank=True)
 
+    on_site = CurrentSiteManager()
+
+    objects = RequisitionManager()
+
+    history = HistoricalRecords(inherit=True)
+
+    def __str__(self):
+        return f"{self.requisition_identifier} " f"{self.panel_object.verbose_name}"
+
     def save(self, *args, **kwargs):
+        if not self.id:
+            edc_protocol_app_config = django_apps.get_app_config("edc_protocol")
+            self.protocol_number = edc_protocol_app_config.protocol_number
+        self.subject_identifier = self.subject_visit.subject_identifier
         self.specimen_type = self.panel_object.aliquot_type.alpha_code
         super().save(*args, **kwargs)
 
@@ -93,5 +137,18 @@ class RequisitionModelMixin(
 
     natural_key.dependencies = ["sites.Site"]
 
+    def get_search_slug_fields(self):
+        fields = super().get_search_slug_fields()
+        fields.extend(
+            [
+                "subject_identifier",
+                "requisition_identifier",
+                "human_readable_identifier",
+                "identifier_prefix",
+            ]
+        )
+        return fields
+
     class Meta:
         abstract = True
+        unique_together = ("panel", "subject_visit")

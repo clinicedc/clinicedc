@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from edc_sites.models import SiteModelMixin
 
-from ....choices import (
+from ...choices import (
     ALIQUOT_STATUS,
     SPECIMEN_MEASURE_UNITS,
     SPECIMEN_MEDIUM,

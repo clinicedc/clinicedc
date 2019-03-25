@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, tag  # noqa
 from edc_sites.utils import add_or_update_django_sites
@@ -11,7 +12,7 @@ class TestManifest(TestCase):
     @classmethod
     def setUpClass(cls):
         add_or_update_django_sites(
-            sites=((10, "example.com", "Test Site"),), fqdn="example.com"
+            sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
 
@@ -48,14 +49,14 @@ class TestManifestReport(TestCase):
         self.manifest = Manifest.objects.create(consignee=consignee, shipper=shipper)
 
     def test_report(self):
-        self.assertEqual(self.manifest.site.name, "example.com")
+        self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         report.render()
 
     def test_report_shipped(self):
         self.manifest.shipped = True
         self.manifest.save()
-        self.assertEqual(self.manifest.site.name, "example.com")
+        self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         report.render()
 
@@ -67,7 +68,7 @@ class TestManifestReport(TestCase):
                 manifest=self.manifest,
                 identifier=f"{self.manifest.manifest_identifier}{i}",
             )
-        self.assertEqual(self.manifest.site.name, "example.com")
+        self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render)
         try:
@@ -98,7 +99,7 @@ class TestManifestReport(TestCase):
         ManifestItem.objects.create(
             manifest=self.manifest, identifier=box.box_identifier
         )
-        self.assertEqual(self.manifest.site.name, "example.com")
+        self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render)
         try:
@@ -122,7 +123,7 @@ class TestManifestReport(TestCase):
         ManifestItem.objects.create(
             manifest=self.manifest, identifier=box.box_identifier
         )
-        self.assertEqual(self.manifest.site.name, "example.com")
+        self.assertEqual(self.manifest.site.name, "test_site")
         report = ManifestReport(manifest=self.manifest, user=self.user)
         self.assertRaises(ManifestReportError, report.render)
         try:

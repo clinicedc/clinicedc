@@ -5,11 +5,14 @@ from edc_model.models import BaseUuidModel
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
-from ..models import RequisitionIdentifierMixin, RequisitionModelMixin
-from ..models import RequisitionStatusMixin
+from ..model_mixins import (
+    RequisitionIdentifierMixin,
+    RequisitionModelMixin,
+    RequisitionStatusMixin,
+)
 
 
-class SimpleSubjectVisitManager(models.Manager):
+class SubjectVisitManager(models.Manager):
     def get_by_natural_key(self, subject_identifier, report_datetime):
         return self.get(
             subject_identifier=subject_identifier, report_datetime=report_datetime
@@ -20,7 +23,7 @@ class SubjectRequisitionManager(models.Manager):
     def get_by_natural_key(
         self, requisition_identifier, subject_identifier, report_datetime
     ):
-        subject_visit = SimpleSubjectVisit.objects.get(
+        subject_visit = SubjectVisit.objects.get(
             subject_identifier=subject_identifier, report_datetime=report_datetime
         )
         return self.get(
@@ -28,13 +31,11 @@ class SubjectRequisitionManager(models.Manager):
         )
 
 
-class SimpleSubjectVisit(
-    NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidModel
-):
+class SubjectVisit(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    objects = SimpleSubjectVisitManager()
+    objects = SubjectVisitManager()
 
     def natural_key(self):
         return (self.subject_identifier, self.report_datetime)
@@ -49,7 +50,7 @@ class SubjectRequisition(
     BaseUuidModel,
 ):
 
-    subject_visit = models.ForeignKey(SimpleSubjectVisit, on_delete=PROTECT)
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
     objects = SubjectRequisitionManager()
 
@@ -61,7 +62,3 @@ class SubjectRequisition(
     @property
     def visit(self):
         return self.subject_visit
-
-    @property
-    def subject_identifier(self):
-        return self.visit.subject_identifier

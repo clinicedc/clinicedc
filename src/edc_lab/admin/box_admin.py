@@ -31,9 +31,6 @@ class BoxAdmin(BaseModelAdmin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    def get_readonly_fields(self, request, obj=None):
-        return super().get_readonly_fields(request, obj=obj) + audit_fields
-
     list_display = (
         "box_identifier",
         "name",

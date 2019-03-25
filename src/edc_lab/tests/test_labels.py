@@ -10,7 +10,7 @@ from edc_constants.constants import YES
 from edc_registration.models import RegisteredSubject
 
 from ..labels.aliquot_label import AliquotLabel, AliquotLabelError
-from .models import SimpleSubjectVisit as SubjectVisit
+from .models import SubjectVisit
 from .models import SubjectRequisition
 
 

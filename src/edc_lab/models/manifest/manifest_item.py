@@ -5,7 +5,7 @@ from edc_model.models import BaseUuidModel
 from edc_sites.models import SiteModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 
-from ..model_mixins.shipping import VerifyModelMixin
+from ...model_mixins import VerifyModelMixin
 from .manifest import Manifest
 
 

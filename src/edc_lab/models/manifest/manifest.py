@@ -5,7 +5,7 @@ from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 from edc_sites.models import CurrentSiteManager
 
 from ...managers import ManifestManager
-from ..model_mixins.shipping import ManifestModelMixin
+from ...model_mixins import ManifestModelMixin
 from .consignee import Consignee
 from .shipper import Shipper
 
