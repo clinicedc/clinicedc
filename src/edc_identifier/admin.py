@@ -52,7 +52,7 @@ class IdentifierModelAdmin(admin.ModelAdmin):
     search_fields = ("identifier", "subject_identifier", "linked_identifier")
 
     def get_readonly_fields(self, request, obj=None):
-        return (
+        return [
             "identifier",
             "protocol_number",
             "subject_identifier",
@@ -64,4 +64,4 @@ class IdentifierModelAdmin(admin.ModelAdmin):
             "linked_identifier",
             "device_id",
             "identifier_prefix",
-        ) + tuple(DEFAULT_BASE_FIELDS)
+        ] + list(DEFAULT_BASE_FIELDS)
