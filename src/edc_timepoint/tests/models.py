@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_appointment.models.appointment import Appointment
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
 from edc_visit_tracking.model_mixins import VisitModelMixin
@@ -22,15 +21,20 @@ class SubjectVisit(VisitModelMixin, TimepointLookupModelMixin, BaseUuidModel):
 
     timepoint_lookup_cls = VisitTimepointLookup
 
-    appointment = models.OneToOneField(
-        Appointment, on_delete=PROTECT, related_name="edc_timepoint"
-    )
-
     class Meta(VisitModelMixin.Meta):
         pass
 
 
 class CrfOne(TimepointLookupModelMixin, BaseUuidModel):
+
+    timepoint_lookup_cls = CrfTimepointLookup
+
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
+
+    report_datetime = models.DateTimeField(default=get_utcnow)
+
+
+class CrfTwo(TimepointLookupModelMixin, BaseUuidModel):
 
     timepoint_lookup_cls = CrfTimepointLookup
 
