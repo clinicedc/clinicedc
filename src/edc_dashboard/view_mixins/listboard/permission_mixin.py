@@ -17,8 +17,11 @@ class ListboardPermmissionMixin:
     def get(self, request, *args, **kwargs):
         if not self.has_view_listboard_perms:
             raise Http404(
-                _("You do not have sufficient user or "
-                  "group permissions to view this page."))
+                _(
+                    "You do not have sufficient user or "
+                    "group permissions to view this page."
+                )
+            )
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

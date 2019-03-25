@@ -104,8 +104,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         This can be overridden but be sure to use the default_manager.
         """
         return (
-            getattr(self.listboard_model_cls,
-                    self.listboard_model_manager_name)
+            getattr(self.listboard_model_cls, self.listboard_model_manager_name)
             .filter(**filter_options)
             .exclude(**exclude_options)
         )

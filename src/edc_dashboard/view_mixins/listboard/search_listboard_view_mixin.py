@@ -54,8 +54,7 @@ class SearchListboardMixin:
         q_objects = []
         for search_term in self.search_terms:
             for field in self.search_fields:
-                q_objects.append(
-                    Q(**{f"{field}__icontains": slugify(search_term)}))
+                q_objects.append(Q(**{f"{field}__icontains": slugify(search_term)}))
             extra_q_objects = self.extra_search_options(search_term)
             if extra_q_objects:
                 q_objects.extend(extra_q_objects)
@@ -66,15 +65,13 @@ class SearchListboardMixin:
                 q = q_object
         if q:
             queryset = (
-                getattr(self.listboard_model_cls,
-                        self.listboard_model_manager_name)
+                getattr(self.listboard_model_cls, self.listboard_model_manager_name)
                 .filter(q, **filter_options)
                 .exclude(**exclude_options)
             )
         else:
             queryset = (
-                getattr(self.listboard_model_cls,
-                        self.listboard_model_manager_name)
+                getattr(self.listboard_model_cls, self.listboard_model_manager_name)
                 .filter(**filter_options)
                 .exclude(**exclude_options)
             )

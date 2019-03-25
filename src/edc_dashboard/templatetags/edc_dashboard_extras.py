@@ -75,8 +75,7 @@ def paginator_row(context):
     search_term = context.get("search_term")
 
     show = page_obj.has_other_pages()
-    paginator_url = reverse(
-        paginator_url, kwargs=context.get("paginator_url_kwargs"))
+    paginator_url = reverse(paginator_url, kwargs=context.get("paginator_url_kwargs"))
     if querystring:
         if "?" in querystring:
             querystring = querystring.split("?")[1]

@@ -122,7 +122,7 @@ class UrlConfig:
                 f"(?P<appointment>{UUID_PATTERN.pattern})/",
                 self.view_class.as_view(),
                 name=self.url_name,
-            ),
+            )
         ]
         url_patterns.extend(self.listboard_urls)
         return url_patterns
