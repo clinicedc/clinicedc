@@ -1,7 +1,4 @@
-from django.conf import settings
 from django.contrib import admin
-from django.urls.base import reverse
-from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
 from edc_model_admin import audit_fieldset_tuple, SimpleHistoryAdmin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -84,16 +81,17 @@ class AppointmentAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
     search_fields = ("subject_identifier",)
 
     def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request, obj=obj)
         return (
-            super().get_readonly_fields(request, obj=obj)
-            + visit_schedule_fields
-            + (
+            list(readonly_fields)
+            + list(visit_schedule_fields)
+            + [
                 "subject_identifier",
                 "timepoint",
                 "timepoint_datetime",
                 "visit_code_sequence",
                 "facility_name",
-            )
+            ]
         )
 
     def has_delete_permission(self, request, obj=None):
