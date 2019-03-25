@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.sites.managers import CurrentSiteManager as BaseCurrentSiteManager
 
 
 class CrfModelManager(models.Manager):
@@ -45,3 +46,7 @@ class VisitModelManager(models.Manager):
             visit_code=visit_code,
             visit_code_sequence=visit_code_sequence,
         )
+
+
+class CurrentSiteManager(BaseCurrentSiteManager, CrfModelManager):
+    pass
