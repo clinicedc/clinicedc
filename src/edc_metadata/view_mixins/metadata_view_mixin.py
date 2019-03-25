@@ -1,10 +1,10 @@
 from django.apps import apps as django_apps
-from django.contrib import messages
+from django.contrib.messages.constants import WARNING
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.generic.base import ContextMixin
 from edc_appointment.constants import IN_PROGRESS_APPT
+from edc_dashboard.view_mixins import MessageViewMixin
 from edc_subject_model_wrappers import RequisitionModelWrapper, CrfModelWrapper
 
 from ..constants import CRF, NOT_REQUIRED, REQUISITION, REQUIRED, KEYED
@@ -15,7 +15,7 @@ class MetaDataViewError(Exception):
     pass
 
 
-class MetaDataViewMixin(ContextMixin):
+class MetaDataViewMixin(MessageViewMixin, ContextMixin):
 
     crf_model_wrapper_cls = CrfModelWrapper
     requisition_model_wrapper_cls = RequisitionModelWrapper
@@ -25,12 +25,10 @@ class MetaDataViewMixin(ContextMixin):
 
     metadata_show_status = [REQUIRED, KEYED]
 
-    appointment_in_progress_message = (
-        _(
-            'This visit is no longer "in progress". '
-            "Refer to the schedule for the visit that is "
-            'currently "in progress".'
-        ),
+    appointment_in_progress_message = _(
+        'You have selected a visit that is no longer "in progress". '
+        "Refer to the schedule for the visit that is "
+        'currently "in progress".'
     )
 
     def get_context_data(self, **kwargs):
@@ -48,13 +46,9 @@ class MetaDataViewMixin(ContextMixin):
             )
         return context
 
-    def message_user(self, message=None, tag=None):
-        m = getattr(messages, tag or "", messages.error)
-        m(self.request, message=mark_safe(message))
-
     def message_if_appointment_in_progress(self):
         if self.appointment.appt_status != IN_PROGRESS_APPT:
-            self.message_user(self.appointment_in_progress_message)
+            self.message_user(self.appointment_in_progress_message, level=WARNING)
 
     def get_crf_model_wrappers(self):
         """Returns a list of model wrappers.
