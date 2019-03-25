@@ -1,6 +1,7 @@
-from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse, NoReverseMatch
+from django.utils.translation import gettext as _
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_model_admin import (
     ModelAdminNextUrlRedirectMixin,
@@ -13,6 +14,8 @@ from edc_model_admin import (
     TemplatesModelAdminMixin,
 )
 from edc_notification import NotificationModelAdminMixin
+from edc_dashboard.url_names import url_names
+from edc_registration.models import RegisteredSubject
 
 
 class ModelAdminSubjectDashboardMixin(
@@ -32,13 +35,17 @@ class ModelAdminSubjectDashboardMixin(
     empty_value_display = "-"
     list_per_page = 10
     subject_dashboard_url_name = "subject_dashboard_url"
-    show_cancel = False
+    subject_listboard_url_name = "subject_listboard_url"
+    show_cancel = True
 
     def get_subject_dashboard_url_name(self):
-        return settings.DASHBOARD_URL_NAMES.get(self.subject_dashboard_url_name)
+        return url_names.get(self.subject_dashboard_url_name)
 
     def get_subject_dashboard_url_kwargs(self, obj):
         return dict(subject_identifier=obj.subject_identifier)
+
+    def get_subject_listboard_url_name(self):
+        return url_names.get(self.subject_listboard_url_name)
 
     def get_post_url_on_delete_name(self, *args):
         return self.get_subject_dashboard_url_name()
@@ -52,16 +59,26 @@ class ModelAdminSubjectDashboardMixin(
             kwargs=self.get_subject_dashboard_url_kwargs(obj),
         )
         context = dict(
-            dashboard="dashboard", title="Go to subject's dashboard", url=url
+            dashboard="dashboard", title=_("Go to subject's dashboard"), url=url
         )
         return render_to_string("dashboard_button.html", context=context)
 
     def view_on_site(self, obj):
         try:
-            url = reverse(
-                self.get_subject_dashboard_url_name(),
-                kwargs=self.get_subject_dashboard_url_kwargs(obj),
-            )
-        except NoReverseMatch:
-            url = super().view_on_site(obj)
+            RegisteredSubject.objects.get(subject_identifier=obj.subject_identifier)
+        except ObjectDoesNotExist:
+            url = reverse(self.get_subject_listboard_url_name())
+        else:
+            try:
+                url = reverse(
+                    self.get_subject_dashboard_url_name(),
+                    kwargs=self.get_subject_dashboard_url_kwargs(obj),
+                )
+            except NoReverseMatch as e:
+                if callable(super().view_on_site):
+                    url = super().view_on_site(obj)
+                else:
+                    raise NoReverseMatch(
+                        f"{e}. See subject_dashboard_url_name for {repr(self)}."
+                    )
         return url
