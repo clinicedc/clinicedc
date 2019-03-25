@@ -15,6 +15,7 @@ class NotificationModelAdminMixin:
 
     def get_notification_instructions(self, request=None):
         notifications = site_notifications.models.get(self.model._meta.label_lower)
+        notification_instructions = None
         if notifications:
             notifications = [
                 notification.display_name for notification in notifications
@@ -36,17 +37,18 @@ class NotificationModelAdminMixin:
                 f"See your user profile for more details."
             )
             return mark_safe(notification_instructions)
+        return notification_instructions
 
     def get_add_instructions(self, extra_context, request=None):
         extra_context = super().get_add_instructions(extra_context)
-        extra_context["notification_instructions"] = mark_safe(
-            self.get_notification_instructions(request)
+        extra_context["notification_instructions"] = self.get_notification_instructions(
+            request
         )
         return extra_context
 
     def get_change_instructions(self, extra_context, request=None):
         extra_context = super().get_add_instructions(extra_context)
-        extra_context["notification_instructions"] = mark_safe(
-            self.get_notification_instructions(request)
+        extra_context["notification_instructions"] = self.get_notification_instructions(
+            request
         )
         return extra_context
