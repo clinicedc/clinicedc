@@ -3,8 +3,8 @@ from edc_visit_schedule import VisitSchedule, Schedule, Visit
 from edc_visit_schedule import FormsCollection, Crf
 
 crfs = FormsCollection(
-    Crf(show_order=1, model="edc_metadata.crfone", required=True),
-    Crf(show_order=2, model="edc_metadata.crftwo", required=True),
+    Crf(show_order=1, model="edc_timepoint.crfone", required=True),
+    Crf(show_order=2, model="edc_timepoint.crftwo", required=True),
 )
 
 
