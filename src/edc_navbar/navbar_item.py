@@ -3,6 +3,7 @@ import copy
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.urls.base import reverse
+from edc_dashboard.url_names import url_names, InvalidUrlName
 
 
 class NavbarItemError(Exception):
@@ -33,6 +34,7 @@ class NavbarItem:
         active=None,
         permission_codename=None,
     ):
+        self._reversed_url = None
         self.active = active
         self.alt = alt or label or name
         if fa_icon and fa_icon.startswith("fa-"):
@@ -50,13 +52,16 @@ class NavbarItem:
             self.label = None
         self.name = name
         self.title = title or self.label or name.title()  # the anchor title
-        if no_url_namespace:
-            self.url_name = url_name.split(":")[1]
-        else:
-            self.url_name = url_name
+
+        try:
+            self.url_name = url_names.get(url_name)
+        except InvalidUrlName:
+            self.url_name = url_name.split(":")[1] if no_url_namespace else url_name
+
         if not self.url_name:
             raise NavbarItemError(f"'url_name' not specified. See {repr(self)}")
-        elif self.url_name == "#":
+
+        if self.url_name == "#":
             self.reversed_url = "#"
         else:
             self.reversed_url = reverse(self.url_name)
@@ -105,12 +110,5 @@ class NavbarItem:
             except ValueError:
                 app_label = "edc_navbar"
                 codename = permission_codename
-            else:
-                if app_label != "edc_navbar":
-                    raise NavbarItemError(
-                        f"Invalid navbar permission_codename. Expected app_label "
-                        f"to be 'edc_navbar'. Got '{permission_codename}'"
-                    )
-            finally:
-                permission_codename = f"{app_label}.{codename}"
+            permission_codename = f"{app_label}.{codename}"
         return permission_codename

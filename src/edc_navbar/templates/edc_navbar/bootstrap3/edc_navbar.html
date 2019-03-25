@@ -1,0 +1,14 @@
+
+<!-- begin class navbar -->
+<div id="navbar" class="collapse navbar-collapse">
+  <ul class="nav navbar-nav navbar-right">
+        {% for rendered_item in navbar.rendered_items %}
+            {{ rendered_item }}
+        {% endfor %}
+
+        {% for rendered_item in default_navbar.rendered_items %}
+            {{ rendered_item }}
+        {% endfor %}
+    <li id="li-topbar-user-profile"><a title="user profile" href="{{ auth_user_change_url }}">{{ user.username }}</a></li>
+  </ul>
+</div> <!-- end class navbar -->
