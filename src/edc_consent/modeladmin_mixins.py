@@ -6,28 +6,28 @@ from edc_consent.actions import (
 
 
 class ModelAdminConsentMixin(admin.ModelAdmin):
-
     def __init__(self, *args):
         self.get_radio_fields()
         super().__init__(*args)
 
-    actions = [flag_as_verified_against_paper,
-               unflag_as_verified_against_paper]
+    actions = [flag_as_verified_against_paper, unflag_as_verified_against_paper]
 
     def get_radio_fields(self):
-        self.radio_fields.update({
-            "language": admin.VERTICAL,
-            "gender": admin.VERTICAL,
-            "is_dob_estimated": admin.VERTICAL,
-            "identity_type": admin.VERTICAL,
-            "is_incarcerated": admin.VERTICAL,
-            "may_store_samples": admin.VERTICAL,
-            "consent_reviewed": admin.VERTICAL,
-            "study_questions": admin.VERTICAL,
-            "assessment_score": admin.VERTICAL,
-            "consent_copy": admin.VERTICAL,
-            "is_literate": admin.VERTICAL,
-        })
+        self.radio_fields.update(
+            {
+                "language": admin.VERTICAL,
+                "gender": admin.VERTICAL,
+                "is_dob_estimated": admin.VERTICAL,
+                "identity_type": admin.VERTICAL,
+                "is_incarcerated": admin.VERTICAL,
+                "may_store_samples": admin.VERTICAL,
+                "consent_reviewed": admin.VERTICAL,
+                "study_questions": admin.VERTICAL,
+                "assessment_score": admin.VERTICAL,
+                "consent_copy": admin.VERTICAL,
+                "is_literate": admin.VERTICAL,
+            }
+        )
 
     def get_fields(self, request, obj=None):
         return [
@@ -57,10 +57,7 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)
-        fields = [
-            "subject_identifier",
-            "subject_identifier_as_pk",
-        ]
+        fields = ["subject_identifier", "subject_identifier_as_pk"]
         if obj:
             fields.append("consent_datetime")
             return fields + list(readonly_fields)
