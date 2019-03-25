@@ -16,13 +16,12 @@ class CurrentSiteManager(BaseCurrentSiteManager):
 
 class SiteModelMixin(models.Model):
 
-    site = models.ForeignKey(
-        Site, on_delete=models.PROTECT, null=True, editable=False)
+    site = models.ForeignKey(Site, on_delete=models.PROTECT, null=True, editable=False)
 
     def save(self, *args, **kwargs):
-        raise_on_save_if_reviewer()
         if not self.site:
             self.site = Site.objects.get_current()
+        raise_on_save_if_reviewer()
         super().save(*args, **kwargs)
 
     class Meta:
