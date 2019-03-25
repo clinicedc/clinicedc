@@ -7,8 +7,10 @@ from django.views.generic.base import ContextMixin
 from django_revision.views import RevisionMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from .message_view_mixin import MessageViewMixin
 
-class EdcViewMixin(LoginRequiredMixin, RevisionMixin, ContextMixin):
+
+class EdcViewMixin(LoginRequiredMixin, MessageViewMixin, RevisionMixin, ContextMixin):
     """Adds common template variables and warning messages.
     """
 

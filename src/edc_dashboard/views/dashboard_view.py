@@ -7,20 +7,24 @@ from ..view_mixins import UrlRequestContextMixin, TemplateRequestContextMixin
 class DashboardView(UrlRequestContextMixin, TemplateRequestContextMixin, TemplateView):
 
     dashboard_url = None
-    dashboard_template = None
+    dashboard_template = None  # may be None if `dashboard_template_name` is defined
+    dashboard_template_name = None  # may be None if `dashboard_template` is defined
 
     def __init__(self, **kwargs):
         if not self.dashboard_url:
             raise ImproperlyConfigured(
                 f"'dashboard_url' cannot be None. See {repr(self)}."
             )
-        if not self.dashboard_template:
+        if not self.dashboard_template and not self.dashboard_template_name:
             raise ImproperlyConfigured(
-                f"'dashboard_template' cannot be None. See {repr(self)}."
+                f"Both 'dashboard_template' and 'dashboard_template_name' "
+                f"cannot be None. See {repr(self)}."
             )
         super().__init__(**kwargs)
 
     def get_template_names(self):
+        if self.dashboard_template_name:
+            return [self.dashboard_template_name]
         return [self.get_template_from_context(self.dashboard_template)]
 
     def get_context_data(self, **kwargs):

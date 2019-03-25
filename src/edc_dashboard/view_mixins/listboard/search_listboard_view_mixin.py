@@ -7,9 +7,17 @@ class SearchListboardMixin:
 
     search_fields = ["slug"]
 
+    default_querystring_attrs = "q"
+    alternate_search_attr = "subject_identifier"
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._search_term = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(search_term=self.search_term)
+        return context
 
     def extra_search_options(self, search_term):
         """Returns a list of search Q() objects that will be added to the
@@ -21,9 +29,16 @@ class SearchListboardMixin:
         return search_term
 
     @property
+    def raw_search_term(self):
+        raw_search_term = self.request.GET.get(self.default_querystring_attrs)
+        if not raw_search_term:
+            raw_search_term = self.kwargs.get(self.alternate_search_attr)
+        return raw_search_term
+
+    @property
     def search_term(self):
         if not self._search_term:
-            search_term = self.request.GET.get("q")
+            search_term = self.raw_search_term
             if search_term:
                 search_term = escape(search_term).strip()
             search_term = self.clean_search_term(search_term)

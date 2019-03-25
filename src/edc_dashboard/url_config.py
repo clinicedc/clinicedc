@@ -112,3 +112,17 @@ class UrlConfig:
             ),
         ]
         return urlpatterns
+
+    @property
+    def review_listboard_urls(self):
+        url_patterns = [
+            re_path(
+                r"^" + f"{self.label}/"
+                f"(?P<{self.identifier_label}>{self.identifier_pattern})/"
+                f"(?P<appointment>{UUID_PATTERN.pattern})/",
+                self.view_class.as_view(),
+                name=self.url_name,
+            )
+        ]
+        url_patterns.extend(self.listboard_urls)
+        return url_patterns

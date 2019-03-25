@@ -11,7 +11,7 @@
     {% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
     <div class="alert alert-warning alert-dismissable fade in">
     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>           
-      <i class="fas fa-hand-paper fa-lg"></i> {{ message }}
+      <i class="fas fa-hand-point-right fa-lg"></i> {{ message }}
     </div>
     {% endif %}
     {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
@@ -23,7 +23,7 @@
     {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
     <div class="alert alert-info alert-dismissable fade in">
     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>           
-      <i class="fas fa-hand-paper fa-lg"></i> {{ message }}
+      <i class="fas fa-info-circle fa-lg"></i> {{ message }}
     </div>
     {% endif %}
 {% endfor %}</div><!-- end alert messages -->
