@@ -2,21 +2,36 @@ import re
 
 from django.db.models import Q
 from django.db.models.aggregates import Count
-from edc_metadata.constants import REQUIRED, KEYED
+from edc_appointment.view_mixins import AppointmentViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_dashboard.views import ListboardView
+from edc_metadata.constants import REQUIRED, KEYED
+from edc_metadata.view_mixins.metadata_view_mixin import MetaDataViewMixin
+from edc_navbar.view_mixin import NavbarViewMixin
+from edc_subject_dashboard.view_mixins import RegisteredSubjectViewMixin
+from edc_subject_dashboard.view_mixins import SubjectVisitViewMixin
+from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 
 from ..model_wrappers import SubjectVisitModelWrapper
 
 
 class SubjectReviewListboardView(
+    EdcViewMixin,
+    NavbarViewMixin,
+    MetaDataViewMixin,
+    AppointmentViewMixin,
+    SubjectVisitViewMixin,
+    VisitScheduleViewMixin,
+    RegisteredSubjectViewMixin,
     ListboardFilterViewMixin,
     SearchFormViewMixin,
     ListboardView,
 ):
 
     listboard_model = None  # e.g. 'ambition_subject.subjectvisit'
-    navbar_name = None  # e.g. 'ambition_dashboard'
+    navbar_name = "edc_review_dashboard"
+    navbar_selected = "subject_review"
 
     listboard_template = "subject_review_listboard_template"
     listboard_url = "subject_review_listboard_url"
@@ -37,12 +52,27 @@ class SubjectReviewListboardView(
         "user_modified",
     ]
 
+    appointment_model = "edc_appointment.appointment"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(KEYED=KEYED, REQUIRED=REQUIRED)
-        if self.search_term:
-            context.update(q=self.search_term)
+        context.update(q=self.search_term or "")
         return context
+
+    @property
+    def raw_search_term(self):
+        if self.appointment:
+            self.subject_identifier = self.appointment.subject_identifier
+        return self.request.GET.get("q") or self.subject_identifier
+
+    @property
+    def appointments_wrapped(self):
+        return None
+
+    @property
+    def appointment_wrapped(self):
+        return None
 
     def get_queryset(self):
         qs = super().get_queryset()

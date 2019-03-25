@@ -1,2 +1,1 @@
-from .edc_subject_review_listboard_view import EdcSubjectReviewListboardView
 from .subject_review_listboard_view import SubjectReviewListboardView

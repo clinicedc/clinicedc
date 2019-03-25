@@ -23,7 +23,6 @@ from pprint import pprint
 
 User = get_user_model()
 
-
 """
 subject_dashboard_url
 requisition_print_actions_url
@@ -118,12 +117,12 @@ class TestDashboard(WebTest):
         self.assertIn("3000.0", response.html.get_text())
 
         pprint(url_names.registry)
-        print(response.html.get_text())
+        print(response.html)
 
         response = response.click(
             linkid=f"id-reported-visits-{self.subject_identifier}-1000-0")
 
-        print(response.html.get_text())
+        # print(response.html.get_text())
         # follow to dashoard for this visit
         # response = response.click(linkid="id-reported-visit-list")
 
