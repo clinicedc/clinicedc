@@ -80,10 +80,6 @@ class AppointmentModelMixin(
 
     is_confirmed = models.BooleanField(default=False, editable=False)
 
-    related_visit_model_name = models.CharField(
-        max_length=50, null=True, editable=False, help_text="system field"
-    )
-
     objects = AppointmentManager()
 
     def __str__(self):
