@@ -37,8 +37,7 @@ class LabPrintersMixin(PrintersMixin):
             job_result = None
         else:
             for pk in pks:
-                label = self.label_cls(
-                    pk=pk, children_count=len(pks), request=request)
+                label = self.label_cls(pk=pk, children_count=len(pks), request=request)
                 zpl_data += label.render_as_zpl_data()
             job_id = printer.stream_print(zpl_data=zpl_data)
             job_result = self.job_result_cls(

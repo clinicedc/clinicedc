@@ -2,6 +2,7 @@ import cups
 import socket
 
 from django.apps import apps as django_apps
+from django.utils.translation import gettext as _
 
 from .printer import Printer
 
@@ -65,11 +66,11 @@ class PrintersMixin:
                     cups_connection = cups.Connection(self.print_server_ip)
             except RuntimeError as e:
                 raise PrintServerError(
-                    f"Unable to connect to print server. Tried "
-                    f"'{self.print_server_name}'. Got {e}"
+                    f"{_('Unable to connect to print server. Tried ')}"
+                    f"'{self.print_server_name}'. {_('Got')} {e}"
                 )
         else:
-            raise PrintServerError("Print server not defined")
+            raise PrintServerError(_("Print server not defined"))
         return cups_connection
 
     @property
@@ -83,8 +84,8 @@ class PrintersMixin:
             cups_printers = self.print_server().getPrinters()
         except (RuntimeError, cups.IPPError) as e:
             raise PrinterError(
-                f"Unable to list printers from print server. "
-                f"Tried '{self.print_server_name}'. Got {e}"
+                f"{_('Unable to list printers from print server')}. "
+                f"{_('Tried')} '{self.print_server_name}'. {_('Got')} {e}"
             )
         for name in cups_printers:
             printer = Printer(
@@ -96,22 +97,23 @@ class PrintersMixin:
             printers.update({name: printer})
         return printers
 
+    def _get_label_printer(self, name):
+        printer = self.printers.get(name)
+        if not printer:
+            raise PrinterError(
+                f"{_('Printer does not exist. Got')} {name}. "
+                f"{_('Installed printers are')} {list(self.printers)}."
+            )
+        return printer
+
     @property
     def clinic_label_printer(self):
         """Returns a PrinterProperties object or None.
         """
-        try:
-            return self.printers.get(self.clinic_label_printer_name)
-        except AttributeError:
-            pass
-        return None
+        return self._get_label_printer(self.clinic_label_printer_name)
 
     @property
     def lab_label_printer(self):
         """Returns a PrinterProperties object or None.
         """
-        try:
-            return self.printers.get(self.lab_label_printer_name)
-        except AttributeError:
-            pass
-        return None
+        return self._get_label_printer(self.lab_label_printer_name)
