@@ -14,3 +14,4 @@ from .model_admin_redirect_on_delete_mixin import ModelAdminRedirectOnDeleteMixi
 from .model_admin_replace_label_text_mixin import ModelAdminReplaceLabelTextMixin
 from .model_admin_simple_history import SimpleHistoryAdmin
 from .templates_model_admin_mixin import TemplatesModelAdminMixin
+from .utils import get_next_url

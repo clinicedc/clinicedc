@@ -10,8 +10,7 @@ from edc_constants.choices import YES_NO
 from edc_constants.constants import MALE
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
-from edc_lab.models.model_mixins import PanelModelMixin
-from edc_lab.models.model_mixins import RequisitionModelMixin
+from edc_lab.model_mixins import PanelModelMixin, RequisitionModelMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_metadata.model_mixins.updates import UpdatesRequisitionMetadataModelMixin
 from edc_model.models import BaseUuidModel

@@ -9,8 +9,13 @@
 	{% if show_save_next %}
 		<input type="submit" title="Leave form without saving" value="{% trans 'Cancel' %}" name="_cancel" />
 	{% else %}
-	    {% url opts|admin_urlname:'changelist' as changelist_url %}
-		<a href="{{ changelist_url }}" class="closelink" title="Leave form without saving" name="_cancel" />{% trans 'Cancel' %}</a>{% endif %}
+		{% if cancel_url%}
+			<a href="{{ cancel_url }}" class="closelink" title="Leave form without saving" name="_cancel" />{% trans 'Cancel' %}</a>
+		{% else %}
+		    {% url opts|admin_urlname:'changelist' as changelist_url %}
+			<a href="{{ changelist_url }}" class="closelink" title="Leave form without saving" name="_cancel" />{% trans 'Cancel' %}</a>
+		{% endif %}
 	{% endif %}
+{% endif %}
 {% if show_save and show_save_next %}<input type="submit" title="Save and go to next form in schedule" value="{% trans 'Save and next' %}" name="_savenext" />{% endif %}
 </div>
