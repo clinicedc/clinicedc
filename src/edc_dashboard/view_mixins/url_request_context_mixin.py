@@ -1,4 +1,5 @@
 from django.views.generic.base import ContextMixin
+from edc_dashboard.url_names import InvalidUrlName, url_names
 
 
 class UrlRequestContextError(Exception):
@@ -11,10 +12,10 @@ class UrlRequestContextMixin(ContextMixin):
         of the existing_key from request.context_data.
         """
         try:
-            self.request.url_name_data[existing_key]
-        except KeyError as e:
+            url_names.get(existing_key)
+        except InvalidUrlName as e:
             raise UrlRequestContextError(
-                f"Url name not defined in context. "
+                f"Url name not defined in url_names. "
                 f"Expected one of {list(self.request.url_name_data.keys())}. Got {e}. "
                 f"Hint: check if dashboard middleware is loaded."
             )

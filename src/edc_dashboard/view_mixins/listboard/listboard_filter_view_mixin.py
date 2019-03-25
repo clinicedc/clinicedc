@@ -6,7 +6,6 @@ from ...listboard_filter import ListboardViewFilters
 class ListboardFilterViewMixin(ContextMixin):
 
     listboard_view_filters = ListboardViewFilters()
-    # listboard_filter_url defaults to self.listboard_url,
     listboard_filter_url = None
 
     def __init__(self, **kwargs):

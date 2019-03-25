@@ -5,7 +5,7 @@
         <div class="form-group" >
             <div class="controls ">
                 <div class="input-group">
-                    <input class="form-control input-sm textinput form-control" id="id_q" maxlength="150" name="q" placeholder="search" type="text" value="{{ q|default:'' }}" />
+                    <input class="form-control input-sm textinput form-control" id="id_q" maxlength="150" name="q" placeholder="search" type="text" value="{{ q|default:search_term|default:'' }}" />
                     <span class="input-group-btn">
                         <button  type="submit" class="btn btn btn-default btn-sm">
                             <i class="fas fa-search fa-sm"></i>
