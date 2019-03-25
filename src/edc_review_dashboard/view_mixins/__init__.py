@@ -1,1 +1,0 @@
-from .subject_review_listboard_mixin import SubjectReviewListboardViewMixin

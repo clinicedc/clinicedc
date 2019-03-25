@@ -1,36 +1,43 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
 from django.test import tag  # noqa
 from django.urls.base import reverse
 from django_webtest import WebTest
-from edc_constants.constants import YES
-from edc_lab.models.panel import Panel
 from edc_lab.site_labs import site_labs
 from edc_reference.site import site_reference_configs
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from ..lab_profiles import lab_profile
-from ..models import (
+from dashboard_app.models import (
     Appointment,
     SubjectVisit,
-    CrfOne,
-    CrfTwo,
-    CrfFour,
-    CrfFive,
-    CrfSix,
-    Requisition,
+    SubjectConsent,
 )
-from ..reference_configs import register_to_site_reference_configs
-from ..visit_schedule import visit_schedule
+from dashboard_app.lab_profiles import lab_profile
+from dashboard_app.reference_configs import register_to_site_reference_configs
+from dashboard_app.visit_schedule import visit_schedule
+from edc_facility.import_holidays import import_holidays
+from edc_dashboard.url_names import url_names
 from pprint import pprint
-from django.conf import settings
+
 
 User = get_user_model()
 
 
+"""
+subject_dashboard_url
+requisition_print_actions_url
+requisition_verify_actions_url
+"""
+
+
 class TestDashboard(WebTest):
+
+    @classmethod
+    def setUpClass(cls):
+        ret = super().setUpClass()
+        import_holidays()
+        return ret
 
     def setUp(self):
         self.user = User.objects.create_superuser(
@@ -46,21 +53,36 @@ class TestDashboard(WebTest):
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
             visit_models={
-                "edc_appointment.appointment": "edc_model_admin.subjectvisit"}
+                "edc_appointment.appointment": "dashboard_app.subjectvisit"}
         )
 
         self.subject_identifier = "12345"
-        self.appointment = Appointment.objects.create(
-            appt_datetime=get_utcnow(),
-            subject_identifier=self.subject_identifier,
-            visit_schedule_name="visit_schedule",
-            schedule_name="schedule",
-            visit_code="1000",
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier=self.subject_identifier)
+
+        for schedule in visit_schedule.schedules.values():
+            for visit in schedule.visits.values():
+                appointment = Appointment.objects.create(
+                    appt_datetime=get_utcnow(),
+                    subject_identifier=self.subject_identifier,
+                    visit_schedule_name="visit_schedule",
+                    schedule_name="schedule",
+                    visit_code=visit.code,
+                    user_created='user_login',
+                )
+                SubjectVisit.objects.create(
+                    appointment=appointment,
+                    subject_identifier=self.subject_identifier,
+                    reason=SCHEDULED,
+                    user_created='user_login',
+                )
+        # put subject on schedule
+        _, schedule = site_visit_schedules.get_by_onschedule_model(
+            "dashboard_app.onschedule"
         )
-        self.subject_visit = SubjectVisit.objects.create(
-            appointment=self.appointment,
-            subject_identifier=self.subject_identifier,
-            reason=SCHEDULED,
+        schedule.put_on_schedule(
+            subject_identifier=subject_consent.subject_identifier,
+            onschedule_datetime=subject_consent.consent_datetime,
         )
 
     def login(self):
@@ -69,12 +91,69 @@ class TestDashboard(WebTest):
         form["password"] = "pass"
         return form.submit()
 
-    def test_(self):
+    def test_url(self):
         self.login()
 
-        self.app.get(
-            reverse(f"dashboard_app:subject_review_listboard_url",
-                    args=(self.subject_identifier,)),
+        response = self.app.get(
+            reverse(f"dashboard_app:subject_review_listboard_url"),
             user=self.user,
             status=200,
         )
+
+        n = SubjectVisit.objects.all().count()
+        self.assertIn("Subjects", response.html.get_text())
+
+        # shows something like 1. 12345 3 visits
+        self.assertIn(f"{self.subject_identifier} {n} visits",
+                      response.html.get_text())
+        self.assertIn(
+            "click to list reported visits for this subject", response)
+
+        # follow to schedule for this subject
+        response = response.click(linkid="id-reported-visit-list")
+        self.assertIn(
+            f"Reported Visits for {self.subject_identifier}", response.html.get_text())
+        self.assertIn("1000.0", response.html.get_text())
+        self.assertIn("2000.0", response.html.get_text())
+        self.assertIn("3000.0", response.html.get_text())
+
+        pprint(url_names.registry)
+        print(response.html.get_text())
+
+        response = response.click(
+            linkid=f"id-reported-visits-{self.subject_identifier}-1000-0")
+
+        print(response.html.get_text())
+        # follow to dashoard for this visit
+        # response = response.click(linkid="id-reported-visit-list")
+
+    def test_url_response_for_subject_identifier(self):
+        self.login()
+
+        response = self.app.get(
+            reverse(f"dashboard_app:subject_review_listboard_url",
+                    kwargs={"subject_identifier": self.subject_identifier}),
+            user=self.user,
+        )
+
+        # print(response.html.get_text())
+
+        self.assertIn("id-reported-visit-list", response)
+        self.assertIn(self.subject_identifier, response)
+
+        response = response.click(linkid="id-reported-visit-list")
+
+
+#         for link in response.html.find_all('a'):
+#             print(link.get('href'))
+#         print(response.html.get_text())
+
+    def test_url_response_for_subject_identifier_to_dashboard(self):
+        self.login()
+
+        response = self.app.get(
+            reverse(f"dashboard_app:subject_review_listboard_url",
+                    kwargs={"subject_identifier": self.subject_identifier}),
+            user=self.user,
+        )
+        response = response.click(linkid="id-reported-visit-list")

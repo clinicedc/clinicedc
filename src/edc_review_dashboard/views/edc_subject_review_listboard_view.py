@@ -1,21 +1,13 @@
-from edc_dashboard.view_mixins import (
-    EdcViewMixin,
-    ListboardFilterViewMixin,
-    SearchFormViewMixin,
-)
-from edc_dashboard.views import ListboardView as BaseListboardView
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
-from ..view_mixins import SubjectReviewListboardViewMixin
+from .subject_review_listboard_view import SubjectReviewListboardView
 
 
-class SubjectReviewListboardView(
+class EdcSubjectReviewListboardView(
     EdcViewMixin,
     NavbarViewMixin,
-    ListboardFilterViewMixin,
-    SearchFormViewMixin,
-    SubjectReviewListboardViewMixin,
-    BaseListboardView,
+    SubjectReviewListboardView,
 ):
 
     """

@@ -3,10 +3,17 @@ import re
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from edc_metadata.constants import REQUIRED, KEYED
-from edc_subject_dashboard.model_wrappers import SubjectVisitModelWrapper
+from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_dashboard.views import ListboardView
+
+from ..model_wrappers import SubjectVisitModelWrapper
 
 
-class SubjectReviewListboardViewMixin:
+class SubjectReviewListboardView(
+    ListboardFilterViewMixin,
+    SearchFormViewMixin,
+    ListboardView,
+):
 
     listboard_model = None  # e.g. 'ambition_subject.subjectvisit'
     navbar_name = None  # e.g. 'ambition_dashboard'

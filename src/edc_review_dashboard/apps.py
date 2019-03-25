@@ -1,6 +1,5 @@
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
-from edc_appointment.appointment_config import AppointmentConfig
 
 
 class AppConfig(DjangoAppConfig):
@@ -14,10 +13,11 @@ if settings.APP_NAME == "edc_review_dashboard":
     from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
     from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
     from edc_metadata.apps import AppConfig as BaseEdcMetadataAppConfig
+    from edc_appointment.appointment_config import AppointmentConfig
 
     class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
         visit_models = {
-            "edc_review_dashboard": ("subject_visit", "edc_model_admin.subjectvisit")
+            "dashboard_app": ("subject_visit", "dashboard_app.subjectvisit")
         }
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):
@@ -32,13 +32,14 @@ if settings.APP_NAME == "edc_review_dashboard":
         }
 
     class EdcAppointmentAppConfig(BaseEdcAppointmentAppConfig):
-        configurations = [
-            AppointmentConfig(
-                model="edc_appointment.appointment",
-                related_visit_model="edc_model_admin.subjectvisit",
-                appt_type="hospital",
-            )
-        ]
+        pass
+#         configurations = [
+#             AppointmentConfig(
+#                 model="edc_appointment.appointment",
+#                 related_visit_model="dashboard_app.subjectvisit",
+#                 appt_type="hospital",
+#             )
+#         ]
 
     class EdcMetadataAppConfig(BaseEdcMetadataAppConfig):
-        reason_field = {"edc_model_admin.subjectvisit": "reason"}
+        reason_field = {"dashboard_app.subjectvisit": "reason"}
