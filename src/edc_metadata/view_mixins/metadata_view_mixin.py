@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from django.contrib.messages.constants import WARNING
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 from django.views.generic.base import ContextMixin
@@ -9,6 +9,7 @@ from edc_subject_model_wrappers import RequisitionModelWrapper, CrfModelWrapper
 
 from ..constants import CRF, NOT_REQUIRED, REQUISITION, REQUIRED, KEYED
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
+from django.utils.safestring import mark_safe
 
 
 class MetaDataViewError(Exception):
@@ -25,17 +26,18 @@ class MetaDataViewMixin(MessageViewMixin, ContextMixin):
 
     metadata_show_status = [REQUIRED, KEYED]
 
-    appointment_in_progress_message = _(
-        'You have selected a visit that is no longer "in progress". '
-        "Refer to the schedule for the visit that is "
-        'currently "in progress".'
-    )
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(metadata_show_status=self.metadata_show_status)
         if self.appointment:
-            self.message_if_appointment_in_progress()
+            if self.appointment.appt_status != IN_PROGRESS_APPT:
+                message = _(
+                    'You have selected a visit that is no longer "in progress". '
+                    'Refer to the schedule for the visit that is '
+                    'currently "in progress".'
+                )
+                self.message_user(message, level=messages.WARNING)
+
             context.update(
                 report_datetime=self.appointment.visit.report_datetime,
                 crfs=self.get_crf_model_wrappers(),
@@ -45,10 +47,6 @@ class MetaDataViewMixin(MessageViewMixin, ContextMixin):
                 KEYED=KEYED,
             )
         return context
-
-    def message_if_appointment_in_progress(self):
-        if self.appointment.appt_status != IN_PROGRESS_APPT:
-            self.message_user(self.appointment_in_progress_message, level=WARNING)
 
     def get_crf_model_wrappers(self):
         """Returns a list of model wrappers.
@@ -108,7 +106,8 @@ class MetaDataViewMixin(MessageViewMixin, ContextMixin):
 
     def get_panel(self, metadata_wrapper=None):
         try:
-            panel = self.panel_model_cls.objects.get(name=metadata_wrapper.panel_name)
+            panel = self.panel_model_cls.objects.get(
+                name=metadata_wrapper.panel_name)
         except ObjectDoesNotExist as e:
             raise MetaDataViewError(
                 f"{e} Got panel name '{metadata_wrapper.panel_name}'. "

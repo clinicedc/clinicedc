@@ -16,14 +16,19 @@ from .visit_schedule import visit_schedule
 
 
 class TestMetadataGetter(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         import_holidays()
+        return super(TestMetadataGetter, cls).setUpClass()
+
+    def setUp(self):
         register_to_site_reference_configs()
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={
+                "edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
