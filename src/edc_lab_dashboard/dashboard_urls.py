@@ -7,7 +7,7 @@ use settings.LAB_DASHBOARD_URL_NAMES.
 dashboard_urls = dict(
     aliquot_listboard_url=f"edc_lab_dashboard:aliquot_listboard_url",
     dashboard_url=f"edc_lab_dashboard:home_url",
-    home_url=f"edc_lab_dashboard:home_url",
+    # home_url=f"edc_lab_dashboard:home_url",
     listboard_url=f"edc_lab_dashboard:requisition_listboard_url",
     manage_box_listboard_url=f"edc_lab_dashboard:manage_box_listboard_url",
     manage_manifest_listboard_url=f"edc_lab_dashboard:manage_manifest_listboard_url",

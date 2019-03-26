@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from django.views.generic.base import TemplateView
 
 from ...dashboard_templates import dashboard_templates
+from edc_dashboard.url_names import url_names
 
 
 class InvalidPostError(Exception):
@@ -46,7 +47,8 @@ class ActionView(TemplateView):
         """
         if not self._selected_items:
             self._selected_items = (
-                self.request.POST.getlist(self.form_action_selected_items_name) or []
+                self.request.POST.getlist(
+                    self.form_action_selected_items_name) or []
             )
             self._selected_items = [x for x in self._selected_items if x]
         return self._selected_items
@@ -62,16 +64,12 @@ class ActionView(TemplateView):
         """
         action = slugify(self.request.POST.get("action", "").lower())
         if action not in self.valid_form_actions:
-            raise InvalidPostError(f"Invalid form action in POST. Got {action}")
+            raise InvalidPostError(
+                f"Invalid form action in POST. Got {action}")
         else:
             self.action = action
         self.process_form_action(request=request)
-        try:
-            url_name = request.url_name_data[self.post_action_url]
-        except KeyError as e:
-            raise ActionViewError(
-                f"Invalid action 'post_action_url'. Got {e}. See {repr(self)}."
-            )
+        url_name = url_names.get(self.post_action_url)
         url = reverse(url_name, kwargs=self.url_kwargs)
         if self.redirect_querystring:
             url = f"{url}?{urllib.parse.urlencode(self.redirect_querystring)}"

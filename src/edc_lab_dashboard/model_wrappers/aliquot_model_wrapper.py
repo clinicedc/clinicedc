@@ -1,13 +1,11 @@
 from edc_lab.models import Aliquot, BoxItem, ManifestItem
 from edc_model_wrapper import ModelWrapper
 
-from ..dashboard_urls import dashboard_urls
-
 
 class AliquotModelWrapper(ModelWrapper):
 
     model_cls = Aliquot
-    next_url_name = dashboard_urls.get("aliquot_listboard_url")
+    next_url_name = "aliquot_listboard_url"
 
     @property
     def human_readable_identifier(self):

@@ -2,8 +2,8 @@ from django.apps import apps as django_apps
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from edc_constants.constants import YES
+from edc_dashboard.url_names import url_names
 
-from ...dashboard_urls import dashboard_urls
 from .requisition_listboard_view import RequisitionListboardView
 
 app_config = django_apps.get_app_config("edc_lab_dashboard")
@@ -30,7 +30,7 @@ class ProcessListboardView(RequisitionListboardView):
 
     @property
     def empty_queryset_message(self):
-        href = reverse(dashboard_urls.get("pack_listboard_url"))
+        href = reverse(url_names.get("pack_listboard_url"))
         return mark_safe(
             "All specimens have been processed. Continue to "
             f'<a href="{href}" class="alert-link">packing</a>'
