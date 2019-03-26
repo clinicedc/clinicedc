@@ -19,8 +19,12 @@ from .visit_schedule import visit_schedule
 
 
 class TestHandlers(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         import_holidays()
+        return super(TestHandlers, cls).setUpClass()
+
+    def setUp(self):
         self.panel_one = Panel.objects.create(name="one")
         self.panel_seven = Panel.objects.create(name="seven")
         self.panel_blah = Panel.objects.create(name="blah")
@@ -29,7 +33,8 @@ class TestHandlers(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={
+                "edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)

@@ -18,6 +18,8 @@ from .reference_configs import register_to_site_reference_configs
 from .visit_schedule import visit_schedule
 from django.test.client import RequestFactory
 from django.contrib.auth.models import User
+from unittest import mock
+from unittest.mock import MagicMock
 
 
 class DummyCrfModelWrapper:
@@ -38,8 +40,13 @@ class MyView(MetaDataViewMixin, ContextMixin, View):
 
 
 class TestViewMixin(TestCase):
-    def setUp(self):
+
+    @classmethod
+    def setUpClass(cls):
         import_holidays()
+        return super(TestViewMixin, cls).setUpClass()
+
+    def setUp(self):
         register_to_site_reference_configs()
         for name in ["one", "two", "three", "four", "five", "six"]:
             Panel.objects.create(name=name)
@@ -50,7 +57,8 @@ class TestViewMixin(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={
+                "edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
@@ -148,12 +156,14 @@ class TestViewMixin(TestCase):
 
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
         request.user = self.user
+
         view = MyView(request=request)
         view.appointment = self.appointment
         view.subject_identifier = self.subject_identifier
         view.kwargs = {}
         view.request = HttpRequest()
-        view.message_user = lambda x: x
+        view.message_user = MagicMock(return_value=None)
+        # view.message_user.assert_called_with(3, 4, 5, key='value')
         context_data = view.get_context_data()
         self.assertEqual(len(context_data.get("crfs")), 5)
         self.assertEqual(len(context_data.get("requisitions")), 6)

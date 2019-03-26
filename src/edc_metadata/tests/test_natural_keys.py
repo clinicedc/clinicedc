@@ -36,8 +36,12 @@ class TestNaturalKey(TestCase):
         "edc_metadata.crfmissingmanager",
     ]
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         import_holidays()
+        return super(TestNaturalKey, cls).setUpClass()
+
+    def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
