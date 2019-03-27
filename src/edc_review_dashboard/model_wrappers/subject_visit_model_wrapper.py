@@ -5,7 +5,6 @@ from edc_subject_model_wrappers import SubjectVisitModelWrapper as Base
 
 
 class SubjectVisitModelWrapper(Base):
-
     @property
     def subject_dashboard_href(self):
         kwargs = dict(
@@ -13,12 +12,10 @@ class SubjectVisitModelWrapper(Base):
             appointment=str(self.object.appointment.pk),
         )
         try:
-            url = reverse(
-                url_names.get(self.get_next_url_name()),
-                kwargs=kwargs,
-            )
+            url = reverse(url_names.get(self.get_next_url_name()), kwargs=kwargs)
         except NoReverseMatch as e:
             raise NoReverseMatch(
                 f"{e}. Using url_name='{url_names.get(self.get_next_url_name())}',"
-                f"kwargs={kwargs}.  See {repr(self)}.")
+                f"kwargs={kwargs}.  See {repr(self)}."
+            )
         return url
