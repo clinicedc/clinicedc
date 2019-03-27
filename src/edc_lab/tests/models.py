@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models.deletion import PROTECT
 from edc_model.models import BaseUuidModel
 from edc_sites.models import SiteModelMixin
 from edc_visit_schedule.model_mixins import (
@@ -59,11 +58,6 @@ class SubjectVisit(
 
 
 class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
-    #
-    #     def natural_key(self):
-    #         return (self.requisition_identifier,) + self.subject_visit.natural_key()
-    #     natural_key.dependencies = ["edc_lab.subjectvisit", "sites.Site"]
-
     def update_reference_on_save(self):
         pass
 
@@ -93,7 +87,6 @@ class SubjectConsent(
     UniqueSubjectIdentifierFieldMixin,
     UpdatesOrCreatesRegistrationModelMixin,
     SiteModelMixin,
-    # OnScheduleModelMixin,
     SubjectOnScheduleModelMixin,
     VisitScheduleFieldsModelMixin,
     VisitScheduleMethodsModelMixin,
