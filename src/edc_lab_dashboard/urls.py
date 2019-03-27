@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.urls.conf import path, re_path
 from edc_dashboard.url_names import url_names
 
@@ -149,12 +148,9 @@ urlpatterns = [
         name="result_listboard_url",
     ),
     # action urls
-    path("requisition/", RequisitionView.as_view(),
-         name="requisition_form_action_url"),
-    path("requisition/receive/", ReceiveView.as_view(),
-         name="receive_form_action_url"),
-    path("requisition/process/", ProcessView.as_view(),
-         name="process_form_action_url"),
+    path("requisition/", RequisitionView.as_view(), name="requisition_form_action_url"),
+    path("requisition/receive/", ReceiveView.as_view(), name="receive_form_action_url"),
+    path("requisition/process/", ProcessView.as_view(), name="process_form_action_url"),
     path("requisition/pack/", PackView.as_view(), name="pack_form_action_url"),
     re_path(
         "box/(?P<box_identifier>[A-Z0-9]+)/(?P<action_name>manage)/$",
@@ -179,13 +175,3 @@ urlpatterns = [
 ]
 
 url_names.register_from_dict(**dashboard_urls)
-
-
-if settings.APP_NAME == "edc_lab_dashboard":
-    from django.conf.urls import include
-    from edc_lab.admin_site import edc_lab_admin
-
-    urlpatterns += [
-        path("admin/", edc_lab_admin.urls),
-        path("edc_lab/", include("edc_lab.urls")),
-    ]

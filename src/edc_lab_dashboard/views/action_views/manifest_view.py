@@ -28,8 +28,7 @@ class ManifestView(EdcBaseViewMixin, ManifestViewMixin, LabPrintersMixin, Action
             if self.action == "remove_selected_items":
                 self.remove_selected_items()
             elif self.action == "print_labels":
-                job_result = self.print_labels(
-                    pks=self.selected_items, request=request)
+                job_result = self.print_labels(pks=self.selected_items, request=request)
                 if job_result:
                     add_job_results_to_messages(request, [job_result])
             elif self.action == "ship_selected_items":
