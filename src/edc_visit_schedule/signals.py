@@ -64,3 +64,17 @@ def onschedule_model_on_post_delete(instance, **kwargs):
             schedule.history_model_cls.objects.filter(
                 subject_identifier=instance.subject_identifier
             ).delete()
+
+
+@receiver(
+    post_save,
+    weak=False,
+    dispatch_uid="put_subject_on_schedule_on_post_save",
+)
+def put_subject_on_schedule_on_post_save(sender, instance, raw, created, **kwargs):
+    if not raw:
+        try:
+            instance.put_subject_on_schedule_on_post_save(created)
+        except AttributeError as e:
+            if "put_subject_on_schedule_on_post_save" not in str(e):
+                raise
