@@ -1,13 +1,14 @@
 import sys
 
-from dateutil.relativedelta import MO, TU, WE, TH, FR
+from dateutil.relativedelta import MO, TU, WE, TH, FR, SA, SU
 from django.apps import AppConfig as DjangoAppConfig
-from django.conf import settings
 from django.core.checks.registry import register
 from django.core.management.color import color_style
 
 from .facility import Facility, FacilityError
 from .system_checks import holiday_check
+from _warnings import warn
+from django.conf import settings
 
 style = color_style()
 
@@ -17,15 +18,22 @@ class AppConfig(DjangoAppConfig):
     name = "edc_facility"
     verbose_name = "Edc Facility"
 
-    # only set if for edc_facility tests, etc
-    if settings.APP_NAME == "edc_facility":
-        definitions = {
-            "5-day-clinic": dict(
-                days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
-            )
-        }
-    else:
-        definitions = None
+    definitions = None
+
+    default_definitions = {
+        "7-day-clinic": dict(
+            days=[MO, TU, WE, TH, FR, SA, SU],
+            slots=[100, 100, 100, 100, 100, 100, 100],
+        ),
+        "5-day-clinic": dict(
+            days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
+        ),
+        "3-day-clinic": dict(
+            days=[TU, WE, TH],
+            slots=[100, 100, 100],
+            best_effort_available_datetime=True,
+        ),
+    }
 
     def ready(self):
         register(holiday_check)
@@ -39,10 +47,17 @@ class AppConfig(DjangoAppConfig):
         """Returns a dictionary of facilities.
         """
         if not self.definitions:
-            raise FacilityError(
-                f"Facility definitions not defined. See {self.name} app_config.definitions"
-            )
-        return {k: Facility(name=k, **v) for k, v in self.definitions.items()}
+            try:
+                warn_user = settings.USE_EDC_FACILITY_DEFAULTS
+            except AttributeError:
+                warn_user = True
+            if warn_user:
+                warn(
+                    f"Facility definitions not defined. See {self.name} "
+                    f"app_config.definitions. Using defaults. "
+                    "To silence, set USE_EDC_FACILITY_DEFAULTS=True in settings.")
+        return ({k: Facility(name=k, **v)
+                 for k, v in (self.definitions or self.default_definitions).items()})
 
     def get_facility(self, name=None):
         """Returns a facility instance for this name
