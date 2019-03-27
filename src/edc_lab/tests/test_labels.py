@@ -11,7 +11,11 @@ from edc_registration.models import RegisteredSubject
 
 from ..labels.aliquot_label import AliquotLabel, AliquotLabelError
 from .models import SubjectVisit
-from .models import SubjectRequisition
+from .models import SubjectRequisition, SubjectConsent
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from .visit_schedules import visit_schedule
+from edc_appointment.models import Appointment
+from edc_visit_tracking.constants import SCHEDULED
 
 
 class TestLabels(TestCase):
@@ -19,21 +23,30 @@ class TestLabels(TestCase):
     lab_helper = SiteLabsTestHelper()
 
     def setUp(self):
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
         self.subject_identifier = "1111111111"
         self.gender = "M"
         self.initials = "EW"
         self.dob = datetime.now() - relativedelta(years=25)
         self.lab_helper.setup_site_labs()
         self.panel = self.lab_helper.panel
-        RegisteredSubject.objects.create(
+
+        SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
-            initials=self.initials,
-            dob=self.dob,
-            gender=self.gender,
-        )
+            consent_datetime=get_utcnow(),
+            identity='1111111',
+            confirm_identity='1111111',
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            dob=get_utcnow() - relativedelta(years=25))
+        appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            subject_identifier=self.subject_identifier
+            appointment=appointment,
+            report_datetime=get_utcnow(),
+            reason=SCHEDULED,
         )
+
         self.subject_requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             requisition_datetime=get_utcnow(),
@@ -46,7 +59,8 @@ class TestLabels(TestCase):
             requisition_identifier=self.subject_requisition.requisition_identifier,
             is_primary=True,
         )
-        self.aliquot = creator.create(count=1, aliquot_type=self.panel.aliquot_type)
+        self.aliquot = creator.create(
+            count=1, aliquot_type=self.panel.aliquot_type)
 
     def test_aliquot_label(self):
         label = AliquotLabel(pk=self.aliquot.pk)

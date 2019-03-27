@@ -5,6 +5,8 @@ from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 
 from .site_labs import site_labs
+from django.conf import settings
+from edc_visit_tracking.constants import SCHEDULED
 
 style = color_style()
 
@@ -30,3 +32,11 @@ class AppConfig(DjangoAppConfig):
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         site_labs.autodiscover()
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")
+
+
+if settings.APP_NAME == "edc_lab":
+    from edc_metadata.apps import AppConfig as EdcMetadataAppConfigBase
+
+    class EdcMetadataAppConfig(EdcMetadataAppConfigBase):
+        reason_field = {'edc_lab.subjectvisit': 'reason'}
+        create_on_reasons = [SCHEDULED]

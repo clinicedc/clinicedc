@@ -1,22 +1,30 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
-from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_sites.models import SiteModelMixin
-from edc_utils import get_utcnow
+from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin, SubjectOnScheduleModelMixin
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
-from ..model_mixins import (
-    RequisitionIdentifierMixin,
-    RequisitionModelMixin,
-    RequisitionStatusMixin,
-)
+from ..model_mixins import RequisitionModelMixin
+from edc_identifier.model_mixins.subject_identifier_model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_identifier.managers import SubjectIdentifierManager
+from edc_consent.model_mixins.consent_model_mixin import ConsentModelMixin
+from edc_consent.field_mixins.personal_fields_mixin import PersonalFieldsMixin
+from edc_consent.field_mixins.identity_fields_mixin import IdentityFieldsMixin
+from edc_registration.model_mixins.updates_or_creates_registered_subject_model_mixin import UpdatesOrCreatesRegistrationModelMixin
+from edc_visit_schedule.model_mixins.visit_schedule_model_mixins import VisitScheduleMethodsModelMixin,\
+    VisitScheduleFieldsModelMixin
+from edc_reference import ReferenceModelConfig, site_reference_configs
+from edc_metadata.model_mixins.creates.creates_metadata_model_mixin import CreatesMetadataModelMixin
 
 
-class SubjectVisitManager(models.Manager):
-    def get_by_natural_key(self, subject_identifier, report_datetime):
-        return self.get(
-            subject_identifier=subject_identifier, report_datetime=report_datetime
-        )
+site_reference_configs.registry = {}
+reference = ReferenceModelConfig(
+    name="edc_lab.subjectrequisition.panel", fields=["panel"])
+site_reference_configs.register(reference)
+reference = ReferenceModelConfig(
+    name="edc_lab.CrfOne", fields=["f1"])
+site_reference_configs.register(reference)
 
 
 class SubjectRequisitionManager(models.Manager):
@@ -31,24 +39,13 @@ class SubjectRequisitionManager(models.Manager):
         )
 
 
-class SubjectVisit(NonUniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidModel):
+class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin, SiteModelMixin, BaseUuidModel):
 
-    report_datetime = models.DateTimeField(default=get_utcnow)
-
-    objects = SubjectVisitManager()
-
-    def natural_key(self):
-        return (self.subject_identifier, self.report_datetime)
-
-    natural_key.dependencies = ["sites.Site"]
+    def update_reference_on_save(self):
+        pass
 
 
-class SubjectRequisition(
-    RequisitionModelMixin,
-    RequisitionStatusMixin,
-    RequisitionIdentifierMixin,
-    BaseUuidModel,
-):
+class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
@@ -62,3 +59,44 @@ class SubjectRequisition(
     @property
     def visit(self):
         return self.subject_visit
+
+    def update_reference_on_save(self):
+        pass
+
+
+class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
+class OffSchedule(OffScheduleModelMixin, BaseUuidModel):
+
+    pass
+
+
+class DeathReport(UniqueSubjectIdentifierFieldMixin, SiteModelMixin, BaseUuidModel):
+
+    objects = SubjectIdentifierManager()
+
+    def natural_key(self):
+        return (self.subject_identifier,)
+
+
+class SubjectConsent(
+    ConsentModelMixin,
+    PersonalFieldsMixin,
+    IdentityFieldsMixin,
+    UniqueSubjectIdentifierFieldMixin,
+    UpdatesOrCreatesRegistrationModelMixin,
+    SiteModelMixin,
+    # OnScheduleModelMixin,
+    SubjectOnScheduleModelMixin,
+    VisitScheduleFieldsModelMixin,
+    VisitScheduleMethodsModelMixin,
+    BaseUuidModel,
+):
+
+    objects = SubjectIdentifierManager()
+
+    def natural_key(self):
+        return (self.subject_identifier,)

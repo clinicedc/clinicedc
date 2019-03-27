@@ -10,8 +10,13 @@ from ..lab import SpecimenProcessor
 from ..lab import AliquotCreator as AliquotCreatorBase
 from ..identifiers import AliquotIdentifier as AliquotIdentifierBase
 from ..models import Aliquot
-from .models import SubjectRequisition, SubjectVisit
+from .models import SubjectRequisition, SubjectVisit, SubjectConsent
 from .site_labs_test_helper import SiteLabsTestHelper
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from .visit_schedules import visit_schedule
+from edc_appointment.models import Appointment
+from edc_utils.date import get_utcnow
+from edc_visit_tracking.constants import SCHEDULED
 
 
 class AliquotIdentifier(AliquotIdentifierBase):
@@ -41,11 +46,23 @@ class TestSpecimen(TestCase):
         super().tearDown()
 
     def setUp(self):
-        subject_identifier = "1111111111"
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+        self.subject_identifier = "1111111111"
         self.lab_helper.setup_site_labs()
         self.panel = self.lab_helper.panel
+        SubjectConsent.objects.create(
+            subject_identifier=self.subject_identifier,
+            consent_datetime=get_utcnow(),
+            identity='1111111',
+            confirm_identity='1111111',
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule")
+        appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            subject_identifier=subject_identifier
+            appointment=appointment,
+            report_datetime=get_utcnow(),
+            reason=SCHEDULED,
         )
 
     def test_specimen_processor(self):
@@ -86,7 +103,8 @@ class TestSpecimen(TestCase):
             protocol_number="999",
             is_drawn=NO,
         )
-        self.assertRaises(SpecimenNotDrawnError, Specimen, requisition=requisition)
+        self.assertRaises(SpecimenNotDrawnError, Specimen,
+                          requisition=requisition)
 
 
 class TestSpecimen2(TestCase):
@@ -107,10 +125,20 @@ class TestSpecimen2(TestCase):
         self.lab_helper.setup_site_labs()
         self.panel = self.lab_helper.panel
         self.profile_aliquot_count = self.lab_helper.profile_aliquot_count
-        subject_identifier = "1111111111"
+        self.subject_identifier = "1111111111"
         Site.objects.get_current()
+        SubjectConsent.objects.create(
+            subject_identifier=self.subject_identifier,
+            consent_datetime=get_utcnow(),
+            identity='1111111',
+            confirm_identity='1111111',
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule")
+        appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            subject_identifier=subject_identifier
+            appointment=appointment,
+            report_datetime=get_utcnow(),
+            reason=SCHEDULED,
         )
         self.requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
@@ -165,16 +193,19 @@ class TestSpecimen2(TestCase):
         """
         self.assertEqual(self.specimen.aliquots.count(), 1)
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(),
+                         self.profile_aliquot_count + 1)
 
     def test_specimen_process2(self):
         """Asserts calling process more than once has no effect.
         """
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(),
+                         self.profile_aliquot_count + 1)
         self.specimen.process()
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(),
+                         self.profile_aliquot_count + 1)
 
     def test_specimen_process_identifier_prefix(self):
         """Assert all aliquots start with the correct identifier
