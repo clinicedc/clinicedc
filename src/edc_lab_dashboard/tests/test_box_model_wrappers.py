@@ -11,10 +11,8 @@ app_config = django_apps.get_app_config("edc_lab_dashboard")
 
 class TestModelWrapper(TestCase):
     def setUp(self):
-        self.box_type = BoxType.objects.create(
-            name="9 x 9", across=9, down=9, total=81)
-        self.box = Box.objects.create(
-            box_identifier="12345678", box_type=self.box_type)
+        self.box_type = BoxType.objects.create(name="9 x 9", across=9, down=9, total=81)
+        self.box = Box.objects.create(box_identifier="12345678", box_type=self.box_type)
         self.box_item = BoxItem.objects.create(box=self.box, position=0)
         self.aliquot = Aliquot.objects.create(
             subject_identifier="ABCDEFG",
@@ -43,8 +41,7 @@ class TestModelWrapper(TestCase):
 
     def test_box_model_wrapper_template_attrs(self):
         wrapper = self.wrapper_cls(self.box)
-        attrs = ["human_readable_identifier",
-                 "comment", "created", "user_created"]
+        attrs = ["human_readable_identifier", "comment", "created", "user_created"]
         for attr in attrs:
             with self.subTest(attr=attr):
                 self.assertTrue(hasattr(wrapper, attr))

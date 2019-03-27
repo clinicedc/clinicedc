@@ -10,10 +10,8 @@ from ..model_wrappers import ManifestItemModelWrapper, ManifestModelWrapper
 
 class TestModelWrapper(TestCase):
     def setUp(self):
-        self.box_type = BoxType.objects.create(
-            name="9 x 9", across=9, down=9, total=81)
-        self.box = Box.objects.create(
-            box_identifier="12345678", box_type=self.box_type)
+        self.box_type = BoxType.objects.create(name="9 x 9", across=9, down=9, total=81)
+        self.box = Box.objects.create(box_identifier="12345678", box_type=self.box_type)
         self.box_item = BoxItem.objects.create(box=self.box, position=0)
         self.aliquot = Aliquot.objects.create(
             subject_identifier="ABCDEFG",
@@ -41,8 +39,7 @@ class TestModelWrapper(TestCase):
         # usually this will come from app_config
         box_type = BoxType.objects.create(across=9, down=9, total=81)
         box_identifier = "1234"
-        box = Box.objects.create(
-            box_identifier=box_identifier, box_type=box_type)
+        box = Box.objects.create(box_identifier=box_identifier, box_type=box_type)
         obj = BoxItem.objects.create(box=box, position=0, identifier="1234")
         wrapper = wrapper_cls(obj)
         self.assertEqual(
