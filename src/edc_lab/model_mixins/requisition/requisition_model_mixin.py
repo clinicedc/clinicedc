@@ -1,7 +1,5 @@
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.db import models
-from django.db.models.deletion import PROTECT
 from django.utils import timezone
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_constants.choices import YES_NO
@@ -43,8 +41,6 @@ class RequisitionModelMixin(
     models.Model,
 ):
 
-    subject_visit = models.ForeignKey(settings.SUBJECT_VISIT_MODEL, on_delete=PROTECT)
-
     requisition_datetime = models.DateTimeField(
         default=timezone.now, verbose_name="Requisition Date"
     )
@@ -75,7 +71,8 @@ class RequisitionModelMixin(
 
     reason_not_drawn_other = OtherCharField()
 
-    protocol_number = models.CharField(max_length=10, null=True, editable=False)
+    protocol_number = models.CharField(
+        max_length=10, null=True, editable=False)
 
     clinician_initials = InitialsField(null=True, blank=True)
 
@@ -126,7 +123,8 @@ class RequisitionModelMixin(
 
     def save(self, *args, **kwargs):
         if not self.id:
-            edc_protocol_app_config = django_apps.get_app_config("edc_protocol")
+            edc_protocol_app_config = django_apps.get_app_config(
+                "edc_protocol")
             self.protocol_number = edc_protocol_app_config.protocol_number
         self.subject_identifier = self.subject_visit.subject_identifier
         self.specimen_type = self.panel_object.aliquot_type.alpha_code

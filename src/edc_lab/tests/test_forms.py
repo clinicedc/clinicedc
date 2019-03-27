@@ -10,8 +10,14 @@ from edc_utils import get_utcnow
 from ..form_validators import RequisitionFormValidator
 from ..forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
 from ..models import Aliquot
-from .models import SubjectRequisition, SubjectVisit
+from .models import SubjectRequisition, SubjectVisit, SubjectConsent
 from .site_labs_test_helper import SiteLabsTestHelper
+from edc_appointment.models import Appointment
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+
+from .visit_schedules import visit_schedule
+from edc_facility.import_holidays import import_holidays
+from edc_visit_tracking.constants import SCHEDULED
 
 
 class TestForms(TestCase):
@@ -21,6 +27,11 @@ class TestForms(TestCase):
             sites=((settings.SITE_ID, "test_site", "Test Site"),), fqdn="clinicedc.org"
         )
         return super().setUpClass()
+
+    def setUp(self):
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+        super().setUp()
 
     def tearDown(self):
         super().tearDown()
@@ -137,11 +148,19 @@ class TestForms(TestCase):
         self.assertIsNone(form.errors.get("drawn_datetime"))
 
 
+@tag("1")
 class TestForms2(TestCase):
 
     lab_helper = SiteLabsTestHelper()
 
+    @classmethod
+    def setUpClass(cls):
+        import_holidays()
+        return super().setUpClass()
+
     def setUp(self):
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
         self.lab_helper.setup_site_labs()
 
         class RequisitionForm(
@@ -155,7 +174,19 @@ class TestForms2(TestCase):
                 model = SubjectRequisition
 
         self.form_cls = RequisitionForm
-        self.subject_visit = SubjectVisit.objects.create()
+        self.subject_identifier = "12345"
+        SubjectConsent.objects.create(
+            subject_identifier=self.subject_identifier,
+            consent_datetime=get_utcnow(),
+            identity="1111111",
+            confirm_identity="1111111",
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+        )
+        appointment = Appointment.objects.get(visit_code="1000")
+        self.subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+        )
 
     def test_requisition_form_packed_cannot_change(self):
         obj = SubjectRequisition.objects.create(
