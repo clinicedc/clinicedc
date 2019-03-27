@@ -23,8 +23,9 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         from .signals import (
-            offschedule_model_on_post_save,
-            onschedule_model_on_post_save,
+            offschedule_model_on_post_save,  # noqa
+            onschedule_model_on_post_save,  # noqa
+            put_subject_on_schedule_on_post_save,  # noqa
         )
 
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
@@ -62,7 +63,8 @@ if settings.APP_NAME == "edc_visit_schedule":
         protocol_number = "099"
         protocol_name = "TestApp"
         protocol_title = ""
-        study_open_datetime = datetime(2007, 12, 31, 0, 0, 0, tzinfo=gettz("UTC"))
+        study_open_datetime = datetime(
+            2007, 12, 31, 0, 0, 0, tzinfo=gettz("UTC"))
         study_close_datetime = get_utcnow() + relativedelta(years=5)
 
         @property
