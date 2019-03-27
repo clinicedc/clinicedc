@@ -54,6 +54,8 @@ class SubjectReviewListboardView(
 
     appointment_model = "edc_appointment.appointment"
 
+    urlconfig_getattr = "review_listboard_urls"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(KEYED=KEYED, REQUIRED=REQUIRED)
@@ -109,8 +111,7 @@ class SubjectReviewListboardView(
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
         if kwargs.get("subject_identifier"):
-            options.update(
-                {"subject_identifier": kwargs.get("subject_identifier")})
+            options.update({"subject_identifier": kwargs.get("subject_identifier")})
         return options
 
     def extra_search_options(self, search_term):

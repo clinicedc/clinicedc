@@ -8,17 +8,12 @@ from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from dashboard_app.models import (
-    Appointment,
-    SubjectVisit,
-    SubjectConsent,
-)
+from dashboard_app.models import Appointment, SubjectVisit, SubjectConsent
 from dashboard_app.lab_profiles import lab_profile
 from dashboard_app.reference_configs import register_to_site_reference_configs
 from dashboard_app.visit_schedule import visit_schedule
 from edc_facility.import_holidays import import_holidays
 from edc_dashboard.url_names import url_names
-from pprint import pprint
 
 
 User = get_user_model()
@@ -31,7 +26,6 @@ requisition_verify_actions_url
 
 
 class TestDashboard(WebTest):
-
     @classmethod
     def setUpClass(cls):
         ret = super().setUpClass()
@@ -39,8 +33,7 @@ class TestDashboard(WebTest):
         return ret
 
     def setUp(self):
-        self.user = User.objects.create_superuser(
-            "user_login", "u@example.com", "pass")
+        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
 
         site_labs._registry = {}
         site_labs.loaded = False
@@ -51,13 +44,17 @@ class TestDashboard(WebTest):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "dashboard_app.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "dashboard_app.subjectvisit"}
         )
 
         self.subject_identifier = "12345"
+        identity = "123456789"
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier)
+            subject_identifier=self.subject_identifier,
+            consent_datetime=get_utcnow(),
+            identity=identity,
+            confirm_identity=identity,
+        )
 
         for schedule in visit_schedule.schedules.values():
             for visit in schedule.visits.values():
@@ -67,13 +64,13 @@ class TestDashboard(WebTest):
                     visit_schedule_name="visit_schedule",
                     schedule_name="schedule",
                     visit_code=visit.code,
-                    user_created='user_login',
+                    user_created="user_login",
                 )
                 SubjectVisit.objects.create(
                     appointment=appointment,
                     subject_identifier=self.subject_identifier,
                     reason=SCHEDULED,
-                    user_created='user_login',
+                    user_created="user_login",
                 )
         # put subject on schedule
         _, schedule = site_visit_schedules.get_by_onschedule_model(
@@ -103,24 +100,21 @@ class TestDashboard(WebTest):
         self.assertIn("Subjects", response.html.get_text())
 
         # shows something like 1. 12345 3 visits
-        self.assertIn(f"{self.subject_identifier} {n} visits",
-                      response.html.get_text())
-        self.assertIn(
-            "click to list reported visits for this subject", response)
+        self.assertIn(f"{self.subject_identifier} {n} visits", response.html.get_text())
+        self.assertIn("click to list reported visits for this subject", response)
 
         # follow to schedule for this subject
         response = response.click(linkid="id-reported-visit-list")
         self.assertIn(
-            f"Reported Visits for {self.subject_identifier}", response.html.get_text())
+            f"Reported Visits for {self.subject_identifier}", response.html.get_text()
+        )
         self.assertIn("1000.0", response.html.get_text())
         self.assertIn("2000.0", response.html.get_text())
         self.assertIn("3000.0", response.html.get_text())
 
-        pprint(url_names.registry)
-        print(response.html)
-
         response = response.click(
-            linkid=f"id-reported-visits-{self.subject_identifier}-1000-0")
+            linkid=f"id-reported-visits-{self.subject_identifier}-1000-0"
+        )
 
         # print(response.html.get_text())
         # follow to dashoard for this visit
@@ -130,8 +124,10 @@ class TestDashboard(WebTest):
         self.login()
 
         response = self.app.get(
-            reverse(f"dashboard_app:subject_review_listboard_url",
-                    kwargs={"subject_identifier": self.subject_identifier}),
+            reverse(
+                f"dashboard_app:subject_review_listboard_url",
+                kwargs={"subject_identifier": self.subject_identifier},
+            ),
             user=self.user,
         )
 
@@ -142,17 +138,18 @@ class TestDashboard(WebTest):
 
         response = response.click(linkid="id-reported-visit-list")
 
-
-#         for link in response.html.find_all('a'):
-#             print(link.get('href'))
-#         print(response.html.get_text())
+    #         for link in response.html.find_all('a'):
+    #             print(link.get('href'))
+    #         print(response.html.get_text())
 
     def test_url_response_for_subject_identifier_to_dashboard(self):
         self.login()
 
         response = self.app.get(
-            reverse(f"dashboard_app:subject_review_listboard_url",
-                    kwargs={"subject_identifier": self.subject_identifier}),
+            reverse(
+                f"dashboard_app:subject_review_listboard_url",
+                kwargs={"subject_identifier": self.subject_identifier},
+            ),
             user=self.user,
         )
         response = response.click(linkid="id-reported-visit-list")
