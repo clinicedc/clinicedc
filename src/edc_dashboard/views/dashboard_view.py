@@ -10,6 +10,8 @@ class DashboardView(UrlRequestContextMixin, TemplateRequestContextMixin, Templat
     dashboard_template = None  # may be None if `dashboard_template_name` is defined
     dashboard_template_name = None  # may be None if `dashboard_template` is defined
 
+    urlconfig_getattr = "dashboard_urls"
+
     def __init__(self, **kwargs):
         if not self.dashboard_url:
             raise ImproperlyConfigured(
