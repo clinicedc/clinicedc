@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.urls import path, include
 from django.views.generic.base import RedirectView
 
@@ -14,9 +15,9 @@ for app_name in [
     "edc_device",
     "edc_protocol",
     "edc_reference",
-    "edc_visit_schedule"
+    "edc_visit_schedule",
 ]:
-    urlpatterns.append(path(f"{app_name}/", include(f"{app_name}.urls")),)
+    urlpatterns.append(path(f"{app_name}/", include(f"{app_name}.urls")))
 
 urlpatterns += [
     path("admin/", admin.site.urls),

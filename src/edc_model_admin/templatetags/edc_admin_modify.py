@@ -21,7 +21,8 @@ def get_request_object(context):
         raise EdcContextProcessorError(
             "Request object not found in template context. "
             "Try enabling the context processor "
-            "'django.template.context_processors.request'")
+            "'django.template.context_processors.request'"
+        )
     return request
 
 

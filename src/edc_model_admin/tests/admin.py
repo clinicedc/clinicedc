@@ -17,6 +17,18 @@ from .models import (
 )
 
 
+__all__ = [
+    "CrfOneAdmin",
+    "RedirectNextModelAdmin",
+    "CrfTwoAdmin",
+    "CrfThreeAdmin",
+    "RequisitionAdmin",
+    "CrfFourAdmin",
+    "CrfFiveAdmin",
+    "CrfSixAdmin",
+]
+
+
 class BaseModelAdmin(TemplatesModelAdminMixin):
 
     search_fields = ("subject_identifier",)
