@@ -17,6 +17,10 @@ class UrlRequestContextMixin(ContextMixin):
     urlconfig_label = None
 
     @classmethod
+    def get_urlname(cls):
+        return cls.dashboard_url
+
+    @classmethod
     def urls(
         cls, namespace=None, label=None, identifier_label=None, identifier_pattern=None
     ):
@@ -26,7 +30,7 @@ class UrlRequestContextMixin(ContextMixin):
             or convert_from_camel(cls.__name__.replace("view", "")).lower()
         )
         urlconfig = UrlConfig(
-            url_name=cls.dashboard_url,
+            url_name=cls.get_urlname(),
             namespace=namespace,
             view_class=cls,
             label=label,

@@ -167,3 +167,7 @@ class ListboardView(
     BaseListboardView,
 ):
     urlconfig_getattr = "listboard_urls"
+
+    @classmethod
+    def get_urlname(cls):
+        return cls.listboard_url
