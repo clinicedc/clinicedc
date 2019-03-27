@@ -19,8 +19,7 @@ class TestSiteHandlers(TestCase):
 
     def test_register_by_app_label_reference(self):
         app_label = "my_app_label"
-        site_dataframe_handlers.register(
-            handler_cls=DfHandler, app_labels=[app_label])
+        site_dataframe_handlers.register(handler_cls=DfHandler, app_labels=[app_label])
         self.assertEqual(DfHandler, site_dataframe_handlers.get_for(app_label))
         self.assertRaises(
             SiteDataframeHandlerNotFound, site_dataframe_handlers.get_for, "blah"
