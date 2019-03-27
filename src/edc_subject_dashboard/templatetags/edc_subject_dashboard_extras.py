@@ -12,7 +12,7 @@ register = template.Library()
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" "forms_button.html"
+    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/forms_button.html"
 )
 def forms_button(wrapper=None, visit=None, **kwargs):
     """wrapper is an AppointmentModelWrapper.
