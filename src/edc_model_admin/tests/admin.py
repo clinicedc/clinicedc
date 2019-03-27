@@ -1,6 +1,5 @@
 from django.contrib import admin
 from edc_model_admin import (
-    ModelAdminModelRedirectMixin,
     ModelAdminNextUrlRedirectMixin,
     ModelAdminRedirectOnDeleteMixin,
     TemplatesModelAdminMixin,
@@ -13,7 +12,6 @@ from .models import (
     CrfThree,
     CrfTwo,
     CrfSix,
-    RedirectModel,
     RedirectNextModel,
     Requisition,
 )
@@ -64,7 +62,7 @@ class RequisitionAdmin(
 @admin.register(CrfFour)
 class CrfFourAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelAdmin):
 
-    post_url_on_delete_name = "subject_dashboard_url"
+    post_url_on_delete_name = "dashboard_url"
 
     def post_url_on_delete_kwargs(self, request, obj):
         return {"subject_identifier": obj.subject_identifier}
@@ -73,7 +71,7 @@ class CrfFourAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelA
 @admin.register(CrfFive)
 class CrfFiveAdmin(BaseModelAdmin, ModelAdminRedirectOnDeleteMixin, admin.ModelAdmin):
 
-    post_url_on_delete_name = "dashboard2_app:dashboard_url"
+    post_url_on_delete_name = "dashboard2_url"
 
     def post_url_on_delete_kwargs(self, request, obj):
         return {"subject_identifier": obj.subject_identifier}

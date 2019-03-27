@@ -9,10 +9,26 @@ from edc_model_admin import get_next_url
 register = template.Library()
 
 
+class EdcContextProcessorError(Exception):
+    pass
+
+
+def get_request_object(context):
+    """Returns a request object or raises EdcContextProcessorError.
+    """
+    request = context.get("request")
+    if not request:
+        raise EdcContextProcessorError(
+            "Request object not found in template context. "
+            "Try enabling the context processor "
+            "'django.template.context_processors.request'")
+    return request
+
+
 def get_subject_identifier(context):
     """Returns the subject identifier.
     """
-    request = context.get("request")
+    request = get_request_object(context)
     subject_identifier = request.GET.get("subject_identifier")
     if not subject_identifier:
         try:
@@ -28,7 +44,7 @@ def get_subject_identifier(context):
 def get_cancel_url(context):
     """Returns the url for the Cancel button on the change_form.
     """
-    request = context.get("request")
+    request = get_request_object(context)
     try:
         cancel_url = get_next_url(request)
     except NoReverseMatch:
@@ -44,7 +60,7 @@ def get_cancel_url(context):
 @register.inclusion_tag("edc_submit_line.html", takes_context=True)
 def edc_submit_row(context):
 
-    request = context.get("request")
+    request = get_request_object(context)
     if request:
         if int(request.site.id) == int(context.get("reviewer_site_id", 0)):
             context.update({"save_next": None})

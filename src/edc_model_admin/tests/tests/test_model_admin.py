@@ -4,7 +4,6 @@ from django.test.client import RequestFactory
 from ...model_admin_next_url_redirect_mixin import ModelAdminNextUrlRedirectError
 from ...model_admin_next_url_redirect_mixin import ModelAdminNextUrlRedirectMixin
 from ..models import BasicModel
-from ..reference_configs import register_to_site_reference_configs
 
 
 class TestModelAdmin(TestCase):
