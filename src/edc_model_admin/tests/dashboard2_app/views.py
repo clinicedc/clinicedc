@@ -1,7 +1,8 @@
 from edc_dashboard.view_mixins import EdcViewMixin
-from django.views.generic.base import TemplateView
+from edc_dashboard.views import DashboardView as BaseDashboardView
 
 
-class DashboardView(EdcViewMixin, TemplateView):
+class DashboardView(EdcViewMixin, BaseDashboardView):
 
-    template_name = "dashboard2.html"
+    dashboard_url = "dashboard2_url"
+    dashboard_template = "dashboard2_template"
