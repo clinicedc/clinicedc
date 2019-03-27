@@ -59,19 +59,10 @@ class SubjectVisit(
 
 
 class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
-
-    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
-
-    objects = SubjectRequisitionManager()
-
-    def natural_key(self):
-        return (self.requisition_identifier,) + self.subject_visit.natural_key()
-
-    natural_key.dependencies = ["edc_lab.simplsubjectvisit", "sites.Site"]
-
-    @property
-    def visit(self):
-        return self.subject_visit
+    #
+    #     def natural_key(self):
+    #         return (self.requisition_identifier,) + self.subject_visit.natural_key()
+    #     natural_key.dependencies = ["edc_lab.subjectvisit", "sites.Site"]
 
     def update_reference_on_save(self):
         pass
