@@ -39,9 +39,9 @@ def metadata_update_on_post_save(
 
     if not raw and not update_fields:
         try:
-            instance.reference_updater_cls(model_obj=instance)
+            instance.update_reference_on_save()
         except AttributeError as e:
-            if "reference_updater_cls" not in str(e):
+            if "update_reference_on_save" not in str(e):
                 raise
         try:
             instance.metadata_update()
