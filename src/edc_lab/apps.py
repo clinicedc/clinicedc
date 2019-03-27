@@ -38,5 +38,5 @@ if settings.APP_NAME == "edc_lab":
     from edc_metadata.apps import AppConfig as EdcMetadataAppConfigBase
 
     class EdcMetadataAppConfig(EdcMetadataAppConfigBase):
-        reason_field = {'edc_lab.subjectvisit': 'reason'}
+        reason_field = {"edc_lab.subjectvisit": "reason"}
         create_on_reasons = [SCHEDULED]

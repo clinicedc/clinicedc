@@ -54,15 +54,14 @@ class TestSpecimen(TestCase):
         SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow(),
-            identity='1111111',
-            confirm_identity='1111111',
+            identity="1111111",
+            confirm_identity="1111111",
             visit_schedule_name="visit_schedule",
-            schedule_name="schedule")
+            schedule_name="schedule",
+        )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            appointment=appointment,
-            report_datetime=get_utcnow(),
-            reason=SCHEDULED,
+            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
 
     def test_specimen_processor(self):
@@ -103,8 +102,7 @@ class TestSpecimen(TestCase):
             protocol_number="999",
             is_drawn=NO,
         )
-        self.assertRaises(SpecimenNotDrawnError, Specimen,
-                          requisition=requisition)
+        self.assertRaises(SpecimenNotDrawnError, Specimen, requisition=requisition)
 
 
 class TestSpecimen2(TestCase):
@@ -130,15 +128,14 @@ class TestSpecimen2(TestCase):
         SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow(),
-            identity='1111111',
-            confirm_identity='1111111',
+            identity="1111111",
+            confirm_identity="1111111",
             visit_schedule_name="visit_schedule",
-            schedule_name="schedule")
+            schedule_name="schedule",
+        )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            appointment=appointment,
-            report_datetime=get_utcnow(),
-            reason=SCHEDULED,
+            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
         self.requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
@@ -193,19 +190,16 @@ class TestSpecimen2(TestCase):
         """
         self.assertEqual(self.specimen.aliquots.count(), 1)
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(),
-                         self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
 
     def test_specimen_process2(self):
         """Asserts calling process more than once has no effect.
         """
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(),
-                         self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
         self.specimen.process()
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(),
-                         self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
 
     def test_specimen_process_identifier_prefix(self):
         """Assert all aliquots start with the correct identifier

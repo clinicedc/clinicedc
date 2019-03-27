@@ -62,21 +62,19 @@ class TestSiteLab2(TestCase):
         SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow(),
-            identity='1111111',
-            confirm_identity='1111111',
+            identity="1111111",
+            confirm_identity="1111111",
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
-            dob=get_utcnow() - relativedelta(years=25))
+            dob=get_utcnow() - relativedelta(years=25),
+        )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            appointment=appointment,
-            report_datetime=get_utcnow(),
-            reason=SCHEDULED,
+            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
 
     def test_site_lab_panels(self):
-        self.assertIn(self.panel.name, site_labs.get(
-            self.lab_profile.name).panels)
+        self.assertIn(self.panel.name, site_labs.get(self.lab_profile.name).panels)
 
     def test_panel_repr(self):
         self.assertTrue(repr(self.panel))
@@ -103,7 +101,9 @@ class TestSiteLab2(TestCase):
         """Asserts requisition identifier is set on requisition.
         """
         requisition = SubjectRequisition.objects.create(
-            subject_visit=self.subject_visit, panel=self.panel.panel_model_obj, is_drawn=YES
+            subject_visit=self.subject_visit,
+            panel=self.panel.panel_model_obj,
+            is_drawn=YES,
         )
         pattern = re.compile("[0-9]{2}[A-Z0-9]{5}")
         self.assertTrue(pattern.match(requisition.requisition_identifier))
@@ -129,7 +129,9 @@ class TestSiteLab2(TestCase):
         changed to drawn.
         """
         requisition = SubjectRequisition.objects.create(
-            subject_visit=self.subject_visit, panel=self.panel.panel_model_obj, is_drawn=NO
+            subject_visit=self.subject_visit,
+            panel=self.panel.panel_model_obj,
+            is_drawn=NO,
         )
         requisition.is_drawn = YES
         requisition.save()
@@ -140,10 +142,11 @@ class TestSiteLab2(TestCase):
         """Asserts requisition identifier is unchanged on save/resave.
         """
         requisition = SubjectRequisition.objects.create(
-            subject_visit=self.subject_visit, panel=self.panel.panel_model_obj, is_drawn=YES
+            subject_visit=self.subject_visit,
+            panel=self.panel.panel_model_obj,
+            is_drawn=YES,
         )
         requisition_identifier = requisition.requisition_identifier
         requisition.is_drawn = YES
         requisition.save()
-        self.assertEqual(requisition_identifier,
-                         requisition.requisition_identifier)
+        self.assertEqual(requisition_identifier, requisition.requisition_identifier)

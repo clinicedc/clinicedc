@@ -2,28 +2,40 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_model.models import BaseUuidModel
 from edc_sites.models import SiteModelMixin
-from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin, SubjectOnScheduleModelMixin
+from edc_visit_schedule.model_mixins import (
+    OffScheduleModelMixin,
+    OnScheduleModelMixin,
+    SubjectOnScheduleModelMixin,
+)
 from edc_visit_tracking.model_mixins import VisitModelMixin
 
 from ..model_mixins import RequisitionModelMixin
-from edc_identifier.model_mixins.subject_identifier_model_mixins import UniqueSubjectIdentifierFieldMixin
+from edc_identifier.model_mixins.subject_identifier_model_mixins import (
+    UniqueSubjectIdentifierFieldMixin,
+)
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_consent.model_mixins.consent_model_mixin import ConsentModelMixin
 from edc_consent.field_mixins.personal_fields_mixin import PersonalFieldsMixin
 from edc_consent.field_mixins.identity_fields_mixin import IdentityFieldsMixin
-from edc_registration.model_mixins.updates_or_creates_registered_subject_model_mixin import UpdatesOrCreatesRegistrationModelMixin
-from edc_visit_schedule.model_mixins.visit_schedule_model_mixins import VisitScheduleMethodsModelMixin,\
-    VisitScheduleFieldsModelMixin
+from edc_registration.model_mixins.updates_or_creates_registered_subject_model_mixin import (
+    UpdatesOrCreatesRegistrationModelMixin,
+)
+from edc_visit_schedule.model_mixins.visit_schedule_model_mixins import (
+    VisitScheduleMethodsModelMixin,
+    VisitScheduleFieldsModelMixin,
+)
 from edc_reference import ReferenceModelConfig, site_reference_configs
-from edc_metadata.model_mixins.creates.creates_metadata_model_mixin import CreatesMetadataModelMixin
+from edc_metadata.model_mixins.creates.creates_metadata_model_mixin import (
+    CreatesMetadataModelMixin,
+)
 
 
 site_reference_configs.registry = {}
 reference = ReferenceModelConfig(
-    name="edc_lab.subjectrequisition.panel", fields=["panel"])
+    name="edc_lab.subjectrequisition.panel", fields=["panel"]
+)
 site_reference_configs.register(reference)
-reference = ReferenceModelConfig(
-    name="edc_lab.CrfOne", fields=["f1"])
+reference = ReferenceModelConfig(name="edc_lab.CrfOne", fields=["f1"])
 site_reference_configs.register(reference)
 
 
@@ -39,8 +51,9 @@ class SubjectRequisitionManager(models.Manager):
         )
 
 
-class SubjectVisit(VisitModelMixin, CreatesMetadataModelMixin, SiteModelMixin, BaseUuidModel):
-
+class SubjectVisit(
+    VisitModelMixin, CreatesMetadataModelMixin, SiteModelMixin, BaseUuidModel
+):
     def update_reference_on_save(self):
         pass
 

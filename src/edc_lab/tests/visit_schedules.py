@@ -15,12 +15,12 @@ class MockPanel(DummyPanel):
         super().__init__(requisition_model="edc_lab.subjectrequisition", name=name)
 
 
-crfs = FormsCollection(
-    Crf(show_order=1, model="edc_lab.crfone", required=True))
+crfs = FormsCollection(Crf(show_order=1, model="edc_lab.crfone", required=True))
 
 requisitions = FormsCollection(
-    Requisition(show_order=10, panel=MockPanel(
-        "panel"), required=True, additional=False),
+    Requisition(
+        show_order=10, panel=MockPanel("panel"), required=True, additional=False
+    )
 )
 
 

@@ -132,8 +132,7 @@ class TestForms(TestCase):
         form = RequisitionForm(data=data)
         form.is_valid()
         self.assertIn("drawn_datetime", list(form.errors.keys()))
-        self.assertEqual(form.errors.get("drawn_datetime"),
-                         ["This field is required."])
+        self.assertEqual(form.errors.get("drawn_datetime"), ["This field is required."])
 
         data = {"is_drawn": NO, "drawn_datetime": get_utcnow()}
         form = RequisitionForm(data=data)
@@ -179,15 +178,14 @@ class TestForms2(TestCase):
         SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow(),
-            identity='1111111',
-            confirm_identity='1111111',
+            identity="1111111",
+            confirm_identity="1111111",
             visit_schedule_name="visit_schedule",
-            schedule_name="schedule")
+            schedule_name="schedule",
+        )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            appointment=appointment,
-            report_datetime=get_utcnow(),
-            reason=SCHEDULED,
+            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
 
     def test_requisition_form_packed_cannot_change(self):
@@ -268,8 +266,7 @@ class TestForms2(TestCase):
         form = self.form_cls(data=data, instance=obj)
         form.is_valid()
         self.assertIn(
-            "Requisition may not be changed", "".join(
-                form.errors.get("__all__"))
+            "Requisition may not be changed", "".join(form.errors.get("__all__"))
         )
 
     @tag("1")
@@ -295,6 +292,5 @@ class TestForms2(TestCase):
         form.is_valid()
         print(form.is_valid())
         self.assertIn(
-            "Cannot be before date of visit", form.errors.get(
-                "requisition_datetime")[0]
+            "Cannot be before date of visit", form.errors.get("requisition_datetime")[0]
         )
