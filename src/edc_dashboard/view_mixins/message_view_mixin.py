@@ -1,19 +1,9 @@
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 
-# from django.contrib.messages.constants import DEFAULT_TAGS, ERROR
-
 
 class MessageViewMixin:
-
-    #     def message_user(self, message=None, level=None):
-    #         tag = tag or DEFAULT_TAGS.get(ERROR)
-    #         m = getattr(messages, tag)
-    #         m(self.request, message=mark_safe(message))
-
-    def message_user(
-        self, message, level=messages.INFO, extra_tags="", fail_silently=False
-    ):
+    def message_user(self, message, level=None, extra_tags=None, fail_silently=None):
         """
         Send a message to the user. The default implementation
         posts a message using the django.contrib.messages backend.
@@ -23,6 +13,8 @@ class MessageViewMixin:
         compatibility. For convenience, it accepts the `level` argument as
         a string rather than the usual level number.
         """
+        level = level or messages.ERROR
+        extra_tags = extra_tags or ""
         if not isinstance(level, int):
             # attempt to get the level if passed a string
             try:

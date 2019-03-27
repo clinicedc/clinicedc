@@ -166,4 +166,4 @@ class ListboardView(
     ListboardPermmissionMixin,
     BaseListboardView,
 ):
-    pass
+    urlconfig_getattr = "listboard_urls"
