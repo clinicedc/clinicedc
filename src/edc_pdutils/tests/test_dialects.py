@@ -18,10 +18,8 @@ class TestDialects(TestCase):
         crf_dialect = CrfDialect(obj=obj)
         self.assertTrue(crf_dialect.select_visit_and_related)
         self.assertIn("SELECT", crf_dialect.select_visit_and_related[0])
-        self.assertIn(obj.visit_column,
-                      crf_dialect.select_visit_and_related[0])
-        self.assertIn(obj.appointment_tbl,
-                      crf_dialect.select_visit_and_related[0])
+        self.assertIn(obj.visit_column, crf_dialect.select_visit_and_related[0])
+        self.assertIn(obj.appointment_tbl, crf_dialect.select_visit_and_related[0])
         self.assertIn(
             obj.registered_subject_tbl, crf_dialect.select_visit_and_related[0]
         )
@@ -32,5 +30,4 @@ class TestDialects(TestCase):
         crf_dialect = CrfDialect(obj=obj)
         self.assertTrue(crf_dialect.select_visit_and_related)
         self.assertIn("SELECT", crf_dialect.select_visit_and_related[0])
-        self.assertIn(obj.visit_column,
-                      crf_dialect.select_visit_and_related[0])
+        self.assertIn(obj.visit_column, crf_dialect.select_visit_and_related[0])

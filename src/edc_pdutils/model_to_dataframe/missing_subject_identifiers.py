@@ -18,8 +18,7 @@ def missing_subject_identifiers(
         subject_identifiers, columns=["subject_identifier"]
     )
     df_subject_identifiers["identifier"] = df_subject_identifiers["subject_identifier"]
-    df_subject_identifiers = df_subject_identifiers.set_index(
-        "subject_identifier")
+    df_subject_identifiers = df_subject_identifiers.set_index("subject_identifier")
     if verbose:
         df_subject_identifiers.head()
 
@@ -29,8 +28,7 @@ def missing_subject_identifiers(
     df_subject = df_subject.drop_duplicates()
     # remove subject identifier as UUID
     if remove_uuids:
-        df_subject = df_subject[df_subject["subject_identifier"].str.len(
-        ) != 32]
+        df_subject = df_subject[df_subject["subject_identifier"].str.len() != 32]
     # set index to subject_identifier
     df_subject = df_subject.set_index("subject_identifier")
     # filter df of subject identifiers to leave only those not in model

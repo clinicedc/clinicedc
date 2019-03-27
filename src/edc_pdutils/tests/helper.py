@@ -17,8 +17,8 @@ class Helper:
         appointment = Appointment.objects.create(
             subject_identifier=subject_identifier,
             appt_datetime=get_utcnow(),
-            visit_schedule_name='visit_schedule',
-            schedule_name='schedule',
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
             visit_code=visit_code,
         )
         self.thing_one = ListModel.objects.create(
@@ -48,5 +48,4 @@ class Helper:
         CrfThree.objects.create(
             subject_visit=self.subject_visit, UPPERCASE=get_utcnow()
         )
-        CrfInline.objects.create(
-            crf_one=crf_one, crf_two=crf_two, dte=get_utcnow())
+        CrfInline.objects.create(crf_one=crf_one, crf_two=crf_two, dte=get_utcnow())

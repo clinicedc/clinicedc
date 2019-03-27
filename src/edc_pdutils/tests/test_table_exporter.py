@@ -23,7 +23,7 @@ class TestExport(TestCase):
         site_visit_schedules.register(get_visit_schedule(5))
         for i in range(0, 5):
             self.helper.create_crf(i)
-        print('database name', connection.settings_dict['NAME'])
+        print("database name", connection.settings_dict["NAME"])
         # Or alternatively
         # db_name = connection.get_connection_params()['db']
 
@@ -39,7 +39,7 @@ class TestExport(TestCase):
                 file = os.path.join(self.path, file)
                 os.remove(file)
 
-    @tag('1')
+    @tag("1")
     def test_tables_to_csv_lower_columns(self):
         sys.stdout.write("\n")
         tables_exporter = CsvTablesExporter(app_label="edc_pdutils")

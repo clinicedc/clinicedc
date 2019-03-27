@@ -92,10 +92,10 @@ WSGI_APPLICATION = "edc_pdutils.wsgi.application"
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    },
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    }
 }
 
 # Password validation
@@ -132,8 +132,7 @@ STATIC_URL = "/static/"
 GIT_DIR = BASE_DIR
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-DASHBOARD_URL_NAMES = {
-    "subject_dashboard_url": "edc_pdutils:subject_dashboard_url"}
+DASHBOARD_URL_NAMES = {"subject_dashboard_url": "edc_pdutils:subject_dashboard_url"}
 
 EDC_BOOTSTRAP = 3
 
