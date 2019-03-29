@@ -2,17 +2,21 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, tag
 from edc_constants.constants import NEW, OPEN, CLOSED
+from edc_action_item.action import Action
+from edc_action_item.forms import ActionItemForm
+from edc_action_item.get_action_type import get_action_type
+from edc_action_item.models import SubjectDoesNotExist, ActionItem, ActionType
+from edc_action_item.site_action_items import site_action_items
 
-from ..action import Action
-from ..forms import ActionItemForm
-from ..get_action_type import get_action_type
-from ..models import SubjectDoesNotExist, ActionItem, ActionType
-from ..site_action_items import site_action_items
-from .action_items import FormThreeAction
-from .action_items import FormZeroAction, FormOneAction, FormTwoAction
-from .models import FormOne, FormTwo, FormThree
-from .models import SubjectIdentifierModel
-from .models import TestModelWithAction
+from ..action_items import FormThreeAction
+from ..action_items import FormZeroAction, FormOneAction, FormTwoAction
+from ..models import (
+    FormOne,
+    FormThree,
+    FormTwo,
+    SubjectIdentifierModel,
+    TestModelWithAction,
+)
 
 
 class TestActionItem(TestCase):
@@ -49,7 +53,8 @@ class TestActionItem(TestCase):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
         site_action_items.register(FormThreeAction)
-        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
         form_one.refresh_from_db()
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one
@@ -132,10 +137,12 @@ class TestActionItem(TestCase):
             self.fail("ActionItem unexpectedly does not exist")
 
         self.assertEqual(my_action.action_item, action_item)
-        self.assertEqual(my_action.action_identifier, action_item.action_identifier)
+        self.assertEqual(my_action.action_identifier,
+                         action_item.action_identifier)
         self.assertEqual(get_action_type(my_action), action_item.action_type)
         self.assertEqual(
-            get_action_type(my_action).reference_model, action_item.reference_model
+            get_action_type(
+                my_action).reference_model, action_item.reference_model
         )
         self.assertIsNone(action_item.parent_action_item_id)
 
@@ -146,7 +153,8 @@ class TestActionItem(TestCase):
 
         site_action_items.register(MyActionWithIncorrectModel)
 
-        TestModelWithAction.objects.create(subject_identifier=self.subject_identifier)
+        TestModelWithAction.objects.create(
+            subject_identifier=self.subject_identifier)
         self.assertRaises(
             ObjectDoesNotExist,
             TestModelWithAction.objects.create,
@@ -176,14 +184,17 @@ class TestActionItem(TestCase):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
         site_action_items.register(FormThreeAction)
-        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
+        form_one_action = FormOneAction(
+            subject_identifier=self.subject_identifier)
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier,
             action_identifier=form_one_action.action_identifier,
         )
-        action_item = ActionItem.objects.get(action_type__name=FormTwoAction.name)
+        action_item = ActionItem.objects.get(
+            action_type__name=FormTwoAction.name)
         action_item.delete()
-        action_item = ActionItem.objects.get(action_type__name=FormThreeAction.name)
+        action_item = ActionItem.objects.get(
+            action_type__name=FormThreeAction.name)
         action_item.delete()
         # assert deleted actions are recreated
         self.assertEqual(ActionItem.objects.all().count(), 3)
@@ -199,7 +210,8 @@ class TestActionItem(TestCase):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
         site_action_items.register(FormThreeAction)
-        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
+        form_one_action = FormOneAction(
+            subject_identifier=self.subject_identifier)
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier,
             action_identifier=form_one_action.action_identifier,
@@ -234,13 +246,15 @@ class TestActionItem(TestCase):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
         site_action_items.register(FormThreeAction)
-        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
+        form_one_action = FormOneAction(
+            subject_identifier=self.subject_identifier)
         FormOne.objects.create(
             subject_identifier=self.subject_identifier,
             action_identifier=form_one_action.action_identifier,
         )
 
-        action_item = ActionItem.objects.get(action_type__name=FormOneAction.name)
+        action_item = ActionItem.objects.get(
+            action_type__name=FormOneAction.name)
 
         self.assertRaises(ProtectedError, action_item.delete)
 
@@ -248,7 +262,8 @@ class TestActionItem(TestCase):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
         site_action_items.register(FormThreeAction)
-        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
+        form_one_action = FormOneAction(
+            subject_identifier=self.subject_identifier)
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier,
             action_identifier=form_one_action.action_identifier,

@@ -1,15 +1,15 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, tag
+from edc_action_item.delete_action_item import delete_action_item, ActionItemDeleteError
+from edc_action_item.models import ActionItem, ActionType
+from edc_action_item.site_action_items import site_action_items
 from edc_action_item.tests.models import FormTwo
 from edc_constants.constants import CLOSED, OPEN, NEW
 
-from ..delete_action_item import delete_action_item, ActionItemDeleteError
-from ..models import ActionItem, ActionType
-from ..site_action_items import site_action_items
-from .action_items import FormOneAction, FormTwoAction, FormThreeAction
-from .action_items import SingletonAction, register_actions
-from .models import FormOne, SubjectIdentifierModel
+from ..action_items import FormOneAction, FormTwoAction, FormThreeAction
+from ..action_items import SingletonAction, register_actions
+from ..models import FormOne, SubjectIdentifierModel
 
 
 class TestAction(TestCase):
@@ -27,11 +27,14 @@ class TestAction(TestCase):
         self.assertIn(FormThreeAction.name, site_action_items.registry)
 
     def test_reference_model_delete_resets_action_item(self):
-        obj = FormOne.objects.create(subject_identifier=self.subject_identifier)
-        action_item = ActionItem.objects.get(action_identifier=obj.action_identifier)
+        obj = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
+        action_item = ActionItem.objects.get(
+            action_identifier=obj.action_identifier)
         self.assertEqual(action_item.status, CLOSED)
         obj.delete()
-        action_item = ActionItem.objects.get(action_identifier=obj.action_identifier)
+        action_item = ActionItem.objects.get(
+            action_identifier=obj.action_identifier)
         self.assertEqual(action_item.status, NEW)
         self.assertFalse(action_item.linked_to_reference)
 
@@ -69,7 +72,8 @@ class TestAction(TestCase):
         )
 
     def test_deleted_next_action_item(self):
-        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier)
         ActionItem.objects.get(action_identifier=form_one.action_identifier)
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one
