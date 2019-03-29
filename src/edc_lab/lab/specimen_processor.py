@@ -51,10 +51,11 @@ class SpecimenProcessor:
                             count=count, aliquot_type=process.aliquot_type
                         )
                     except IntegrityError as e:
-                        if "UNIQUE constraint failed" in str(e):
-                            pass  # if aliquot already exists, pass
-                        else:
-                            raise SpecimenProcessorError(e) from e
+                        pass
+#                         if "UNIQUE constraint failed" in str(e) :
+#                             pass  # if aliquot already exists, pass
+#                         else:
+#                             raise SpecimenProcessorError(e) from e
                     else:
                         created.append(aliquot)
         return created
