@@ -27,7 +27,8 @@ MODIFY_ACTIONS = (
     ("VIEW", "Print"),
 )
 
-ORDER_STATUS = ((PENDING, "Pending"), (PARTIAL, "Partial"), (COMPLETE, "Complete"))
+ORDER_STATUS = ((PENDING, "Pending"), (PARTIAL, "Partial"),
+                (COMPLETE, "Complete"))
 
 REASON_NOT_DRAWN = (
     (NOT_APPLICABLE, "Not applicable"),
@@ -45,9 +46,11 @@ RESULT_RELEASE_STATUS = (
     ("AMENDED", "Amended"),
 )
 
-RESULT_VALIDATION_STATUS = (("P", "Preliminary"), ("F", "Final"), ("R", "Rejected"))
+RESULT_VALIDATION_STATUS = (
+    ("P", "Preliminary"), ("F", "Final"), ("R", "Rejected"))
 
-RESULT_QUANTIFIER = (("=", "="), (">", ">"), (">=", ">="), ("<", "<"), ("<=", "<="))
+RESULT_QUANTIFIER = (("=", "="), (">", ">"), (">=", ">="),
+                     ("<", "<"), ("<=", "<="))
 
 SPECIMEN_MEASURE_UNITS = (
     ("mL", "mL"),
@@ -91,6 +94,7 @@ REASON_NOT_DRAWN = (
     ("absent", "Patient did not attend visit"),
     ("refused", "Patient refused"),
     ("no_supplies", "No supplies"),
+    (NOT_REQUIRED, "No longer required for this visit"),
     (OTHER, "Other"),
 )
 
