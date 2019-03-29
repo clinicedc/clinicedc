@@ -1,10 +1,11 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_utils import get_utcnow
-
-from ..crf_date_validator import CrfDateValidator
-from ..crf_date_validator import CrfReportDateAllowanceError
-from ..crf_date_validator import CrfReportDateIsFuture
+from edc_visit_tracking.crf_date_validator import (
+    CrfDateValidator,
+    CrfReportDateAllowanceError,
+    CrfReportDateIsFuture,
+)
 
 
 class TestVisitDateValidator(TestCase):

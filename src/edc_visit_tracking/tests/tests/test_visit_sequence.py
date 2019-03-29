@@ -5,13 +5,13 @@ from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
+from edc_visit_tracking.model_mixins import PreviousVisitError
+from edc_visit_tracking.visit_sequence import VisitSequence, VisitSequenceError
 
-from ..constants import SCHEDULED, UNSCHEDULED
-from ..model_mixins import PreviousVisitError
-from ..visit_sequence import VisitSequence, VisitSequenceError
-from .helper import Helper
-from .models import SubjectVisit
-from .visit_schedule import visit_schedule1, visit_schedule2
+from ..helper import Helper
+from ..models import SubjectVisit
+from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
 class DisabledVisitSequence(VisitSequence):
@@ -23,8 +23,12 @@ class TestPreviousVisit(TestCase):
 
     helper_cls = Helper
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         import_holidays()
+        return super().setUpClass()
+
+    def setUp(self):
         SubjectVisit.visit_sequence_cls = VisitSequence
         self.subject_identifier = "12345"
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)

@@ -1,28 +1,29 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, tag
+from edc_appointment.constants import INCOMPLETE_APPT
+from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
-from .models import SubjectVisit, CrfOneInline, OtherModel
-from .models import CrfOne, BadCrfOneInline
-from .helper import Helper
-from .visit_schedule import visit_schedule1, visit_schedule2
-from edc_appointment.creators.unscheduled_appointment_creator import (
-    UnscheduledAppointmentCreator,
-)
-from edc_appointment.constants import INCOMPLETE_APPT
+from ..helper import Helper
+from ..models import SubjectVisit, CrfOneInline, OtherModel, CrfOne, BadCrfOneInline
+from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
 class TestVisit(TestCase):
 
     helper_cls = Helper
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         import_holidays()
+        return super().setUpClass()
+
+    def setUp(self):
         self.subject_identifier = "12345"
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
@@ -161,7 +162,7 @@ class TestVisit(TestCase):
             ).appointment
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=last_appt.appt_datetime + relativedelta(days=i),
+                report_datetime=(last_appt.appt_datetime + relativedelta(days=i)),
                 reason=SCHEDULED,
             )
             appointment.appt_status = INCOMPLETE_APPT

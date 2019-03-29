@@ -6,13 +6,16 @@ from edc_facility.import_holidays import import_holidays
 from edc_model_admin import ModelAdminAuditFieldsMixin, audit_fields
 from edc_visit_schedule.fieldsets import visit_schedule_fields
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.admin_site import edc_visit_tracking_admin
+from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.modeladmin_mixins import (
+    CrfModelAdminMixin,
+    VisitModelAdminMixin,
+)
 
-from ..admin_site import edc_visit_tracking_admin
-from ..constants import SCHEDULED
-from ..modeladmin_mixins import CrfModelAdminMixin, VisitModelAdminMixin
-from .helper import Helper
-from .models import CrfOne, SubjectVisit
-from .visit_schedule import visit_schedule1, visit_schedule2
+from ..helper import Helper
+from ..models import CrfOne, SubjectVisit
+from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
 @admin.register(SubjectVisit, site=edc_visit_tracking_admin)
@@ -35,8 +38,12 @@ class TestModelAdmin(TestCase):
 
     helper_cls = Helper
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         import_holidays()
+        return super().setUpClass()
+
+    def setUp(self):
         self.subject_identifier = "12345"
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
