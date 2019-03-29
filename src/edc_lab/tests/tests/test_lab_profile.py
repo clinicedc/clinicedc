@@ -1,22 +1,26 @@
 from django.test import TestCase, tag
+from edc_lab.lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel
+from edc_lab.lab import PanelAlreadyRegistered, ProcessingProfileInvalidDerivative
+from edc_lab.lab import Process
 
-from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel
-from ..lab import PanelAlreadyRegistered, ProcessingProfileInvalidDerivative
-from ..lab import Process
-from .models import SubjectRequisition
+from ..models import SubjectRequisition
 
 
 class TestBuildProfile(TestCase):
     def setUp(self):
-        self.wb = AliquotType(name="whole_blood", numeric_code="02", alpha_code="WB")
-        self.bc = AliquotType(name="buffy_coat", numeric_code="12", alpha_code="BC")
+        self.wb = AliquotType(name="whole_blood",
+                              numeric_code="02", alpha_code="WB")
+        self.bc = AliquotType(
+            name="buffy_coat", numeric_code="12", alpha_code="BC")
 
     def test_repr(self):
-        obj = LabProfile(name="profile", requisition_model="edc_lab.subjectrequisition")
+        obj = LabProfile(
+            name="profile", requisition_model="edc_lab.subjectrequisition")
         self.assertTrue(repr(obj))
 
     def test_str(self):
-        obj = LabProfile(name="profile", requisition_model="edc_lab.subjectrequisition")
+        obj = LabProfile(
+            name="profile", requisition_model="edc_lab.subjectrequisition")
         self.assertTrue(str(obj))
 
     def test_processing_bad(self):
@@ -94,7 +98,8 @@ class TestBuildProfile(TestCase):
             name="profile", requisition_model="edc_lab.subjectrequisition"
         )
         lab_profile.add_panel(panel=panel)
-        self.assertRaises(PanelAlreadyRegistered, lab_profile.add_panel, panel=panel)
+        self.assertRaises(PanelAlreadyRegistered,
+                          lab_profile.add_panel, panel=panel)
 
     def test_added_panel_knows_requisition_model(self):
         """Assert same panel cannot be added twice.

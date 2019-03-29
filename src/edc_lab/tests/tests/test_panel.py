@@ -1,10 +1,9 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
-
-from ..lab import AliquotType, ProcessingProfile, RequisitionPanel, LabProfile
-from ..lab import RequisitionPanelLookupError
-from ..models import Panel
-from ..site_labs import site_labs
+from edc_lab.lab import AliquotType, ProcessingProfile, RequisitionPanel, LabProfile
+from edc_lab.lab import RequisitionPanelLookupError
+from edc_lab.models import Panel
+from edc_lab.site_labs import site_labs
 
 
 class TestPanel(TestCase):
@@ -18,7 +17,8 @@ class TestPanel(TestCase):
 
     def test_panel2(self):
 
-        wb = AliquotType(name="Whole Blood", alpha_code="WB", numeric_code="02")
+        wb = AliquotType(name="Whole Blood",
+                         alpha_code="WB", numeric_code="02")
 
         whole_blood_processing = ProcessingProfile(
             name="whole_blood_store", aliquot_type=wb
@@ -58,7 +58,8 @@ class TestPanel(TestCase):
     def test_requisition_panel(self):
         a = AliquotType(name="aliquot_a", numeric_code="55", alpha_code="AA")
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
-        RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
+        RequisitionPanel(name="Viral Load",
+                         processing_profile=processing_profile)
 
     def test_requisition_panel_does_not_know_requisition_model(self):
         """Demonstrate that a panel not yet added to a lab profile
@@ -89,4 +90,5 @@ class TestPanel(TestCase):
                 except RequisitionPanelLookupError:
                     pass
                 else:
-                    self.fail("RequisitionPanelModelError unexpectedly not raised.")
+                    self.fail(
+                        "RequisitionPanelModelError unexpectedly not raised.")

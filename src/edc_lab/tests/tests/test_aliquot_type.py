@@ -1,12 +1,14 @@
 from django.test import TestCase, tag
 
-from ..lab import AliquotType, AliquotTypeNumericCodeError, AliquotTypeAlphaCodeError
+from edc_lab.lab import AliquotType, AliquotTypeNumericCodeError, AliquotTypeAlphaCodeError
 
 
 class TestAliquotType(TestCase):
     def setUp(self):
-        self.wb = AliquotType(name="whole_blood", numeric_code="02", alpha_code="WB")
-        self.bc = AliquotType(name="buffy_coat", numeric_code="12", alpha_code="BC")
+        self.wb = AliquotType(name="whole_blood",
+                              numeric_code="02", alpha_code="WB")
+        self.bc = AliquotType(
+            name="buffy_coat", numeric_code="12", alpha_code="BC")
 
     def test_bad_aliquot_type1(self):
         self.assertRaises(
@@ -27,7 +29,8 @@ class TestAliquotType(TestCase):
         )
 
     def test_aliquot_type_repr(self):
-        aliquot_type = AliquotType(name="aliquot", numeric_code="00", alpha_code="AA")
+        aliquot_type = AliquotType(
+            name="aliquot", numeric_code="00", alpha_code="AA")
         self.assertTrue(repr(aliquot_type))
 
     def test_aliquot_type_derivatives_single(self):

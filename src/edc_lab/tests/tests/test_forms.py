@@ -2,22 +2,21 @@ from datetime import timedelta
 from django import forms
 from django.conf import settings
 from django.test import TestCase, tag
+from edc_appointment.models import Appointment
 from edc_constants.constants import OTHER, YES, NO, NOT_APPLICABLE
+from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidatorMixin
+from edc_lab.form_validators import RequisitionFormValidator
+from edc_lab.forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
+from edc_lab.models import Aliquot
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
-
-from ..form_validators import RequisitionFormValidator
-from ..forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
-from ..models import Aliquot
-from .models import SubjectRequisition, SubjectVisit, SubjectConsent
-from .site_labs_test_helper import SiteLabsTestHelper
-from edc_appointment.models import Appointment
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from .visit_schedules import visit_schedule
-from edc_facility.import_holidays import import_holidays
 from edc_visit_tracking.constants import SCHEDULED
+
+from ..models import SubjectRequisition, SubjectVisit, SubjectConsent
+from ..site_labs_test_helper import SiteLabsTestHelper
+from ..visit_schedules import visit_schedule
 
 
 class TestForms(TestCase):
@@ -132,7 +131,8 @@ class TestForms(TestCase):
         form = RequisitionForm(data=data)
         form.is_valid()
         self.assertIn("drawn_datetime", list(form.errors.keys()))
-        self.assertEqual(form.errors.get("drawn_datetime"), ["This field is required."])
+        self.assertEqual(form.errors.get("drawn_datetime"),
+                         ["This field is required."])
 
         data = {"is_drawn": NO, "drawn_datetime": get_utcnow()}
         form = RequisitionForm(data=data)
@@ -266,7 +266,8 @@ class TestForms2(TestCase):
         form = self.form_cls(data=data, instance=obj)
         form.is_valid()
         self.assertIn(
-            "Requisition may not be changed", "".join(form.errors.get("__all__"))
+            "Requisition may not be changed", "".join(
+                form.errors.get("__all__"))
         )
 
     @tag("1")
@@ -292,5 +293,6 @@ class TestForms2(TestCase):
         form.is_valid()
         print(form.is_valid())
         self.assertIn(
-            "Cannot be before date of visit", form.errors.get("requisition_datetime")[0]
+            "Cannot be before date of visit", form.errors.get(
+                "requisition_datetime")[0]
         )

@@ -26,18 +26,18 @@ from .requisition_identifier_mixin import RequisitionIdentifierMixin
 
 class RequisitionModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
-    RequisitionStatusMixin,
-    RequisitionIdentifierMixin,
-    PanelModelMixin,
     CrfModelMixin,
-    SubjectScheduleCrfModelMixin,
-    RequiresConsentFieldsModelMixin,
-    UpdatesRequisitionMetadataModelMixin,
+    PanelModelMixin,
     PreviousVisitModelMixin,
+    RequiresConsentFieldsModelMixin,
+    RequisitionIdentifierMixin,
     RequisitionReferenceModelMixin,
+    RequisitionStatusMixin,
+    RequisitionVerifyModelMixin,
     SearchSlugModelMixin,
     SiteModelMixin,
-    RequisitionVerifyModelMixin,
+    SubjectScheduleCrfModelMixin,
+    UpdatesRequisitionMetadataModelMixin,
     models.Model,
 ):
 
