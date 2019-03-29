@@ -2,17 +2,21 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, tag
 from edc_constants.constants import NEW, OPEN, CLOSED
+from edc_action_item.action import Action
+from edc_action_item.forms import ActionItemForm
+from edc_action_item.get_action_type import get_action_type
+from edc_action_item.models import SubjectDoesNotExist, ActionItem, ActionType
+from edc_action_item.site_action_items import site_action_items
 
-from ..action import Action
-from ..forms import ActionItemForm
-from ..get_action_type import get_action_type
-from ..models import SubjectDoesNotExist, ActionItem, ActionType
-from ..site_action_items import site_action_items
-from .action_items import FormThreeAction
-from .action_items import FormZeroAction, FormOneAction, FormTwoAction
-from .models import FormOne, FormTwo, FormThree
-from .models import SubjectIdentifierModel
-from .models import TestModelWithAction
+from ..action_items import FormThreeAction
+from ..action_items import FormZeroAction, FormOneAction, FormTwoAction
+from ..models import (
+    FormOne,
+    FormThree,
+    FormTwo,
+    SubjectIdentifierModel,
+    TestModelWithAction,
+)
 
 
 class TestActionItem(TestCase):

@@ -1,16 +1,16 @@
 from django.test import TestCase, tag
 from django.urls.base import reverse
+from edc_action_item.models import ActionItem, ActionType
+from edc_action_item.site_action_items import site_action_items
+from edc_action_item.templatetags.action_item_extras import add_action_item_popover
+from edc_action_item.view_mixins import ActionItemViewMixin
 from edc_model_wrapper import ModelWrapper
 
-from ..models import ActionItem, ActionType
-from ..site_action_items import site_action_items
-from ..templatetags.action_item_extras import add_action_item_popover
-from ..view_mixins import ActionItemViewMixin
-from .models import SubjectIdentifierModel
+from ..models import SubjectIdentifierModel
 
 
 class MyModelWrapper(ModelWrapper):
-    next_url_name = "dashboard_url"
+    next_url_name = "subject_dashboard_url"
 
 
 class TestAction(TestCase):

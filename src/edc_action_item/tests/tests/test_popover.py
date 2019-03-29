@@ -1,14 +1,13 @@
 from django.test import TestCase, tag
-from django.conf import settings
+from edc_action_item.models import ActionItem, ActionType
+from edc_action_item.site_action_items import site_action_items
+from edc_action_item.templatetags.action_item_extras import action_item_with_popover
 from edc_constants.constants import CLOSED, OPEN, NEW
 from edc_model_wrapper import ModelWrapper
 
-from ..models import ActionItem, ActionType
-from ..site_action_items import site_action_items
-from ..templatetags.action_item_extras import action_item_with_popover
-from .action_items import FormOneAction, FormTwoAction, FormThreeAction
-from .action_items import register_actions
-from .models import FormOne, FormTwo, SubjectIdentifierModel, Initial, Followup
+from ..action_items import FormOneAction, FormTwoAction, FormThreeAction
+from ..action_items import register_actions
+from ..models import FormOne, FormTwo, SubjectIdentifierModel, Initial, Followup
 
 
 class TestPopover(TestCase):

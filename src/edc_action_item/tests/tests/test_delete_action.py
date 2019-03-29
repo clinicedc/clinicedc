@@ -1,15 +1,15 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, tag
+from edc_action_item.delete_action_item import delete_action_item, ActionItemDeleteError
+from edc_action_item.models import ActionItem, ActionType
+from edc_action_item.site_action_items import site_action_items
 from edc_action_item.tests.models import FormTwo
 from edc_constants.constants import CLOSED, OPEN, NEW
 
-from ..delete_action_item import delete_action_item, ActionItemDeleteError
-from ..models import ActionItem, ActionType
-from ..site_action_items import site_action_items
-from .action_items import FormOneAction, FormTwoAction, FormThreeAction
-from .action_items import SingletonAction, register_actions
-from .models import FormOne, SubjectIdentifierModel
+from ..action_items import FormOneAction, FormTwoAction, FormThreeAction
+from ..action_items import SingletonAction, register_actions
+from ..models import FormOne, SubjectIdentifierModel
 
 
 class TestAction(TestCase):

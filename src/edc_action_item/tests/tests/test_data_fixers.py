@@ -1,13 +1,16 @@
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from django.db.models.signals import post_save
+from edc_action_item.data_fixers import (
+    fix_null_related_action_items,
+    fix_null_action_item_fk,
+)
+from edc_action_item.models import ActionItem
+from edc_action_item.signals import update_or_create_action_item_on_post_save
 
-from ..data_fixers import fix_null_related_action_items, fix_null_action_item_fk
-from ..models import ActionItem
-from ..signals import update_or_create_action_item_on_post_save
-from .action_items import register_actions
-from .models import FormOne, FormTwo
-from .models import SubjectIdentifierModel
+from ..action_items import register_actions
+from ..models import FormOne, FormTwo
+from ..models import SubjectIdentifierModel
 
 
 class TestUtils(TestCase):
