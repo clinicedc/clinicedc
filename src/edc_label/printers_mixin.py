@@ -1,4 +1,3 @@
-import cups
 import socket
 
 from django.apps import apps as django_apps
@@ -16,6 +15,12 @@ class PrintServerError(Exception):
 
 
 class PrintersMixin:
+
+    @property
+    def connect_cls(self):
+        from cups import Connection
+        return Connection
+
     @property
     def user_profile(self):
         UserProfile = django_apps.get_model("edc_auth.userprofile")
@@ -61,9 +66,9 @@ class PrintersMixin:
         if self.print_server_name:
             try:
                 if not self.print_server_ip:
-                    cups_connection = cups.Connection()
+                    cups_connection = self.connect_cls()
                 else:
-                    cups_connection = cups.Connection(self.print_server_ip)
+                    cups_connection = self.connect_cls(self.print_server_ip)
             except RuntimeError as e:
                 raise PrintServerError(
                     f"{_('Unable to connect to print server. Tried ')}"
@@ -78,11 +83,12 @@ class PrintersMixin:
         """Returns a mapping of PrinterProperties objects
         or an empty mapping.
         """
+        from cups import IPPError
         printers = {}
         cups_printers = {}
         try:
             cups_printers = self.print_server().getPrinters()
-        except (RuntimeError, cups.IPPError) as e:
+        except (RuntimeError, IPPError) as e:
             raise PrinterError(
                 f"{_('Unable to list printers from print server')}. "
                 f"{_('Tried')} '{self.print_server_name}'. {_('Got')} {e}"
