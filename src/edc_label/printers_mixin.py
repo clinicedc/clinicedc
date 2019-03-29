@@ -1,5 +1,6 @@
 import socket
 
+from cups import Connection, IPPError
 from django.apps import apps as django_apps
 from django.utils.translation import gettext as _
 
@@ -18,7 +19,6 @@ class PrintersMixin:
 
     @property
     def connect_cls(self):
-        from cups import Connection
         return Connection
 
     @property
@@ -83,7 +83,6 @@ class PrintersMixin:
         """Returns a mapping of PrinterProperties objects
         or an empty mapping.
         """
-        from cups import IPPError
         printers = {}
         cups_printers = {}
         try:
