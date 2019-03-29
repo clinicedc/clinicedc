@@ -3,8 +3,7 @@ import sys
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.management.color import color_style
 
-from .site_list_data import site_list_data
-from edc_list_data.site_list_data import SiteListDataError
+from .site_list_data import site_list_data, SiteListDataError
 
 
 style = color_style()
@@ -32,7 +31,7 @@ class AppConfig(DjangoAppConfig):
     def ready(self):
 
         sys.stdout.write(f'Loading {self.verbose_name} ...\n')
-        if 'test' in sys.argv:
+        if 'test' in sys.argv or 'runtests.py' in sys.argv:
             sys.stdout.write(style.WARNING(
                 f' Not updating list data for tests. '
                 'Add site_list_data.autodiscover() to your test setUp.\n'))

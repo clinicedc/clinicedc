@@ -12,7 +12,7 @@ class SiteListDataError(Exception):
     pass
 
 
-class SiteListData():
+class SiteListData:
 
     """Load list data from any module named "list_data".
 
