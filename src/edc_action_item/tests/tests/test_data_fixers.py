@@ -1,7 +1,10 @@
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from django.db.models.signals import post_save
-from edc_action_item.data_fixers import fix_null_related_action_items, fix_null_action_item_fk
+from edc_action_item.data_fixers import (
+    fix_null_related_action_items,
+    fix_null_action_item_fk,
+)
 from edc_action_item.models import ActionItem
 from edc_action_item.signals import update_or_create_action_item_on_post_save
 
@@ -22,8 +25,7 @@ class TestUtils(TestCase):
 
     def test_fix_null_related_action_items(self):
 
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one
         )
@@ -52,15 +54,13 @@ class TestUtils(TestCase):
         form_two.refresh_from_db()
         form_two.action_item.refresh_from_db()
 
-        self.assertEqual(form_one.action_item,
-                         form_two.action_item.related_action_item)
+        self.assertEqual(form_one.action_item, form_two.action_item.related_action_item)
 
     def test_fix_null_related_action_items2(self):
 
         fix_null_related_action_items(django_apps)
 
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
         form_two_a = FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one
         )
@@ -73,8 +73,7 @@ class TestUtils(TestCase):
         # set related_action_item to None
         form_two_b.related_action_item = None
         form_two_b.action_item.related_action_item = None
-        post_save.disconnect(
-            dispatch_uid="update_or_create_action_item_on_post_save")
+        post_save.disconnect(dispatch_uid="update_or_create_action_item_on_post_save")
         form_two_b.action_item.save()
         form_two_b.save_base()
         post_save.connect(
@@ -106,8 +105,7 @@ class TestUtils(TestCase):
 
         # form_one -> form_two_a -> form_two_b
 
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
         form_two_a = FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one
         )
@@ -123,8 +121,7 @@ class TestUtils(TestCase):
         form_two_a.related_action_item = None
         form_two_a.action_item.save_base()
 
-        post_save.disconnect(
-            dispatch_uid="update_or_create_action_item_on_post_save")
+        post_save.disconnect(dispatch_uid="update_or_create_action_item_on_post_save")
         form_two_a.save_base()
         form_two_a.refresh_from_db()
 
@@ -166,8 +163,7 @@ class TestUtils(TestCase):
         )
         self.assertEqual(form_one.action_item, form_two_b.related_action_item)
 
-        self.assertEqual(form_two_a.parent_action_item,
-                         form_two_a.related_action_item)
+        self.assertEqual(form_two_a.parent_action_item, form_two_a.related_action_item)
 
         self.assertEqual(form_one.action_item, form_two_a.parent_action_item)
 
@@ -186,8 +182,7 @@ class TestUtils(TestCase):
         )
 
     def test_fix_null_action_item_fk(self):
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
         FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one
         )

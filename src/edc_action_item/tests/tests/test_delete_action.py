@@ -27,14 +27,11 @@ class TestAction(TestCase):
         self.assertIn(FormThreeAction.name, site_action_items.registry)
 
     def test_reference_model_delete_resets_action_item(self):
-        obj = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
-        action_item = ActionItem.objects.get(
-            action_identifier=obj.action_identifier)
+        obj = FormOne.objects.create(subject_identifier=self.subject_identifier)
+        action_item = ActionItem.objects.get(action_identifier=obj.action_identifier)
         self.assertEqual(action_item.status, CLOSED)
         obj.delete()
-        action_item = ActionItem.objects.get(
-            action_identifier=obj.action_identifier)
+        action_item = ActionItem.objects.get(action_identifier=obj.action_identifier)
         self.assertEqual(action_item.status, NEW)
         self.assertFalse(action_item.linked_to_reference)
 
@@ -72,8 +69,7 @@ class TestAction(TestCase):
         )
 
     def test_deleted_next_action_item(self):
-        form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
         ActionItem.objects.get(action_identifier=form_one.action_identifier)
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one

@@ -51,8 +51,7 @@ class TestAction(TestCase):
         view.kwargs = dict(subject_identifier=self.subject_identifier)
         context = view.get_context_data()
         self.assertEqual(
-            len(context.get("open_action_items")
-                ), ActionItem.objects.all().count()
+            len(context.get("open_action_items")), ActionItem.objects.all().count()
         )
 
     def test_templatetag(self):

@@ -3,7 +3,11 @@ from django.test import TestCase, tag
 from edc_action_item.action import ActionError
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionType, ActionItem
-from edc_action_item.site_action_items import site_action_items, SiteActionError, AlreadyRegistered
+from edc_action_item.site_action_items import (
+    site_action_items,
+    SiteActionError,
+    AlreadyRegistered,
+)
 from uuid import uuid4
 
 from ..action_items import FormZeroAction
@@ -31,8 +35,7 @@ class TestSiteActionItems(TestCase):
     def test_action_raises_if_already_registered(self):
 
         site_action_items.register(FormZeroAction)
-        self.assertRaises(AlreadyRegistered,
-                          site_action_items.register, FormZeroAction)
+        self.assertRaises(AlreadyRegistered, site_action_items.register, FormZeroAction)
 
     def test_action_raises_if_name_changed(self):
         class FormZeroAction1(FormZeroAction):

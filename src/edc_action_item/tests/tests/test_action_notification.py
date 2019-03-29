@@ -33,8 +33,7 @@ class TestActionNotification(TestCase):
         self.assertIn(FormZeroAction, site_action_items.registry.values())
 
         # action without reference obj
-        form_zero_action = FormZeroAction(
-            subject_identifier=self.subject_identifier)
+        form_zero_action = FormZeroAction(subject_identifier=self.subject_identifier)
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn(NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ, mail.outbox[0].body)
         self.assertEqual(form_zero_action.action_item.status, NEW)
@@ -91,11 +90,9 @@ class TestActionNotification(TestCase):
         # assert class type for new and update
         for k, v in site_notifications.registry.items():
             if "update" in k:
-                self.assertTrue(issubclass(
-                    v, UpdatedModelNotification), msg=v.name)
+                self.assertTrue(issubclass(v, UpdatedModelNotification), msg=v.name)
             else:
-                self.assertTrue(issubclass(
-                    v, NewModelNotification), msg=v.name)
+                self.assertTrue(issubclass(v, NewModelNotification), msg=v.name)
 
     def test_action_sends_notification_on_new(self):
         FormZero.objects.create(subject_identifier=self.subject_identifier)
@@ -103,8 +100,7 @@ class TestActionNotification(TestCase):
         self.assertNotIn("*UPDATE*", mail.outbox[0].subject)
 
     def test_action_sends_notification_does_not_duplicate_send(self):
-        form_zero = FormZero.objects.create(
-            subject_identifier=self.subject_identifier)
+        form_zero = FormZero.objects.create(subject_identifier=self.subject_identifier)
         self.assertEqual(len(mail.outbox), 1)
         form_zero.save()
         self.assertEqual(len(mail.outbox), 1)
@@ -122,8 +118,7 @@ class TestActionNotification(TestCase):
         self.assertIn("*UPDATE*", mail.outbox[1].subject)
 
     def test_notification_updates_the_actions_model_as_emailed(self):
-        form_zero = FormZero.objects.create(
-            subject_identifier=self.subject_identifier)
+        form_zero = FormZero.objects.create(subject_identifier=self.subject_identifier)
         form_zero.refresh_from_db()
         self.assertTrue(form_zero.action_item.emailed)
         self.assertIsNotNone(form_zero.action_item.emailed_datetime)

@@ -36,8 +36,7 @@ class TestNaturalKey(TestCase):
         site_action_items.register(FormOneAction)
         get_action_type(FormOneAction)
         action = FormOneAction(subject_identifier=self.subject_identifier)
-        action_item = ActionItem.objects.get(
-            action_identifier=action.action_identifier)
+        action_item = ActionItem.objects.get(action_identifier=action.action_identifier)
         for outgoing_transaction in OutgoingTransaction.objects.filter(
             tx_name=action_item._meta.label_lower
         ):
