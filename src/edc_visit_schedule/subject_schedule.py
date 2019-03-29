@@ -306,7 +306,7 @@ class SubjectSchedule:
             )
         except ObjectDoesNotExist:
             raise NotOnScheduleError(
-                f"Subject has not been put on of schedule {self.schedule_name}. "
+                f"Subject has not been put on a schedule {self.schedule_name}. "
                 f"Got {subject_identifier}."
             )
 

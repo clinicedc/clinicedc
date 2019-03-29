@@ -66,11 +66,7 @@ def onschedule_model_on_post_delete(instance, **kwargs):
             ).delete()
 
 
-@receiver(
-    post_save,
-    weak=False,
-    dispatch_uid="put_subject_on_schedule_on_post_save",
-)
+@receiver(post_save, weak=False, dispatch_uid="put_subject_on_schedule_on_post_save")
 def put_subject_on_schedule_on_post_save(sender, instance, raw, created, **kwargs):
     if not raw:
         try:
