@@ -71,8 +71,7 @@ class RequisitionModelMixin(
 
     reason_not_drawn_other = OtherCharField()
 
-    protocol_number = models.CharField(
-        max_length=10, null=True, editable=False)
+    protocol_number = models.CharField(max_length=10, null=True, editable=False)
 
     clinician_initials = InitialsField(null=True, blank=True)
 
@@ -123,8 +122,7 @@ class RequisitionModelMixin(
 
     def save(self, *args, **kwargs):
         if not self.id:
-            edc_protocol_app_config = django_apps.get_app_config(
-                "edc_protocol")
+            edc_protocol_app_config = django_apps.get_app_config("edc_protocol")
             self.protocol_number = edc_protocol_app_config.protocol_number
         self.subject_identifier = self.subject_visit.subject_identifier
         self.specimen_type = self.panel_object.aliquot_type.alpha_code

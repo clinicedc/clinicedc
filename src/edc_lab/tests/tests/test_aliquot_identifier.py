@@ -1,13 +1,20 @@
 from django.test import TestCase, tag
 
-from edc_lab.identifiers import AliquotIdentifier, Prefix, PrefixKeyError, PrefixLengthError
-from edc_lab.identifiers import AliquotIdentifierLengthError, AliquotIdentifierCountError
+from edc_lab.identifiers import (
+    AliquotIdentifier,
+    Prefix,
+    PrefixKeyError,
+    PrefixLengthError,
+)
+from edc_lab.identifiers import (
+    AliquotIdentifierLengthError,
+    AliquotIdentifierCountError,
+)
 
 
 class TestAliquotPrefix(TestCase):
     def test_prefix(self):
-        prefix_obj = Prefix(
-            template="{opt1}{opt2}", length=8, opt1="opt1", opt2="opt2")
+        prefix_obj = Prefix(template="{opt1}{opt2}", length=8, opt1="opt1", opt2="opt2")
         self.assertEqual(str(prefix_obj), "opt1opt2")
 
     def test_prefix_invalid_length(self):

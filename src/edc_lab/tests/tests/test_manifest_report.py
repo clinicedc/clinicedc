@@ -26,22 +26,18 @@ class TestManifest(TestCase):
     def test_manifest_with_items(self):
         consignee = Consignee.objects.create(name="consignee")
         shipper = Shipper.objects.create(name="shipper")
-        manifest = Manifest.objects.create(
-            consignee=consignee, shipper=shipper)
-        ManifestItem.objects.create(
-            manifest=manifest, identifier="aaaaaaaaaaaa")
+        manifest = Manifest.objects.create(consignee=consignee, shipper=shipper)
+        ManifestItem.objects.create(manifest=manifest, identifier="aaaaaaaaaaaa")
 
     def test_manifest_with_items_slug(self):
         consignee = Consignee.objects.create(name="consignee")
         shipper = Shipper.objects.create(name="shipper")
-        manifest = Manifest.objects.create(
-            consignee=consignee, shipper=shipper)
+        manifest = Manifest.objects.create(consignee=consignee, shipper=shipper)
         manifest_item = ManifestItem.objects.create(
             manifest=manifest, identifier="aaaaaaaaaaaabb"
         )
         self.assertIn("aaaaaaaaaaaabb", manifest_item.slug)
-        self.assertIn(manifest_item.human_readable_identifier,
-                      manifest_item.slug)
+        self.assertIn(manifest_item.human_readable_identifier, manifest_item.slug)
 
 
 class TestManifestReport(TestCase):
@@ -49,8 +45,7 @@ class TestManifestReport(TestCase):
         self.user = User.objects.create(first_name="Noam", last_name="Chomsky")
         consignee = Consignee.objects.create(name="consignee")
         shipper = Shipper.objects.create(name="shipper")
-        self.manifest = Manifest.objects.create(
-            consignee=consignee, shipper=shipper)
+        self.manifest = Manifest.objects.create(consignee=consignee, shipper=shipper)
 
     def test_report(self):
         self.assertEqual(self.manifest.site.name, "test_site")
@@ -84,22 +79,18 @@ class TestManifestReport(TestCase):
         BoxType.objects.create(name="box_type", across=8, down=8, total=64)
 
     def test_box(self):
-        box_type = BoxType.objects.create(
-            name="box_type", across=8, down=8, total=64)
+        box_type = BoxType.objects.create(name="box_type", across=8, down=8, total=64)
         Box.objects.create(box_type=box_type)
 
     def test_box_item(self):
-        box_type = BoxType.objects.create(
-            name="box_type", across=8, down=8, total=64)
+        box_type = BoxType.objects.create(name="box_type", across=8, down=8, total=64)
         box = Box.objects.create(box_type=box_type)
-        BoxItem.objects.create(
-            box=box, identifier=box.box_identifier, position=0)
+        BoxItem.objects.create(box=box, identifier=box.box_identifier, position=0)
 
     def test_report_invalid_invalid_aliquot_identifier(self):
         self.manifest.shipped = True
         self.manifest.save()
-        box_type = BoxType.objects.create(
-            name="box_type", across=8, down=8, total=64)
+        box_type = BoxType.objects.create(name="box_type", across=8, down=8, total=64)
         box = Box.objects.create(box_type=box_type)
         # add box items with invalid aliquot identifiers
         for i in range(0, 3):
@@ -121,8 +112,7 @@ class TestManifestReport(TestCase):
         prefix = "ABCDEFG"
         for i in range(0, 3):
             Aliquot.objects.create(count=i, aliquot_identifier=f"{prefix}{i}")
-        box_type = BoxType.objects.create(
-            name="box_type", across=8, down=8, total=64)
+        box_type = BoxType.objects.create(name="box_type", across=8, down=8, total=64)
         box = Box.objects.create(box_type=box_type)
         # add box items with invalid aliquot identifiers
         for index, aliquot in enumerate(Aliquot.objects.all()):
