@@ -1,22 +1,22 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag  # noqa
-from edc_constants.constants import YES, NO
-from edc_sites.utils import add_or_update_django_sites
-
-from ..lab import AliquotType, Process, ProcessingProfile
-from ..lab import Specimen as SpecimenBase, SpecimenNotDrawnError
-from ..lab import SpecimenProcessor
-from ..lab import AliquotCreator as AliquotCreatorBase
-from ..identifiers import AliquotIdentifier as AliquotIdentifierBase
-from ..models import Aliquot
-from .models import SubjectRequisition, SubjectVisit, SubjectConsent
-from .site_labs_test_helper import SiteLabsTestHelper
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from .visit_schedules import visit_schedule
 from edc_appointment.models import Appointment
+from edc_constants.constants import YES, NO
+from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
+from edc_lab.lab import AliquotCreator as AliquotCreatorBase
+from edc_lab.lab import AliquotType, Process, ProcessingProfile
+from edc_lab.lab import Specimen as SpecimenBase, SpecimenNotDrawnError
+from edc_lab.lab import SpecimenProcessor
+from edc_lab.models import Aliquot
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils.date import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+
+from ..models import SubjectRequisition, SubjectVisit, SubjectConsent
+from ..site_labs_test_helper import SiteLabsTestHelper
+from ..visit_schedules import visit_schedule
 
 
 class AliquotIdentifier(AliquotIdentifierBase):

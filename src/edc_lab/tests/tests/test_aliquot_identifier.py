@@ -1,7 +1,15 @@
 from django.test import TestCase, tag
 
-from ..identifiers import AliquotIdentifier, Prefix, PrefixKeyError, PrefixLengthError
-from ..identifiers import AliquotIdentifierLengthError, AliquotIdentifierCountError
+from edc_lab.identifiers import (
+    AliquotIdentifier,
+    Prefix,
+    PrefixKeyError,
+    PrefixLengthError,
+)
+from edc_lab.identifiers import (
+    AliquotIdentifierLengthError,
+    AliquotIdentifierCountError,
+)
 
 
 class TestAliquotPrefix(TestCase):

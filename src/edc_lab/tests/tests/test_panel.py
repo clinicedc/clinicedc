@@ -1,10 +1,9 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
-
-from ..lab import AliquotType, ProcessingProfile, RequisitionPanel, LabProfile
-from ..lab import RequisitionPanelLookupError
-from ..models import Panel
-from ..site_labs import site_labs
+from edc_lab.lab import AliquotType, ProcessingProfile, RequisitionPanel, LabProfile
+from edc_lab.lab import RequisitionPanelLookupError
+from edc_lab.models import Panel
+from edc_lab.site_labs import site_labs
 
 
 class TestPanel(TestCase):

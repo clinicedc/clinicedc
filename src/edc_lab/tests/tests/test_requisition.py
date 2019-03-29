@@ -2,11 +2,16 @@ import re
 
 from django.conf import settings
 from django.test import TestCase, tag  # noqa
+from edc_lab.identifiers import RequisitionIdentifier
+from edc_lab.lab import (
+    AliquotType,
+    LabProfile,
+    ProcessingProfile,
+    RequisitionPanel,
+    Process,
+)
+from edc_lab.site_labs import site_labs
 from edc_sites.utils import add_or_update_django_sites
-
-from ..identifiers import RequisitionIdentifier
-from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel, Process
-from ..site_labs import site_labs
 
 
 class TestRequisition(TestCase):

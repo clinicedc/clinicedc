@@ -1,11 +1,10 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, tag  # noqa
+from edc_lab.models import Box, BoxItem, BoxType, Aliquot
+from edc_lab.models import Manifest, Shipper, Consignee, ManifestItem
+from edc_lab.reports import ManifestReport, ManifestReportError
 from edc_sites.utils import add_or_update_django_sites
-
-from ..models import Box, BoxItem, BoxType, Aliquot
-from ..models import Manifest, Shipper, Consignee, ManifestItem
-from ..reports import ManifestReport, ManifestReportError
 
 
 class TestManifest(TestCase):

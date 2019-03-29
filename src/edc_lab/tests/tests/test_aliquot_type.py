@@ -1,6 +1,10 @@
 from django.test import TestCase, tag
 
-from ..lab import AliquotType, AliquotTypeNumericCodeError, AliquotTypeAlphaCodeError
+from edc_lab.lab import (
+    AliquotType,
+    AliquotTypeNumericCodeError,
+    AliquotTypeAlphaCodeError,
+)
 
 
 class TestAliquotType(TestCase):

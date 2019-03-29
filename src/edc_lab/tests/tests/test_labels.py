@@ -2,20 +2,19 @@ from copy import copy
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
+from edc_appointment.models import Appointment
+from edc_constants.constants import YES
 from edc_lab import AliquotCreator, site_labs
+from edc_lab.labels.aliquot_label import AliquotLabel, AliquotLabelError
 from edc_lab.models import Panel
 from edc_lab.tests.site_labs_test_helper import SiteLabsTestHelper
 from edc_utils import get_utcnow
-from edc_constants.constants import YES
-from edc_registration.models import RegisteredSubject
-
-from ..labels.aliquot_label import AliquotLabel, AliquotLabelError
-from .models import SubjectVisit
-from .models import SubjectRequisition, SubjectConsent
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from .visit_schedules import visit_schedule
-from edc_appointment.models import Appointment
 from edc_visit_tracking.constants import SCHEDULED
+
+from ..models import SubjectVisit
+from ..models import SubjectRequisition, SubjectConsent
+from ..visit_schedules import visit_schedule
 
 
 class TestLabels(TestCase):

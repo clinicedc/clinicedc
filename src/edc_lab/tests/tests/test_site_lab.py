@@ -1,21 +1,21 @@
 import re
 
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase, tag  # noqa
-from edc_constants.constants import YES, NO, NOT_APPLICABLE
-from edc_sites.utils import add_or_update_django_sites
-
-from ..lab import AliquotType, LabProfile, ProcessingProfile
-from ..lab import Process, ProcessingProfileAlreadyAdded
-from ..site_labs import SiteLabs, site_labs
-from .models import SubjectRequisition, SubjectVisit, SubjectConsent
-from .site_labs_test_helper import SiteLabsTestHelper
 from edc_appointment.models import Appointment
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from .visit_schedules import visit_schedule
+from edc_constants.constants import YES, NO, NOT_APPLICABLE
+from edc_lab.lab import AliquotType, LabProfile, ProcessingProfile
+from edc_lab.lab import Process, ProcessingProfileAlreadyAdded
+from edc_lab.site_labs import SiteLabs, site_labs
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils.date import get_utcnow
-from dateutil.relativedelta import relativedelta
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+
+from ..models import SubjectRequisition, SubjectVisit, SubjectConsent
+from ..site_labs_test_helper import SiteLabsTestHelper
+from ..visit_schedules import visit_schedule
 
 
 class TestSiteLab(TestCase):

@@ -91,6 +91,7 @@ REASON_NOT_DRAWN = (
     ("absent", "Patient did not attend visit"),
     ("refused", "Patient refused"),
     ("no_supplies", "No supplies"),
+    (NOT_REQUIRED, "No longer required for this visit"),
     (OTHER, "Other"),
 )
 

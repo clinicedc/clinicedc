@@ -1,9 +1,8 @@
 from django.conf import settings
 from django.test import TestCase, tag
+from edc_lab.identifiers import AliquotIdentifier
+from edc_lab.lab import PrimaryAliquot, AliquotType, AliquotCreator
 from edc_sites.utils import add_or_update_django_sites
-
-from ..identifiers import AliquotIdentifier
-from ..lab import PrimaryAliquot, AliquotType, AliquotCreator
 
 
 class MyAliquotIdentifier(AliquotIdentifier):

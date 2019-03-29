@@ -1,9 +1,9 @@
 from django.test import TestCase, tag
+from edc_lab.lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel
+from edc_lab.lab import PanelAlreadyRegistered, ProcessingProfileInvalidDerivative
+from edc_lab.lab import Process
 
-from ..lab import AliquotType, LabProfile, ProcessingProfile, RequisitionPanel
-from ..lab import PanelAlreadyRegistered, ProcessingProfileInvalidDerivative
-from ..lab import Process
-from .models import SubjectRequisition
+from ..models import SubjectRequisition
 
 
 class TestBuildProfile(TestCase):
