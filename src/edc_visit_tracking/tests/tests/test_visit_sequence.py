@@ -23,8 +23,12 @@ class TestPreviousVisit(TestCase):
 
     helper_cls = Helper
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         import_holidays()
+        return super().setUpClass()
+
+    def setUp(self):
         SubjectVisit.visit_sequence_cls = VisitSequence
         self.subject_identifier = "12345"
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)

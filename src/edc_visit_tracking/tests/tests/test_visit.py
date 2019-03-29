@@ -18,8 +18,12 @@ class TestVisit(TestCase):
 
     helper_cls = Helper
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         import_holidays()
+        return super().setUpClass()
+
+    def setUp(self):
         self.subject_identifier = "12345"
         self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
         site_visit_schedules._registry = {}
