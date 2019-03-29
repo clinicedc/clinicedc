@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.db import models
+from django.db.models.deletion import PROTECT
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import get_utcnow
@@ -18,6 +20,8 @@ class CrfModelMixin(CrfVisitMethodsModelMixin, models.Model):
 
     and specify the `natural key` with its dependency of the visit model.
     """
+
+    subject_visit = models.ForeignKey(settings.SUBJECT_VISIT_MODEL, on_delete=PROTECT)
 
     crf_date_validator_cls = CrfDateValidator
 

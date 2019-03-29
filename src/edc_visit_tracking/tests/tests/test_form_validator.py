@@ -6,11 +6,11 @@ from edc_facility.import_holidays import import_holidays
 from edc_form_validators import REQUIRED_ERROR
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, UNSCHEDULED, SCHEDULED
+from edc_visit_tracking.form_validators import VisitFormValidator
 
-from ..form_validators import VisitFormValidator
-from .helper import Helper
-from .models import SubjectVisit
-from .visit_schedule import visit_schedule1, visit_schedule2
+from ..helper import Helper
+from ..models import SubjectVisit
+from ..visit_schedule import visit_schedule1, visit_schedule2
 
 
 class TestSubjectVisitFormValidator(TestCase):
