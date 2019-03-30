@@ -9,7 +9,7 @@ from django.db.models import Q
 def edc_notification_check(app_configs, **kwargs):
     errors = []
 
-    if "migrate" not in sys.argv:
+    if "migrate" not in sys.argv and "makemigrations" not in sys.argv:
         User = django_apps.get_model("auth.user")
 
         for user in User.objects.filter(
