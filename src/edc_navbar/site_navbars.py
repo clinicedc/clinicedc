@@ -8,6 +8,8 @@ from importlib import import_module
 
 from .navbar import NavbarError
 from .utils import verify_permission_codename
+from edc_permissions.constants.group_names import EVERYONE
+from django.db.utils import IntegrityError
 
 
 class AlreadyRegistered(Exception):
@@ -79,16 +81,24 @@ class NavbarCollection:
         """Recreates auth.permission objects for the Navbar
         models.
         """
-        from django.contrib.auth.models import Permission
-        from django.contrib.contenttypes.models import ContentType
-        from .models import Navbar
-
+        ContentType = django_apps.get_model('contenttypes.ContentType')
+        Group = django_apps.get_model('auth.Group')
+        Navbar = django_apps.get_model('edc_navbar.Navbar')
+        Permission = django_apps.get_model('auth.Permission')
         write = str if verbose is False else sys.stdout.write
         content_type = ContentType.objects.get_for_model(Navbar)
+
+        # clear existing
         Permission.objects.filter(content_type=content_type).delete()
-        Permission.objects.create(
-            codename="edc_navbar.everyone", name="Everyone", content_type=content_type
+
+        # create default navbar permission
+        permission = Permission.objects.create(
+            codename="edc_navbar.everyone", name=EVERYONE, content_type=content_type
         )
+        # add default navbar permission to EVERYONE
+        group = Group.objects.get(name=EVERYONE)
+        group.add_permission(permission)
+
         for codename, label in self.permission_codenames.values():
             codename = verify_permission_codename(codename)
             write(f'  - adding {codename} "{label}" to Permissions.\n')

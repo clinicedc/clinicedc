@@ -1,12 +1,12 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase, tag
+from django.test.client import RequestFactory
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 
 from ..navbar import Navbar
 from ..navbar_item import NavbarItem, NavbarItemError
 from ..site_navbars import site_navbars, AlreadyRegistered
-from django.test.client import RequestFactory
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
