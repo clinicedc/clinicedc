@@ -7,10 +7,7 @@ from django.utils.module_loading import module_has_submodule
 from importlib import import_module
 
 from .navbar import NavbarError
-
-
-class PermissionsCodenameError(Exception):
-    pass
+from .utils import verify_permission_codename
 
 
 class AlreadyRegistered(Exception):
@@ -89,26 +86,19 @@ class NavbarCollection:
         write = str if verbose is False else sys.stdout.write
         content_type = ContentType.objects.get_for_model(Navbar)
         Permission.objects.filter(content_type=content_type).delete()
-        for app_codename, name in self.permission_codenames.values():
-            try:
-                app_label, codename = app_codename.split(".")
-            except ValueError as e:
-                raise PermissionsCodenameError(
-                    f"Invalid Navbar codename. Expected format "
-                    f"'edc_navbar.<some_codename>'. Got {app_codename}. ({e})"
-                )
-            if app_label != "edc_navbar":
-                raise PermissionsCodenameError(
-                    f"Invalid Navbar codename. Expected an app_label prefix of "
-                    f"'edc_navbar' as prefix. Got {app_codename}."
-                )
-            write(f'  - adding {app_codename} "{name}" to Permissions.\n')
+        Permission.objects.create(
+            codename="edc_navbar.everyone", name="Everyone", content_type=content_type
+        )
+        for codename, label in self.permission_codenames.values():
+            codename = verify_permission_codename(codename)
+            write(f'  - adding {codename} "{label}" to Permissions.\n')
             Permission.objects.create(
-                codename=codename, name=name, content_type=content_type
+                codename=codename, name=label, content_type=content_type
             )
 
     def show_user_permissions(self, username=None, navbar_name=None):
-        user = django_apps.get_model("auth.user").objects.get(username=username)
+        user = django_apps.get_model(
+            "auth.user").objects.get(username=username)
         navbar = self.registry.get(navbar_name)
         return navbar.show_user_permissions(user=user)
 
@@ -131,7 +121,8 @@ class NavbarCollection:
                 try:
                     before_import_registry = copy.copy(site_navbars.registry)
                     import_module(f"{app}.{module_name}")
-                    writer(f" * registered navbars '{module_name}' from '{app}'\n")
+                    writer(
+                        f" * registered navbars '{module_name}' from '{app}'\n")
                 except NavbarError as e:
                     writer(f"   - loading {app}.navbars ... ")
                     writer(style.ERROR(f"ERROR! {e}\n"))
