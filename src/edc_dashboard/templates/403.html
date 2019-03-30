@@ -1,0 +1,37 @@
+{% extends 'edc_dashboard/bootstrap3/base.html' %}
+
+{% block extra-styles %}
+{{ block.super }}
+<style>
+  h1 {
+    font-size: 1200%;
+    font-weight: 900;
+  }
+  #error-page {
+    padding-top: 10%;
+    text-align: center
+  }
+  </style>
+{% endblock %}
+
+{% block main %}
+    <div id="error-page" class="col-md-12">
+        <h1>403</h1>
+        <h2>You are not authorized to view this page</h2>
+        <br>
+        <a class="btn btn-primary" onclick="window.history.back();">Go Back</a>&nbsp;or&nbsp;
+        <a class="btn btn-primary" href="/">Return to the home page</a>
+    </div>
+{% endblock main %}
+
+{% block alert %}{% endblock alert %}
+
+{% block topbar_title %}{% endblock topbar_title %}
+{% block topbar_navbar_apps %}
+<li id="li-topbar-home">
+    <a title="Home" name="home" id="home" alt="Home"
+        href="/">
+        <i class="fas fa-home fa-fw"></i>&nbsp
+    </a>
+</li>
+{% endblock topbar_navbar_apps %}

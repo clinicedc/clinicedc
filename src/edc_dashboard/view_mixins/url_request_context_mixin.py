@@ -48,8 +48,8 @@ class UrlRequestContextMixin(ContextMixin):
         except InvalidUrlName as e:
             raise UrlRequestContextError(
                 f"Url name not defined in url_names. "
-                f"Expected one of {list(self.request.url_name_data.keys())}. Got {e}. "
+                f"Expected one of {url_names.registry}. Got {e}. "
                 f"Hint: check if dashboard middleware is loaded."
             )
-        context.update({new_key: self.request.url_name_data.get(existing_key)})
+        context.update({new_key: url_names.get(existing_key)})
         return context

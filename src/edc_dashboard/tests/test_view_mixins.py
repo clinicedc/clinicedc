@@ -16,9 +16,16 @@ from ..view_mixins import ListboardFilterViewMixin
 from ..view_mixins.listboard.querystring_view_mixin import QueryStringViewMixin
 from ..views import ListboardView
 from .models import SubjectVisit
+from edc_dashboard.url_names import url_names
 
 
 class TestViewMixins(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        url_names.register("dashboard_url", "dashboard_url", "edc_dashboard")
+        return super(TestViewMixins, cls).setUpClass()
+
     def setUp(self):
         class MyPermissionsUpdater(PermissionsUpdater):
             default_auditor_app_labels = []
@@ -66,7 +73,7 @@ class TestViewMixins(TestCase):
     def test_listboard_filter_view(self):
         class SubjectVisitModelWrapper(ModelWrapper):
             model = "edc_dashboard.subjectvisit"
-            next_url_name = "thenexturl"
+            next_url_name = "dashboard_url"
 
         class MyListboardViewFilters(ListboardViewFilters):
 
@@ -104,10 +111,11 @@ class TestViewMixins(TestCase):
         request = RequestFactory().get("/?scheduled=scheduled")
         request.user = self.user
         request.site = Site.objects.get_current()
-        request.url_name_data = {"listboard_url": "listboard_url"}
+        # request.url_name_data = {"listboard_url": "listboard_url"}
         request.template_data = {"listboard_template": "listboard.html"}
         template_response = MyView.as_view()(request=request)
-        object_list = template_response.__dict__.get("context_data").get("object_list")
+        object_list = template_response.__dict__.get(
+            "context_data").get("object_list")
         self.assertEqual(
             [
                 wrapper.object.reason
