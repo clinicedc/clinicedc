@@ -12,20 +12,22 @@ class EdcLabelViewMixin(PrintersMixin, ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            self.clinic_label_printer
+            clinic_label_printer = self.clinic_label_printer
         except PrinterError as e:
+            clinic_label_printer = self.clinic_label_printer_name
             messages.error(self.request, str(e))
         try:
-            self.lab_label_printer
+            lab_label_printer = self.lab_label_printer
         except PrinterError as e:
+            lab_label_printer = self.lab_label_printer_name
             messages.error(self.request, str(e))
 
         context.update(
             {
                 "print_servers": settings.CUPS_SERVERS,
                 "selected_print_server_name": self.print_server_name,
-                "selected_clinic_label_printer": self.clinic_label_printer,
-                "selected_lab_label_printer": self.lab_label_printer,
+                "selected_clinic_label_printer": clinic_label_printer,
+                "selected_lab_label_printer": lab_label_printer,
                 "printers": self.printers,
             }
         )
