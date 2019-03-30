@@ -5,6 +5,8 @@ from django.template.loader import render_to_string
 from django.urls.base import reverse
 from edc_dashboard.url_names import url_names, InvalidUrlName
 
+from .utils import verify_permission_codename
+
 
 class NavbarItemError(Exception):
     pass
@@ -56,17 +58,22 @@ class NavbarItem:
         try:
             self.url_name = url_names.get(url_name)
         except InvalidUrlName:
-            self.url_name = url_name.split(":")[1] if no_url_namespace else url_name
+            self.url_name = url_name.split(
+                ":")[1] if no_url_namespace else url_name
 
         if not self.url_name:
-            raise NavbarItemError(f"'url_name' not specified. See {repr(self)}")
+            raise NavbarItemError(
+                f"'url_name' not specified. See {repr(self)}")
 
         if self.url_name == "#":
             self.reversed_url = "#"
         else:
             self.reversed_url = reverse(self.url_name)
 
-        self.permission_codename = self.get_permission_codename(permission_codename)
+        self.permission_codename = verify_permission_codename(
+            permission_codename, navbar_name=self.name,
+            url_name=self.url_name,
+            title=self.title, label=self.label)
 
     def __repr__(self):
         return (
@@ -102,13 +109,3 @@ class NavbarItem:
                 )
             )
         return render_to_string(template_name=self.template_name, context=context)
-
-    def get_permission_codename(self, permission_codename):
-        if permission_codename:
-            try:
-                app_label, codename = permission_codename.split(".")
-            except ValueError:
-                app_label = "edc_navbar"
-                codename = permission_codename
-            permission_codename = f"{app_label}.{codename}"
-        return permission_codename

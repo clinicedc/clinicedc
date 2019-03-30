@@ -1,4 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase, tag
+from django.test.client import RequestFactory
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 
@@ -6,10 +8,17 @@ from ..navbar import Navbar
 from ..navbar_item import NavbarItem, NavbarItemError
 from ..site_navbars import site_navbars, AlreadyRegistered
 
+User = get_user_model()
+
 
 class TestNavbar(TestCase):
     def setUp(self):
         site_navbars._registry = {}
+        self.user = User.objects.create_superuser(
+            "user_login", "u@example.com", "pass")
+        rf = RequestFactory()
+        self.request = rf.request()
+        self.request.user = self.user
 
     def create_navbar(self):
         testnavbar = Navbar(name="pharmacy_dashboard")
@@ -83,7 +92,8 @@ class TestNavbar(TestCase):
             title="navbar_item_one",
             url_name="navbar_one_url",
         )
-        template_string = navbar_item.render(navbar_item_selected=navbar_item_selected)
+        template_string = navbar_item.render(
+            request=self.request, navbar_item_selected=navbar_item_selected)
         self.assertIn(navbar_item.name, template_string)
         self.assertIn(navbar_item.title, template_string)
         self.assertIn(navbar_item.reversed_url, template_string)
@@ -102,7 +112,8 @@ class TestNavbar(TestCase):
             url_name="navbar_one_url",
             fa_icon="far fa-user-circle",
         )
-        template_string = navbar_item.render(navbar_item_selected=navbar_item_selected)
+        template_string = navbar_item.render(
+            self.request, navbar_item_selected=navbar_item_selected)
         self.assertIn(navbar_item.fa_icon, template_string)
 
     def test_render_navbar_item_to_string_icon(self):
@@ -114,5 +125,6 @@ class TestNavbar(TestCase):
             url_name="navbar_one_url",
             icon="medicine.png",
         )
-        template_string = navbar_item.render(navbar_item_selected=navbar_item_selected)
+        template_string = navbar_item.render(
+            self.request, navbar_item_selected=navbar_item_selected)
         self.assertIn(navbar_item.icon, template_string)
