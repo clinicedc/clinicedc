@@ -1,5 +1,6 @@
 from copy import copy
 from django.urls import reverse
+from edc_dashboard.url_names import url_names
 from edc_lab.constants import SHIPPED
 
 from ...model_wrappers import VerifyBoxItemModelWrapper
@@ -34,7 +35,7 @@ class VerifyBoxListboardView(BaseBoxItemListboardView):
         url_kwargs["position"] = 1
         url_kwargs["action_name"] = "verify"
         return reverse(
-            self.request.url_name_data[self.verify_box_listboard_url], kwargs=url_kwargs
+            url_names.get(self.verify_box_listboard_url), kwargs=url_kwargs
         )
 
     @property
@@ -43,7 +44,7 @@ class VerifyBoxListboardView(BaseBoxItemListboardView):
         url_kwargs.pop("position")
         url_kwargs["action_name"] = "manage"
         return reverse(
-            self.request.url_name_data[self.manage_box_listboard_url], kwargs=url_kwargs
+            url_names.get(self.manage_box_listboard_url), kwargs=url_kwargs
         )
 
     @property

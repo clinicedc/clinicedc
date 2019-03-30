@@ -24,7 +24,7 @@ class ActionView(TemplateView):
     """
 
     form_action_selected_items_name = "selected_items"
-    post_action_url = None  # key exists in request.url_name_data
+    post_action_url = None  # key exists in url_names
     redirect_querystring = {}
     template_name = dashboard_templates.get("home_template")
     valid_form_actions = []
@@ -47,7 +47,8 @@ class ActionView(TemplateView):
         """
         if not self._selected_items:
             self._selected_items = (
-                self.request.POST.getlist(self.form_action_selected_items_name) or []
+                self.request.POST.getlist(
+                    self.form_action_selected_items_name) or []
             )
             self._selected_items = [x for x in self._selected_items if x]
         return self._selected_items
@@ -63,7 +64,8 @@ class ActionView(TemplateView):
         """
         action = slugify(self.request.POST.get("action", "").lower())
         if action not in self.valid_form_actions:
-            raise InvalidPostError(f"Invalid form action in POST. Got {action}")
+            raise InvalidPostError(
+                f"Invalid form action in POST. Got {action}")
         else:
             self.action = action
         self.process_form_action(request=request)

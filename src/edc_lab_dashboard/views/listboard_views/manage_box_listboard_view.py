@@ -1,5 +1,6 @@
 from copy import copy
 from django.urls.base import reverse
+from edc_dashboard.url_names import url_names
 from edc_lab.models import BoxItem
 
 from ...model_wrappers import ManageBoxItemModelWrapper
@@ -29,7 +30,7 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
         url_kwargs["action_name"] = "verify"
         context.update(
             verify_box_listboard_url_reversed=reverse(
-                self.request.url_name_data[self.verify_box_listboard_url],
+                url_names.get(self.verify_box_listboard_url),
                 kwargs=url_kwargs,
             )
         )
