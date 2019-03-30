@@ -20,7 +20,6 @@ from edc_dashboard.url_names import url_names
 
 
 class TestViewMixins(TestCase):
-
     @classmethod
     def setUpClass(cls):
         url_names.register("dashboard_url", "dashboard_url", "edc_dashboard")
@@ -114,8 +113,7 @@ class TestViewMixins(TestCase):
         # request.url_name_data = {"listboard_url": "listboard_url"}
         request.template_data = {"listboard_template": "listboard.html"}
         template_response = MyView.as_view()(request=request)
-        object_list = template_response.__dict__.get(
-            "context_data").get("object_list")
+        object_list = template_response.__dict__.get("context_data").get("object_list")
         self.assertEqual(
             [
                 wrapper.object.reason
