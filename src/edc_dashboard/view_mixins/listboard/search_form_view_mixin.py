@@ -24,8 +24,7 @@ class SearchFormViewMixin(ContextMixin):
         """
         try:
             url = reverse(
-                url_names.get(self.search_form_url),
-                kwargs=self.search_form_url_kwargs,
+                url_names.get(self.search_form_url), kwargs=self.search_form_url_kwargs
             )
         except NoReverseMatch as e:
             raise SearchFormViewError(

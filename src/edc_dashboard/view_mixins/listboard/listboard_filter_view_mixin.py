@@ -23,7 +23,7 @@ class ListboardFilterViewMixin(ContextMixin):
         context.update(
             listboard_view_filters=self.listboard_view_filters.filters,
             listboard_filter_url=url_names.get(
-                self.listboard_filter_url or listboard_url,
+                self.listboard_filter_url or listboard_url
             ),
         )
         return context
