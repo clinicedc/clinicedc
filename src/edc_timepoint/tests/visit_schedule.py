@@ -11,16 +11,16 @@ crfs = FormsCollection(
 visit_schedule1 = VisitSchedule(
     name="visit_schedule1",
     offstudy_model="edc_offstudy.subjectoffstudy",
-    death_report_model="edc_appointment.deathreport",
-    locator_model="edc_appointment.subjectlocator",
+    death_report_model="edc_timepoint.deathreport",
+    locator_model="edc_locator.subjectlocator",
 )
 
 schedule1 = Schedule(
     name="schedule1",
-    onschedule_model="edc_appointment.onscheduleone",
-    offschedule_model="edc_appointment.offscheduleone",
+    onschedule_model="edc_timepoint.onschedule",
+    offschedule_model="edc_timepoint.offschedule",
     appointment_model="edc_appointment.appointment",
-    consent_model="edc_appointment.subjectconsent",
+    consent_model="edc_timepoint.subjectconsent",
 )
 
 visits = []
