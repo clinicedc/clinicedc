@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 
 class RequisitionListboardView(BaseListboardView):
 
-    listboard_model = settings.LAB_DASHBOARD_REQUISITION_MODEL
+    listboard_model = settings.SUBJECT_REQUISITION_MODEL
 
     form_action_url = "requisition_form_action_url"
     listboard_template = "requisition_listboard_template"

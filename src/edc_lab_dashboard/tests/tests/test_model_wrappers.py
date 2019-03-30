@@ -1,17 +1,22 @@
-from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
+from django.urls.base import reverse
 from edc_lab.models import Aliquot, Box, BoxType, Manifest, Shipper, Consignee
 from edc_lab.models import ManifestItem, BoxItem
-
-from ..model_wrappers import BoxModelWrapper, ManageBoxItemModelWrapper
-from ..model_wrappers import ManifestItemModelWrapper, ManifestModelWrapper
+from edc_lab_dashboard.model_wrappers import (
+    BoxModelWrapper,
+    ManageBoxItemModelWrapper,
+    ManifestItemModelWrapper,
+    ManifestModelWrapper,
+)
 
 
 class TestModelWrapper(TestCase):
     def setUp(self):
-        self.box_type = BoxType.objects.create(name="9 x 9", across=9, down=9, total=81)
-        self.box = Box.objects.create(box_identifier="12345678", box_type=self.box_type)
+        self.box_type = BoxType.objects.create(
+            name="9 x 9", across=9, down=9, total=81)
+        self.box = Box.objects.create(
+            box_identifier="12345678", box_type=self.box_type)
         self.box_item = BoxItem.objects.create(box=self.box, position=0)
         self.aliquot = Aliquot.objects.create(
             subject_identifier="ABCDEFG",
@@ -32,14 +37,17 @@ class TestModelWrapper(TestCase):
             f"/admin/edc_lab/box/{obj.id}/change/?"
             f"next=edc_lab_dashboard:pack_listboard_url&",
         )
-        self.assertEqual(wrapper.reverse(), "/listboard/pack/")
+        self.assertEqual(
+            reverse('edc_lab_dashboard:pack_listboard_url'),
+            "/edc_lab_dashboard/listboard/pack/")
 
     def test_manage_box_item_model_wrapper(self):
         wrapper_cls = ManageBoxItemModelWrapper
         # usually this will come from app_config
         box_type = BoxType.objects.create(across=9, down=9, total=81)
         box_identifier = "1234"
-        box = Box.objects.create(box_identifier=box_identifier, box_type=box_type)
+        box = Box.objects.create(
+            box_identifier=box_identifier, box_type=box_type)
         obj = BoxItem.objects.create(box=box, position=0, identifier="1234")
         wrapper = wrapper_cls(obj)
         self.assertEqual(
@@ -78,4 +86,6 @@ class TestModelWrapper(TestCase):
             f"/admin/edc_lab/manifest/{obj.id}/change/?"
             f"next=edc_lab_dashboard:manifest_listboard_url&",
         )
-        self.assertEqual(wrapper.reverse(), "/listboard/manifest/")
+        self.assertEqual(
+            reverse('edc_lab_dashboard:manifest_listboard_url'),
+            "/edc_lab_dashboard/listboard/manifest/")
