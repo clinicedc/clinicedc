@@ -4,12 +4,11 @@ import copy
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
+from edc_permissions.constants.group_names import EVERYONE
 from importlib import import_module
 
 from .navbar import NavbarError
 from .utils import verify_permission_codename
-from edc_permissions.constants.group_names import EVERYONE
-from django.db.utils import IntegrityError
 
 
 class AlreadyRegistered(Exception):
@@ -97,7 +96,7 @@ class NavbarCollection:
         )
         # add default navbar permission to EVERYONE
         group = Group.objects.get(name=EVERYONE)
-        group.add_permission(permission)
+        group.permissions.add(permission)
 
         for codename, label in self.permission_codenames.values():
             codename = verify_permission_codename(codename)
