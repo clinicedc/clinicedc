@@ -2,8 +2,7 @@ from copy import copy
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
 from edc_lab.models import Aliquot, Box, BoxType, BoxItem
-
-from ..model_wrappers import AliquotModelWrapper
+from edc_lab_dashboard.model_wrappers import AliquotModelWrapper
 
 
 app_config = django_apps.get_app_config("edc_lab_dashboard")
@@ -11,8 +10,10 @@ app_config = django_apps.get_app_config("edc_lab_dashboard")
 
 class TestModelWrapper(TestCase):
     def setUp(self):
-        self.box_type = BoxType.objects.create(name="9 x 9", across=9, down=9, total=81)
-        self.box = Box.objects.create(box_identifier="12345678", box_type=self.box_type)
+        self.box_type = BoxType.objects.create(
+            name="9 x 9", across=9, down=9, total=81)
+        self.box = Box.objects.create(
+            box_identifier="12345678", box_type=self.box_type)
         self.box_item = BoxItem.objects.create(box=self.box, position=0)
         self.aliquot = Aliquot.objects.create(
             subject_identifier="ABCDEFG",
@@ -31,7 +32,7 @@ class TestModelWrapper(TestCase):
             f"/admin/edc_lab/aliquot/{self.aliquot.id}/change/?"
             f"next=edc_lab_dashboard:aliquot_listboard_url&",
         )
-        self.assertEqual(wrapper.reverse(), "/listboard/aliquot/")
+        self.assertIn("edc_lab_dashboard:aliquot_listboard_url", wrapper.href)
 
     def test_aliquot_wrapper_attrs(self):
         """Asserts attrs used in template exist.

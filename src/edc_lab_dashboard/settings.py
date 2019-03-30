@@ -122,7 +122,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 GIT_DIR = BASE_DIR
 
-LAB_DASHBOARD_REQUISITION_MODEL = "edc_lab.subjectrequisition"
+SUBJECT_REQUISITION_MODEL = "edc_lab.subjectrequisition"
 LAB_DASHBOARD_URL_NAMES = {}
 LAB_DASHBOARD_BASE_TEMPLATES = {}
 

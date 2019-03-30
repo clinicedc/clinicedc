@@ -4,7 +4,7 @@ from edc_model_wrapper import ModelWrapper
 
 class RequisitionModelWrapper(ModelWrapper):
 
-    model = settings.LAB_DASHBOARD_REQUISITION_MODEL
+    model = settings.SUBJECT_REQUISITION_MODEL
     next_url_name = "requisition_listboard_url"
     next_url_attrs = ["appointment", "subject_identifier"]
     querystring_attrs = ["subject_visit", "panel"]
