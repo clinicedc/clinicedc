@@ -1,20 +1,56 @@
 from arrow import arrow
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from decimal import Decimal
 from django.apps import apps as django_apps
 from django.test import TestCase, tag  # noqa
 from edc_appointment.constants import COMPLETE_APPT
+from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
-from edc_appointment.tests.helper import Helper
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_consent.site_consents import site_consents
 
-from ..constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT
-from ..model_mixins import UnableToCloseTimepoint
-from ..timepoint import TimepointClosed
-from .models import CrfOne, SubjectVisit
-from .visit_schedule import visit_schedule1
+from ...constants import OPEN_TIMEPOINT, CLOSED_TIMEPOINT
+from ...model_mixins import UnableToCloseTimepoint
+from ...timepoint import TimepointClosed
+from ..consents import v1
+from ..models import CrfOne, SubjectVisit, SubjectConsent
+from ..visit_schedule import visit_schedule1
+
+
+class Helper:
+    def __init__(self, subject_identifier=None, now=None):
+        self.subject_identifier = subject_identifier
+        self.now = now or get_utcnow()
+
+    def consent_and_put_on_schedule(self, subject_identifier=None):
+        subject_identifier = subject_identifier or self.subject_identifier
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier=subject_identifier,
+            consent_datetime=self.now,
+            identity="111111",
+            confirm_identity="111111",
+        )
+        visit_schedule = site_visit_schedules.get_visit_schedule("visit_schedule1")
+        schedule = visit_schedule.schedules.get("schedule1")
+        schedule.put_on_schedule(
+            subject_identifier=subject_consent.subject_identifier,
+            onschedule_datetime=subject_consent.consent_datetime,
+        )
+        return subject_consent
+
+    def add_unscheduled_appointment(self, appointment=None):
+        creator = UnscheduledAppointmentCreator(
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            facility=appointment.facility,
+            timepoint=appointment.timepoint + Decimal("0.1"),
+        )
+        return creator.appointment
 
 
 class TimepointTests(TestCase):
@@ -24,6 +60,8 @@ class TimepointTests(TestCase):
     @classmethod
     def setUpClass(cls):
         import_holidays()
+        site_consents.register(v1)
+
         return super().setUpClass()
 
     def setUp(self):
@@ -31,8 +69,7 @@ class TimepointTests(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
-            now=arrow.Arrow.fromdatetime(datetime(2017, 1, 7), tzinfo="UTC").datetime,
+            subject_identifier=self.subject_identifier, now=get_utcnow()
         )
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(
