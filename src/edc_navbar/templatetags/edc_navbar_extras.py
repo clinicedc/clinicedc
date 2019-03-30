@@ -1,7 +1,7 @@
 from django import template
 from django.conf import settings
 from django.urls.exceptions import NoReverseMatch
-from django.urls.base import reverse
+from django.urls import reverse
 
 
 register = template.Library()
@@ -22,8 +22,8 @@ def edc_navbar(context):
         except NoReverseMatch:
             pass
     return dict(
-        navbar=context.get("navbar"),
-        default_navbar=context.get("default_navbar"),
-        user=user,
         auth_user_change_url=auth_user_change_url,
+        default_navbar=context.get("default_navbar"),
+        navbar=context.get("navbar"),
+        user=user,
     )
