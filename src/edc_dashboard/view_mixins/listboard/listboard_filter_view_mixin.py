@@ -1,4 +1,5 @@
 from django.views.generic.base import ContextMixin
+from edc_dashboard.url_names import url_names
 
 from ...listboard_filter import ListboardViewFilters
 
@@ -21,9 +22,9 @@ class ListboardFilterViewMixin(ContextMixin):
             listboard_url = None
         context.update(
             listboard_view_filters=self.listboard_view_filters.filters,
-            listboard_filter_url=self.request.url_name_data[
-                self.listboard_filter_url or listboard_url
-            ],
+            listboard_filter_url=url_names.get(
+                self.listboard_filter_url or listboard_url,
+            ),
         )
         return context
 

@@ -1,6 +1,7 @@
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.views.generic.base import ContextMixin
+from edc_dashboard.url_names import url_names
 
 
 class SearchFormViewError(Exception):
@@ -18,17 +19,17 @@ class SearchFormViewMixin(ContextMixin):
 
     @property
     def search_form_url_reversed(self):
-        """Returns the reversed url selected from the request.url_name_data
+        """Returns the reversed url selected from the url_names
         using self.search_form_url.
         """
         try:
             url = reverse(
-                self.request.url_name_data.get(self.search_form_url),
+                url_names.get(self.search_form_url),
                 kwargs=self.search_form_url_kwargs,
             )
         except NoReverseMatch as e:
             raise SearchFormViewError(
-                f"{e}. Expected one of {self.request.url_name_data}. "
+                f"{e}. Expected one of {url_names.registry}. "
                 f"See attribute 'search_form_url'."
             )
         return f"{url}{self.querystring}"
