@@ -1,5 +1,4 @@
 import os
-import sys
 
 from django.apps import apps as django_apps
 from django.conf import settings
