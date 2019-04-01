@@ -58,12 +58,10 @@ class NavbarItem:
         try:
             self.url_name = url_names.get(url_name)
         except InvalidUrlName:
-            self.url_name = url_name.split(
-                ":")[1] if no_url_namespace else url_name
+            self.url_name = url_name.split(":")[1] if no_url_namespace else url_name
 
         if not self.url_name:
-            raise NavbarItemError(
-                f"'url_name' not specified. See {repr(self)}")
+            raise NavbarItemError(f"'url_name' not specified. See {repr(self)}")
 
         if self.url_name == "#":
             self.reversed_url = "#"
@@ -71,9 +69,12 @@ class NavbarItem:
             self.reversed_url = reverse(self.url_name)
 
         app_label, codename = verify_permission_codename(
-            permission_codename, navbar_name=self.name,
+            permission_codename,
+            navbar_name=self.name,
             url_name=self.url_name,
-            title=self.title, label=self.label)
+            title=self.title,
+            label=self.label,
+        )
         self.permission_codename = f"{app_label}.{codename}"
 
     def __repr__(self):
