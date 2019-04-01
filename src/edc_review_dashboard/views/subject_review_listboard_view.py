@@ -11,9 +11,8 @@ from edc_metadata.view_mixins.metadata_view_mixin import MetaDataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
 from edc_subject_dashboard.view_mixins import RegisteredSubjectViewMixin
 from edc_subject_dashboard.view_mixins import SubjectVisitViewMixin
+from edc_subject_model_wrappers import SubjectVisitModelWrapper
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
-
-from ..model_wrappers import SubjectVisitModelWrapper
 
 
 class SubjectReviewListboardView(
@@ -111,7 +110,8 @@ class SubjectReviewListboardView(
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
         if kwargs.get("subject_identifier"):
-            options.update({"subject_identifier": kwargs.get("subject_identifier")})
+            options.update(
+                {"subject_identifier": kwargs.get("subject_identifier")})
         return options
 
     def extra_search_options(self, search_term):

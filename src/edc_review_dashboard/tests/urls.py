@@ -4,6 +4,8 @@ from dashboard_app.admin_site import dashboard_app_admin
 from edc_lab.admin_site import edc_lab_admin
 
 from .views import HomeView
+from edc_appointment.admin_site import edc_appointment_admin
+from edc_locator.admin_site import edc_locator_admin
 
 app_name = "edc_review_dashboard"
 
@@ -25,6 +27,9 @@ urlpatterns += [
     path("admin/", admin.site.urls),
     path("admin/", dashboard_app_admin.urls),
     path("admin/", edc_lab_admin.urls),
+    path("admin/", edc_appointment_admin.urls),
+    path("admin/", edc_locator_admin.urls),
+    path("", include("edc_appointment.urls")),
     path("", include("edc_subject_dashboard.urls")),
     path("", include("edc_lab_dashboard.urls")),
     path("", include("dashboard_app.urls")),
