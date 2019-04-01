@@ -7,11 +7,43 @@ from django.urls.exceptions import NoReverseMatch
 from ..navbar import Navbar
 from ..navbar_item import NavbarItem, NavbarItemError
 from ..site_navbars import site_navbars, AlreadyRegistered
+from edc_permissions.permissions_updater import PermissionsUpdater
 
 User = get_user_model()
 
 
+class PermissionsUpdater(PermissionsUpdater):
+    def check_app_labels(self):
+        pass
+
+    def update_dashboard_codenames(self):
+        pass
+
+    def update_auditor_group_permissions(self):
+        pass
+
+    def update_clinic_group_permissions(self):
+        pass
+
+    def update_lab_group_permissions(self):
+        pass
+
+    def update_pharmacy_group_permissions(self):
+        pass
+
+    def update_pii_group_permissions(self):
+        pass
+
+    def update_pii_view_group_permissions(self):
+        pass
+
+
 class TestNavbar(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        PermissionsUpdater(verbose=True)
+        return super(TestNavbar, cls).setUpClass()
+
     def setUp(self):
         site_navbars._registry = {}
         self.user = User.objects.create_superuser(

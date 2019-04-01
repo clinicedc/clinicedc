@@ -70,10 +70,11 @@ class NavbarItem:
         else:
             self.reversed_url = reverse(self.url_name)
 
-        self.permission_codename = verify_permission_codename(
+        app_label, codename = verify_permission_codename(
             permission_codename, navbar_name=self.name,
             url_name=self.url_name,
             title=self.title, label=self.label)
+        self.permission_codename = f"{app_label}.{codename}"
 
     def __repr__(self):
         return (

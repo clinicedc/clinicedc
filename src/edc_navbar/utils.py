@@ -18,5 +18,4 @@ def verify_permission_codename(permission_codename, **kwargs):
             raise PermissionsCodenameError(
                 f"Invalid Navbar codename. Expected format "
                 f"'<app_label>.<some_codename>'. Got {permission_codename}.")
-    permission_codename = f"{app_label}.{codename}"
-    return permission_codename
+    return app_label, codename

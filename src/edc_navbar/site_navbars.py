@@ -85,25 +85,34 @@ class NavbarCollection:
         Navbar = django_apps.get_model('edc_navbar.Navbar')
         Permission = django_apps.get_model('auth.Permission')
         write = str if verbose is False else sys.stdout.write
-        content_type = ContentType.objects.get_for_model(Navbar)
+        ct_navbar = ContentType.objects.get_for_model(Navbar)
 
         # clear existing
-        Permission.objects.filter(content_type=content_type).delete()
+        Permission.objects.filter(content_type=ct_navbar).delete()
 
         # create default navbar permission
         permission = Permission.objects.create(
-            codename="edc_navbar.everyone", name=EVERYONE, content_type=content_type
+            codename="edc_navbar.nav_public",
+            name=EVERYONE,
+            content_type=ct_navbar
         )
         # add default navbar permission to EVERYONE
         group = Group.objects.get(name=EVERYONE)
         group.permissions.add(permission)
 
+        other_codenames = []
         for codename, label in self.permission_codenames.values():
-            codename = verify_permission_codename(codename)
-            write(f'  - adding {codename} "{label}" to Permissions.\n')
-            Permission.objects.create(
-                codename=codename, name=label, content_type=content_type
-            )
+            app_label, codename = verify_permission_codename(codename)
+            if app_label == "edc_navbar":
+                write(f'  - adding {codename} "{label}" to Permissions.\n')
+                Permission.objects.create(
+                    codename=codename, name=label, content_type=ct_navbar
+                )
+            else:
+                other_codenames.append([app_label, codename])
+        for codename, label in other_codenames:
+            sys.stdout.write(
+                f'  - NOT adding {codename} "{label}" to Permissions!\n')
 
     def show_user_permissions(self, username=None, navbar_name=None):
         user = django_apps.get_model(
