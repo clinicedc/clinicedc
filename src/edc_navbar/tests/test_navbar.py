@@ -46,8 +46,7 @@ class TestNavbar(TestCase):
 
     def setUp(self):
         site_navbars._registry = {}
-        self.user = User.objects.create_superuser(
-            "user_login", "u@example.com", "pass")
+        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
         rf = RequestFactory()
         self.request = rf.request()
         self.request.user = self.user
@@ -125,7 +124,8 @@ class TestNavbar(TestCase):
             url_name="navbar_one_url",
         )
         template_string = navbar_item.render(
-            request=self.request, navbar_item_selected=navbar_item_selected)
+            request=self.request, navbar_item_selected=navbar_item_selected
+        )
         self.assertIn(navbar_item.name, template_string)
         self.assertIn(navbar_item.title, template_string)
         self.assertIn(navbar_item.reversed_url, template_string)
@@ -145,7 +145,8 @@ class TestNavbar(TestCase):
             fa_icon="far fa-user-circle",
         )
         template_string = navbar_item.render(
-            self.request, navbar_item_selected=navbar_item_selected)
+            self.request, navbar_item_selected=navbar_item_selected
+        )
         self.assertIn(navbar_item.fa_icon, template_string)
 
     def test_render_navbar_item_to_string_icon(self):
@@ -158,5 +159,6 @@ class TestNavbar(TestCase):
             icon="medicine.png",
         )
         template_string = navbar_item.render(
-            self.request, navbar_item_selected=navbar_item_selected)
+            self.request, navbar_item_selected=navbar_item_selected
+        )
         self.assertIn(navbar_item.icon, template_string)
