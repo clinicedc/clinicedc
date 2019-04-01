@@ -22,7 +22,6 @@ class TestExport(TestCase):
         self.helper.create_crfs(5)
         self.subject_visit = SubjectVisit.objects.all()[0]
 
-    @tag("2")
     def test_none(self):
         Crf.objects.all().delete()
         model = "edc_export.crf"
@@ -117,7 +116,7 @@ class TestExport(TestCase):
         model_exporter = CsvModelExporter(
             model="edc_export.crf",
             add_columns_for="subject_visit",
-            sort_by=["subject_identifier"],
+            sort_by=["subject_identifier", "visit_code"],
             export_folder=self.path,
         )
         exported = model_exporter.to_csv()
@@ -126,9 +125,11 @@ class TestExport(TestCase):
             rows = [row for row in enumerate(csv_reader)]
         self.assertEqual(len(rows), 4)
         for i, appointment in enumerate(
-            Appointment.objects.all().order_by("visit_code")
+            Appointment.objects.all().order_by("subject_identifier", "visit_code")
         ):
             self.assertEqual(
-                rows[i][1].get("subject_identifier"), appointment.subject_identifier
+                rows[i][1].get(
+                    "subject_identifier"), appointment.subject_identifier
             )
-            self.assertEqual(rows[i][1].get("visit_code"), appointment.visit_code)
+            self.assertEqual(rows[i][1].get(
+                "visit_code"), appointment.visit_code)
