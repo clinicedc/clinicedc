@@ -11,7 +11,7 @@ class Navbar:
         self.name = name
         self.items = navbar_items or []
         self.rendered_items = []
-        self.permission_codenames = {}
+        self.codenames = {}
 
     def __repr__(self):
         return f"{self.__class__.__name__}(name={self.name}, items='{self.items}')"
@@ -21,37 +21,38 @@ class Navbar:
 
     def append_item(self, navbar_item=None):
         self.items.append(navbar_item)
-        if not navbar_item.permission_codename:
+        if not navbar_item.codename:
             raise NavbarError(
-                f"Invalid permission_codename. Got None. See {repr(navbar_item)}."
+                f"Invalid codename. Got None. See {repr(navbar_item)}."
             )
         else:
-            permission_codename_tuple = (
-                navbar_item.permission_codename,
-                f'Can access {" ".join(navbar_item.permission_codename.split("_"))}',
+            codename_tuple = (
+                navbar_item.codename,
+                f'Can access {" ".join(navbar_item.codename.split("_"))}',
             )
-            self.permission_codenames.update(
-                {navbar_item.permission_codename: permission_codename_tuple}
+            self.codenames.update(
+                {navbar_item.codename: codename_tuple}
             )
 
     def render(self, selected_item=None, request=None, **kwargs):
         self.rendered_items = []
         for item in self.items:
             if (
-                item.permission_codename
-                and item.permission_codename not in self.permission_codenames
+                item.codename
+                and item.codename not in self.codenames
             ):
                 raise NavbarError(
                     f"Permission code is invalid. "
-                    f"Expected one of {list(self.permission_codenames.keys())}."
-                    f" Got {item.permission_codename}."
+                    f"Expected one of {list(self.codenames.keys())}."
+                    f" Got {item.codename}."
                 )
-            if not item.permission_codename or (
-                item.permission_codename
-                and request.user.has_perm(item.permission_codename)
+            if not item.codename or (
+                item.codename
+                and request.user.has_perm(item.codename)
             ):
                 self.rendered_items.append(
-                    item.render(selected_item=selected_item, request=request, **kwargs)
+                    item.render(selected_item=selected_item,
+                                request=request, **kwargs)
                 )
 
     def show_user_permissions(self, user=None):
@@ -63,8 +64,8 @@ class Navbar:
             has_perm = {}
             has_perm.update(
                 {
-                    navbar_item.permission_codename: user.has_perm(
-                        navbar_item.permission_codename
+                    navbar_item.codename: user.has_perm(
+                        navbar_item.codename
                     )
                 }
             )

@@ -16,7 +16,7 @@ if app_config.register_default_navbar:
             title="Home",
             fa_icon="fas fa-home",
             url_name="home_url",
-            permission_codename=f"edc_navbar.nav_home",
+            codename="edc_navbar.nav_home",
         )
     )
 
@@ -25,7 +25,7 @@ if app_config.register_default_navbar:
             name="administration",
             title="Administration",
             fa_icon="fas fa-cog",
-            permission_codename=f"edc_navbar.nav_administration",
+            codename="edc_navbar.nav_administration",
             url_name="administration_url",
         )
     )
@@ -36,7 +36,7 @@ if app_config.register_default_navbar:
             title="Logout",
             fa_icon="fas fa-sign-out-alt",
             url_name="logout",
-            permission_codename=f"edc_navbar.nav_logout",
+            codename="edc_navbar.nav_logout",
         )
     )
 
