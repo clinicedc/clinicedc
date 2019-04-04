@@ -16,7 +16,6 @@ class PrintServerError(Exception):
 
 
 class PrintersMixin:
-
     @property
     def connect_cls(self):
         return Connection

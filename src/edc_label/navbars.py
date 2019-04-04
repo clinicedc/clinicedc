@@ -9,7 +9,7 @@ label.append_item(
         label="Label",
         fa_icon="fa-film",
         url_name="edc_label:home_url",
-        permission_codename="edc_navbar.nav_label",
+        codename="edc_navbar.nav_label",
     )
 )
 
