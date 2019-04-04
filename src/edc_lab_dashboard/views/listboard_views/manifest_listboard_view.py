@@ -1,3 +1,4 @@
+from edc_dashboard.url_names import url_names
 from edc_lab.constants import SHIPPED
 from edc_lab.reports import ManifestReport
 from edc_lab.models import Manifest
@@ -26,7 +27,7 @@ class ManifestListboardView(BaseListboardView):
         context = super().get_context_data(**kwargs)
         context.update(
             new_manifest=ManifestModelWrapper(Manifest()),
-            print_manifest_url_name=self.request.url_name_data[self.print_manifest_url],
+            print_manifest_url_name=url_names.get(self.print_manifest_url),
             SHIPPED=SHIPPED,
         )
         return context
@@ -42,5 +43,6 @@ class ManifestListboardView(BaseListboardView):
         return Manifest.objects.get(manifest_identifier=self.request.GET.get("pdf"))
 
     def print_manifest(self):
-        manifest_report = ManifestReport(manifest=self.manifest, user=self.request.user)
+        manifest_report = ManifestReport(
+            manifest=self.manifest, user=self.request.user)
         return manifest_report.render()
