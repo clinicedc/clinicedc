@@ -9,7 +9,7 @@ navbar.append_item(
         label="Export",
         fa_icon="fas fa-file-export",
         url_name="edc_export:home_url",
-        permission_codename="edc_navbar.nav_export",
+        codename="edc_navbar.nav_export",
     )
 )
 
@@ -19,7 +19,7 @@ navbar.append_item(
         label="Export Admin",
         # fa_icon='fas fa-file-export',
         url_name="edc_export:admin:index",
-        permission_codename="edc_navbar.nav_export",
+        codename="edc_navbar.nav_export",
     )
 )
 
