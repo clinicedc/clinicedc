@@ -1,14 +1,17 @@
 import copy
 
+from django.apps import apps as django_apps
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.urls.base import reverse
 from edc_dashboard.url_names import url_names, InvalidUrlName
 
-from .utils import verify_permission_codename
-
 
 class NavbarItemError(Exception):
+    pass
+
+
+class PermissionsCodenameError(Exception):
     pass
 
 
@@ -34,7 +37,7 @@ class NavbarItem:
         icon_height=None,
         no_url_namespace=None,
         active=None,
-        permission_codename=None,
+        codename=None,
     ):
         self._reversed_url = None
         self.active = active
@@ -58,33 +61,29 @@ class NavbarItem:
         try:
             self.url_name = url_names.get(url_name)
         except InvalidUrlName:
-            self.url_name = url_name.split(":")[1] if no_url_namespace else url_name
+            self.url_name = url_name.split(
+                ":")[1] if no_url_namespace else url_name
 
         if not self.url_name:
-            raise NavbarItemError(f"'url_name' not specified. See {repr(self)}")
+            raise NavbarItemError(
+                f"'url_name' not specified. See {repr(self)}")
 
         if self.url_name == "#":
             self.reversed_url = "#"
         else:
             self.reversed_url = reverse(self.url_name)
 
-        app_label, codename = verify_permission_codename(
-            permission_codename,
-            navbar_name=self.name,
-            url_name=self.url_name,
-            title=self.title,
-            label=self.label,
-        )
-        self.permission_codename = f"{app_label}.{codename}"
+        app_label, _codename = self.verify_codename(codename)
+        self.codename = f"{app_label}.{_codename}"
 
     def __repr__(self):
         return (
             f"{self.__class__.__name__}(name={self.name}, "
-            f"title={self.title}, url_name={self.url_name})"
+            f"title={self.title}<url_name={self.url_name}>)"
         )
 
     def __str__(self):
-        return f"{self.name}, {self.url_name}"
+        return f"{self.name}<url={self.url_name}>"
 
     def get_context(self, selected_item=None, **kwargs):
         """Returns a dictionary of context data.
@@ -102,12 +101,29 @@ class NavbarItem:
         has permissions. If not return a disabled control.
         """
         context = self.get_context(**kwargs)
-        if not self.permission_codename:
+        if not self.codename:
             context.update(has_navbar_item_permission=True)
         else:
             context.update(
                 has_navbar_item_permission=request.user.has_perm(
-                    self.permission_codename
+                    self.codename
                 )
             )
         return render_to_string(template_name=self.template_name, context=context)
+
+    def verify_codename(self, dotted_codename=None):
+        if not dotted_codename:
+            raise PermissionsCodenameError(
+                f"Invalid codename. May not be None. See {repr(self)}")
+        try:
+            app_label, codename = dotted_codename.split(".")
+        except ValueError:
+            raise PermissionsCodenameError(
+                f"Invalid codename. Got '{dotted_codename}'. See {repr(self)}.")
+        if app_label not in [a.name for a in django_apps.get_app_configs()]:
+            raise PermissionsCodenameError(
+                f"Invalid app_label in codename. Expected format "
+                f"'<app_label>.<some_codename>'. Got {dotted_codename}. "
+                f"See {repr(self)}"
+            )
+        return app_label, codename

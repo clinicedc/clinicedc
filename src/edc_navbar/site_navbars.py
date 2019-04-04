@@ -4,11 +4,9 @@ import copy
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
-from edc_permissions.constants.group_names import EVERYONE
 from importlib import import_module
 
 from .navbar import NavbarError
-from .utils import verify_permission_codename
 
 
 class AlreadyRegistered(Exception):
@@ -24,7 +22,7 @@ class NavbarCollection:
 
     def __init__(self):
         self.registry = {}
-        self.permission_codenames = {}
+        self.codenames = {}
 
     def __repr__(self):
         return f"{self.__class__.__name__}()"
@@ -32,7 +30,7 @@ class NavbarCollection:
     def register(self, navbar=None):
         if navbar.name not in self.registry:
             self.registry.update({navbar.name: navbar})
-            self.permission_codenames.update(**navbar.permission_codenames)
+            self.codenames.update(**navbar.codenames)
         else:
             raise AlreadyRegistered(
                 f"Navbar with name {navbar.name} is already registered."
@@ -76,43 +74,49 @@ class NavbarCollection:
                     )
         return navbar
 
-    def update_permission_codenames(self, verbose=None):
-        """Recreates auth.permission objects for the Navbar
-        models.
-        """
-        ContentType = django_apps.get_model("contenttypes.ContentType")
-        Group = django_apps.get_model("auth.Group")
-        Navbar = django_apps.get_model("edc_navbar.Navbar")
-        Permission = django_apps.get_model("auth.Permission")
-        write = str if verbose is False else sys.stdout.write
-        ct_navbar = ContentType.objects.get_for_model(Navbar)
-
-        # clear existing
-        Permission.objects.filter(content_type=ct_navbar).delete()
-
-        # create default navbar permission
-        permission = Permission.objects.create(
-            codename="edc_navbar.nav_public", name=EVERYONE, content_type=ct_navbar
-        )
-        # add default navbar permission to EVERYONE
-        group = Group.objects.get(name=EVERYONE)
-        group.permissions.add(permission)
-
-        other_codenames = []
-        for codename, label in self.permission_codenames.values():
-            app_label, codename = verify_permission_codename(codename)
-            if app_label == "edc_navbar":
-                write(f'  - adding {codename} "{label}" to Permissions.\n')
-                Permission.objects.create(
-                    codename=codename, name=label, content_type=ct_navbar
-                )
-            else:
-                other_codenames.append([app_label, codename])
-        for codename, label in other_codenames:
-            sys.stdout.write(f'  - NOT adding {codename} "{label}" to Permissions!\n')
+    #     def update_codenames(self, verbose=None):
+    #         """Recreates auth.permission objects for the Navbar
+    #         models.
+    #         """
+    #         ContentType = django_apps.get_model("contenttypes.ContentType")
+    #         Group = django_apps.get_model("auth.Group")
+    #         Navbar = django_apps.get_model("edc_navbar.Navbar")
+    #         Permission = django_apps.get_model("auth.Permission")
+    #         write = str if verbose is False else sys.stdout.write
+    #         ct_navbar = ContentType.objects.get_for_model(Navbar)
+    #
+    #         # clear existing
+    #         Permission.objects.filter(content_type=ct_navbar).delete()
+    #
+    #         # create default navbar permission
+    #         permission = Permission.objects.create(
+    #             codename="edc_navbar.nav_public", name=EVERYONE, content_type=ct_navbar
+    #         )
+    #         # add default navbar permission to EVERYONE
+    #         group = Group.objects.get(name=EVERYONE)
+    #         group.permissions.add(permission)
+    #
+    #         other_codenames = []
+    #         for codename, label in self.codenames.values():
+    #             app_label, codename = verify_permission_codename(codename)
+    #             if app_label == "edc_navbar":
+    #                 write(f'  - adding {codename} "{label}" to Permissions.\n')
+    #                 Permission.objects.create(
+    #                     codename=codename, name=label, content_type=ct_navbar
+    #                 )
+    #             else:
+    #                 other_codenames.append([app_label, codename])
+    #
+    #         # these should be added by other apps/classes
+    #         # for example, edc_dashboard.UrlConfig
+    #         for codename, label in other_codenames:
+    #             sys.stdout.write(
+    #                 f"  - NOT adding {codename} '{label}' to Permissions "
+    #                 "under app_label `edc_navbar`.\n")
 
     def show_user_permissions(self, username=None, navbar_name=None):
-        user = django_apps.get_model("auth.user").objects.get(username=username)
+        user = django_apps.get_model(
+            "auth.user").objects.get(username=username)
         navbar = self.registry.get(navbar_name)
         return navbar.show_user_permissions(user=user)
 
@@ -135,7 +139,8 @@ class NavbarCollection:
                 try:
                     before_import_registry = copy.copy(site_navbars.registry)
                     import_module(f"{app}.{module_name}")
-                    writer(f" * registered navbars '{module_name}' from '{app}'\n")
+                    writer(
+                        f" * registered navbars '{module_name}' from '{app}'\n")
                 except NavbarError as e:
                     writer(f"   - loading {app}.navbars ... ")
                     writer(style.ERROR(f"ERROR! {e}\n"))

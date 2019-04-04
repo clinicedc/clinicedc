@@ -3,50 +3,32 @@ from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
+from edc_permissions.utils.create import (
+    create_edc_dashboard_permissions,
+    create_edc_navbar_permissions,
+)
 
 from ..navbar import Navbar
 from ..navbar_item import NavbarItem, NavbarItemError
 from ..site_navbars import site_navbars, AlreadyRegistered
-from edc_permissions.permissions_updater import PermissionsUpdater
+from django.contrib.auth.models import Permission
 
 User = get_user_model()
-
-
-class PermissionsUpdater(PermissionsUpdater):
-    def check_app_labels(self):
-        pass
-
-    def update_dashboard_codenames(self):
-        pass
-
-    def update_auditor_group_permissions(self):
-        pass
-
-    def update_clinic_group_permissions(self):
-        pass
-
-    def update_lab_group_permissions(self):
-        pass
-
-    def update_pharmacy_group_permissions(self):
-        pass
-
-    def update_pii_group_permissions(self):
-        pass
-
-    def update_pii_view_group_permissions(self):
-        pass
 
 
 class TestNavbar(TestCase):
     @classmethod
     def setUpClass(cls):
-        PermissionsUpdater(verbose=True)
+        create_edc_dashboard_permissions()
+        create_edc_navbar_permissions(
+            extra_codename_tpls=[
+                ("edc_navbar.navbar_one", "Can access One")])
         return super(TestNavbar, cls).setUpClass()
 
     def setUp(self):
         site_navbars._registry = {}
-        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
+        self.user = User.objects.create_superuser(
+            "user_login", "u@example.com", "pass")
         rf = RequestFactory()
         self.request = rf.request()
         self.request.user = self.user
@@ -58,7 +40,7 @@ class TestNavbar(TestCase):
                 name="navbar1",
                 title="Navbar1",
                 label="one",
-                permission_codename="edc_navbar.navbar1",
+                codename="edc_navbar.navbar1",
                 url_name="navbar_one_url",
             )
         )
@@ -68,7 +50,7 @@ class TestNavbar(TestCase):
                 name="navbar2",
                 title="Navbar2",
                 label="two",
-                permission_codename="edc_navbar.navbar2",
+                codename="edc_navbar.navbar2",
                 url_name="navbar_two_url",
             )
         )
@@ -110,6 +92,7 @@ class TestNavbar(TestCase):
             label="Navbar Item One",
             title="navbar_item_one",
             url_name="navbar_one_url",
+            codename="edc_navbar.nav_one",
         )
         self.assertEqual(navbar_item.name, "navbar_item_one")
         self.assertEqual(navbar_item.title, "navbar_item_one")
@@ -122,6 +105,7 @@ class TestNavbar(TestCase):
             label="Navbar Item One",
             title="navbar_item_one",
             url_name="navbar_one_url",
+            codename="edc_navbar.nav_one",
         )
         template_string = navbar_item.render(
             request=self.request, navbar_item_selected=navbar_item_selected
@@ -143,6 +127,7 @@ class TestNavbar(TestCase):
             title="navbar_item_one",
             url_name="navbar_one_url",
             fa_icon="far fa-user-circle",
+            codename="edc_navbar.nav_one",
         )
         template_string = navbar_item.render(
             self.request, navbar_item_selected=navbar_item_selected
@@ -157,6 +142,7 @@ class TestNavbar(TestCase):
             title="navbar_item_one",
             url_name="navbar_one_url",
             icon="medicine.png",
+            codename="edc_navbar.nav_one",
         )
         template_string = navbar_item.render(
             self.request, navbar_item_selected=navbar_item_selected
