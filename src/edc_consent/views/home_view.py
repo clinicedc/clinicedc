@@ -1,14 +1,14 @@
 from django.conf import settings
 from django.views.generic.base import TemplateView
 
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
 from ..admin_site import edc_consent_admin
 from ..site_consents import site_consents
 
 
-class HomeView(EdcBaseViewMixin, NavbarViewMixin, TemplateView):
+class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
     template_name = f"edc_consent/bootstrap{settings.EDC_BOOTSTRAP}/home.html"
     navbar_name = "edc_consent"

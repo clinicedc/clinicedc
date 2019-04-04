@@ -9,7 +9,7 @@ consent.append_item(
         label="Consent",
         fa_icon="far fa-user-circle",
         url_name="edc_consent:home_url",
-        permission_codename="edc_navbar.nav_consent",
+        codename="edc_navbar.nav_consent",
     )
 )
 
