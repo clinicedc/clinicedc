@@ -54,6 +54,8 @@ class CsvExporter:
         self.date_format = date_format or self.date_format
         self.index = index or self.index
         self.sort_by = sort_by or self.sort_by
+        if self.sort_by and not isinstance(self.sort_by, (list, tuple)):
+            self.sort_by = [self.sort_by]
         self.export_folder = export_folder or self.export_folder
         self.verbose = verbose
         if not self.export_folder:
@@ -81,7 +83,7 @@ class CsvExporter:
         if not dataframe.empty:
             path = self.get_path()
             if self.sort_by:
-                dataframe.sort_values(self.sort_by, inplace=True)
+                dataframe.sort_values(by=self.sort_by, inplace=True)
             if self.verbose:
                 sys.stdout.write(f"( ) {self.data_label} ...     \r")
             dataframe.to_csv(path_or_buf=path, **self.csv_options)
