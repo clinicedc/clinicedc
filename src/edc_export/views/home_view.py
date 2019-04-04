@@ -2,13 +2,13 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.generic.base import TemplateView
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
 from ..exportables import Exportables
 
 
-class HomeView(EdcBaseViewMixin, NavbarViewMixin, TemplateView):
+class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
     template_name = f"edc_export/bootstrap{settings.EDC_BOOTSTRAP}/home.html"
     navbar_name = "edc_export"
@@ -24,5 +24,6 @@ class HomeView(EdcBaseViewMixin, NavbarViewMixin, TemplateView):
                 messages.info(self.request, (f"Nothing has been exported."))
         context = super().get_context_data(**kwargs)
         user = User.objects.get(username=self.request.user)
-        context.update(exportables=Exportables(request=self.request, user=user))
+        context.update(exportables=Exportables(
+            request=self.request, user=user))
         return context
