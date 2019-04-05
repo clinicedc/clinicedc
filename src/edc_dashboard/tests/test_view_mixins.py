@@ -1,22 +1,35 @@
 import arrow
 
 from datetime import datetime
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.models import User, Group
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
-from edc_utils import get_utcnow
+from edc_dashboard.url_names import url_names
 from edc_model_wrapper import ModelWrapper
-from edc_permissions.permissions_updater import AUDITOR, ADMINISTRATION, LAB, PHARMACY
-from edc_permissions.permissions_updater import PermissionsUpdater, CLINIC
+from edc_permissions import CLINIC
+from edc_permissions.permissions_updater import PermissionsUpdater
+from edc_permissions.utils import (
+    create_edc_dashboard_permissions,
+    add_permissions_to_group_by_codenames
+)
+from edc_utils import get_utcnow
 
 from ..listboard_filter import ListboardFilter, ListboardViewFilters
 from ..view_mixins import ListboardFilterViewMixin
 from ..view_mixins.listboard.querystring_view_mixin import QueryStringViewMixin
 from ..views import ListboardView
 from .models import SubjectVisit
-from edc_dashboard.url_names import url_names
+
+
+def extra_clinic_group_permissions():
+
+    group_name = CLINIC
+    group = Group.objects.get(name=group_name)
+
+    add_permissions_to_group_by_codenames(
+        group, ["edc_dashboard.view_my_listboard"])
 
 
 class TestViewMixins(TestCase):
@@ -26,28 +39,15 @@ class TestViewMixins(TestCase):
         return super(TestViewMixins, cls).setUpClass()
 
     def setUp(self):
-        class MyPermissionsUpdater(PermissionsUpdater):
-            default_auditor_app_labels = []
-            default_pii_models = []
-            navbar_codenames = {
-                ADMINISTRATION: [],
-                AUDITOR: [],
-                CLINIC: [],
-                LAB: [],
-                PHARMACY: [],
-            }
 
-            extra_dashboard_codenames = {
-                "blah": [("view_my_listboard", "View my listboard")]
-            }
+        create_edc_dashboard_permissions(
+            extra_codename_tpls=[
+                ("edc_dashboard.view_my_listboard", "View my listboard"),
+            ]
+        )
 
-            def extra_clinic_group_permissions(self, group):
-                for permission in Permission.objects.filter(
-                    content_type__app_label__in=["edc_dashboard"]
-                ):
-                    group.permissions.add(permission)
-
-        MyPermissionsUpdater()
+        PermissionsUpdater(
+            extra_updaters=[extra_clinic_group_permissions])
         self.user = User.objects.create(username="erik")
         group = Group.objects.get(name=CLINIC)
         self.user.groups.add(group)
@@ -113,7 +113,8 @@ class TestViewMixins(TestCase):
         # request.url_name_data = {"listboard_url": "listboard_url"}
         request.template_data = {"listboard_template": "listboard.html"}
         template_response = MyView.as_view()(request=request)
-        object_list = template_response.__dict__.get("context_data").get("object_list")
+        object_list = template_response.__dict__.get(
+            "context_data").get("object_list")
         self.assertEqual(
             [
                 wrapper.object.reason
