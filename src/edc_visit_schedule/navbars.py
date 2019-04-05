@@ -10,7 +10,7 @@ visit_schedule.append_item(
         label="Visit Schedule",
         fa_icon="fa-calendar",
         url_name="edc_visit_schedule:home_url",
-        permission_codename="edc_navbar.nav_visit_schedule",
+        codename="edc_navbar.nav_visit_schedule",
     )
 )
 
@@ -24,7 +24,7 @@ visit_schedule.append_item(
             "edc_visit_schedule:edc_visit_schedule_admin:"
             "edc_visit_schedule_subjectschedulehistory_changelist"
         ),
-        permission_codename="edc_navbar.nav_visit_schedule",
+        codename="edc_navbar.nav_visit_schedule",
     )
 )
 
