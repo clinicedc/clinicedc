@@ -1,7 +1,11 @@
+from dateutil.relativedelta import relativedelta
 from django.core.paginator import Paginator
 from django.test import TestCase, tag
+from edc_utils.date import get_utcnow
 
-from ..templatetags.edc_dashboard_extras import paginator_row, page_numbers
+from ..templatetags.edc_dashboard_extras import (
+    paginator_row, page_numbers, age_in_years, human,
+)
 from .models import TestModel
 
 
@@ -77,3 +81,22 @@ class TestTags(TestCase):
         for i in range(1, 25):
             self.assertEqual(len(page_numbers(i, 200)), 10)
             self.assertIn(i, page_numbers(i, 200))
+
+    def test_age(self):
+        context = {"reference_datetime": None}
+        born = get_utcnow() - relativedelta(years=25)
+        self.assertEqual(25, age_in_years(context, born))
+
+        reference_datetime = get_utcnow() - relativedelta(years=25)
+        context = {"reference_datetime": reference_datetime}
+        born = reference_datetime - relativedelta(years=5)
+        self.assertEqual(5, age_in_years(context, born))
+
+        reference_datetime = get_utcnow() - relativedelta(years=25)
+        context = {"reference_datetime": reference_datetime}
+        born = get_utcnow()
+        self.assertEqual(born, age_in_years(context, born))
+
+    def test_human(self):
+        self.assertEqual(human(11112222333344445555),
+                         "1111-2222-3333-4444-5555")

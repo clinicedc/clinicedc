@@ -2,7 +2,9 @@ from django import template
 from django.conf import settings
 from django.urls.base import reverse
 from urllib.parse import urljoin, parse_qsl, urlencode, unquote
-from pprint import pprint
+from django.template.defaultfilters import stringfilter
+from edc_utils import age, get_utcnow, AgeValueError
+from math import ceil
 
 
 register = template.Library()
@@ -33,6 +35,16 @@ class UrlMaker:
         return url
 
 
+@register.simple_tag(takes_context=True)
+def age_in_years(context, born):
+    reference_datetime = context.get("reference_datetime") or get_utcnow()
+    try:
+        age_in_years = age(born, reference_datetime).years
+    except AgeValueError:
+        age_in_years = None
+    return age_in_years or born
+
+
 def page_numbers(page, numpages, display=None):
     """Returns a list of x integers (display) relative to the value of n
     where n > 0 and the length of the list cannot exceed count.
@@ -52,6 +64,14 @@ def page_numbers(page, numpages, display=None):
 )
 def copy_string_to_clipboard_button(value, index=None):
     return dict(value=value, index=index)
+
+
+@register.filter
+@stringfilter
+def human(value):
+    return "-".join(
+        [value[i * 4: (i + 1) * 4] for i in range(0, ceil(len(value) / 4))]
+    )
 
 
 @register.inclusion_tag(
@@ -75,7 +95,8 @@ def paginator_row(context):
     search_term = context.get("search_term")
 
     show = page_obj.has_other_pages()
-    paginator_url = reverse(paginator_url, kwargs=context.get("paginator_url_kwargs"))
+    paginator_url = reverse(
+        paginator_url, kwargs=context.get("paginator_url_kwargs"))
     if querystring:
         if "?" in querystring:
             querystring = querystring.split("?")[1]
