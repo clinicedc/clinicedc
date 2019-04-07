@@ -6,6 +6,13 @@ from django.conf import settings
 
 def edc_check(app_configs, **kwargs):
     errors = []
+    errors = check_etc_dir(errors)
+    errors = check_key_path(errors)
+    errors = check_static_root(errors)
+    return errors
+
+
+def check_etc_dir(errors):
     try:
         settings.ETC_DIR
     except AttributeError:
@@ -32,6 +39,26 @@ def edc_check(app_configs, **kwargs):
                     id=f"settings.ETC_DIR",
                 )
             )
+    return errors
+
+
+def check_static_root(errors):
+    try:
+        settings.STATIC_ROOT
+    except AttributeError:
+        pass
+    else:
+        if settings.STATIC_ROOT and not os.path.exists(settings.STATIC_ROOT):
+            errors.append(
+                Warning(
+                    f"Folder does not exist. Got {settings.STATIC_ROOT}",
+                    id=f"settings.STATIC_ROOT",
+                )
+            )
+    return errors
+
+
+def check_key_path(errors):
     try:
         settings.KEY_PATH
     except AttributeError:
@@ -43,18 +70,6 @@ def edc_check(app_configs, **kwargs):
                     f"Insecure configuration. Folder is writeable by this user. "
                     f"Got {settings.KEY_PATH}",
                     id=f"settings.KEY_PATH",
-                )
-            )
-    try:
-        settings.STATIC_ROOT
-    except AttributeError:
-        pass
-    else:
-        if settings.STATIC_ROOT and not os.path.exists(settings.STATIC_ROOT):
-            errors.append(
-                Warning(
-                    f"Folder does not exist. Got {settings.STATIC_ROOT}",
-                    id=f"settings.STATIC_ROOT",
                 )
             )
     return errors
