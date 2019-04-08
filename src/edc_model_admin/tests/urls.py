@@ -10,7 +10,7 @@ app_name = "edc_model_admin"
 urlpatterns = []
 
 for app_name in [
-    "edc_base",
+    "edc_dashboard",
     "edc_consent",
     "edc_device",
     "edc_protocol",
