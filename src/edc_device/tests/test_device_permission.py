@@ -8,7 +8,6 @@ from ..device_permission import (
     DeviceChangePermission,
 )
 from .. import device_permissions
-
 from ..device_permission import DevicePermissionAddError, DevicePermissionChangeError
 from .models import TestModel, TestModelPermissions, TestModel2
 
