@@ -75,10 +75,10 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         return self.subject_identifier
 
     @property
-    def registered_subject_model_class(self):
+    def registered_subject_model_cls(self):
         """Returns the registered subject model class.
         """
-        return django_apps.get_app_config("edc_registration").model
+        return django_apps.get_model("edc_registration.registeredsubject")
 
     def get_or_create_identifier(self):
         """Returns a subject identifier either by retrieving and
@@ -110,17 +110,18 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         Override this if your query options are different.
         """
         try:
-            obj = self.registered_subject_model_class.objects.get(
+            obj = self.registered_subject_model_cls.objects.get(
                 identity_or_pk=self.identity_or_pk
             )
-        except self.registered_subject_model_class.DoesNotExist:
+        except self.registered_subject_model_cls.DoesNotExist:
             # means this is a new model instance that creates RS on the
             # post save signal.
             obj = None
         except MultipleObjectsReturned as e:
             raise IdentifierError(
                 "Cannot lookup a unique RegisteredSubject instance. "
-                "Identity {} is not unique. Got {}".format(self.identity_or_pk, e)
+                "Identity {} is not unique. Got {}".format(
+                    self.identity_or_pk, e)
             )
         return obj
 
