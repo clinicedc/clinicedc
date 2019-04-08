@@ -4,12 +4,12 @@ from django.db.models import CharField
 from django.utils.translation import ugettext as _
 
 
-class HostnameModificationField (CharField):
+class HostnameModificationField(CharField):
 
     description = _("Custom field for hostname modified")
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('blank', True)
+        kwargs.setdefault("blank", True)
         CharField.__init__(self, *args, **kwargs)
 
     def pre_save(self, model_instance, add):
