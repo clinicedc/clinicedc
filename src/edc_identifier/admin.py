@@ -1,6 +1,6 @@
 from django.contrib import admin
+from django_audit_fields import audit_fieldset_tuple
 from edc_model import DEFAULT_BASE_FIELDS
-from edc_model_admin import audit_fieldset_tuple
 
 from .admin_site import edc_identifier_admin
 from .models import IdentifierModel
