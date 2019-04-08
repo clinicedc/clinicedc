@@ -1,9 +1,9 @@
 from edc_navbar import Navbar, NavbarItem, site_navbars
 
 
-consent = Navbar(name="edc_consent")
+navbar = Navbar(name="edc_consent")
 
-consent.append_item(
+navbar.append_item(
     NavbarItem(
         name="consent",
         label="Consent",
@@ -13,4 +13,4 @@ consent.append_item(
     )
 )
 
-site_navbars.register(consent)
+site_navbars.register(navbar)
