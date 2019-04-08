@@ -16,11 +16,7 @@ class EdcViewMixin(LoginRequiredMixin, MessageViewMixin, RevisionMixin, ContextM
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        try:
-            app_config = django_apps.get_app_config("edc_base")
-        except LookupError as e:
-            app_config = None
-            warnings.warn(str(e))
+        app_config = django_apps.get_app_config("edc_dashboard")
         try:
             edc_device_app_config = django_apps.get_app_config("edc_device")
         except LookupError as e:

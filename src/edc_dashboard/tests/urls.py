@@ -20,7 +20,6 @@ urlpatterns = subject_listboard_url_config.listboard_urls + [
     path("admin/", edc_dashboard_admin.urls),
     path("", RedirectView.as_view(url="admin/"), name="home_url"),
     path("edc_auth/", include("edc_auth.urls")),
-    path("edc_base/", include("edc_base.urls")),
     path("edc_consent/", include("edc_consent.urls")),
     path("edc_dashboard/", include("edc_dashboard.urls")),
     path("edc_device/", include("edc_device.urls")),
