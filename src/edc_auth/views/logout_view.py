@@ -10,7 +10,7 @@ class LogoutView(BaseLogoutView):
 
     @property
     def extra_context(self):
-        app_config = django_apps.get_app_config("edc_base")
+        app_config = django_apps.get_app_config("edc_dashboard")
         try:
             live_system = settings.LIVE_SYSTEM
         except AttributeError:

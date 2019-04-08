@@ -14,13 +14,14 @@ class LoginView(BaseLoginView):
         """
         self.request.session.set_test_cookie()
         if not self.request.session.test_cookie_worked():
-            messages.add_message(self.request, messages.ERROR, "Please enable cookies.")
+            messages.add_message(
+                self.request, messages.ERROR, "Please enable cookies.")
         self.request.session.delete_test_cookie()
         return super().get_context_data(**kwargs)
 
     @property
     def extra_context(self):
-        app_config = django_apps.get_app_config("edc_base")
+        app_config = django_apps.get_app_config("edc_dashboard")
         try:
             live_system = settings.LIVE_SYSTEM
         except AttributeError:
