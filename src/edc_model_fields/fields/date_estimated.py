@@ -11,13 +11,16 @@ class IsDateEstimatedField(CharField):
     description = _("Custom field to question if date is estimated")
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('editable', True)
-        kwargs.setdefault('max_length', 25)
-        kwargs.setdefault('choices', DATE_ESTIMATED)
+        kwargs.setdefault("editable", True)
+        kwargs.setdefault("max_length", 25)
+        kwargs.setdefault("choices", DATE_ESTIMATED)
         kwargs.setdefault(
-            'help_text',
-            _('If the exact date is not known, please indicate which '
-              'part of the date is estimated.'))
+            "help_text",
+            _(
+                "If the exact date is not known, please indicate which "
+                "part of the date is estimated."
+            ),
+        )
         CharField.__init__(self, *args, **kwargs)
 
     def get_internal_type(self):
@@ -31,16 +34,19 @@ class IsDateEstimatedFieldNa(CharField):
     description = _("Custom field to question if date is estimated")
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('editable', True)
-        kwargs.setdefault('null', False)
-        kwargs.setdefault('blank', False)
-        kwargs.setdefault('max_length', 25)
-        kwargs.setdefault('choices', DATE_ESTIMATED_NA)
-        kwargs.setdefault('default', NOT_APPLICABLE)
+        kwargs.setdefault("editable", True)
+        kwargs.setdefault("null", False)
+        kwargs.setdefault("blank", False)
+        kwargs.setdefault("max_length", 25)
+        kwargs.setdefault("choices", DATE_ESTIMATED_NA)
+        kwargs.setdefault("default", NOT_APPLICABLE)
         kwargs.setdefault(
-            'help_text',
-            _('If the exact date is not known, please indicate which '
-              'part of the date is estimated.'))
+            "help_text",
+            _(
+                "If the exact date is not known, please indicate which "
+                "part of the date is estimated."
+            ),
+        )
         CharField.__init__(self, *args, **kwargs)
 
     def get_internal_type(self):

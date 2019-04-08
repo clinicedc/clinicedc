@@ -10,7 +10,7 @@ class UserField(CharField):
     description = _("Custom field for user created")
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('blank', True)
+        kwargs.setdefault("blank", True)
         CharField.__init__(self, *args, **kwargs)
 
     def get_os_username(self):
