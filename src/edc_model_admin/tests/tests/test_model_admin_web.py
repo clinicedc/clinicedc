@@ -8,7 +8,7 @@ from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_lab.site_labs import site_labs
-from edc_reference.site import site_reference_configs
+from edc_reference.site_reference import site_reference_configs
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -134,7 +134,7 @@ class ModelAdminSiteTest(WebTest):
         form_data = {
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
-            "report_datetime_1": "12:00:00",
+            "report_datetime_1": "00:00:00",
         }
         for key, value in form_data.items():
             response.form[key] = value
@@ -145,7 +145,7 @@ class ModelAdminSiteTest(WebTest):
         form_data = {
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
-            "report_datetime_1": "12:00:00",
+            "report_datetime_1": "00:00:00",
         }
         for key, value in form_data.items():
             response.form[key] = value
@@ -172,7 +172,7 @@ class ModelAdminSiteTest(WebTest):
         form_data = {
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
-            "report_datetime_1": "12:00:00",
+            "report_datetime_1": "00:00:00",
         }
         for key, value in form_data.items():
             response.form[key] = value
@@ -182,7 +182,7 @@ class ModelAdminSiteTest(WebTest):
         form_data = {
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
-            "report_datetime_1": "12:00:00",
+            "report_datetime_1": "00:00:00",
         }
         for key, value in form_data.items():
             response.form[key] = value
@@ -226,10 +226,10 @@ class ModelAdminSiteTest(WebTest):
             "estimated_volume": 5,
             "is_drawn": YES,
             "drawn_datetime_0": dte.strftime("%Y-%m-%d"),
-            "drawn_datetime_1": "12:00:00",
+            "drawn_datetime_1": "00:00:00",
             "clinic_verified": YES,
             "clinic_verified_datetime_0": dte.strftime("%Y-%m-%d"),
-            "clinic_verified_datetime_1": "12:00:00",
+            "clinic_verified_datetime_1": "00:00:00",
         }
 
         # add and save
@@ -287,6 +287,7 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn(self.subject_identifier, response)
 
     def test_redirect_on_delete_with_url_name_from_settings(self):
+
         self.login()
 
         self.app.get(
@@ -305,7 +306,7 @@ class ModelAdminSiteTest(WebTest):
         form_data = {
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
-            "report_datetime_1": "12:00:00",
+            "report_datetime_1": "00:00:00",
         }
         response = self.app.get(url, user=self.user)
         for key, value in form_data.items():

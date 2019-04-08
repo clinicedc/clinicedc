@@ -5,6 +5,7 @@ from django.contrib.admin.templatetags.admin_modify import (
 from django.urls.exceptions import NoReverseMatch
 from django.urls.base import reverse
 from edc_model_admin import get_next_url
+from _warnings import warn
 
 register = template.Library()
 
@@ -48,7 +49,8 @@ def get_cancel_url(context):
     request = get_request_object(context)
     try:
         cancel_url = get_next_url(request)
-    except NoReverseMatch:
+    except NoReverseMatch as e:
+        warn(f"{str(e)} See 'get_cancel_url'.")
         url = context["subject_dashboard_url"]
         kwargs = {"subject_identifier": get_subject_identifier(context)}
         try:

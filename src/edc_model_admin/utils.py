@@ -1,27 +1,21 @@
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
+from warnings import warn
 
 
 def get_next_url(request, next_attr=None):
 
     url = None
-    kwargs = {}
-    next_attr = next_attr or "next"
-
-    options = request.GET.dict()
-    next_value = options.get(next_attr)
-
+    next_value = request.GET.dict().get(next_attr or "next")
     if next_value:
-        try:
-            next_url, parameter_string = next_value.split(",")
-        except ValueError:
-            next_url, parameter_string = next_value, ""
-
-        if parameter_string:
-            for param in parameter_string.split(","):
-                kwargs.update({param: request.GET.get(param)})
+        kwargs = {}
+        for pos, value in enumerate(next_value.split(",")):
+            if pos == 0:
+                next_url = value
+            else:
+                kwargs.update({value: request.GET.get(value)})
         try:
             url = reverse(next_url, kwargs=kwargs)
-        except NoReverseMatch:
-            pass
+        except NoReverseMatch as e:
+            warn(f"{e}. Got {next_value}.")
     return url
