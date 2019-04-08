@@ -5,6 +5,7 @@ from django.core.management.color import color_style
 
 from .device import Device
 from . import device_permissions
+from django.conf import settings
 
 style = color_style()
 
@@ -31,9 +32,9 @@ class AppConfig(DjangoAppConfig):
     def ready(self):
 
         from .signals import (
-            check_device_on_pre_save,
-            update_device_on_post_save,
-        )  # noqa
+            check_device_on_pre_save,  # noqa
+            update_device_on_post_save,  # noqa
+        )
 
         device = Device(
             device_id=self.device_id,

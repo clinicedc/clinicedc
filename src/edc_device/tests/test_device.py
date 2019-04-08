@@ -30,7 +30,8 @@ class TestDevice(TestCase):
                             device = Device(
                                 device_id=device_id, device_role=device_role
                             )
-                            self.assertTrue(device.device_role == CENTRAL_SERVER)
+                            self.assertTrue(
+                                device.device_role == CENTRAL_SERVER)
                             self.assertTrue(device.is_central_server)
 
     def test_device_from_settings_only(self):
@@ -110,4 +111,5 @@ class TestDevice(TestCase):
 
     def test_device_roles_conflict(self):
         with override_settings(DEVICE_ID="98", DEVICE_ROLE=CLIENT):
-            self.assertRaises(DeviceRoleError, Device, device_id="98", nodes=["98"])
+            self.assertRaises(DeviceRoleError, Device,
+                              device_id="98", nodes=["98"])
