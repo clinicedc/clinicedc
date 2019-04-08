@@ -2,7 +2,7 @@ from django.test import TestCase, tag
 from edc_appointment.models import Appointment
 from edc_utils import get_utcnow
 from edc_facility.import_holidays import import_holidays
-from edc_reference.site import site_reference_configs
+from edc_reference.site_reference import site_reference_configs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
@@ -27,8 +27,7 @@ class TestMetadataGetter(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)

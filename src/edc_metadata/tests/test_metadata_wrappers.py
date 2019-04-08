@@ -29,8 +29,7 @@ class TestMetadataWrapperObjects(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
         self.subject_identifier = "1111111"
         subject_consent = SubjectConsent.objects.create(
@@ -87,13 +86,10 @@ class TestMetadataWrapperObjects(TestCase):
         requisition_metadata_wrapper = RequisitionMetadataWrapper(
             visit=self.subject_visit, metadata_obj=metadata_obj
         )
-        self.assertEqual(
-            requisition_metadata_wrapper.model_cls, SubjectRequisition)
+        self.assertEqual(requisition_metadata_wrapper.model_cls, SubjectRequisition)
         self.assertEqual(requisition_metadata_wrapper.model_obj, None)
-        self.assertEqual(
-            requisition_metadata_wrapper.metadata_obj, metadata_obj)
-        self.assertEqual(requisition_metadata_wrapper.visit,
-                         self.subject_visit)
+        self.assertEqual(requisition_metadata_wrapper.metadata_obj, metadata_obj)
+        self.assertEqual(requisition_metadata_wrapper.visit, self.subject_visit)
 
     def test_requisition_metadata_wrapper_exists(self):
         model_obj = SubjectRequisition.objects.create(
@@ -107,13 +103,10 @@ class TestMetadataWrapperObjects(TestCase):
         requisition_metadata_wrapper = RequisitionMetadataWrapper(
             visit=self.subject_visit, metadata_obj=metadata_obj
         )
-        self.assertEqual(
-            requisition_metadata_wrapper.model_cls, SubjectRequisition)
+        self.assertEqual(requisition_metadata_wrapper.model_cls, SubjectRequisition)
         self.assertEqual(requisition_metadata_wrapper.model_obj, model_obj)
-        self.assertEqual(
-            requisition_metadata_wrapper.metadata_obj, metadata_obj)
-        self.assertEqual(requisition_metadata_wrapper.visit,
-                         self.subject_visit)
+        self.assertEqual(requisition_metadata_wrapper.metadata_obj, metadata_obj)
+        self.assertEqual(requisition_metadata_wrapper.visit, self.subject_visit)
 
     def test_crf_metadata_wrapper_raises_on_invalid_model(self):
         metadata_obj = CrfMetadata.objects.create(
@@ -142,8 +135,7 @@ class TestMetadataWrapperObjects(TestCase):
         )
 
     def test_get_crfs(self):
-        crf_metadata_wrappers = CrfMetadataWrappers(
-            appointment=self.appointment)
+        crf_metadata_wrappers = CrfMetadataWrappers(appointment=self.appointment)
         self.assertEqual(len(crf_metadata_wrappers.objects), 5)
 
     def test_get_requisitions(self):
