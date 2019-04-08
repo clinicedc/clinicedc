@@ -33,7 +33,7 @@ class MetaDataViewMixin(MessageViewMixin, ContextMixin):
             if self.appointment.appt_status != IN_PROGRESS_APPT:
                 message = _(
                     'You have selected a visit that is no longer "in progress". '
-                    'Refer to the schedule for the visit that is '
+                    "Refer to the schedule for the visit that is "
                     'currently "in progress".'
                 )
                 self.message_user(message, level=messages.WARNING)
@@ -106,8 +106,7 @@ class MetaDataViewMixin(MessageViewMixin, ContextMixin):
 
     def get_panel(self, metadata_wrapper=None):
         try:
-            panel = self.panel_model_cls.objects.get(
-                name=metadata_wrapper.panel_name)
+            panel = self.panel_model_cls.objects.get(name=metadata_wrapper.panel_name)
         except ObjectDoesNotExist as e:
             raise MetaDataViewError(
                 f"{e} Got panel name '{metadata_wrapper.panel_name}'. "

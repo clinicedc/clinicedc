@@ -15,7 +15,6 @@ style = color_style()
 class AppConfig(DjangoAppConfig):
     name = "edc_metadata"
     verbose_name = "Edc Metadata"
-    # app_label = 'edc_metadata'
     crf_model = "edc_metadata.crfmetadata"
     metadata_requisition_model = "edc_metadata.requisitionmetadata"
     has_exportable_data = True
@@ -25,9 +24,9 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         from .signals import (
-            metadata_update_on_post_save,
-            metadata_create_on_post_save,
-            metadata_reset_on_post_delete,
+            metadata_update_on_post_save,  # noqa
+            metadata_create_on_post_save,  # noqa
+            metadata_reset_on_post_delete,  # noqa
         )
 
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
