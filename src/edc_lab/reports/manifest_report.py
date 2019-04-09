@@ -1,13 +1,10 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
-from edc_reports import NumberedCanvas, Report
-from io import BytesIO
+from edc_reports import Report
 from reportlab.graphics.barcode import code39
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm, cm
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import Table, TableStyle, Paragraph, Spacer
 from tempfile import mkdtemp
 
 from ..models import Box, BoxItem, Aliquot
@@ -29,98 +26,12 @@ class ManifestReport(Report):
         self.box_item_model = BoxItem
         self.aliquot_model = Aliquot
         self.image_folder = mkdtemp()
-
-    @property
-    def contact_name(self):
-        return f"{self.user.first_name} {self.user.last_name}"
-
-    @property
-    def shipper_data(self):
-        data = self.manifest.shipper.__dict__
-        if self.contact_name.strip():
-            data.update(contact_name=self.contact_name)
-        return data
-
-    @property
-    def consignee_data(self):
-        data = self.manifest.consignee.__dict__
-        return data
-
-    def formatted_address(self, **kwargs):
-        data = {
-            "contact_name": None,
-            "name": None,
-            "address": None,
-            "city": None,
-            "state": None,
-            "postal_code": "0000",
-            "country": None,
-        }
-        data.update(**kwargs)
-        data_list = [
-            v
-            for v in [
-                data.get("contact_name"),
-                data.get("name"),
-                data.get("address"),
-                data.get("city")
-                if not data.get("state")
-                else "{} {}".format(data.get("city"), data.get("state")),
-                data.get("postal_code"),
-                data.get("country"),
-            ]
-            if v
-        ]
-        return "<br />".join(data_list)
-
-    @property
-    def description(self):
-        boxes = self.box_model.objects.filter(
-            box_identifier__in=[
-                obj.identifier for obj in self.manifest.manifestitem_set.all()
-            ]
-        )
-        box_items = self.box_item_model.objects.filter(box__in=boxes)
-        aliquots = self.aliquot_model.objects.filter(
-            aliquot_identifier__in=[obj.identifier for obj in box_items]
-        )
-        specimen_types = list(set([obj.aliquot_type for obj in aliquots]))
-        description = {
-            "box_count": boxes.count(),
-            "specimen_count": aliquots.count(),
-            "specimen_types": ", ".join(specimen_types),
-        }
-        box_word = "box" if boxes.count() == 1 else "boxes"
-        specimen_word = "specimen" if aliquots.count() == 1 else "specimens"
-        type_word = "type" if len(specimen_types) == 1 else "types"
-        return (
-            "{box_count} {box_word} containing {specimen_count} "
-            "{specimen_word} of {type_word} {specimen_types}.".format(
-                box_word=box_word,
-                specimen_word=specimen_word,
-                type_word=type_word,
-                **description,
-            )
-        )
-
-    def render(self, **kwargs):
-        response = HttpResponse(content_type="application/pdf")
         if self.manifest.shipped:
-            filename = f"{self.manifest.manifest_identifier}.pdf"
+            self.report_filename = f"{self.manifest.manifest_identifier}.pdf"
         else:
-            filename = f"manifest_preview.pdf"
-        response["Content-Disposition"] = f'attachment; filename="{filename}.pdf"'
-        buffer = BytesIO()
+            self.report_filename = f"manifest_preview.pdf"
 
-        doc = SimpleDocTemplate(
-            buffer,
-            rightMargin=0.5 * cm,
-            leftMargin=0.5 * cm,
-            topMargin=1.5 * cm,
-            bottomMargin=1.5 * cm,
-            pagesize=A4,
-        )
-
+    def get_report_story(self, **kwargs):
         story = []
 
         data = [
@@ -284,7 +195,8 @@ class ManifestReport(Report):
                 "",
             ],
             [
-                Paragraph("COUNTRY OF ULTIMATE DESTINATION", self.styles["line_label"]),
+                Paragraph("COUNTRY OF ULTIMATE DESTINATION",
+                          self.styles["line_label"]),
                 "",
             ],
             [
@@ -377,11 +289,80 @@ class ManifestReport(Report):
             self.manifest.printed = True
             self.manifest.save()
 
-        doc.build(story, canvasmaker=NumberedCanvas)
-        pdf = buffer.getvalue()
-        buffer.close()
-        response.write(pdf)
-        return response
+        return story
+
+    @property
+    def contact_name(self):
+        return f"{self.user.first_name} {self.user.last_name}"
+
+    @property
+    def shipper_data(self):
+        data = self.manifest.shipper.__dict__
+        if self.contact_name.strip():
+            data.update(contact_name=self.contact_name)
+        return data
+
+    @property
+    def consignee_data(self):
+        data = self.manifest.consignee.__dict__
+        return data
+
+    def formatted_address(self, **kwargs):
+        data = {
+            "contact_name": None,
+            "name": None,
+            "address": None,
+            "city": None,
+            "state": None,
+            "postal_code": "0000",
+            "country": None,
+        }
+        data.update(**kwargs)
+        data_list = [
+            v
+            for v in [
+                data.get("contact_name"),
+                data.get("name"),
+                data.get("address"),
+                data.get("city")
+                if not data.get("state")
+                else "{} {}".format(data.get("city"), data.get("state")),
+                data.get("postal_code"),
+                data.get("country"),
+            ]
+            if v
+        ]
+        return "<br />".join(data_list)
+
+    @property
+    def description(self):
+        boxes = self.box_model.objects.filter(
+            box_identifier__in=[
+                obj.identifier for obj in self.manifest.manifestitem_set.all()
+            ]
+        )
+        box_items = self.box_item_model.objects.filter(box__in=boxes)
+        aliquots = self.aliquot_model.objects.filter(
+            aliquot_identifier__in=[obj.identifier for obj in box_items]
+        )
+        specimen_types = list(set([obj.aliquot_type for obj in aliquots]))
+        description = {
+            "box_count": boxes.count(),
+            "specimen_count": aliquots.count(),
+            "specimen_types": ", ".join(specimen_types),
+        }
+        box_word = "box" if boxes.count() == 1 else "boxes"
+        specimen_word = "specimen" if aliquots.count() == 1 else "specimens"
+        type_word = "type" if len(specimen_types) == 1 else "types"
+        return (
+            "{box_count} {box_word} containing {specimen_count} "
+            "{specimen_word} of {type_word} {specimen_types}.".format(
+                box_word=box_word,
+                specimen_word=specimen_word,
+                type_word=type_word,
+                **description,
+            )
+        )
 
     def append_manifest_items_story(self, story):
         box_header = [
@@ -408,15 +389,18 @@ class ManifestReport(Report):
                     f"{e} Got Manifest item '{manifest_item.identifier}'.",
                     code="unboxed_item",
                 ) from e
-            barcode = code39.Standard39(box.box_identifier, barHeight=5 * mm, stop=1)
+            barcode = code39.Standard39(
+                box.box_identifier, barHeight=5 * mm, stop=1)
             data1.append(
                 [
-                    Paragraph(box.box_identifier, self.styles["line_data_large"]),
+                    Paragraph(box.box_identifier,
+                              self.styles["line_data_large"]),
                     Paragraph(
                         box.get_category_display().upper(),
                         self.styles["line_data_large"],
                     ),
-                    Paragraph(box.specimen_types, self.styles["line_data_large"]),
+                    Paragraph(box.specimen_types,
+                              self.styles["line_data_large"]),
                     Paragraph(
                         f"{str(box.count)}/{str(box.box_type.total)}",
                         self.styles["line_data_large"],
@@ -446,7 +430,8 @@ class ManifestReport(Report):
                 [
                     Paragraph("BARCODE", self.styles["line_label_center"]),
                     Paragraph("POS", self.styles["line_label_center"]),
-                    Paragraph("ALIQUOT IDENTIFIER", self.styles["line_label_center"]),
+                    Paragraph("ALIQUOT IDENTIFIER",
+                              self.styles["line_label_center"]),
                     Paragraph("SUBJECT", self.styles["line_label_center"]),
                     Paragraph("TYPE", self.styles["line_label_center"]),
                     Paragraph("DATE", self.styles["line_label_center"]),
@@ -461,11 +446,13 @@ class ManifestReport(Report):
                 table_data.append(
                     [
                         barcode,
-                        Paragraph(str(box_item.position), self.styles["row_data"]),
+                        Paragraph(str(box_item.position),
+                                  self.styles["row_data"]),
                         Paragraph(
                             aliquot.human_readable_identifier, self.styles["row_data"]
                         ),
-                        Paragraph(aliquot.subject_identifier, self.styles["row_data"]),
+                        Paragraph(aliquot.subject_identifier,
+                                  self.styles["row_data"]),
                         Paragraph(
                             "{} ({}) {}".format(
                                 aliquot.aliquot_type,
