@@ -1,7 +1,7 @@
 
 <!-- begin dashboard top bar -->
 
-{% load edc_base_extras %}
+{% load edc_dashboard_extras %}
 <div class="panel-group">
     <div class="panel panel-{% if navbar_name == 'anonymous' %}danger{% else %}info{% endif %}">
        <div class="panel-heading">
@@ -11,7 +11,7 @@
         {% else %}
             <i class="far fa-user-circle fa-2x fa-fw"></i> 
   	        <span class="pull-right">
-  	          <a {% block close_url %}href="{% url subject_listboard_url %}"{% endblock close_url %}
+  	          <a {% block close_url %}href="{% url subject_listboard_url|default:'subject_listboard_url_cannot_be_none' %}"{% endblock close_url %}
   	            role="button" class="btn btn-sm btn-primary">
   	                <i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i></a>
   	        </span>
