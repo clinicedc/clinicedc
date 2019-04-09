@@ -1,6 +1,5 @@
 {% extends edc_listboard_template %}
 
-{% load edc_base_extras %}
 {% load edc_dashboard_extras %}
 {% load edc_subject_dashboard_extras %}
 {% load tz %}
@@ -12,7 +11,7 @@
 
 <div class="row">
 
-<div class="panel panel-{{ listboard_panel_style}}">
+<div class="panel panel-{{ listboard_panel_style }}">
 <div class="panel-heading">
 
 <i class="{{ listboard_fa_icon }} fa-2x"></i>
@@ -47,7 +46,7 @@
             {% endfor %}
 
         {% else %}
-            <a id="id-reported-visit-list" href="{% url paginator_url %}?q={{ result.subject_identifier}}" class="list-group-item" title="click to list reported visits for this subject">{{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.subject_identifier }}</b> <span class="text text-muted">{{ result.visit_count }} visits</span></a>
+            <a id="id-reported-visit-list" href="{% url paginator_url|default:'paginator_url_cannot_be_none' %}?q={{ result.subject_identifier}}" class="list-group-item" title="click to list reported visits for this subject">{{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.subject_identifier }}</b> <span class="text text-muted">{{ result.visit_count }} visits</span></a>
             
         {% endif %}
     {% endfor %}
