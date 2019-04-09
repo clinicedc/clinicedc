@@ -14,11 +14,18 @@ class EdcViewMixin(LoginRequiredMixin, MessageViewMixin, RevisionMixin, ContextM
     """Adds common template variables and warning messages.
     """
 
+    edc_protocol_app = "edc_protocol"
+    edc_device_app = "edc_device"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        app_config = django_apps.get_app_config("edc_protocol")
         try:
-            edc_device_app_config = django_apps.get_app_config("edc_device")
+            edc_protocol_app_config = django_apps.get_app_config(self.edc_protocol_app)
+        except LookupError as e:
+            edc_protocol_app_config = None
+            warnings.warn(str(e))
+        try:
+            edc_device_app_config = django_apps.get_app_config(self.edc_device_app)
         except LookupError as e:
             edc_device_app_config = None
             warnings.warn(str(e))
@@ -28,16 +35,26 @@ class EdcViewMixin(LoginRequiredMixin, MessageViewMixin, RevisionMixin, ContextM
 
         context.update(
             {
-                "copyright": getattr(app_config, "copyright", "copyright?"),
+                "copyright": getattr(
+                    edc_protocol_app_config, "copyright", "copyright?"
+                ),
                 "device_id": getattr(edc_device_app_config, "device_id", "device_id?"),
                 "device_role": getattr(
                     edc_device_app_config, "device_role", "device_role?"
                 ),
-                "disclaimer": getattr(app_config, "disclaimer", "disclaimer?"),
-                "institution": getattr(app_config, "institution", "institution?"),
-                "license": getattr(app_config, "license", "license?"),
-                "project_name": getattr(app_config, "project_name", "project_name?"),
-                "project_repo": getattr(app_config, "project_repo", "project_repo?"),
+                "disclaimer": getattr(
+                    edc_protocol_app_config, "disclaimer", "disclaimer?"
+                ),
+                "institution": getattr(
+                    edc_protocol_app_config, "institution", "institution?"
+                ),
+                "license": getattr(edc_protocol_app_config, "license", "license?"),
+                "project_name": getattr(
+                    edc_protocol_app_config, "project_name", "project_name?"
+                ),
+                "project_repo": getattr(
+                    edc_protocol_app_config, "project_repo", "project_repo?"
+                ),
                 "live_system": live_system,
                 "sentry_dsn": sentry_dsn,
             }

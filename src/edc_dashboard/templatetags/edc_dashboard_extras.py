@@ -70,7 +70,7 @@ def copy_string_to_clipboard_button(value, index=None):
 @stringfilter
 def human(value):
     return "-".join(
-        [value[i * 4: (i + 1) * 4] for i in range(0, ceil(len(value) / 4))]
+        [value[i * 4 : (i + 1) * 4] for i in range(0, ceil(len(value) / 4))]
     )
 
 
@@ -95,8 +95,7 @@ def paginator_row(context):
     search_term = context.get("search_term")
 
     show = page_obj.has_other_pages()
-    paginator_url = reverse(
-        paginator_url, kwargs=context.get("paginator_url_kwargs"))
+    paginator_url = reverse(paginator_url, kwargs=context.get("paginator_url_kwargs"))
     if querystring:
         if "?" in querystring:
             querystring = querystring.split("?")[1]

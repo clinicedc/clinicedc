@@ -4,7 +4,10 @@ from django.test import TestCase, tag
 from edc_utils.date import get_utcnow
 
 from ..templatetags.edc_dashboard_extras import (
-    paginator_row, page_numbers, age_in_years, human,
+    paginator_row,
+    page_numbers,
+    age_in_years,
+    human,
 )
 from .models import TestModel
 
@@ -98,5 +101,4 @@ class TestTags(TestCase):
         self.assertEqual(born, age_in_years(context, born))
 
     def test_human(self):
-        self.assertEqual(human(11112222333344445555),
-                         "1111-2222-3333-4444-5555")
+        self.assertEqual(human(11112222333344445555), "1111-2222-3333-4444-5555")

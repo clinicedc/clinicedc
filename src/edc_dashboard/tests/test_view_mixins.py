@@ -12,7 +12,7 @@ from edc_permissions import CLINIC
 from edc_permissions.permissions_updater import PermissionsUpdater
 from edc_permissions.utils import (
     create_edc_dashboard_permissions,
-    add_permissions_to_group_by_codenames
+    add_permissions_to_group_by_codenames,
 )
 from edc_utils import get_utcnow
 
@@ -28,8 +28,7 @@ def extra_clinic_group_permissions():
     group_name = CLINIC
     group = Group.objects.get(name=group_name)
 
-    add_permissions_to_group_by_codenames(
-        group, ["edc_dashboard.view_my_listboard"])
+    add_permissions_to_group_by_codenames(group, ["edc_dashboard.view_my_listboard"])
 
 
 class TestViewMixins(TestCase):
@@ -42,12 +41,11 @@ class TestViewMixins(TestCase):
 
         create_edc_dashboard_permissions(
             extra_codename_tpls=[
-                ("edc_dashboard.view_my_listboard", "View my listboard"),
+                ("edc_dashboard.view_my_listboard", "View my listboard")
             ]
         )
 
-        PermissionsUpdater(
-            extra_updaters=[extra_clinic_group_permissions])
+        PermissionsUpdater(extra_updaters=[extra_clinic_group_permissions])
         self.user = User.objects.create(username="erik")
         group = Group.objects.get(name=CLINIC)
         self.user.groups.add(group)
@@ -113,8 +111,7 @@ class TestViewMixins(TestCase):
         # request.url_name_data = {"listboard_url": "listboard_url"}
         request.template_data = {"listboard_template": "listboard.html"}
         template_response = MyView.as_view()(request=request)
-        object_list = template_response.__dict__.get(
-            "context_data").get("object_list")
+        object_list = template_response.__dict__.get("context_data").get("object_list")
         self.assertEqual(
             [
                 wrapper.object.reason

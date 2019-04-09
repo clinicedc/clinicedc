@@ -25,7 +25,5 @@ urlpatterns = subject_listboard_url_config.listboard_urls + [
     path("edc_device/", include("edc_device.urls")),
     path("edc_protocol/", include("edc_protocol.urls")),
     path("edc_visit_schedule/", include("edc_visit_schedule.urls")),
-    path(
-        "administration/", AdministrationView.as_view(), name="administration_url"
-    ),
+    path("administration/", AdministrationView.as_view(), name="administration_url"),
 ]
