@@ -74,46 +74,6 @@ class NavbarCollection:
                     )
         return navbar
 
-    #     def update_codenames(self, verbose=None):
-    #         """Recreates auth.permission objects for the Navbar
-    #         models.
-    #         """
-    #         ContentType = django_apps.get_model("contenttypes.ContentType")
-    #         Group = django_apps.get_model("auth.Group")
-    #         Navbar = django_apps.get_model("edc_navbar.Navbar")
-    #         Permission = django_apps.get_model("auth.Permission")
-    #         write = str if verbose is False else sys.stdout.write
-    #         ct_navbar = ContentType.objects.get_for_model(Navbar)
-    #
-    #         # clear existing
-    #         Permission.objects.filter(content_type=ct_navbar).delete()
-    #
-    #         # create default navbar permission
-    #         permission = Permission.objects.create(
-    #             codename="edc_navbar.nav_public", name=EVERYONE, content_type=ct_navbar
-    #         )
-    #         # add default navbar permission to EVERYONE
-    #         group = Group.objects.get(name=EVERYONE)
-    #         group.permissions.add(permission)
-    #
-    #         other_codenames = []
-    #         for codename, label in self.codenames.values():
-    #             app_label, codename = verify_permission_codename(codename)
-    #             if app_label == "edc_navbar":
-    #                 write(f'  - adding {codename} "{label}" to Permissions.\n')
-    #                 Permission.objects.create(
-    #                     codename=codename, name=label, content_type=ct_navbar
-    #                 )
-    #             else:
-    #                 other_codenames.append([app_label, codename])
-    #
-    #         # these should be added by other apps/classes
-    #         # for example, edc_dashboard.UrlConfig
-    #         for codename, label in other_codenames:
-    #             sys.stdout.write(
-    #                 f"  - NOT adding {codename} '{label}' to Permissions "
-    #                 "under app_label `edc_navbar`.\n")
-
     def show_user_permissions(self, username=None, navbar_name=None):
         user = django_apps.get_model(
             "auth.user").objects.get(username=username)
