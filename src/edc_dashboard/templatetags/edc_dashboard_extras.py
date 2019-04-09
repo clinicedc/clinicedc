@@ -60,7 +60,7 @@ def page_numbers(page, numpages, display=None):
 
 
 @register.inclusion_tag(
-    f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" "copy_element.html"
+    f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/copy_element.html"
 )
 def copy_string_to_clipboard_button(value, index=None):
     return dict(value=value, index=index)
@@ -75,7 +75,7 @@ def human(value):
 
 
 @register.inclusion_tag(
-    f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/" "paginator/paginator_row.html",
+    f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/paginator/paginator_row.html",
     takes_context=True,
 )
 def paginator_row(context):
