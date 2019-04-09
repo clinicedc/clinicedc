@@ -9,15 +9,17 @@ from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_facility.import_holidays import import_holidays
 from edc_lab.site_labs import site_labs
-from edc_reference.site import site_reference_configs
+from edc_reference.site_reference import site_reference_configs
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from dateutil.relativedelta import relativedelta
 
 User = get_user_model()
 
 """
 subject_dashboard_url
+subject_review_listboard_url
 requisition_print_actions_url
 requisition_verify_actions_url
 """
@@ -31,8 +33,7 @@ class TestDashboard(WebTest):
         return ret
 
     def setUp(self):
-        self.user = User.objects.create_superuser(
-            "user_login", "u@example.com", "pass")
+        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
 
         site_labs._registry = {}
         site_labs.loaded = False
@@ -43,8 +44,7 @@ class TestDashboard(WebTest):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "dashboard_app.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "dashboard_app.subjectvisit"}
         )
 
         self.subject_identifier = "12345"
@@ -54,6 +54,7 @@ class TestDashboard(WebTest):
             consent_datetime=get_utcnow(),
             identity=identity,
             confirm_identity=identity,
+            dob=get_utcnow() - relativedelta(years=25),
         )
 
         for schedule in visit_schedule.schedules.values():
@@ -100,28 +101,17 @@ class TestDashboard(WebTest):
         self.assertIn("Subjects", response.html.get_text())
 
         # shows something like 1. 12345 3 visits
-        self.assertIn(f"{self.subject_identifier} {n} visits",
-                      response.html.get_text())
-        self.assertIn(
-            "click to list reported visits for this subject", response)
+        self.assertIn(f"{self.subject_identifier} {n} visits", response.html.get_text())
+        self.assertIn("click to list reported visits for this subject", response)
 
         # follow to schedule for this subject
         response = response.click(linkid="id-reported-visit-list")
         self.assertIn(
-            f"Reported Visits for {self.subject_identifier}", response.html.get_text(
-            )
+            f"Reported Visits for {self.subject_identifier}", response.html.get_text()
         )
         self.assertIn("1000.0", response.html.get_text())
         self.assertIn("2000.0", response.html.get_text())
         self.assertIn("3000.0", response.html.get_text())
-
-        # pprint(url_names.registry)
-        from django.shortcuts import render
-        rf = RequestFactory()
-        context = {
-            "dashboard_base_template": "edc_dashboard/bootstrap3/base.html",
-            "project_name": "EDC"}
-        render(rf.request, "edc_subject_dashboard/bootstrap3/dashboard.html", context)
 
         response = response.click(
             linkid=f"id-reported-visits-{self.subject_identifier}-1000-0"
