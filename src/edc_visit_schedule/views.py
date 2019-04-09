@@ -1,13 +1,13 @@
 from django.conf import settings
 from django.views.generic.base import TemplateView
 
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
 
 from .site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
 
 
-class HomeView(EdcBaseViewMixin, NavbarViewMixin, TemplateView):
+class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
     template_name = f"edc_visit_schedule/bootstrap{settings.EDC_BOOTSTRAP}/home.html"
     navbar_name = "edc_visit_schedule"
