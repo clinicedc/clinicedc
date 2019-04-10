@@ -7,7 +7,7 @@ class ModelAdminInstitutionMixin:
     """
 
     def get_institution_extra_context(self, extra_context):
-        app_config = django_apps.get_app_config("edc_dashboard")
+        app_config = django_apps.get_app_config("edc_protocol")
         extra_context.update(
             {
                 "institution": app_config.institution,
