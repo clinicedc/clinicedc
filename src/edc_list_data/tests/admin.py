@@ -7,8 +7,7 @@ class AdminSite(DjangoAdminSite):
     pass
 
 
-edc_list_data_admin = AdminSite(
-    name="edc_list_data_admin")
+edc_list_data_admin = AdminSite(name="edc_list_data_admin")
 
 edc_list_data_admin.register(Antibiotic)
 edc_list_data_admin.register(Neurological)
