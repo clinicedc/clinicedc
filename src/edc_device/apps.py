@@ -5,7 +5,6 @@ from django.core.management.color import color_style
 
 from .device import Device
 from . import device_permissions
-from django.conf import settings
 
 style = color_style()
 
