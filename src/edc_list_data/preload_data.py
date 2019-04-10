@@ -14,7 +14,6 @@ class PreloadDataError(Exception):
 
 
 class PreloadData:
-
     def __init__(self, list_data=None, model_data=None, unique_field_data=None):
         self.list_data = list_data or {}
         self.model_data = model_data or {}
@@ -52,14 +51,14 @@ class PreloadData:
                         model.objects.create(
                             short_name=store_value,
                             name=display_value,
-                            display_index=display_index)
+                            display_index=display_index,
+                        )
                     else:
                         obj.name = display_value
                         obj.display_index = display_index
                         obj.save()
             except ValueError as e:
-                raise PreloadDataError(
-                    f'{e} See {self.list_data.get(model_name)}.')
+                raise PreloadDataError(f"{e} See {self.list_data.get(model_name)}.")
 
     def load_model_data(self):
         """Loads data into a model, creates or updates existing.
@@ -83,8 +82,7 @@ class PreloadData:
             unique_field = unique_field or self.guess_unique_field(model)
             for data in datas:
                 try:
-                    obj = model.objects.get(
-                        **{unique_field: data.get(unique_field)})
+                    obj = model.objects.get(**{unique_field: data.get(unique_field)})
                 except ObjectDoesNotExist:
                     try:
                         model.objects.create(**data)
@@ -106,7 +104,7 @@ class PreloadData:
              ...}
         """
         for model_name, data in self.unique_field_data.items():
-            model = django_apps.get_model(*model_name.split('.'))
+            model = django_apps.get_model(*model_name.split("."))
             for field, values in data.items():
                 try:
                     obj = model.objects.get(**{field: values[1]})
@@ -114,9 +112,9 @@ class PreloadData:
                     try:
                         obj = model.objects.get(**{field: values[0]})
                     except model.DoesNotExist as e:
-                        sys.stdout.write(style.ERROR(str(e) + '\n'))
+                        sys.stdout.write(style.ERROR(str(e) + "\n"))
                     except MultipleObjectsReturned as e:
-                        sys.stdout.write(style.ERROR(str(e) + '\n'))
+                        sys.stdout.write(style.ERROR(str(e) + "\n"))
                     else:
                         setattr(obj, field, values[1])
                         obj.save()
@@ -137,7 +135,7 @@ class PreloadData:
         unique_field = None
         for field in model._meta.get_fields():
             try:
-                if field.unique and field.name != 'id':
+                if field.unique and field.name != "id":
                     unique_field = field.name
                     break
             except AttributeError:

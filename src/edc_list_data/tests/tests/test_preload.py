@@ -6,7 +6,6 @@ from ..models import Antibiotic, Neurological, Symptom, SignificantNewDiagnosis
 
 
 class TestPreload(TestCase):
-
     def test_preload(self):
 
         PreloadData(list_data=list_data)
