@@ -1,6 +1,7 @@
 {% load edc_dashboard_extras %}
 {% load edc_subject_dashboard_extras %}
 {% load tz %}
+{% load i18n %}
 
 <a name="verify_requisition_identifier"></a>
 	
@@ -75,9 +76,9 @@
 										{% endif %}
 		       						</a> 
 	                               {% if requisition.object.history_url %}
-	                                   <a href="{{ requisition.object.history_url }}" role="button" class="btn btn-sm btn-default">Audit</a>
+	                                   <a href="{{ requisition.object.history_url }}" role="button" class="btn btn-sm btn-default">{% trans 'History' %}</a>
 	                               {% else %}
-	                                   <a disabled role="button" class="btn btn-sm btn-default">Audit</a>
+	                                   <a disabled role="button" class="btn btn-sm btn-default">{% trans 'History' %}</a>
 	                               {% endif %}
 	                              {% else%}
 	                                <span class="text text-muted small">not required</span>

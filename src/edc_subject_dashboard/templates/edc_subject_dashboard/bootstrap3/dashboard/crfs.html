@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load tz %}
     <div class="panel panel-success">
             
@@ -44,9 +45,9 @@
                                         {% endif %}
                                 </a>
                                 {% if crf.object.history_url %}
-                                    <a href="{{ crf.object.history_url }}" role="button" class="btn btn-sm btn-default">Audit</a>
+                                    <a href="{{ crf.object.history_url }}" role="button" class="btn btn-sm btn-default">{% trans 'History' %}</a>
                                 {% else %}
-                                    <a disabled role="button" class="btn btn-sm btn-default">Audit</a>
+                                    <a disabled role="button" class="btn btn-sm btn-default">{% trans 'History' %}</a>
                                 {% endif %}
                               {% else%}
                                 <span class="text text-muted small">not required</span>
