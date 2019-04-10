@@ -19,8 +19,7 @@ class HomeView(EdcViewMixin, NavbarViewMixin, EdcDeviceViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         app_config = django_apps.get_app_config("edc_device")
         project_name = context.get("project_name")
-        context.update(
-            {"project_name": f"{project_name}: {app_config.verbose_name}"})
+        context.update({"project_name": f"{project_name}: {app_config.verbose_name}"})
         return context
 
     @method_decorator(login_required)
