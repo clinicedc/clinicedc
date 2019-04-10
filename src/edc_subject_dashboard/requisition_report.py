@@ -1,17 +1,13 @@
-from django.contrib import messages
-from django.http import HttpResponse
 from edc_utils import get_utcnow
 from edc_constants.constants import YES
 from edc_identifier.simple_identifier import make_human_readable
 from edc_lab.models.manifest.shipper import Shipper
 from edc_lab.model_mixins import RequisitionModelMixin
-from edc_reports import NumberedCanvas, Report
-from io import BytesIO
+from edc_reports import Report
 from reportlab.graphics.barcode import code39
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm, cm
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import Table, TableStyle, Paragraph, Spacer
 from tempfile import mkdtemp
 
 
@@ -35,93 +31,10 @@ class RequisitionReport(Report):
         self.consignee = consignee
         self.contact_name = f"{self.user.first_name} {self.user.last_name}"
         self.image_folder = mkdtemp()
+        self.timestamp = get_utcnow().strftime("%Y%m%d%H%M%S")
+        self.report_filename = f"requisition_{self.timestamp}.pdf"
 
-    @property
-    def requisitions(self):
-        """Returns a list of requisition model instances related
-        to this appointment.
-        """
-        if not self._requisitions:
-            for k, v in self.appointment.visit_model_cls().__dict__.items():
-                try:
-                    model_cls = getattr(getattr(v, "rel"), "related_model")
-                except AttributeError:
-                    pass
-                else:
-                    if issubclass(model_cls, RequisitionModelMixin):
-                        self._requisitions.extend(
-                            list(
-                                getattr(self.appointment.visit, k).filter(
-                                    clinic_verified=YES,
-                                    panel__name__in=self.selected_panel_names,
-                                )
-                            )
-                        )
-        return self._requisitions
-
-    @property
-    def shipper_data(self):
-        data = self.shipper.__dict__
-        if self.contact_name.strip():
-            data.update(contact_name=self.contact_name)
-        return data
-
-    @property
-    def consignee_data(self):
-        data = self.consignee.__dict__
-        return data
-
-    def formatted_address(self, **kwargs):
-        data = {
-            "contact_name": None,
-            "name": None,
-            "address": None,
-            "city": None,
-            "state": None,
-            "postal_code": "0000",
-            "country": None,
-        }
-        data.update(**kwargs)
-        data_list = [
-            v
-            for v in [
-                data.get("contact_name"),
-                data.get("name"),
-                data.get("address"),
-                data.get("city")
-                if not data.get("state")
-                else "{} {}".format(data.get("city"), data.get("state")),
-                data.get("postal_code"),
-                data.get("country"),
-            ]
-            if v
-        ]
-        return "<br />".join(data_list)
-
-    @property
-    def description(self):
-        return (
-            "Please process the following specimens according to the "
-            "panels listed below. Use the specimen identifier and "
-            "subject identifier as a reference for panel results."
-        )
-
-    def render(self, **kwargs):
-        timestamp = get_utcnow().strftime("%Y%m%d%H%M%S")
-        response = HttpResponse(content_type="application/pdf")
-        filename = f"requisition_{timestamp}.pdf"
-        response["Content-Disposition"] = f'attachment; filename="{filename}.pdf"'
-        buffer = BytesIO()
-
-        doc = SimpleDocTemplate(
-            buffer,
-            rightMargin=0.5 * cm,
-            leftMargin=0.5 * cm,
-            topMargin=1.5 * cm,
-            bottomMargin=1.5 * cm,
-            pagesize=A4,
-        )
-
+    def get_report_story(self, **kwargs):
         story = []
 
         story.append(
@@ -138,10 +51,12 @@ class RequisitionReport(Report):
             ],
             [
                 Paragraph(
-                    get_utcnow().strftime("%Y-%m-%d"), self.styles["line_data_largest"]
+                    get_utcnow().strftime(
+                        "%Y-%m-%d"), self.styles["line_data_largest"]
                 ),
                 Paragraph(
-                    make_human_readable(timestamp), self.styles["line_data_largest"]
+                    make_human_readable(
+                        self.timestamp), self.styles["line_data_largest"]
                 ),
             ],
         ]
@@ -198,7 +113,8 @@ class RequisitionReport(Report):
                 Paragraph("INSTRUCTIONS<br />", self.styles["line_label"]),
             ],
             [
-                Paragraph(self.site.name.title(), self.styles["line_data_large"]),
+                Paragraph(self.site.name.title(),
+                          self.styles["line_data_large"]),
                 Paragraph(self.description or "", self.styles["line_data"]),
             ],
             [Paragraph("TEL/MOBILE/FAX", self.styles["line_label"]), ""],
@@ -211,7 +127,8 @@ class RequisitionReport(Report):
                 "",
             ],
             [Paragraph("EMAIL", self.styles["line_label"]), ""],
-            [Paragraph(self.shipper.email or "", self.styles["line_data_large"]), ""],
+            [Paragraph(self.shipper.email or "",
+                       self.styles["line_data_large"]), ""],
         ]
         t1 = Table(data)
         t1.setStyle(
@@ -292,7 +209,8 @@ class RequisitionReport(Report):
 
         story.append(Spacer(0.1 * cm, 1 * cm))
 
-        story.append(Paragraph("Comments (if any):", self.styles["line_label"]))
+        story.append(Paragraph("Comments (if any):",
+                               self.styles["line_label"]))
         story.append(Spacer(0.1 * cm, 2 * cm))
 
         story.append(
@@ -331,15 +249,77 @@ class RequisitionReport(Report):
         )
         story.append(t1)
 
-        doc.build(story, canvasmaker=NumberedCanvas)
-        pdf = buffer.getvalue()
-        buffer.close()
-        response.write(pdf)
-        messages.success(
-            self.request,
-            f"Report exported as a PDF. See downloads. Filename {filename}.",
+        return story
+
+    @property
+    def requisitions(self):
+        """Returns a list of requisition model instances related
+        to this appointment.
+        """
+        if not self._requisitions:
+            for k, v in self.appointment.visit_model_cls().__dict__.items():
+                try:
+                    model_cls = getattr(getattr(v, "rel"), "related_model")
+                except AttributeError:
+                    pass
+                else:
+                    if issubclass(model_cls, RequisitionModelMixin):
+                        self._requisitions.extend(
+                            list(
+                                getattr(self.appointment.visit, k).filter(
+                                    clinic_verified=YES,
+                                    panel__name__in=self.selected_panel_names,
+                                )
+                            )
+                        )
+        return self._requisitions
+
+    @property
+    def shipper_data(self):
+        data = self.shipper.__dict__
+        if self.contact_name.strip():
+            data.update(contact_name=self.contact_name)
+        return data
+
+    @property
+    def consignee_data(self):
+        data = self.consignee.__dict__
+        return data
+
+    def formatted_address(self, **kwargs):
+        data = {
+            "contact_name": None,
+            "name": None,
+            "address": None,
+            "city": None,
+            "state": None,
+            "postal_code": "0000",
+            "country": None,
+        }
+        data.update(**kwargs)
+        data_list = [
+            v
+            for v in [
+                data.get("contact_name"),
+                data.get("name"),
+                data.get("address"),
+                data.get("city")
+                if not data.get("state")
+                else "{} {}".format(data.get("city"), data.get("state")),
+                data.get("postal_code"),
+                data.get("country"),
+            ]
+            if v
+        ]
+        return "<br />".join(data_list)
+
+    @property
+    def description(self):
+        return (
+            "Please process the following specimens according to the "
+            "panels listed below. Use the specimen identifier and "
+            "subject identifier as a reference for panel results."
         )
-        return response
 
     def append_requisition_items_story(self, story):
         story.append(Spacer(0.1 * cm, 0.5 * cm))
@@ -351,7 +331,8 @@ class RequisitionReport(Report):
                     [
                         Paragraph("BARCODE", self.styles["line_label_center"]),
                         Paragraph("ITEM", self.styles["line_label_center"]),
-                        Paragraph("SPECIMEN", self.styles["line_label_center"]),
+                        Paragraph(
+                            "SPECIMEN", self.styles["line_label_center"]),
                         Paragraph("SUBJECT", self.styles["line_label_center"]),
                         Paragraph("PANEL", self.styles["line_label_center"]),
                         Paragraph("TYPE", self.styles["line_label_center"]),
