@@ -2,7 +2,6 @@ from django.contrib import admin
 
 
 class ModelAdminLocatorMixin:
-
     def __init__(self, *args):
         self.get_radio_fields()
         super().__init__(*args)
@@ -29,9 +28,11 @@ class ModelAdminLocatorMixin:
         ]
 
     def get_radio_fields(self):
-        self.radio_fields.update({
-            "home_visit_permission": admin.VERTICAL,
-            "may_follow_up": admin.VERTICAL,
-            "may_call_work": admin.VERTICAL,
-            "may_contact_someone": admin.VERTICAL,
-        })
+        self.radio_fields.update(
+            {
+                "home_visit_permission": admin.VERTICAL,
+                "may_follow_up": admin.VERTICAL,
+                "may_call_work": admin.VERTICAL,
+                "may_contact_someone": admin.VERTICAL,
+            }
+        )
