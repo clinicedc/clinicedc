@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import SHIPPED
 from edc_lab.models import Box, Aliquot, Manifest
 from edc_lab.labels import ManifestLabel
@@ -10,7 +10,7 @@ from ...view_mixins import ManifestViewMixin
 from .action_view import ActionView
 
 
-class ManifestView(EdcBaseViewMixin, ManifestViewMixin, LabPrintersMixin, ActionView):
+class ManifestView(EdcViewMixin, ManifestViewMixin, LabPrintersMixin, ActionView):
 
     post_action_url = "manifest_listboard_url"
     valid_form_actions = [

@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_dashboard.url_names import url_names
 from edc_lab import SHIPPED
 from edc_lab.models import BoxItem
@@ -11,11 +11,10 @@ from ...view_mixins import BoxViewMixin
 from .action_view import ActionView
 
 
-class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin, ActionView):
+class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
 
     post_action_url = "manage_box_listboard_url"
-    valid_form_actions = ["add_item",
-                          "renumber_items", "remove_selected_items"]
+    valid_form_actions = ["add_item", "renumber_items", "remove_selected_items"]
 
     @property
     def url_kwargs(self):
@@ -90,8 +89,7 @@ class ManageBoxItemView(EdcBaseViewMixin, BoxViewMixin, ActionView):
                 )
             except ObjectDoesNotExist:
                 try:
-                    box_item = BoxItem.objects.get(
-                        identifier=self.box_item_identifier)
+                    box_item = BoxItem.objects.get(identifier=self.box_item_identifier)
                 except ObjectDoesNotExist:
                     box_item = BoxItem(
                         box=self.box,

@@ -43,6 +43,5 @@ class ManifestListboardView(BaseListboardView):
         return Manifest.objects.get(manifest_identifier=self.request.GET.get("pdf"))
 
     def print_manifest(self):
-        manifest_report = ManifestReport(
-            manifest=self.manifest, user=self.request.user)
+        manifest_report = ManifestReport(manifest=self.manifest, user=self.request.user)
         return manifest_report.render()

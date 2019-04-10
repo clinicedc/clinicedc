@@ -1,5 +1,5 @@
 from django.contrib import messages
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import SHIPPED
 from edc_utils import get_utcnow
 
@@ -7,7 +7,7 @@ from ...view_mixins import BoxViewMixin
 from .action_view import ActionView
 
 
-class VerifyBoxItemView(EdcBaseViewMixin, BoxViewMixin, ActionView):
+class VerifyBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
 
     post_action_url = "verify_box_listboard_url"
     box_item_failed = False

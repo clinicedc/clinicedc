@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import Manifest as ManifestObject
 from edc_lab.models import ManifestItem, Box
 
@@ -13,7 +13,7 @@ class ManageManifestViewError(Exception):
     pass
 
 
-class ManageManifestView(EdcBaseViewMixin, ManifestViewMixin, ActionView):
+class ManageManifestView(EdcViewMixin, ManifestViewMixin, ActionView):
 
     post_action_url = "manage_manifest_listboard_url"
     valid_form_actions = ["add_item", "remove_selected_items"]

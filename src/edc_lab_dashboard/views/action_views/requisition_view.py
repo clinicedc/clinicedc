@@ -1,5 +1,5 @@
 from django.contrib import messages
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab.models import Aliquot
 from edc_lab.labels import AliquotLabel
 from edc_label import add_job_results_to_messages
@@ -8,7 +8,7 @@ from ...view_mixins import ProcessRequisitionViewMixin
 from .action_view import ActionView
 
 
-class RequisitionView(EdcBaseViewMixin, ProcessRequisitionViewMixin, ActionView):
+class RequisitionView(EdcViewMixin, ProcessRequisitionViewMixin, ActionView):
 
     post_action_url = "requisition_listboard_url"
     valid_form_actions = ["print_labels"]

@@ -34,18 +34,14 @@ class VerifyBoxListboardView(BaseBoxItemListboardView):
         url_kwargs = copy(self.url_kwargs)
         url_kwargs["position"] = 1
         url_kwargs["action_name"] = "verify"
-        return reverse(
-            url_names.get(self.verify_box_listboard_url), kwargs=url_kwargs
-        )
+        return reverse(url_names.get(self.verify_box_listboard_url), kwargs=url_kwargs)
 
     @property
     def manage_box_listboard_url_reversed(self):
         url_kwargs = copy(self.url_kwargs)
         url_kwargs.pop("position")
         url_kwargs["action_name"] = "manage"
-        return reverse(
-            url_names.get(self.manage_box_listboard_url), kwargs=url_kwargs
-        )
+        return reverse(url_names.get(self.manage_box_listboard_url), kwargs=url_kwargs)
 
     @property
     def url_kwargs(self):
