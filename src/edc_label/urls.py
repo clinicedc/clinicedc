@@ -41,6 +41,5 @@ urlpatterns = [
 if settings.APP_NAME == "edc_label":
     url_patterns = urlpatterns + [
         path("accounts/", include("edc_auth.urls")),
-        path(r"admin/", admin.site.urls),
-        path(r"edc_base/", include("edc_base.urls", namespace="edc-base")),
+        path("admin/", admin.site.urls),
     ]
