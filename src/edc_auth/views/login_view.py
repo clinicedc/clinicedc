@@ -21,7 +21,7 @@ class LoginView(BaseLoginView):
 
     @property
     def extra_context(self):
-        app_config = django_apps.get_app_config("edc_dashboard")
+        app_config = django_apps.get_app_config("edc_protocol")
         try:
             live_system = settings.LIVE_SYSTEM
         except AttributeError:
