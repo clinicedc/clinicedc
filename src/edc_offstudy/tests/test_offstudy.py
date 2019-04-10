@@ -73,8 +73,7 @@ class TestOffstudy(TestCase):
             SubjectOffstudy.objects.create,
             subject_identifier=self.subject_identifier,
             offstudy_datetime=(
-                self.consent_datetime +
-                relativedelta(days=1) + relativedelta(minutes=1)
+                self.consent_datetime + relativedelta(days=1) + relativedelta(minutes=1)
             ),
         )
 
@@ -87,8 +86,7 @@ class TestOffstudy(TestCase):
         obj = SubjectOffstudy.objects.create(
             subject_identifier=self.subject_identifier,
             offstudy_datetime=(
-                self.consent_datetime +
-                relativedelta(days=1) + relativedelta(minutes=1)
+                self.consent_datetime + relativedelta(days=1) + relativedelta(minutes=1)
             ),
         )
 
@@ -203,8 +201,7 @@ class TestOffstudy(TestCase):
         except OffstudyError as e:
             self.fail(f"OffstudyError unexpectedly raised. Got {e}")
 
-        crf_one.report_datetime = crf_one.report_datetime + \
-            relativedelta(years=1)
+        crf_one.report_datetime = crf_one.report_datetime + relativedelta(years=1)
         self.assertRaises(OffstudyError, crf_one.save)
 
     def test_non_crf_model_mixin(self):
@@ -217,8 +214,7 @@ class TestOffstudy(TestCase):
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
-            offschedule_datetime=(
-                self.consent_datetime + relativedelta(hours=1)),
+            offschedule_datetime=(self.consent_datetime + relativedelta(hours=1)),
         )
 
         SubjectOffstudy.objects.create(
@@ -252,8 +248,7 @@ class TestOffstudy(TestCase):
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
-            offschedule_datetime=(
-                self.consent_datetime + relativedelta(hours=1)),
+            offschedule_datetime=(self.consent_datetime + relativedelta(hours=1)),
         )
 
         form = SubjectOffstudyForm(data=data)
@@ -273,8 +268,7 @@ class TestOffstudy(TestCase):
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
-            offschedule_datetime=(
-                self.consent_datetime + relativedelta(hours=1)),
+            offschedule_datetime=(self.consent_datetime + relativedelta(hours=1)),
         )
 
         form = SubjectOffstudyForm(data=data)
@@ -310,8 +304,7 @@ class TestOffstudy(TestCase):
         )
 
         SubjectOffstudy.objects.create(
-            offstudy_datetime=appointments[0].appt_datetime +
-            relativedelta(hours=1),
+            offstudy_datetime=appointments[0].appt_datetime + relativedelta(hours=1),
             subject_identifier=self.subject_identifier,
         )
         form = CrfOneForm(data=data)
@@ -319,8 +312,7 @@ class TestOffstudy(TestCase):
 
         data = dict(
             subject_visit=str(subject_visit.id),
-            report_datetime=appointments[0].appt_datetime +
-            relativedelta(hours=2),
+            report_datetime=appointments[0].appt_datetime + relativedelta(hours=2),
         )
         form = CrfOneForm(data=data)
         self.assertFalse(form.is_valid())
@@ -339,8 +331,7 @@ class TestOffstudy(TestCase):
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
-            offschedule_datetime=(
-                self.consent_datetime + relativedelta(hours=1)),
+            offschedule_datetime=(self.consent_datetime + relativedelta(hours=1)),
         )
 
         SubjectOffstudy.objects.create(
