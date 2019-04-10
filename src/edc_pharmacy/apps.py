@@ -27,7 +27,6 @@ class AppConfig(DjangoAppConfig):
 
 if settings.APP_NAME == "edc_pharmacy":
     from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
-    from edc_base.apps import AppConfig as BaseEdcBaseAppConfig
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
     from edc_label.apps import AppConfig as BaseEdcLabelAppConfig
 
@@ -41,10 +40,6 @@ if settings.APP_NAME == "edc_pharmacy":
                 slots=[100, 100, 100, 100, 100, 100, 100],
             )
         }
-
-    class EdcBaseAppConfig(BaseEdcBaseAppConfig):
-        project_name = "Edc Pharmacy"
-        institution = "Botswana-Harvard AIDS Institute"
 
     class EdcLabelAppConfig(BaseEdcLabelAppConfig):
         default_cups_server_ip = None
