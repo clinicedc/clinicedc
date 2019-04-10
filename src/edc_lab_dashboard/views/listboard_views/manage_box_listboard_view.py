@@ -30,8 +30,7 @@ class ManageBoxListboardView(BaseBoxItemListboardView):
         url_kwargs["action_name"] = "verify"
         context.update(
             verify_box_listboard_url_reversed=reverse(
-                url_names.get(self.verify_box_listboard_url),
-                kwargs=url_kwargs,
+                url_names.get(self.verify_box_listboard_url), kwargs=url_kwargs
             )
         )
         return context

@@ -1,12 +1,12 @@
 from django.contrib import messages
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab.labels import AliquotLabel
 from edc_label import add_job_results_to_messages, LabPrintersMixin
 
 from .action_view import ActionView
 
 
-class AliquotView(EdcBaseViewMixin, LabPrintersMixin, ActionView):
+class AliquotView(EdcViewMixin, LabPrintersMixin, ActionView):
 
     post_action_url = "aliquot_listboard_url"
     valid_form_actions = ["print_labels"]

@@ -5,7 +5,7 @@ from edc_lab.admin_site import edc_lab_admin
 
 urlpatterns = [
     path("admin/", edc_lab_admin.urls),
-    path("edc_base/", include("edc_base.urls")),
+    path("edc_dashboard/", include("edc_dashboard.urls")),
     path("edc_device/", include("edc_device.urls")),
     path("edc_label/", include("edc_label.urls")),
     path("edc_lab/", include("edc_lab.urls")),

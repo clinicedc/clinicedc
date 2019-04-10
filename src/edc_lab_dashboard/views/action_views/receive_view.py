@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_constants.constants import YES
 from edc_lab import Specimen
 from edc_lab.site_labs import site_labs
@@ -11,7 +11,7 @@ from ...view_mixins import ProcessRequisitionViewMixin
 from .action_view import ActionView
 
 
-class ReceiveView(EdcBaseViewMixin, ProcessRequisitionViewMixin, ActionView):
+class ReceiveView(EdcViewMixin, ProcessRequisitionViewMixin, ActionView):
 
     post_action_url = "receive_listboard_url"
     valid_form_actions = ["receive", "receive_and_process"]

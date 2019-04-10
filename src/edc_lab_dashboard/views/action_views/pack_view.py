@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import PACKED, Manifest as ManifestObject
 from edc_lab.models import Manifest, Box
 from edc_lab.labels import BoxLabel
@@ -10,7 +10,7 @@ from edc_label import add_job_results_to_messages, LabPrintersMixin
 from .action_view import ActionView
 
 
-class PackView(EdcBaseViewMixin, LabPrintersMixin, ActionView):
+class PackView(EdcViewMixin, LabPrintersMixin, ActionView):
 
     post_action_url = "pack_listboard_url"
     valid_form_actions = [

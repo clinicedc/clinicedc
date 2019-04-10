@@ -1,12 +1,12 @@
 from django.contrib import messages
-from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab.labels import AliquotLabel
 
 from ...view_mixins import ProcessRequisitionViewMixin
 from .action_view import ActionView
 
 
-class ProcessView(EdcBaseViewMixin, ProcessRequisitionViewMixin, ActionView):
+class ProcessView(EdcViewMixin, ProcessRequisitionViewMixin, ActionView):
 
     post_action_url = "process_listboard_url"
     valid_form_actions = ["process"]
