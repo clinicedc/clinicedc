@@ -11,11 +11,9 @@ class AdministrationViewMixin(ContextMixin):
     template_name = (
         f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/administration.html"
     )
-    base_template_name = f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/base.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(base_template_name=self.base_template_name)
 
         sections = self.sections
         context.update(sections=sections)

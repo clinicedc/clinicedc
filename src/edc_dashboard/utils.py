@@ -10,15 +10,19 @@ class EdcTemplateDoesNotExist(Exception):
     pass
 
 
-def insert_bootstrap_version(**template_data):
-    """Returns template data after inserting bootstrap version
-    in each path, if not already inserted.
-    """
-
+def get_bootstrap_version():
     try:
         bootstrap_version = settings.EDC_BOOTSTRAP
     except AttributeError:
         bootstrap_version = 3
+    return bootstrap_version
+
+
+def insert_bootstrap_version(**template_data):
+    """Returns template data after inserting bootstrap version
+    in each path, if not already inserted.
+    """
+    bootstrap_version = get_bootstrap_version()
     if bootstrap_version:
         for key, original_path in template_data.items():
             try:
@@ -32,10 +36,12 @@ def insert_bootstrap_version(**template_data):
     return template_data
 
 
-def get_template_path_with_bootstrap(original_path, bootstrap_version):
+def get_template_path_with_bootstrap(original_path, bootstrap_version=None):
     """Returns a new path with the bootstrap version inserted
     or raises EdcTemplateDoesNotExist.
     """
+    app_name = None
+    bootstrap_version = bootstrap_version or get_bootstrap_version()
     for app_config in django_apps.get_app_configs():
         if app_config.name in original_path:
             app_name = app_config.name

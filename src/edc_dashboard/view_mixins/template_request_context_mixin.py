@@ -11,6 +11,13 @@ class TemplateRequestContextMixin:
             return [self.get_template_from_context(self.listboard_template)]
     """
 
+    def get_context_data(self, **kwargs):
+        """Adds template data to context.
+        """
+        context = super().get_context_data(**kwargs)
+        context.update(self.request.template_data)
+        return context
+
     def get_template_from_context(self, key=None):
         """Returns a template_name from request.context_data.
         """
