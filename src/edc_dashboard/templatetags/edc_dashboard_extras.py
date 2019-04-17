@@ -1,10 +1,10 @@
 from django import template
 from django.conf import settings
-from django.urls.base import reverse
-from urllib.parse import urljoin, parse_qsl, urlencode, unquote
 from django.template.defaultfilters import stringfilter
+from django.urls.base import reverse
 from edc_utils import age, get_utcnow, AgeValueError
 from math import ceil
+from urllib.parse import urljoin, parse_qsl, urlencode, unquote
 
 
 register = template.Library()
