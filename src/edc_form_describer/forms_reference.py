@@ -1,5 +1,3 @@
-import sys
-
 from datetime import datetime
 from django.apps import apps as django_apps
 
