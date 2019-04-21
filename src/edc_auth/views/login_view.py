@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import LoginView as BaseLoginView
 from django_revision.revision import site_revision
+from edc_dashboard.utils import get_template_path_with_bootstrap
 
 
 class LoginView(BaseLoginView):
@@ -31,6 +32,7 @@ class LoginView(BaseLoginView):
         except AttributeError:
             allow_password_reset = None
         return {
+            "edc_base_template": get_template_path_with_bootstrap("edc_dashboard/base.html"),
             "DEBUG": settings.DEBUG,
             "ALLOW_PASSWORD_RESET": allow_password_reset,
             "copyright": app_config.copyright,
