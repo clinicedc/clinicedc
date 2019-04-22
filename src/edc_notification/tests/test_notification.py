@@ -36,7 +36,6 @@ class TestNotification(TestCase):
             class NotANotification:
                 pass
 
-        print(cm.exception)
         self.assertIn(
             "Wrapped class must be a 'Notification' class.", str(cm.exception)
         )
@@ -52,8 +51,8 @@ class TestNotification(TestCase):
         site_notifications._registry = {}
         site_notifications.register(G4EventNotification)
         site_notifications.update_notification_list()
-        klass = site_notifications.get(G4EventNotification.name)
-        self.assertEqual(klass, G4EventNotification)
+        cls = site_notifications.get(G4EventNotification.name)
+        self.assertEqual(cls, G4EventNotification)
         self.assertTrue(site_notifications.loaded)
 
     def test_register_by_decorator(self):

@@ -20,7 +20,6 @@ class MailingListManager:
 
     If this is a test / UAT, the mailing list names from settings
     are automatically prefixed with 'test'.
-
     """
 
     url = "https://api.mailgun.net/v3/lists"
