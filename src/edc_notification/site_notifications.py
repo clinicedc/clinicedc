@@ -56,7 +56,7 @@ class SiteNotifications:
         return self._registry.get(name)
 
     def register(self, notification_cls=None):
-        """Registers a Notification class.
+        """Registers a Notification class unique by name.
         """
         self.loaded = True
         display_names = [n.display_name for n in self.registry.values()]
@@ -98,8 +98,8 @@ class SiteNotifications:
         return notified
 
     def update_notification_list(self, apps=None, schema_editor=None, verbose=False):
-        """Update notification model to ensure all registered
-        notifications exist in the model.
+        """Updates the notification model to ensure all registered
+        notifications classes are listed.
 
         Typically called from a post_migrate signal.
 
@@ -107,14 +107,15 @@ class SiteNotifications:
         class (not model) will automatically call this method if the
         named notification does not exist. See notification.notify()
         """
-        Notification = (apps or django_apps).get_model(
-            "edc_notification", "notification"
-        )
+        Notification = (apps or django_apps).get_model("edc_notification.notification")
 
         # flag all notifications as disabled and re-enable as required
         Notification.objects.all().update(enabled=False)
         if site_notifications.loaded:
-            sys.stdout.write(style.MIGRATE_HEADING(f"Populating Notification model:\n"))
+            if verbose:
+                sys.stdout.write(
+                    style.MIGRATE_HEADING("Populating Notification model:\n")
+                )
             self.delete_unregistered_notifications(apps=apps)
             for name, notification_cls in site_notifications.registry.items():
                 if verbose:
@@ -137,9 +138,7 @@ class SiteNotifications:
     def delete_unregistered_notifications(self, apps=None):
         """Delete orphaned notification model instances.
         """
-        Notification = (apps or django_apps).get_model(
-            "edc_notification", "notification"
-        )
+        Notification = (apps or django_apps).get_model("edc_notification.notification")
         return Notification.objects.exclude(
             name__in=[n.name for n in site_notifications.registry.values()]
         ).delete()
