@@ -1,4 +1,3 @@
-from django.forms import ValidationError
 from edc_constants.constants import DWTA, NOT_APPLICABLE
 
 from .base_form_validator import BaseFormValidator, InvalidModelFormFieldValidator
@@ -6,6 +5,16 @@ from .base_form_validator import REQUIRED_ERROR, NOT_REQUIRED_ERROR
 
 
 class RequiredFieldValidator(BaseFormValidator):
+
+    def raise_required(self, field, msg=None):
+        message = {
+            field: f"This field is required. {msg or ''}".strip()}
+        self.raise_validation_error(message, REQUIRED_ERROR)
+
+    def raise_not_required(self, field, msg=None):
+        message = {
+            field: f"This field is not required. {msg or ''}".strip()}
+        self.raise_validation_error(message, NOT_REQUIRED_ERROR)
 
     def required_if(self, *responses, field=None, field_required=None,
                     required_msg=None, not_required_msg=None,
@@ -29,20 +38,13 @@ class RequiredFieldValidator(BaseFormValidator):
             elif (self.cleaned_data.get(field) in responses
                     and (not self.cleaned_data.get(field_required)
                          or self.cleaned_data.get(field_required) == NOT_APPLICABLE)):
-                message = {
-                    field_required: required_msg or 'This field is required.'}
-                self._errors.update(message)
-                self._error_codes.append(REQUIRED_ERROR)
-                raise ValidationError(message, code=REQUIRED_ERROR)
+                self.raise_required(field=field_required, msg=required_msg)
             elif inverse and (self.cleaned_data.get(field) not in responses
                               and (self.cleaned_data.get(field_required)
                                    and (self.cleaned_data.get(field_required)
                                         != NOT_APPLICABLE))):
-                message = {
-                    field_required: not_required_msg or 'This field is not required.'}
-                self._errors.update(message)
-                self._error_codes.append(NOT_REQUIRED_ERROR)
-                raise ValidationError(message, code=NOT_REQUIRED_ERROR)
+                self.raise_not_required(
+                    field=field_required, msg=not_required_msg)
         return False
 
     def required_if_true(self, condition, field_required=None,
@@ -55,19 +57,12 @@ class RequiredFieldValidator(BaseFormValidator):
         if self.cleaned_data and field_required in self.cleaned_data:
             if (condition and (self.cleaned_data.get(field_required) is None
                                or self.cleaned_data.get(field_required) == NOT_APPLICABLE)):
-                message = {
-                    field_required: required_msg or 'This field is required.'}
-                self._errors.update(message)
-                self._error_codes.append(REQUIRED_ERROR)
-                raise ValidationError(message, code=REQUIRED_ERROR)
+                self.raise_required(field=field_required, msg=required_msg)
             elif inverse and (not condition
                               and self.cleaned_data.get(field_required) is not None
                               and self.cleaned_data.get(field_required) != NOT_APPLICABLE):
-                message = {
-                    field_required: not_required_msg or 'This field is not required.'}
-                self._errors.update(message)
-                self._error_codes.append(NOT_REQUIRED_ERROR)
-                raise ValidationError(message, code=NOT_REQUIRED_ERROR)
+                self.raise_not_required(
+                    field=field_required, msg=not_required_msg)
 
     def not_required_if_true(self, condition, field=None, msg=None, **kwargs):
         """Raises a ValidationError if condition is True stating the
@@ -82,11 +77,7 @@ class RequiredFieldValidator(BaseFormValidator):
             if (condition
                 and self.cleaned_data.get(field) is not None
                     and self.cleaned_data.get(field) != NOT_APPLICABLE):
-                message = {
-                    field: msg or 'This field is not required.'}
-                self._errors.update(message)
-                self._error_codes.append(NOT_REQUIRED_ERROR)
-                raise ValidationError(message, code=NOT_REQUIRED_ERROR)
+                self.raise_not_required(field=field, msg=msg)
 
     def required_if_not_none(self, field=None, field_required=None,
                              required_msg=None, not_required_msg=None,
@@ -103,18 +94,10 @@ class RequiredFieldValidator(BaseFormValidator):
         else:
             condition = self.cleaned_data.get(field) is not None
         if condition and self.cleaned_data.get(field_required) is None:
-            message = {
-                field_required: required_msg or 'This field is required.'}
-            self._errors.update(message)
-            self._error_codes.append(REQUIRED_ERROR)
-            raise ValidationError(message, code=REQUIRED_ERROR)
+            self.raise_required(field=field_required, msg=required_msg)
         elif (not condition and self.cleaned_data.get(field_required) is not None
               and self.cleaned_data.get(field_required) != NOT_APPLICABLE):
-            message = {
-                field_required: not_required_msg or 'This field is not required.'}
-            self._errors.update(message)
-            self._error_codes.append(NOT_REQUIRED_ERROR)
-            raise ValidationError(message, code=NOT_REQUIRED_ERROR)
+            self.raise_not_required(field=field_required, msg=not_required_msg)
 
     def not_required_if(self, *responses, field=None, field_required=None,
                         field_not_required=None,
@@ -135,20 +118,13 @@ class RequiredFieldValidator(BaseFormValidator):
             elif (self.cleaned_data.get(field) in responses
                     and (self.cleaned_data.get(field_required)
                          and self.cleaned_data.get(field_required) != NOT_APPLICABLE)):
-                message = {
-                    field_required: not_required_msg or 'This field is not required.'}
-                self._errors.update(message)
-                self._error_codes.append(NOT_REQUIRED_ERROR)
-                raise ValidationError(message, code=NOT_REQUIRED_ERROR)
+                self.raise_not_required(
+                    field=field_required, msg=not_required_msg)
             elif inverse and (self.cleaned_data.get(field) not in responses
                               and (not self.cleaned_data.get(field_required)
                                    or (self.cleaned_data.get(field_required)
                                        == NOT_APPLICABLE))):
-                message = {
-                    field_required: required_msg or 'This field is required.'}
-                self._errors.update(message)
-                self._error_codes.append(REQUIRED_ERROR)
-                raise ValidationError(message, code=REQUIRED_ERROR)
+                self.raise_required(field=field_required, msg=required_msg)
         return False
 
     def require_together(self, field=None, field_required=None, required_msg=None):
@@ -156,18 +132,10 @@ class RequiredFieldValidator(BaseFormValidator):
         """
         if (self.cleaned_data.get(field) is not None
                 and self.cleaned_data.get(field_required) is None):
-            message = {
-                field_required: required_msg or 'This field is required.'}
-            self._errors.update(message)
-            self._error_codes.append(REQUIRED_ERROR)
-            raise ValidationError(message, code=REQUIRED_ERROR)
+            self.raise_required(field=field_required, msg=required_msg)
         elif (self.cleaned_data.get(field) is None
                 and self.cleaned_data.get(field_required) is not None):
-            message = {
-                field_required: required_msg or 'This field is not required.'}
-            self._errors.update(message)
-            self._error_codes.append(NOT_REQUIRED_ERROR)
-            raise ValidationError(message, code=NOT_REQUIRED_ERROR)
+            self.raise_not_required(field=field_required, msg=required_msg)
 
     def _inspect_params(self, *responses, field=None, field_required=None):
         """Inspects params and raises if any are None.

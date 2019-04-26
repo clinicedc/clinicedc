@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from django.forms import forms
 
 
@@ -52,6 +53,11 @@ class BaseFormValidator:
         """Override with logic normally in ModelForm.clean().
         """
         pass
+
+    def raise_validation_error(self, message, error_code):
+        self._errors.update(message)
+        self._error_codes.append(error_code)
+        raise ValidationError(message, code=error_code)
 
     def validate(self):
         """Call in ModelForm.clean.
