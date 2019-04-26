@@ -9,8 +9,8 @@ class FormValidatorMixin(forms.ModelForm):
         cleaned_data = super().clean()
         try:
             form_validator = self.form_validator_cls(
-                cleaned_data=cleaned_data,
-                instance=self.instance)
+                cleaned_data=cleaned_data, instance=self.instance
+            )
         except TypeError:
             pass
         else:

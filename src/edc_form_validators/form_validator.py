@@ -5,8 +5,12 @@ from .other_specify_field_validator import OtherSpecifyFieldValidator
 from .required_field_validator import RequiredFieldValidator
 
 
-class FormValidator(RequiredFieldValidator, ManyToManyFieldValidator,
-                    OtherSpecifyFieldValidator, ApplicableFieldValidator,
-                    BaseFormValidator):
+class FormValidator(
+    RequiredFieldValidator,
+    ManyToManyFieldValidator,
+    OtherSpecifyFieldValidator,
+    ApplicableFieldValidator,
+    BaseFormValidator,
+):
 
     pass
