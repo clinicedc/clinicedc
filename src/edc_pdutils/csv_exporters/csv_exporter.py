@@ -1,6 +1,7 @@
 import os
 import sys
 
+from django.conf import settings
 from django.core.management.color import color_style
 from edc_utils import get_utcnow
 
@@ -122,7 +123,13 @@ class CsvExporter:
     def filename(self):
         """Returns a CSV filename based on the timestamp.
         """
-        dt = get_utcnow()
-        prefix = self.data_label.replace("-", "_")
-        formatted_date = dt.strftime("%Y%m%d%H%M%S")
-        return f"{prefix}_{formatted_date}.csv"
+        try:
+            timestamp_format = settings.EXPORT_FILENAME_TIMESTAMP_FORMAT
+        except AttributeError:
+            timestamp_format = "%Y%m%d%H%M%S"
+        if timestamp_format is "":
+            suffix = ""
+        else:
+            suffix = f"_{get_utcnow().strftime(timestamp_format)}"
+        prefix = self.data_label.replace("-", "_").replace(".", "_")
+        return f"{prefix}{suffix}.csv"
