@@ -20,11 +20,13 @@ def add_or_update_django_sites(apps=None, sites=None, fqdn=None, verbose=None):
                 ...)
     """
 
+    sys.stdout.write(f"  * updating sites for {fqdn}.\n")
     fqdn = fqdn or "example.com"
     apps = apps or django_apps
     Site = apps.get_model("sites", "Site")
     Site.objects.filter(name="example.com").delete()
     for site_id, site_name, _ in sites:
+        sys.stdout.write(f"  * {site_name}.\n")
         try:
             site_obj = Site.objects.get(pk=site_id)
         except ObjectDoesNotExist:
@@ -35,9 +37,6 @@ def add_or_update_django_sites(apps=None, sites=None, fqdn=None, verbose=None):
             site_obj.name = site_name
             site_obj.domain = f"{site_name}.{fqdn}"
             site_obj.save()
-    if verbose:
-        sys.stdout.write(f"Updated sites for {fqdn}.\n")
-        sys.stdout.flush()
 
 
 def raise_on_save_if_reviewer(site_id=None):
