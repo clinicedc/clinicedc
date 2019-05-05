@@ -21,14 +21,13 @@ class TestNavbar(TestCase):
     def setUpClass(cls):
         create_edc_dashboard_permissions()
         create_edc_navbar_permissions(
-            extra_codename_tpls=[
-                ("edc_navbar.navbar_one", "Can access One")])
+            extra_codename_tpls=[("edc_navbar.navbar_one", "Can access One")]
+        )
         return super(TestNavbar, cls).setUpClass()
 
     def setUp(self):
         site_navbars._registry = {}
-        self.user = User.objects.create_superuser(
-            "user_login", "u@example.com", "pass")
+        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
         rf = RequestFactory()
         self.request = rf.request()
         self.request.user = self.user

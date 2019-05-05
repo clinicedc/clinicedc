@@ -29,10 +29,8 @@ class NavbarViewMixin(ContextMixin):
             default_navbar.render(
                 selected_item=self.navbar_selected_item, request=self.request
             )
-
-        context.update(
-            navbar=navbar,
-            default_navbar=default_navbar,
-            default_navbar_name=default_navbar_name,
-        )
+            context.update(
+                default_navbar=default_navbar, default_navbar_name=default_navbar_name
+            )
+        context.update(navbar=navbar)
         return context

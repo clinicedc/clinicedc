@@ -22,37 +22,32 @@ class Navbar:
     def append_item(self, navbar_item=None):
         self.items.append(navbar_item)
         if not navbar_item.codename:
-            raise NavbarError(
-                f"Invalid codename. Got None. See {repr(navbar_item)}."
-            )
+            raise NavbarError(f"Invalid codename. Got None. See {repr(navbar_item)}.")
         else:
             codename_tuple = (
                 navbar_item.codename,
                 f'Can access {" ".join(navbar_item.codename.split("_"))}',
             )
-            self.codenames.update(
-                {navbar_item.codename: codename_tuple}
-            )
+            self.codenames.update({navbar_item.codename: codename_tuple})
 
     def render(self, selected_item=None, request=None, **kwargs):
+        """Renders the navbar.
+
+        Note: usually called in NavbarViewMixin.
+        """
         self.rendered_items = []
         for item in self.items:
-            if (
-                item.codename
-                and item.codename not in self.codenames
-            ):
+            if item.codename and item.codename not in self.codenames:
                 raise NavbarError(
                     f"Permission code is invalid. "
                     f"Expected one of {list(self.codenames.keys())}."
                     f" Got {item.codename}."
                 )
             if not item.codename or (
-                item.codename
-                and request.user.has_perm(item.codename)
+                item.codename and request.user.has_perm(item.codename)
             ):
                 self.rendered_items.append(
-                    item.render(selected_item=selected_item,
-                                request=request, **kwargs)
+                    item.render(selected_item=selected_item, request=request, **kwargs)
                 )
 
     def show_user_permissions(self, user=None):
@@ -62,12 +57,6 @@ class Navbar:
         permissions = {}
         for navbar_item in self.items:
             has_perm = {}
-            has_perm.update(
-                {
-                    navbar_item.codename: user.has_perm(
-                        navbar_item.codename
-                    )
-                }
-            )
+            has_perm.update({navbar_item.codename: user.has_perm(navbar_item.codename)})
             permissions.update({navbar_item.name: has_perm})
         return permissions
