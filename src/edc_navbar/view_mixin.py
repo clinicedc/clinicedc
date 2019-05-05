@@ -20,8 +20,7 @@ class NavbarViewMixin(ContextMixin):
 
     def get_navbar_context_data(self, context):
         navbar = site_navbars.get_navbar(name=self.navbar_name)
-        navbar.render(selected_item=self.navbar_selected_item,
-                      request=self.request)
+        navbar.render(selected_item=self.navbar_selected_item, request=self.request)
         app_config = django_apps.get_app_config("edc_navbar")
         default_navbar_name = app_config.default_navbar_name
 
@@ -31,8 +30,7 @@ class NavbarViewMixin(ContextMixin):
                 selected_item=self.navbar_selected_item, request=self.request
             )
             context.update(
-                default_navbar=default_navbar,
-                default_navbar_name=default_navbar_name,
+                default_navbar=default_navbar, default_navbar_name=default_navbar_name
             )
         context.update(navbar=navbar)
         return context

@@ -52,7 +52,7 @@ class NavbarItem:
         self.icon_height = icon_height
         self.icon_width = icon_width
         try:
-            self.label = label.title()
+            self.label = label
         except AttributeError:
             self.label = None
         self.name = name
@@ -61,12 +61,10 @@ class NavbarItem:
         try:
             self.url_name = url_names.get(url_name)
         except InvalidUrlName:
-            self.url_name = url_name.split(
-                ":")[1] if no_url_namespace else url_name
+            self.url_name = url_name.split(":")[1] if no_url_namespace else url_name
 
         if not self.url_name:
-            raise NavbarItemError(
-                f"'url_name' not specified. See {repr(self)}")
+            raise NavbarItemError(f"'url_name' not specified. See {repr(self)}")
 
         if self.url_name == "#":
             self.reversed_url = "#"
@@ -105,21 +103,21 @@ class NavbarItem:
             context.update(has_navbar_item_permission=True)
         else:
             context.update(
-                has_navbar_item_permission=request.user.has_perm(
-                    self.codename
-                )
+                has_navbar_item_permission=request.user.has_perm(self.codename)
             )
         return render_to_string(template_name=self.template_name, context=context)
 
     def verify_codename(self, dotted_codename=None):
         if not dotted_codename:
             raise PermissionsCodenameError(
-                f"Invalid codename. May not be None. See {repr(self)}")
+                f"Invalid codename. May not be None. See {repr(self)}"
+            )
         try:
             app_label, codename = dotted_codename.split(".")
         except ValueError:
             raise PermissionsCodenameError(
-                f"Invalid codename. Got '{dotted_codename}'. See {repr(self)}.")
+                f"Invalid codename. Got '{dotted_codename}'. See {repr(self)}."
+            )
         if app_label not in [a.name for a in django_apps.get_app_configs()]:
             raise PermissionsCodenameError(
                 f"Invalid app_label in codename. Expected format "
