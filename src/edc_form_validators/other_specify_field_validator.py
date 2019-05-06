@@ -9,10 +9,16 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
     field pattern.
     """
 
-    def validate_other_specify(self, field, other_specify_field=None,
-                               required_msg=None, not_required_msg=None,
-                               other_stored_value=None,
-                               ref=None, **kwargs):
+    def validate_other_specify(
+        self,
+        field,
+        other_specify_field=None,
+        required_msg=None,
+        not_required_msg=None,
+        other_stored_value=None,
+        ref=None,
+        **kwargs,
+    ):
         """Returns False or raises a ValidationError.
         """
         cleaned_data = self.cleaned_data
@@ -20,25 +26,30 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
 
         # assume field naming convention
         if not other_specify_field:
-            other_specify_field = f'{field}_other'
+            other_specify_field = f"{field}_other"
 
-        if (cleaned_data.get(field)
-                and cleaned_data.get(field) == other
-                and not cleaned_data.get(other_specify_field)):
-            ref = '' if not ref else f' ref: {ref}'
+        if (
+            cleaned_data.get(field)
+            and cleaned_data.get(field) == other
+            and not cleaned_data.get(other_specify_field)
+        ):
+            ref = "" if not ref else f" ref: {ref}"
             message = {
-                other_specify_field:
-                required_msg or f'This field is required.{ref}'}
+                other_specify_field: required_msg or f"This field is required.{ref}"
+            }
             self._errors.update(message)
             self._error_codes.append(REQUIRED_ERROR)
             raise ValidationError(message, code=REQUIRED_ERROR)
-        elif (cleaned_data.get(field)
-                and cleaned_data.get(field) != other
-                and cleaned_data.get(other_specify_field)):
-            ref = '' if not ref else f' ref: {ref}'
+        elif (
+            cleaned_data.get(field)
+            and cleaned_data.get(field) != other
+            and cleaned_data.get(other_specify_field)
+        ):
+            ref = "" if not ref else f" ref: {ref}"
             message = {
-                other_specify_field:
-                not_required_msg or f'This field is not required.{ref}'}
+                other_specify_field: not_required_msg
+                or f"This field is not required.{ref}"
+            }
             self._errors.update(message)
             self._error_codes.append(NOT_REQUIRED_ERROR)
             raise ValidationError(message, code=NOT_REQUIRED_ERROR)
