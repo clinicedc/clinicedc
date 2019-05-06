@@ -11,10 +11,18 @@
 
 <div class="panel-group">
 <div class="panel panel-{{ listboard_panel_style }}">
-<div class="panel-heading">
+<div class="panel-heading clearfix">
 
-<i class="{{ listboard_fa_icon }} fa-2x"></i>
-                    
+{% block listboard_panel_back %}
+{% endblock listboard_panel_back %}
+
+{% if listboard_fa_icon %}
+    <i class="{{ listboard_fa_icon }} fa-2x fa-fw"></i>
+{% endif %}
+{% if listboard_panel_title %}
+    <span class="text">&nbsp;&nbsp;{{ listboard_panel_title }}</span>
+{% endif %}
+
 <!-- begin search form -->
 <span class="pull-right">
     {% block listboard_search_form %}
