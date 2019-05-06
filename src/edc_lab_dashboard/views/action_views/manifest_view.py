@@ -54,7 +54,7 @@ class ManifestView(EdcViewMixin, ManifestViewMixin, LabPrintersMixin, ActionView
             if manifest.shipped:
                 message = (
                     f"Manifest has already been shipped. "
-                    f"Got {self.manifest.manifest_identifier}."
+                    f"Got {manifest.manifest_identifier}."
                 )
                 messages.error(self.request, message)
             else:
