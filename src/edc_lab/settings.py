@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     "django_collect_offline_files.apps.AppConfig",
     "rest_framework",
     "rest_framework.authtoken",
-    "edc_base.apps.AppConfig",
     "edc_device.apps.AppConfig",
     "edc_identifier.apps.AppConfig",
     "edc_label.apps.AppConfig",
