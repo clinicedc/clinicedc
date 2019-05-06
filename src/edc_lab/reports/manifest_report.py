@@ -467,16 +467,16 @@ class ManifestReport(Report):
                         ),
                     ]
                 )
-                t1 = Table(table_data)
-                t1.setStyle(
-                    TableStyle(
-                        [
-                            ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.black),
-                            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                            ("BOX", (0, 0), (-1, -1), 0.25, colors.black),
-                        ]
-                    )
+            t1 = Table(table_data)
+            t1.setStyle(
+                TableStyle(
+                    [
+                        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.black),
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                        ("BOX", (0, 0), (-1, -1), 0.25, colors.black),
+                    ]
                 )
+            )
             story.append(t1)
         return story
 

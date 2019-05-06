@@ -1,6 +1,6 @@
 from django.contrib import admin
 from edc_fieldsets import Fieldset
-from edc_model_admin import audit_fieldset_tuple, audit_fields
+from edc_model_admin import audit_fieldset_tuple
 
 from ..admin_site import edc_lab_admin
 from ..forms import AliquotForm
@@ -40,6 +40,11 @@ class AliquotAdmin(BaseModelAdmin, admin.ModelAdmin):
             },
         ),
         aliquot_identifiers_fieldset_tuple,
+        (
+            "Shipping",
+            {"classes": ("collapse",), "fields": (
+                "shipped",)},
+        ),
         audit_fieldset_tuple,
     )
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from edc_model_admin import audit_fieldset_tuple, audit_fields
+from edc_model_admin import audit_fieldset_tuple
 
 from ..admin_site import edc_lab_admin
 from ..forms import ManifestForm
@@ -30,12 +30,14 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
         ("Site", {"classes": ("collapse",), "fields": ("site",)}),
         (
             "Shipping",
-            {"classes": ("collapse",), "fields": ("shipped", "export_datetime")},
+            {"classes": ("collapse",), "fields": (
+                "shipped", "export_datetime")},
         ),
         audit_fieldset_tuple,
     )
 
-    list_display = ("manifest_identifier", "manifest_datetime", "shipper", "consignee")
+    list_display = ("manifest_identifier", "manifest_datetime",
+                    "shipper", "consignee")
 
     list_filter = ("manifest_datetime",)
 

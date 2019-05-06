@@ -28,8 +28,21 @@ class BoxAdmin(BaseModelAdmin, admin.ModelAdmin):
                 )
             },
         ),
+        (
+            "Status",
+            {"classes": ("collapse",), "fields": (
+                "status", "verified", "verified_datetime")},
+        ),
         audit_fieldset_tuple,
     )
+
+    radio_fields = {
+        "box_type": admin.VERTICAL,
+        "category": admin.VERTICAL,
+        "status": admin.VERTICAL,
+    }
+
+    readonly_fields = ("status", "verified", "verified_datetime")
 
     list_display = (
         "box_identifier",
