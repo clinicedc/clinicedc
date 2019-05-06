@@ -26,3 +26,7 @@ class ActionItemModelWrapper(ModelWrapper):
     @property
     def report_date(self):
         return self.object.report_datetime.date()
+
+    @property
+    def str_pk(self):
+        return str(self.object.id)
