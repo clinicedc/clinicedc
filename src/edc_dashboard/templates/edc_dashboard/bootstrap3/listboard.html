@@ -14,11 +14,15 @@
 <div class="panel-heading clearfix">
 
 {% block listboard_panel_back %}
+{% if listboard_back_url %}
+    <a class="btn btn-default btn-sm btn-primary" role="button" href="{% url listboard_back_url %}"><i class="fas fa-reply"></i></a>
+{% endif %}
 {% endblock listboard_panel_back %}
 
 {% if listboard_fa_icon %}
     <i class="{{ listboard_fa_icon }} fa-2x fa-fw"></i>
 {% endif %}
+
 {% if listboard_panel_title %}
     <span class="text">&nbsp;&nbsp;{{ listboard_panel_title }}</span>
 {% endif %}
@@ -39,7 +43,13 @@
 
 <!-- begin table -->
 <div class="table-responsive">
+{% if listboard_instructions %}
 <table class="table table-condensed table-hover small">
+    <td>{{ listboard_instructions }}</td>
+</table>
+{% endif%}
+<table class="table table-condensed table-hover small">
+
 <thead>
 
 {% block listboard_table_header %}

@@ -14,5 +14,5 @@ class SiteQuerysetViewMixin:
             except KeyError:
                 pass
         else:
-            options.update(site=request.site)
+            options.update(site__name=request.site.name)
         return options
