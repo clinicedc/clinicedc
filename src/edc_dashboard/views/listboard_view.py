@@ -1,7 +1,7 @@
 import six
 
+from django.core.exceptions import PermissionDenied
 from django.apps import apps as django_apps
-from django.http import Http404
 from django.utils.translation import gettext as _
 from django.views.generic.list import ListView
 
@@ -18,19 +18,22 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
 
     cleaned_search_term = None
     context_object_name = "results"
-    empty_queryset_message = "Nothing to display."
+    empty_queryset_message = _("Nothing to display.")
     listboard_template = None  # an existing key in request.context_data
     # if self.listboard_url declared through another mixin.
     listboard_url = None  # an existing key in request.context_data
+    listboard_back_url = None
 
     # default, info, success, danger, warning, etc. See Bootstrap.
     listboard_panel_style = "default"
-    listboard_fa_icon = "fas fa-user-circle"
+    listboard_fa_icon = None
     listboard_model = None  # label_lower model name or model class
     listboard_model_manager_name = "_default_manager"
     listboard_panel_title = None
+    listboard_instructions = None
 
-    permissions_warning_message = "You do not have permission to view these data."
+    permissions_warning_message = _(
+        "You do not have permission to view these data.")
     # e.g. "edc_dashboard.view_subject_listboard"
     listboard_view_permission_codename = None
     # e.g. "edc_dashboard.view_subject_listboard"
@@ -45,12 +48,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         if not self.has_view_listboard_perms:
-            raise Http404(
-                _(
-                    "You do not have sufficient user or "
-                    "group permissions to view this page."
-                )
-            )
+            raise PermissionDenied
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -65,6 +63,8 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
             listboard_fa_icon=self.listboard_fa_icon,
             listboard_panel_style=self.listboard_panel_style,
             listboard_panel_title=self.listboard_panel_title,
+            listboard_back_url=self.listboard_back_url,
+            listboard_instructions=self.listboard_instructions,
             object_list=wrapped_queryset,
         )
         if context_object_name is not None:
