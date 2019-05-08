@@ -39,10 +39,22 @@ class AppointmentViewMixin(ContextMixin):
 
     @property
     def appointment(self):
-        try:
-            appointment = self.appointment_model_cls.objects.get(
-                id=self.kwargs.get("appointment")
+        if self.kwargs.get("appointment"):
+            opts = dict(id=self.kwargs.get("appointment"))
+        elif (self.kwargs.get("subject_identifier")
+              and self.kwargs.get("visit_schedule_name")
+              and self.kwargs.get("schedule_name")
+              and self.kwargs.get("visit_code")):
+            visit_code_sequence = self.kwargs.get("visit_code_sequence") or 0
+            opts = dict(
+                subject_identifier=self.kwargs.get("subject_identifier"),
+                visit_schedule_name=self.kwargs.get("visit_schedule_name"),
+                schedule_name=self.kwargs.get("schedule_name"),
+                visit_code=self.kwargs.get("visit_code"),
+                visit_code_sequence=visit_code_sequence,
             )
+        try:
+            appointment = self.appointment_model_cls.objects.get(**opts)
         except ObjectDoesNotExist:
             appointment = None
         return appointment
