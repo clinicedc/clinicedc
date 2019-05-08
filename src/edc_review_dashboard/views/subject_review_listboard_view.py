@@ -34,11 +34,11 @@ class SubjectReviewListboardView(
 
     listboard_template = "subject_review_listboard_template"
     listboard_url = "subject_review_listboard_url"
-    listboard_panel_style = "success"
-    listboard_fa_icon = "far fa-user-circle"
+    listboard_panel_style = "default"
     listboard_model_manager_name = "objects"
     listboard_panel_title = "Subject Review"
     listboard_view_permission_codename = "edc_dashboard.view_subject_review_listboard"
+
     model_wrapper_cls = SubjectVisitModelWrapper
     navbar_selected_item = "subject_review"
     ordering = ["subject_identifier", "visit_code", "visit_code_sequence"]
