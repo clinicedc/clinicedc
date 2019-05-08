@@ -32,8 +32,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
     listboard_panel_title = None
     listboard_instructions = None
 
-    permissions_warning_message = _(
-        "You do not have permission to view these data.")
+    permissions_warning_message = _("You do not have permission to view these data.")
     # e.g. "edc_dashboard.view_subject_listboard"
     listboard_view_permission_codename = None
     # e.g. "edc_dashboard.view_subject_listboard"
@@ -130,8 +129,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         This can be overridden but be sure to use the default_manager.
         """
         return (
-            getattr(self.listboard_model_cls,
-                    self.listboard_model_manager_name)
+            getattr(self.listboard_model_cls, self.listboard_model_manager_name)
             .filter(**filter_options)
             .exclude(**exclude_options)
         )
