@@ -12,10 +12,16 @@
 <div class="row">
 
 <div class="panel panel-{{ listboard_panel_style }}">
-<div class="panel-heading">
+<div class="panel-heading clearfix">
 
-<i class="{{ listboard_fa_icon }} fa-2x"></i>
-                    
+{% if search_term or subject_identifier %}
+    <a href="{% url subject_review_listboard_url %}" role="button" class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></a>&nbsp;
+    {{ listboard_panel_title }}: Reported visits for <b>{{ search_term }}</b> {% copy_string_to_clipboard_button search_term %}
+{% else%}
+    <a href="{% url 'home_url' %}" role="button" class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></a>&nbsp;
+    {{ listboard_panel_title }}: Subjects
+{% endif %}
+
 <span class="pull-right">
     {% include 'edc_dashboard/bootstrap3/search_form.html' %}
 </span>
@@ -23,12 +29,6 @@
 </div> <!--end panel heading -->
 
 <div class="list-group">
-
-    {% if search_term or subject_identifier %}
-        <li class="list-group-item list-group-item-success"><b>Reported Visits for {{ search_term }} {% copy_string_to_clipboard_button search_term %}</b></li>
-    {% else%}
-        <li class="list-group-item list-group-item-success"><b>Subjects</b></li>
-    {% endif %}
 
     {% for result in results %}        
 
