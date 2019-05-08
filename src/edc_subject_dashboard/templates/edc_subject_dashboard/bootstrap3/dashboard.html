@@ -37,7 +37,7 @@
 	            <span class="pull-right"><span class="text test-muted">
 	                <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.object.id|stringformat:"s" %}#{{ appointment.subject_identifier}}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}"
 	                   role="button" class="btn btn-sm btn-primary">
-	                    <i class="fas fa-reply fa-fw" aria-hidden="true"></i> Review
+	                    <i class="fas fa-reply fa-fw" aria-hidden="true"></i> Subject Review
 	                </a>
 	                <a href="{% url subject_dashboard_url|default:'subject_dashboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
 	                   role="button" class="btn btn-sm btn-primary">
