@@ -6,6 +6,8 @@ from edc_utils import age, get_utcnow, AgeValueError
 from math import ceil
 from urllib.parse import urljoin, parse_qsl, urlencode, unquote
 
+register = template.Library()
+
 
 register = template.Library()
 
@@ -133,3 +135,8 @@ def paginator_row(context):
         search_term=search_term,
         sub_text=sub_text,
     )
+
+
+@register.filter(name="has_group")
+def has_group(user, group_name):
+    return user.groups.filter(name=group_name).exists()
