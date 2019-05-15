@@ -65,7 +65,7 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             return fields + list(readonly_fields)
 
     def get_search_fields(self, request):
-        search_fields = self.get_search_fields(request)
+        search_fields = list(super().get_search_fields(request))
         return list(search_fields) + [
             "id",
             "subject_identifier",
@@ -105,4 +105,4 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             "user_created",
             "user_modified",
             "hostname_created",
-        ] + list(self.get_list_filter(request))
+        ] + list(super().get_list_filter(request))

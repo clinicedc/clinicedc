@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from edc_identifier import is_subject_identifier_or_raise
 from edc_utils import get_uuid
 
 from ..site_consents import site_consents
@@ -28,10 +29,12 @@ class ConsentModelWrapperMixin:
     def consent_model_obj(self):
         """Returns a consent model instance or None.
         """
+        consent_model_cls = django_apps.get_model(self.consent_model_wrapper_cls.model)
         try:
-            return self.object.subjectconsent_set.get(**self.consent_options)
+            model_obj = consent_model_cls.objects.get(**self.consent_options)
         except ObjectDoesNotExist:
-            return None
+            model_obj = None
+        return model_obj
 
     @property
     def consent(self):
@@ -60,7 +63,9 @@ class ConsentModelWrapperMixin:
         consent model instance.
         """
         options = dict(
-            subject_identifier=self.object.subject_identifier,
+            subject_identifier=is_subject_identifier_or_raise(
+                self.object.subject_identifier, reference_obj=self.object
+            ),
             version=self.consent_object.version,
         )
         return options
