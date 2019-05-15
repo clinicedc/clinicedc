@@ -21,7 +21,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
     """Redirect on add, change, delete by reversing a url_name
     in the querystring OR clicking Save Next.
 
-    In your url &next=my_url_name,arg1,arg2&agr1=value1&arg2=
+    In your url &next=my_app:my_url_name,arg1,arg2&agr1=value1&arg2=
     value2&arg3=value3&arg4=value4...etc.
     """
 
@@ -63,7 +63,9 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         normal behavior.
         """
         if self.show_cancel and request.POST.get("_cancel"):
-            redirect_url = self.get_next_redirect_url(request=request)
+            redirect_url = self.get_next_redirect_url(
+                request=request, object_id=object_id
+            )
             return HttpResponseRedirect(redirect_url)
         extra_context = self.extra_context(extra_context)
         return super().change_view(
@@ -86,15 +88,15 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             )
         return redirect_url
 
-    def get_next_redirect_url(self, request=None):
+    def get_next_redirect_url(self, request=None, **kwargs):
         """Returns a redirect url determined from the "next" attr
         in the querystring.
         """
         redirect_url = None
-        next_value = request.GET.dict().get(self.next_querystring_attr)
-        if next_value:
-            url_name = next_value.split(",")[0]
-            options = self.get_next_options(request=request)
+        next_querystring = request.GET.dict().get(self.next_querystring_attr)
+        if next_querystring:
+            url_name = next_querystring.split(",")[0]
+            options = self.get_next_options(request=request, **kwargs)
             try:
                 redirect_url = reverse(url_name, kwargs=options)
             except NoReverseMatch as e:
@@ -148,7 +150,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             f"{next_querystring}&{querystring}"
         )
 
-    def get_next_options(self, request=None):
+    def get_next_options(self, request=None, **kwargs):
         """Returns the key/value pairs from the "next" querystring
         as a dictionary.
         """
