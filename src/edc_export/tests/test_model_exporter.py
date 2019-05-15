@@ -128,8 +128,6 @@ class TestExport(TestCase):
             Appointment.objects.all().order_by("subject_identifier", "visit_code")
         ):
             self.assertEqual(
-                rows[i][1].get(
-                    "subject_identifier"), appointment.subject_identifier
+                rows[i][1].get("subject_identifier"), appointment.subject_identifier
             )
-            self.assertEqual(rows[i][1].get(
-                "visit_code"), appointment.visit_code)
+            self.assertEqual(rows[i][1].get("visit_code"), appointment.visit_code)
