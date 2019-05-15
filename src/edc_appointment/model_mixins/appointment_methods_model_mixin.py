@@ -31,6 +31,12 @@ class AppointmentMethodsModelMixin(models.Model):
                 f"More than field on Appointment is related field to a visit model. "
                 f"Got {fields}."
             )
+        elif len(fields) == 0:
+            raise AppointmentMethodsModelError(
+                f"{cls} has no related visit model. "
+                f"Expected the related visit model to be an instance "
+                "of `VisitModelMixin`."
+            )
         else:
             related_visit_model_attr = fields[0].name
         return related_visit_model_attr

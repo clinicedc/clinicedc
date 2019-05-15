@@ -43,10 +43,12 @@ class AppointmentViewMixin(ContextMixin):
         opts = {}
         if self.kwargs.get("appointment"):
             opts = dict(id=self.kwargs.get("appointment"))
-        elif (self.kwargs.get("subject_identifier")
-              and self.kwargs.get("visit_schedule_name")
-              and self.kwargs.get("schedule_name")
-              and self.kwargs.get("visit_code")):
+        elif (
+            self.kwargs.get("subject_identifier")
+            and self.kwargs.get("visit_schedule_name")
+            and self.kwargs.get("schedule_name")
+            and self.kwargs.get("visit_code")
+        ):
             visit_code_sequence = self.kwargs.get("visit_code_sequence") or 0
             opts = dict(
                 subject_identifier=self.kwargs.get("subject_identifier"),
