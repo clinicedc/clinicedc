@@ -24,16 +24,21 @@ class SubjectVisitViewMixin(ContextMixin):
             appointment = self.appointment
         except AttributeError as e:
             raise SubjectVisitViewMixinError(
-                f"Mixin must be declared together with AppointmentViewMixin " f"Got {e}"
+                f"Mixin must be declared together with AppointmentViewMixin. Got {e}"
             )
         else:
             if appointment:
                 try:
-                    self.subject_visit = getattr(appointment, self.visit_attr)
+                    self.subject_visit = appointment.related_visit_model_attr
                 except AttributeError as e:
                     raise SubjectVisitViewMixinError(
                         f"Visit model must have a OneToOne relation to appointment. "
                         f"Got {e}"
                     )
+                else:
+                    try:
+                        self.subject_visit = appointment.visit
+                    except AttributeError as e:
+                        pass
                 context.update(subject_visit=self.subject_visit)
         return context
