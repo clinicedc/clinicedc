@@ -9,7 +9,6 @@ from edc_subject_model_wrappers import RequisitionModelWrapper, CrfModelWrapper
 
 from ..constants import CRF, NOT_REQUIRED, REQUISITION, REQUIRED, KEYED
 from ..metadata_wrappers import CrfMetadataWrappers, RequisitionMetadataWrappers
-from django.utils.safestring import mark_safe
 
 
 class MetaDataViewError(Exception):
