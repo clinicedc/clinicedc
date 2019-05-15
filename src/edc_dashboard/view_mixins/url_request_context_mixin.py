@@ -1,8 +1,8 @@
 from django.views.generic.base import ContextMixin
+from edc_utils.text import convert_from_camel
 
 from ..url_config import UrlConfig
 from ..url_names import InvalidUrlName, url_names
-from edc_utils.text import convert_from_camel
 
 
 class UrlRequestContextError(Exception):
@@ -18,7 +18,7 @@ class UrlRequestContextMixin(ContextMixin):
 
     @classmethod
     def get_urlname(cls):
-        return cls.dashboard_url
+        raise NotImplementedError
 
     @classmethod
     def urls(
@@ -44,12 +44,11 @@ class UrlRequestContextMixin(ContextMixin):
         of the existing_key from request.context_data.
         """
         try:
-            url_names.get(existing_key)
+            context.update({new_key: url_names.get(existing_key)})
         except InvalidUrlName as e:
             raise UrlRequestContextError(
                 f"Url name not defined in url_names. "
                 f"Expected one of {url_names.registry}. Got {e}. "
                 f"Hint: check if dashboard middleware is loaded."
             )
-        context.update({new_key: url_names.get(existing_key)})
         return context

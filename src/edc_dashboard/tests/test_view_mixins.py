@@ -30,6 +30,8 @@ def extra_clinic_group_permissions():
 
     add_permissions_to_group_by_codenames(group, ["edc_dashboard.view_my_listboard"])
 
+    return group_name
+
 
 class TestViewMixins(TestCase):
     @classmethod
