@@ -83,6 +83,12 @@ class Evaluator:
         )
 
     def in_bounds_or_raise(self, value, units=None, **kwargs):
+        """Raises a ValueBoundryError exception if condition
+        not met.
+
+        Condition is evaluated as a string constructed from
+        given parameters."""
+
         value = float(value)
         if units != self.units:
             raise InvalidUnits(f"Expected {self.units}. See {repr(self)}")
