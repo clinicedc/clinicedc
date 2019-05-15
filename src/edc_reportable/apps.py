@@ -2,4 +2,4 @@ from django.apps import AppConfig as BaseAppConfig
 
 
 class AppConfig(BaseAppConfig):
-    name = 'edc_reportable'
+    name = "edc_reportable"

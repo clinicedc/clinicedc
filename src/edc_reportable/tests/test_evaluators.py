@@ -110,7 +110,7 @@ class TestEvaluators(TestCase):
         )
 
     def test_age_evaluator(self):
-        """Test the age evaluator whiich is a child class
+        """Test the age evaluator which is a child class
         of the basic evaluator.
         """
         report_datetime = utc.localize(datetime(2017, 12, 7))
@@ -125,15 +125,24 @@ class TestEvaluators(TestCase):
         age_eval = AgeEvaluator(age_lower=24, age_upper=26)
         self.assertTrue(repr(age_eval))
         self.assertTrue(age_eval.in_bounds_or_raise(dob, report_datetime))
+        self.assertEqual(age_eval.description(), "24<AGE<26 years")
+
+        age_eval = AgeEvaluator(age_lower=18)
+        self.assertTrue(repr(age_eval))
+        self.assertTrue(age_eval.in_bounds_or_raise(dob, report_datetime))
+        self.assertEqual(age_eval.description(), "18<AGE years")
 
         age_eval = AgeEvaluator(age_lower=25, age_upper=26)
         self.assertRaises(
             ValueBoundryError, age_eval.in_bounds_or_raise, dob, report_datetime
         )
+        self.assertEqual(age_eval.description(), "25<AGE<26 years")
+
         age_eval = AgeEvaluator(age_lower=24, age_upper=25)
         self.assertRaises(
             ValueBoundryError, age_eval.in_bounds_or_raise, dob, report_datetime
         )
+        self.assertEqual(age_eval.description(), "24<AGE<25 years")
 
     def test_age_match(self):
         """Test age within the NormalReference.

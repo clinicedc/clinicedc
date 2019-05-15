@@ -24,7 +24,7 @@ class ValueReference:
 
     def description(self, **kwargs):
         return (
-            f"{self.evaluator.description(**kwargs)} {self.gender}, "
+            f"{self.evaluator.description(**kwargs)} {self.gender} "
             f"{self.age_evaluator.description()}"
         )
 
