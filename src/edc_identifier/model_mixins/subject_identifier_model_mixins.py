@@ -120,8 +120,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         except MultipleObjectsReturned as e:
             raise IdentifierError(
                 "Cannot lookup a unique RegisteredSubject instance. "
-                "Identity {} is not unique. Got {}".format(
-                    self.identity_or_pk, e)
+                "Identity {} is not unique. Got {}".format(self.identity_or_pk, e)
             )
         return obj
 
