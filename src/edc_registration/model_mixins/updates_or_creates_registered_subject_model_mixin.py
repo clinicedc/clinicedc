@@ -23,7 +23,10 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         """Creates or Updates the registration model with attributes
         from this instance.
 
-        Called from the signal
+        Called from the signal.
+
+        Note: `registration_unique_field` is typically
+              "subject_identifier".
         """
         if not getattr(self, self.registration_unique_field):
             raise UpdatesOrCreatesRegistrationModelError(
