@@ -10,16 +10,7 @@ from .models import RegisteredSubject
 class RegisteredSubjectAdmin(RegisteredSubjectModelAdminMixin, SimpleHistoryAdmin):
 
     fieldsets = (
-        (
-            "Subject",
-            {
-                "fields": (
-                    "subject_identifier",
-                    "sid",
-                    "subject_type",
-                )
-            },
-        ),
+        ("Subject", {"fields": ("subject_identifier", "sid", "subject_type")}),
         (
             "Personal Details",
             {

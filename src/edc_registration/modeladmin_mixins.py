@@ -3,7 +3,9 @@ from edc_model_admin import audit_fields
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 
-class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
+class RegisteredSubjectModelAdminMixin(
+    ModelAdminSubjectDashboardMixin, admin.ModelAdmin
+):
 
     date_hierarchy = "registration_datetime"
 
@@ -29,7 +31,8 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
                 "registration_datetime",
                 "randomization_datetime",
                 "consent_datetime",
-            ] + list(audit_fields)
+            ]
+            + list(audit_fields)
         )
 
     def get_list_display(self, request):
