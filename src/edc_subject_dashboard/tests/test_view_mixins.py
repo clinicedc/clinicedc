@@ -28,6 +28,7 @@ class TestViewMixins(TestCase):
             visit_code="1000",
             appt_datetime=get_utcnow(),
             visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
         )
         self.subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, subject_identifier="12345"
@@ -55,7 +56,6 @@ class TestViewMixins(TestCase):
             visit_attr = "badsubjectvisit"
 
         mixin = MySubjectVisitViewMixin()
-        mixin.appointment = self.appointment
         self.assertRaises(SubjectVisitViewMixinError, mixin.get_context_data)
 
     def test_subject_locator_raises_on_bad_model(self):

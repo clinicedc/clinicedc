@@ -51,12 +51,11 @@ class RequisitionReport(Report):
             ],
             [
                 Paragraph(
-                    get_utcnow().strftime(
-                        "%Y-%m-%d"), self.styles["line_data_largest"]
+                    get_utcnow().strftime("%Y-%m-%d"), self.styles["line_data_largest"]
                 ),
                 Paragraph(
-                    make_human_readable(
-                        self.timestamp), self.styles["line_data_largest"]
+                    make_human_readable(self.timestamp),
+                    self.styles["line_data_largest"],
                 ),
             ],
         ]
@@ -113,8 +112,7 @@ class RequisitionReport(Report):
                 Paragraph("INSTRUCTIONS<br />", self.styles["line_label"]),
             ],
             [
-                Paragraph(self.site.name.title(),
-                          self.styles["line_data_large"]),
+                Paragraph(self.site.name.title(), self.styles["line_data_large"]),
                 Paragraph(self.description or "", self.styles["line_data"]),
             ],
             [Paragraph("TEL/MOBILE/FAX", self.styles["line_label"]), ""],
@@ -127,8 +125,7 @@ class RequisitionReport(Report):
                 "",
             ],
             [Paragraph("EMAIL", self.styles["line_label"]), ""],
-            [Paragraph(self.shipper.email or "",
-                       self.styles["line_data_large"]), ""],
+            [Paragraph(self.shipper.email or "", self.styles["line_data_large"]), ""],
         ]
         t1 = Table(data)
         t1.setStyle(
@@ -209,8 +206,7 @@ class RequisitionReport(Report):
 
         story.append(Spacer(0.1 * cm, 1 * cm))
 
-        story.append(Paragraph("Comments (if any):",
-                               self.styles["line_label"]))
+        story.append(Paragraph("Comments (if any):", self.styles["line_label"]))
         story.append(Spacer(0.1 * cm, 2 * cm))
 
         story.append(
@@ -331,8 +327,7 @@ class RequisitionReport(Report):
                     [
                         Paragraph("BARCODE", self.styles["line_label_center"]),
                         Paragraph("ITEM", self.styles["line_label_center"]),
-                        Paragraph(
-                            "SPECIMEN", self.styles["line_label_center"]),
+                        Paragraph("SPECIMEN", self.styles["line_label_center"]),
                         Paragraph("SUBJECT", self.styles["line_label_center"]),
                         Paragraph("PANEL", self.styles["line_label_center"]),
                         Paragraph("TYPE", self.styles["line_label_center"]),

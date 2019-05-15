@@ -45,7 +45,7 @@ class SubjectDashboardView(
     navbar_name = None  # e.g. "ambition_dashboard"
     navbar_selected_item = "consented_subject"
 
-    dashboard_url = "subject_dashboard_url"
+    dashboard_url_name = "subject_dashboard_url"
     dashboard_template = "subject_dashboard_template"
 
     appointment_model = "edc_appointment.appointment"
