@@ -3,10 +3,12 @@ from django.urls.exceptions import NoReverseMatch
 from warnings import warn
 
 
-def get_next_url(request, next_attr=None):
+def get_next_url(request, next_attr=None, warn_to_console=None):
 
     url = None
     next_value = request.GET.dict().get(next_attr or "next")
+    warn_to_console = True if warn_to_console is None else warn_to_console
+
     if next_value:
         kwargs = {}
         for pos, value in enumerate(next_value.split(",")):
@@ -17,5 +19,6 @@ def get_next_url(request, next_attr=None):
         try:
             url = reverse(next_url, kwargs=kwargs)
         except NoReverseMatch as e:
-            warn(f"{e}. Got {next_value}.")
+            if warn_to_console:
+                warn(f"{e}. Got {next_value}.")
     return url

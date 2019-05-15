@@ -2,10 +2,10 @@ from django import template
 from django.contrib.admin.templatetags.admin_modify import (
     submit_row as django_submit_row,
 )
-from django.urls.exceptions import NoReverseMatch
 from django.urls.base import reverse
+from django.urls.exceptions import NoReverseMatch
 from edc_model_admin import get_next_url
-from _warnings import warn
+from warnings import warn
 
 register = template.Library()
 
@@ -43,20 +43,35 @@ def get_subject_identifier(context):
     return subject_identifier
 
 
-def get_cancel_url(context):
+def get_cancel_url(context, cancel_attr=None):
     """Returns the url for the Cancel button on the change_form.
     """
     request = get_request_object(context)
-    try:
-        cancel_url = get_next_url(request)
-    except NoReverseMatch as e:
-        warn(f"{str(e)} See 'get_cancel_url'.")
-        url = context["subject_dashboard_url"]
-        kwargs = {"subject_identifier": get_subject_identifier(context)}
-        try:
-            cancel_url = reverse(url, kwargs=kwargs)
-        except NoReverseMatch:
-            cancel_url = None
+    cancel_url = request.GET.dict().get("cancel_url")
+    if not cancel_url:
+        cancel_querystring = request.GET.dict().get(cancel_attr or "cancel")
+        if cancel_querystring:
+            url = None
+            kwargs = {}
+            for pos, value in enumerate(cancel_querystring.split(",")):
+                if pos == 0:
+                    url = value
+                else:
+                    kwargs.update({value: request.GET.get(value)})
+            try:
+                cancel_url = reverse(url, kwargs=kwargs)
+            except NoReverseMatch as e:
+                warn(f"{e}. Got {cancel_url}.")
+        else:
+            cancel_url = get_next_url(request, warn_to_console=False)
+            if not cancel_url:
+                url = context["subject_dashboard_url"]
+                kwargs = {"subject_identifier": get_subject_identifier(context)}
+                try:
+                    cancel_url = reverse(url, kwargs=kwargs)
+                except NoReverseMatch as e:
+                    cancel_url = None
+                    warn(f"{str(e)} kwargs={kwargs}. See 'get_cancel_url'.")
     return cancel_url
 
 
