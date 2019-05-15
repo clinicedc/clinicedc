@@ -80,12 +80,6 @@ class UrlConfig:
             ),
             re_path(
                 f"{self.label}/"
-                f"(?P<{self.identifier_label}>{UUID_PATTERN.pattern})/",
-                self.view_class.as_view(),
-                name=self.url_name,
-            ),
-            re_path(
-                f"{self.label}/"
                 f"(?P<{self.identifier_label}>{self.identifier_pattern})/",
                 self.view_class.as_view(),
                 name=self.url_name,

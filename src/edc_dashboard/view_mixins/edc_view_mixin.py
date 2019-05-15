@@ -9,7 +9,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .message_view_mixin import MessageViewMixin
 from .template_request_context_mixin import TemplateRequestContextMixin
-from django.contrib.auth.models import Group
 
 
 class EdcViewMixin(
