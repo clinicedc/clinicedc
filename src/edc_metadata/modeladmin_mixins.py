@@ -1,13 +1,25 @@
-class Base:
+from edc_model_admin.dashboard.model_admin_subject_dashboard_mixin import (
+    ModelAdminSubjectDashboardMixin,
+)
+from edc_model_admin.model_admin_simple_history import SimpleHistoryAdmin
+
+
+class CrfMetaDataAdminMixin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
     def seq(self, obj=None):
         return obj.visit_code_sequence
 
-
-class CrfMetaDataAdminMixin(Base):
+    def get_subject_dashboard_url_kwargs(self, obj):
+        return dict(
+            subject_identifier=obj.subject_identifier,
+            visit_schedule_name=obj.visit_schedule_name,
+            schedule_name=obj.schedule_name,
+            visit_code=obj.visit_code,
+        )
 
     search_fields = ("subject_identifier", "model", "id")
     list_display = (
         "subject_identifier",
+        "dashboard",
         "model",
         "visit_code",
         "seq",
@@ -41,11 +53,16 @@ class CrfMetaDataAdminMixin(Base):
     )
 
 
-class RequisitionMetaDataAdminMixin(Base):
+class RequisitionMetaDataAdminMixin(
+    ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
+):
+    def seq(self, obj=None):
+        return obj.visit_code_sequence
 
     search_fields = ("subject_identifier", "model", "id", "panel_name")
     list_display = (
         "subject_identifier",
+        "dashboard",
         "model",
         "panel",
         "visit_code",
