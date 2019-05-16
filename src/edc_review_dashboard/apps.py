@@ -13,7 +13,6 @@ if settings.APP_NAME == "edc_review_dashboard":
     from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
     from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
     from edc_metadata.apps import AppConfig as BaseEdcMetadataAppConfig
-    from edc_appointment.appointment_config import AppointmentConfig
 
     class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
         visit_models = {
