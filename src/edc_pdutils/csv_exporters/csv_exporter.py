@@ -127,7 +127,7 @@ class CsvExporter:
             timestamp_format = settings.EXPORT_FILENAME_TIMESTAMP_FORMAT
         except AttributeError:
             timestamp_format = "%Y%m%d%H%M%S"
-        if timestamp_format is "":
+        if not timestamp_format:
             suffix = ""
         else:
             suffix = f"_{get_utcnow().strftime(timestamp_format)}"
