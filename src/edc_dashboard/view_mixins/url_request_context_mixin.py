@@ -1,3 +1,4 @@
+from django.apps import apps as django_apps
 from django.views.generic.base import ContextMixin
 from edc_utils.text import convert_from_camel
 
@@ -13,7 +14,8 @@ class UrlRequestContextMixin(ContextMixin):
 
     urlconfig_getattr = "dashboard_urls"
     urlconfig_identifier_label = "subject_identifier"
-    urlconfig_identifier_pattern = "\w+"
+    urlconfig_identifier_pattern = django_apps.get_app_config(
+        "edc_identifier").subject_identifier_pattern
     urlconfig_label = None
 
     @classmethod
