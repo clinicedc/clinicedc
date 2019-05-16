@@ -4,7 +4,6 @@ from dashboard_app.reference_configs import register_to_site_reference_configs
 from dashboard_app.visit_schedule import visit_schedule
 from django.contrib.auth import get_user_model
 from django.test import tag  # noqa
-from django.test.client import RequestFactory
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_facility.import_holidays import import_holidays
@@ -33,7 +32,8 @@ class TestDashboard(WebTest):
         return ret
 
     def setUp(self):
-        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
+        self.user = User.objects.create_superuser(
+            "user_login", "u@example.com", "pass")
 
         site_labs._registry = {}
         site_labs.loaded = False
@@ -44,10 +44,11 @@ class TestDashboard(WebTest):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "dashboard_app.subjectvisit"}
+            visit_models={
+                "edc_appointment.appointment": "dashboard_app.subjectvisit"}
         )
 
-        self.subject_identifier = "12345"
+        self.subject_identifier = "092-40990029-4"
         identity = "123456789"
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
@@ -101,13 +102,17 @@ class TestDashboard(WebTest):
         self.assertIn("Subjects", response.html.get_text())
 
         # shows something like 1. 12345 3 visits
-        self.assertIn(f"{self.subject_identifier} {n} visits", response.html.get_text())
-        self.assertIn("click to list reported visits for this subject", response)
+        self.assertIn(f"{self.subject_identifier} {n} visits",
+                      response.html.get_text())
+        self.assertIn(
+            "click to list reported visits for this subject", response)
 
         # follow to schedule for this subject
         response = response.click(linkid="id-reported-visit-list")
         self.assertIn(
-            f"Reported Visits for {self.subject_identifier}", response.html.get_text()
+            f"Subject Review: Reported visits for {self.subject_identifier}",
+            response.html.get_text(
+            )
         )
         self.assertIn("1000.0", response.html.get_text())
         self.assertIn("2000.0", response.html.get_text())
