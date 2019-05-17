@@ -1,10 +1,5 @@
+from .constants import GRADE1, GRADE2, GRADE3, GRADE4, GRADE5
 from .value_reference import ValueReference
-
-GRADE1 = "1"
-GRADE2 = "2"
-GRADE3 = "3"
-GRADE4 = "4"
-GRADE5 = "5"
 
 
 class GradeError(Exception):
