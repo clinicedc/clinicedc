@@ -32,7 +32,7 @@ def unparse(**kwargs):
 
 def parse(phrase=None, **kwargs):
 
-    pattern = "(([\d+\.\d+]|[\.\d+])?(<|<=)?)+x((<|<=)?([\d+\.\d+]|[\.\d+])+)?"
+    pattern = r"(([\d+\.\d+]|[\.\d+])?(<|<=)?)+x((<|<=)?([\d+\.\d+]|[\.\d+])+)?"
 
     def _parse(string):
         inclusive = True if "=" in string else None
