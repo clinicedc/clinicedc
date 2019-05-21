@@ -33,14 +33,14 @@ class Evaluator:
         **kwargs,
     ):
         self.name = name
-        if lower and not re.match("\d+", str(lower)):
+        if lower is not None and not re.match(r"\d+", str(lower)):
             raise InvalidLowerBound(f"Got {lower}.")
-        if upper and not re.match("\d+", str(upper)):
+        if upper is not None and not re.match(r"\d+", str(upper)):
             raise InvalidUpperBound(f"Got {upper}.")
         self.lower = None if lower is None else float(lower)
         self.upper = None if upper is None else float(upper)
 
-        if lower and upper:
+        if self.lower is not None and self.upper is not None:
             if self.lower == self.upper:
                 raise InvalidCombination(
                     f"Lower and upper bound cannot be equal. Got {lower}={upper}"
@@ -55,10 +55,18 @@ class Evaluator:
         self.lower_inclusive = lower_inclusive
         self.upper_inclusive = upper_inclusive
         self.lower_operator = (
-            None if not self.lower else "<=" if self.lower_inclusive is True else "<"
+            None
+            if self.lower is None
+            else "<="
+            if self.lower_inclusive is True
+            else "<"
         )
         self.upper_operator = (
-            None if not self.upper else "<=" if self.upper_inclusive is True else "<"
+            None
+            if self.upper is None
+            else "<="
+            if self.upper_inclusive is True
+            else "<"
         )
 
     def __repr__(self):
@@ -70,13 +78,13 @@ class Evaluator:
     def description(self, value=None, show_as_int=None, placeholder=None):
         placeholder = placeholder or "x"
         if show_as_int:
-            value = int(value) if value else placeholder
-            lower = int(self.lower) if self.lower else ""
-            upper = int(self.upper) if self.upper else ""
+            value = int(value) if value is not None else placeholder
+            lower = int(self.lower) if self.lower is not None else ""
+            upper = int(self.upper) if self.upper is not None else ""
         else:
-            value = float(value) if value else placeholder
-            lower = float(self.lower) if self.lower else ""
-            upper = float(self.upper) if self.upper else ""
+            value = float(value) if value is not None else placeholder
+            lower = float(self.lower) if self.lower is not None else ""
+            upper = float(self.upper) if self.upper is not None else ""
         return (
             f'{lower}{self.lower_operator or ""}{value}'
             f'{self.upper_operator or ""}{upper} {self.units}'
@@ -93,9 +101,10 @@ class Evaluator:
         if units != self.units:
             raise InvalidUnits(f"Expected {self.units}. See {repr(self)}")
         condition = (
-            f'{self.lower or ""}{self.lower_operator or ""}{value}'
-            f'{self.upper_operator or ""}{self.upper or ""}'
+            f'{"" if self.lower is None else self.lower}{self.lower_operator or ""}{value}'
+            f'{self.upper_operator or ""}{"" if self.upper is None else self.upper}'
         )
+
         if not eval(condition):
             raise ValueBoundryError(condition)
         return True
