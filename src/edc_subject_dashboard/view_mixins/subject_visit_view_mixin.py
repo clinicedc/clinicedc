@@ -38,7 +38,7 @@ class SubjectVisitViewMixin(ContextMixin):
                 else:
                     try:
                         self.subject_visit = appointment.visit
-                    except AttributeError as e:
+                    except AttributeError:
                         pass
                 context.update(subject_visit=self.subject_visit)
         return context
