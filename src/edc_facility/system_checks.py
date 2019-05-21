@@ -1,12 +1,10 @@
 import os
-import sys
 
-from django.core.checks import Warning
 from django.conf import settings
+from django.core.checks import Warning
 
 
 def holiday_check(app_configs, **kwargs):
-    from .models import Holiday
 
     errors = []
     holiday_path = None
@@ -35,27 +33,4 @@ def holiday_check(app_configs, **kwargs):
                 id="edc_facility.002",
             )
         )
-
-    if "makemigrations" not in sys.argv and "migrate" not in sys.argv:
-        if Holiday.objects.all().count() == 0:
-            errors.append(
-                Warning(
-                    "Holiday table is empty. Run management command 'import_holidays'. "
-                    "See edc_facility.Holidays",
-                    id="edc_facility.003",
-                )
-            )
-        else:
-            if Holiday.objects.filter(country=settings.COUNTRY).count() == 0:
-                countries = [obj.country for obj in Holiday.objects.all()]
-                countries = list(set(countries))
-                errors.append(
-                    Warning(
-                        f"No Holidays have been defined for this country. "
-                        f"See edc_facility.Holidays. Expected one of {countries}. "
-                        f"Got settings.COUNTRY="
-                        f"'{settings.COUNTRY}'",
-                        id="edc_facility.004",
-                    )
-                )
     return errors

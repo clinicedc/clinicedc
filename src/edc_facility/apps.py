@@ -22,8 +22,7 @@ class AppConfig(DjangoAppConfig):
 
     default_definitions = {
         "7-day-clinic": dict(
-            days=[MO, TU, WE, TH, FR, SA, SU],
-            slots=[100, 100, 100, 100, 100, 100, 100],
+            days=[MO, TU, WE, TH, FR, SA, SU], slots=[100, 100, 100, 100, 100, 100, 100]
         ),
         "5-day-clinic": dict(
             days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
@@ -55,9 +54,12 @@ class AppConfig(DjangoAppConfig):
                 warn(
                     f"Facility definitions not defined. See {self.name} "
                     f"app_config.definitions. Using defaults. "
-                    "To silence, set USE_EDC_FACILITY_DEFAULTS=True in settings.")
-        return ({k: Facility(name=k, **v)
-                 for k, v in (self.definitions or self.default_definitions).items()})
+                    "To silence, set USE_EDC_FACILITY_DEFAULTS=True in settings."
+                )
+        return {
+            k: Facility(name=k, **v)
+            for k, v in (self.definitions or self.default_definitions).items()
+        }
 
     def get_facility(self, name=None):
         """Returns a facility instance for this name
