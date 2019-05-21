@@ -45,10 +45,10 @@ class ReportablesEvaluator:
         for each field.
         """
         for field, value in self.cleaned_data.items():
-            if value and self.reference_list:
+            if value and self.reference_list.get(field):
                 self._evaluate_reportable(field, value)
 
-    def validate_result_abnormal_field(
+    def validate_results_abnormal_field(
         self, field=None, responses=None, suffix=None, word=None
     ):
         """Validate the "results_abnormal" field.
@@ -95,7 +95,7 @@ class ReportablesEvaluator:
             units=response.units,
         )
 
-        grade = self.get_grade(value, **opts)
+        grade = self.get_grade(field, value, **opts)
 
         # is gradeable, user reponse matches grade or has valid opt out
         # response
@@ -119,7 +119,7 @@ class ReportablesEvaluator:
 
         # is not normal, user response does not match
         if not normal and response.abnormal == NO:
-            descriptions = self.reference_list.get_normal_description(**opts)
+            descriptions = self.reference_list.get(field).get_normal_description(**opts)
             raise forms.ValidationError(
                 {
                     field: (
@@ -153,14 +153,14 @@ class ReportablesEvaluator:
 
     def get_grade(self, field, value, **opts):
         try:
-            grade = self.reference_list.get_grade(value, **opts)
+            grade = self.reference_list.get(field).get_grade(value, **opts)
         except NotEvaluated as e:
             raise forms.ValidationError({field: str(e)})
         return grade
 
     def get_normal(self, field, value, **opts):
         try:
-            normal = self.reference_list.get_normal(value, **opts)
+            normal = self.reference_list.get(field).get_normal(value, **opts)
         except NotEvaluated as e:
             raise forms.ValidationError({field: str(e)})
         return normal

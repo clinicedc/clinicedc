@@ -11,20 +11,16 @@ def unparse(**kwargs):
 
     lower = kwargs.get("lower") or ""
     upper = kwargs.get("upper") or ""
-    lower_op = "" if not lower else "<=" if kwargs.get(
-        "lower_inclusive") else "<"
-    upper_op = "" if not upper else "<=" if kwargs.get(
-        "upper_inclusive") else "<"
+    lower_op = "" if not lower else "<=" if kwargs.get("lower_inclusive") else "<"
+    upper_op = "" if not upper else "<=" if kwargs.get("upper_inclusive") else "<"
     gender = kwargs.get("gender", "")
     age_lower = kwargs.get("age_lower", "")
     age_upper = kwargs.get("age_upper", "")
     age_lower_op = (
-        "" if not age_lower else "<=" if kwargs.get(
-            "age_lower_inclusive") else "<"
+        "" if not age_lower else "<=" if kwargs.get("age_lower_inclusive") else "<"
     )
     age_upper_op = (
-        "" if not age_upper else "<=" if kwargs.get(
-            "age_upper_inclusive") else "<"
+        "" if not age_upper else "<=" if kwargs.get("age_upper_inclusive") else "<"
     )
     age = (
         ""
