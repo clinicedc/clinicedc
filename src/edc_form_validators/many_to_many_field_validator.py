@@ -11,6 +11,36 @@ M2M_INVALID_SELECTION = "m2m_invalid_selection"
 
 
 class ManyToManyFieldValidator(BaseFormValidator):
+    def m2m_applicable_if(self, *responses, field=None, m2m_field=None):
+        """Raises an exception or returns False.
+
+        m2m_field is applicable if field is in responses.
+        """
+        message = None
+        if self.cleaned_data.get(field):
+            qs = self.cleaned_data.get(m2m_field)
+            if self.cleaned_data.get(field) not in responses:
+                # m2m should == NOT_APPLICABLE
+                if qs and qs.count() > 0:
+                    selected = {obj.short_name: obj.name for obj in qs}
+                    if NOT_APPLICABLE not in selected:
+                        message = {
+                            m2m_field: "This field is not applicable"}
+                        code = NOT_APPLICABLE_ERROR
+            else:
+                # m2m should != NOT_APPLICABLE
+                if qs and qs.count() > 0:
+                    selected = {obj.short_name: obj.name for obj in qs}
+                    if NOT_APPLICABLE in selected:
+                        message = {
+                            m2m_field: "This field is applicable"}
+                        code = APPLICABLE_ERROR
+        if message:
+            self._errors.update(message)
+            self._error_codes.append(code)
+            raise ValidationError(message, code=code)
+        return False
+
     def m2m_required(self, m2m_field=None):
         """Raises an exception or returns False.
 
@@ -149,9 +179,11 @@ class ManyToManyFieldValidator(BaseFormValidator):
         """
         qs = self.cleaned_data.get(m2m_field)
         if qs and qs.count() > 0:
-            selection = [obj.short_name for obj in qs if obj.short_name == response]
+            selection = [
+                obj.short_name for obj in qs if obj.short_name == response]
             if not selection or qs.count() > 1:
-                message = {m2m_field: error_msg or f"Expected {response} only."}
+                message = {
+                    m2m_field: error_msg or f"Expected {response} only."}
                 self._errors.update(message)
                 self._error_codes.append(M2M_SELECTION_ONLY)
                 raise ValidationError(message, code=M2M_SELECTION_ONLY)
@@ -164,7 +196,8 @@ class ManyToManyFieldValidator(BaseFormValidator):
         """
         qs = self.cleaned_data.get(m2m_field)
         if qs and qs.count() > 0:
-            selections = [obj.short_name for obj in qs if obj.short_name in responses]
+            selections = [
+                obj.short_name for obj in qs if obj.short_name in responses]
             if selections:
                 display_names = ", ".join(
                     [obj.name for obj in qs if obj.short_name in responses]
