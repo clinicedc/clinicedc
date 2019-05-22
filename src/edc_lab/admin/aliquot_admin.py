@@ -40,11 +40,7 @@ class AliquotAdmin(BaseModelAdmin, admin.ModelAdmin):
             },
         ),
         aliquot_identifiers_fieldset_tuple,
-        (
-            "Shipping",
-            {"classes": ("collapse",), "fields": (
-                "shipped",)},
-        ),
+        ("Shipping", {"classes": ("collapse",), "fields": ("shipped",)}),
         audit_fieldset_tuple,
     )
 

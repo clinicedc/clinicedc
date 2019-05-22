@@ -30,8 +30,10 @@ class BoxAdmin(BaseModelAdmin, admin.ModelAdmin):
         ),
         (
             "Status",
-            {"classes": ("collapse",), "fields": (
-                "status", "verified", "verified_datetime")},
+            {
+                "classes": ("collapse",),
+                "fields": ("status", "verified", "verified_datetime"),
+            },
         ),
         audit_fieldset_tuple,
     )
