@@ -28,8 +28,7 @@ class VisitTrackingModelFormMixin:
         # no comment needed since django will catch it as
         # a required field.
         if not cleaned_data.get(self._meta.model.visit_model_attr()):
-            raise forms.ValidationError(
-                {self._meta.model.visit_model_attr(): ""})
+            raise forms.ValidationError({self._meta.model.visit_model_attr(): ""})
         elif cleaned_data.get("report_datetime"):
             try:
                 self.crf_validator_cls(
@@ -43,5 +42,5 @@ class VisitTrackingModelFormMixin:
                 CrfReportDateBeforeStudyStart,
                 CrfReportDateIsFuture,
             ) as e:
-                raise forms.ValidationError(e)
+                raise forms.ValidationError({"report_datetime": str(e)})
         return cleaned_data

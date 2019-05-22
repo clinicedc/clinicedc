@@ -5,6 +5,8 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from edc_model.validators.date import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
+from edc_utils.text import convert_php_dateformat
+from django.conf import settings
 
 
 class CrfReportDateAllowanceError(Exception):
@@ -66,12 +68,18 @@ class CrfDateValidator:
         try:
             datetime_not_before_study_start(self.report_datetime)
         except ValidationError as e:
-            raise CrfReportDateBeforeStudyStart(e)
+            message = e.message if hasattr(e, "message") else str(e)
+            raise CrfReportDateBeforeStudyStart(message)
         # datetime_not_future
         try:
             datetime_not_future(self.report_datetime)
         except ValidationError as e:
-            raise CrfReportDateIsFuture(e)
+            message = e.message if hasattr(e, "message") else str(e)
+            raise CrfReportDateIsFuture(message)
+
+        formatted_visit_datetime = self.visit_report_datetime.strftime(
+            convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+        )
 
         # not before the visit report_datetime
         if (
@@ -80,10 +88,7 @@ class CrfDateValidator:
         ):
             raise CrfReportDateAllowanceError(
                 "Report datetime may not be before the visit report datetime. "
-                f"Got report_datetime={self.report_datetime} ",
-                f"visit.report_datetime={self.visit_report_datetime}. "
-                f"{self.created} {self.modified} {self.subject_identifier}",
-                "report_datetime",
+                f"Visit report datetime is {formatted_visit_datetime}. "
             )
 
         # not more than x days greater than the visit report_datetime
@@ -99,8 +104,6 @@ class CrfDateValidator:
                 raise CrfReportDateAllowanceError(
                     f"Report datetime may not more than {self.report_datetime_allowance} "
                     f"days greater than the visit report datetime. Got {diff} days."
-                    f"report_datetime={self.report_datetime} ",
-                    f"visit.report_datetime={self.visit_report_datetime}. "
-                    f"See also AppConfig.report_datetime_allowance.",
-                    "report_datetime",
+                    f"Visit report datetime is {formatted_visit_datetime}. "
+                    f"See also AppConfig.report_datetime_allowance."
                 )
