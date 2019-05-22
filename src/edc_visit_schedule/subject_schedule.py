@@ -315,7 +315,7 @@ class SubjectSchedule:
                 subject_identifier=subject_identifier
             )
         except ObjectDoesNotExist:
-            offschedule_datetime = get_utcnow()
+            offschedule_datetime = None
         else:
             offschedule_datetime = offschedule_obj.offschedule_datetime
 
@@ -323,22 +323,28 @@ class SubjectSchedule:
             in_date_range = (
                 onschedule_obj.onschedule_datetime
                 <= report_datetime
-                <= offschedule_datetime
+                <= (offschedule_datetime or get_utcnow())
             )
         else:
             in_date_range = (
                 onschedule_obj.onschedule_datetime.date()
                 <= report_datetime.date()
-                <= offschedule_datetime.date()
+                <= (offschedule_datetime or get_utcnow()).date()
             )
 
-        if not in_date_range:
-            formatted_date = report_datetime.strftime(
+        if offschedule_datetime and not in_date_range:
+            formatted_offschedule_datetime = offschedule_datetime.strftime(
                 convert_php_dateformat(settings.SHORT_DATE_FORMAT)
             )
+            formatted_report_datetime = report_datetime.strftime(
+                convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+            )
+            offschedule_datetime
             raise NotOnScheduleForDateError(
-                f"Subject not on schedule {self.schedule_name} on "
-                f"{formatted_date}. Got {subject_identifier}."
+                f"Subject not on schedule '{self.schedule_name}' for "
+                f"report date '{formatted_report_datetime}'. "
+                f"Got '{subject_identifier}' was taken "
+                f"off this schedule on '{formatted_offschedule_datetime}'."
             )
         return None
 
