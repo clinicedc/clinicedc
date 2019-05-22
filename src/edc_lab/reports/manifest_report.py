@@ -195,8 +195,7 @@ class ManifestReport(Report):
                 "",
             ],
             [
-                Paragraph("COUNTRY OF ULTIMATE DESTINATION",
-                          self.styles["line_label"]),
+                Paragraph("COUNTRY OF ULTIMATE DESTINATION", self.styles["line_label"]),
                 "",
             ],
             [
@@ -389,18 +388,15 @@ class ManifestReport(Report):
                     f"{e} Got Manifest item '{manifest_item.identifier}'.",
                     code="unboxed_item",
                 ) from e
-            barcode = code39.Standard39(
-                box.box_identifier, barHeight=5 * mm, stop=1)
+            barcode = code39.Standard39(box.box_identifier, barHeight=5 * mm, stop=1)
             data1.append(
                 [
-                    Paragraph(box.box_identifier,
-                              self.styles["line_data_large"]),
+                    Paragraph(box.box_identifier, self.styles["line_data_large"]),
                     Paragraph(
                         box.get_category_display().upper(),
                         self.styles["line_data_large"],
                     ),
-                    Paragraph(box.specimen_types,
-                              self.styles["line_data_large"]),
+                    Paragraph(box.specimen_types, self.styles["line_data_large"]),
                     Paragraph(
                         f"{str(box.count)}/{str(box.box_type.total)}",
                         self.styles["line_data_large"],
@@ -430,8 +426,7 @@ class ManifestReport(Report):
                 [
                     Paragraph("BARCODE", self.styles["line_label_center"]),
                     Paragraph("POS", self.styles["line_label_center"]),
-                    Paragraph("ALIQUOT IDENTIFIER",
-                              self.styles["line_label_center"]),
+                    Paragraph("ALIQUOT IDENTIFIER", self.styles["line_label_center"]),
                     Paragraph("SUBJECT", self.styles["line_label_center"]),
                     Paragraph("TYPE", self.styles["line_label_center"]),
                     Paragraph("DATE", self.styles["line_label_center"]),
@@ -446,13 +441,11 @@ class ManifestReport(Report):
                 table_data.append(
                     [
                         barcode,
-                        Paragraph(str(box_item.position),
-                                  self.styles["row_data"]),
+                        Paragraph(str(box_item.position), self.styles["row_data"]),
                         Paragraph(
                             aliquot.human_readable_identifier, self.styles["row_data"]
                         ),
-                        Paragraph(aliquot.subject_identifier,
-                                  self.styles["row_data"]),
+                        Paragraph(aliquot.subject_identifier, self.styles["row_data"]),
                         Paragraph(
                             "{} ({}) {}".format(
                                 aliquot.aliquot_type,

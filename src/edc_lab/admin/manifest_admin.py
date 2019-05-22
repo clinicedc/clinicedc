@@ -30,14 +30,12 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
         ("Site", {"classes": ("collapse",), "fields": ("site",)}),
         (
             "Shipping",
-            {"classes": ("collapse",), "fields": (
-                "shipped", "export_datetime")},
+            {"classes": ("collapse",), "fields": ("shipped", "export_datetime")},
         ),
         audit_fieldset_tuple,
     )
 
-    list_display = ("manifest_identifier", "manifest_datetime",
-                    "shipper", "consignee")
+    list_display = ("manifest_identifier", "manifest_datetime", "shipper", "consignee")
 
     list_filter = ("manifest_datetime",)
 

@@ -7,7 +7,9 @@ from edc_constants.constants import NOT_APPLICABLE
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins.updates import UpdatesRequisitionMetadataModelMixin
 from edc_model.models import HistoricalRecords
+from edc_model.validators import datetime_not_future
 from edc_model_fields.fields import OtherCharField, InitialsField
+from edc_protocol.validators import datetime_not_before_study_start
 from edc_reference.model_mixins import RequisitionReferenceModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin
 from edc_sites.models import SiteModelMixin
@@ -42,17 +44,17 @@ class RequisitionModelMixin(
 ):
 
     requisition_datetime = models.DateTimeField(
-        default=timezone.now, verbose_name="Requisition Date"
+        validators=[datetime_not_before_study_start, datetime_not_future],
+        default=timezone.now,
+        verbose_name="Requisition Date",
     )
 
     drawn_datetime = models.DateTimeField(
         verbose_name="Date / Time Specimen Drawn",
+        validators=[datetime_not_before_study_start, datetime_not_future],
         null=True,
         blank=True,
-        help_text=(
-            "If not drawn, leave blank. Same as date and time of "
-            "finger prick in case on DBS."
-        ),
+        help_text=("If not drawn, leave blank."),
     )
 
     is_drawn = models.CharField(
