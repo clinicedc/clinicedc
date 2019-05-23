@@ -88,6 +88,11 @@ class ActionItemAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     date_hierarchy = "created"
 
+    additional_instructions = mark_safe(
+        "<B><U>Important:</U> This form is usually auto-filled based on a clinical event. "
+        "DO NOT DELETE unless you know what you are doing.</B>"
+    )
+
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj=obj)
         readonly_fields = list(readonly_fields) + [
