@@ -247,6 +247,7 @@ class ActionItemHelper:
             action_item_color=self.action_cls.color_style,
             action_item_reason=self.action_item_reason,
             display_name=self.action_item.action_type.display_name,
+            href=self.href,
             last_updated_text=self.last_updated_text,
             name=self.action_item.action_type.name,
             parent_action_item=self.action_item.parent_action_item,
