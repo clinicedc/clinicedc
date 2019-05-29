@@ -8,10 +8,15 @@ app_name = "edc_export"
 urlpatterns = [
     path("admin/", edc_export_admin.urls),
     path(
-        "export/", ExportSelectedModelsView.as_view(), name="export_selected_models_url"
+        "selected_models/", ExportSelectedModelsView.as_view(), name="export_selected_models_url"
     ),
     re_path(
-        "(?P<action>cancel|confirm)/",
+        "models/(?P<action>cancel|confirm)/",
+        ExportModelsView.as_view(),
+        name="export_models_url",
+    ),
+    re_path(
+        "models/",
         ExportModelsView.as_view(),
         name="export_models_url",
     ),

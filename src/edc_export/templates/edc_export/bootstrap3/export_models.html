@@ -34,7 +34,7 @@
 					<p class="text-center">
 						Data from the models listed below are ready to send to you at<BR><B>{{ user.email }}</B>.
 					<BR><BR>
-					<a id="btn-cancel" role="button" href="{% url 'edc_export:home_url' action='cancel' %}" class="btn btn-default btn-sm"> Cancel </a>
+					<a id="btn-cancel" role="button" href="{% url 'edc_export:export_models_url' action='cancel' %}" class="btn btn-default btn-sm"> Cancel </a>
 					<button id="btn-confirm" class="btn btn-primary btn-sm" onclick="confirm();submit();return true;"> Confirm </button>
 					{% if request.session.selected_models|length > 10 %}
 						<BR><BR><small>Note: Since you have selected more than 10 models, your data will be sent over multiple emails each with no more than 10 attachments.</small>
@@ -81,7 +81,8 @@
 	 	
 	 		<div class="panel panel-warning">
 	 		<div class="panel-heading clearfix">
-	 			<i class="fas fa-file-export fa-fw fa-lg"></i> <button type="submit" class="btn btn-primary btn-sm pull-right">Export Selected</button>
+		        <a id="home_list_group_home" href="{% url 'edc_export:home_url' %}" class="btn btn-primary"><i class="fas fa-reply fa-fw" aria-hidden="true"></i></a>
+	 			<button type="submit" class="btn btn-primary btn-sm pull-right">Export Selected</button>
 	 		</div>
 	 		</div>
 
