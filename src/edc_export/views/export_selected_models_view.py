@@ -49,7 +49,8 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.email:
-            user_url = reverse("admin:auth_user_change", args=(request.user.id,))
+            user_url = reverse("admin:auth_user_change",
+                               args=(request.user.id,))
             messages.error(
                 request,
                 mark_safe(
@@ -94,8 +95,9 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
                 email_to_user=email_to_user,
                 archive=False,
             )
-        except ArchiveExporterEmailError as e:
-            messages.error(self.request, f"Failed to send files by email. Got '{e}'")
+        except (ArchiveExporterEmailError, ConnectionRefusedError) as e:
+            messages.error(
+                self.request, f"Failed to send files by email. Got '{e}'")
         except ArchiveExporterNothingExported:
             messages.info(self.request, f"Nothing to export.")
         else:
@@ -130,7 +132,8 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         """
         if self._selected_models:
             selected_models = self.get_selected_models_from_session()
-            self._selected_models = self.check_export_permissions(selected_models)
+            self._selected_models = self.check_export_permissions(
+                selected_models)
         return self._selected_models or []
 
     def get_selected_models_from_post(self):
@@ -141,16 +144,19 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         selected_models = []
         for app_config in exportables:
             selected_models.extend(
-                self.request.POST.getlist(f"chk_{app_config.name}_models") or []
+                self.request.POST.getlist(
+                    f"chk_{app_config.name}_models") or []
             )
             selected_models.extend(
-                self.request.POST.getlist(f"chk_{app_config.name}_historicals") or []
+                self.request.POST.getlist(
+                    f"chk_{app_config.name}_historicals") or []
             )
             selected_models.extend(
                 self.request.POST.getlist(f"chk_{app_config.name}_lists") or []
             )
             selected_models.extend(
-                self.request.POST.getlist(f"chk_{app_config.name}_inlines") or []
+                self.request.POST.getlist(
+                    f"chk_{app_config.name}_inlines") or []
             )
         return [ModelOptions(model=m).__dict__ for m in selected_models if m]
 
