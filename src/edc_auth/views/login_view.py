@@ -15,8 +15,7 @@ class LoginView(BaseLoginView):
         """
         self.request.session.set_test_cookie()
         if not self.request.session.test_cookie_worked():
-            messages.add_message(
-                self.request, messages.ERROR, "Please enable cookies.")
+            messages.add_message(self.request, messages.ERROR, "Please enable cookies.")
         self.request.session.delete_test_cookie()
         return super().get_context_data(**kwargs)
 
@@ -32,7 +31,9 @@ class LoginView(BaseLoginView):
         except AttributeError:
             allow_password_reset = None
         return {
-            "edc_base_template": get_template_path_with_bootstrap("edc_dashboard/base.html"),
+            "edc_base_template": get_template_path_with_bootstrap(
+                "edc_dashboard/base.html"
+            ),
             "DEBUG": settings.DEBUG,
             "ALLOW_PASSWORD_RESET": allow_password_reset,
             "copyright": app_config.copyright,
