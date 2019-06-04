@@ -7,6 +7,8 @@ class RegisteredSubjectModelAdminMixin(
     ModelAdminSubjectDashboardMixin, admin.ModelAdmin
 ):
 
+    ordering = ("registration_datetime",)
+
     date_hierarchy = "registration_datetime"
 
     instructions = []
