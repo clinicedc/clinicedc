@@ -3,6 +3,7 @@ import sys
 
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class RegistryNotLoaded(Exception):
@@ -158,6 +159,30 @@ class SiteVisitSchedules:
                     errors["visits"].extend(visit.check())
         return errors
 
+    def to_model(self, model_cls):
+        model_cls.objects.update(active=False)
+        for visit_schedule in site_visit_schedules.visit_schedules.values():
+            for schedule in visit_schedule.schedules.values():
+                for visit in schedule.visits.values():
+                    opts = dict(
+                        visit_schedule_name=visit_schedule.name,
+                        schedule_name=schedule.name,
+                        visit_code=visit.code,
+                        visit_name=visit.name,
+                        timepoint=visit.timepoint,
+                        active=True)
+                    try:
+                        obj = model_cls.objects.get(
+                            visit_schedule_name=visit_schedule.name,
+                            schedule_name=schedule.name,
+                            visit_code=visit.code)
+                    except ObjectDoesNotExist:
+                        model_cls.objects.create(**opts)
+                    else:
+                        for fld, value in opts.items():
+                            setattr(obj, fld, value)
+                        obj.save()
+
     def autodiscover(self, module_name=None, apps=None, verbose=None):
         """Autodiscovers classes in the visit_schedules.py file of
         any INSTALLED_APP.
@@ -166,12 +191,14 @@ class SiteVisitSchedules:
         module_name = module_name or "visit_schedules"
         verbose = True if verbose is None else verbose
         if verbose:
-            sys.stdout.write(f" * checking site for module '{module_name}' ...\n")
+            sys.stdout.write(
+                f" * checking site for module '{module_name}' ...\n")
         for app in apps or django_apps.app_configs:
             try:
                 mod = import_module(app)
                 try:
-                    before_import_registry = copy.copy(site_visit_schedules._registry)
+                    before_import_registry = copy.copy(
+                        site_visit_schedules._registry)
                     import_module(f"{app}.{module_name}")
                     if verbose:
                         sys.stdout.write(
