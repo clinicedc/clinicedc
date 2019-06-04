@@ -1,13 +1,15 @@
 from django.contrib import admin
 from edc_model_admin import audit_fieldset_tuple, SimpleHistoryAdmin
 
-from .modeladmin_mixins import RegisteredSubjectModelAdminMixin
 from .admin_site import edc_registration_admin
+from .modeladmin_mixins import RegisteredSubjectModelAdminMixin
 from .models import RegisteredSubject
 
 
 @admin.register(RegisteredSubject, site=edc_registration_admin)
 class RegisteredSubjectAdmin(RegisteredSubjectModelAdminMixin, SimpleHistoryAdmin):
+
+    ordering = ("subject_identifier",)
 
     fieldsets = (
         ("Subject", {"fields": ("subject_identifier", "sid", "subject_type")}),
