@@ -18,12 +18,11 @@ class SitePrnFormsError(Exception):
 
 
 class PrnFormsCollection:
-
     def __init__(self):
         self.registry = OrderedDict()
 
     def __repr__(self):
-        return f'{self.__class__.__name__}()'
+        return f"{self.__class__.__name__}()"
 
     def __len__(self):
         return len(self.registry.values())
@@ -33,8 +32,7 @@ class PrnFormsCollection:
 
     def register(self, prn=None):
         if prn.model in self.registry:
-            raise AlreadyRegistered(
-                f'Prn form {prn.model} is already registered.')
+            raise AlreadyRegistered(f"Prn form {prn.model} is already registered.")
         else:
             self.registry.update({prn.model: prn})
         self.reorder_registry()
@@ -46,23 +44,21 @@ class PrnFormsCollection:
         self.registry = {k: registry.get(k) for k in keys}
 
     def autodiscover(self, module_name=None, verbose=True):
-        module_name = module_name or 'prn_forms'
+        module_name = module_name or "prn_forms"
         writer = sys.stdout.write if verbose else lambda x: x
         style = color_style()
-        writer(f' * checking for site {module_name} ...\n')
+        writer(f" * checking for site {module_name} ...\n")
         for app in django_apps.app_configs:
-            writer(f' * searching {app}           \r')
+            writer(f" * searching {app}           \r")
             try:
                 mod = import_module(app)
                 try:
-                    before_import_registry = copy.copy(
-                        site_prn_forms.registry)
-                    import_module(f'{app}.{module_name}')
-                    writer(
-                        f' * registered \'{module_name}\' from \'{app}\'\n')
+                    before_import_registry = copy.copy(site_prn_forms.registry)
+                    import_module(f"{app}.{module_name}")
+                    writer(f" * registered '{module_name}' from '{app}'\n")
                 except SitePrnFormsError as e:
-                    writer(f'   - loading {app}.{module_name} ... ')
-                    writer(style.ERROR(f'ERROR! {e}\n'))
+                    writer(f"   - loading {app}.{module_name} ... ")
+                    writer(style.ERROR(f"ERROR! {e}\n"))
                 except ImportError as e:
                     site_prn_forms.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
@@ -71,8 +67,9 @@ class PrnFormsCollection:
                 pass
             except Exception as e:
                 raise SitePrnFormsError(
-                    f'{e.__class__.__name__} was raised when loading {module_name}. '
-                    f'Got {e} See {app}.{module_name}')
+                    f"{e.__class__.__name__} was raised when loading {module_name}. "
+                    f"Got {e} See {app}.{module_name}"
+                )
 
 
 site_prn_forms = PrnFormsCollection()
