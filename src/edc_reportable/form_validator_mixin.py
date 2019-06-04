@@ -1,9 +1,12 @@
 from django import forms
 from edc_constants.constants import NOT_APPLICABLE, NO, YES
+from edc_metadata.constants import REQUIRED
 
 from .constants import ALREADY_REPORTED, PRESENT_AT_BASELINE, GRADE2, GRADE3, GRADE4
 from .value_reference_group import NotEvaluated
 from .site_reportables import site_reportables
+
+INVALID_REFERENCE = "invalid_reference"
 
 
 class UserResponse:
@@ -12,7 +15,7 @@ class UserResponse:
         for attr in ["units", "abnormal", "reportable"]:
             if not cleaned_data.get(f"{field}_{attr}"):
                 raise forms.ValidationError(
-                    {f"{field}_{attr}": f"This field is required."}
+                    {f"{field}_{attr}": f"This field is required."}, code=REQUIRED
                 )
 
         self.abnormal = cleaned_data.get(f"{field}_abnormal")
@@ -32,7 +35,8 @@ class ReportablesEvaluator:
         self.reference_list = site_reportables.get(reference_list_name)
         if not self.reference_list:
             raise forms.ValidationError(
-                {f"Invalid reference list. Got '{reference_list_name}'"}
+                {f"Invalid reference list. Got '{reference_list_name}'"},
+                code=INVALID_REFERENCE,
             )
 
         self.cleaned_data = cleaned_data
