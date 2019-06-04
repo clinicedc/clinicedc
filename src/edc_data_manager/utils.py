@@ -5,8 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.test.client import RequestFactory
 
-admin = PatientHistoryAdmin(
-    model=PatientHistory, admin_site=ambition_subject_admin)
+admin = PatientHistoryAdmin(model=PatientHistory, admin_site=ambition_subject_admin)
 
 rf = RequestFactory()
 request = rf.request()
@@ -18,4 +17,6 @@ form = admin.add_view(
     request=request,
     extra_context={
         "subject_dashboard_url": "ambition_dashboard:subject_dashboard_url",
-        "subject_identifier": "092-40990004-7"})
+        "subject_identifier": "092-40990004-7",
+    },
+)

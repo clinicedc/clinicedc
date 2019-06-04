@@ -36,20 +36,13 @@ class QueryAdmin(admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display = (
-        "title",
-        "status",
-        "dm_query",
-    )
+    list_display = ("title", "status", "dm_query")
 
-    list_filter = (
-        "status",
-    )
+    list_filter = ("status",)
 
     def dm_query(self, obj):
         if obj:
-            url_name = "_".join(
-                obj.data_manager_query._meta.label_lower.split("."))
+            url_name = "_".join(obj.data_manager_query._meta.label_lower.split("."))
             namespace = edc_data_manager_admin.name
             url = reverse(f"{namespace}:{url_name}_changelist")
             return mark_safe(
@@ -61,12 +54,13 @@ class QueryAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)
-        readonly_fields = ["data_manager_query",
-                           "title",
-                           "data_dictionary",
-                           "visit_schedule",
-                           "query",
-                           ]
+        readonly_fields = [
+            "data_manager_query",
+            "title",
+            "data_dictionary",
+            "visit_schedule",
+            "query",
+        ]
         return list(fields) + readonly_fields
 
 

@@ -26,8 +26,7 @@ def get_form_label(fld):
 
 
 def create_or_update_data_dictionary(index, model, fld):
-    data_dictionary_model_cls = django_apps.get_model(
-        'edc_data_manager.datadictionary')
+    data_dictionary_model_cls = django_apps.get_model("edc_data_manager.datadictionary")
     field_type = get_form_field_type(model, fld)
     label = get_form_label(fld)
     options = dict(
@@ -40,8 +39,7 @@ def create_or_update_data_dictionary(index, model, fld):
     )
     try:
         obj = data_dictionary_model_cls.objects.get(
-            field_name=fld[0],
-            model=model._meta.label_lower,
+            field_name=fld[0], model=model._meta.label_lower
         )
     except ObjectDoesNotExist:
         data_dictionary_model_cls.objects.create(**options)

@@ -13,8 +13,8 @@ from .visit_schedule_admin import VisitScheduleAdmin
 
 @register(RegisteredSubject, site=edc_data_manager_admin)
 class RegisteredSubjectAdmin(admin.ModelAdmin):
-    ordering = ("subject_identifier", )
-    search_fields = ("subject_identifier", )
+    ordering = ("subject_identifier",)
+    search_fields = ("subject_identifier",)
 
 
 @register(User, site=edc_data_manager_admin)
@@ -25,5 +25,5 @@ class UserAdmin(admin.ModelAdmin):
 
 @register(CrfMetadata, site=edc_data_manager_admin)
 class CrfMetadataAdmin(admin.ModelAdmin):
-    ordering = ("model", )
-    search_fields = ("model", )
+    ordering = ("model",)
+    search_fields = ("model",)

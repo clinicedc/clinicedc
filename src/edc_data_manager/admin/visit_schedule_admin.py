@@ -24,27 +24,23 @@ class VisitScheduleAdmin(SimpleHistoryAdmin):
                     "timepoint",
                     "active",
                 )
-            }
+            },
         ],
         audit_fieldset_tuple,
     )
 
-    list_display = ("visit_schedule_name",
-                    "schedule_name",
-                    "visit_code",
-                    "visit_name",
-                    "timepoint",
-                    "active",
-                    )
+    list_display = (
+        "visit_schedule_name",
+        "schedule_name",
+        "visit_code",
+        "visit_name",
+        "timepoint",
+        "active",
+    )
 
-    list_filter = ("active", "visit_schedule_name", "schedule_name",
-                   "visit_code",)
+    list_filter = ("active", "visit_schedule_name", "schedule_name", "visit_code")
 
-    search_fields = ("visit_schedule_name",
-                     "schedule_name",
-                     "visit_code",
-                     "visit_name",
-                     )
+    search_fields = ("visit_schedule_name", "schedule_name", "visit_code", "visit_name")
 
     def populate_visit_schedule(self, request, queryset):
         VisitSchedule.objects.update(active=False)

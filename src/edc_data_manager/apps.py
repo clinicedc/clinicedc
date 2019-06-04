@@ -7,9 +7,7 @@ from django.apps import apps as django_apps
 
 fqdn = "edc_data_manager.clinicedc.org"
 
-my_sites = (
-    (10, "gaborone", "Gaborone"),
-)
+my_sites = ((10, "gaborone", "Gaborone"),)
 
 
 def post_migrate_update_sites(sender=None, **kwargs):

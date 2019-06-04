@@ -6,11 +6,9 @@ from edc_model.models.historical_records import HistoricalRecords
 
 class DataDictionary(BaseUuidModel):
 
-    model = models.CharField(
-        max_length=250)
+    model = models.CharField(max_length=250)
 
-    field_name = models.CharField(
-        max_length=250)
+    field_name = models.CharField(max_length=250)
 
     number = models.IntegerField()
 
@@ -18,8 +16,7 @@ class DataDictionary(BaseUuidModel):
 
     active = models.BooleanField(default=False)
 
-    field_type = models.CharField(
-        max_length=250, null=True)
+    field_type = models.CharField(max_length=250, null=True)
 
     history = HistoricalRecords()
 

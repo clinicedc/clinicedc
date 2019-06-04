@@ -8,7 +8,7 @@ app_name = "edc_data_manager"
 
 urlpatterns = [
     path("admin/", edc_data_manager_admin.urls),
-    path('', HomeView.as_view(), name="home_url"),
+    path("", HomeView.as_view(), name="home_url"),
 ]
 
 
@@ -28,7 +28,7 @@ if app_name == settings.APP_NAME:
         path("edc_protocol/", include("edc_protocol.urls")),
         path("edc_registration/", include("edc_registration.urls")),
         path("edc_dashboard/", include("edc_dashboard.urls")),
-        path("administration/", AdministrationView.as_view(),
-             name="administration_url"),
-
+        path(
+            "administration/", AdministrationView.as_view(), name="administration_url"
+        ),
     ]

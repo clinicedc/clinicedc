@@ -26,15 +26,29 @@ class DataManagerQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin)
 
     inlines = [QueryAdminInline]
 
-    list_display = ("title", "subject", "report_datetime",
-                    "dashboard", "status", "dm", "to", "reference")
+    list_display = (
+        "title",
+        "subject",
+        "report_datetime",
+        "dashboard",
+        "status",
+        "dm",
+        "to",
+        "reference",
+    )
 
     list_filter = ("status", "report_datetime")
 
-    search_fields = ("title", "action_identifier", "sender__first_name",
-                     "sender__last_name", "sender__email", "sender__username",
-                     "registered_subject__subject_identifier",
-                     "recipients_as_list")
+    search_fields = (
+        "title",
+        "action_identifier",
+        "sender__first_name",
+        "sender__last_name",
+        "sender__email",
+        "sender__username",
+        "registered_subject__subject_identifier",
+        "recipients_as_list",
+    )
 
     fieldsets = (
         [
@@ -49,23 +63,8 @@ class DataManagerQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin)
                 )
             },
         ],
-        [
-            "Comments",
-            {
-                "fields": (
-                    "comment",
-                    "response",
-                )
-            },
-        ],
-        [
-            "Status",
-            {
-                "fields": (
-                    "status",
-                )
-            },
-        ],
+        ["Comments", {"fields": ("comment", "response")}],
+        ["Status", {"fields": ("status",)}],
         action_fieldset_tuple,
         audit_fieldset_tuple,
     )
@@ -74,7 +73,9 @@ class DataManagerQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin)
         return obj.sender.first_name
 
     def to(self, obj):
-        return ", ".join([f"{o.first_name} {o.last_name}" for o in obj.recipients.all()])
+        return ", ".join(
+            [f"{o.first_name} {o.last_name}" for o in obj.recipients.all()]
+        )
 
     def subject(self, obj):
         return obj.registered_subject

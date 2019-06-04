@@ -37,32 +37,30 @@ class DataManagerQuery(ActionModelMixin, BaseUuidModel):
     recipients_as_list = models.TextField(editable=False)
 
     registered_subject = models.ForeignKey(
-        RegisteredSubject, verbose_name="Subject Identifier", on_delete=PROTECT)
+        RegisteredSubject, verbose_name="Subject Identifier", on_delete=PROTECT
+    )
 
-    title = models.CharField(
-        max_length=35)
+    title = models.CharField(max_length=35)
 
-    status = models.CharField(
-        max_length=25,
-        choices=STATUS,
-        default=NEW)
+    status = models.CharField(max_length=25, choices=STATUS, default=NEW)
 
     comment = models.TextField(
-        verbose_name="Data manager's comment",
-        null=True,
-        blank=True)
+        verbose_name="Data manager's comment", null=True, blank=True
+    )
 
     response = models.TextField(
-        verbose_name="Clinic / Field comment",
-        null=True,
-        blank=True)
+        verbose_name="Clinic / Field comment", null=True, blank=True
+    )
 
     def __str__(self):
-        return f"{self.subject_identifier}: {self.title} [{self.action_identifier[-9:]}]"
+        return (
+            f"{self.subject_identifier}: {self.title} [{self.action_identifier[-9:]}]"
+        )
 
     def save(self, *args, **kwargs):
         self.recipients_as_list = ",".join(
-            [f"{slugify_user(o)}" for o in self.recipients.all()])
+            [f"{slugify_user(o)}" for o in self.recipients.all()]
+        )
         super().save(*args, **kwargs)
 
     @property

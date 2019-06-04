@@ -4,17 +4,13 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 
 class VisitSchedule(BaseUuidModel):
 
-    visit_schedule_name = models.CharField(
-        max_length=150)
+    visit_schedule_name = models.CharField(max_length=150)
 
-    schedule_name = models.CharField(
-        max_length=150)
+    schedule_name = models.CharField(max_length=150)
 
-    visit_code = models.CharField(
-        max_length=150)
+    visit_code = models.CharField(max_length=150)
 
-    visit_name = models.CharField(
-        max_length=150)
+    visit_name = models.CharField(max_length=150)
 
     timepoint = models.IntegerField()
 
