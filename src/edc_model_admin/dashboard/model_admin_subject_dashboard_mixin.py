@@ -3,6 +3,8 @@ from django.template.loader import render_to_string
 from django.urls import reverse, NoReverseMatch
 from django.utils.translation import gettext as _
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+from edc_action_item import ModelAdminActionItemMixin
+
 from edc_model_admin import (
     ModelAdminNextUrlRedirectMixin,
     ModelAdminFormInstructionsMixin,
@@ -29,6 +31,7 @@ class ModelAdminSubjectDashboardMixin(
     ModelAdminInstitutionMixin,
     ModelAdminRedirectOnDeleteMixin,
     ModelAdminReplaceLabelTextMixin,
+    ModelAdminActionItemMixin,
 ):
 
     date_hierarchy = "modified"
