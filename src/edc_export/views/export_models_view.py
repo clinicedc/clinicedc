@@ -24,6 +24,5 @@ class ExportModelsView(EdcViewMixin, NavbarViewMixin, TemplateView):
                 messages.info(self.request, f"Nothing has been exported.")
         context = super().get_context_data(**kwargs)
         user = User.objects.get(username=self.request.user)
-        context.update(exportables=Exportables(
-            request=self.request, user=user))
+        context.update(exportables=Exportables(request=self.request, user=user))
         return context
