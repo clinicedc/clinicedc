@@ -14,6 +14,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+APP_NAME = "edc_data_manager"
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,6 +38,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django_crypto_fields.apps.AppConfig',
+    'edc_auth.apps.AppConfig',
+    'edc_action_item.apps.AppConfig',
+    'edc_protocol.apps.AppConfig',
+    'edc_navbar.apps.AppConfig',
+    'edc_identifier.apps.AppConfig',
+    'edc_model_admin.apps.AppConfig',
+    'edc_metadata.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
+    'edc_dashboard.apps.AppConfig',
+    'edc_notification.apps.AppConfig',
+    'edc_data_manager.apps.AppConfig',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'edc_dashboard.middleware.DashboardMiddleware',
 ]
 
 ROOT_URLCONF = 'edc_data_manager.urls'
@@ -118,3 +133,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+EMAIL_CONTACTS = {"data_manager": "ew2789@gmail.com"}
+EMAIL_ENABLED = False
+ETC_DIR = BASE_DIR
+# AUTO_CREATE_KEYS = True
+EDC_BOOTSTRAP = 3
+SITE_ID = "10"

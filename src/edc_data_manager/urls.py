@@ -1,21 +1,34 @@
-"""edc_data_manager URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/2.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
+from django.conf import settings
 from django.urls import path
 
+from .admin_site import edc_data_manager_admin
+from .views import HomeView
+
+app_name = "edc_data_manager"
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", edc_data_manager_admin.urls),
+    path('', HomeView.as_view(), name="home_url"),
 ]
+
+
+if app_name == settings.APP_NAME:
+
+    from django.urls import include
+    from django.contrib import admin
+    from edc_dashboard.views.administration_view import AdministrationView
+    from edc_registration.admin_site import edc_registration_admin
+
+    urlpatterns += [
+        path("accounts/", include("edc_auth.urls")),
+        path("admin/", include("edc_auth.urls")),
+        path("admin/", edc_registration_admin.urls),
+        path("admin/", admin.site.urls),
+        path("edc_action_item/", include("edc_action_item.urls")),
+        path("edc_protocol/", include("edc_protocol.urls")),
+        path("edc_registration/", include("edc_registration.urls")),
+        path("edc_dashboard/", include("edc_dashboard.urls")),
+        path("administration/", AdministrationView.as_view(),
+             name="administration_url"),
+
+    ]
