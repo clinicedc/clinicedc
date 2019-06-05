@@ -19,18 +19,12 @@
     <script type="text/javascript" charset="utf8" src="{% static 'edc_dashboard/js/jquery.min.js' %}"></script>
     <script type="text/javascript" charset="utf8" src="{% static 'edc_dashboard/js/bootstrap.min.js' %}"></script>
 
-	<!-- Sentry JS SDK 2.1.+ required -->
-	<script src="https://cdn.ravenjs.com/2.3.0/raven.min.js"></script>
-
-	{% if request.sentry.id %}
-	  <script>
-	  Raven.showReportDialog({
-	    eventId: '{{ request.sentry.id }}',
-
-	    // use the public DSN (dont include your secret!)
-	    dsn: 'https://dce472164c1046ae926d5c3c26399ebc@sentry.io/1244260'
-	  });
-	  </script>
+	{% if sentry_event_id %}
+	<script src="https://browser.sentry-cdn.com/5.4.0/bundle.min.js" crossorigin="anonymous"></script>
+	<script>
+	  Sentry.init({ dsn: 'https://dce472164c1046ae926d5c3c26399ebc@sentry.io/1244260' });
+	  Sentry.showReportDialog({ eventId: '{{ sentry_event_id }}' })
+	</script>
 	{% endif %}
 
 </head>
@@ -54,9 +48,9 @@
 			<p>If you wish to contact support, contact information is on Redmine.</p>
 
 	
-			{% if request.sentry.id %}
+			{% if sentry_event_id %}
 			    <p>You may reference this error as
-			    <strong>{{ request.sentry.id }}</strong>.</p>
+			    <strong>{{ sentry_event_id }}</strong>.</p>
 			{% endif %}
 		    </div>
 			</div>
@@ -68,4 +62,5 @@
 
   </div>
 </body>
+
 </html>
