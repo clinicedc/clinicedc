@@ -13,7 +13,7 @@
     <meta name="msapplication-config" content="none"/>
 
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>{{ project_name }}</title>
+    <title>{{ project_name|default_if_none:"clinicedc.org" }}</title>
 
     <link rel="icon" href="{% static 'edc_dashboard/icons/favicon.ico' %}">    
     <link rel="shortcut icon" href="{% static 'edc_dashboard/icons/favicon.ico' %}" type="image/x-icon" />
