@@ -4,15 +4,33 @@ from django.contrib.admin.decorators import register
 from django.contrib.auth import get_permission_codename
 from django.utils.safestring import mark_safe
 from edc_model_admin import SimpleHistoryAdmin
+from edc_list_data.model_mixins import ListModelMixin
+from django_audit_fields.admin import audit_fieldset_tuple, ModelAdminAuditFieldsMixin
 
 from ..admin_site import edc_data_manager_admin
 from ..models import DataDictionary
 from ..populate_data_dictionary import populate_data_dictionary
-from edc_list_data.model_mixins import ListModelMixin
 
 
 @register(DataDictionary, site=edc_data_manager_admin)
-class DataDictionaryAdmin(SimpleHistoryAdmin):
+class DataDictionaryAdmin(ModelAdminAuditFieldsMixin, SimpleHistoryAdmin):
+
+    fieldsets = (
+        [
+            None,
+            {
+                "fields": (
+                    "model",
+                    "number",
+                    "prompt",
+                    "field_name",
+                    "field_type",
+                    "active",
+                )
+            },
+        ],
+        audit_fieldset_tuple,
+    )
 
     ordering = ("active", "model", "number")
 

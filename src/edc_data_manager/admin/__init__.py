@@ -7,7 +7,6 @@ from edc_registration.models import RegisteredSubject
 from ..admin_site import edc_data_manager_admin
 from .data_dictionary_admin import DataDictionaryAdmin
 from .data_manager_query_admin import DataManagerQueryAdmin
-from .query_admin import QueryAdmin
 from .visit_schedule_admin import VisitScheduleAdmin
 
 
