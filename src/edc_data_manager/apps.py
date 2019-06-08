@@ -1,26 +1,26 @@
+import sys
+
 from django.apps import AppConfig as DjangoAppConfig
-from django.conf import settings
+from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 
 
-from django.apps import apps as django_apps
-
-fqdn = "edc_data_manager.clinicedc.org"
-
-my_sites = ((10, "gaborone", "Gaborone"),)
+style = color_style()
 
 
-def post_migrate_update_sites(sender=None, **kwargs):
-    from edc_sites.utils import add_or_update_django_sites
-
-    add_or_update_django_sites(
-        apps=django_apps, sites=my_sites, fqdn=fqdn, verbose=True
-    )
+def populate_data_dictionary(sender=None, **kwargs):
+    from .populate_data_dictionary import populate_data_dictionary_from_sites
+    sys.stdout.write(style.MIGRATE_HEADING(
+        "Populating data dictionary:\n"))
+    populate_data_dictionary_from_sites()
+    sys.stdout.write("Done.\n")
+    sys.stdout.flush()
 
 
 class AppConfig(DjangoAppConfig):
     name = "edc_data_manager"
+    verbose_name = "Data Management"
+    admin_site_name = "edc_data_manager_admin"
 
     def ready(self):
-        if settings.APP_NAME == "edc_data_manager":
-            post_migrate.connect(post_migrate_update_sites, sender=self)
+        post_migrate.connect(populate_data_dictionary, sender=self)

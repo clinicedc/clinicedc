@@ -135,3 +135,8 @@ ETC_DIR = BASE_DIR
 # AUTO_CREATE_KEYS = True
 EDC_BOOTSTRAP = 3
 SITE_ID = "10"
+
+
+DATA_DICTIONARY_APP_LABELS = [
+    "edc_appointment",
+]

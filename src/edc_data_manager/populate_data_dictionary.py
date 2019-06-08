@@ -1,6 +1,14 @@
+import sys
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, FieldDoesNotExist
 from warnings import warn
+from django.test.client import RequestFactory
+from django.conf import settings
+from django.contrib.admin import sites
+from edc_data_manager.models import DataDictionary
+from edc_list_data.model_mixins import ListModelMixin
+from edc_data_manager.models import DataManagerUser
 
 
 WIDGET = 1
@@ -26,7 +34,8 @@ def get_form_label(fld):
 
 
 def create_or_update_data_dictionary(index, model, fld):
-    data_dictionary_model_cls = django_apps.get_model("edc_data_manager.datadictionary")
+    data_dictionary_model_cls = django_apps.get_model(
+        "edc_data_manager.datadictionary")
     field_type = get_form_field_type(model, fld)
     label = get_form_label(fld)
     options = dict(
@@ -60,3 +69,20 @@ def populate_data_dictionary(form=None, model=None):
         if auto_number:
             for index, fld in enumerate(form.base_fields.items()):
                 create_or_update_data_dictionary(index, model, fld)
+
+
+def populate_data_dictionary_from_sites(request=None):
+    if not request:
+        rf = RequestFactory()
+        request = rf.get("/")
+        request.user = DataManagerUser.objects.all()[0]
+    DataDictionary.objects.update(active=False)
+    for site in sites.all_sites.data:
+        for model_admin in site()._registry.values():
+            form = model_admin.get_form(request)
+            model = model_admin.model
+            if model._meta.app_label in settings.DATA_DICTIONARY_APP_LABELS and not issubclass(
+                model, (ListModelMixin,)
+            ):
+                sys.stdout.write(f"  * {model._meta.label_lower}.\n")
+                populate_data_dictionary(form=form, model=model)
