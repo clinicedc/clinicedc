@@ -1,18 +1,37 @@
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.contrib.admin import sites
 from django.contrib.admin.decorators import register
 from django.contrib.auth import get_permission_codename
 from django.utils.safestring import mark_safe
+from django_audit_fields.admin import audit_fieldset_tuple, ModelAdminAuditFieldsMixin
+from edc_list_data.model_mixins import ListModelMixin
 from edc_model_admin import SimpleHistoryAdmin
 
 from ..admin_site import edc_data_manager_admin
 from ..models import DataDictionary
 from ..populate_data_dictionary import populate_data_dictionary
-from edc_list_data.model_mixins import ListModelMixin
 
 
 @register(DataDictionary, site=edc_data_manager_admin)
-class DataDictionaryAdmin(SimpleHistoryAdmin):
+class DataDictionaryAdmin(ModelAdminAuditFieldsMixin, SimpleHistoryAdmin):
+
+    fieldsets = (
+        [
+            None,
+            {
+                "fields": (
+                    "model",
+                    "number",
+                    "prompt",
+                    "field_name",
+                    "field_type",
+                    "active",
+                )
+            },
+        ],
+        audit_fieldset_tuple,
+    )
 
     ordering = ("active", "model", "number")
 
@@ -31,14 +50,6 @@ class DataDictionaryAdmin(SimpleHistoryAdmin):
 
     search_fields = ("number", "prompt", "field_name", "model")
 
-    include_app_labels = [
-        "ambition_subject",
-        "ambition_prn",
-        "ambition_screening",
-        "ambition_ae",
-        "edc_appointment",
-    ]
-
     def form_title(self, obj):
         try:
             model_cls = django_apps.get_model(obj.model)
@@ -55,7 +66,7 @@ class DataDictionaryAdmin(SimpleHistoryAdmin):
             for model_admin in site()._registry.values():
                 form = model_admin.get_form(request)
                 model = model_admin.model
-                if model._meta.app_label in self.include_app_labels and not issubclass(
+                if model._meta.app_label in settings.DATA_DICTIONARY_APP_LABELS and not issubclass(
                     model, (ListModelMixin,)
                 ):
                     populate_data_dictionary(form=form, model=model)

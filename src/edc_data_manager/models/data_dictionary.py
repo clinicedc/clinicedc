@@ -8,15 +8,15 @@ class DataDictionary(BaseUuidModel):
 
     model = models.CharField(max_length=250)
 
-    field_name = models.CharField(max_length=250)
-
     number = models.IntegerField()
 
     prompt = models.TextField()
 
-    active = models.BooleanField(default=False)
+    field_name = models.CharField(max_length=250)
 
     field_type = models.CharField(max_length=250, null=True)
+
+    active = models.BooleanField(default=False)
 
     history = HistoricalRecords()
 
