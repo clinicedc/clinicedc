@@ -1,4 +1,7 @@
+from django.apps import apps as django_apps
 from django.views.generic.base import ContextMixin
+from django.core.exceptions import ObjectDoesNotExist
+from edc_visit_schedule.models import VisitSchedule
 
 
 class SubjectVisitViewMixinError(Exception):
@@ -40,5 +43,31 @@ class SubjectVisitViewMixin(ContextMixin):
                         self.subject_visit = appointment.visit
                     except AttributeError:
                         pass
-                context.update(subject_visit=self.subject_visit)
+                context.update(
+                    subject_visit=self.subject_visit,
+                    visit_schedule_pk=str(self.get_visit_schedule_pk(appointment)),
+                )
+
         return context
+
+    def get_visit_schedule_pk(self, appointment):
+        """Returns a str(pk) from the VisitSchedule reference model.
+        """
+        visit_schedule_pk = ""
+        try:
+            VisitSchedule = django_apps.get_model("edc_visit_schedule.visitschedule")
+        except LookupError:
+            pass
+        else:
+            opts = dict(
+                visit_schedule_name=appointment.visit_schedule_name,
+                schedule_name=appointment.schedule_name,
+                visit_code=appointment.visit_code,
+            )
+            try:
+                obj = VisitSchedule.objects.get(**opts)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                visit_schedule_pk = str(obj.pk)
+        return visit_schedule_pk

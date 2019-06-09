@@ -40,5 +40,7 @@ class RegisteredSubjectViewMixin(ContextMixin):
                 identity=obj.identity,
                 firstname=obj.first_name,
                 lastname=obj.last_name,
+                registered_subject=obj,
+                registered_subject_pk=str(obj.pk),
             )
         return context
