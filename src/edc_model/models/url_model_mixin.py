@@ -62,5 +62,12 @@ class UrlModelMixin(models.Model):
                     admin_site_name = "admin"
         return admin_site_name
 
+    @property
+    def next_string(self):
+        return (
+            f"{self.admin_site_name}:{self._meta.label_lower.split('.')[0]}_"
+            f"{self._meta.label_lower.split('.')[1]}"
+        )
+
     class Meta:
         abstract = True
