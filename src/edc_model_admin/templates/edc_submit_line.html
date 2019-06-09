@@ -9,7 +9,7 @@
 	{% if show_save_next %}
 		<input type="submit" title="Leave form without saving" value="{% trans 'Cancel' %}" name="_cancel" />
 	{% else %}
-		{% if cancel_url%}
+		{% if cancel_url %}
 			<a href="{{ cancel_url }}" class="closelink" title="Leave form without saving" name="_cancel" />{% trans 'Cancel' %}</a>
 		{% else %}
 		    {% url opts|admin_urlname:'changelist' as changelist_url %}

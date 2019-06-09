@@ -56,13 +56,16 @@ class ModelAdminSubjectDashboardMixin(
     def post_url_on_delete_kwargs(self, request, obj):
         return self.get_subject_dashboard_url_kwargs(obj)
 
-    def dashboard(self, obj=None):
+    def dashboard(self, obj=None, label=None):
         url = reverse(
             self.get_subject_dashboard_url_name(),
             kwargs=self.get_subject_dashboard_url_kwargs(obj),
         )
         context = dict(
-            dashboard="dashboard", title=_("Go to subject's dashboard"), url=url
+            dashboard="dashboard",
+            title=_("Go to subject's dashboard"),
+            url=url,
+            label=label,
         )
         return render_to_string("dashboard_button.html", context=context)
 
