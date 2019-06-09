@@ -38,8 +38,7 @@ class AppointmentViewMixin(ContextMixin):
         return context
 
     @property
-    def appointment(self):
-        appointment = None
+    def appointment_options(self):
         opts = {}
         if self.kwargs.get("appointment"):
             opts = dict(id=self.kwargs.get("appointment"))
@@ -57,6 +56,12 @@ class AppointmentViewMixin(ContextMixin):
                 visit_code=self.kwargs.get("visit_code"),
                 visit_code_sequence=visit_code_sequence,
             )
+        return opts
+
+    @property
+    def appointment(self):
+        appointment = None
+        opts = self.appointment_options
         if opts:
             try:
                 appointment = self.appointment_model_cls.objects.get(**opts)
