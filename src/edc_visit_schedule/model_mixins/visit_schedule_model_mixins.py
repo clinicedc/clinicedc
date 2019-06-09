@@ -101,7 +101,7 @@ class VisitScheduleModelMixin(
     visit_code = models.CharField(max_length=25, null=True, editable=False)
 
     visit_code_sequence = models.IntegerField(
-        verbose_name=("Sequence"),
+        verbose_name="Sequence",
         default=0,
         null=True,
         blank=True,
