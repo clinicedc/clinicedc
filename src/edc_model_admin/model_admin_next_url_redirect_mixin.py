@@ -77,11 +77,11 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         if self.show_save_next and request.POST.get("_savenext"):
             redirect_url = self.get_savenext_redirect_url(request=request, obj=obj)
             if not redirect_url:
-                redirect_url = self.get_next_redirect_url(request=request)
+                redirect_url = self.get_next_redirect_url(request=request, obj=obj)
         elif self.show_cancel and request.POST.get("_cancel"):
-            redirect_url = self.get_next_redirect_url(request=request)
+            redirect_url = self.get_next_redirect_url(request=request, obj=obj)
         elif request.GET.dict().get(self.next_querystring_attr):
-            redirect_url = self.get_next_redirect_url(request=request)
+            redirect_url = self.get_next_redirect_url(request=request, obj=obj)
         if not redirect_url:
             redirect_url = super().redirect_url(
                 request, obj, post_url_continue=post_url_continue
