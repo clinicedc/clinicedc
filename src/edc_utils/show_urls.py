@@ -22,16 +22,14 @@ def describe_pattern(p):
 
 
 def show_urls(urlpatterns, base="", namespace=None, search=None):
-    urls = extract_views_from_urlpatterns(
-        urlpatterns, base=base, namespace=namespace)
+    urls = extract_views_from_urlpatterns(urlpatterns, base=base, namespace=namespace)
     if search:
         return [url[1] for url in urls if search in url[1]]
     return [url[1] for url in urls]
 
 
 def show_url_names(urlpatterns, base="", namespace=None, search=None):
-    urls = extract_views_from_urlpatterns(
-        urlpatterns, base=base, namespace=namespace)
+    urls = extract_views_from_urlpatterns(urlpatterns, base=base, namespace=namespace)
     if search:
         return [url[2] for url in urls if search in url[2]]
     return [url[2] for url in urls]
@@ -73,8 +71,7 @@ def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
             )
         elif hasattr(p, "_get_callback"):
             try:
-                views.append((p._get_callback(), base +
-                              describe_pattern(p), p.name))
+                views.append((p._get_callback(), base + describe_pattern(p), p.name))
             except ViewDoesNotExist:
                 continue
         elif hasattr(p, "url_patterns") or hasattr(p, "_get_url_patterns"):

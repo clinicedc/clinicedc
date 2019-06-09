@@ -30,6 +30,15 @@ def get_safe_random_string(length=12, safe=None, allowed_chars=None):
 
 
 def convert_php_dateformat(php_format_string):
+    """Convert a date/datetime using a php format string
+    as used by settings.SHORT_DATE_FORMAT.
+
+    For example:
+        obj.report_datetime.strftime(
+            convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+        )
+    """
+
     php_to_python = {
         "A": "%p",
         "D": "%a",
@@ -68,8 +77,10 @@ def convert_from_camel(name):
 def formatted_datetime(aware_datetime, php_dateformat=None, tz=None):
     """Returns a formatted datetime string, localized by default.
     """
-    php_dateformat = php_dateformat or SHORT_DATETIME_FORMAT
-    tz = tz or pytz.timezone(TIME_ZONE)
-    utc = Arrow.fromdatetime(aware_datetime)
-    local = utc.to(tz)
-    return local.datetime.strftime(convert_php_dateformat(php_dateformat))
+    if aware_datetime:
+        php_dateformat = php_dateformat or SHORT_DATETIME_FORMAT
+        tz = tz or pytz.timezone(TIME_ZONE)
+        utc = Arrow.fromdatetime(aware_datetime)
+        local = utc.to(tz)
+        return local.datetime.strftime(convert_php_dateformat(php_dateformat))
+    return ""
