@@ -47,7 +47,7 @@ class AppConfig(DjangoAppConfig):
         """
         if not self.definitions:
             try:
-                warn_user = settings.USE_EDC_FACILITY_DEFAULTS
+                warn_user = not settings.USE_EDC_FACILITY_DEFAULTS
             except AttributeError:
                 warn_user = True
             if warn_user:
