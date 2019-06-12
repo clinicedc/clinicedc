@@ -56,6 +56,10 @@ class VisitModelMixin(
 
     natural_key.dependencies = ["edc_appointment.appointment"]
 
+    @property
+    def timepoint(self):
+        return self.appointment.timepoint
+
     def get_visit_reason_no_follow_up_choices(self):
         """Returns the visit reasons that do not imply any
         data collection; that is, the subject is not available.
