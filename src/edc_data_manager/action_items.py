@@ -1,8 +1,6 @@
 from edc_action_item import ActionWithNotification, site_action_items
 from edc_constants.constants import RESOLVED
 
-from .constants import RESOLVED_WITH_ACTION
-
 
 DATA_QUERY_ACTION = "data_query_action"
 
@@ -20,7 +18,7 @@ class DataQueryAction(ActionWithNotification):
 
     def close_action_item_on_save(self):
         if (self.reference_obj
-                and self.reference_obj.status in [RESOLVED, RESOLVED_WITH_ACTION]):
+                and self.reference_obj.site_response_status in [RESOLVED]):
             return True
         return False
 
