@@ -2,8 +2,11 @@ import sys
 
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
+
+
+class InvalidSiteError(Exception):
+    pass
 
 
 class ReviewerSiteSaveError(Exception):
@@ -40,6 +43,7 @@ def add_or_update_django_sites(apps=None, sites=None, fqdn=None, verbose=None):
 
 
 def raise_on_save_if_reviewer(site_id=None):
+    Site = django_apps.get_model("sites", "Site")
     site_id = Site.objects.get_current().id if site_id is None else site_id
     try:
         REVIEWER_SITE_ID = settings.REVIEWER_SITE_ID
@@ -50,3 +54,22 @@ def raise_on_save_if_reviewer(site_id=None):
             f"Adding or changing data has been disabled. "
             f"Got site '{site_id}' is a 'review only' site code."
         )
+
+
+def get_site_id(name, sites=None):
+    """Expects sites list has elements of format
+    (SITE_ID(int), site_name(char), site_long_name(char)).
+    """
+    try:
+        site_id = [site for site in sites if site[1] == name][0][0]
+    except IndexError:
+        try:
+            site_id = [site for site in sites if site[2] == name][0][0]
+        except IndexError:
+            site_ids = [site[1] for site in sites]
+            site_names = [site[2] for site in sites]
+            raise InvalidSiteError(
+                f"Invalid site. Got '{name}'. Expected one of "
+                f"{site_ids} or {site_names}."
+            )
+    return site_id
