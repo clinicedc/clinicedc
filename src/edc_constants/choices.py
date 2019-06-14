@@ -340,6 +340,12 @@ POS_NEG_UNTESTED_REFUSAL = (
     (DWTA, 'Don\'t want to answer'),
 )
 
+PREG_YES_NO_NA = (
+    (YES, "Yes"),
+    (NO, "No"),
+    (NOT_APPLICABLE, "Not Applicable: e.g. male, post-menopausal"),
+)
+
 REFUSAL_STATUS = (
     (REFUSED, 'Refused'),
     ('NOT_REFUSED', 'No longer refusing'),
