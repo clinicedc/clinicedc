@@ -1,6 +1,4 @@
-
 class ScreeningEligibility:
-
     def __init__(self, model_obj=None, allow_none=None, *kwargs):
         self.model_obj = model_obj
         self.allow_none = allow_none

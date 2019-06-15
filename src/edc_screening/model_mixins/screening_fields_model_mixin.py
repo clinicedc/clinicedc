@@ -47,7 +47,7 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
 
     objects = ScreeningManager()
 
-    history = HistoricalRecords()
+    history = HistoricalRecords(inherit=True)
 
     class Meta:
         abstract = True

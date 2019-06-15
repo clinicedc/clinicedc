@@ -5,10 +5,11 @@ from .screening_identifier_model_mixin import ScreeningIdentifierModelMixin
 from .screening_methods_model_mixin import ScreeningMethodsModeMixin
 
 
-class ScreeningModelMixin(ScreeningMethodsModeMixin,
-                          ScreeningIdentifierModelMixin,
-                          ScreeningFieldsModeMixin,
-                          models.Model):
-
+class ScreeningModelMixin(
+    ScreeningMethodsModeMixin,
+    ScreeningIdentifierModelMixin,
+    ScreeningFieldsModeMixin,
+    models.Model,
+):
     class Meta:
         abstract = True
