@@ -15,7 +15,8 @@ class UrlRequestContextMixin(ContextMixin):
     urlconfig_getattr = "dashboard_urls"
     urlconfig_identifier_label = "subject_identifier"
     urlconfig_identifier_pattern = django_apps.get_app_config(
-        "edc_identifier").subject_identifier_pattern
+        "edc_identifier"
+    ).subject_identifier_pattern
     urlconfig_label = None
 
     @classmethod
