@@ -21,6 +21,7 @@ class AppConfig(DjangoAppConfig):
     verbose_name = "Edc Appointments"
     configurations = []
     has_exportable_data = True
+    include_in_administration_section = True
 
     def ready(self):
         from .signals import (
