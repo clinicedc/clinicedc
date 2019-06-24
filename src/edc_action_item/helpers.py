@@ -187,12 +187,21 @@ class ActionItemHelper:
     @property
     def action_item_reason(self):
         try:
-            action_item_reason = self.parent_reference_obj.action_item_reason
-        except AttributeError:
+            action_item_reason = self.reference_obj.action_item_reason
+        except AttributeError as e:
+            if "action_item_reason" not in str(e):
+                raise
             try:
-                action_item_reason = self.related_reference_obj.action_item_reason
+                action_item_reason = self.parent_reference_obj.action_item_reason
             except AttributeError:
-                action_item_reason = None
+                if "action_item_reason" not in str(e):
+                    raise
+                try:
+                    action_item_reason = self.related_reference_obj.action_item_reason
+                except AttributeError:
+                    if "action_item_reason" not in str(e):
+                        raise
+                    action_item_reason = None
         return action_item_reason
 
     @property
@@ -244,9 +253,9 @@ class ActionItemHelper:
         context.update(
             action_identifier=self.action_identifier,
             action_instructions=self.action_item.instructions,
-            action_item_color=self.action_cls.color_style,
+            action_item_color=self.action_item.action.get_color_style(),
             action_item_reason=self.action_item_reason,
-            display_name=self.action_item.action_type.display_name,
+            display_name=self.action_item.action.get_display_name(),
             href=self.href,
             last_updated_text=self.last_updated_text,
             name=self.action_item.action_type.name,
