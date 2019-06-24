@@ -137,6 +137,4 @@ EDC_BOOTSTRAP = 3
 SITE_ID = "10"
 
 
-DATA_DICTIONARY_APP_LABELS = [
-    "edc_appointment",
-]
+DATA_DICTIONARY_APP_LABELS = ["edc_appointment"]

@@ -1,17 +1,45 @@
 import sys
 
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist, FieldDoesNotExist
-from warnings import warn
-from django.test.client import RequestFactory
 from django.conf import settings
 from django.contrib.admin import sites
-from edc_data_manager.models import DataDictionary
+from django.core.exceptions import ObjectDoesNotExist, FieldDoesNotExist
+from django.db.models.fields import NOT_PROVIDED
+from django.test.client import RequestFactory
+from django.utils.safestring import mark_safe
 from edc_list_data.model_mixins import ListModelMixin
-from edc_data_manager.models import DataManagerUser
+from inspect import isfunction
+from warnings import warn
+
+from .models import DataDictionary, DataManagerUser
 
 
 WIDGET = 1
+
+
+class DbField:
+    def __init__(self, model, fld):
+        db_field = None
+        try:
+            db_field = model._meta.get_field(fld[0])
+        except FieldDoesNotExist as e:
+            warn(str(e))
+        self.decimal_places = getattr(db_field, "decimal_places", None)
+        self.default = self.get_default(db_field)
+        self.field_name = getattr(db_field, "name", None)
+        self.field_type = None if db_field is None else db_field.get_internal_type()
+        self.help_text = mark_safe(getattr(db_field, "help_text", ""))
+        self.max_digits = getattr(db_field, "max_digits", None)
+        self.max_length = getattr(db_field, "max_length", None)
+        self.nullable = getattr(db_field, "null", False)
+
+    def get_default(self, db_field):
+        default = getattr(db_field, "default", None)
+        if default == NOT_PROVIDED:
+            default = None
+        if isfunction(default):
+            default = default.__name__
+        return default
 
 
 def get_form_field_type(model, fld):
@@ -34,17 +62,14 @@ def get_form_label(fld):
 
 
 def create_or_update_data_dictionary(index, model, fld):
-    data_dictionary_model_cls = django_apps.get_model(
-        "edc_data_manager.datadictionary")
-    field_type = get_form_field_type(model, fld)
+    data_dictionary_model_cls = django_apps.get_model("edc_data_manager.datadictionary")
     label = get_form_label(fld)
     options = dict(
         active=True,
-        field_name=fld[0],
-        field_type=field_type,
         model=model._meta.label_lower,
         number=index + 1,
-        prompt=label,
+        prompt=mark_safe(label or ""),
+        **DbField(model, fld).__dict__,
     )
     try:
         obj = data_dictionary_model_cls.objects.get(
@@ -53,10 +78,8 @@ def create_or_update_data_dictionary(index, model, fld):
     except ObjectDoesNotExist:
         data_dictionary_model_cls.objects.create(**options)
     else:
-        obj.active = True
-        obj.field_type = field_type
-        obj.number = index + 1
-        obj.prompt = label
+        for k, v in options.items():
+            setattr(obj, k, v)
         obj.save()
 
 
@@ -72,16 +95,26 @@ def populate_data_dictionary(form=None, model=None):
 
 
 def populate_data_dictionary_from_sites(request=None):
+
+    try:
+        app_labels = settings.DATA_DICTIONARY_APP_LABELS
+    except AttributeError:
+        warn("Settings attribute DATA_DICTIONARY_APP_LABELS not set.")
+        app_labels = []
+
     if not request:
         rf = RequestFactory()
         request = rf.get("/")
-        request.user = DataManagerUser.objects.all()[0]
+        # DataManagerUser.objects.all()[0]
+        request.user = DataManagerUser(
+            id=1, username="erikvw", is_superuser=True, is_active=True
+        )
     DataDictionary.objects.update(active=False)
     for site in sites.all_sites.data:
         for model_admin in site()._registry.values():
             form = model_admin.get_form(request)
             model = model_admin.model
-            if model._meta.app_label in settings.DATA_DICTIONARY_APP_LABELS and not issubclass(
+            if model._meta.app_label in app_labels and not issubclass(
                 model, (ListModelMixin,)
             ):
                 sys.stdout.write(f"  * {model._meta.label_lower}.\n")

@@ -9,3 +9,4 @@ class EdcDataManagerAdminSite(AdminSite):
 
 
 edc_data_manager_admin = EdcDataManagerAdminSite(name="edc_data_manager_admin")
+# edc_data_manager_admin.disable_action("delete_selected")
