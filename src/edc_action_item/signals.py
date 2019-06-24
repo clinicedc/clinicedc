@@ -44,8 +44,8 @@ def update_or_create_action_item_on_post_save(
                     instance.action_item.save(using=using)
 
 
-@receiver(post_delete, weak=False, dispatch_uid="action_on_post_delete")
-def action_on_post_delete(sender, instance, using, **kwargs):
+@receiver(post_delete, weak=False, dispatch_uid="action_on_reference_model_post_delete")
+def action_on_reference_model_post_delete(sender, instance, using, **kwargs):
     """Re-opens an action item when the action's reference
     model is deleted.
 
@@ -73,6 +73,8 @@ def action_on_post_delete(sender, instance, using, **kwargs):
                 related_action_item=instance.action_item, status=NEW
             ):
                 obj.delete(using=using)
+            if action_item.action.delete_with_reference_object:
+                action_item.delete()
     elif isinstance(instance, ActionItem):
         if instance.parent_action_item:
             try:
