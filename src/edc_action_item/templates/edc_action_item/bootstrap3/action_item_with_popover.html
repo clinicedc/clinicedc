@@ -18,7 +18,7 @@ data-content="
 <span class='label label-{% if status == OPEN %}info{% else %}default{% endif %}'>{{ status }}</span>
 <span class='label label-{% if priority == HIGH_PRIORITY %}danger{% else %}warning{% endif %}'>{{ priority|title }}</span>
 <h6>{{ display_name }}</h6>
-<p class='text text-muted'>{{ action_item_reason|default:'---'|truncatechars:250 }}</p>
+<p class='text text-muted'>{{ action_item_reason|default:'---'|truncatechars:500 }}</p>
 {% if action_instructions %}<p class='text text-muted'><small>{{ action_instructions|truncatechars:250 }}</small></p>{% endif %}
 <p class='text text-muted'>
 	<small>Opened on {{ report_datetime|date:'SHORT_DATETIME_FORMAT' }}. {{ last_updated_text }}</small>

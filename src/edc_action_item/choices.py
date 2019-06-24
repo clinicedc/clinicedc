@@ -1,6 +1,5 @@
 from edc_constants.constants import NEW, OPEN, CLOSED, CANCELLED
-
-from .constants import HIGH_PRIORITY, MEDIUM_PRIORITY, LOW_PRIORITY
+from edc_constants.constants import HIGH_PRIORITY, LOW_PRIORITY, MEDIUM_PRIORITY
 
 ACTION_STATUS = (
     (NEW, "New"),

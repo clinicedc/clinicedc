@@ -1,6 +1,5 @@
 from .action import Action
 from .action_with_notification import ActionWithNotification
-from .constants import HIGH_PRIORITY
 from .create_action_item import create_action_item, SingletonActionItemError
 from .decorators import register
 from .delete_action_item import delete_action_item, ActionItemDeleteError

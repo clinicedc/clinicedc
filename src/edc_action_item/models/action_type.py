@@ -1,9 +1,9 @@
 from django.apps import apps as django_apps
 from django.db import models
+from edc_constants.constants import HIGH_PRIORITY
 from edc_model.models import BaseUuidModel
 
 from ..choices import PRIORITY
-from ..constants import HIGH_PRIORITY
 
 
 class ActionTypeError(Exception):
