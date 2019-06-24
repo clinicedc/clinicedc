@@ -16,7 +16,11 @@ class RuleResult:
         self.visit_schedule = visit_schedule
 
     def __repr__(self):
-        return f"{self.__class__.__name__}()<{self.rule_title}, model={self.model_cls._meta.label_lower} rule_title={self.rule_title}>"
+        return (
+            f"{self.__class__.__name__}()<{self.rule_title}, "
+            f"model={self.model_cls._meta.label_lower} "
+            f"rule_title={self.rule_title}>"
+        )
 
     def __str__(self):
         return f"model={self.model_cls._meta.label_lower} rule_title={self.rule_title}"

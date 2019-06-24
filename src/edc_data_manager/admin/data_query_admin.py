@@ -32,7 +32,11 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
     query_text_column_template_name = (
         f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/query_text.html"
     )
-    query_recipients_column_template_name = f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/query_recipients.html"
+    query_recipients_column_template_name = (
+        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/"
+        f"query_recipients.html"
+    )
+
     status_column_context = {
         "NEW": NEW,
         "OPEN": OPEN,
