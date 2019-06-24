@@ -17,20 +17,32 @@ class RuleRunner:
     def reference(self):
         return self.rule_object.title
 
-    def run_one(self, subject_identifier=None, model_cls=None,
-                visit_schedule_name=None, schedule_name=None,
-                visit_code=None):
+    def run_one(
+        self,
+        subject_identifier=None,
+        model_cls=None,
+        visit_schedule_name=None,
+        schedule_name=None,
+        visit_code=None,
+    ):
         visit_schedule = QueryVisitSchedule.objects.get(
             visit_schedule_name=visit_schedule_name,
             schedule_name=schedule_name,
-            visit_code=visit_code)
-        return self.update_queries({
-            visit_schedule.visit_code: [RuleResult(
-                model_cls=model_cls,
-                rule_object=self.rule_object,
-                rule_title=self.rule_object.title,
-                subject_identifiers=[subject_identifier],
-                visit_schedule=visit_schedule)]})
+            visit_code=visit_code,
+        )
+        return self.update_queries(
+            {
+                visit_schedule.visit_code: [
+                    RuleResult(
+                        model_cls=model_cls,
+                        rule_object=self.rule_object,
+                        rule_title=self.rule_object.title,
+                        subject_identifiers=[subject_identifier],
+                        visit_schedule=visit_schedule,
+                    )
+                ]
+            }
+        )
 
     def run(self):
         rule_results = {}

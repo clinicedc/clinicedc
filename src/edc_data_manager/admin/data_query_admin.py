@@ -144,13 +144,11 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         ],
         [
             "For TCC Only",
-            {"fields": ("status", "resolved_datetime",
-                        "tcc_user", "plan_of_action")},
+            {"fields": ("status", "resolved_datetime", "tcc_user", "plan_of_action")},
         ],
         [
             "Rules",
-            {"classes": ("collapse",), "fields": (
-                "auto_generated", "auto_reference")},
+            {"classes": ("collapse",), "fields": ("auto_generated", "auto_reference")},
         ],
         action_fieldset_tuple,
         audit_fieldset_tuple,
@@ -160,7 +158,8 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         if db_field.name == "data_dictionaries":
             if request.GET.get("title"):
                 kwargs["queryset"] = DataDictionary.objects.filter(
-                    model_verbose_name=request.GET.get("title"))
+                    model_verbose_name=request.GET.get("title")
+                )
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def query_dates(self, obj):

@@ -46,8 +46,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         verbose_name="Query date", default=get_utcnow
     )
 
-    subject_identifier = models.CharField(
-        max_length=50, null=True, editable=False)
+    subject_identifier = models.CharField(max_length=50, null=True, editable=False)
 
     title = models.CharField(max_length=150, null=True, blank=True)
 

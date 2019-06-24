@@ -34,8 +34,7 @@ def update_query_on_crf(sender, instance, raw, **kwargs):
                 schedule_name=instance.visit.appointment.schedule_name,
                 visit_code=instance.visit.appointment.visit_code,
             )
-            visit_schedule = QueryVisitSchedule.objects.get(
-                **visit_schedule_opts)
+            visit_schedule = QueryVisitSchedule.objects.get(**visit_schedule_opts)
             data_query = DataQuery.objects.filter(
                 id__isnull=False,
                 auto_generated=True,
@@ -45,8 +44,7 @@ def update_query_on_crf(sender, instance, raw, **kwargs):
                 site_response_status__in=[NEW, OPEN, FEEDBACK],
             ).first()
             if data_query:
-                query_rule = CrfQueryRule.objects.get(
-                    title=data_query.auto_reference)
+                query_rule = CrfQueryRule.objects.get(title=data_query.auto_reference)
                 runner = RuleRunner(query_rule)
                 runner.run_one(
                     subject_identifier=subject_identifier,
