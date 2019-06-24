@@ -1,9 +1,8 @@
 from django import template
 from django.conf import settings
-from edc_constants.constants import NEW, OPEN, CLOSED, CANCELLED
+from edc_constants.constants import NEW, OPEN, CLOSED, CANCELLED, HIGH_PRIORITY
 
 from ..choices import ACTION_STATUS
-from ..constants import HIGH_PRIORITY
 from ..helpers import ActionItemHelper
 from ..site_action_items import site_action_items
 
