@@ -49,6 +49,7 @@ class Action:
     show_link_to_changelist = False
     show_on_dashboard = None
     singleton = False
+    delete_with_reference_object = False
 
     action_item_model = "edc_action_item.actionitem"
     action_type_model = "edc_action_item.actiontype"
@@ -121,6 +122,12 @@ class Action:
 
     def __str__(self):
         return self.name
+
+    def get_color_style(self):
+        return self.color_style
+
+    def get_display_name(self):
+        return self.action_item.action_type.display_name
 
     @property
     def reference_obj(self):
