@@ -10,6 +10,7 @@ class AppConfig(DjangoAppConfig):
     name = "edc_consent"
     verbose_name = "Edc Consent"
     default_consent_group = DEFAULT_CONSENT_GROUP
+    include_in_administration_section = True
 
     def ready(self):
         from .site_consents import site_consents
