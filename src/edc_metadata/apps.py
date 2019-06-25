@@ -21,6 +21,7 @@ class AppConfig(DjangoAppConfig):
     reason_field = {"edc_metadata.subjectvisit": "reason"}
     create_on_reasons = [SCHEDULED, UNSCHEDULED]
     delete_on_reasons = [MISSED_VISIT]
+    include_in_administration_section = True
 
     def ready(self):
         from .signals import (
