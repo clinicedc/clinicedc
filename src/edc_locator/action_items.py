@@ -1,4 +1,5 @@
-from edc_action_item import Action, site_action_items, HIGH_PRIORITY
+from edc_action_item import Action, site_action_items
+from edc_constants.constants import HIGH_PRIORITY
 
 SUBJECT_LOCATOR_ACTION = "submit-subject-locator"
 
