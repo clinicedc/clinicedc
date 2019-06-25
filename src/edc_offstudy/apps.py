@@ -16,6 +16,7 @@ class AppConfig(DjangoAppConfig):
     name = "edc_offstudy"
     verbose_name = "Edc Offstudy"
     has_exportable_data = True
+    include_in_administration_section = True
 
     def ready(self):
         # from .signals import offstudy_model_on_post_save
