@@ -9,6 +9,7 @@ class AppConfig(DjangoApponfig):
     verbose_name = "Edc Export"
     export_folder = os.path.join(settings.MEDIA_ROOT, "edc_export", "export")
     upload_folder = os.path.join(settings.MEDIA_ROOT, "edc_export", "upload")
+    include_in_administration_section = True
 
     def ready(self):
         from .signals import export_transaction_history_on_post_save
