@@ -49,6 +49,11 @@
                                 {% else %}
                                     <a disabled role="button" class="btn btn-sm btn-default">{% trans 'History' %}</a>
                                 {% endif %}
+                                {% if perms.edc_data_manager.add_dataquery %}
+                                  <a href="{% url 'edc_data_manager_admin:edc_data_manager_dataquery_add' %}?registered_subject={{ registered_subject_pk }}&sender={{ request.user.id }}&visit_schedule={{visit_schedule_pk|default:''}}&visit_code_sequence={{ appointment.visit_code_sequence }}&title={{ crf.object.verbose_name }}"
+                                    role="button" class="btn btn-sm btn-default">Query</a>
+                                {% endif %}
+
                               {% else%}
                                 <span class="text text-muted small">not required</span>
                               {% endif %}
