@@ -24,9 +24,10 @@ class AppConfig(DjangoAppConfig):
     name = "edc_lab"
     verbose_name = "Edc Lab"
     has_exportable_data = True
+    include_in_administration_section = True
 
     def ready(self):
-        from .models.signals import manifest_item_on_post_delete
+        from .models.signals import manifest_item_on_post_delete  # noqa
 
         post_migrate.connect(update_panels_on_post_migrate, sender=self)
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
