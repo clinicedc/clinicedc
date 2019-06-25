@@ -1,12 +1,15 @@
 from django.contrib import messages
 
+from ..rule import RuleRunner
+
 
 def update_query_rules_action(modeladmin, request, queryset):
 
     total_created = 0
     total_resolved = 0
     for obj in queryset:
-        created, resolved = obj.update_queries()
+        rule_runner = RuleRunner(obj)
+        created, resolved = rule_runner.update_queries()
         total_created += created
         total_resolved += resolved
     msg = (

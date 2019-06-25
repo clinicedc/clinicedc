@@ -8,7 +8,6 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_visit_schedule.constants import HOURS, DAYS, WEEKS, MONTHS
 
-from ..rule import RuleRunner
 from .data_dictionary import DataDictionary
 from .data_query import QUERY_PRIORITY
 from .query_visit_schedule import QueryVisitSchedule
@@ -166,10 +165,6 @@ class QueryRuleModelMixin(models.Model):
         for model in models:
             model_classes.append(django_apps.get_model(model))
         return model_classes
-
-    def update_queries(self):
-        rule_runner = RuleRunner(self)
-        return rule_runner.update_queries()
 
     class Meta:
         abstract = True
