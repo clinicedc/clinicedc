@@ -6,6 +6,10 @@ from django.views.generic.base import ContextMixin
 from math import floor
 
 
+class AdministrationDashboardError(Exception):
+    pass
+
+
 class AdministrationViewMixin(ContextMixin):
 
     template_name = (
@@ -60,7 +64,13 @@ class AdministrationViewMixin(ContextMixin):
             url = f"{url_namespace}:home_url"
         try:
             reverse(url)
-        except NoReverseMatch:
+        except NoReverseMatch as e:
+            raise AdministrationDashboardError(
+                f"Administrative section `{app_config.name}` url name is invalid. "
+                f"Either fix the url name or set "
+                f"`include_in_administration_section=False` in the AppConfig. "
+                f"url_name=`{url}`. Got {e}"
+            )
             # probably is not a registered namespace
             pass
         else:
@@ -81,7 +91,7 @@ class AdministrationViewMixin(ContextMixin):
             try:
                 include = app_config.include_in_administration_section
             except AttributeError:
-                include = True
+                include = False
             if include:
                 sections.update(**self.get_section(app_config))
         sections.update(**self.default_sections)
