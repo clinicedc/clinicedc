@@ -33,13 +33,5 @@ if settings.APP_NAME == "edc_review_dashboard":
     class EdcAppointmentAppConfig(BaseEdcAppointmentAppConfig):
         pass
 
-    #         configurations = [
-    #             AppointmentConfig(
-    #                 model="edc_appointment.appointment",
-    #                 related_visit_model="dashboard_app.subjectvisit",
-    #                 appt_type="hospital",
-    #             )
-    #         ]
-
     class EdcMetadataAppConfig(BaseEdcMetadataAppConfig):
         reason_field = {"dashboard_app.subjectvisit": "reason"}
