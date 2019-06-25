@@ -31,6 +31,7 @@ class AppConfig(DjangoAppConfig):
     name = "edc_visit_schedule"
     verbose_name = "Visit Schedules"
     validate_models = True
+    include_in_administration_section = True
 
     def ready(self):
         from .signals import (
