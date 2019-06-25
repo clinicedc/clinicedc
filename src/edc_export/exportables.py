@@ -43,7 +43,8 @@ class Exportables(OrderedDict):
                     elif model_opts.is_list_model:
                         list_models.append(model_opts)
                     else:
-                        models.append(model_opts)
+                        if not model._meta.proxy:
+                            models.append(model_opts)
                 models.sort(key=lambda x: x.verbose_name.title())
                 historical_models.sort(key=lambda x: x.verbose_name.title())
                 list_models.sort(key=lambda x: x.verbose_name.title())
