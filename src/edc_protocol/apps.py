@@ -14,15 +14,14 @@ style = color_style()
 
 class ArrowObject:
     def __init__(self, open_dt, close_dt):
-        self.ropen = arrow.Arrow.fromdatetime(
-            open_dt, open_dt.tzinfo).to("utc")
-        self.rclose = arrow.Arrow.fromdatetime(
-            close_dt, close_dt.tzinfo).to("utc")
+        self.ropen = arrow.Arrow.fromdatetime(open_dt, open_dt.tzinfo).to("utc")
+        self.rclose = arrow.Arrow.fromdatetime(close_dt, close_dt.tzinfo).to("utc")
 
 
 class AppConfig(DjangoAppConfig):
     name = "edc_protocol"
     verbose_name = "Edc Protocol"
+    include_in_administration_section = True
 
     # set with example defaults, you will need to change from your project
     protocol = "AAA000"
