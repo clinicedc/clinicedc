@@ -1,5 +1,5 @@
 from django.db import models
-from edc_constants.choices import GENDER
+from edc_constants.choices import GENDER, YES_NO
 from edc_model.models.historical_records import HistoricalRecords
 from edc_search.model_mixins import SearchSlugManager
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
@@ -34,6 +34,13 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
     gender = models.CharField(choices=GENDER, max_length=10)
 
     age_in_years = models.IntegerField()
+
+    consent_ability = models.CharField(
+        verbose_name="Participant or legal guardian/representative able and "
+        "willing to give informed consent.",
+        max_length=5,
+        choices=YES_NO,
+    )
 
     eligible = models.BooleanField(default=False, editable=False)
 
