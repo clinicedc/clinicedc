@@ -19,6 +19,7 @@ def post_migrate_update_notifications(sender=None, **kwargs):
 class AppConfig(DjangoAppConfig):
     name = "edc_notification"
     verbose_name = "Edc Notification"
+    include_in_administration_section = True
 
     def ready(self):
         from .signals import manage_mailists_on_userprofile_m2m_changed  # noqa
