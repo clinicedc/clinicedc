@@ -1,10 +1,10 @@
 <center>
 {% if status == NEW %}
-	<font color="red"><i class="fas fa-asterisk fa-1x"></i>&nbsp;<small>{{ text }}</small></font>
+	<font color="red"><i class="fas fa-circle fa-1x"></i>&nbsp;<small>{{ text }}</small></font>
 {% elif status == OPEN %}
-	<font color="orange"><i class="fas fa-folder-open fa-1x"></i>&nbsp;<small>{{ text }}</small></font>
+	<font color="orange"><i class="far fa-circle fa-1x"></i>&nbsp;<small>{{ text }}</small></font>
 {% elif status == FEEDBACK %}
-	<a title="{{ text }}"><font color="orange"><i class="fas fa-comment fa-1x"></i>&nbsp;<small>Feedback</small></font></a>
+	<a title="{{ text }}"><font color="orange"><i class="fas fa-question-circle fa-1x"></i>&nbsp;<small>Feedback</small></font></a>
 {% elif status == RESOLVED %}
 	<font color="green"><i class="fas fa-check-circle fa-fw"></i></font>
 {% elif status == RESOLVED_WITH_ACTION %}

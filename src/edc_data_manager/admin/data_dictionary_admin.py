@@ -1,4 +1,3 @@
-from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.admin import sites
 from django.contrib.admin.decorators import register
@@ -22,10 +21,17 @@ class DataDictionaryAdmin(ModelAdminAuditFieldsMixin, SimpleHistoryAdmin):
             {
                 "fields": (
                     "model",
+                    "model_verbose_name",
                     "number",
                     "prompt",
                     "field_name",
                     "field_type",
+                    "help_text",
+                    "default",
+                    "nullable",
+                    "max_length",
+                    "max_digits",
+                    "decimal_places",
                     "active",
                 )
             },
@@ -35,7 +41,7 @@ class DataDictionaryAdmin(ModelAdminAuditFieldsMixin, SimpleHistoryAdmin):
 
     ordering = ("active", "model", "number")
 
-    list_filter = ("active", "model", "field_type")
+    list_filter = ("active", "model", "field_type", "nullable")
 
     list_display = (
         "form_title",
@@ -44,18 +50,27 @@ class DataDictionaryAdmin(ModelAdminAuditFieldsMixin, SimpleHistoryAdmin):
         "number",
         "question_text",
         "field_type",
+        "default",
+        "help_text",
+        "nullable",
+        "max_length",
+        "max_digits",
+        "decimal_places",
     )
 
     actions = ["populate_data_dictionary_action"]
 
-    search_fields = ("number", "prompt", "field_name", "model")
+    search_fields = (
+        "number",
+        "prompt",
+        "field_name",
+        "model",
+        "help_text",
+        "model_verbose_name",
+    )
 
     def form_title(self, obj):
-        try:
-            model_cls = django_apps.get_model(obj.model)
-        except (LookupError, ValueError):
-            return str(obj.model)
-        return model_cls._meta.verbose_name
+        return obj.model_verbose_name
 
     def question_text(self, obj):
         return mark_safe(obj.prompt)
@@ -66,8 +81,9 @@ class DataDictionaryAdmin(ModelAdminAuditFieldsMixin, SimpleHistoryAdmin):
             for model_admin in site()._registry.values():
                 form = model_admin.get_form(request)
                 model = model_admin.model
-                if model._meta.app_label in settings.DATA_DICTIONARY_APP_LABELS and not issubclass(
-                    model, (ListModelMixin,)
+                if (
+                    model._meta.app_label in settings.DATA_DICTIONARY_APP_LABELS
+                    and not issubclass(model, (ListModelMixin,))
                 ):
                     populate_data_dictionary(form=form, model=model)
 
