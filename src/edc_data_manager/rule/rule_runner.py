@@ -4,9 +4,9 @@ from edc_metadata.constants import REQUIRED, KEYED
 from edc_metadata.models import CrfMetadata
 from edc_registration.models import RegisteredSubject
 
+from ..models import QueryVisitSchedule
 from .rule_result import RuleResult
 from .single_rule_handler import SingleRuleHandler
-from edc_data_manager.models.query_visit_schedule import QueryVisitSchedule
 
 
 class RuleRunner:

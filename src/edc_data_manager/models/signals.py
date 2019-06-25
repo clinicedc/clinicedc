@@ -1,13 +1,11 @@
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
-
-from .query_rule import CrfQueryRule, RequisitionQueryRule
-from edc_data_manager.models.data_query import DataQuery
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from edc_constants.constants import OPEN, NEW, FEEDBACK
-from edc_data_manager.rule.rule_runner import RuleRunner
-from pprint import pprint
-from edc_data_manager.models.query_visit_schedule import QueryVisitSchedule
+
+from ..rule import RuleRunner
+from .data_query import DataQuery
+from .query_rule import CrfQueryRule, RequisitionQueryRule
+from .query_visit_schedule import QueryVisitSchedule
 
 
 @receiver(post_save, weak=False, dispatch_uid="update_query_text")

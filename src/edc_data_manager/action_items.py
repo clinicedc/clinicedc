@@ -1,6 +1,7 @@
 from edc_action_item import ActionWithNotification, site_action_items
 from edc_constants.constants import RESOLVED, FEEDBACK
-from edc_data_manager.constants import RESOLVED_WITH_ACTION
+
+from .constants import RESOLVED_WITH_ACTION
 
 
 DATA_QUERY_ACTION = "data_query_action"
