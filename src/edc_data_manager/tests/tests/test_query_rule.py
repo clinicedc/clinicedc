@@ -15,6 +15,7 @@ from edc_data_manager.models import (
     DataQuery,
     QueryVisitSchedule,
 )
+from edc_data_manager.rule import RuleRunner
 from edc_facility.import_holidays import import_holidays
 from edc_lab.site_labs import site_labs
 from edc_reference.site_reference import site_reference_configs
@@ -108,7 +109,7 @@ class TestQueryRules(TestCase):
 
         for _ in [1, 2]:
             # Update DataQueries
-            crf_query_rule.update_queries()
+            RuleRunner(crf_query_rule).update_queries()
 
             # assert DataQueries created
             self.assertEqual(
@@ -126,7 +127,7 @@ class TestQueryRules(TestCase):
 
         for _ in [1, 2]:
             # Update DataQueries
-            crf_query_rule.update_queries()
+            RuleRunner(crf_query_rule).update_queries()
 
             # assert 1 DataQuery NOT changed to resolved, field f1 is still
             # None
@@ -143,7 +144,7 @@ class TestQueryRules(TestCase):
         crf_one.save()
 
         # Update DataQueries
-        crf_query_rule.update_queries()
+        RuleRunner(crf_query_rule).update_queries()
 
         # assert 1 DataQuery changed to resolved
         self.assertEqual(
