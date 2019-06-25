@@ -19,6 +19,8 @@ class AppConfig(DjangoAppConfig):
 
     name = "edc_device"
     verbose_name = "Edc Device"
+    include_in_administration_section = True
+
     messages_written = False
 
     device_id = None
