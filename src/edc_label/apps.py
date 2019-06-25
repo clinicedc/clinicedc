@@ -16,6 +16,7 @@ class AppConfig(DjangoAppConfig):
     name = "edc_label"
 
     verbose_name = "Edc Label"
+    include_in_administration_section = True
     # default extension
     template_ext = "lbl"
 
