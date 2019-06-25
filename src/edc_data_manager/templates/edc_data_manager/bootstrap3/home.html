@@ -11,11 +11,11 @@
   <div class="col-sm-4">
     <div class="panel panel-default">
       <div class="panel-heading">Data Management</div>
-
-
       <div class="list-group">
         <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
         <a id="home_list_group_dataquery" href="{% url 'edc_data_manager_admin:edc_data_manager_dataquery_changelist' %}" class="list-group-item">Data manager queries</a>
+        <a id="home_list_group_crf_query_rule" href="{% url 'edc_data_manager_admin:edc_data_manager_crfqueryrule_changelist' %}" class="list-group-item">CRF query rules</a>
+        <a id="home_list_group_requisition_query_rule" href="{% url 'edc_data_manager_admin:edc_data_manager_requisitionqueryrule_changelist' %}" class="list-group-item">Requisition query rules</a>
         <a id="home_list_group_data_manager" href="{% url 'edc_data_manager_admin:edc_data_manager_datadictionary_changelist' %}" class="list-group-item">Data dictionary</a>
         <a id="home_list_group_admin" href="{% url 'edc_data_manager_admin:app_list' 'edc_data_manager' %}" class="list-group-item">Admin</a>
       </div>
