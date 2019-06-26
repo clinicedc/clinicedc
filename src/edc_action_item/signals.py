@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from edc_constants.constants import NEW, OPEN, CLOSED
 from edc_notification import site_notifications
@@ -7,6 +7,23 @@ from simple_history.signals import post_create_historical_record
 
 from .models import ActionItem, ActionModelMixin
 from .site_action_items import site_action_items
+
+
+def update_action_item_reason(instance):
+    action_item_reason = instance.get_action_item_reason()
+    if action_item_reason:
+        instance.action_item_reason = action_item_reason
+        instance.save_base(update_fields=["action_item_reason"])
+
+
+@receiver(
+    m2m_changed, weak=False, dispatch_uid="update_action_item_reason_on_m2m_changed"
+)
+def update_action_item_reason_on_m2m_changed(action, instance, **kwargs):
+    if "historical" not in instance._meta.label_lower and isinstance(
+        instance, ActionModelMixin
+    ):
+        update_action_item_reason(instance)
 
 
 @receiver(
@@ -24,8 +41,9 @@ def update_or_create_action_item_on_post_save(
         try:
             instance.action_name
             instance.action_item
-        except AttributeError:
-            pass
+        except AttributeError as e:
+            if "action_name" not in str(e) and "action_item" not in str(e):
+                raise
         else:
             if "historical" not in instance._meta.label_lower and isinstance(
                 instance, ActionModelMixin
@@ -42,6 +60,7 @@ def update_or_create_action_item_on_post_save(
                 if created and instance.action_item.status == NEW:
                     instance.action_item.status = OPEN
                     instance.action_item.save(using=using)
+                update_action_item_reason(instance)
 
 
 @receiver(post_delete, weak=False, dispatch_uid="action_on_reference_model_post_delete")
@@ -56,8 +75,9 @@ def action_on_reference_model_post_delete(sender, instance, using, **kwargs):
     if not isinstance(instance, ActionItem):
         try:
             instance.get_action_cls()
-        except AttributeError:
-            pass
+        except AttributeError as e:
+            if "get_action_cls" not in str(e):
+                raise
         else:
             action_item = ActionItem.objects.using(using).get(
                 action_identifier=instance.action_identifier

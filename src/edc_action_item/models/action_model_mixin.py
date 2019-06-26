@@ -59,6 +59,8 @@ class ActionModelMixin(models.Model):
         ),
     )
 
+    action_item_reason = models.TextField(null=True, editable=False)
+
     objects = ActionItemModelManager()
 
     history = HistoricalRecords(inherit=True)
@@ -120,9 +122,8 @@ class ActionModelMixin(models.Model):
     def action(self):
         return self.get_action_cls()(action_item=self.action_item)
 
-    @property
-    def action_item_reason(self):
-        return None
+    def get_action_item_reason(self):
+        return self.action_name
 
     @property
     def identifier(self):
