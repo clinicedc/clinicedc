@@ -7,6 +7,7 @@ from urllib.parse import urlparse, parse_qsl
 from urllib.parse import urlencode, unquote
 
 from .site_action_items import site_action_items
+from django.template.loader import render_to_string
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,11 @@ class ActionItemHelperError(Exception):
 
 
 class ActionItemHelper:
+
+    action_item_reason_template_name = (
+        f"edc_action_item/bootstrap{settings.EDC_BOOTSTRAP}/action_item_reason.html"
+    )
+
     def __init__(
         self, action_item=None, href=None, action_name=None, related_action_item=None
     ):
@@ -184,25 +190,28 @@ class ActionItemHelper:
                 self._related_reference_url = self.get_url(**kwargs)
         return self._related_reference_url
 
-    @property
-    def action_item_reason(self):
-        try:
-            action_item_reason = self.reference_obj.action_item_reason
-        except AttributeError as e:
-            if "action_item_reason" not in str(e):
-                raise
+    def render_action_item_reasons(self):
+        action_item_reasons = []
+        objects = [
+            self.reference_obj,
+            self.parent_reference_obj,
+            self.related_reference_obj,
+        ]
+        for obj in objects:
             try:
-                action_item_reason = self.parent_reference_obj.action_item_reason
-            except AttributeError:
-                if "action_item_reason" not in str(e):
+                action_item_reasons.append(
+                    obj.action_item_reason or obj.get_action_item_reason()
+                )
+            except AttributeError as e:
+                if "action_item_reason" not in str(
+                    e
+                ) and "get_action_item_reason" not in str(e):
                     raise
-                try:
-                    action_item_reason = self.related_reference_obj.action_item_reason
-                except AttributeError:
-                    if "action_item_reason" not in str(e):
-                        raise
-                    action_item_reason = None
-        return action_item_reason
+        action_item_reasons = list(set(action_item_reasons))
+        return render_to_string(
+            self.action_item_reason_template_name,
+            context={"action_item_reasons": action_item_reasons},
+        )
 
     @property
     def reference_model_name(self):
@@ -254,7 +263,7 @@ class ActionItemHelper:
             action_identifier=self.action_identifier,
             action_instructions=self.action_item.instructions,
             action_item_color=self.action_item.action.get_color_style(),
-            action_item_reason=self.action_item_reason,
+            action_item_reason=self.render_action_item_reasons(),
             display_name=self.action_item.action.get_display_name(),
             href=self.href,
             last_updated_text=self.last_updated_text,

@@ -15,6 +15,7 @@ class AppConfig(DjangoApponfig):
         from .signals import action_on_reference_model_post_delete
         from .signals import action_item_notification_on_post_create_historical_record
         from .signals import update_or_create_action_item_on_post_save
+        from .signals import update_action_item_reason_on_m2m_changed
 
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         site_action_items.autodiscover()
