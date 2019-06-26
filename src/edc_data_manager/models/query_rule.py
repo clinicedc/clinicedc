@@ -5,7 +5,7 @@ from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
 from edc_constants.constants import NORMAL
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_sites.models import CurrentSiteManager, SiteModelMixin
+from edc_sites.models import SiteModelMixin
 from edc_visit_schedule.constants import HOURS, DAYS, WEEKS, MONTHS
 
 from .data_dictionary import DataDictionary
@@ -192,14 +192,11 @@ class RequisitionQueryRule(QueryRuleModelMixin, SiteModelMixin, BaseUuidModel):
         blank=True,
     )
 
-    on_site = CurrentSiteManager()
+    # on_site = CurrentSiteManager()
 
     objects = models.Manager()
 
     history = HistoricalRecords()
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
 
 
 class CrfQueryRule(QueryRuleModelMixin, SiteModelMixin, BaseUuidModel):
@@ -222,11 +219,8 @@ class CrfQueryRule(QueryRuleModelMixin, SiteModelMixin, BaseUuidModel):
         help_text="Requisition will be expected on day of visit.",
     )
 
-    on_site = CurrentSiteManager()
+    # on_site = CurrentSiteManager()
 
     objects = models.Manager()
 
     history = HistoricalRecords()
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
