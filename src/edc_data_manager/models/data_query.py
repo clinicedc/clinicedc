@@ -49,8 +49,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         verbose_name="Query date", default=get_utcnow
     )
 
-    subject_identifier = models.CharField(
-        max_length=50, null=True, editable=False)
+    subject_identifier = models.CharField(max_length=50, null=True, editable=False)
 
     title = models.CharField(max_length=150, null=True, blank=True)
 
@@ -194,7 +193,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         try:
             url = url_names.get("subject_dashboard_url")
         except InvalidUrlName:
-            visit_href = ""
+            visit_href = "#"
         else:
             try:
                 visit = get_visit_tracking_model().objects.get(
@@ -205,7 +204,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
                     visit_code_sequence=self.visit_code_sequence,
                 )
             except ObjectDoesNotExist:
-                visit_href = ""
+                visit_href = "#"
             else:
                 visit_href = reverse(
                     url,
@@ -247,3 +246,13 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         verbose_name = "Data Query"
         verbose_name_plural = "Data Queries"
         unique_together = ["title", "registered_subject", "visit_schedule"]
+        indexes = [
+            models.Index(
+                fields=[
+                    "subject_identifier",
+                    "title",
+                    "registered_subject",
+                    "visit_schedule",
+                ]
+            )
+        ]
