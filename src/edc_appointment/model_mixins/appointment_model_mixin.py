@@ -135,3 +135,16 @@ class AppointmentModelMixin(
             ),
         )
         ordering = ("timepoint", "visit_code_sequence")
+
+        indexes = [
+            models.Index(
+                fields=[
+                    "subject_identifier",
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "timepoint",
+                    "visit_code_sequence",
+                ]
+            )
+        ]
