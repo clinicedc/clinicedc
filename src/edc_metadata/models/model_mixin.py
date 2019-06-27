@@ -60,3 +60,15 @@ class ModelMixin(
     class Meta:
         abstract = True
         ordering = ("show_order",)
+        indexes = [
+            models.Index(fields=[
+                "subject_identifier",
+                "visit_schedule_name",
+                "schedule_name",
+                "visit_code",
+                "visit_code_sequence",
+                "model",
+                "entry_status",
+                "show_order",
+            ]),
+        ]
