@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.db import models
 from edc_model.models import BaseUuidModel
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
@@ -35,7 +36,7 @@ class CrfMetadata(ModelMixin, SiteModelMixin, BaseUuidModel):
         model = django_apps.get_model(self.model)
         return model._meta.verbose_name
 
-    class Meta:
+    class Meta(ModelMixin.Meta):
         verbose_name = "Crf Metadata"
         verbose_name_plural = "Crf Metadata"
         unique_together = (

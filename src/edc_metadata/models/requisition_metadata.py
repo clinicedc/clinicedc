@@ -40,7 +40,7 @@ class RequisitionMetadata(ModelMixin, SiteModelMixin, BaseUuidModel):
 
     natural_key.dependencies = ["sites.Site"]
 
-    class Meta:
+    class Meta(ModelMixin.Meta):
         app_label = "edc_metadata"
         verbose_name = "Requisition Metadata"
         verbose_name_plural = "Requisition Metadata"
@@ -55,3 +55,16 @@ class RequisitionMetadata(ModelMixin, SiteModelMixin, BaseUuidModel):
                 "panel_name",
             ),
         )
+        indexes = [
+            models.Index(fields=[
+                "subject_identifier",
+                "visit_schedule_name",
+                "schedule_name",
+                "visit_code",
+                "visit_code_sequence",
+                "model",
+                "entry_status",
+                "show_order",
+                "panel_name",
+            ]),
+        ]
