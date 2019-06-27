@@ -1,13 +1,17 @@
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
+from django.urls.base import reverse
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_constants.constants import OPEN, FEEDBACK, RESOLVED, NEW, NORMAL, HIGH_PRIORITY
+from edc_dashboard.url_names import url_names
 from edc_model.models import BaseUuidModel
 from edc_sites.models import SiteModelMixin, CurrentSiteManager
 from edc_utils.date import get_utcnow
+from edc_visit_tracking.models import get_visit_tracking_model
 
 from ..action_items import DATA_QUERY_ACTION
 from ..constants import RESOLVED_WITH_ACTION
@@ -45,7 +49,8 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         verbose_name="Query date", default=get_utcnow
     )
 
-    subject_identifier = models.CharField(max_length=50, null=True, editable=False)
+    subject_identifier = models.CharField(
+        max_length=50, null=True, editable=False)
 
     title = models.CharField(max_length=150, null=True, blank=True)
 
@@ -165,10 +170,28 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     def save(self, *args, **kwargs):
         self.subject_identifier = self.registered_subject.subject_identifier
+
         super().save(*args, **kwargs)
 
-    @property
-    def action_item_reason(self):
+    def get_action_item_reason(self):
+
+        try:
+            visit = get_visit_tracking_model().objects.get(
+                subject_identifier=self.registered_subject.subject_identifier,
+                visit_schedule_name=self.visit_schedule.visit_schedule_name,
+                schedule_name=self.visit_schedule.schedule_name,
+                visit_code=self.visit_schedule.visit_code,
+                visit_code_sequence=self.visit_code_sequence,
+            )
+        except ObjectDoesNotExist:
+            visit_href = ""
+        else:
+            visit_href = reverse(
+                url_names.get("subject_dashboard_url"),
+                kwargs=dict(appointment=str(
+                    visit.appointment.id),
+                    subject_identifier=self.registered_subject.subject_identifier))
+
         template_name = (
             f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/"
             f"columns/query_text.html"
@@ -186,6 +209,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
             tcc_user=self.tcc_user,
             title=self.title,
             visit_schedule=self.visit_schedule,
+            visit_href=visit_href,
         )
         return render_to_string(template_name, context=context)
 
