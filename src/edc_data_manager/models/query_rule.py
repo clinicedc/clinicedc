@@ -22,10 +22,11 @@ DATE_CHOICES = (
     (DRAWN_DATE, "Specimen draw date (requisition)"),
 )
 
-UNITS = ((HOURS, "Hours"), (DAYS, "Days"), (WEEKS, "Weeks"), (MONTHS, "Months"))
+UNITS = ((HOURS, "Hours"), (DAYS, "Days"),
+         (WEEKS, "Weeks"), (MONTHS, "Months"))
 
 query_text_template_name = (
-    f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/query_text.html"
+    f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/default_query_text.html"
 )
 
 
@@ -86,7 +87,8 @@ class QueryRuleModelMixin(models.Model):
 
     title = models.CharField(max_length=150, unique=True)
 
-    reference_model = models.CharField(max_length=150, null=True, editable=False)
+    reference_model = models.CharField(
+        max_length=150, null=True, editable=False)
 
     sender = models.ForeignKey(
         DataManagerUser,

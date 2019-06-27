@@ -17,7 +17,11 @@
 	{% if query_priority %}<B>Priority: </B>{{ query_priority_display }}{% if query_priority == HIGH_PRIORITY %}&nbsp;<font color="red"><i class="fas fa-tag fa-1x"></i></font>{% endif %}<BR>{% endif %}
 
 	{% if visit_schedule %}
-		<B>Visit{{ visit_schedules|pluralize }}:</B> {{ visit_schedule }} <BR>
+		{% if visit_href %}
+			<B>Visit{{ visit_schedules|pluralize }}:</B> <A href="{{ visit_href }}" title="Go to visit">{{ visit_schedule }}</A><BR>
+		{% else %}
+			<B>Visit{{ visit_schedules|pluralize }}:</B> {{ visit_schedule }} <BR>
+		{% endif %}
 	{% endif %} 
 
 	<B>Query text: </B><BR>
@@ -28,10 +32,12 @@
 	{{ site_response_text|truncatechars:100 }}
 	{% endif %}
 
-	<B>Question{{ questions|pluralize }}: </B><BR>
-	{% for question in questions %}
-		<I>{{ question.model_verbose_name }}</I>: {{ question }}<br>
-	{% endfor %} 
+	{% if questions %}
+		<B>Question{{ questions|pluralize }}: </B><BR>
+		{% for question in questions %}
+			<I>{{ question.model_verbose_name }}</I>: {{ question }}<br>
+		{% endfor %} 
+	{% endif %} 
 	{% if requisition_panel %}
 		<B>Requisition: </B>{{ requisition_panel.display_name|title }}<br>
 	{% endif %} 
