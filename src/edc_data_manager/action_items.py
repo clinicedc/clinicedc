@@ -49,12 +49,16 @@ class DataQueryAction(ActionWithNotification):
             f"action_item_display_name.html"
         )
         category = (
-            "TCC" if self.site_response_status in [FEEDBACK, RESOLVED] else "Query"
+            "TCC" if self.site_response_status in [
+                FEEDBACK, RESOLVED] else "Query"
         )
+        title = getattr(self.reference_obj, "title", "")
+        auto = "auto" if getattr(
+            self.reference_obj, "auto_generated", False) else ""
         context = dict(
             category=category,
-            title=self.reference_obj.title,
-            auto="auto" if self.reference_obj.auto_generated else "",
+            title=title,
+            auto=auto,
         )
         return render_to_string(template_name, context=context)
 

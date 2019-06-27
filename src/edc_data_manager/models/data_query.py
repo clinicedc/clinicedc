@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.urls.base import reverse
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_constants.constants import OPEN, FEEDBACK, RESOLVED, NEW, NORMAL, HIGH_PRIORITY
-from edc_dashboard.url_names import url_names
+from edc_dashboard.url_names import url_names, InvalidUrlName
 from edc_model.models import BaseUuidModel
 from edc_sites.models import SiteModelMixin, CurrentSiteManager
 from edc_utils.date import get_utcnow
@@ -191,25 +191,29 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         return ret
 
     def get_action_item_reason(self):
-
         try:
-            visit = get_visit_tracking_model().objects.get(
-                subject_identifier=self.registered_subject.subject_identifier,
-                visit_schedule_name=self.visit_schedule.visit_schedule_name,
-                schedule_name=self.visit_schedule.schedule_name,
-                visit_code=self.visit_schedule.visit_code,
-                visit_code_sequence=self.visit_code_sequence,
-            )
-        except ObjectDoesNotExist:
+            url = url_names.get("subject_dashboard_url")
+        except InvalidUrlName:
             visit_href = ""
         else:
-            visit_href = reverse(
-                url_names.get("subject_dashboard_url"),
-                kwargs=dict(
-                    appointment=str(visit.appointment.id),
+            try:
+                visit = get_visit_tracking_model().objects.get(
                     subject_identifier=self.registered_subject.subject_identifier,
-                ),
-            )
+                    visit_schedule_name=self.visit_schedule.visit_schedule_name,
+                    schedule_name=self.visit_schedule.schedule_name,
+                    visit_code=self.visit_schedule.visit_code,
+                    visit_code_sequence=self.visit_code_sequence,
+                )
+            except ObjectDoesNotExist:
+                visit_href = ""
+            else:
+                visit_href = reverse(
+                    url,
+                    kwargs=dict(
+                        appointment=str(visit.appointment.id),
+                        subject_identifier=self.registered_subject.subject_identifier,
+                    ),
+                )
 
         template_name = (
             f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/"
