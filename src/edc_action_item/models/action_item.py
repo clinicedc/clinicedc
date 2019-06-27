@@ -126,7 +126,8 @@ class ActionItem(
         editable=False,
     )
 
-    status = models.CharField(max_length=25, default=NEW, choices=ACTION_STATUS)
+    status = models.CharField(
+        max_length=25, default=NEW, choices=ACTION_STATUS)
 
     instructions = models.TextField(
         null=True, blank=True, help_text="populated by action class"
@@ -134,7 +135,8 @@ class ActionItem(
 
     auto_created = models.BooleanField(default=False)
 
-    auto_created_comment = models.CharField(max_length=25, null=True, blank=True)
+    auto_created_comment = models.CharField(
+        max_length=25, null=True, blank=True)
 
     on_site = CurrentSiteManager()
 
@@ -234,3 +236,7 @@ class ActionItem(
     class Meta:
         verbose_name = "Action Item"
         verbose_name_plural = "Action Items"
+        indexes = [
+            models.Index(fields=[
+                "action_identifier", "status", "report_datetime"]),
+        ]
