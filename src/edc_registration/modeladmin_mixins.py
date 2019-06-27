@@ -16,11 +16,7 @@ class RegisteredSubjectModelAdminMixin(
     instructions = []
 
     def show_pii(self, request):
-        try:
-            show_pii = request.user.groups.get(name__in=[PII, PII_VIEW])
-        except ObjectDoesNotExist:
-            show_pii = None
-        return show_pii
+        return request.user.groups.filter(name__in=[PII, PII_VIEW]).exists()
 
     def get_fieldsets(self, request, obj=None):
         """
@@ -31,7 +27,7 @@ class RegisteredSubjectModelAdminMixin(
                 return self.fieldsets
             else:
                 return self.fieldsets_no_pii
-        return [(None, {'fields': self.get_fields(request, obj)})]
+        return [(None, {"fields": self.get_fields(request, obj)})]
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj=obj)
