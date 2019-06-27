@@ -49,7 +49,8 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         verbose_name="Query date", default=get_utcnow
     )
 
-    subject_identifier = models.CharField(max_length=50, null=True, editable=False)
+    subject_identifier = models.CharField(
+        max_length=50, null=True, editable=False)
 
     title = models.CharField(max_length=150, null=True, blank=True)
 
@@ -217,6 +218,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         context = dict(
             form_and_numbers=self.form_and_numbers_to_string(),
             query_priority=self.query_priority,
+            query_priority_display=self.get_query_priority_display(),
             query_text=self.query_text,
             questions=self.data_dictionaries.all().order_by("model", "number"),
             report_datetime=self.report_datetime,
