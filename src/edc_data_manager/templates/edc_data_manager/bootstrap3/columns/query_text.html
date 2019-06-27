@@ -33,10 +33,10 @@
 	{% endif %}
 
 	{% if questions %}
-		<B>Question{{ questions|pluralize }}: </B><BR>
-		{% for question in questions %}
-			<I>{{ question.model_verbose_name }}</I>: {{ question }}<br>
-		{% endfor %} 
+		<B>Question{{ questions|pluralize }}: </B><br>
+		{% for form, numbers in form_and_numbers %}
+			{{ form }} - {{ numbers }}<br>
+		{% endfor %}
 	{% endif %} 
 	{% if requisition_panel %}
 		<B>Requisition: </B>{{ requisition_panel.display_name|title }}<br>

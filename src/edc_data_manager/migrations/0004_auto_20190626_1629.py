@@ -5,19 +5,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_data_manager', '0003_auto_20190626_1618'),
-    ]
+    dependencies = [("edc_data_manager", "0003_auto_20190626_1618")]
 
     operations = [
         migrations.AlterField(
-            model_name='dataquery',
-            name='action_item_reason',
+            model_name="dataquery",
+            name="action_item_reason",
             field=models.TextField(editable=False, null=True),
         ),
         migrations.AlterField(
-            model_name='historicaldataquery',
-            name='action_item_reason',
+            model_name="historicaldataquery",
+            name="action_item_reason",
             field=models.TextField(editable=False, null=True),
         ),
     ]

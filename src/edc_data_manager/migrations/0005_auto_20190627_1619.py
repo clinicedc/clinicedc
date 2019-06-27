@@ -5,13 +5,16 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_data_manager', '0004_auto_20190626_1629'),
-    ]
+    dependencies = [("edc_data_manager", "0004_auto_20190626_1629")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='datadictionary',
-            options={'default_permissions': ('view',), 'ordering': ('model', 'number', 'prompt'), 'verbose_name': 'Data Dictionary Item', 'verbose_name_plural': 'Data Dictionary Items'},
-        ),
+            name="datadictionary",
+            options={
+                "default_permissions": ("view",),
+                "ordering": ("model", "number", "prompt"),
+                "verbose_name": "Data Dictionary Item",
+                "verbose_name_plural": "Data Dictionary Items",
+            },
+        )
     ]
