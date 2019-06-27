@@ -5,19 +5,9 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_data_manager', '0001_initial'),
-    ]
+    dependencies = [("edc_data_manager", "0001_initial")]
 
     operations = [
-        migrations.AlterModelManagers(
-            name='crfqueryrule',
-            managers=[
-            ],
-        ),
-        migrations.AlterModelManagers(
-            name='requisitionqueryrule',
-            managers=[
-            ],
-        ),
+        migrations.AlterModelManagers(name="crfqueryrule", managers=[]),
+        migrations.AlterModelManagers(name="requisitionqueryrule", managers=[]),
     ]

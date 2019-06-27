@@ -49,8 +49,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         verbose_name="Query date", default=get_utcnow
     )
 
-    subject_identifier = models.CharField(
-        max_length=50, null=True, editable=False)
+    subject_identifier = models.CharField(max_length=50, null=True, editable=False)
 
     title = models.CharField(max_length=150, null=True, blank=True)
 
@@ -173,6 +172,23 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
         super().save(*args, **kwargs)
 
+    def form_and_numbers_to_string(self):
+        ret = []
+        models = [
+            o.model_verbose_name for o in self.data_dictionaries.all().order_by("model")
+        ]
+        models = list(set(models))
+        for model in models:
+            numbers = [
+                str(o.number)
+                for o in self.data_dictionaries.filter(
+                    model_verbose_name=model
+                ).order_by("number")
+            ]
+            numbers = ", ".join(numbers)
+            ret.append((model, numbers))
+        return ret
+
     def get_action_item_reason(self):
 
         try:
@@ -188,15 +204,18 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         else:
             visit_href = reverse(
                 url_names.get("subject_dashboard_url"),
-                kwargs=dict(appointment=str(
-                    visit.appointment.id),
-                    subject_identifier=self.registered_subject.subject_identifier))
+                kwargs=dict(
+                    appointment=str(visit.appointment.id),
+                    subject_identifier=self.registered_subject.subject_identifier,
+                ),
+            )
 
         template_name = (
             f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/"
             f"columns/query_text.html"
         )
         context = dict(
+            form_and_numbers=self.form_and_numbers_to_string(),
             query_priority=self.query_priority,
             query_text=self.query_text,
             questions=self.data_dictionaries.all().order_by("model", "number"),

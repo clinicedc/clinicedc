@@ -48,8 +48,9 @@ class DataQueryAction(ActionWithNotification):
             f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/"
             f"action_item_display_name.html"
         )
-        category = "TCC" if self.site_response_status in [
-            FEEDBACK, RESOLVED] else "Query"
+        category = (
+            "TCC" if self.site_response_status in [FEEDBACK, RESOLVED] else "Query"
+        )
         context = dict(
             category=category,
             title=self.reference_obj.title,
