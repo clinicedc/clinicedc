@@ -47,3 +47,4 @@ class CrfModelMixin(CrfVisitMethodsModelMixin, models.Model):
 
     class Meta:
         abstract = True
+        indexes = [models.Index(fields=["subject_visit", "report_datetime"])]

@@ -104,3 +104,16 @@ class VisitModelMixin(
             "visit_code_sequence",
             "report_datetime",
         )
+
+        indexes = [
+            models.Index(
+                fields=[
+                    "subject_identifier",
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "report_datetime",
+                ]
+            )
+        ]
