@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.template.loader import render_to_string
 from edc_action_item import ActionWithNotification, site_action_items
 from edc_constants.constants import RESOLVED, FEEDBACK
 
@@ -42,10 +44,18 @@ class DataQueryAction(ActionWithNotification):
         return color_style
 
     def get_display_name(self):
-        display_name = "Site data query"
-        if self.site_response_status in [FEEDBACK, RESOLVED]:
-            display_name = "TCC data query"
-        return display_name
+        template_name = (
+            f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/"
+            f"action_item_display_name.html"
+        )
+        category = "TCC" if self.site_response_status in [
+            FEEDBACK, RESOLVED] else "Query"
+        context = dict(
+            category=category,
+            title=self.reference_obj.title,
+            auto="auto" if self.reference_obj.auto_generated else "",
+        )
+        return render_to_string(template_name, context=context)
 
 
 site_action_items.register(DataQueryAction)
