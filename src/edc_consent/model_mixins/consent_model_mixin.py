@@ -109,3 +109,9 @@ class ConsentModelMixin(VerificationFieldsMixin, models.Model):
             ("subject_identifier", "version"),
         )
         ordering = ("created",)
+
+        indexes = [
+            models.Index(fields=[
+                "subject_identifier", "first_name", "dob", "initials", "version",
+            ]),
+        ]
