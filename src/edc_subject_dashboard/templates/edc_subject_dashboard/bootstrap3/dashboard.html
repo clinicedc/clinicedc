@@ -63,17 +63,20 @@
 		    	{% for schedule in visit_schedule.schedules.values %}
 					<div id="subject_dashboard_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}"
 						class="panel panel-{% if anonymous %}danger{% else %}info{% endif %}">
-					<div class="panel-heading">
+					<div class="panel-heading clearfix">
 					  <i class="far fa-calendar fa-lg fa-fw"></i> 
 					      <a data-toggle="collapse" data-parent="#accordion_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}" aria-hidden="true"
 					         href="#subject_dashboard_appointments_for_{{ visit_schedule.name|slugify }}-{{ schedule.name|slugify }}">
 					         {{ visit_schedule.verbose_name }} <i class="fas fa-caret-right"></i> {{ schedule.verbose_name }} <span class="caret"></span>
 					      </a>
 
-					      <span class="text text-default pull-right"><small>
+					      <span class="pull-right">
+			                <a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier %}"
+			                   role="button" class="btn btn-sm btn-primary">
+			                    <i class="fas fa-reply fa-fw" aria-hidden="true"></i> Subject Review
+			                </a>
 					  	    {% appointment_in_progress subject_identifier visit_schedule schedule %}
-					  	  </small></span>
-
+					  	</span>
 					  
 					</div>
 
