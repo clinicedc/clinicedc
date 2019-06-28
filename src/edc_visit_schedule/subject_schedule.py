@@ -93,9 +93,9 @@ class SubjectSchedule:
         and updating the history_obj.
         """
         onschedule_datetime = onschedule_datetime or get_utcnow()
-        try:
-            self.onschedule_model_cls.objects.get(subject_identifier=subject_identifier)
-        except ObjectDoesNotExist:
+        if not self.onschedule_model_cls.objects.filter(
+            subject_identifier=subject_identifier
+        ).exists():
             self.registered_or_raise(subject_identifier=subject_identifier)
             self.consented_or_raise(subject_identifier=subject_identifier)
             self.onschedule_model_cls.objects.create(
@@ -139,11 +139,9 @@ class SubjectSchedule:
         * deleting future appointments
         """
         # create offschedule_model_obj if it does not exist
-        try:
-            self.offschedule_model_cls.objects.get(
-                subject_identifier=subject_identifier
-            )
-        except ObjectDoesNotExist:
+        if not self.offschedule_model_cls.objects.filter(
+            subject_identifier=subject_identifier
+        ).exists():
             self.offschedule_model_cls.objects.create(
                 subject_identifier=subject_identifier,
                 offschedule_datetime=offschedule_datetime,
@@ -194,14 +192,12 @@ class SubjectSchedule:
         onschedule_datetime or before the last visit.
         """
         update = True if update is None else update
-        try:
-            self.history_model_cls.objects.get(
-                subject_identifier=subject_identifier,
-                schedule_name=self.schedule_name,
-                visit_schedule_name=self.visit_schedule_name,
-                onschedule_datetime__lte=offschedule_datetime,
-            )
-        except ObjectDoesNotExist:
+        if not self.history_model_cls.objects.filter(
+            subject_identifier=subject_identifier,
+            schedule_name=self.schedule_name,
+            visit_schedule_name=self.visit_schedule_name,
+            onschedule_datetime__lte=offschedule_datetime,
+        ).exists():
             raise InvalidOffscheduleDate(
                 "Failed to take subject off schedule. "
                 "Offschedule date cannot precede onschedule date. "
@@ -280,16 +276,14 @@ class SubjectSchedule:
     def consented_or_raise(self, subject_identifier=None):
         """Raises an exception if one or more consents do not exist.
         """
-        try:
-            self.consent_model_cls.objects.get(subject_identifier=subject_identifier)
-        except ObjectDoesNotExist:
+        if not self.consent_model_cls.objects.filter(
+            subject_identifier=subject_identifier
+        ).exists():
             raise NotConsentedError(
                 f"Failed to put subject on schedule. Consent not found. "
                 f"Using consent model '{self.consent_model}' "
                 f"subject identifier={subject_identifier}."
             )
-        except MultipleObjectsReturned:
-            pass
 
     def onschedule_or_raise(
         self, subject_identifier=None, report_datetime=None, compare_as_datetimes=None
@@ -311,13 +305,11 @@ class SubjectSchedule:
             )
 
         try:
-            offschedule_obj = self.offschedule_model_cls.objects.get(
-                subject_identifier=subject_identifier
-            )
+            offschedule_datetime = self.offschedule_model_cls.objects.values_list(
+                "offschedule_datetime", flat=True
+            ).get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist:
             offschedule_datetime = None
-        else:
-            offschedule_datetime = offschedule_obj.offschedule_datetime
 
         if compare_as_datetimes:
             in_date_range = (
