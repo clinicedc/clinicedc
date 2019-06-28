@@ -140,7 +140,7 @@ class ModelToDataframe:
             field_name=column_name,
             model_obj=model_obj,
             lookups=lookups,
-            decrypt=self.decrypt,
+            encrypt=not self.decrypt,
         )
         return value_getter.value
 
