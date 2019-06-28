@@ -53,3 +53,8 @@ class OffScheduleModelMixin(ScheduleModelMixin):
     class Meta:
         abstract = True
         offschedule_datetime_field = "offschedule_datetime"
+        indexes = [
+            models.Index(
+                fields=["id", "subject_identifier", "offschedule_datetime", "site"]
+            )
+        ]

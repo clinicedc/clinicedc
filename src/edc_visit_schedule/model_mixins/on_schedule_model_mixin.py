@@ -31,3 +31,8 @@ class OnScheduleModelMixin(ScheduleModelMixin):
 
     class Meta:
         abstract = True
+        indexes = [
+            models.Index(
+                fields=["id", "subject_identifier", "onschedule_datetime", "site"]
+            )
+        ]
