@@ -32,10 +32,7 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
 
-        from .signals import (
-            check_device_on_pre_save,  # noqa
-            update_device_on_post_save,  # noqa
-        )
+        from .signals import check_device_on_pre_save  # noqa
 
         device = Device(
             device_id=self.device_id,
