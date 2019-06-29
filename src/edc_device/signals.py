@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.apps import apps as django_apps
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 from . import device_permissions
@@ -27,23 +27,3 @@ def check_device_on_pre_save(sender, instance, raw, using, update_fields, **kwar
         else:
             update_device_fields(instance)
             device_permissions.check(instance)
-
-
-@receiver(post_save, weak=False, dispatch_uid="update_device_on_post_save")
-def update_device_on_post_save(
-    sender, instance, raw, created, using, update_fields, **kwargs
-):
-    """Updates device id.
-    """
-    if not raw:
-        try:
-            instance.device_created
-            instance.device_modified
-        except AttributeError:
-            pass
-        else:
-            update_device_fields(instance)
-            opts = dict(device_modified=instance.device_modified)
-            if not instance.id:
-                opts.update(device_created=instance.device_created)
-            sender.objects.filter(id=instance.id).update(**opts)
