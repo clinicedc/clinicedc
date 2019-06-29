@@ -57,3 +57,5 @@ class ListModelMixin(models.Model):
     class Meta:
         abstract = True
         ordering = ["display_index", "name"]
+
+        indexes = [models.Index(fields=["id", "name", "display_index"])]
