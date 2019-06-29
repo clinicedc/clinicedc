@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.template.loader import render_to_string
-from edc_action_item import ActionWithNotification, site_action_items
+from edc_action_item import Action, site_action_items
 from edc_constants.constants import RESOLVED, FEEDBACK
 
 from .constants import RESOLVED_WITH_ACTION
@@ -9,10 +9,9 @@ from .constants import RESOLVED_WITH_ACTION
 DATA_QUERY_ACTION = "data_query_action"
 
 
-class DataQueryAction(ActionWithNotification):
+class DataQueryAction(Action):
     name = DATA_QUERY_ACTION
     display_name = "Data query"
-    notification_display_name = "Data query"
     reference_model = "edc_data_manager.dataquery"
     create_by_user = True
     show_link_to_changelist = True
