@@ -26,6 +26,7 @@ class MetadataWrapper:
     label = None
 
     def __init__(self, visit=None, metadata_obj=None, **kwargs):
+        self._model_obj = None
         self.metadata_obj = metadata_obj
         self.visit = visit
 
@@ -40,16 +41,6 @@ class MetadataWrapper:
                 f"{self.metadata_obj.visit_code_sequence}. Got {repr(metadata_obj)}."
             )
 
-        try:
-            self.model_obj = self.model_cls.objects.get(**self.options)
-        except AttributeError as e:
-            if "visit_model_attr" not in str(e):
-                raise ImproperlyConfigured(f"{e} See {repr(self.model_cls)}")
-            self.delete_invalid_metadata_obj(self.metadata_obj, exception=e)
-            raise DeletedInvalidMetadata()
-        except ObjectDoesNotExist:
-            self.model_obj = None
-
     def __repr__(self):
         return f"{self.__class__.__name__}({self.visit}, {self.metadata_obj})"
 
@@ -58,6 +49,24 @@ class MetadataWrapper:
         """Returns a dictionary of query options.
         """
         return {f"{self.model_cls.visit_model_attr()}": self.visit}
+
+    @property
+    def model_obj(self):
+        if not self._model_obj:
+            try:
+                self._model_obj = self.model_cls.objects.get(**self.options)
+            except AttributeError as e:
+                if "visit_model_attr" not in str(e):
+                    raise ImproperlyConfigured(f"{e} See {repr(self.model_cls)}")
+                self.delete_invalid_metadata_obj(self.metadata_obj, exception=e)
+                raise DeletedInvalidMetadata()
+            except ObjectDoesNotExist:
+                self._model_obj = None
+        return self._model_obj
+
+    @model_obj.setter
+    def model_obj(self, value=None):
+        self._model_obj = value
 
     @property
     def model_cls(self):

@@ -5,25 +5,56 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_metadata', '0011_auto_20190305_0123'),
-    ]
+    dependencies = [("edc_metadata", "0011_auto_20190305_0123")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='crfmetadata',
-            options={'ordering': ('show_order',), 'verbose_name': 'Crf Metadata', 'verbose_name_plural': 'Crf Metadata'},
+            name="crfmetadata",
+            options={
+                "ordering": ("show_order",),
+                "verbose_name": "Crf Metadata",
+                "verbose_name_plural": "Crf Metadata",
+            },
         ),
         migrations.AlterModelOptions(
-            name='requisitionmetadata',
-            options={'ordering': ('show_order',), 'verbose_name': 'Requisition Metadata', 'verbose_name_plural': 'Requisition Metadata'},
+            name="requisitionmetadata",
+            options={
+                "ordering": ("show_order",),
+                "verbose_name": "Requisition Metadata",
+                "verbose_name_plural": "Requisition Metadata",
+            },
         ),
         migrations.AddIndex(
-            model_name='crfmetadata',
-            index=models.Index(fields=['subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'visit_code_sequence', 'model', 'entry_status', 'show_order'], name='edc_metadat_subject_a76082_idx'),
+            model_name="crfmetadata",
+            index=models.Index(
+                fields=[
+                    "subject_identifier",
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "model",
+                    "entry_status",
+                    "show_order",
+                ],
+                name="edc_metadat_subject_a76082_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='requisitionmetadata',
-            index=models.Index(fields=['subject_identifier', 'visit_schedule_name', 'schedule_name', 'visit_code', 'visit_code_sequence', 'model', 'entry_status', 'show_order', 'panel_name'], name='edc_metadat_subject_f96783_idx'),
+            model_name="requisitionmetadata",
+            index=models.Index(
+                fields=[
+                    "subject_identifier",
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "model",
+                    "entry_status",
+                    "show_order",
+                    "panel_name",
+                ],
+                name="edc_metadat_subject_f96783_idx",
+            ),
         ),
     ]
