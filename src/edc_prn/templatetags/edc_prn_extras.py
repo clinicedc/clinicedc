@@ -24,17 +24,15 @@ def prn_list_items(subject_identifier, **kwargs):
 def add_prn_crf_popover(appointment, subject_dashboard_url):
     prn_forms = []
     for crf in appointment.visits.get(appointment.visit_code).crfs_prn:
-        try:
-            CrfMetadata.objects.get(
-                subject_identifier=appointment.subject_identifier,
-                visit_schedule_name=appointment.visit_schedule_name,
-                schedule_name=appointment.schedule_name,
-                visit_code=appointment.visit_code,
-                visit_code_sequence=appointment.visit_code_sequence,
-                model=crf.model,
-                entry_status__in=[REQUIRED, KEYED],
-            )
-        except ObjectDoesNotExist:
+        if not CrfMetadata.objects.filter(
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence,
+            model=crf.model,
+            entry_status__in=[REQUIRED, KEYED],
+        ).exists():
             crf.add_url = crf.model_cls().get_absolute_url()
             crf.visit_model_attr = crf.model_cls.visit_model_attr()
             crf.subject_visit = str(appointment.visit.pk)
