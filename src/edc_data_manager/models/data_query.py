@@ -58,14 +58,17 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         related_name="+",
         on_delete=PROTECT,
         verbose_name="Query raised by",
-        help_text="select a name from the list",
+        help_text="Select a name from the list",
     )
 
     recipients = models.ManyToManyField(
         QueryUser,
         related_name="+",
         verbose_name="Sent to",
-        help_text="select all that apply",
+        help_text=(
+            "Select any additional recipients. Users in the `Site Data Manager` "
+            "group are automatically included."
+        ),
         blank=True,
     )
 
@@ -250,6 +253,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
             models.Index(
                 fields=[
                     "subject_identifier",
+                    "action_identifier",
                     "title",
                     "registered_subject",
                     "visit_schedule",

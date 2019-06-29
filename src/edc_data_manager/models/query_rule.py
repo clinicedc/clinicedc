@@ -139,7 +139,10 @@ class QueryRuleModelMixin(models.Model):
         QueryUser,
         related_name="+",
         verbose_name="Send to",
-        help_text="select all that apply",
+        help_text=(
+            "Select any additional recipients. Users in the `Site Data Manager` "
+            "group are automatically included."
+        ),
         blank=True,
     )
 

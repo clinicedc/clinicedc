@@ -18,6 +18,7 @@ class SingleRuleHandler:
         self._field_values = {}
         self._model_obj = None
         self._visit_obj = None
+        self._recipients = None
         self.created = 0
         self.model_cls = rule_result.model_cls
         self.registered_subject = registered_subject
