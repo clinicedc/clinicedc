@@ -92,7 +92,7 @@ class ActionModelMixin(models.Model):
             # this is a new instance
             # associate a new or existing ActionItem
             # with this reference model instance
-            action_cls = site_action_items.get(self.action_name)
+            action_cls = self.get_action_cls()
             action = action_cls(
                 subject_identifier=self.subject_identifier,
                 action_identifier=self.action_identifier,

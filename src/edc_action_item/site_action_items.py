@@ -24,9 +24,6 @@ class SiteActionError(Exception):
 
 
 class SiteActionItemCollection:
-
-    updated_action_types = False
-
     def __init__(self):
         self.registry = OrderedDict()
         prn = Prn(
@@ -82,13 +79,12 @@ class SiteActionItemCollection:
     def get(self, name):
         """Returns an action class.
         """
+        # pdb.set_trace()
         if name not in self.registry:
             raise SiteActionError(
                 f"Action does not exist. Did you register the Action? "
                 f"Expected one of {self.registry}. Got {name}."
             )
-        # force create action type if it does not exist
-        get_action_type(self.registry.get(name))
         return self.registry.get(name)
 
     def get_by_model(self, model=None):
@@ -111,12 +107,9 @@ class SiteActionItemCollection:
 
     def create_or_update_action_types(self):
         """Populates the ActionType model.
-
-        Called by view.
         """
-        if not self.updated_action_types:
-            for action_cls in self.registry.values():
-                create_or_update_action_type(**action_cls.as_dict())
+        for action_cls in self.registry.values():
+            create_or_update_action_type(**action_cls.as_dict())
         self.updated_action_types = True
 
     def autodiscover(self, module_name=None, verbose=True):

@@ -19,7 +19,6 @@ class TestPopover(TestCase):
         SubjectIdentifierModel.objects.create(
             subject_identifier=self.subject_identifier
         )
-        self.assertEqual(0, ActionType.objects.all().count())
         self.assertIn(FormOneAction.name, site_action_items.registry)
         self.assertIn(FormTwoAction.name, site_action_items.registry)
         self.assertIn(FormThreeAction.name, site_action_items.registry)

@@ -17,6 +17,7 @@ from ..models import (
     SubjectIdentifierModel,
     TestModelWithAction,
 )
+from edc_action_item.create_or_update_action_type import create_or_update_action_type
 
 
 class TestActionItem(TestCase):
@@ -48,7 +49,6 @@ class TestActionItem(TestCase):
     def test_create_requires_existing_subject(self):
         self.assertRaises(SubjectDoesNotExist, ActionItem.objects.create)
 
-    @tag("3")
     def test_attrs(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
@@ -169,9 +169,10 @@ class TestActionItem(TestCase):
         action_type = ActionType.objects.get(name="my-action3")
         self.assertEqual(action_type.display_name, "original display_name")
 
-        site_action_items.updated_action_type = False
+        site_action_items.registry = {}
         MyAction.display_name = "changed display_name"
-
+        site_action_items.register(MyAction)
+        create_or_update_action_type(**MyAction.as_dict())
         MyAction(subject_identifier=self.subject_identifier)
         action_type = ActionType.objects.get(name="my-action3")
         self.assertEqual(action_type.display_name, "changed display_name")

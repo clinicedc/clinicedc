@@ -48,9 +48,7 @@ class ActionItemHelper:
         else:
             self.action_identifier = action_item.action_identifier
             self.action_item = action_item
-            self.action_cls = site_action_items.get(
-                action_item.reference_model_cls.action_name
-            )
+            self.action_cls = action_item.reference_model_cls.get_action_cls()
             self.related_action_item = self.action_item.related_action_item
             if self.action_item.last_updated:
                 # could also use action_item.linked_to_reference?
@@ -249,7 +247,7 @@ class ActionItemHelper:
     def get_context(self):
         """Returns a dictionary of instance attr.
         """
-
+        # pdb.set_trace()
         context = {}
         if self.action_item.parent_action_item:
             context.update(
@@ -262,9 +260,9 @@ class ActionItemHelper:
         context.update(
             action_identifier=self.action_identifier,
             action_instructions=self.action_item.instructions,
-            action_item_color=self.action_item.action.get_color_style(),
+            action_item_color=self.action_item.read_only_action.get_color_style(),
             action_item_reason=self.render_action_item_reasons(),
-            display_name=self.action_item.action.get_display_name(),
+            display_name=self.action_item.read_only_action.get_display_name(),
             href=self.href,
             last_updated_text=self.last_updated_text,
             name=self.action_item.action_type.name,

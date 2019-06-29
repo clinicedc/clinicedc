@@ -76,3 +76,7 @@ class ActionType(BaseUuidModel):
                 else:
                     raise
         super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ["name"]
+        indexes = [models.Index(fields=["id", "name"])]
