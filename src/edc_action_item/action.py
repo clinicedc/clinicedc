@@ -64,6 +64,7 @@ class Action:
         parent_action_item=None,
         related_action_item=None,
         using=None,
+        readonly=None,
     ):
 
         self._action_item = action_item
@@ -73,11 +74,10 @@ class Action:
 
         self.messages = {}
 
-        self.action_registered_or_raise()
-
         self.action_identifier = action_identifier
         self.parent_action_item = parent_action_item
         self.related_action_item = related_action_item
+        self.readonly = readonly
         self.subject_identifier = subject_identifier
         self.using = using
 
@@ -114,7 +114,7 @@ class Action:
                 f"See {repr(self)}"
             )
 
-        if self.reference_obj:
+        if self.reference_obj and not self.readonly:
             self.close_and_create_next()
 
     def __repr__(self):
@@ -247,19 +247,6 @@ class Action:
         return django_apps.get_model(cls.related_reference_model)
 
     @classmethod
-    def action_registered_or_raise(cls):
-        """Raises if this action class is not registered
-        with the site controller, site_action_items.
-        """
-        registered_cls = site_action_items.get(cls.name)
-        if registered_cls is not cls:
-            raise ActionError(
-                f"Inconsistent action name or class. Got "
-                f"{registered_cls} for {cls.name}."
-            )
-        return True
-
-    @classmethod
     def as_dict(cls):
         """Returns select class attrs as a dictionary.
         """
@@ -312,9 +299,10 @@ class Action:
         if self.reference_obj_has_changed:
             self.reopen_action_items()
         status = CLOSED if self.close_action_item_on_save() else OPEN
-        self.action_item.status = status
-        self.action_item.save(using=self.using)
-        self.action_item.refresh_from_db(using=self.using)
+        if self.action_item.status != status:
+            self.action_item.status = status
+            self.action_item.save(using=self.using)
+            self.action_item.refresh_from_db(using=self.using)
         if status == CLOSED:
             self.create_next_action_items()
 

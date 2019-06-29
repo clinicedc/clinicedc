@@ -1,7 +1,6 @@
 from django.test import TestCase, tag
 from django.urls.base import reverse
 from edc_action_item.models import ActionItem, ActionType
-from edc_action_item.site_action_items import site_action_items
 from edc_action_item.templatetags.action_item_extras import add_action_item_popover
 from edc_action_item.view_mixins import ActionItemViewMixin
 from edc_model_wrapper import ModelWrapper
@@ -22,19 +21,6 @@ class TestAction(TestCase):
             subject_identifier=self.subject_identifier
         )
         ActionItemViewMixin.action_item_model_wrapper_cls = MyModelWrapper
-        ActionType.objects.all().delete()
-        site_action_items.updated_action_types = False
-
-    def test_view_populates_action_type(self):
-        self.assertEqual(ActionType.objects.all().count(), 0)
-        ActionItemViewMixin()
-        self.assertGreater(ActionType.objects.all().count(), 0)
-        count = ActionType.objects.all().count()
-        self.assertTrue(site_action_items.create_or_update_action_types)
-
-        ActionItemViewMixin()
-        self.assertEqual(ActionType.objects.all().count(), count)
-        self.assertTrue(site_action_items.create_or_update_action_types)
 
     def test_view_context(self):
         view = ActionItemViewMixin()

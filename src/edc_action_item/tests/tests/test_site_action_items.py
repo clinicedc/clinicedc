@@ -37,17 +37,17 @@ class TestSiteActionItems(TestCase):
         site_action_items.register(FormZeroAction)
         self.assertRaises(AlreadyRegistered, site_action_items.register, FormZeroAction)
 
-    def test_action_raises_if_name_changed(self):
-        class FormZeroAction1(FormZeroAction):
-            name = str(uuid4())
-
-        class FormZeroAction2(FormZeroAction):
-            name = str(uuid4())
-
-        site_action_items.register(FormZeroAction1)
-        site_action_items.register(FormZeroAction2)
-        FormZeroAction1.name = FormZeroAction2.name
-        self.assertRaises(ActionError, FormZeroAction1)
+    #     def test_action_raises_if_name_changed(self):
+    #         class FormZeroAction1(FormZeroAction):
+    #             name = str(uuid4())
+    #
+    #         class FormZeroAction2(FormZeroAction):
+    #             name = str(uuid4())
+    #
+    #         site_action_items.register(FormZeroAction1)
+    #         site_action_items.register(FormZeroAction2)
+    #         FormZeroAction1.name = FormZeroAction2.name
+    #         self.assertRaises(ActionError, FormZeroAction1)
 
     def test_action_instance_creates_action_type(self):
 
@@ -62,15 +62,16 @@ class TestSiteActionItems(TestCase):
         except ObjectDoesNotExist:
             self.fail("Object unexpectedly does not exist.")
 
-    def test_getting_action_from_registry_creates_action_type(self):
 
-        ActionType.objects.all().delete()
-        self.assertRaises(
-            ObjectDoesNotExist, ActionType.objects.get, name=FormZeroAction.name
-        )
-        site_action_items.register(FormZeroAction)
-        site_action_items.get(FormZeroAction.name)
-        try:
-            ActionType.objects.get(name=FormZeroAction.name)
-        except ObjectDoesNotExist:
-            self.fail("Object unexpectedly does not exist.")
+#     def test_getting_action_from_registry_creates_action_type(self):
+#
+#         ActionType.objects.all().delete()
+#         self.assertRaises(
+#             ObjectDoesNotExist, ActionType.objects.get, name=FormZeroAction.name
+#         )
+#         site_action_items.register(FormZeroAction)
+#         site_action_items.get(FormZeroAction.name)
+#         try:
+#             ActionType.objects.get(name=FormZeroAction.name)
+#         except ObjectDoesNotExist:
+#             self.fail("Object unexpectedly does not exist.")

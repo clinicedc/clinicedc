@@ -126,8 +126,7 @@ class ActionItem(
         editable=False,
     )
 
-    status = models.CharField(
-        max_length=25, default=NEW, choices=ACTION_STATUS)
+    status = models.CharField(max_length=25, default=NEW, choices=ACTION_STATUS)
 
     instructions = models.TextField(
         null=True, blank=True, help_text="populated by action class"
@@ -135,8 +134,7 @@ class ActionItem(
 
     auto_created = models.BooleanField(default=False)
 
-    auto_created_comment = models.CharField(
-        max_length=25, null=True, blank=True)
+    auto_created_comment = models.CharField(max_length=25, null=True, blank=True)
 
     on_site = CurrentSiteManager()
 
@@ -196,6 +194,12 @@ class ActionItem(
         return site_action_items.get(self.action_type.name)
 
     @property
+    def read_only_action(self):
+        """Returns the instantiated action_cls.
+        """
+        return self.action_cls(action_identifier=self.action_identifier, readonly=True)
+
+    @property
     def action(self):
         """Returns the instantiated action_cls.
         """
@@ -237,6 +241,13 @@ class ActionItem(
         verbose_name = "Action Item"
         verbose_name_plural = "Action Items"
         indexes = [
-            models.Index(fields=[
-                "action_identifier", "status", "report_datetime"]),
+            models.Index(
+                fields=[
+                    "id",
+                    "action_identifier",
+                    "action_type",
+                    "status",
+                    "report_datetime",
+                ]
+            )
         ]

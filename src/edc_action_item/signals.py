@@ -6,7 +6,6 @@ from edc_notification import site_notifications
 from simple_history.signals import post_create_historical_record
 
 from .models import ActionItem, ActionModelMixin
-from .site_action_items import site_action_items
 
 
 def update_action_item_reason(instance):
@@ -49,7 +48,7 @@ def update_or_create_action_item_on_post_save(
                 instance, ActionModelMixin
             ):
                 action_item = None
-                action_cls = site_action_items.get(instance.action_name)
+                action_cls = instance.get_action_cls()
                 if not instance.action_item:
                     action_item = ActionItem.objects.using(using).get(
                         action_identifier=instance.action_identifier

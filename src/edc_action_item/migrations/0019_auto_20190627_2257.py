@@ -5,13 +5,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_action_item', '0018_auto_20190626_1629'),
-    ]
+    dependencies = [("edc_action_item", "0018_auto_20190626_1629")]
 
     operations = [
         migrations.AddIndex(
-            model_name='actionitem',
-            index=models.Index(fields=['action_identifier', 'status', 'report_datetime'], name='edc_action__action__b19a08_idx'),
-        ),
+            model_name="actionitem",
+            index=models.Index(
+                fields=["action_identifier", "status", "report_datetime"],
+                name="edc_action__action__b19a08_idx",
+            ),
+        )
     ]
