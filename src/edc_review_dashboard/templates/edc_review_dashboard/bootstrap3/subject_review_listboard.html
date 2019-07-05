@@ -16,7 +16,7 @@
 
 {% if search_term or subject_identifier %}
     <a href="{% url subject_review_listboard_url %}" role="button" class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></a>&nbsp;
-    {{ listboard_panel_title }}: Reported visits for <b>{{ search_term }}</b> {% copy_string_to_clipboard_button search_term %}
+    {{ listboard_panel_title }}: Reported visits for <b>{% if search_term %}{{ search_term }}{% else %}{{ subject_identifier }}{% endif %}</b> {% copy_string_to_clipboard_button search_term %}
 {% else%}
     <a href="{% url 'home_url' %}" role="button" class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></a>&nbsp;
     {{ listboard_panel_title }}: Subjects
