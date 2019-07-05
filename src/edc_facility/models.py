@@ -1,8 +1,8 @@
-from django.db import models
 from django.conf import settings
 from django.core.checks import Warning
+from django.db import models
+from django.db.utils import ProgrammingError, OperationalError
 from edc_utils import convert_php_dateformat
-from django.db.utils import ProgrammingError
 
 
 class Holiday(models.Model):
@@ -50,7 +50,7 @@ class Holiday(models.Model):
                         id="edc_facility.004",
                     )
                 )
-        except ProgrammingError:
+        except (ProgrammingError, OperationalError):
             pass
         return errors
 
