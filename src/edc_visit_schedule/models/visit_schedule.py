@@ -14,7 +14,7 @@ class VisitSchedule(BaseUuidModel):
 
     visit_title = models.CharField(max_length=150)
 
-    timepoint = models.DecimalField()
+    timepoint = models.DecimalField(null=True, decimal_places=1, max_digits=6)
 
     active = models.BooleanField(default=False)
 
