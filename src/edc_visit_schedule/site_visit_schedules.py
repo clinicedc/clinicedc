@@ -177,7 +177,7 @@ class SiteVisitSchedules:
                         obj = model_cls.objects.get(
                             visit_schedule_name=visit_schedule.name,
                             schedule_name=schedule.name,
-                            visit_code=visit.code,
+                            timepoint=visit.timepoint,
                         )
                     except ObjectDoesNotExist:
                         model_cls.objects.create(**opts)
