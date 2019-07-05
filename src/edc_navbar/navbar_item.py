@@ -5,6 +5,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.urls.base import reverse
 from edc_dashboard.url_names import url_names, InvalidUrlName
+from django.urls.exceptions import NoReverseMatch
 
 
 class NavbarItemError(Exception):
@@ -69,7 +70,10 @@ class NavbarItem:
         if self.url_name == "#":
             self.reversed_url = "#"
         else:
-            self.reversed_url = reverse(self.url_name)
+            try:
+                self.reversed_url = reverse(self.url_name)
+            except NoReverseMatch as e:
+                raise NoReverseMatch(f"{e}. See {repr(self)}.")
 
         app_label, _codename = self.verify_codename(codename)
         self.codename = f"{app_label}.{_codename}"
