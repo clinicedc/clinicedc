@@ -6,12 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('edc_visit_schedule', '0003_historicalvisitschedule_visitschedule'),
+        ("edc_visit_schedule", "0003_historicalvisitschedule_visitschedule")
     ]
 
     operations = [
         migrations.AddIndex(
-            model_name='visitschedule',
-            index=models.Index(fields=['visit_schedule_name', 'schedule_name', 'visit_code', 'visit_name', 'visit_title'], name='edc_visit_s_visit_s_a90951_idx'),
-        ),
+            model_name="visitschedule",
+            index=models.Index(
+                fields=[
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "visit_name",
+                    "visit_title",
+                ],
+                name="edc_visit_s_visit_s_a90951_idx",
+            ),
+        )
     ]

@@ -79,8 +79,7 @@ class TestVisit(TestCase):
         self.assertEqual(visit.dates.upper, datetime(2001, 12, 7))
 
     def test_window_period_days(self):
-        wp = WindowPeriod(rlower=relativedelta(days=0),
-                          rupper=relativedelta(days=6))
+        wp = WindowPeriod(rlower=relativedelta(days=0), rupper=relativedelta(days=6))
         dt = datetime(2001, 12, 1)
         self.assertEqual(wp.get_window(dt)[0], dt)
         self.assertEqual(wp.get_window(dt).lower, dt)
@@ -88,8 +87,7 @@ class TestVisit(TestCase):
         self.assertEqual(wp.get_window(dt).upper, datetime(2001, 12, 7))
 
     def test_window_period_weeks(self):
-        wp = WindowPeriod(rlower=relativedelta(weeks=1),
-                          rupper=relativedelta(weeks=6))
+        wp = WindowPeriod(rlower=relativedelta(weeks=1), rupper=relativedelta(weeks=6))
         dt = datetime(2001, 12, 8)
         self.assertEqual(wp.get_window(dt).lower, datetime(2001, 12, 1))
         self.assertEqual(wp.get_window(dt).upper, datetime(2002, 1, 19))

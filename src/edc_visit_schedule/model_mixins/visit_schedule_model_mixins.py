@@ -30,7 +30,8 @@ class VisitScheduleMethodsModelMixin(models.Model):
         if not visit:
             raise VisitScheduleModelMixinError(
                 f"Visit not found in schedule. Expected one of {self.schedule.visits}. "
-                f"Got {self.visit_code}.")
+                f"Got {self.visit_code}."
+            )
         return visit
 
     @property

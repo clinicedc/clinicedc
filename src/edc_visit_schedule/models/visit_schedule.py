@@ -27,7 +27,12 @@ class VisitSchedule(BaseUuidModel):
         ordering = ("visit_schedule_name", "schedule_name", "visit_code")
         indexes = [
             models.Index(
-                fields=["visit_schedule_name", "schedule_name",
-                        "visit_code", "visit_name", "visit_title"]
+                fields=[
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "visit_name",
+                    "visit_title",
+                ]
             )
         ]
