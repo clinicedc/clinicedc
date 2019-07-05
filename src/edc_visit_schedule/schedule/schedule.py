@@ -86,7 +86,8 @@ class Schedule:
         for attr in ["code", "title", "timepoint", "rbase"]:
             if getattr(visit, attr) in [getattr(v, attr) for v in self.visits.values()]:
                 raise AlreadyRegisteredVisit(
-                    f"Visit already registered. Got visit={visit} ({attr}). "
+                    f"Visit already registered. Got visit={visit} "
+                    f"(offending attr='{attr}'). "
                     f"See schedule '{self}'"
                 )
         self.visits.update({visit.code: visit})

@@ -98,6 +98,8 @@ class Visit:
         self.name = self.code
         self.facility_name = facility_name
         self.allow_unscheduled = allow_unscheduled
+        if timepoint is None:
+            raise VisitError(f"Timepoint not specified. Got None. See Visit {code}.")
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.code}, {self.timepoint})"

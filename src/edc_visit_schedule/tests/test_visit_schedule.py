@@ -162,6 +162,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
             facility_name="default",
+            timepoint=1,
         )
         self.schedule.add_visit(visit)
         self.visit_schedule.add_schedule(self.schedule)
