@@ -26,7 +26,12 @@ class VisitScheduleMethodsModelMixin(models.Model):
 
         Note: This is not a model instance.
         """
-        return self.schedule.visits.get(self.visit_code)
+        visit = self.schedule.visits.get(self.visit_code)
+        if not visit:
+            raise VisitScheduleModelMixinError(
+                f"Visit not found in schedule. Expected one of {self.schedule.visits}. "
+                f"Got {self.visit_code}.")
+        return visit
 
     @property
     def visits(self):

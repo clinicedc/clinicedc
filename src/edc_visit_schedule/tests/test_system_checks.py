@@ -11,14 +11,14 @@ from ..visit.crf import Crf
 
 
 class TestSystemChecks(TestCase):
-    @tag("1")
+
     def test_system_check(self):
         site_visit_schedules._registry = {}
-        errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        errors = visit_schedule_check(
+            app_configs=django_apps.get_app_configs())
         self.assertEqual(len(errors), 1)
         self.assertEqual(errors[0].id, "edc_visit_schedule.001")
 
-    @tag("1")
     def test_visit_schedule_ok(self):
         site_visit_schedules._registry = {}
         visit_schedule = VisitSchedule(
@@ -36,10 +36,10 @@ class TestSystemChecks(TestCase):
         )
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
-        errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        errors = visit_schedule_check(
+            app_configs=django_apps.get_app_configs())
         self.assertEqual(len(errors), 0)
 
-    @tag("1")
     def test_visit_schedule_bad_model(self):
         site_visit_schedules._registry = {}
         visit_schedule = VisitSchedule(
@@ -57,11 +57,11 @@ class TestSystemChecks(TestCase):
         )
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
-        errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        errors = visit_schedule_check(
+            app_configs=django_apps.get_app_configs())
         self.assertEqual(len(errors), 1)
         self.assertEqual("edc_visit_schedule.visit_schedules", errors[0].id)
 
-    @tag("1")
     def test_schedule_bad_model(self):
         site_visit_schedules._registry = {}
         visit_schedule = VisitSchedule(
@@ -79,11 +79,11 @@ class TestSystemChecks(TestCase):
         )
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
-        errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        errors = visit_schedule_check(
+            app_configs=django_apps.get_app_configs())
         self.assertEqual(len(errors), 1)
         self.assertEqual("edc_visit_schedule.schedules", errors[0].id)
 
-    @tag("1")
     def test_schedule_bad_crf_model(self):
         site_visit_schedules._registry = {}
         visit_schedule = VisitSchedule(
@@ -111,10 +111,12 @@ class TestSystemChecks(TestCase):
             rupper=relativedelta(days=6),
             facility_name="default",
             crfs=crfs,
+            timepoint=1,
         )
         schedule.add_visit(visit)
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
-        errors = visit_schedule_check(app_configs=django_apps.get_app_configs())
+        errors = visit_schedule_check(
+            app_configs=django_apps.get_app_configs())
         self.assertEqual(len(errors), 1)
         self.assertEqual("edc_visit_schedule.visits", errors[0].id)

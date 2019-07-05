@@ -13,6 +13,7 @@ class TestVisit(TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
+            timepoint=1,
         )
         self.assertIsNotNone(visit.__repr__())
 
@@ -22,6 +23,7 @@ class TestVisit(TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
+            timepoint=1,
         )
         self.assertEqual(visit.name, "1000")
 
@@ -31,6 +33,7 @@ class TestVisit(TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
+            timepoint=1,
         )
         self.assertEqual(visit.title, "Visit 1000")
         self.assertEqual(str(visit), "Visit 1000")
@@ -41,6 +44,7 @@ class TestVisit(TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
+            timepoint=1,
         )
         visit.timepoint_datetime = datetime(2001, 12, 1)
         self.assertEqual(visit.timepoint_datetime, datetime(2001, 12, 1))
@@ -51,6 +55,7 @@ class TestVisit(TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
+            timepoint=1,
         )
         try:
             visit.dates.lower
@@ -67,13 +72,15 @@ class TestVisit(TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
+            timepoint=1,
         )
         visit.timepoint_datetime = datetime(2001, 12, 1)
         self.assertEqual(visit.dates.lower, datetime(2001, 12, 1))
         self.assertEqual(visit.dates.upper, datetime(2001, 12, 7))
 
     def test_window_period_days(self):
-        wp = WindowPeriod(rlower=relativedelta(days=0), rupper=relativedelta(days=6))
+        wp = WindowPeriod(rlower=relativedelta(days=0),
+                          rupper=relativedelta(days=6))
         dt = datetime(2001, 12, 1)
         self.assertEqual(wp.get_window(dt)[0], dt)
         self.assertEqual(wp.get_window(dt).lower, dt)
@@ -81,7 +88,8 @@ class TestVisit(TestCase):
         self.assertEqual(wp.get_window(dt).upper, datetime(2001, 12, 7))
 
     def test_window_period_weeks(self):
-        wp = WindowPeriod(rlower=relativedelta(weeks=1), rupper=relativedelta(weeks=6))
+        wp = WindowPeriod(rlower=relativedelta(weeks=1),
+                          rupper=relativedelta(weeks=6))
         dt = datetime(2001, 12, 8)
         self.assertEqual(wp.get_window(dt).lower, datetime(2001, 12, 1))
         self.assertEqual(wp.get_window(dt).upper, datetime(2002, 1, 19))
@@ -93,6 +101,7 @@ class TestVisit(TestCase):
                 rbase=relativedelta(days=0),
                 rlower=relativedelta(days=0),
                 rupper=relativedelta(days=6),
+                timepoint=1,
             )
         except (VisitCodeError) as e:
             self.fail(f"VisitError unexpectedly raised. Got {e}")
@@ -102,6 +111,7 @@ class TestVisit(TestCase):
                 rbase=relativedelta(days=0),
                 rlower=relativedelta(days=0),
                 rupper=relativedelta(days=6),
+                timepoint=1,
             )
         except (VisitCodeError) as e:
             self.fail(f"VisitError unexpectedly raised. Got {e}")
@@ -114,6 +124,7 @@ class TestVisit(TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
+            timepoint=1,
         )
 
     def test_bad_code_not_string(self):
@@ -124,6 +135,7 @@ class TestVisit(TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
+            timepoint=1,
         )
 
     def test_bad_code_format(self):
@@ -134,4 +146,5 @@ class TestVisit(TestCase):
             rbase=relativedelta(days=0),
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
+            timepoint=1,
         )

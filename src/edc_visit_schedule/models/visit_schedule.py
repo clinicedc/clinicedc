@@ -25,3 +25,9 @@ class VisitSchedule(BaseUuidModel):
 
     class Meta:
         ordering = ("visit_schedule_name", "schedule_name", "visit_code")
+        indexes = [
+            models.Index(
+                fields=["visit_schedule_name", "schedule_name",
+                        "visit_code", "visit_name", "visit_title"]
+            )
+        ]
