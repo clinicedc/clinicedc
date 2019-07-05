@@ -1,3 +1,4 @@
+import pdb
 from .constants import KEYED
 from .target_handler import TargetHandler
 
@@ -23,13 +24,14 @@ class MetadataUpdater:
         return f"{self.__class__.__name__}(visit={self.visit})"
 
     def update(self, entry_status=None):
-
+        # pdb.set_trace()
         if self.target.object:
             entry_status = KEYED
         metadata_obj = self.target.metadata_obj
         if entry_status and metadata_obj.entry_status != entry_status:
             metadata_obj.entry_status = entry_status
             metadata_obj.save()
+            metadata_obj.refresh_from_db()
         return metadata_obj
 
     @property
