@@ -1,6 +1,9 @@
 from django.test import TestCase, tag
 from edc_visit_schedule.schedule import Schedule
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
+from edc_visit_schedule.site_visit_schedules import (
+    site_visit_schedules,
+    SiteVisitScheduleError,
+)
 from edc_visit_schedule.site_visit_schedules import AlreadyRegisteredVisitSchedule
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from visit_schedule_app.models import OnSchedule, OffSchedule

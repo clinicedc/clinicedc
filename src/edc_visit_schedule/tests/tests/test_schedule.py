@@ -141,8 +141,7 @@ class TestSchedule(TestCase):
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
         )
-        self.assertRaises(AlreadyRegisteredVisit,
-                          schedule.add_visit, visit=visit)
+        self.assertRaises(AlreadyRegisteredVisit, schedule.add_visit, visit=visit)
 
     def test_add_visits_duplicate_title(self):
         schedule = Schedule(
@@ -169,8 +168,7 @@ class TestSchedule(TestCase):
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
         )
-        self.assertRaises(AlreadyRegisteredVisit,
-                          schedule.add_visit, visit=visit)
+        self.assertRaises(AlreadyRegisteredVisit, schedule.add_visit, visit=visit)
 
     def test_add_visits_duplicate_timepoint(self):
         schedule = Schedule(
@@ -195,8 +193,7 @@ class TestSchedule(TestCase):
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
         )
-        self.assertRaises(AlreadyRegisteredVisit,
-                          schedule.add_visit, visit=visit)
+        self.assertRaises(AlreadyRegisteredVisit, schedule.add_visit, visit=visit)
 
     def test_add_visits_duplicate_rbase(self):
         schedule = Schedule(
@@ -221,8 +218,7 @@ class TestSchedule(TestCase):
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
         )
-        self.assertRaises(AlreadyRegisteredVisit,
-                          schedule.add_visit, visit=visit)
+        self.assertRaises(AlreadyRegisteredVisit, schedule.add_visit, visit=visit)
 
 
 class TestScheduleWithVisits(TestCase):
@@ -246,8 +242,7 @@ class TestScheduleWithVisits(TestCase):
             )
             self.schedule.add_visit(visit=visit)
         self.assertEqual(
-            [v.timepoint for v in self.schedule.visits.values()], [
-                0, 1, 2, 3, 4, 5]
+            [v.timepoint for v in self.schedule.visits.values()], [0, 1, 2, 3, 4, 5]
         )
 
     def test_first_visit(self):

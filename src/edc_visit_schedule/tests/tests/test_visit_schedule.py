@@ -9,12 +9,21 @@ from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.constants import ON_SCHEDULE
 from edc_visit_schedule.models import SubjectScheduleHistory
 from edc_visit_schedule.schedule import Schedule
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
-from edc_visit_schedule.subject_schedule import NotOnScheduleError, InvalidOffscheduleDate
+from edc_visit_schedule.site_visit_schedules import (
+    site_visit_schedules,
+    SiteVisitScheduleError,
+)
+from edc_visit_schedule.subject_schedule import (
+    NotOnScheduleError,
+    InvalidOffscheduleDate,
+)
 from edc_visit_schedule.subject_schedule import NotConsentedError, UnknownSubjectError
 from edc_visit_schedule.visit import Visit, Crf, FormsCollectionError, FormsCollection
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from edc_visit_schedule.visit_schedule import VisitScheduleNameError, AlreadyRegisteredSchedule
+from edc_visit_schedule.visit_schedule import (
+    VisitScheduleNameError,
+    AlreadyRegisteredSchedule,
+)
 from visit_schedule_app.models import OnSchedule, OnScheduleThree, OffSchedule
 from visit_schedule_app.models import SubjectVisit, SubjectConsent
 
@@ -113,8 +122,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
     def test_visit_schedule_add_schedule_with_appointment_model(self):
         self.visit_schedule.add_schedule(self.schedule3)
         for schedule in self.visit_schedule.schedules.values():
-            self.assertEqual(schedule.appointment_model,
-                             "edc_appointment.appointment")
+            self.assertEqual(schedule.appointment_model, "edc_appointment.appointment")
 
     def test_visit_already_added_to_schedule(self):
         self.visit_schedule.add_schedule(self.schedule)
@@ -206,8 +214,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             history_obj.__dict__.get("onschedule_datetime"),
             onschedule_model_obj.onschedule_datetime,
         )
-        self.assertEqual(history_obj.__dict__.get(
-            "schedule_status"), ON_SCHEDULE)
+        self.assertEqual(history_obj.__dict__.get("schedule_status"), ON_SCHEDULE)
 
     def test_can_create_offschedule_with_onschedule(self):
         # signal puts on schedule
@@ -284,8 +291,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             InvalidOffscheduleDate,
             schedule.take_off_schedule,
             subject_identifier=self.subject_identifier,
-            offschedule_datetime=appointments[0].appt_datetime -
-            relativedelta(days=1),
+            offschedule_datetime=appointments[0].appt_datetime - relativedelta(days=1),
         )
 
     def test_cannot_put_on_schedule_if_visit_schedule_not_registered_subject(self):
@@ -313,5 +319,4 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         )
 
     def test_cannot_put_on_schedule_if_schedule_not_added(self):
-        self.assertRaises(SiteVisitScheduleError,
-                          OnScheduleThree.objects.create)
+        self.assertRaises(SiteVisitScheduleError, OnScheduleThree.objects.create)

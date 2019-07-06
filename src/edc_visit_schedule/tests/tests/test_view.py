@@ -60,8 +60,7 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
         self.view.request.META = {"HTTP_CLIENT_IP": "1.1.1.1"}
 
         self.view_current = TestViewCurrent()
-        self.view_current.kwargs = dict(
-            subject_identifier=self.subject_identifier)
+        self.view_current.kwargs = dict(subject_identifier=self.subject_identifier)
         self.view_current.subject_identifier = self.subject_identifier
         self.view_current.request = RequestFactory()
         self.view_current.request.META = {"HTTP_CLIENT_IP": "1.1.1.1"}
@@ -77,8 +76,7 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
         self.assertEqual(context.get("onschedule_models"), [])
 
     def test_context_on_schedule(self):
-        obj = OnSchedule.objects.create(
-            subject_identifier=self.subject_identifier)
+        obj = OnSchedule.objects.create(subject_identifier=self.subject_identifier)
         context = self.view.get_context_data()
         self.assertEqual(
             context.get("visit_schedules"),
@@ -87,8 +85,7 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
         self.assertEqual(context.get("onschedule_models"), [obj])
 
     def test_context_enrolled_current(self):
-        obj = OnSchedule.objects.create(
-            subject_identifier=self.subject_identifier)
+        obj = OnSchedule.objects.create(subject_identifier=self.subject_identifier)
         context = self.view_current.get_context_data()
         self.assertEqual(context.get("current_onschedule_model"), obj)
         obj = context.get("current_onschedule_model")
