@@ -1,7 +1,6 @@
 from django.test import TestCase, tag
-
-from ..visit import Crf, FormsCollection, FormsCollectionError
 from django.test.utils import override_settings
+from edc_visit_schedule.visit import Crf, FormsCollection, FormsCollectionError
 
 
 class TestFormsCollection(TestCase):

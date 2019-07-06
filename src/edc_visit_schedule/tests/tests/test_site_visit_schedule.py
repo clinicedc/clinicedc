@@ -1,10 +1,9 @@
 from django.test import TestCase, tag
-
-from ..schedule import Schedule
-from ..site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
-from ..site_visit_schedules import AlreadyRegisteredVisitSchedule
-from ..visit_schedule import VisitSchedule
-from .models import OnSchedule, OffSchedule
+from edc_visit_schedule.schedule import Schedule
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules, SiteVisitScheduleError
+from edc_visit_schedule.site_visit_schedules import AlreadyRegisteredVisitSchedule
+from edc_visit_schedule.visit_schedule import VisitSchedule
+from visit_schedule_app.models import OnSchedule, OffSchedule
 
 
 class TestSiteVisitSchedule(TestCase):
@@ -13,8 +12,8 @@ class TestSiteVisitSchedule(TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="edc_visit_schedule.subjectoffstudy",
-            death_report_model="edc_visit_schedule.deathreport",
+            offstudy_model="visit_schedule_app.subjectoffstudy",
+            death_report_model="visit_schedule_app.deathreport",
         )
 
     def test_register_no_schedules(self):
@@ -27,10 +26,10 @@ class TestSiteVisitSchedule(TestCase):
         site_visit_schedules._registry = {}
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="edc_visit_schedule.subjectconsent",
+            consent_model="visit_schedule_app.subjectconsent",
         )
         self.visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(self.visit_schedule)
@@ -47,16 +46,16 @@ class TestSiteVisitSchedule1(TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="edc_visit_schedule.subjectoffstudy",
-            death_report_model="edc_visit_schedule.deathreport",
+            offstudy_model="visit_schedule_app.subjectoffstudy",
+            death_report_model="visit_schedule_app.deathreport",
         )
 
         self.schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="edc_visit_schedule.subjectconsent",
+            consent_model="visit_schedule_app.subjectconsent",
         )
 
         self.visit_schedule.add_schedule(self.schedule)
@@ -64,16 +63,16 @@ class TestSiteVisitSchedule1(TestCase):
         self.visit_schedule_two = VisitSchedule(
             name="visit_schedule_two",
             verbose_name="Visit Schedule Two",
-            offstudy_model="edc_visit_schedule.subjectoffstudy",
-            death_report_model="edc_visit_schedule.deathreport",
+            offstudy_model="visit_schedule_app.subjectoffstudy",
+            death_report_model="visit_schedule_app.deathreport",
         )
 
         self.schedule_two = Schedule(
             name="schedule_two",
-            onschedule_model="edc_visit_schedule.onscheduletwo",
-            offschedule_model="edc_visit_schedule.offscheduletwo",
+            onschedule_model="visit_schedule_app.onscheduletwo",
+            offschedule_model="visit_schedule_app.offscheduletwo",
             appointment_model="edc_appointment.appointment",
-            consent_model="edc_visit_schedule.subjectconsent",
+            consent_model="visit_schedule_app.subjectconsent",
         )
 
         self.visit_schedule_two.add_schedule(self.schedule_two)
@@ -128,12 +127,12 @@ class TestSiteVisitSchedule1(TestCase):
 
     def test_get_schedule_by_onschedule_model(self):
         _, schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_visit_schedule.onschedule"
+            "visit_schedule_app.onschedule"
         )
         self.assertEqual(schedule.onschedule_model_cls, OnSchedule)
 
     def test_get_schedule_by_offschedule_model(self):
         _, schedule = site_visit_schedules.get_by_offschedule_model(
-            "edc_visit_schedule.offschedule"
+            "visit_schedule_app.offschedule"
         )
         self.assertEqual(schedule.offschedule_model_cls, OffSchedule)

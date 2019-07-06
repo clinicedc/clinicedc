@@ -2,11 +2,10 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_utils import get_utcnow
-
-from ..schedule import Schedule, AlreadyRegisteredVisit
-from ..schedule import ScheduleNameError
-from ..visit import Visit
-from .models import OnSchedule, OffSchedule
+from edc_visit_schedule.schedule import Schedule, AlreadyRegisteredVisit
+from edc_visit_schedule.schedule import ScheduleNameError
+from edc_visit_schedule.visit import Visit
+from visit_schedule_app.models import OnSchedule, OffSchedule
 
 
 class TestSchedule(TestCase):
@@ -18,9 +17,9 @@ class TestSchedule(TestCase):
         """
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
         self.assertTrue(schedule.__repr__())
@@ -28,9 +27,9 @@ class TestSchedule(TestCase):
     def test_visit_schedule_field_value(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
         self.assertEqual(schedule.field_value, "schedule")
@@ -49,8 +48,8 @@ class TestSchedule(TestCase):
         schedule = Schedule(
             name="schedule",
             onschedule_model="x.x",
-            offschedule_model="edc_visit_schedule.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
         errors = schedule.check()
@@ -59,9 +58,9 @@ class TestSchedule(TestCase):
     def test_schedule_bad_label_lower2(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
+            onschedule_model="visit_schedule_app.onschedule",
             offschedule_model="x.x",
-            consent_model="edc_visit_schedule.subjectconsent",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
         errors = schedule.check()
@@ -70,9 +69,9 @@ class TestSchedule(TestCase):
     def test_schedule_onschedule_model_cls(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
         self.assertEqual(schedule.onschedule_model_cls, OnSchedule)
@@ -80,8 +79,8 @@ class TestSchedule(TestCase):
     def test_schedule_offschedule_model_cls(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
             consent_model="edc_visit_schedule.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
@@ -90,18 +89,18 @@ class TestSchedule(TestCase):
     def test_schedule_ok(self):
         Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
 
     def test_add_visits(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
         for i in range(0, 5):
@@ -120,9 +119,9 @@ class TestSchedule(TestCase):
     def test_add_visits_duplicate_code(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
         visit = Visit(
@@ -142,14 +141,15 @@ class TestSchedule(TestCase):
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
         )
-        self.assertRaises(AlreadyRegisteredVisit, schedule.add_visit, visit=visit)
+        self.assertRaises(AlreadyRegisteredVisit,
+                          schedule.add_visit, visit=visit)
 
     def test_add_visits_duplicate_title(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
         visit = Visit(
@@ -169,14 +169,15 @@ class TestSchedule(TestCase):
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
         )
-        self.assertRaises(AlreadyRegisteredVisit, schedule.add_visit, visit=visit)
+        self.assertRaises(AlreadyRegisteredVisit,
+                          schedule.add_visit, visit=visit)
 
     def test_add_visits_duplicate_timepoint(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
         visit = Visit(
@@ -194,14 +195,15 @@ class TestSchedule(TestCase):
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
         )
-        self.assertRaises(AlreadyRegisteredVisit, schedule.add_visit, visit=visit)
+        self.assertRaises(AlreadyRegisteredVisit,
+                          schedule.add_visit, visit=visit)
 
     def test_add_visits_duplicate_rbase(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
         visit = Visit(
@@ -219,16 +221,17 @@ class TestSchedule(TestCase):
             rlower=relativedelta(days=0),
             rupper=relativedelta(days=6),
         )
-        self.assertRaises(AlreadyRegisteredVisit, schedule.add_visit, visit=visit)
+        self.assertRaises(AlreadyRegisteredVisit,
+                          schedule.add_visit, visit=visit)
 
 
 class TestScheduleWithVisits(TestCase):
     def setUp(self):
         self.schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
-            consent_model="edc_visit_schedule.subjectconsent",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
+            consent_model="visit_schedule_app.subjectconsent",
             appointment_model="edc_appointment.appointment",
         )
 
@@ -243,7 +246,8 @@ class TestScheduleWithVisits(TestCase):
             )
             self.schedule.add_visit(visit=visit)
         self.assertEqual(
-            [v.timepoint for v in self.schedule.visits.values()], [0, 1, 2, 3, 4, 5]
+            [v.timepoint for v in self.schedule.visits.values()], [
+                0, 1, 2, 3, 4, 5]
         )
 
     def test_first_visit(self):
