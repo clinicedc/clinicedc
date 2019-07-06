@@ -1,9 +1,8 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
-
-from ..visit import WindowPeriod
-from ..visit import Visit, VisitCodeError, VisitDateError
+from edc_visit_schedule.visit import WindowPeriod
+from edc_visit_schedule.visit import Visit, VisitCodeError, VisitDateError
 
 
 class TestVisit(TestCase):

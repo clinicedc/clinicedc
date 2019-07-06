@@ -1,13 +1,12 @@
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
-
-from ..schedule import Schedule
-from ..site_visit_schedules import site_visit_schedules
-from ..system_checks import visit_schedule_check
-from ..visit_schedule import VisitSchedule
-from ..visit import Visit, FormsCollection
-from ..visit.crf import Crf
+from edc_visit_schedule.schedule import Schedule
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.system_checks import visit_schedule_check
+from edc_visit_schedule.visit_schedule import VisitSchedule
+from edc_visit_schedule.visit import Visit, FormsCollection
+from edc_visit_schedule.visit.crf import Crf
 
 
 class TestSystemChecks(TestCase):
@@ -22,15 +21,15 @@ class TestSystemChecks(TestCase):
         visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="edc_visit_schedule.subjectoffstudy",
-            death_report_model="edc_visit_schedule.deathreport",
+            offstudy_model="visit_schedule_app.subjectoffstudy",
+            death_report_model="visit_schedule_app.deathreport",
         )
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="edc_visit_schedule.subjectconsent",
+            consent_model="visit_schedule_app.subjectconsent",
         )
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
@@ -43,14 +42,14 @@ class TestSystemChecks(TestCase):
             name="visit_schedule",
             verbose_name="Visit Schedule",
             offstudy_model="blah.subjectoffstudy",
-            death_report_model="edc_visit_schedule.deathreport",
+            death_report_model="visit_schedule_app.deathreport",
         )
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="edc_visit_schedule.subjectconsent",
+            consent_model="visit_schedule_app.subjectconsent",
         )
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
@@ -63,15 +62,15 @@ class TestSystemChecks(TestCase):
         visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="edc_visit_schedule.subjectoffstudy",
-            death_report_model="edc_visit_schedule.deathreport",
+            offstudy_model="visit_schedule_app.subjectoffstudy",
+            death_report_model="visit_schedule_app.deathreport",
         )
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
             appointment_model="blah.appointment",
-            consent_model="edc_visit_schedule.subjectconsent",
+            consent_model="visit_schedule_app.subjectconsent",
         )
         visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(visit_schedule)
@@ -84,15 +83,15 @@ class TestSystemChecks(TestCase):
         visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="edc_visit_schedule.subjectoffstudy",
-            death_report_model="edc_visit_schedule.deathreport",
+            offstudy_model="visit_schedule_app.subjectoffstudy",
+            death_report_model="visit_schedule_app.deathreport",
         )
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="edc_visit_schedule.offschedule",
+            onschedule_model="visit_schedule_app.onschedule",
+            offschedule_model="visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
-            consent_model="edc_visit_schedule.subjectconsent",
+            consent_model="visit_schedule_app.subjectconsent",
         )
         crfs = FormsCollection(
             Crf(show_order=10, model="blah.CrfOne"),

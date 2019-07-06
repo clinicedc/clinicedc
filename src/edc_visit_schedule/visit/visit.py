@@ -1,9 +1,9 @@
 import re
 
+from decimal import Decimal
 from django.apps import apps as django_apps
 
 from .window_period import WindowPeriod
-from pprint import pprint
 
 
 class VisitCodeError(Exception):
@@ -84,7 +84,7 @@ class Visit:
         if requisitions_prn:
             self.requisitions_prn = requisitions_prn.forms
         self.instructions = instructions
-        self.timepoint = timepoint
+        self.timepoint = Decimal(str(timepoint))
         self.rbase = rbase
         self.rlower = rlower
         self.rupper = rupper

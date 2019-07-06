@@ -9,15 +9,26 @@ from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
-
-from ..constants import OFF_SCHEDULE, ON_SCHEDULE
-from ..models import SubjectScheduleHistory
-from ..site_visit_schedules import site_visit_schedules, RegistryNotLoaded
-from .models import OnSchedule, OffSchedule, SubjectVisit, CrfOne
-from .models import OnScheduleFive, OnScheduleSeven, OffScheduleFive
-from .models import OnScheduleSix, OffScheduleSix, OffScheduleSeven, BadOffSchedule1
-from .visit_schedule import visit_schedule, visit_schedule5, visit_schedule6
-from .visit_schedule import visit_schedule7
+from edc_visit_schedule.constants import OFF_SCHEDULE, ON_SCHEDULE
+from edc_visit_schedule.models import SubjectScheduleHistory
+from edc_visit_schedule.site_visit_schedules import (
+    site_visit_schedules,
+    RegistryNotLoaded,
+)
+from visit_schedule_app.models import OnSchedule, OffSchedule, SubjectVisit, CrfOne
+from visit_schedule_app.models import OnScheduleFive, OnScheduleSeven, OffScheduleFive
+from visit_schedule_app.models import (
+    OnScheduleSix,
+    OffScheduleSix,
+    OffScheduleSeven,
+    BadOffSchedule1,
+)
+from visit_schedule_app.visit_schedule import (
+    visit_schedule,
+    visit_schedule5,
+    visit_schedule6,
+)
+from visit_schedule_app.visit_schedule import visit_schedule7
 
 
 class TestModels(SiteTestCaseMixin, TestCase):

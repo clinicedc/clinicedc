@@ -1,6 +1,8 @@
 from django.test import TestCase, tag
-
-from ..visit_schedule import SchedulesCollection, SchedulesCollectionError
+from edc_visit_schedule.visit_schedule import (
+    SchedulesCollection,
+    SchedulesCollectionError,
+)
 
 
 class TestSchedulesCollection(TestCase):
