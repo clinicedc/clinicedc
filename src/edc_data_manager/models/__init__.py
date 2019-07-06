@@ -7,6 +7,7 @@ from .query_rule import (
     CrfDataDictionary,
     RequisitionDataDictionary,
     VisitDataDictionary,
+    get_rule_handler_choices,
 )
 from .query_subject import QuerySubject
 from .query_visit_schedule import QueryVisitSchedule

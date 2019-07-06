@@ -5,6 +5,8 @@ from django.conf import settings
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
 
+from .site_data_manager import site_data_manager
+
 
 style = color_style()
 
@@ -28,6 +30,9 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         post_migrate.connect(populate_data_dictionary, sender=self)
+
+        sys.stdout.write(f"Loading {self.verbose_name} ...\n")
+        site_data_manager.autodiscover()
 
 
 if settings.APP_NAME == "edc_data_manager":

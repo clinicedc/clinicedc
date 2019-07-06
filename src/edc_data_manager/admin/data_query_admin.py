@@ -15,9 +15,7 @@ from edc_utils import formatted_datetime
 from ..admin_site import edc_data_manager_admin
 from ..constants import RESOLVED_WITH_ACTION
 from ..forms import DataQueryForm
-from ..models import DataQuery
-from edc_data_manager.models.data_dictionary import DataDictionary
-from django.contrib.admin.views.autocomplete import AutocompleteJsonView
+from ..models import DataQuery, DataDictionary
 
 
 @register(DataQuery, site=edc_data_manager_admin)
@@ -73,7 +71,7 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         "tcc_status",
         "sent_to",
         "query",
-        "auto_generated",
+        "rule_generated",
     )
 
     list_filter = (
@@ -83,7 +81,7 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         "report_datetime",
         "site_resolved_datetime",
         "resolved_datetime",
-        "auto_generated",
+        "rule_generated",
         "title",
     )
 
@@ -152,7 +150,7 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         ],
         [
             "Rules",
-            {"classes": ("collapse",), "fields": ("auto_generated", "auto_reference")},
+            {"classes": ("collapse",), "fields": ("rule_generated", "rule_reference")},
         ],
         action_fieldset_tuple,
         audit_fieldset_tuple,
@@ -254,7 +252,7 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)
-        extra_fields = ["auto_generated", "auto_reference"]
+        extra_fields = ["rule_generated", "rule_reference"]
         if not request.user.groups.filter(name=DATA_MANAGER):
             extra_fields = [
                 "registered_subject",

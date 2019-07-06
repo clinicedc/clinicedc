@@ -7,12 +7,29 @@ from edc_constants.constants import NORMAL
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.models import SiteModelMixin
 from edc_visit_schedule.constants import HOURS, DAYS, WEEKS, MONTHS
+from uuid import uuid4
 
 from .data_dictionary import DataDictionary
 from .data_query import QUERY_PRIORITY
 from .query_visit_schedule import QueryVisitSchedule
 from .requisition_panel import RequisitionPanel
 from .user import DataManagerUser, QueryUser
+from django.utils.functional import lazy
+from edc_data_manager.site_data_manager import site_data_manager
+
+
+class QueryRuleError(Exception):
+    pass
+
+
+def get_rule_handler_choices(model_name=None):
+    choices = []
+    for rule_handler in site_data_manager.get_rule_handlers(model_name=model_name):
+        choices.append((rule_handler.name, rule_handler.display_name))
+    return tuple(choices) or (
+        (DEFAULT_RULE_HANDLER, DEFAULT_RULE_HANDLER.replace("_", " ").title()),
+    )
+
 
 REPORT_DATE = "report_datetime"
 DRAWN_DATE = "drawn_datetime"
@@ -23,6 +40,8 @@ DATE_CHOICES = (
 )
 
 UNITS = ((HOURS, "Hours"), (DAYS, "Days"), (WEEKS, "Weeks"), (MONTHS, "Months"))
+
+DEFAULT_RULE_HANDLER = "default"
 
 query_text_template_name = (
     f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/default_query_text.html"
@@ -146,6 +165,16 @@ class QueryRuleModelMixin(models.Model):
         blank=True,
     )
 
+    rule_handler_name = models.CharField(
+        max_length=150,
+        default=DEFAULT_RULE_HANDLER,
+        choices=lazy(get_rule_handler_choices, tuple)(),
+        null=True,
+        blank=True,
+    )
+
+    reference = models.CharField(max_length=36, default=uuid4, editable=False)
+
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -162,12 +191,13 @@ class QueryRuleModelMixin(models.Model):
         return django_apps.get_model(self.reference_model)
 
     @property
-    def model_classes(self):
-        model_classes = []
+    def model_cls(self):
         models = list(set([dd.model for dd in self.data_dictionaries.all()]))
-        for model in models:
-            model_classes.append(django_apps.get_model(model))
-        return model_classes
+        if len(models) != 1:
+            raise QueryRuleError(
+                "Multiple models specified. Questions from only one model are allowed."
+            )
+        return django_apps.get_model(models[0])
 
     class Meta:
         abstract = True
