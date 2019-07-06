@@ -21,6 +21,8 @@ class ModelMixin(
 
     visit_code_sequence = models.IntegerField(default=0)
 
+    timepoint = models.DecimalField(null=True, decimal_places=1, max_digits=6)
+
     model = models.CharField(max_length=50)
 
     current_entry_title = models.CharField(max_length=250, null=True)
