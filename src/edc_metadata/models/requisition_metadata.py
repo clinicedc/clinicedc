@@ -63,6 +63,7 @@ class RequisitionMetadata(ModelMixin, SiteModelMixin, BaseUuidModel):
                     "schedule_name",
                     "visit_code",
                     "visit_code_sequence",
+                    "timepoint",
                     "model",
                     "entry_status",
                     "show_order",

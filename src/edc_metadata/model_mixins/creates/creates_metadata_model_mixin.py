@@ -42,6 +42,7 @@ class CreatesMetadataModelMixin(models.Model):
             schedule_name=self.schedule_name,
             visit_code=visit.code,
             visit_code_sequence=self.visit_code_sequence,
+            timepoint=self.timepoint,
         )
         return options
 

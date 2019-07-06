@@ -38,8 +38,7 @@ class TestCreatesDeletesMetadata(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
@@ -64,20 +63,17 @@ class TestCreatesDeletesMetadata(TestCase):
         self.assertTrue(repr(obj))
 
     def test_creates_metadata_on_scheduled(self):
-        SubjectVisit.objects.create(
-            appointment=self.appointment, reason=SCHEDULED)
+        SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
         self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
 
     def test_creates_metadata_on_unscheduled(self):
-        SubjectVisit.objects.create(
-            appointment=self.appointment, reason=UNSCHEDULED)
+        SubjectVisit.objects.create(appointment=self.appointment, reason=UNSCHEDULED)
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
         self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
 
     def test_does_not_creates_metadata_on_missed(self):
-        SubjectVisit.objects.create(
-            appointment=self.appointment, reason=MISSED_VISIT)
+        SubjectVisit.objects.create(appointment=self.appointment, reason=MISSED_VISIT)
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
 
@@ -146,8 +142,7 @@ class TestUpdatesMetadata(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={
-                "edc_appointment.appointment": "edc_metadata.subjectvisit"}
+            visit_models={"edc_appointment.appointment": "edc_metadata.subjectvisit"}
         )
         self.subject_identifier = "1111111"
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
@@ -355,14 +350,12 @@ class TestUpdatesMetadata(TestCase):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
-        inspector = MetaDataInspector(
-            subject_visit=subject_visit, model_cls=CrfOne)
+        inspector = MetaDataInspector(subject_visit=subject_visit, model_cls=CrfOne)
         self.assertEqual(len(inspector.required), 1)
         self.assertEqual(len(inspector.keyed), 0)
 
         CrfOne.objects.create(subject_visit=subject_visit)
 
-        inspector = MetaDataInspector(
-            subject_visit=subject_visit, model_cls=CrfOne)
+        inspector = MetaDataInspector(subject_visit=subject_visit, model_cls=CrfOne)
         self.assertEqual(len(inspector.required), 0)
         self.assertEqual(len(inspector.keyed), 1)
