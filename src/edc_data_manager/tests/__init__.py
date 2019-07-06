@@ -1,1 +1,0 @@
-from .consents import *  # noqa

@@ -1,14 +1,68 @@
+from django import forms
+from django.conf import settings
 from django.contrib import admin
+from django.contrib import messages
 from django.contrib.admin.decorators import register
+from django.urls.base import reverse
+from django.utils.safestring import mark_safe
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from edc_model_admin.model_admin_simple_history import SimpleHistoryAdmin
+from edc_utils import get_utcnow, formatted_datetime
 
-from ..rule import update_query_rules_action
 from ..admin_site import edc_data_manager_admin
-from ..models import CrfQueryRule, RequisitionQueryRule
+from ..models import CrfQueryRule, RequisitionQueryRule, get_rule_handler_choices
+
+
+class CrfQueryRuleForm(forms.ModelForm):
+    class Meta:
+        fields = "__all__"
+        model = CrfQueryRule
+
+
+class RequisitionQueryRuleForm(forms.ModelForm):
+    class Meta:
+        fields = "__all__"
+        model = RequisitionQueryRule
+
+
+def update_crf_query_rules_action(modeladmin, request, queryset):
+
+    if queryset:
+        from edc_data_manager.tasks import update_crf_query_rules_task
+
+        if settings.CELERY_ENABLED:
+            update_crf_query_rules_task.delay(pks=[o.pk for o in queryset])
+            dte = get_utcnow()
+            taskresult_url = reverse(
+                "admin:django_celery_results_taskresult_changelist"
+            )
+            msg = mark_safe(
+                f"Updating data queries in the background. "
+                f"Started at {formatted_datetime(dte)}. "
+                f"An updated digest will be email upon completion. "
+                f'You may also check in <a href="{taskresult_url}?'
+                f'task_name=update_crf_query_rules">task results</A>. '
+            )
+        else:
+            results = update_crf_query_rules_task(pks=[o.pk for o in queryset])
+            msg = mark_safe(
+                f"Done updating data queries. Created {results.get('created')}, "
+                f"resolved {results.get('resolved')}."
+            )
+        messages.add_message(request, messages.SUCCESS, msg)
+
+
+update_crf_query_rules_action.short_description = (
+    "Create or update automated CRF queries"
+)
 
 
 class QueryRuleModelAdminMixin:
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == "rule_handler_name":
+            kwargs["choices"] = get_rule_handler_choices()
+        return super().formfield_for_choice_field(db_field, request, **kwargs)
+
     def form_name(self, obj=None):
         data_dictionaries = [
             dd for dd in obj.data_dictionaries.all().order_by("number")
@@ -39,7 +93,9 @@ class CrfQueryRuleAdmin(
     QueryRuleModelAdminMixin, ModelAdminAuditFieldsMixin, SimpleHistoryAdmin
 ):
 
-    actions = [update_query_rules_action]
+    form = CrfQueryRuleForm
+
+    actions = [update_crf_query_rules_action]
 
     list_display = (
         "title",
@@ -83,6 +139,7 @@ class CrfQueryRuleAdmin(
                     "query_priority",
                     "recipients",
                     ("timing", "timing_units"),
+                    "rule_handler_name",
                     "sender",
                     "active",
                     "comment",
@@ -97,6 +154,8 @@ class CrfQueryRuleAdmin(
 class RequisitionQueryRuleAdmin(
     QueryRuleModelAdminMixin, ModelAdminAuditFieldsMixin, SimpleHistoryAdmin
 ):
+
+    form = RequisitionQueryRuleForm
 
     list_display = (
         "title",
