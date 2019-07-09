@@ -39,15 +39,14 @@ class SimpleHandler:
 
     def run(self):
         # resolve an existing data query, if it exists
-        if self.model_obj:
-            if self.resolved:
-                self.data_query = self.get_or_create_data_query(get_only=True)
-                if self.data_query:
-                    self.resolve_existing_query()
-            else:
-                self.data_query = self.get_or_create_data_query()
-                if self.data_query.site_resolved:
-                    self.reopen_existing_query()
+        if self.model_obj and self.resolved:
+            self.data_query = self.get_or_create_data_query(get_only=True)
+            if self.data_query:
+                self.resolve_existing_query()
+        else:
+            self.data_query = self.get_or_create_data_query()
+            if self.data_query.site_resolved:
+                self.reopen_existing_query()
 
     @property
     def resolved(self):
