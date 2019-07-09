@@ -2,6 +2,7 @@ from edc_metadata.metadata_inspector import MetaDataInspector
 
 from ..models import QueryVisitSchedule
 from .rule_wrapper import RuleWrapper
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class RuleRunner:
@@ -56,10 +57,14 @@ class RuleRunner:
     @property
     def rules(self):
         rules = {}
-        for visit_schedule in self.query_rule.visit_schedule.all():
+        for obj in self.query_rule.visit_schedule.all():
             visit_rules = []
             metadata_inspector = MetaDataInspector(
-                model_cls=self.query_rule.model_cls, visit_schedule=visit_schedule
+                model_cls=self.query_rule.model_cls,
+                visit_schedule_name=obj.visit_schedule_name,
+                schedule_name=obj.schedule_name,
+                visit_code=obj.visit_code,
+                timepoint=obj.timepoint,
             )
 
             if metadata_inspector.required:
@@ -67,7 +72,7 @@ class RuleRunner:
                     RuleWrapper(
                         query_rule=self.query_rule,
                         subject_identifiers=metadata_inspector.required,
-                        visit_schedules=[visit_schedule],
+                        visit_schedules=[obj],
                     )
                 )
             if metadata_inspector.keyed:
@@ -75,9 +80,9 @@ class RuleRunner:
                     RuleWrapper(
                         query_rule=self.query_rule,
                         subject_identifiers=metadata_inspector.keyed,
-                        visit_schedules=[visit_schedule],
+                        visit_schedules=[obj],
                     )
                 )
             if visit_rules:
-                rules.update({visit_schedule.visit_code: visit_rules})
+                rules.update({obj.visit_code: visit_rules})
         return rules
