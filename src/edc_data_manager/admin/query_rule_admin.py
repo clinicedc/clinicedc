@@ -11,6 +11,8 @@ from edc_utils import get_utcnow, formatted_datetime
 
 from ..admin_site import edc_data_manager_admin
 from ..models import CrfQueryRule, RequisitionQueryRule, get_rule_handler_choices
+from ..rule import update_crf_query_rules
+from ..tasks import update_crf_query_rules_task
 
 
 class CrfQueryRuleForm(forms.ModelForm):
@@ -28,8 +30,6 @@ class RequisitionQueryRuleForm(forms.ModelForm):
 def update_crf_query_rules_action(modeladmin, request, queryset):
 
     if queryset:
-        from edc_data_manager.tasks import update_crf_query_rules_task
-
         if settings.CELERY_ENABLED:
             update_crf_query_rules_task.delay(pks=[o.pk for o in queryset])
             dte = get_utcnow()
@@ -44,7 +44,7 @@ def update_crf_query_rules_action(modeladmin, request, queryset):
                 f'task_name=update_crf_query_rules">task results</A>. '
             )
         else:
-            results = update_crf_query_rules_task(pks=[o.pk for o in queryset])
+            results = update_crf_query_rules(pks=[o.pk for o in queryset])
             msg = mark_safe(
                 f"Done updating data queries. Created {results.get('created')}, "
                 f"resolved {results.get('resolved')}."

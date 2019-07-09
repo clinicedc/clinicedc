@@ -19,6 +19,7 @@ class RuleRunner:
         created_counter = 0
         resolved_counter = 0
         rules = rules or self.rules
+
         for _, visit_rules in rules.items():
             for visit_rule in visit_rules:
                 created, resolved = visit_rule.run()
@@ -60,6 +61,7 @@ class RuleRunner:
             metadata_inspector = MetaDataInspector(
                 model_cls=self.query_rule.model_cls, visit_schedule=visit_schedule
             )
+
             if metadata_inspector.required:
                 visit_rules.append(
                     RuleWrapper(
