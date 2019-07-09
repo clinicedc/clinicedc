@@ -257,7 +257,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
     class Meta:
         verbose_name = "Data Query"
         verbose_name_plural = "Data Queries"
-        unique_together = ["rule_reference", "registered_subject", "visit_schedule"]
+        # unique_together = ["rule_reference", "registered_subject", "visit_schedule"]
         indexes = [
             models.Index(
                 fields=[

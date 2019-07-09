@@ -38,8 +38,7 @@ User = get_user_model()
 class TestQueryRules(TestCase):
     def setUp(self):
         import_holidays()
-        self.user = User.objects.create_superuser(
-            "user_login", "u@example.com", "pass")
+        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
 
         site_labs._registry = {}
         site_labs.loaded = False
@@ -99,24 +98,20 @@ class TestQueryRules(TestCase):
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
         visit_schedule3 = QueryVisitSchedule.objects.get(visit_code="3000")
 
-        inspector = MetaDataInspector(
-            visit_schedule=visit_schedule1, model_cls=CrfOne)
+        inspector = MetaDataInspector(visit_schedule=visit_schedule1, model_cls=CrfOne)
         self.assertEqual(len(inspector.required), 1)
         self.assertEqual(len(inspector.keyed), 0)
 
-        subject_visit1 = SubjectVisit.objects.get(
-            visit_code=visit_schedule1.visit_code)
+        subject_visit1 = SubjectVisit.objects.get(visit_code=visit_schedule1.visit_code)
         CrfOne.objects.create(
-            subject_visit=subject_visit1,
-            report_datetime=subject_visit1.report_datetime)
+            subject_visit=subject_visit1, report_datetime=subject_visit1.report_datetime
+        )
 
-        inspector = MetaDataInspector(
-            visit_schedule=visit_schedule1, model_cls=CrfOne)
+        inspector = MetaDataInspector(visit_schedule=visit_schedule1, model_cls=CrfOne)
         self.assertEqual(len(inspector.required), 0)
         self.assertEqual(len(inspector.keyed), 1)
 
-        inspector = MetaDataInspector(
-            visit_schedule=visit_schedule2, model_cls=CrfFour)
+        inspector = MetaDataInspector(visit_schedule=visit_schedule2, model_cls=CrfFour)
         self.assertEqual(len(inspector.required), 1)
         self.assertEqual(len(inspector.keyed), 0)
 
@@ -158,8 +153,8 @@ class TestQueryRules(TestCase):
             0
         ]
         crf_one = CrfOne.objects.create(
-            subject_visit=subject_visit,
-            report_datetime=subject_visit.report_datetime)
+            subject_visit=subject_visit, report_datetime=subject_visit.report_datetime
+        )
 
         # Update DataQueries
         RuleRunner(crf_query_rule).run()
