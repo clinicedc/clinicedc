@@ -1,13 +1,6 @@
 # from django_webtest import WebTest
 from data_manager_app.lab_profiles import lab_profile
-from data_manager_app.models import (
-    Appointment,
-    SubjectVisit,
-    SubjectConsent,
-    CrfOne,
-    CrfFour,
-    CrfSeven,
-)
+from data_manager_app.models import Appointment, SubjectVisit, SubjectConsent, CrfOne
 from data_manager_app.visit_schedules import visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
@@ -23,13 +16,12 @@ from edc_data_manager.models import (
 from edc_data_manager.rule import RuleRunner
 from edc_facility.import_holidays import import_holidays
 from edc_lab.site_labs import site_labs
+from edc_metadata.metadata_inspector import MetaDataInspector
 from edc_reference.site_reference import site_reference_configs
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-
-from ...rule import MetaDataInspector
 
 
 User = get_user_model()
@@ -98,7 +90,13 @@ class TestQueryRules(TestCase):
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
         visit_schedule3 = QueryVisitSchedule.objects.get(visit_code="3000")
 
-        inspector = MetaDataInspector(visit_schedule=visit_schedule1, model_cls=CrfOne)
+        inspector = MetaDataInspector(
+            model_cls=CrfOne,
+            visit_schedule_name=visit_schedule1.visit_schedule_name,
+            schedule_name=visit_schedule1.schedule_name,
+            visit_code=visit_schedule1.visit_code,
+            timepoint=visit_schedule1.timepoint,
+        )
         self.assertEqual(len(inspector.required), 1)
         self.assertEqual(len(inspector.keyed), 0)
 
@@ -107,18 +105,35 @@ class TestQueryRules(TestCase):
             subject_visit=subject_visit1, report_datetime=subject_visit1.report_datetime
         )
 
-        inspector = MetaDataInspector(visit_schedule=visit_schedule1, model_cls=CrfOne)
+        inspector = MetaDataInspector(
+            model_cls=CrfOne,
+            visit_schedule_name=visit_schedule1.visit_schedule_name,
+            schedule_name=visit_schedule1.schedule_name,
+            visit_code=visit_schedule1.visit_code,
+            timepoint=visit_schedule1.timepoint,
+        )
         self.assertEqual(len(inspector.required), 0)
         self.assertEqual(len(inspector.keyed), 1)
 
-        inspector = MetaDataInspector(visit_schedule=visit_schedule2, model_cls=CrfFour)
+        inspector = MetaDataInspector(
+            model_cls=CrfOne,
+            visit_schedule_name=visit_schedule2.visit_schedule_name,
+            schedule_name=visit_schedule2.schedule_name,
+            visit_code=visit_schedule2.visit_code,
+            timepoint=visit_schedule2.timepoint,
+        )
         self.assertEqual(len(inspector.required), 1)
         self.assertEqual(len(inspector.keyed), 0)
 
         inspector = MetaDataInspector(
-            visit_schedule=visit_schedule3, model_cls=CrfSeven
+            model_cls=CrfOne,
+            visit_schedule_name=visit_schedule3.visit_schedule_name,
+            schedule_name=visit_schedule3.schedule_name,
+            visit_code=visit_schedule3.visit_code,
+            timepoint=visit_schedule3.timepoint,
         )
-        self.assertEqual(len(inspector.required), 1)
+        # not required in 3000, see visit schedule.
+        self.assertEqual(len(inspector.required), 0)
         self.assertEqual(len(inspector.keyed), 0)
 
     def test_crf_rule(self):
