@@ -30,7 +30,8 @@ User = get_user_model()
 class TestQueryRules(TestCase):
     def setUp(self):
         import_holidays()
-        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
+        self.user = User.objects.create_superuser(
+            "user_login", "u@example.com", "pass")
 
         site_labs._registry = {}
         site_labs.loaded = False
@@ -83,7 +84,6 @@ class TestQueryRules(TestCase):
                     user_created="user_login",
                 )
 
-    @tag("1")
     def test_data_inspector(self):
 
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
@@ -100,7 +100,8 @@ class TestQueryRules(TestCase):
         self.assertEqual(len(inspector.required), 1)
         self.assertEqual(len(inspector.keyed), 0)
 
-        subject_visit1 = SubjectVisit.objects.get(visit_code=visit_schedule1.visit_code)
+        subject_visit1 = SubjectVisit.objects.get(
+            visit_code=visit_schedule1.visit_code)
         CrfOne.objects.create(
             subject_visit=subject_visit1, report_datetime=subject_visit1.report_datetime
         )
