@@ -2,7 +2,6 @@ from edc_metadata.metadata_inspector import MetaDataInspector
 
 from ..models import QueryVisitSchedule
 from .rule_wrapper import RuleWrapper
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class RuleRunner:

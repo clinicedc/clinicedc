@@ -39,14 +39,14 @@ class SimpleHandler:
 
     def run(self):
         # resolve an existing data query, if it exists
-        if self.model_obj and self.resolved:
-            self.data_query = self.get_or_create_data_query(get_only=True)
-            if self.data_query:
-                self.resolve_existing_query()
-        else:
-            self.data_query = self.get_or_create_data_query()
-            if self.model_obj and not self.resolved:
-                if self.data_query.site_resolved and not self.data_query.tcc_resolved:
+        if self.model_obj:
+            if self.resolved:
+                self.data_query = self.get_or_create_data_query(get_only=True)
+                if self.data_query:
+                    self.resolve_existing_query()
+            else:
+                self.data_query = self.get_or_create_data_query()
+                if self.data_query.site_resolved:
                     self.reopen_existing_query()
 
     @property
@@ -89,10 +89,13 @@ class SimpleHandler:
         return self.data_query
 
     def reopen_existing_query(self):
-        if self.data_query:
+        if self.data_query and not self.data_query.locked:
             self.data_query.site_response_text.replace("[auto-resolved]", "")
             self.data_query.site_resolved_datetime = None
             self.data_query.site_response_status = OPEN
+            self.data_query.resolved_datetime = None
+            self.data_query.status = OPEN
+            self.data_query.tcc_user = None
             self.data_query.save()
 
     @property
@@ -131,6 +134,13 @@ class SimpleHandler:
                         subject_identifier=self.subject_identifier
                     )
         return self._model_obj
+
+    @property
+    def query_rule_obj(self):
+        """Returns the query rule model instance that was used
+        to generated the data query.
+        """
+        return self.rule.query_rule
 
     def get_or_create_data_query(self, get_only=None):
         """Returns a data_query.
@@ -183,3 +193,19 @@ class ModelHandler(SimpleHandler):
                 f"Invalid model class for rule runner. Expected {self.model_name}. "
                 f"Got {self.model_cls._meta.label_lower}"
             )
+
+    def get_field_value(self, field_name):
+        """Safely get a model instance value for this query.
+        """
+        if not self.query_rule_obj.data_dictionaries.filter(
+            field_name=field_name
+        ).exists():
+            field_names = [
+                f"{dd.field_name} ({dd.number})"
+                for dd in self.query_rule_obj.data_dictionaries.all()
+            ]
+            raise ModelHandlerError(
+                f"Invalid field specified for query. Expected one of {field_names}. "
+                f"Got {field_name}."
+            )
+        return getattr(self.model_obj, field_name)
