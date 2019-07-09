@@ -36,13 +36,13 @@ class CreatesMetadataModelMixin(models.Model):
         """Returns a dictionary of query options needed select
         the visit model instance
         """
-        visit = self.visits.get(self.visit_code)
+        visit = self.visits.get(self.appointment.visit_code)
         options = dict(
-            visit_schedule_name=self.visit_schedule_name,
-            schedule_name=self.schedule_name,
+            visit_schedule_name=self.appointment.visit_schedule_name,
+            schedule_name=self.appointment.schedule_name,
             visit_code=visit.code,
-            visit_code_sequence=self.visit_code_sequence,
-            timepoint=self.timepoint,
+            visit_code_sequence=self.appointment.visit_code_sequence,
+            timepoint=self.appointment.timepoint,
         )
         return options
 
