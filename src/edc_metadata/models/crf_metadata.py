@@ -3,7 +3,7 @@ from django.db import models
 from edc_model.models import BaseUuidModel
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 
-from .managers import CrfMetadataManager
+from ..managers import CrfMetadataManager
 from .model_mixin import ModelMixin
 
 
@@ -15,7 +15,8 @@ class CrfMetadata(ModelMixin, SiteModelMixin, BaseUuidModel):
 
     def __str__(self):
         return (
-            f"CrfMeta {self.model} {self.visit_code}.{self.visit_code_sequence} "
+            f"CrfMeta {self.model} {self.visit_schedule_name}.{self.schedule_name}."
+            f"{self.visit_code}.{self.visit_code_sequence}@{self.timepoint} "
             f"{self.entry_status} {self.subject_identifier}"
         )
 

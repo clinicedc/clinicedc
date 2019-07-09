@@ -2,6 +2,9 @@ from django.db import models
 
 
 class CrfMetadataManager(models.Manager):
+
+    use_in_migrations = True
+
     def get_by_natural_key(
         self,
         model,
@@ -23,6 +26,9 @@ class CrfMetadataManager(models.Manager):
 
 
 class RequisitionMetadataManager(models.Manager):
+
+    use_in_migrations = True
+
     def get_by_natural_key(
         self,
         panel_name,

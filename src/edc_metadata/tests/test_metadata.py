@@ -350,12 +350,24 @@ class TestUpdatesMetadata(TestCase):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
-        inspector = MetaDataInspector(subject_visit=subject_visit, model_cls=CrfOne)
+        inspector = MetaDataInspector(
+            model_cls=CrfOne,
+            visit_schedule_name=subject_visit.visit_schedule_name,
+            schedule_name=subject_visit.schedule_name,
+            visit_code=subject_visit.visit_code,
+            timepoint=subject_visit.timepoint,
+        )
         self.assertEqual(len(inspector.required), 1)
         self.assertEqual(len(inspector.keyed), 0)
 
         CrfOne.objects.create(subject_visit=subject_visit)
 
-        inspector = MetaDataInspector(subject_visit=subject_visit, model_cls=CrfOne)
+        inspector = MetaDataInspector(
+            model_cls=CrfOne,
+            visit_schedule_name=subject_visit.visit_schedule_name,
+            schedule_name=subject_visit.schedule_name,
+            visit_code=subject_visit.visit_code,
+            timepoint=subject_visit.timepoint,
+        )
         self.assertEqual(len(inspector.required), 0)
         self.assertEqual(len(inspector.keyed), 1)

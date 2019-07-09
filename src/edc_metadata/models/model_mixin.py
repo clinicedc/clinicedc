@@ -1,5 +1,4 @@
 from django.db import models
-
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_visit_schedule.model_mixins import VisitScheduleMethodsModelMixin
 from edc_visit_schedule.model_mixins import VisitScheduleFieldsModelMixin
