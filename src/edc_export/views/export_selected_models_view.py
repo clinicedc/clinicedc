@@ -85,6 +85,8 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
             self.get_selected_models_from_session()
         )
         selected_models = [x.label_lower for x in selected_models]
+        email_to_user = False if settings.DEBUG else email_to_user
+        archive = True if settings.DEBUG else False
         try:
             exporter = ArchiveExporter(
                 models=selected_models,
@@ -92,20 +94,25 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
                 user=self.user,
                 request=request,
                 email_to_user=email_to_user,
-                archive=False,
+                archive=archive,
             )
         except (ArchiveExporterEmailError, ConnectionRefusedError) as e:
             messages.error(self.request, f"Failed to send files by email. Got '{e}'")
         except ArchiveExporterNothingExported:
             messages.info(self.request, f"Nothing to export.")
         else:
-            messages.success(
-                request,
-                (
+
+            if email_to_user:
+                msg = (
                     f"Your data request has been sent to {self.user.email}. "
                     f"Please check your email."
-                ),
-            )
+                )
+            elif archive:
+                msg = (
+                    f"Your data request has been saved to {exporter.archive_filename}. "
+                )
+
+            messages.success(request, msg)
             summary = [str(x) for x in exporter.exported]
             summary.sort()
             data_request = DataRequest.objects.create(
