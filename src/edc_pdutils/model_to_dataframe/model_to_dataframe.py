@@ -4,10 +4,13 @@ import sys
 
 from copy import copy
 from django.apps import apps as django_apps
-from django.core.exceptions import FieldError
 from django.db.models.constants import LOOKUP_SEP
 
 from .value_getter import ValueGetter
+
+
+class ModelToDataframeError(Exception):
+    pass
 
 
 class ModelToDataframe:
@@ -83,7 +86,8 @@ class ModelToDataframe:
                             )
                             row.append(value)
                         data.append(row)
-                        self._dataframe = pd.DataFrame(data, columns=self.columns)
+                        self._dataframe = pd.DataFrame(
+                            data, columns=self.columns)
                 else:
                     columns = [
                         col for col in self.columns if col not in self.encrypted_columns
@@ -91,7 +95,8 @@ class ModelToDataframe:
                     queryset = self.queryset.values_list(*columns).filter(
                         **self.query_filter
                     )
-                    self._dataframe = pd.DataFrame(list(queryset), columns=columns)
+                    self._dataframe = pd.DataFrame(
+                        list(queryset), columns=columns)
                 self.merge_dataframe_with_pivoted_m2ms()
                 self._dataframe.rename(columns=self.columns, inplace=True)
                 self._dataframe.fillna(value=np.nan, inplace=True)
@@ -104,33 +109,43 @@ class ModelToDataframe:
                         "datetime64[ns]"
                     )
             if self.drop_sys_columns:
-                self._dataframe = self._dataframe.drop(self.edc_sys_columns, axis=1)
+                self._dataframe = self._dataframe.drop(
+                    self.edc_sys_columns, axis=1)
         return self._dataframe
 
     def merge_dataframe_with_pivoted_m2ms(self):
         """For each m2m field, merge in a single pivoted field.
         """
-        for m2m in self.queryset.model._meta.many_to_many:
-            try:
-                m2m_qs = self.queryset.model.objects.filter(
-                    **self.query_filter
-                ).values_list("id", f"{m2m.name}__short_name")
-            except FieldError:
-                pass
-            else:
-                df_m2m = pd.DataFrame.from_records(
-                    list(m2m_qs), columns=["id", m2m.name]
-                )
-                df_m2m = df_m2m[df_m2m[m2m.name].notnull()]
-                df_pivot = pd.pivot_table(
-                    df_m2m,
-                    values=m2m.name,
-                    index=["id"],
-                    aggfunc=lambda x: ";".join(str(v) for v in x),
-                )
-                self._dataframe = pd.merge(
-                    self._dataframe, df_pivot, how="left", on="id"
-                )
+        for m2m_field in self.queryset.model._meta.many_to_many:
+            m2m_values_list = self.get_m2m_values_list(m2m_field)
+            df_m2m = pd.DataFrame.from_records(
+                list(m2m_values_list), columns=["id", m2m_field.name]
+            )
+            df_m2m = df_m2m[df_m2m[m2m_field.name].notnull()]
+            df_pivot = pd.pivot_table(
+                df_m2m,
+                values=m2m_field.name,
+                index=["id"],
+                aggfunc=lambda x: ";".join(str(v) for v in x),
+            )
+            self._dataframe = pd.merge(
+                self._dataframe, df_pivot, how="left", on="id"
+            )
+
+    def get_m2m_values_list(self, m2m_field):
+        m2m_values_list = []
+        for obj in self.queryset.model.objects.all():
+            for m2m_obj in getattr(obj, m2m_field.name).all():
+                m2m_values_list.append((obj.id, m2m_obj))
+        try:
+            m2m_values_list = [
+                (x[0], x[1].short_name) for x in m2m_values_list]
+        except AttributeError as e:
+            if "short_name" not in str(e):
+                raise ModelToDataframeError(e)
+            m2m_values_list = [
+                (x[0], str(x[1])) for x in m2m_values_list]
+        return m2m_values_list
 
     def get_column_value(self, model_obj=None, column_name=None, lookup=None):
         """Returns the column value.
@@ -190,7 +205,8 @@ class ModelToDataframe:
                 if column_name.endswith("_requisition") or column_name.endswith(
                     "requisition_id"
                 ):
-                    columns = self.add_columns_for_subject_requisitions(columns=columns)
+                    columns = self.add_columns_for_subject_requisitions(
+                        columns=columns)
 
             self._columns = columns
         return self._columns
@@ -209,7 +225,8 @@ class ModelToDataframe:
         columns.update(
             {f"{column_name}__appointment__appt_datetime": "appointment_datetime"}
         )
-        columns.update({f"{column_name}__appointment__visit_code": "visit_code"})
+        columns.update(
+            {f"{column_name}__appointment__visit_code": "visit_code"})
         columns.update(
             {f"{column_name}__appointment__visit_code_sequence": "visit_code_sequence"}
         )
@@ -232,5 +249,6 @@ class ModelToDataframe:
                 columns.update(
                     {f"{column_name}__drawn_datetime": f"{col_prefix}_drawn_datetime"}
                 )
-                columns.update({f"{column_name}__is_drawn": f"{col_prefix}_is_drawn"})
+                columns.update(
+                    {f"{column_name}__is_drawn": f"{col_prefix}_is_drawn"})
         return columns
