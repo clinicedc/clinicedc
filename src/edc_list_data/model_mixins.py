@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 
 
 class ListModelManager(models.Manager):
@@ -48,7 +49,7 @@ class ListModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.short_name:
-            self.short_name = self.name
+            self.short_name = slugify(self.name).lower()
         super().save(*args, **kwargs)
 
     def natural_key(self):
