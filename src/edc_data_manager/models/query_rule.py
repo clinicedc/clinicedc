@@ -3,19 +3,19 @@ from django.conf import settings
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
+from django.utils.functional import lazy
 from edc_constants.constants import NORMAL
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.models import SiteModelMixin
 from edc_visit_schedule.constants import HOURS, DAYS, WEEKS, MONTHS
 from uuid import uuid4
 
+from ..site_data_manager import site_data_manager
 from .data_dictionary import DataDictionary
 from .data_query import QUERY_PRIORITY
 from .query_visit_schedule import QueryVisitSchedule
 from .requisition_panel import RequisitionPanel
 from .user import DataManagerUser, QueryUser
-from django.utils.functional import lazy
-from edc_data_manager.site_data_manager import site_data_manager
 
 
 class QueryRuleError(Exception):
@@ -39,7 +39,8 @@ DATE_CHOICES = (
     (DRAWN_DATE, "Specimen draw date (requisition)"),
 )
 
-UNITS = ((HOURS, "Hours"), (DAYS, "Days"), (WEEKS, "Weeks"), (MONTHS, "Months"))
+UNITS = ((HOURS, "Hours"), (DAYS, "Days"),
+         (WEEKS, "Weeks"), (MONTHS, "Months"))
 
 DEFAULT_RULE_HANDLER = "default"
 
@@ -105,7 +106,8 @@ class QueryRuleModelMixin(models.Model):
 
     title = models.CharField(max_length=150, unique=True)
 
-    reference_model = models.CharField(max_length=150, null=True, editable=False)
+    reference_model = models.CharField(
+        max_length=150, null=True, editable=False)
 
     sender = models.ForeignKey(
         DataManagerUser,
@@ -173,7 +175,7 @@ class QueryRuleModelMixin(models.Model):
         blank=True,
     )
 
-    reference = models.CharField(max_length=36, default=uuid4, editable=False)
+    reference = models.CharField(max_length=36, default=uuid4, unique=True)
 
     comment = models.TextField(null=True, blank=True)
 
@@ -201,6 +203,7 @@ class QueryRuleModelMixin(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ("title", )
 
 
 class RequisitionQueryRule(QueryRuleModelMixin, SiteModelMixin, BaseUuidModel):

@@ -4,10 +4,12 @@ from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.decorators import register
 from django.urls.base import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from edc_model_admin.model_admin_simple_history import SimpleHistoryAdmin
 from edc_utils import get_utcnow, formatted_datetime
+from uuid import uuid4
 
 from ..admin_site import edc_data_manager_admin
 from ..models import CrfQueryRule, RequisitionQueryRule, get_rule_handler_choices
@@ -25,6 +27,47 @@ class RequisitionQueryRuleForm(forms.ModelForm):
     class Meta:
         fields = "__all__"
         model = RequisitionQueryRule
+
+
+def toggle_active_flag(modeladmin, request, queryset):
+    for obj in queryset:
+        obj.active = False if obj.active else True
+        obj.save()
+
+
+toggle_active_flag.short_description = "Toggle Active/Inactive"
+
+
+def copy_query_rule_action(modeladmin, request, queryset):
+    if queryset.count() == 1:
+        obj = queryset[0]
+        options = {k: v for k, v in obj.__dict__.items()
+                   if not k.startswith("_") and k not in ["id"]}
+        options["title"] = f"{options['title']} (Copy)"
+        options["active"] = False
+        options["reference"] = uuid4()
+        try:
+            queryset.model.objects.get(title=options["title"])
+        except ObjectDoesNotExist:
+            new_obj = queryset.model.objects.create(**options)
+            for o in obj.visit_schedule.all().order_by("timepoint"):
+                new_obj.visit_schedule.add(o)
+            for o in obj.data_dictionaries.all().order_by("number"):
+                new_obj.data_dictionaries.add(o)
+            msg = (
+                f'Query rule has been copied. New title is "{options["title"]}"')
+            messages.add_message(request, messages.SUCCESS, msg)
+        else:
+            msg = (
+                f'Query rule already exists. Got "{options["title"]}"')
+            messages.add_message(request, messages.ERROR, msg)
+    else:
+        messages.add_message(
+            request, messages.ERROR,
+            "Selecting multiple query rules is not allowed. Select just one.")
+
+
+copy_query_rule_action.short_description = "Copy rule"
 
 
 def update_crf_query_rules_action(modeladmin, request, queryset):
@@ -58,6 +101,9 @@ update_crf_query_rules_action.short_description = (
 
 
 class QueryRuleModelAdminMixin:
+
+    readonly_fields = ("reference", )
+
     def formfield_for_choice_field(self, db_field, request, **kwargs):
         if db_field.name == "rule_handler_name":
             kwargs["choices"] = get_rule_handler_choices()
@@ -69,7 +115,7 @@ class QueryRuleModelAdminMixin:
         ]
         return ", ".join(list(set([dd.model_verbose_name for dd in data_dictionaries])))
 
-    def question_numbers(self, obj=None):
+    def questions(self, obj=None):
         numbers = [
             str(dd.number) for dd in obj.data_dictionaries.all().order_by("number")
         ]
@@ -81,11 +127,23 @@ class QueryRuleModelAdminMixin:
         ]
         return ", ".join(fields)
 
+    def timepoints(self, obj=None):
+        fields = [
+            v.visit_code for v in obj.visit_schedule.all().order_by("timepoint")
+        ]
+        return ", ".join(fields)
+
     def query_timing(self, obj=None):
         return (
             f"{obj.timing} {obj.get_timing_units_display()} "
             f"from {obj.reference_date}"
         )
+
+    def requisition(self, obj=None):
+        return obj.requisition_panel
+
+    def rule(self, obj=None):
+        return obj.rule_handler_name
 
 
 @register(CrfQueryRule, site=edc_data_manager_admin)
@@ -95,17 +153,20 @@ class CrfQueryRuleAdmin(
 
     form = CrfQueryRuleForm
 
-    actions = [update_crf_query_rules_action]
+    actions = [update_crf_query_rules_action,
+               toggle_active_flag, copy_query_rule_action]
 
     list_display = (
         "title",
+        "active",
         "form_name",
-        "question_numbers",
+        "questions",
         "field_names",
-        "requisition_panel",
+        "requisition",
+        "timepoints",
         "query_timing",
         "query_priority",
-        "active",
+        "rule",
     )
 
     list_filter = ("query_priority", "active")
@@ -146,6 +207,15 @@ class CrfQueryRuleAdmin(
                 )
             },
         ],
+        [
+            "Reference",
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    "reference",
+                )
+            },
+        ],
         audit_fieldset_tuple,
     )
 
@@ -167,7 +237,8 @@ class RequisitionQueryRuleAdmin(
 
     list_filter = ("query_priority", "active")
 
-    radio_fields = {"timing_units": admin.VERTICAL, "query_priority": admin.VERTICAL}
+    radio_fields = {"timing_units": admin.VERTICAL,
+                    "query_priority": admin.VERTICAL}
 
     autocomplete_fields = [
         "sender",
@@ -191,6 +262,15 @@ class RequisitionQueryRuleAdmin(
                     ("timing", "timing_units"),
                     "active",
                     "comment",
+                )
+            },
+        ],
+        [
+            "Reference",
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    "reference",
                 )
             },
         ],

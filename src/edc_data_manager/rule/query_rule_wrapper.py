@@ -3,7 +3,7 @@ from edc_registration.models import RegisteredSubject
 from ..site_data_manager import site_data_manager
 
 
-class RuleWrapper:
+class QueryRuleWrapper:
     def __init__(self, query_rule=None, subject_identifiers=None, visit_schedules=None):
         self.query_rule = query_rule
         self.subject_identifiers = subject_identifiers
