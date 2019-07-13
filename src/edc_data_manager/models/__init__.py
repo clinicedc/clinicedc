@@ -2,9 +2,9 @@ from .action_item import DataManagerActionItem
 from .data_dictionary import DataDictionary
 from .data_query import DataQuery
 from .query_rule import (
-    CrfQueryRule,
-    RequisitionQueryRule,
     CrfDataDictionary,
+    QueryRule,
+    QueryRuleError,
     RequisitionDataDictionary,
     VisitDataDictionary,
     get_rule_handler_choices,

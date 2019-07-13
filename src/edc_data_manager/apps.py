@@ -1,5 +1,6 @@
 import sys
 
+from django.apps import apps as django_apps
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.management.color import color_style
@@ -20,6 +21,20 @@ def populate_data_dictionary(sender=None, **kwargs):
     sys.stdout.flush()
 
 
+def update_query_rule_handlers(sender=None, **kwargs):
+    sys.stdout.write(
+        style.MIGRATE_HEADING(
+            "Deactivating query rules with invalid rule handler names:\n"
+        )
+    )
+    handler_names = [x for x in site_data_manager.registry.keys()]
+    django_apps.get_model("edc_data_manager.queryrule").objects.exclude(
+        rule_handler_name__in=handler_names
+    ).update(active=False)
+    sys.stdout.write("Done.\n")
+    sys.stdout.flush()
+
+
 class AppConfig(DjangoAppConfig):
     name = "edc_data_manager"
     verbose_name = "Data Management"
@@ -30,6 +45,7 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self):
         post_migrate.connect(populate_data_dictionary, sender=self)
+        post_migrate.connect(update_query_rule_handlers, sender=self)
 
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         site_data_manager.autodiscover()
