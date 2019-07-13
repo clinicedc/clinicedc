@@ -1,8 +1,9 @@
+import arrow
+
 from edc_metadata.metadata_inspector import MetaDataInspector
 
 from ..models import QueryVisitSchedule
 from .query_rule_wrapper import QueryRuleWrapper
-import arrow
 
 
 class RuleRunner:
@@ -70,7 +71,6 @@ class RuleRunner:
                 visit_code=obj.visit_code,
                 timepoint=obj.timepoint,
             )
-
             if metadata_inspector.required:
                 wrapped_query_rules.append(
                     QueryRuleWrapper(

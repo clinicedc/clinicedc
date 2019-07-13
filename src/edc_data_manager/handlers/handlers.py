@@ -1,8 +1,11 @@
 import arrow
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_constants.constants import RESOLVED, OPEN
+from edc_constants.constants import RESOLVED, OPEN, NO
 from edc_lab.models import get_requisition_model
+from edc_metadata.constants import REQUIRED, KEYED
+from edc_metadata.models import RequisitionMetadata, CrfMetadata
 from edc_visit_tracking.models import get_visit_tracking_model
 
 from ..models import DataQuery
@@ -17,6 +20,10 @@ class RequisitionNotKeyed(Exception):
 
 
 class SpecimenNotDrawn(Exception):
+    pass
+
+
+class CrfInspectionFailed(Exception):
     pass
 
 
@@ -57,38 +64,16 @@ class QueryRuleHandler:
             )
 
     def run(self):
-        # resolve an existing data query, if it exists
-        if self.resolved:
-            self.data_query = self.get_or_create_data_query(get_only=True)
-            if self.data_query:
-                self.resolve_existing_data_query()
-        else:
-            self.data_query = self.get_or_create_data_query()
-            if self.data_query.site_resolved:
-                self.reopen_existing_data_query()
-
-    def inspect_requisition(self):
-        """Raises an exception if an expected Requisition is not
-        keyed OR if a keyed requisition says specimen is not drawn.
-        """
-        if self.query_rule_obj.requisition_panel:
-            if not self.requisition_obj:
-                raise RequisitionNotKeyed()
-            if self.requisition_obj and not self.requisition_obj.is_drawn:
-                raise SpecimenNotDrawn()
-
-    def inspect_model(self):
-        """Returns True if the combination of field values is correct.
-
-        (Assumes a NULL field is missing, one with value is not)
-
-        May be overridden.
-        """
-        required_fields = []
-        for field_name, field_value in self.field_values.items():
-            if not field_value:
-                required_fields.append(field_name)
-        return not required_fields
+        site_ids = [o.id for o in self.query_rule_obj.sites.all()]
+        if not site_ids or settings.SITE_ID in site_ids:
+            if self.resolved:
+                self.data_query = self.get_or_create_data_query(get_only=True)
+                if self.data_query:
+                    self.resolve_existing_data_query()
+            else:
+                self.data_query = self.get_or_create_data_query()
+                if self.data_query.site_resolved:
+                    self.reopen_existing_data_query()
 
     @property
     def resolved(self):
@@ -104,19 +89,82 @@ class QueryRuleHandler:
             except SpecimenNotDrawn:
                 pass
             except RequisitionNotKeyed:
-                resolved = False
+                resolved = not self.requisition_is_required
             else:
                 if self.model_value_is_due:
-                    if not self.model_obj:
+                    if not self.crf_is_required:
                         resolved = False
                     else:
-                        resolved = self.inspect_model()
+                        try:
+                            self.inspect_model()
+                        except CrfInspectionFailed:
+                            resolved = False
         return resolved
+
+    def inspect_requisition(self):
+        """Raises an exception if an expected Requisition is not
+        keyed OR if a keyed requisition says specimen is not drawn.
+
+        See `resolved`.
+        """
+        if self.query_rule_obj.requisition_panel:
+            if not self.requisition_obj:
+                raise RequisitionNotKeyed()
+            if self.requisition_obj and self.requisition_obj.is_drawn == NO:
+                raise SpecimenNotDrawn()
+
+    def inspect_model(self):
+        """Raises as exception if the combination of field values is incorrect.
+
+        (Assumes a NULL field is missing, one with value is not)
+
+        See `resolved`.
+
+        May be overridden.
+        """
+        for field_name, field_value in self.field_values.items():
+            if not field_value:
+                raise CrfInspectionFailed(field_name)
+
+    @property
+    def requisition_is_required(self):
+        """Returns True if a metadata instance of either REQUIRED
+        or KEYED exists.
+        """
+        opts = dict(
+            subject_identifier=self.registered_subject.subject_identifier,
+            model=get_requisition_model()._meta.label_lower,
+            panel_name=self.query_rule_obj.requisition_panel.name,
+            visit_schedule_name=self.visit_obj.visit_schedule_name,
+            schedule_name=self.visit_obj.schedule_name,
+            visit_code=self.visit_obj.visit_code,
+            visit_code_sequence=self.visit_obj.visit_code_sequence,
+            entry_status__in=[REQUIRED, KEYED],
+        )
+        exists = RequisitionMetadata.objects.filter(**opts).exists()
+        return exists
+
+    @property
+    def crf_is_required(self):
+        """Returns True if a metadata instance of either REQUIRED
+        or KEYED exists.
+        """
+        return CrfMetadata.objects.filter(
+            subject_identifier=self.registered_subject.subject_identifier,
+            model=self.query_rule_obj.model_cls._meta.label_lower,
+            visit_schedule_name=self.visit_obj.visit_schedule_name,
+            schedule_name=self.visit_obj.schedule_name,
+            visit_code=self.visit_obj.visit_code,
+            visit_code_sequence=self.visit_obj.visit_code_sequence,
+            entry_status__in=[REQUIRED, KEYED],
+        ).exists()
 
     @property
     def model_value_is_due(self):
         """Returns True if value is expected relative to the
         timepoint report datetime.
+
+        See fields `timing` and `timing_units`.
         """
         is_due = False
         if self.visit_obj:
@@ -157,22 +205,34 @@ class QueryRuleHandler:
             )
         return getattr(self.model_obj, field_name)
 
+    @property
+    def resolved_datetime(self):
+        try:
+            resolved_datetime = self.model_obj.modified
+        except AttributeError:
+            resolved_datetime = self.requisition_obj.modified
+        return resolved_datetime
+
     def resolve_existing_data_query(self):
+        """Resolves a data query model instance.
+        """
         if self.data_query:
             site_response_text = (self.data_query.site_response_text or "").replace(
                 "[auto-resolved]", ""
             )
             self.data_query.site_response_text = f"{site_response_text} [auto-resolved]"
-            self.data_query.site_resolved_datetime = self.model_obj.modified
+            self.data_query.site_resolved_datetime = self.resolved_datetime
             self.data_query.site_response_status = RESOLVED
-            self.data_query.resolved_datetime = self.model_obj.modified
+            self.data_query.resolved_datetime = self.resolved_datetime
             self.data_query.tcc_user = self.query_rule_obj.sender
             self.data_query.status = RESOLVED
             self.data_query.save()
+            self.data_query.refresh_from_db()
             self.resolved_counter = 1
-        return self.data_query
 
     def reopen_existing_data_query(self):
+        """Re-opens a data query model instance unless locked.
+        """
         if self.data_query and not self.data_query.locked:
             self.data_query.site_response_text.replace("[auto-resolved]", "")
             self.data_query.site_resolved_datetime = None
@@ -181,6 +241,7 @@ class QueryRuleHandler:
             self.data_query.status = OPEN
             self.data_query.tcc_user = None
             self.data_query.save()
+            self.data_query.refresh_from_db()
 
     @property
     def visit_obj(self):
@@ -221,6 +282,8 @@ class QueryRuleHandler:
 
     @property
     def requisition_obj(self):
+        """Returns a requisition model instance or None.
+        """
         if not self._requisition_obj:
             try:
                 self._requisition_obj = get_requisition_model().objects.get(

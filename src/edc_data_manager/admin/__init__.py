@@ -6,6 +6,6 @@ from .autocomplete_admin import (
     QueryUserAdmin,
     QueryVisitScheduleAdmin,
 )
+from .query_rule_admin import QueryRuleAdmin
 from .data_dictionary_admin import DataDictionaryAdmin
 from .data_query_admin import DataQueryAdmin
-from .query_rule_admin import CrfQueryRuleAdmin, RequisitionQueryRuleAdmin

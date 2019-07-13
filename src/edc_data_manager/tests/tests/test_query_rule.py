@@ -8,9 +8,9 @@ from django.test import TestCase
 from django.test import tag  # noqa
 from edc_constants.constants import OPEN
 from edc_data_manager.models import (
-    CrfQueryRule,
     CrfDataDictionary,
     DataQuery,
+    QueryRule,
     QueryVisitSchedule,
 )
 from edc_data_manager.rule import RuleRunner
@@ -153,19 +153,19 @@ class TestQueryRules(TestCase):
             title="test rule", sender=self.user,
             timing=48, timing_units=HOURS)
 
-        crf_query_rule = CrfQueryRule.objects.create(**opts)
-        crf_query_rule.data_dictionaries.add(question)
-        crf_query_rule.visit_schedule.add(visit_schedule1)
-        crf_query_rule.visit_schedule.add(visit_schedule2)
-        crf_query_rule.save()
+        query_rule = QueryRule.objects.create(**opts)
+        query_rule.data_dictionaries.add(question)
+        query_rule.visit_schedule.add(visit_schedule1)
+        query_rule.visit_schedule.add(visit_schedule2)
+        query_rule.save()
 
         # Update DataQueries
-        RuleRunner(crf_query_rule).run()
+        RuleRunner(query_rule).run()
 
         # assert DataQueries NOT created since no visit reports submitted yet
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=crf_query_rule.reference
+                rule_generated=True, rule_reference=query_rule.reference
             ).count(),
             0,
         )
@@ -178,21 +178,21 @@ class TestQueryRules(TestCase):
         for hours in range(-1, 50):
             DataQuery.objects.all().delete()
 
-            RuleRunner(crf_query_rule, now=appointment.appt_datetime +
+            RuleRunner(query_rule, now=appointment.appt_datetime +
                        relativedelta(hours=hours)).run()
 
             if hours <= 48:
                 # assert CRF not due from 0 to 48 hrs
                 self.assertEqual(
                     DataQuery.objects.filter(
-                        rule_generated=True, rule_reference=crf_query_rule.reference
+                        rule_generated=True, rule_reference=query_rule.reference
                     ).count(), 0, msg=hours
                 )
             else:
                 # CRF is now due, 48 hrs past
                 self.assertEqual(
                     DataQuery.objects.filter(
-                        rule_generated=True, rule_reference=crf_query_rule.reference
+                        rule_generated=True, rule_reference=query_rule.reference
                     ).count(), 1, msg=hours
                 )
 
@@ -204,13 +204,13 @@ class TestQueryRules(TestCase):
         )
 
         # Update DataQueries
-        RuleRunner(crf_query_rule).run()
+        RuleRunner(query_rule).run()
 
         # assert DataQuery NOT resolved, field f1 is still None
         self.assertEqual(
             DataQuery.objects.filter(
                 rule_generated=True,
-                rule_reference=crf_query_rule.reference,
+                rule_reference=query_rule.reference,
                 status=OPEN,
             ).count(),
             1,
@@ -220,13 +220,13 @@ class TestQueryRules(TestCase):
         crf_one.save()
 
         # Update DataQueries
-        RuleRunner(crf_query_rule).run()
+        RuleRunner(query_rule).run()
 
         # assert 1 DataQuery changed to resolved
         self.assertEqual(
             DataQuery.objects.filter(
                 rule_generated=True,
-                rule_reference=crf_query_rule.reference,
+                rule_reference=query_rule.reference,
                 status=OPEN,
             ).count(),
             0,

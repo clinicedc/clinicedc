@@ -1,12 +1,12 @@
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
 from django.utils.functional import lazy
 from edc_constants.constants import NORMAL
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_sites.models import SiteModelMixin
 from edc_visit_schedule.constants import HOURS, DAYS, WEEKS, MONTHS
 from uuid import uuid4
 
@@ -100,7 +100,7 @@ class RequisitionDataDictionary(DataDictionary):
         default_permissions = ("view",)
 
 
-class QueryRuleModelMixin(models.Model):
+class QueryRule(BaseUuidModel):
 
     active = models.BooleanField(default=True)
 
@@ -138,6 +138,19 @@ class QueryRuleModelMixin(models.Model):
         related_name="+",
         blank=True,
         help_text="select all that apply",
+    )
+
+    sites = models.ManyToManyField(
+        Site, help_text="Leave blank to apply to all.")
+
+    requisition_panel = models.ForeignKey(
+        RequisitionPanel,
+        verbose_name="Are responses linked to a requisition? If so, which",
+        related_name="+",
+        on_delete=PROTECT,
+        null=True,
+        blank=True,
+        help_text="Requisition will be expected on day of visit.",
     )
 
     query_text = models.TextField(
@@ -189,9 +202,17 @@ class QueryRuleModelMixin(models.Model):
 
     comment = models.TextField(null=True, blank=True)
 
+    objects = models.Manager()
+
+    history = HistoricalRecords()
+
     def __str__(self):
         inactive = " (inactive)" if not self.active else ""
         return f"{self.title}{inactive}"
+
+    def save(self, *args, **kwargs):
+        self.reference_model = settings.SUBJECT_VISIT_MODEL
+        super().save(*args, **kwargs)
 
     @property
     def rendered_query_text(self):
@@ -212,50 +233,6 @@ class QueryRuleModelMixin(models.Model):
         return django_apps.get_model(models[0])
 
     class Meta:
-        abstract = True
         ordering = ("title", )
-
-
-class CrfQueryRule(QueryRuleModelMixin, SiteModelMixin, BaseUuidModel):
-
-    requisition_panel = models.ForeignKey(
-        RequisitionPanel,
-        verbose_name="Are responses linked to a requisition? If so, which",
-        related_name="+",
-        on_delete=PROTECT,
-        null=True,
-        blank=True,
-        help_text="Requisition will be expected on day of visit.",
-    )
-
-    # on_site = CurrentSiteManager()
-
-    objects = models.Manager()
-
-    history = HistoricalRecords()
-
-    def save(self, *args, **kwargs):
-        self.reference_model = settings.SUBJECT_VISIT_MODEL
-        super().save(*args, **kwargs)
-
-
-class RequisitionQueryRule(QueryRuleModelMixin, SiteModelMixin, BaseUuidModel):
-
-    requisition_panel = models.ForeignKey(
-        RequisitionPanel,
-        verbose_name="Panel",
-        on_delete=PROTECT,
-        related_name="+",
-        null=True,
-        blank=True,
-    )
-
-    # on_site = CurrentSiteManager()
-
-    objects = models.Manager()
-
-    history = HistoricalRecords()
-
-    def save(self, *args, **kwargs):
-        self.reference_model = settings.SUBJECT_REQUISITION_MODEL
-        super().save(*args, **kwargs)
+        verbose_name = "Query Rule"
+        verbose_name_plural = "Query Rules"
