@@ -6,7 +6,11 @@ from edc_model_admin.model_admin_simple_history import SimpleHistoryAdmin
 
 from ..admin_site import edc_data_manager_admin
 from ..models import QueryRule, get_rule_handler_choices
-from .actions import update_query_rules_action, toggle_active_flag, copy_query_rule_action
+from .actions import (
+    update_query_rules_action,
+    toggle_active_flag,
+    copy_query_rule_action,
+)
 
 
 class QueryRuleForm(forms.ModelForm):
@@ -17,7 +21,7 @@ class QueryRuleForm(forms.ModelForm):
 
 class QueryRuleModelAdminMixin:
 
-    readonly_fields = ("reference", )
+    readonly_fields = ("reference",)
 
     def formfield_for_choice_field(self, db_field, request, **kwargs):
         if db_field.name == "rule_handler_name":
@@ -43,9 +47,7 @@ class QueryRuleModelAdminMixin:
         return ", ".join(fields)
 
     def timepoints(self, obj=None):
-        fields = [
-            v.visit_code for v in obj.visit_schedule.all().order_by("timepoint")
-        ]
+        fields = [v.visit_code for v in obj.visit_schedule.all().order_by("timepoint")]
         return ", ".join(fields)
 
     def query_timing(self, obj=None):
@@ -68,8 +70,7 @@ class QueryRuleAdmin(
 
     form = QueryRuleForm
 
-    actions = [update_query_rules_action,
-               toggle_active_flag, copy_query_rule_action]
+    actions = [update_query_rules_action, toggle_active_flag, copy_query_rule_action]
 
     list_display = (
         "title",
@@ -122,14 +123,6 @@ class QueryRuleAdmin(
                 )
             },
         ],
-        [
-            "Reference",
-            {
-                "classes": ("collapse",),
-                "fields": (
-                    "reference",
-                )
-            },
-        ],
+        ["Reference", {"classes": ("collapse",), "fields": ("reference",)}],
         audit_fieldset_tuple,
     )

@@ -6,49 +6,83 @@ import uuid
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_data_manager', '0010_auto_20190709_0635'),
-    ]
+    dependencies = [("edc_data_manager", "0010_auto_20190709_0635")]
 
     operations = [
         migrations.AlterField(
-            model_name='crfqueryrule',
-            name='reference',
+            model_name="crfqueryrule",
+            name="reference",
             field=models.CharField(default=uuid.uuid4, max_length=36, unique=True),
         ),
         migrations.AlterField(
-            model_name='crfqueryrule',
-            name='rule_handler_name',
-            field=models.CharField(blank=True, choices=[('default', 'Default'), ('lumbar_puncture_q13', 'Lumbar Puncture (Q13, 15, 21, 23, 24)')], default='default', max_length=150, null=True),
+            model_name="crfqueryrule",
+            name="rule_handler_name",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("default", "Default"),
+                    ("lumbar_puncture_q13", "Lumbar Puncture (Q13, 15, 21, 23, 24)"),
+                ],
+                default="default",
+                max_length=150,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalcrfqueryrule',
-            name='reference',
+            model_name="historicalcrfqueryrule",
+            name="reference",
             field=models.CharField(db_index=True, default=uuid.uuid4, max_length=36),
         ),
         migrations.AlterField(
-            model_name='historicalcrfqueryrule',
-            name='rule_handler_name',
-            field=models.CharField(blank=True, choices=[('default', 'Default'), ('lumbar_puncture_q13', 'Lumbar Puncture (Q13, 15, 21, 23, 24)')], default='default', max_length=150, null=True),
+            model_name="historicalcrfqueryrule",
+            name="rule_handler_name",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("default", "Default"),
+                    ("lumbar_puncture_q13", "Lumbar Puncture (Q13, 15, 21, 23, 24)"),
+                ],
+                default="default",
+                max_length=150,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalrequisitionqueryrule',
-            name='reference',
+            model_name="historicalrequisitionqueryrule",
+            name="reference",
             field=models.CharField(db_index=True, default=uuid.uuid4, max_length=36),
         ),
         migrations.AlterField(
-            model_name='historicalrequisitionqueryrule',
-            name='rule_handler_name',
-            field=models.CharField(blank=True, choices=[('default', 'Default'), ('lumbar_puncture_q13', 'Lumbar Puncture (Q13, 15, 21, 23, 24)')], default='default', max_length=150, null=True),
+            model_name="historicalrequisitionqueryrule",
+            name="rule_handler_name",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("default", "Default"),
+                    ("lumbar_puncture_q13", "Lumbar Puncture (Q13, 15, 21, 23, 24)"),
+                ],
+                default="default",
+                max_length=150,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='requisitionqueryrule',
-            name='reference',
+            model_name="requisitionqueryrule",
+            name="reference",
             field=models.CharField(default=uuid.uuid4, max_length=36, unique=True),
         ),
         migrations.AlterField(
-            model_name='requisitionqueryrule',
-            name='rule_handler_name',
-            field=models.CharField(blank=True, choices=[('default', 'Default'), ('lumbar_puncture_q13', 'Lumbar Puncture (Q13, 15, 21, 23, 24)')], default='default', max_length=150, null=True),
+            model_name="requisitionqueryrule",
+            name="rule_handler_name",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("default", "Default"),
+                    ("lumbar_puncture_q13", "Lumbar Puncture (Q13, 15, 21, 23, 24)"),
+                ],
+                default="default",
+                max_length=150,
+                null=True,
+            ),
         ),
     ]

@@ -4,8 +4,13 @@ from ..site_data_manager import site_data_manager
 
 
 class QueryRuleWrapper:
-    def __init__(self, query_rule_obj=None, subject_identifiers=None,
-                 visit_schedules=None, now=None):
+    def __init__(
+        self,
+        query_rule_obj=None,
+        subject_identifiers=None,
+        visit_schedules=None,
+        now=None,
+    ):
         self.now = now
         self.query_rule_obj = query_rule_obj
         self.subject_identifiers = subject_identifiers

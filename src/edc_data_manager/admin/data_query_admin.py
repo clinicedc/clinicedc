@@ -146,13 +146,11 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         ],
         [
             "For TCC Only",
-            {"fields": ("status", "resolved_datetime",
-                        "tcc_user", "plan_of_action")},
+            {"fields": ("status", "resolved_datetime", "tcc_user", "plan_of_action")},
         ],
         [
             "Rules",
-            {"classes": ("collapse",), "fields": (
-                "rule_generated", "rule_reference")},
+            {"classes": ("collapse",), "fields": ("rule_generated", "rule_reference")},
         ],
         action_fieldset_tuple,
         audit_fieldset_tuple,

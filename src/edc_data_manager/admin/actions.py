@@ -18,14 +18,18 @@ def toggle_active_flag(modeladmin, request, queryset):
 
 
 toggle_active_flag.short_description = (
-    f"Toggle Active/Inactive {QueryRule._meta.verbose_name_plural}")
+    f"Toggle Active/Inactive {QueryRule._meta.verbose_name_plural}"
+)
 
 
 def copy_query_rule_action(modeladmin, request, queryset):
     if queryset.count() == 1:
         obj = queryset[0]
-        options = {k: v for k, v in obj.__dict__.items()
-                   if not k.startswith("_") and k not in ["id"]}
+        options = {
+            k: v
+            for k, v in obj.__dict__.items()
+            if not k.startswith("_") and k not in ["id"]
+        }
         options["title"] = f"{options['title']} (Copy)"
         options["active"] = False
         options["reference"] = uuid4()
@@ -37,17 +41,17 @@ def copy_query_rule_action(modeladmin, request, queryset):
                 new_obj.visit_schedule.add(o)
             for o in obj.data_dictionaries.all().order_by("number"):
                 new_obj.data_dictionaries.add(o)
-            msg = (
-                f'Query rule has been copied. New title is "{options["title"]}"')
+            msg = f'Query rule has been copied. New title is "{options["title"]}"'
             messages.add_message(request, messages.SUCCESS, msg)
         else:
-            msg = (
-                f'Query rule already exists. Got "{options["title"]}"')
+            msg = f'Query rule already exists. Got "{options["title"]}"'
             messages.add_message(request, messages.ERROR, msg)
     else:
         messages.add_message(
-            request, messages.ERROR,
-            "Selecting multiple query rules is not allowed. Select just one.")
+            request,
+            messages.ERROR,
+            "Selecting multiple query rules is not allowed. Select just one.",
+        )
 
 
 copy_query_rule_action.short_description = f"Copy {QueryRule._meta.verbose_name}"

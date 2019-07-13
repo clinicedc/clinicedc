@@ -39,8 +39,7 @@ DATE_CHOICES = (
     (DRAWN_DATE, "Specimen draw date (requisition)"),
 )
 
-UNITS = ((HOURS, "Hours"), (DAYS, "Days"),
-         (WEEKS, "Weeks"), (MONTHS, "Months"))
+UNITS = ((HOURS, "Hours"), (DAYS, "Days"), (WEEKS, "Weeks"), (MONTHS, "Months"))
 
 DEFAULT_RULE_HANDLER = "default"
 
@@ -106,8 +105,7 @@ class QueryRule(BaseUuidModel):
 
     title = models.CharField(max_length=150, unique=True)
 
-    reference_model = models.CharField(
-        max_length=150, null=True, editable=False)
+    reference_model = models.CharField(max_length=150, null=True, editable=False)
 
     sender = models.ForeignKey(
         DataManagerUser,
@@ -140,8 +138,7 @@ class QueryRule(BaseUuidModel):
         help_text="select all that apply",
     )
 
-    sites = models.ManyToManyField(
-        Site, help_text="Leave blank to apply to all.")
+    sites = models.ManyToManyField(Site, help_text="Leave blank to apply to all.")
 
     requisition_panel = models.ForeignKey(
         RequisitionPanel,
@@ -159,11 +156,7 @@ class QueryRule(BaseUuidModel):
         blank=True,
     )
 
-    reference_model = models.CharField(
-        max_length=150,
-        null=True,
-        editable=False,
-    )
+    reference_model = models.CharField(max_length=150, null=True, editable=False)
 
     reference_date = models.CharField(
         max_length=25, choices=DATE_CHOICES, default=REPORT_DATE, editable=False
@@ -233,6 +226,6 @@ class QueryRule(BaseUuidModel):
         return django_apps.get_model(models[0])
 
     class Meta:
-        ordering = ("title", )
+        ordering = ("title",)
         verbose_name = "Query Rule"
         verbose_name_plural = "Query Rules"

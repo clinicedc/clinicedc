@@ -40,8 +40,13 @@ class QueryRuleHandler:
     display_name = "Default"
     model_name = None
 
-    def __init__(self, query_rule_obj=None, registered_subject=None,
-                 visit_schedule=None, now=None):
+    def __init__(
+        self,
+        query_rule_obj=None,
+        registered_subject=None,
+        visit_schedule=None,
+        now=None,
+    ):
         self._field_values = {}
         self._model_obj = None
         self._visit_obj = None
@@ -171,7 +176,8 @@ class QueryRuleHandler:
             now = arrow.get(self.now)
             start = arrow.get(self.visit_obj.report_datetime)
             end = arrow.get(self.visit_obj.report_datetime).shift(
-                **{self.query_rule_obj.timing_units: self.query_rule_obj.timing})
+                **{self.query_rule_obj.timing_units: self.query_rule_obj.timing}
+            )
             is_due = now >= start and not now.is_between(start, end, "[]")
         return is_due
 
