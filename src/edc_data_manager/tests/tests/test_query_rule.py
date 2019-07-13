@@ -22,6 +22,7 @@ from edc_utils.date import get_utcnow
 from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_schedule.constants import HOURS
 
 
 User = get_user_model()
@@ -68,23 +69,26 @@ class TestQueryRules(TestCase):
             onschedule_datetime=subject_consent.consent_datetime,
         )
 
-        for schedule in visit_schedule.schedules.values():
-            for visit in schedule.visits.values():
-                appointment = Appointment.objects.get(
-                    subject_identifier=self.subject_identifier,
-                    visit_schedule_name="visit_schedule",
-                    schedule_name="schedule",
-                    visit_code=visit.code,
-                )
-                SubjectVisit.objects.create(
-                    appointment=appointment,
-                    report_datetime=appointment.appt_datetime,
-                    subject_identifier=self.subject_identifier,
-                    reason=SCHEDULED,
-                    user_created="user_login",
-                )
+    def create_subject_visit(self, visit_code, report_datetime=None):
+        appointment = Appointment.objects.get(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            visit_code=visit_code,
+        )
+        return SubjectVisit.objects.create(
+            appointment=appointment,
+            report_datetime=report_datetime or appointment.appt_datetime,
+            subject_identifier=self.subject_identifier,
+            reason=SCHEDULED,
+            user_created="user_login",
+        )
 
     def test_data_inspector(self):
+
+        for schedule in visit_schedule.schedules.values():
+            for visit in schedule.visits.values():
+                self.create_subject_visit(visit.code)
 
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
@@ -145,7 +149,9 @@ class TestQueryRules(TestCase):
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
 
-        opts = dict(title="test rule", sender=self.user)
+        opts = dict(
+            title="test rule", sender=self.user,
+            timing=48, timing_units=HOURS)
 
         crf_query_rule = CrfQueryRule.objects.create(**opts)
         crf_query_rule.data_dictionaries.add(question)
@@ -156,34 +162,58 @@ class TestQueryRules(TestCase):
         # Update DataQueries
         RuleRunner(crf_query_rule).run()
 
-        # assert DataQueries created
+        # assert DataQueries NOT created since no visit reports submitted yet
         self.assertEqual(
             DataQuery.objects.filter(
                 rule_generated=True, rule_reference=crf_query_rule.reference
             ).count(),
-            2,
+            0,
         )
 
+        # create visit report
+        appointment = Appointment.objects.get(visit_code="1000")
+        subject_visit_1000 = self.create_subject_visit(
+            "1000", report_datetime=appointment.appt_datetime)
+
+        for hours in range(-1, 50):
+            DataQuery.objects.all().delete()
+
+            RuleRunner(crf_query_rule, now=appointment.appt_datetime +
+                       relativedelta(hours=hours)).run()
+
+            if hours <= 48:
+                # assert CRF not due from 0 to 48 hrs
+                self.assertEqual(
+                    DataQuery.objects.filter(
+                        rule_generated=True, rule_reference=crf_query_rule.reference
+                    ).count(), 0, msg=hours
+                )
+            else:
+                # CRF is now due, 48 hrs past
+                self.assertEqual(
+                    DataQuery.objects.filter(
+                        rule_generated=True, rule_reference=crf_query_rule.reference
+                    ).count(), 1, msg=hours
+                )
+
         # create the expected CRF
-        subject_visit = SubjectVisit.objects.all().order_by("appointment__visit_code")[
-            0
-        ]
         crf_one = CrfOne.objects.create(
-            subject_visit=subject_visit, report_datetime=subject_visit.report_datetime
+            subject_visit=subject_visit_1000,
+            report_datetime=subject_visit_1000.report_datetime,
+            f1=None,
         )
 
         # Update DataQueries
         RuleRunner(crf_query_rule).run()
 
-        # assert 1 DataQuery NOT changed to resolved, field f1 is still
-        # None
+        # assert DataQuery NOT resolved, field f1 is still None
         self.assertEqual(
             DataQuery.objects.filter(
                 rule_generated=True,
                 rule_reference=crf_query_rule.reference,
                 status=OPEN,
             ).count(),
-            2,
+            1,
         )
 
         crf_one.f1 = "erik"
@@ -199,5 +229,5 @@ class TestQueryRules(TestCase):
                 rule_reference=crf_query_rule.reference,
                 status=OPEN,
             ).count(),
-            1,
+            0,
         )
