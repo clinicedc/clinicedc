@@ -146,6 +146,16 @@ class QueryRuleModelMixin(models.Model):
         blank=True,
     )
 
+    reference_model = models.CharField(
+        max_length=150,
+        null=True,
+        editable=False,
+    )
+
+    reference_date = models.CharField(
+        max_length=25, choices=DATE_CHOICES, default=REPORT_DATE, editable=False
+    )
+
     timing = models.IntegerField(verbose_name="Timing", default=48)
 
     timing_units = models.CharField(
@@ -206,44 +216,7 @@ class QueryRuleModelMixin(models.Model):
         ordering = ("title", )
 
 
-class RequisitionQueryRule(QueryRuleModelMixin, SiteModelMixin, BaseUuidModel):
-
-    reference_date = models.CharField(
-        max_length=25, choices=DATE_CHOICES, default=REPORT_DATE, editable=False
-    )
-
-    reference_model = models.CharField(
-        max_length=150,
-        null=True,
-        default=settings.SUBJECT_REQUISITION_MODEL,
-        editable=False,
-    )
-
-    requisition_panel = models.ForeignKey(
-        RequisitionPanel,
-        verbose_name="Panel",
-        on_delete=PROTECT,
-        related_name="+",
-        null=True,
-        blank=True,
-    )
-
-    # on_site = CurrentSiteManager()
-
-    objects = models.Manager()
-
-    history = HistoricalRecords()
-
-
 class CrfQueryRule(QueryRuleModelMixin, SiteModelMixin, BaseUuidModel):
-
-    reference_date = models.CharField(
-        max_length=25, choices=DATE_CHOICES, default=REPORT_DATE
-    )
-
-    reference_model = models.CharField(
-        max_length=150, null=True, default=settings.SUBJECT_VISIT_MODEL, editable=False
-    )
 
     requisition_panel = models.ForeignKey(
         RequisitionPanel,
@@ -260,3 +233,29 @@ class CrfQueryRule(QueryRuleModelMixin, SiteModelMixin, BaseUuidModel):
     objects = models.Manager()
 
     history = HistoricalRecords()
+
+    def save(self, *args, **kwargs):
+        self.reference_model = settings.SUBJECT_VISIT_MODEL
+        super().save(*args, **kwargs)
+
+
+class RequisitionQueryRule(QueryRuleModelMixin, SiteModelMixin, BaseUuidModel):
+
+    requisition_panel = models.ForeignKey(
+        RequisitionPanel,
+        verbose_name="Panel",
+        on_delete=PROTECT,
+        related_name="+",
+        null=True,
+        blank=True,
+    )
+
+    # on_site = CurrentSiteManager()
+
+    objects = models.Manager()
+
+    history = HistoricalRecords()
+
+    def save(self, *args, **kwargs):
+        self.reference_model = settings.SUBJECT_REQUISITION_MODEL
+        super().save(*args, **kwargs)
