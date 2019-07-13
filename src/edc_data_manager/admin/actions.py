@@ -83,5 +83,5 @@ def update_query_rules_action(modeladmin, request, queryset):
 
 
 update_query_rules_action.short_description = (
-    f"Create or update automated {QueryRule._meta.verbose_name_plural}"
+    f"Run selected {QueryRule._meta.verbose_name_plural}"
 )
