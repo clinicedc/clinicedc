@@ -331,6 +331,10 @@ class Action:
                 using=self.using,
             )
 
+    def reopen_action_item_on_change(self):
+        """May be overriden."""
+        return True
+
     def reopen_action_items(self):
         """Reopens the action_item and child action items for this
         reference object if reference object was changed since
@@ -352,18 +356,19 @@ class Action:
                 status=CLOSED,
             )
         ):
-            action_item.status = OPEN
-            action_item.save(using=self.using)
-            self.messages.update(
-                {
-                    action_item: (
-                        f"{self.reference_obj._meta.verbose_name.title()} "
-                        f"{self.reference_obj} was changed on "
-                        f"{localize(self.reference_obj.modified)} "
-                        f"({settings.TIME_ZONE})"
-                    )
-                }
-            )
+            if self.reopen_action_item_on_change():
+                action_item.status = OPEN
+                action_item.save(using=self.using)
+                self.messages.update(
+                    {
+                        action_item: (
+                            f"{self.reference_obj._meta.verbose_name.title()} "
+                            f"{self.reference_obj} was changed on "
+                            f"{localize(self.reference_obj.modified)} "
+                            f"({settings.TIME_ZONE})"
+                        )
+                    }
+                )
 
     @property
     def reference_obj_has_changed(self):
