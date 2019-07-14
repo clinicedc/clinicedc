@@ -20,6 +20,9 @@ class DataQueryAction(Action):
     instructions = "Review and respond to the query"
     delete_with_reference_object = True
 
+    def reopen_action_item_on_change(self):
+        return not self.close_action_item_on_save()
+
     def close_action_item_on_save(self):
         if self.reference_obj and self.reference_obj.status in [
             RESOLVED,
