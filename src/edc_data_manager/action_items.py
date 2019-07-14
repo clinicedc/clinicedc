@@ -7,6 +7,7 @@ from .constants import RESOLVED_WITH_ACTION
 
 
 DATA_QUERY_ACTION = "data_query_action"
+SHOW_ON_DASHBOARD = getattr(settings, "DATA_MANAGER_SHOW_ON_DASHBOARD", True)
 
 
 class DataQueryAction(Action):
@@ -15,7 +16,7 @@ class DataQueryAction(Action):
     reference_model = "edc_data_manager.dataquery"
     create_by_user = True
     show_link_to_changelist = True
-    show_on_dashboard = True
+    show_on_dashboard = SHOW_ON_DASHBOARD
     admin_site_name = "edc_data_manager_admin"
     instructions = "Review and respond to the query"
     delete_with_reference_object = True
