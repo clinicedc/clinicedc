@@ -331,9 +331,9 @@ class Action:
                 using=self.using,
             )
 
-    def reopen_on_change(self):
+    def reopen_action_item_on_change(self):
         """May be overriden."""
-        return not self.close_action_item_on_save()
+        return True
 
     def reopen_action_items(self):
         """Reopens the action_item and child action items for this
@@ -356,7 +356,7 @@ class Action:
                 status=CLOSED,
             )
         ):
-            if self.reopen_on_change():
+            if self.reopen_action_item_on_change():
                 action_item.status = OPEN
                 action_item.save(using=self.using)
                 self.messages.update(
