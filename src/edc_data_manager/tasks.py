@@ -4,6 +4,6 @@ from celery import shared_task
 from .rule import update_query_rules
 
 
-@shared_task(name="update_crf_query_rules_task")
+@shared_task(name="update_query_rules_task")
 def update_query_rules_task(pks=None):
     return update_query_rules(pks=pks)
