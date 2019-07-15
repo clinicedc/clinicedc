@@ -72,6 +72,8 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         "sent_to",
         "query",
         "rule_generated",
+        "created",
+        "modified",
     )
 
     list_filter = (
@@ -83,6 +85,8 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         "resolved_datetime",
         "rule_generated",
         "title",
+        "created",
+        "modified",
     )
 
     search_fields = (
