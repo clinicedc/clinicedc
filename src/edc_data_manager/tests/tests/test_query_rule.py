@@ -172,6 +172,23 @@ class TestQueryRules(TestCase):
             "1000", report_datetime=appointment.appt_datetime
         )
 
+        # CRF not keyed => query IMMEDIATELY
+        DataQuery.objects.all().delete()
+        RuleRunner(query_rule, now=appointment.appt_datetime).run()
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference
+            ).count(),
+            1,
+        )
+
+        # create the CRF, field value missing => query when DUE.
+        crf_one = CrfOne.objects.create(
+            subject_visit=subject_visit_1000,
+            report_datetime=subject_visit_1000.report_datetime,
+            f1=None,
+        )
+
         for hours in range(-1, 50):
             DataQuery.objects.all().delete()
 
@@ -197,13 +214,6 @@ class TestQueryRules(TestCase):
                     1,
                     msg=hours,
                 )
-
-        # create the expected CRF
-        crf_one = CrfOne.objects.create(
-            subject_visit=subject_visit_1000,
-            report_datetime=subject_visit_1000.report_datetime,
-            f1=None,
-        )
 
         # Update DataQueries
         RuleRunner(query_rule).run()

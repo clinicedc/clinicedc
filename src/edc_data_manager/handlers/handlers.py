@@ -107,8 +107,9 @@ class QueryRuleHandler:
         return resolved
 
     def inspect_requisition(self):
-        """Raises an exception if an expected Requisition is not
-        keyed OR if a keyed requisition says specimen is not drawn.
+        """Raises a RequisitionNotKeyed or SpecimenNotDrawn exception
+        if an expected Requisition is not keyed OR if a keyed
+        requisition says specimen is not drawn.
 
         See `resolved`.
         """
@@ -119,7 +120,8 @@ class QueryRuleHandler:
                 raise SpecimenNotDrawn()
 
     def inspect_model(self):
-        """Raises as exception if the combination of field values is incorrect.
+        """Raises an CrfInspectionFailed exception if the combination
+        of field values is incorrect.
 
         (Assumes a NULL field is missing, one with value is not)
 
@@ -169,16 +171,21 @@ class QueryRuleHandler:
         """Returns True if value is expected relative to the
         timepoint report datetime.
 
+        Returns True if the model is None.
+
         See fields `timing` and `timing_units`.
         """
         is_due = False
         if self.visit_obj:
-            now = arrow.get(self.now)
-            start = arrow.get(self.visit_obj.report_datetime)
-            end = arrow.get(self.visit_obj.report_datetime).shift(
-                **{self.query_rule_obj.timing_units: self.query_rule_obj.timing}
-            )
-            is_due = now >= start and not now.is_between(start, end, "[]")
+            if not self.model_obj:
+                is_due = True
+            else:
+                now = arrow.get(self.now)
+                start = arrow.get(self.visit_obj.report_datetime)
+                end = arrow.get(self.visit_obj.report_datetime).shift(
+                    **{self.query_rule_obj.timing_units: self.query_rule_obj.timing}
+                )
+                is_due = now >= start and not now.is_between(start, end, "[]")
         return is_due
 
     @property
