@@ -96,7 +96,9 @@ class QueryRuleHandler:
             except RequisitionNotKeyed:
                 resolved = not self.requisition_is_required
             else:
-                if self.model_value_is_due:
+                if not self.model_obj:
+                    resolved = False
+                elif self.model_value_is_due:
                     if not self.crf_is_required:
                         resolved = False
                     else:
