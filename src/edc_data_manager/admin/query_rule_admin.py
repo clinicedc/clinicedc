@@ -85,7 +85,7 @@ class QueryRuleAdmin(
         "rule",
     )
 
-    list_filter = ("query_priority", "active")
+    list_filter = ("query_priority", "active", "rule_handler_name")
 
     radio_fields = {
         "reference_date": admin.VERTICAL,

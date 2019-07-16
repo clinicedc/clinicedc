@@ -3,9 +3,14 @@ from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 
+class DataDictionaryManager(models.Manager):
+    def get_by_natural_key(self, model, field_name):
+        return self.get(model=model, field_name=field_name)
+
+
 class DataDictionary(BaseUuidModel):
 
-    model = models.CharField(max_length=250)
+    model = models.CharField(max_length=250, unique=True)
 
     model_verbose_name = models.CharField(max_length=250, null=True)
 
@@ -31,6 +36,8 @@ class DataDictionary(BaseUuidModel):
 
     active = models.BooleanField(default=False)
 
+    objects = DataDictionaryManager()
+
     history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
@@ -39,6 +46,9 @@ class DataDictionary(BaseUuidModel):
 
     def __str__(self):
         return f"{self.number}. {self.prompt} ({self.model_verbose_name})"
+
+    def natural_key(self):
+        return (self.model, self.field_name)
 
     def get_model_verbose_name(self):
         verbose_name = self.model
