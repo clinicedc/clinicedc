@@ -4,9 +4,11 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 
 class VisitScheduleManager(models.Manager):
     def get_by_natural_key(self, visit_schedule_name, schedule_name, visit_code):
-        return self.get(visit_schedule_name=visit_schedule_name,
-                        schedule_name=schedule_name,
-                        visit_code=visit_code)
+        return self.get(
+            visit_schedule_name=visit_schedule_name,
+            schedule_name=schedule_name,
+            visit_code=visit_code,
+        )
 
 
 class VisitSchedule(BaseUuidModel):
@@ -54,6 +56,5 @@ class VisitSchedule(BaseUuidModel):
                     "visit_title",
                 ]
             ),
-            models.Index(fields=["visit_schedule_name",
-                                 "schedule_name", "timepoint"]),
+            models.Index(fields=["visit_schedule_name", "schedule_name", "timepoint"]),
         ]
