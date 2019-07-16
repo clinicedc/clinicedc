@@ -2,6 +2,13 @@ from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 
+class VisitScheduleManager(models.Manager):
+    def get_by_natural_key(self, visit_schedule_name, schedule_name, visit_code):
+        return self.get(visit_schedule_name=visit_schedule_name,
+                        schedule_name=schedule_name,
+                        visit_code=visit_code)
+
+
 class VisitSchedule(BaseUuidModel):
 
     visit_schedule_name = models.CharField(max_length=150)
@@ -18,6 +25,8 @@ class VisitSchedule(BaseUuidModel):
 
     active = models.BooleanField(default=False)
 
+    objects = VisitScheduleManager()
+
     history = HistoricalRecords()
 
     def __str__(self):
@@ -25,6 +34,9 @@ class VisitSchedule(BaseUuidModel):
             f"{self.visit_code}@{self.timepoint}: {self.visit_title} "
             f"({self.visit_schedule_name}.{self.schedule_name})"
         )
+
+    def natural_key(self):
+        return (self.visit_schedule_name, self.schedule_name, self.visit_code)
 
     class Meta:
         ordering = ("visit_schedule_name", "schedule_name", "visit_code")
@@ -42,5 +54,6 @@ class VisitSchedule(BaseUuidModel):
                     "visit_title",
                 ]
             ),
-            models.Index(fields=["visit_schedule_name", "schedule_name", "timepoint"]),
+            models.Index(fields=["visit_schedule_name",
+                                 "schedule_name", "timepoint"]),
         ]
