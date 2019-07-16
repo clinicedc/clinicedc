@@ -10,7 +10,7 @@ class DataDictionaryManager(models.Manager):
 
 class DataDictionary(BaseUuidModel):
 
-    model = models.CharField(max_length=250, unique=True)
+    model = models.CharField(max_length=250)
 
     model_verbose_name = models.CharField(max_length=250, null=True)
 
@@ -67,5 +67,6 @@ class DataDictionary(BaseUuidModel):
     class Meta:
         default_permissions = ("view",)
         ordering = ("model", "number", "prompt")
+        unique_together = (("model", "field_name"), )
         verbose_name = "Data Dictionary Item"
         verbose_name_plural = "Data Dictionary Items"
