@@ -67,6 +67,6 @@ class DataDictionary(BaseUuidModel):
     class Meta:
         default_permissions = ("view",)
         ordering = ("model", "number", "prompt")
-        unique_together = (("model", "field_name"), )
+        unique_together = (("model", "field_name"),)
         verbose_name = "Data Dictionary Item"
         verbose_name_plural = "Data Dictionary Items"
