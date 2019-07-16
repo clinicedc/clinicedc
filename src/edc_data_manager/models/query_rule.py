@@ -229,3 +229,4 @@ class QueryRule(BaseUuidModel):
         ordering = ("title",)
         verbose_name = "Query Rule"
         verbose_name_plural = "Query Rules"
+        indexes = [models.Index(fields=["title", "active"])]
