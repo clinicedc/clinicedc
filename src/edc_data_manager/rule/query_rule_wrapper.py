@@ -18,8 +18,9 @@ class QueryRuleWrapper:
         self.subject_identifiers = subject_identifiers
         self.visit_schedule_obj = visit_schedule_obj
         self.timepoint = timepoint
-        self.visit_code_sequence = visit_code_sequence or str(
-            self.timepoint).split(".")[1] or 0
+        self.visit_code_sequence = (
+            visit_code_sequence or str(self.timepoint).split(".")[1] or 0
+        )
 
     def __repr__(self):
         return (

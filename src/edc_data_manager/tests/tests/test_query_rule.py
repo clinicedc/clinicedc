@@ -1,7 +1,12 @@
 # from django_webtest import WebTest
 from data_manager_app.lab_profiles import lab_profile
-from data_manager_app.models import Appointment, SubjectVisit, SubjectConsent, CrfOne,\
-    SubjectRequisition
+from data_manager_app.models import (
+    Appointment,
+    SubjectVisit,
+    SubjectConsent,
+    CrfOne,
+    SubjectRequisition,
+)
 from data_manager_app.visit_schedules import visit_schedule
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
@@ -35,8 +40,7 @@ User = get_user_model()
 class TestQueryRules(TestCase):
     def setUp(self):
         import_holidays()
-        self.user = User.objects.create_superuser(
-            "user_login", "u@example.com", "pass")
+        self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
 
         site_labs._registry = {}
         site_labs.loaded = False
@@ -73,8 +77,9 @@ class TestQueryRules(TestCase):
             onschedule_datetime=subject_consent.consent_datetime,
         )
 
-    def create_subject_visit(self, visit_code, report_datetime=None,
-                             visit_code_sequence=None):
+    def create_subject_visit(
+        self, visit_code, report_datetime=None, visit_code_sequence=None
+    ):
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_schedule_name="visit_schedule",
@@ -110,8 +115,7 @@ class TestQueryRules(TestCase):
         self.assertEqual(len(inspector.required), 1)
         self.assertEqual(len(inspector.keyed), 0)
 
-        subject_visit1 = SubjectVisit.objects.get(
-            visit_code=visit_schedule1.visit_code)
+        subject_visit1 = SubjectVisit.objects.get(visit_code=visit_schedule1.visit_code)
         CrfOne.objects.create(
             subject_visit=subject_visit1, report_datetime=subject_visit1.report_datetime
         )
@@ -156,8 +160,7 @@ class TestQueryRules(TestCase):
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
 
-        opts = dict(title="test rule", sender=self.user,
-                    timing=48, timing_units=HOURS)
+        opts = dict(title="test rule", sender=self.user, timing=48, timing_units=HOURS)
 
         query_rule = QueryRule.objects.create(**opts)
         query_rule.data_dictionaries.add(question)
@@ -171,8 +174,7 @@ class TestQueryRules(TestCase):
         # assert DataQueries NOT created since no visit reports submitted yet
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             0,
         )
@@ -188,8 +190,7 @@ class TestQueryRules(TestCase):
         RuleRunner(query_rule, now=appointment.appt_datetime).run()
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             1,
         )
@@ -205,15 +206,15 @@ class TestQueryRules(TestCase):
             DataQuery.objects.all().delete()
 
             RuleRunner(
-                query_rule, now=appointment.appt_datetime +
-                relativedelta(hours=hours)
+                query_rule, now=appointment.appt_datetime + relativedelta(hours=hours)
             ).run()
 
             if hours <= 48:
                 # assert CRF not due from 0 to 48 hrs
                 self.assertEqual(
                     DataQuery.objects.filter(
-                        rule_generated=True, rule_reference=query_rule.reference,
+                        rule_generated=True,
+                        rule_reference=query_rule.reference,
                         status=OPEN,
                     ).count(),
                     0,
@@ -223,7 +224,8 @@ class TestQueryRules(TestCase):
                 # CRF is now due, 48 hrs past
                 self.assertEqual(
                     DataQuery.objects.filter(
-                        rule_generated=True, rule_reference=query_rule.reference,
+                        rule_generated=True,
+                        rule_reference=query_rule.reference,
                         status=OPEN,
                     ).count(),
                     1,
@@ -265,9 +267,13 @@ class TestQueryRules(TestCase):
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
         requisition_panel = RequisitionPanel.objects.all()[0]
 
-        opts = dict(title="test rule", sender=self.user,
-                    requisition_panel=requisition_panel,
-                    timing=48, timing_units=HOURS)
+        opts = dict(
+            title="test rule",
+            sender=self.user,
+            requisition_panel=requisition_panel,
+            timing=48,
+            timing_units=HOURS,
+        )
 
         query_rule = QueryRule.objects.create(**opts)
         query_rule.data_dictionaries.add(question)
@@ -281,17 +287,15 @@ class TestQueryRules(TestCase):
         # assert DataQueries NOT created since no visit reports submitted yet
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             0,
         )
 
-        appointment = Appointment.objects.get(
-            visit_code="1000",
-            visit_code_sequence=0)
+        appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         subject_visit = self.create_subject_visit(
-            "1000", report_datetime=appointment.appt_datetime,
+            "1000",
+            report_datetime=appointment.appt_datetime,
             visit_code_sequence=appointment.visit_code_sequence,
         )
 
@@ -302,8 +306,7 @@ class TestQueryRules(TestCase):
         # the query rule needs to be submitted on the timepoint.
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             1,
         )
@@ -320,8 +323,7 @@ class TestQueryRules(TestCase):
         # assert DataQuery closed since specimen not drawn.
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             0,
         )
@@ -338,8 +340,7 @@ class TestQueryRules(TestCase):
         # assert DataQuery re-opens.
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             1,
         )
@@ -354,8 +355,7 @@ class TestQueryRules(TestCase):
         # assert DataQuery stays opens.
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             1,
         )
@@ -366,8 +366,7 @@ class TestQueryRules(TestCase):
         # assert DataQuery closed since specimen not drawn.
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             0,
         )
@@ -382,9 +381,13 @@ class TestQueryRules(TestCase):
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
         requisition_panel = RequisitionPanel.objects.all()[0]
 
-        opts = dict(title="test rule", sender=self.user,
-                    requisition_panel=requisition_panel,
-                    timing=48, timing_units=HOURS)
+        opts = dict(
+            title="test rule",
+            sender=self.user,
+            requisition_panel=requisition_panel,
+            timing=48,
+            timing_units=HOURS,
+        )
 
         query_rule = QueryRule.objects.create(**opts)
         query_rule.data_dictionaries.add(question)
@@ -398,17 +401,17 @@ class TestQueryRules(TestCase):
         # assert DataQueries NOT created since no visit reports submitted yet
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             0,
         )
 
         appointment_1_0 = Appointment.objects.get(
-            visit_code="1000",
-            visit_code_sequence=0)
+            visit_code="1000", visit_code_sequence=0
+        )
         self.create_subject_visit(
-            "1000", report_datetime=appointment_1_0.appt_datetime,
+            "1000",
+            report_datetime=appointment_1_0.appt_datetime,
             visit_code_sequence=appointment_1_0.visit_code_sequence,
         )
 
@@ -425,7 +428,8 @@ class TestQueryRules(TestCase):
         )
         # create visit report
         subject_visit = self.create_subject_visit(
-            "1000", report_datetime=appointment.appt_datetime,
+            "1000",
+            report_datetime=appointment.appt_datetime,
             visit_code_sequence=appointment.visit_code_sequence,
         )
 
@@ -436,8 +440,7 @@ class TestQueryRules(TestCase):
         # the query rule needs to be submitted on the timepoint.
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             1,
         )
@@ -454,8 +457,7 @@ class TestQueryRules(TestCase):
         # assert DataQuery closed since specimen not drawn.
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             0,
         )
@@ -472,8 +474,7 @@ class TestQueryRules(TestCase):
         # assert DataQuery re-opens.
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             1,
         )
@@ -488,8 +489,7 @@ class TestQueryRules(TestCase):
         # assert DataQuery stays opens.
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             1,
         )
@@ -500,8 +500,7 @@ class TestQueryRules(TestCase):
         # assert DataQuery closed since specimen not drawn.
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference,
-                status=OPEN,
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             0,
         )

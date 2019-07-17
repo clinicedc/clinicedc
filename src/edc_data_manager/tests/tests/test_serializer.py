@@ -16,10 +16,10 @@ from dashboard_app.lab_profiles import lab_profile
 
 
 class TestSerializer(TestCase):
-
     def setUp(self):
         self.user = get_user_model().objects.create_superuser(
-            "user_login", "u@example.com", "pass")
+            "user_login", "u@example.com", "pass"
+        )
 
         site_labs._registry = {}
         site_labs.loaded = False
@@ -48,12 +48,16 @@ class TestSerializer(TestCase):
         ]
         json_data = []
         for qs in all_objects:
-            json_data.append(serializers.serialize(
-                "json", qs, indent=4,
-                use_natural_foreign_keys=True,
-                use_natural_primary_keys=False,
-                object_count=1,
-            ))
+            json_data.append(
+                serializers.serialize(
+                    "json",
+                    qs,
+                    indent=4,
+                    use_natural_foreign_keys=True,
+                    use_natural_primary_keys=False,
+                    object_count=1,
+                )
+            )
 
             qs.model.objects.all().delete()
 
@@ -77,8 +81,7 @@ class TestSerializer(TestCase):
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
 
-        opts = dict(title="test rule", sender=self.user,
-                    timing=48, timing_units=HOURS)
+        opts = dict(title="test rule", sender=self.user, timing=48, timing_units=HOURS)
         query_rule = QueryRule.objects.create(**opts)
         query_rule.data_dictionaries.add(question1)
         query_rule.data_dictionaries.add(question2)
@@ -87,7 +90,9 @@ class TestSerializer(TestCase):
         query_rule.save()
 
         json_text = serializers.serialize(
-            "json", QueryRule.objects.all(), indent=4,
+            "json",
+            QueryRule.objects.all(),
+            indent=4,
             use_natural_foreign_keys=True,
             use_natural_primary_keys=False,
             object_count=1,

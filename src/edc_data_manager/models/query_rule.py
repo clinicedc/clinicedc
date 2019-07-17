@@ -23,7 +23,7 @@ class QueryRuleError(Exception):
 
 
 class QueryRuleManager(models.Manager):
-    def get_by_natural_key(self, title,):
+    def get_by_natural_key(self, title):
         return self.get(title=title)
 
 
@@ -44,8 +44,7 @@ DATE_CHOICES = (
     (DRAWN_DATE, "Specimen draw date (requisition)"),
 )
 
-UNITS = ((HOURS, "Hours"), (DAYS, "Days"),
-         (WEEKS, "Weeks"), (MONTHS, "Months"))
+UNITS = ((HOURS, "Hours"), (DAYS, "Days"), (WEEKS, "Weeks"), (MONTHS, "Months"))
 
 DEFAULT_RULE_HANDLER = "default"
 
@@ -111,8 +110,7 @@ class QueryRule(BaseUuidModel):
 
     title = models.CharField(max_length=150, unique=True)
 
-    reference_model = models.CharField(
-        max_length=150, null=True, editable=False)
+    reference_model = models.CharField(max_length=150, null=True, editable=False)
 
     sender = models.ForeignKey(
         DataManagerUser,
@@ -145,8 +143,7 @@ class QueryRule(BaseUuidModel):
         help_text="select all that apply",
     )
 
-    sites = models.ManyToManyField(
-        Site, help_text="Leave blank to apply to all.")
+    sites = models.ManyToManyField(Site, help_text="Leave blank to apply to all.")
 
     requisition_panel = models.ForeignKey(
         RequisitionPanel,
@@ -164,8 +161,7 @@ class QueryRule(BaseUuidModel):
         blank=True,
     )
 
-    reference_model = models.CharField(
-        max_length=150, null=True, editable=False)
+    reference_model = models.CharField(max_length=150, null=True, editable=False)
 
     reference_date = models.CharField(
         max_length=25, choices=DATE_CHOICES, default=REPORT_DATE, editable=False
@@ -217,13 +213,14 @@ class QueryRule(BaseUuidModel):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.title, )
+        return (self.title,)
+
     natural_key.dependencies = [
-        'edc_data_manager.CrfDataDictionary',
-        'edc_data_manager.DataManagerUser',
-        'edc_data_manager.QueryUser',
-        'edc_data_manager.queryvisitschedule',
-        'edc_data_manager.RequisitionPanel',
+        "edc_data_manager.CrfDataDictionary",
+        "edc_data_manager.DataManagerUser",
+        "edc_data_manager.QueryUser",
+        "edc_data_manager.queryvisitschedule",
+        "edc_data_manager.RequisitionPanel",
     ]
 
     @property

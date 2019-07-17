@@ -60,8 +60,7 @@ class RuleRunner:
     def get_timepoints(self, visit_schedule_obj):
         """Returns the timepoints for which there is metadata.
         """
-        qs = MetaDataInspector.metadata_model_cls.objects.values(
-            "timepoint").filter(
+        qs = MetaDataInspector.metadata_model_cls.objects.values("timepoint").filter(
             visit_schedule_name=visit_schedule_obj.visit_schedule_name,
             schedule_name=visit_schedule_obj.schedule_name,
             visit_code=visit_schedule_obj.visit_code,
@@ -105,6 +104,5 @@ class RuleRunner:
                         )
                     )
             if wrapped_query_rules:
-                query_rules.update(
-                    {visit_schedule_obj.visit_code: wrapped_query_rules})
+                query_rules.update({visit_schedule_obj.visit_code: wrapped_query_rules})
         return query_rules
