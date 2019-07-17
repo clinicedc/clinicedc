@@ -11,7 +11,7 @@ from edc_visit_schedule.constants import HOURS, DAYS, WEEKS, MONTHS
 from uuid import uuid4
 
 from ..site_data_manager import site_data_manager
-from .data_dictionary import DataDictionary
+from .data_dictionary import DataDictionary, DataDictionaryManager
 from .data_query import QUERY_PRIORITY
 from .query_visit_schedule import QueryVisitSchedule
 from .requisition_panel import RequisitionPanel
@@ -20,6 +20,11 @@ from .user import DataManagerUser, QueryUser
 
 class QueryRuleError(Exception):
     pass
+
+
+class QueryRuleManager(models.Manager):
+    def get_by_natural_key(self, title,):
+        return self.get(title=title)
 
 
 def get_rule_handler_choices(model_name=None):
@@ -39,7 +44,8 @@ DATE_CHOICES = (
     (DRAWN_DATE, "Specimen draw date (requisition)"),
 )
 
-UNITS = ((HOURS, "Hours"), (DAYS, "Days"), (WEEKS, "Weeks"), (MONTHS, "Months"))
+UNITS = ((HOURS, "Hours"), (DAYS, "Days"),
+         (WEEKS, "Weeks"), (MONTHS, "Months"))
 
 DEFAULT_RULE_HANDLER = "default"
 
@@ -48,7 +54,7 @@ query_text_template_name = (
 )
 
 
-class CrfDataDictionaryManager(models.Manager):
+class CrfDataDictionaryManager(DataDictionaryManager):
     def get_queryset(self):
         return (
             super()
@@ -71,7 +77,7 @@ class CrfDataDictionary(DataDictionary):
         default_permissions = ("view",)
 
 
-class VisitDataDictionaryManager(models.Manager):
+class VisitDataDictionaryManager(DataDictionaryManager):
     def get_queryset(self):
         return super().get_queryset().filter(model=settings.SUBJECT_VISIT_MODEL)
 
@@ -85,7 +91,7 @@ class VisitDataDictionary(DataDictionary):
         default_permissions = ("view",)
 
 
-class RequisitionDataDictionaryManager(models.Manager):
+class RequisitionDataDictionaryManager(DataDictionaryManager):
     def get_queryset(self):
         return super().get_queryset().filter(model=settings.SUBJECT_REQUISITION_MODEL)
 
@@ -105,7 +111,8 @@ class QueryRule(BaseUuidModel):
 
     title = models.CharField(max_length=150, unique=True)
 
-    reference_model = models.CharField(max_length=150, null=True, editable=False)
+    reference_model = models.CharField(
+        max_length=150, null=True, editable=False)
 
     sender = models.ForeignKey(
         DataManagerUser,
@@ -138,7 +145,8 @@ class QueryRule(BaseUuidModel):
         help_text="select all that apply",
     )
 
-    sites = models.ManyToManyField(Site, help_text="Leave blank to apply to all.")
+    sites = models.ManyToManyField(
+        Site, help_text="Leave blank to apply to all.")
 
     requisition_panel = models.ForeignKey(
         RequisitionPanel,
@@ -156,7 +164,8 @@ class QueryRule(BaseUuidModel):
         blank=True,
     )
 
-    reference_model = models.CharField(max_length=150, null=True, editable=False)
+    reference_model = models.CharField(
+        max_length=150, null=True, editable=False)
 
     reference_date = models.CharField(
         max_length=25, choices=DATE_CHOICES, default=REPORT_DATE, editable=False
@@ -195,7 +204,7 @@ class QueryRule(BaseUuidModel):
 
     comment = models.TextField(null=True, blank=True)
 
-    objects = models.Manager()
+    objects = QueryRuleManager()
 
     history = HistoricalRecords()
 
@@ -206,6 +215,16 @@ class QueryRule(BaseUuidModel):
     def save(self, *args, **kwargs):
         self.reference_model = settings.SUBJECT_VISIT_MODEL
         super().save(*args, **kwargs)
+
+    def natural_key(self):
+        return (self.title, )
+    natural_key.dependencies = [
+        'edc_data_manager.CrfDataDictionary',
+        'edc_data_manager.DataManagerUser',
+        'edc_data_manager.QueryUser',
+        'edc_data_manager.queryvisitschedule',
+        'edc_data_manager.RequisitionPanel',
+    ]
 
     @property
     def rendered_query_text(self):
