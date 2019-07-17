@@ -105,6 +105,6 @@ class TargetHandler:
         """
         if self.model not in self.models:
             raise TargetModelNotScheduledForVisit(
-                f"Target model {self.model} is not scheduled "
-                f"for visit '{self.visit.visit_code}'."
+                f"Target model `{self.model}` is not scheduled "
+                f"(nor a PRN) for visit '{self.visit.visit_code}'."
             )
