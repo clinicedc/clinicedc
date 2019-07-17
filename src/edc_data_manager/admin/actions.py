@@ -10,6 +10,8 @@ from ..models import QueryRule
 from ..rule import update_query_rules
 from ..tasks import update_query_rules_task
 
+DATA_MANAGER_ENABLED = getattr(settings, "DATA_MANAGER_ENABLED", True)
+
 
 def toggle_active_flag(modeladmin, request, queryset):
     for obj in queryset:
@@ -59,7 +61,13 @@ copy_query_rule_action.short_description = f"Copy {QueryRule._meta.verbose_name}
 
 def update_query_rules_action(modeladmin, request, queryset):
 
-    if queryset:
+    if not DATA_MANAGER_ENABLED:
+        msg = mark_safe(
+            "Data manager features are currently disabled. "
+            "See settings.DATA_MANAGER_ENABLED."
+        )
+        messages.add_message(request, messages.ERROR, msg)
+    elif queryset:
         if settings.CELERY_ENABLED:
             update_query_rules_task.delay(pks=[o.pk for o in queryset])
             dte = get_utcnow()
@@ -71,7 +79,7 @@ def update_query_rules_action(modeladmin, request, queryset):
                 f"Started at {formatted_datetime(dte)}. "
                 f"An updated digest will be email upon completion. "
                 f'You may also check in <a href="{taskresult_url}?'
-                f'task_name=update_query_rules">task results</A>. '
+                f'task_name=update_query_rules_task">task results</A>. '
             )
         else:
             results = update_query_rules(pks=[o.pk for o in queryset])
