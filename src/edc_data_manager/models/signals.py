@@ -38,8 +38,7 @@ def update_query_on_crf(sender, instance, raw, **kwargs):
                     visit_code=instance.visit.appointment.visit_code,
                     timepoint=instance.visit.appointment.timepoint,
                 )
-                visit_schedule = QueryVisitSchedule.objects.get(
-                    **visit_schedule_opts)
+                visit_schedule = QueryVisitSchedule.objects.get(**visit_schedule_opts)
                 try:
                     instance.panel
                 except AttributeError:
@@ -62,7 +61,8 @@ def update_query_on_crf(sender, instance, raw, **kwargs):
                     )
                 for data_query in data_queries:
                     query_rule = QueryRule.objects.get(
-                        reference=data_query.rule_reference)
+                        reference=data_query.rule_reference
+                    )
                     runner = RuleRunner(query_rule)
                     runner.run_one(
                         subject_identifier=subject_identifier, **visit_schedule_opts
