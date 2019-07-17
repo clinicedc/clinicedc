@@ -44,7 +44,8 @@ class QueryRuleHandler:
         self,
         query_rule_obj=None,
         registered_subject=None,
-        visit_schedule=None,
+        visit_schedule_obj=None,
+        visit_code_sequence=None,
         now=None,
     ):
         self._field_values = {}
@@ -60,7 +61,8 @@ class QueryRuleHandler:
         self.recipients = query_rule_obj.recipients.all()
         self.registered_subject = registered_subject
         self.resolved_counter = 0
-        self.visit_schedule = visit_schedule
+        self.visit_schedule_obj = visit_schedule_obj
+        self.visit_code_sequence = visit_code_sequence or 0
 
         if self.model_name and self.model_cls._meta.label_lower != self.model_name:
             raise QueryRuleHandlerError(
@@ -266,10 +268,10 @@ class QueryRuleHandler:
         if not self._visit_obj:
             try:
                 self._visit_obj = get_visit_tracking_model().objects.get(
-                    appointment__visit_schedule_name=self.visit_schedule.visit_schedule_name,
-                    appointment__schedule_name=self.visit_schedule.schedule_name,
-                    appointment__visit_code=self.visit_schedule.visit_code,
-                    appointment__visit_code_sequence=0,
+                    appointment__visit_schedule_name=self.visit_schedule_obj.visit_schedule_name,
+                    appointment__schedule_name=self.visit_schedule_obj.schedule_name,
+                    appointment__visit_code=self.visit_schedule_obj.visit_code,
+                    appointment__visit_code_sequence=self.visit_code_sequence,
                     appointment__subject_identifier=self.registered_subject.subject_identifier,
                 )
             except ObjectDoesNotExist:
@@ -320,7 +322,7 @@ class QueryRuleHandler:
                 rule_generated=True,
                 rule_reference=self.query_rule_obj.reference,
                 registered_subject=self.registered_subject,
-                visit_schedule=self.visit_schedule,
+                visit_schedule=self.visit_schedule_obj,
                 site=self.registered_subject.site,
             )
         except ObjectDoesNotExist:
@@ -337,7 +339,7 @@ class QueryRuleHandler:
                     site=self.registered_subject.site,
                     subject_identifier=self.registered_subject.subject_identifier,
                     title=self.query_rule_obj.title,
-                    visit_schedule=self.visit_schedule,
+                    visit_schedule=self.visit_schedule_obj,
                 )
                 data_query.save()
                 for data_dictionary in self.data_dictionaries:

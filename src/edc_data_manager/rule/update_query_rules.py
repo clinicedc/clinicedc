@@ -14,8 +14,8 @@ def update_query_rules(pks=None):
             query_rules = QueryRule.objects.filter(active=True)
         total_created = 0
         total_resolved = 0
-        for query_rule in query_rules:
-            rule_runner = RuleRunner(query_rule)
+        for query_rule_obj in query_rules:
+            rule_runner = RuleRunner(query_rule_obj)
             created, resolved = rule_runner.run()
             total_created += created
             total_resolved += resolved

@@ -1,12 +1,18 @@
 # from django_webtest import WebTest
 from data_manager_app.lab_profiles import lab_profile
-from data_manager_app.models import Appointment, SubjectVisit, SubjectConsent, CrfOne
+from data_manager_app.models import (
+    Appointment,
+    SubjectVisit,
+    SubjectConsent,
+    CrfOne,
+    SubjectRequisition,
+)
 from data_manager_app.visit_schedules import visit_schedule
 from dateutil.relativedelta import relativedelta
+from decimal import Decimal
 from django.contrib.auth import get_user_model
-from django.test import TestCase
-from django.test import tag  # noqa
-from edc_constants.constants import OPEN
+from django.test import TestCase, tag  # noqa
+from edc_constants.constants import OPEN, NO, YES
 from edc_data_manager.models import (
     CrfDataDictionary,
     DataQuery,
@@ -23,6 +29,9 @@ from edc_visit_schedule.apps import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_schedule.constants import HOURS
+from edc_data_manager.models.requisition_panel import RequisitionPanel
+from edc_lab.models.panel import Panel
+from edc_lab.constants import TUBE
 
 
 User = get_user_model()
@@ -68,12 +77,15 @@ class TestQueryRules(TestCase):
             onschedule_datetime=subject_consent.consent_datetime,
         )
 
-    def create_subject_visit(self, visit_code, report_datetime=None):
+    def create_subject_visit(
+        self, visit_code, report_datetime=None, visit_code_sequence=None
+    ):
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
             visit_code=visit_code,
+            visit_code_sequence=visit_code_sequence or 0,
         )
         return SubjectVisit.objects.create(
             appointment=appointment,
@@ -141,6 +153,7 @@ class TestQueryRules(TestCase):
 
     def test_crf_rule(self):
 
+        # create a rule
         question = CrfDataDictionary.objects.get(
             model="data_manager_app.crfone", field_name="f1"
         )
@@ -161,7 +174,7 @@ class TestQueryRules(TestCase):
         # assert DataQueries NOT created since no visit reports submitted yet
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             0,
         )
@@ -177,7 +190,7 @@ class TestQueryRules(TestCase):
         RuleRunner(query_rule, now=appointment.appt_datetime).run()
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
             ).count(),
             1,
         )
@@ -200,7 +213,9 @@ class TestQueryRules(TestCase):
                 # assert CRF not due from 0 to 48 hrs
                 self.assertEqual(
                     DataQuery.objects.filter(
-                        rule_generated=True, rule_reference=query_rule.reference
+                        rule_generated=True,
+                        rule_reference=query_rule.reference,
+                        status=OPEN,
                     ).count(),
                     0,
                     msg=hours,
@@ -209,7 +224,9 @@ class TestQueryRules(TestCase):
                 # CRF is now due, 48 hrs past
                 self.assertEqual(
                     DataQuery.objects.filter(
-                        rule_generated=True, rule_reference=query_rule.reference
+                        rule_generated=True,
+                        rule_reference=query_rule.reference,
+                        status=OPEN,
                     ).count(),
                     1,
                     msg=hours,
@@ -233,6 +250,254 @@ class TestQueryRules(TestCase):
         RuleRunner(query_rule).run()
 
         # assert 1 DataQuery changed to resolved
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            0,
+        )
+
+    def test_crf_rule_with_requisition(self):
+
+        # create a rule
+        question = CrfDataDictionary.objects.get(
+            model="data_manager_app.crfone", field_name="f1"
+        )
+        visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
+        visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
+        requisition_panel = RequisitionPanel.objects.all()[0]
+
+        opts = dict(
+            title="test rule",
+            sender=self.user,
+            requisition_panel=requisition_panel,
+            timing=48,
+            timing_units=HOURS,
+        )
+
+        query_rule = QueryRule.objects.create(**opts)
+        query_rule.data_dictionaries.add(question)
+        query_rule.visit_schedule.add(visit_schedule1)
+        query_rule.visit_schedule.add(visit_schedule2)
+        query_rule.save()
+
+        # Update DataQueries
+        RuleRunner(query_rule).run()
+
+        # assert DataQueries NOT created since no visit reports submitted yet
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            0,
+        )
+
+        appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
+        subject_visit = self.create_subject_visit(
+            "1000",
+            report_datetime=appointment.appt_datetime,
+            visit_code_sequence=appointment.visit_code_sequence,
+        )
+
+        # Update DataQueries
+        RuleRunner(query_rule).run()
+
+        # assert DataQueries created since the requisition linked to
+        # the query rule needs to be submitted on the timepoint.
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            1,
+        )
+
+        panel = Panel.objects.get(name=requisition_panel.name)
+        subject_requisition = SubjectRequisition.objects.create(
+            subject_visit=subject_visit,
+            requisition_datetime=subject_visit.report_datetime,
+            panel=panel,
+            is_drawn=NO,
+            reason_not_drawn="failed",
+        )
+
+        # assert DataQuery closed since specimen not drawn.
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            0,
+        )
+
+        # change to drawn
+        subject_requisition.is_drawn = YES
+        subject_requisition.reason_not_drawn = None
+        subject_requisition.drawn_datetime = subject_requisition.requisition_datetime
+        subject_requisition.item_type = TUBE
+        subject_requisition.item_count = 1
+        subject_requisition.estimated_volume = 5
+        subject_requisition.save()
+
+        # assert DataQuery re-opens.
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            1,
+        )
+
+        # create the CRF, field value missing => query when DUE.
+        crf_one = CrfOne.objects.create(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            f1=None,
+        )
+
+        # assert DataQuery stays opens.
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            1,
+        )
+
+        crf_one.f1 = "erik"
+        crf_one.save()
+
+        # assert DataQuery closed since specimen not drawn.
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            0,
+        )
+
+    def test_crf_rule_with_requisition_prn_visit(self):
+
+        # create a rule
+        question = CrfDataDictionary.objects.get(
+            model="data_manager_app.crfone", field_name="f1"
+        )
+        visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
+        visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
+        requisition_panel = RequisitionPanel.objects.all()[0]
+
+        opts = dict(
+            title="test rule",
+            sender=self.user,
+            requisition_panel=requisition_panel,
+            timing=48,
+            timing_units=HOURS,
+        )
+
+        query_rule = QueryRule.objects.create(**opts)
+        query_rule.data_dictionaries.add(question)
+        query_rule.visit_schedule.add(visit_schedule1)
+        query_rule.visit_schedule.add(visit_schedule2)
+        query_rule.save()
+
+        # Update DataQueries
+        RuleRunner(query_rule).run()
+
+        # assert DataQueries NOT created since no visit reports submitted yet
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            0,
+        )
+
+        appointment_1_0 = Appointment.objects.get(
+            visit_code="1000", visit_code_sequence=0
+        )
+        self.create_subject_visit(
+            "1000",
+            report_datetime=appointment_1_0.appt_datetime,
+            visit_code_sequence=appointment_1_0.visit_code_sequence,
+        )
+
+        # create unscheduled appt / continuation appt (1.1)
+        appt_datetime = appointment_1_0.appt_datetime + relativedelta(days=1)
+        appointment = Appointment.objects.create(
+            subject_identifier=self.subject_identifier,
+            appt_datetime=appt_datetime,
+            visit_schedule_name=visit_schedule1.visit_schedule_name,
+            schedule_name=visit_schedule1.schedule_name,
+            visit_code="1000",
+            timepoint=Decimal("1.1"),
+            visit_code_sequence=1,
+        )
+        # create visit report
+        subject_visit = self.create_subject_visit(
+            "1000",
+            report_datetime=appointment.appt_datetime,
+            visit_code_sequence=appointment.visit_code_sequence,
+        )
+
+        # Update DataQueries
+        RuleRunner(query_rule).run()
+
+        # assert DataQueries created since the requisition linked to
+        # the query rule needs to be submitted on the timepoint.
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            1,
+        )
+
+        panel = Panel.objects.get(name=requisition_panel.name)
+        subject_requisition = SubjectRequisition.objects.create(
+            subject_visit=subject_visit,
+            requisition_datetime=subject_visit.report_datetime,
+            panel=panel,
+            is_drawn=NO,
+            reason_not_drawn="failed",
+        )
+
+        # assert DataQuery closed since specimen not drawn.
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            0,
+        )
+
+        # change to drawn
+        subject_requisition.is_drawn = YES
+        subject_requisition.reason_not_drawn = None
+        subject_requisition.drawn_datetime = subject_requisition.requisition_datetime
+        subject_requisition.item_type = TUBE
+        subject_requisition.item_count = 1
+        subject_requisition.estimated_volume = 5
+        subject_requisition.save()
+
+        # assert DataQuery re-opens.
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            1,
+        )
+
+        # create the CRF, field value missing => query when DUE.
+        crf_one = CrfOne.objects.create(
+            subject_visit=subject_visit,
+            report_datetime=subject_visit.report_datetime,
+            f1=None,
+        )
+
+        # assert DataQuery stays opens.
+        self.assertEqual(
+            DataQuery.objects.filter(
+                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+            ).count(),
+            1,
+        )
+
+        crf_one.f1 = "erik"
+        crf_one.save()
+
+        # assert DataQuery closed since specimen not drawn.
         self.assertEqual(
             DataQuery.objects.filter(
                 rule_generated=True, rule_reference=query_rule.reference, status=OPEN
