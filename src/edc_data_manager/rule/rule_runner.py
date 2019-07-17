@@ -15,14 +15,15 @@ class RuleRunner:
     def reference(self):
         return self.query_rule_obj.reference
 
-    def run(self, query_rules=None):
-        """Runs all wrapped query rules included in the
-        query_rules dictionary.
+    def run(self, query_rules_data=None):
+        """Returns number of created and resolved queries after
+        running all wrapped query rule objs included in
+        query_rules_data.
         """
         created_counter = 0
         resolved_counter = 0
-        query_rules = query_rules or self.query_rules
-        for _, wrapped_query_rules in query_rules.items():
+        query_rules_data = query_rules_data or self.query_rules_data
+        for _, wrapped_query_rules in query_rules_data.items():
             for wrapped_query_rule in wrapped_query_rules:
                 created, resolved = wrapped_query_rule.run_handler()
                 created_counter += created
@@ -43,7 +44,7 @@ class RuleRunner:
             visit_code=visit_code,
         )
         return self.run(
-            {
+            query_rules_data={
                 visit_schedule_obj.visit_code: [
                     QueryRuleWrapper(
                         query_rule_obj=self.query_rule_obj,
@@ -68,7 +69,7 @@ class RuleRunner:
         return [obj.get("timepoint") for obj in qs]
 
     @property
-    def query_rules(self):
+    def query_rules_data(self):
         """Returns a dictionary of QueryRuleWrappers format
         {visit_code: [wrappper, ...]}.
         """
