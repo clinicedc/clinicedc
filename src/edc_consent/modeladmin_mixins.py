@@ -92,7 +92,8 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
         ] + list(super().get_list_display(request))
 
     def get_list_filter(self, request):
-        return [
+        super().get_list_filter(request)
+        fields = [
             "gender",
             "is_verified",
             "is_verified_datetime",
@@ -105,4 +106,8 @@ class ModelAdminConsentMixin(admin.ModelAdmin):
             "user_created",
             "user_modified",
             "hostname_created",
-        ] + list(super().get_list_filter(request))
+        ]
+        self.list_filter = [f for f in fields if f not in self.list_filter] + list(
+            self.list_filter
+        )
+        return self.list_filter
