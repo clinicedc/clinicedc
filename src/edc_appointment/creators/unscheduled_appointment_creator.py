@@ -89,17 +89,13 @@ class UnscheduledAppointmentCreator:
                         f"Not allowed. Visit {next_by_timepoint.visit_code} has "
                         "already been started."
                     )
-            try:
-                timepoint = self.parent_appointment.timepoint + Decimal("0.1")
-            except AttributeError:
-                timepoint = Decimal("0.1")
             appointment_creator = self.appointment_creator_cls(
                 subject_identifier=self.subject_identifier,
                 visit_schedule_name=self.visit_schedule_name,
                 schedule_name=self.schedule_name,
                 visit=visit,
                 suggested_datetime=self.parent_appointment.appt_datetime,
-                timepoint=timepoint,
+                timepoint=self.parent_appointment.timepoint,
                 timepoint_datetime=self.parent_appointment.timepoint_datetime,
                 visit_code_sequence=self.parent_appointment.next_visit_code_sequence,
                 facility=self.facility,
