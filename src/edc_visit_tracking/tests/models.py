@@ -10,6 +10,7 @@ from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleMod
 
 from ..choices import VISIT_REASON, VISIT_REASON_MISSED, VISIT_INFO_SOURCE
 from ..model_mixins import CrfInlineModelMixin, CrfModelMixin, VisitModelMixin
+from edc_sites.models import SiteModelMixin
 
 
 class SubjectConsent(
@@ -48,7 +49,7 @@ class SubjectOffstudy(OffstudyModelMixin, BaseUuidModel):
         pass
 
 
-class SubjectVisit(VisitModelMixin, BaseUuidModel):
+class SubjectVisit(VisitModelMixin, SiteModelMixin, BaseUuidModel):
 
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
 
