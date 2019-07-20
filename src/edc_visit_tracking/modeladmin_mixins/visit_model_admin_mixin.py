@@ -1,9 +1,11 @@
 from django.contrib import admin
+from edc_constants.constants import OTHER
 from edc_model_admin.model_admin_audit_fields_mixin import audit_fieldset_tuple
 from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
     visit_schedule_fields,
 )
+from edc_visit_tracking.constants import UNSCHEDULED
 
 
 class VisitModelAdminMixin:
@@ -53,9 +55,9 @@ class VisitModelAdminMixin:
         "appointment",
         "subject_identifier",
         "report_datetime",
-        "reason",
-        "study_status",
-        "require_crfs",
+        "visit_reason",
+        "status",
+        "scheduled_data",
     ]
 
     search_fields = [
@@ -75,6 +77,22 @@ class VisitModelAdminMixin:
 
     def subject_identifier(self, obj=None):
         return obj.appointment.subject_identifier
+
+    def visit_reason(self, obj=None):
+        if obj.reason != UNSCHEDULED:
+            visit_reason = obj.get_reason_display()
+        else:
+            if obj.reason_unscheduled == OTHER:
+                visit_reason = obj.reason_unscheduled_other
+            else:
+                visit_reason = obj.get_reason_unscheduled_display()
+        return visit_reason
+
+    def status(self, obj=None):
+        return obj.study_status
+
+    def scheduled_data(self, obj=None):
+        return obj.get_require_crfs_display()
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         db = kwargs.get("using")
