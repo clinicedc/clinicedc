@@ -10,10 +10,14 @@ class AppConfig(DjangoAppConfig):
 if settings.APP_NAME == "edc_model_admin":
 
     from dateutil.relativedelta import SU, MO, TU, WE, TH, FR, SA
-    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
-    from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
     from edc_appointment.apps import AppConfig as BaseEdcAppointmentAppConfig
+    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
+    from edc_identifier.apps import AppConfig as BaseEdcIdentifierAppConfig
     from edc_metadata.apps import AppConfig as BaseEdcMetadataAppConfig
+    from edc_visit_tracking.apps import AppConfig as BaseEdcVisitTrackingAppConfig
+
+    class EdcIdentifierAppConfig(BaseEdcIdentifierAppConfig):
+        subject_identifier_pattern = "[0-9\-]+"
 
     class EdcVisitTrackingAppConfig(BaseEdcVisitTrackingAppConfig):
         visit_models = {

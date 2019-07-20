@@ -40,6 +40,7 @@ class ModelAdminSubjectDashboardMixin(
     subject_dashboard_url_name = "subject_dashboard_url"
     subject_listboard_url_name = "subject_listboard_url"
     show_cancel = True
+    show_dashboard_in_list_display_pos = None
 
     def get_subject_dashboard_url_name(self):
         return url_names.get(self.subject_dashboard_url_name)
@@ -61,13 +62,18 @@ class ModelAdminSubjectDashboardMixin(
             self.get_subject_dashboard_url_name(),
             kwargs=self.get_subject_dashboard_url_kwargs(obj),
         )
-        context = dict(
-            dashboard="dashboard",
-            title=_("Go to subject's dashboard"),
-            url=url,
-            label=label,
-        )
+        context = dict(title=_("Go to subject's dashboard"), url=url, label=label)
         return render_to_string("dashboard_button.html", context=context)
+
+    def get_list_display(self, request):
+        super().get_list_display(request)
+        if self.show_dashboard_in_list_display_pos is not None:
+            self.list_display = list(self.list_display)
+            if self.dashboard not in self.list_display:
+                self.list_display.insert(
+                    self.show_dashboard_in_list_display_pos, self.dashboard
+                )
+        return self.list_display
 
     def view_on_site(self, obj):
         try:

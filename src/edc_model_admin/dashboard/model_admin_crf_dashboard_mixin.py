@@ -10,6 +10,7 @@ class ModelAdminCrfDashboardMixin(
 
     show_save_next = True
     show_cancel = True
+    show_dashboard_in_list_display_pos = 0
 
     def get_subject_dashboard_url_kwargs(self, obj):
         return dict(
