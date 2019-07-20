@@ -50,12 +50,18 @@ class TestModelAdmin(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         site_visit_schedules.register(visit_schedule=visit_schedule2)
 
-    def test_adds_visit_model_to_list_display(self):
+    def test_visit_model_attr(self):
+        modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
+        self.assertTrue("subject_visit", modeladmin.visit_model_attr)
+
+    def test_adds_to_list_display(self):
         factory = RequestFactory()
         request = factory.get("/")
         modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
-        self.assertTrue("subject_visit", modeladmin.visit_model_attr)
-        self.assertIn("subject_visit", modeladmin.get_list_display(request))
+        self.assertIn(
+            modeladmin.subject_identifier, modeladmin.get_list_display(request)
+        )
+        self.assertIn("report_datetime", modeladmin.get_list_display(request))
 
     def test_extends_list_filter(self):
         factory = RequestFactory()
