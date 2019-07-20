@@ -1,7 +1,6 @@
 from django.contrib import admin
 from edc_model_admin import audit_fields
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from django.core.exceptions import ObjectDoesNotExist
 from edc_permissions.constants.group_names import PII_VIEW, PII
 
 
@@ -84,8 +83,9 @@ class RegisteredSubjectModelAdminMixin(
         return list_display + list(super().get_list_display(request))
 
     def get_list_filter(self, request):
+        super().get_list_filter(request)
         if self.show_pii(request):
-            list_filter = [
+            fields = [
                 "subject_type",
                 "registration_status",
                 "screening_datetime",
@@ -95,7 +95,7 @@ class RegisteredSubjectModelAdminMixin(
                 "hostname_created",
             ]
         else:
-            list_filter = [
+            fields = [
                 "subject_type",
                 "registration_status",
                 "screening_datetime",
@@ -103,7 +103,10 @@ class RegisteredSubjectModelAdminMixin(
                 "site",
                 "hostname_created",
             ]
-        return list_filter + list(super().get_list_filter(request))
+        self.list_filter = [f for f in fields if f not in self.list_filter] + list(
+            self.list_filter
+        )
+        return self.list_filter
 
     def get_search_fields(self, request):
         if self.show_pii(request):
