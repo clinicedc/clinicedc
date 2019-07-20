@@ -85,7 +85,7 @@ class AppointmentCreator:
     def __repr__(self):
         return (
             f"{self.__class__.__name__}(subject_identifier={self.subject_identifier}, "
-            f"visit_code={self.visit.code})"
+            f"visit_code={self.visit.code}.{self.visit_code_sequence}@{self.timepoint})"
         )
 
     def __str__(self):
@@ -205,10 +205,6 @@ class AppointmentCreator:
         """
         return django_apps.get_model("edc_appointment.appointment")
 
-    #         if not self._appointment_model_cls:
-    #             self._appointment_model_cls = self.appointment_config.model_cls
-    #         return self._appointment_model_cls
-
     @property
     def default_appt_type(self):
         """Returns a string that is the default appointment
@@ -219,5 +215,4 @@ class AppointmentCreator:
                 self._default_appt_type = settings.DEFAULT_APPOINTMENT_TYPE
             except AttributeError:
                 self._default_appt_type = CLINIC
-        #             self._default_appt_type = self.appointment_config.appt_type
         return self._default_appt_type
