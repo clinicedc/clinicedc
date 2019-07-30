@@ -6,6 +6,11 @@ from django.template.loader import render_to_string
 from django.urls.base import reverse
 from edc_dashboard.url_names import url_names, InvalidUrlName
 from django.urls.exceptions import NoReverseMatch
+from django.core.management.color import color_style
+
+style = color_style()
+
+EDC_NAVBAR_WARN_ONLY = getattr(settings, "EDC_NAVBAR_WARN_ONLY", False)
 
 
 class NavbarItemError(Exception):
@@ -73,7 +78,11 @@ class NavbarItem:
             try:
                 self.reversed_url = reverse(self.url_name)
             except NoReverseMatch as e:
-                raise NoReverseMatch(f"{e}. See {repr(self)}.")
+                msg = f"{e}. See {repr(self)}."
+                if EDC_NAVBAR_WARN_ONLY:
+                    print(style.ERROR(msg))
+                else:
+                    raise NoReverseMatch(f"{e}. See {repr(self)}.")
 
         app_label, _codename = self.verify_codename(codename)
         self.codename = f"{app_label}.{_codename}"
