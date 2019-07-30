@@ -21,3 +21,6 @@ csf_supernatant = AliquotType(
     name="CSF Supernatant", alpha_code="SUPERNATANT", numeric_code="68"
 )
 csf = AliquotType(name="Cerebro Spinal Fluid", alpha_code="CSF", numeric_code="56")
+
+# dummy
+disposable = AliquotType(name="Disposable", alpha_code="XX", numeric_code="00")
