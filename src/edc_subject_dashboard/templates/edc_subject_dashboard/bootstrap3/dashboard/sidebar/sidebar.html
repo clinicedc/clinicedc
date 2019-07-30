@@ -2,12 +2,6 @@
 <div class="panel-group" id="accordion">
 
 
-    {% if open_action_items %}
-    <div class="panel panel-default">
-          {% block action_items %}{% endblock action_items %}           
-    </div>
-    {% endif %}
-
     <div class="panel panel-default">
       <div class="panel-heading">
           <h6 class="panel-title">
@@ -19,6 +13,16 @@
           {% block demographics %}{% endblock demographics %}           
       </div>           
     </div>
+
+    {% if open_action_items %}
+    <div class="panel panel-default">
+          {% block action_items %}{% endblock action_items %}
+    </div>
+    <div class="panel panel-default">
+          {% block data_queries %}{% endblock data_queries %}
+    </div>
+    {% endif %}
+
 
     <div class="panel panel-default">
       <div class="panel-heading">

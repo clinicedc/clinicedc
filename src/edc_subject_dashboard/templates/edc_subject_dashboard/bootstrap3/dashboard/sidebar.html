@@ -43,18 +43,38 @@
 {% block action_items %}   
 
 	{% if open_action_items %}
-	    
-	    <div class="list-group list-group-default">
-	    	
-	        {% for action_item in open_action_items %}
 
-	            {% action_item_with_popover action_item forloop.counter %}
+		<div class="list-group list-group-default">
 
-	       {% endfor %}
+			{% for action_item in open_action_items %}
+
+			{% if action_item.reference_model != "edc_data_manager.dataquery" %}
+
+				{% action_item_with_popover action_item forloop.counter %}
+
+			{% endif %}
+
+	        {% endfor %}
 	    </div>
 
 	{% endif %}
 
 {% endblock action_items %}
 
+
+{% block data_queries %}
+
+	{% if open_action_items %}
+
+	    <div class="list-group list-group-default">
+	        {% for action_item in open_action_items %}
+				{% if action_item.reference_model == "edc_data_manager.dataquery" %}
+					{% action_item_with_popover action_item forloop.counter %}
+				{% endif %}
+	       {% endfor %}
+	    </div>
+
+	{% endif %}
+
+{% endblock data_queries %}
 
