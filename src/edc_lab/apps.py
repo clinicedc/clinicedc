@@ -25,6 +25,7 @@ class AppConfig(DjangoAppConfig):
     verbose_name = "Edc Lab"
     has_exportable_data = True
     include_in_administration_section = True
+    result_model = "edc_lab.result"
 
     def ready(self):
         from .models.signals import manifest_item_on_post_delete  # noqa

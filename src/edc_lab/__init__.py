@@ -1,4 +1,4 @@
-from .aliquot_types import pl, bc, serum, wb
+from .aliquot_types import pl, bc, serum, wb, disposable
 from .constants import SHIPPED, PACKED
 from .form_validators import CrfRequisitionFormValidatorMixin
 from .identifiers import AliquotIdentifier, AliquotIdentifierCountError
