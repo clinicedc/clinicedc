@@ -123,7 +123,7 @@ class ActionModelMixin(models.Model):
         return self.get_action_cls()(action_item=self.action_item)
 
     def get_action_item_reason(self):
-        return self.action_name
+        return self.action_item_reason or self.action_name
 
     @property
     def identifier(self):

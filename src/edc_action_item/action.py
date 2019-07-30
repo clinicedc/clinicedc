@@ -133,9 +133,8 @@ class Action:
     def reference_obj(self):
         """Returns the reference model instance or None.
 
-        If the reference model instance "should" exist,
-        raise an exception. That is; action_identifier already
-        allocated, action item exists and is CLOSED.
+        If the reference model instance "should" exist if
+        action item exists and is CLOSED. If not, re-open.
         """
         if not self._reference_obj:
             try:
@@ -150,13 +149,9 @@ class Action:
                     and self.action_item
                     and self.action_item.status == CLOSED
                 ):
-                    raise ActionError(
-                        "Reference model instance not found. "
-                        f"Got action_identifier='{self.action_identifier}' "
-                        f"for reference_model "
-                        f"'{self.reference_model}'. See {repr(self)}",
-                        code=REFERENCE_MODEL_ERROR_CODE,
-                    )
+                    self.action_item.status = OPEN
+                    self.action_item.save(using=self.using)
+                    self.action_item.refresh_from_db()
         return self._reference_obj
 
     @property

@@ -197,13 +197,9 @@ class ActionItemHelper:
         ]
         for obj in objects:
             try:
-                action_item_reasons.append(
-                    obj.action_item_reason or obj.get_action_item_reason()
-                )
+                action_item_reasons.append(obj.get_action_item_reason())
             except AttributeError as e:
-                if "action_item_reason" not in str(
-                    e
-                ) and "get_action_item_reason" not in str(e):
+                if "get_action_item_reason" not in str(e):
                     raise
         action_item_reasons = list(set(action_item_reasons))
         return render_to_string(
