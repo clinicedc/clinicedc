@@ -12,6 +12,7 @@ class AppConfig(DjangoAppConfig):
     identifier_modulus = 7
     messages_written = False
     subject_identifier_pattern = "092\-[0-9\-]+"
+    screening_identifier_pattern = "[A-Z0-9]{8}"
     include_in_administration_section = True
 
     def ready(self):
