@@ -9,7 +9,10 @@
 
 {% block listboard_tabs %}{% endblock listboard_tabs %}
 
+<!--begin panel-group -->
 <div class="panel-group">
+
+<!--begin panel -->
 <div class="panel panel-{{ listboard_panel_style }}">
 <div class="panel-heading clearfix">
 
@@ -40,15 +43,16 @@
 
 </div> <!--end panel heading -->
 
+<!-- begin panel-body -->
+<div class="panel-body">
 
 <!-- begin table -->
-<div class="table-responsive">
 {% if listboard_instructions %}
-<table class="table table-condensed table-hover small">
+<table class="table table-condensed table-hover table-responsive">
     <td>{{ listboard_instructions }}</td>
 </table>
 {% endif%}
-<table class="table table-condensed table-hover small">
+<table class="table table-condensed table-hover table-responsive">
 
 <thead>
 
@@ -79,21 +83,24 @@
 {% endblock listboard_table_body %}
 
 </tbody></table>
+<!-- end table -->
 
 <!-- begin spacer rows -->
-<table>
+{% if not results %}
+<table class="table">
 <tr><td>&nbsp;</td></tr>
 <tr><td>&nbsp;</td></tr>
 <tr><td>&nbsp;</td></tr>
 <tr><td>&nbsp;</td></tr>
 <tr><td>&nbsp;</td></tr>
 </table>
-<!-- end spacer rows -->
+{% endif %}
 
-</div><!-- end table -->
+<!-- end spacer rows -->
 
 {% paginator_row %}
 
+</div><!--end panel body -->
 </div>  <!--end panel -->
 </div> <!--end panel-group -->
 <!-- end listboard main block -->
