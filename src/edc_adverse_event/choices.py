@@ -64,11 +64,3 @@ SAE_REASONS = (
         "pneumonia)",
     ),
 )
-
-
-# change to FK
-AE_CLASSIFICATION = ((OTHER, "Other"),)
-
-
-# change to FK
-CAUSE_OF_DEATH = ((UNKNOWN, "Unknown"), (OTHER, "Other"))

@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models.deletion import PROTECT
 from edc_action_item.managers import (
     ActionIdentifierSiteManager,
     ActionIdentifierManager,
@@ -13,7 +14,7 @@ from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
 from ..constants import DEATH_REPORT_ACTION
-from ..choices import CAUSE_OF_DEATH
+from ..models import CauseOfDeath
 
 
 class DeathReportModelMixin(
@@ -44,14 +45,16 @@ class DeathReportModelMixin(
         choices=YES_NO, max_length=5, verbose_name="Death as inpatient"
     )
 
-    cause_of_death = models.CharField(
-        max_length=50,
-        choices=CAUSE_OF_DEATH,
+    cause_of_death = models.ForeignKey(
+        CauseOfDeath,
+        on_delete=PROTECT,
         verbose_name=("Main cause of death"),
         help_text=(
             "Main cause of death in the opinion of the "
             "local study doctor and local PI"
         ),
+        null=True,
+        blank=False,
     )
 
     cause_of_death_other = models.CharField(
@@ -69,6 +72,8 @@ class DeathReportModelMixin(
 
     def natural_key(self):
         return (self.action_identifier,)
+
+    natural_key.dependencies = ["edc_adverse_event.causeofdeath"]
 
     class Meta:
         abstract = True
