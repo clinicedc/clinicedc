@@ -266,7 +266,8 @@ class ActionItemHelper:
             parent_reference_obj=self.parent_reference_obj,
             parent_reference_model_name=self.parent_reference_model_name,
             parent_reference_url=self.parent_reference_url,
-            priority=self.action_item.priority or "",
+            popover_title=self.action_item.read_only_action.get_popover_title(),
+            priority=self.action_item.read_only_action.get_priority(),
             reference_model_name=self.reference_model_name,
             reference_obj=self.reference_obj,
             reference_url=self.reference_url,
@@ -274,6 +275,6 @@ class ActionItemHelper:
             related_reference_model_name=self.related_reference_model_name,
             related_reference_url=self.related_reference_url,
             report_datetime=self.action_item.report_datetime,
-            status=self.action_item.get_status_display(),
+            status=self.action_item.read_only_action.get_status(),
         )
         return context

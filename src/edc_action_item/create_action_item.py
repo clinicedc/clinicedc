@@ -17,6 +17,7 @@ def create_action_item(
     action_identifier=None,
     related_action_item=None,
     parent_action_item=None,
+    priority=None,
     using=None,
     **kwargs,
 ):
@@ -44,6 +45,7 @@ def create_action_item(
             action_type=get_action_type(action_cls),
             action_identifier=action_identifier,
             linked_to_reference=False,
+            priority=priority,
         )
         if parent_action_item:
             opts.update(parent_action_item=parent_action_item)
