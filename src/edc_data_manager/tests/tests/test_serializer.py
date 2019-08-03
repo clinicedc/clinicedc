@@ -1,18 +1,16 @@
+from dashboard_app.lab_profiles import lab_profile
 from data_manager_app.visit_schedules import visit_schedule
 from django.contrib.auth import get_user_model
 from django.core import serializers
 from django.test import TestCase, tag
-from edc_visit_schedule.apps import populate_visit_schedule
-from edc_visit_schedule.constants import HOURS
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from pprint import pprint
-from tempfile import mkdtemp
-
-from ...models import CrfDataDictionary, QueryRule, QueryVisitSchedule
 from edc_data_manager.models.requisition_panel import RequisitionPanel
 from edc_data_manager.models.user import DataManagerUser, QueryUser
 from edc_lab.site_labs import site_labs
-from dashboard_app.lab_profiles import lab_profile
+from edc_visit_schedule.apps import populate_visit_schedule
+from edc_visit_schedule.constants import HOURS
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+
+from ...models import CrfDataDictionary, QueryRule, QueryVisitSchedule
 
 
 class TestSerializer(TestCase):
@@ -30,7 +28,6 @@ class TestSerializer(TestCase):
         site_visit_schedules.register(visit_schedule)
         populate_visit_schedule()
 
-    @tag("1")
     def test_(self):
 
         self.assertGreater(QueryVisitSchedule.objects.all().count(), 0)

@@ -192,8 +192,6 @@ class QueryRule(BaseUuidModel):
         max_length=150,
         default=DEFAULT_RULE_HANDLER,
         choices=lazy(get_rule_handler_choices, tuple)(),
-        null=True,
-        blank=True,
     )
 
     reference = models.CharField(max_length=36, default=uuid4, unique=True)

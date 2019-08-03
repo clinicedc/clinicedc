@@ -1,1 +1,1 @@
-RESOLVED_WITH_ACTION = "resolved_with_action"
+CLOSED_WITH_ACTION = "closed_with_action"
