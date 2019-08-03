@@ -51,6 +51,8 @@ class Action:
     singleton = False
     delete_with_reference_object = False
 
+    popover_title = "Action Item"
+
     action_item_model = "edc_action_item.actionitem"
     action_type_model = "edc_action_item.actiontype"
     next_actions = None  # a list of Action classes which may include 'self'
@@ -129,6 +131,15 @@ class Action:
     def get_display_name(self):
         return self.action_item.action_type.display_name
 
+    def get_priority(self):
+        return self.priority
+
+    def get_popover_title(self):
+        return self.popover_title
+
+    def get_status(self):
+        return self.action_item.get_status_display()
+
     @property
     def reference_obj(self):
         """Returns the reference model instance or None.
@@ -187,6 +198,7 @@ class Action:
                         self._action_item = create_action_item(
                             self.__class__,
                             parent_action_item=self.parent_action_item,
+                            priority=self.get_priority(),
                             using=self.using,
                             **opts,
                         )
