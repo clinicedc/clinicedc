@@ -280,11 +280,15 @@ class QueryRuleHandler:
         if not self._visit_obj:
             try:
                 self._visit_obj = get_visit_tracking_model().objects.get(
-                    appointment__visit_schedule_name=self.visit_schedule_obj.visit_schedule_name,
+                    appointment__visit_schedule_name=(
+                        self.visit_schedule_obj.visit_schedule_name
+                    ),
                     appointment__schedule_name=self.visit_schedule_obj.schedule_name,
                     appointment__visit_code=self.visit_schedule_obj.visit_code,
                     appointment__visit_code_sequence=self.visit_code_sequence,
-                    appointment__subject_identifier=self.registered_subject.subject_identifier,
+                    appointment__subject_identifier=(
+                        self.registered_subject.subject_identifier
+                    ),
                 )
             except ObjectDoesNotExist:
                 self._visit_obj = None
