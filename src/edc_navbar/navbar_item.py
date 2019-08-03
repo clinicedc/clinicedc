@@ -7,6 +7,7 @@ from django.urls.base import reverse
 from edc_dashboard.url_names import url_names, InvalidUrlName
 from django.urls.exceptions import NoReverseMatch
 from django.core.management.color import color_style
+import pdb
 
 style = color_style()
 
@@ -46,43 +47,28 @@ class NavbarItem:
         codename=None,
     ):
         self._reversed_url = None
+        self._url_name = None
         self.active = active
         self.alt = alt or label or name
+
         if fa_icon and fa_icon.startswith("fa-"):
             self.fa_icon = f"fa {fa_icon}"
         else:
             self.fa_icon = fa_icon
+
         self.glyphicon = glyphicon
         self.html_id = html_id or name
         self.icon = icon
         self.icon_height = icon_height
         self.icon_width = icon_width
-        try:
-            self.label = label
-        except AttributeError:
-            self.label = None
+        self.label = label
         self.name = name
+        self.no_url_namespace = no_url_namespace
         self.title = title or self.label or name.title()  # the anchor title
 
-        try:
-            self.url_name = url_names.get(url_name)
-        except InvalidUrlName:
-            self.url_name = url_name.split(":")[1] if no_url_namespace else url_name
+        self.url_name = url_name
 
-        if not self.url_name:
-            raise NavbarItemError(f"'url_name' not specified. See {repr(self)}")
-
-        if self.url_name == "#":
-            self.reversed_url = "#"
-        else:
-            try:
-                self.reversed_url = reverse(self.url_name)
-            except NoReverseMatch as e:
-                msg = f"{e}. See {repr(self)}."
-                if EDC_NAVBAR_WARN_ONLY:
-                    print(style.ERROR(msg))
-                else:
-                    raise NoReverseMatch(f"{e}. See {repr(self)}.")
+        self.check()
 
         app_label, _codename = self.verify_codename(codename)
         self.codename = f"{app_label}.{_codename}"
@@ -100,7 +86,9 @@ class NavbarItem:
         """Returns a dictionary of context data.
         """
         context = copy.copy(self.__dict__)
+        context.update(reversed_url=self.reversed_url, url_name=self.url_name)
         context.update(**kwargs)
+
         if selected_item == self.name or self.active:
             context.update(active=True)
         return context
@@ -138,3 +126,33 @@ class NavbarItem:
                 f"See {repr(self)}"
             )
         return app_label, codename
+
+    @property
+    def url_name(self):
+        return self._url_name
+
+    @url_name.setter
+    def url_name(self, value):
+        try:
+            self._url_name = url_names.get(value)
+        except InvalidUrlName:
+            self._url_name = value.split(":")[1] if self.no_url_namespace else value
+        if not self._url_name:
+            raise NavbarItemError(f"'url_name' not specified. See {repr(self)}")
+
+    @property
+    def reversed_url(self):
+        reversed_url = "#"
+        if self.url_name != "#":
+            try:
+                reversed_url = reverse(self.url_name)
+            except NoReverseMatch as e:
+                msg = f"{e}. See {repr(self)}."
+                if EDC_NAVBAR_WARN_ONLY:
+                    print(style.ERROR(msg))
+                else:
+                    raise NoReverseMatch(f"{e}. See {repr(self)}.")
+        return reversed_url
+
+    def check(self):
+        self.reversed_url
