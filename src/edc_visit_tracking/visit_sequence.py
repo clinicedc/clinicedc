@@ -57,7 +57,7 @@ class VisitSequence:
 
     @property
     def previous_appointment(self):
-        """Returns the previous appointment model instance ir None.
+        """Returns the previous appointment model instance or None.
 
         Considers visit code sequence.
 
