@@ -33,25 +33,27 @@ class RequiredFieldValidator(BaseFormValidator):
         inverse = True if inverse is None else inverse
         self._inspect_params(*responses, field=field, field_required=field_required)
         if field in self.cleaned_data:
-            if (
-                DWTA in responses
-                and optional_if_dwta
-                and self.cleaned_data.get(field) == DWTA
-            ):
+
+            try:
+                field_value = self.cleaned_data.get(field).short_name
+            except AttributeError:
+                field_value = self.cleaned_data.get(field)
+
+            if DWTA in responses and optional_if_dwta and field_value == DWTA:
                 pass
             elif (
                 NOT_APPLICABLE in responses
                 and optional_if_na
-                and self.cleaned_data.get(field) == NOT_APPLICABLE
+                and field_value == NOT_APPLICABLE
             ):
                 pass
-            elif self.cleaned_data.get(field) in responses and (
+            elif field_value in responses and (
                 not self.cleaned_data.get(field_required)
                 or self.cleaned_data.get(field_required) == NOT_APPLICABLE
             ):
                 self.raise_required(field=field_required, msg=required_msg)
             elif inverse and (
-                self.cleaned_data.get(field) not in responses
+                field_value not in responses
                 and (
                     self.cleaned_data.get(field_required)
                     and (self.cleaned_data.get(field_required) != NOT_APPLICABLE)
@@ -95,11 +97,11 @@ class RequiredFieldValidator(BaseFormValidator):
         if not field:
             raise InvalidModelFormFieldValidator(f"The required field cannot be None.")
         if self.cleaned_data and field in self.cleaned_data:
-            if (
-                condition
-                and self.cleaned_data.get(field) is not None
-                and self.cleaned_data.get(field) != NOT_APPLICABLE
-            ):
+            try:
+                field_value = self.cleaned_data.get(field).short_name
+            except AttributeError:
+                field_value = self.cleaned_data.get(field)
+            if condition and field_value is not None and field_value != NOT_APPLICABLE:
                 self.raise_not_required(field=field, msg=msg)
 
     def required_if_not_none(
