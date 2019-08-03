@@ -11,7 +11,6 @@ from edc_permissions.utils.create import (
 from ..navbar import Navbar
 from ..navbar_item import NavbarItem, NavbarItemError
 from ..site_navbars import site_navbars, AlreadyRegistered
-from django.contrib.auth.models import Permission
 
 User = get_user_model()
 
