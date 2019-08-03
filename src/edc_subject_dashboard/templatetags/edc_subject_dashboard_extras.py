@@ -2,11 +2,17 @@ from collections import namedtuple
 from django import template
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
-from edc_appointment.constants import NEW_APPT, COMPLETE_APPT, CANCELLED_APPT
+from django.utils.translation import gettext as _
+from edc_appointment.constants import (
+    CANCELLED_APPT,
+    COMPLETE_APPT,
+    INCOMPLETE_APPT,
+    IN_PROGRESS_APPT,
+    NEW_APPT,
+)
 from edc_appointment.models import Appointment
 from edc_lab.models.manifest.consignee import Consignee
-
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -24,15 +30,15 @@ def forms_button(wrapper=None, visit=None, **kwargs):
         title = ""
         fa_icon = "fas fa-list-alt"
         href = wrapper.forms_url
-        label = "Forms"
+        label = _("Forms")
         label_fa_icon = "fas fa-share"
         visit_pk = str(visit_pk)
     else:
         btn_color = "btn-warning"
-        title = "Click to update the visit report"
+        title = _("Click to update the visit report")
         fa_icon = "fas fa-plus"
         href = visit.href
-        label = "Start"
+        label = _("Start")
         label_fa_icon = None
     btn_id = f"{label.lower()}_btn_{wrapper.visit_code}_{wrapper.visit_code_sequence}"
     return dict(
@@ -131,3 +137,29 @@ def appointment_status_icon(appt_status=None):
         COMPLETE_APPT=COMPLETE_APPT,
         CANCELLED_APPT=CANCELLED_APPT,
     )
+
+
+@register.inclusion_tag(
+    f"edc_subject_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/dashboard/visit_button.html"
+)
+def show_dashboard_visit_button(wrapped_appointment=None):
+
+    if wrapped_appointment.appt_status == NEW_APPT:
+        label = _("Start visit")
+        title = _("Start data collection for this timepoint.")
+    elif wrapped_appointment.appt_status == IN_PROGRESS_APPT:
+        label = _("Continue")
+        title = _("Continue data collection for this timepoint.")
+    elif wrapped_appointment.appt_status == INCOMPLETE_APPT:
+        label = _("Continue")
+        title = _("Continue data collection for this timepoint.")
+    elif wrapped_appointment.appt_status == COMPLETE_APPT:
+        done = _("Done")
+        label = mark_safe(
+            f'<i class="fas fa-check fa-sm" aria-hidden="true"></i> {done}'
+        )
+        title = _("Data collection for this visit is complete.")
+    elif wrapped_appointment.appt_status == CANCELLED_APPT:
+        label = _("Cancelled")
+        title = _("Cancelled.")
+    return dict(wrapped_appointment=wrapped_appointment, title=title, label=label)
