@@ -12,8 +12,7 @@ def get_static_file(app_label, filename):
             with open(path, "r"):
                 pass
         except FileNotFoundError:
-            path = os.path.join(
-                f"https://{settings.STATIC_URL}", app_label, filename)
+            path = os.path.join(f"https://{settings.STATIC_URL}", app_label, filename)
             try:
                 urllib.request.urlretrieve(path)
             except URLError:
