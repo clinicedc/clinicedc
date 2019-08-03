@@ -6,7 +6,15 @@ from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
 from django.urls.base import reverse
 from edc_action_item.models.action_model_mixin import ActionModelMixin
-from edc_constants.constants import OPEN, FEEDBACK, RESOLVED, NEW, NORMAL, HIGH_PRIORITY
+from edc_constants.constants import (
+    OPEN,
+    FEEDBACK,
+    RESOLVED,
+    NEW,
+    NORMAL,
+    HIGH_PRIORITY,
+    CLOSED,
+)
 from edc_dashboard.url_names import url_names, InvalidUrlName
 from edc_model.models import BaseUuidModel
 from edc_sites.models import SiteModelMixin, CurrentSiteManager
@@ -15,7 +23,7 @@ from edc_visit_tracking.models import get_visit_tracking_model
 from uuid import uuid4
 
 from ..action_items import DATA_QUERY_ACTION
-from ..constants import RESOLVED_WITH_ACTION
+from ..constants import CLOSED_WITH_ACTION
 from .data_dictionary import DataDictionary
 from .requisition_panel import RequisitionPanel
 from .query_subject import QuerySubject
@@ -26,15 +34,15 @@ from .user import QueryUser, DataManagerUser
 RESPONSE_STATUS = (
     (NEW, "New"),
     (OPEN, "Open"),
-    (FEEDBACK, "Feedback"),
+    (FEEDBACK, "Feedback, awaiting data manager"),
     (RESOLVED, "Resolved"),
 )
 
 
-TCC_STATUS = (
-    (OPEN, "Open"),
-    (RESOLVED, "Resolved"),
-    (RESOLVED_WITH_ACTION, "Resolved, with plan of action"),
+DM_STATUS = (
+    (OPEN, "Open, awaiting site"),
+    (CLOSED, "Closed"),
+    (CLOSED_WITH_ACTION, "Closed, with plan of action"),
 )
 
 QUERY_PRIORITY = ((HIGH_PRIORITY, "High"), (NORMAL, "Normal"))
@@ -52,7 +60,13 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
 
     subject_identifier = models.CharField(max_length=50, null=True, editable=False)
 
-    title = models.CharField(max_length=150, null=True, blank=True)
+    title = models.CharField(
+        unique=True,
+        max_length=150,
+        null=True,
+        blank=False,
+        help_text="Must be a unique title.",
+    )
 
     sender = models.ForeignKey(
         DataManagerUser,
@@ -135,13 +149,13 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
     )
 
     status = models.CharField(
-        verbose_name="TCC status", max_length=25, choices=TCC_STATUS, default=OPEN
+        verbose_name="DM status", max_length=25, choices=DM_STATUS, default=OPEN
     )
 
-    tcc_user = models.ForeignKey(
+    dm_user = models.ForeignKey(
         DataManagerUser,
-        verbose_name="TCC resolved by",
-        related_name="tcc_user",
+        verbose_name="DM resolved by",
+        related_name="dm_user",
         on_delete=PROTECT,
         null=True,
         blank=True,
@@ -149,7 +163,7 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
     )
 
     resolved_datetime = models.DateTimeField(
-        verbose_name="TCC resolved on", null=True, blank=True
+        verbose_name="DM resolved on", null=True, blank=True
     )
 
     plan_of_action = models.TextField(
@@ -181,8 +195,8 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
         super().save(*args, **kwargs)
 
     @property
-    def tcc_resolved(self):
-        return self.status in [RESOLVED, RESOLVED_WITH_ACTION]
+    def dm_resolved(self):
+        return self.status in [CLOSED, CLOSED_WITH_ACTION]
 
     @property
     def site_resolved(self):
@@ -205,6 +219,9 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
             ret.append((model, numbers))
         return ret
 
+    def get_action_item_display_name(self):
+        pass
+
     def get_action_item_reason(self):
         try:
             url = url_names.get("subject_dashboard_url")
@@ -220,6 +237,14 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
                     visit_code_sequence=self.visit_code_sequence,
                 )
             except ObjectDoesNotExist:
+                visit_href = "#"
+            except AttributeError as e:
+                if (
+                    "visit_schedule_name" not in str(e)
+                    and "schedule_name" not in str(e)
+                    and "visit_code" not in str(e)
+                ):
+                    raise
                 visit_href = "#"
             else:
                 visit_href = reverse(
@@ -245,8 +270,9 @@ class DataQuery(ActionModelMixin, SiteModelMixin, BaseUuidModel):
             resolved_datetime=self.resolved_datetime,
             site_resolved_datetime=self.site_resolved_datetime,
             site_response_text=self.site_response_text,
+            site_response_status=self.get_site_response_status_display(),
             status=self.status,
-            tcc_user=self.tcc_user,
+            dm_user=self.dm_user,
             title=self.title,
             visit_schedule=self.visit_schedule,
             visit_href=visit_href,

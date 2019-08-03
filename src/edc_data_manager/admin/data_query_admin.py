@@ -6,16 +6,27 @@ from django.template.loader import render_to_string
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_appointment.models import Appointment
-from edc_constants.constants import RESOLVED, OPEN, FEEDBACK, NEW, HIGH_PRIORITY
+from edc_constants.constants import (
+    RESOLVED,
+    OPEN,
+    FEEDBACK,
+    NEW,
+    HIGH_PRIORITY,
+    CLOSED,
+    YES,
+    NO,
+)
 from edc_model_admin import SimpleHistoryAdmin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_permissions.constants.group_names import DATA_MANAGER
 from edc_utils import formatted_datetime
 
 from ..admin_site import edc_data_manager_admin
-from ..constants import RESOLVED_WITH_ACTION
+from ..constants import CLOSED_WITH_ACTION
 from ..forms import DataQueryForm
 from ..models import DataQuery, DataDictionary
+from textwrap import wrap
+from django.utils.safestring import mark_safe
 
 
 @register(DataQuery, site=edc_data_manager_admin)
@@ -35,12 +46,18 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         f"query_recipients.html"
     )
 
+    rule_generated_column_template_name = (
+        f"edc_data_manager/bootstrap{settings.EDC_BOOTSTRAP}/columns/"
+        f"rule_generated.html"
+    )
+
     status_column_context = {
         "NEW": NEW,
         "OPEN": OPEN,
         "FEEDBACK": FEEDBACK,
         "RESOLVED": RESOLVED,
-        "RESOLVED_WITH_ACTION": RESOLVED_WITH_ACTION,
+        "CLOSED": CLOSED,
+        "CLOSED_WITH_ACTION": CLOSED_WITH_ACTION,
     }
 
     show_cancel = True
@@ -61,19 +78,19 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         "requisition_panel",
         "visit_schedule",
         "registered_subject",
-        "tcc_user",
+        "dm_user",
     ]
 
     list_display = (
-        "reference",
+        "wrapped_title",
         "subject",
-        "site_status",
-        "tcc_status",
+        "query_status",
         "sent_to",
         "query",
-        "rule_generated",
+        "generated",
         "created",
         "modified",
+        "reference",
     )
 
     list_filter = (
@@ -149,8 +166,8 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
             },
         ],
         [
-            "For TCC Only",
-            {"fields": ("status", "resolved_datetime", "tcc_user", "plan_of_action")},
+            "For Data Manager Only",
+            {"fields": ("status", "resolved_datetime", "dm_user", "plan_of_action")},
         ],
         [
             "Rules",
@@ -159,6 +176,12 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
         action_fieldset_tuple,
         audit_fieldset_tuple,
     )
+
+    def wrapped_title(self, obj=None):
+        wrapped_title = wrap(obj.title, width=20)
+        return mark_safe("<BR>".join(wrapped_title))
+
+    wrapped_title.short_description = "Title"
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "data_dictionaries":
@@ -201,47 +224,57 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
             questions=obj.data_dictionaries.all().order_by("model", "number"),
             requisition_panel=obj.requisition_panel,
             site_response_text=obj.site_response_text,
-            title=obj.title,
             status=obj.status,
-            tcc_user=obj.tcc_user,
+            dm_user=obj.dm_user,
             query_text=obj.query_text,
             query_priority_display=obj.get_query_priority_display(),
             query_priority=obj.query_priority,
             HIGH_PRIORITY=HIGH_PRIORITY,
             RESOLVED=RESOLVED,
-            RESOLVED_WITH_ACTION=RESOLVED_WITH_ACTION,
+            CLOSED=CLOSED,
+            CLOSED_WITH_ACTION=CLOSED_WITH_ACTION,
         )
         return self.render_query_text_to_string(context)
 
     def dm(self, obj):
         return obj.sender.first_name
 
+    def generated(self, obj):
+        rule_generated = YES if obj.rule_generated else NO
+        context = {"rule_generated": rule_generated, "YES": YES, "NO": NO}
+        return self.render_rule_generated_to_string(context)
+
     def sent_to(self, obj):
         context = {"recipients": obj.recipients.all()}
         return self.render_query_recipients_to_string(context)
 
     def resolved_by(self, obj):
-        if obj.tcc_user:
-            return f"{obj.tcc_user.first_name} {obj.tcc_user.last_name}"
+        if obj.dm_user:
+            return f"{obj.dm_user.first_name} {obj.dm_user.last_name}"
         return None
 
     def reference(self, obj):
         return obj.action_identifier[-9:]
 
-    def site_status(self, obj):
+    def query_status(self, obj):
         context = {
-            "status": obj.site_response_status,
-            "text": obj.get_site_response_status_display(),
+            "site_response_status": obj.site_response_status,
+            "dm_status": obj.status,
+            "site_response_status_display": obj.get_site_response_status_display(),
+            "dm_status_display": obj.get_status_display(),
         }
         return self.render_status_to_string(context)
 
-    def tcc_status(self, obj):
-        context = {"status": obj.status, "text": obj.get_status_display()}
-        return self.render_status_to_string(context)
+    query_status.short_description = "Status"
 
     def render_status_to_string(self, context):
         context.update(self.status_column_context)
         return render_to_string(self.status_column_template_name, context=context)
+
+    def render_rule_generated_to_string(self, context):
+        return render_to_string(
+            self.rule_generated_column_template_name, context=context
+        )
 
     def render_query_date_to_string(self, context):
         return render_to_string(self.query_date_column_template_name, context=context)
@@ -269,21 +302,23 @@ class DataQueryAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
                 "query_text",
                 "status",
                 "resolved_datetime",
-                "tcc_user",
+                "dm_user",
                 "plan_of_action",
             ]
         return list(fields) + extra_fields
 
     def get_subject_dashboard_url_kwargs(self, obj):
-        opts = dict(
-            subject_identifier=obj.subject_identifier,
-            visit_schedule_name=obj.visit_schedule.visit_schedule_name,
-            schedule_name=obj.visit_schedule.schedule_name,
-            visit_code=obj.visit_schedule.visit_code,
-            visit_code_sequence=obj.visit_code_sequence or 0,
-        )
+        def get_opts():
+            return dict(
+                subject_identifier=obj.subject_identifier,
+                visit_schedule_name=obj.visit_schedule.visit_schedule_name,
+                schedule_name=obj.visit_schedule.schedule_name,
+                visit_code=obj.visit_schedule.visit_code,
+                visit_code_sequence=obj.visit_code_sequence or 0,
+            )
+
         try:
-            appointment = Appointment.objects.get(**opts)
+            appointment = Appointment.objects.get(**get_opts())
         except (ObjectDoesNotExist, AttributeError):
             kwargs = dict(subject_identifier=obj.subject_identifier)
         else:

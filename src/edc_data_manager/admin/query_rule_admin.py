@@ -5,18 +5,13 @@ from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset
 from edc_model_admin.model_admin_simple_history import SimpleHistoryAdmin
 
 from ..admin_site import edc_data_manager_admin
+from ..forms import QueryRuleForm
 from ..models import QueryRule, get_rule_handler_choices
 from .actions import (
     update_query_rules_action,
     toggle_active_flag,
     copy_query_rule_action,
 )
-
-
-class QueryRuleForm(forms.ModelForm):
-    class Meta:
-        fields = "__all__"
-        model = QueryRule
 
 
 class QueryRuleModelAdminMixin:

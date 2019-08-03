@@ -27,6 +27,18 @@ class CrfInspectionFailed(Exception):
     pass
 
 
+class DoNothingHandler:
+
+    name = "do_nothing"
+    display_name = "Do Nothing"
+
+    def __init__(self, **kwargs):
+        pass
+
+    def run(self):
+        pass
+
+
 class QueryRuleHandler:
 
     """Called by the RuleRunner.
@@ -241,7 +253,7 @@ class QueryRuleHandler:
             self.data_query.site_resolved_datetime = self.resolved_datetime
             self.data_query.site_response_status = RESOLVED
             self.data_query.resolved_datetime = self.resolved_datetime
-            self.data_query.tcc_user = self.query_rule_obj.sender
+            self.data_query.dm_user = self.query_rule_obj.sender
             self.data_query.status = RESOLVED
             self.data_query.save()
             self.data_query.refresh_from_db()
@@ -256,7 +268,7 @@ class QueryRuleHandler:
             self.data_query.site_response_status = OPEN
             self.data_query.resolved_datetime = None
             self.data_query.status = OPEN
-            self.data_query.tcc_user = None
+            self.data_query.dm_user = None
             self.data_query.save()
             self.data_query.refresh_from_db()
 

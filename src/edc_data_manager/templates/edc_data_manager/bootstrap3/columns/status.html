@@ -1,18 +1,21 @@
-<center>
-{% if status == NEW %}
-	<font color="red"><i class="fas fa-circle fa-1x"></i>&nbsp;<small>{{ text }}</small></font>
-{% elif status == OPEN %}
-	<font color="orange"><i class="far fa-circle fa-1x"></i>&nbsp;<small>{{ text }}</small></font>
-{% elif status == FEEDBACK %}
+{% if site_response_status == NEW %}
+	<font color="red"><i class="fas fa-circle fa-1x"></i>&nbsp;<small>{{ site_response_status_display }}</small></font>
+{% elif site_response_status == OPEN %}
+	<font color="orange"><i class="far fa-circle fa-1x"></i>&nbsp;<small>{{ site_response_status_display }}</small></font>
+{% elif site_response_status == FEEDBACK %}
 	<a title="{{ text }}"><font color="orange"><i class="fas fa-question-circle fa-1x"></i>&nbsp;<small>Feedback</small></font></a>
-{% elif status == RESOLVED %}
+{% elif site_response_status == RESOLVED %}
 	<font color="green"><i class="fas fa-check-circle fa-fw"></i></font>
-{% elif status == RESOLVED_WITH_ACTION %}
-	<font color="green"><i class="fas fa-check-circle fa-fw"></i></font><br><small>See plan of action</small>
-{% else %}
-	{{ text }}				
 {% endif %}
+
+{% if dm_status == CLOSED or dm_status == CLOSED_WITH_ACTION %}
+	<font color="green"><i class="fas fa-check-circle fa-fw"></i>&nbsp;<small>Closed</small></font>
+{% elif site_response_status == FEEDBACK and dm_status == OPEN %}
+	<font color="orange"><br><small>(awaiting data manager)</small></font>
+{% elif site_response_status == RESOLVED and dm_status == OPEN %}
+	<font color="orange"><i class="far fa-circle fa-1x"></i>&nbsp;<small>Open</small><br><small>(awaiting data manager)</small></font>
+{% endif %}
+
 {% if comment %}
 	<br><small>{{comment}}</small>
 {% endif %}
-</center>

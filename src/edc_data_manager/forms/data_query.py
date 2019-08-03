@@ -1,14 +1,22 @@
 from django import forms
 from edc_action_item.forms.action_item_form_mixin import ActionItemFormMixin
-from edc_constants.constants import RESOLVED, OPEN, FEEDBACK, HIGH_PRIORITY, NEW
+from edc_constants.constants import RESOLVED, OPEN, FEEDBACK, HIGH_PRIORITY, NEW, CLOSED
 from edc_form_validators import FormValidator, FormValidatorMixin
 
-from .models import DataQuery
-from .constants import RESOLVED_WITH_ACTION
+from ..models import DataQuery
+from ..constants import CLOSED_WITH_ACTION
 
 
 class DataQueryFormValidator(FormValidator):
     def clean(self):
+
+        models = list(
+            set([obj.model for obj in self.cleaned_data.get("data_dictionaries")])
+        )
+        if len(models) > 1:
+            raise forms.ValidationError(
+                {"data_dictionaries": "Invalid. Select questions from one CRF only"}
+            )
 
         self.required_if(
             HIGH_PRIORITY,
@@ -35,23 +43,23 @@ class DataQueryFormValidator(FormValidator):
             NEW,
             OPEN,
             FEEDBACK,
-        ] and self.cleaned_data.get("status") in [RESOLVED, RESOLVED_WITH_ACTION]:
+        ] and self.cleaned_data.get("status") in [CLOSED, CLOSED_WITH_ACTION]:
             raise forms.ValidationError(
                 {"status": "Invalid: Site response is not resolved."}
             )
 
-        # TCC
+        # DM
         self.required_if(
-            RESOLVED,
-            RESOLVED_WITH_ACTION,
+            CLOSED,
+            CLOSED_WITH_ACTION,
             field="status",
             field_required="resolved_datetime",
         )
         self.required_if(
-            RESOLVED, RESOLVED_WITH_ACTION, field="status", field_required="tcc_user"
+            CLOSED, CLOSED_WITH_ACTION, field="status", field_required="dm_user"
         )
         self.required_if(
-            RESOLVED_WITH_ACTION, field="status", field_required="plan_of_action"
+            CLOSED_WITH_ACTION, field="status", field_required="plan_of_action"
         )
 
 
