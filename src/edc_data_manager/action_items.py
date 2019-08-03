@@ -88,8 +88,7 @@ class DataQueryAction(Action):
         title = getattr(self.reference_obj, "title", "")
         visit_schedule = getattr(self.reference_obj, "visit_schedule", "")
         modified = getattr(self.reference_obj, "modified", None)
-        auto = "auto" if getattr(
-            self.reference_obj, "rule_generated", False) else ""
+        auto = "auto" if getattr(self.reference_obj, "rule_generated", False) else ""
         context = dict(
             HIGH_PRIORITY=HIGH_PRIORITY,
             auto=auto,
