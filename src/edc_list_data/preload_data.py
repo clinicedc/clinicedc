@@ -14,19 +14,28 @@ class PreloadDataError(Exception):
 
 
 class PreloadData:
-    def __init__(self, list_data=None, model_data=None, unique_field_data=None):
+    def __init__(
+        self,
+        list_data=None,
+        model_data=None,
+        unique_field_data=None,
+        list_data_model_name=None,
+        apps=None,
+    ):
         self.list_data = list_data or {}
         self.model_data = model_data or {}
         self.unique_field_data = unique_field_data or {}
 
-        self.load_list_data()
+        if self.list_data:
+            self.load_list_data(model_name=list_data_model_name, apps=apps)
 
         if self.model_data:
             self.load_model_data()
+
         if self.unique_field_data:
             self.update_unique_field_data()
 
-    def load_list_data(self):
+    def load_list_data(self, model_name=None, apps=None):
         """Loads data into a list model.
 
         List models have short_name, name where short_name
@@ -39,9 +48,14 @@ class PreloadData:
              (short_name2, name),...],
             ...}
         """
-        for model_name in self.list_data.keys():
+        apps = apps or django_apps
+        if model_name:
+            model_names = [model_name]
+        else:
+            model_names = [k for k in self.list_data.keys()]
+        for model_name in model_names:
             try:
-                model = django_apps.get_model(model_name)
+                model = apps.get_model(model_name)
                 display_index = 0
                 for display_index, value in enumerate(self.list_data.get(model_name)):
                     store_value, display_value = value
@@ -60,7 +74,7 @@ class PreloadData:
             except ValueError as e:
                 raise PreloadDataError(f"{e} See {self.list_data.get(model_name)}.")
 
-    def load_model_data(self):
+    def load_model_data(self, apps=None):
         """Loads data into a model, creates or updates existing.
 
         Must have a unique field
@@ -73,27 +87,28 @@ class PreloadData:
                  unique_field_name: value ...}, ...],
              ...}
         """
-        for model_name, datas in self.model_data.items():
+        apps = apps or django_apps
+        for model_name, options in self.model_data.items():
             try:
                 model_name, unique_field = model_name
             except ValueError:
                 unique_field = None
-            model = django_apps.get_model(model_name)
+            model = apps.get_model(model_name)
             unique_field = unique_field or self.guess_unique_field(model)
-            for data in datas:
+            for opts in options:
                 try:
-                    obj = model.objects.get(**{unique_field: data.get(unique_field)})
+                    obj = model.objects.get(**{unique_field: opts.get(unique_field)})
                 except ObjectDoesNotExist:
                     try:
-                        model.objects.create(**data)
+                        model.objects.create(**opts)
                     except IntegrityError:
                         pass
                 else:
-                    for key, value in data.items():
+                    for key, value in opts.items():
                         setattr(obj, key, value)
                     obj.save()
 
-    def update_unique_field_data(self):
+    def update_unique_field_data(self, apps=None):
         """Updates the values of the unique fields in a model.
 
         Model must have a unique field and the record must exist
@@ -103,8 +118,9 @@ class PreloadData:
              model_name2: {unique_field_name: (current_value, new_value)},
              ...}
         """
+        apps = apps or django_apps
         for model_name, data in self.unique_field_data.items():
-            model = django_apps.get_model(*model_name.split("."))
+            model = apps.get_model(*model_name.split("."))
             for field, values in data.items():
                 try:
                     obj = model.objects.get(**{field: values[1]})
