@@ -2,6 +2,8 @@ from django.forms import ValidationError
 from edc_constants.constants import OTHER
 
 from .base_form_validator import BaseFormValidator, NOT_REQUIRED_ERROR, REQUIRED_ERROR
+from pprint import pprint
+import pdb
 
 
 class OtherSpecifyFieldValidator(BaseFormValidator):
@@ -28,9 +30,14 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
         if not other_specify_field:
             other_specify_field = f"{field}_other"
 
+        # perhaps this is a list field / fk
+        field_value = getattr(
+            cleaned_data.get(field), "short_name", cleaned_data.get(field)
+        )
+
         if (
-            cleaned_data.get(field)
-            and cleaned_data.get(field) == other
+            field_value
+            and field_value == other
             and not cleaned_data.get(other_specify_field)
         ):
             ref = "" if not ref else f" ref: {ref}"
@@ -41,8 +48,8 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
             self._error_codes.append(REQUIRED_ERROR)
             raise ValidationError(message, code=REQUIRED_ERROR)
         elif (
-            cleaned_data.get(field)
-            and cleaned_data.get(field) != other
+            field_value
+            and field_value != other
             and cleaned_data.get(other_specify_field)
         ):
             ref = "" if not ref else f" ref: {ref}"
