@@ -1,7 +1,7 @@
-from dashboard_app.lab_profiles import lab_profile
-from dashboard_app.models import Appointment, SubjectVisit, SubjectConsent
-from dashboard_app.reference_configs import register_to_site_reference_configs
-from dashboard_app.visit_schedule import visit_schedule
+from review_dashboard_app.lab_profiles import lab_profile
+from review_dashboard_app.models import Appointment, SubjectVisit, SubjectConsent
+from review_dashboard_app.reference_configs import register_to_site_reference_configs
+from review_dashboard_app.visit_schedule import visit_schedule
 from django.contrib.auth import get_user_model
 from django.test import tag  # noqa
 from django.urls.base import reverse
@@ -43,7 +43,9 @@ class TestDashboard(WebTest):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
         site_reference_configs.register_from_visit_schedule(
-            visit_models={"edc_appointment.appointment": "dashboard_app.subjectvisit"}
+            visit_models={
+                "edc_appointment.appointment": "review_dashboard_app.subjectvisit"
+            }
         )
 
         self.subject_identifier = "092-40990029-4"
@@ -63,6 +65,7 @@ class TestDashboard(WebTest):
                     subject_identifier=self.subject_identifier,
                     visit_schedule_name="visit_schedule",
                     schedule_name="schedule",
+                    timepoint=visit.timepoint,
                     visit_code=visit.code,
                     user_created="user_login",
                 )
@@ -74,7 +77,7 @@ class TestDashboard(WebTest):
                 )
         # put subject on schedule
         _, schedule = site_visit_schedules.get_by_onschedule_model(
-            "dashboard_app.onschedule"
+            "review_dashboard_app.onschedule"
         )
         schedule.put_on_schedule(
             subject_identifier=subject_consent.subject_identifier,
@@ -87,11 +90,12 @@ class TestDashboard(WebTest):
         form["password"] = "pass"
         return form.submit()
 
+    @tag("1")
     def test_url(self):
         self.login()
 
         response = self.app.get(
-            reverse(f"dashboard_app:subject_review_listboard_url"),
+            reverse(f"review_dashboard_app:subject_review_listboard_url"),
             user=self.user,
             status=200,
         )
@@ -126,7 +130,7 @@ class TestDashboard(WebTest):
 
         response = self.app.get(
             reverse(
-                f"dashboard_app:subject_review_listboard_url",
+                f"review_dashboard_app:subject_review_listboard_url",
                 kwargs={"subject_identifier": self.subject_identifier},
             ),
             user=self.user,
@@ -148,7 +152,7 @@ class TestDashboard(WebTest):
 
         response = self.app.get(
             reverse(
-                f"dashboard_app:subject_review_listboard_url",
+                f"review_dashboard_app:subject_review_listboard_url",
                 kwargs={"subject_identifier": self.subject_identifier},
             ),
             user=self.user,
