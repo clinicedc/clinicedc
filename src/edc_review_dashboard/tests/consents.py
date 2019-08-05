@@ -7,7 +7,7 @@ from edc_constants.constants import MALE, FEMALE
 edc_protocol = django_apps.get_app_config("edc_protocol")
 
 v1 = Consent(
-    "dashboard_app.subjectconsent",
+    "review_dashboard_app.subjectconsent",
     version="1",
     start=edc_protocol.study_open_datetime,
     end=edc_protocol.study_close_datetime,
