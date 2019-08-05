@@ -12,6 +12,7 @@ from ..constants import EXPORTED, UPDATE, INSERT
 from ..model_exporter import ModelExporter
 from ..models import ObjectHistory, FileHistory
 from .models import Crf, SubjectVisit, ListModel, CrfEncrypted
+from time import sleep
 
 app_config = django_apps.get_app_config("edc_export")
 
@@ -256,6 +257,7 @@ class TesExportModel(TestCase):
         self.assertEqual(tx_qs[0].export_change_type, INSERT)
 
     def test_export_change_type_update(self):
+        ObjectHistory.objects.all().delete()
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
         self.crf.date1 = get_utcnow()
@@ -263,6 +265,7 @@ class TesExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(queryset=queryset)
         model_exporter.export()
+        sleep(1)
         model_exporter = ModelExporter(queryset=queryset)
         model_exporter.export()
         tx_qs = ObjectHistory.objects.filter(tx_pk=self.crf.pk).order_by(
