@@ -48,9 +48,11 @@ class PreloadData:
              (short_name2, name),...],
             ...}
         """
-        if ("migrate" not in sys.argv
+        if (
+            "migrate" not in sys.argv
             and "showmigrations" not in sys.argv
-                and "makemigrations" not in sys.argv):
+            and "makemigrations" not in sys.argv
+        ):
             apps = apps or django_apps
             if model_name:
                 model_names = [model_name]
@@ -60,7 +62,9 @@ class PreloadData:
                 try:
                     model = apps.get_model(model_name)
                     display_index = 0
-                    for display_index, value in enumerate(self.list_data.get(model_name)):
+                    for display_index, value in enumerate(
+                        self.list_data.get(model_name)
+                    ):
                         store_value, display_value = value
                         try:
                             obj = model.objects.get(short_name=store_value)
@@ -75,8 +79,7 @@ class PreloadData:
                             obj.display_index = display_index
                             obj.save()
                 except ValueError as e:
-                    raise PreloadDataError(
-                        f"{e} See {self.list_data.get(model_name)}.")
+                    raise PreloadDataError(f"{e} See {self.list_data.get(model_name)}.")
 
     def load_model_data(self, apps=None):
         """Loads data into a model, creates or updates existing.
@@ -101,8 +104,7 @@ class PreloadData:
             unique_field = unique_field or self.guess_unique_field(model)
             for opts in options:
                 try:
-                    obj = model.objects.get(
-                        **{unique_field: opts.get(unique_field)})
+                    obj = model.objects.get(**{unique_field: opts.get(unique_field)})
                 except ObjectDoesNotExist:
                     try:
                         model.objects.create(**opts)
