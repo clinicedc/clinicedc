@@ -22,7 +22,11 @@ class AeModelMixin(models.Model):
     )
 
     ae_classification = models.ForeignKey(
-        AeClassification, on_delete=PROTECT, null=True, blank=False
+        AeClassification,
+        on_delete=PROTECT,
+        verbose_name="Adverse Event (AE) Classification",
+        null=True,
+        blank=False,
     )
 
     ae_classification_other = OtherCharField(max_length=250, blank=True, null=True)

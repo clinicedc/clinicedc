@@ -1,6 +1,7 @@
 from django.db import models
+from django.db.models.deletion import PROTECT
 from edc_constants.choices import YES_NO
-from edc_constants.constants import NOT_APPLICABLE
+from edc_constants.constants import QUESTION_RETIRED
 
 from ..choices import SAE_REASONS
 
@@ -18,25 +19,21 @@ class SaeModelMixin(models.Model):
         ),
     )
 
-    sae_reason = models.CharField(
+    sae_reason_old = models.CharField(
         verbose_name='If "Yes", reason for SAE:',
         max_length=50,
         choices=SAE_REASONS,
-        default=NOT_APPLICABLE,
+        default=QUESTION_RETIRED,
         help_text="If subject deceased, submit a Death Report",
     )
 
-    #     sae_reason = models.ForeignKey(
-    #          "edc_adverse_event.saereason",
-    #         verbose_name='If "Yes", reason for SAE:',
-    #         default=NOT_APPLICABLE,
-    #         help_text="If subject deceased, submit a Death Report",
-    #     )
-
-    #     def save(self, *args, **kwargs):
-    #         if not self.sae_reason:
-    #             self.sae_reason = SaeReason.objects.get(short_name=NOT_APPLICABLE)
-    #         super().save(*args, **kwargs)
+    sae_reason = models.ForeignKey(
+        "edc_adverse_event.saereason",
+        on_delete=PROTECT,
+        verbose_name='If "Yes", reason for SAE:',
+        help_text="If subject deceased, submit a Death Report",
+        blank=False,
+    )
 
     class Meta:
         abstract = True

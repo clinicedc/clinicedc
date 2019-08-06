@@ -1,10 +1,4 @@
-from edc_constants.constants import (
-    NOT_APPLICABLE,
-    DEAD,
-    LOST_TO_FOLLOWUP,
-    OTHER,
-    UNKNOWN,
-)
+from edc_constants.constants import NOT_APPLICABLE, DEAD, LOST_TO_FOLLOWUP
 
 from edc_reportable import (
     GRADE3,
