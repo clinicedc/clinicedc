@@ -48,38 +48,36 @@ class PreloadData:
              (short_name2, name),...],
             ...}
         """
-        if (
-            "migrate" not in sys.argv
-            and "showmigrations" not in sys.argv
-            and "makemigrations" not in sys.argv
-        ):
-            apps = apps or django_apps
-            if model_name:
-                model_names = [model_name]
-            else:
-                model_names = [k for k in self.list_data.keys()]
-            for model_name in model_names:
-                try:
-                    model = apps.get_model(model_name)
-                    display_index = 0
-                    for display_index, value in enumerate(
-                        self.list_data.get(model_name)
-                    ):
-                        store_value, display_value = value
-                        try:
-                            obj = model.objects.get(short_name=store_value)
-                        except ObjectDoesNotExist:
-                            model.objects.create(
-                                short_name=store_value,
-                                name=display_value,
-                                display_index=display_index,
-                            )
-                        else:
-                            obj.name = display_value
-                            obj.display_index = display_index
-                            obj.save()
-                except ValueError as e:
-                    raise PreloadDataError(f"{e} See {self.list_data.get(model_name)}.")
+        #         if (
+        #             "migrate" not in sys.argv
+        #             and "showmigrations" not in sys.argv
+        #             and "makemigrations" not in sys.argv
+        #         ):
+        apps = apps or django_apps
+        if model_name:
+            model_names = [model_name]
+        else:
+            model_names = [k for k in self.list_data.keys()]
+        for model_name in model_names:
+            try:
+                model = apps.get_model(model_name)
+                display_index = 0
+                for display_index, value in enumerate(self.list_data.get(model_name)):
+                    store_value, display_value = value
+                    try:
+                        obj = model.objects.get(short_name=store_value)
+                    except ObjectDoesNotExist:
+                        model.objects.create(
+                            short_name=store_value,
+                            name=display_value,
+                            display_index=display_index,
+                        )
+                    else:
+                        obj.name = display_value
+                        obj.display_index = display_index
+                        obj.save()
+            except ValueError as e:
+                raise PreloadDataError(f"{e} See {self.list_data.get(model_name)}.")
 
     def load_model_data(self, apps=None):
         """Loads data into a model, creates or updates existing.
