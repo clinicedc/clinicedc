@@ -27,12 +27,11 @@ class ApplicableFieldValidator(BaseFormValidator):
 
     def not_applicable_only_if(self, *responses, field=None, field_applicable=None):
 
-        cleaned_data = self.cleaned_data
-        if cleaned_data.get(field) in responses and (
-            (
-                cleaned_data.get(field_applicable)
-                and cleaned_data.get(field_applicable) is not None
-            )
+        field_value = self.get(field)
+        field_applicable_value = self.get(field_applicable)
+
+        if field_value in responses and (
+            (field_applicable_value and field_applicable_value is not None)
         ):
             self.raise_not_applicable(field_applicable)
 
@@ -43,14 +42,15 @@ class ApplicableFieldValidator(BaseFormValidator):
         """
         cleaned_data = self.cleaned_data
         if field in cleaned_data and field_applicable in cleaned_data:
-            if (
-                cleaned_data.get(field) in responses
-                and cleaned_data.get(field_applicable) == NOT_APPLICABLE
-            ):
+
+            field_value = self.get(field)
+            field_applicable_value = self.get(field_applicable)
+
+            if field_value in responses and field_applicable_value == NOT_APPLICABLE:
                 self.raise_applicable(field_applicable, msg=msg)
             elif (
-                cleaned_data.get(field) not in responses
-                and cleaned_data.get(field_applicable) != NOT_APPLICABLE
+                field_value not in responses
+                and field_applicable_value != NOT_APPLICABLE
             ):
                 self.raise_not_applicable(field_applicable, msg=msg)
         return False
@@ -66,13 +66,13 @@ class ApplicableFieldValidator(BaseFormValidator):
         cleaned_data = self.cleaned_data
         if field in cleaned_data and field_applicable in cleaned_data:
             if (
-                cleaned_data.get(field) in responses
-                and cleaned_data.get(field_applicable) != NOT_APPLICABLE
+                self.get(field) in responses
+                and self.get(field_applicable) != NOT_APPLICABLE
             ):
                 self.raise_not_applicable(field_applicable)
             elif inverse and (
-                cleaned_data.get(field) not in responses
-                and cleaned_data.get(field_applicable) == NOT_APPLICABLE
+                self.get(field) not in responses
+                and self.get(field_applicable) == NOT_APPLICABLE
             ):
                 self.raise_applicable(field_applicable)
         return False
@@ -87,10 +87,7 @@ class ApplicableFieldValidator(BaseFormValidator):
     ):
         cleaned_data = self.cleaned_data
         if field_applicable in cleaned_data:
-            if condition and self.cleaned_data.get(field_applicable) == NOT_APPLICABLE:
+            if condition and self.get(field_applicable) == NOT_APPLICABLE:
                 self.raise_applicable(field_applicable, msg=applicable_msg)
-            elif (
-                not condition
-                and self.cleaned_data.get(field_applicable) != NOT_APPLICABLE
-            ):
+            elif not condition and self.get(field_applicable) != NOT_APPLICABLE:
                 self.raise_not_applicable(field_applicable, msg=not_applicable_msg)

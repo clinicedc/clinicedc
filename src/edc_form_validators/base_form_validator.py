@@ -52,6 +52,14 @@ class BaseFormValidator:
         """
         pass
 
+    def get(self, field):
+        cleaned_data = self.cleaned_data
+        try:
+            field_value = cleaned_data.get(field).short_name
+        except AttributeError:
+            field_value = cleaned_data.get(field)
+        return field_value
+
     def raise_validation_error(self, message, error_code):
         self._errors.update(message)
         self._error_codes.append(error_code)
