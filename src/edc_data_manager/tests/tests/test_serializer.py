@@ -1,4 +1,4 @@
-from dashboard_app.lab_profiles import lab_profile
+from data_manager_app.lab_profiles import lab_profile
 from data_manager_app.visit_schedules import visit_schedule
 from django.contrib.auth import get_user_model
 from django.core import serializers
