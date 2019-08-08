@@ -26,6 +26,10 @@ STATUS = (
 human_readable_pattern = "^[A-Z]{3}\-[0-9]{4}\-[0-9]{2}$"
 
 
+class BoxIsFullError(Exception):
+    pass
+
+
 class BoxManager(SearchSlugManager, models.Manager):
     def get_by_natural_key(self, box_identifier):
         return self.get(box_identifier=box_identifier)
@@ -110,7 +114,10 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidMod
         else:
             next_position = last_obj.position + 1
         if next_position > self.box_type.total:
-            next_position = None
+            raise BoxIsFullError(
+                f"Box is full. Box {self.human_readable_identifier} has "
+                f"{self.box_type.total} specimens."
+            )
         return next_position
 
     @property

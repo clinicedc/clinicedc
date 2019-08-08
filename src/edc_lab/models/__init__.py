@@ -4,7 +4,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 
 from .aliquot import Aliquot
-from .box import Box
+from .box import Box, BoxIsFullError
 from .box_item import BoxItem
 from .box_type import BoxType
 from .manifest import Manifest, ManifestItem, Shipper, Consignee
