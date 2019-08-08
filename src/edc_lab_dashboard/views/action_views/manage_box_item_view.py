@@ -5,7 +5,7 @@ from django.utils.safestring import mark_safe
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_dashboard.url_names import url_names
 from edc_lab import SHIPPED
-from edc_lab.models import BoxItem
+from edc_lab.models import BoxItem, BoxIsFullError
 
 from ...view_mixins import BoxViewMixin
 from .action_view import ActionView
@@ -91,25 +91,11 @@ class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
                 try:
                     box_item = BoxItem.objects.get(identifier=self.box_item_identifier)
                 except ObjectDoesNotExist:
-                    box_item = BoxItem(
-                        box=self.box,
-                        identifier=self.box_item_identifier,
-                        position=self.box.next_position,
-                    )
-                    box_item.save()
-                    if self.box.verified:
-                        self.box.save()
+                    self.create_box_item()
                 else:
-                    url_name = url_names.get(self.post_action_url)
-                    href = reverse(
-                        url_name,
-                        kwargs={
-                            "box_identifier": box_item.box.box_identifier,
-                            "action_name": "manage",
-                        },
-                    )
                     message = mark_safe(
-                        f'Item is already packed. See box <a href="{href}" class="alert-link">'
+                        f'Item is already packed. See box <a href="{self.box_href}" '
+                        f'class="alert-link">'
                         f"{box_item.box.human_readable_identifier}</a>"
                     )
                     messages.error(self.request, message)
@@ -119,3 +105,25 @@ class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
                     f"is already in position {box_item.position}."
                 )
                 messages.error(self.request, message)
+
+    @property
+    def box_href(self):
+        url_name = url_names.get(self.post_action_url)
+        return reverse(
+            url_name,
+            kwargs={"box_identifier": self.box_identifier, "action_name": "manage"},
+        )
+
+    def create_box_item(self):
+        try:
+            position = self.box.next_position
+        except BoxIsFullError as e:
+            message = mark_safe(f"{e}")
+            messages.error(self.request, message)
+        else:
+            box_item = BoxItem(
+                box=self.box, identifier=self.box_item_identifier, position=position
+            )
+            box_item.save()
+            if self.box.verified:
+                self.box.save()
