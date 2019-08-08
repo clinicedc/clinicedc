@@ -120,14 +120,15 @@ class RequiredFieldValidator(BaseFormValidator):
         if not field_required:
             raise InvalidModelFormFieldValidator(f"The required field cannot be None.")
         if optional_if_dwta and self.cleaned_data.get(field) == DWTA:
-            condition = None
+            field_value = None
         else:
-            condition = self.cleaned_data.get(field) is not None
-        if condition and self.cleaned_data.get(field_required) is None:
+            field_value = self.cleaned_data.get(field)
+
+        if field_value is not None and not self.cleaned_data.get(field_required):
             self.raise_required(field=field_required, msg=required_msg)
         elif (
-            not condition
-            and self.cleaned_data.get(field_required) is not None
+            field_value is None
+            and self.cleaned_data.get(field_required)
             and self.cleaned_data.get(field_required) != NOT_APPLICABLE
         ):
             self.raise_not_required(field=field_required, msg=not_required_msg)
