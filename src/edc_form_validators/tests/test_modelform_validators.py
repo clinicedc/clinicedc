@@ -1,6 +1,7 @@
 from django import forms
 from django.test import TestCase, tag
 from edc_constants.constants import YES, NO
+from form_validators_app.models import TestModel
 
 from ..form_validator import FormValidator
 from ..base_form_validator import (
@@ -8,7 +9,6 @@ from ..base_form_validator import (
     InvalidModelFormFieldValidator,
 )
 from ..form_validator_mixin import FormValidatorMixin
-from .models import TestModel
 
 
 class TestFieldValidator(TestCase):
