@@ -2,12 +2,12 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import render_to_string
 from edc_utils import convert_php_dateformat
 from urllib.parse import urlparse, parse_qsl
 from urllib.parse import urlencode, unquote
 
 from .site_action_items import site_action_items
-from django.template.loader import render_to_string
 
 logger = logging.getLogger(__name__)
 
@@ -243,7 +243,6 @@ class ActionItemHelper:
     def get_context(self):
         """Returns a dictionary of instance attr.
         """
-        # pdb.set_trace()
         context = {}
         if self.action_item.parent_action_item:
             context.update(

@@ -79,7 +79,6 @@ class SiteActionItemCollection:
     def get(self, name):
         """Returns an action class.
         """
-        # pdb.set_trace()
         if name not in self.registry:
             raise SiteActionError(
                 f"Action does not exist. Did you register the Action? "
