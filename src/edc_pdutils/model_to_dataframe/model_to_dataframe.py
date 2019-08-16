@@ -7,6 +7,7 @@ from django.apps import apps as django_apps
 from django.db.models.constants import LOOKUP_SEP
 
 from .value_getter import ValueGetter
+import pdb
 
 
 class ModelToDataframeError(Exception):
@@ -86,8 +87,7 @@ class ModelToDataframe:
                             )
                             row.append(value)
                         data.append(row)
-                        self._dataframe = pd.DataFrame(
-                            data, columns=self.columns)
+                        self._dataframe = pd.DataFrame(data, columns=self.columns)
                 else:
                     columns = [
                         col for col in self.columns if col not in self.encrypted_columns
@@ -95,8 +95,7 @@ class ModelToDataframe:
                     queryset = self.queryset.values_list(*columns).filter(
                         **self.query_filter
                     )
-                    self._dataframe = pd.DataFrame(
-                        list(queryset), columns=columns)
+                    self._dataframe = pd.DataFrame(list(queryset), columns=columns)
                 self.merge_dataframe_with_pivoted_m2ms()
                 self._dataframe.rename(columns=self.columns, inplace=True)
                 self._dataframe.fillna(value=np.nan, inplace=True)
@@ -109,8 +108,7 @@ class ModelToDataframe:
                         "datetime64[ns]"
                     )
             if self.drop_sys_columns:
-                self._dataframe = self._dataframe.drop(
-                    self.edc_sys_columns, axis=1)
+                self._dataframe = self._dataframe.drop(self.edc_sys_columns, axis=1)
         return self._dataframe
 
     def merge_dataframe_with_pivoted_m2ms(self):
@@ -128,9 +126,7 @@ class ModelToDataframe:
                 index=["id"],
                 aggfunc=lambda x: ";".join(str(v) for v in x),
             )
-            self._dataframe = pd.merge(
-                self._dataframe, df_pivot, how="left", on="id"
-            )
+            self._dataframe = pd.merge(self._dataframe, df_pivot, how="left", on="id")
 
     def get_m2m_values_list(self, m2m_field):
         m2m_values_list = []
@@ -138,13 +134,11 @@ class ModelToDataframe:
             for m2m_obj in getattr(obj, m2m_field.name).all():
                 m2m_values_list.append((obj.id, m2m_obj))
         try:
-            m2m_values_list = [
-                (x[0], x[1].short_name) for x in m2m_values_list]
+            m2m_values_list = [(x[0], x[1].short_name) for x in m2m_values_list]
         except AttributeError as e:
             if "short_name" not in str(e):
                 raise ModelToDataframeError(e)
-            m2m_values_list = [
-                (x[0], str(x[1])) for x in m2m_values_list]
+            m2m_values_list = [(x[0], str(x[1])) for x in m2m_values_list]
         return m2m_values_list
 
     def get_column_value(self, model_obj=None, column_name=None, lookup=None):
@@ -205,11 +199,31 @@ class ModelToDataframe:
                 if column_name.endswith("_requisition") or column_name.endswith(
                     "requisition_id"
                 ):
-                    columns = self.add_columns_for_subject_requisitions(
-                        columns=columns)
+                    columns = self.add_columns_for_subject_requisitions(columns=columns)
 
+            columns = self.add_subject_identifier_column(columns)
             self._columns = columns
         return self._columns
+
+    def add_subject_identifier_column(self, columns):
+        if "subject_identifier" not in columns:
+            subject_identifier_column = None
+            id_columns = [
+                col.replace("_id", "") for col in columns if col.endswith("_id")
+            ]
+            for col in id_columns:
+                field = getattr(self.model_cls, col)
+                if [
+                    fld.name
+                    for fld in field.field.related_model._meta.fields
+                    if fld.name == "subject_identifier"
+                ]:
+                    subject_identifier_column = f"{col}__subject_identifier"
+                    break
+            if subject_identifier_column:
+                columns.update({subject_identifier_column: "subject_identifier"})
+
+        return columns
 
     def add_columns_for_subject_visit(self, column_name=None, columns=None):
         try:
@@ -225,8 +239,7 @@ class ModelToDataframe:
         columns.update(
             {f"{column_name}__appointment__appt_datetime": "appointment_datetime"}
         )
-        columns.update(
-            {f"{column_name}__appointment__visit_code": "visit_code"})
+        columns.update({f"{column_name}__appointment__visit_code": "visit_code"})
         columns.update(
             {f"{column_name}__appointment__visit_code_sequence": "visit_code_sequence"}
         )
@@ -249,6 +262,5 @@ class ModelToDataframe:
                 columns.update(
                     {f"{column_name}__drawn_datetime": f"{col_prefix}_drawn_datetime"}
                 )
-                columns.update(
-                    {f"{column_name}__is_drawn": f"{col_prefix}_is_drawn"})
+                columns.update({f"{column_name}__is_drawn": f"{col_prefix}_is_drawn"})
         return columns
