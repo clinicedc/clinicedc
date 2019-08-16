@@ -1,14 +1,8 @@
 {% load tz %}
-{{ category|title|upper }}: {{ title }}<BR>
-
-{% if visit_schedule %}{{ visit_schedule }}<BR>{% endif %}
-
+{{ category|title|upper }}: {{ title }}<BR>{% if visit_schedule %}{{ visit_schedule }}<BR>{% endif %}
 {% if form_and_numbers %}
 	{% for form, numbers in form_and_numbers %}
 		{{ form }} - {{ numbers }}<br>
 	{% endfor %}
 {% endif %}
-
-Modified {{ modified|timesince:utcnow }} ago
-
-{% if auto %}[Auto]{% endif %}
+Modified {{ modified|timesince:utcnow }} ago {% if auto %}[Auto]{% endif %}

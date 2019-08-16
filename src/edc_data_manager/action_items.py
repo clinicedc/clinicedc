@@ -7,6 +7,7 @@ from edc_constants.constants import (
     FEEDBACK,
     HIGH_PRIORITY,
     MEDIUM_PRIORITY,
+    NORMAL,
 )
 from edc_utils.date import get_utcnow
 
@@ -89,13 +90,17 @@ class DataQueryAction(Action):
         visit_schedule = getattr(self.reference_obj, "visit_schedule", "")
         modified = getattr(self.reference_obj, "modified", None)
         auto = "auto" if getattr(self.reference_obj, "rule_generated", False) else ""
+        try:
+            query_priority = self.reference_obj.get_query_priority_display()
+        except AttributeError:
+            query_priority = NORMAL
         context = dict(
             HIGH_PRIORITY=HIGH_PRIORITY,
             auto=auto,
             category=self.get_category(),
             modified=modified,
             object=self.reference_obj,
-            query_priority=self.reference_obj.get_query_priority_display(),
+            query_priority=query_priority,
             title=title,
             utcnow=get_utcnow(),
             visit_schedule=visit_schedule,
