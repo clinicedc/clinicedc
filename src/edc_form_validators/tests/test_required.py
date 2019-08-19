@@ -19,16 +19,25 @@ class TestRequiredFieldValidator(TestCase):
             field_required="field_two",
         )
 
-    def test_required_if_ok_required_value_not_none(self):
-        form_validator = FormValidator(
-            cleaned_data=dict(field_one=YES, field_two="something")
+    def test_required_if_ok_required_zero(self):
+        form_validator = FormValidator(cleaned_data=dict(field_one=0))
+        self.assertRaises(
+            forms.ValidationError,
+            form_validator.required_if,
+            0,
+            field="field_one",
+            field_required="field_two",
         )
-        try:
-            form_validator.required_if(
-                YES, field="field_one", field_required="field_two"
-            )
-        except forms.ValidationError as e:
-            self.fail(f"forms.ValidationError unexpectedly raised. Got {e}")
+
+    def test_required_if_ok_required_value_none(self):
+        form_validator = FormValidator(cleaned_data=dict(field_one=None))
+        self.assertRaises(
+            forms.ValidationError,
+            form_validator.required_if,
+            None,
+            field="field_one",
+            field_required="field_two",
+        )
 
     def test_required_if_raises_on_value_not_required(self):
         form_validator = FormValidator(

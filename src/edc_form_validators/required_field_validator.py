@@ -32,13 +32,8 @@ class RequiredFieldValidator(BaseFormValidator):
         """
         inverse = True if inverse is None else inverse
         self._inspect_params(*responses, field=field, field_required=field_required)
+        field_value = self.get(field)
         if field in self.cleaned_data:
-
-            try:
-                field_value = self.cleaned_data.get(field).short_name
-            except AttributeError:
-                field_value = self.cleaned_data.get(field)
-
             if DWTA in responses and optional_if_dwta and field_value == DWTA:
                 pass
             elif (
