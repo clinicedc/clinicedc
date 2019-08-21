@@ -2,6 +2,7 @@ from edc_constants.constants import DWTA, NOT_APPLICABLE
 
 from .base_form_validator import BaseFormValidator, InvalidModelFormFieldValidator
 from .base_form_validator import REQUIRED_ERROR, NOT_REQUIRED_ERROR
+import pdb
 
 
 class RequiredFieldValidator(BaseFormValidator):
@@ -106,12 +107,16 @@ class RequiredFieldValidator(BaseFormValidator):
         required_msg=None,
         not_required_msg=None,
         optional_if_dwta=None,
+        inverse=None,
+        field_required_evaluate_as_int=None,
         **kwargs,
     ):
         """Raises an exception or returns False.
 
         If field is not none, field_required is "required".
         """
+        inverse = True if inverse is None else inverse
+
         if not field_required:
             raise InvalidModelFormFieldValidator(f"The required field cannot be None.")
         if optional_if_dwta and self.cleaned_data.get(field) == DWTA:
@@ -119,14 +124,28 @@ class RequiredFieldValidator(BaseFormValidator):
         else:
             field_value = self.cleaned_data.get(field)
 
-        if field_value is not None and not self.cleaned_data.get(field_required):
+        if field_required_evaluate_as_int:
+            field_required_has_value = self.cleaned_data.get(field_required) is not None
+        else:
+            field_required_has_value = self.cleaned_data.get(field_required)
+
+        if field_value is not None and not field_required_has_value:
             self.raise_required(field=field_required, msg=required_msg)
         elif (
             field_value is None
-            and self.cleaned_data.get(field_required)
+            and field_required_has_value
             and self.cleaned_data.get(field_required) != NOT_APPLICABLE
+            and inverse
         ):
             self.raise_not_required(field=field_required, msg=not_required_msg)
+
+    def required_integer_if_not_none(self, **kwargs):
+        """Raises an exception or returns False.
+
+        Evaluates the value of field required as an integer, that is,
+        0 is not None.
+        """
+        self.required_if_not_none(field_required_evaluate_as_int=True, **kwargs)
 
     def not_required_if(
         self,
