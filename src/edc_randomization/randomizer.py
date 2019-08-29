@@ -1,5 +1,12 @@
+import os
+
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+
+from .constants import ACTIVE, PLACEBO
+from .randomization_list_verifier import RandomizationListVerifier
+
 
 RANDOMIZED = "RANDOMIZED"
 
@@ -8,7 +15,7 @@ class RandomizationError(Exception):
     pass
 
 
-class RandomizationListError(Exception):
+class RandomizationListNotLoaded(Exception):
     pass
 
 
@@ -20,10 +27,26 @@ class AllocationError(Exception):
     pass
 
 
+class InvalidAllocation(Exception):
+    pass
+
+
+class InvalidAssignment(Exception):
+    pass
+
+
 class Randomizer:
 
-    model = None  # "ambition_rando.randomizationlist"
+    """Selects and uses the next available slot in model
+       RandomizationList (cls.model) for this site. A slot is used
+       when the subject identifier is not None.
+    """
+
+    name = "default"
+    model = "edc_randomization.randomizationlist"
     registered_subject_model = "edc_registration.registeredsubject"
+    randomization_list_filename = "randomization_list.csv"
+    assignment_map = {ACTIVE: 1, PLACEBO: 2}
 
     def __init__(
         self, subject_identifier=None, report_datetime=None, site=None, user=None
@@ -34,12 +57,35 @@ class Randomizer:
         self.allocated_datetime = report_datetime
         self.site = site
         self.user = user
-        self.model_cls = django_apps.get_model(self.model)
         self.check_loaded()
         # force query, will raise if already randomized
         self.registered_subject
         # will raise if already randomized
         self.randomize()
+
+    @classmethod
+    def get_assignment(cls, row):
+        """Returns assignment (text) after checking validity.
+        """
+        assignment = row["assignment"]
+        if assignment not in cls.assignment_map:
+            raise InvalidAssignment(
+                f"Invalid assignment. Expected one of {cls.assignment_map}. "
+                f'Got \'{row["assignment"]}\'. '
+            )
+        return assignment
+
+    @classmethod
+    def get_allocation(cls, row):
+        """Returns an integer allocation for the given
+        assignment or raises.
+        """
+        assignment = cls.get_assignment(row)
+        return cls.assignment_map.get(assignment)
+
+    @classmethod
+    def model_cls(cls):
+        return django_apps.get_model(cls.model)
 
     @property
     def sid(self):
@@ -48,8 +94,8 @@ class Randomizer:
         return self.model_obj.sid
 
     def check_loaded(self):
-        if self.model_cls.objects.all().count() == 0:
-            raise RandomizationListError(
+        if self.model_cls().objects.all().count() == 0:
+            raise RandomizationListNotLoaded(
                 f"Randomization list has not been loaded. "
                 f"Run the management command."
             )
@@ -61,12 +107,12 @@ class Randomizer:
         """
         if not self._model_obj:
             try:
-                obj = self.model_cls.objects.get(
+                obj = self.model_cls().objects.get(
                     subject_identifier=self.subject_identifier
                 )
             except ObjectDoesNotExist:
                 self._model_obj = (
-                    self.model_cls.objects.filter(
+                    self.model_cls().objects.filter(
                         subject_identifier__isnull=True, site_name=self.site.name
                     )
                     .order_by("sid")
@@ -88,6 +134,14 @@ class Randomizer:
         return self._model_obj
 
     def randomize(self):
+        if any([not self.subject_identifier, not self.allocated_datetime,
+                not self.user, not self.site]):
+            dct = dict(subject_identifier=self.subject_identifier,
+                       allocated_datetime=self.allocated_datetime,
+                       user=self.user,
+                       site=self.site)
+            raise RandomizationError(
+                f"Randomization failed. Insufficient data. Got {dct}.")
         self.model_obj.subject_identifier = self.subject_identifier
         self.model_obj.allocated = True
         self.model_obj.allocated_datetime = self.allocated_datetime
@@ -95,7 +149,7 @@ class Randomizer:
         self.model_obj.allocated_site = self.site
         self.model_obj.save()
         # requery
-        self._model_obj = self.model_cls.objects.get(
+        self._model_obj = self.model_cls().objects.get(
             subject_identifier=self.subject_identifier,
             allocated=True,
             allocated_datetime=self.allocated_datetime,
@@ -143,3 +197,20 @@ class Randomizer:
                         code=self.registered_subject_model,
                     )
         return self._registered_subject
+
+    @classmethod
+    def verify_list(cls, path=None):
+        randomization_list_verifier = RandomizationListVerifier(
+            randomization_list_path=path or cls.get_randomization_list_path(),
+            model=cls.model, get_assignment=cls.get_assignment)
+        return randomization_list_verifier.messages
+
+    @classmethod
+    def get_randomization_list_path(cls):
+        if settings.DEBUG:
+            randomization_list_path = os.path.join(
+                settings.TEST_DIR, cls.randomization_list_filename)
+        else:
+            randomization_list_path = os.path.join(
+                settings.ETC_DIR, cls.randomization_list_filename)
+        return randomization_list_path

@@ -1,1 +1,2 @@
-from .randomizer import Randomizer, RandomizationError, RandomizationListError, RANDOMIZED
+from .randomizer import Randomizer, RandomizationError, RANDOMIZED
+from .randomization_list_verifier import RandomizationListError

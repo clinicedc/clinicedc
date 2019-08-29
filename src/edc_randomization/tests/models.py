@@ -1,46 +1,16 @@
-from django.contrib.sites.models import Site
-from django.core.exceptions import ObjectDoesNotExist
-from django_crypto_fields.fields import EncryptedTextField
-
-from ..randomizer import RandomizationError
-from ..models import RandomizationListMixin, RandomizationListModelError
-
-CONTROL = "control"
-CONTROL_NAME = "Control: Some control treatment."
-SINGLE_DOSE = "single_dose"
-SINGLE_DOSE_NAME = "Single-dose: Some treatment"
+from django.db import models
+from edc_model.models import BaseUuidModel
+from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from edc_sites.models import SiteModelMixin
+from edc_utils import get_utcnow
 
 
-class RandomizationList(RandomizationListMixin):
+class SubjectConsent(
+    UpdatesOrCreatesRegistrationModelMixin, SiteModelMixin, BaseUuidModel
+):
 
-    assignment = EncryptedTextField(
-        choices=((SINGLE_DOSE, SINGLE_DOSE_NAME), (CONTROL, CONTROL_NAME))
-    )
+    subject_identifier = models.CharField(max_length=25)
 
-    def save(self, *args, **kwargs):
-        self.validate_or_raise()
-        try:
-            Site.objects.get(name=self.site_name)
-        except ObjectDoesNotExist:
-            site_names = [obj.name for obj in Site.objects.all()]
-            raise RandomizationListModelError(
-                f"Invalid site name. Got {self.site_name}. "
-                f"Expected one of {site_names}."
-            )
-        super().save(*args, **kwargs)
+    initials = models.CharField(max_length=25)
 
-    @property
-    def short_label(self):
-        return f"{self.assignment} SID:{self.site_name}.{self.sid}"
-
-    @property
-    def assignment_description(self):
-        if self.assignment == CONTROL:
-            return CONTROL_NAME
-        elif self.assignment == SINGLE_DOSE:
-            return SINGLE_DOSE_NAME
-        raise RandomizationError(
-            f"Invalid drug assignment. Got {self.assignment}")
-
-    class Meta(RandomizationListMixin.Meta):
-        pass
+    consent_datetime = models.DateTimeField(default=get_utcnow)

@@ -4,8 +4,10 @@ import random
 
 from tempfile import mkdtemp
 
+from ..constants import ACTIVE, PLACEBO
 
-default_assignments = ["single_dose", "control"]
+
+default_assignments = [ACTIVE, PLACEBO]
 
 
 def make_test_list(
@@ -29,7 +31,8 @@ def make_test_list(
         full_path = os.path.join(mkdtemp(), "randomizationlist.csv")
     assignments = assignments or default_assignments
     with open(full_path, "w") as f:
-        writer = csv.DictWriter(f, fieldnames=["sid", "assignment", "site_name"])
+        writer = csv.DictWriter(
+            f, fieldnames=["sid", "assignment", "site_name"])
         writer.writeheader()
         n = 0
         for i in range(first_sid, count + first_sid):

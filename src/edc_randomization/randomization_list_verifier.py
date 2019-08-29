@@ -1,11 +1,12 @@
 import csv
 import os
 
-from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import OperationalError, ProgrammingError
 
-from .utils import get_assignment
+
+class RandomizationListError(Exception):
+    pass
 
 
 class RandomizationListVerifier:
@@ -13,20 +14,17 @@ class RandomizationListVerifier:
     """Verifies the RandomizationList upon instantiation.
     """
 
-    app_label = "ambition_rando"
-    model = "ambition_rando.randomizationlist"
+    def __init__(self, randomizer=None):
+        self.messages = []
 
-    def __init__(self):
-        self.message = None
-        self.app_config = django_apps.get_app_config(self.app_label)
-        self.model_cls = django_apps.get_model(self.model)
+        self.randomizer = randomizer
         try:
-            self.count = self.model_cls.objects.all().count()
+            self.count = self.randomizer.model_cls().objects.all().count()
         except (ProgrammingError, OperationalError) as e:
-            self.message = str(e)
+            self.messages.append(str(e))
         else:
             if self.count == 0:
-                self.message = (
+                self.messages.append(
                     "Randomization list has not been loaded. "
                     "Run the 'import_randomization_list' management command "
                     "to load before using the system. "
@@ -34,20 +32,22 @@ class RandomizationListVerifier:
                 )
 
             else:
-                if not os.path.exists(self.app_config.randomization_list_path):
-                    self.message = (
+                if not os.path.exists(self.randomizer.get_randomization_list_path()):
+                    self.messages.append(
                         f"Randomization list file does not exist but SIDs have been loaded. "
-                        f"Expected file {self.app_config.randomization_list_path}. "
+                        f"Expected file {self.randomization_list_path}. "
                         f"Resolve this issue before using the system."
                     )
                 else:
-                    self.message = self._verify_list()
+                    self.messages.append(self.verify_list())
+        if self.messages:
+            raise RandomizationListError(", ".join(self.messages))
 
-    def _verify_list(self):
+    def verify_list(self):
 
         message = None
 
-        with open(self.app_config.randomization_list_path, "r") as f:
+        with open(self.randomizer.get_randomization_list_path(), "r") as f:
             fieldnames = ["sid", "assignment", "site_name"]
             reader = csv.DictReader(f, fieldnames=fieldnames)
             for index, row in enumerate(reader):
@@ -55,24 +55,25 @@ class RandomizationListVerifier:
                 if index == 0:
                     continue
                 try:
-                    obj = self.model_cls.objects.get(sid=row["sid"])
+                    obj = self.randomizer.model_cls(
+                    ).objects.get(sid=row["sid"])
                 except ObjectDoesNotExist:
                     try:
-                        obj = self.model_cls.objects.all()[index]
+                        obj = self.randomizer.model_cls().objects.all()[index]
                     except IndexError:
                         pass
                     else:
                         message = (
                             f"Randomization list is invalid. List has invalid SIDs. "
                             f"File data does not match model data. See file "
-                            f"{self.app_config.randomization_list_path}. "
+                            f"{self.randomizer.get_randomization_list_path()}. "
                             f"Resolve this issue before using the system. "
                             f"Problem started on line {index + 1}. "
                             f'Got {row["sid"]} != {obj.sid}.'
                         )
                     break
                 else:
-                    assignment = get_assignment(row)
+                    assignment = self.randomizer.get_assignment(row)
                     if (
                         obj.assignment != assignment
                         or obj.site_name != row["site_name"]
@@ -80,13 +81,13 @@ class RandomizationListVerifier:
                         message = (
                             f"Randomization list is invalid. File data "
                             f"does not match model data. See file "
-                            f"{self.app_config.randomization_list_path}. "
+                            f"{self.randomizer.get_randomization_list_path()}. "
                             f"Resolve this issue before using the system. "
                             f"Got {assignment} != '{obj.assignment}'."
                         )
                         break
         if not message:
-            with open(self.app_config.randomization_list_path, "r") as f:
+            with open(self.randomizer.get_randomization_list_path(), "r") as f:
                 reader = csv.DictReader(
                     f, fieldnames=["sid", "assignment", "site_name"]
                 )
@@ -95,7 +96,7 @@ class RandomizationListVerifier:
                 message = (
                     f"Randomization list count is off. Expected {self.count}. "
                     f"Got {lines - 1}. See file "
-                    f"{self.app_config.randomization_list_path}. "
+                    f"{self.randomizer.get_randomization_list_path()}. "
                     f"Resolve this issue before using the system."
                 )
         return message
