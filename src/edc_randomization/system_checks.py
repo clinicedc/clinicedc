@@ -9,8 +9,7 @@ from .site_randomizers import site_randomizers
 
 err = namedtuple("Err", "id cls")
 
-error_configs = dict(randomization_list_check=err(
-    "edc_randomization.W001", Warning))
+error_configs = dict(randomization_list_check=err("edc_randomization.W001", Warning))
 
 
 def randomization_list_check(app_configs, **kwargs):
@@ -22,11 +21,11 @@ def randomization_list_check(app_configs, **kwargs):
             and "runtests.py" not in sys.argv
             and "makemigrations" not in sys.argv
             and "migrate" not in sys.argv
+            and "shell" not in sys.argv
         ):
             error_msgs = randomizer.verify_list()
             for error_msg in error_msgs:
-                errors.append(
-                    error.cls(error_msg, hint=None, obj=None, id=error.id))
+                errors.append(error.cls(error_msg, hint=None, obj=None, id=error.id))
         if not settings.DEBUG:
             if settings.ETC_DIR not in randomizer.get_randomization_list_path():
                 errors.append(

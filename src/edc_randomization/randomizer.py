@@ -63,6 +63,14 @@ class Randomizer:
         # will raise if already randomized
         self.randomize()
 
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}({self.name},{self.randomization_list_filename})"
+        )
+
+    def __str__(self):
+        return f"<{self.name} for file {self.randomization_list_filename}>"
+
     @classmethod
     def get_assignment(cls, row):
         """Returns assignment (text) after checking validity.
@@ -112,7 +120,8 @@ class Randomizer:
                 )
             except ObjectDoesNotExist:
                 self._model_obj = (
-                    self.model_cls().objects.filter(
+                    self.model_cls()
+                    .objects.filter(
                         subject_identifier__isnull=True, site_name=self.site.name
                     )
                     .order_by("sid")
@@ -134,14 +143,23 @@ class Randomizer:
         return self._model_obj
 
     def randomize(self):
-        if any([not self.subject_identifier, not self.allocated_datetime,
-                not self.user, not self.site]):
-            dct = dict(subject_identifier=self.subject_identifier,
-                       allocated_datetime=self.allocated_datetime,
-                       user=self.user,
-                       site=self.site)
+        if any(
+            [
+                not self.subject_identifier,
+                not self.allocated_datetime,
+                not self.user,
+                not self.site,
+            ]
+        ):
+            dct = dict(
+                subject_identifier=self.subject_identifier,
+                allocated_datetime=self.allocated_datetime,
+                user=self.user,
+                site=self.site,
+            )
             raise RandomizationError(
-                f"Randomization failed. Insufficient data. Got {dct}.")
+                f"Randomization failed. Insufficient data. Got {dct}."
+            )
         self.model_obj.subject_identifier = self.subject_identifier
         self.model_obj.allocated = True
         self.model_obj.allocated_datetime = self.allocated_datetime
@@ -200,17 +218,17 @@ class Randomizer:
 
     @classmethod
     def verify_list(cls, path=None):
-        randomization_list_verifier = RandomizationListVerifier(
-            randomization_list_path=path or cls.get_randomization_list_path(),
-            model=cls.model, get_assignment=cls.get_assignment)
+        randomization_list_verifier = RandomizationListVerifier(randomizer=cls)
         return randomization_list_verifier.messages
 
     @classmethod
     def get_randomization_list_path(cls):
         if settings.DEBUG:
             randomization_list_path = os.path.join(
-                settings.TEST_DIR, cls.randomization_list_filename)
+                settings.TEST_DIR, cls.randomization_list_filename
+            )
         else:
             randomization_list_path = os.path.join(
-                settings.ETC_DIR, cls.randomization_list_filename)
+                settings.ETC_DIR, cls.randomization_list_filename
+            )
         return randomization_list_path

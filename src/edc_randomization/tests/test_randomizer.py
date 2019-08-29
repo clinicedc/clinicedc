@@ -10,8 +10,14 @@ from tempfile import mkdtemp
 
 from ..constants import ACTIVE
 from ..models import RandomizationList
-from ..randomization_list_importer import RandomizationListImporter, RandomizationListImportError
-from ..randomization_list_verifier import RandomizationListVerifier, RandomizationListError
+from ..randomization_list_importer import (
+    RandomizationListImporter,
+    RandomizationListImportError,
+)
+from ..randomization_list_verifier import (
+    RandomizationListVerifier,
+    RandomizationListError,
+)
 from ..randomizer import RandomizationError, AllocationError, InvalidAssignment
 from ..randomizer import Randomizer, AlreadyRandomized
 from ..site_randomizers import site_randomizers
@@ -43,23 +49,24 @@ class TestRandomizer(TestCase):
         for randomizer in randomizers:
             make_test_list(
                 full_path=randomizer.get_randomization_list_path(),
-                site_names=site_names or self.site_names, per_site=per_site
+                site_names=site_names or self.site_names,
+                per_site=per_site,
             )
         RandomizationListImporter(randomizers=randomizers, overwrite=True)
 
     @override_settings(SITE_ID=40)
-    def test_with_consent_no_site(self):
+    def test_with_consent_insufficient_data(self):
         RandomizationListImporter(randomizers=[Randomizer])
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345",
-            user_created="erikvw")
+            subject_identifier="12345", user_created="erikvw"
+        )
         self.assertRaises(
             RandomizationError,
             Randomizer,
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_created,
+            user=None,
         )
 
     @override_settings(SITE_ID=40)
@@ -67,8 +74,8 @@ class TestRandomizer(TestCase):
         RandomizationListImporter(randomizers=[Randomizer])
         site = Site.objects.get_current()
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345", site=site,
-            user_created="erikvw")
+            subject_identifier="12345", site=site, user_created="erikvw"
+        )
         try:
             Randomizer(
                 subject_identifier=subject_consent.subject_identifier,
@@ -86,8 +93,8 @@ class TestRandomizer(TestCase):
         RandomizationList.objects.update(site_name=site.name)
         first_obj = RandomizationList.objects.all().first()
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345",
-            user_created="erikvw")
+            subject_identifier="12345", user_created="erikvw"
+        )
         rando = Randomizer(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
@@ -102,8 +109,8 @@ class TestRandomizer(TestCase):
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345",
-            user_created="erikvw")
+            subject_identifier="12345", user_created="erikvw"
+        )
         Randomizer(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
@@ -114,8 +121,7 @@ class TestRandomizer(TestCase):
         rs = RegisteredSubject.objects.get(subject_identifier="12345")
         self.assertEqual(rs.subject_identifier, first_obj.subject_identifier)
         self.assertEqual(rs.sid, str(first_obj.sid))
-        self.assertEqual(rs.randomization_datetime,
-                         first_obj.allocated_datetime)
+        self.assertEqual(rs.randomization_datetime, first_obj.allocated_datetime)
 
     @override_settings(SITE_ID=40)
     def test_updates_list_obj_as_allocated(self):
@@ -124,8 +130,8 @@ class TestRandomizer(TestCase):
         RandomizationList.objects.update(site_name=site.name)
         RandomizationList.objects.all().first()
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345",
-            user_created="erikvw")
+            subject_identifier="12345", user_created="erikvw"
+        )
         Randomizer(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
@@ -136,10 +142,8 @@ class TestRandomizer(TestCase):
         self.assertEqual(first_obj.subject_identifier, "12345")
         self.assertTrue(first_obj.allocated)
         self.assertIsNotNone(first_obj.allocated_user)
-        self.assertEqual(first_obj.allocated_user,
-                         subject_consent.user_modified)
-        self.assertEqual(first_obj.allocated_datetime,
-                         subject_consent.consent_datetime)
+        self.assertEqual(first_obj.allocated_user, subject_consent.user_created)
+        self.assertEqual(first_obj.allocated_datetime, subject_consent.consent_datetime)
         self.assertGreater(first_obj.modified, subject_consent.created)
 
     @override_settings(SITE_ID=40)
@@ -149,8 +153,8 @@ class TestRandomizer(TestCase):
         RandomizationList.objects.update(site_name=site.name)
         first_obj = RandomizationList.objects.all().first()
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345",
-            user_created="erikvw")
+            subject_identifier="12345", user_created="erikvw"
+        )
         rando = Randomizer(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
@@ -175,8 +179,8 @@ class TestRandomizer(TestCase):
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345",
-            user_created="erikvw")
+            subject_identifier="12345", user_created="erikvw"
+        )
         rando = Randomizer(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
@@ -192,8 +196,7 @@ class TestRandomizer(TestCase):
                 site=subject_consent.site,
                 user=subject_consent.user_created,
             )
-        self.assertEqual(cm.exception.code,
-                         "edc_randomization.randomizationlist")
+        self.assertEqual(cm.exception.code, "edc_randomization.randomizationlist")
 
     @override_settings(SITE_ID=40)
     def test_error_condition2(self):
@@ -203,8 +206,8 @@ class TestRandomizer(TestCase):
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345",
-            user_created="erikvw")
+            subject_identifier="12345", user_created="erikvw"
+        )
         rando = Randomizer(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
@@ -220,8 +223,7 @@ class TestRandomizer(TestCase):
                 site=subject_consent.site,
                 user=subject_consent.user_created,
             )
-        self.assertEqual(cm.exception.code,
-                         "edc_randomization.randomizationlist")
+        self.assertEqual(cm.exception.code, "edc_randomization.randomizationlist")
 
     def test_error_condition3(self):
         """Assert raises if RandomizationList not updated correctly.
@@ -230,8 +232,8 @@ class TestRandomizer(TestCase):
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345", site=site,
-            user_created="erikvw")
+            subject_identifier="12345", site=site, user_created="erikvw"
+        )
         Randomizer(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
@@ -246,16 +248,15 @@ class TestRandomizer(TestCase):
                 site=subject_consent.site,
                 user=subject_consent.user_created,
             )
-        self.assertEqual(cm.exception.code,
-                         "edc_registration.registeredsubject")
+        self.assertEqual(cm.exception.code, "edc_registration.registeredsubject")
 
     def test_subject_does_not_exist(self):
         self.populate_list()
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345", site=site,
-            user_created="erikvw")
+            subject_identifier="12345", site=site, user_created="erikvw"
+        )
         RegisteredSubject.objects.all().delete()
         self.assertRaises(
             RandomizationError,
@@ -271,8 +272,8 @@ class TestRandomizer(TestCase):
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345", site=site,
-            user_created="erikvw")
+            subject_identifier="12345", site=site, user_created="erikvw"
+        )
         Randomizer(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
@@ -296,8 +297,8 @@ class TestRandomizer(TestCase):
 
         RandomizationList.objects.all().delete()
         self.populate_list(
-            randomizers=[MyRandomizer],
-            site_names=self.site_names, per_site=5)
+            randomizers=[MyRandomizer], site_names=self.site_names, per_site=5
+        )
         site_names = [obj.site_name for obj in RandomizationList.objects.all()]
         shuffle(site_names)
         self.assertEqual(len(site_names), len(self.site_names * 5))
@@ -305,8 +306,8 @@ class TestRandomizer(TestCase):
         for index, site_name in enumerate(site_names):
             site = Site.objects.get(name=site_name)
             subject_consent = SubjectConsent.objects.create(
-                subject_identifier=f"12345{index}", site=site,
-                user_created="erikvw")
+                subject_identifier=f"12345{index}", site=site, user_created="erikvw"
+            )
             MyRandomizer(
                 subject_identifier=subject_consent.subject_identifier,
                 report_datetime=subject_consent.consent_datetime,
@@ -330,17 +331,15 @@ class TestRandomizer(TestCase):
                 rs = RegisteredSubject.objects.get(
                     subject_identifier=obj.subject_identifier
                 )
-                self.assertEqual(obj.subject_identifier,
-                                 randomized_subjects[index][0])
+                self.assertEqual(obj.subject_identifier, randomized_subjects[index][0])
                 self.assertEqual(rs.sid, randomized_subjects[index][1])
 
         # clear out any unallocated
-        RandomizationList.objects.filter(
-            subject_identifier__isnull=True).delete()
+        RandomizationList.objects.filter(subject_identifier__isnull=True).delete()
 
         # assert raises on next attempt to randomize
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier=f"ABCDEF", site=site
+            subject_identifier=f"ABCDEF", site=site, user_created="erikvw"
         )
         self.assertRaises(
             AllocationError,
@@ -377,8 +376,7 @@ class TestRandomizer(TestCase):
 
         RandomizationListImporter(randomizers=[MyRandomizer])
 
-        self.assertRaises(RandomizationListImportError,
-                          RandomizationListImporter)
+        self.assertRaises(RandomizationListImportError, RandomizationListImporter)
 
     @override_settings(SITE_ID=40)
     def test_can_overwrite_explicit(self):
@@ -420,8 +418,8 @@ class TestRandomizer(TestCase):
             count=5,
         )
         self.assertRaises(
-            InvalidAssignment,
-            RandomizationListImporter, randomizers=[MyRandomizer])
+            InvalidAssignment, RandomizationListImporter, randomizers=[MyRandomizer]
+        )
 
     @override_settings(SITE_ID=40)
     def test_invalid_sid(self):

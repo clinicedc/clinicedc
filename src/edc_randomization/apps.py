@@ -24,6 +24,8 @@ class AppConfig(DjangoAppConfig):
 
     @property
     def randomization_list_path(self):
-        warn("Use of settings.RANDOMIZATION_LIST_PATH has been deprecated. "
-             "See site_randomizers in edc_randomization")
+        warn(
+            "Use of settings.RANDOMIZATION_LIST_PATH has been deprecated. "
+            "See site_randomizers in edc_randomization"
+        )
         return os.path.join(settings.RANDOMIZATION_LIST_PATH)

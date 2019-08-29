@@ -21,8 +21,7 @@ class RandomizationListViewMixin(ContextMixin):
             obj = model_cls.objects.get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist as e:
             current_site = Site.objects.get_current()
-            total = model_cls.objects.filter(
-                site_name=current_site.name).count()
+            total = model_cls.objects.filter(site_name=current_site.name).count()
             available = model_cls.objects.filter(
                 site_name=current_site.name, allocated=False
             ).count()

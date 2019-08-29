@@ -1,5 +1,6 @@
 import csv
 import os
+import sys
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import OperationalError, ProgrammingError
@@ -41,7 +42,12 @@ class RandomizationListVerifier:
                 else:
                     self.messages.append(self.verify_list())
         if self.messages:
-            raise RandomizationListError(", ".join(self.messages))
+            if (
+                "migrate" not in sys.argv
+                and "makemigrations" not in sys.argv
+                and "import_randomization_list" not in sys.argv
+            ):
+                raise RandomizationListError(", ".join(self.messages))
 
     def verify_list(self):
 
@@ -55,8 +61,7 @@ class RandomizationListVerifier:
                 if index == 0:
                     continue
                 try:
-                    obj = self.randomizer.model_cls(
-                    ).objects.get(sid=row["sid"])
+                    obj = self.randomizer.model_cls().objects.get(sid=row["sid"])
                 except ObjectDoesNotExist:
                     try:
                         obj = self.randomizer.model_cls().objects.all()[index]

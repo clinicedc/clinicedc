@@ -46,15 +46,22 @@ class SiteRandomizers:
             )
         self._all_post_consent_models = None
 
-    def randomize(self, name, subject_identifier=None, report_datetime=None,
-                  site=None, user=None, **kwargs):
+    def randomize(
+        self,
+        name,
+        subject_identifier=None,
+        report_datetime=None,
+        site=None,
+        user=None,
+        **kwargs,
+    ):
         randomizer_cls = self.get(name)
         return randomizer_cls(
             subject_identifier=subject_identifier,
             report_datetime=report_datetime,
             site=site,
             user=user,
-            **kwargs
+            **kwargs,
         )
 
     def autodiscover(self, module_name=None, apps=None, verbose=None):
@@ -65,19 +72,15 @@ class SiteRandomizers:
         module_name = module_name or "randomizers"
         verbose = True if verbose is None else verbose
         if verbose:
-            sys.stdout.write(
-                f" * checking site for module '{module_name}' ...\n")
+            sys.stdout.write(f" * checking site for module '{module_name}' ...\n")
         for app in apps or django_apps.app_configs:
             try:
                 mod = import_module(app)
                 try:
-                    before_import_registry = copy.copy(
-                        site_randomizers._registry)
+                    before_import_registry = copy.copy(site_randomizers._registry)
                     import_module(f"{app}.{module_name}")
                     if verbose:
-                        sys.stdout.write(
-                            " * registered randomizer from " f"'{app}'\n"
-                        )
+                        sys.stdout.write(" * registered randomizer from " f"'{app}'\n")
                 except Exception as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         raise

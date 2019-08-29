@@ -33,6 +33,7 @@ class RandomizationListImporter:
     def __init__(self, randomizers=None, verbose=None, overwrite=None, add=None):
         verbose = True if verbose is None else verbose
         randomizers = randomizers or site_randomizers.registry.values()
+        print(randomizers)
         self.site_names = {obj.name: obj.name for obj in Site.objects.all()}
         if not self.site_names:
             raise RandomizationListImportError(
@@ -41,18 +42,16 @@ class RandomizationListImporter:
             )
         paths = []
         for randomizer in randomizers:
-            paths.append(self.import_list(
-                randomizer=randomizer,
-                verbose=verbose,
-                overwrite=overwrite,
-                add=add))
+            paths.append(
+                self.import_list(
+                    randomizer=randomizer, verbose=verbose, overwrite=overwrite, add=add
+                )
+            )
         if not paths:
-            raise RandomizationListImportError(
-                'No randomization lists imported!')
+            raise RandomizationListImportError("No randomization lists imported!")
 
     def import_list(self, randomizer=None, verbose=None, overwrite=None, add=None):
-        path = os.path.expanduser(
-            randomizer.get_randomization_list_path())
+        path = os.path.expanduser(randomizer.get_randomization_list_path())
         if overwrite:
             randomizer.model_cls().objects.all().delete()
         if randomizer.model_cls().objects.all().count() > 0 and not add:
@@ -63,8 +62,7 @@ class RandomizationListImporter:
             reader = csv.DictReader(csvfile)
             sids = [row["sid"] for row in reader]
         if len(sids) != len(list(set(sids))):
-            raise RandomizationListImportError(
-                "Invalid file. Detected duplicate SIDs")
+            raise RandomizationListImportError("Invalid file. Detected duplicate SIDs")
         self.sid_count = len(sids)
 
         objs = []
@@ -74,8 +72,7 @@ class RandomizationListImporter:
                 row = {k: v.strip() for k, v in row.items()}
 
                 try:
-                    randomizer.model_cls().objects.get(
-                        sid=row["sid"])
+                    randomizer.model_cls().objects.get(sid=row["sid"])
                 except ObjectDoesNotExist:
                     assignment = randomizer.get_assignment(row)
                     allocation = randomizer.get_allocation(row)
@@ -92,8 +89,7 @@ class RandomizationListImporter:
 
         if verbose:
             count = randomizer.model_cls().objects.all().count()
-            sys.stdout.write(style.SUCCESS(
-                f"(*) Imported {count} SIDs from {path}.\n"))
+            sys.stdout.write(style.SUCCESS(f"(*) Imported {count} SIDs from {path}.\n"))
         return path
 
     def get_site_name(self, row):

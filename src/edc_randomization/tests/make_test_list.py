@@ -31,18 +31,13 @@ def make_test_list(
         full_path = os.path.join(mkdtemp(), "randomizationlist.csv")
     assignments = assignments or default_assignments
     with open(full_path, "w") as f:
-        writer = csv.DictWriter(
-            f, fieldnames=["sid", "assignment", "site_name"])
+        writer = csv.DictWriter(f, fieldnames=["sid", "assignment", "site_name"])
         writer.writeheader()
         n = 0
         for i in range(first_sid, count + first_sid):
             n += 1
             assignment = random.choice(assignments)
             writer.writerow(
-                dict(
-                    sid=i,
-                    assignment=assignment,
-                    site_name=next(gen_site_name),
-                )
+                dict(sid=i, assignment=assignment, site_name=next(gen_site_name))
             )
     return full_path

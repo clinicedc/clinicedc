@@ -4,6 +4,5 @@ from .model_mixin import RandomizationListModelMixin
 
 
 class RandomizationList(RandomizationListModelMixin, BaseUuidModel):
-
     class Meta(RandomizationListModelMixin.Meta):
         pass

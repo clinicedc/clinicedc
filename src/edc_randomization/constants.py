@@ -1,10 +1,6 @@
 RANDOMIZED = "RANDOMIZED"
 
 ACTIVE = "active"
-ACTIVE_NAME = (
-    "Active: "
-)
+ACTIVE_NAME = "Active: "
 PLACEBO = "placebo"
-PLACEBO_NAME = (
-    "Placebo: "
-)
+PLACEBO_NAME = "Placebo: "

@@ -54,8 +54,7 @@ class RandomizationListModelMixin(models.Model):
 
     allocated_user = models.CharField(max_length=50, null=True)
 
-    allocated_site = models.ForeignKey(
-        Site, null=True, on_delete=models.PROTECT)
+    allocated_site = models.ForeignKey(Site, null=True, on_delete=models.PROTECT)
 
     verified = models.BooleanField(default=False)
 
@@ -102,7 +101,8 @@ class RandomizationListModelMixin(models.Model):
             assignment_description = ACTIVE_NAME
         else:
             raise RandomizationError(
-                f"Invalid assignment. Expected one of [{PLACEBO}, {ACTIVE}]. Got `{self.assignment}`")
+                f"Invalid assignment. Expected one of [{PLACEBO}, {ACTIVE}]. Got `{self.assignment}`"
+            )
         return assignment_description
 
     def natural_key(self):
