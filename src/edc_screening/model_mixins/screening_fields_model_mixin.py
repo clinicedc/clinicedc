@@ -5,6 +5,7 @@ from edc_search.model_mixins import SearchSlugManager
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils.date import get_utcnow
 from uuid import uuid4
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class ScreeningManager(SearchSlugManager, models.Manager):
@@ -33,7 +34,9 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
 
     gender = models.CharField(choices=GENDER, max_length=10)
 
-    age_in_years = models.IntegerField()
+    age_in_years = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(110)]
+    )
 
     consent_ability = models.CharField(
         verbose_name="Participant or legal guardian/representative able and "

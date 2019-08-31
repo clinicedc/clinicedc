@@ -52,9 +52,9 @@ class Eligibility:
             self.reasons_ineligible = {k: v for k, v in self.criteria.items() if not v}
             for k, v in self.criteria.items():
                 if not v:
-                    if k in self.get_custom_reasons_dict:
+                    if k in self.get_custom_reasons_dict():
                         self.reasons_ineligible.update(
-                            {k: self.get_custom_reasons_dict.get(k)}
+                            {k: self.get_custom_reasons_dict().get(k)}
                         )
                     elif k not in ["age", "gender"]:
                         self.reasons_ineligible.update({k: k})
@@ -66,13 +66,24 @@ class Eligibility:
                 self.reasons_ineligible.update(
                     gender=f"{' and '.join(self.gender_evaluator.reasons_ineligible)}."
                 )
-            if not self.early_withdrawal_evaluator.eligible:
+            if (
+                self.early_withdrawal_evaluator
+                and not self.early_withdrawal_evaluator.eligible
+            ):
                 self.reasons_ineligible.update(
                     {**self.early_withdrawal_evaluator.reasons_ineligible}
                 )
 
     def __str__(self):
         return self.eligible
+
+    @property
+    def early_withdrawal_evaluator(self):
+        pass
+
+    @property
+    def extra_eligibility_criteria(self):
+        return {}
 
     def extra_eligibility_checks(self, **additional_criteria):
         return {}
