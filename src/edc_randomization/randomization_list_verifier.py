@@ -40,7 +40,9 @@ class RandomizationListVerifier:
                         f"Resolve this issue before using the system."
                     )
                 else:
-                    self.messages.append(self.verify_list())
+                    message = self.verify_list()
+                    if message:
+                        self.messages.append(message)
         if self.messages:
             if (
                 "migrate" not in sys.argv

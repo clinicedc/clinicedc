@@ -33,7 +33,10 @@ class RandomizationListImporter:
     def __init__(self, randomizers=None, verbose=None, overwrite=None, add=None):
         verbose = True if verbose is None else verbose
         randomizers = randomizers or site_randomizers.registry.values()
-        print(randomizers)
+        if not randomizers:
+            raise RandomizationListImportError(
+                "No randomizers defined. See `site_randomizers`."
+            )
         self.site_names = {obj.name: obj.name for obj in Site.objects.all()}
         if not self.site_names:
             raise RandomizationListImportError(

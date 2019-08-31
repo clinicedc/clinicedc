@@ -4,12 +4,13 @@ from edc_model_admin.model_admin_audit_fields_mixin import (
     audit_fields,
 )
 
+from .admin_site import edc_randomization_admin
 from .models import RandomizationList
 
 admin.site.disable_action("delete_selected")
 
 
-@admin.register(RandomizationList)
+@admin.register(RandomizationList, site=edc_randomization_admin)
 class RandomizationListModelAdmin(admin.ModelAdmin):
 
     ordering = ("sid",)

@@ -14,5 +14,5 @@ class AdminSite(DjangoAdminSite):
         return context
 
 
-meta_ae_admin = AdminSite(name="edc_randomization")
-meta_ae_admin.disable_action("delete_selected")
+edc_randomization_admin = AdminSite(name="edc_randomization_admin")
+edc_randomization_admin.disable_action("delete_selected")
