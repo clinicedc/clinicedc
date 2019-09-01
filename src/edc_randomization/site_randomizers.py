@@ -46,6 +46,9 @@ class SiteRandomizers:
             )
         self._all_post_consent_models = None
 
+    def get(self, name):
+        return self._registry.get(name)
+
     def randomize(
         self,
         name,
