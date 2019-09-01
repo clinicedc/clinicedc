@@ -77,6 +77,7 @@ SEROCONVERSION = "seroconversion"
 SHOW_FORM = "NEW"
 STOPPED = "stopped"
 SUBJECT = "subject"
+TBD = "tbd"  # to be determined
 TUBERCULOSIS = "TB"
 UNK = "UNK"
 UNKNOWN = "unknown"

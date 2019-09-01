@@ -1,36 +1,37 @@
 from django.utils.translation import ugettext_lazy as _
 
 from .constants import (
+    ABNORMAL,
+    ABSENT,
+    AFTERNOON,
     ALIVE,
+    ANYTIME,
     DEAD,
     DECLINED,
     DWTA,
+    EVENING,
     FEMALE,
     IND,
     MALE,
+    MORNING,
     NAIVE,
     NEG,
     NEVER,
     NO,
+    NORMAL,
     NOT_APPLICABLE,
+    NOT_DONE,
+    NOT_SURE,
     OMANG,
     OTHER,
     POS,
+    PRESENT,
     REFUSED,
+    TBD,
     UNKNOWN,
-    YES,
-    MORNING,
-    AFTERNOON,
-    EVENING,
-    ANYTIME,
     WEEKDAYS,
     WEEKENDS,
-    NOT_SURE,
-    NORMAL,
-    ABNORMAL,
-    NOT_DONE,
-    PRESENT,
-    ABSENT,
+    YES,
 )
 
 
@@ -437,6 +438,8 @@ YES_NO_NA_DWTA_DNK = (
     (DWTA, _("Don't want to answer")),
     ("cant_remember", "Cannot remember"),
 )
+
+YES_NO_TBD = ((YES, YES), (NO, NO), (TBD, "To be determined"))
 
 YES_NO_UNKNOWN_NA = (
     (YES, YES),
