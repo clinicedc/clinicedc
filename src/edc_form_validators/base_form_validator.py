@@ -1,5 +1,6 @@
 from django.forms import ValidationError
 from django.forms import forms
+from copy import copy
 
 
 APPLICABLE_ERROR = "applicable"
@@ -30,7 +31,8 @@ class BaseFormValidator:
     def __init__(self, cleaned_data=None, instance=None):
         self._errors = {}
         self._error_codes = []
-        self.cleaned_data = cleaned_data
+        self.cleaned_data = copy(cleaned_data)
+        self.original_cleaned_data = copy(cleaned_data)
         self.instance = instance
         if cleaned_data is None:
             raise ModelFormFieldValidatorError(
@@ -56,12 +58,19 @@ class BaseFormValidator:
         """
         pass
 
+    def update_cleaned_data_from_instance(self, field):
+        if field in self.original_cleaned_data:
+            raise ModelFormFieldValidatorError(
+                f"May not get form field value from instance. "
+                f"This field is already in cleaned data. "
+                f"Got {field}.")
+        self.cleaned_data.update({field: getattr(self.instance, field)})
+
     def get(self, field):
-        cleaned_data = self.cleaned_data
         try:
-            field_value = cleaned_data.get(field).short_name
+            field_value = self.cleaned_data.get(field).short_name
         except AttributeError:
-            field_value = cleaned_data.get(field)
+            field_value = self.cleaned_data.get(field)
         return field_value
 
     def raise_validation_error(self, message, error_code):
