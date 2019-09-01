@@ -7,11 +7,11 @@ from edc_utils import convert_php_dateformat
 
 class Holiday(models.Model):
 
-    country = models.CharField(max_length=25)
+    country = models.CharField(max_length=50)
 
     local_date = models.DateField()
 
-    name = models.CharField(max_length=25)
+    name = models.CharField(max_length=50)
 
     @property
     def label(self):
@@ -38,7 +38,7 @@ class Holiday(models.Model):
                         id="edc_facility.003",
                     )
                 )
-            if cls.objects.filter(country=settings.COUNTRY).count() == 0:
+            elif cls.objects.filter(country=settings.COUNTRY).count() == 0:
                 countries = [obj.country for obj in cls.objects.all()]
                 countries = list(set(countries))
                 errors.append(
