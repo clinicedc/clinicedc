@@ -1,1 +1,2 @@
+from .subject_model_form_mixin import SubjectModelFormMixin, InlineSubjectModelFormMixin
 from .visit_tracking_modelform_mixin import VisitTrackingModelFormMixin
