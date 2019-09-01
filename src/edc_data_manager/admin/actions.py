@@ -8,7 +8,6 @@ from uuid import uuid4
 
 from ..models import QueryRule
 from ..rule import update_query_rules
-from ..tasks import update_query_rules_task
 
 DATA_MANAGER_ENABLED = getattr(settings, "DATA_MANAGER_ENABLED", True)
 
@@ -69,7 +68,7 @@ def update_query_rules_action(modeladmin, request, queryset):
         messages.add_message(request, messages.ERROR, msg)
     elif queryset:
         if settings.CELERY_ENABLED:
-            update_query_rules_task.delay(pks=[o.pk for o in queryset])
+            update_query_rules.delay(pks=[o.pk for o in queryset])
             dte = get_utcnow()
             taskresult_url = reverse(
                 "admin:django_celery_results_taskresult_changelist"
@@ -79,7 +78,7 @@ def update_query_rules_action(modeladmin, request, queryset):
                 f"Started at {formatted_datetime(dte)}. "
                 f"An updated digest will be email upon completion. "
                 f'You may also check in <a href="{taskresult_url}?'
-                f'task_name=update_query_rules_task">task results</A>. '
+                f'task_name=update_query_rules">task results</A>. '
             )
         else:
             results = update_query_rules(pks=[o.pk for o in queryset])
