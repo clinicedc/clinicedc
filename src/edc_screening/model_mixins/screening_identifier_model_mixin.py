@@ -6,10 +6,22 @@ from edc_identifier import is_subject_identifier_or_raise
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin
 
+from ..screening_identifier import ScreeningIdentifier
+
 
 class ScreeningIdentifierModelMixin(
     NonUniqueSubjectIdentifierModelMixin, SearchSlugModelMixin, models.Model
 ):
+
+    identifier_cls = ScreeningIdentifier
+
+    def save(self, *args, **kwargs):
+        """Screening Identifier is always allocated.
+        """
+        if not self.id:
+            self.screening_identifier = self.identifier_cls().identifier
+        super().save(*args, **kwargs)
+
     def update_subject_identifier_on_save(self):
         """Overridden to not create a new study-allocated subject identifier on save.
 
