@@ -1,11 +1,12 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from edc_constants.choices import GENDER, YES_NO
+from edc_constants.constants import NO
 from edc_model.models.historical_records import HistoricalRecords
 from edc_search.model_mixins import SearchSlugManager
 from edc_sites.models import CurrentSiteManager, SiteModelMixin
 from edc_utils.date import get_utcnow
 from uuid import uuid4
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class ScreeningManager(SearchSlugManager, models.Manager):
@@ -43,6 +44,21 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
         "willing to give informed consent.",
         max_length=5,
         choices=YES_NO,
+    )
+
+    unsuitable_for_study = models.CharField(
+        verbose_name=(
+            "Is there any other reason the patient is "
+            "deemed to not be suitable for the study?"
+        ),
+        max_length=5,
+        choices=YES_NO,
+        default=NO,
+        help_text="If YES, patient NOT eligible, please give reason below.",
+    )
+
+    reasons_unsuitable = models.TextField(
+        verbose_name="Reason not eligible", max_length=150, null=True, blank=True
     )
 
     eligible = models.BooleanField(default=False, editable=False)
