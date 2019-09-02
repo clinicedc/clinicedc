@@ -1,11 +1,22 @@
+import copy
 import csv
 import os
+import sys
+
+from django.apps import apps as django_apps
+from django.core.management.color import color_style
+from django.utils.module_loading import module_has_submodule
+from importlib import import_module
 
 from .grade_reference import GradeReference
 from .normal_reference import NormalReference
 from .parsers import unparse
 from .reference_collection import ReferenceCollection
 from .value_reference_group import ValueReferenceGroup, GRADING, NORMAL
+
+
+class SiteReportablesError(Exception):
+    pass
 
 
 class Reportables:
@@ -80,6 +91,34 @@ class Reportables:
                     dct.update(description=unparse(**dct))
                     writer.writerow(dct)
         return filename1, filename2
+
+    def autodiscover(self, module_name=None, verbose=True):
+        module_name = module_name or "reportables"
+        writer = sys.stdout.write if verbose else lambda x: x
+        style = color_style()
+        writer(f" * checking for site {module_name} ...\n")
+        for app in django_apps.app_configs:
+            writer(f" * searching {app}           \r")
+            try:
+                mod = import_module(app)
+                try:
+                    before_import_registry = copy.copy(site_reportables._registry)
+                    import_module(f"{app}.{module_name}")
+                    writer(f" * registered '{module_name}' from '{app}'\n")
+                except SiteReportablesError as e:
+                    writer(f"   - loading {app}.{module_name} ... ")
+                    writer(style.ERROR(f"ERROR! {e}\n"))
+                except ImportError as e:
+                    site_reportables._registry = before_import_registry
+                    if module_has_submodule(mod, module_name):
+                        raise SiteReportablesError(str(e))
+            except ImportError:
+                pass
+            except Exception as e:
+                raise SiteReportablesError(
+                    f"{e.__class__.__name__} was raised when loading {module_name}. "
+                    f"Got {e} See {app}.{module_name}"
+                )
 
 
 site_reportables = Reportables()
