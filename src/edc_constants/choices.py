@@ -18,6 +18,7 @@ from .constants import (
     NEG,
     NEVER,
     NO,
+    NO_UNCONFIRMED,
     NORMAL,
     NOT_APPLICABLE,
     NOT_DONE,
@@ -345,7 +346,7 @@ PREG_YES_NO_NA = (
 PREG_YES_NO_UNCONFIRMED_NA = (
     (YES, "Yes"),
     (NO, "No"),
-    (NO, "No, unconfirmed"),
+    (NO_UNCONFIRMED, "No, unconfirmed"),
     (NOT_APPLICABLE, "Not Applicable: e.g. male, post-menopausal"),
 )
 

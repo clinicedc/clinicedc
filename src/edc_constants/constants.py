@@ -46,6 +46,7 @@ NEG = "NEG"
 NEVER = "NEVER"
 NEW = "New"
 NO = "No"
+NO_UNCONFIRMED = ("no_unconfirmed",)
 NONE = "none"
 NORMAL = "NORMAL"
 NOT_ADDITIONAL = False
