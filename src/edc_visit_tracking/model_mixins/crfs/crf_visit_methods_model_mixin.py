@@ -9,9 +9,9 @@ class CrfVisitMethodsModelMixin(models.Model):
     def visit_code(self):
         return self.visit.visit_code
 
-    @property
-    def subject_identifier(self):
-        return self.visit.subject_identifier
+    #     @property
+    #     def subject_identifier(self):
+    #         return self.visit.subject_identifier
 
     @property
     def visit(self):
