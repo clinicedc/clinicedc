@@ -342,6 +342,13 @@ PREG_YES_NO_NA = (
     (NOT_APPLICABLE, "Not Applicable: e.g. male, post-menopausal"),
 )
 
+PREG_YES_NO_UNCONFIRMED_NA = (
+    (YES, "Yes"),
+    (NO, "No"),
+    (NO, "No, unconfirmed"),
+    (NOT_APPLICABLE, "Not Applicable: e.g. male, post-menopausal"),
+)
+
 PRESENT_ABSENT = ((PRESENT, "Present"), (ABSENT, "Absent"))
 
 PRESENT_ABSENT_NA = (
