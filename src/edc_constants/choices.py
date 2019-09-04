@@ -303,6 +303,12 @@ POS_NEG_REFUSED = (
 
 POS_NEG_ANY = ((POS, "Positive"), (NEG, "Negative"), ("ANY", "Any"))
 
+POS_NEG_NA = (
+    (POS, _("Positive")),
+    (NEG, _("Negative")),
+    (NOT_APPLICABLE, "Not applicable"),
+)
+
 POS_NEG_ONLY = ((POS, _("Positive")), (NEG, _("Negative")))
 
 POS_NEG_UNKNOWN = ((POS, _("Positive")), (NEG, _("Negative")), (UNKNOWN, _("Unknown")))
