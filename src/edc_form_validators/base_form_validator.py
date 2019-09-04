@@ -8,6 +8,7 @@ INVALID_ERROR = "invalid"
 NOT_APPLICABLE_ERROR = "not_applicable"
 NOT_REQUIRED_ERROR = "not_required"
 REQUIRED_ERROR = "required"
+OUT_OF_RANGE_ERROR = "out_of_range"
 
 
 class InvalidModelFormFieldValidator(Exception):
