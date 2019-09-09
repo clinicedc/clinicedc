@@ -3,9 +3,10 @@ from django.contrib.sites.models import Site
 from django.test import TestCase, tag  # noqa
 from django.test.utils import override_settings
 
+from ..add_or_update_django_sites import add_or_update_django_sites
+from ..get_site_id import get_site_id
 from ..forms import SiteModelFormMixin
-from ..utils import ReviewerSiteSaveError
-from ..utils import add_or_update_django_sites, raise_on_save_if_reviewer
+from ..utils import raise_on_save_if_reviewer, ReviewerSiteSaveError
 from .models import TestModelWithSite
 from .site_test_case_mixin import SiteTestCaseMixin, default_sites
 
@@ -58,15 +59,25 @@ class TestSites(SiteTestCaseMixin, TestCase):
         except ReviewerSiteSaveError:
             self.fail("SiteModelError unexpectedly raised")
 
-        self.assertRaises(ReviewerSiteSaveError, raise_on_save_if_reviewer, site_id=0)
+        self.assertRaises(ReviewerSiteSaveError,
+                          raise_on_save_if_reviewer, site_id=0)
 
     @override_settings(SITE_ID=30, REVIEWER_SITE_ID=30)
     def test_raise_on_save_in_form(self):
         form = TestForm(data={"f1": "100"})
         self.assertFalse(form.is_valid())
         self.assertIn(
-            "Adding or changing data has been disabled", form.errors.get("__all__")[0]
+            "Adding or changing data has been disabled", form.errors.get("__all__")[
+                0]
         )
+
+    def test_get_site_id_by_name(self):
+        add_or_update_django_sites(sites=self.default_sites)
+        self.assertEqual(get_site_id("mochudi"), 10)
+
+    def test_get_site_id_by_title(self):
+        add_or_update_django_sites(sites=self.default_sites)
+        self.assertEqual(get_site_id("Mochudi"), 10)
 
 
 class TestSites2(TestCase):
@@ -81,7 +92,8 @@ class TestSites2(TestCase):
         for site in default_sites:
             self.assertIn(site[0], [obj.id for obj in Site.objects.all()])
 
-        self.assertNotIn("example.com", [str(obj) for obj in Site.objects.all()])
+        self.assertNotIn("example.com", [str(obj)
+                                         for obj in Site.objects.all()])
 
         add_or_update_django_sites(sites=sites, verbose=True)
 

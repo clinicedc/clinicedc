@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 fqdn = "clinicedc.org"
 
 default_sites = [
-    (10, "mochudi", "mochudi"),
+    (10, "mochudi", "Mochudi"),
     (20, "molepolole", "molepolole"),
     (30, "lobatse", "lobatse"),
     (40, "gaborone", "gaborone"),
