@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.views.generic.base import ContextMixin
 from django_revision.views import RevisionMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
+from edc_sites.view_mixins import SiteViewMixin
 
 from .message_view_mixin import MessageViewMixin
 from .template_request_context_mixin import TemplateRequestContextMixin
@@ -15,6 +16,7 @@ class EdcViewMixin(
     LoginRequiredMixin,
     MessageViewMixin,
     RevisionMixin,
+    SiteViewMixin,
     TemplateRequestContextMixin,
     ContextMixin,
 ):
@@ -27,12 +29,14 @@ class EdcViewMixin(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            edc_protocol_app_config = django_apps.get_app_config(self.edc_protocol_app)
+            edc_protocol_app_config = django_apps.get_app_config(
+                self.edc_protocol_app)
         except LookupError as e:
             edc_protocol_app_config = None
             warnings.warn(str(e))
         try:
-            edc_device_app_config = django_apps.get_app_config(self.edc_device_app)
+            edc_device_app_config = django_apps.get_app_config(
+                self.edc_device_app)
         except LookupError as e:
             edc_device_app_config = None
             warnings.warn(str(e))
