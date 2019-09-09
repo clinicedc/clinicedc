@@ -138,7 +138,7 @@
           </button>
 
           {% block topbar_title %}
-            <span class="navbar-brand hidden-sm">{% if live_system and not DEBUG %}<span class="label label-success">Live</span>{% else %}<span class="label label-danger">Test</span>{% endif %}&nbsp;&nbsp;{{ protocol_name |default:project_name }} {{ request.site.name|title }}</span>
+            <span class="navbar-brand hidden-sm">{% if live_system and not DEBUG %}<span class="label label-success">Live</span>{% else %}<span class="label label-danger">Test</span>{% endif %}&nbsp;&nbsp;{{ protocol_name |default:project_name }}: {{ site_title|default:request.site.name|title }}</span>
           {% endblock topbar_title %}
 
         </div>

@@ -82,19 +82,14 @@
 
 {% endblock listboard_table_body %}
 
+<!-- begin spacer rows -->
+{% if not results %}
+<tr><td><i class="fas fa-info-circle fa-fw"></i> No records have been added yet.</td></tr>
+{% endif %}
+
 </tbody></table>
 <!-- end table -->
 
-<!-- begin spacer rows -->
-{% if not results %}
-<table class="table">
-<tr><td>&nbsp;</td></tr>
-<tr><td>&nbsp;</td></tr>
-<tr><td>&nbsp;</td></tr>
-<tr><td>&nbsp;</td></tr>
-<tr><td>&nbsp;</td></tr>
-</table>
-{% endif %}
 
 <!-- end spacer rows -->
 
