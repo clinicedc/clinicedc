@@ -110,8 +110,7 @@ class TesExportModel(TestCase):
     def test_field_names_provided(self):
         Crf.objects.all().delete()
         queryset = Crf.objects.all()
-        model_exporter = ModelExporter(
-            queryset=queryset, field_names=["char1"])
+        model_exporter = ModelExporter(queryset=queryset, field_names=["char1"])
         self.assertIn("char1", model_exporter.field_names)
         self.assertNotIn("date1", model_exporter.field_names)
         self.assertNotIn("int1", model_exporter.field_names)
@@ -240,11 +239,9 @@ class TesExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(queryset=queryset)
         path = model_exporter.export()
-        file_history_obj = FileHistory.objects.get(
-            filename=os.path.basename(path))
+        file_history_obj = FileHistory.objects.get(filename=os.path.basename(path))
         tx_obj = ObjectHistory.objects.get(tx_pk=self.crf.pk)
-        self.assertIn(str(tx_obj.export_uuid),
-                      file_history_obj.export_uuid_list)
+        self.assertIn(str(tx_obj.export_uuid), file_history_obj.export_uuid_list)
         self.assertEqual(tx_obj.status, EXPORTED)
 
     def test_export_change_type_insert(self):
