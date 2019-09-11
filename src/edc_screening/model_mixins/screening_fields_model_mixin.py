@@ -67,6 +67,10 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
         verbose_name="Reason not eligible", max_length=150, null=True, editable=False
     )
 
+    eligibility_datetime = models.DateTimeField(
+        null=True, editable=False, help_text="Date and time eligibility was determined"
+    )
+
     consented = models.BooleanField(default=False, editable=False)
 
     on_site = CurrentSiteManager()
