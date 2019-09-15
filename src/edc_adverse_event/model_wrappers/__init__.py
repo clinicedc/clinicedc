@@ -1,1 +1,1 @@
-from .ae_initial_model_wrapper import AeInitialModelWrapper
+from .ae_initial_model_wrapper import AeInitialModelWrapper  # noqa

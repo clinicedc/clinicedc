@@ -1,15 +1,14 @@
 from django.db import models
-from django.db.models.deletion import PROTECT
 from edc_constants.constants import NOT_APPLICABLE
-from edc_model.validators import date_not_future
+from edc_model.validators.date import date_not_future
 from edc_model_fields.fields.other_charfield import OtherCharField
-from edc_utils import get_utcnow
+from edc_utils.date import get_utcnow
 
-from ..choices import AE_GRADE
-from ..models import AeClassification
+from ...choices import AE_GRADE
+from ...models import AeClassification
 
 
-class AeModelMixin(models.Model):
+class AeInitialFieldsModelMixin(models.Model):
 
     ae_auto_created = models.BooleanField(max_length=25, default=False, editable=False)
 
@@ -23,7 +22,7 @@ class AeModelMixin(models.Model):
 
     ae_classification = models.ForeignKey(
         AeClassification,
-        on_delete=PROTECT,
+        on_delete=models.PROTECT,
         verbose_name="Adverse Event (AE) Classification",
         null=True,
         blank=False,

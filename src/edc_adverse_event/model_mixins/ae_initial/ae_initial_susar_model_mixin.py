@@ -3,7 +3,10 @@ from edc_constants.choices import YES_NO, YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
 
 
-class SUSARModelMixin(models.Model):
+class AeInitialSusarModelMixin(models.Model):
+
+    """This model mixin is for the AE Initial.
+    """
 
     susar = models.CharField(
         verbose_name=(
