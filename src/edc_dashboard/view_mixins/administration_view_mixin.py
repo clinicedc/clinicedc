@@ -16,6 +16,8 @@ class AdministrationViewMixin(ContextMixin):
         f"edc_dashboard/bootstrap{settings.EDC_BOOTSTRAP}/administration.html"
     )
 
+    edc_module_prefix = "Edc"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -95,6 +97,18 @@ class AdministrationViewMixin(ContextMixin):
             if include:
                 sections.update(**self.get_section(app_config))
         sections.update(**self.default_sections)
-        keys = list(sections.keys())
-        keys.sort()
+
+        edc_sections = {
+            k: v for k, v in sections.items() if k.startswith(self.edc_module_prefix)}
+        edc_keys = list(edc_sections.keys())
+        edc_keys.sort()
+
+        other_sections = {
+            k: v for k, v in sections.items()
+            if not k.startswith(self.edc_module_prefix)}
+        other_keys = list(other_sections.keys())
+        other_keys.sort()
+
+        keys = other_keys + edc_keys
+
         return {key: sections.get(key) for key in keys}
