@@ -430,6 +430,8 @@ class Action:
             action_name = action_cls.name
         except AttributeError:
             pass
+        if not action_name:
+            raise ActionError(f"Action name cannot be None. See {self}.")
         next_actions = next_actions or []
         required = True if required is None else required
         opts = dict(
