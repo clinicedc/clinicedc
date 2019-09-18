@@ -66,3 +66,12 @@ SAE_REASONS = (
         "pneumonia)",
     ),
 )
+
+STUDY_DRUG_RELATIONSHIP = (
+    ("not_related", "Not related"),
+    ("unlikely_related", "Unlikely related"),
+    ("possibly_related", "Possibly related"),
+    ("probably_related", "Probably related"),
+    ("definitely_related", "Definitely related"),
+    (NOT_APPLICABLE, "Not applicable"),
+)

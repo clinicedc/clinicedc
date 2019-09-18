@@ -1,0 +1,64 @@
+{% extends edc_listboard_template %}
+
+{% load edc_dashboard_extras %}
+{% load tz %}
+{% load static %}
+
+
+{% block listboard_table_header %}
+
+    <!-- begin results header -->
+        <th>#</th>
+        <th>Subject</th>
+        <th>TMG Death Report</th>
+        <th>Death Report</th>
+        <th>Action Item References</th>
+    <!-- end results header -->
+
+{% endblock listboard_table_header %}
+
+{% block listboard_table_button_column %}{% endblock %}
+
+
+{% block listboard_table_columns %}
+
+    <td>
+        <a id="{{ result.object.action_identifier}}" name="{{ result.object.action_identifier}}"></a>
+        <B>{{ result.subject_identifier }}</B>{% copy_string_to_clipboard_button result.subject_identifier %}
+        <BR>{{ result.object.site.name }}
+        <BR>
+        {% if result.tmg_death_report.id %}
+            <a class="btn btn-sm btn-success" title="Edit TMG Death Report" href="{{ result.tmg_death_report.href }}death_report={{result.death_report.pk }}&action_identifier={{ result.tmg_death_report.action_identifier }}" role="button"><i class="fas fa-pencil-alt fa-fw"></i> <tt>{{ result.tmg_death_report.object.identifier }}</tt></a>{% copy_string_to_clipboard_button result.action_identifier %}
+        {% else %}
+            <a class="btn btn-sm btn-warning" title="Add TMG Death Report" href="{{ result.tmg_death_report.href }}death_report={{result.death_report.pk }}&action_identifier={{ result.tmg_death_report.action_identifier }}" role="button"><i class="fas fa-plus fa-fw"></i> New</a>
+        {% endif %}
+    </td>
+
+    <td>
+    {% if result.tmg_death_report.id %}
+        <span class="label label-{% if result.tmg_death_report.object.action_item.status|default:result.tmg_death_report.object.report_status == OPEN %}default{% else %}success{% endif %}">
+        {{ result.tmg_death_report.object.action_item.status|default:result.tmg_death_report.object.report_status }}</span>
+        <BR>Reported: {{ result.tmg_death_report.object.report_datetime|date:"SHORT_DATE_FORMAT" }}
+        <BR>Created: {{ result.tmg_death_report.object.created|date:"SHORT_DATE_FORMAT" }}{% if result.tmg_death_report.object.user_modified %}
+        <BR>Modified: {{ result.tmg_death_report.object.modified|date:"SHORT_DATE_FORMAT" }}{% endif %}
+        <BR>{{ result.tmg_death_report.object.user_created }}{% if result.tmg_death_report.object.user_modified %}/{{result.tmg_death_report.object.user_modified}}{% endif %}
+    {% endif %}
+    {% if result.tmg_death_report.object.parent_action_item != result.tmg_death_report.object.related_action_item%}
+        <BR>Refers to TMG Death Report
+        <BR><a href="#{{ result.tmg_death_report.object.parent_action_item }}">{{ result.tmg_death_report.object.parent_action_item }}</a> {% copy_string_to_clipboard_button result.tmg_death_report.object.parent_action_item.action_identifier %}
+    {% endif %}
+    </td>
+    
+    <td><a title="View Death Report" href="{% if SITE_ID != result.death_report.object.site.id %}#{% else %}{{ result.death_report.href }}{% endif %}" role="button" class="btn btn-sm btn-info" {% if SITE_ID != result.death_report.object.site.id %}disabled{% endif %} ><i class="fas fa-eye fa-fw"></i>&nbsp;<tt>{{ result.death_report.object.identifier }}</tt></span></a>{% copy_string_to_clipboard_button result.death_report.action_identifier %}
+    <BR>Died {{ result.death_report.object.death_datetime|date:"SHORT_DATE_FORMAT" }}
+    <BR>Reported on {{ result.death_report.object.report_datetime|date:"SHORT_DATE_FORMAT" }}
+    <BR>{% if result.death_report.object.cause_of_death == OTHER %}{{ result.death_report.object.cause_of_death_other }}{% else %}{{ result.death_report.object.get_cause_of_death_display }}{% endif %}
+    </td>
+
+    <td>
+        <a href="{{ result.href }}" role="button" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i> <tt>{{ result.action_identifier }}</tt></a>
+        {% copy_string_to_clipboard_button result.action_identifier %}
+        <BR>Created: {{ result.object.created|date:"SHORT_DATE_FORMAT" }}
+    </td>
+
+{% endblock listboard_table_columns %}

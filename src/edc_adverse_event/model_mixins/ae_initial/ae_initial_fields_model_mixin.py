@@ -4,7 +4,7 @@ from edc_model.validators.date import date_not_future
 from edc_model_fields.fields.other_charfield import OtherCharField
 from edc_utils.date import get_utcnow
 
-from ...choices import AE_GRADE
+from ...choices import AE_GRADE, STUDY_DRUG_RELATIONSHIP
 from ...models import AeClassification
 
 
@@ -46,6 +46,13 @@ class AeInitialFieldsModelMixin(models.Model):
 
     ae_grade = models.CharField(
         verbose_name="Severity of AE", max_length=25, choices=AE_GRADE
+    )
+
+    study_drug_relation = models.CharField(
+        verbose_name="Relation to study drug:",
+        max_length=25,
+        choices=STUDY_DRUG_RELATIONSHIP,
+        null=True,
     )
 
     class Meta:

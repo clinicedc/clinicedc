@@ -1,0 +1,163 @@
+{% load edc_dashboard_extras %}
+{% load tz %}
+{% load static %}
+
+<div class="col-md-12">
+    <div class="row">
+
+{% if not results %}
+    <div class="alert alert-success">
+        <h6><i class="fas fa-thumbs-up fa-lg"></i> {{ empty_message }}</h6>
+    </div>
+{% endif %}
+
+{% for result in results %}
+        <div class="panel panel-default">
+        <div class="panel-heading"><h5><span class="badge">{{ forloop.counter }}</span> <span class="text text-uppercase">{{ result.subject_identifier }}</span> {% copy_string_to_clipboard_button result.subject_identifier %} <span class="text text-muted small">{{ utc_date|timeuntil:result.report_date }} ago</span></h5></div>
+        <div class="panel-body">
+        <div class="row">
+            <div class="col-md-4">
+            <div class="list-group">
+                {% if result.has_reference_obj_permissions %}
+                    <a class="list-group-item list-group-item-{% if result.reference_obj %}success{% else%}warning{% endif %}"
+                    title="{% if result.reference_obj %}Edit{% else %}Add{% endif %} {{result.reference_model_name}}"
+                    role="button"
+                    id="reference_obj-{{forloop.counter}}"
+                    href="{{ result.reference_url }}">
+                    {% if result.reference_obj %}<i class="fas fa-pencil-alt fa-fw"></i> {% else %}<i class="fas fa-plus fa-fw"></i> {% endif %}
+                    {{ result.reference_model_name|default:'New' }}</a>
+                {% else %}
+                    <div class="list-group-item list-group-item-success">
+                        {{ result.reference_model_name }}
+                    </div>
+                    <div class="list-group-item">
+                        <i>May only be viewed by {{ result.reference_obj.user_created }}</i>
+                    </div>
+                {% endif %}
+            {% if result.reference_obj %}
+                <div class="list-group-item"><b>Created:</b> {{ result.reference_obj.user_created|default:"---" }}&nbsp;{{ result.reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+                <div class="list-group-item"><b>Last modified:</b> {{ result.reference_obj.user_modified|default:"---" }}&nbsp;{{ result.reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+            {% endif %}
+            </div>
+
+            {% if result.death_report %}
+                {% for obj in result.death_report.tmg_death_reports %}
+                    <div class="list-group">
+                    <a class="list-group-item list-group-item-{% if obj %}success{% else%}warning{% endif %}"
+                    title="Edit {{ obj.object }}"
+                    href="{{ obj.href }}death_report={{obj.death_report}}&action_identifier={{obj.action_identifier}}&">
+                    {% if obj %}<i class="fas fa-pencil-alt fa-fw"></i> {% else %}<i class="fas fa-plus fa-fw"></i> {% endif %}
+                    Death Report TMG {% if obj %}{{ obj.object }}{% endif %}{% if obj.object.report_status == OPEN %}&nbsp;<span class="label label-danger">OPEN</span>{% endif %}</a>
+                    {% if obj %}
+                        <div class="list-group-item"><b>Created:</b> {{ obj.object.user_created|default:"---" }}&nbsp;{{ obj.object.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+                        <div class="list-group-item"><b>Last modified:</b> {{ obj.object.user_modified|default:"---" }}&nbsp;{{ obj.object.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+                    {% endif %}
+                    </div>
+                {% endfor %}
+
+            {% endif %}
+
+
+            </div>
+
+            <div class="col-md-4">
+
+            <div class="list-group">
+
+            {% if result.parent_reference_obj %}
+                {% if result.has_parent_reference_obj_permissions %}
+                <a class="list-group-item list-group-item-{% if 'TMG' in result.parent_reference_model_name %}success{% else%}info{% endif %}" role="button"
+                    title="View {{ result.parent_reference_model_name}}"
+                    id="parent_reference_obj-{{forloop.counter}}"
+                    href="{{ result.parent_reference_url }}">
+                    {% if 'TMG' in result.parent_reference_model_name %} <i class="fas fa-pencil-alt fa-fw"></i>{% else %}<i class="fas fa-eye fa-fw"></i>{% endif %} 
+                     {{ result.parent_reference_model_name }}
+                </a>
+                {% else %}
+                <div class="list-group-item list-group-item-info">
+                    {{ result.parent_reference_model_name }}
+                </div>
+                <div class="list-group-item">
+                    <i>May not be viewed by {{ user }}</i>
+                </div>
+                {% endif %}
+                <div class="list-group-item"><b>Created:</b> {{ result.parent_reference_obj.user_created|default:"---" }}&nbsp;{{ result.parent_reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+                <div class="list-group-item"><b>Last modified:</b> {{ result.parent_reference_obj.user_modified|default:"---" }}&nbsp;{{ result.parent_reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+            {% endif %}    
+
+            {% if result.related_reference_obj and result.parent_reference_obj.action_identifier != result.related_reference_obj.action_identifier %}
+                {% if result.has_parent_reference_obj_permissions %}
+                    <a class="list-group-item list-group-item-{% if 'TMG' in result.related_reference_model_name %}success{% else%}info{% endif %}" role="button"
+                    title="View {{ result.related_reference_model_name }}"
+                    id="related_reference_obj-{{forloop.counter}}"
+                    href="{{ result.related_reference_url }}">
+                    {% if 'TMG' in result.related_reference_model_name %} <i class="fas fa-pencil-alt fa-fw"></i>{% else %}<i class="fas fa-eye fa-fw"></i>{% endif %} 
+                    {{result.related_reference_model_name }}</a>
+                {% else %}
+                    <div class="list-group-item list-group-item-info">
+                        {{ result.related_reference_model_name }}
+                    </div>
+                    <div class="list-group-item">
+                        <i>May not be viewed by {{ user }}</i>
+                    </div>
+                {% endif %}
+                <div class="list-group-item"><b>Created:</b> {{ result.related_reference_obj.user_created|default:"---" }}&nbsp;{{ result.related_reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+                <div class="list-group-item"><b>Last modified:</b> {{ result.related_reference_obj.user_modified|default:"---" }}&nbsp;{{ result.related_reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+            {% endif %}
+            
+        </div>
+
+
+        </div>
+
+        <div class="col-md-4">
+            
+            
+            {% if result.parent_reference_obj.action_identifier != result.related_reference_obj.action_identifier%}
+                {% for obj in result.parent_reference_obj.ae_follow_ups %}
+                    <a class="list-group-item list-group-item-info" role="button"
+                    title="View {{ obj }}"
+                    href="{{ obj.get_absolute_url }}">
+                    <i class="fas fa-eye fa-fw"></i> AE Followup {{ obj }} <span class="text text-muted">{{ utc_date|timeuntil:obj.report_date }}</span></a>
+                {% endfor %}
+            {% endif %}
+
+            {% for obj in result.related_reference_obj.ae_follow_ups %}
+                <a class="list-group-item list-group-item-info" role="button"
+                title="View {{ obj }}"
+                href="{{ obj.get_absolute_url }}">
+                <i class="fas fa-eye fa-fw"></i> AE Followup {{ obj }} <span class="text text-muted">{{ utc_date|timeuntil:obj.report_date }}</span></a>
+            {% endfor %}
+
+            {% if not result.parent_reference_obj.ae_follow_ups and not result.related_reference_obj.ae_follow_ups%}
+                <div class="list-group-item">There are no follow-ups to this AE</div>
+            {% endif %}
+
+            {% if result.death_report %}
+                <a class="list-group-item list-group-item-info" role="button"
+                title="View {{ result.death_report.object }}"
+                href="{{ result.death_report.href }}">
+                <i class="fas fa-eye fa-fw"></i> Death Report {{ result.death_report.object }} <span class="text text-muted">{{ utc_date|timeuntil:result.death_report.object.death_datetime }}</span></a>
+            {% endif %}
+
+            <a class="list-group-item list-group-item-default" role="button" 
+            title="go to list of reported visits for this subject"
+            href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' %}?q={{ result.subject_identifier }}">
+            <i class="fas fa-user-circle fa-sm"></i> Subject Review  <i class="fas fa-share"></i></a>
+
+
+            <a class="list-group-item list-group-item-default" role="button" 
+            title=""
+            href="{{ result.href }}">{{ result.object }}</a>
+
+            </div>
+        </div>
+        </div>
+        </div>
+
+{% endfor %}
+
+<div class="well">{% paginator_row %}</div>
+
+</div>
+</div>

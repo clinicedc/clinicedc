@@ -1,9 +1,5 @@
 import arrow
 
-from ambition_ae.action_items import AE_INITIAL_ACTION
-from ambition_ae.models import AeInitial
-from ambition_dashboard.model_wrappers import DeathReportModelWrapper
-from ambition_reports.ae_report import AEReport
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
@@ -11,6 +7,7 @@ from django.utils.translation import gettext as _
 from edc_action_item.model_wrappers import (
     ActionItemModelWrapper as BaseActionItemModelWrapper,
 )
+from edc_adverse_event.get_ae_model import get_ae_model
 from edc_dashboard.view_mixins import (
     EdcViewMixin,
     ListboardFilterViewMixin,
@@ -19,15 +16,15 @@ from edc_dashboard.view_mixins import (
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 
-from ...model_wrappers import AeInitialModelWrapper
+from ..model_wrappers import AeInitialModelWrapper, DeathReportModelWrapper
+from ..constants import AE_INITIAL_ACTION
+from ..pdf_reports import AeReport
 
 
 class ActionItemModelWrapper(BaseActionItemModelWrapper):
 
     ae_initial_model_wrapper = AeInitialModelWrapper
-    death_report_model = None  # "ambition_prn.deathreport"
     death_report_model_wrapper = DeathReportModelWrapper
-
     next_url_name = "ae_listboard_url"
 
     def __init__(self, model_obj=None, **kwargs):
@@ -37,7 +34,7 @@ class ActionItemModelWrapper(BaseActionItemModelWrapper):
     @property
     def death_report(self):
         if not self._death_report:
-            model_cls = django_apps.get_model(self.death_report_model)
+            model_cls = django_apps.get_model(self.death_report_model_wrapper.model)
             try:
                 self._death_report = self.death_report_model_wrapper(
                     model_obj=model_cls.objects.get(
@@ -53,7 +50,7 @@ class ActionItemModelWrapper(BaseActionItemModelWrapper):
         return self.ae_initial_model_wrapper(model_obj=self.object.reference_obj)
 
 
-class AeListboardView(
+class AeListboardViewMixin(
     NavbarViewMixin,
     EdcViewMixin,
     ListboardFilterViewMixin,
@@ -61,12 +58,12 @@ class AeListboardView(
     BaseListboardView,
 ):
 
-    ae_model_cls = AeInitial
-    ae_report_cls = AEReport
-    listboard_back_url = "ambition_dashboard:ae_home_url"
+    ae_report_cls = AeReport
+
+    listboard_back_url = "edc_adverse_event:home_url"
     listboard_panel_title = _("Adverse Events: AE Initial and Follow-up Reports")
     model_wrapper_cls = ActionItemModelWrapper
-    navbar_name = "ambition_dashboard"
+    navbar_name = "edc_adverse_event"
 
     listboard_template = "ae_listboard_template"
     listboard_url = "ae_listboard_url"
@@ -109,7 +106,7 @@ class AeListboardView(
 
     def print_pdf_report(self, action_identifier=None, request=None):
         try:
-            ae_initial = self.ae_model_cls.objects.get(
+            ae_initial = get_ae_model("aeinitial").objects.get(
                 action_identifier=action_identifier
             )
         except ObjectDoesNotExist:

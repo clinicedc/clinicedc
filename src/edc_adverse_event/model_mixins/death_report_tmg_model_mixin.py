@@ -94,7 +94,7 @@ class DeathReportTmgModelMixin(
 
     action_name = DEATH_REPORT_TMG_ACTION
 
-    tracking_identifier_prefix = "DR"
+    tracking_identifier_prefix = "DT"
 
     on_site = ActionIdentifierSiteManager()
 

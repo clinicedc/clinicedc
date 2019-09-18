@@ -1,0 +1,46 @@
+{% extends edc_listboard_template %}
+
+{% load edc_dashboard_extras %}
+{% load tz %}
+{% load static %}
+
+{% block listboard_panel_back %}
+<a class="btn btn-default btn-sm btn-primary clearfix" role="button" href="{% url 'ambition_dashboard:ae_home_url' %}"><i class="fas fa-reply"></i></a>
+{% endblock listboard_panel_back %}
+
+
+{% block listboard_table_header %}
+
+    <!-- begin results header -->
+    <th>#</th>
+    <th></th>
+    <th>Subject</th>
+    <th>Report</th>
+    <th>AE Reports</th>
+    <th>Created</th>
+    <th>Modified</th>
+    <!-- end results header -->
+
+{% endblock listboard_table_header %}
+
+{% block listboard_table_button_column %}{% endblock %}
+
+{% block listboard_table_columns %}
+
+    <td nowrap>
+        <a title="Edit Death Report" href="{{ result.death_report.href }}" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
+        <a title="Print Death Report" role="button" href="?pdf={{result.action_identifier}}&pk={{result.str_pk}}" class="btn btn-default btn-sm"><i class="fas fa-file-pdf"></i></a>
+    </td>
+    <td>{{ result.subject_identifier }}</td>
+
+    <td>{{ result.reference_model_name }}
+        <br><span class="text text-muted small">{{ utc_date|timeuntil:result.report_datetime.date }} ago</span>
+    </td>
+
+    <td><a href="{% url 'ambition_dashboard:ae_listboard_url' %}?q={{result.subject_identifier }}">{{ result.parent_reference_model_name|default:"" }}</a></td>
+
+    <td>{{ result.reference_obj.user_created|default:"---" }}<BR>{{ result.reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</td>
+
+    <td>{{ result.reference_obj.user_modified|default:"---" }}<BR>{{ result.reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</td>
+
+{% endblock listboard_table_columns %}
