@@ -19,6 +19,10 @@ class SiteReportablesError(Exception):
     pass
 
 
+class MissingNormalReference(Exception):
+    pass
+
+
 class Reportables:
     def __init__(self):
         self._registry = {}
@@ -39,6 +43,11 @@ class Reportables:
             reference_collection.register(grp)
         for name, datas in grading_data.items():
             grp = reference_collection.get(name)
+            if not grp:
+                raise MissingNormalReference(
+                    f"Attempting to add grading for item without a "
+                    f"normal reference. Got {name}."
+                )
             for data in datas:
                 grade_ref = GradeReference(name=name, **data)
                 grp.add_grading(grade_ref)
