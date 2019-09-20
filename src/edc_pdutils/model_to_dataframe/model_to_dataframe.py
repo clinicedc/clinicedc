@@ -7,7 +7,6 @@ from django.apps import apps as django_apps
 from django.db.models.constants import LOOKUP_SEP
 
 from .value_getter import ValueGetter
-import pdb
 
 
 class ModelToDataframeError(Exception):
