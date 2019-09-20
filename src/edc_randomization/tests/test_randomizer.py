@@ -4,7 +4,7 @@ from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_registration.models import RegisteredSubject
-from edc_sites.utils import add_or_update_django_sites
+from edc_sites import add_or_update_django_sites
 from random import shuffle
 from tempfile import mkdtemp
 
@@ -122,6 +122,7 @@ class TestRandomizer(TestCase):
         self.assertEqual(rs.subject_identifier, first_obj.subject_identifier)
         self.assertEqual(rs.sid, str(first_obj.sid))
         self.assertEqual(rs.randomization_datetime, first_obj.allocated_datetime)
+        self.assertEqual(rs.randomization_list_model, first_obj._meta.label_lower)
 
     @override_settings(SITE_ID=40)
     def test_updates_list_obj_as_allocated(self):
@@ -339,7 +340,10 @@ class TestRandomizer(TestCase):
 
         # assert raises on next attempt to randomize
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier=f"ABCDEF", site=site, user_created="erikvw"
+            subject_identifier=f"ABCDEF",
+            site=site,
+            user_created="erikvw",
+            user_modified="erikvw",
         )
         self.assertRaises(
             AllocationError,
