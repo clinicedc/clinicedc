@@ -23,7 +23,7 @@ class MysqlDialect:
         column_names = "','".join(column_names)
         params = {
             "dbname": self.dbname,
-            "app_label": app_label,
+            "app_label": f"{app_label}%",
             "column_names": column_names,
         }
         sql = (
@@ -38,7 +38,7 @@ class MysqlDialect:
         column_names = "','".join(column_names)
         params = {
             "dbname": self.dbname,
-            "app_label": app_label,
+            "app_label": f"{app_label}%",
             "column_names": column_names,
         }
         sql = (
