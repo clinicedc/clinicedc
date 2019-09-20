@@ -3,11 +3,13 @@ import sys
 
 from django.apps import apps as django_apps
 from django.test import TestCase, tag  # noqa
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from tempfile import mkdtemp
 
 from ..csv_exporters import CsvCrfTablesExporter, CsvCrfInlineTablesExporter
 from ..df_handlers import CrfDfHandler
 from .helper import Helper
+from .visit_schedule import get_visit_schedule
 
 app_config = django_apps.get_app_config("edc_pdutils")
 
@@ -18,6 +20,8 @@ class TestExport(TestCase):
 
     def setUp(self):
         self.path = mkdtemp()
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(get_visit_schedule(5))
         for i in range(0, 5):
             self.helper.create_crf(i)
 

@@ -7,7 +7,6 @@ from django.apps import apps as django_apps
 from django.db.models.constants import LOOKUP_SEP
 
 from .value_getter import ValueGetter
-import pdb
 
 
 class ModelToDataframeError(Exception):
@@ -40,7 +39,6 @@ class ModelToDataframe:
         model=None,
         queryset=None,
         query_filter=None,
-        add_columns_for=None,
         decrypt=None,
         drop_sys_columns=None,
         verbose=None,
@@ -52,7 +50,7 @@ class ModelToDataframe:
         self.drop_sys_columns = drop_sys_columns
         self.decrypt = decrypt
         self.m2m_columns = []
-        self.add_columns_for = add_columns_for or []
+        # self.add_columns_for = add_columns_for or []
         self.query_filter = query_filter or {}
         self.verbose = verbose
         if queryset:
@@ -200,13 +198,12 @@ class ModelToDataframe:
                     "requisition_id"
                 ):
                     columns = self.add_columns_for_subject_requisitions(columns=columns)
-
             columns = self.add_subject_identifier_column(columns)
             self._columns = columns
         return self._columns
 
     def add_subject_identifier_column(self, columns):
-        if "subject_identifier" not in columns:
+        if "subject_identifier" not in [v for v in columns.values()]:
             subject_identifier_column = None
             id_columns = [
                 col.replace("_id", "") for col in columns if col.endswith("_id")
@@ -226,9 +223,7 @@ class ModelToDataframe:
         return columns
 
     def add_columns_for_subject_visit(self, column_name=None, columns=None):
-        try:
-            del columns["subject_identifier"]
-        except KeyError:
+        if "subject_identifier" not in [v for v in columns.values()]:
             columns.update(
                 {
                     f"{column_name}__appointment__subject_identifier": (

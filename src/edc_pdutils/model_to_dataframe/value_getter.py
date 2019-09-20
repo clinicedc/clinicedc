@@ -1,6 +1,7 @@
 import string
 
 from django.core.exceptions import ValidationError
+from django.db.models import Manager
 from django.db.models.constants import LOOKUP_SEP
 from django_crypto_fields.fields import BaseField as BaseEncryptedField
 
@@ -52,9 +53,11 @@ class ValueGetter:
 
     @property
     def value(self):
+        """Returns the "value".
+        """
         if not self._value:
             try:
-                self._value = self.get_field_value(self.model_obj, self.field_name)
+                self._value = self._get_field_value(self.model_obj, self.field_name)
             except ValueGetterUnknownField as e:
                 try:
                     self._value = getattr(self.model_obj, e.code)
@@ -68,8 +71,12 @@ class ValueGetter:
             self._value = self.strip_value(self._value)
         return self._value
 
-    def get_field_value(self, model_obj=None, field_name=None):
+    def _get_field_value(self, model_obj=None, field_name=None):
         """Returns a field value.
+
+        1. Tries to access a field as a model instance attribute;
+        2. Via a lookup (e.g. get subject_identifier via subject_visit__subject_identifier)
+        3. as an m2m
         """
         value = ""
         for f in model_obj.__class__._meta.fields:
@@ -81,13 +88,20 @@ class ValueGetter:
                 value = self.encrypted_label
         if value != self.encrypted_label:
             try:
-                value = self.getattr(model_obj, field_name)
+                value = getattr(model_obj, field_name)
             except AttributeError:
                 if field_name in self.lookups:
                     value = self.get_lookup_value(
                         model_obj=model_obj, field_name=field_name
                     )
-                elif field_name in self.m2m_field_names:
+                else:
+                    raise ValueGetterUnknownField(
+                        f"Unknown field name. Perhaps add a lookup. "
+                        f"Got {field_name}.",
+                        code=field_name,
+                    )
+            if isinstance(value, Manager):
+                if field_name in self.m2m_field_names:
                     value = self.get_m2m_value(model_obj, field_name)
                 else:
                     raise ValueGetterUnknownField(
