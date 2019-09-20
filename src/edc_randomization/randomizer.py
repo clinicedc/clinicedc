@@ -177,6 +177,9 @@ class Randomizer:
             self.model_obj.allocated_datetime
         )
         self.registered_subject.registration_status = RANDOMIZED
+        self.registered_subject.randomization_list_model = (
+            self.model_obj._meta.label_lower
+        )
         self.registered_subject.save()
         # requery
         self._registered_subject = self.registered_subject_model_cls.objects.get(
