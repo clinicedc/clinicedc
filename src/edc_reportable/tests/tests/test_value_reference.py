@@ -47,12 +47,9 @@ class TestValueReference(TestCase):
 
         grp.add_normal(ref)
 
-        self.assertFalse(grp.get_normal(
-            value=9, units="mg/dL", gender=MALE, dob=dob))
-        self.assertFalse(grp.get_normal(
-            value=10, units="mg/dL", gender=MALE, dob=dob))
-        self.assertTrue(grp.get_normal(
-            value=11, units="mg/dL", gender=MALE, dob=dob))
+        self.assertFalse(grp.get_normal(value=9, units="mg/dL", gender=MALE, dob=dob))
+        self.assertFalse(grp.get_normal(value=10, units="mg/dL", gender=MALE, dob=dob))
+        self.assertTrue(grp.get_normal(value=11, units="mg/dL", gender=MALE, dob=dob))
         self.assertRaises(ValueReferenceAlreadyAdded, grp.add_normal, ref)
 
         # try without upper bound age
@@ -69,12 +66,9 @@ class TestValueReference(TestCase):
 
         grp.add_normal(ref)
 
-        self.assertFalse(grp.get_normal(
-            value=9, units="mg/dL", gender=MALE, dob=dob))
-        self.assertFalse(grp.get_normal(
-            value=10, units="mg/dL", gender=MALE, dob=dob))
-        self.assertTrue(grp.get_normal(
-            value=11, units="mg/dL", gender=MALE, dob=dob))
+        self.assertFalse(grp.get_normal(value=9, units="mg/dL", gender=MALE, dob=dob))
+        self.assertFalse(grp.get_normal(value=10, units="mg/dL", gender=MALE, dob=dob))
+        self.assertTrue(grp.get_normal(value=11, units="mg/dL", gender=MALE, dob=dob))
         self.assertRaises(ValueReferenceAlreadyAdded, grp.add_normal, ref)
         self.assertEqual(
             grp.get_normal_description(units="mg/dL", gender=MALE, dob=dob),
@@ -256,8 +250,7 @@ class TestValueReference(TestCase):
             grp.get_normal_description(
                 gender=FEMALE, dob=dob, report_datetime=report_datetime, units="mg/dL"
             ),
-            ["1.7<x<=3.5 mg/dL F 18<AGE<99 years",
-                "7.3<x mg/dL F 18<AGE<99 years"],
+            ["1.7<x<=3.5 mg/dL F 18<AGE<99 years", "7.3<x mg/dL F 18<AGE<99 years"],
         )
 
         # overlaps with ref_female3

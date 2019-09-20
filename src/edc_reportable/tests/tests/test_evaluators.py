@@ -29,12 +29,10 @@ class TestEvaluators(TestCase):
             upper_inclusive=False,
         )
 
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 0, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 0, units="mg/dL")
         self.assertTrue(ref.in_bounds_or_raise(0.1, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(99.9, units="mg/dL"))
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 100, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 100, units="mg/dL")
 
     def test_evaluator_lower_none(self):
         """Test the basic evaluator.
@@ -45,8 +43,7 @@ class TestEvaluators(TestCase):
         self.assertTrue(ref.in_bounds_or_raise(0.0, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(0.1, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(99.9, units="mg/dL"))
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 100, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 100, units="mg/dL")
         self.assertRaises(
             ValueBoundryError, ref.in_bounds_or_raise, 10000, units="mg/dL"
         )
@@ -56,10 +53,8 @@ class TestEvaluators(TestCase):
         """
         ref = Evaluator(lower=100, units="mg/dL", lower_inclusive=True)
 
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 0, units="mg/dL")
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 99, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 0, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 99, units="mg/dL")
         self.assertTrue(ref.in_bounds_or_raise(100, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(10000, units="mg/dL"))
 
@@ -71,32 +66,23 @@ class TestEvaluators(TestCase):
         self.assertTrue(repr(ref))
         self.assertTrue(str(ref))
 
-        self.assertRaises(InvalidUnits, Evaluator,
-                          lower=10, upper=100, units=None)
+        self.assertRaises(InvalidUnits, Evaluator, lower=10, upper=100, units=None)
 
         ref = Evaluator(lower=10, upper=100, units="mg/dL")
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 9, units="mg/dL")
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 10, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 9, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 10, units="mg/dL")
         self.assertTrue(ref.in_bounds_or_raise(11, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(99, units="mg/dL"))
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 100, units="mg/dL")
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 101, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 100, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 101, units="mg/dL")
 
-        ref = Evaluator(lower=10, upper=100, units="mg/dL",
-                        lower_inclusive=True)
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 9, units="mg/dL")
+        ref = Evaluator(lower=10, upper=100, units="mg/dL", lower_inclusive=True)
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 9, units="mg/dL")
         self.assertTrue(ref.in_bounds_or_raise(10, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(11, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(99, units="mg/dL"))
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 100, units="mg/dL")
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 101, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 100, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 101, units="mg/dL")
 
         ref = Evaluator(
             lower=10,
@@ -105,32 +91,24 @@ class TestEvaluators(TestCase):
             lower_inclusive=True,
             upper_inclusive=True,
         )
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 9, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 9, units="mg/dL")
         self.assertTrue(ref.in_bounds_or_raise(10, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(11, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(99, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(100, units="mg/dL"))
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 101, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 101, units="mg/dL")
 
-        ref = Evaluator(lower=10, upper=100, units="mg/dL",
-                        upper_inclusive=True)
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 9, units="mg/dL")
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 10, units="mg/dL")
+        ref = Evaluator(lower=10, upper=100, units="mg/dL", upper_inclusive=True)
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 9, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 10, units="mg/dL")
         self.assertTrue(ref.in_bounds_or_raise(11, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(99, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(100, units="mg/dL"))
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 101, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 101, units="mg/dL")
 
         ref = Evaluator(lower=10, upper=None, units="mg/dL")
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 9, units="mg/dL")
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 10, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 9, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 10, units="mg/dL")
         self.assertTrue(ref.in_bounds_or_raise(11, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(99, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(100, units="mg/dL"))
@@ -140,13 +118,10 @@ class TestEvaluators(TestCase):
         self.assertTrue(ref.in_bounds_or_raise(-1, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(1, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(99, units="mg/dL"))
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 100, units="mg/dL")
-        self.assertRaises(ValueBoundryError,
-                          ref.in_bounds_or_raise, 101, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 100, units="mg/dL")
+        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 101, units="mg/dL")
 
-        self.assertRaises(
-            InvalidUnits, ref.in_bounds_or_raise, 101, units="blah")
+        self.assertRaises(InvalidUnits, ref.in_bounds_or_raise, 101, units="blah")
 
         ref = Evaluator(lower=None, upper=100, units="mg/dL")
         self.assertEqual(ref.description(), "x<100.0 mg/dL")

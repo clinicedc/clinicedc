@@ -65,9 +65,7 @@ class TestSpecimenResultForm(TestCase):
         }
 
     def test_haemoglobin_units_invalid(self):
-        self.cleaned_data.update(
-            haemoglobin=6.4,
-            results_abnormal=YES)
+        self.cleaned_data.update(haemoglobin=6.4, results_abnormal=YES)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
@@ -146,8 +144,7 @@ class TestSpecimenResultForm(TestCase):
 
     def test_creatinine_umol(self):
 
-        self.cleaned_data.update(
-            creatinine=100, creatinine_units=MICROMOLES_PER_LITER)
+        self.cleaned_data.update(creatinine=100, creatinine_units=MICROMOLES_PER_LITER)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
