@@ -1,5 +1,3 @@
-
-
 class MysqlDialect:
     def __init__(self, dbname=None):
         self.dbname = dbname

@@ -73,16 +73,14 @@ class Database:
         """Returns a dataframe of table names in the schema
         that have a column in column_names.
         """
-        sql, params = self.dialect.show_tables_with_columns(
-            app_label, column_names)
+        sql, params = self.dialect.show_tables_with_columns(app_label, column_names)
         return self.read_sql(sql, params=params)
 
     def show_tables_without_columns(self, app_label=None, column_names=None):
         """Returns a dataframe of table names in the schema.
         that DO NOT have a column in column_names.
         """
-        sql, params = self.dialect.show_tables_without_columns(
-            app_label, column_names)
+        sql, params = self.dialect.show_tables_without_columns(app_label, column_names)
         return self.read_sql(sql, params=params)
 
     def show_inline_tables(self, referenced_table_name=None):
