@@ -134,6 +134,8 @@ class RegisteredSubject(
         editable=False,
     )
 
+    randomization_list_model = models.CharField(max_length=150, null=True)
+
     on_site = CurrentSiteManager()
 
     history = HistoricalRecords()
