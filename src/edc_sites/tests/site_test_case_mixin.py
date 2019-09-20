@@ -25,7 +25,6 @@ class SiteTestCaseMixin:
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        Site.objects.all().delete()
         for site_id, site_name, _ in cls.default_sites:
             try:
                 Site.objects.get(pk=site_id)
