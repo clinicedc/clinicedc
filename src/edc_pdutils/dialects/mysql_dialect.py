@@ -11,11 +11,11 @@ class MysqlDialect:
         return sql, None
 
     def show_tables(self, app_label=None):
-        params = {"dbname": self.dbname, "app_label": f"{app_label}%%"}
+        params = {"dbname": self.dbname, "app_label": app_label}
         select = "SELECT table_name FROM information_schema.tables"
         where = ["table_schema=%(dbname)s"]
         if app_label:
-            where.append("table_name LIKE %(app_label)s")
+            where.append("table_name LIKE %(app_label)s%% ")
         sql = f'{select} WHERE {" AND ".join(where)}'
         return sql, params
 
@@ -23,13 +23,13 @@ class MysqlDialect:
         column_names = "','".join(column_names)
         params = {
             "dbname": self.dbname,
-            "app_label": f"{app_label}%%",
+            "app_label": app_label,
             "column_names": column_names,
         }
         sql = (
             "SELECT DISTINCT table_name FROM information_schema.columns "
             f"WHERE table_schema=%(dbname)s "
-            f"AND table_name LIKE %(app_label)s "
+            f"AND table_name LIKE %(app_label)s%% "
             f"AND column_name IN (%(column_names)s)"
         )
         return sql, params
@@ -38,14 +38,14 @@ class MysqlDialect:
         column_names = "','".join(column_names)
         params = {
             "dbname": self.dbname,
-            "app_label": f"{app_label}%%",
+            "app_label": app_label,
             "column_names": column_names,
         }
         sql = (
             "SELECT DISTINCT table_name FROM information_schema.tables as T "
             "WHERE T.table_schema = %(dbname)s "
             "AND T.table_type = 'BASE TABLE' "
-            "AND T.table_name LIKE %(app_label)s "
+            "AND T.table_name LIKE %(app_label)s%% "
             "AND NOT EXISTS ("
             "SELECT * FROM INFORMATION_SCHEMA.COLUMNS C "
             "WHERE C.table_schema = T.table_schema "
