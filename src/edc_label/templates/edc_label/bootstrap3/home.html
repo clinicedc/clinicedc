@@ -20,7 +20,7 @@
       <form action="{% url 'edc_label:change_session_print_server' %}" method="post">
           {% csrf_token %}
         <div class="form-group">
-              <select class="form-control" id="print_server_name" name="print_server_name" onchange="submit();">
+              <select class="form-control" id="{{ PRINT_SERVER_NAME }}" name="{{ PRINT_SERVER_NAME }}" onchange="submit();">
               <option {% if not selected_print_server_name %}selected{% endif %} value="--">select one</option>
               {% for print_server_name in print_servers.keys %}
                  <option {% if print_server_name == selected_print_server_name %}selected{% endif %}>{{ print_server_name }}</option>
@@ -34,9 +34,9 @@
     
   {% if printers %}
 
-      {% printer_config heading="Your clinic label printer" printer_type="clinic_label_printer" selected_printer=selected_clinic_label_printer printers=printers %}
+      {% printer_config heading="Your clinic label printer" printer_type=CLINIC_LABEL_PRINTER selected_printer=selected_clinic_label_printer printers=printers %}
 
-      {% printer_config heading="Your lab label printer" printer_type="lab_label_printer" selected_printer=selected_lab_label_printer printers=printers %}
+      {% printer_config heading="Your lab label printer" printer_type=LAB_LABEL_PRINTER selected_printer=selected_lab_label_printer printers=printers %}
 
   {% endif %}
 
