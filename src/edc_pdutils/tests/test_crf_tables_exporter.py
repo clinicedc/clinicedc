@@ -1,5 +1,4 @@
 import csv
-import sys
 
 from django.apps import apps as django_apps
 from django.test import TestCase, tag  # noqa
@@ -38,7 +37,6 @@ class TestExport(TestCase):
             app_label = "edc_pdutils"
             export_folder = self.path
 
-        sys.stdout.write("\n")
         exporter = MyCsvCrfTablesExporter()
         exporter.to_csv()
         self.assertGreater(len(exporter.exported_paths), 0)
@@ -61,7 +59,6 @@ class TestExport(TestCase):
             app_label = "edc_pdutils"
             export_folder = self.path
 
-        sys.stdout.write("\n")
         exporter = MyCsvCrfInlineTablesExporter()
         exporter.to_csv()
         self.assertGreater(len(exporter.exported_paths), 0)

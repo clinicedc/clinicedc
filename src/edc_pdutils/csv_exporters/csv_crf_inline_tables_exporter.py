@@ -31,7 +31,6 @@ class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
             )
             for row in self.get_inline_table_names(table_name).itertuples():
                 if row.table_name not in self.exclude_inline_tables:
-                    print(row.table_name)
                     df_inline = self.to_inline_df(table_name=row.table_name, **kwargs)
                     df = self.merge_with_inline(
                         df_table,
