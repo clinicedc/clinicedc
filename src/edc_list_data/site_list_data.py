@@ -33,13 +33,14 @@ class SiteListData:
                         import_module(f"{app}.{module_name}")
                         writer(f" * loading '{module_name}' from '{app}'\n")
                     except PreloadDataError as e:
-                        writer(f"   - loading {app}.{module_name} ... ")
+                        writer(f"   - loading {app}.{module_name} ... \n")
                         writer(style.ERROR(f"ERROR! {e}\n"))
                     except ImportError as e:
                         if module_has_submodule(mod, module_name):
                             raise SiteListDataError(e)
                 except ImportError:
                     pass
+            writer(f"\n")
 
 
 site_list_data = SiteListData()
