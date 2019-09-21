@@ -37,7 +37,6 @@ class TestExport(TestCase):
             app_label = "edc_pdutils"
             export_folder = self.path
 
-        sys.stdout.write("\n")
         exporter = MyNonCsvCrfTablesExporter()
         exporter.to_csv()
         self.assertGreater(len(exporter.exported_paths), 0)

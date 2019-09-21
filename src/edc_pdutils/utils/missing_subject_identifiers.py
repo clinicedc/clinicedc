@@ -1,6 +1,8 @@
 import pandas as pd
 
-from .subject_model_to_dataframe import SubjectModelToDataframe
+from warnings import warn
+
+from ..model_to_dataframe import SubjectModelToDataframe
 
 
 def missing_subject_identifiers(
@@ -37,7 +39,7 @@ def missing_subject_identifiers(
     ]
 
     if len(df_missing.index) > 0 and verbose:
-        print(
+        warn(
             f'There are {len(df_missing["identifier"])} subject identifiers '
             f"missing from {model}."
         )

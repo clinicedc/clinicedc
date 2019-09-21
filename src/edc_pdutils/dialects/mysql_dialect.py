@@ -2,16 +2,19 @@ class MysqlDialect:
     def __init__(self, dbname=None):
         self.dbname = dbname
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.dbname})"
+
     def show_databases(self):
         sql = "SELECT SCHEMA_NAME AS `database` FROM INFORMATION_SCHEMA.SCHEMATA"
         return sql, None
 
     def show_tables(self, app_label=None):
-        params = {"dbname": self.dbname, "app_label": f"{app_label}%"}
+        params = {"dbname": self.dbname, "app_label": f"{app_label}%%"}
         select = "SELECT table_name FROM information_schema.tables"
         where = ["table_schema=%(dbname)s"]
         if app_label:
-            where.append("table_name LIKE %(app_label)s")
+            where.append("table_name LIKE %(app_label)s ")
         sql = f'{select} WHERE {" AND ".join(where)}'
         return sql, params
 
@@ -19,7 +22,7 @@ class MysqlDialect:
         column_names = "','".join(column_names)
         params = {
             "dbname": self.dbname,
-            "app_label": f"{app_label}%",
+            "app_label": f"{app_label}%%",
             "column_names": column_names,
         }
         sql = (
@@ -34,7 +37,7 @@ class MysqlDialect:
         column_names = "','".join(column_names)
         params = {
             "dbname": self.dbname,
-            "app_label": f"{app_label}%",
+            "app_label": f"{app_label}%%",
             "column_names": column_names,
         }
         sql = (
@@ -51,8 +54,8 @@ class MysqlDialect:
         return sql, params
 
     def select_table(self, table_name=None):
-        params = {"table_name": table_name}
-        sql = "select * from %(table_name)s"
+        params = {}
+        sql = f"select * from {table_name}"
         return sql, params
 
     def show_inline_tables(self, referenced_table_name=None):

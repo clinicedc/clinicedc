@@ -28,7 +28,6 @@ class Helper(BaseHelper):
                 table_name=table_name, drop_sys_columns=drop_sys_columns
             ).dataframe
             df_raw.to_csv(os.path.join(path, csv_filename), index=False)
-            print(os.path.join(path, csv_filename))
         else:
             df_raw = pd.read_csv(os.path.join(path, csv_filename), low_memory=False)
         return df_raw
