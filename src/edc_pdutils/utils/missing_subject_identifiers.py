@@ -1,7 +1,8 @@
 import pandas as pd
 
 from warnings import warn
-from .subject_model_to_dataframe import SubjectModelToDataframe
+
+from ..model_to_dataframe import SubjectModelToDataframe
 
 
 def missing_subject_identifiers(
