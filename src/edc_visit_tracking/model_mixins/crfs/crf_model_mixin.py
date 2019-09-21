@@ -43,7 +43,7 @@ class CrfModelMixin(CrfVisitMethodsModelMixin, models.Model):
     def natural_key(self):
         return (getattr(self, self.visit_model_attr()).natural_key(),)
 
-    # TODO: need to add the natural key dependencies !!
+    natural_key.dependencies = [settings.SUBJECT_VISIT_MODEL]
 
     class Meta:
         abstract = True
