@@ -46,7 +46,8 @@ class AppConfig(DjangoAppConfig):
             except SiteListDataError as e:
                 sys.stdout.write(
                     style.ERROR(
-                        f' Failed to update list data! Fix the issue and restart. \n "{e}".\n'
+                        f" Failed to update list data! Fix the issue "
+                        f"and restart. \n '{e}'.\n"
                     )
                 )
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")
