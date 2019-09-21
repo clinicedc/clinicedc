@@ -1,5 +1,3 @@
-import cups
-
 from django.test import TestCase, tag
 
 from ..printer import Printer

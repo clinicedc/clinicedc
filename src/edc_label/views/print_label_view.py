@@ -19,6 +19,10 @@ class PrintLabelView(LoginRequiredMixin, PrintersMixin, ProcessFormView):
         printer_name = request.POST.get("printer_name")
         label_template_name = request.POST.get("label_template_name")
         printer = self.printers.get(printer_name)
+        if printer.printer_state_message:
+            messages.warning(
+                request, f"{printer.name}: {printer.printer_state_message}"
+            )
         label = self.label_cls(label_template_name=label_template_name)
         zpl_data = label.render_as_zpl_data(copies=3, context={})
         job_id = printer.stream_print(zpl_data=zpl_data)

@@ -2,8 +2,14 @@ import socket
 
 from cups import Connection, IPPError
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.utils.translation import gettext as _
 
+from .constants import (
+    CLINIC_LABEL_PRINTER_NAME,
+    LAB_LABEL_PRINTER_NAME,
+    PRINT_SERVER_NAME,
+)
 from .printer import Printer
 
 
@@ -30,7 +36,7 @@ class PrintersMixin:
         """Returns a string.
         """
         return self.request.session.get(
-            "print_server_name", self.user_profile.print_server
+            PRINT_SERVER_NAME, self.user_profile.print_server
         )
 
     @property
@@ -38,7 +44,7 @@ class PrintersMixin:
         """Returns a string.
         """
         return self.request.session.get(
-            "clinic_label_printer_name", self.user_profile.clinic_label_printer
+            CLINIC_LABEL_PRINTER_NAME, self.user_profile.clinic_label_printer
         )
 
     @property
@@ -46,7 +52,7 @@ class PrintersMixin:
         """Returns a string.
         """
         return self.request.session.get(
-            "lab_label_printer_name", self.user_profile.lab_label_printer
+            LAB_LABEL_PRINTER_NAME, self.user_profile.lab_label_printer
         )
 
     @property
@@ -58,6 +64,14 @@ class PrintersMixin:
         except (TypeError, socket.gaierror):
             return self.print_server_name
 
+    @property
+    def print_servers(self):
+        """Returns a list of CUPS print servers.
+
+        Default is ['localhost'].
+        """
+        return getattr(settings, "CUPS_SERVERS", ["localhost"])
+
     def print_server(self):
         """Returns a CUPS connection.
         """
@@ -68,7 +82,7 @@ class PrintersMixin:
                     cups_connection = self.connect_cls()
                 else:
                     cups_connection = self.connect_cls(self.print_server_ip)
-            except RuntimeError as e:
+            except (RuntimeError, IPPError) as e:
                 raise PrintServerError(
                     f"{_('Unable to connect to print server. Tried ')}"
                     f"'{self.print_server_name}'. {_('Got')} {e}"
@@ -81,16 +95,11 @@ class PrintersMixin:
     def printers(self):
         """Returns a mapping of PrinterProperties objects
         or an empty mapping.
+
+        If print server is not defined, raises.
         """
         printers = {}
-        cups_printers = {}
-        try:
-            cups_printers = self.print_server().getPrinters()
-        except (RuntimeError, IPPError) as e:
-            raise PrinterError(
-                f"{_('Unable to list printers from print server')}. "
-                f"{_('Tried')} '{self.print_server_name}'. {_('Got')} {e}"
-            )
+        cups_printers = self.print_server().getPrinters()
         for name in cups_printers:
             printer = Printer(
                 name=name,
@@ -101,7 +110,9 @@ class PrintersMixin:
             printers.update({name: printer})
         return printers
 
-    def _get_label_printer(self, name):
+    def get_label_printer(self, name):
+        """Returns a PrinterProperties object, None or raises.
+        """
         printer = self.printers.get(name)
         if not printer:
             raise PrinterError(
@@ -114,10 +125,10 @@ class PrintersMixin:
     def clinic_label_printer(self):
         """Returns a PrinterProperties object or None.
         """
-        return self._get_label_printer(self.clinic_label_printer_name)
+        return self.get_label_printer(self.clinic_label_printer_name)
 
     @property
     def lab_label_printer(self):
         """Returns a PrinterProperties object or None.
         """
-        return self._get_label_printer(self.lab_label_printer_name)
+        return self.get_label_printer(self.lab_label_printer_name)
