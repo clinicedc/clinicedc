@@ -4,7 +4,10 @@ from edc_action_item.managers import (
     ActionIdentifierManager,
 )
 from edc_action_item.models import ActionModelMixin
-from edc_identifier.model_mixins import TrackingModelMixin
+from edc_identifier.model_mixins import (
+    TrackingModelMixin,
+    NonUniqueSubjectIdentifierFieldMixin,
+)
 from edc_sites.models import SiteModelMixin
 
 from ...constants import AE_FOLLOWUP_ACTION
@@ -13,6 +16,7 @@ from .ae_followup_methods_model_mixin import AeFollowupMethodsModelMixin
 
 
 class AeFollowupModelMixin(
+    NonUniqueSubjectIdentifierFieldMixin,
     ActionModelMixin,
     TrackingModelMixin,
     AeFollowupFieldsModelMixin,

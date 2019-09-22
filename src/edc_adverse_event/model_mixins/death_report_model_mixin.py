@@ -7,7 +7,10 @@ from edc_action_item.managers import (
 )
 from edc_action_item.models import ActionModelMixin
 from edc_constants.choices import YES_NO
-from edc_identifier.model_mixins import TrackingModelMixin
+from edc_identifier.model_mixins import (
+    TrackingModelMixin,
+    UniqueSubjectIdentifierFieldMixin,
+)
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
@@ -18,14 +21,16 @@ from ..models import CauseOfDeath
 
 
 class DeathReportModelMixin(
-    SiteModelMixin, ActionModelMixin, TrackingModelMixin, models.Model
+    UniqueSubjectIdentifierFieldMixin,
+    SiteModelMixin,
+    ActionModelMixin,
+    TrackingModelMixin,
+    models.Model,
 ):
 
     action_name = DEATH_REPORT_ACTION
 
     tracking_identifier_prefix = "DR"
-
-    subject_identifier = models.CharField(max_length=50, unique=True)
 
     report_datetime = models.DateTimeField(
         verbose_name="Report Date",

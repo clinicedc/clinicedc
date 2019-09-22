@@ -5,7 +5,10 @@ from edc_action_item.managers import (
 )
 from edc_action_item.models import ActionModelMixin
 from edc_adverse_event.constants import AESI_ACTION
-from edc_identifier.model_mixins import TrackingModelMixin
+from edc_identifier.model_mixins import (
+    TrackingModelMixin,
+    NonUniqueSubjectIdentifierFieldMixin,
+)
 from edc_model.models import ReportStatusModelMixin
 from edc_sites.models import SiteModelMixin
 
@@ -14,6 +17,7 @@ from .aesi_methods_model_mixin import AesiMethodsModelMixin
 
 
 class AesiModelMixin(
+    NonUniqueSubjectIdentifierFieldMixin,
     ActionModelMixin,
     TrackingModelMixin,
     AesiFieldsModelMixin,
