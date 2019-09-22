@@ -16,8 +16,7 @@ class CurrentSiteManager(BaseCurrentSiteManager):
 
 class SiteModelMixin(models.Model):
 
-    site = models.ForeignKey(
-        Site, on_delete=models.PROTECT, null=True, editable=False)
+    site = models.ForeignKey(Site, on_delete=models.PROTECT, null=True, editable=False)
 
     def save(self, *args, **kwargs):
         if not self.site:
@@ -31,7 +30,7 @@ class SiteModelMixin(models.Model):
 
 class SiteProfile(models.Model):
 
-    title = models.CharField(max_length=50, null=True)
+    title = models.CharField(max_length=250, null=True)
 
     description = models.TextField(null=True)
 
@@ -42,7 +41,6 @@ class SiteProfile(models.Model):
 
 
 class EdcSite(Site):
-
     @property
     def title(self):
         return SiteProfile.objects.get(site=self).title

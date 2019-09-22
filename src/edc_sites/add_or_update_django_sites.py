@@ -48,8 +48,7 @@ def get_or_create_site_obj(site, fqdn, apps):
         site_obj = Site.objects.get(pk=site[SITE_ID])
     except ObjectDoesNotExist:
         site_obj = Site.objects.create(
-            pk=site[SITE_ID], name=site[SITE_NAME],
-            domain=f"{site[SITE_NAME]}.{fqdn}"
+            pk=site[SITE_ID], name=site[SITE_NAME], domain=f"{site[SITE_NAME]}.{fqdn}"
         )
     else:
         site_obj.name = site[SITE_NAME]
@@ -63,9 +62,7 @@ def get_or_create_site_profile_obj(site, site_obj, apps):
     try:
         site_profile = SiteProfile.objects.get(site=site_obj)
     except ObjectDoesNotExist:
-        opts = dict(
-            title=site[SITE_TITLE],
-            site=site_obj)
+        opts = dict(title=site[SITE_TITLE], site=site_obj)
         try:
             opts.update(description=site[SITE_DESCRIPTION])
         except IndexError:

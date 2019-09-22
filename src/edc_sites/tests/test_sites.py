@@ -59,16 +59,14 @@ class TestSites(SiteTestCaseMixin, TestCase):
         except ReviewerSiteSaveError:
             self.fail("SiteModelError unexpectedly raised")
 
-        self.assertRaises(ReviewerSiteSaveError,
-                          raise_on_save_if_reviewer, site_id=0)
+        self.assertRaises(ReviewerSiteSaveError, raise_on_save_if_reviewer, site_id=0)
 
     @override_settings(SITE_ID=30, REVIEWER_SITE_ID=30)
     def test_raise_on_save_in_form(self):
         form = TestForm(data={"f1": "100"})
         self.assertFalse(form.is_valid())
         self.assertIn(
-            "Adding or changing data has been disabled", form.errors.get("__all__")[
-                0]
+            "Adding or changing data has been disabled", form.errors.get("__all__")[0]
         )
 
     def test_get_site_id_by_name(self):
@@ -92,8 +90,7 @@ class TestSites2(TestCase):
         for site in default_sites:
             self.assertIn(site[0], [obj.id for obj in Site.objects.all()])
 
-        self.assertNotIn("example.com", [str(obj)
-                                         for obj in Site.objects.all()])
+        self.assertNotIn("example.com", [str(obj) for obj in Site.objects.all()])
 
         add_or_update_django_sites(sites=sites, verbose=True)
 

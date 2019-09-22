@@ -11,8 +11,7 @@ def get_site_id(value, sites=None):
     """
     if not sites:
         EdcSite = django_apps.get_model("edc_sites.edcsite")
-        sites = [(obj.id, obj.name, obj.title)
-                 for obj in EdcSite.objects.all()]
+        sites = [(obj.id, obj.name, obj.title) for obj in EdcSite.objects.all()]
 
     try:
         site_id = [site for site in sites if site[1] == value][0][0]
