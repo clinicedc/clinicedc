@@ -16,11 +16,20 @@ from edc_reference.model_mixins import (
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import OnScheduleModelMixin, OffScheduleModelMixin
-from edc_visit_tracking.model_mixins import VisitModelMixin, CrfModelMixin
+from edc_visit_tracking.model_mixins import (
+    VisitModelMixin,
+    CrfModelMixin as BaseCrfModelMixin,
+)
 
 from ..model_mixins.creates import CreatesMetadataModelMixin
 from ..model_mixins.updates import UpdatesCrfMetadataModelMixin
 from ..model_mixins.updates import UpdatesRequisitionMetadataModelMixin
+from edc_sites.models import SiteModelMixin
+
+
+class CrfModelMixin(BaseCrfModelMixin, SiteModelMixin, models.Model):
+    class Meta:
+        abstract = True
 
 
 class OnSchedule(OnScheduleModelMixin, BaseUuidModel):
@@ -71,7 +80,11 @@ class SubjectConsent(
 
 
 class SubjectVisit(
-    VisitModelMixin, ReferenceModelMixin, CreatesMetadataModelMixin, BaseUuidModel
+    VisitModelMixin,
+    ReferenceModelMixin,
+    CreatesMetadataModelMixin,
+    SiteModelMixin,
+    BaseUuidModel,
 ):
 
     appointment = models.OneToOneField(Appointment, on_delete=PROTECT)
