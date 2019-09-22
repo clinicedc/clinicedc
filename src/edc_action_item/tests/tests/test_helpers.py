@@ -171,9 +171,7 @@ class TestHelpers(TestCase):
         subject_visit = SubjectVisit.objects.create(
             subject_identifier=self.subject_identifier, appointment=appointment
         )
-        crf_one = CrfOne.objects.create(
-            subject_identifier=self.subject_identifier, subject_visit=subject_visit
-        )
+        crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         action_item = ActionItem.objects.get(
             action_identifier=crf_one.action_identifier
         )
@@ -194,12 +192,8 @@ class TestHelpers(TestCase):
         subject_visit = SubjectVisit.objects.create(
             subject_identifier=self.subject_identifier, appointment=appointment
         )
-        crf_one = CrfOne.objects.create(
-            subject_identifier=self.subject_identifier, subject_visit=subject_visit
-        )
-        crf_two = CrfTwo.objects.create(
-            subject_identifier=self.subject_identifier, subject_visit=subject_visit
-        )
+        crf_one = CrfOne.objects.create(subject_visit=subject_visit)
+        crf_two = CrfTwo.objects.create(subject_visit=subject_visit)
         action_item = ActionItem.objects.get(
             action_identifier=crf_two.action_identifier
         )
