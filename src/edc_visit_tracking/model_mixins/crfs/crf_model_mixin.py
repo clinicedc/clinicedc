@@ -45,6 +45,10 @@ class CrfModelMixin(CrfVisitMethodsModelMixin, models.Model):
 
     natural_key.dependencies = [settings.SUBJECT_VISIT_MODEL]
 
+    @property
+    def subject_identifier(self):
+        return self.subject_visit.subject_identifier
+
     class Meta:
         abstract = True
         indexes = [models.Index(fields=["subject_visit", "report_datetime"])]
