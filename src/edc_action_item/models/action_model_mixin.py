@@ -29,8 +29,6 @@ class ActionModelMixin(models.Model):
 
     action_identifier = models.CharField(max_length=50, unique=True)
 
-    subject_identifier = models.CharField(max_length=50)
-
     action_item = models.ForeignKey(ActionItem, null=True, on_delete=PROTECT)
 
     parent_action_item = models.ForeignKey(
