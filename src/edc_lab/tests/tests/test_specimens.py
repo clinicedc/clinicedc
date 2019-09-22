@@ -9,7 +9,7 @@ from edc_lab.lab import AliquotType, Process, ProcessingProfile
 from edc_lab.lab import Specimen as SpecimenBase, SpecimenNotDrawnError
 from edc_lab.lab import SpecimenProcessor
 from edc_lab.models import Aliquot
-from edc_sites.utils import add_or_update_django_sites
+from edc_sites import add_or_update_django_sites
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED

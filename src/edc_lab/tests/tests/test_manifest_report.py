@@ -4,7 +4,7 @@ from django.test import TestCase, tag  # noqa
 from edc_lab.models import Box, BoxItem, BoxType, Aliquot
 from edc_lab.models import Manifest, Shipper, Consignee, ManifestItem
 from edc_lab.reports import ManifestReport, ManifestReportError
-from edc_sites.utils import add_or_update_django_sites
+from edc_sites import add_or_update_django_sites
 
 
 class TestManifest(TestCase):

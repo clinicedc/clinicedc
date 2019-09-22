@@ -137,6 +137,9 @@ class SiteLabs:
                     panel_model_obj.display_name = panel.verbose_name
                     panel_model_obj.save()
 
+    def to_csv(self):
+        pass
+
     def autodiscover(self, module_name=None, verbose=False):
         """Autodiscovers classes in the labs.py file of any
         INSTALLED_APP.

@@ -1,5 +1,11 @@
-from ..lab import AliquotType, RequisitionPanel, Process, ProcessingProfile, LabProfile
-from ..site_labs import site_labs
+from edc_lab.lab import (
+    AliquotType,
+    RequisitionPanel,
+    Process,
+    ProcessingProfile,
+    LabProfile,
+)
+from edc_lab.site_labs import site_labs
 
 
 class SiteLabsTestHelper:

@@ -15,11 +15,17 @@ from edc_visit_tracking.constants import SCHEDULED
 from ..models import SubjectVisit
 from ..models import SubjectRequisition, SubjectConsent
 from ..visit_schedules import visit_schedule
+from edc_facility.import_holidays import import_holidays
 
 
 class TestLabels(TestCase):
 
     lab_helper = SiteLabsTestHelper()
+
+    @classmethod
+    def setUpClass(cls):
+        import_holidays()
+        return super().setUpClass()
 
     def setUp(self):
         site_visit_schedules._registry = {}

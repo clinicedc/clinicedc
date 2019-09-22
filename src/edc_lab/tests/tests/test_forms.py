@@ -9,7 +9,7 @@ from edc_form_validators import FormValidatorMixin
 from edc_lab.form_validators import RequisitionFormValidator
 from edc_lab.forms import BoxForm, ManifestForm, BoxTypeForm, RequisitionFormMixin
 from edc_lab.models import Aliquot
-from edc_sites.utils import add_or_update_django_sites
+from edc_sites import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -30,10 +30,6 @@ class TestForms(TestCase):
     def setUp(self):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_box_form_specimen_types1(self):
         data = {"specimen_types": "12, 13"}
