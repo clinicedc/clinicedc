@@ -15,9 +15,7 @@ class NonUniqueSubjectIdentifierFieldMixin(models.Model):
     identifier field.
     """
 
-    subject_identifier = models.CharField(
-        verbose_name="Subject Identifier", max_length=50
-    )
+    subject_identifier = models.CharField(max_length=50)
 
     class Meta:
         abstract = True
@@ -28,9 +26,7 @@ class UniqueSubjectIdentifierFieldMixin(models.Model):
     field.
     """
 
-    subject_identifier = models.CharField(
-        verbose_name="Subject Identifier", max_length=50, unique=True
-    )
+    subject_identifier = models.CharField(max_length=50, unique=True)
 
     class Meta:
         abstract = True
@@ -59,6 +55,8 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
     """An internal model mixin to add a unique subject identifier
     field and fill it with a unique value for new instances.
     """
+
+    subject_identifier_cls = SubjectIdentifier
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -96,7 +94,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
 
         Override this if needed.
         """
-        subject_identifier = SubjectIdentifier(
+        subject_identifier = self.subject_identifier_cls(
             identifier_type="subject",
             requesting_model=self._meta.label_lower,
             site=self.site,

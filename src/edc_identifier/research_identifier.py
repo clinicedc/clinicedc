@@ -73,17 +73,23 @@ class ResearchIdentifier:
             )
             self._identifier = f"{self._identifier}-{check_digit}"
             self.identifier_model = self.identifier_model_cls.objects.create(
-                name=self.label,
-                sequence_number=self.sequence_number,
-                identifier=self._identifier,
-                protocol_number=self.protocol_number,
-                device_id=self.device_id,
-                model=self.requesting_model,
-                site=self.site,
-                identifier_type=self.identifier_type,
+                **self.identifier_options
             )
             self.post_identifier()
         return self._identifier
+
+    @property
+    def identifier_options(self):
+        return dict(
+            name=self.label,
+            sequence_number=self.sequence_number,
+            identifier=self._identifier,
+            protocol_number=self.protocol_number,
+            device_id=self.device_id,
+            model=self.requesting_model,
+            site=self.site,
+            identifier_type=self.identifier_type,
+        )
 
     def pre_identifier(self):
         pass
