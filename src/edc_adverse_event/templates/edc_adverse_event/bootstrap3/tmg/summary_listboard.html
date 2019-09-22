@@ -1,0 +1,42 @@
+{% extends edc_listboard_template %}
+
+{% load edc_dashboard_extras %}
+{% load tz %}
+{% load static %}
+
+
+{% block listboard_table_header %}
+
+    <!-- begin results header -->
+    <th>#</th>
+    <th>TMG</th>
+    <th>Subject</th>
+    <th>Created</th>
+    <th>Modified</th>
+    <th>Parent</th>
+    <th>Related</th>
+    <th>Follow-ups</th>
+    <!-- end results header -->
+
+{% endblock listboard_table_header %}
+
+{% block listboard_table_button_column %}{% endblock %}
+
+{% block listboard_table_columns %}
+
+    <td>{{ result.reference_model_name }}&nbsp;{% if result.reference_obj.report_status != CLOSED %}<span class="label label-danger">{{ result.reference_obj.report_status|default:'New'|title }}</span>{% endif %}
+        <br><span class="text text-muted small">{{ utc_date|timeuntil:result.report_datetime.date }} ago</span>
+    </td>
+    <td>{{ result.subject_identifier }}
+        <br>{{ result.parent_reference_obj.site.name|title }}
+        {% if result.death_report_obj %}
+            <BR><span class="label label-info">Deceased</span>
+        {% endif %}
+    </td>
+    <td>{{ result.reference_obj.user_created|default:"---" }}<BR>{{ result.reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</td>
+    <td>{{ result.reference_obj.user_modified|default:"---" }}<BR>{{ result.reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</td>
+    <td>{{ result.parent_reference_model_name|default:"" }}</td>
+    <td>{{ result.related_reference_model_name|default:"" }}</td>
+    <td>{% for obj in result.parent_reference_obj.ae_follow_ups %}<p>AE Followup {{ obj }}</p>{% endfor %}</td>
+
+{% endblock listboard_table_columns %}

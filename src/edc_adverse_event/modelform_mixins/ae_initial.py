@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_action_item.forms import ActionItemFormMixin
@@ -8,17 +9,12 @@ from edc_registration.modelform_mixins import ModelFormSubjectIdentifierMixin
 from edc_reportable import GRADE4, GRADE5
 
 from ..form_validators import AeInitialFormValidator
+from edc_adverse_event.get_ae_model import get_ae_model
 
 
-class AeInitialForm(
-    FormValidatorMixin,
-    ModelFormSubjectIdentifierMixin,
-    ActionItemFormMixin,
-    forms.ModelForm,
+class AeInitialModelFormMixin(
+    FormValidatorMixin, ModelFormSubjectIdentifierMixin, ActionItemFormMixin
 ):
-
-    ae_followup_model_cls = None
-    ae_admin_site_name = None
 
     form_validator_cls = AeInitialFormValidator
 
@@ -46,24 +42,25 @@ class AeInitialForm(
 
     @property
     def changelist_url(self):
-        app_label = self.ae_followup_model_cls._meta.app_label
-        model_name = self.ae_followup_model_cls._meta.object_name.lower()
-        return reverse(f"{self.ae_admin_site_name}:{app_label}_{model_name}_changelist")
+        AeFollowup = get_ae_model("aefollowup")
+        app_label = AeFollowup._meta.app_label
+        model_name = AeFollowup._meta.object_name.lower()
+        return reverse(
+            f"{settings.ADVERSE_EVENT_ADMIN_SITE}:{app_label}_{model_name}_changelist"
+        )
 
     def raise_if_followup_exists(self):
         """Raise an exception if the AE followup exists
         and the user is attempting to change this form.
         """
-
-        if self.ae_followup_model_cls.objects.filter(
-            ae_initial=self.instance.pk
-        ).exists():
+        AeFollowup = get_ae_model("aefollowup")
+        if AeFollowup.objects.filter(ae_initial=self.instance.pk).exists():
             url = f"{self.changelist_url}?q={self.instance.action_identifier}"
             raise forms.ValidationError(
                 mark_safe(
                     f"Unable to save. Follow-up reports exist. Provide updates "
                     f"to this report using the "
-                    f"{self.ae_followup_model_cls._meta.verbose_name} instead. "
+                    f"{AeFollowup._meta.verbose_name} instead. "
                     f'See <A href="{url}">AE Follow-ups for {self.instance}</A>.'
                 )
             )

@@ -10,6 +10,14 @@ from edc_reportable import (
     SEVERITY_INCREASED_FROM_G3,
 )
 
+from .constants import (
+    CONTINUING_UPDATE,
+    NOT_RECOVERED,
+    RECOVERED,
+    RECOVERED_WITH_SEQUELAE,
+    RECOVERING,
+)
+
 AE_INTENSITY = ((MILD, "Mild"), (MODERATE, "Moderate"), (SEVERE, "Severe"))
 
 AE_REPORT_TYPE = (
@@ -32,13 +40,13 @@ AE_GRADE_SIMPLE = (
 
 # TODO: validate Severity increased from Grade III
 AE_OUTCOME = (
-    ("continuing/update", "Continuing/Update"),
+    (CONTINUING_UPDATE, "Continuing/Update"),
     (SEVERITY_INCREASED_FROM_G3, "Severity increased from Grade III"),
-    ("recovered", "Recovered/Resolved"),
-    ("recovering", "Recovering/Resolving at end of study"),
-    ("not_recovered", "Not Recovered/Resolved at end of study"),
+    (RECOVERED, "Recovered/Resolved"),
+    (RECOVERING, "Recovering/Resolving at end of study"),
+    (NOT_RECOVERED, "Not Recovered/Resolved at end of study"),
     (LOST_TO_FOLLOWUP, "Unknown/Lost to follow-up"),
-    ("recovered_with_sequelae", "Recovered with sequelae"),
+    (RECOVERED_WITH_SEQUELAE, "Recovered with sequelae"),
     (DEAD, "Death"),
 )
 
@@ -57,4 +65,13 @@ SAE_REASONS = (
         "recurrence of symptoms not requiring admission, Hospital acquired "
         "pneumonia)",
     ),
+)
+
+STUDY_DRUG_RELATIONSHIP = (
+    ("not_related", "Not related"),
+    ("unlikely_related", "Unlikely related"),
+    ("possibly_related", "Possibly related"),
+    ("probably_related", "Probably related"),
+    ("definitely_related", "Definitely related"),
+    (NOT_APPLICABLE, "Not applicable"),
 )

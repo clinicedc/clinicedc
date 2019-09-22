@@ -1,12 +1,9 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from edc_constants.choices import YES_NO
-from edc_constants.constants import QUESTION_RETIRED
-
-from ..choices import SAE_REASONS
 
 
-class SaeModelMixin(models.Model):
+class AeInitialSaeModelMixin(models.Model):
 
     sae = models.CharField(
         verbose_name="Is this event a SAE?",
@@ -17,14 +14,6 @@ class SaeModelMixin(models.Model):
             "hospitalisation/prolongation, significant disability or is "
             "life-threatening)"
         ),
-    )
-
-    sae_reason_old = models.CharField(
-        verbose_name='If "Yes", reason for SAE:',
-        max_length=50,
-        choices=SAE_REASONS,
-        default=QUESTION_RETIRED,
-        help_text="If subject deceased, submit a Death Report",
     )
 
     sae_reason = models.ForeignKey(
