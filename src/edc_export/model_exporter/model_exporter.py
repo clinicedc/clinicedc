@@ -69,6 +69,7 @@ class ModelExporter(object):
         exclude_m2m=None,
         encrypt=None,
     ):
+        self._field_names = None
         self._model = model
         self._model_cls = None
         self.encrypt = True if encrypt is None else encrypt
@@ -77,27 +78,37 @@ class ModelExporter(object):
         self.queryset = queryset
         self.row = None
         self.row_instance = None
+        self.exclude_field_names = exclude_field_names
+        self.exclude_m2m = exclude_m2m
 
+        self.field_names = field_names
+
+    @property
+    def field_names(self):
+        return self._field_names
+
+    @field_names.setter
+    def field_names(self, field_names):
         if field_names:
-            self.field_names = field_names
+            self._field_names = field_names
         else:
-            self.field_names = [f.name for f in self.model_cls._meta.fields]
-            if not exclude_m2m:
+            self._field_names = [f.name for f in self.model_cls._meta.fields]
+            if not self.exclude_m2m:
                 for m2m in self.model_cls._meta.many_to_many:
-                    self.field_names.append(m2m.name)
-            if exclude_field_names:
-                for f in self.field_names:
-                    if f in exclude_field_names:
-                        self.field_names.pop(self.field_names.index(f))
+                    self._field_names.append(m2m.name)
+            if self.exclude_field_names:
+                for f in self._field_names:
+                    if f in self.exclude_field_names:
+                        self.field_names.pop(self._field_names.index(f))
 
-        for f in self.field_names:
+        for f in self._field_names:
             if (
                 f in self.export_fields
                 or f in self.audit_fields
                 or f in self.required_fields
             ):
-                self.field_names.pop(self.field_names.index(f))
-        self.field_names = (
+                self._field_names.pop(self._field_names.index(f))
+        self._field_names = (
             self.export_fields
             + self.required_fields
             + self.field_names
@@ -155,6 +166,8 @@ class ModelExporter(object):
         self, model_obj=None, exported_datetime=None, export_change_type=None
     ):
         """Returns one row for the CSV writer.
+
+        Most of the work is done by the ValueGetter class.
         """
         additional_values = self.additional_values_cls(
             export_datetime=exported_datetime

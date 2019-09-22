@@ -63,10 +63,6 @@ class CrfModelMixin(models.Model):
     report_datetime = models.DateTimeField(null=True)
 
     @property
-    def subject_identifier(self):
-        return self.subject_visit.subject_identifier
-
-    @property
     def visit_code(self):
         return self.subject_visit.visit_code
 

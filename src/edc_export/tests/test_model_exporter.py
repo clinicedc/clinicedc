@@ -25,31 +25,29 @@ class TestExport(TestCase):
     def test_none(self):
         Crf.objects.all().delete()
         model = "edc_export.crf"
-        m = ModelToDataframe(model=model, add_columns_for="subject_visit")
+        m = ModelToDataframe(model=model)
         self.assertEqual(len(m.dataframe.index), 0)
 
     def test_records(self):
         model = "edc_export.crf"
-        m = ModelToDataframe(model=model, add_columns_for="subject_visit")
+        m = ModelToDataframe(model=model)
         self.assertEqual(len(m.dataframe.index), 4)
         model = "edc_export.crfone"
-        m = ModelToDataframe(model=model, add_columns_for="subject_visit")
+        m = ModelToDataframe(model=model)
         self.assertEqual(len(m.dataframe.index), 4)
 
     def test_records_as_qs(self):
-        m = ModelToDataframe(
-            queryset=Crf.objects.all(), add_columns_for="subject_visit"
-        )
+        m = ModelToDataframe(queryset=Crf.objects.all())
         self.assertEqual(len(m.dataframe.index), 4)
 
     def test_columns(self):
         model = "edc_export.crf"
-        m = ModelToDataframe(model=model, add_columns_for="subject_visit")
+        m = ModelToDataframe(model=model)
         self.assertEqual(len(list(m.dataframe.columns)), 26)
 
     def test_values(self):
         model = "edc_export.crf"
-        m = ModelToDataframe(model=model, add_columns_for="subject_visit")
+        m = ModelToDataframe(model=model)
         df = m.dataframe
         df.sort_values(["subject_identifier"], inplace=True)
         for i, appointment in enumerate(
@@ -62,7 +60,7 @@ class TestExport(TestCase):
 
     def test_encrypted_none(self):
         model = "edc_export.crfencrypted"
-        m = ModelToDataframe(model=model, add_columns_for="subject_visit")
+        m = ModelToDataframe(model=model)
         self.assertEqual(len(m.dataframe.index), 0)
 
     def test_encrypted_records(self):
@@ -70,7 +68,7 @@ class TestExport(TestCase):
             subject_visit=self.subject_visit, encrypted1=f"encrypted1"
         )
         model = "edc_export.crfencrypted"
-        m = ModelToDataframe(model=model, add_columns_for="subject_visit")
+        m = ModelToDataframe(model=model)
         self.assertEqual(len(m.dataframe.index), 1)
 
     def test_encrypted_records_as_qs(self):
@@ -78,7 +76,7 @@ class TestExport(TestCase):
             subject_visit=self.subject_visit, encrypted1=f"encrypted1"
         )
         m = ModelToDataframe(
-            queryset=CrfEncrypted.objects.all(), add_columns_for="subject_visit"
+            queryset=CrfEncrypted.objects.all()
         )
         self.assertEqual(len(m.dataframe.index), 1)
 
@@ -107,7 +105,6 @@ class TestExport(TestCase):
     def test_records_to_csv_from_qs(self):
         model_exporter = CsvModelExporter(
             queryset=Crf.objects.all(),
-            add_columns_for="subject_visit",
             export_folder=self.path,
         )
         model_exporter.to_csv()
@@ -115,7 +112,6 @@ class TestExport(TestCase):
     def test_records_to_csv_from_model(self):
         model_exporter = CsvModelExporter(
             model="edc_export.crf",
-            add_columns_for="subject_visit",
             sort_by=["subject_identifier", "visit_code"],
             export_folder=self.path,
         )
@@ -128,6 +124,8 @@ class TestExport(TestCase):
             Appointment.objects.all().order_by("subject_identifier", "visit_code")
         ):
             self.assertEqual(
-                rows[i][1].get("subject_identifier"), appointment.subject_identifier
+                rows[i][1].get(
+                    "subject_identifier"), appointment.subject_identifier
             )
-            self.assertEqual(rows[i][1].get("visit_code"), appointment.visit_code)
+            self.assertEqual(rows[i][1].get(
+                "visit_code"), appointment.visit_code)
