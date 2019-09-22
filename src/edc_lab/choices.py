@@ -1,7 +1,7 @@
 from edc_constants.constants import COMPLETE, NOT_APPLICABLE, OTHER, PARTIAL, PENDING
 from edc_metadata.constants import NOT_REQUIRED
 
-from .constants import FILL_ACROSS, FILL_DOWN, TUBE
+from .constants import FILL_ACROSS, FILL_DOWN, TUBE, FINGER_PRICK
 
 ABS_CALC = (("absolute", "Absolute"), ("calculated", "Calculated"))
 
@@ -98,6 +98,7 @@ REASON_NOT_DRAWN = (
 ITEM_TYPE = (
     (NOT_APPLICABLE, "Not applicable"),
     (TUBE, "Tube"),
+    (FINGER_PRICK, "Finger prick"),
     ("swab", "Swab"),
     ("dbs", "DBS Card"),
     (OTHER, "Other"),

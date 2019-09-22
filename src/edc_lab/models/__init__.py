@@ -20,7 +20,3 @@ def get_requisition_model():
 
 def get_panel_model_cls():
     return django_apps.get_model("edc_lab.panel")
-
-
-if settings.APP_NAME == "edc_lab" and "makemigrations" not in sys.argv:
-    from ..tests.models import *

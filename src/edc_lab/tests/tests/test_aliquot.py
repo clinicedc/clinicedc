@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db.utils import IntegrityError
 from django.test import TestCase, tag  # noqa
-from edc_sites.utils import add_or_update_django_sites
+from edc_sites import add_or_update_django_sites
 
 from edc_lab.lab import AliquotCreator, AliquotCreatorError
 from edc_lab.models import Aliquot

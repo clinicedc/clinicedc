@@ -17,8 +17,7 @@ from edc_visit_schedule.model_mixins import (
     VisitScheduleFieldsModelMixin,
 )
 from edc_visit_tracking.model_mixins import VisitModelMixin
-
-from ..model_mixins import RequisitionModelMixin
+from edc_lab.model_mixins import RequisitionModelMixin
 
 
 site_reference_configs.registry = {}

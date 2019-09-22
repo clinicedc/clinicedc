@@ -2,7 +2,7 @@ from django.conf import settings
 from django.test import TestCase, tag  # noqa
 from django_collect_offline.tests import OfflineTestHelper
 from edc_sites.tests import SiteTestCaseMixin
-from edc_sites.utils import add_or_update_django_sites
+from edc_sites import add_or_update_django_sites
 
 
 class TestNaturalKey(SiteTestCaseMixin, TestCase):

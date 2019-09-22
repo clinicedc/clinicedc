@@ -8,18 +8,18 @@ from edc_label import Label
 
 class RequisitionLabel(Label):
 
-    label_template_name = "requisition"
+    template_name = "requisition"
     registered_subject_model = "edc_registration.registeredsubject"
 
-    def __init__(
-        self, requisition=None, item=None, user=None, label_template_name=None
-    ):
+    def __init__(self, pk=None, requisition=None, item=None, **kwargs):
+        super().__init__(label_template_name=self.template_name)
         self._registered_subject = None
-        self.label_template_name = label_template_name or self.label_template_name
-        super().__init__(label_template_name=self.label_template_name)
         self.item = item or 1
-        self.requisition = requisition
-        self.user = user
+        if requisition:
+            self.requisition = requisition
+        else:
+            model, pk = pk
+            self.requisition = django_apps.get_model(model).objects.get(pk=pk)
         self.label_name = self.requisition.human_readable_identifier
 
     @property
@@ -40,6 +40,11 @@ class RequisitionLabel(Label):
         ).to(tz)
         formatted_date = local.format("YYYY-MM-DD HH:mm")
         printed = "PRINTED: " if not self.requisition.drawn_datetime else "DRAWN: "
+        drawn_datetime = f"{printed}{formatted_date}"
+        try:
+            clinician_initials = self.requisition.user_created[0:2].upper()
+        except IndexError:
+            clinician_initials = "??"
         return {
             "requisition_identifier": self.requisition.requisition_identifier,
             "item": self.item,
@@ -49,12 +54,15 @@ class RequisitionLabel(Label):
             "protocol": edc_protocol_app_config.protocol,
             "site": str(self.requisition.site.id),
             "site_name": str(self.requisition.site.name),
-            "clinician_initials": self.user.username[0:2].upper(),
-            "drawn_datetime": f"{printed}{formatted_date}",
+            "site_title": str(self.requisition.site.siteprofile.title),
+            "clinician_initials": clinician_initials,
+            "drawn_datetime": drawn_datetime,
             "subject_identifier": self.registered_subject.subject_identifier,
             "gender": self.registered_subject.gender,
             "dob": self.registered_subject.dob,
             "initials": self.registered_subject.initials,
+            "identity": self.registered_subject.identity,
             "alpha_code": self.requisition.panel_object.alpha_code,
             "panel": self.requisition.panel_object.abbreviation,
+            "panel_name": self.requisition.panel.display_name,
         }

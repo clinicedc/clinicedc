@@ -57,6 +57,7 @@ class AliquotLabel(BaseLabel):
             "protocol": edc_protocol_app_config.protocol,
             "site": str(self.requisition.site.id),
             "site_name": str(self.requisition.site.name),
+            "site_title": str(self.requisition.site.siteprofile.title),
             "clinician_initials": self.requisition.user_created[0:2].upper(),
             "drawn_datetime": self.requisition.drawn_datetime.strftime(
                 "%Y-%m-%d %H:%M"
@@ -67,4 +68,5 @@ class AliquotLabel(BaseLabel):
             "initials": registered_subject.initials,
             "alpha_code": self.model_obj.alpha_code,
             "panel": self.requisition.panel_object.abbreviation,
+            "panel_name": self.requisition.panel.display_name,
         }

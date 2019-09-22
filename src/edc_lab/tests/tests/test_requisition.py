@@ -11,7 +11,7 @@ from edc_lab.lab import (
     Process,
 )
 from edc_lab.site_labs import site_labs
-from edc_sites.utils import add_or_update_django_sites
+from edc_sites import add_or_update_django_sites
 
 
 class TestRequisition(TestCase):
