@@ -10,7 +10,7 @@ class DataDictionaryManager(models.Manager):
 
 class DataDictionary(BaseUuidModel):
 
-    model = models.CharField(max_length=250)
+    model = models.CharField(max_length=250, help_text="label_lower")
 
     model_verbose_name = models.CharField(max_length=250, null=True)
 
@@ -32,7 +32,7 @@ class DataDictionary(BaseUuidModel):
 
     default = models.CharField(max_length=250, null=True)
 
-    help_text = models.CharField(max_length=250, null=True)
+    help_text = models.TextField(null=True)
 
     active = models.BooleanField(default=False)
 

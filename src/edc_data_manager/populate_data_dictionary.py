@@ -12,6 +12,7 @@ from inspect import isfunction
 from warnings import warn
 
 from .models import DataDictionary, DataManagerUser
+from django.db.utils import OperationalError, IntegrityError
 
 
 WIDGET = 1
@@ -62,7 +63,8 @@ def get_form_label(fld):
 
 
 def create_or_update_data_dictionary(index, model, fld):
-    data_dictionary_model_cls = django_apps.get_model("edc_data_manager.datadictionary")
+    data_dictionary_model_cls = django_apps.get_model(
+        "edc_data_manager.datadictionary")
     label = get_form_label(fld)
     options = dict(
         active=True,
@@ -76,7 +78,11 @@ def create_or_update_data_dictionary(index, model, fld):
             field_name=fld[0], model=model._meta.label_lower
         )
     except ObjectDoesNotExist:
-        data_dictionary_model_cls.objects.create(**options)
+        try:
+            data_dictionary_model_cls.objects.create(**options)
+        except (OperationalError, IntegrityError) as e:
+            warn(f"Error when creating DataDictionary instance. "
+                 f"Model={model}. Got {e}")
     else:
         for k, v in options.items():
             setattr(obj, k, v)
@@ -95,6 +101,11 @@ def populate_data_dictionary(form=None, model=None):
 
 
 def populate_data_dictionary_from_sites(request=None):
+    """Populates the DataDictionary model using ModelAdmin
+    classes.
+
+    Set ModelAdmin.exclude_from_data_dictionary = True to exclude a model.
+    """
 
     try:
         app_labels = settings.DATA_DICTIONARY_APP_LABELS
@@ -117,5 +128,11 @@ def populate_data_dictionary_from_sites(request=None):
             if model._meta.app_label in app_labels and not issubclass(
                 model, (ListModelMixin,)
             ):
-                sys.stdout.write(f"  * {model._meta.label_lower}.\n")
-                populate_data_dictionary(form=form, model=model)
+                populate = getattr(
+                    model_admin, "populate_data_dictionary", True)
+                if not populate:
+                    sys.stdout.write(
+                        f"  * {model._meta.label_lower}. (skipping)\n")
+                else:
+                    sys.stdout.write(f"  * {model._meta.label_lower}.\n")
+                    populate_data_dictionary(form=form, model=model)
