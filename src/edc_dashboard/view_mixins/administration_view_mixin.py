@@ -99,13 +99,16 @@ class AdministrationViewMixin(ContextMixin):
         sections.update(**self.default_sections)
 
         edc_sections = {
-            k: v for k, v in sections.items() if k.startswith(self.edc_module_prefix)}
+            k: v for k, v in sections.items() if k.startswith(self.edc_module_prefix)
+        }
         edc_keys = list(edc_sections.keys())
         edc_keys.sort()
 
         other_sections = {
-            k: v for k, v in sections.items()
-            if not k.startswith(self.edc_module_prefix)}
+            k: v
+            for k, v in sections.items()
+            if not k.startswith(self.edc_module_prefix)
+        }
         other_keys = list(other_sections.keys())
         other_keys.sort()
 
