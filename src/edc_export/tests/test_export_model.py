@@ -55,7 +55,8 @@ class TestExportModel(TestCase):
     def test_model(self):
         ModelExporter(
             model="edc_export.crf",
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
 
     def test_queryset_no_data(self):
         Crf.objects.all().delete()
@@ -71,7 +72,8 @@ class TestExportModel(TestCase):
         self.assertEqual(queryset.model, Crf)
         model_exporter = ModelExporter(
             queryset=queryset,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         path = model_exporter.export()
         self.assertTrue(os.path.exists(path))
         self.assertIn("edc_export_crf_", path)
@@ -82,7 +84,8 @@ class TestExportModel(TestCase):
         self.assertEqual(queryset.model, Crf)
         model_exporter = ModelExporter(
             queryset=queryset,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         self.assertIn("char1", model_exporter.field_names)
         self.assertIn("date1", model_exporter.field_names)
         self.assertIn("int1", model_exporter.field_names)
@@ -99,8 +102,9 @@ class TestExportModel(TestCase):
         Crf.objects.all().delete()
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
-            queryset=queryset, exclude_field_names=["date1", "uuid1"],
-            lookups={"subject_identifier": "subject_visit__subject_identifier"}
+            queryset=queryset,
+            exclude_field_names=["date1", "uuid1"],
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         self.assertIn("char1", model_exporter.field_names)
         self.assertNotIn("date1", model_exporter.field_names)
@@ -118,8 +122,10 @@ class TestExportModel(TestCase):
         Crf.objects.all().delete()
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
-            queryset=queryset, field_names=["char1"],
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            queryset=queryset,
+            field_names=["char1"],
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         self.assertIn("char1", model_exporter.field_names)
         self.assertNotIn("date1", model_exporter.field_names)
         self.assertNotIn("int1", model_exporter.field_names)
@@ -136,7 +142,8 @@ class TestExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         path = model_exporter.export()
         with open(path, "r") as f:
             csv_reader = csv.reader(f)
@@ -149,7 +156,8 @@ class TestExportModel(TestCase):
             queryset=queryset,
             lookups={
                 "subject_visit": "subject_visit__report_datetime",
-                "subject_identifier": "subject_visit__subject_identifier"},
+                "subject_identifier": "subject_visit__subject_identifier",
+            },
         )
         path = model_exporter.export()
         with open(path, "r") as f:
@@ -164,7 +172,8 @@ class TestExportModel(TestCase):
             queryset=queryset,
             lookups={
                 "subject_visit": "subject_visit__report_datetime",
-                "subject_identifier": "subject_visit__subject_identifier"},
+                "subject_identifier": "subject_visit__subject_identifier",
+            },
         )
         path = model_exporter.export()
         with open(path, "r") as f:
@@ -179,16 +188,15 @@ class TestExportModel(TestCase):
             queryset=queryset,
             lookups={
                 "subject_visit": "subject_visit__report_datetime",
-                "subject_identifier": "subject_visit__subject_identifier"},
+                "subject_identifier": "subject_visit__subject_identifier",
+            },
         )
         self.assertTrue(model_exporter.export())
 
     def test_invalid_lookup_raises(self):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
-            queryset=queryset,
-            lookups={
-                "subject_identifier": "subject_visit__blah"}
+            queryset=queryset, lookups={"subject_identifier": "subject_visit__blah"}
         )
         self.assertRaises(ValueGetterInvalidLookup, model_exporter.export)
 
@@ -198,7 +206,8 @@ class TestExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         path = model_exporter.export()
         with open(path, "r") as f:
             csv_reader = csv.reader(f)
@@ -216,7 +225,8 @@ class TestExportModel(TestCase):
         queryset = CrfEncrypted.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         path = model_exporter.export()
         with open(path, "r") as f:
             csv_reader = csv.reader(f)
@@ -233,8 +243,10 @@ class TestExportModel(TestCase):
         )
         queryset = CrfEncrypted.objects.all()
         model_exporter = ModelExporter(
-            queryset=queryset, encrypt=False,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            queryset=queryset,
+            encrypt=False,
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         path = model_exporter.export()
         with open(path, "r") as f:
             csv_reader = csv.reader(f)
@@ -248,7 +260,8 @@ class TestExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         path = model_exporter.export()
         obj = FileHistory.objects.get(filename=os.path.basename(path))
         self.assertTrue(obj.exported)
@@ -265,13 +278,12 @@ class TestExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         path = model_exporter.export()
-        file_history_obj = FileHistory.objects.get(
-            filename=os.path.basename(path))
+        file_history_obj = FileHistory.objects.get(filename=os.path.basename(path))
         tx_obj = ObjectHistory.objects.get(tx_pk=self.crf.pk)
-        self.assertIn(str(tx_obj.export_uuid),
-                      file_history_obj.export_uuid_list)
+        self.assertIn(str(tx_obj.export_uuid), file_history_obj.export_uuid_list)
         self.assertEqual(tx_obj.status, EXPORTED)
 
     def test_export_change_type_insert(self):
@@ -280,7 +292,8 @@ class TestExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         model_exporter.export()
         model_exporter = ModelExporter(queryset=queryset)
         model_exporter.export()
@@ -299,7 +312,8 @@ class TestExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         model_exporter.export()
         sleep(1)
         model_exporter = ModelExporter(queryset=queryset)
@@ -316,7 +330,8 @@ class TestExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         path = model_exporter.export()
         with open(path, "r") as f:
             csv_reader = csv.DictReader(f, delimiter="|")
@@ -332,7 +347,8 @@ class TestExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
-            lookups={"subject_identifier": "subject_visit__subject_identifier"})
+            lookups={"subject_identifier": "subject_visit__subject_identifier"},
+        )
         path = model_exporter.export()
         with open(path, "r") as f:
             csv_reader = csv.DictReader(f, delimiter="|")
