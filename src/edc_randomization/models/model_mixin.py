@@ -64,7 +64,7 @@ class RandomizationListModelMixin(models.Model):
 
     objects = RandomizationListManager()
 
-    history = HistoricalRecords()
+    history = HistoricalRecords(inherit=True)
 
     on_site = CurrentSiteManager("allocated_site")
 
