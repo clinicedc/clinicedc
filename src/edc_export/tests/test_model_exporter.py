@@ -75,9 +75,7 @@ class TestExport(TestCase):
         CrfEncrypted.objects.create(
             subject_visit=self.subject_visit, encrypted1=f"encrypted1"
         )
-        m = ModelToDataframe(
-            queryset=CrfEncrypted.objects.all()
-        )
+        m = ModelToDataframe(queryset=CrfEncrypted.objects.all())
         self.assertEqual(len(m.dataframe.index), 1)
 
     def test_encrypted_to_csv_from_qs(self):
@@ -104,8 +102,7 @@ class TestExport(TestCase):
 
     def test_records_to_csv_from_qs(self):
         model_exporter = CsvModelExporter(
-            queryset=Crf.objects.all(),
-            export_folder=self.path,
+            queryset=Crf.objects.all(), export_folder=self.path
         )
         model_exporter.to_csv()
 
@@ -124,8 +121,6 @@ class TestExport(TestCase):
             Appointment.objects.all().order_by("subject_identifier", "visit_code")
         ):
             self.assertEqual(
-                rows[i][1].get(
-                    "subject_identifier"), appointment.subject_identifier
+                rows[i][1].get("subject_identifier"), appointment.subject_identifier
             )
-            self.assertEqual(rows[i][1].get(
-                "visit_code"), appointment.visit_code)
+            self.assertEqual(rows[i][1].get("visit_code"), appointment.visit_code)
