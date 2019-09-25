@@ -5,19 +5,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_data_manager', '0006_auto_20190917_2133'),
-    ]
+    dependencies = [("edc_data_manager", "0006_auto_20190917_2133")]
 
     operations = [
         migrations.AlterField(
-            model_name='datadictionary',
-            name='model',
-            field=models.CharField(help_text='label_lower', max_length=250),
+            model_name="datadictionary",
+            name="model",
+            field=models.CharField(help_text="label_lower", max_length=250),
         ),
         migrations.AlterField(
-            model_name='historicaldatadictionary',
-            name='model',
-            field=models.CharField(help_text='label_lower', max_length=250),
+            model_name="historicaldatadictionary",
+            name="model",
+            field=models.CharField(help_text="label_lower", max_length=250),
         ),
     ]
