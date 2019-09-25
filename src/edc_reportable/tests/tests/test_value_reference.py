@@ -12,6 +12,7 @@ from edc_reportable import (
 )
 from edc_utils import get_utcnow
 from pytz import utc
+from edc_reportable.units import MICROMOLES_PER_LITER, MILLIMOLES_PER_LITER
 
 
 class TestValueReference(TestCase):
@@ -274,4 +275,52 @@ class TestValueReference(TestCase):
             dob=dob,
             report_datetime=report_datetime,
             units="mg/dL",
+        )
+
+        # adds extra attributes
+        grp = ValueReferenceGroup(name="glucose")
+        ref_glu = NormalReference(
+            name="glucose",
+            lower=4.8,
+            upper=5.6,
+            units=MILLIMOLES_PER_LITER,
+            age_lower=18,
+            age_upper=99,
+            age_units="years",
+            gender=[MALE, FEMALE],
+            fasting=True,
+        )
+        grp.add_normal(ref_glu)
+
+        self.assertTrue(
+            grp.get_normal(
+                value=5.4,
+                gender=FEMALE,
+                dob=dob,
+                report_datetime=report_datetime,
+                units=MILLIMOLES_PER_LITER,
+                fasting=True,
+            )
+        )
+
+        self.assertFalse(
+            grp.get_normal(
+                value=7.4,
+                gender=FEMALE,
+                dob=dob,
+                report_datetime=report_datetime,
+                units=MILLIMOLES_PER_LITER,
+                fasting=True,
+            )
+        )
+
+        self.assertRaises(
+            NotEvaluated,
+            grp.get_normal,
+            value=5.4,
+            gender=FEMALE,
+            dob=dob,
+            report_datetime=report_datetime,
+            units=MILLIMOLES_PER_LITER,
+            fasting=False,
         )

@@ -26,6 +26,7 @@ from .grade_reference import GradeReference, GradeError
 from .normal_reference import NormalReference
 from .parsers import parse, unparse, ParserError
 from .reference_collection import ReferenceCollection, AlreadyRegistered
+from .reportables_evaluator import ReportablesEvaluator
 from .site_reportables import site_reportables
 from .units import (
     CELLS_PER_MILLIMETER_CUBED,

@@ -5,6 +5,45 @@ GRADING = "grading"
 NORMAL = "normal"
 
 
+def get_references(
+    value_references=None,
+    gender=None,
+    dob=None,
+    report_datetime=None,
+    units=None,
+    **extra_options,
+):
+    """Returns a list of references for this
+    gender, age and units.
+
+    Either ValueReferences or GradeReferences.
+    """
+    references = []
+    report_datetime = report_datetime or get_utcnow()
+    for refs in value_references.values():
+        for ref in refs:
+            non_matching_opts = [
+                k for k, v in extra_options.items() if getattr(ref, k) != v
+            ]
+            if (
+                gender in ref.gender
+                and ref.units == units
+                and ref.age_match(dob, report_datetime)
+                and not non_matching_opts
+            ):
+                references.append(ref)
+    #             references.extend(
+    #                 [
+    #                     ref
+    #                     for ref in refs
+    #                     if gender in ref.gender
+    #                     and ref.units == units
+    #                     and ref.age_match(dob, report_datetime)
+    #                 ]
+    #             )
+    return references
+
+
 class InvalidValueReference(Exception):
     pass
 
@@ -109,7 +148,7 @@ class ValueReferenceGroup:
     def _get_normal_references(self, **kwargs):
         """Returns a list of ValueReference instances or raises.
         """
-        references = self._get_references(value_references=self.normal, **kwargs)
+        references = get_references(value_references=self.normal, **kwargs)
         if not references:
             raise NotEvaluated(
                 f"{self.name} value not evaluated. "
@@ -120,40 +159,13 @@ class ValueReferenceGroup:
     def _get_grading_references(self, **kwargs):
         """Returns a list of GradeReference instances or raises.
         """
-        references = self._get_references(value_references=self.grading, **kwargs)
+        references = get_references(value_references=self.grading, **kwargs)
         if not references:
             raise NotEvaluated(
                 f"{self.name} value not graded. "
                 f"No reference range found for {kwargs}. See {repr(self)}."
             )
         references.sort(key=lambda x: x.grade, reverse=True)
-        return references
-
-    def _get_references(
-        self,
-        value_references=None,
-        gender=None,
-        dob=None,
-        report_datetime=None,
-        units=None,
-    ):
-        """Returns a list of references for this
-        gender, age and units.
-
-        Either ValueReferences or GradeReferences.
-        """
-        references = []
-        report_datetime = report_datetime or get_utcnow()
-        for refs in value_references.values():
-            references.extend(
-                [
-                    ref
-                    for ref in refs
-                    if gender in ref.gender
-                    and ref.units == units
-                    and ref.age_match(dob, report_datetime)
-                ]
-            )
         return references
 
     def _add(self, value_reference, value_references):

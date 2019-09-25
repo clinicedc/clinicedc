@@ -3,29 +3,55 @@ Based on Corrected Version 2.1 July 2017
 """
 
 from edc_constants.constants import FEMALE, MALE
-from edc_reportable import parse as p
-from edc_reportable import MILLIGRAMS_PER_DECILITER, MILLIMOLES_PER_LITER
-from edc_reportable import MICROMOLES_PER_LITER, IU_LITER
-from edc_reportable import GRAMS_PER_DECILITER, TEN_X_9_PER_LITER, GRADE3, GRADE4
-
+from edc_reportable import (
+    parse as p,
+    GRADE3,
+    GRADE4,
+    GRAMS_PER_DECILITER,
+    IU_LITER,
+    MICROMOLES_PER_LITER,
+    MILLIGRAMS_PER_DECILITER,
+    MILLIMOLES_PER_LITER,
+    PERCENT,
+    TEN_X_9_PER_LITER,
+    CELLS_PER_MILLIMETER_CUBED,
+)
 
 from ..adult_age_options import adult_age_options
 
 chemistries = {
-    "glucose": [  # same for fasting / non-fasting
+    "glucose": [  # G3/G4 same for fasting / non-fasting
         p(
-            "250<x<=500",
+            "13.89<=x<27.75",
             grade=GRADE3,
-            units=MICROMOLES_PER_LITER,
+            units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
+            fasting=True,
         ),
         p(
-            "500<=x",
+            "27.75<=x",
             grade=GRADE4,
-            units=MICROMOLES_PER_LITER,
+            units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
+            fasting=True,
+        ),
+        p(
+            "13.89<=x<27.75",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+            fasting=False,
+        ),
+        p(
+            "27.75<=x",
+            grade=GRADE4,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+            fasting=False,
         ),
     ],
     "sodium": [
@@ -118,7 +144,39 @@ chemistries = {
             **adult_age_options,
         ),
     ],
+    "alp": [
+        p(
+            "200<=x<=400",
+            grade=GRADE3,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "400<x",
+            grade=GRADE4,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
     "alt": [
+        p(
+            "200<=x<=400",
+            grade=GRADE3,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "400<x",
+            grade=GRADE4,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    "ast": [
         p(
             "200<=x<=400",
             grade=GRADE3,
@@ -164,8 +222,24 @@ chemistries = {
             **adult_age_options,
         ),
     ],
+    # TODO: confirm amylase grading in UI_LITER
+    "amylase": [
+        p(
+            "200<=x<=400",
+            grade=GRADE3,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "400<x",
+            grade=GRADE4,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
 }
-
 
 hematology = {
     "haemoglobin": [
@@ -213,6 +287,20 @@ hematology = {
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
+        p(
+            "25000<=x<=50000",
+            grade=GRADE3,
+            units=CELLS_PER_MILLIMETER_CUBED,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "x<25000",
+            grade=GRADE4,
+            units=CELLS_PER_MILLIMETER_CUBED,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
     ],
     "neutrophil": [
         p(
@@ -246,4 +334,17 @@ hematology = {
             **adult_age_options,
         ),
     ],
+}
+
+
+hba1c = {
+    "hba1c": [
+        p(
+            "9999999<=x<=99999999",
+            grade=GRADE3,
+            units=PERCENT,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        )
+    ]
 }
