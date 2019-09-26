@@ -15,9 +15,28 @@ from ..validators import FullNameValidator
 
 class PersonalFieldsMixin(CryptoMixin, models.Model):
 
-    first_name = FirstnameField(null=True, blank=False)
+    first_name = FirstnameField(
+        null=True,
+        blank=False,
+        validators=[
+            RegexValidator(
+                regex="^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
+                message="Ensure name consist of letters " "only in upper case",
+            )
+        ],
+    )
 
-    last_name = LastnameField(verbose_name="Last name", null=True, blank=False)
+    last_name = LastnameField(
+        verbose_name="Surname",
+        null=True,
+        blank=False,
+        validators=[
+            RegexValidator(
+                regex="^([A-Z]+$|[A-Z]+\ [A-Z]+)$",
+                message="Ensure name consist of letters " "only in upper case",
+            )
+        ],
+    )
 
     initials = EncryptedCharField(
         validators=[

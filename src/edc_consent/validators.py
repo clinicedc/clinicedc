@@ -2,8 +2,6 @@ import re
 
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
-
-from edc_utils import get_utcnow
 from edc_constants.constants import YES, NO, DECLINED, UNKNOWN, MALE, NEG, POS
 
 
