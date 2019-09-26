@@ -50,23 +50,25 @@ class SearchListboardMixin:
         return self.search_term.split("+")
 
     def get_search_filtered_queryset(self, filter_options=None, exclude_options=None):
-        q = None
-        q_objects = []
+        q_objs = []
         for search_term in self.search_terms:
             for field in self.search_fields:
-                q_objects.append(Q(**{f"{field}__icontains": slugify(search_term)}))
-            extra_q_objects = self.extra_search_options(search_term)
-            if extra_q_objects:
-                q_objects.extend(extra_q_objects)
-        for q_object in q_objects:
-            if q:
-                q = q | q_object
+                q_objs.append(Q(**{f"{field}__icontains": slugify(search_term)}))
+        q_objs.extend(self.extra_search_options(search_term) or [])
+
+        # change to OR
+        q_objects = None
+        for q_object in q_objs:
+            if q_objects:
+                q_objects |= q_object
             else:
-                q = q_object
-        if q:
+                q_objects = q_object
+
+        # get queryset
+        if q_objects:
             queryset = (
                 getattr(self.listboard_model_cls, self.listboard_model_manager_name)
-                .filter(q, **filter_options)
+                .filter(q_objects, **filter_options)
                 .exclude(**exclude_options)
             )
         else:
