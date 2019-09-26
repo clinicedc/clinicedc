@@ -120,7 +120,7 @@ class RequisitionModelMixin(
     history = HistoricalRecords(inherit=True)
 
     def __str__(self):
-        return f"{self.requisition_identifier} " f"{self.panel_object.verbose_name}"
+        return f"{self.panel_object.verbose_name}: {self.requisition_identifier}"
 
     def save(self, *args, **kwargs):
         if not self.id:
