@@ -5,6 +5,7 @@ Based on Corrected Version 2.1 July 2017
 from edc_constants.constants import FEMALE, MALE
 from edc_reportable import (
     parse as p,
+    GRADE0,
     GRADE3,
     GRADE4,
     GRAMS_PER_DECILITER,
@@ -18,128 +19,77 @@ from edc_reportable import (
 )
 
 from ..adult_age_options import adult_age_options
+from edc_reportable.units import GRAMS_PER_LITER
+
+dummies = {
+    "hba1c": [
+        p(
+            "x<0",
+            grade=GRADE0,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        )
+    ],
+    "hct": [
+        p(
+            "x<0",
+            grade=GRADE0,
+            units=PERCENT,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        )
+    ],
+    "ggt": [
+        p(
+            "x<0",
+            grade=GRADE0,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        )
+    ],
+    "rbc": [
+        p(
+            "x<0",
+            grade=GRADE0,
+            units=TEN_X_9_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "x<0",
+            grade=GRADE0,
+            units=CELLS_PER_MILLIMETER_CUBED,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    "urea": [
+        p(
+            "x<0",
+            grade=GRADE0,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        )
+    ],
+}
+
 
 chemistries = {
-    "glucose": [  # G3/G4 same for fasting / non-fasting
-        p(
-            "13.89<=x<27.75",
-            grade=GRADE3,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-            fasting=True,
-        ),
-        p(
-            "27.75<=x",
-            grade=GRADE4,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-            fasting=True,
-        ),
-        p(
-            "13.89<=x<27.75",
-            grade=GRADE3,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-            fasting=False,
-        ),
-        p(
-            "27.75<=x",
-            grade=GRADE4,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-            fasting=False,
-        ),
-    ],
-    "sodium": [
-        p(
-            "121<=x<=124",
-            grade=GRADE3,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
-            "154<=x<=159",
-            grade=GRADE3,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
-            "160<=x",
-            grade=GRADE4,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
-            "x<=120",
-            grade=GRADE4,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-    ],
-    "potassium": [
-        p(
-            "2.0<=x<=2.4",
-            grade=GRADE3,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
-            "6.5<=x<=7.0",
-            grade=GRADE3,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
+    "albumin": [
         p(
             "x<2.0",
-            grade=GRADE4,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
-            "7.0<x",
-            grade=GRADE4,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-    ],
-    "magnesium": [
-        p(
-            "0.3<=x<=0.44",
             grade=GRADE3,
-            units=MILLIMOLES_PER_LITER,
+            units=GRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
         p(
-            "x<0.3",
-            grade=GRADE4,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
-            "0.7<=x<=1.1",
+            "x<20",
             grade=GRADE3,
-            units=MILLIGRAMS_PER_DECILITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
-            "x<0.7",
-            grade=GRADE4,
-            units=MILLIGRAMS_PER_DECILITER,
+            units=GRAMS_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
@@ -161,6 +111,23 @@ chemistries = {
         ),
     ],
     "alt": [
+        p(
+            "200<=x<=400",
+            grade=GRADE3,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "400<x",
+            grade=GRADE4,
+            units=IU_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    # TODO: confirm amylase grading in UI_LITER
+    "amylase": [
         p(
             "200<=x<=400",
             grade=GRADE3,
@@ -222,19 +189,156 @@ chemistries = {
             **adult_age_options,
         ),
     ],
-    # TODO: confirm amylase grading in UI_LITER
-    "amylase": [
+    "glucose": [  # G3/G4 same for fasting / non-fasting
         p(
-            "200<=x<=400",
+            "13.89<=x<27.75",
             grade=GRADE3,
-            units=IU_LITER,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+            fasting=True,
+        ),
+        p(
+            "27.75<=x",
+            grade=GRADE4,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+            fasting=True,
+        ),
+        p(
+            "13.89<=x<27.75",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+            fasting=False,
+        ),
+        p(
+            "27.75<=x",
+            grade=GRADE4,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+            fasting=False,
+        ),
+    ],
+    "magnesium": [
+        p(
+            "0.3<=x<=0.44",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
         p(
-            "400<x",
+            "x<0.3",
             grade=GRADE4,
-            units=IU_LITER,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "0.7<=x<=1.1",
+            grade=GRADE3,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "x<0.7",
+            grade=GRADE4,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    "potassium": [
+        p(
+            "2.0<=x<=2.4",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "6.5<=x<=7.0",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "x<2.0",
+            grade=GRADE4,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "7.0<x",
+            grade=GRADE4,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    "sodium": [
+        p(
+            "121<=x<=124",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "154<=x<=159",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "160<=x",
+            grade=GRADE4,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "x<=120",
+            grade=GRADE4,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    "uric_acid": [
+        p(
+            "12<=x<15.0",
+            grade=GRADE3,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "15.0<=x",
+            grade=GRADE4,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "0.71<=x<0.89",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "0.89<=x",
+            grade=GRADE4,
+            units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),

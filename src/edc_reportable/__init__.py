@@ -2,6 +2,7 @@ from .adult_age_options import adult_age_options
 from .age_evaluator import AgeEvaluator
 from .constants import (
     ALREADY_REPORTED,
+    GRADE0,
     GRADE1,
     GRADE2,
     GRADE3,
