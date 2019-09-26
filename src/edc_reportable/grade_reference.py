@@ -1,4 +1,4 @@
-from .constants import GRADE1, GRADE2, GRADE3, GRADE4, GRADE5
+from .constants import GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, GRADE5
 from .value_reference import ValueReference
 
 
@@ -8,7 +8,7 @@ class GradeError(Exception):
 
 class GradeReference(ValueReference):
 
-    grades = [GRADE1, GRADE2, GRADE3, GRADE4, GRADE5]
+    grades = [GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, GRADE5]
 
     def __init__(self, grade=None, **kwargs):
         if int(grade) not in [int(x) for x in self.grades]:

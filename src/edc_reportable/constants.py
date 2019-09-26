@@ -1,4 +1,5 @@
 ALREADY_REPORTED = "Already reported"
+GRADE0 = "0"
 GRADE1 = "1"
 GRADE2 = "2"
 GRADE3 = "3"
