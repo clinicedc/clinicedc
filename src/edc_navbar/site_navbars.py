@@ -7,6 +7,7 @@ from django.utils.module_loading import module_has_submodule
 from importlib import import_module
 
 from .navbar import NavbarError
+from django.conf import settings
 
 
 class AlreadyRegistered(Exception):
@@ -87,27 +88,28 @@ class NavbarCollection:
         return codenames
 
     def autodiscover(self, module_name=None, verbose=True):
-        module_name = module_name or "navbars"
-        writer = sys.stdout.write if verbose else lambda x: x
-        style = color_style()
-        writer(f" * checking for site {module_name} ...\n")
-        for app in django_apps.app_configs:
-            writer(f" * searching {app}           \r")
-            try:
-                mod = import_module(app)
+        if getattr(settings, "LOAD_NAVBARS", True):
+            module_name = module_name or "navbars"
+            writer = sys.stdout.write if verbose else lambda x: x
+            style = color_style()
+            writer(f" * checking for site {module_name} ...\n")
+            for app in django_apps.app_configs:
+                writer(f" * searching {app}           \r")
                 try:
-                    before_import_registry = copy.copy(site_navbars.registry)
-                    import_module(f"{app}.{module_name}")
-                    writer(f" * registered navbars '{module_name}' from '{app}'\n")
-                except NavbarError as e:
-                    writer(f"   - loading {app}.navbars ... ")
-                    writer(style.ERROR(f"ERROR! {e}\n"))
-                except ImportError as e:
-                    site_navbars.registry = before_import_registry
-                    if module_has_submodule(mod, module_name):
-                        raise NavbarError(e)
-            except ImportError:
-                pass
+                    mod = import_module(app)
+                    try:
+                        before_import_registry = copy.copy(site_navbars.registry)
+                        import_module(f"{app}.{module_name}")
+                        writer(f" * registered navbars '{module_name}' from '{app}'\n")
+                    except NavbarError as e:
+                        writer(f"   - loading {app}.navbars ... ")
+                        writer(style.ERROR(f"ERROR! {e}\n"))
+                    except ImportError as e:
+                        site_navbars.registry = before_import_registry
+                        if module_has_submodule(mod, module_name):
+                            raise NavbarError(e)
+                except ImportError:
+                    pass
 
 
 site_navbars = NavbarCollection()
