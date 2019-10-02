@@ -11,6 +11,10 @@ from .constants import REQUISITION, CRF
 
 style = color_style()
 
+subject_visit_model = getattr(
+    settings, "SUBJECT_VISIT_MODEL", "edc_metadata.subjectvisit"
+)
+
 
 class AppConfig(DjangoAppConfig):
     name = "edc_metadata"
@@ -18,7 +22,7 @@ class AppConfig(DjangoAppConfig):
     crf_model = "edc_metadata.crfmetadata"
     metadata_requisition_model = "edc_metadata.requisitionmetadata"
     has_exportable_data = True
-    reason_field = {"edc_metadata.subjectvisit": "reason"}
+    reason_field = {subject_visit_model: "reason"}
     create_on_reasons = [SCHEDULED, UNSCHEDULED]
     delete_on_reasons = [MISSED_VISIT]
     include_in_administration_section = True
