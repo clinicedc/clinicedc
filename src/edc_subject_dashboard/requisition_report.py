@@ -1,9 +1,10 @@
-from edc_utils import get_utcnow
+from django.contrib import messages
 from edc_constants.constants import YES
 from edc_identifier.simple_identifier import make_human_readable
-from edc_lab.models.manifest.shipper import Shipper
 from edc_lab.model_mixins import RequisitionModelMixin
+from edc_lab.models.manifest.shipper import Shipper
 from edc_reports import Report
+from edc_utils import get_utcnow
 from reportlab.graphics.barcode import code39
 from reportlab.lib import colors
 from reportlab.lib.units import mm, cm
@@ -26,13 +27,25 @@ class RequisitionReport(Report):
         self.selected_panel_names = selected_panel_names
         self.site = request.site
         self.appointment = appointment
-        self.shipper = Shipper.objects.all()[0]
         self.user = request.user
         self.consignee = consignee
         self.contact_name = f"{self.user.first_name} {self.user.last_name}"
         self.image_folder = mkdtemp()
         self.timestamp = get_utcnow().strftime("%Y%m%d%H%M%S")
         self.report_filename = f"requisition_{self.timestamp}.pdf"
+
+    @property
+    def shipper(self):
+        """Return a shipper model instance.
+        """
+        try:
+            shipper = Shipper.objects.all()[0]
+        except IndexError:
+            messages.error(
+                self.request, "Unable to print report. Please define the shipper."
+            )
+            shipper = Shipper()
+        return shipper
 
     def get_report_story(self, **kwargs):
         story = []
