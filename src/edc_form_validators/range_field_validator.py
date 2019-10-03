@@ -27,7 +27,7 @@ class RangeFieldValidator(BaseFormValidator):
                 self.raise_validation_error(
                     {field: "This field is required."}, REQUIRED_ERROR
                 )
-            elif r.match(value):
+            elif r.match(str(value)):
                 lower_op = "<" if not lower_inclusive else "<="
                 upper_op = "<" if not upper_inclusive else "<="
                 expression = f"{lower}{lower_op}{value}{upper_op}{upper}"
