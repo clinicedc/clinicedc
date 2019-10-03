@@ -10,9 +10,11 @@ try:
 except ImportError:
     TIME_ZONE = "UTC"
     SHORT_DATETIME_FORMAT = "m/d/Y P"
+    SHORT_DATE_FORMAT = "m/d/Y"
 else:
     TIME_ZONE = settings.TIME_ZONE
     SHORT_DATETIME_FORMAT = settings.SHORT_DATETIME_FORMAT
+    SHORT_DATE_FORMAT = settings.SHORT_DATE_FORMAT
 
 
 safe_allowed_chars = "ABCDEFGHKMNPRTUVWXYZ2346789"
@@ -83,4 +85,13 @@ def formatted_datetime(aware_datetime, php_dateformat=None, tz=None):
         utc = Arrow.fromdatetime(aware_datetime)
         local = utc.to(tz)
         return local.datetime.strftime(convert_php_dateformat(php_dateformat))
+    return ""
+
+
+def formatted_date(dte, php_dateformat=None):
+    """Returns a formatted datetime string.
+    """
+    if dte:
+        php_dateformat = php_dateformat or SHORT_DATE_FORMAT
+        return dte.strftime(convert_php_dateformat(php_dateformat))
     return ""
