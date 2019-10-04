@@ -53,4 +53,5 @@ def create_action_item(
             opts.update(related_action_item=related_action_item)
         action_item = action_cls.action_item_model_cls()(**opts)
         action_item.save(using=using)
+        action_item.refresh_from_db()
     return action_item
