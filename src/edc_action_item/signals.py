@@ -51,11 +51,16 @@ def update_or_create_action_item_on_post_save(
                 action_cls = instance.get_action_cls()
                 if not instance.action_item:
                     action_item = ActionItem.objects.using(using).get(
-                        action_identifier=instance.action_identifier
+                        action_identifier=instance.action_identifier,
+                        subject_identifier=instance.subject_identifier,
                     )
                     instance.action_item = action_item
                 # instantiate action class
-                action_cls(action_item=action_item or instance.action_item, using=using)
+                action_cls(
+                    action_item=action_item or instance.action_item,
+                    subject_identifier=instance.subject_identifier,
+                    using=using,
+                )
                 if created and instance.action_item.status == NEW:
                     instance.action_item.status = OPEN
                     instance.action_item.save(using=using)
@@ -102,7 +107,9 @@ def action_on_reference_model_post_delete(sender, instance, using, **kwargs):
                 pass
             else:
                 instance.parent_reference_obj.action_item.action_cls(
-                    action_item=instance.parent_reference_obj.action_item, using=using
+                    action_item=instance.parent_reference_obj.action_item,
+                    subject_identifier=instance.subject_identifier,
+                    using=using,
                 ).create_next_action_items()
 
 
