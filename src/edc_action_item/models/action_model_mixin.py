@@ -105,7 +105,7 @@ class ActionModelMixin(models.Model):
             self.action_identifier = self.action_item.action_identifier
         elif self.id and not self.action_item:
             self.action_item = ActionItem.objects.get(
-                action_identifier=self.action_identifier,
+                action_identifier=self.action_identifier
             )
         self.parent_action_item = self.action_item.parent_action_item
 

@@ -96,7 +96,10 @@ class TestAction(TestCase):
         """Test when action creates model.
         """
         obj = FormZero.objects.create(subject_identifier=self.subject_identifier)
-        action = FormZeroAction(action_identifier=obj.action_identifier)
+        action = FormZeroAction(
+            subject_identifier=self.subject_identifier,
+            action_identifier=obj.action_identifier,
+        )
         self.assertEqual(action.subject_identifier, obj.subject_identifier)
         self.assertEqual(action.action_identifier, obj.action_identifier)
         self.assertEqual(action.action_identifier, obj.action_identifier)
@@ -113,7 +116,6 @@ class TestAction(TestCase):
         form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
 
         action_type_two = get_action_type(site_action_items.get(FormTwo.action_name))
-
         action_item_one = ActionItem.objects.get(
             action_identifier=form_one.action_identifier, status=CLOSED
         )
