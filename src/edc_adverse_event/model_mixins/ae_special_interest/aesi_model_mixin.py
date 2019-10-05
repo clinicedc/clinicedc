@@ -18,12 +18,12 @@ from .aesi_methods_model_mixin import AesiMethodsModelMixin
 
 class AesiModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
-    ActionModelMixin,
-    TrackingModelMixin,
     AesiFieldsModelMixin,
     AesiMethodsModelMixin,
     ReportStatusModelMixin,
     SiteModelMixin,
+    ActionModelMixin,
+    TrackingModelMixin,
     models.Model,
 ):
 

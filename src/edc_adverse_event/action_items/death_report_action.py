@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from edc_action_item import ActionWithNotification
 from edc_adverse_event.constants import (
     AE_INITIAL_ACTION,
@@ -6,10 +7,9 @@ from edc_adverse_event.constants import (
     DEATH_REPORT_ACTION,
 )
 from edc_constants.constants import HIGH_PRIORITY
+from edc_visit_schedule.utils import get_offschedule_models
 
 from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
-from django.core.exceptions import ObjectDoesNotExist
-from edc_visit_schedule.utils import get_offschedule_models
 
 
 class DeathReportAction(ActionWithNotification):
@@ -32,7 +32,7 @@ class DeathReportAction(ActionWithNotification):
         """
         next_actions = []
         next_actions = self.append_next_death_tmg_action(next_actions)
-        next_actions = self.append_next_study_termination_action(next_actions)
+        next_actions = self.append_next_off_schedule_action(next_actions)
         return next_actions
 
     def append_next_death_tmg_action(self, next_actions):
@@ -51,7 +51,7 @@ class DeathReportAction(ActionWithNotification):
 
     def append_next_off_schedule_action(self, next_actions):
         # STUDY_TERMINATION_CONCLUSION_ACTION
-        for off_schedule_model in get_offschedule_models().values():
+        for off_schedule_model in get_offschedule_models():
             off_schedule_cls = django_apps.get_model(off_schedule_model)
             try:
                 off_schedule_cls.objects.get(subject_identifier=self.subject_identifier)

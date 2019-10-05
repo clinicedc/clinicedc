@@ -1,61 +1,79 @@
-from django.apps import apps as django_apps
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import m2m_changed, post_save, post_delete
 from django.dispatch.dispatcher import receiver
 from edc_constants.constants import YES, NO
+from edc_notification.models import Notification
+from edc_permissions.constants.group_names import TMG
 from edc_utils import get_utcnow
 
+from .get_ae_model import get_ae_model
+from .constants import AE_TMG_ACTION
 
-@receiver(post_save, weak=False, dispatch_uid="update_ae_initial_for_susar")
-def update_ae_initial_for_susar(sender, instance, raw, **kwargs):
-    """Update AeInitial if SUSAR is created.
-    """
+AeInitial = get_ae_model("AeInitial")
+AeSusar = get_ae_model("AeSusar")
 
-    if not raw:
+
+@receiver(m2m_changed, weak=False, dispatch_uid="update_ae_notifications_for_tmg_group")
+def update_ae_notifications_for_tmg_group(
+    action, instance, reverse, model, pk_set, using, **kwargs
+):
+
+    try:
+        instance.userprofile
+    except AttributeError:
+        pass
+    else:
         try:
-            submitted_datetime = instance.submitted_datetime
-        except AttributeError:
+            tmg_ae_notification = Notification.objects.get(name=AE_TMG_ACTION)
+        except ObjectDoesNotExist:
             pass
         else:
-            if submitted_datetime:
-                if instance.ae_initial.susar_reported != YES:
-                    instance.ae_initial.susar_reported = YES
-                    instance.ae_initial.save(update_fields=["susar_reported"])
-            elif instance.ae_initial.susar_reported != NO:
-                instance.ae_initial.susar_reported = NO
-                instance.ae_initial.save(update_fields=["susar_reported"])
+            try:
+                with transaction.atomic():
+                    instance.groups.get(name=TMG)
+            except ObjectDoesNotExist:
+                instance.userprofile.email_notifications.remove(tmg_ae_notification)
+            else:
+                instance.userprofile.email_notifications.add(tmg_ae_notification)
 
 
-@receiver(post_save, weak=False, dispatch_uid="update_ae_initial_susar_reported")
-def update_ae_initial_susar_reported(sender, instance, raw, update_fields, **kwargs):
-    """Create SUSAR instance if it does not already exist when
-    Aeinitial.susar_reported == YES.
-    """
+@receiver(
+    post_save, sender=AeSusar, weak=False, dispatch_uid="update_ae_initial_for_susar"
+)
+def update_ae_initial_for_susar(sender, instance, raw, update_fields, **kwargs):
     if not raw and not update_fields:
-        if (
-            instance._meta.label_lower
-            == f"{settings.ADVERSE_EVENT_APP_LABEL}.aeinitial"
-        ):
-            if instance.susar_reported == YES:
-                AeSusar = django_apps.get_model(
-                    f"{settings.ADVERSE_EVENT_APP_LABEL}.aesusar"
+        if instance.submitted_datetime:
+            if instance.ae_initial.susar_reported != YES:
+                instance.ae_initial.susar = YES
+                instance.ae_initial.susar_reported = YES
+                instance.ae_initial.save(update_fields=["susar", "susar_reported"])
+        elif instance.ae_initial.susar_reported != NO:
+            instance.ae_initial.susar = YES
+            instance.ae_initial.susar_reported = NO
+            instance.ae_initial.save(update_fields=["susar", "susar_reported"])
+
+
+@receiver(
+    post_save,
+    sender=AeInitial,
+    weak=False,
+    dispatch_uid="update_ae_initial_susar_reported",
+)
+def update_ae_initial_susar_reported(sender, instance, raw, update_fields, **kwargs):
+    if not raw and not update_fields:
+        if instance.susar == YES and instance.susar_reported == YES:
+            try:
+                with transaction.atomic():
+                    AeSusar.objects.get(ae_initial=instance)
+            except ObjectDoesNotExist:
+                AeSusar.objects.create(
+                    ae_initial=instance, submitted_datetime=get_utcnow()
                 )
-                try:
-                    with transaction.atomic():
-                        AeSusar.objects.get(ae_initial=instance)
-                except ObjectDoesNotExist:
-                    AeSusar.objects.create(
-                        ae_initial=instance,
-                        submitted_datetime=get_utcnow(),
-                        subject_identifier=instance.subject_identifier,
-                    )
 
 
-@receiver(post_delete, weak=False, dispatch_uid="post_delete_ae_susar")
+@receiver(post_delete, sender=AeSusar, weak=False, dispatch_uid="post_delete_ae_susar")
 def post_delete_ae_susar(instance, **kwargs):
-    if instance._meta.label_lower == f"{settings.ADVERSE_EVENT_APP_LABEL}.aesusar":
-        if instance.aeinitial.susar_reported != NO:
-            instance.susar_reported = NO
-            instance.save()
+    if instance.ae_initial.susar == YES and instance.ae_initial.susar_reported != NO:
+        instance.ae_initial.susar_reported = NO
+        instance.ae_initial.save()

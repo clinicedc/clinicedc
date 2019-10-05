@@ -9,7 +9,11 @@ from edc_adverse_event.constants import (
 )
 from edc_constants.constants import HIGH_PRIORITY, YES, DEAD, LOST_TO_FOLLOWUP
 from edc_reportable.constants import GRADE5
-from edc_visit_schedule.utils import get_offschedule_models, OnScheduleError
+from edc_visit_schedule.utils import (
+    get_offschedule_models,
+    get_onschedule_models,
+    OnScheduleError,
+)
 
 from ..constants import ADVERSE_EVENT_APP_LABEL, ADVERSE_EVENT_ADMIN_SITE
 
@@ -67,7 +71,18 @@ class AeFollowupAction(ActionWithNotification):
 
     @property
     def offschedule_models(self):
+        """Returns a list of offschedule models, in label_lower format.
+        """
         return get_offschedule_models(
+            subject_identifier=self.subject_identifier,
+            report_datetime=self.reference_obj.report_datetime,
+        )
+
+    @property
+    def onschedule_models(self):
+        """Returns a list of offschedule models, in label_lower format.
+        """
+        return get_onschedule_models(
             subject_identifier=self.subject_identifier,
             report_datetime=self.reference_obj.report_datetime,
         )
@@ -79,7 +94,7 @@ class AeFollowupAction(ActionWithNotification):
             self.reference_obj.outcome
             and self.reference_obj.outcome == LOST_TO_FOLLOWUP
         ):
-            if not self.offschedule_models:
+            if not self.onschedule_models:
                 raise OnScheduleError(
                     f"Subject cannot be lost to followup. "
                     f"Subject is not on schedule! Got {self.subject_identifier}."

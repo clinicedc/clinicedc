@@ -17,11 +17,12 @@ from .ae_followup_methods_model_mixin import AeFollowupMethodsModelMixin
 
 class AeFollowupModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
-    ActionModelMixin,
-    TrackingModelMixin,
     AeFollowupFieldsModelMixin,
     AeFollowupMethodsModelMixin,
     SiteModelMixin,
+    ActionModelMixin,
+    TrackingModelMixin,
+    models.Model,
 ):
 
     action_name = AE_FOLLOWUP_ACTION

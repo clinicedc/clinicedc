@@ -8,6 +8,7 @@ AESI_ACTION = "submit-aesi-report"
 CONTINUING_UPDATE = "continuing/update"
 DEATH_REPORT_ACTION = "submit-death-report"
 DEATH_REPORT_TMG_ACTION = "submit-death-report-tmg"
+DEATH_REPORT_TMG_SECOND_ACTION = "submit-death-report-tmg-2nd"
 
 ADVERSE_EVENT_APP_LABEL = getattr(
     settings, "ADVERSE_EVENT_APP_LABEL", "edc_adverse_event"

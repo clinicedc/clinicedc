@@ -16,15 +16,14 @@ from .ae_susar_fields_model_mixin import AeSusarFieldsModelMixin
 from .ae_susar_methods_model_mixin import AeSusarMethodsModelMixin
 
 
-# noinspection SpellCheckingInspection
 class AeSusarModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
-    ActionModelMixin,
-    TrackingModelMixin,
     AeSusarFieldsModelMixin,
     AeSusarMethodsModelMixin,
     ReportStatusModelMixin,
     SiteModelMixin,
+    ActionModelMixin,
+    TrackingModelMixin,
     models.Model,
 ):
 
