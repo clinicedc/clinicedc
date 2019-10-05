@@ -249,7 +249,6 @@ class TestActionItem(TestCase):
 
         self.assertRaises(ProtectedError, action_item.delete)
 
-    @tag("1")
     def test_new(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
@@ -259,7 +258,6 @@ class TestActionItem(TestCase):
 
         self.assertEqual(form_one_action.action_item.status, NEW)
 
-    @tag("1")
     def test_close_on_create(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
@@ -276,7 +274,6 @@ class TestActionItem(TestCase):
 
         self.assertEqual(form_one.action_item.status, CLOSED)
 
-    @tag("1")
     def test_all_closed_on_create(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
@@ -301,7 +298,6 @@ class TestActionItem(TestCase):
         self.assertEqual(form_two.action_item.status, CLOSED)
         self.assertEqual(form_three.action_item.status, CLOSED)
 
-    @tag("1")
     def test_detects_change(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
@@ -320,7 +316,6 @@ class TestActionItem(TestCase):
 
         self.assertIsNotNone(form_one.action.reference_obj_has_changed)
 
-    @tag("1")
     def test_reopens_children_on_change(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)

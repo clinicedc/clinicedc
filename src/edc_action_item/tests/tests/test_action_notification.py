@@ -28,7 +28,6 @@ class TestActionNotification(TestCase):
     def tearDown(self):
         ActionItem.subject_identifier_model = self.subject_identifier_model
 
-    @tag("1")
     def test_sends_correct_number_of_emails(self):
 
         self.assertIn(FormZeroAction, site_action_items.registry.values())
@@ -106,7 +105,6 @@ class TestActionNotification(TestCase):
         form_zero.save()
         self.assertEqual(len(mail.outbox), 1)
 
-    @tag("1")
     def test_action_sends_another_notification_on_update(self):
         form_zero = FormZero.objects.create(
             f1=1, subject_identifier=self.subject_identifier
@@ -131,7 +129,6 @@ class TestActionNotification(TestCase):
         self.assertIn("TEST/UAT", mail.outbox[0].subject)
         self.assertIn("THIS IS A TEST MESSAGE", mail.outbox[0].body)
 
-    @tag("1")
     def test_action_sends_as_test_email_with_update(self):
         form_zero = FormZero.objects.create(
             f1=1, subject_identifier=self.subject_identifier
