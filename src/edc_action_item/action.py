@@ -376,6 +376,7 @@ class Action:
                         )
                     }
                 )
+                self.action_item.refresh_from_db()
 
     @property
     def reference_obj_has_changed(self):
