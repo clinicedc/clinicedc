@@ -67,17 +67,21 @@ class ActionModelMixin(models.Model):
         return f"{self.action_identifier[-9:]}"
 
     def save(self, *args, **kwargs):
+        # ensure action class is defined
         if not self.get_action_cls():
             raise ActionClassNotDefined(
                 f"Action class name not defined. See {repr(self)}"
             )
 
+        # ensure subject_identifier
         if not self.subject_identifier:
             raise ActionItemError(
                 f"Missing subject identifier. See {self.__class__}"
                 f" {self.action_identifier}."
             )
 
+        # ensure related_action_item is set if there is a
+        # related reference model.
         if (
             self.get_action_cls().related_reference_model
             and not self.related_action_item
@@ -104,6 +108,7 @@ class ActionModelMixin(models.Model):
                 action_identifier=self.action_identifier
             )
         self.parent_action_item = self.action_item.parent_action_item
+
         # also see signals.py
         super().save(*args, **kwargs)
 
@@ -118,7 +123,11 @@ class ActionModelMixin(models.Model):
 
     @property
     def action(self):
-        return self.get_action_cls()(action_item=self.action_item)
+        return self.get_action_cls()(
+            subject_identifier=self.subject_identifier,
+            action_item=self.action_item,
+            readonly=True,
+        )
 
     def get_action_item_reason(self):
         return self.action_item_reason or self.action_name

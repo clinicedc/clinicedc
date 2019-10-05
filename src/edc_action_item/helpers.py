@@ -255,9 +255,9 @@ class ActionItemHelper:
         context.update(
             action_identifier=self.action_identifier,
             action_instructions=self.action_item.instructions,
-            action_item_color=self.action_item.read_only_action.get_color_style(),
+            action_item_color=self.action_item.action.get_color_style(),
             action_item_reason=self.render_action_item_reasons(),
-            display_name=self.action_item.read_only_action.get_display_name(),
+            display_name=self.action_item.action.get_display_name(),
             href=self.href,
             last_updated_text=self.last_updated_text,
             name=self.action_item.action_type.name,
@@ -265,8 +265,8 @@ class ActionItemHelper:
             parent_reference_obj=self.parent_reference_obj,
             parent_reference_model_name=self.parent_reference_model_name,
             parent_reference_url=self.parent_reference_url,
-            popover_title=self.action_item.read_only_action.get_popover_title(),
-            priority=self.action_item.read_only_action.get_priority(),
+            popover_title=self.action_item.action.get_popover_title(),
+            priority=self.action_item.action.get_priority(),
             reference_model_name=self.reference_model_name,
             reference_obj=self.reference_obj,
             reference_url=self.reference_url,
@@ -274,6 +274,6 @@ class ActionItemHelper:
             related_reference_model_name=self.related_reference_model_name,
             related_reference_url=self.related_reference_url,
             report_datetime=self.action_item.report_datetime,
-            status=self.action_item.read_only_action.get_status(),
+            status=self.action_item.action.get_status(),
         )
         return context

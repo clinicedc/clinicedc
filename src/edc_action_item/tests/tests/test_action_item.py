@@ -249,11 +249,38 @@ class TestActionItem(TestCase):
 
         self.assertRaises(ProtectedError, action_item.delete)
 
-    def test_not_changed(self):
+    def test_new(self):
         site_action_items.register(FormOneAction)
         site_action_items.register(FormTwoAction)
         site_action_items.register(FormThreeAction)
+
         form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
+
+        self.assertEqual(form_one_action.action_item.status, NEW)
+
+    def test_close_on_create(self):
+        site_action_items.register(FormOneAction)
+        site_action_items.register(FormTwoAction)
+        site_action_items.register(FormThreeAction)
+
+        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
+
+        self.assertEqual(form_one_action.action_item.status, NEW)
+
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier,
+            action_identifier=form_one_action.action_identifier,
+        )
+
+        self.assertEqual(form_one.action_item.status, CLOSED)
+
+    def test_all_closed_on_create(self):
+        site_action_items.register(FormOneAction)
+        site_action_items.register(FormTwoAction)
+        site_action_items.register(FormThreeAction)
+
+        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
+
         form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier,
             action_identifier=form_one_action.action_identifier,
@@ -267,9 +294,20 @@ class TestActionItem(TestCase):
             subject_identifier=self.subject_identifier
         )
 
-        self.assertTrue(form_one.action_item.status == CLOSED)
-        self.assertTrue(form_two.action_item.status == CLOSED)
-        self.assertTrue(form_three.action_item.status == CLOSED)
+        self.assertEqual(form_one.action_item.status, CLOSED)
+        self.assertEqual(form_two.action_item.status, CLOSED)
+        self.assertEqual(form_three.action_item.status, CLOSED)
+
+    def test_detects_change(self):
+        site_action_items.register(FormOneAction)
+        site_action_items.register(FormTwoAction)
+        site_action_items.register(FormThreeAction)
+
+        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier,
+            action_identifier=form_one_action.action_identifier,
+        )
 
         form_one.f1 = "blah"
         form_one.save()
@@ -278,10 +316,30 @@ class TestActionItem(TestCase):
 
         self.assertIsNotNone(form_one.action.reference_obj_has_changed)
 
+    def test_reopens_children_on_change(self):
+        site_action_items.register(FormOneAction)
+        site_action_items.register(FormTwoAction)
+        site_action_items.register(FormThreeAction)
+
+        form_one_action = FormOneAction(subject_identifier=self.subject_identifier)
+        form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier,
+            action_identifier=form_one_action.action_identifier,
+        )
+        form_two = FormTwo.objects.create(
+            subject_identifier=self.subject_identifier, form_one=form_one
+        )
+        form_three = FormThree.objects.create(
+            subject_identifier=self.subject_identifier
+        )
+
+        form_one.f1 = "blah"
+        form_one.save()
+
         form_one.refresh_from_db()
         form_two.refresh_from_db()
         form_three.refresh_from_db()
 
-        self.assertTrue(form_one.action_item.status == CLOSED)
-        self.assertTrue(form_two.action_item.status == OPEN)
-        self.assertTrue(form_three.action_item.status == OPEN)
+        self.assertEqual(form_two.action_item.status, OPEN)
+        self.assertEqual(form_three.action_item.status, OPEN)
+        self.assertEqual(form_one.action_item.status, CLOSED)
