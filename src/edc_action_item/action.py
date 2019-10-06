@@ -15,6 +15,7 @@ from .create_action_item import create_action_item
 from .get_action_type import get_action_type
 from .site_action_items import site_action_items
 
+
 logger = logging.getLogger(__name__)
 style = color_style()
 
@@ -173,11 +174,16 @@ class Action:
         """
         if not self._action_item:
             if self.action_identifier:
-                self._action_item = (
-                    self.action_item_model_cls()
-                    .objects.using(self.using)
-                    .get(action_identifier=self.action_identifier)
-                )
+                try:
+                    self._action_item = (
+                        self.action_item_model_cls()
+                        .objects.using(self.using)
+                        .get(action_identifier=self.action_identifier)
+                    )
+                except ObjectDoesNotExist as e:
+                    raise ObjectDoesNotExist(
+                        f"{e} Got action_identifier={self.action_identifier}."
+                    )
             elif self.reference_obj:
                 self._action_item = self.reference_obj.action_item
             else:
