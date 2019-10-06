@@ -8,7 +8,10 @@ from django.utils.module_loading import module_has_submodule
 from edc_notification import AlreadyRegistered as NotificationAlreadyRegistered
 from edc_notification import site_notifications
 from edc_prn.prn import Prn
-from edc_prn.site_prn_forms import site_prn_forms
+from edc_prn.site_prn_forms import (
+    site_prn_forms,
+    AlreadyRegistered as PrnAlreadyRegistered,
+)
 from importlib import import_module
 
 from .create_or_update_action_type import create_or_update_action_type
@@ -55,7 +58,7 @@ class SiteActionItemCollection:
             )
             try:
                 site_prn_forms.register(prn)
-            except AlreadyRegistered:
+            except PrnAlreadyRegistered:
                 pass
         try:
             action_cls.notification_email_to
