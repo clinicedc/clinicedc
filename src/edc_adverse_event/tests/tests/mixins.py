@@ -7,13 +7,11 @@ from ...models import CauseOfDeath
 
 
 class DeathReportTestMixin:
-
     def get_death_report(self, cause_of_death=None, cause_of_death_other=None):
 
         causes_qs = CauseOfDeath.objects.exclude(short_name=OTHER)
         cause_of_death = (
-            cause_of_death or causes_qs[choice(
-                [x for x in range(0, len(causes_qs))])]
+            cause_of_death or causes_qs[choice([x for x in range(0, len(causes_qs))])]
         )
 
         # create ae initial

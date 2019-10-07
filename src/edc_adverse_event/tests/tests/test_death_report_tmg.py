@@ -19,8 +19,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
 
     def setUp(self):
         self.subject_identifier = "12345"
-        RegisteredSubject.objects.create(
-            subject_identifier=self.subject_identifier)
+        RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
 
     def test_death(self):
         # create ae initial
@@ -129,8 +128,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
                 reference_model="adverse_event_app.deathreporttmgsecond",
             )
         except ObjectDoesNotExist:
-            self.fail(
-                "deathreporttmgsecond action item unexpectedly does not exist")
+            self.fail("deathreporttmgsecond action item unexpectedly does not exist")
 
         # assert closed
         self.assertEqual(action_item.status, NEW)
