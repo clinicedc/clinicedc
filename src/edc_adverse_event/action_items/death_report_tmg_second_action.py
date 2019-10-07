@@ -24,8 +24,7 @@ class DeathReportTmgSecondAction(ActionWithNotification):
     show_link_to_changelist = True
     admin_site_name = ADVERSE_EVENT_ADMIN_SITE
     singleton = True
-    instructions = mark_safe(
-        f"This report is to be completed by the TMG only.")
+    instructions = mark_safe(f"This report is to be completed by the TMG only.")
 
     def reopen_action_item_on_change(self):
         """Do not reopen if report status is CLOSED.
