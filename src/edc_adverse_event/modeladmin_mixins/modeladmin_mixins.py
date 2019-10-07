@@ -15,5 +15,5 @@ class NonAeInitialModelAdminMixin:
     def get_readonly_fields(self, request, obj=None):
         fields = super().get_readonly_fields(request, obj=obj)
         if obj:
-            fields = fields + ("ae_initial",)
+            fields = list(fields) + ["ae_initial"]
         return list(fields)

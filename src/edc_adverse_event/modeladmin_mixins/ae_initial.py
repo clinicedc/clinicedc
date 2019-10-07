@@ -1,3 +1,4 @@
+from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
@@ -5,13 +6,15 @@ from django.template.loader import render_to_string
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_action_item import action_fieldset_tuple
+from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
 from edc_adverse_event.get_ae_model import get_ae_model
+from edc_adverse_event.modelform_mixins.ae_initial import AeInitialModelFormMixin
 from edc_constants.constants import DEAD
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils import convert_php_dateformat
 
-from ..templatetags.ae_extras import (
+from ..templatetags.edc_adverse_event_extras import (
     format_ae_description_template_name,
     format_ae_description,
 )
@@ -65,7 +68,17 @@ default_radio_fields = {
 }
 
 
-class AeInitialModelAdminMixin(ModelAdminSubjectDashboardMixin):
+class AeInitialForm(AeInitialModelFormMixin, forms.ModelForm):
+    class Meta:
+        model = get_ae_model("aeinitial")
+        fields = "__all__"
+
+
+class AeInitialModelAdminMixin(
+    ModelAdminSubjectDashboardMixin, ModelAdminActionItemMixin
+):
+
+    form = AeInitialForm
 
     email_contact = settings.EMAIL_CONTACTS.get("ae_reports")
     additional_instructions = mark_safe(

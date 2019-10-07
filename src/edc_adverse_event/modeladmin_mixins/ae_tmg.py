@@ -1,7 +1,10 @@
+from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from edc_action_item import action_fieldset_tuple
+from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
+from edc_adverse_event.modelform_mixins import AeTmgModelFormMixin
 from edc_constants.constants import OTHER
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -11,12 +14,19 @@ from ..get_ae_model import get_ae_model
 from .modeladmin_mixins import NonAeInitialModelAdminMixin
 
 
-# @admin.register(AeTmg, site=ambition_ae_admin)
+class AeTmgForm(AeTmgModelFormMixin, forms.ModelForm):
+    class Meta:
+        model = get_ae_model("aetmg")
+        fields = "__all__"
+
+
 class AeTmgModelAdminMixin(
-    ModelAdminSubjectDashboardMixin, NonAeInitialModelAdminMixin
+    ModelAdminSubjectDashboardMixin,
+    NonAeInitialModelAdminMixin,
+    ModelAdminActionItemMixin,
 ):
 
-    form = None  # AeTmgForm
+    form = AeTmgForm
 
     additional_instructions = "For completion by TMG Investigators Only"
 
@@ -41,19 +51,24 @@ class AeTmgModelAdminMixin(
     ]
 
     fieldsets = (
+        (None, {"fields": ("subject_identifier", "ae_initial", "report_datetime")}),
         (
-            None,
+            "Original Report",
             {
                 "fields": (
-                    "subject_identifier",
-                    "ae_initial",
-                    "report_datetime",
+                    "ae_description",
+                    "ae_classification",
+                    "ae_classification_other",
+                )
+            },
+        ),
+        (
+            "Investigator's section",
+            {
+                "fields": (
                     "ae_received_datetime",
                     "clinical_review_datetime",
-                    "ae_description",
                     "investigator_comments",
-                    "ae_classification",
-                    # 'ae_classification_other',
                     "original_report_agreed",
                     "narrative",
                     "officials_notified",
@@ -75,7 +90,7 @@ class AeTmgModelAdminMixin(
         return obj.report_status.title()
 
     def get_queryset(self, request):
-        """Returns for the current user only if in the TMG group.
+        """Returns for the current user if has `view_aetmg` permissions.
         """
         # TODO: this used to look at group membership?
         if request.user.has_perm(f"{settings.ADVERSE_EVENT_APP_LABEL}.view_aetmg"):
@@ -87,7 +102,7 @@ class AeTmgModelAdminMixin(
         original AE.
         """
         initial = super().get_changeform_initial_data(request)
-        AeInitial = get_ae_model("aeintial")
+        AeInitial = get_ae_model("aeinitial")
         try:
             ae_initial = AeInitial.objects.get(pk=request.GET.get("ae_initial"))
         except ObjectDoesNotExist:

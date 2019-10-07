@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_action_item import action_fieldset_tuple
+from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
 from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -11,7 +12,9 @@ from .modeladmin_mixins import NonAeInitialModelAdminMixin
 
 
 class AeFollowupModelAdminMixin(
-    ModelAdminSubjectDashboardMixin, NonAeInitialModelAdminMixin
+    ModelAdminSubjectDashboardMixin,
+    NonAeInitialModelAdminMixin,
+    ModelAdminActionItemMixin,
 ):
 
     fieldsets = (
