@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
 
@@ -12,7 +13,7 @@ class ReferenceManager(models.Manager):
         return self.get(action_identifier=action_identifier)
 
 
-class Reference(ActionModelMixin, BaseUuidModel):
+class Reference(NonUniqueSubjectIdentifierFieldMixin, ActionModelMixin, BaseUuidModel):
 
     """Model used as a default reference model for simple actions
     not created by another model.
