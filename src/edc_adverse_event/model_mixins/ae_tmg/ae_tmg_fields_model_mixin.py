@@ -42,9 +42,7 @@ class AeTmgFieldsModelMixin(models.Model):
 
     ae_classification = models.CharField(max_length=150, blank=True, null=True)
 
-    ae_classification_other = OtherCharField(
-        max_length=250, blank=True, null=True, editable=False
-    )
+    ae_classification_other = OtherCharField(max_length=250, blank=True, null=True)
 
     original_report_agreed = models.CharField(
         verbose_name="Does this investigator agree with the original AE report?",
