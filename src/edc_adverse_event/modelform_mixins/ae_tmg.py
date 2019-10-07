@@ -28,16 +28,26 @@ class AeTmgModelFormMixin(
         label="Subject Identifier",
         required=False,
         widget=forms.TextInput(attrs={"readonly": "readonly"}),
+        help_text="(read-only)",
     )
 
     ae_description = forms.CharField(
         label="Original AE Description",
         required=False,
         widget=forms.Textarea(attrs={"readonly": "readonly", "cols": "79"}),
+        help_text="(read-only)",
     )
 
     ae_classification = forms.CharField(
         label="AE Classification",
         required=False,
         widget=forms.TextInput(attrs={"readonly": "readonly"}),
+        help_text="(read-only)",
+    )
+
+    ae_classification_other = forms.CharField(
+        label="AE Classification (if `other` above)",
+        required=False,
+        widget=forms.TextInput(attrs={"readonly": "readonly"}),
+        help_text="(read-only)",
     )

@@ -19,4 +19,5 @@ class AeSusarModelFormMixin(
         label="Subject Identifier",
         required=False,
         widget=forms.TextInput(attrs={"readonly": "readonly"}),
+        help_text="(read-only)",
     )
