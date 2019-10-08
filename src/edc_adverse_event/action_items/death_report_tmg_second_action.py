@@ -15,16 +15,17 @@ class DeathReportTmgSecondAction(ActionWithNotification):
     display_name = "TMG Death Report (2nd) pending"
     notification_display_name = "TMG Death Report (2nd)"
     parent_action_names = [DEATH_REPORT_TMG_ACTION]
-    reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreporttmgsecond"
-    related_reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreport"
     related_reference_fk_attr = "death_report"
     priority = HIGH_PRIORITY
     create_by_user = False
     color_style = "info"
     show_link_to_changelist = True
-    admin_site_name = ADVERSE_EVENT_ADMIN_SITE
     singleton = True
     instructions = mark_safe(f"This report is to be completed by the TMG only.")
+
+    reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreporttmgsecond"
+    related_reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreport"
+    admin_site_name = ADVERSE_EVENT_ADMIN_SITE
 
     def reopen_action_item_on_change(self):
         """Do not reopen if report status is CLOSED.

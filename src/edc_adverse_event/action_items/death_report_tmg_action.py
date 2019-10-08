@@ -1,5 +1,5 @@
 from edc_action_item.action_with_notification import ActionWithNotification
-from edc_constants.constants import HIGH_PRIORITY, CLOSED, YES
+from edc_constants.constants import HIGH_PRIORITY, CLOSED, NO, YES
 from django.utils.safestring import mark_safe
 
 from ..constants import (
@@ -16,26 +16,25 @@ class DeathReportTmgAction(ActionWithNotification):
     display_name = "TMG Death Report (1st) pending"
     notification_display_name = "TMG Death Report (1st)"
     parent_action_names = [DEATH_REPORT_ACTION]
-    reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreporttmg"
-    related_reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreport"
     related_reference_fk_attr = "death_report"
     priority = HIGH_PRIORITY
     create_by_user = False
     color_style = "info"
     show_link_to_changelist = True
-    admin_site_name = ADVERSE_EVENT_ADMIN_SITE
     singleton = True
     instructions = mark_safe(f"This report is to be completed by the TMG only.")
 
+    reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreporttmg"
+    related_reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreport"
+    admin_site_name = ADVERSE_EVENT_ADMIN_SITE
+
     def get_next_actions(self):
-        """Returns a second DeathReportTmgAction if the
+        """Returns a DeathReportTmgSecondAction if the
         submitted TMG report does not match the cause of death
         of the original death report.
-
-        Also, no more than two DeathReportTmgAction can exist.
         """
         next_actions = []
-        if not self.matching_cause_of_death:
+        if self.reference_obj.cause_of_death_agreed == NO:
             next_actions = [DEATH_REPORT_TMG_SECOND_ACTION]
         return next_actions
 
@@ -47,16 +46,6 @@ class DeathReportTmgAction(ActionWithNotification):
     def close_action_item_on_save(self):
         """Close if report status is CLOSED.
         """
-        if self.matching_cause_of_death:
+        if self.reference_obj.cause_of_death_agreed == YES:
             self.delete_children_if_new(parent_action_item=self.action_item)
         return self.reference_obj.report_status == CLOSED
-
-    @property
-    def matching_cause_of_death(self):
-        """Returns True if cause_of_death_agreed on TMG Death Report is YES.
-
-        Note: the cause of death may be OTHER and the specify
-        between death report and TMG different; that is obj.cause_of_death
-        match but cause_of_death_agreed is NO.
-        """
-        return self.reference_obj.cause_of_death_agreed == YES
