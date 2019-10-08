@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
@@ -8,7 +9,15 @@ from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
+from ..get_ae_model import get_ae_model
+from ..modelform_mixins import AeFollowupModelFormMixin
 from .modeladmin_mixins import NonAeInitialModelAdminMixin
+
+
+class AeFollowupForm(AeFollowupModelFormMixin, forms.ModelForm):
+    class Meta:
+        model = get_ae_model("aefollowup")
+        fields = "__all__"
 
 
 class AeFollowupModelAdminMixin(
@@ -16,6 +25,8 @@ class AeFollowupModelAdminMixin(
     NonAeInitialModelAdminMixin,
     ModelAdminActionItemMixin,
 ):
+
+    form = AeFollowupForm
 
     fieldsets = (
         (

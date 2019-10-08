@@ -1,8 +1,6 @@
 from django import forms
 from django.contrib import admin
 from django.template.loader import render_to_string
-from django.urls.base import reverse
-from django.utils.safestring import mark_safe
 from edc_action_item import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
 from edc_model_admin import audit_fieldset_tuple
@@ -12,9 +10,9 @@ from ..get_ae_model import get_ae_model
 from ..modelform_mixins import AeSusarModelFormMixin
 from ..templatetags.edc_adverse_event_extras import (
     format_ae_susar_description,
-    format_ae_susar_description_template_name,
+    select_description_template,
 )
-from .modeladmin_mixins import NonAeInitialModelAdminMixin
+from .modeladmin_mixins import NonAeInitialModelAdminMixin, AdverseEventModelAdminMixin
 
 
 class AeSusarForm(AeSusarModelFormMixin, forms.ModelForm):
@@ -27,6 +25,7 @@ class AeSusarForm(AeSusarModelFormMixin, forms.ModelForm):
 class AeSusarModelAdminMixin(
     ModelAdminSubjectDashboardMixin,
     NonAeInitialModelAdminMixin,
+    AdverseEventModelAdminMixin,
     ModelAdminActionItemMixin,
 ):
 
@@ -37,7 +36,7 @@ class AeSusarModelAdminMixin(
         "dashboard",
         "description",
         "initial_ae",
-        "report_datetime",
+        "user",
     ]
 
     list_filter = ("report_datetime", "submitted_datetime")
@@ -69,22 +68,7 @@ class AeSusarModelAdminMixin(
     radio_fields = {"report_status": admin.VERTICAL}
 
     def description(self, obj):
-        """Returns a formatted comprehensive description of the SAE
-        combining multiple fields.
+        """Returns a formatted comprehensive description.
         """
         context = format_ae_susar_description({}, obj, 50)
-        return render_to_string(format_ae_susar_description_template_name, context)
-
-    def initial_ae(self, obj):
-        """Returns a shortened action identifier.
-        """
-        if obj.ae_initial:
-            url_name = "_".join(obj.ae_initial._meta.label_lower.split("."))
-            namespace = self.admin_site.name
-            url = reverse(f"{namespace}:{url_name}_changelist")
-            return mark_safe(
-                f'<a data-toggle="tooltip" title="go to ae initial report" '
-                f'href="{url}?q={obj.ae_initial.action_identifier}">'
-                f"{obj.ae_initial.identifier}</a>"
-            )
-        return None
+        return render_to_string(select_description_template("aesusar"), context)
