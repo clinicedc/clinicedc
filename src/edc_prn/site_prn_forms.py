@@ -32,7 +32,7 @@ class PrnFormsCollection:
 
     def register(self, prn=None):
         if prn.model in self.registry:
-            raise AlreadyRegistered(f"Prn form {prn.model} is already registered.")
+            raise AlreadyRegistered(f"PRN form {prn.model} is already registered.")
         else:
             self.registry.update({prn.model: prn})
         self.reorder_registry()
