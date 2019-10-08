@@ -8,11 +8,25 @@ class OnScheduleError(Exception):
     pass
 
 
-def get_offschedule_models(
-    subject_identifier=None,
-    report_datetime=None,
-    subject_schedule_history_model_cls=None,
-):
+def get_onschedule_models(subject_identifier=None, report_datetime=None):
+    """Returns a list of onschedule models, in label_lower format,
+    for this subject and date.
+    """
+    onschedule_models = []
+    SubjectScheduleHistory = django_apps.get_model(
+        "edc_visit_schedule.SubjectScheduleHistory"
+    )
+    for onschedule_model_obj in SubjectScheduleHistory.objects.onschedules(
+        subject_identifier=subject_identifier, report_datetime=report_datetime
+    ):
+        _, schedule = site_visit_schedules.get_by_onschedule_model(
+            onschedule_model=onschedule_model_obj._meta.label_lower
+        )
+        onschedule_models.append(schedule.onschedule_model)
+    return onschedule_models
+
+
+def get_offschedule_models(subject_identifier=None, report_datetime=None):
     """Returns a list of offschedule models, in label_lower format,
     for this subject and date.
 
@@ -21,13 +35,13 @@ def get_offschedule_models(
     See also, manager method `onschedules`.
     """
     offschedule_models = []
-    SubjectScheduleHistory = (
-        subject_schedule_history_model_cls
-        or django_apps.get_model("edc_visit_schedule.SubjectScheduleHistory")
+    SubjectScheduleHistory = django_apps.get_model(
+        "edc_visit_schedule.SubjectScheduleHistory"
     )
-    for onschedule_model_obj in SubjectScheduleHistory.objects.onschedules(
+    onschedule_models = SubjectScheduleHistory.objects.onschedules(
         subject_identifier=subject_identifier, report_datetime=report_datetime
-    ):
+    )
+    for onschedule_model_obj in onschedule_models:
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             onschedule_model=onschedule_model_obj._meta.label_lower
         )
