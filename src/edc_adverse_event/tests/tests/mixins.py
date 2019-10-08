@@ -1,5 +1,7 @@
+from adverse_event_app.visit_schedules import visit_schedule
 from edc_action_item.models import ActionItem
 from edc_constants.constants import OTHER, YES
+from edc_visit_schedule import site_visit_schedules
 from model_mommy import mommy
 from random import choice
 
@@ -7,6 +9,23 @@ from ...models import CauseOfDeath
 
 
 class DeathReportTestMixin:
+    def setUp(self):
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+        subject_consent = mommy.make_recipe(
+            "adverse_event_app.subjectconsent", subject_identifier="1234567"
+        )
+        self.subject_identifier = subject_consent.subject_identifier
+
+        # put subject on schedule
+        _, schedule = site_visit_schedules.get_by_onschedule_model(
+            "adverse_event_app.onschedule"
+        )
+        schedule.put_on_schedule(
+            subject_identifier=subject_consent.subject_identifier,
+            onschedule_datetime=subject_consent.consent_datetime,
+        )
+
     def get_death_report(self, cause_of_death=None, cause_of_death_other=None):
 
         causes_qs = CauseOfDeath.objects.exclude(short_name=OTHER)

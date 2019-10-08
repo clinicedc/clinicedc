@@ -2,10 +2,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, tag
 from edc_action_item.models.action_item import ActionItem
 from edc_adverse_event.constants import DEATH_REPORT_TMG_SECOND_ACTION
-from edc_adverse_event.models.cause_of_death import CauseOfDeath
+from edc_adverse_event.models import CauseOfDeath
 from edc_constants.constants import CLOSED, NO, NEW, YES, OTHER
+from edc_facility.import_holidays import import_holidays
 from edc_list_data.site_list_data import site_list_data
-from edc_registration.models import RegisteredSubject
 from model_mommy import mommy
 
 from .mixins import DeathReportTestMixin
@@ -15,11 +15,8 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
     @classmethod
     def setUpClass(cls):
         site_list_data.autodiscover()
+        import_holidays()
         super().setUpClass()
-
-    def setUp(self):
-        self.subject_identifier = "12345"
-        RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
 
     def test_death(self):
         # create ae initial

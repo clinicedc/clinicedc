@@ -10,7 +10,6 @@ from edc_sites.tests import SiteTestCaseMixin
 from ...form_validators import AeInitialFormValidator, AeTmgFormValidator
 
 
-@tag("1")
 class TestAeInitialFormValidator(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpClass(cls):

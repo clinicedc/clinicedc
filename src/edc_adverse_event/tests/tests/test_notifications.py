@@ -1,8 +1,8 @@
 from django.core import mail
 from django.test import TestCase, tag
 from edc_constants.constants import NO, YES
+from edc_facility.import_holidays import import_holidays
 from edc_list_data.site_list_data import site_list_data
-from edc_registration.models import RegisteredSubject
 from edc_reportable.constants import GRADE3, GRADE4, GRADE5
 from model_mommy import mommy
 
@@ -22,15 +22,12 @@ class TestNotifications(DeathReportTestMixin, TestCase):
     @classmethod
     def setUpClass(cls):
         site_list_data.autodiscover()
+        import_holidays()
         super().setUpClass()
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-
-    def setUp(self):
-        self.subject_identifier = "12345"
-        RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
 
     def test_notifies_initial_ae_g3_not_sae(self):
         mommy.make_recipe(
@@ -215,11 +212,13 @@ class TestNotifications(DeathReportTestMixin, TestCase):
             ),
         )
 
+    @tag("1")
     def test_notifies_initial_ae_death_with_tmg(self):
 
         self.get_death_report()
 
-        self.assertEqual(len(mail.outbox), 5)
+        self.assertEqual(len(mail.outbox), 6)
+        # pprint([m.__dict__.get("subject") for m in mail.outbox])
 
         # AeInitial Action notification
         self.assertEqual(
