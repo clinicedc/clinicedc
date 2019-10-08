@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from edc_action_item import ActionWithNotification
 from edc_adverse_event.constants import (
     AE_INITIAL_ACTION,
@@ -6,25 +7,25 @@ from edc_adverse_event.constants import (
     DEATH_REPORT_ACTION,
 )
 from edc_constants.constants import HIGH_PRIORITY
+from edc_visit_schedule.utils import get_offschedule_models, OnScheduleError
 
 from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
-from django.core.exceptions import ObjectDoesNotExist
-from edc_visit_schedule.utils import get_offschedule_models
 
 
 class DeathReportAction(ActionWithNotification):
     name = DEATH_REPORT_ACTION
     display_name = "Submit Death Report"
     notification_display_name = "Death Report"
-    reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreport"
-    death_report_tmg_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreporttmg"
     parent_action_names = [AE_INITIAL_ACTION, AE_FOLLOWUP_ACTION]
     show_link_to_changelist = True
     show_link_to_add = True
-    admin_site_name = ADVERSE_EVENT_ADMIN_SITE
     priority = HIGH_PRIORITY
     singleton = True
     dirty_fields = ["cause_of_death"]
+
+    reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreport"
+    death_report_tmg_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreporttmg"
+    admin_site_name = ADVERSE_EVENT_ADMIN_SITE
 
     def get_next_actions(self):
         """Adds 1 DEATHReportTMG if not yet created and
@@ -32,11 +33,11 @@ class DeathReportAction(ActionWithNotification):
         """
         next_actions = []
         next_actions = self.append_next_death_tmg_action(next_actions)
-        next_actions = self.append_next_study_termination_action(next_actions)
+        next_actions = self.append_next_off_schedule_action(next_actions)
         return next_actions
 
     def append_next_death_tmg_action(self, next_actions):
-        # DEATH_REPORT_TMG_ACTION
+        # DEATH_REPORT_TMG_ACTION (1st)
         if self.death_report_tmg_model:
             tmg_model_cls = django_apps.get_model(self.death_report_tmg_model)
             try:
@@ -50,8 +51,20 @@ class DeathReportAction(ActionWithNotification):
         return next_actions
 
     def append_next_off_schedule_action(self, next_actions):
-        # STUDY_TERMINATION_CONCLUSION_ACTION
-        for off_schedule_model in get_offschedule_models().values():
+        """Appends an off schedule action to the list for each
+        schedule the subject is on.
+        """
+        offschedule_models = get_offschedule_models(
+            subject_identifier=self.subject_identifier,
+            report_datetime=self.reference_obj.report_datetime,
+        )
+        if not offschedule_models:
+            raise OnScheduleError(
+                f"Unable to create `{self.name}` action. "
+                f"Subject is not on any schedule. Got {self.subject_identifier}. "
+                f"See {repr(self)}."
+            )
+        for off_schedule_model in offschedule_models:
             off_schedule_cls = django_apps.get_model(off_schedule_model)
             try:
                 off_schedule_cls.objects.get(subject_identifier=self.subject_identifier)

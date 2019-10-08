@@ -21,8 +21,6 @@ from .ae_initial_tmg_model_mixin import AeInitialTmgModelMixin
 
 class AeInitialModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
-    ActionModelMixin,
-    TrackingModelMixin,
     AeInitialFieldsModelMixin,
     AeInitialMethodsModelMixin,
     AeInitialAeModelMixin,
@@ -30,6 +28,8 @@ class AeInitialModelMixin(
     AeInitialSusarModelMixin,
     AeInitialTmgModelMixin,
     SiteModelMixin,
+    ActionModelMixin,
+    TrackingModelMixin,
     models.Model,
 ):
 

@@ -30,6 +30,7 @@ class AeFollowupModelFormMixin(
         label="Subject Identifier",
         required=False,
         widget=forms.TextInput(attrs={"readonly": "readonly"}),
+        help_text="(read-only)",
     )
 
     def clean(self):

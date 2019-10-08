@@ -1,3 +1,4 @@
+from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
@@ -5,16 +6,19 @@ from django.template.loader import render_to_string
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_action_item import action_fieldset_tuple
+from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
 from edc_adverse_event.get_ae_model import get_ae_model
+from edc_adverse_event.modelform_mixins.ae_initial import AeInitialModelFormMixin
 from edc_constants.constants import DEAD
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils import convert_php_dateformat
 
-from ..templatetags.ae_extras import (
-    format_ae_description_template_name,
+from ..templatetags.edc_adverse_event_extras import (
+    select_description_template,
     format_ae_description,
 )
+from .modeladmin_mixins import AdverseEventModelAdminMixin
 
 
 fieldset_part_one = (
@@ -65,7 +69,19 @@ default_radio_fields = {
 }
 
 
-class AeInitialModelAdminMixin(ModelAdminSubjectDashboardMixin):
+class AeInitialForm(AeInitialModelFormMixin, forms.ModelForm):
+    class Meta:
+        model = get_ae_model("aeinitial")
+        fields = "__all__"
+
+
+class AeInitialModelAdminMixin(
+    AdverseEventModelAdminMixin,
+    ModelAdminSubjectDashboardMixin,
+    ModelAdminActionItemMixin,
+):
+
+    form = AeInitialForm
 
     email_contact = settings.EMAIL_CONTACTS.get("ae_reports")
     additional_instructions = mark_safe(
@@ -106,24 +122,6 @@ class AeInitialModelAdminMixin(ModelAdminSubjectDashboardMixin):
 
     search_fields = ["subject_identifier", "action_identifier", "tracking_identifier"]
 
-    def user(self, obj):
-        """Returns formatted user names and creation/modification dates.
-        """
-        return mark_safe(
-            "<BR>".join(
-                [
-                    obj.user_created,
-                    obj.created.strftime(
-                        convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-                    ),
-                    obj.user_modified,
-                    obj.modified.strftime(
-                        convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-                    ),
-                ]
-            )
-        )
-
     def if_sae_reason(self, obj):
         """Returns the SAE reason.
 
@@ -156,7 +154,7 @@ class AeInitialModelAdminMixin(ModelAdminSubjectDashboardMixin):
         combining multiple fields.
         """
         context = format_ae_description({}, obj, 50)
-        return render_to_string(format_ae_description_template_name, context)
+        return render_to_string(select_description_template("aeinitial"), context)
 
     def get_changelist_url(self, obj):
         url_name = "_".join(obj._meta.label_lower.split("."))
@@ -168,6 +166,7 @@ class AeInitialModelAdminMixin(ModelAdminSubjectDashboardMixin):
         """
         followups = []
         AeFollowup = get_ae_model("aefollowup")
+        AeSusar = get_ae_model("aesusar")
         for ae_followup in AeFollowup.objects.filter(
             related_action_item=obj.action_item
         ):
@@ -180,6 +179,17 @@ class AeInitialModelAdminMixin(ModelAdminSubjectDashboardMixin):
                 f'{report_datetime}" '
                 f'href="{url}?q={obj.action_identifier}">'
                 f"<span nowrap>{ae_followup.identifier}</span></a>"
+            )
+        for ae_susar in AeSusar.objects.filter(related_action_item=obj.action_item):
+            url = self.get_changelist_url(ae_susar)
+            report_datetime = ae_susar.report_datetime.strftime(
+                convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
+            )
+            followups.append(
+                f'<a title="go to AE SUSAR report for '
+                f'{report_datetime}" '
+                f'href="{url}?q={obj.action_identifier}">'
+                f"<span nowrap>{ae_susar.identifier} (SUSAR)</span></a>"
             )
         if followups:
             return mark_safe("<BR>".join(followups))

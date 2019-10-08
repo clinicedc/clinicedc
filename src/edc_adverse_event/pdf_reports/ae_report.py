@@ -47,6 +47,10 @@ class AeReport(CrfPdfReport):
 
         self._draw_ae_drug_relationship(story)
 
+        self._draw_ae_cause(story)
+
+        self._draw_ae_action_taken(story)
+
         story.append(Spacer(0.1 * cm, 0.5 * cm))
         story.append(Spacer(0.1 * cm, 0.5 * cm))
 
@@ -136,6 +140,8 @@ class AeReport(CrfPdfReport):
         self.set_table_style(t, bg_cmd=self.bg_cmd)
         story.append(t)
 
+    def _draw_ae_cause(self, story):
+
         # cause (Part3)
         left_width = 40 if self.ae_initial.ae_cause == YES else 80
         rows = [
@@ -162,6 +168,8 @@ class AeReport(CrfPdfReport):
         story.append(t)
 
         story.append(Spacer(0.1 * cm, 0.5 * cm))
+
+    def _draw_ae_action_taken(self, story):
 
         self.draw_narrative(
             story,

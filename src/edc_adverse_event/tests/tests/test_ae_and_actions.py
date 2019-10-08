@@ -3,22 +3,24 @@ from adverse_event_app.action_items import (
     AeInitialAction,
     StudyTerminationConclusionAction,
 )
-from adverse_event_app.models import AeInitial, AeFollowup, AeSusar
+from adverse_event_app.models import AeFollowup, AeInitial, AeSusar, AeTmg
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.test import TestCase, tag
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import SubjectDoesNotExist
 from edc_action_item.models.action_item import ActionItem
+from edc_adverse_event.models import AeClassification
 from edc_constants.constants import CLOSED, NO, NEW, YES, LOST_TO_FOLLOWUP
 from edc_constants.constants import DEAD
 from edc_list_data.site_list_data import site_list_data
 from edc_registration.models import RegisteredSubject
 from edc_reportable import GRADE5
 from edc_utils import get_utcnow
+from edc_visit_schedule.utils import OnScheduleError
 from model_mommy import mommy
 from unittest.mock import patch, PropertyMock
 
-from ...constants import RECOVERING, RECOVERED
+from ...constants import RECOVERING, RECOVERED, CONTINUING_UPDATE
 
 
 class TestAeAndActions(TestCase):
@@ -50,7 +52,6 @@ class TestAeAndActions(TestCase):
             subject_identifier="blahblah",
         )
 
-    @tag("1")
     def test_entire_flow(self):
         for index in range(0, 5):
             subject_identifier = f"ABCDEF-{index}"
@@ -392,6 +393,8 @@ class TestAeAndActions(TestCase):
             "adverse_event_app.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
+            outcome=CONTINUING_UPDATE,
+            followup=YES,
         )
         ae_followup1 = AeFollowup.objects.get(pk=ae_followup1.pk)
         # set followup = NO so next action item is not created
@@ -432,6 +435,52 @@ class TestAeAndActions(TestCase):
             status=NEW,
         )
 
+    def test_next_action5(self):
+        anaemia = AeClassification.objects.get(short_name="anaemia")
+        ae_initial = mommy.make_recipe(
+            "adverse_event_app.aeinitial",
+            subject_identifier=self.subject_identifier,
+            ae_classification=anaemia,
+        )
+        ae_initial = AeInitial.objects.get(pk=ae_initial.pk)
+
+        ActionItem.objects.get(
+            parent_action_item=None,
+            related_action_item=None,
+            action_identifier=ae_initial.action_identifier,
+            reference_model="adverse_event_app.aeinitial",
+            linked_to_reference=True,
+            status=CLOSED,
+        )
+
+        ActionItem.objects.get(
+            parent_action_item=ae_initial.action_item,
+            related_action_item=ae_initial.action_item,
+            reference_model="adverse_event_app.aetmg",
+            linked_to_reference=False,
+            status=NEW,
+        )
+
+        # note: ae_classification matches ae_initial
+        ae_tmg = mommy.make_recipe(
+            "adverse_event_app.aetmg",
+            subject_identifier=self.subject_identifier,
+            ae_initial=ae_initial,
+            ae_classification=anaemia.short_name,
+            report_status=CLOSED,
+        )
+
+        ae_tmg = AeTmg.objects.get(pk=ae_tmg.pk)
+
+        ActionItem.objects.get(
+            parent_action_item=ae_initial.action_item,
+            related_action_item=ae_initial.action_item,
+            action_identifier=ae_tmg.action_identifier,
+            reference_model="adverse_event_app.aetmg",
+            linked_to_reference=True,
+            status=CLOSED,
+        )
+
     def test_ae_followup_multiple_instances(self):
         ae_initial = mommy.make_recipe(
             "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
@@ -458,10 +507,12 @@ class TestAeAndActions(TestCase):
         "edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model"
     )
     @patch.object(AeFollowupAction, "offschedule_models", new_callable=PropertyMock)
+    @patch.object(AeFollowupAction, "onschedule_models", new_callable=PropertyMock)
     def test_ae_followup_outcome_ltfu_creates_action(
-        self, mock_offschedule_models, mock_get_by_model
+        self, mock_onschedule_models, mock_offschedule_models, mock_get_by_model
     ):
 
+        mock_onschedule_models.return_value = ["adverse_event_app.subjectconsent"]
         mock_offschedule_models.return_value = [
             "adverse_event_app.studyterminationconclusion"
         ]
@@ -485,6 +536,33 @@ class TestAeAndActions(TestCase):
             )
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised")
+
+    @patch(
+        "edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model"
+    )
+    @patch.object(AeFollowupAction, "offschedule_models", new_callable=PropertyMock)
+    @patch.object(AeFollowupAction, "onschedule_models", new_callable=PropertyMock)
+    def test_ae_followup_outcome_ltfu_raises(
+        self, mock_onschedule_models, mock_offschedule_models, mock_get_by_model
+    ):
+
+        mock_onschedule_models.return_value = []  # not on schedule
+        mock_offschedule_models.return_value = []
+        mock_get_by_model.return_value = StudyTerminationConclusionAction
+
+        ae_initial = mommy.make_recipe(
+            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+        )
+
+        self.assertRaises(
+            OnScheduleError,
+            mommy.make_recipe,
+            "adverse_event_app.aefollowup",
+            ae_initial=ae_initial,
+            subject_identifier=self.subject_identifier,
+            report_datetime=get_utcnow(),
+            outcome=LOST_TO_FOLLOWUP,
+        )
 
     @patch(
         "edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model"

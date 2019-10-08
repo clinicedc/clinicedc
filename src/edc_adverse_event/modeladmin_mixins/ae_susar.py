@@ -1,25 +1,42 @@
+from django import forms
 from django.contrib import admin
+from django.template.loader import render_to_string
 from edc_action_item import action_fieldset_tuple
+from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
-from .modeladmin_mixins import NonAeInitialModelAdminMixin
+from ..get_ae_model import get_ae_model
+from ..modelform_mixins import AeSusarModelFormMixin
+from ..templatetags.edc_adverse_event_extras import (
+    format_ae_susar_description,
+    select_description_template,
+)
+from .modeladmin_mixins import NonAeInitialModelAdminMixin, AdverseEventModelAdminMixin
+
+
+class AeSusarForm(AeSusarModelFormMixin, forms.ModelForm):
+    class Meta:
+        model = get_ae_model("aesusar")
+        fields = "__all__"
 
 
 # @admin.register(AeSusar, site=ambition_ae_admin)
 class AeSusarModelAdminMixin(
-    ModelAdminSubjectDashboardMixin, NonAeInitialModelAdminMixin
+    ModelAdminSubjectDashboardMixin,
+    NonAeInitialModelAdminMixin,
+    AdverseEventModelAdminMixin,
+    ModelAdminActionItemMixin,
 ):
 
-    form = None  # AeSusarForm
+    form = AeSusarForm
 
     list_display = [
         "subject_identifier",
         "dashboard",
-        "status",
-        "ae_initial",
-        "report_datetime",
-        "submitted_datetime",
+        "description",
+        "initial_ae",
+        "user",
     ]
 
     list_filter = ("report_datetime", "submitted_datetime")
@@ -50,5 +67,8 @@ class AeSusarModelAdminMixin(
 
     radio_fields = {"report_status": admin.VERTICAL}
 
-    def status(self, obj=None):
-        return obj.report_status.title()
+    def description(self, obj):
+        """Returns a formatted comprehensive description.
+        """
+        context = format_ae_susar_description({}, obj, 50)
+        return render_to_string(select_description_template("aesusar"), context)
