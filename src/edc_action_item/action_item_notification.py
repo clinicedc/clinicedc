@@ -2,6 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from edc_constants.constants import NEW, OPEN, CLOSED
 from edc_notification import Notification
 from edc_utils import get_utcnow
+import pdb
 
 NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ = "notify_on_new_and_no_reference_obj"
 NOTIFY_ON_NEW = "notify_on_new"
@@ -143,14 +144,6 @@ class ActionItemNotification(Notification):
                     kwargs.update(action_item=action_item)
 
                     if notify:
-                        try:
-                            parent_reference_verbose_name = (
-                                action_item.parent_action_item.reference_obj._meta.verbose_name
-                            )
-                        except AttributeError:
-                            parent_reference_verbose_name = (
-                                action_item.reference_model_cls()._meta.verbose_name
-                            )
                         email_body_template = (
                             self.email_body_template_update
                             if updated
@@ -159,7 +152,9 @@ class ActionItemNotification(Notification):
                         kwargs.update(
                             notification_reason=notify,
                             updated=updated,
-                            parent_reference_verbose_name=parent_reference_verbose_name,
+                            parent_reference_verbose_name=(
+                                action_item.reference_model_cls()._meta.verbose_name
+                            ),
                             subject_identifier=action_item.subject_identifier,
                             site_name=action_item.site.name,
                             pk=action_item.pk,
