@@ -43,9 +43,7 @@ class ActionModelMixin(models.Model):
     parent_action_identifier = models.CharField(
         max_length=30,
         null=True,
-        help_text=(
-            "action identifier that links to parent " "reference model instance."
-        ),
+        help_text=("action identifier that links to parent reference model instance."),
     )
 
     # remove
