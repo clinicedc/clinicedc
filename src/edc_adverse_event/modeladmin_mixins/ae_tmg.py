@@ -1,10 +1,8 @@
-from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from edc_action_item import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
-from edc_adverse_event.modelform_mixins import AeTmgModelFormMixin
 from edc_constants.constants import OTHER
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -14,19 +12,11 @@ from ..get_ae_model import get_ae_model
 from .modeladmin_mixins import NonAeInitialModelAdminMixin
 
 
-class AeTmgForm(AeTmgModelFormMixin, forms.ModelForm):
-    class Meta:
-        model = get_ae_model("aetmg")
-        fields = "__all__"
-
-
 class AeTmgModelAdminMixin(
     ModelAdminSubjectDashboardMixin,
     NonAeInitialModelAdminMixin,
     ModelAdminActionItemMixin,
 ):
-
-    form = AeTmgForm
 
     additional_instructions = "For completion by TMG Investigators Only"
 

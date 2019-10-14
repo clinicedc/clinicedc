@@ -37,7 +37,6 @@ class DeathReportAction(ActionWithNotification):
         return next_actions
 
     def append_next_death_tmg_action(self, next_actions):
-        # DEATH_REPORT_TMG_ACTION (1st)
         if self.death_report_tmg_model:
             tmg_model_cls = django_apps.get_model(self.death_report_tmg_model)
             try:
@@ -53,17 +52,15 @@ class DeathReportAction(ActionWithNotification):
     def append_next_off_schedule_action(self, next_actions):
         """Appends an off schedule action to the list for each
         schedule the subject is on.
+
+        If subject was already taken off schedule, skip. For example,
+        if re-saving the DeathReport, subject may have already been
+        taken off schedule.
         """
         offschedule_models = get_offschedule_models(
             subject_identifier=self.subject_identifier,
             report_datetime=self.reference_obj.report_datetime,
         )
-        if not offschedule_models:
-            raise OnScheduleError(
-                f"Unable to create `{self.name}` action. "
-                f"Subject is not on any schedule. Got {self.subject_identifier}. "
-                f"See {repr(self)}."
-            )
         for off_schedule_model in offschedule_models:
             off_schedule_cls = django_apps.get_model(off_schedule_model)
             try:

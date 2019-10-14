@@ -27,6 +27,9 @@ class DeathReportTmgSecondAction(ActionWithNotification):
     related_reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreport"
     admin_site_name = ADVERSE_EVENT_ADMIN_SITE
 
+    def close_and_create_next(self):
+        super().close_and_create_next()
+
     def reopen_action_item_on_change(self):
         """Do not reopen if report status is CLOSED.
         """

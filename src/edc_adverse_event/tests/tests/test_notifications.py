@@ -212,7 +212,6 @@ class TestNotifications(DeathReportTestMixin, TestCase):
             ),
         )
 
-    @tag("1")
     def test_notifies_initial_ae_death_with_tmg(self):
 
         self.get_death_report()
