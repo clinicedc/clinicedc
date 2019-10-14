@@ -18,7 +18,31 @@ from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.models import SiteModelMixin
 from edc_utils import get_utcnow
 
-from ..constants import DEATH_REPORT_TMG_ACTION
+from ..constants import DEATH_REPORT_TMG_ACTION, DEATH_REPORT_TMG_SECOND_ACTION
+
+
+class DeathReportTmgManager(ActionIdentifierManager):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(action_item__action_type__name=DEATH_REPORT_TMG_ACTION)
+
+
+class DeathReportTmgSiteManager(ActionIdentifierSiteManager):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(action_item__action_type__name=DEATH_REPORT_TMG_ACTION)
+
+
+class DeathReportTmgSecondManager(ActionIdentifierManager):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(action_item__action_type__name=DEATH_REPORT_TMG_SECOND_ACTION)
+
+
+class DeathReportTmgSecondSiteManager(ActionIdentifierSiteManager):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(action_item__action_type__name=DEATH_REPORT_TMG_SECOND_ACTION)
 
 
 class DeathReportTmgFieldsModelMixin(models.Model):
@@ -100,14 +124,35 @@ class DeathReportTmgModelMixin(
 
     tracking_identifier_prefix = "DT"
 
-    on_site = ActionIdentifierSiteManager()
+    on_site = DeathReportTmgSiteManager()
 
-    objects = ActionIdentifierManager()
+    objects = DeathReportTmgManager()
 
     class Meta:
         abstract = True
-        verbose_name = "Death Report TMG"
-        verbose_name_plural = "Death Report TMG"
+        verbose_name = "Death Report TMG (1st)"
+        verbose_name_plural = "Death Report TMG (1st)"
+        indexes = [
+            models.Index(
+                fields=["subject_identifier", "action_identifier", "site", "id"]
+            )
+        ]
+
+
+class DeathReportTmgSecondModelMixin(DeathReportTmgModelMixin):
+
+    action_name = DEATH_REPORT_TMG_SECOND_ACTION
+
+    tracking_identifier_prefix = "DT"
+
+    on_site = DeathReportTmgSecondSiteManager()
+
+    objects = DeathReportTmgSecondManager()
+
+    class Meta:
+        abstract = True
+        verbose_name = "Death Report TMG (2nd)"
+        verbose_name_plural = "Death Report TMG (2nd)"
         indexes = [
             models.Index(
                 fields=["subject_identifier", "action_identifier", "site", "id"]

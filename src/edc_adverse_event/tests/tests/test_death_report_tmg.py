@@ -77,7 +77,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             self.fail("deathreport action unexpectedly does not exist")
 
         # create death report TMG
-        mommy.make_recipe(
+        death_report_tmg = mommy.make_recipe(
             "adverse_event_app.deathreporttmg",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
@@ -88,10 +88,44 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             user_created="erikvw",
         )
 
+        self.assertEqual(death_report_tmg.report_status, CLOSED)
+
         action_item.refresh_from_db()
         self.assertEqual(action_item.status, CLOSED)
 
-    def test_death_tmg_disagrees_creates_second_tmg_action(self):
+    def test_death_tmg_disagrees_still_closes(self):
+
+        death_report = self.get_death_report()
+
+        # confirm death report tmg action item is created
+        try:
+            action_item = ActionItem.objects.get(
+                subject_identifier=self.subject_identifier,
+                related_action_item=death_report.action_item,
+                parent_action_item=death_report.action_item,
+                reference_model="adverse_event_app.deathreporttmg",
+            )
+        except ObjectDoesNotExist:
+            self.fail("deathreport action unexpectedly does not exist")
+
+        # create death report TMG
+        death_report_tmg = mommy.make_recipe(
+            "adverse_event_app.deathreporttmg",
+            death_report=death_report,
+            subject_identifier=self.subject_identifier,
+            action_identifier=action_item.action_identifier,
+            cause_of_death=death_report.cause_of_death,
+            cause_of_death_agreed=NO,
+            report_status=CLOSED,
+            user_created="erikvw",
+        )
+
+        self.assertEqual(death_report_tmg.report_status, CLOSED)
+
+        action_item.refresh_from_db()
+        self.assertEqual(action_item.status, CLOSED)
+
+    def test_death_tmg_disagrees_creates_new_second_tmg_action(self):
 
         death_report = self.get_death_report()
 
@@ -130,10 +164,8 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         # assert closed
         self.assertEqual(action_item.status, NEW)
 
-    def test_death_tmg_disagrees_submit_second_tmg_action(self):
-        """Assert second TMG action item is created if
-        cause of death agreed is NO.
-        """
+    @tag("1")
+    def test_death_tmg_submit_second_tmg_action(self):
         death_report = self.get_death_report()
 
         action_item = ActionItem.objects.get(
@@ -157,7 +189,9 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             user_created="erikvw",
         )
 
-        action_item = ActionItem.objects.get(
+        death_report.refresh_from_db()
+
+        second_action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
@@ -170,19 +204,20 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             "adverse_event_app.deathreporttmgsecond",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
-            action_identifier=action_item.action_identifier,
+            action_identifier=second_action_item.action_identifier,
             cause_of_death=causes_qs[0],
             cause_of_death_agreed=NO,
             report_status=CLOSED,
             user_created="erikvw",
         )
 
-        action_item.refresh_from_db()
-        self.assertEqual(action_item.status, CLOSED)
+        second_action_item.refresh_from_db()
+        death_report_tmg_second.save()
+        self.assertEqual(second_action_item.status, CLOSED)
 
         death_report_tmg_second.save()
-        action_item.refresh_from_db()
-        self.assertEqual(action_item.status, CLOSED)
+        second_action_item.refresh_from_db()
+        self.assertEqual(second_action_item.status, CLOSED)
 
     def test_death_tmg_disagrees_tmg_action_changes(self):
         """Assert changes to death report tmg are safe.

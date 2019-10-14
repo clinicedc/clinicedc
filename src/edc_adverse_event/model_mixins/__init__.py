@@ -23,6 +23,5 @@ from .ae_tmg import (  # noqa
 from .death_report_model_mixin import DeathReportModelMixin  # noqa
 from .death_report_tmg_model_mixin import (  # noqa
     DeathReportTmgModelMixin,  # noqa
-    DeathReportTmgFieldsModelMixin,  # noqa
-    DeathReportTmgMethodsModelMixin,  # noqa
+    DeathReportTmgSecondModelMixin,  # noqa
 )  # noqa
