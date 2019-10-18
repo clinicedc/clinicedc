@@ -76,7 +76,9 @@ class AdverseEventModelAdminMixin:
                 f'href="{url}?q={ae_initial.action_identifier}">'
                 f"<span nowrap>{ae_followup.identifier}</span></a>"
             )
-        for ae_susar in AeSusar.objects.filter(related_action_item=ae_initial.action_item):
+        for ae_susar in AeSusar.objects.filter(
+            related_action_item=ae_initial.action_item
+        ):
             url = self.get_changelist_url(ae_susar)
             report_datetime = ae_susar.report_datetime.strftime(
                 convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)

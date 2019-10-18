@@ -159,8 +159,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
                 reference_model="adverse_event_app.deathreporttmgsecond",
             )
         except ObjectDoesNotExist:
-            self.fail(
-                "deathreporttmgsecond action item unexpectedly does not exist")
+            self.fail("deathreporttmgsecond action item unexpectedly does not exist")
 
         # assert closed
         self.assertEqual(action_item.status, NEW)

@@ -85,7 +85,6 @@ class DeathReportModelMixin(
         verbose_name = "Death Report"
         indexes = [
             models.Index(
-                fields=["subject_identifier",
-                        "action_identifier", "site", "id"]
+                fields=["subject_identifier", "action_identifier", "site", "id"]
             )
         ]

@@ -44,8 +44,8 @@ class DeathReportListboardViewMixin(
 ):
 
     navbar_name = None  # "ambition_dashboard"
-    pdf_death_report_cls = DeathReport
     listboard_back_url = None  # "ambition_dashboard:ae_home_url"
+    pdf_report_cls = DeathReport
 
     listboard_template = "death_report_listboard_template"
     listboard_url = "death_report_listboard_url"
@@ -100,7 +100,7 @@ class DeathReportListboardViewMixin(
         except ObjectDoesNotExist:
             pass
         else:
-            report = self.pdf_death_report_cls(
+            report = self.pdf_report_cls(
                 death_report=death_report,
                 subject_identifier=death_report.subject_identifier,
                 user=self.request.user,
@@ -119,6 +119,5 @@ class DeathReportListboardViewMixin(
         options = super().get_queryset_filter_options(request, *args, **kwargs)
         options.update(action_type__name__in=self.action_type_names)
         if kwargs.get("subject_identifier"):
-            options.update(
-                {"subject_identifier": kwargs.get("subject_identifier")})
+            options.update({"subject_identifier": kwargs.get("subject_identifier")})
         return options

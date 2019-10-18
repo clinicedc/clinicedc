@@ -40,7 +40,7 @@ class DeathReportModelWrapper(ModelWrapper):
         model_wrappers = []
 
         action_item = ActionItem.objects.get(
-            action_identifier=self.object.action_identifier,
+            action_identifier=self.object.action_identifier
         )
         # get tmg 1st
         opts = dict(
@@ -54,10 +54,10 @@ class DeathReportModelWrapper(ModelWrapper):
             action_item = None
         except MultipleObjectsReturned as e:
             raise MultipleObjectsReturned(
-                f"{e} See TMG action items for {self.object}. Options={opts}.")
+                f"{e} See TMG action items for {self.object}. Options={opts}."
+            )
         else:
-            model_wrappers.append(
-                self.get_death_report_tmg_model_wrapper(action_item))
+            model_wrappers.append(self.get_death_report_tmg_model_wrapper(action_item))
 
         # get tmg second
         if action_item:
@@ -72,10 +72,12 @@ class DeathReportModelWrapper(ModelWrapper):
                 pass
             except MultipleObjectsReturned as e:
                 raise MultipleObjectsReturned(
-                    f"{e} See TMG action items for {self.object}. Options={opts}.")
+                    f"{e} See TMG action items for {self.object}. Options={opts}."
+                )
             else:
                 model_wrappers.append(
-                    self.get_death_report_tmg_second_model_wrapper(action_item))
+                    self.get_death_report_tmg_second_model_wrapper(action_item)
+                )
         return model_wrappers
 
     @property
@@ -101,9 +103,8 @@ class DeathReportModelWrapper(ModelWrapper):
     def death_report_tmg_second(self):
         if not self._death_report_tmg_second:
             try:
-                self._death_report_tmg_second = (
-                    self.death_report_tmg_second_model_cls.objects.get(
-                        subject_identifier=self.subject_identifier)
+                self._death_report_tmg_second = self.death_report_tmg_second_model_cls.objects.get(
+                    subject_identifier=self.subject_identifier
                 )
             except ObjectDoesNotExist:
                 self._death_report_tmg_second = None
@@ -122,7 +123,8 @@ class DeathReportModelWrapper(ModelWrapper):
             )
         else:
             model_wrapper = self.death_report_tmg_model_wrapper_cls(
-                model_obj=self.death_report_tmg)
+                model_obj=self.death_report_tmg
+            )
         return model_wrapper
 
     def get_death_report_tmg_second_model_wrapper(self, action_item):
@@ -138,5 +140,6 @@ class DeathReportModelWrapper(ModelWrapper):
             )
         else:
             model_wrapper = self.death_report_tmg_second_model_wrapper_cls(
-                model_obj=self.death_report_tmg_second)
+                model_obj=self.death_report_tmg_second
+            )
         return model_wrapper

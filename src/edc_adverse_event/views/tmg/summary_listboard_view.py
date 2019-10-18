@@ -2,23 +2,26 @@ import arrow
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from edc_adverse_event.constants import AE_TMG_ACTION
-from edc_constants.constants import CLOSED, NEW, OPEN
-from edc_dashboard.view_mixins import EdcViewMixin
-from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_adverse_event.constants import DEATH_REPORT_TMG_ACTION, DEATH_REPORT_ACTION
+from edc_adverse_event.model_wrappers import (
+    TmgActionItemModelWrapper as BaseTmgActionItemModelWrapper,
+)
+from edc_adverse_event.constants import AE_TMG_ACTION, AE_FOLLOWUP_ACTION
+from edc_dashboard.view_mixins import (
+    EdcViewMixin,
+    ListboardFilterViewMixin,
+    SearchFormViewMixin,
+)
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 from edc_permissions.constants.group_names import TMG
 
-from ...model_wrappers import (
-    ClosedTmgActionItemModelWrapper,
-    NewTmgActionItemModelWrapper,
-    OpenTmgActionItemModelWrapper,
-    TmgActionItemModelWrapper,
-)
+
+class TmgActionItemModelWrapper(BaseTmgActionItemModelWrapper):
+    next_url_name = "tmg_summary_listboard_url"
 
 
-class TmgAeListboardViewMixin(
+class SummaryListboardView(
     NavbarViewMixin,
     EdcViewMixin,
     ListboardFilterViewMixin,
@@ -26,24 +29,28 @@ class TmgAeListboardViewMixin(
     BaseListboardView,
 ):
 
-    navbar_name = "ambition_dashboard"
-    listboard_back_url = "ambition_dashboard:tmg_home_url"
+    navbar_name = None  # "ambition_dashboard"
+    listboard_back_url = None  # "ambition_dashboard:tmg_home_url"
 
     ae_tmg_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.aetmg"
-    listboard_template = "tmg_ae_listboard_template"
-    listboard_url = "tmg_ae_listboard_url"
+    listboard_template = "tmg_summary_listboard_template"
+    listboard_url = "tmg_summary_listboard_url"
     listboard_panel_style = "warning"
     listboard_model = "edc_action_item.actionitem"
-    listboard_panel_title = "TMG: AE Reports"
+    listboard_panel_title = "TMG: Events Summary"
     listboard_view_permission_codename = "edc_dashboard.view_tmg_listboard"
 
     model_wrapper_cls = TmgActionItemModelWrapper
     navbar_selected_item = "tmg_home"
     ordering = "-report_datetime"
-    paginate_by = 50
-    search_form_url = "tmg_ae_listboard_url"
-    action_type_names = [AE_TMG_ACTION]
-
+    paginate_by = 25
+    search_form_url = "tmg_summary_listboard_url"
+    action_type_names = [
+        AE_TMG_ACTION,
+        DEATH_REPORT_TMG_ACTION,
+        DEATH_REPORT_ACTION,
+        AE_FOLLOWUP_ACTION,
+    ]
     search_fields = [
         "subject_identifier",
         "action_identifier",
@@ -61,9 +68,7 @@ class TmgAeListboardViewMixin(
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
-        options.update(action_type__name__in=self.action_type_names)
-        if kwargs.get("subject_identifier"):
-            options.update({"subject_identifier": kwargs.get("subject_identifier")})
+        options.update({"action_type__name__in": self.action_type_names})
         return options
 
     def update_wrapped_instance(self, model_wrapper):
@@ -102,45 +107,3 @@ class TmgAeListboardViewMixin(
                     == self.request.user.username
                 )  # noqa
         return model_wrapper
-
-
-class StatusTmgAeListboardView(TmgAeListboardViewMixin):
-
-    status = None
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["status"] = self.status
-        return context
-
-    def get_queryset_filter_options(self, request, *args, **kwargs):
-        options = super().get_queryset_filter_options(request, *args, **kwargs)
-        options.update({"status": self.status})
-        return options
-
-
-class NewTmgAeListboardView(StatusTmgAeListboardView):
-
-    listboard_url = "new_tmg_ae_listboard_url"
-    search_form_url = "new_tmg_ae_listboard_url"
-    status = NEW
-    listboard_panel_title = "TMG: New AE Reports"
-    model_wrapper_cls = NewTmgActionItemModelWrapper
-
-
-class OpenTmgAeListboardView(StatusTmgAeListboardView):
-
-    listboard_url = "open_tmg_ae_listboard_url"
-    search_form_url = "open_tmg_ae_listboard_url"
-    status = OPEN
-    listboard_panel_title = "TMG: Open AE Reports"
-    model_wrapper_cls = OpenTmgActionItemModelWrapper
-
-
-class ClosedTmgAeListboardView(StatusTmgAeListboardView):
-
-    listboard_url = "closed_tmg_ae_listboard_url"
-    search_form_url = "closed_tmg_ae_listboard_url"
-    status = CLOSED
-    listboard_panel_title = "TMG: Closed AE Reports"
-    model_wrapper_cls = ClosedTmgActionItemModelWrapper

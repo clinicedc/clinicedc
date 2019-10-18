@@ -68,16 +68,13 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
     context["ae_followup"] = ae_followup
     context["ae_initial"] = ae_followup.ae_initial
     context["sae_reason"] = mark_safe(
-        "<BR>".join(
-            wrap(ae_followup.ae_initial.sae_reason.name, wrap_length or 35))
+        "<BR>".join(wrap(ae_followup.ae_initial.sae_reason.name, wrap_length or 35))
     )
     context["relevant_history"] = mark_safe(
-        "<BR>".join(
-            wrap(ae_followup.relevant_history, wrap_length or 35))
+        "<BR>".join(wrap(ae_followup.relevant_history, wrap_length or 35))
     )
     context["ae_description"] = mark_safe(
-        "<BR>".join(
-            wrap(ae_followup.ae_initial.ae_description, wrap_length or 35))
+        "<BR>".join(wrap(ae_followup.ae_initial.ae_description, wrap_length or 35))
     )
     return context
 
@@ -91,8 +88,7 @@ def format_ae_susar_description(context, ae_susar, wrap_length):
     context["ae_susar"] = ae_susar
     context["ae_initial"] = ae_susar.ae_initial
     context["sae_reason"] = mark_safe(
-        "<BR>".join(
-            wrap(ae_susar.ae_initial.sae_reason.name, wrap_length or 35))
+        "<BR>".join(wrap(ae_susar.ae_initial.sae_reason.name, wrap_length or 35))
     )
     context["ae_description"] = mark_safe(
         "<BR>".join(wrap(ae_susar.ae_initial.ae_description, wrap_length or 35))

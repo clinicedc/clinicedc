@@ -7,7 +7,7 @@ from edc_navbar import NavbarViewMixin
 from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 
-class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
+class AeHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
     template_name = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/ae/home.html"
     navbar_name = "edc_adverse_event"

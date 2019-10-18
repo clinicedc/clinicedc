@@ -10,7 +10,6 @@ from edc_adverse_event.get_ae_model import get_ae_model
 
 
 class ValidateDeathReportMixin:
-
     def validate_death_report_if_deceased(self):
         """Validates death report exists of termination_reason
         is "DEAD.
