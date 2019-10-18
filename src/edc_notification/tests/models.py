@@ -32,6 +32,15 @@ class AE(SiteModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
 
+class AeFollowup(SiteModelMixin, BaseUuidModel):
+
+    ae = models.ForeignKey(AE, on_delete=models.PROTECT)
+
+    subject_identifier = models.CharField(max_length=10)
+
+    history = HistoricalRecords()
+
+
 class Death(SiteModelMixin, BaseUuidModel):
 
     subject_identifier = models.CharField(max_length=10)

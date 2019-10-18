@@ -45,7 +45,7 @@ class TestNotification(TestCase):
             name = "g4_event"
             display_name = "a grade 4 event has occured"
             grade = 4
-            models = ["ambition_prn.aeinitial", "ambition_prn.aefollowup"]
+            models = ["edc_notification.ae", "edc_notification.aefollowup"]
 
         site_notifications.autodiscover(verbose=True)
         site_notifications._registry = {}
