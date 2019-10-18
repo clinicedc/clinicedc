@@ -20,7 +20,7 @@ class ActionItemViewMixin(ContextMixin):
         where status is not OPEN.
         """
         qs = (
-            ActionItem.objects.filter(
+            ActionItem.on_site.filter(
                 subject_identifier=self.kwargs.get("subject_identifier"),
                 action_type__show_on_dashboard=True,
             )
