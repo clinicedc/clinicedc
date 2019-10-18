@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import render_to_string
 from django.urls.base import reverse
 from django.utils.safestring import mark_safe
 from edc_action_item import action_fieldset_tuple
@@ -8,14 +9,25 @@ from edc_constants.constants import YES, NO, NOT_APPLICABLE
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
-from .modeladmin_mixins import NonAeInitialModelAdminMixin
+from ..forms import AeFollowupForm
+from ..templatetags.edc_adverse_event_extras import (
+    format_ae_followup_description,
+    select_description_template,
+)
+from .modeladmin_mixins import (
+    NonAeInitialModelAdminMixin,
+    AdverseEventModelAdminMixin,
+)
 
 
 class AeFollowupModelAdminMixin(
     ModelAdminSubjectDashboardMixin,
     NonAeInitialModelAdminMixin,
+    AdverseEventModelAdminMixin,
     ModelAdminActionItemMixin,
 ):
+
+    form = AeFollowupForm
 
     fieldsets = (
         (
@@ -43,18 +55,14 @@ class AeFollowupModelAdminMixin(
         "ae_grade": admin.VERTICAL,
     }
 
-    list_display = (
+    list_display = [
         "identifier",
         "dashboard",
-        "subject_identifier",
-        "outcome_date",
-        "initial_ae",
         "description",
-        "severity",
-        "status",
-        "follow_up_report",
-        "user_created",
-    )
+        "initial_ae",
+        "follow_up_reports",
+        "user",
+    ]
 
     list_filter = ("ae_grade", "followup", "outcome_date", "report_datetime")
 
@@ -66,36 +74,30 @@ class AeFollowupModelAdminMixin(
     ]
 
     def description(self, obj):
-        return obj.relevant_history
-
-    def follow_up_report(self, obj):
-        return obj.followup
+        """Returns a formatted comprehensive description of the SAE
+        combining multiple fields.
+        """
+        context = format_ae_followup_description({}, obj, 80)
+        return render_to_string(select_description_template("aefollowup"), context)
 
     def status(self, obj):
-        link = None
+        follow_up_reports = None
         if obj.followup == YES:
             try:
-                ae_followup = self.model.objects.get(parent_action_item=obj.action_item)
+                ae_followup = self.model.objects.get(
+                    parent_action_item=obj.action_item)
             except ObjectDoesNotExist:
                 ae_followup = None
-            link = self.ae_followup(ae_followup)
+            else:
+                follow_up_reports = self.follow_up_reports(ae_followup)
         elif obj.followup == NO and obj.ae_grade != NOT_APPLICABLE:
-            link = self.initial_ae(obj)
-        if link:
-            return mark_safe(f"{obj.get_outcome_display()}. See {link}.")
+            follow_up_reports = self.initial_ae(obj)
+        if follow_up_reports:
+            return mark_safe(f"{obj.get_outcome_display()}. See {follow_up_reports}.")
         return obj.get_outcome_display()
 
-    def ae_followup(self, obj):
-        if obj:
-            url_name = "_".join(obj._meta.label_lower.split("."))
-            namespace = self.admin_site.name
-            url = reverse(f"{namespace}:{url_name}_changelist")
-            return mark_safe(
-                f'<a title="go to next {obj._meta.verbose_name} report" '
-                f'href="{url}?q={obj.action_identifier}">'
-                f"{obj.identifier}</a>"
-            )
-        return "AE Followup"
+    def follow_up_reports(self, obj):
+        return super().follow_up_reports(obj.ae_initial)
 
     def initial_ae(self, obj):
         """Returns a shortened action identifier.

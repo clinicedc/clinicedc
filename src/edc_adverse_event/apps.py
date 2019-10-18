@@ -10,6 +10,7 @@ class AppConfig(DjangoAppConfig):
     def ready(self):
         from .signals import (  # noqa
             update_ae_notifications_for_tmg_group,  # noqa
+            update_death_notifications_for_tmg_group,  # noqa
             update_ae_initial_for_susar,  # noqa
             update_ae_initial_susar_reported,  # noqa
             post_delete_ae_susar,  # noqa

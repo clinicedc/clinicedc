@@ -7,7 +7,7 @@ from edc_adverse_event.constants import (
     DEATH_REPORT_ACTION,
 )
 from edc_constants.constants import HIGH_PRIORITY
-from edc_visit_schedule.utils import get_offschedule_models, OnScheduleError
+from edc_visit_schedule.utils import get_offschedule_models
 
 from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
@@ -64,7 +64,8 @@ class DeathReportAction(ActionWithNotification):
         for off_schedule_model in offschedule_models:
             off_schedule_cls = django_apps.get_model(off_schedule_model)
             try:
-                off_schedule_cls.objects.get(subject_identifier=self.subject_identifier)
+                off_schedule_cls.objects.get(
+                    subject_identifier=self.subject_identifier)
             except ObjectDoesNotExist:
                 next_actions.append(off_schedule_cls.action_name)
         return next_actions

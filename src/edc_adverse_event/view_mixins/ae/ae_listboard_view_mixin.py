@@ -16,9 +16,9 @@ from edc_dashboard.view_mixins import (
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 
-from ..model_wrappers import AeInitialModelWrapper, DeathReportModelWrapper
-from ..constants import AE_INITIAL_ACTION
-from ..pdf_reports import AeReport
+from ...model_wrappers import AeInitialModelWrapper, DeathReportModelWrapper
+from ...constants import AE_INITIAL_ACTION
+from ...pdf_reports import AeReport
 
 
 class ActionItemModelWrapper(BaseActionItemModelWrapper):
@@ -34,7 +34,8 @@ class ActionItemModelWrapper(BaseActionItemModelWrapper):
     @property
     def death_report(self):
         if not self._death_report:
-            model_cls = django_apps.get_model(self.death_report_model_wrapper.model)
+            model_cls = django_apps.get_model(
+                self.death_report_model_wrapper.model)
             try:
                 self._death_report = self.death_report_model_wrapper(
                     model_obj=model_cls.objects.get(
@@ -61,7 +62,8 @@ class AeListboardViewMixin(
     ae_report_cls = AeReport
 
     listboard_back_url = "edc_adverse_event:home_url"
-    listboard_panel_title = _("Adverse Events: AE Initial and Follow-up Reports")
+    listboard_panel_title = _(
+        "Adverse Events: AE Initial and Follow-up Reports")
     model_wrapper_cls = ActionItemModelWrapper
     navbar_name = "edc_adverse_event"
 
@@ -131,7 +133,8 @@ class AeListboardViewMixin(
         options = super().get_queryset_filter_options(request, *args, **kwargs)
         options.update(action_type__name__in=self.action_type_names)
         if kwargs.get("subject_identifier"):
-            options.update({"subject_identifier": kwargs.get("subject_identifier")})
+            options.update(
+                {"subject_identifier": kwargs.get("subject_identifier")})
         return options
 
     def get_updated_queryset(self, queryset):

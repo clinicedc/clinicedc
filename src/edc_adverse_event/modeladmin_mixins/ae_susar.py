@@ -5,6 +5,7 @@ from edc_action_item.modeladmin_mixins import ModelAdminActionItemMixin
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
+from ..forms import AeSusarForm
 from ..templatetags.edc_adverse_event_extras import (
     format_ae_susar_description,
     select_description_template,
@@ -19,6 +20,8 @@ class AeSusarModelAdminMixin(
     AdverseEventModelAdminMixin,
     ModelAdminActionItemMixin,
 ):
+
+    form = AeSusarForm
 
     list_display = [
         "subject_identifier",

@@ -16,6 +16,7 @@ from ...action_items import (
 )
 from ...notifications import AeInitialG3EventNotification, AeInitialG4EventNotification
 from .mixins import DeathReportTestMixin
+from pprint import pprint
 
 
 class TestNotifications(DeathReportTestMixin, TestCase):
@@ -216,8 +217,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
 
         self.get_death_report()
 
-        self.assertEqual(len(mail.outbox), 6)
-        # pprint([m.__dict__.get("subject") for m in mail.outbox])
+        self.assertEqual(len(mail.outbox), 7)
 
         # AeInitial Action notification
         self.assertEqual(
