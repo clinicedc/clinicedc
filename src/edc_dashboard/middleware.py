@@ -37,10 +37,6 @@ class DashboardMiddleware:
         request.template_data.update(**template_data)
 
     def process_template_response(self, request, response):
-        try:
-            reviewer_site_id = settings.REVIEWER_SITE_ID
-        except AttributeError:
-            reviewer_site_id = None
         if response.context_data:
             response.context_data.update(
                 CANCELLED=CANCELLED,
@@ -55,7 +51,6 @@ class DashboardMiddleware:
                 OTHER=OTHER,
                 SITE_ID=settings.SITE_ID,
                 YES=YES,
-                reviewer_site_id=reviewer_site_id,
             )
             if "project_name" not in response.context_data:
                 response.context_data.update(project_name="project_name")
