@@ -195,7 +195,7 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         """
         wrapped_objs = []
         for obj in queryset:
-            model_wrapper = self.get_model_wrapper_cls()(obj)
+            model_wrapper = self.get_model_wrapper_cls()(model_obj=obj)
             model_wrapper = self.update_wrapped_instance(model_wrapper)
             wrapped_objs.append(model_wrapper)
         return wrapped_objs
