@@ -9,6 +9,7 @@ from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils import convert_php_dateformat
 
 from ..get_ae_model import get_ae_model
+from ..forms import AeTmgForm
 from .modeladmin_mixins import NonAeInitialModelAdminMixin
 
 
@@ -17,6 +18,8 @@ class AeTmgModelAdminMixin(
     NonAeInitialModelAdminMixin,
     ModelAdminActionItemMixin,
 ):
+
+    form = AeTmgForm
 
     additional_instructions = "For completion by TMG Investigators Only"
 
@@ -94,7 +97,8 @@ class AeTmgModelAdminMixin(
         initial = super().get_changeform_initial_data(request)
         AeInitial = get_ae_model("aeinitial")
         try:
-            ae_initial = AeInitial.objects.get(pk=request.GET.get("ae_initial"))
+            ae_initial = AeInitial.objects.get(
+                pk=request.GET.get("ae_initial"))
         except ObjectDoesNotExist:
             pass
         else:

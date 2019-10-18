@@ -10,8 +10,8 @@ from edc_adverse_event.get_ae_model import get_ae_model
 from edc_constants.constants import DEAD
 from edc_model_admin import audit_fieldset_tuple
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from edc_utils import convert_php_dateformat
 
+from ..forms import AeInitialForm
 from ..templatetags.edc_adverse_event_extras import (
     select_description_template,
     format_ae_description,
@@ -73,6 +73,8 @@ class AeInitialModelAdminMixin(
     ModelAdminActionItemMixin,
 ):
 
+    form = AeInitialForm
+
     email_contact = settings.EMAIL_CONTACTS.get("ae_reports")
     additional_instructions = mark_safe(
         "Complete the initial AE report and forward to the TMG. "
@@ -110,7 +112,8 @@ class AeInitialModelAdminMixin(
         "susar_reported",
     ]
 
-    search_fields = ["subject_identifier", "action_identifier", "tracking_identifier"]
+    search_fields = ["subject_identifier",
+                     "action_identifier", "tracking_identifier"]
 
     def if_sae_reason(self, obj):
         """Returns the SAE reason.
@@ -145,42 +148,3 @@ class AeInitialModelAdminMixin(
         """
         context = format_ae_description({}, obj, 50)
         return render_to_string(select_description_template("aeinitial"), context)
-
-    def get_changelist_url(self, obj):
-        url_name = "_".join(obj._meta.label_lower.split("."))
-        namespace = self.admin_site.name
-        return reverse(f"{namespace}:{url_name}_changelist")
-
-    def follow_up_reports(self, obj):
-        """Returns a formatted list of links to AE Follow up reports.
-        """
-        followups = []
-        AeFollowup = get_ae_model("aefollowup")
-        AeSusar = get_ae_model("aesusar")
-        for ae_followup in AeFollowup.objects.filter(
-            related_action_item=obj.action_item
-        ):
-            url = self.get_changelist_url(ae_followup)
-            report_datetime = ae_followup.report_datetime.strftime(
-                convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
-            )
-            followups.append(
-                f'<a title="go to AE follow up report for '
-                f'{report_datetime}" '
-                f'href="{url}?q={obj.action_identifier}">'
-                f"<span nowrap>{ae_followup.identifier}</span></a>"
-            )
-        for ae_susar in AeSusar.objects.filter(related_action_item=obj.action_item):
-            url = self.get_changelist_url(ae_susar)
-            report_datetime = ae_susar.report_datetime.strftime(
-                convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
-            )
-            followups.append(
-                f'<a title="go to AE SUSAR report for '
-                f'{report_datetime}" '
-                f'href="{url}?q={obj.action_identifier}">'
-                f"<span nowrap>{ae_susar.identifier} (SUSAR)</span></a>"
-            )
-        if followups:
-            return mark_safe("<BR>".join(followups))
-        return None

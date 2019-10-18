@@ -1,0 +1,34 @@
+{% load edc_dashboard_extras %}
+{% load edc_adverse_event_extras %}
+{% load tz %}
+{% load static %}
+
+<B>{{ ae_initial.subject_identifier }}</B>
+<BR><b>Followup required: <font color="{% if ae_followup.followup == YES%}red{%else%}green{%endif%}">{{ ae_followup.get_followup_display }}</font></b>
+<BR><b>Followup reported:</b> {{ ae_followup.report_datetime.date|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
+<BR><b>This followup:</b>
+<BR>{{ relevant_history|default:ae_followup.relevant_history }}
+<BR>
+<BR><b><U>Original AE Report</U></b>
+<BR><b>Reported:</b> {{ ae_initial.report_datetime.date|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
+<BR><b>Site aware:</b> {{ ae_initial.ae_awareness_date|date:SHORT_DATE_FORMAT }}
+<BR><b>Grade:</b> {{ ae_initial.get_ae_grade_display }}
+<BR><b>Classification:</b> 
+{% if ae_initial.ae_classification.short_name == OTHER %}
+	Other: {{ ae_initial.ae_classification_other }}
+{% else %}
+	{{ ae_initial.ae_classification.name }}
+{% endif %}
+<BR><b>SAE:</b> {{ ae_initial.get_sae_display }}
+{% if ae_initial.sae == YES %}
+	<BR><b>SAE Reason:</b> {{ sae_reason|default:ae_initial.sae_reason.name }}
+{% endif %}
+<BR><b>SUSAR:</b>
+{% if ae_initial.susar_reported == YES %}
+	Yes. {% if ae_initial.susar_reported == YES %}Reported{% else %}<font color="red">Not reported</font>{% endif %}
+{% else %}
+	{{ ae_initial.get_susar_display }}
+{% endif %}
+<BR><b>Description:</b>
+<BR>{{ ae_description|default:ae_initial.ae_description }}
+

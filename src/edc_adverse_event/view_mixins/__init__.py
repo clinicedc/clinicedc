@@ -1,2 +1,2 @@
-# flake8: noqa
-from .ae_listboard_view_mixin import AeListboardViewMixin
+from .ae import AeListboardViewMixin, DeathReportListboardViewMixin
+from .tmg import TmgAeListboardViewMixin

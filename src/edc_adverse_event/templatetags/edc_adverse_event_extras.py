@@ -59,6 +59,29 @@ def format_ae_description(context, ae_initial, wrap_length):
     return context
 
 
+@register.inclusion_tag(select_description_template("aefollowup"), takes_context=True)
+def format_ae_followup_description(context, ae_followup, wrap_length):
+    context["utc_date"] = arrow.now().date()
+    context["SHORT_DATE_FORMAT"] = settings.SHORT_DATE_FORMAT
+    context["OTHER"] = OTHER
+    context["YES"] = YES
+    context["ae_followup"] = ae_followup
+    context["ae_initial"] = ae_followup.ae_initial
+    context["sae_reason"] = mark_safe(
+        "<BR>".join(
+            wrap(ae_followup.ae_initial.sae_reason.name, wrap_length or 35))
+    )
+    context["relevant_history"] = mark_safe(
+        "<BR>".join(
+            wrap(ae_followup.relevant_history, wrap_length or 35))
+    )
+    context["ae_description"] = mark_safe(
+        "<BR>".join(
+            wrap(ae_followup.ae_initial.ae_description, wrap_length or 35))
+    )
+    return context
+
+
 @register.inclusion_tag(select_description_template("aesusar"), takes_context=True)
 def format_ae_susar_description(context, ae_susar, wrap_length):
     context["utc_date"] = arrow.now().date()
@@ -68,7 +91,8 @@ def format_ae_susar_description(context, ae_susar, wrap_length):
     context["ae_susar"] = ae_susar
     context["ae_initial"] = ae_susar.ae_initial
     context["sae_reason"] = mark_safe(
-        "<BR>".join(wrap(ae_susar.ae_initial.sae_reason.name, wrap_length or 35))
+        "<BR>".join(
+            wrap(ae_susar.ae_initial.sae_reason.name, wrap_length or 35))
     )
     context["ae_description"] = mark_safe(
         "<BR>".join(wrap(ae_susar.ae_initial.ae_description, wrap_length or 35))

@@ -56,3 +56,42 @@ class AdverseEventModelAdminMixin:
                 ]
             )
         )
+
+    def follow_up_reports(self, ae_initial):
+        """Returns a formatted list of links to AE Follow up reports.
+        """
+        followups = []
+        AeFollowup = get_ae_model("aefollowup")
+        AeSusar = get_ae_model("aesusar")
+        for ae_followup in AeFollowup.objects.filter(
+            related_action_item=ae_initial.action_item
+        ):
+            url = self.get_changelist_url(ae_followup)
+            report_datetime = ae_followup.report_datetime.strftime(
+                convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
+            )
+            followups.append(
+                f'<a title="go to AE follow up report for '
+                f'{report_datetime}" '
+                f'href="{url}?q={ae_initial.action_identifier}">'
+                f"<span nowrap>{ae_followup.identifier}</span></a>"
+            )
+        for ae_susar in AeSusar.objects.filter(related_action_item=ae_initial.action_item):
+            url = self.get_changelist_url(ae_susar)
+            report_datetime = ae_susar.report_datetime.strftime(
+                convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
+            )
+            followups.append(
+                f'<a title="go to AE SUSAR report for '
+                f'{report_datetime}" '
+                f'href="{url}?q={ae_initial.action_identifier}">'
+                f"<span nowrap>{ae_susar.identifier} (SUSAR)</span></a>"
+            )
+        if followups:
+            return mark_safe("<BR>".join(followups))
+        return None
+
+    def get_changelist_url(self, obj):
+        url_name = "_".join(obj._meta.label_lower.split("."))
+        namespace = self.admin_site.name
+        return reverse(f"{namespace}:{url_name}_changelist")
