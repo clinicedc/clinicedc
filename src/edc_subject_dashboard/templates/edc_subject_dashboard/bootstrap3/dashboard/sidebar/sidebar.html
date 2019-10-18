@@ -1,4 +1,4 @@
-
+{% load edc_dashboard_extras %}
 <div class="panel-group" id="accordion">
 
 
@@ -6,7 +6,7 @@
       <div class="panel-heading">
           <h6 class="panel-title">
               <i class="{% if gender == MALE %}fas fa-male{% else %}fas fa-female{% endif %} fa-lg fa-fw"></i>
-              <a id="demographics-panel-title" data-toggle="collapse" data-parent="#accordion" href="#demographics-panel">{{ subject_identifier }} <span class="caret"></span></a>
+              <a id="demographics-panel-title" data-toggle="collapse" data-parent="#accordion" href="#demographics-panel">{{ subject_identifier }} <span class="caret"></span></a> {% copy_string_to_clipboard_button subject_identifier %}
           </h6>
       </div>
       <div id="demographics-panel" class="panel-collapse collapse in">
