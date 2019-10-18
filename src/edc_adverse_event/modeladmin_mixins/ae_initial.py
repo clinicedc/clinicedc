@@ -112,8 +112,7 @@ class AeInitialModelAdminMixin(
         "susar_reported",
     ]
 
-    search_fields = ["subject_identifier",
-                     "action_identifier", "tracking_identifier"]
+    search_fields = ["subject_identifier", "action_identifier", "tracking_identifier"]
 
     def if_sae_reason(self, obj):
         """Returns the SAE reason.

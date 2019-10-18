@@ -14,10 +14,7 @@ from ..templatetags.edc_adverse_event_extras import (
     format_ae_followup_description,
     select_description_template,
 )
-from .modeladmin_mixins import (
-    NonAeInitialModelAdminMixin,
-    AdverseEventModelAdminMixin,
-)
+from .modeladmin_mixins import NonAeInitialModelAdminMixin, AdverseEventModelAdminMixin
 
 
 class AeFollowupModelAdminMixin(
@@ -84,8 +81,7 @@ class AeFollowupModelAdminMixin(
         follow_up_reports = None
         if obj.followup == YES:
             try:
-                ae_followup = self.model.objects.get(
-                    parent_action_item=obj.action_item)
+                ae_followup = self.model.objects.get(parent_action_item=obj.action_item)
             except ObjectDoesNotExist:
                 ae_followup = None
             else:

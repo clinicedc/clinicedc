@@ -4,7 +4,8 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_adverse_event.constants import DEATH_REPORT_TMG_ACTION, DEATH_REPORT_ACTION
 from edc_adverse_event.model_wrappers import (
-    TmgActionItemModelWrapper as BaseTmgActionItemModelWrapper)
+    TmgActionItemModelWrapper as BaseTmgActionItemModelWrapper,
+)
 from edc_adverse_event.constants import AE_TMG_ACTION, AE_FOLLOWUP_ACTION
 from edc_dashboard.view_mixins import (
     EdcViewMixin,

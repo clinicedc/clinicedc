@@ -11,9 +11,7 @@ from edc_navbar import NavbarViewMixin
 
 class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
-    template_name = (
-        f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/tmg/home.html"
-    )
+    template_name = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/tmg/home.html"
     navbar_name = None  # "ambition_dashboard"
     navbar_selected_item = "tmg_home"
 
@@ -22,8 +20,7 @@ class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
         # summarize closed reports by site
         summary = (
-            ActionItem.objects.filter(
-                action_type__name=AE_TMG_ACTION, status=CLOSED)
+            ActionItem.objects.filter(action_type__name=AE_TMG_ACTION, status=CLOSED)
             .values("site__name")
             .annotate(count=Count("status"))
             .order_by("site__name")

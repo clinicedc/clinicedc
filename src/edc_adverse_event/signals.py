@@ -34,11 +34,9 @@ def update_ae_notifications_for_tmg_group(
                 with transaction.atomic():
                     instance.groups.get(name=TMG)
             except ObjectDoesNotExist:
-                instance.userprofile.email_notifications.remove(
-                    tmg_ae_notification)
+                instance.userprofile.email_notifications.remove(tmg_ae_notification)
             else:
-                instance.userprofile.email_notifications.add(
-                    tmg_ae_notification)
+                instance.userprofile.email_notifications.add(tmg_ae_notification)
 
 
 @receiver(
@@ -50,8 +48,7 @@ def update_ae_initial_for_susar(sender, instance, raw, update_fields, **kwargs):
             if instance.ae_initial.susar_reported != YES:
                 instance.ae_initial.susar = YES
                 instance.ae_initial.susar_reported = YES
-                instance.ae_initial.save(
-                    update_fields=["susar", "susar_reported"])
+                instance.ae_initial.save(update_fields=["susar", "susar_reported"])
         elif instance.ae_initial.susar_reported != NO:
             instance.ae_initial.susar = YES
             instance.ae_initial.susar_reported = NO
@@ -105,8 +102,6 @@ def update_death_notifications_for_tmg_group(
             try:
                 instance.groups.get(name=TMG)
             except ObjectDoesNotExist:
-                instance.userprofile.email_notifications.remove(
-                    tmg_death_notification)
+                instance.userprofile.email_notifications.remove(tmg_death_notification)
             else:
-                instance.userprofile.email_notifications.add(
-                    tmg_death_notification)
+                instance.userprofile.email_notifications.add(tmg_death_notification)

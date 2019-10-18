@@ -21,8 +21,7 @@ class AeHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
         context.update(ADVERSE_EVENT_APP_LABEL=ADVERSE_EVENT_APP_LABEL)
         app_list_url = f"{ADVERSE_EVENT_ADMIN_SITE}:app_list"
         ae_listboard_url = url_names.get(self.ae_listboard_url)
-        death_report_listboard_url = url_names.get(
-            self.death_report_listboard_url)
+        death_report_listboard_url = url_names.get(self.death_report_listboard_url)
         context.update(
             app_list_url=app_list_url,
             ae_listboard_url=ae_listboard_url,

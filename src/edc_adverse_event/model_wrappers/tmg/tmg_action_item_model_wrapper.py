@@ -10,7 +10,6 @@ from ..death_report_tmg_model_wrapper import DeathReportTmgModelWrapper
 
 
 class TmgActionItemModelWrapper(BaseActionItemModelWrapper):
-
     def __init__(self, model_obj=None, **kwargs):
         self._death_report = None
         self._tmg_death_report = None

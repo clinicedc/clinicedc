@@ -4,7 +4,6 @@ from edc_adverse_event.modelform_mixins import DeathReportTmgModelFormMixin
 
 
 class DeathReportTmgSecondForm(DeathReportTmgModelFormMixin, forms.ModelForm):
-
     class Meta:
         model = get_ae_model("deathreporttmgsecond")
         fields = "__all__"
