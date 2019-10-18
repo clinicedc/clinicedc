@@ -59,7 +59,7 @@ class AeListboardViewMixin(
     BaseListboardView,
 ):
 
-    ae_report_cls = AeReport
+    pdf_report_cls = AeReport
 
     listboard_back_url = "edc_adverse_event:home_url"
     listboard_panel_title = _(
@@ -114,7 +114,7 @@ class AeListboardViewMixin(
         except ObjectDoesNotExist:
             pass
         else:
-            report = self.ae_report_cls(
+            report = self.pdf_report_cls(
                 ae_initial=ae_initial,
                 subject_identifier=ae_initial.subject_identifier,
                 user=self.request.user,

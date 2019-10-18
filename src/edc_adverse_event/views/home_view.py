@@ -7,7 +7,7 @@ from edc_navbar import NavbarViewMixin
 from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 
-class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
+class AeHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
     template_name = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/ae/home.html"
     navbar_name = "edc_adverse_event"
@@ -21,7 +21,8 @@ class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
         context.update(ADVERSE_EVENT_APP_LABEL=ADVERSE_EVENT_APP_LABEL)
         app_list_url = f"{ADVERSE_EVENT_ADMIN_SITE}:app_list"
         ae_listboard_url = url_names.get(self.ae_listboard_url)
-        death_report_listboard_url = url_names.get(self.death_report_listboard_url)
+        death_report_listboard_url = url_names.get(
+            self.death_report_listboard_url)
         context.update(
             app_list_url=app_list_url,
             ae_listboard_url=ae_listboard_url,
