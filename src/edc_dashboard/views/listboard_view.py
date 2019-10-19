@@ -62,7 +62,6 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
             listboard_fa_icon=self.listboard_fa_icon,
             listboard_panel_style=self.listboard_panel_style,
             listboard_panel_title=self.listboard_panel_title,
-            listboard_back_url=self.listboard_back_url,
             listboard_instructions=self.listboard_instructions,
             object_list=wrapped_queryset,
         )
@@ -71,6 +70,12 @@ class BaseListboardView(TemplateRequestContextMixin, ListView):
         context = self.add_url_to_context(
             new_key="listboard_url", existing_key=self.listboard_url, context=context
         )
+        if self.listboard_back_url:
+            context = self.add_url_to_context(
+                new_key="listboard_back_url",
+                existing_key=self.listboard_back_url,
+                context=context,
+            )
         context = self.add_url_to_context(
             new_key="paginator_url",
             existing_key=self.paginator_url or self.listboard_url,
