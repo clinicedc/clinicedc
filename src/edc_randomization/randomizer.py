@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 from .constants import ACTIVE, PLACEBO
 from .randomization_list_verifier import RandomizationListVerifier
+import sys
 
 
 RANDOMIZED = "RANDOMIZED"
@@ -226,7 +227,7 @@ class Randomizer:
 
     @classmethod
     def get_randomization_list_path(cls):
-        if settings.DEBUG:
+        if settings.DEBUG or "test" in sys.argv:
             randomization_list_path = os.path.join(
                 settings.TEST_DIR, cls.randomization_list_filename
             )
