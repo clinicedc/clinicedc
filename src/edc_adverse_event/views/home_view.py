@@ -1,22 +1,25 @@
 from django.conf import settings
 from django.views.generic import TemplateView
 from edc_dashboard.url_names import url_names
-from edc_dashboard.view_mixins import EdcViewMixin
+from edc_dashboard.view_mixins import UrlRequestContextMixin, EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
 from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 
-class AeHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
+class AeHomeView(UrlRequestContextMixin, EdcViewMixin, NavbarViewMixin, TemplateView):
 
     template_name = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/ae/home.html"
-    navbar_name = "edc_adverse_event"
     navbar_selected_item = "ae_home"
+    url_name = "ae_home_url"
     ae_listboard_url = "ae_listboard_url"
     death_report_listboard_url = "death_report_listboard_url"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
+        context = self.add_url_to_context(
+            new_key="ae_home_url", existing_key=self.url_name, context=context
+        )
         context.update(ADVERSE_EVENT_ADMIN_SITE=ADVERSE_EVENT_ADMIN_SITE)
         context.update(ADVERSE_EVENT_APP_LABEL=ADVERSE_EVENT_APP_LABEL)
         app_list_url = f"{ADVERSE_EVENT_ADMIN_SITE}:app_list"

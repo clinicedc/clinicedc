@@ -1,4 +1,4 @@
-{% extends 'ambition_edc/bootstrap3/base.html' %}
+{% extends 'edc_dashboard/bootstrap3/base.html' %}
 {% load static %}
 {% load edc_adverse_event_extras %}
 
@@ -27,11 +27,11 @@
       <div class="list-group">
       {% if perms.edc_dashboard.view_tmg_listboard %}
         <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
-        <a id="home_list_group_tmg_ae_listboard" href="{% url 'ambition_dashboard:new_tmg_ae_listboard_url' %}" class="list-group-item">AE Reports: <i>New</i> <span class="label label-danger">{{ new_count }}</span></a>
-        <a id="home_list_group_tmg_ae_listboard" href="{% url 'ambition_dashboard:open_tmg_ae_listboard_url' %}" class="list-group-item">AE Reports: <i>Open</i> <span class="label label-danger">{{ open_count }}</span></a>
-        <a id="home_list_group_tmg_ae_listboard" href="{% url 'ambition_dashboard:closed_tmg_ae_listboard_url' %}" class="list-group-item">AE Reports: <i>Closed</i> <span class="label label-success">{{ closed_count }}</span></a>
-        <a id="home_list_group_tmg_death_listboard" href="{% url 'ambition_dashboard:tmg_death_listboard_url' %}" class="list-group-item">Death Reports</a>
-        <a id="home_list_group_tmg_summary_listboard" href="{% url 'ambition_dashboard:tmg_summary_listboard_url' %}" class="list-group-item">Event Summary</a>
+        <a id="home_list_group_tmg_ae_listboard" href="{% url new_tmg_ae_listboard_url %}" class="list-group-item">AE Reports: <i>New</i> <span class="label label-danger">{{ new_count }}</span></a>
+        <a id="home_list_group_tmg_ae_listboard" href="{% url open_tmg_ae_listboard_url %}" class="list-group-item">AE Reports: <i>Open</i> <span class="label label-danger">{{ open_count }}</span></a>
+        <a id="home_list_group_tmg_ae_listboard" href="{% url closed_tmg_ae_listboard_url %}" class="list-group-item">AE Reports: <i>Closed</i> <span class="label label-success">{{ closed_count }}</span></a>
+        <a id="home_list_group_tmg_death_listboard" href="{% url tmg_death_listboard_url %}" class="list-group-item">Death Reports</a>
+        <a id="home_list_group_tmg_summary_listboard" href="{% url tmg_summary_listboard_url %}" class="list-group-item">Event Summary</a>
       {% endif %}
       </div>
     </div>

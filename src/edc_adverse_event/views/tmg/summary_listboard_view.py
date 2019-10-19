@@ -29,8 +29,7 @@ class SummaryListboardView(
     BaseListboardView,
 ):
 
-    navbar_name = None  # "ambition_dashboard"
-    listboard_back_url = None  # "ambition_dashboard:tmg_home_url"
+    listboard_back_url = "tmg_home_url"
 
     ae_tmg_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.aetmg"
     listboard_template = "tmg_summary_listboard_template"

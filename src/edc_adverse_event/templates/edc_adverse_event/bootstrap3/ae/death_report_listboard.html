@@ -7,7 +7,7 @@
 {% load static %}
 
 {% block listboard_panel_back %}
-<a class="btn btn-default btn-sm btn-primary clearfix" role="button" href="{% url 'ambition_dashboard:ae_home_url' %}"><i class="fas fa-reply"></i></a>
+<a class="btn btn-default btn-sm btn-primary clearfix" role="button" href="{% url listboard_back_url|default:'listboard_back_url' %}"><i class="fas fa-reply"></i></a>
 {% endblock listboard_panel_back %}
 
 
@@ -39,7 +39,7 @@
         <br><span class="text text-muted small">{{ utc_date|timeuntil:result.report_datetime.date }} ago</span>
     </td>
 
-    <td><a href="{% url 'ambition_dashboard:ae_listboard_url' %}?q={{result.subject_identifier }}">{{ result.parent_reference_model_name|default:"" }}</a></td>
+    <td><a href="{% url ae_listboard_url|default:'ae_listboard_url' %}?q={{result.subject_identifier }}">{{ result.parent_reference_model_name|default:"" }}</a></td>
 
     <td>{{ result.reference_obj.user_created|default:"---" }}<BR>{{ result.reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</td>
 
