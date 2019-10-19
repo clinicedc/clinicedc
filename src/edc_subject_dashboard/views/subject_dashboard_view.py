@@ -42,7 +42,6 @@ class SubjectDashboardView(
     DashboardView,
 ):
 
-    navbar_name = None  # e.g. "ambition_dashboard"
     navbar_selected_item = "consented_subject"
 
     dashboard_url_name = "subject_dashboard_url"
