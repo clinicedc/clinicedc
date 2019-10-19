@@ -13,7 +13,6 @@ from ..templatetags.edc_adverse_event_extras import (
 from .modeladmin_mixins import NonAeInitialModelAdminMixin, AdverseEventModelAdminMixin
 
 
-# @admin.register(AeSusar, site=ambition_ae_admin)
 class AeSusarModelAdminMixin(
     ModelAdminSubjectDashboardMixin,
     NonAeInitialModelAdminMixin,

@@ -1,5 +1,6 @@
 import re
 
+from django.conf import settings
 from django.db.models import Q
 from edc_adverse_event.model_wrappers import DeathReportModelWrapper as ModelWrapper
 from edc_dashboard.view_mixins import EdcViewMixin
@@ -21,13 +22,12 @@ class DeathListboardView(
     BaseListboardView,
 ):
 
-    navbar_name = None  # "ambition_dashboard"
-    listboard_back_url = None  # "ambition_dashboard:tmg_home_url"
+    listboard_back_url = "tmg_home_url"
 
     listboard_template = "tmg_death_listboard_template"
     listboard_url = "tmg_death_listboard_url"
     listboard_panel_style = "warning"
-    listboard_model = "ambition_ae.deathreport"
+    listboard_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.deathreport"
     listboard_model_manager_name = "objects"
     listboard_panel_title = "TMG: Death Reports"
     listboard_view_permission_codename = "edc_dashboard.view_tmg_listboard"

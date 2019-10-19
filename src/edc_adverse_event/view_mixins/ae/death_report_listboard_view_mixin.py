@@ -43,11 +43,11 @@ class DeathReportListboardViewMixin(
     BaseListboardView,
 ):
 
-    navbar_name = None  # "ambition_dashboard"
-    listboard_back_url = None  # "ambition_dashboard:ae_home_url"
+    listboard_back_url = "ae_home_url"
+    home_url = "ae_home_url"
     pdf_report_cls = DeathReport
 
-    listboard_template = "death_report_listboard_template"
+    listboard_template = "ae_death_report_listboard_template"
     listboard_url = "death_report_listboard_url"
     listboard_panel_style = "default"
     listboard_model = "edc_action_item.actionitem"
@@ -111,6 +111,9 @@ class DeathReportListboardViewMixin(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context = self.add_url_to_context(
+            new_key="ae_home_url", existing_key=self.home_url, context=context
+        )
         context["DEATH_REPORT_ACTION"] = DEATH_REPORT_ACTION
         context["utc_date"] = arrow.now().date()
         return context

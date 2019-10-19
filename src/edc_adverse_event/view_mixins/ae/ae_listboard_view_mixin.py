@@ -60,10 +60,10 @@ class AeListboardViewMixin(
 
     pdf_report_cls = AeReport
 
-    listboard_back_url = "edc_adverse_event:home_url"
+    listboard_back_url = "ae_home_url"
+    home_url = "ae_home_url"
     listboard_panel_title = _("Adverse Events: AE Initial and Follow-up Reports")
     model_wrapper_cls = ActionItemModelWrapper
-    navbar_name = "edc_adverse_event"
 
     listboard_template = "ae_listboard_template"
     listboard_url = "ae_listboard_url"
@@ -123,6 +123,9 @@ class AeListboardViewMixin(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context = self.add_url_to_context(
+            new_key="ae_home_url", existing_key=self.home_url, context=context
+        )
         context["AE_INITIAL_ACTION"] = AE_INITIAL_ACTION
         context["utc_date"] = arrow.now().date()
         return context

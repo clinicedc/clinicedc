@@ -3,19 +3,17 @@ import arrow
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from edc_adverse_event.constants import AE_TMG_ACTION
-from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 from edc_permissions.constants.group_names import TMG
 
-from ...model_wrappers import (
-    ClosedTmgActionItemModelWrapper,
-    NewTmgActionItemModelWrapper,
-    OpenTmgActionItemModelWrapper,
-    TmgActionItemModelWrapper,
-)
+from ...model_wrappers import TmgActionItemModelWrapper
+
+from edc_navbar.get_default_navbar import get_default_navbar
+from edc_dashboard.url_names import url_names
+from pprint import pprint
 
 
 class TmgAeListboardViewMixin(
@@ -26,8 +24,7 @@ class TmgAeListboardViewMixin(
     BaseListboardView,
 ):
 
-    navbar_name = "ambition_dashboard"
-    listboard_back_url = "ambition_dashboard:tmg_home_url"
+    listboard_back_url = "tmg_home_url"
 
     ae_tmg_model = f"{settings.ADVERSE_EVENT_APP_LABEL}.aetmg"
     listboard_template = "tmg_ae_listboard_template"
@@ -38,6 +35,7 @@ class TmgAeListboardViewMixin(
     listboard_view_permission_codename = "edc_dashboard.view_tmg_listboard"
 
     model_wrapper_cls = TmgActionItemModelWrapper
+    navbar_name = get_default_navbar()
     navbar_selected_item = "tmg_home"
     ordering = "-report_datetime"
     paginate_by = 50
@@ -57,6 +55,7 @@ class TmgAeListboardViewMixin(
         context = super().get_context_data(**kwargs)
         context["AE_TMG_ACTION"] = AE_TMG_ACTION
         context["utc_date"] = arrow.now().date()
+        pprint(url_names.registry)
         return context
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
@@ -117,30 +116,3 @@ class StatusTmgAeListboardView(TmgAeListboardViewMixin):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
         options.update({"status": self.status})
         return options
-
-
-class NewTmgAeListboardView(StatusTmgAeListboardView):
-
-    listboard_url = "new_tmg_ae_listboard_url"
-    search_form_url = "new_tmg_ae_listboard_url"
-    status = NEW
-    listboard_panel_title = "TMG: New AE Reports"
-    model_wrapper_cls = NewTmgActionItemModelWrapper
-
-
-class OpenTmgAeListboardView(StatusTmgAeListboardView):
-
-    listboard_url = "open_tmg_ae_listboard_url"
-    search_form_url = "open_tmg_ae_listboard_url"
-    status = OPEN
-    listboard_panel_title = "TMG: Open AE Reports"
-    model_wrapper_cls = OpenTmgActionItemModelWrapper
-
-
-class ClosedTmgAeListboardView(StatusTmgAeListboardView):
-
-    listboard_url = "closed_tmg_ae_listboard_url"
-    search_form_url = "closed_tmg_ae_listboard_url"
-    status = CLOSED
-    listboard_panel_title = "TMG: Closed AE Reports"
-    model_wrapper_cls = ClosedTmgActionItemModelWrapper

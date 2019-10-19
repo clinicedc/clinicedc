@@ -42,7 +42,7 @@
             {% for obj in result.reference_obj.ae_follow_ups %}<BR>AE Followup {{ obj }}{% endfor %}
         {% endif %}
         {% if result.death_report.id %}
-            <BR>Death report: <a href="{% url 'ambition_dashboard:death_report_listboard_url' %}?q={{result.subject_identifier }}">{{ result.death_report.object.identifier }}</a>
+            <BR>Death report: <a href="{% url death_report_listboard_url %}?q={{result.subject_identifier }}">{{ result.death_report.object.identifier }}</a>
         {% endif %}
     </td>
 

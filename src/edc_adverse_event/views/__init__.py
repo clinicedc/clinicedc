@@ -1,3 +1,9 @@
-# flake8: noqa
 from .home_view import AeHomeView
-from .tmg import SummaryListboardView, DeathListboardView, TmgHomeView
+from .tmg import (
+    SummaryListboardView,
+    DeathListboardView,
+    TmgHomeView,
+    NewTmgAeListboardView,
+    OpenTmgAeListboardView,
+    ClosedTmgAeListboardView,
+)
