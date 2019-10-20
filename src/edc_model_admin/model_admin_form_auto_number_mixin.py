@@ -21,23 +21,16 @@ class ModelAdminFormAutoNumberMixin:
         question numbers and DB field names.
         """
         WIDGET = 1
-        try:
-            auto_number = form._meta.auto_number
-        except AttributeError:
-            auto_number = True
-        finally:
-            if auto_number:
-                for index, fld in enumerate(form.base_fields.items()):
-                    label = str(fld[WIDGET].label)
-                    if not re.match(r"^\d+\.", label) and not re.match(
-                        r"\<a\ title\=\"", label
-                    ):
-                        fld[WIDGET].original_label = copy(label)
-                        fld[WIDGET].label = mark_safe(
-                            '<a title="{0}">{1}</a>. {2}'.format(
-                                fld[0], str(index + 1), label
-                            )
-                        )
+        start = getattr(form, "AUTO_NUMBER_START", 1)
+        for index, fld in enumerate(form.base_fields.items(), start=start):
+            label = str(fld[WIDGET].label)
+            if not re.match(r"^\d+\.", label) and not re.match(
+                r"\<a\ title\=\"", label
+            ):
+                fld[WIDGET].original_label = copy(label)
+                fld[WIDGET].label = mark_safe(
+                    '<a title="{0}">{1}</a>. {2}'.format(fld[0], str(index), label)
+                )
         return form
 
     def get_form(self, request, obj=None, **kwargs):
