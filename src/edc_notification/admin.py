@@ -9,3 +9,5 @@ from .models import Notification
 class NotificationAdmin(admin.ModelAdmin):
 
     model = Notification
+
+    list_display = ("name", "display_name", "mailing_list_address")
