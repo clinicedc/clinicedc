@@ -4,6 +4,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.deletion import CASCADE
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from edc_notification.model_mixins import NotificationUserProfileModelMixin
 
 
@@ -13,7 +14,11 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
 
     sites = models.ManyToManyField(Site, blank=True)
 
-    job_title = models.CharField(max_length=10, null=True, blank=True)
+    job_title = models.CharField(max_length=100, null=True, blank=True)
+
+    alternate_email = models.EmailField(
+        _("Alternate email address"), blank=True, null=True
+    )
 
     mobile = models.CharField(
         max_length=25,

@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 
-from .forms import UserProfileForm
+from .forms import UserProfileForm, UserChangeForm
 from .models import UserProfile
 
 
@@ -19,6 +19,7 @@ class UserProfileInline(admin.StackedInline):
 
 class UserAdmin(BaseUserAdmin):
     inlines = (UserProfileInline,)
+    form = UserChangeForm
 
 
 class UserProfileAdmin(admin.ModelAdmin):
