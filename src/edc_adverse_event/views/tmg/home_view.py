@@ -11,7 +11,9 @@ from edc_navbar import NavbarViewMixin
 
 class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
-    template_name = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/tmg/home.html"
+    template_name = (
+        f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/tmg/tmg_home.html"
+    )
     navbar_selected_item = "tmg_home"
 
     def get_context_data(self, **kwargs):

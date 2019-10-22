@@ -34,7 +34,7 @@ def select_description_template(model):
 
 @register.inclusion_tag(
     f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/"
-    f"tmg/ae_listboard_result.html",
+    f"tmg/tmg_ae_listboard_result.html",
     takes_context=True,
 )
 def tmg_listboard_results(context, results, empty_message=None):
