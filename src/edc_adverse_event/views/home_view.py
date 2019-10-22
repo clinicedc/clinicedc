@@ -9,7 +9,9 @@ from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 class AeHomeView(UrlRequestContextMixin, EdcViewMixin, NavbarViewMixin, TemplateView):
 
-    template_name = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/ae/home.html"
+    template_name = (
+        f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/ae/ae_home.html"
+    )
     navbar_selected_item = "ae_home"
     url_name = "ae_home_url"
     ae_listboard_url = "ae_listboard_url"
