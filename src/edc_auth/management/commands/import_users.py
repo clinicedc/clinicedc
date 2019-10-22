@@ -1,5 +1,3 @@
-import sys
-
 from django.core.management.base import BaseCommand
 from edc_auth.import_users import import_users
 
