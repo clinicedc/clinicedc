@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from edc_model.models import BaseUuidModel
 
 
@@ -18,6 +19,10 @@ class Notification(BaseUuidModel):
     name = models.CharField(max_length=255, unique=True)
 
     display_name = models.CharField(max_length=255, unique=True)
+
+    mailing_list_address = models.EmailField(
+        _("Mailing list address"), blank=True, null=True
+    )
 
     enabled = models.BooleanField(default=True)
 

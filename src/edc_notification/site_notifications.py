@@ -128,10 +128,12 @@ class SiteNotifications:
                     Notification.objects.create(
                         name=name,
                         display_name=notification_cls().display_name,
+                        mailing_list_address=notification_cls().email_to[0],
                         enabled=True,
                     )
                 else:
                     obj.display_name = notification_cls().display_name
+                    obj.mailing_list_address = notification_cls().email_to[0]
                     obj.enabled = True
                     obj.save()
 
