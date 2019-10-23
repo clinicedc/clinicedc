@@ -8,7 +8,7 @@ ae_navbar_item = NavbarItem(
     name="ae_home",
     title="Adverse Events",
     label="AE",
-    codename="edc_navbar.nav_edc_adverse_event",
+    codename="edc_navbar.nav_ae_section",
     url_name=f"edc_adverse_event:ae_home_url",
     no_url_namespace=no_url_namespace,
 )
