@@ -112,4 +112,4 @@ class RandomizationListModelMixin(models.Model):
         abstract = True
         ordering = ("site_name", "sid")
         unique_together = ("site_name", "sid")
-        permissions = (("display_randomization", "Can display randomization"),)
+        permissions = (("display_assignment", "Can display assignment"),)
