@@ -4,7 +4,7 @@ from django.contrib.admin.decorators import register
 from edc_auth.admin import UserAdmin as BaseUserAdmin
 from edc_lab.admin import PanelAdmin as BasePanelAdmin
 from edc_metadata.models import CrfMetadata
-from edc_permissions.constants.group_names import DATA_MANAGER
+from edc_permissions import DATA_MANAGER
 from edc_registration.admin import RegisteredSubjectAdmin as BaseRegisteredSubjectAdmin
 from edc_visit_schedule.admin import VisitScheduleAdmin as BaseVisitScheduleAdmin
 
