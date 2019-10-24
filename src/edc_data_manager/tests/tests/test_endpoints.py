@@ -8,13 +8,13 @@ from django_webtest import WebTest
 from edc_data_manager.models import CrfDataDictionary
 from edc_data_manager.models.user import DataManagerUser
 from edc_lab.site_labs import site_labs
-from edc_permissions.constants.group_names import EVERYONE, DATA_MANAGER, CLINIC
-from edc_permissions.permissions_updater import PermissionsUpdater
+from edc_permissions import EVERYONE, DATA_MANAGER, CLINIC
 from edc_registration.models import RegisteredSubject
 from edc_test_utils.webtest import login
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_mommy import mommy
 from edc_action_item.models.action_item import ActionItem
+from edc_permissions.update.update_group_permissions import update_group_permissions
 
 User = get_user_model()
 
@@ -28,7 +28,10 @@ class AdminSiteTest(WebTest):
             is_active=True,
             is_staff=True,
         )
-        PermissionsUpdater()
+
+        update_group_permissions(
+            excluded_app_labels=[
+                "django_celery_beat", "django_celery_results"])
         site_labs._registry = {}
         site_labs.loaded = False
         site_labs.register(lab_profile=lab_profile)
@@ -38,6 +41,7 @@ class AdminSiteTest(WebTest):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
 
+    @tag("1")
     def test_default_rule_handler_names(self):
         """Assert default rule handler names on queryrule ADD form
         """
@@ -48,7 +52,8 @@ class AdminSiteTest(WebTest):
             redirect_url="admin:index",
         )
 
-        self.app.get(reverse(f"data_manager_app:home_url"), user=self.user, status=200)
+        self.app.get(reverse(f"data_manager_app:home_url"),
+                     user=self.user, status=200)
 
         response = self.app.get(
             "/admin/edc_data_manager/queryrule/add/", user=self.user, status=200
@@ -114,7 +119,6 @@ class AdminSiteTest(WebTest):
         res = form.submit()
         self.assertIn("Invalid. Select questions from one CRF only", res)
 
-    @tag("1")
     def test_data_query(self):
         subject_identifier = "092-123456789"
         login(
@@ -145,7 +149,6 @@ class AdminSiteTest(WebTest):
         res = form.submit()
         self.assertIn("was changed successfully", str(res))
 
-    @tag("1")
     def test_data_query_action_attrs(self):
         subject_identifier = "092-123456789"
         login(
