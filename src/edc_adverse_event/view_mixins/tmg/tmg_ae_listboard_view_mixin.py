@@ -7,13 +7,10 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
-from edc_permissions.constants.group_names import TMG
+from edc_navbar.get_default_navbar import get_default_navbar
+from edc_permissions import TMG
 
 from ...model_wrappers import TmgActionItemModelWrapper
-
-from edc_navbar.get_default_navbar import get_default_navbar
-from edc_dashboard.url_names import url_names
-from pprint import pprint
 
 
 class TmgAeListboardViewMixin(
@@ -55,7 +52,6 @@ class TmgAeListboardViewMixin(
         context = super().get_context_data(**kwargs)
         context["AE_TMG_ACTION"] = AE_TMG_ACTION
         context["utc_date"] = arrow.now().date()
-        pprint(url_names.registry)
         return context
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
