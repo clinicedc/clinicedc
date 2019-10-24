@@ -30,8 +30,8 @@ class AdminSiteTest(WebTest):
         )
 
         update_group_permissions(
-            excluded_app_labels=[
-                "django_celery_beat", "django_celery_results"])
+            excluded_app_labels=["django_celery_beat", "django_celery_results"]
+        )
         site_labs._registry = {}
         site_labs.loaded = False
         site_labs.register(lab_profile=lab_profile)
@@ -52,8 +52,7 @@ class AdminSiteTest(WebTest):
             redirect_url="admin:index",
         )
 
-        self.app.get(reverse(f"data_manager_app:home_url"),
-                     user=self.user, status=200)
+        self.app.get(reverse(f"data_manager_app:home_url"), user=self.user, status=200)
 
         response = self.app.get(
             "/admin/edc_data_manager/queryrule/add/", user=self.user, status=200
