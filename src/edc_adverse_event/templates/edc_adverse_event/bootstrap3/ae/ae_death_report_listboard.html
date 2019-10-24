@@ -30,10 +30,10 @@
 {% block listboard_table_columns %}
 
     <td nowrap>
-        <a title="Edit Death Report" href="{{ result.death_report.href }}" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
-        <a title="Print Death Report" role="button" href="?pdf={{result.action_identifier}}&pk={{result.str_pk}}" class="btn btn-default btn-sm"><i class="fas fa-file-pdf"></i></a>
+        <a title="Edit Death Report" href="{%if result.death_report.href %}{{ result.death_report.href }}{% else %}#{% endif %}" {%if not result.death_report.href %} disabled {% endif %}  class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
+        <a title="Print Death Report" role="button" href="{%if result.death_report.href %}?pdf={{result.action_identifier}}&pk={{result.str_pk}}{% else %}#{% endif %}" {%if not result.death_report.href %} disabled {% endif %} class="btn btn-default btn-sm"><i class="fas fa-file-pdf"></i></a>
     </td>
-    <td>{{ result.subject_identifier }}</td>
+    <td><a class="btn btn-primary btn-sm" href="{%url subject_dashboard_url subject_identifier=result.subject_identifier %}" title="Go to subject dashboard"><small>{{ result.subject_identifier }} <i class="fas fa-share"></i></small></a> {% copy_string_to_clipboard_button result.subject_identifier %}</td>
 
     <td>{{ result.reference_model_name }}
         <br><span class="text text-muted small">{{ utc_date|timeuntil:result.report_datetime.date }} ago</span>
