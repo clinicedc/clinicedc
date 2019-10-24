@@ -3,7 +3,7 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.contrib.admin import sites
 from django.core.exceptions import ObjectDoesNotExist
-from edc_permissions.constants.group_names import EXPORT
+from edc_permissions import EXPORT
 
 from .model_options import ModelOptions
 
