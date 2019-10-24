@@ -2,12 +2,12 @@ import sys
 import copy
 
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
 from importlib import import_module
 
 from .navbar import NavbarError
-from django.conf import settings
 
 
 class AlreadyRegistered(Exception):
