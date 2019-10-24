@@ -16,7 +16,9 @@ class CurrentSiteManager(BaseCurrentSiteManager):
 
 class SiteModelMixin(models.Model):
 
-    site = models.ForeignKey(Site, on_delete=models.PROTECT, null=True, editable=False)
+    site = models.ForeignKey(
+        Site, on_delete=models.PROTECT, null=True, editable=False, related_name="+"
+    )
 
     def save(self, *args, **kwargs):
         if not self.site:
