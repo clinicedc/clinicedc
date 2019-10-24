@@ -8,8 +8,7 @@ class SiteViewMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            site_profile = SiteProfile.objects.get(
-                site__id=self.request.site.id)
+            site_profile = SiteProfile.objects.get(site__id=self.request.site.id)
         except ObjectDoesNotExist:
             pass
         else:
