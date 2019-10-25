@@ -7,11 +7,12 @@
  	popover is contained in "data-content" attr
 
  {% endcomment %}
+ 
 
 <a id="actionitem-{{action_identifier}}"
 tabindex="{{ tabindex }}"
 class="list-group-item list-group-item-{{ action_item_color }}"
-href="javascript://" data-toggle="popover" data-placement="auto left" data-html="true" title="{{ popover_title|default:'Action Item'}}" role="button"
+href="javascript://" data-toggle="popover" data-placement="auto" data-html="true" title="{{ popover_title|default:'Action Item'}}" role="button"
 data-content="
 <div class='list-group'>
 <div class='list-group-item list-group-item-default'><p><small>{{ action_identifier }}</small></p>
