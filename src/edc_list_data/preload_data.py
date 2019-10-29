@@ -38,14 +38,14 @@ class PreloadData:
     def load_list_data(self, model_name=None, apps=None):
         """Loads data into a list model.
 
-        List models have short_name, name where short_name
+        List models have name, display_name where name
         is the unique field / stored field.
 
         Format:
-            {model_name1: [(short_name1, name),
-             (short_name2, name),...],
-             model_name1: [(short_name1, name),
-             (short_name2, name),...],
+            {model_name1: [(name1, display_name),
+             (name2, display_name),...],
+             model_name2: [(name1, display_name),
+             (name2, display_name),...],
             ...}
         """
         #         if (
@@ -65,15 +65,15 @@ class PreloadData:
                 for display_index, value in enumerate(self.list_data.get(model_name)):
                     store_value, display_value = value
                     try:
-                        obj = model.objects.get(short_name=store_value)
+                        obj = model.objects.get(name=store_value)
                     except ObjectDoesNotExist:
                         model.objects.create(
-                            short_name=store_value,
-                            name=display_value,
+                            name=store_value,
+                            display_name=display_value,
                             display_index=display_index,
                         )
                     else:
-                        obj.name = display_value
+                        obj.display_name = display_value
                         obj.display_index = display_index
                         obj.save()
             except ValueError as e:

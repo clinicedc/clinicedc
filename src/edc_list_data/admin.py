@@ -3,8 +3,8 @@ from django.contrib import admin
 
 class ListModelAdminMixin(admin.ModelAdmin):
 
-    ordering = ("display_index", "name")
+    ordering = ("display_index", "display_name")
 
-    list_display = ["name", "short_name", "display_index"]
+    list_display = ["display_name", "name", "display_index"]
 
-    search_fields = ("name", "short_name")
+    search_fields = ("display_name", "name")
