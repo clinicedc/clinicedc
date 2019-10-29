@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_appointment.models import Appointment
+from edc_auth import DATA_MANAGER
 from edc_constants.constants import (
     RESOLVED,
     OPEN,
@@ -18,7 +19,6 @@ from edc_constants.constants import (
 )
 from edc_model_admin import SimpleHistoryAdmin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from edc_permissions import DATA_MANAGER
 from edc_utils import formatted_datetime
 
 from ..admin_site import edc_data_manager_admin
