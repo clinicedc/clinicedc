@@ -5,7 +5,7 @@ from django.dispatch.dispatcher import receiver
 from edc_adverse_event.constants import DEATH_REPORT_TMG_ACTION
 from edc_constants.constants import YES, NO
 from edc_notification.models import Notification
-from edc_permissions import TMG
+from edc_auth import TMG
 from edc_utils import get_utcnow
 
 from .get_ae_model import get_ae_model

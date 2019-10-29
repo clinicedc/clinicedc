@@ -436,7 +436,7 @@ class TestAeAndActions(TestCase):
         )
 
     def test_next_action5(self):
-        anaemia = AeClassification.objects.get(short_name="anaemia")
+        anaemia = AeClassification.objects.get(name="anaemia")
         ae_initial = mommy.make_recipe(
             "adverse_event_app.aeinitial",
             subject_identifier=self.subject_identifier,
@@ -466,7 +466,7 @@ class TestAeAndActions(TestCase):
             "adverse_event_app.aetmg",
             subject_identifier=self.subject_identifier,
             ae_initial=ae_initial,
-            ae_classification=anaemia.short_name,
+            ae_classification=anaemia.name,
             report_status=CLOSED,
         )
 

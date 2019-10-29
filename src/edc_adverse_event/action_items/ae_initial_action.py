@@ -28,8 +28,8 @@ class AeInitialAction(ActionWithNotification):
     @property
     def deceased(self):
         if (self.reference_obj.ae_grade and self.reference_obj.ae_grade == GRADE5) or (
-            self.reference_obj.sae_reason.short_name
-            and self.reference_obj.sae_reason.short_name == DEAD
+            self.reference_obj.sae_reason.name
+            and self.reference_obj.sae_reason.name == DEAD
         ):
             return True
         return False

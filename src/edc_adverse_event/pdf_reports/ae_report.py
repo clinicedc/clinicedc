@@ -77,7 +77,7 @@ class AeReport(CrfPdfReport):
     def _draw_ae_overview(self, story):
         # basics
         classification_text = fill(self.ae_initial.ae_classification.name, width=80)
-        if self.ae_initial.ae_classification.short_name == OTHER:
+        if self.ae_initial.ae_classification.name == OTHER:
             classification_text = fill(
                 f"{classification_text}: {self.ae_initial.ae_classification_other}",
                 width=80,

@@ -20,11 +20,11 @@ class DefaultDeathReportFormValidator(FormValidator):
             study_day_field="study_day",
         )
 
-        other = self.cause_of_death_model_cls.objects.get(short_name=OTHER)
+        other = self.cause_of_death_model_cls.objects.get(name=OTHER)
         self.validate_other_specify(
             field="cause_of_death",
             other_specify_field="cause_of_death_other",
-            other_stored_value=other.short_name,
+            other_stored_value=other.name,
         )
 
         self.required_if(

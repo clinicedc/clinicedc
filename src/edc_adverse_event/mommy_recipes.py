@@ -6,5 +6,5 @@ from .models import CauseOfDeath
 fake = Faker()
 
 causeofdeath = Recipe(
-    CauseOfDeath, name="cryptococcal_meningitis", short_name="cryptococcal_meningitis"
+    CauseOfDeath, display_name="cryptococcal_meningitis", name="cryptococcal_meningitis"
 )

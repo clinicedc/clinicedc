@@ -137,7 +137,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
 
         # create death report TMG
         causes_qs = CauseOfDeath.objects.exclude(
-            short_name__in=[OTHER, death_report.cause_of_death]
+            name__in=[OTHER, death_report.cause_of_death]
         )
         mommy.make_recipe(
             "adverse_event_app.deathreporttmg",
@@ -176,7 +176,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
 
         # create death report TMG
         causes_qs = CauseOfDeath.objects.exclude(
-            short_name__in=[OTHER, death_report.cause_of_death]
+            name__in=[OTHER, death_report.cause_of_death]
         )
         death_report_tmg = mommy.make_recipe(
             "adverse_event_app.deathreporttmg",
@@ -235,7 +235,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
 
         # create death report TMG
         causes_qs = CauseOfDeath.objects.exclude(
-            short_name__in=[OTHER, death_report.cause_of_death]
+            name__in=[OTHER, death_report.cause_of_death]
         )
         death_report_tmg = mommy.make_recipe(
             "adverse_event_app.deathreporttmg",
@@ -293,7 +293,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         )
 
         causes_qs = CauseOfDeath.objects.exclude(
-            short_name__in=[OTHER, death_report.cause_of_death]
+            name__in=[OTHER, death_report.cause_of_death]
         )
         death_report_tmg = mommy.make_recipe(
             "adverse_event_app.deathreporttmg",
@@ -326,7 +326,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         )
 
         causes_qs = CauseOfDeath.objects.exclude(
-            short_name__in=[OTHER, death_report.cause_of_death]
+            name__in=[OTHER, death_report.cause_of_death]
         )
         death_report_tmg = mommy.make_recipe(
             "adverse_event_app.deathreporttmg",
@@ -379,7 +379,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         )
 
         causes_qs = CauseOfDeath.objects.exclude(
-            short_name__in=[OTHER, death_report.cause_of_death]
+            name__in=[OTHER, death_report.cause_of_death]
         )
         death_report_tmg = mommy.make_recipe(
             "adverse_event_app.deathreporttmg",

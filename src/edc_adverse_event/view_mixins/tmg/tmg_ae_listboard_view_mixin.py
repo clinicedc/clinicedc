@@ -8,7 +8,7 @@ from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMi
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 from edc_navbar.get_default_navbar import get_default_navbar
-from edc_permissions import TMG
+from edc_auth import TMG
 
 from ...model_wrappers import TmgActionItemModelWrapper
 
