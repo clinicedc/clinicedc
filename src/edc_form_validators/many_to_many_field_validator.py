@@ -120,7 +120,7 @@ class ManyToManyFieldValidator(BaseFormValidator):
         field_other is required if a selected response from m2m_field
         is in responses
 
-        Note: for edc list models, "short_name" is the stored value!
+        Note: for edc list models, "name" is the stored value!
         """
         qs = self.cleaned_data.get(m2m_field)
         found = False

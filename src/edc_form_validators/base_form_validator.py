@@ -26,8 +26,8 @@ class ModelFormFieldValidatorError(Exception):
 
 class BaseFormValidator:
 
-    default_fk_stored_field_name = "short_name"
-    default_fk_display_field_name = "name"
+    default_fk_stored_field_name = "name"
+    default_fk_display_field_name = "display_name"
 
     def __init__(self, cleaned_data=None, instance=None):
         self._errors = {}
@@ -70,7 +70,7 @@ class BaseFormValidator:
 
     def get(self, field):
         try:
-            field_value = self.cleaned_data.get(field).short_name
+            field_value = self.cleaned_data.get(field).name
         except AttributeError:
             field_value = self.cleaned_data.get(field)
         return field_value
