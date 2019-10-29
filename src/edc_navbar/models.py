@@ -7,7 +7,7 @@ class Navbar(models.Model):
 
     Permissions are added against this models content_type.
 
-    See also: edc_permissions.permissions_updater
+    See also: edc_auth.permissions_updater
     """
 
     pass
