@@ -3,7 +3,7 @@ from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
-from edc_permissions.utils.create import (
+from edc_auth.update import (
     create_edc_dashboard_permissions,
     create_edc_navbar_permissions,
 )
