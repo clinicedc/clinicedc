@@ -132,9 +132,9 @@ class ModelToDataframe:
             for m2m_obj in getattr(obj, m2m_field.name).all():
                 m2m_values_list.append((obj.id, m2m_obj))
         try:
-            m2m_values_list = [(x[0], x[1].short_name) for x in m2m_values_list]
+            m2m_values_list = [(x[0], x[1].name) for x in m2m_values_list]
         except AttributeError as e:
-            if "short_name" not in str(e):
+            if "name" not in str(e):
                 raise ModelToDataframeError(e)
             m2m_values_list = [(x[0], str(x[1])) for x in m2m_values_list]
         return m2m_values_list
