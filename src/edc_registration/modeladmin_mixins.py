@@ -1,7 +1,7 @@
 from django.contrib import admin
+from edc_auth import PII_VIEW, PII
 from edc_model_admin import audit_fields
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from edc_permissions import PII_VIEW, PII
 
 
 class RegisteredSubjectModelAdminMixin(
