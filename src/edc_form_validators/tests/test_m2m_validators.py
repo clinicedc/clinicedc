@@ -1,14 +1,9 @@
 from django import forms
 from django.test import TestCase, tag
 from edc_constants.constants import YES, NO, NOT_APPLICABLE, OTHER
+from form_validators_app.models import Alphabet
 
 from ..form_validator import FormValidator
-from ..base_form_validator import (
-    ModelFormFieldValidatorError,
-    InvalidModelFormFieldValidator,
-)
-from form_validators_app.models import Alphabet
-import pdb
 
 
 class TestApplicableFieldValidator(TestCase):
@@ -16,12 +11,12 @@ class TestApplicableFieldValidator(TestCase):
     """
 
     def setUp(self):
-        Alphabet.objects.create(name="A", short_name="A")
-        Alphabet.objects.create(name="B", short_name="B")
-        Alphabet.objects.create(name="C", short_name="C")
-        Alphabet.objects.create(name="D", short_name="D")
-        Alphabet.objects.create(name=OTHER, short_name=OTHER)
-        Alphabet.objects.create(name=NOT_APPLICABLE, short_name=NOT_APPLICABLE)
+        Alphabet.objects.create(display_name="A", name="A")
+        Alphabet.objects.create(display_name="B", name="B")
+        Alphabet.objects.create(display_name="C", name="C")
+        Alphabet.objects.create(display_name="D", name="D")
+        Alphabet.objects.create(display_name=OTHER, name=OTHER)
+        Alphabet.objects.create(display_name=NOT_APPLICABLE, name=NOT_APPLICABLE)
 
     def test_m2m_applicable_if(self):
         """

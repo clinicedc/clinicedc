@@ -98,7 +98,7 @@ class RequiredFieldValidator(BaseFormValidator):
             self.update_cleaned_data_from_instance(field)
         if self.cleaned_data and field in self.cleaned_data:
             try:
-                field_value = self.cleaned_data.get(field).short_name
+                field_value = self.cleaned_data.get(field).name
             except AttributeError:
                 field_value = self.cleaned_data.get(field)
             if condition and field_value is not None and field_value != NOT_APPLICABLE:
