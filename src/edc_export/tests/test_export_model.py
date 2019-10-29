@@ -24,10 +24,10 @@ class TestExportModel(TestCase):
 
     def setUp(self):
         self.thing_one = ListModel.objects.create(
-            name="thing_one", short_name="thing_one"
+            display_name="thing_one", name="thing_one"
         )
         self.thing_two = ListModel.objects.create(
-            name="thing_two", short_name="thing_two"
+            display_name="thing_two", name="thing_two"
         )
         self.subject_visit = SubjectVisit.objects.create(
             subject_identifier="12345", report_datetime=get_utcnow()

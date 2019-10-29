@@ -56,12 +56,12 @@ class Helper:
             appointment = Appointment.objects.all().order_by("visit_code")[j]
             self.subject_visit = SubjectVisit.objects.get(appointment=appointment)
             self.thing_one = ListModel.objects.create(
+                display_name=f"thing_one_{appointment.visit_code}",
                 name=f"thing_one_{appointment.visit_code}",
-                short_name=f"thing_one_{appointment.visit_code}",
             )
             self.thing_two = ListModel.objects.create(
+                display_name=f"thing_two_{appointment.visit_code}",
                 name=f"thing_two_{appointment.visit_code}",
-                short_name=f"thing_two_{appointment.visit_code}",
             )
             Crf.objects.create(
                 subject_visit=self.subject_visit,
@@ -89,12 +89,12 @@ class Helper:
             report_datetime=get_utcnow(),
         )
         list_one = ListOne.objects.create(
+            display_name=f"list_one{appointment.visit_code}",
             name=f"list_one{appointment.visit_code}",
-            short_name=f"list_one{appointment.visit_code}",
         )
         list_two = ListTwo.objects.create(
+            display_name=f"list_two{appointment.visit_code}",
             name=f"list_two{appointment.visit_code}",
-            short_name=f"list_two{appointment.visit_code}",
         )
         CrfWithInline.objects.create(
             subject_visit=subject_visit,
