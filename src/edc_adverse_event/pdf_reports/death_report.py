@@ -86,7 +86,7 @@ class DeathReport(CrfPdfReport):
         rows = []
 
         row = ["Main cause of death:"]
-        if self.death_report.cause_of_death.short_name == OTHER:
+        if self.death_report.cause_of_death.name == OTHER:
             row.append(
                 fill(
                     f"{self.death_report.cause_of_death.name}: "

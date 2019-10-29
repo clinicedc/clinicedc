@@ -33,7 +33,7 @@ class TestAeInitialFormValidator(SiteTestCaseMixin, TestCase):
         self.assertIn(NOT_REQUIRED_ERROR, form_validator._error_codes)
 
     def test_sae_reason_not_applicable(self):
-        sae_reason = SaeReason.objects.get(short_name=NOT_APPLICABLE)
+        sae_reason = SaeReason.objects.get(name=NOT_APPLICABLE)
         cleaned_data = {"sae": YES, "sae_reason": sae_reason}
         form_validator = AeInitialFormValidator(cleaned_data=cleaned_data)
         self.assertRaises(ValidationError, form_validator.validate)

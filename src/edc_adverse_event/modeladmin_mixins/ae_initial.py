@@ -119,7 +119,7 @@ class AeInitialModelAdminMixin(
 
         If DEATH, adds link to the death report.
         """
-        if obj.sae_reason.short_name == DEAD:
+        if obj.sae_reason.name == DEAD:
             DeathReport = get_ae_model("deathreport")
             try:
                 death_report = DeathReport.objects.get(

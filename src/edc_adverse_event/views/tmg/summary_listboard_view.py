@@ -14,7 +14,7 @@ from edc_dashboard.view_mixins import (
 )
 from edc_dashboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
-from edc_permissions import TMG
+from edc_auth import TMG
 
 
 class TmgActionItemModelWrapper(BaseTmgActionItemModelWrapper):

@@ -76,7 +76,7 @@ class DeathReportTmgModelAdminMixin(
         return obj.report_status.title()
 
     def cause(self, obj):
-        if obj.cause_of_death.short_name == OTHER:
+        if obj.cause_of_death.name == OTHER:
             return f"Other: {obj.cause_of_death_other}"
         return obj.cause_of_death
 
