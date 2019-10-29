@@ -7,6 +7,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from edc_notification.model_mixins import NotificationUserProfileModelMixin
 
+from .role import Role
+
 
 class UserProfile(NotificationUserProfileModelMixin, models.Model):
 
@@ -54,6 +56,8 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
             f'Change in <a href="/edc_label/">Edc Label Administration</a>'
         ),
     )
+
+    roles = models.ManyToManyField(Role, blank=True)
 
     def __str__(self):
         return self.user.username

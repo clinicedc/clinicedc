@@ -1,10 +1,8 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 
-from .forms import UserProfileForm, UserChangeForm
-from .models import UserProfile
+from ..forms import UserProfileForm
+from ..models import UserProfile
 
 
 class UserProfileInline(admin.StackedInline):
@@ -12,19 +10,16 @@ class UserProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = "User profile"
 
-    filter_horizontal = ("email_notifications", "sms_notifications", "sites")
+    filter_horizontal = ("email_notifications",
+                         "sms_notifications", "sites", "roles")
 
     form = UserProfileForm
 
 
-class UserAdmin(BaseUserAdmin):
-    inlines = (UserProfileInline,)
-    form = UserChangeForm
-
-
 class UserProfileAdmin(admin.ModelAdmin):
 
-    filter_horizontal = ("email_notifications", "sms_notifications", "sites")
+    filter_horizontal = ("email_notifications",
+                         "sms_notifications", "sites")
 
     list_display = (
         "user",
@@ -35,6 +30,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     )
 
     def user_sites(self, obj=None):
+
         return mark_safe(
             "<BR>".join([o.name for o in obj.sites.all().order_by("name")])
         )
@@ -60,6 +56,4 @@ class UserProfileAdmin(admin.ModelAdmin):
         )
 
 
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
