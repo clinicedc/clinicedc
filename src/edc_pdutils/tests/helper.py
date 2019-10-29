@@ -22,10 +22,10 @@ class Helper:
             visit_code=visit_code,
         )
         self.thing_one = ListModel.objects.create(
-            name=f"thing_one_{i}", short_name=f"thing_one_{i}"
+            display_name=f"thing_one_{i}", name=f"thing_one_{i}"
         )
         self.thing_two = ListModel.objects.create(
-            name=f"thing_two_{i}", short_name=f"thing_two_{i}"
+            display_name=f"thing_two_{i}", name=f"thing_two_{i}"
         )
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
