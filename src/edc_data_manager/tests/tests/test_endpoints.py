@@ -5,16 +5,16 @@ from django.contrib.auth import get_user_model
 from django.test import tag
 from django.urls.base import reverse
 from django_webtest import WebTest
+from edc_action_item.models.action_item import ActionItem
+from edc_auth import EVERYONE, DATA_MANAGER, CLINIC
+from edc_auth.update import update_group_permissions
 from edc_data_manager.models import CrfDataDictionary
 from edc_data_manager.models.user import DataManagerUser
 from edc_lab.site_labs import site_labs
-from edc_permissions import EVERYONE, DATA_MANAGER, CLINIC
 from edc_registration.models import RegisteredSubject
 from edc_test_utils.webtest import login
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from model_mommy import mommy
-from edc_action_item.models.action_item import ActionItem
-from edc_permissions.update.update_group_permissions import update_group_permissions
 
 User = get_user_model()
 

@@ -1,10 +1,10 @@
-from django.contrib.sites.shortcuts import get_current_site
 from django.contrib import admin
 from django.contrib.admin.decorators import register
+from django.contrib.sites.shortcuts import get_current_site
+from edc_auth import DATA_MANAGER
 from edc_auth.admin import UserAdmin as BaseUserAdmin
 from edc_lab.admin import PanelAdmin as BasePanelAdmin
 from edc_metadata.models import CrfMetadata
-from edc_permissions import DATA_MANAGER
 from edc_registration.admin import RegisteredSubjectAdmin as BaseRegisteredSubjectAdmin
 from edc_visit_schedule.admin import VisitScheduleAdmin as BaseVisitScheduleAdmin
 
