@@ -7,10 +7,25 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from mempass import PasswordGenerator
 from string import Template
+import pdb
 
 
 class UserImporterError(Exception):
     pass
+
+
+fieldnames = [
+    "username",
+    "password",
+    "first_name",
+    "last_name",
+    "job_title",
+    "email",
+    "alternate_email",
+    "mobile",
+    "sites",
+    "groups",
+]
 
 
 def import_users(
@@ -37,31 +52,25 @@ def import_users(
     with open(path) as f:
         reader = csv.DictReader(f, delimiter="|")
         for user_data in reader:
-            username = user_data.get("username")
-            site_names = ""
+            opts = {}
+            opts.update(username=user_data.get("username"))
+            opts.update(site_names="")
             if user_data.get("sites"):
-                site_names = user_data.get("sites").lower().split(",")
-            group_names = ""
+                opts.update(site_names=user_data.get(
+                    "sites").lower().split(","))
+            opts.update(group_names="")
             if user_data.get("groups"):
-                group_names = user_data.get("groups").lower().split(",")
-            first_name = user_data.get("first_name")
-            last_name = user_data.get("last_name")
-            mobile = user_data.get("mobile")
-            email = user_data.get("email")
-            alternate_email = user_data.get("alternate_email")
-            job_title = user_data.get("job_title")
+                opts.update(group_names=user_data.get(
+                    "groups").lower().split(","))
+            opts.update(first_name=user_data.get("first_name"))
+            opts.update(last_name=user_data.get("last_name"))
+            opts.update(mobile=user_data.get("mobile"))
+            opts.update(email=user_data.get("email"))
+            opts.update(alternate_email=user_data.get("alternate_email"))
+            opts.update(job_title=user_data.get("job_title"))
             o = UserImporter(
-                username=username,
-                first_name=first_name,
-                last_name=last_name,
-                alternate_email=alternate_email,
-                email=email,
-                group_names=group_names,
-                job_title=job_title,
-                mobile=mobile,
                 resource_name=resource_name,
                 send_email_to_user=send_email_to_user,
-                site_names=site_names,
                 verbose=verbose,
                 resend_as_newly_created=resend_as_newly_created,
                 **kwargs,
@@ -80,18 +89,6 @@ def import_users(
                 }
             )
     if export_to_file:
-        fieldnames = [
-            "username",
-            "password",
-            "first_name",
-            "last_name",
-            "job_title",
-            "email",
-            "alternate_email",
-            "mobile",
-            "sites",
-            "groups",
-        ]
         with open(path + "new.csv", "w+") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
@@ -147,7 +144,7 @@ class UserImporter:
         self.created = False
         try:
             self.email, self.alternate_email = email.split(",")
-        except ValueError:
+        except (ValueError, AttributeError):
             self.email = email
             self.alternate_email = alternate_email
         self.first_name = first_name
@@ -179,7 +176,8 @@ class UserImporter:
         self.user.userprofile.alternate_email = self.alternate_email
         self.user.userprofile.save()
 
-        self.site_names = "\n".join([s.name for s in self.user.userprofile.sites.all()])
+        self.site_names = "\n".join(
+            [s.name for s in self.user.userprofile.sites.all()])
         self.group_names = "\n".join([g.name for g in self.user.groups.all()])
         if send_email_to_user:
             try:
@@ -189,7 +187,8 @@ class UserImporter:
 
     def validate_username(self):
         if not self.username:
-            raise UserImporterError(f"Invalid username. Got username={self.username}")
+            raise UserImporterError(
+                f"Invalid username. Got username={self.username}")
         if not re.match("^\w+$", self.username):
             raise UserImporterError(f"Invalid username. Got {self.username}")
 

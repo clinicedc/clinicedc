@@ -26,7 +26,8 @@ class TestUser(TestCase):
         Group.objects.create(name="ACCOUNT_MANAGER")
         Site.objects.all().delete()
         for site_name in site_names:
-            Site.objects.create(name=site_name, domain=f"{site_name}.example.com")
+            Site.objects.create(
+                name=site_name, domain=f"{site_name}.example.com")
         return super().setUpClass()
 
     @classmethod
@@ -40,7 +41,7 @@ class TestUser(TestCase):
         folder = mkdtemp()
         self.filename = os.path.join(folder, "users.csv")
         with open(self.filename, "w") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter="|")
             writer.writeheader()
             for _ in range(0, self.user_count):
                 first_name = fake.first_name()
@@ -88,14 +89,16 @@ class TestUser(TestCase):
 
     def test_import_users(self):
         # import new users
-        import_users(self.filename, resource_name=None, send_email_to_user=True)
+        import_users(self.filename, resource_name=None,
+                     send_email_to_user=True)
         self.assertEqual(len(mail.outbox), self.user_count)  # noqa
         self.assertEqual(
             mail.outbox[0].subject, "Your example.com user account is ready."
         )
 
         # update existing users
-        import_users(self.filename, resource_name=None, send_email_to_user=True)
+        import_users(self.filename, resource_name=None,
+                     send_email_to_user=True)
         self.assertEqual(len(mail.outbox), self.user_count * 2)  # noqa
         self.assertEqual(
             mail.outbox[0].subject, "Your example.com user account is ready."
@@ -110,7 +113,7 @@ class TestUser(TestCase):
         )
         self.assertTrue(os.path.exists(self.filename + "new.csv"))
         with open(self.filename + "new.csv") as f:
-            reader = csv.DictReader(f)
+            reader = csv.DictReader(f, delimiter="|")
             for row in reader:
                 print(row)
 

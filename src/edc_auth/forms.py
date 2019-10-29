@@ -26,7 +26,8 @@ class UserProfileForm(forms.ModelForm):
             if not settings.EMAIL_ENABLED:
                 raise forms.ValidationError(
                     {
-                        "email_notifications": "You may not choose an email notification. Email is not enabled. "
+                        "email_notifications": "You may not choose an email "
+                        "notification. Email is not enabled. "
                         "Contact your EDC administrator."
                     }
                 )
@@ -35,7 +36,8 @@ class UserProfileForm(forms.ModelForm):
             if not settings.TWILIO_ENABLED:
                 raise forms.ValidationError(
                     {
-                        "sms_notifications": "You may not choose an SMS notification. SMS is not enabled. "
+                        "sms_notifications": "You may not choose an SMS "
+                        "notification. SMS is not enabled. "
                         "Contact your EDC administrator."
                     }
                 )
