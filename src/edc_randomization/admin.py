@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
+from edc_auth import PHARMACY
 from edc_model_admin.model_admin_audit_fields_mixin import (
     audit_fieldset_tuple,
     audit_fields,
 )
-from edc_permissions import PHARMACY
 
 from .admin_site import edc_randomization_admin
 from .models import RandomizationList
