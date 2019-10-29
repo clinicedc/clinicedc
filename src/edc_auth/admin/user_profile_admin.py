@@ -10,16 +10,14 @@ class UserProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = "User profile"
 
-    filter_horizontal = ("email_notifications",
-                         "sms_notifications", "sites", "roles")
+    filter_horizontal = ("email_notifications", "sms_notifications", "sites", "roles")
 
     form = UserProfileForm
 
 
 class UserProfileAdmin(admin.ModelAdmin):
 
-    filter_horizontal = ("email_notifications",
-                         "sms_notifications", "sites")
+    filter_horizontal = ("email_notifications", "sms_notifications", "sites")
 
     list_display = (
         "user",

@@ -6,19 +6,7 @@ from ..models import Role
 class RoleAdmin(admin.ModelAdmin):
 
     fieldsets = (
-        (
-            None,
-            (
-                {
-                    "fields": (
-                        "display_name",
-                        "name",
-                        "display_index",
-                        "groups",
-                    )
-                }
-            ),
-        ),
+        (None, ({"fields": ("display_name", "name", "display_index", "groups")})),
     )
 
     list_display = ["display_name", "name", "display_index"]

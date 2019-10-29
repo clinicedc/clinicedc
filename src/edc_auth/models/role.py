@@ -32,8 +32,7 @@ class Role(BaseUuidModel):
         verbose_name="display index",
         default=0,
         db_index=True,
-        help_text=(
-            "Index to control display order if not alphabetical, not required"),
+        help_text=("Index to control display order if not alphabetical, not required"),
     )
 
     objects = RoleModelManager()
@@ -54,5 +53,4 @@ class Role(BaseUuidModel):
     class Meta:
         ordering = ["display_index", "display_name"]
 
-        indexes = [models.Index(
-            fields=["id", "display_name", "display_index"])]
+        indexes = [models.Index(fields=["id", "display_name", "display_index"])]

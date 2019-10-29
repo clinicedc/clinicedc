@@ -1,4 +1,5 @@
 export = [
+    "edc_dashboard.view_export_dashboard",
     "edc_export.add_datarequest",
     "edc_export.add_datarequesthistory",
     "edc_export.add_exportreceipt",

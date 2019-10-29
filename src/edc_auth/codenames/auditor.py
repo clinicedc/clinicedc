@@ -47,5 +47,4 @@ auditor = [
     "edc_navbar.nav_subject_section",
     "edc_offstudy.view_historicalsubjectoffstudy",
     "edc_offstudy.view_subjectoffstudy",
-    "edc_registration.view_registeredsubject",
 ]

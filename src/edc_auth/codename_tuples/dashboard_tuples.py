@@ -18,4 +18,5 @@ dashboard_tuples = [
     ("edc_dashboard.view_screening_listboard", "Can view Screening listboard"),
     ("edc_dashboard.view_subject_listboard", "Can view Subject listboard"),
     ("edc_dashboard.view_tmg_listboard", "Can view TMG Listboard"),
+    ("edc_dashboard.view_export_dashboard", "Can view Export Dashboard"),
 ]

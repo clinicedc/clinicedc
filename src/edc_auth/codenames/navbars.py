@@ -3,6 +3,7 @@ navbars = [
     "edc_navbar.nav_ae_section",
     "edc_navbar.nav_data_manager_section",
     "edc_navbar.nav_home",
+    "edc_navbar.nav_export_section",
     "edc_navbar.nav_lab_aliquot",
     "edc_navbar.nav_lab_manifest",
     "edc_navbar.nav_lab_pack",

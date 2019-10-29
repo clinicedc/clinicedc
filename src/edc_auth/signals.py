@@ -32,8 +32,7 @@ def update_user_groups_on_role_m2m_changed(sender, action, instance, pk_set, **k
         if action in ["post_add", "post_remove"]:
             if action == "post_add":
                 if CUSTOM_ROLE not in [obj.name for obj in instance.roles.all()]:
-                    group_names = [
-                        group.name for group in instance.user.groups.all()]
+                    group_names = [group.name for group in instance.user.groups.all()]
                     add_group_names = []
                     for role in instance.roles.all():
                         for group in role.groups.all():
@@ -47,11 +46,16 @@ def update_user_groups_on_role_m2m_changed(sender, action, instance, pk_set, **k
                 current_group_names = []
                 for role in instance.roles.all():
                     current_group_names.extend(
-                        [group.name for group in role.groups.all()])
+                        [group.name for group in role.groups.all()]
+                    )
                 for role in Role.objects.filter(pk__in=pk_set):
                     remove_group_names.extend(
-                        [group.name for group in role.groups.all()
-                         if group.name not in current_group_names])
+                        [
+                            group.name
+                            for group in role.groups.all()
+                            if group.name not in current_group_names
+                        ]
+                    )
                 for name in remove_group_names:
                     instance.user.groups.remove(Group.objects.get(name=name))
             user_group_names = [g.name for g in instance.user.groups.all()]

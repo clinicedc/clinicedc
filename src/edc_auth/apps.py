@@ -21,15 +21,15 @@ def post_migrate_user_roles(sender=None, **kwargs):
     Group = django_apps.get_model("auth.group")
     index = 0
     for role_name, groups in groups_by_role_name.items():
-        sys.stdout.write(
-            f" * updating groups for {role_names.get(role_name)}.\n")
+        sys.stdout.write(f" * updating groups for {role_names.get(role_name)}.\n")
         try:
             role = Role.objects.get(name=role_name)
         except ObjectDoesNotExist as e:
             role = Role.objects.create(
                 name=role_name,
                 display_name=role_names.get(role_name),
-                display_index=index)
+                display_index=index,
+            )
         else:
             role.groups.clear()
             for group_name in groups:
