@@ -2,7 +2,7 @@ import os
 
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.template.loader import get_template
+from django.template.loader import get_template, select_template
 from django.template.exceptions import TemplateDoesNotExist
 
 
@@ -84,3 +84,16 @@ def splitall(path):
             path = parts[0]
             allparts.insert(0, parts[1])
     return allparts
+
+
+def select_edc_template(relative_path, default_app_label):
+    """Returns a template object.
+    """
+    local_path = f"{settings.APP_NAME}/bootstrap{settings.EDC_BOOTSTRAP}/"
+    default_path = f"{default_app_label}/bootstrap{settings.EDC_BOOTSTRAP}/"
+    return select_template(
+        [
+            os.path.join(local_path, relative_path),
+            os.path.join(default_path, relative_path),
+        ]
+    )

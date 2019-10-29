@@ -18,12 +18,15 @@ subject_listboard_url_config = UrlConfig(
 
 urlpatterns = subject_listboard_url_config.listboard_urls + [
     path("admin/", edc_dashboard_admin.urls),
-    path("", RedirectView.as_view(url="admin/"), name="home_url"),
     path("edc_auth/", include("edc_auth.urls")),
+    path("edc_adverse_event/", include("edc_adverse_event.urls")),
+    path("edc_randomization/", include("edc_randomization.urls")),
     path("edc_consent/", include("edc_consent.urls")),
     path("edc_dashboard/", include("edc_dashboard.urls")),
+    path("edc_export/", include("edc_export.urls")),
     path("edc_device/", include("edc_device.urls")),
     path("edc_protocol/", include("edc_protocol.urls")),
     path("edc_visit_schedule/", include("edc_visit_schedule.urls")),
     path("administration/", AdministrationView.as_view(), name="administration_url"),
+    path("", RedirectView.as_view(url="admin/"), name="home_url"),
 ]

@@ -2,6 +2,7 @@ from django.db import models
 from edc_model.models import BaseUuidModel
 from edc_search.model_mixins import SearchSlugModelMixin, SearchSlugManager
 from edc_sites.models import SiteModelMixin
+from edc_model.models import HistoricalRecords
 
 
 class SubjectVisit(SiteModelMixin, SearchSlugModelMixin, BaseUuidModel):
@@ -25,3 +26,17 @@ class TestModel(models.Model):
 
     class Meta:
         ordering = ("f1",)
+
+
+class SubjectConsent(models.Model):
+
+    name = models.CharField(max_length=50, null=True)
+
+    history = HistoricalRecords()
+
+
+class SubjectRequisition(models.Model):
+
+    name = models.CharField(max_length=50, null=True)
+
+    history = HistoricalRecords()
