@@ -84,6 +84,7 @@ groups_by_role_name = {
         SCREENING,
         UNBLINDING_REQUESTORS,
     ],
+    CUSTOM_ROLE: [],
     DATA_EXPORTER_ROLE: [ADMINISTRATION, EVERYONE, EXPORT],
     DATA_MANAGER_ROLE: [
         ADMINISTRATION,
