@@ -1,3 +1,5 @@
+from .dashboard import dashboard
+
 data_manager = [
     "edc_data_manager.add_dataquery",
     "edc_data_manager.add_queryrule",
@@ -24,3 +26,5 @@ data_manager = [
     "edc_metadata.view_requisitionmetadata",
     "edc_navbar.nav_data_manager_section",
 ]
+
+data_manager.extend(dashboard)

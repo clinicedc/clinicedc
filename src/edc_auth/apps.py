@@ -20,6 +20,7 @@ def post_migrate_user_roles(sender=None, **kwargs):
     Role = django_apps.get_model("edc_auth.role")
     Group = django_apps.get_model("auth.group")
     index = 0
+    Role.objects.exclude(name__in=[name for name in groups_by_role_name]).delete()
     for role_name, groups in groups_by_role_name.items():
         sys.stdout.write(f" * updating groups for {role_names.get(role_name)}.\n")
         try:
@@ -31,6 +32,9 @@ def post_migrate_user_roles(sender=None, **kwargs):
                 display_index=index,
             )
         else:
+            role.display_name = role_names.get(role_name)
+            role.display_index = index
+            role.save()
             role.groups.clear()
             for group_name in groups:
                 try:
@@ -52,7 +56,7 @@ class AppConfig(DjangoAppConfig):
             update_user_groups_on_role_m2m_changed,
         )
 
-        register(edc_check)
         post_migrate.connect(post_migrate_user_roles, sender=self)
+        register(edc_check)
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")
