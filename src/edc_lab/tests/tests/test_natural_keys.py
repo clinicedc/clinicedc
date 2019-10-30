@@ -24,12 +24,3 @@ class TestNaturalKey(SiteTestCaseMixin, TestCase):
 
     def test_get_by_natural_key_attr(self):
         self.offline_test_helper.offline_test_get_by_natural_key_attr("edc_lab")
-
-
-#     def test_deserialize_subject_screening(self):
-#         ambition_screening = mommy.make_recipe(
-#             'edc_lab.subjectscreening')
-#         outgoing_transaction = OutgoingTransaction.objects.get(
-#             tx_name=ambition_screening._meta.label_lower)
-#         self.offline_test_helper.offline_test_deserialize(
-#             ambition_screening, outgoing_transaction)
