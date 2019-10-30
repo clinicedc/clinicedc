@@ -4,6 +4,9 @@ from edc_model.models import BaseUuidModel
 
 class Dashboard(BaseUuidModel):
 
+    # see edc_auth for permissions attached to this model
+    # create_edc_dashboard_permissions
+
     pass
 
 
