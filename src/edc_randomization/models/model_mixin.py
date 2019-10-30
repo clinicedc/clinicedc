@@ -101,7 +101,8 @@ class RandomizationListModelMixin(models.Model):
             assignment_description = ACTIVE_NAME
         else:
             raise RandomizationError(
-                f"Invalid assignment. Expected one of [{PLACEBO}, {ACTIVE}]. Got `{self.assignment}`"
+                f"Invalid assignment. Expected one of [{PLACEBO}, {ACTIVE}]. "
+                f"Got `{self.assignment}`"
             )
         return assignment_description
 
