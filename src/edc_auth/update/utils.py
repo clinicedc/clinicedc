@@ -1,5 +1,3 @@
-import sys
-
 from copy import copy
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -61,8 +59,7 @@ def create_permissions_from_tuples(model, codename_tpls):
                     codename_tpl, model_cls._meta.app_label
                 )
                 try:
-                    Permission.objects.get(
-                        codename=codename, content_type=content_type)
+                    Permission.objects.get(codename=codename, content_type=content_type)
                 except ObjectDoesNotExist:
                     Permission.objects.create(
                         name=name, codename=codename, content_type=content_type
@@ -127,6 +124,7 @@ def create_or_update_groups(group_names, verbose=None):
         except ObjectDoesNotExist:
             Group.objects.create(name=name)
     Group.objects.exclude(name__in=group_names).delete()
+
 
 #     if verbose:
 #         names = [obj.name for obj in Group.objects.all().order_by("name")]
@@ -214,7 +212,7 @@ def remove_pii_permissions_from_group(group, extra_pii_models=None):
     default_pii_models.extend(extra_pii_models or [])
     for model in default_pii_models:
         remove_permissions_by_model(group, model)
-        remove_historical_group_permissions(group, model)
+        # remove_historical_group_permissions(group, model)
 
 
 def remove_permissions_by_model(group=None, model=None):
@@ -297,7 +295,6 @@ def remove_codenames_for_app_labels(codenames_by_group, excluded_app_labels=None
 def compare_codenames_for_group(group_name=None, expected=None):
     group = Group.objects.get(name=group_name)
     codenames = [p.codename for p in group.permissions.all()]
-
     new_expected = []
     for c in expected:
         try:

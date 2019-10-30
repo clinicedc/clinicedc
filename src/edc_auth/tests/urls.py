@@ -13,8 +13,7 @@ urlpatterns = [
     path("edc_pharmacy/", include("edc_pharmacy.urls")),
     path("edc_reference/", include("edc_reference.urls")),
     path("edc_auth/", include("edc_auth.urls")),
-    path("administration/", AdministrationView.as_view(),
-         name="administration_url"),
+    path("administration/", AdministrationView.as_view(), name="administration_url"),
     path("edc_visit_schedule/", include("edc_visit_schedule.urls")),
     path("", RedirectView.as_view(), name="home_url"),
 ]

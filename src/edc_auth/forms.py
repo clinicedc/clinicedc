@@ -1,7 +1,11 @@
+from django.utils.safestring import mark_safe
 from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import UserChangeForm as BaseForm
+from edc_randomization.blinding import is_blinded_user
 
+from .role_names import PHARMACIST_ROLE
+from .group_names import PHARMACY
 from .models import UserProfile
 
 
@@ -14,6 +18,19 @@ class UserChangeForm(BaseForm):
             raise forms.ValidationError({"last_name": "Required"})
         if not self.cleaned_data.get("email"):
             raise forms.ValidationError({"email": "Required"})
+        qs = self.cleaned_data.get("groups")
+        if qs and qs.count() > 0:
+            if PHARMACY in [obj.name for obj in qs] and is_blinded_user(
+                self.instance.username
+            ):
+                raise forms.ValidationError(
+                    {
+                        "groups": mark_safe(
+                            "This user is not unblinded and may not added "
+                            "to the <U>Pharmacy</U> group."
+                        )
+                    }
+                )
         return cleaned_data
 
 
@@ -39,6 +56,19 @@ class UserProfileForm(forms.ModelForm):
                         "sms_notifications": "You may not choose an SMS "
                         "notification. SMS is not enabled. "
                         "Contact your EDC administrator."
+                    }
+                )
+        qs = self.cleaned_data.get("roles")
+        if qs and qs.count() > 0:
+            if PHARMACIST_ROLE in [obj.name for obj in qs] and is_blinded_user(
+                self.instance.user.username
+            ):
+                raise forms.ValidationError(
+                    {
+                        "roles": mark_safe(
+                            "This user is not unblinded and may be assigned "
+                            "the role of <U>Pharmacist</U>."
+                        )
                     }
                 )
         return cleaned_data

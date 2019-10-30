@@ -56,12 +56,10 @@ def import_users(
             opts.update(username=user_data.get("username"))
             opts.update(site_names="")
             if user_data.get("sites"):
-                opts.update(site_names=user_data.get(
-                    "sites").lower().split(","))
+                opts.update(site_names=user_data.get("sites").lower().split(","))
             opts.update(group_names="")
             if user_data.get("groups"):
-                opts.update(group_names=user_data.get(
-                    "groups").lower().split(","))
+                opts.update(group_names=user_data.get("groups").lower().split(","))
             opts.update(first_name=user_data.get("first_name"))
             opts.update(last_name=user_data.get("last_name"))
             opts.update(mobile=user_data.get("mobile"))
@@ -176,8 +174,7 @@ class UserImporter:
         self.user.userprofile.alternate_email = self.alternate_email
         self.user.userprofile.save()
 
-        self.site_names = "\n".join(
-            [s.name for s in self.user.userprofile.sites.all()])
+        self.site_names = "\n".join([s.name for s in self.user.userprofile.sites.all()])
         self.group_names = "\n".join([g.name for g in self.user.groups.all()])
         if send_email_to_user:
             try:
@@ -187,8 +184,7 @@ class UserImporter:
 
     def validate_username(self):
         if not self.username:
-            raise UserImporterError(
-                f"Invalid username. Got username={self.username}")
+            raise UserImporterError(f"Invalid username. Got username={self.username}")
         if not re.match("^\w+$", self.username):
             raise UserImporterError(f"Invalid username. Got {self.username}")
 

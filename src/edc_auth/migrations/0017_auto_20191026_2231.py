@@ -5,14 +5,18 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('edc_auth', '0016_auto_20191026_2153'),
-    ]
+    dependencies = [("edc_auth", "0016_auto_20191026_2153")]
 
     operations = [
         migrations.AlterField(
-            model_name='role',
-            name='name',
-            field=models.CharField(db_index=True, help_text='This is the stored value, required', max_length=250, unique=True, verbose_name='Name'),
-        ),
+            model_name="role",
+            name="name",
+            field=models.CharField(
+                db_index=True,
+                help_text="This is the stored value, required",
+                max_length=250,
+                unique=True,
+                verbose_name="Name",
+            ),
+        )
     ]

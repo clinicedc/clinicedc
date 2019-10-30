@@ -15,11 +15,23 @@ class UserAdmin(BaseUserAdmin):
     inlines = (UserProfileInline,)
     form = UserChangeForm
 
-    list_display = ('username', 'email', 'first_name',
-                    'last_name', 'role', 'is_staff')
+    list_display = ("username", "email", "first_name", "last_name", "role", "is_staff")
 
-    search_fields = ('username', 'first_name', 'last_name',
-                     'email', 'userprofile__roles__name')
+    search_fields = (
+        "username",
+        "first_name",
+        "last_name",
+        "email",
+        "userprofile__roles__name",
+    )
+
+    list_filter = (
+        "is_staff",
+        "is_superuser",
+        "is_active",
+        "userprofile__roles",
+        "groups",
+    )
 
     def role(self, obj=None):
         roles = []
@@ -27,17 +39,16 @@ class UserAdmin(BaseUserAdmin):
         for role in obj.userprofile.roles.all():
             roles.append(role)
             role_group_names.extend(
-                [grp.name for grp in role.groups.all().order_by("name")])
+                [grp.name for grp in role.groups.all().order_by("name")]
+            )
         extra_groups = [
-            obj for obj in obj.groups.all() if obj.name not in role_group_names]
+            obj for obj in obj.groups.all() if obj.name not in role_group_names
+        ]
         context = dict(
             role_names=[role.display_name for role in roles],
-            extra_group_names=[grp.name.replace(
-                "_", " ") for grp in extra_groups]
+            extra_group_names=[grp.name.replace("_", " ") for grp in extra_groups],
         )
-        template_obj = select_edc_template(
-            "user_role_description.html",
-            "edc_auth")
+        template_obj = select_edc_template("user_role_description.html", "edc_auth")
         return render_to_string(template_obj.template.name, context)
 
     def groups_in_role(self, obj=None):
@@ -46,17 +57,16 @@ class UserAdmin(BaseUserAdmin):
         for role in obj.userprofile.roles.all():
             roles.append(role)
             role_group_names.extend(
-                [grp.name for grp in role.groups.all().order_by("name")])
+                [grp.name for grp in role.groups.all().order_by("name")]
+            )
         extra_groups = [
-            obj for obj in obj.groups.all() if obj.name not in role_group_names]
+            obj for obj in obj.groups.all() if obj.name not in role_group_names
+        ]
         context = dict(
             role_names=[role.display_name for role in roles],
-            extra_group_names=[grp.name.replace(
-                "_", " ") for grp in extra_groups]
+            extra_group_names=[grp.name.replace("_", " ") for grp in extra_groups],
         )
-        template_obj = select_edc_template(
-            "user_role_description.html",
-            "edc_auth")
+        template_obj = select_edc_template("user_role_description.html", "edc_auth")
         return render_to_string(template_obj.template.name, context)
 
 

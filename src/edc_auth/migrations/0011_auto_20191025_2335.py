@@ -6,22 +6,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('auth', '0011_update_proxy_permissions'),
-        ('edc_auth', '0010_auto_20191022_0422'),
+        ("auth", "0011_update_proxy_permissions"),
+        ("edc_auth", "0010_auto_20191022_0422"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UserRole',
+            name="UserRole",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=25)),
-                ('groups', models.ManyToManyField(to='auth.Group')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=25)),
+                ("groups", models.ManyToManyField(to="auth.Group")),
             ],
         ),
         migrations.AddField(
-            model_name='userprofile',
-            name='user_roles',
-            field=models.ManyToManyField(to='edc_auth.UserRole'),
+            model_name="userprofile",
+            name="user_roles",
+            field=models.ManyToManyField(to="edc_auth.UserRole"),
         ),
     ]
