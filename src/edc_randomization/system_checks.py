@@ -31,7 +31,8 @@ def randomization_list_check(app_configs, **kwargs):
                 errors.append(
                     Warning(
                         f"Insecure configuration. Randomization list file must be "
-                        f"stored in the etc folder. Got {randomizer.get_randomization_list_path()}",
+                        f"stored in the etc folder. Got "
+                        f"{randomizer.get_randomization_list_path()}",
                         id=f"randomization_list_path",
                     )
                 )
