@@ -27,7 +27,7 @@ def update_group_permissions(
     attempt_exclude=None,
 ):
     if verbose:
-        sys.stdout.write(style.MIGRATE_HEADING("Updating group permissions:\n"))
+        sys.stdout.write(style.MIGRATE_HEADING("Updating groups and permissions:\n"))
 
     codenames_by_group = codenames_by_group or {}
     codenames_by_group.update(**default_codenames_by_group)

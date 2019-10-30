@@ -18,6 +18,7 @@ from .pharmacy import pharmacy
 from .pii import pii
 from .pii_view import pii_view
 from .rando import rando, rando_tuples
+from .review import review
 from .screening import screening
 from .site_data_manager import site_data_manager
 from .tmg import tmg

@@ -17,6 +17,7 @@ from .codenames import (
     pii,
     pii_view,
     rando,
+    review,
     site_data_manager,
     tmg,
 )
@@ -39,6 +40,7 @@ from .group_names import (
     PII,
     PII_VIEW,
     RANDO,
+    REVIEW,
     SITE_DATA_MANAGER,
     TMG,
 )
@@ -62,6 +64,7 @@ default_codenames_by_group = {
     PII: pii,
     PII_VIEW: pii_view,
     RANDO: rando,
+    REVIEW: review,
     SITE_DATA_MANAGER: site_data_manager,
     TMG: tmg,
 }
